@@ -1,0 +1,6 @@
+diff(fdv X,fdv Y,int I)
+
+{
+ start X in ~{val(Y),val(Y)+I,val(Y)-I}
+ start Y in ~{val(X),val(X)+I,val(X)-I}
+}
