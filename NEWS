@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.7:
 
+* fix a bug in fd_element_var/3 constraint
 * fix bug in fd headers (fd_to_c.h not installed)
 * fix a bug with unify_with_occurs_check/2
 * fix bug on ix86 using ebp (add -fomit-frame-pointer in CFLAGS_MACHINE)
