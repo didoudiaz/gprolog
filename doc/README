@@ -64,9 +64,10 @@ includes a HH table of contents (.hhc) and a HH index (.hhk). The .hhc and
 hh_do_hhc_hhk. The result is a compressed (or compiled) HTML file (.chm).
 
 NB: The user does not need the entire HTML Help Workshop to view a .chm, only
-a runtime called "Help Viewer" that can be downloaded (file: HHUPD.EXE) from
-the same URL (also available in C:\Program Files\HTML Help Workshop\REDIST).
-Can be freely redistributed.
+a runtime called "Help Viewer" is necessary. It is provided with some
+versions of windows (e.g Windows XP). Else a viewer can be downloaded (file:
+HHUPD.EXE) from the same URL (also available in C:\Program Files\HTML Help
+Workshop\REDIST).
 
 
 
