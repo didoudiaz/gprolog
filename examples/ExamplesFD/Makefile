@@ -1,7 +1,7 @@
 GPLC     = gplc
 GPLCFLAGS= --min-size
 BENCH_FD=alpha bridge cars crypta digit8 donald eq10 eq20 five gardner magic\
-         multipl partit queens send square send srq magsq qg5
+         multipl partit queens send square send srq magsq qg5 langford
 
 BENCH_BOOL=bdiag bdonald bpigeon bqueens bramsey bschur bsend
 
@@ -79,6 +79,9 @@ magsq: magsq.pl
 
 qg5: qg5.pl
 	$(GPLC) $(GPLCFLAGS) -o qg5 qg5.pl
+
+langford: langford.pl
+	$(GPLC) $(GPLCFLAGS) -o langford langford.pl
 
 
 
