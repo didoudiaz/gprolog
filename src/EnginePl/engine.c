@@ -99,9 +99,9 @@ Start_Prolog(int argc, char *argv[])
   int i, x;
   char *p;
 
-#if 0				/* causes pb when printing float numbers ... */
-  setlocale(LC_ALL, "");
-#endif
+  setlocale (LC_ALL, "");
+  setlocale (LC_NUMERIC, "C");	/* make sure floats come out right... */
+
   Init_Machine();
 
   os_argc = argc;

@@ -347,7 +347,9 @@ main(int argc, char *argv[])
 {
   Parse_Arguments(argc, argv);
 
-  setlocale (LC_ALL, "");	/* Inherit locale from environment */
+  setlocale (LC_ALL, "");
+  setlocale (LC_NUMERIC, "C");	/* make sure floats come out right... */
+
   if (file_name_out == NULL)
     file_out = stdout;
   else if ((file_out = fopen(file_name_out, "wt")) == NULL)
