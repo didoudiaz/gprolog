@@ -6,7 +6,7 @@ AR_RC       = @AR_RC@
 RANLIB      = @RANLIB@
 
 LIBNAME = $(LIB_LINEDIT)
-OBJLIB  = linedit@OBJ_SUFFIX@ stty@OBJ_SUFFIX@ char_io@OBJ_SUFFIX@
+OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
@@ -32,16 +32,18 @@ distclean: clean
 # under win32: use make W=Y test_linedit.exe (or test_noecho.exe) to
 # link the GUI console
 # You can also use gplc test_linedit.c and gplc --gui-console test_linedit.c
+# even linking the GUI console you can set the env var NO_LE_HOOK to avoid it
 
-W32LNK=../W32GUICons/w32gc_interf.obj ../W32GUICons/GUICons.res ../W32GUICons/libw32guicons.lib /link /subsystem:windows
+W32LNK=..\W32GUICons\w32gc_interf.obj
+# /link /subsystem:windows
 
 test_linedit@EXE_SUFFIX@: test_linedit@OBJ_SUFFIX@ $(LIBNAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
+	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ @CFLAGS_MACHINE@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
 test_noecho@EXE_SUFFIX@: test_noecho@OBJ_SUFFIX@ $(LIBNAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
+	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ @CFLAGS_MACHINE@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
 
 clean-test:

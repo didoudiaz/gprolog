@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : line-edit library                                               *
- * File  : test_noecho.c                                                   *
- * Descr.: test file                                                       *
+ * File  : ctrl_c.c                                                        *
+ * Descr.: Ctrl+C management - header file                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2001 Daniel Diaz                                     *
@@ -24,18 +24,6 @@
 
 /* $Id$ */
 
-#include <stdio.h>
-#include <locale.h>
-#include <ctype.h>
-#include <stdarg.h>
-
-#include "linedit.h"
-
-#define printf LE_Printf
-
-
-
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -52,41 +40,6 @@
  * Function Prototypes             *
  *---------------------------------*/
 
+void Install_Ctrl_C_Handler(long (*handler) (int));
 
-
-
-/*-------------------------------------------------------------------------*
- * MAIN                                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-main(int argc, char *argv[])
-{
-  int c;
-
-  setlocale(LC_ALL, "");
-
-  while ((c = LE_FGetc_No_Echo(0, 1)) != EOF)
-    {
-      printf("Read Char (%d)", c);
-      if (isprint(c))
-	printf(" = %c", c);
-      if (isalpha(c))
-	printf(" isalpha");
-      if (isascii(c))
-	printf(" isascii");
-      if (isupper(c))
-	printf(" isupper");
-      if (islower(c))
-	printf(" islower");
-      if (isspace(c))
-	printf(" isspace");
-      if (isprint(c))
-	printf(" isprint");
-      if (isgraph(c))
-	printf(" isgraph");
-      printf("\n");
-    }
-
-  return 0;
-}
+long Emit_Ctrl_C(void);

@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : line-edit library                                               *
- * File  : test_linedit.c                                                  *
- * Descr.: test file                                                       *
+ * File  : ctrl_c.c                                                        *
+ * Descr.: Ctrl+C management                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2001 Daniel Diaz                                     *
@@ -25,29 +25,23 @@
 /* $Id$ */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <locale.h>
-#include <time.h>
+#include <signal.h>
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
-#else
-#include <io.h>
-#include <process.h>
 #endif
 
-#include "ctrl_c.h"
-#include "linedit.h"
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define WIN32_CONSOLE_CTRL_HANDLER
+#endif
 
 
-#define printf LE_Printf
-
+#ifdef WIN32_CONSOLE_CTRL_HANDLER
+#include <windows.h>
+#endif
 
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
-
-#define MAX_SIZE 500000
 
 /*---------------------------------*
  * Type Definitions                *
@@ -57,134 +51,124 @@
  * Global Variables                *
  *---------------------------------*/
 
+static long (*ctrl_c_handler) ();
+
+#ifdef WIN32_CONSOLE_CTRL_HANDLER
+static HANDLE event_ctrl_handler_exited;
+#endif
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
 
+
 /*-------------------------------------------------------------------------*
- * CTRL_C_MANAGER                                                          *
+ * WRAPPER_HANDLER                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+#ifdef WIN32_CONSOLE_CTRL_HANDLER
+static BOOL WINAPI
+Wrapper_Handler(DWORD sig)
+#else
+static void
+Wrapper_Handler(int sig)
+#endif
+{
+#if defined(__unix__) || defined(__CYGWIN__)
+  sigset_t set;
+#endif
+
+  static int inside_ctrl_c;
+
+  if (inside_ctrl_c)
+    {
+      printf("Already in a Ctrl+C handler - ignored\n");
+      fflush(stdout);
+      return;
+    }
+  inside_ctrl_c = 1;
+
+  (*ctrl_c_handler) (0);
+
+#if defined(__unix__) || defined(__CYGWIN__)
+  sigemptyset(&set);
+  sigaddset(&set, sig);
+  sigprocmask(SIG_UNBLOCK, &set, NULL);
+#elif !defined(WIN32_CONSOLE_CTRL_HANDLER)
+  signal(sig, Wrapper_Handler);
+#endif
+
+  inside_ctrl_c = 0;
+
+#ifdef WIN32_CONSOLE_CTRL_HANDLER
+  SetEvent(event_ctrl_handler_exited);
+  return TRUE;
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_CTRL_C                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Ctrl_C_Manager(int from_call_back)
+Emit_Ctrl_C(void)
 {
-  int c;
-  char prefix[100];
-  char *str;
-  int nb, max_lg, is_last;
+#if 1
 
-  printf("\nCATCHING CTRL+C prompt length: %d   current pos: %d\n",
-	 LE_Get_Prompt_Length(), LE_Get_Current_Position());
+  return (*ctrl_c_handler)(1);
 
-  printf("e: exit, c: continue, C: completions, w: current word: ");
-  fflush(stdout);
+#else
 
+#if defined(__unix__) || defined(__CYGWIN__)
 
-  c = LE_Get_Key(1, 1);
-  printf("\n");
+  kill(getpid(), SIGINT);
 
-  switch (c)
-    {
-    case 'e':
-      exit(0);
+#elif defined(_WIN32) && !defined(WIN32_CONSOLE_CTRL_HANDLER)
 
-    case 'w':
-      LE_Get_Current_Word(prefix);
-      printf("current word=<%s>\n", prefix);
-      break;
+  raise(SIGINT);
 
-    case 'C':
-      printf("Enter a prefix:");
-      LE_Gets(prefix);
-      if ((str = LE_Compl_Init_Match(prefix, &nb, &max_lg)) == NULL)
-	printf("no matching\n");
-      else
-	{
-	  printf("common=<%s> nb=%d max_lg=%d\n", str, nb, max_lg);
-	  while ((str = LE_Compl_Find_Match(&is_last)) != NULL)
-	    printf("matching: <%s>\n", str);
-	}
-      break;
-    }
+#elif defined(WIN32_CONSOLE_CTRL_HANDLER)
 
-  return 0;
+  GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+  WaitForSingleObject(event_ctrl_handler_exited, INFINITE);
+
+#else
+
+  printf("don't know how to send a Ctrl+C\n");
+
+#endif
+
+#endif
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SET_TEST_LOCALE                                                         *
+ * INSTALL_CTRL_C_HANDLER                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Test_Locale(void)
+Install_Ctrl_C_Handler(long (*handler) (int))
 {
-  time_t ltime;
-  struct tm *thetime;
-  unsigned char str[100];
-
-  setlocale(LC_ALL, "");
-  time(&ltime);
-  thetime = gmtime(&ltime);
-
-  strftime(str, 100, "%d (%A) %m (%B) %Y", thetime);
-  printf("Date in current locale with strftime: %s\n", str);
-}
-
-
-
-/*-------------------------------------------------------------------------*
- * MAIN                                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-main(int argc, char *argv[])
-{
-  static char line[MAX_SIZE];
-  char *p;
-  char sep[100];
-
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  setbuf(stdout, NULL);
-  setbuf(stderr, NULL);
-#endif
-
-#if 1
-  Install_Ctrl_C_Handler(Ctrl_C_Manager);
-#endif
-
-  Set_Test_Locale();
-
-  sep[0] = '\n';
-  strcpy(sep + 1, LE_Get_Separators());
-
-  printf("enter lines (EOF to finish)\n");
-
-  for (;;)
-    {
-#if 0
-      printf("tempo to allow you to buffer some chars before the read\n");
-      sleep(2);
-#endif
-
-#if 0
-      printf("enter a line:");
-      if (LE_Gets(line) == NULL)
+  ctrl_c_handler = handler;
+#ifdef WIN32_CONSOLE_CTRL_HANDLER
+  event_ctrl_handler_exited = CreateEvent(NULL, FALSE, FALSE, NULL);
+  SetConsoleCtrlHandler(Wrapper_Handler, TRUE);
 #else
-      if (LE_FGets(line, MAX_SIZE, "enter a line:", 1) == NULL)
+  signal(SIGINT, Wrapper_Handler);
 #endif
-	break;
-      printf("Line:(%s) len:%d\n", line, strlen(line));
-      for (p = line; (p = strtok(p, sep)) != NULL; p = NULL)
-	{
-	  printf("adding word (%s) for completion\n", p);
-	  LE_Compl_Add_Word(strdup(p), strlen(p));
-	}
-    }
-
-  printf("End of testing\n");
-
-  return 12;
 }
+
+
+
+
+
+
+
+
+
