@@ -163,6 +163,7 @@ Options to control C compiler optimization flags:
 Options to control GNU features to include/exclude:
 
    --disable-regs          do not use machine registers to optimize speed
+   --disable-fast-call     do not use fast call mechanism for ix86 processors
    --disable-linedit       do not include line editor facility
    --disable-sockets       do not include sockets facility
    --disable-fd-solver     do not include the finite domain constraint solver
