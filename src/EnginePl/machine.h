@@ -171,6 +171,9 @@ void SIGSEGV_Handler(void);
 
 #endif
 
+#if defined(M_sunos) || defined(M_solaris)
+#   define MMAP_NEEDS_FIXED
+#endif
 
 
 

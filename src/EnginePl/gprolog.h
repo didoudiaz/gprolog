@@ -711,6 +711,9 @@ void SIGSEGV_Handler(void);
 #   define M_USE_MALLOC
 #   define M_Check_Stacks()        M_Check_Magic_Words()
 #endif
+#if defined(M_sunos) || defined(M_solaris)
+#   define MMAP_NEEDS_FIXED
+#endif
 #ifdef M_USE_MALLOC
 #define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 void M_Check_Magic_Words(void);

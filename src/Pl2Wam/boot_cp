@@ -1,5 +1,5 @@
 #!/bin/sh
-pl_files='pl2wam read_file bip_list syn_sugar internal code_gen inst_codif first_arg indexing wam_emit'
+pl_files='pl2wam read_file bip_list syn_sugar internal code_gen reg_alloc inst_codif first_arg indexing wam_emit'
 
 
 files=${*:-$pl_files}

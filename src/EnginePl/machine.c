@@ -287,12 +287,14 @@ try_mmap:
 				  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 #else
   addr = (WamWord *) mmap((caddr_t) addr, len, PROT_READ | PROT_WRITE,
+			  MAP_PRIVATE
+#ifdef MMAP_NEEDS_FIXED
+			  | MAP_FIXED
+#endif
 #ifdef MAP_ANON
-			  MAP_PRIVATE | MAP_ANON, -1,
-#elif defined(M_sparc_sunos) || defined(M_sparc_solaris)
-			  MAP_PRIVATE | MAP_FIXED, fd,
+			  | MAP_ANON, -1,
 #else
-			  MAP_PRIVATE, fd,
+			  , fd,
 #endif
 			  0);
 #endif

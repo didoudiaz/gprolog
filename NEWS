@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.11:
 
+* fix a problem under sparc/solaris using mmap (adding MAP_FIXED)
 * fix a problem with gcc 3.0.x which always uses ebp in main()
 * use -march=xxx gcc option instead of -mxxx for ix86
 
