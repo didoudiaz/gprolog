@@ -58,7 +58,7 @@ first_occurrence(char *str, long c, long *pos)
   p = strchr(str, c);
   if (p == NULL)		/* C does not appear in A */
     return FALSE;		/* fail */
-
+Pl_Err_System(Create_Atom("something"));
   *pos = p - str;		/* set the output argument */
   return TRUE;			/* succeed */
 }
