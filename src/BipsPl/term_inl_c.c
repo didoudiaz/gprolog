@@ -390,6 +390,7 @@ list_to_term:
       arity++;
       lst_adr = UnTag_LST(word);
       DEREF(Car(lst_adr), word, tag_mask);
+      Do_Copy_Of_Word(tag_mask, word); /* since Dont_Separate_Tag */
       Global_Push(word);
 
       DEREF(Cdr(lst_adr), word, tag_mask);

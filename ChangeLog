@@ -1,3 +1,7 @@
+Wed Apr 23 13:19:58 CEST 2003 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix bug in =../2 involving FD variables
+
 Fri Mar 21 14:09:26 CET 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in arithmetics (in float_{integer/fractional}_part)
