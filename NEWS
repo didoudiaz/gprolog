@@ -2,6 +2,8 @@ Change in GNU Prolog version 1.2.13:
 
 * port to powerpc/Darwin (Mac OS X) - many thanks to:
   Lindsey Spratt <spratt@alum.mit.edu>
+* fix a bug in DCG translation
+* fix a bug in the WAM engine (Put_Unsafe_Value)
 * fix bug with in-place installation procedure
 * fix problem with portray_clause/2 using $VARNAME and $VAR
   now portray_clause((p(Z):-p('$VARNAME'('A'),Z))) is ok

@@ -436,12 +436,8 @@ Put_Unsafe_Value(WamWord start_word)
       return res_word;
     }
 
-#if 0
   Do_Copy_Of_Word(tag_mask, word);
   return word;
-#else
-  return start_word;
-#endif
 }
 
 
@@ -870,6 +866,30 @@ Bool
 Unify_Structure(int func, int arity)
 {
   return Unify_Structure_Tagged(Functor_Arity(func, arity));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GLOBALIZE_IF_IN_LOCAL                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Globalize_If_In_Local(WamWord start_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
+    {
+      adr = UnTag_REF(word);
+      if (Is_A_Local_Adr(adr))
+	Globalize_Local_Unbound_Var(adr, start_word);
+    }
+
+  return start_word;
 }
 
 

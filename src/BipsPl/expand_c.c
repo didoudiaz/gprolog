@@ -149,6 +149,9 @@ Dcg_Trans_Body_4(WamWord dcg_body_word, WamWord in_word, WamWord out_word,
   top = Local_Top;		/* use local stack for the stack */
   opt_term_unif = TRUE;
 
+  in_word = Globalize_If_In_Local(in_word); 
+  out_word = Globalize_If_In_Local(out_word);
+
   return Unify(body_word,
 	       Dcg_Body(dcg_body_word, FALSE, in_word, out_word, NULL));
 }

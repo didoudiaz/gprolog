@@ -5,3 +5,9 @@ foo(l_fdv list)
    i in 1..10
 }
 
+
+dist_le(fdv s1, fdv s2, int d, int size_y)
+{
+  start s1 in Dist_LE(val(s2), d, size_y)
+  start s2 in Dist_LE(val(s1), d, size_y)
+}

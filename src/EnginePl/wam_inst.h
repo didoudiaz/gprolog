@@ -327,6 +327,8 @@ Bool Unify_Structure_Tagged(WamWord w) FC;
 
 Bool Unify_Structure(int func, int arity) FC;
 
+WamWord Globalize_If_In_Local(WamWord start_word) FC;
+
 void Allocate(int n) FC;
 
 void Deallocate(void) FC;

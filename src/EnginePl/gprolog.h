@@ -873,6 +873,7 @@ Bool Unify_Nil(void) FC;
 Bool Unify_List(void) FC;
 Bool Unify_Structure_Tagged(WamWord w) FC;
 Bool Unify_Structure(int func, int arity) FC;
+WamWord Globalize_If_In_Local(WamWord start_word) FC;
 void Allocate(int n) FC;
 void Deallocate(void) FC;
 CodePtr Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
