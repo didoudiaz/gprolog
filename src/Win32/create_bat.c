@@ -27,6 +27,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
+#include <fcntl.h>
+
+#if defined(__unix__) || defined(__CYGWIN__)
+#include <unistd.h>
+#endif
 
 #define L(msg)  fprintf(f, "%s\n", msg)
 
@@ -35,61 +41,121 @@
  *                                                                         *
  * argv[1]: the system drive                                               *
  * argv[2]: the GNU Prolog root path                                       *
+ * argv[3]: i(nstall) or u(ninstall)                                       *
  *-------------------------------------------------------------------------*/
 int
 main(int argc, char *argv[])
 {
-  FILE *f;
   char buff[1024];
   char call[1024];
-  int defined = 0;
+  int install;
+  FILE *f;
+  int fd, l;
+  int file_size, size;
+  char *data, *p, *q;
+  char *newline;
 
-  if (argc != 3)
+  if (argc != 4)
     {
-      fprintf(stderr, "Usage: %s SYSTEM_DRIVE GPROLOG_PATH\n", argv[0]);
+      fprintf(stderr, "Usage: %s SYSTEM_DRIVE GPROLOG_PATH INSTALL/UNINSTALL\n", argv[0]);
       return 1;
     }
+
+  install = (argv[3][0] == 'i' || argv[3][0] == 'I');
 
   sprintf(buff, "%s\\gprologvars.bat", argv[1]);
-  sprintf(call, "call %s\n", buff);
-  if ((f = fopen(buff, "wt")) == NULL)
+  sprintf(call, "call %s", buff);
+  l = strlen(call);
+  if (install)
     {
-      perror(buff);
-      return 1;
+      if ((f = fopen(buff, "wt")) == NULL)
+	{
+	  perror(buff);
+	  fprintf(stderr, "If needed, add %s\\bin to your PATH - press RETURN\n",
+		  argv[2]);
+	  fflush(stderr);
+	  gets(buff);
+	  return 1;
+	}
+      L("@echo off");
+      L("echo Setting environment for using GNU Prolog");
+      sprintf(buff, "PATH=%%PATH%%;\"%s\\bin\"", argv[2]);
+      L(buff);
+      fclose(f);
     }
-  L("@echo off");
-  L("echo Setting environment for using GNU Prolog");
-  sprintf(buff, "PATH=%%PATH%%;\"%s\\bin\"", argv[2]);
-  L(buff);
+  else
+    if (access(buff, 0) == 0 && unlink(buff) != 0)
+      return 1;
 
-  fclose(f);
-
-#if 1
   sprintf(buff, "%s\\autoexec.bat", argv[1]);
-  if ((f = fopen(buff, "r+t")) == NULL)
+
+  if ((fd = open(buff, O_RDONLY | O_BINARY)) < 0)
     return 0;
   
-  for (;;)
-    {
-      fgets(buff, sizeof(buff), f);
-      if (feof(f))
-	break;
+  file_size = (int) lseek(fd, 0, SEEK_END);
+  lseek(fd, 0, SEEK_SET);
 
-      if (strnicmp(buff, call, strlen(call)) == 0)
-	defined = 1;
+  data = (char *) malloc(file_size + l + 32);
+  if (data == NULL)
+    return 1;
+ 
+  if (read(fd, data, file_size) != file_size)
+    return 1;
+      
+  close(fd);
+  data[file_size] = '\0';
+
+  q = strchr(data, '\r');
+  if (q != NULL && q[1] == '\n')
+    newline = "\r\n";
+  else
+    newline = "\n";
+
+  if (data[file_size - 1] != '\n')
+    strcpy(data + file_size, newline);
+
+  p = data;
+  for(;;)
+    {
+      if (strnicmp(p, call, l) != 0)
+	{
+	next_line:
+	  p = strchr(p, '\n');
+	  if (p == NULL)
+	    break;
+	  p++;
+	  continue;
+	}
+
+      q = p + l;
+      while(*q == ' ' || *q == '\t' || *q == '\r')
+	q++;
+      if (*q != '\n')
+	goto next_line;
+				/* here the call line is found */
+      if (install)
+	return 0;
+
+      q++;
+      memmove(p, q, strlen(q) + 1);  /* remove the line */
+				/* reconsider this line */
     }
 
-  if (!defined)
-    if (fputs(call, f) < 0)
-      {
-	perror("writing autoexec.bat");
-	return 1;
-      }
+  size = strlen(data);
+  if (install)
+    {
+      sprintf(data + size, "%s%s", call, newline);
+      size += l + strlen(newline);
+    }
 
-  fclose(f);
-      
-#endif
+  if (file_size == size)
+    return 0;
 
-  return 0;
+  if ((fd = open(buff, O_WRONLY | O_BINARY | O_TRUNC)) < 0)
+    return 1;
+
+  if (write(fd, data, size) < 0)
+    return 1;
+
+  return close(fd) != 0;
 }
-

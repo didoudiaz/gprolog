@@ -820,7 +820,6 @@ Label_Printf(char *label, ...)
 {
   va_list arg_ptr;
 
-
   va_start(arg_ptr, label);
 
   vfprintf(file_out, label, arg_ptr);

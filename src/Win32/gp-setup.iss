@@ -8,7 +8,7 @@ AppPublisher=Daniel Diaz
 AppPublisherURL=http://gprolog.inria.fr
 AppSupportURL=http://gprolog.inria.fr
 AppUpdatesURL=http://gprolog.inria.fr
-DefaultDirName={pf}\GNU-Prolog
+DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
 AlwaysCreateUninstallIcon=yes
@@ -53,8 +53,11 @@ Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "RootPath"; ValueData: "{app}"
 
 [Run]
-Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"""; Description: "Create {sd}\gprologvars.bat";
+Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"" install"; Description: "Create {sd}\gprologvars.bat and update autoexec.bat"
 Filename: "{app}\bin\gprolog.exe"; Description: "Launch GNU Prolog"; Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"" uninstall"
 
 [UninstallDelete]
 Type: files; Name: "{app}\gprolog.url"
