@@ -80,10 +80,16 @@
 
 % Url in LaTeX output
 
+\ifpdf
+\newcommand{\Tilde}[1]{~#1}
+\newcommand{\MyUrl}[2]{\href{#1}{#2}}
+\newcommand{\MyUrlHtml}[2]{\href{#1}{#2}}
+\else
+\newcommand{\Tilde}[1]{\~{}#1}
 \newcommand{\MyUrl}[2]{\footahref{#1}{#2}}
 \newcommand{\MyUrlHtml}[2]{#2}
+\fi
 \newcommand{\MyEMail}[2]{#2\footnote{\texttt{#1}}}
-
 
 % General environments
 
@@ -144,8 +150,8 @@
 
 % Image inclusion
 
-\newcommand{\InsertImage}[1]%
-   {\BL\begin{center}\includegraphics[scale=0.83]{#1}\end{center}}
+\newcommand{\InsertImage}[2][0.83]%
+   {\BL\begin{center}\fbox{\includegraphics[scale=#1]{#2}}\end{center}\BL}
 
 
 
@@ -229,12 +235,20 @@
 % T: texttt, D: definition, TD: both, void: simple
 
 
+   % |textbf does not seem to work with hyperref (pdflatex)... remove it
+\ifpdf
+	\newcommand{\IndexBold}[1]{\index{#1}}
+\else
+	\newcommand{\IndexBold}[1]{\index{#1|textbf}}
+\fi
+
+
    % Add an index entry
    % 1=alphabetic position  2=index term
 
 \newcommand{\IndT} [2]{\index{#1@\texttt{#2}}}
-\newcommand{\IndTD}[2]{\index{#1@\texttt{#2}|textbf}}
-\newcommand{\IndD} [2]{\index{#1@#2|textbf}}
+\newcommand{\IndTD}[2]{\IndexBold{#1@\texttt{#2}}}
+\newcommand{\IndD} [2]{\IndexBold{#1@#2}}
 \newcommand{\Ind}  [2]{\index{#1@#2}}
 
 

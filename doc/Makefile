@@ -1,32 +1,23 @@
 PREFIX=manual
-
-DVIROOT=$(PREFIX)-dvi
+MAIN=$(PREFIX).tex
 DVINAME=$(PREFIX).dvi
-
-PDFROOT=$(PREFIX)-pdf
 PDFNAME=$(PREFIX).pdf
-
 PSNAME=$(PREFIX).ps
-
 HTMLNAME=$(PREFIX).html
-
 CHMNAME=$(PREFIX).chm
 
-TEX_SRC=packages.tex macros.tex body.tex \
+TEX_SRC=$(MAIN) packages.tex macros.tex body.tex \
         cover.tex acknow.tex intro.tex use.tex debugger.tex \
         format-defs.tex direct-cc.tex pl-bips.tex fd-cstr.tex \
         c-interface.tex references.tex tbl-contents.tex the-index.tex \
         version_no.tex
 
-VERBOSE=0
+TRACE=
+#TRACE=-trace
 
 
 .SUFFIXES:
-.SUFFIXES: .eps .tex .aux .toc .idx .dvi .ps .hva .html .pdf $(SUFFIXES)
-
-.eps.pdf:
-	ps2pdf $< $@
-
+.SUFFIXES: .html .hva .pdf .eps .ps .dvi .aux .toc .idx .tex $(SUFFIXES)
 
 help:
 	@echo
@@ -42,42 +33,36 @@ help:
 	@echo 'make clean     remove all temporary files'
 	@echo 'make distclean same as clean'
 	@echo 'make clean-all remove all versions'
+	@echo 'make clean-full remove all versions'
 	@echo
 	@echo 'make help      this help'
 	@echo
+
+
+.eps.pdf:
+	epstopdf $<
+#	ps2pdf $< $@
+
 
 
 all: dvi pdf ps html chm
 
 
 
-dvi: fp-dvi $(DVINAME)
-
-fp-dvi:
-	@./check_fp dvi $(DVIROOT) $(DVINAME) $(VERBOSE)
+dvi: $(DVINAME)
 
 $(DVINAME): $(TEX_SRC) compil-scheme.eps debug-box.eps
-	latex $(DVIROOT).tex
-	makeindex $(DVIROOT).idx
-	mv $(DVIROOT).dvi $(DVINAME)
-	$(MAKE) dvi
+	do_latex -dvi $(TRACE) $(MAIN)
 
 
 
-pdf: fp-pdf $(PDFNAME)
-
-fp-pdf:
-	@./check_fp pdf $(PDFROOT) $(PDFNAME) $(VERBOSE)
+pdf: $(PDFNAME)
 
 $(PDFNAME): $(TEX_SRC) compil-scheme.pdf debug-box.pdf
-	pdflatex $(PDFROOT).tex
-	makeindex $(PDFROOT).idx
-	mv $(PDFROOT).pdf $(PDFNAME)
-	$(MAKE) pdf
+	do_latex -pdf $(TRACE) $(MAIN)
 
 
-
-ps: dvi $(PSNAME)
+ps: $(PSNAME)
 
 $(PSNAME): $(DVINAME)
 	dvips -o $(PSNAME) -D 300 $(DVINAME)
@@ -87,7 +72,7 @@ $(PSNAME): $(DVINAME)
 html: Html/index.html
 
 $(HTMLNAME): custom.hva $(TEX_SRC)
-	hevea -O -nosymb -s -exec xxdate.exe -fix custom.hva $(DVIROOT).tex -o $(HTMLNAME)
+	hevea -O -nosymb -s -exec xxdate.exe -fix custom.hva $(MAIN) -o $(HTMLNAME)
 
 Html/index.html: $(HTMLNAME)
 	rm -f Html/index.html Html/$(PREFIX)*.html
@@ -99,7 +84,9 @@ $(CHMNAME): $(HTMLNAME) Html/index.html
 	-(cd Html; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) .. 2>/dev/null)
 
 clean:
-	rm -f $(PREFIX).aux $(PREFIX).toc $(PREFIX).idx $(PREFIX).*.fp
+	rm -f $(PREFIX).aux $(PREFIX).toc $(PREFIX).ind $(PREFIX).idx
+	rm -f $(PREFIX).pdf.aux $(PREFIX).pdf.toc $(PREFIX).pdf.ind $(PREFIX).pdf.idx
+	rm -f $(PREFIX).dvi.aux $(PREFIX).dvi.toc $(PREFIX).dvi.ind $(PREFIX).dvi.idx
 	rm -rf $(PREFIX)*.htoc $(PREFIX)*.haux $(PREFIX)*.hind $(PREFIX)*.hrf
 
 
