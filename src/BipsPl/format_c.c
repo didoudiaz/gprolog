@@ -119,6 +119,9 @@ Format_2(WamWord format_word, WamWord args_word)
  *-------------------------------------------------------------------------*/
 static void
 Format(StmInf *pstm, char *format, WamWord *lst_adr)
+
+#define IMPOSS -12345678
+
 {
   WamWord word;
   Bool has_n;
@@ -151,12 +154,12 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		}
 
 	      p = buff;
-	      n = n1 = -1;
+	      n = n1 = IMPOSS;
 
 	      do
 		if ((*p++ = *format++) == '*')
 		  {
-		    if (n == -1)
+		    if (n == IMPOSS)
 		      n = Arg_Integer(&lst_adr);
 		    else
 		      n1 = Arg_Integer(&lst_adr);
@@ -168,9 +171,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		{
 		  generic = (p[-1] == 's') ? (long) Arg_Atom(&lst_adr)
 		    : Arg_Integer(&lst_adr);
-		  if (n != -1)
+		  if (n != IMPOSS)
 		    {
-		      if (n1 != -1)
+		      if (n1 != IMPOSS)
 			Stream_Printf(pstm, buff, n, n1, generic);
 		      else
 			Stream_Printf(pstm, buff, n, generic);
@@ -181,9 +184,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      else
 		{
 		  d = Arg_Float(&lst_adr);
-		  if (n != -1)
+		  if (n != IMPOSS)
 		    {
-		      if (n1 != -1)
+		      if (n1 != IMPOSS)
 			Stream_Printf(pstm, buff, n, n1, d);
 		      else
 			Stream_Printf(pstm, buff, n, d);
