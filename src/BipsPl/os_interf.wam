@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.16 (Sep 19 2002)
 % file    : os_interf.pl
-% date    : 9 25 2002
-% time    : 10:53:43
+% date    : 9 27 2002
+% time    : 15:34:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').
@@ -579,14 +579,34 @@ predicate(create_pipe/2,304,static,private,built_in,[
 
 
 predicate(fork_prolog/1,313,static,private,built_in,[
-    put_atom(fork_prolog,1),
-    put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    allocate(1),
+    get_variable(y(0),0),
+    put_atom(fork_prolog,0),
+    put_integer(1,1),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    put_value(y(0),0),
+    call('$fork_prolog/1_$aux1'/1),
+    put_value(y(0),0),
+    deallocate,
     call_c('Fork_Prolog_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(select/5,320,static,private,built_in,[
+predicate('$fork_prolog/1_$aux1'/1,313,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    put_value(x(0),1),
+    put_atom(variable,0),
+    execute('$pl_err_type'/2),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate(select/5,324,static,private,built_in,[
     put_atom(select,5),
     put_integer(5,6),
     call_c('Set_Bip_Name_2',[],[x(5),x(6)]),
@@ -594,7 +614,7 @@ predicate(select/5,320,static,private,built_in,[
     proceed]).
 
 
-predicate(prolog_pid/1,327,static,private,built_in,[
+predicate(prolog_pid/1,331,static,private,built_in,[
     put_atom(prolog_pid,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -602,7 +622,7 @@ predicate(prolog_pid/1,327,static,private,built_in,[
     proceed]).
 
 
-predicate(send_signal/2,334,static,private,built_in,[
+predicate(send_signal/2,338,static,private,built_in,[
     put_atom(send_signal,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
@@ -610,7 +630,7 @@ predicate(send_signal/2,334,static,private,built_in,[
     proceed]).
 
 
-predicate(wait/2,341,static,private,built_in,[
+predicate(wait/2,345,static,private,built_in,[
     put_atom(wait,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
