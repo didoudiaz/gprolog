@@ -81,7 +81,7 @@ extern char    *reg_tbl[];
 
 
 #define Save_All_Regs(buff_save)		\
-    {               				\
+    do {            				\
      buff_save[0]=(WamWord) H     ;		\
      buff_save[1]=(WamWord) B     ;		\
      buff_save[2]=(WamWord) TR    ;		\
@@ -91,13 +91,13 @@ extern char    *reg_tbl[];
      buff_save[6]=(WamWord) S     ;		\
      buff_save[7]=(WamWord) STAMP ;		\
      buff_save[8]=(WamWord) BCI   ;		\
-    }
+    } while(0)
 
 
 
 
 #define Restore_All_Regs(buff_save)		\
-    {               				\
+    do {            				\
      H     =(WamWordP)	buff_save[0];		\
      B     =(WamWordP)	buff_save[1];		\
      TR    =(WamWordP)	buff_save[2];		\
@@ -107,7 +107,7 @@ extern char    *reg_tbl[];
      S     =(WamWordP)	buff_save[6];		\
      STAMP =(WamWord)	buff_save[7];		\
      BCI   =(WamWord)	buff_save[8];		\
-    }
+    } while(0)
 
 
 
@@ -118,19 +118,19 @@ extern char    *reg_tbl[];
 
 
 #define Save_Machine_Regs(buff_save)		\
-    {               				\
+    do {            				\
      register long reg0 asm ("ebx");		\
      buff_save[0]=reg0;				\
-    }
+    } while(0)
 
 
 
 
 #define Restore_Machine_Regs(buff_save)		\
-    {               				\
+    do {            				\
      register long reg0 asm ("ebx");		\
      reg0=buff_save[0];				\
-    }
+    } while(0)
 
 
    /*--- End Register Generation ---*/
@@ -165,8 +165,8 @@ extern char    *reg_tbl[];
 #define Tag_Value(t,v)		(((unsigned long) (v) << 3) | (t))
 #define Tag_Of(w)     		((unsigned long) (w) & 0x7)
 
-#define UnTag_Integer(w) 	((int) (((long) (w) >> 3)))
-#define UnTag_Unsigned(w)	((unsigned) (((unsigned long) (w) >> 3)))
+#define UnTag_Integer(w) 	((long) (w) >> 3)
+#define UnTag_Unsigned(w)	((unsigned long) (w) >> 3)
 #define UnTag_Stack(w)   	((WamWord *) (((unsigned long) (w) >> 3) | STACK_MASK))
 #define UnTag_Malloc(w)  	((unsigned long) (((unsigned long) (w) >> 3) | MALLOC_MASK))
 
@@ -195,23 +195,23 @@ extern char    *reg_tbl[];
 
 
 typedef enum
-    {
-     INTEGER,
-     UNSIGNED,
-     STACK,
-     MALLOC
-    }TypTag;
+{
+  INTEGER,
+  UNSIGNED,
+  STACK,
+  MALLOC
+}TypTag;
 
 typedef struct
-    {
-     char    *name;
-     TypTag   type;
-    }InfTag;
+{
+  char    *name;
+  TypTag   type;
+}InfTag;
 
 
 #ifdef ENGINE_FILE
 
-       InfTag   tag_tbl[]=	{{"INT",INTEGER},
+InfTag   tag_tbl[]=	{{"INT",INTEGER},
 				 {"REF",STACK},
 				 {"FDV",STACK},
 				 {"ATM",INTEGER},
@@ -273,30 +273,29 @@ extern InfTag   tag_tbl[];
 #define Stack_Top(s)       	(((s)==0) ? TR : ((s)==1) ? CS : ((s)==2) ? H : Local_Top)
 
 typedef struct
-    {
-     char    *name;
-     char    *env_var_name;
-     long    *p_def_size;
-     int      default_size; 	/* in WamWords */
-     int      size;         	/* in WamWords */
-     WamWord *stack;
-    }InfStack;
+{
+  char    *name;
+  char    *env_var_name;
+  long    *p_def_size;
+  int      default_size; 	/* in WamWords */
+  int      size;         	/* in WamWords */
+  WamWord *stack;
+}InfStack;
 
 
 #ifdef ENGINE_FILE
 
     /* these variables can be overwritten by top_comp.c (see stack size file) */
-       long def_trail_size;
-       long def_cstr_size;
-       long def_global_size;
-       long def_local_size;
-       long fixed_sizes;
+long def_trail_size;
+long def_cstr_size;
+long def_global_size;
+long def_local_size;
+long fixed_sizes;
 
-
-       InfStack  stk_tbl[]=	{{"trail","TRAILSZ",&def_trail_size,524288,0,NULL},
-				 {"cstr","CSTRSZ",&def_cstr_size,524288,0,NULL},
-				 {"global","GLOBALSZ",&def_global_size,1048576,0,NULL},
-				 {"local","LOCALSZ",&def_local_size,817152,0,NULL}};
+InfStack  stk_tbl[]=	{{"trail","TRAILSZ",&def_trail_size,524288,0,NULL},
+			 {"cstr","CSTRSZ",&def_cstr_size,524288,0,NULL},
+			 {"global","GLOBALSZ",&def_global_size,1048576,0,NULL},
+			 {"local","LOCALSZ",&def_local_size,817152,0,NULL}};
 
 #else
 
