@@ -53,7 +53,7 @@
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-first_occurrence(char *str, int c, long *pos)
+first_occurrence(char *str, long c, long *pos)
 {
   char *p;
 
@@ -73,7 +73,7 @@ first_occurrence(char *str, int c, long *pos)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-occurrence(char *str, int c, long *pos)
+occurrence(char *str, long c, long *pos)
 {
   char **info_pos;
   char *p;
@@ -103,7 +103,7 @@ occurrence(char *str, int c, long *pos)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-occurrence2(char *str, int c, long *pos)
+occurrence2(char *str, long c, long *pos)
 {
   char **info_pos;
   char *p;
