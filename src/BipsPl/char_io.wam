@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.11 (Mar 19 2002)
+% compiler: GNU Prolog 1.2.10 (Dec 20 2001)
 % file    : char_io.pl
 % date    : 3 19 2002
-% time    : 19:9:15
+% time    : 19:38:51
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/char_io.pl').

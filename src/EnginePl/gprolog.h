@@ -35,6 +35,7 @@ extern "C" {
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
 #define HAVE_MKSTEMP 1
+#define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
 #define M_linux 1
@@ -53,8 +54,8 @@ extern "C" {
 #define M_OS "linux-gnu"
 #define CC "gcc"
 #define CFLAGS_PREFIX_REG "-ffixed-%s"
-#define CFLAGS "-O3 "
-#define CFLAGS_MACHINE "-march=pentiumpro -fomit-frame-pointer"
+#define CFLAGS "-g -Wall"
+#define CFLAGS_MACHINE "-march=pentiumpro"
 #define LDFLAGS ""
 #define LDLIBS "-lm"
 #define AS "as"
@@ -201,17 +202,17 @@ typedef int Bool;
 #endif
 #endif /* !_BOOL_H */
 #define MAP_REG_TR        	"ebx"
-#define MAP_REG_B         	"ebp"
-#define MAP_OFFSET_H     	((NB_OF_X_REGS+0)*4)
-#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+1)*4)
-#define MAP_OFFSET_CP    	((NB_OF_X_REGS+2)*4)
-#define MAP_OFFSET_E     	((NB_OF_X_REGS+3)*4)
-#define MAP_OFFSET_CS    	((NB_OF_X_REGS+4)*4)
-#define MAP_OFFSET_S     	((NB_OF_X_REGS+5)*4)
-#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+6)*4)
-#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+7)*4)
-#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+8)*4)
-#define CFLAGS_REGS		"-ffixed-ebx -ffixed-ebp "
+#define MAP_OFFSET_B     	((NB_OF_X_REGS+0)*4)
+#define MAP_OFFSET_H     	((NB_OF_X_REGS+1)*4)
+#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+2)*4)
+#define MAP_OFFSET_CP    	((NB_OF_X_REGS+3)*4)
+#define MAP_OFFSET_E     	((NB_OF_X_REGS+4)*4)
+#define MAP_OFFSET_CS    	((NB_OF_X_REGS+5)*4)
+#define MAP_OFFSET_S     	((NB_OF_X_REGS+6)*4)
+#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+7)*4)
+#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+8)*4)
+#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+9)*4)
+#define CFLAGS_REGS		"-ffixed-ebx "
 typedef long WamWord;		/* a wamword is a long (32/64 bits) */
 typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
 typedef CodePtr WamCont;	/* a continuation is a code pointer */
@@ -220,21 +221,21 @@ typedef CodePtr WamCont;	/* a continuation is a code pointer */
 #define A(a)                       (reg_bank[a])
 typedef WamWord *WamWordP;
 register WamWordP		TR  asm ("ebx");
-register WamWordP		B   asm ("ebp");
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+2])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+3])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+6])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+8])
+#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	2
-#define NB_OF_NOT_ALLOC_REGS	9
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
-#define NB_OF_USED_MACHINE_REGS 2
+#define NB_OF_USED_MACHINE_REGS 1
 #ifdef ENGINE_FILE
 WamWord reg_bank[REG_BANK_SIZE];
 WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
@@ -287,16 +288,12 @@ extern char *reg_tbl[];
 #define Save_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
-    register long reg1 asm ("ebp"); \
     buff_save[0] = reg0; \
-    buff_save[1] = reg1; \
   } while(0)
 #define Restore_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
-    register long reg1 asm ("ebp"); \
     reg0 = buff_save[0]; \
-    reg1 = buff_save[1]; \
   } while(0)
 #define Start_Protect_Regs_For_Signal \
   do { \
