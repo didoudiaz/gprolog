@@ -23,6 +23,7 @@ HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
 
 USE_REGS=yes
+USE_EBP=yes
 USE_LINEDIT=yes
 USE_GUI_CONSOLE=yes
 USE_SOCKETS=yes
@@ -144,7 +145,7 @@ AC_ARG_ENABLE(regs,      [  --disable-regs          do not use machine registers
 		   *)  ;;
 	       esac])
 
-AC_ARG_ENABLE(regs,      [  --disable-ebp           do not use the ebp register on ix86 machines],
+AC_ARG_ENABLE(ebp,      [  --disable-ebp           do not use the ebp register on ix86 machines],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_EBP) USE_EBP=no;;
 		   *)  USE_EBP=yes;;
@@ -327,10 +328,6 @@ else
 		*)     CFLAGS="$WITH_C_FLAGS";;
 	esac
 
-
-	expr "$CFLAGS" : '.*-fomit-frame-pointer' >/dev/null || AC_DEFINE(NO_USE_EBP)
-
-	
 	CFLAGS_PREFIX_REG='-ffixed-%s'
 	CFLAGS_UNSIGNED_CHAR='-funsigned-char'
 

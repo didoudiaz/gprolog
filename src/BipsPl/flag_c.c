@@ -698,7 +698,9 @@ Write_Pl_State_File(WamWord file_word)
   OperInf *oper;
   SFOp sf_op;
   int c;
-  char cv[2];
+/* 'static' is because gcc allocates a frame even with -fomit-frame-pointer.
+ * This corrupts ebp on ix86 */
+  static char cv[2];
 
 
   file = atom_tbl[Rd_Atom_Check(file_word)].name;
