@@ -24,12 +24,12 @@ ExamplesPl/Makefile
 ExamplesPl/README
 ExamplesPl/PROGS
 ExamplesPl/??*.pl
-ExamplesPl/YAP/[A-Z]*
-ExamplesPl/WAMCC/[A-Z]*
-ExamplesPl/SICSTUS/[A-Z]*
-ExamplesPl/CIAO/[A-Z]*
-ExamplesPl/XSB/[A-Z]*
-ExamplesPl/SWI/[A-Z]*
+ExamplesPl/YAP/[A-B,D-Z]*
+ExamplesPl/WAMCC/[A-B,D-Z]*
+ExamplesPl/SICSTUS/[A-B,D-Z]*
+ExamplesPl/CIAO/[A-B,D-Z]*
+ExamplesPl/XSB/[A-B,D-Z]*
+ExamplesPl/SWI/[A-B,D-Z]*
 
 ExamplesC/README
 ExamplesC/Makefile
