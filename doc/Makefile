@@ -6,7 +6,7 @@ PSNAME=$(PREFIX).ps
 HTMLNAME=$(PREFIX).html
 CHMNAME=$(PREFIX).chm
 
-TEX_SRC=$(MAIN) packages.tex macros.tex body.tex \
+TEX_SRC=$(MAIN) packages.tex macros.tex body.tex copyright.tex \
         cover.tex acknow.tex intro.tex use.tex debugger.tex \
         format-defs.tex direct-cc.tex pl-bips.tex fd-cstr.tex \
         c-interface.tex references.tex tbl-contents.tex the-index.tex \
