@@ -72,14 +72,17 @@
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 #define HAVE_TERMIOS_H 1
+#define HAVE_MALLOC_H 1
+#define HAVE_MMAP 1
+#define HAVE_MALLOPT 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
 #define M_linux 1
 #define M_ix86_linux 1
 #define PROLOG_NAME1               "gprolog"
 #define PROLOG_NAME                "GNU Prolog"
-#define PROLOG_VERSION             "1.2.3"
-#define PROLOG_DATE                "Sep 12 2000"
+#define PROLOG_VERSION             "1.2.4"
+#define PROLOG_DATE                "Oct 13 2000"
 #define PROLOG_COPYRIGHT           "Copyright (C) 1999,2000 Daniel Diaz"
 #define TOP_LEVEL                  "gprolog"
 #define GPLC                       "gplc"
