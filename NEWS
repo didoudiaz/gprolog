@@ -1,3 +1,15 @@
+Change in GNU Prolog version 1.2.11:
+
+* fix a problem with gcc 3.0.x which always uses ebp in main()
+* use -march=xxx gcc option instead of -mxxx for ix86
+
+Change in GNU Prolog version 1.2.10:
+
+* gplc now passes -L option to ld in the order of apparition
+* gplc accepts meta-characters %p, %d,... in output file names
+* include additional patch for sockets under win32 - due to:
+  Brent Fulgham <brent.fulgham@xpsystems.com>
+
 Change in GNU Prolog version 1.2.9:
 
 * re-write Windows GUI Console in pure Win32 (no more MFC)

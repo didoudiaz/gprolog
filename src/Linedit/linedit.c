@@ -6,7 +6,7 @@
  * Descr.: line editor                                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2001 Daniel Diaz                                     *
+ * Copyright (C) 1999-2002 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -1308,7 +1308,7 @@ Display_Help(void)
 
   L("");
   sprintf(buff,
-	  "   linedit %-25s Copyright (C) 1999-2001 Daniel Diaz",
+	  "   linedit %-25s Copyright (C) 1999-2002 Daniel Diaz",
 	  LINEDIT_VERSION);
   L(buff);
   L("");

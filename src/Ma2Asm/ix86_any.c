@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Cygwin/... on intel x86              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2001 Daniel Diaz                                     *
+ * Copyright (C) 1999-2002 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -554,7 +554,8 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
   if (!r_eq_r_aux)
     Inst_Printf("movl", "%s,%s", r_aux, r);
 
- finish:  
+ finish:
+  ;    /* gcc3 does not like use of label at end of compound statement */
   AFTER_ARG;
 
   return 1;

@@ -1,3 +1,18 @@
+Tue Mar 19 18:51:50 CEST 2002 <Daniel.Diaz@inria.fr>
+	
+	* fix a problem with gcc 3.0.x which always uses ebp in main()
+	* use -march=xxx gcc option instead of -mxxx for ix86
+	
+Tue Jan 15 19:26:26 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* gplc now passes -L option to ld in the order of apparition
+	* gplc accepts meta-characters %p, %d,... in output file names
+
+Tue Jan  8 16:51:48 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* include additional patch for sockets under win32 - due to:
+	  Brent Fulgham <brent.fulgham@xpsystems.com>
+
 Thu Dec 20 16:17:00 CEST 2001 <Daniel.Diaz@inria.fr>
 
 	* re-write Windows GUI Console in pure Win32 (no more MFC)

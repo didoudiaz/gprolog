@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.8 (Sep 28 2001)
+% compiler: GNU Prolog 1.2.11 (Mar 19 2002)
 % file    : no_sockets.pl
-% date    : 10 7 2001
-% time    : 9:45:2
+% date    : 3 19 2002
+% time    : 19:9:15
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/no_sockets.pl').

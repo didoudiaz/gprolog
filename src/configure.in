@@ -4,7 +4,7 @@
 
 # if you change here the version also change it in PROLOG_VERSION below
 
-AC_INIT(gprolog, 1.2.10, bug-prolog@gnu.org)
+AC_INIT(gprolog, 1.2.11, bug-prolog@gnu.org)
 AC_PREREQ(2.52)
 # AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -31,9 +31,9 @@ AC_CONFIG_FILES(Makefile
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.2.10'
-PROLOG_DATE='Dec 20 2001'
-PROLOG_COPYRIGHT='Copyright (C) 1999-2001 Daniel Diaz'
+PROLOG_VERSION='1.2.11'
+PROLOG_DATE='Mar 19 2002'
+PROLOG_COPYRIGHT='Copyright (C) 1999-2002 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
 GPLC=gplc
@@ -365,9 +365,9 @@ else
 		mips*irix*)        CFLAGS_MACHINE='-mcpu=4000';;
 		*sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
 		*sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
-		i686*)             CFLAGS_MACHINE='-mpentiumpro';;
-		i586*)             CFLAGS_MACHINE='-mpentium';;
-		i*86*)             CFLAGS_MACHINE='-m486';;
+		i686*)             CFLAGS_MACHINE='-march=pentiumpro';;
+		i586*)             CFLAGS_MACHINE='-march=pentium';;
+		i*86*)             CFLAGS_MACHINE='-march=486';;
 	esac
 
 	case "$host" in
