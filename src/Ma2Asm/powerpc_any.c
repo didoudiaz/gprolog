@@ -431,6 +431,18 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 
 
 
+#ifdef M_powerpc_linux
+
+#define STACK_OFFSET(offset)   offset * 4 - 24
+#define DBL_RET_WORDS          0
+
+#else
+
+#define STACK_OFFSET(offset)   offset * 4 + 24
+#define DBL_RET_WORDS          2
+
+#endif
+
 #define MAX_ARGS_IN_REGS 8
 
 #define BEFORE_ARG				\
@@ -443,11 +455,19 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 
 
 
-#define AFTER_ARG						\
-  if (offset >= MAX_ARGS_IN_REGS)				\
-    Inst_Printf("stw", "%s,%d(" R(1) ")", r, offset * 4 + 24);	\
+
+#define AFTER_ARG							\
+  if (offset >= MAX_ARGS_IN_REGS)					\
+    Inst_Printf("stw", "%s,%d(" R(1) ")", r, STACK_OFFSET(offset));	\
 }
 
+
+#ifdef M_powerpc_linux
+
+#define AFTER_ARG_DBL						\
+}
+
+#else
 
 #define AFTER_ARG_DBL						\
   if (offset >= MAX_ARGS_IN_REGS)				\
@@ -455,7 +475,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 		offset * 4 + 24);				\
 }
 
-
+#endif
 
 
 /*-------------------------------------------------------------------------*
@@ -501,7 +521,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
 
   AFTER_ARG_DBL;
 
-  return 2;
+  return DBL_RET_WORDS;
 }
 
 
@@ -628,7 +648,13 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 {
   BEFORE_ARG;
 
-  Inst_Printf("addis", "%s,0," HI_UN(foreign_double+%d), r, index * 8);
+  Inst_Printf("addis", "%s,0," HI_UN(foreign_double+%d), r,
+#ifdef M_powerpc_linux
+	      index * 4
+#else
+	      index * 8
+#endif
+	      );
 
   if (adr_of)
     {
@@ -645,9 +671,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 
   AFTER_ARG_DBL;
 
-  /* Two regular registers are "set aside" for each float register. LLS, 02/07/02 */
-  return 2;
-
+  return DBL_RET_WORDS;
 }
 
 
