@@ -83,6 +83,8 @@ enum
 #define SYS_VAR_WRITE_DEPTH         (sys_var[1])
 #define SYS_VAR_SYNTAX_ERROR_ACTON  (sys_var[1])
 
+#define SYS_VAR_WRITE_PREC          (sys_var[2])
+
 #define SYS_VAR_FD_BCKTS            (sys_var[3])
 
 #define SYS_VAR_TOP_LEVEL           (sys_var[10])

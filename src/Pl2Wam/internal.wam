@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : internal.pl
-% date    : 4 9 2002
-% time    : 10:32:47
+% date    : 4 11 2002
+% time    : 20:46:42
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/internal.pl').
@@ -476,7 +476,48 @@ predicate(inline_predicate/3,227,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('$get_cut_level',3),('$cut',5),((=),7),('$foreign_call_c',9),(var,11),(nonvar,13),(atom,15),(integer,17),(float,19),(number,21),(atomic,23),(compound,25),(callable,27),(list,29),(partial_list,31),(list_or_partial_list,33),(fd_var,35),(non_fd_var,37),(generic_var,39),(non_generic_var,41),(functor,43),(arg,45),(compare,47),((=..),49),((==),51),((\==),53),((@<),55),((@=<),57),((@>),59),((@>=),61),((is),63),((=:=),65),((=\=),67),((<),69),((=<),71),((>),73),((>=),75),(g_assign,77),(g_assignb,79),(g_link,81),(g_read,83),(g_array_size,85)]),
+    switch_on_atom([('$get_cut_level',3),
+                    ('$cut',5),
+                    ((=),7),
+                    ('$foreign_call_c',9),
+                    (var,11),
+                    (nonvar,13),
+                    (atom,15),
+                    (integer,17),
+                    (float,19),
+                    (number,21),
+                    (atomic,23),
+                    (compound,25),
+                    (callable,27),
+                    (list,29),
+                    (partial_list,31),
+                    (list_or_partial_list,33),
+                    (fd_var,35),
+                    (non_fd_var,37),
+                    (generic_var,39),
+                    (non_generic_var,41),
+                    (functor,43),
+                    (arg,45),
+                    (compare,47),
+                    ((=..),49),
+                    ((==),51),
+                    ((\==),53),
+                    ((@<),55),
+                    ((@=<),57),
+                    ((@>),59),
+                    ((@>=),61),
+                    ((is),63),
+                    ((=:=),65),
+                    ((=\=),67),
+                    ((<),69),
+                    ((=<),71),
+                    ((>),73),
+                    ((>=),75),
+                    (g_assign,77),
+                    (g_assignb,79),
+                    (g_link,81),
+                    (g_read,83),
+                    (g_array_size,85)]),
 
 label(2),
     try_me_else(4),

@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : top_level.pl
-% date    : 4 5 2002
-% time    : 9:46:31
+% date    : 4 11 2002
+% time    : 20:30:7
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
@@ -549,7 +549,7 @@ label(1),
 
 
 predicate('$exec_query'/2,199,static,private,built_in,[
-    allocate(4),
+    allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_atom('$debug_mode',0),
@@ -574,6 +574,23 @@ predicate('$exec_query'/2,199,static,private,built_in,[
     put_nil(2),
     call(format/3),
     put_value(y(1),0),
+    put_variable(y(4),1),
+    call(name_query_vars/2),
+    put_value(y(4),0),
+    put_variable(y(5),1),
+    call('$remove_underscore_vars'/2),
+    put_value(y(5),0),
+    call(name_singleton_vars/1),
+    put_value(y(5),0),
+    put_structure(exclude/1,2),
+    unify_local_value(y(1)),
+    put_list(1),
+    unify_value(x(2)),
+    unify_list,
+    unify_atom(namevars),
+    unify_nil,
+    call(bind_variables/2),
+    put_unsafe_value(y(5),0),
     put_unsafe_value(y(3),1),
     put_unsafe_value(y(2),2),
     deallocate,
@@ -590,30 +607,14 @@ predicate('$$exec_query/2_$aux1'/3,199,static,private,built_in,[
 
 label(1),
     trust_me_else_fail,
-    allocate(4),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    put_value(y(0),0),
-    put_variable(y(3),1),
-    call(name_query_vars/2),
-    put_value(y(3),0),
-    call(name_singleton_vars/1),
-    put_value(y(3),0),
-    put_structure(exclude/1,2),
-    unify_local_value(y(0)),
-    put_list(1),
-    unify_value(x(2)),
-    unify_list,
-    unify_atom(namevars),
-    unify_nil,
-    call(bind_variables/2),
-    put_value(y(3),0),
-    put_value(y(1),1),
-    put_value(y(2),2),
+    allocate(2),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    put_value(y(0),1),
+    put_value(y(1),2),
     call('$write_solution'/3),
-    put_value(y(1),0),
-    put_value(y(2),1),
+    put_value(y(0),0),
+    put_value(y(1),1),
     deallocate,
     execute('$$exec_query/2_$aux2'/2)]).
 
@@ -643,7 +644,75 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution'/3,225,static,private,built_in,[
+predicate('$remove_underscore_vars'/2,227,static,private,built_in,[
+    load_cut_level(2),
+    switch_on_term(2,3,fail,1,fail),
+
+label(1),
+    try(5),
+    trust(7),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_nil(0),
+    get_nil(1),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    allocate(3),
+    get_variable(y(1),1),
+    get_list(0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    get_structure((=)/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    get_variable(y(2),2),
+    call('$$remove_underscore_vars/2_$aux1'/2),
+    cut(y(2)),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$remove_underscore_vars'/2),
+
+label(6),
+    trust_me_else_fail,
+
+label(7),
+    get_list(0),
+    unify_variable(x(2)),
+    unify_variable(x(0)),
+    get_list(1),
+    unify_value(x(2)),
+    unify_variable(x(1)),
+    execute('$remove_underscore_vars'/2)]).
+
+
+predicate('$$remove_underscore_vars/2_$aux1'/2,229,static,private,built_in,[
+    try_me_else(1),
+    put_integer(0,1),
+    put_integer(1,2),
+    put_void(3),
+    put_atom('_',4),
+    execute(sub_atom/5),
+
+label(1),
+    trust_me_else_fail,
+    get_structure('$VARNAME'/1,1),
+    unify_variable(x(0)),
+    put_integer(0,1),
+    put_integer(1,2),
+    put_void(3),
+    put_atom('_',4),
+    execute(sub_atom/5)]).
+
+
+predicate('$write_solution'/3,242,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_nil(0),
@@ -657,7 +726,7 @@ label(1),
     execute('$write_solution1'/1)]).
 
 
-predicate('$$write_solution/3_$aux1'/2,225,static,private,built_in,[
+predicate('$$write_solution/3_$aux1'/2,242,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -677,7 +746,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution1'/1,236,static,private,built_in,[
+predicate('$write_solution1'/1,253,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -721,7 +790,7 @@ label(4),
     execute('$write_solution1'/1)]).
 
 
-predicate('$read_return'/0,246,static,private,built_in,[
+predicate('$read_return'/0,263,static,private,built_in,[
     load_cut_level(0),
     allocate(2),
     get_variable(y(0),0),
@@ -737,7 +806,7 @@ predicate('$read_return'/0,246,static,private,built_in,[
     proceed]).
 
 
-predicate('$read_return'/1,254,static,private,built_in,[
+predicate('$read_return'/1,271,static,private,built_in,[
     load_cut_level(1),
     try_me_else(10),
     switch_on_term(2,fail,1,fail,fail),
@@ -796,7 +865,7 @@ label(10),
     execute('$read_return'/0)]).
 
 
-predicate('$exec_cmd_line_entry_goals'/1,275,static,private,built_in,[
+predicate('$exec_cmd_line_entry_goals'/1,292,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -814,11 +883,11 @@ label(1),
     proceed]).
 
 
-predicate('$exec_cmd_line_goal'/1,285,static,private,built_in,[
+predicate('$exec_cmd_line_goal'/1,302,static,private,built_in,[
     execute('$$exec_cmd_line_goal/1_$aux1'/1)]).
 
 
-predicate('$$exec_cmd_line_goal/1_$aux1'/1,285,static,private,built_in,[
+predicate('$$exec_cmd_line_goal/1_$aux1'/1,302,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -846,7 +915,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate('$exec_cmd1'/1,291,static,private,built_in,[
+predicate('$exec_cmd1'/1,308,static,private,built_in,[
     allocate(1),
     put_variable(y(0),1),
     put_structure(end_of_term/1,3),
@@ -863,7 +932,7 @@ predicate('$exec_cmd1'/1,291,static,private,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$exec_cmd_err'/2,296,static,private,built_in,[
+predicate('$exec_cmd_err'/2,313,static,private,built_in,[
     get_variable(x(2),1),
     put_list(1),
     unify_local_value(x(0)),

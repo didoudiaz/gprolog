@@ -1,3 +1,8 @@
+Thu Apr 11 20:30:16 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* added priority/1 option to write_term to specify starting priority
+	* now under the top-level, _XXX variables are not displayed
+
 Wed Apr 10 15:04:23 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* fix bug in decompose_file_name/4 (tried to modify read-only string)
@@ -11,7 +16,7 @@ Mon Apr  8 20:08:29 CEST 2002 <Daniel.Diaz@inria.fr>
 Fri Apr  5 12:32:26 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* fix linedit bug in tab pasting and add Esc-Tab function
-	* now linedit goes to EOL at finish to fix bug with multi-line inputs
+	* now linedit goes to EOL at CR to fix bug with multi-line inputs
 	* now linedit avoids to put in history 2 same consecutive lines
 	* remove max_stream limitation (the Prolog flag no longer exists)
 	* the template of get_print_stream/1 is now ?stream

@@ -92,6 +92,7 @@ display(SorA, Term) :-
           %  1=true     1=true     1=true     1=true       1=true    1=true
           %
           % max_depth in sys_var[1]
+          % priority in sys_var[2]
 
 
 write_term(Term, Options) :-
@@ -112,7 +113,8 @@ write_term(SorA, Term, Options) :-
 
 '$set_write_defaults' :-
 	'$sys_var_write'(0, 12),                               % default mask
-	'$sys_var_write'(1, -1).
+	'$sys_var_write'(1, -1),
+	'$sys_var_write'(2, 1200).
 
 
 
@@ -184,6 +186,10 @@ write_term(SorA, Term, Options) :-
 '$get_write_options2'(max_depth(X)) :-
 	integer(X),
 	'$sys_var_write'(1, X).
+
+'$get_write_options2'(priority(X)) :-
+	integer(X),
+	'$sys_var_write'(2, X).
 
 '$get_write_options2'(X) :-
 	'$pl_err_domain'(write_option, X).

@@ -698,7 +698,7 @@ term\_ref(?term, +integer)
 
 \Description
 
-\texttt{term\_ref(Term, Ref}) succeeds if the internal reference of
+\texttt{term\_ref(Term, Ref)} succeeds if the internal reference of
 \texttt{Term} is \texttt{Ref}. This predicate can be used either to obtain
 the internal reference of a term or to obtain the term associated to a given
 reference. Note that two identical terms can have different internal
@@ -1988,7 +1988,7 @@ variable nor a stream-option}
 \ErrTerm{permission\_error(open, source\_sink, alias(A))}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
-\texttt{reposition(true}) and it is not possible to reposition this stream} 
+\texttt{reposition(true)} and it is not possible to reposition this stream} 
 \ErrTerm{permission\_error(open, source\_sink, reposition(true))}
 
 \end{PlErrors}
@@ -4048,31 +4048,31 @@ atom and functor is quoted if this would be necessary for the term to be
 input by \texttt{read\_term/3}. If \texttt{false} no extra quotes are
 written. The default value is \texttt{false}.
 
-\item \IdxPOD[ignore\_ops]{ignore\_ops(true}/\texttt{false}): if
+\item \IdxPOD[ignore\_ops]{ignore\_ops(true}/\texttt{false)}: if
 \texttt{true} each compound term is output in functional notation (neither
 operator notation nor list notation is used). If \texttt{false} operator and
 list notations are used. The default value is \texttt{false}.
 
-\item \IdxPOD[numbervars]{numbervars(true}/\texttt{false}): if
+\item \IdxPOD[numbervars]{numbervars(true}/\texttt{false)}: if
 \texttt{true} a term of the form \texttt{'\$VAR'(N)}, where \texttt{N} is an
 integer, is output as a variable name (see below). If \texttt{false}
 such a term is output normally (according to the other options). The
 default value is
 \texttt{true}.
 
-\item \IdxPOD[namevars]{namevars(true}/\texttt{false}): if \texttt{true} a
+\item \IdxPOD[namevars]{namevars(true}/\texttt{false)}: if \texttt{true} a
 term of the form \texttt{'\$VARNAME'(Name)}, where \texttt{Name} is an atom,
 is output as a variable name (see below). If \texttt{false} such a term is
 output normally (according to the other options). The default value is
 \texttt{true}.
 
-\item \IdxPOD[space\_args]{space\_args(true}/\texttt{false}): if
+\item \IdxPOD[space\_args]{space\_args(true}/\texttt{false)}: if
 \texttt{true} an extra space character is emitted after each comma
 separating the arguments of a compound term in functional notation or of a
 list. If \texttt{false} no extra space is emitted. The default value is
 \texttt{false}.
 
-\item \IdxPOD[portrayed]{portrayed(true}/\texttt{false}): if \texttt{true}
+\item \IdxPOD[portrayed]{portrayed(true}/\texttt{false)}: if \texttt{true}
 and if there exists a predicate \texttt{portray/1}, \texttt{write\_term/3}
 acts as follows: if \texttt{Term} is a variable it is simply written. If
 \texttt{Term} is non-variable then it is passed to \texttt{portray/1}. If
@@ -4085,10 +4085,15 @@ list is first passed to \texttt{portray/1} and only if this call fails each
 element of the list is passed to \texttt{portray/1} (thus every sub-list is
 not passed). The default value is \texttt{false}.
 
-\item \IdxPOD[max\_depth]{max\_depth(N}): controls the depth of output for
+\item \IdxPOD[max\_depth]{max\_depth(N)}: controls the depth of output for
 compound terms. \texttt{N} is an integer specifying the depth. The output of
-a term whose depth is greater then \texttt{N} gives rise to the output of
+a term whose depth is greater than \texttt{N} gives rise to the output of
 \texttt{...} (3 dots). By default there is no depth limit.
+
+\item \IdxPOD[priority]{priority(N)}: specifies the starting priority 
+to output the term. This option controls if \texttt{Term} should be enclosed
+in brackets. \texttt{N} is a positive integer $\leq$ 1200. By default
+\texttt{N} = 1200.
 
 \end{itemize}
 
@@ -4172,8 +4177,8 @@ variable nor a valid write-option}
 
 ISO predicates except \texttt{display/1-2} and \texttt{print/1-2} that
 are GNU Prolog predicates. \texttt{namevars/1}, \texttt{space\_args/1},
-\texttt{portrayed/1} and \texttt{max\_depth/1} options are GNU Prolog
-extensions.
+\texttt{portrayed/1}, \texttt{max\_depth/1} and \texttt{priority/1}
+options are GNU Prolog extensions.
 
 \subsubsection{\texttt{format/3},
                \texttt{format/2}}
@@ -4212,7 +4217,7 @@ Format sequence  & type of the argument & Description \\
 
 \hline\hline
 
-\texttt{\~{}a} & atom & print the atom without quoting \\
+\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal number of characters to print using spaces on the rigth if needed (default: the length of the atom) \\
 
 \hline
 
@@ -4561,6 +4566,10 @@ Priority & Specifier & Operators \\
 \texttt{700} & \texttt{xfx} & \texttt{= ~{\bs}= ~=.. ~== ~{\bs}== ~@{\lt}
 ~@={\lt} ~@{\gt} ~@{\gt}= ~is ~=:= ~={\bs}= ~{\lt} ~={\lt} ~{\gt} ~{\gt}=}
 \\
+
+\hline
+
+\texttt{600} & \texttt{xfy} & \texttt{:} \\
 
 \hline
 

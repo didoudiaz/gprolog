@@ -204,13 +204,15 @@ break :-
 	'$call'(X, top_level, 0, true),
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
+	name_query_vars(QueryVars, ToDispVars),
+	'$remove_underscore_vars'(ToDispVars, ToDispVars1),
+	name_singleton_vars(ToDispVars1),
+	bind_variables(ToDispVars1, [exclude(QueryVars), namevars]),
 	(   fail,                             % do not activate 'alt if vars'
-	    QueryVars = [] ->
+	    ToDispVars1 = [] ->
 	    true                              % no alt if only anonymous vars
-	;   name_query_vars(QueryVars, ToDispVars),
-	    name_singleton_vars(ToDispVars),
-	    bind_variables(ToDispVars, [exclude(QueryVars), namevars]),
-	    '$write_solution'(ToDispVars, B1, B),
+	;
+	    '$write_solution'(ToDispVars1, B1, B),
 	    (   B1 > B ->
 	        g_read('$all_solutions', f),          % fail for previous 'a'
 	        write(top_level_output, ' ? '),
@@ -218,6 +220,21 @@ break :-
 	    ;   true
 	    )
 	).
+
+
+
+
+'$remove_underscore_vars'([], []).
+
+'$remove_underscore_vars'([Name = Term|ToDispVars], ToDispVars1) :-
+	(   sub_atom(Name, 0, 1, _, '_')
+	;   Term = '$VARNAME'(Name1),
+	    sub_atom(Name1, 0, 1, _, '_')),
+	!,
+	'$remove_underscore_vars'(ToDispVars, ToDispVars1).
+	
+'$remove_underscore_vars'([X|ToDispVars], [X|ToDispVars1]) :-
+	'$remove_underscore_vars'(ToDispVars, ToDispVars1).
 
 
 

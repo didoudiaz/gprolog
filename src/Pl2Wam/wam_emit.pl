@@ -239,12 +239,35 @@ emit_args(N, N, _, _) :-
 emit_args(I, N, WamInst, Stream) :-
 	I1 is I + 1,
 	(   I1 = 1 ->
-	    Car = '('
-	;   Car = (',')
+	    put_char(Stream, '(')
+	;   put_char(Stream, ',')
 	),
 	arg(I1, WamInst, A),
-	format(Stream, '~a~q', [Car, A]),
+	emit_one_arg(A, Stream),
 	emit_args(I1, N, WamInst, Stream).
+
+emit_one_arg([X|L], Stream) :-
+	length(L, N),		% split long lists
+	N > 30,
+	!,
+	put_char(Stream, '['),
+	line_position(Stream, P),
+	write_term(Stream, X, [quoted(true), priority(999)]),
+	emit_list(L, P, Stream).
+
+emit_one_arg(A, Stream) :-
+	writeq(Stream, A).
+
+
+
+
+emit_list([], _, Stream) :-
+	put_char(Stream, ']').
+
+emit_list([X|L], P, Stream) :-
+	format(Stream, ',~n~*c', [P, 0' ]),
+	write_term(Stream, X, [quoted(true), priority(999)]),
+	emit_list(L, P, Stream).
 
 
 

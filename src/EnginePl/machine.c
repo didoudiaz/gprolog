@@ -307,7 +307,7 @@ M_Allocate_Stacks(void)
   if (addr == NULL)
 #else
   if ((long) addr == -1
-      || ((unsigned long) addr >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
+      || (((unsigned long) (addr) + len) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
 #endif
     {
 #if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)

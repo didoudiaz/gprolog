@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : code_gen.pl
-% date    : 4 9 2002
-% time    : 10:32:47
+% date    : 4 11 2002
+% time    : 20:46:42
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/code_gen.pl').
@@ -2331,7 +2331,39 @@ predicate(math_exp_functor_name/3,578,static,private,user,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([((-),2),(inc,6),(dec,8),((+),10),((*),14),((//),16),((/),18),((rem),20),((mod),22),((/\),24),((\/),26),((^),28),((\),30),((<<),32),((>>),34),(abs,36),(sign,38),((**),40),(sqrt,42),(atan,44),(cos,46),(acos,48),(sin,50),(asin,52),(exp,54),(log,56),(float,58),(ceiling,60),(floor,62),(round,64),(truncate,66),(float_fractional_part,68),(float_integer_part,70)]),
+    switch_on_atom([((-),2),
+                    (inc,6),
+                    (dec,8),
+                    ((+),10),
+                    ((*),14),
+                    ((//),16),
+                    ((/),18),
+                    ((rem),20),
+                    ((mod),22),
+                    ((/\),24),
+                    ((\/),26),
+                    ((^),28),
+                    ((\),30),
+                    ((<<),32),
+                    ((>>),34),
+                    (abs,36),
+                    (sign,38),
+                    ((**),40),
+                    (sqrt,42),
+                    (atan,44),
+                    (cos,46),
+                    (acos,48),
+                    (sin,50),
+                    (asin,52),
+                    (exp,54),
+                    (log,56),
+                    (float,58),
+                    (ceiling,60),
+                    (floor,62),
+                    (round,64),
+                    (truncate,66),
+                    (float_fractional_part,68),
+                    (float_integer_part,70)]),
 
 label(2),
     try(4),

@@ -1,11 +1,13 @@
 Change in GNU Prolog version 1.2.12:
 
+* added priority/1 option to write_term to specify starting priority
+* now under the top-level, _XXX variables are not displayed
 * fix bug in decompose_file_name/4 (tried to modify read-only string)
 * now open/4 better detects if a stream can be is repositioned
 * add source reader facility (built-in) - not yet documented
 * fix current_predicate bug, now current_predicate(nl/0) fails
 * fix linedit bug in tab pasting and add Esc-Tab function
-* now linedit goes to EOL at finish to fix bug with multi-line inputs
+* now linedit goes to EOL at CR to fix bug with multi-line inputs
 * now linedit avoids to put in history 2 same consecutive lines
 * remove max_stream limitation (the Prolog flag no longer exists)
 * the template of get_print_stream/1 is now ?stream
