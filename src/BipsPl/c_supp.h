@@ -244,6 +244,8 @@ Bool Un_Callable_Check(int func, int arity, WamWord *arg,
 
 Bool Un_Callable(int func, int arity, WamWord *arg, WamWord start_word);
 
+Bool Un_Term(WamWord term_word, WamWord start_word);
+
 
 
 WamWord Mk_Integer(long value);

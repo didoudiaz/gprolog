@@ -1,4 +1,8 @@
-Wed Feb 19 18:10:22 CET 2003
+Tue Feb 25 16:48:12 CET 2003 <Daniel.Diaz@inria.fr>
+
+	* fix a bug with the foreign C interface
+
+Wed Feb 19 18:10:22 CET 2003 <Daniel.Diaz@inria.fr>
 
 	* change configure.in: by default ebp is not used
 

@@ -31,6 +31,7 @@ extern "C" {
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 #define HAVE_TERMIOS_H 1
+#define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
 #define NO_USE_EBP 1
@@ -1263,6 +1264,7 @@ Bool Un_Compound(int func, int arity, WamWord *arg, WamWord start_word);
 Bool Un_Callable_Check(int func, int arity, WamWord *arg,
 		       WamWord start_word);
 Bool Un_Callable(int func, int arity, WamWord *arg, WamWord start_word);
+Bool Un_Term(WamWord term_word, WamWord start_word);
 WamWord Mk_Integer(long value);
 WamWord Mk_Positive(long value);
 WamWord Mk_Float(double value);
