@@ -729,10 +729,15 @@ Temporary_Name_2(WamWord template_word, WamWord path_name_word)
   char *path_name;
 
   template = Get_Path_Name(template_word);
+  path_name = strdup (template);
 
   errno = -1;
-  path_name = (char *) mktemp(template);
-  Os_Test_Error(path_name == NULL);
+  {
+    int fd;
+    fd = mkstemp (path_name);
+    Os_Test_Error (fd == -1);
+    close (fd);
+  }
 
   return path_name && Un_String_Check(path_name, path_name_word);
 }
@@ -763,10 +768,19 @@ Temporary_File_3(WamWord dir_word, WamWord prefix_word,
     prefix = NULL;
 
   errno = -1;
-  path_name = (char *) tempnam(dir, prefix);
-  Os_Test_Error(path_name == NULL);
+  {
+    int fd;
+    char path_store[PATH_MAX];
 
-  return path_name && Un_String_Check(path_name, path_name_word);
+    path_store[0] = 0;
+    sprintf (path_store, "%s%sXXXXXX", (dir?dir:""), (prefix?prefix:""));
+    fd = mkstemp (path_store);
+    path_name = strdup (path_store);
+    Os_Test_Error (fd == -1);
+    close (fd);
+  }
+
+  return path_name[0] && Un_String_Check(path_name, path_name_word);
 }
 
 
