@@ -53,11 +53,11 @@
 
 
 /*-------------------------------------------------------------------------*
- * GET_CODE_NO_ECHO_2                                                      *
+ * GET_KEY_2                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Code_No_Echo_2(WamWord sora_word, WamWord code_word)
+Get_Key_2(WamWord sora_word, WamWord code_word)
 {
   int stm;
   int c;
@@ -68,18 +68,9 @@ Get_Code_No_Echo_2(WamWord sora_word, WamWord code_word)
   last_input_sora = sora_word;
   Check_Stream_Type(stm, TRUE, TRUE);
 
-#if 0				/* not tested to allow for function keys */
-  Check_For_Un_Code(code_word);
-#else
   Check_For_Un_Integer(code_word);
-#endif
 
-
-  c = Stream_Getc_No_Echo(stm_tbl + stm);
-#if 0				/* not tested to allow for function keys */
-  if (c != EOF && !Is_Valid_Code(c))
-    Pl_Err_Representation(representation_character);
-#endif
+  c = Stream_Get_Key(stm_tbl + stm, TRUE, TRUE);
 
   if (c == EOF)
     c = -1;
@@ -91,13 +82,55 @@ Get_Code_No_Echo_2(WamWord sora_word, WamWord code_word)
 
 
 /*-------------------------------------------------------------------------*
- * GET_CODE_NO_ECHO_1                                                      *
+ * GET_KEY_1                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Code_No_Echo_1(WamWord code_word)
+Get_Key_1(WamWord code_word)
 {
-  return Get_Code_No_Echo_2(NOT_A_WAM_WORD, code_word);
+  return Get_Key_2(NOT_A_WAM_WORD, code_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_KEY_NO_ECHO_2                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Get_Key_No_Echo_2(WamWord sora_word, WamWord code_word)
+{
+  int stm;
+  int c;
+
+  stm = (sora_word == NOT_A_WAM_WORD)
+    ? stm_input : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+
+  last_input_sora = sora_word;
+  Check_Stream_Type(stm, TRUE, TRUE);
+
+  Check_For_Un_Integer(code_word);
+
+  c = Stream_Get_Key(stm_tbl + stm, FALSE, TRUE);
+
+  if (c == EOF)
+    c = -1;
+
+  return Get_Integer(c, code_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_KEY_NO_ECHO_1                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Get_Key_No_Echo_1(WamWord code_word)
+{
+  return Get_Key_No_Echo_2(NOT_A_WAM_WORD, code_word);
 }
 
 

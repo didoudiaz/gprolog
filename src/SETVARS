@@ -1,4 +1,4 @@
 a=`pwd`
-PATH=$a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:$PATH:/usr/ucb/:/usr/ccs/bin/
+PATH=$a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:$a/W32GUICons:$PATH:/usr/ucb/:/usr/ccs/bin/
 
 export PATH

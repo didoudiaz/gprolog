@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : oper.pl
-% date    : 9 28 2001
-% time    : 20:43:40
+% date    : 10 7 2001
+% time    : 9:44:58
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/oper.pl').
@@ -18,7 +18,7 @@ predicate(op/3,31,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(op,0),
     put_integer(3,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(2),0),
     call('$check_atom_or_atom_list'/1),
     put_value(y(2),0),
@@ -33,7 +33,7 @@ predicate('$op/3_$aux1'/3,31,static,private,built_in,[
     try_me_else(1),
     get_variable(x(4),2),
     get_variable(x(2),0),
-    call_c_test('Blt_Atom',[2]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(2)]),
     cut(x(3)),
     put_value(x(1),0),
     put_value(x(4),1),
@@ -78,18 +78,18 @@ label(4),
 
 
 predicate('$op2'/3,47,static,private,built_in,[
-    call_c('Op_3',[0,1,2]),
+    call_c('Op_3',[],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(current_op/3,53,static,private,built_in,[
     put_atom(current_op,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
-    call_c_test('Current_Op_3',[0,1,2]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Current_Op_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$current_op_alt'/0,58,static,private,built_in,[
-    call_c_test('Current_Op_Alt_0',[]),
+    call_c('Current_Op_Alt_0',[boolean],[]),
     proceed]).

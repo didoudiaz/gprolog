@@ -73,7 +73,7 @@ static int Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0);
 
 
 
-#define   Unget_Last_Char       Stream_Ungetc(c_orig,pstm)
+#define   Unget_Last_Char       Stream_Ungetc(c_orig, pstm)
 
 
 
@@ -582,7 +582,7 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0)
  *-------------------------------------------------------------------------*/
 void
 Recover_After_Error(StmInf *pstm)
-#define Next_Char   Read_Next_Char(pstm,convert); if (c==EOF) return
+#define Next_Char   Read_Next_Char(pstm, convert); if (c == EOF) return
 {
   int c0;
   Bool convert;

@@ -27,7 +27,7 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
-#ifdef M_ix86_win32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 
 #define MAXPATHLEN                 1024
 #define SIGQUIT                    SIGTERM
@@ -41,8 +41,8 @@
 #define popen                      _popen
 #define pclose                     _pclose
 #define getpid                     _getpid
-#define strcasecmp                 _stricmp
-#define strncasecmp                _strnicmp
+#define strcasecmp                 stricmp
+#define strncasecmp                strnicmp
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
@@ -70,9 +70,9 @@
 #endif
 
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
-#define Set_Line_Buf(s)            setvbuf(s,NULL,_IOLBF,0)
+#define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
 #elif defined(M_ix86_win32)
-#define Set_Line_Buf(s)            setbuf(s,NULL)
+#define Set_Line_Buf(s)            setbuf(s, NULL)
 #else
 #define Set_Line_Buf(s)            setlinebuf(s)
 #endif
@@ -101,6 +101,9 @@
 #define __unix__
 #endif
 
+#ifndef HAVE_FGETC
+#define fgetc getc
+#endif
 
 				/* Fast call macros */
 #if defined(M_ix86)

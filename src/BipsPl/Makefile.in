@@ -1,6 +1,8 @@
 MAKE_SOCKETS_OBJS    = @MAKE_SOCKETS_OBJS@
 MAKE_LE_INTERF_OBJS  = @MAKE_LE_INTERF_OBJS@
 LIB_BIPS_PL          = @LIB_BIPS_PL@
+LIB_ENGINE_PL        = @LIB_ENGINE_PL@
+LIB_LINEDIT          = @LIB_LINEDIT@
 GPLC                 = @GPLC@
 CC                   = @CC@
 CFLAGS               = @CFLAGS@
@@ -102,8 +104,8 @@ distclean: clean
 
 t.wam: t.pl
 
-t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/libengine_pl.a $(LIBNAME) \
-            ../Linedit/liblinedit.a 
+t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/$(LIB_ENGINE_PL) $(LIBNAME) \
+            ../Linedit/$(LIB_LINEDIT)
 	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ --no-fd-lib
 
 
@@ -119,6 +121,8 @@ flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 dynam_supp@OBJ_SUFFIX@: dynam_supp.h
 bc_supp@OBJ_SUFFIX@:    dynam_supp.h
 assert_c@OBJ_SUFFIX@:   dynam_supp.h
+stream_supp@OBJ_SUFFIX@: flag_supp.h
+consult_c@OBJ_SUFFIX@:   flag_supp.h
 
 foreign.wam:     foreign.pl
 
@@ -182,6 +186,6 @@ ROBJS=scan_supp.o parse_supp.o /tmp/stream_supp.o /tmp/write_supp.o
 	$(GPLC) -C "$(RCFLAGS)" -c write_supp.c -o /tmp/write_supp.o
 
 
-r: r.o $(ROBJS) ../EnginePl/libengine_pl.a
+r: r.o $(ROBJS) ../EnginePl/$(LIB_ENGINE_PL)
 	$(GPLC) -o r r.o $(ROBJS) --no-pl-lib
 

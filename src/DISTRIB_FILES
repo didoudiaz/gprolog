@@ -68,6 +68,11 @@ src/RPM/rpm_env.spec
 src/RPM/initial.spec
 src/RPM/gprolog.spec
 
+src/debian/README.Debian
+src/debian/autodocs/[a-z]*
+src/debian/all-packages
+src/debian/[b-z]*
+
 src/TopComp/Makefile.in
 src/TopComp/[a-z][a-z]?*.[ch]
 
@@ -100,13 +105,8 @@ src/Linedit/Makefile.in
 src/Linedit/[a-z][a-z]?*.[ch]
 
 src/W32GUICons/Makefile.in
-src/W32GUICons/[A-Za-z]??*.[ch]
-src/W32GUICons/[A-Za-z]??*.cpp
-src/W32GUICons/GUICons*
-src/W32GUICons/[A-Za-z]??*.bat
-src/W32GUICons/[A-Za-z]??*.txt
-src/W32GUICons/res/*.*
-src/W32GUICons/hlp/*.*
+src/W32GUICons/[a-z][a-z]?*.[ch]
+src/W32GUICons/[a-z][a-z]?*.rc
 
 src/EnginePl/Makefile.in
 src/EnginePl/gp_config.h.in

@@ -42,4 +42,4 @@
 
 void Call_Info_Bip_Name_1(WamWord call_info_word);
 
-#define Call_Info(f,a,dc)          ((Functor_Arity(f,a)<<1)|dc)
+#define Call_Info(f, a, dc)        ((Functor_Arity(f, a) << 1) | dc)

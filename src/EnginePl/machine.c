@@ -61,10 +61,12 @@
 			 /* gcc cannot define a global reg var after a fct */
 
 #ifndef NO_USE_SOCKETS
+#  ifndef M_ix86_win32
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#  endif
 #define INET_MANAGEMENT
 #endif
 
@@ -168,9 +170,9 @@ static char *Host_Name_From_Alias(struct hostent *host_entry);
 
 
 
-#define Round_Up(x,y)           (((x)+(y)-1)/(y)*(y))
+#define Round_Up(x, y)          (((x) + (y) - 1) / (y) * (y))
 
-#define Round_Down(x,y)         ((x)/(y)*(y))
+#define Round_Down(x, y)        ((x) / (y) * (y))
 
 
 
@@ -911,7 +913,8 @@ M_Host_Name_From_Adr(char *host_address)
   struct in_addr iadr;
 
 #if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
-    defined(M_ix86_cygwin) || defined(M_ix86_solaris)
+    defined(M_ix86_cygwin) || defined(M_ix86_solaris)  || \
+    defined(M_ix86_win32)
   if ((iadr.s_addr = inet_addr(host_address)) == -1)
 #else
   if (inet_aton(host_address, &iadr) == 0)

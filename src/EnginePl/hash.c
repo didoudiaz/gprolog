@@ -36,10 +36,10 @@
 
 #include "hash.h"
 
-#define Malloc(size)      malloc(size)
-#define Calloc(nb,size)   calloc(nb,size)
-#define Realloc(ptr,size) realloc(ptr,size)
-#define Free(ptr)         free(ptr)
+#define Malloc(size)       malloc(size)
+#define Calloc(nb, size)   calloc(nb, size)
+#define Realloc(ptr, size) realloc(ptr, size)
+#define Free(ptr)          free(ptr)
 
 #else
 
@@ -87,11 +87,11 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
 
 #define Nb_Elem(t)                 (((int *)(t))[2])
 
-#define Hsh_Table(t)               (((HashNode *) (t))+HASH_STATIC_SIZE)
+#define Hsh_Table(t)               (((HashNode *) (t)) + HASH_STATIC_SIZE)
 
 
 
-#define Hash_Function(k,size)      ((unsigned long) (k) % (size))
+#define Hash_Function(k, size)     ((unsigned long) (k) % (size))
 
 
 

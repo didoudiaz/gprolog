@@ -33,6 +33,10 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
+#ifndef NO_USE_LINEDIT
+#include "linedit.h"
+#endif
+
 #if defined(M_ix86_cygwin) || defined(M_ix86_win32)
 #include <io.h>
 #endif
@@ -201,6 +205,7 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   StmProp prop;
   char *path;
   int atom_file_name;
+  int istty;
   int stm;
   char open_str[10];
   FILE *f;
@@ -235,17 +240,17 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 			  permission_type_source_sink, source_sink_word);
     }
 
-  prop.tty = (isatty(fileno(f)) != 0);
+  istty = (isatty(fileno(f)) != 0);
 
   if ((mask & 2) == 0)		/* not specified - set to default */
-    prop.reposition = !(prop.tty);
+    prop.reposition = !istty;
   else
     prop.reposition = mask & 1;
   mask >>= 2;
 
 
   if ((mask & 4) == 0)		/* not specified - set to default */
-    prop.eof_action = (prop.tty) ? STREAM_EOF_ACTION_RESET
+    prop.eof_action = (istty) ? STREAM_EOF_ACTION_RESET
       : STREAM_EOF_ACTION_EOF_CODE;
   else
     prop.eof_action = mask & 3;
@@ -253,7 +258,7 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 
 
   if ((mask & 4) == 0)		/* not specified - set to default */
-    prop.buffering = (prop.tty) ? STREAM_BUFFERING_LINE
+    prop.buffering = (istty) ? STREAM_BUFFERING_LINE
       : STREAM_BUFFERING_BLOCK;
   else
     prop.buffering = mask & 3;
@@ -754,6 +759,16 @@ Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
   int atom;
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+
+#ifndef NO_USE_LINEDIT		/* if use_gui == 1 */
+  if (stm_tbl[stm].file == (long) stdout && le_hook_get_line_buffering)
+    {
+      if ((*le_hook_get_line_buffering)())
+	stm_tbl[stm].prop.buffering = STREAM_BUFFERING_LINE;
+      else
+	stm_tbl[stm].prop.buffering = STREAM_BUFFERING_NONE;
+    }
+#endif
 
   switch (stm_tbl[stm].prop.buffering)
     {

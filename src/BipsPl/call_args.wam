@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : call_args.pl
-% date    : 9 28 2001
-% time    : 20:43:40
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call_args.pl').
@@ -12,55 +12,55 @@ predicate('$use_call_args'/0,29,static,private,built_in,[
 
 
 predicate(call_with_args/1,34,static,private,built_in,[
-    call_c_jump('Call_With_Args_1',[]),
+    call_c('Call_With_Args_1',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/2,37,static,private,built_in,[
-    call_c_jump('Call_With_Args_2',[]),
+    call_c('Call_With_Args_2',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/3,40,static,private,built_in,[
-    call_c_jump('Call_With_Args_3',[]),
+    call_c('Call_With_Args_3',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/4,43,static,private,built_in,[
-    call_c_jump('Call_With_Args_4',[]),
+    call_c('Call_With_Args_4',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/5,46,static,private,built_in,[
-    call_c_jump('Call_With_Args_5',[]),
+    call_c('Call_With_Args_5',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/6,49,static,private,built_in,[
-    call_c_jump('Call_With_Args_6',[]),
+    call_c('Call_With_Args_6',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/7,52,static,private,built_in,[
-    call_c_jump('Call_With_Args_7',[]),
+    call_c('Call_With_Args_7',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/8,55,static,private,built_in,[
-    call_c_jump('Call_With_Args_8',[]),
+    call_c('Call_With_Args_8',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/9,58,static,private,built_in,[
-    call_c_jump('Call_With_Args_9',[]),
+    call_c('Call_With_Args_9',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/10,61,static,private,built_in,[
-    call_c_jump('Call_With_Args_10',[]),
+    call_c('Call_With_Args_10',[jump],[]),
     proceed]).
 
 
 predicate(call_with_args/11,64,static,private,built_in,[
-    call_c_jump('Call_With_Args_11',[]),
+    call_c('Call_With_Args_11',[jump],[]),
     proceed]).

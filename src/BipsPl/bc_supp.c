@@ -222,13 +222,10 @@ static
 
 
 
-#define BC_EMULATE_ALT             X2462635F656D756C6174655F616C74
-
 #define BC_EMULATE_CONT            X2462635F656D756C6174655F636F6E74
 
 #define CALL_INTERNAL_WITH_CUT     X2463616C6C5F696E7465726E616C5F776974685F637574
 
-Prolog_Prototype(BC_EMULATE_ALT, 0);
 Prolog_Prototype(BC_EMULATE_CONT, 0);
 Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
@@ -256,7 +253,7 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define Fit_In_24bits(n)           ((unsigned) (n) < (1<<24))
 
-#define Op_In_Tbl(str,op)    BC_Op(*p)=op; BC_Atm(*p)=Create_Atom(str); p++
+#define Op_In_Tbl(str, op)  BC_Op(*p)=op; BC_Atm(*p) = Create_Atom(str); p++
 
 #if WORD_SIZE == 32
 

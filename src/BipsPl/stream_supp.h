@@ -84,7 +84,6 @@ typedef struct			/* Stream properties              */
   unsigned reposition:1;	/* can it be repositioned ?       */
   unsigned eof_action:2;	/* see STREAM_EOF_ACTION_xxx defs */
   unsigned buffering:2;		/* see STREAM_BUFFERING_xxx defs  */
-  unsigned tty:1;		/* is it a tty ?                  */
   unsigned special_close:1;	/* does it need a special close ? */
   unsigned other:8;		/* other prop (1,2,3=term_streams */
 }				/*             4=socket_stream)   */
@@ -325,7 +324,7 @@ int File_Number_Of_Stream(int stm);
 
 int Stream_Getc(StmInf *pstm);
 
-int Stream_Getc_No_Echo(StmInf *pstm);
+int Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
 
 void Stream_Ungetc(int c, StmInf *pstm);
 
@@ -365,43 +364,52 @@ char *Term_Write_Str_Stream(int stm);
 
 
 
-#define PB_Init(pb)          pb.ptr=pb.buff, pb.nb_elems=0;
+#define PB_Init(pb)          pb.ptr = pb.buff, pb.nb_elems = 0;
 
 
 
-#define PB_Is_Empty(pb)      (pb.nb_elems==0)
+#define PB_Is_Empty(pb)      (pb.nb_elems == 0)
 
 
 
-#define PB_Push(pb,elem)                                                    \
-    do {                                                                    \
-     *(pb.ptr)=(elem);                                                      \
-     if (pb.ptr!=pb.buff+STREAM_PB_SIZE-1)                                  \
-         pb.ptr++;                                                          \
-      else                                                                  \
-         pb.ptr=pb.buff;                                                    \
-     if (pb.nb_elems<STREAM_PB_SIZE)                                        \
-         pb.nb_elems++;                                                     \
-    } while(0)
+#define PB_Push(pb, elem)                  		\
+  do							\
+    {							\
+      *(pb.ptr) = (elem);				\
+      if (pb.ptr != pb.buff + STREAM_PB_SIZE - 1)	\
+	pb.ptr++;					\
+      else						\
+	pb.ptr = pb.buff;				\
+      if (pb.nb_elems < STREAM_PB_SIZE)			\
+	pb.nb_elems++;					\
+    }							\
+  while (0)
 
 
 
-#define PB_Pop(pb,elem)                                                     \
-    do {                                                                    \
-     if (pb.ptr!=pb.buff)                                                   \
-         pb.ptr--;                                                          \
-      else                                                                  \
-         pb.ptr=pb.buff+STREAM_PB_SIZE-1;                                   \
-     (elem)=*pb.ptr;                                                        \
-     pb.nb_elems--;                                                         \
-    } while(0)
+
+#define PB_Pop(pb, elem)                    	\
+  do						\
+    {						\
+      if (pb.ptr != pb.buff)			\
+	pb.ptr--;				\
+      else					\
+	pb.ptr = pb.buff + STREAM_PB_SIZE - 1;	\
+      (elem) = *pb.ptr;				\
+      pb.nb_elems--;				\
+    }						\
+  while (0)
 
 
 
-#define PB_Top(pb,elem)                                                     \
-    do {                                                                    \
-     if (pb.ptr!=pb.buff)                                                   \
-         (elem)=pb.ptr[-1];                                                 \
-      else                                                                  \
-         (elem)=pb.buff[STREAM_PB_SIZE-1];                                  \
-    } while(0)
+
+#define PB_Top(pb, elem)                    	\
+  do						\
+    {						\
+      if (pb.ptr != pb.buff)			\
+	(elem) = pb.ptr[-1];			\
+      else					\
+	(elem) = pb.buff[STREAM_PB_SIZE - 1];	\
+    }						\
+  while (0)
+

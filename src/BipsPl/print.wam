@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : print.pl
-% date    : 9 28 2001
-% time    : 20:43:39
+% date    : 10 7 2001
+% time    : 9:44:58
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/print.pl').
@@ -14,16 +14,16 @@ predicate('$use_print'/0,29,static,private,built_in,[
 predicate(print/1,32,static,private,built_in,[
     put_atom(print,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c('Print_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Print_1',[],[x(0)]),
     proceed]).
 
 
 predicate(print/2,36,static,private,built_in,[
     put_atom(print,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c('Print_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Print_2',[],[x(0),x(1)]),
     proceed]).
 
 
@@ -37,7 +37,7 @@ predicate('$try_portray'/1,43,static,private,built_in,[
     call('$current_predicate'/1),
     put_atom('$portray_ok',0),
     put_integer(0,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_structure(format/3,0),
     unify_atom(top_level_output),
     unify_atom('exception from portray/1: ~q~n'),
@@ -58,14 +58,14 @@ predicate('$try_portray'/1,43,static,private,built_in,[
     call('$catch'/6),
     put_atom('$portray_ok',0),
     put_integer(1,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     fail,
 
 label(1),
     trust_me_else_fail,
     put_atom('$portray_ok',0),
     put_integer(1,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -73,7 +73,7 @@ predicate(get_print_stream/1,56,static,private,built_in,[
     allocate(1),
     put_atom(get_print_stream,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(6,0),

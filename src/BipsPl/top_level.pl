@@ -52,6 +52,9 @@ break :-
 	;   true
 	),
 	'$sys_var_inc'(10),
+	g_read('$cmd_line_entry_goal', LGoal),
+	'$exec_cmd_line_entry_goals'(LGoal),
+	g_assign('$cmd_line_entry_goal', []),
 	'$top_level1',
 	'$sys_var_dec'(10),
 	'$sys_var_write'(11, B),
@@ -118,7 +121,7 @@ break :-
 	;   write(top_level_output, Prompt)
 	),
 	flush_output(top_level_output),
-	read_term(top_level_input, X, [variable_names(QueryVars)]),
+	'$read_query'(X, QueryVars),
 	(   '$sys_var_read'(12, 1) ->
 	    '$set_linedit_prompt'(UserPrompt)
 	;   true
@@ -128,7 +131,7 @@ break :-
 	(   X == end_of_file ->
 	    nl(top_level_output), !
 	;   user_time(Time0),
-	    (   '$exec'(X, QueryVars1) ->
+	    (   '$exec_query'(X, QueryVars1) ->
 	        Ok = yes
 	    ;   Ok = no
 	    ),
@@ -175,7 +178,25 @@ break :-
 
 
 
-'$exec'(X, QueryVars) :-
+'$read_query'(X, QueryVars) :-
+	'$sys_var_read'(10, 1), % comment to execute in nested top-levels
+	g_read('$cmd_line_query_goal', [Goal|LGoal]),
+	g_assign('$cmd_line_query_goal', LGoal),
+	!,
+	Prompt = '| ?- ',
+	(   '$sys_var_read'(12, 1) -> 
+	    write(top_level_output, Prompt)
+	;   true),
+	format(top_level_output, '~a.~n', [Goal]),
+	read_term_from_atom(Goal, X, [end_of_term(eof), variable_names(QueryVars)]).
+
+'$read_query'(X, QueryVars) :-
+	read_term(top_level_input, X, [variable_names(QueryVars)]).
+
+
+
+
+'$exec_query'(X, QueryVars) :-
 	g_read('$debug_mode', DebugMode),
 	g_assign('$debug_next', DebugMode),
 	g_assign('$all_solutions', f),
@@ -224,7 +245,7 @@ break :-
 
 '$read_return' :-
 	flush_output(top_level_output),
-	get_code_no_echo(top_level_input, X),
+	get_key(top_level_input, X),
 	'$read_return'(X), !.
 
 
@@ -246,3 +267,32 @@ break :-
 	nl(top_level_output),
 	write(top_level_output, 'Action (; for next solution, a for all solutions, RET to stop) ? '),
 	'$read_return'.
+
+
+
+/* interface with command-line options executing goals */
+
+'$exec_cmd_line_entry_goals'([Goal|LGoal]):-
+	!,
+	'$exec_cmd_line_goal'(Goal),
+	'$exec_cmd_line_entry_goals'(LGoal).
+
+'$exec_cmd_line_entry_goals'(_).		% can be another term than []
+
+
+						
+
+'$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
+	(   '$catch'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), 'command-line', -1, false) ->
+	    true
+	;   format('~Nwarning: command-line goal ~q failed~n', [Goal])).
+
+
+'$exec_cmd1'(Goal) :-
+	read_term_from_atom(Goal, TermGoal, [end_of_term(eof)]),
+	'$call'(TermGoal, 'command-line', -1, false).
+
+
+'$exec_cmd_err'(Goal, Err) :-
+	format('~Nwarning: command-line goal ~q caused exception: ~q~n', [Goal, Err]).
+

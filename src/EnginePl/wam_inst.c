@@ -892,6 +892,21 @@ Allocate(int n)
   EE(cur_E) = (WamWord *) old_E;
 }
 
+void
+Allocate4(void) FC;
+
+void
+Allocate4(void)
+{
+  WamWord *old_E = E;
+  WamWord *cur_E = Local_Top + ENVIR_STATIC_SIZE + 4;
+
+  E = cur_E;
+
+  CPE(cur_E) = (WamCont) CP;
+  BCIE(cur_E) = BCI;
+  EE(cur_E) = (WamWord *) old_E;
+}
 
 
 
@@ -914,7 +929,7 @@ Deallocate(void)
 
 
 /*-------------------------------------------------------------------------*
- * SWITCH_ON_TERM                                                          *
+ * SWITCH_ON_TERM and specialized versions                                 *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
@@ -940,6 +955,108 @@ Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
     codep = c_var;
 
   return (codep) ? codep : ALTB(B);
+}
+
+
+
+
+CodePtr
+Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
+{
+  WamWord word, tag_mask;
+
+  DEREF(A(0), word, tag_mask);
+  A(0) = word;
+
+  if (tag_mask == TAG_ATM_MASK)
+    return c_atm;
+
+  if (tag_mask == TAG_REF_MASK
+#ifndef NO_USE_FD_SOLVER
+      || tag_mask == TAG_FDV_MASK
+#endif
+      )
+    return c_var;
+
+  return ALTB(B);
+}
+
+
+
+
+CodePtr
+Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
+{
+  WamWord word, tag_mask;
+
+  DEREF(A(0), word, tag_mask);
+  A(0) = word;
+
+  if (tag_mask == TAG_STC_MASK)
+    return c_stc;
+
+  if (tag_mask == TAG_REF_MASK
+#ifndef NO_USE_FD_SOLVER
+      || tag_mask == TAG_FDV_MASK
+#endif
+      )
+    return c_var;
+
+  return ALTB(B);
+}
+
+
+
+
+CodePtr
+Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
+{
+  WamWord word, tag_mask;
+
+  DEREF(A(0), word, tag_mask);
+  A(0) = word;
+
+  if (tag_mask == TAG_LST_MASK)
+    return c_lst;
+
+  if (tag_mask == TAG_ATM_MASK)
+    return c_atm;
+
+  if (tag_mask == TAG_REF_MASK
+#ifndef NO_USE_FD_SOLVER
+      || tag_mask == TAG_FDV_MASK
+#endif
+      )
+    return c_var;
+
+  return ALTB(B);
+}
+
+
+
+
+CodePtr
+Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
+{
+  WamWord word, tag_mask;
+
+  DEREF(A(0), word, tag_mask);
+  A(0) = word;
+
+  if (tag_mask == TAG_STC_MASK)
+    return c_stc;
+
+  if (tag_mask == TAG_ATM_MASK)
+    return c_atm;
+
+  if (tag_mask == TAG_REF_MASK
+#ifndef NO_USE_FD_SOLVER
+      || tag_mask == TAG_FDV_MASK
+#endif
+      )
+    return c_var;
+
+  return ALTB(B);
 }
 
 
@@ -1081,83 +1198,187 @@ Obtain_Float(WamWord *adr)
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_CHOICE_POINT                                                     *
+ * CREATE_CHOICE_POINT and specialized versions                            *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
+
+#define CREATE_CHOICE_COMMON_PART(arity)                   \
+  WamWord *old_B = B;                                      \
+  WamWord *cur_B = Local_Top + CHOICE_STATIC_SIZE + arity; \
+                                                           \
+  B = cur_B;                                               \
+                                                           \
+  ALTB(cur_B) = codep_alt;                                 \
+  CPB(cur_B) = CP;                                         \
+  BCIB(cur_B) = BCI;                                       \
+  EB(cur_B) = E;                                           \
+  BB(cur_B) = old_B;                                       \
+  HB(cur_B) = HB1 = H;                                     \
+  TRB(cur_B) = TR;                                         \
+  CSB(cur_B) = CS;                                         \
+                                                           \
+  STAMP++
+
+
+				/* common part for update/delete */
+				/* restore registers except B and HB1 */
+#define UPDATE_DELETE_COMMON_PART \
+  WamWord *cur_B = B;             \
+                                  \
+  Untrail(TRB(cur_B));            \
+                                  \
+  CP = CPB(cur_B);                \
+  BCI = BCIB(cur_B);              \
+  H = HB(cur_B);		  \
+  E = EB(cur_B);                  \
+  CS = CSB(cur_B)
+
+
+
+				/* update ALTB, restore HB1 */
+#define UPDATE_CHOICE_COMMON_PART \
+  UPDATE_DELETE_COMMON_PART;      \
+  ALTB(cur_B) = codep_alt;        \
+  HB1 = H
+
+
+				/* restore B (and HB1), update STAMP */
+#define DELETE_CHOICE_COMMON_PART \
+  UPDATE_DELETE_COMMON_PART;      \
+  Assign_B(BB(cur_B));            \
+  STAMP--
+
+
+
+
 void
 Create_Choice_Point(CodePtr codep_alt, int arity)
 {
-  WamWord *old_B = B;
-  WamWord *cur_B = Local_Top + CHOICE_STATIC_SIZE + arity;
   int i;
+  CREATE_CHOICE_COMMON_PART(arity);
 
-  B = cur_B;
-
-  ALTB(cur_B) = codep_alt;
-  CPB(cur_B) = CP;
-  BCIB(cur_B) = BCI;
-  EB(cur_B) = E;
-  BB(cur_B) = old_B;
-  HB(cur_B) = HB1 = H;
-  TRB(cur_B) = TR;
-  CSB(cur_B) = CS;
-
-  STAMP++;
-
-#if 0
-  if (arity)
-    {
-      WamWord *p_args = &A(0);
-      WamWord *p_chc_args = &AB(cur_B, 0);
-      do
-	*p_chc_args-- = *p_args++;
-      while(--arity);
-    }
-#else
   for (i = 0; i < arity; i++)
     AB(cur_B, i) = A(i);
-#endif
+}
+
+
+
+
+void
+Create_Choice_Point1(CodePtr codep_alt)
+{
+  CREATE_CHOICE_COMMON_PART(1);
+
+  AB(cur_B, 0) = A(0);
+}
+
+
+
+
+void
+Create_Choice_Point2(CodePtr codep_alt)
+{
+  CREATE_CHOICE_COMMON_PART(2);
+
+  AB(cur_B, 0) = A(0);
+  AB(cur_B, 1) = A(1);
+}
+
+
+
+
+void
+Create_Choice_Point3(CodePtr codep_alt)
+{
+  CREATE_CHOICE_COMMON_PART(3);
+
+  AB(cur_B, 0) = A(0);
+  AB(cur_B, 1) = A(1);
+  AB(cur_B, 2) = A(2);
+}
+
+
+
+
+void
+Create_Choice_Point4(CodePtr codep_alt)
+{
+  CREATE_CHOICE_COMMON_PART(4);
+
+  AB(cur_B, 0) = A(0);
+  AB(cur_B, 1) = A(1);
+  AB(cur_B, 2) = A(2);
+  AB(cur_B, 3) = A(3);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UPDATE_CHOICE_POINT                                                     *
+ * UPDATE_CHOICE_POINT and specialized versions                            *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
+
 void
 Update_Choice_Point(CodePtr codep_alt, int arity)
 {
   int i;
-  WamWord *cur_B = B;
+  UPDATE_CHOICE_COMMON_PART;
 
-
-  ALTB(cur_B) = codep_alt;
-
-  Untrail(TRB(cur_B));
-
-  CP = CPB(cur_B);
-  BCI = BCIB(cur_B);
-  E = EB(cur_B);
-  H = HB1 = HB(cur_B);
-  CS = CSB(cur_B);
-
-#if 0
-  if (arity)
-    {
-      WamWord *p_args = &A(0);
-      WamWord *p_chc_args = &AB(cur_B, 0);
-      do
-	*p_args++ = *p_chc_args--;
-      while(--arity);
-    }
-#else
   for (i = 0; i < arity; i++)
     A(i) = AB(cur_B, i);
-#endif
+}
+
+
+
+
+void
+Update_Choice_Point1(CodePtr codep_alt)
+{
+  UPDATE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+}
+
+
+
+
+void
+Update_Choice_Point2(CodePtr codep_alt)
+{
+  UPDATE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+  A(1) = AB(cur_B, 1);
+}
+
+
+
+
+void
+Update_Choice_Point3(CodePtr codep_alt)
+{
+  UPDATE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+  A(1) = AB(cur_B, 1);
+  A(2) = AB(cur_B, 2);
+}
+
+
+
+
+void
+Update_Choice_Point4(CodePtr codep_alt)
+{
+  UPDATE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+  A(1) = AB(cur_B, 1);
+  A(2) = AB(cur_B, 2);
+  A(3) = AB(cur_B, 3);
 }
 
 
@@ -1172,34 +1393,61 @@ void
 Delete_Choice_Point(int arity)
 {
   int i;
-  WamWord *cur_B = B;
+  DELETE_CHOICE_COMMON_PART;
 
-  Untrail(TRB(cur_B));
-
-  CP = CPB(cur_B);
-  E = EB(cur_B);
-  Assign_B(BB(cur_B));
-  H = HB(cur_B);
-  CS = CSB(cur_B);
-  BCI = BCIB(cur_B);
-
-  STAMP--;
-
-#if 0
-  if (arity)
-    {
-      WamWord *p_args = &A(0);
-      WamWord *p_chc_args = &AB(cur_B, 0);
-      do
-	*p_args++ = *p_chc_args--;
-      while(--arity);
-    }
-#else
   for (i = 0; i < arity; i++)
     A(i) = AB(cur_B, i);
-#endif
 }
 
+
+
+
+void
+Delete_Choice_Point1(void)
+{
+  DELETE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+}
+
+
+
+
+void
+Delete_Choice_Point2(void)
+{
+  DELETE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+  A(1) = AB(cur_B, 1);
+}
+
+
+
+
+void
+Delete_Choice_Point3(void)
+{
+  DELETE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+  A(1) = AB(cur_B, 1);
+  A(2) = AB(cur_B, 2);
+}
+
+
+
+
+void
+Delete_Choice_Point4(void)
+{
+  DELETE_CHOICE_COMMON_PART;
+
+  A(0) = AB(cur_B, 0);
+  A(1) = AB(cur_B, 1);
+  A(2) = AB(cur_B, 2);
+  A(3) = AB(cur_B, 3);
+}
 
 
 

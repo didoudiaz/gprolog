@@ -1,5 +1,33 @@
+Change in GNU Prolog version 1.2.9:
+
+* add several options to the top-level to execute goals
+* add an environment variable LINEDIT to control linedit options
+* fix bug in linedit on \b in start of line (using ANSI ESC sequences)
+* simplify linedit: only apply to stdin
+* now linedit is reentrant
+* now linedit works with XFree keyboard encoding
+* rename built-in get_code_no_echo/1-2 by get_key_no_echo/1-2
+* add built-in get_key/1-2
+* use get_key/1-2 in the top_level + debugger (thus with echo)
+* improve the top-level Ctrl+C manager
+* fix bux on linux configured with --disable-regs
+* add pipe to pl2wam stdin when called by consult/1
+* fix bug in FD: forall is now recognized in .fd files
+* fix bug in DCG: expand_term((a --> X), Y) is OK
+* fix X paste problem in linedit
+* re-write Windows GUI Console in pure Win32 (no more MFC)
+* simplify top_comp.c to better control include dirs in devel. mode
+* specialized functions for create/update/delete choice points
+* fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
+* include patch to support basic sockets under win32 - due to:
+  Brent Fulgham <brent.fulgham@xpsystems.com>
+* arithmetic functions and inlined built-ins use fast call
+* specialized functions for switch_on_term_xxx
+* modify pl2wam to generalize '$call_c' (add options)
+
 Change in GNU Prolog version 1.2.8:
 
+* official release (Oct 15 2001)
 * fix bug - delete file created by mkstemp(2), patch from:
   Salvador Abreu <spa@debian.org>
 * space_args(true) now displays a space inside {}/1
@@ -7,7 +35,7 @@ Change in GNU Prolog version 1.2.8:
 
 Change in GNU Prolog version 1.2.7:
 
-* add a --foreign-only to pl2wam
+* add a --foreign-only option to pl2wam
 * foreign/2 directives are ignored in byte-code mode (no fatal error)
 * space_args(true) now displays space between operators and arguments
 * add CVS Id to prolog files
@@ -53,7 +81,7 @@ Change in GNU Prolog version 1.2.1:
 
 Change in GNU Prolog version 1.2.0:
 
-* official release (Fri Jul 28)
+* official release (Jul 28 2000)
 
 Change in GNU Prolog version 1.1.7:
 
@@ -91,7 +119,7 @@ Change in GNU Prolog version 1.1.3:
 
 Change in GNU Prolog version 1.1.2:
 
-* official release (Mon Nov 29)
+* official release (Nov 29 1999)
 * fix a bug in the scanner about 0'<character>
 * fix a bug in the compiler about \t in quoted atoms
 
@@ -102,7 +130,7 @@ Change in GNU Prolog version 1.1.1:
 
 Change in GNU Prolog version 1.1.0:
 
-* official release (Mon Oct 4)
+* official release (Oct 4 1999)
 * fix a bug in the output of some extended characters in native-compilation
 
 Change in GNU Prolog version 1.0.6:
@@ -136,7 +164,7 @@ Change in GNU Prolog version 1.0.1:
 
 Change in GNU Prolog version 1.0.0:
 
-* official release (Fri Apr 16)
+* official release (Apr 16 1999)
 * rewrite DCG in C (unification optimized, avoid ill-balanced conjunctions)
 * fix known bugs
 

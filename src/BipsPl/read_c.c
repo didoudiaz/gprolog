@@ -102,7 +102,6 @@ Read_Term_5(WamWord sora_word, WamWord term_word,
   WamWord word;
   int i;
 
-
   parse_end_of_term = (SYS_VAR_OPTION_MASK >> 3) & 1;
 
   if (!Common_Read(Read_Term, sora_word, term_word))
@@ -364,14 +363,13 @@ Char_Conversion_2(WamWord in_char_word, WamWord out_char_word)
 
 
 
-#define Find_Next_Char_Conversion(c_in,c_out)                               \
- while(++c_in<256)                                                          \
-    {                                                                       \
-     c_out=char_conv[c_in];                                                 \
-     if (c_in!=c_out)                                                       \
-         break;                                                             \
+#define Find_Next_Char_Conversion(c_in, c_out)	\
+  while (++c_in < 256)				\
+    {						\
+      c_out = char_conv[c_in];			\
+      if (c_in != c_out)			\
+	break;					\
     }
-
 
 /*-------------------------------------------------------------------------*
  * CURRENT_CHAR_CONVERSION_2                                               *

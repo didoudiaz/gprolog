@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : foreign.pl
-% date    : 9 28 2001
-% time    : 20:43:39
+% date    : 10 7 2001
+% time    : 9:44:58
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/foreign.pl').
@@ -12,5 +12,5 @@ predicate('$force_foreign_link'/0,33,static,private,built_in,[
 
 
 predicate('$pl_query_recover_alt'/0,38,static,private,built_in,[
-    call_c('Pl_Query_Recover_Alt_0',[]),
+    call_c('Pl_Query_Recover_Alt_0',[],[]),
     fail]).

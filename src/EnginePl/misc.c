@@ -31,6 +31,9 @@
 
 #include "engine_pl.h"
 
+#ifndef NO_USE_LINEDIT
+#include "../Linedit/linedit.h"
+#endif
 
 
 
@@ -153,15 +156,16 @@ Fatal_Error(char *format, ...)
   va_list arg_ptr;
   char buff[1024];
 
-
-  sprintf(buff, "\nFatal Error: ");
   va_start(arg_ptr, format);
-  vsprintf(buff + strlen(buff), format, arg_ptr);
+  vsprintf(buff, format, arg_ptr);
   va_end(arg_ptr);
 
-  strcat(buff, "\n");
-
-  fprintf(stderr, buff);
+#ifndef NO_USE_LINEDIT
+  if (le_hook_message_box)
+    (*le_hook_message_box)("Fatal Error", buff);
+  else
+#endif
+    fprintf(stderr, "\nFatal Error: %s\n", buff);
 
   exit(1);
 }

@@ -45,24 +45,24 @@ typedef WamWord *WamWordP;
 
 @filler NB_OF_X_REGS
 
-@reg 4 WamCont  CP		/* Continuation pointer        */
+@reg 4 WamCont  CP		/* Continuation pointer */
 
-@reg 4 WamWordP E		/* Last environment pointer    */
+@reg 4 WamWordP E		/* Last environment pointer */
 
-@reg 2 WamWordP B		/* Last choice point pointer   */
+@reg 2 WamWordP B		/* Last choice point pointer */
 
-@reg 3 WamWordP H		/* Top of the heap             */
-@reg 3 WamWordP HB1		/* copy of HB(B)               */
+@reg 3 WamWordP H		/* Top of the heap */
+@reg 3 WamWordP HB1		/* copy of HB(B) */
 
-@reg 1 WamWordP TR		/* Top of the trail            */
-@reg 5 WamWordP S		/* Unification pointer         */
+@reg 1 WamWordP TR		/* Top of the trail */
+@reg 5 WamWordP S		/* Unification pointer */
 
 @reg 9 WamWord  STAMP		/* Choice point stamp (for FD) */
 @reg 4 WamWordP CS		/* Top of the constraint stack */
 
-@reg 9 WamWord  BCI		/* Byte-code info              */
+@reg 9 WamWord  BCI		/* Byte-code info */
 
-@reg 9 WamWordP LSSA		/* Local stack start address   */
+@reg 9 WamWordP LSSA		/* Local stack start address */
 
 
 @end regs
@@ -77,16 +77,16 @@ typedef WamWord *WamWordP;
 
 @begin tags
 
-@tag REF address 0		/* Reference                   */
-@tag LST address 1		/* List                        */
-@tag STC address 2		/* Structure                   */
+@tag REF address 0		/* Reference */
+@tag LST address 1		/* List */
+@tag STC address 2		/* Structure */
 
-@tag ATM short_uns 3		/* Atom                        */
+@tag ATM short_uns 3		/* Atom */
 
-@tag FLT address 4		/* Float                       */
-@tag FDV address 5		/* Finite Domain Variable      */
+@tag FLT address 4		/* Float */
+@tag FDV address 5		/* Finite Domain Variable */
 
-@tag INT integer 7		/* Integer                     */
+@tag INT long_int 7		/* Integer */
 
 @end tags
 
@@ -107,10 +107,10 @@ typedef WamWord *WamWordP;
 
 @begin stacks
 
-@stack trail  2048 TR		/* Trail  stack               */
-@stack cstr   2048 CS		/* Constraint stack           */
-@stack global 4096 H		/* Global stack               */
-@stack local  3192 Local_Top	/* Local  stack (after global)*/
+@stack trail  3072 TR		/* Trail  stack */
+@stack cstr   3072 CS		/* Constraint stack */
+@stack global 8192 H		/* Global stack */
+@stack local  4096 Local_Top	/* Local  stack (after global) */
 
 @end stacks
 

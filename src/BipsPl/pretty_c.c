@@ -177,12 +177,14 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 {
   WamWord word, tag_mask;
   WamWord arg_word[2];
+  int atom;
 
   if (Check_Structure(term_word, atom_clause, 2, arg_word))
     {
       Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
-      if (tag_mask != TAG_ATM_MASK || UnTag_ATM(word) != atom_true)
+      atom = UnTag_ATM(word);
+      if (tag_mask != TAG_ATM_MASK || atom != atom_true)
 	{
 	  Stream_Puts(" :-", pstm);
 	  Start_Line(pstm, 0, ' ');
@@ -196,7 +198,8 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
     {
       Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
-      if (tag_mask != TAG_ATM_MASK || UnTag_ATM(word) != atom_true)
+      atom = UnTag_ATM(word);
+      if (tag_mask != TAG_ATM_MASK || atom != atom_true)
 	{
 	  Stream_Puts(" -->", pstm);
 	  Start_Line(pstm, 0, ' ');

@@ -64,7 +64,6 @@ consult(File) :-
 	    )
 	),
 	temporary_file('', gplc, TmpFile),
-	write_pl_state_file(TmpFile),
 	set_bip_name(consult, 1),
 	(   '$consult3'(TmpFile, File2) ->
 	    '$load_file'(TmpFile),
@@ -82,6 +81,7 @@ consult(File) :-
 
 /*
 '$consult3'(TmpFile,PlFile):-
+	write_pl_state_file(TmpFile),
 	Args=['-w','--compile-msg','--pl-state',TmpFile,'-o',TmpFile,PlFile
               |End],
         (current_prolog_flag(singleton_warning,on)
@@ -111,10 +111,10 @@ consult(File) :-
 	g_assign('$pl_file', PlFile).
 
 '$load_pred'(directive(PlLine, Type, Goal), _) :-
-	(   catch(call(Goal), CallErr, '$load_directive_exception'(CallErr, PlLine, Type)) ->
+	(   '$catch'(Goal, CallErr, '$load_directive_exception'(CallErr, PlLine, Type), load, 1, true) ->
 	    true
 	;   g_read('$pl_file', PlFile),
-	    format(top_level_output, 'warning: ~a:~d: ~a directive failed~n', [PlFile, PlLine, Type])
+	    format(top_level_output, '~Nwarning: ~a:~d: ~a directive failed~n', [PlFile, PlLine, Type])
 	).
 
 
@@ -142,7 +142,7 @@ consult(File) :-
 
 '$load_directive_exception'(CallErr, PlLine, Type) :-
 	g_read('$pl_file', PlFile),
-	format(top_level_output, 'warning: ~a:~d: ~a directive caused exception: ~q~n', [PlFile, PlLine, Type, CallErr]).
+	format(top_level_output, '~Nwarning: ~a:~d: ~a directive caused exception: ~q~n', [PlFile, PlLine, Type, CallErr]).
 
 
 
@@ -256,7 +256,7 @@ load(File) :-
 
 
 
-          /* listing */
+          % Listing
 
 listing :-
 	set_bip_name(listing, 0),

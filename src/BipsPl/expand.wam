@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : expand.pl
-% date    : 9 28 2001
-% time    : 20:43:42
+% date    : 10 7 2001
+% time    : 9:45:1
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/expand.pl').
@@ -34,7 +34,7 @@ predicate('$expand_term1'/2,36,static,private,built_in,[
 
 predicate('$$expand_term1/2_$aux1'/2,36,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     get_value(x(0),1),
     proceed,
 
@@ -46,7 +46,7 @@ label(2),
     retry_me_else(3),
     put_atom(expand_term,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
     execute('$dcg_trans_rule'/2),
 
 label(3),
@@ -111,10 +111,10 @@ predicate('$phrase'/4,67,static,private,built_in,[
 
 
 predicate('$dcg_trans_rule'/2,77,static,private,built_in,[
-    call_c_test('Dcg_Trans_Rule_2',[0,1]),
+    call_c('Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$dcg_trans_body'/4,83,static,private,built_in,[
-    call_c_test('Dcg_Trans_Body_4',[0,1,2,3]),
+    call_c('Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

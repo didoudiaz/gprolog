@@ -141,8 +141,8 @@
 
 
 
-#define math_min(x,y)              ((x) <= (y) ? (x) : (y))
-#define math_max(x,y)              ((x) >= (y) ? (x) : (y))
+#define math_min(x, y)             ((x) <= (y) ? (x) : (y))
+#define math_max(x, y)             ((x) >= (y) ? (x) : (y))
 
 
 

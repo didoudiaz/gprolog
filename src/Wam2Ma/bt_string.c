@@ -75,8 +75,8 @@ void BT_String_List(BTString *bt_str, void (*fct) ());
 
 
 
-static
-  BTNode *BT_String_Add_Rec(BTString *bt_str, BTNode **pbt_node, char *str);
+static BTNode *BT_String_Add_Rec(BTString *bt_str, BTNode **pbt_node,
+				 char *str);
 
 static void BT_String_List_Rec(BTNode *bt_node, void (*fct) ());
 

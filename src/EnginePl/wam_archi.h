@@ -46,29 +46,29 @@ typedef WamWord *WamWordP;
    /*--- Begin Register Generation ---*/
 
 register WamWordP		TR  asm ("ebx");
-register WamWordP		B   asm ("ebp");
 
 
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+2])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+3])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+6])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+8])
+#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
 
 
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	2
-#define NB_OF_NOT_ALLOC_REGS	9
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
 
 
 
 
-#define NB_OF_USED_MACHINE_REGS 2
+#define NB_OF_USED_MACHINE_REGS 1
 
 #ifdef ENGINE_FILE
 
@@ -143,18 +143,14 @@ extern char *reg_tbl[];
 #define Save_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
-    register long reg1 asm ("ebp"); \
     buff_save[0] = reg0; \
-    buff_save[1] = reg1; \
   } while(0)
 
 
 #define Restore_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
-    register long reg1 asm ("ebp"); \
     reg0 = buff_save[0]; \
-    reg1 = buff_save[1]; \
   } while(0)
 
 
@@ -223,12 +219,12 @@ extern char *reg_tbl[];
 
 	/* General Tag/UnTag macros */
 
-#define Tag_Integer(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
+#define Tag_Long_Int(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
 #define Tag_Short_Uns(tm, v)	(((unsigned long) (v) << 2) + (tm))
 #define Tag_Address(tm, v)  	((unsigned long) (v) + (tm))
 
-#define UnTag_Integer(w)    	((long) ((w) << 1) >> 3)
-#define UnTag_Short_Uns(w)	UnTag_Integer(w)
+#define UnTag_Long_Int(w)    	((long) ((w) << 1) >> 3)
+#define UnTag_Short_Uns(w)	UnTag_Long_Int(w)
 #define UnTag_Address(w)  	((WamWord *) ((w) & VALUE_MASK))
 
 
@@ -249,7 +245,7 @@ extern char *reg_tbl[];
 #define UnTag_ATM(w)  		((unsigned long) (w) >> 2)
 #define UnTag_FLT(w)  		UnTag_Address(w)
 #define UnTag_FDV(w)  		UnTag_Address(w)
-#define UnTag_INT(w)  		UnTag_Integer(w)
+#define UnTag_INT(w)  		UnTag_Long_Int(w)
 
 #define Tag_Is_REF(w)  		(Tag_Mask_Of(w) == TAG_REF_MASK)
 #define Tag_Is_LST(w)  		(Tag_Mask_Of(w) == TAG_LST_MASK)
@@ -261,7 +257,7 @@ extern char *reg_tbl[];
 
 typedef enum
 {
-  INTEGER,
+  LONG_INT,
   SHORT_UNS,
   ADDRESS
 }TypTag;
@@ -285,7 +281,7 @@ InfTag tag_tbl[] =
   { "ATM", SHORT_UNS, 3, 0x3UL },
   { "FLT", ADDRESS, 4, 0x80000000UL },
   { "FDV", ADDRESS, 5, 0x80000001UL },
-  { "INT", INTEGER, 7, 0x80000003UL }
+  { "INT", LONG_INT, 7, 0x80000003UL }
 };
 
 #else
@@ -364,10 +360,10 @@ long fixed_sizes;
 
 InfStack stk_tbl[] =
 {
- { "trail", "TRAILSZ", &def_trail_size, 524288, 0, NULL },
- { "cstr", "CSTRSZ", &def_cstr_size, 524288, 0, NULL },
- { "global", "GLOBALSZ", &def_global_size, 1048576, 0, NULL },
- { "local", "LOCALSZ", &def_local_size, 817152, 0, NULL }
+ { "trail", "TRAILSZ", &def_trail_size, 786432, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 786432, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 2097152, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 1048576, 0, NULL }
 };
 
 #else

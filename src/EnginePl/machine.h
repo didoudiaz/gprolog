@@ -97,24 +97,24 @@ void SIGSEGV_Handler(void);
 
 #if defined(M_sparc_sunos)
 
-#    define M_USED_REGS            {"g6","g7",0}
+#    define M_USED_REGS            {"g6", "g7", 0}
 
 #elif defined(M_sparc_solaris)
 
-#    define M_USED_REGS            {"g6","g7",0}
+#    define M_USED_REGS            {"g6", "g7", 0}
 
 #elif defined(M_mips_irix)
 
-#define M_USED_REGS                {"$16","$17","$18","$19","$20",\
-                                    "$21","$22","$23",0}
+#define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
+                                    "$21", "$22", "$23", 0}
 
 #elif defined(M_alpha_linux)
 
-#    define M_USED_REGS            {"$9","$10","$11","$12","$13","$14",0}
+#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 
 #elif defined(M_alpha_osf)
 
-#    define M_USED_REGS            {"$9","$10","$11","$12","$13","$14",0}
+#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 
 #elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
       defined(M_ix86_solaris) || defined(M_ix86_cygwin)
@@ -127,7 +127,7 @@ void SIGSEGV_Handler(void);
 
 #elif defined(M_powerpc_linux)
 
-#    define M_USED_REGS            {"15","20",0}
+#    define M_USED_REGS            {"15", "20", 0}
 
 #else
 

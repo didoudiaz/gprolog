@@ -56,7 +56,7 @@
 typedef struct
 {
   WamWord f_n;
-  WamWord (*fct) ();
+  WamWord (*fct) () FC;
 }
 ArithInf;
 
@@ -88,13 +88,13 @@ static WamWord Load_Math_Expression(WamWord exp);
 
 #define C_Neg(x)     (- (x))
 
-#define C_Add(x,y)   ((x) + (y))
+#define C_Add(x, y)  ((x) + (y))
 
-#define C_Sub(x,y)   ((x) - (y))
+#define C_Sub(x, y)  ((x) - (y))
 
-#define C_Mul(x,y)   ((x) * (y))
+#define C_Mul(x, y)  ((x) * (y))
 
-#define C_Div(x,y)   ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(evluation_zero_divisor), 0))
+#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(evluation_zero_divisor), 0))
 
 #define Identity(x)  (x)
 

@@ -27,7 +27,7 @@
 /*-------------------------------------------------------------------------*
  * predicate internal format: (I(t)=internal format of t)                  *
  *                                                                         *
- * I(p(Arg1,...,ArgN))= p(NoPred,Pred/N,[I(Arg1),...,I(ArgN)])             *
+ * I(p(Arg1, ..., ArgN))= p(NoPred, Pred/N, [I(Arg1), ..., I(ArgN)])       *
  *                                                                         *
  * NoPred : predicate number = corresponding chunk number                  *
  *                                                                         *
@@ -35,26 +35,25 @@
  *                                                                         *
  * I(Argi): internal format of the ith argument                            *
  *                                                                         *
- *    var          : var(VarName,Info) with:                               *
+ *    var : var(VarName, Info) with:                                       *
+ *          VarName = x(NoX) temporary                                     *
+ *                    (here NoX is unbound or = void if var is singleton)  *
+ *                    y(NoY) permanent (NoY is assigned here)              *
+ *          Info    = in_heap: the variable is stored in the heap          *
+ *                    unsafe        : the var refers current environment   *
+ *                    not_in_cur_env: the var does not reside in the       *
+ *                                    current environment                  *
+ *          (here Info is unbound)                                         *
  *                                                                         *
- *                   VarName=x(NoX) temporary (in pass 2 NoX is unbound or *
- *                                  assigned to void if var is singleton)  *
- *                           y(NoY) permanent (in pass 2 NoY is assigned)  *
- *                   Info   =in_heap       : the var is stored in the heap *
- *                           unsafe        : the var refers cur env.       *
- *                           not_in_cur_env: the var doesn't reside in the *
- *                                           current environment           *
- *                           in pass 2 Info or remains unbound             *
+ *    atom []       : nil                                                  *
+ *    atom (others) : atm(atom)                                            *
+ *    integer       : int(integer)                                         *
+ *    float         : flt(float)                                           *
+ *    f(A1, ..., An): stc(f, n, [I(A1), ..., I(An)])  ([H|T] = '.'(H, T))  *
  *                                                                         *
- *    atom []      : nil                                                   *
- *    atom (others): atm(atom)                                             *
- *    integer      : int(integer)                                          *
- *    float        : flt(float)                                            *
- *    f(A1,...,An) : stc(f,n,[I(A1),...,I(An)])  ([H|T] = '.'(H,T))        *
- *                                                                         *
- * NB: true/0 in the body of a clause is removed.                          *
+ * NB: a true/0 in the body of a clause is removed.                        *
  *     variables are classified and permanent variables are assigned       *
- *     (temporary=x(_), permanent=y(i))                                    *
+ *     (temporary = x(_), permanent = y(i))                                *
  *-------------------------------------------------------------------------*/
 
 internal_format(Head, Body, Head1, Body1, NbChunk, NbY) :-
@@ -95,12 +94,22 @@ format_body1(Pred, NoPred, DicoVar, StartChunk, LNext, [Pred1|LNext], NoPred1, S
 
 
 
+          % NB: a dangerous '$call_c' (e.g. with jump) is not considered as
+          % inlined to enforce the end of its chunk. If something comes 
+          % after this '$call_c' an environment will be created (allocate)
+          % to save CP (and X regs in Y regs if needed).
+          % Other '$call_c' are considered as inlined.
 
 format_pred(Pred, NoPred, DicoVar, p(NoPred, F / N, ArgLst1), InlinePred) :-
 	functor(Pred, F, N),
 	Pred =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1),
-	(   inline_predicate(F, N) ->
+	(   (   inline_predicate(F, N)
+            ;   F = '$call_c',
+	        N = 2,
+		ArgLst1 = [_, LCOpt],  % $no_internal_transf$ removed here
+	        not_dangerous_c_call(LCOpt)
+	    ) ->
 	    InlinePred = t
 	;   InlinePred = f
 	).
@@ -121,6 +130,10 @@ format_arg(Var, NoPred, DicoVar, V) :-
 	var(Var),
 	add_var_to_dico(DicoVar, Var, NoPred, V).
 
+
+format_arg(T, _, _, T1) :-
+	no_internal_transf(T1, T).
+
 format_arg([], _, _, nil).
 
 format_arg(A, _, _, atm(A)) :-
@@ -140,12 +153,25 @@ format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
 
 
 
-          % DicoVar=[ v(Var,NoPred1stOcc,Singleton,V), ... | EndVar ]
+          % creates a term T1 equivalent to T which will not be transformed
+          % in the internal format. This can only by used for arguments of
+          % inlined predicates and requires T is ground.
+          %          
+          % NB: do not use T1 = '$no_internal_transf$'(T) for bootstrapping.
+
+no_internal_transf(T, T1) :-
+	functor(T1, '$no_internal_tranf$', 1),
+	arg(1, T1, T).
+
+
+
+
+          % DicoVar=[ v(Var, NoPred1stOcc, Singleton, V), ... | EndVar ]
           %
           % Singleton = f or unbound variable
-          % V=var(VarName,VarInfo)
-          % VarName=x(_) or y(_)
-          % Info=unbound or singleton
+          % V = var(VarName, VarInfo)
+          % VarName = x(_) or y(_)
+          % Info is unbound
 
 add_var_to_dico(DicoVar, Var, NoPred1stOcc, V) :-
 	var(DicoVar), !,
@@ -204,16 +230,9 @@ inline_predicate('$cut', 1, _).
 
 
 
-inline_predicate(CallC, 1, _) :-                % must be an inline predicate
-	(   CallC = '$call_c'
-	;   CallC = '$call_c_test'
-	;   CallC = '$call_c_jump'
-	), !,
-	test_call_c_allowed(CallC / 1).
-
 inline_predicate(=, 2, _).
 
-inline_predicate('$foreign_call_c', 7, _).
+inline_predicate('$foreign_call_c', 1, _).
 
 
 inline_predicate(var, 1, t).

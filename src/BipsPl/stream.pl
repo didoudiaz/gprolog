@@ -544,14 +544,11 @@ set_stream_line_column(SorA, Line, Col) :-
 
 
 
-          /*------------------------* 
-           * term_stream operations * 
-           *------------------------*/
+          % term_stream operations
 
 
           % term type (open_[input/output]_xxxx_stream/2) in sys_var[0]:
           % 0=atom, 1=chars, 2=codes, 
-
 
 open_input_atom_stream(SinkAtom, Stream) :-
 	set_bip_name(open_input_atom_stream, 2),

@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.8 (Oct 8 2001)
+% compiler: GNU Prolog 1.2.9 (Oct 15 2001)
 % file    : read_file.pl
-% date    : 10 16 2001
-% time    : 17:31:40
+% date    : 12 6 2001
+% time    : 12:17:43
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/read_file.pl').
@@ -39,28 +39,28 @@ predicate(read_file_init/1,108,static,private,user,[
     call(retractall/1),
     put_atom(default_kind,0),
     put_atom(user,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(reading_dyn_pred,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(eof_reached,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(open_file_stack,0),
     put_nil(1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(where,0),
     put_integer(0,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(syn_error_nb,0),
     put_integer(0,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(in_lines,0),
     put_integer(0,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(in_bytes,0),
     put_integer(0,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     deallocate,
     execute(open_new_prolog_file/1)]).
@@ -68,15 +68,15 @@ predicate(read_file_init/1,108,static,private,user,[
 
 predicate(read_file_term/2,131,static,private,user,[
     put_atom(in_bytes,2),
-    call_c_test('Blt_G_Read',[2,0]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(2),x(0)]),
     put_atom(in_lines,0),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(read_file_error_nb/1,138,static,private,user,[
     put_atom(syn_error_nb,1),
-    call_c_test('Blt_G_Read',[1,0]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(0)]),
     proceed]).
 
 
@@ -89,7 +89,7 @@ predicate(open_new_prolog_file/1,144,static,private,user,[
     call('$open_new_prolog_file/1_$aux1'/2),
     put_atom(open_file_stack,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom(open_file_stack,0),
     put_structure((*)/2,3),
     unify_local_value(y(0)),
@@ -97,7 +97,7 @@ predicate(open_new_prolog_file/1,144,static,private,user,[
     put_list(1),
     unify_value(x(3)),
     unify_value(x(2)),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed]).
 
@@ -126,37 +126,37 @@ predicate(close_last_prolog_file/0,156,static,private,user,[
     put_list(2),
     unify_value(x(1)),
     unify_variable(x(1)),
-    call_c_test('Blt_G_Read',[0,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
     put_atom(open_file_stack,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom(in_bytes,0),
     put_variable(y(1),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom(in_lines,0),
     put_variable(y(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_variable(y(3),1),
     call(character_count/2),
     put_value(y(0),0),
     put_variable(y(4),1),
     call(line_count/2),
-    math_fast_load_value(y(1),1),
-    math_fast_load_value(y(3),0),
-    function('Fct_Fast_Add',2,[1,0]),
-    math_fast_load_value(y(2),1),
-    math_fast_load_value(y(4),0),
-    function('Fct_Fast_Add',1,[1,0]),
+    math_fast_load_value(y(1),0),
+    math_fast_load_value(y(3),1),
+    call_c('Fct_Fast_Add',[fast_call,x(2)],[x(0),x(1)]),
+    math_fast_load_value(y(2),0),
+    math_fast_load_value(y(4),1),
+    call_c('Fct_Fast_Add',[fast_call,x(1)],[x(0),x(1)]),
     put_atom(in_bytes,0),
-    call_c_test('Blt_G_Assign',[0,2]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(2)]),
     put_atom(in_lines,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     deallocate,
     execute(close/1)]).
 
 
-predicate(read_predicate/3,176,static,private,user,[
+predicate(read_predicate/3,174,static,private,user,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -173,15 +173,15 @@ predicate(read_predicate/3,176,static,private,user,[
     execute('$read_predicate/3_$aux1'/3)]).
 
 
-predicate('$read_predicate/3_$aux1'/3,176,static,private,user,[
+predicate('$read_predicate/3_$aux1'/3,174,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     put_atom(reading_dyn_pred,4),
     put_atom(f,5),
-    call_c_test('Blt_G_Read',[4,5]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(4),x(5)]),
     put_atom(native_code,4),
     put_atom(t,5),
-    call_c_test('Blt_G_Read',[4,5]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(4),x(5)]),
     cut(x(3)),
     execute(read_predicate_next/3),
 
@@ -190,7 +190,7 @@ label(1),
     proceed]).
 
 
-predicate(read_predicate_next/3,189,static,private,user,[
+predicate(read_predicate_next/3,187,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(4),
@@ -238,7 +238,7 @@ label(2),
     proceed]).
 
 
-predicate(read_predicate1/3,205,static,private,user,[
+predicate(read_predicate1/3,203,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -262,7 +262,7 @@ label(1),
     get_variable(y(3),3),
     put_atom(eof_reached,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     cut(y(3)),
     call(repeat/0),
     put_value(y(0),0),
@@ -288,7 +288,7 @@ label(1),
     cut(y(3)),
     put_value(y(5),0),
     put_atom(end_of_file,1),
-    call_c_test('Blt_Term_Neq',[0,1]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     call(define_predicate/2),
@@ -330,7 +330,7 @@ label(3),
     get_variable(y(0),3),
     put_atom(reading_dyn_pred,0),
     put_atom(t,3),
-    call_c_test('Blt_G_Assign',[0,3]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(3)]),
     put_structure(buff_dyn_interf_clause/3,0),
     unify_local_value(x(4)),
     unify_local_value(x(1)),
@@ -351,7 +351,7 @@ label(4),
     get_variable(y(3),3),
     put_atom(reading_dyn_pred,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_structure(empty_dyn_pred/3,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
@@ -378,7 +378,7 @@ label(5),
     get_variable(y(3),3),
     put_atom(reading_dyn_pred,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_structure(buff_exe_system/1,0),
     unify_structure((+)/2),
     unify_variable(y(4)),
@@ -439,12 +439,12 @@ label(7),
     proceed]).
 
 
-predicate('$read_predicate1/3_$aux3'/4,241,static,private,user,[
+predicate('$read_predicate1/3_$aux3'/4,239,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     put_atom(native_code,5),
     put_atom(t,6),
-    call_c_test('Blt_G_Read',[5,6]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(5),x(6)]),
     cut(x(4)),
     execute(create_dyn_interf_clause/4),
 
@@ -456,7 +456,7 @@ label(1),
     proceed]).
 
 
-predicate('$read_predicate1/3_$aux2'/2,209,static,private,user,[
+predicate('$read_predicate1/3_$aux2'/2,207,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -483,7 +483,7 @@ label(1),
     proceed]).
 
 
-predicate('$read_predicate1/3_$aux1'/3,209,static,private,user,[
+predicate('$read_predicate1/3_$aux1'/3,207,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(4),
@@ -511,7 +511,7 @@ label(1),
     proceed]).
 
 
-predicate(group_clauses_by_pred/4,272,static,private,user,[
+predicate(group_clauses_by_pred/4,270,static,private,user,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -532,7 +532,7 @@ predicate(group_clauses_by_pred/4,272,static,private,user,[
     execute('$group_clauses_by_pred/4_$aux1'/6)]).
 
 
-predicate('$group_clauses_by_pred/4_$aux1'/6,272,static,private,user,[
+predicate('$group_clauses_by_pred/4_$aux1'/6,270,static,private,user,[
     load_cut_level(6),
     try_me_else(1),
     get_value(x(1),0),
@@ -553,7 +553,7 @@ label(1),
     execute('$group_clauses_by_pred/4_$aux2'/3)]).
 
 
-predicate('$group_clauses_by_pred/4_$aux2'/3,272,static,private,user,[
+predicate('$group_clauses_by_pred/4_$aux2'/3,270,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     get_atom(end_of_file,0),
@@ -571,7 +571,7 @@ label(1),
     execute(asserta/1)]).
 
 
-predicate(add_dyn_interf_clause/3,288,static,private,user,[
+predicate(add_dyn_interf_clause/3,286,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -604,7 +604,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(create_dyn_interf_clause/4,299,static,private,user,[
+predicate(create_dyn_interf_clause/4,297,static,private,user,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -615,7 +615,7 @@ predicate(create_dyn_interf_clause/4,299,static,private,user,[
     put_list(2),
     unify_local_value(y(0)),
     unify_local_value(y(3)),
-    call_c_test('Blt_Univ',[1,2]),
+    call_c('Blt_Univ',[fast_call,boolean],[x(1),x(2)]),
     put_value(y(2),1),
     get_structure((+)/2,1),
     unify_local_value(y(1)),
@@ -627,7 +627,7 @@ predicate(create_dyn_interf_clause/4,299,static,private,user,[
     proceed]).
 
 
-predicate(recover_discontig_clauses/3,307,static,private,user,[
+predicate(recover_discontig_clauses/3,305,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(4),
@@ -655,7 +655,7 @@ label(1),
     proceed]).
 
 
-predicate(create_exe_clauses_for_dyn_pred/3,316,static,private,user,[
+predicate(create_exe_clauses_for_dyn_pred/3,314,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -704,7 +704,7 @@ label(4),
     execute(create_exe_clauses_for_dyn_pred/3)]).
 
 
-predicate(create_exe_clauses_for_pub_pred/1,327,static,private,user,[
+predicate(create_exe_clauses_for_pub_pred/1,325,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -734,7 +734,7 @@ label(4),
     execute(create_exe_clauses_for_pub_pred/1)]).
 
 
-predicate(get_next_clause/3,336,static,private,user,[
+predicate(get_next_clause/3,334,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -751,7 +751,7 @@ predicate(get_next_clause/3,336,static,private,user,[
     unify_variable(x(1)),
     unify_void(1),
     put_atom(where,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     cut(y(1)),
     deallocate,
     proceed,
@@ -765,7 +765,7 @@ label(1),
     get_variable(y(3),3),
     put_atom(open_file_stack,0),
     put_variable(y(4),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(4),0),
     get_list(0),
     unify_variable(x(0)),
@@ -805,7 +805,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause/3_$aux1'/8,341,static,private,user,[
+predicate('$get_next_clause/3_$aux1'/8,339,static,private,user,[
     load_cut_level(8),
     try_me_else(1),
     allocate(13),
@@ -818,7 +818,7 @@ predicate('$get_next_clause/3_$aux1'/8,341,static,private,user,[
     get_variable(y(6),6),
     get_variable(y(7),7),
     put_value(y(0),0),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(8)),
     put_variable(y(8),0),
     put_void(1),
@@ -849,7 +849,7 @@ predicate('$get_next_clause/3_$aux1'/8,341,static,private,user,[
     unify_local_value(y(8)),
     unify_local_value(y(12)),
     put_atom(where,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(9),0),
     put_value(y(4),2),
     put_value(y(5),3),
@@ -866,13 +866,13 @@ label(1),
     execute(get_next_clause/3)]).
 
 
-predicate('$get_next_clause/3_$aux2'/3,341,static,private,user,[
+predicate('$get_next_clause/3_$aux2'/3,339,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     get_integer(1,0),
     cut(x(3)),
     math_fast_load_value(x(2),0),
-    function('Fct_Fast_Dec',0,[0]),
+    call_c('Fct_Fast_Dec',[fast_call,x(0)],[x(0)]),
     get_value(x(1),0),
     proceed,
 
@@ -882,7 +882,7 @@ label(1),
     proceed]).
 
 
-predicate(get_next_clause1/6,359,static,private,user,[
+predicate(get_next_clause1/6,357,static,private,user,[
     load_cut_level(6),
     try_me_else(5),
     switch_on_term(1,2,fail,fail,4),
@@ -899,7 +899,7 @@ label(2),
     call(close_last_prolog_file/0),
     put_atom(open_file_stack,1),
     put_variable(x(0),2),
-    call_c_test('Blt_G_Read',[1,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_value(y(0),1),
     put_value(y(1),2),
     put_value(y(2),3),
@@ -944,7 +944,7 @@ label(5),
     unify_local_value(x(0)),
     put_atom(foreign_only,1),
     put_atom(f,2),
-    call_c_test('Blt_G_Read',[1,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     cut(x(6)),
     put_variable(y(3),1),
     call('$get_next_clause1/6_$aux4'/2),
@@ -955,7 +955,7 @@ label(5),
     put_value(y(3),0),
     put_value(y(1),1),
     put_value(y(2),2),
-    call_c_test('Blt_Functor',[0,1,2]),
+    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     put_value(y(1),0),
     put_value(y(2),1),
     call(check_predicate/2),
@@ -974,10 +974,10 @@ label(6),
     execute(get_next_clause/3)]).
 
 
-predicate('$get_next_clause1/6_$aux6'/1,380,static,private,user,[
+predicate('$get_next_clause1/6_$aux6'/1,378,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Callable',[0]),
+    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -990,10 +990,10 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause1/6_$aux5'/1,380,static,private,user,[
+predicate('$get_next_clause1/6_$aux5'/1,378,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -1004,7 +1004,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause1/6_$aux4'/2,380,static,private,user,[
+predicate('$get_next_clause1/6_$aux4'/2,378,static,private,user,[
     try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
@@ -1017,7 +1017,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause1/6_$aux3'/2,370,static,private,user,[
+predicate('$get_next_clause1/6_$aux3'/2,368,static,private,user,[
     try_me_else(1),
     execute(handle_directive/2),
 
@@ -1030,22 +1030,22 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause1/6_$aux2'/1,370,static,private,user,[
+predicate('$get_next_clause1/6_$aux2'/1,368,static,private,user,[
     try_me_else(1),
     put_atom(foreign_only,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
     put_atom(foreign,1),
     put_void(2),
-    call_c_test('Blt_Functor',[0,1,2]),
+    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$get_next_clause1/6_$aux1'/4,359,static,private,user,[
+predicate('$get_next_clause1/6_$aux1'/4,357,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_nil(0),
@@ -1057,7 +1057,7 @@ predicate('$get_next_clause1/6_$aux1'/4,359,static,private,user,[
     unify_atom(end_of_file),
     put_atom(eof_reached,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -1068,15 +1068,15 @@ label(1),
     execute(get_next_clause/3)]).
 
 
-predicate(after_syn_error/0,404,static,private,user,[
+predicate(after_syn_error/0,402,static,private,user,[
     allocate(3),
     put_atom(syn_error_nb,1),
     put_variable(x(0),2),
-    call_c_test('Blt_G_Read',[1,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     math_fast_load_value(x(0),0),
-    function('Fct_Fast_Inc',1,[0]),
+    call_c('Fct_Fast_Inc',[fast_call,x(1)],[x(0)]),
     put_atom(syn_error_nb,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_void(0),
     put_variable(y(0),1),
     put_variable(y(1),2),
@@ -1084,14 +1084,14 @@ predicate(after_syn_error/0,404,static,private,user,[
     call(syntax_error_info/4),
     put_atom(open_file_stack,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom(where,0),
     put_structure((+)/2,1),
     unify_value(x(2)),
     unify_structure((-)/2),
     unify_local_value(y(0)),
     unify_local_value(y(0)),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom('syntax error: ~a (char:~d)',0),
     put_list(1),
     unify_local_value(y(2)),
@@ -1103,7 +1103,7 @@ predicate(after_syn_error/0,404,static,private,user,[
     execute(disp_msg/3)]).
 
 
-predicate(dcg_error/1,416,static,private,user,[
+predicate(dcg_error/1,414,static,private,user,[
     allocate(2),
     get_variable(y(0),0),
     put_variable(y(1),0),
@@ -1111,14 +1111,14 @@ predicate(dcg_error/1,416,static,private,user,[
     call(last_read_start_line_column/2),
     put_atom(open_file_stack,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom(where,0),
     put_structure((+)/2,1),
     unify_value(x(2)),
     unify_structure((-)/2),
     unify_local_value(y(1)),
     unify_local_value(y(1)),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom('DCG error raised: ~w',0),
     put_list(1),
     unify_local_value(y(0)),
@@ -1127,14 +1127,14 @@ predicate(dcg_error/1,416,static,private,user,[
     execute(error/2)]).
 
 
-predicate(display_singletons/2,425,static,private,user,[
+predicate(display_singletons/2,423,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
     put_atom(singl_warn,1),
     put_atom(t,3),
-    call_c_test('Blt_G_Read',[1,3]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(3)]),
     cut(x(2)),
     put_variable(y(1),1),
     call(get_singletons/2),
@@ -1148,7 +1148,7 @@ label(1),
     proceed]).
 
 
-predicate('$display_singletons/2_$aux1'/2,425,static,private,user,[
+predicate('$display_singletons/2_$aux1'/2,423,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     get_nil(0),
@@ -1167,7 +1167,7 @@ label(1),
     execute(warn/2)]).
 
 
-predicate(get_singletons/2,438,static,private,user,[
+predicate(get_singletons/2,436,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1197,7 +1197,7 @@ label(4),
     execute(get_singletons/2)]).
 
 
-predicate('$get_singletons/2_$aux1'/3,440,static,private,user,[
+predicate('$get_singletons/2_$aux1'/3,438,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
@@ -1223,17 +1223,18 @@ label(1),
     proceed]).
 
 
-predicate(handle_directive/2,452,static,private,user,[
+predicate(handle_directive/2,450,static,private,user,[
     get_variable(x(2),1),
     get_variable(x(3),0),
     put_list(4),
     unify_variable(x(0)),
     unify_variable(x(1)),
-    call_c_test('Blt_Univ',[3,4]),
+    call_c('Blt_Univ',[fast_call,boolean],[x(3),x(4)]),
     execute(handle_directive/3)]).
 
 
-predicate(foreign_get_options/1,568,static,private,user,[
+predicate(foreign_get_options/1,569,static,private,user,[
+    load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1247,94 +1248,117 @@ label(3),
     trust_me_else_fail,
 
 label(4),
-    allocate(1),
+    allocate(2),
     get_list(0),
     unify_variable(x(0)),
     unify_variable(y(0)),
+    get_variable(y(1),1),
     call(foreign_get_options1/1),
+    cut(y(1)),
     put_value(y(0),0),
     deallocate,
     execute(foreign_get_options/1)]).
 
 
-predicate(foreign_get_options1/1,575,static,private,user,[
-    switch_on_term(2,fail,fail,fail,1),
+predicate(foreign_get_options1/1,576,static,private,user,[
+    switch_on_term(3,fail,fail,fail,1),
 
 label(1),
-    switch_on_structure([(fct_name/1,3),(return/1,5),(bip_name/1,7),(bip_name/2,9),(choice_size/1,11)]),
+    switch_on_structure([(fct_name/1,4),(return/1,6),(bip_name/1,2),(bip_name/2,10),(choice_size/1,14)]),
 
 label(2),
-    try_me_else(4),
+    try(8),
+    trust(12),
 
 label(3),
-    get_structure(fct_name/1,0),
-    unify_variable(x(1)),
-    call_c_test('Blt_Atom',[1]),
-    put_atom(foreign_fct_name,0),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
+    try_me_else(5),
 
 label(4),
-    retry_me_else(6),
+    get_structure(fct_name/1,0),
+    unify_variable(x(1)),
+    call_c('Blt_Atom',[fast_call,boolean],[x(1)]),
+    put_atom(foreign_fct_name,0),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    proceed,
 
 label(5),
+    retry_me_else(7),
+
+label(6),
     allocate(1),
     get_structure(return/1,0),
     unify_variable(y(0)),
     put_value(y(0),0),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     put_value(y(0),0),
     call('$foreign_get_options1/1_$aux1'/1),
     put_atom(foreign_return,0),
     put_value(y(0),1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed,
 
-label(6),
-    retry_me_else(8),
-
 label(7),
-    get_structure(bip_name/1,0),
-    unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
-    get_atom(none,0),
-    put_atom(foreign_bip_name,0),
-    put_atom('',1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    put_atom(foreign_bip_arity,0),
-    put_integer(-2,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
+    retry_me_else(9),
 
 label(8),
-    retry_me_else(10),
-
-label(9),
-    get_structure(bip_name/2,0),
-    unify_variable(x(2)),
-    unify_variable(x(1)),
-    call_c_test('Blt_Atom',[2]),
-    call_c_test('Blt_Integer',[1]),
-    put_atom(foreign_bip_name,0),
-    call_c_test('Blt_G_Assign',[0,2]),
-    put_atom(foreign_bip_arity,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    get_structure(bip_name/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    get_atom(none,0),
+    put_atom(foreign_bip,0),
+    put_structure((/)/2,1),
+    unify_atom(''),
+    unify_integer(-1),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
+label(9),
+    retry_me_else(11),
+
 label(10),
-    trust_me_else_fail,
+    get_structure(bip_name/2,0),
+    unify_variable(x(3)),
+    unify_variable(x(2)),
+    call_c('Blt_Atom',[fast_call,boolean],[x(3)]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(2)]),
+    put_atom(foreign_bip,0),
+    put_structure((/)/2,1),
+    unify_value(x(3)),
+    unify_value(x(2)),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    proceed,
 
 label(11),
+    retry_me_else(13),
+
+label(12),
+    get_structure(bip_name/1,0),
+    unify_structure((/)/2),
+    unify_variable(x(3)),
+    unify_variable(x(2)),
+    call_c('Blt_Atom',[fast_call,boolean],[x(3)]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(2)]),
+    put_atom(foreign_bip,0),
+    put_structure((/)/2,1),
+    unify_value(x(3)),
+    unify_value(x(2)),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    proceed,
+
+label(13),
+    trust_me_else_fail,
+
+label(14),
     get_structure(choice_size/1,0),
     unify_variable(x(1)),
-    call_c_test('Blt_Integer',[1]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(1)]),
     put_atom(foreign_choice_size,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$foreign_get_options1/1_$aux1'/1,579,static,private,user,[
+predicate('$foreign_get_options1/1_$aux1'/1,580,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1362,7 +1386,7 @@ label(7),
     proceed]).
 
 
-predicate(foreign_check_types/4,606,static,private,user,[
+predicate(foreign_check_types/4,610,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_nil(3),
@@ -1379,20 +1403,20 @@ label(1),
     unify_variable(x(1)),
     unify_variable(y(3)),
     get_structure((',')/2,1),
-    unify_variable(y(2)),
     unify_variable(x(2)),
+    unify_variable(y(2)),
     math_fast_load_value(x(0),0),
-    function('Fct_Fast_Inc',0,[0]),
+    call_c('Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
     get_variable(y(4),0),
     put_value(y(4),1),
     put_value(y(1),3),
     put_variable(x(0),4),
-    call_c_test('Blt_Arg',[1,3,4]),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Arg',[fast_call,boolean],[x(1),x(3),x(4)]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     put_value(y(2),1),
     call('$foreign_check_types/4_$aux1'/3),
     put_value(y(2),0),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     put_value(y(2),0),
     call(foreign_check_arg/1),
     put_value(y(4),0),
@@ -1403,7 +1427,7 @@ label(1),
     execute(foreign_check_types/4)]).
 
 
-predicate('$foreign_check_types/4_$aux1'/3,609,static,private,user,[
+predicate('$foreign_check_types/4_$aux1'/3,613,static,private,user,[
     switch_on_term(2,9,fail,fail,1),
 
 label(1),
@@ -1415,7 +1439,7 @@ label(2),
 label(3),
     get_structure((+)/1,0),
     unify_local_value(x(1)),
-    get_integer(0,2),
+    get_atom(in,2),
     proceed,
 
 label(4),
@@ -1424,7 +1448,7 @@ label(4),
 label(5),
     get_structure((-)/1,0),
     unify_local_value(x(1)),
-    get_integer(1,2),
+    get_atom(out,2),
     proceed,
 
 label(6),
@@ -1433,7 +1457,7 @@ label(6),
 label(7),
     get_structure((?)/1,0),
     unify_local_value(x(1)),
-    get_integer(2,2),
+    get_atom(in_out,2),
     proceed,
 
 label(8),
@@ -1442,11 +1466,11 @@ label(8),
 label(9),
     get_atom(term,0),
     get_atom(term,1),
-    get_integer(0,2),
+    get_atom(in,2),
     proceed]).
 
 
-predicate(foreign_check_arg/1,627,static,private,user,[
+predicate(foreign_check_arg/1,631,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1565,7 +1589,7 @@ label(33),
     proceed]).
 
 
-predicate(handle_initialization/3,654,static,private,user,[
+predicate(handle_initialization/3,658,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1594,7 +1618,7 @@ label(5),
     execute(assertz/1)]).
 
 
-predicate(exec_directive/1,663,static,private,user,[
+predicate(exec_directive/1,667,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -1619,7 +1643,7 @@ label(1),
     execute(warn/2)]).
 
 
-predicate(exec_directive_exception/2,669,static,private,user,[
+predicate(exec_directive_exception/2,673,static,private,user,[
     get_variable(x(2),1),
     put_list(1),
     unify_local_value(x(0)),
@@ -1630,7 +1654,7 @@ predicate(exec_directive_exception/2,669,static,private,user,[
     execute(warn/2)]).
 
 
-predicate(used_bips_via_call/0,674,static,private,user,[
+predicate(used_bips_via_call/0,678,static,private,user,[
     allocate(0),
     put_void(0),
     put_void(1),
@@ -1648,7 +1672,7 @@ predicate(used_bips_via_call/0,674,static,private,user,[
     execute(expand_term/2)]).
 
 
-predicate(add_empty_dyn/2,683,static,private,user,[
+predicate(add_empty_dyn/2,687,static,private,user,[
     load_cut_level(2),
     switch_on_term(2,3,fail,5,1),
 
@@ -1711,7 +1735,7 @@ label(9),
     execute(assertz/1)]).
 
 
-predicate(add_ensure_linked/1,702,static,private,user,[
+predicate(add_ensure_linked/1,706,static,private,user,[
     load_cut_level(1),
     switch_on_term(3,4,fail,6,1),
 
@@ -1789,7 +1813,7 @@ label(12),
     execute(assertz/1)]).
 
 
-predicate(set_flag_for_preds/2,724,static,private,user,[
+predicate(set_flag_for_preds/2,728,static,private,user,[
     load_cut_level(2),
     switch_on_term(2,3,fail,5,1),
 
@@ -1847,13 +1871,13 @@ label(9),
     unify_variable(x(0)),
     unify_variable(x(1)),
     get_variable(x(3),2),
-    call_c_test('Blt_Atom',[0]),
-    call_c_test('Blt_Integer',[1]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(1)]),
     put_value(x(4),2),
     execute('$set_flag_for_preds/2_$aux1'/4)]).
 
 
-predicate('$set_flag_for_preds/2_$aux1'/4,737,static,private,user,[
+predicate('$set_flag_for_preds/2_$aux1'/4,741,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(3),
@@ -1894,7 +1918,7 @@ label(1),
     execute(set_pred_info/3)]).
 
 
-predicate('$set_flag_for_preds/2_$aux2'/3,737,static,private,user,[
+predicate('$set_flag_for_preds/2_$aux2'/3,741,static,private,user,[
     try_me_else(6),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -1922,7 +1946,7 @@ label(6),
     proceed]).
 
 
-predicate(define_predicate/2,754,static,private,user,[
+predicate(define_predicate/2,758,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -1959,7 +1983,7 @@ label(2),
     get_variable(x(3),1),
     put_atom(default_kind,1),
     put_atom(built_in,4),
-    call_c_test('Blt_G_Read',[1,4]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(4)]),
     cut(x(2)),
     put_value(x(0),1),
     put_value(x(3),2),
@@ -1971,7 +1995,7 @@ label(3),
     get_variable(x(3),1),
     put_atom(default_kind,1),
     put_atom(built_in_fd,4),
-    call_c_test('Blt_G_Read',[1,4]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(4)]),
     cut(x(2)),
     put_value(x(0),1),
     put_value(x(3),2),
@@ -1983,7 +2007,7 @@ label(4),
     proceed]).
 
 
-predicate(flag_bit/2,774,static,private,user,[
+predicate(flag_bit/2,778,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2046,7 +2070,7 @@ label(15),
     proceed]).
 
 
-predicate(set_pred_info/3,785,static,private,user,[
+predicate(set_pred_info/3,789,static,private,user,[
     load_cut_level(3),
     allocate(5),
     get_variable(y(0),1),
@@ -2059,11 +2083,11 @@ predicate(set_pred_info/3,785,static,private,user,[
     put_variable(y(4),2),
     call('$set_pred_info/3_$aux1'/3),
     cut(y(2)),
-    math_fast_load_value(y(4),1),
-    put_integer(1,2),
-    math_fast_load_value(y(3),0),
-    function('Fct_Fast_Shl',0,[2,0]),
-    function('Fct_Fast_Or',1,[1,0]),
+    math_fast_load_value(y(4),0),
+    put_integer(1,1),
+    math_fast_load_value(y(3),2),
+    call_c('Fct_Fast_Shl',[fast_call,x(1)],[x(1),x(2)]),
+    call_c('Fct_Fast_Or',[fast_call,x(1)],[x(0),x(1)]),
     put_structure(pred_info/3,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
@@ -2072,7 +2096,7 @@ predicate(set_pred_info/3,785,static,private,user,[
     execute(assertz/1)]).
 
 
-predicate('$set_pred_info/3_$aux1'/3,785,static,private,user,[
+predicate('$set_pred_info/3_$aux1'/3,789,static,private,user,[
     try_me_else(1),
     get_variable(x(3),0),
     put_structure(pred_info/3,0),
@@ -2087,7 +2111,7 @@ label(1),
     proceed]).
 
 
-predicate(unset_pred_info/3,796,static,private,user,[
+predicate(unset_pred_info/3,800,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(5),
@@ -2102,12 +2126,12 @@ predicate(unset_pred_info/3,796,static,private,user,[
     unify_variable(y(4)),
     call(retract/1),
     cut(y(2)),
-    math_fast_load_value(y(4),1),
-    put_integer(1,2),
-    math_fast_load_value(y(3),0),
-    function('Fct_Fast_Shl',0,[2,0]),
-    function('Fct_Fast_Not',0,[0]),
-    function('Fct_Fast_And',1,[1,0]),
+    math_fast_load_value(y(4),0),
+    put_integer(1,1),
+    math_fast_load_value(y(3),2),
+    call_c('Fct_Fast_Shl',[fast_call,x(1)],[x(1),x(2)]),
+    call_c('Fct_Fast_Not',[fast_call,x(1)],[x(1)]),
+    call_c('Fct_Fast_And',[fast_call,x(1)],[x(0),x(1)]),
     put_structure(pred_info/3,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
@@ -2120,7 +2144,7 @@ label(1),
     proceed]).
 
 
-predicate(test_pred_info/3,807,static,private,user,[
+predicate(test_pred_info/3,811,static,private,user,[
     allocate(4),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -2132,18 +2156,18 @@ predicate(test_pred_info/3,807,static,private,user,[
     unify_variable(y(3)),
     put_void(1),
     call(clause/2),
-    math_fast_load_value(y(3),1),
-    put_integer(1,2),
-    math_fast_load_value(y(2),0),
-    function('Fct_Fast_Shl',0,[2,0]),
-    function('Fct_Fast_And',0,[1,0]),
+    math_fast_load_value(y(3),0),
+    put_integer(1,1),
+    math_fast_load_value(y(2),2),
+    call_c('Fct_Fast_Shl',[fast_call,x(1)],[x(1),x(2)]),
+    call_c('Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
     put_integer(0,1),
-    call_c_test('Blt_Fast_Gt',[0,1]),
+    call_c('Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed]).
 
 
-predicate(check_predicate/2,815,static,private,user,[
+predicate(check_predicate/2,819,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -2152,7 +2176,7 @@ predicate(check_predicate/2,815,static,private,user,[
     get_variable(y(2),2),
     put_atom(redef_error,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     call(bip/2),
@@ -2175,7 +2199,7 @@ label(1),
     get_variable(y(2),2),
     put_atom(redef_error,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     call(control_construct/2),
@@ -2198,7 +2222,7 @@ label(2),
     get_variable(y(2),2),
     put_atom(susp_warn,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     call(suspicious_predicate/2),
@@ -2237,7 +2261,7 @@ label(4),
     proceed]).
 
 
-predicate(control_construct/2,839,static,private,user,[
+predicate(control_construct/2,843,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2316,7 +2340,7 @@ label(19),
     proceed]).
 
 
-predicate(suspicious_predicate/2,849,static,private,user,[
+predicate(suspicious_predicate/2,853,static,private,user,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -2389,7 +2413,7 @@ label(18),
     get_atom({},0),
     math_fast_load_value(x(1),0),
     put_integer(2,1),
-    call_c_test('Blt_Fast_Lt',[0,1]),
+    call_c('Blt_Fast_Lt',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(19),
@@ -2433,12 +2457,12 @@ label(28),
     proceed]).
 
 
-predicate(warn/2,867,static,private,user,[
+predicate(warn/2,871,static,private,user,[
     put_atom(warning,2),
     execute(disp_msg/3)]).
 
 
-predicate(error/2,873,static,private,user,[
+predicate(error/2,877,static,private,user,[
     load_cut_level(2),
     allocate(1),
     get_variable(y(0),2),
@@ -2451,7 +2475,7 @@ predicate(error/2,873,static,private,user,[
     execute(abort/0)]).
 
 
-predicate('$error/2_$aux1'/1,873,static,private,user,[
+predicate('$error/2_$aux1'/1,877,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -2466,7 +2490,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_msg/3,885,static,private,user,[
+predicate(disp_msg/3,889,static,private,user,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2475,7 +2499,7 @@ predicate(disp_msg/3,885,static,private,user,[
     call(numbervars/1),
     put_atom(where,1),
     put_variable(x(0),2),
-    call_c_test('Blt_G_Read',[1,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     call('$disp_msg/3_$aux1'/1),
     put_atom('~a: ',0),
     put_list(1),
@@ -2490,7 +2514,7 @@ predicate(disp_msg/3,885,static,private,user,[
     execute(nl/1)]).
 
 
-predicate('$disp_msg/3_$aux1'/1,885,static,private,user,[
+predicate('$disp_msg/3_$aux1'/1,889,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -2512,7 +2536,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_file_name/2,901,static,private,user,[
+predicate(disp_file_name/2,905,static,private,user,[
     load_cut_level(2),
     switch_on_term(1,2,fail,4,fail),
 
@@ -2549,7 +2573,7 @@ label(4),
     execute(format/2)]).
 
 
-predicate(disp_lines/1,911,static,private,user,[
+predicate(disp_lines/1,915,static,private,user,[
     load_cut_level(1),
     switch_on_term(3,fail,fail,fail,1),
 
@@ -2590,7 +2614,7 @@ label(6),
     execute(format/2)]).
 
 
-predicate(exception/1,923,static,private,user,[
+predicate(exception/1,927,static,private,user,[
     load_cut_level(1),
     try_me_else(9),
     switch_on_term(3,fail,fail,fail,1),
@@ -2621,14 +2645,14 @@ label(4),
     call(syntax_error_info/4),
     put_atom(open_file_stack,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom(where,0),
     put_structure((+)/2,1),
     unify_value(x(2)),
     unify_structure((-)/2),
     unify_local_value(y(0)),
     unify_local_value(y(0)),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_atom('syntax error: ~a (char:~d)',0),
     put_list(1),
     unify_local_value(y(2)),
@@ -2682,7 +2706,7 @@ label(9),
     execute(error/2)]).
 
 
-predicate(handle_directive/3,457,static,private,user,[
+predicate(handle_directive/3,455,static,private,user,[
     load_cut_level(3),
     try_me_else(35),
     switch_on_term(3,1,fail,fail,fail),
@@ -2702,7 +2726,7 @@ label(4),
     get_atom(public,0),
     cut(x(3)),
     put_nil(0),
-    call_c_test('Blt_Term_Neq',[1,0]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(1),x(0)]),
     put_value(x(1),0),
     put_atom(pub,1),
     execute(set_flag_for_preds/2),
@@ -2718,7 +2742,7 @@ label(6),
     cut(x(3)),
     put_value(y(0),0),
     put_nil(1),
-    call_c_test('Blt_Term_Neq',[0,1]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_atom(dyn,1),
     call(set_flag_for_preds/2),
@@ -2737,7 +2761,7 @@ label(8),
     get_atom(discontiguous,0),
     cut(x(3)),
     put_nil(0),
-    call_c_test('Blt_Term_Neq',[1,0]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(1),x(0)]),
     put_value(x(1),0),
     put_atom(discontig,1),
     execute(set_flag_for_preds/2),
@@ -2921,9 +2945,9 @@ label(32),
     get_atom(foreign,0),
     put_atom(call_c,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     cut(x(3)),
-    put_atom('foreign directive ignored in byte-code compilation mode',0),
+    put_atom('foreign directive ignored (not allowed in this mode)',0),
     put_nil(1),
     execute(warn/2),
 
@@ -2931,77 +2955,83 @@ label(33),
     trust_me_else_fail,
 
 label(34),
-    allocate(5),
+    allocate(7),
     get_atom(foreign,0),
-    get_variable(y(1),2),
     get_list(1),
     unify_variable(y(0)),
     unify_list,
-    unify_variable(x(0)),
+    unify_variable(y(1)),
     unify_nil,
+    get_variable(y(2),2),
     cut(x(3)),
-    put_value(y(0),1),
-    call_c_test('Blt_Callable',[1]),
-    call_c_test('Blt_List',[0]),
-    put_value(y(0),1),
-    put_variable(y(2),2),
-    put_variable(y(3),3),
-    call_c_test('Blt_Functor',[1,2,3]),
-    put_atom(foreign_fct_name,1),
-    put_value(y(2),2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(foreign_return,1),
-    put_atom(boolean,2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(foreign_bip_name,1),
-    put_value(y(2),2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(foreign_bip_arity,1),
-    put_value(y(3),2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(foreign_choice_size,1),
-    put_integer(-1,2),
-    call_c_test('Blt_G_Assign',[1,2]),
+    put_value(y(0),0),
+    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
+    put_value(y(1),0),
+    call_c('Blt_List',[fast_call,boolean],[x(0)]),
+    put_value(y(0),0),
+    put_variable(y(3),1),
+    put_variable(y(4),2),
+    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    put_value(y(3),0),
+    put_value(y(4),1),
+    call('$handle_directive/3_$aux5'/2),
+    put_value(y(3),0),
+    put_value(y(4),1),
+    call(define_predicate/2),
+    put_atom(foreign_fct_name,0),
+    put_value(y(3),1),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(foreign_return,0),
+    put_atom(boolean,1),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(foreign_bip,0),
+    put_structure((/)/2,1),
+    unify_local_value(y(3)),
+    unify_local_value(y(4)),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(foreign_choice_size,0),
+    put_integer(-1,1),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    put_value(y(1),0),
     call(foreign_get_options/1),
     put_integer(0,0),
-    put_value(y(3),1),
+    put_value(y(4),1),
     put_value(y(0),2),
-    put_variable(y(4),3),
+    put_variable(y(5),3),
     call(foreign_check_types/4),
     put_atom(foreign_fct_name,0),
-    put_variable(x(5),1),
-    call_c_test('Blt_G_Read',[0,1]),
-    put_atom(foreign_return,0),
     put_variable(x(4),1),
-    call_c_test('Blt_G_Read',[0,1]),
-    put_atom(foreign_bip_name,0),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(foreign_return,0),
     put_variable(x(3),1),
-    call_c_test('Blt_G_Read',[0,1]),
-    put_atom(foreign_bip_arity,0),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(foreign_bip,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
-    put_atom(foreign_choice_size,1),
-    put_variable(x(0),6),
-    call_c_test('Blt_G_Read',[1,6]),
-    put_variable(x(6),1),
-    put_value(y(2),7),
-    put_value(y(3),8),
-    call_c_test('Blt_Functor',[1,7,8]),
-    put_structure((+)/2,1),
-    unify_local_value(y(1)),
-    unify_structure((:-)/2),
-    unify_value(x(6)),
-    unify_structure('$foreign_call_c'/7),
-    unify_value(x(6)),
-    unify_local_value(y(4)),
-    unify_value(x(5)),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(foreign_choice_size,0),
+    put_variable(x(1),5),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(5)]),
+    put_structure(args/5,0),
     unify_value(x(4)),
     unify_value(x(3)),
     unify_value(x(2)),
-    unify_value(x(0)),
-    put_structure(buff_discontig_clause/3,0),
+    unify_value(x(1)),
+    unify_local_value(y(5)),
+    put_variable(y(6),1),
+    call(no_internal_transf/2),
+    put_variable(x(0),1),
+    put_value(y(3),2),
+    put_value(y(4),3),
+    call_c('Blt_Functor',[fast_call,boolean],[x(1),x(2),x(3)]),
+    put_structure((+)/2,1),
     unify_local_value(y(2)),
+    unify_structure((:-)/2),
+    unify_value(x(0)),
+    unify_structure('$foreign_call_c'/1),
+    unify_local_value(y(6)),
+    put_structure(buff_discontig_clause/3,0),
     unify_local_value(y(3)),
+    unify_local_value(y(4)),
     unify_value(x(1)),
     call(assertz/1),
     put_structure((/)/2,0),
@@ -3028,7 +3058,34 @@ label(35),
     execute(warn/2)]).
 
 
-predicate('$handle_directive/3_$aux4'/0,520,static,private,user,[
+predicate('$handle_directive/3_$aux5'/2,540,static,private,user,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_atom(pub,0),
+    put_value(y(0),1),
+    put_value(y(1),2),
+    call(test_pred_info/3),
+    cut(y(2)),
+    put_atom('foreign predicate ~q should not be public/dynamic',0),
+    put_structure((/)/2,2),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    put_list(1),
+    unify_value(x(2)),
+    unify_nil,
+    deallocate,
+    execute(error/2),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$handle_directive/3_$aux4'/0,518,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -3039,7 +3096,7 @@ predicate('$handle_directive/3_$aux4'/0,520,static,private,user,[
     cut(y(0)),
     put_atom(singl_warn,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed,
 
@@ -3047,16 +3104,16 @@ label(1),
     trust_me_else_fail,
     put_atom(singl_warn,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$handle_directive/3_$aux3'/1,490,static,private,user,[
+predicate('$handle_directive/3_$aux3'/1,488,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(native_code,0),
     put_atom(f,2),
-    call_c_test('Blt_G_Read',[0,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
     cut(x(1)),
     put_atom('ensure_linked directive ignored in byte-code compilation mode',0),
     put_nil(1),
@@ -3065,40 +3122,40 @@ predicate('$handle_directive/3_$aux3'/1,490,static,private,user,[
 label(1),
     trust_me_else_fail,
     put_nil(1),
-    call_c_test('Blt_Term_Neq',[0,1]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     execute(add_ensure_linked/1)]).
 
 
-predicate('$handle_directive/3_$aux2'/1,482,static,private,user,[
+predicate('$handle_directive/3_$aux2'/1,480,static,private,user,[
     try_me_else(1),
     put_nil(1),
-    call_c_test('Blt_Term_Eq',[0,1]),
+    call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     put_atom(default_kind,0),
     put_atom(built_in_fd,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
     put_nil(1),
-    call_c_test('Blt_Term_Neq',[0,1]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_atom(bfd,1),
     execute(set_flag_for_preds/2)]).
 
 
-predicate('$handle_directive/3_$aux1'/1,474,static,private,user,[
+predicate('$handle_directive/3_$aux1'/1,472,static,private,user,[
     try_me_else(1),
     put_nil(1),
-    call_c_test('Blt_Term_Eq',[0,1]),
+    call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     put_atom(default_kind,0),
     put_atom(built_in,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
     put_nil(1),
-    call_c_test('Blt_Term_Neq',[0,1]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_atom(bpl,1),
     execute(set_flag_for_preds/2)]).
 

@@ -42,8 +42,6 @@ extern void clearerr(FILE *stream);
 #undef W32_GUI_CONSOLE
 #endif
 
-#define OBJ_INIT Stream_Supp_Initializer
-
 #define STREAM_SUPP_FILE
 
 #include "engine_pl.h"
@@ -88,24 +86,12 @@ extern void clearerr(FILE *stream);
  * Type Definitions                *
  *---------------------------------*/
 
-#ifndef NO_USE_LINEDIT
-typedef struct			/* TTY input stream information   */
-{				/* ------------------------------ */
-  FILE *f;			/* associated input stream        */
-  int fd_in;			/* associated input  file desc.   */
-  int fd_out;			/* associated output file desc.   */
-  char buff[TTY_BUFFER_SIZE];	/* current buffer (end with '\0') */
-  char *ptr;			/* current pointer into the buff  */
-}
-TTYInf;
-#endif
-
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
+
+static void Init_Stream_Supp();
+void (*init_stream_supp)() = Init_Stream_Supp; /* overwrite var of engine.c */
 
 static int atom_stream;
 static WamWord stream_1;
@@ -115,6 +101,12 @@ static WamWord word_current_output_stream;
 
 static StrSInf glob_str_stream = { NULL, NULL, 0 };
 
+
+#ifndef NO_USE_LINEDIT
+static char tty_first_buff[TTY_BUFFER_SIZE];	/* current buffer (end with '\0') */
+static char *tty_buff;
+static char *tty_ptr = NULL;	/* current pointer into the buff  */
+#endif
 
 
 
@@ -128,27 +120,15 @@ static int Find_Free_Stream(void);
 
 #ifndef NO_USE_LINEDIT
 
-static int TTY_Getc(TTYInf *tty);
+static int TTY_Getc(void);
 
-static int TTY_Getc_No_Echo(TTYInf *tty);
+static int TTY_Get_Key(Bool echo, Bool catch_ctrl_c);
 
-static void TTY_Putc(int c, TTYInf *tty);
-
-static void TTY_Flush(TTYInf *tty);
-
-static int TTY_Close(TTYInf *tty);
-
-static void TTY_Clearerr(TTYInf *tty);
+static void TTY_Clearerr(void);
 
 #endif
 
 
-
-#ifdef W32_GUI_CONSOLE
-
-static void W32_Putc(int c, long file);
-
-#endif
 
 static int Str_Stream_Getc(StrSInf *str_stream);
 
@@ -159,11 +139,13 @@ static void Str_Stream_Putc(int c, StrSInf *str_stream);
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_SUPP_INITIALIZER                                                 *
+ * INIT_STREAM_SUPP                                                        *
  *                                                                         *
+ * no declare as other initializers, since we must be sure it has been     *
+ * initialized before others.                                              *
  *-------------------------------------------------------------------------*/
 static void
-Stream_Supp_Initializer(void)
+Init_Stream_Supp(void)
 {
   StmProp prop;
   int istty;
@@ -177,10 +159,6 @@ Stream_Supp_Initializer(void)
   word_current_output_stream = Tag_ATM(Create_Atom("current_output_stream"));
 
   atom_glob_stream_alias = Create_Atom("$glob_stream_alias");
-
-  /* this could be in stream_c.c with an initializer but when */
-  /* executed we must be sure that Stream_Supp_Initializer    */
-  /* has already been initialized. It is simpler like this    */
 
   atom_user_input = Create_Atom("user_input");
   atom_user_output = Create_Atom("user_output");
@@ -220,12 +198,7 @@ Stream_Supp_Initializer(void)
 
   le_prompt = "";
 
-#ifdef W32_GUI_CONSOLE
-  if (le_hook_present)
-    istty = 1;
-  else
-#endif
-    istty = (isatty(fileno(stdin)) != 0);
+  istty = (use_gui) || (isatty(0) != 0);
 
   prop.mode = STREAM_MODE_READ;
   prop.input = TRUE;
@@ -233,29 +206,27 @@ Stream_Supp_Initializer(void)
   prop.text = TRUE;
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
-#ifdef M_ix86_win32  /* MSVC++ doesn't detect a tty on stdin/out under RXVT */
-  prop.buffering = STREAM_BUFFERING_NONE;
-#else
   prop.buffering = (istty) ? STREAM_BUFFERING_LINE : STREAM_BUFFERING_BLOCK;
-#endif
-  prop.tty = istty;
   prop.special_close = FALSE;
   prop.other = 0;
 
-  stm_stdin = Add_Stream(atom_user_input, (long) stdin, prop,
-			 NULL, NULL, NULL, STREAM_FCT_UNDEFINED, NULL, NULL,
-			 NULL);
+#ifndef NO_USE_LINEDIT
+  if (istty)
+    stm_stdin = Add_Stream(atom_user_input, (long) stdin, prop,
+			   (StmFct) TTY_Getc, STREAM_FCT_UNDEFINED,
+			   STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
+			   STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
+			   (StmFct) TTY_Clearerr);
+  else
+#endif
+    stm_stdin = Add_Stream(atom_user_input, (long) stdin, prop,
+			   NULL, NULL, NULL, STREAM_FCT_UNDEFINED, NULL,
+			   NULL, NULL);
+
   Add_Alias_To_Stream(atom_user_input, stm_stdin);
   stm_input = stm_stdin;
 
-
-
-#ifdef W32_GUI_CONSOLE
-  if (le_hook_present)		/* linked with W32GUICons */
-    istty = 1;
-  else
-#endif
-    istty = (isatty(fileno(stdout)) != 0);
+  istty = (use_gui) || (isatty(1) != 0);
 
   prop.mode = STREAM_MODE_APPEND;
   prop.input = FALSE;
@@ -263,12 +234,7 @@ Stream_Supp_Initializer(void)
   prop.text = TRUE;
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
-#ifdef M_ix86_win32  /* MSVC++ doesn't detect a tty on stdin/out under RXVT */
-  prop.buffering = STREAM_BUFFERING_NONE;
-#else
   prop.buffering = (istty) ? STREAM_BUFFERING_LINE : STREAM_BUFFERING_BLOCK;
-#endif
-  prop.tty = istty;
   prop.special_close = FALSE;
   prop.other = 0;
 
@@ -352,81 +318,30 @@ Init_Stream_Struct(int atom_file_name, long file, StmProp prop,
 		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
 		   StmInf *pstm)
 {
-  int d;
-  static StmFct def[3][7] = { {(StmFct)
-#ifndef M_ix86_bsd
-			       fgetc
-#else
-			       getc
-#endif
-			       , (StmFct) fputc,
-			       (StmFct) fflush, (StmFct) fclose,
-			       (StmFct) ftell, (StmFct) fseek,
-			       (StmFct) clearerr}
-#ifndef NO_USE_LINEDIT
-			      ,
-			      {(StmFct) TTY_Getc, (StmFct) TTY_Putc,
-			       (StmFct) TTY_Flush, (StmFct) TTY_Close,
-			       STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-			       (StmFct) TTY_Clearerr}
-#endif
-#ifdef W32_GUI_CONSOLE
-			      ,
-			      {(StmFct) NULL, (StmFct) W32_Putc,
-			       STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-			       STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-			       STREAM_FCT_UNDEFINED}
-#endif
-  };
-
-
   pstm->atom_file_name = atom_file_name;
   pstm->file = file;
-  d = 0;
-
-#ifndef NO_USE_LINEDIT
-  if (prop.tty)
-    {
-      if (prop.input)
-	{
-	  TTYInf *tty = (TTYInf *) Malloc(sizeof(TTYInf));
-
-	  pstm->file = (long) tty;
-	  tty->f = (FILE *) file;
-	  tty->fd_in = fileno((FILE *) file);
-#if defined(M_ix86_win32)
-	  tty->fd_out = 1;
-#else
-	  {
-	    char *p;
-
-	    if ((p = ttyname(tty->fd_in)) == NULL ||
-		(tty->fd_out = open(p, O_WRONLY)) == -1)
-	      tty->fd_out = 1;
-	  }
-#endif
-	  tty->buff[0] = '\0';
-	  tty->ptr = tty->buff;
-	  d = 1;
-	}
-#ifdef W32_GUI_CONSOLE
-      else if (le_hook_present)
-	{
-	  d = 2;
-	}
-#endif /* W32_GUI_CONSOLE */
-    }
-#endif /* NO_USE_LINEDIT */
-
   pstm->prop = prop;
 
-  pstm->fct_getc = (fct_getc) ? fct_getc : def[d][0];
-  pstm->fct_putc = (fct_putc) ? fct_putc : def[d][1];
-  pstm->fct_flush = (fct_flush) ? fct_flush : def[d][2];
-  pstm->fct_close = (fct_close) ? fct_close : def[d][3];
-  pstm->fct_tell = (fct_tell) ? fct_tell : def[d][4];
-  pstm->fct_seek = (fct_seek) ? fct_seek : def[d][5];
-  pstm->fct_clearerr = (fct_clearerr) ? fct_clearerr : def[d][6];
+#define INIT_FCT(f, d) pstm->f = (f) ? f : (StmFct) d
+
+  INIT_FCT(fct_getc, fgetc);
+  INIT_FCT(fct_putc, fputc);
+  INIT_FCT(fct_flush, fflush);
+  INIT_FCT(fct_close, fclose);
+  INIT_FCT(fct_tell, ftell);
+  INIT_FCT(fct_seek, fseek);
+  INIT_FCT(fct_clearerr, clearerr);
+
+  /* Works only because putc will be called with c as 1st and flush's arg
+     is ignored */
+
+#if !defined(NO_USE_LINEDIT) && defined(M_ix86_win32)
+		/* ok for both GUI and console EOM<->ANSI conversion */
+  if (file == (long) stdout && le_hook_put_char)
+    pstm->fct_putc = (StmFct) (*le_hook_put_char);
+  if (file == (long) stdout && le_hook_flush)
+    pstm->fct_flush = (StmFct) (*le_hook_flush);
+#endif
 
   pstm->eof_reached = FALSE;
   PB_Init(pstm->pb_char);
@@ -480,28 +395,11 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
 void
 Delete_Stream(int stm)
 {
-#ifndef NO_USE_LINEDIT
-  StmInf *pstm = stm_tbl + stm;
-  StmProp prop = pstm->prop;
-  TTYInf *tty;
-#endif
-
-#ifndef NO_USE_LINEDIT
-  if (prop.tty && prop.input)
-    {
-      tty = (TTYInf *) pstm->file;
-
-      if (tty->fd_out > 2)
-	close(tty->fd_out);
-      Free((char *) (tty));
-    }
-#endif
-
   Del_Aliases_Of_Stream(stm);
 
   stm_tbl[stm].file = 0;
 
-  if (stm == stm_last_used)
+  while(stm_tbl[stm_last_used].file == 0)
     stm_last_used--;
 }
 
@@ -658,10 +556,10 @@ Set_Stream_Buffering(int stm)
       break;
 
     case STREAM_BUFFERING_LINE:
-#ifdef M_ix86_win32		/* in Win32 console app, line buff = full buff */
-      buff_flag = _IONBF;	/* I prefer no buff... */
-#else
       buff_flag = _IOLBF;
+#ifdef M_ix86_win32
+      if (!use_gui)		/* in Win32 console app, line buff = full */
+	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif
       break;
 
@@ -672,9 +570,16 @@ Set_Stream_Buffering(int stm)
 
   /* for those architectures we cannot modify */
   /* buffering when an I/O as already occured */
-#if !defined(M_ix86_bsd) && !defined(M_ix86_cygwin)
-  setvbuf(f, NULL, buff_flag, BUFSIZ);
+#if defined(M_ix86_bsd) || defined(M_ix86_cygwin)
+  return;
 #endif
+
+#ifndef NO_USE_LINEDIT		/* if use_gui == 1 */
+  if (pstm->file == (long) stdout && le_hook_set_line_buffering)
+    (*le_hook_set_line_buffering)(buff_flag != _IONBF);
+  else
+#endif
+    setvbuf(f, NULL, buff_flag, BUFSIZ);
 }
 
 
@@ -836,19 +741,11 @@ File_Star_Of_Stream(int stm)
 {
   StmInf *pstm = stm_tbl + stm;
 
-#ifndef NO_USE_LINEDIT
-  TTYInf *tty;
-#endif
+  if (stm == stm_stdin)		/* works also for stdin with linedit */
+    return stdin;
 
   if (pstm->fct_getc == (StmFct) fgetc)
     return (FILE *) (pstm->file);
-
-#ifndef NO_USE_LINEDIT
-  tty = (TTYInf *) pstm->file;
-
-  if (pstm->fct_getc == (StmFct) TTY_Getc)
-    return tty->f;
-#endif
 
   return NULL;
 }
@@ -857,50 +754,84 @@ File_Star_Of_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
- * The following functions replaces standard fgetc/... when the input is a *
- * TTY. It uses linedit to provide a more comfortable interface.           *
+ * The following functions replaces standard fgetc/... on stdin if a TTY.  *
+ * It uses linedit to provide a more comfortable interface.                *
  * These functions should not be used directly but via the common interface*
  * provided by the Stream_Getc/... functions (see below).                  *
  *-------------------------------------------------------------------------*/
 
 #ifndef NO_USE_LINEDIT
 
+#define SAVE_FOR_REENTRANCY				\
+{							\
+  int save_sys_var_option_mask = SYS_VAR_OPTION_MASK;	\
+  int save_parse_end_of_term = parse_end_of_term;	\
+  int save_last_read_line = last_read_line;		\
+  int save_last_read_col = last_read_col;
+
+
+#define RESTORE_FOR_REENTRANCY				\
+  SYS_VAR_OPTION_MASK = save_sys_var_option_mask;	\
+  parse_end_of_term = save_parse_end_of_term;		\
+  last_read_line = save_last_read_line;			\
+  last_read_col = save_last_read_col;			\
+}
+
 
 /*-------------------------------------------------------------------------*
  * TTY_GETC                                                                *
  *                                                                         *
+ * we must take care to reentrancy: e.g. top_level calls TTY_Getc which    *
+ * calls LE_FGets + Ctrl_C + b(reak) + new top_level + TTY_Getc...         *
  *-------------------------------------------------------------------------*/
 static int
-TTY_Getc(TTYInf *tty)
+TTY_Getc(void)
 {
   int c;
   StmInf *pstm;
+  static int tty_linedit_depth = 0;
 
-  c = *(tty->ptr)++;
-  if (c != '\0')
-    return c;
-
-  tty->ptr = tty->buff;		/* before LE_FGets since to allow ctrl+c */
-  /* handler needs to use TTY_Getc();      */
-  if (
-      (LE_FGets
-       (tty->buff, TTY_BUFFER_SIZE, tty->fd_in, tty->fd_out, le_prompt,
-	1)) == NULL)
+  if (tty_ptr == NULL)
     {
-      tty->buff[0] = '\0';
-      return EOF;
-    }
+      if (tty_linedit_depth++ == 0)
+	tty_buff = tty_first_buff;
+      else
+	tty_buff = (char *) Malloc(TTY_BUFFER_SIZE);
 
-  c = *(tty->ptr)++;
+				/* tty_ptr must remain NULL for reentrancy */
+      SAVE_FOR_REENTRANCY;
+      tty_buff = LE_FGets(tty_buff, TTY_BUFFER_SIZE, le_prompt, 1);
+      RESTORE_FOR_REENTRANCY;
+      tty_linedit_depth--;
 
-  if (tty->fd_in == 0)
-    {				/* simulate the '\n' on the output */
+      if (LE_Interrupted_By_Ctrl_C(tty_buff))
+	Execute_A_Continuation((CodePtr) LE_Get_Ctrl_C_Return_Value());
+	
+
+      if (tty_buff == NULL)
+	{
+	  c = EOF;
+	  goto test_free_buff;
+	}
+
+      tty_ptr = tty_buff;
+    				/* simulate the echo (+ '\n') on output */
       pstm = stm_tbl + stm_stdout;
-      pstm->char_count++;
+      pstm->char_count += strlen(tty_buff);
       pstm->line_count++;
       pstm->line_pos = 0;
     }
 
+  c = *tty_ptr++;
+
+  if (*tty_ptr == '\0')
+    {
+    test_free_buff:
+      if (tty_buff != tty_first_buff)
+	Free(tty_buff);
+      tty_ptr = NULL;
+    }
+
   return c;
 }
 
@@ -908,64 +839,33 @@ TTY_Getc(TTYInf *tty)
 
 
 /*-------------------------------------------------------------------------*
- * TTY_GETC_NO_ECHO                                                        *
+ * TTY_GET_KEY                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-TTY_Getc_No_Echo(TTYInf *tty)
+TTY_Get_Key(Bool echo, Bool catch_ctrl_c)
 {
   int c;
 
-  c = *(tty->ptr)++;
-  if (c != '\0')
-    return c;
+  if (tty_ptr != NULL)
+    {
+      c = *tty_ptr++;
 
-  tty->buff[0] = '\0';
-  tty->ptr = tty->buff;
+      if (*tty_ptr == '\0')
+	{
+	  if (tty_buff != tty_first_buff)
+	    Free(tty_buff);
+	  tty_ptr = NULL;
+	}
 
-  c = LE_FGetc_No_Echo(tty->fd_in, tty->fd_out);
+      return c;
+    }
+
+  SAVE_FOR_REENTRANCY;
+  c = LE_Get_Key(echo, catch_ctrl_c);
+  RESTORE_FOR_REENTRANCY;
 
   return c;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * TTY_PUTC                                                                *
- *                                                                         *
- * normally this function is not used since TTYInf * are for input streams *
- *-------------------------------------------------------------------------*/
-static void
-TTY_Putc(int c, TTYInf *tty)
-{
-  fputc(c, tty->f);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * TTY_FLUSH                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-TTY_Flush(TTYInf *tty)
-{
-  fflush(tty->f);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * TTY_CLOSE                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-TTY_Close(TTYInf *tty)
-{
-  return fclose(tty->f);
 }
 
 
@@ -976,42 +876,13 @@ TTY_Close(TTYInf *tty)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-TTY_Clearerr(TTYInf *tty)
+TTY_Clearerr(void)
 {
-  clearerr(tty->f);
+  clearerr(stdin);
 }
 
 
 #endif /* NO_USE_LINEDIT */
-
-
-
-
-/*-------------------------------------------------------------------------*
- * The following functions replaces standard fputc/... for the std output  *
- * which is mapped to the W32 GUI consoleTTY.                              *
- * These functions should not be used directly but via the common interface*
- * provided by the Stream_Putc/... functions (see below).                  *
- *-------------------------------------------------------------------------*/
-
-#ifdef W32_GUI_CONSOLE
-
-
-/*-------------------------------------------------------------------------*
- * W32_PUTC                                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-W32_Putc(int c, long file)
-{
-  (*le_hook_put_char) (c, file);
-}
-
-
-
-
-#endif /* W32_GUI_CONSOLE */
-
 
 
 /*-------------------------------------------------------------------------*
@@ -1025,55 +896,61 @@ W32_Putc(int c, long file)
 
 #else
 
-#define Before_Reading(pstm,file)                                           \
- if (pstm->eof_reached)                                                     \
-    {                                                                       \
-     if (pstm->prop.eof_action==STREAM_EOF_ACTION_ERROR)                    \
-         Pl_Err_Permission(permission_operation_input,                      \
-                           permission_type_past_end_of_stream,              \
-                           (last_input_sora==NOT_A_WAM_WORD)                \
-                                 ? word_current_input_stream                \
-                                 : last_input_sora);                        \
-                                                                            \
-     if (pstm->prop.eof_action==STREAM_EOF_ACTION_EOF_CODE)                 \
-         return EOF;                                                        \
-                                                                            \
-                            /* here: eof_action==STREAM_EOF_ACTION_RESET */ \
-     pstm->eof_reached=FALSE;                                               \
-     if (pstm->prop.reposition)                                             \
-         Stream_Set_Position(pstm,SEEK_SET,0,0,0,0);                        \
-     if (pstm->fct_clearerr!=STREAM_FCT_UNDEFINED)                          \
-         (*pstm->fct_clearerr)(file);                                       \
-    }
+#define Before_Reading(pstm, file)					    \
+{									    \
+  if (pstm->eof_reached)						    \
+    {									    \
+      if (pstm->prop.eof_action == STREAM_EOF_ACTION_ERROR)		    \
+        Pl_Err_Permission(permission_operation_input,			    \
+                          permission_type_past_end_of_stream,		    \
+                          (last_input_sora == NOT_A_WAM_WORD)		    \
+                          ? word_current_input_stream : last_input_sora);   \
+ 									    \
+      if (pstm->prop.eof_action == STREAM_EOF_ACTION_EOF_CODE)		    \
+        return EOF;							    \
+ 									    \
+      /* here: eof_action==STREAM_EOF_ACTION_RESET */			    \
+      pstm->eof_reached = FALSE;					    \
+      if (pstm->prop.reposition)					    \
+        Stream_Set_Position(pstm, SEEK_SET, 0, 0, 0, 0);		    \
+      if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)			    \
+        (*pstm->fct_clearerr) (file);					    \
+    }									    \
+}
 
 #endif /* FOR_EXTERNAL_USE */
 
 
-#define Update_Counters(pstm,c)                                             \
- if (c!=EOF)                                                                \
-     pstm->char_count++;                                                    \
-     if (c=='\n')                                                           \
-        {                                                                   \
-         pstm->line_count++;                                                \
-         pstm->line_pos=0;                                                  \
-        }                                                                   \
-      else                                                                  \
-         pstm->line_pos++
+#define Update_Counters(pstm, c)		\
+  if (c != EOF)                   		\
+    pstm->char_count++;       			\
+  if (c == '\n')              			\
+    {                      			\
+      pstm->line_count++;   			\
+      pstm->line_pos = 0;     			\
+    }                      			\
+  else                     			\
+    pstm->line_pos++
 
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GETC_NO_ECHO                                                     *
+ * STREAM_GET_KEY                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Getc_No_Echo(StmInf *pstm)
+Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 {
   int c;
   long file = pstm->file;
+  Bool simulate;
 
-  if (!pstm->prop.tty)
-    return Stream_Getc(pstm);
+#ifndef NO_USE_LINEDIT
+  if (pstm - stm_tbl == stm_stdin) /* the stdin stream used with linedit */
+    simulate = FALSE;
+  else
+#endif
+    simulate = TRUE;
 
   Before_Reading(pstm, file);
 
@@ -1084,22 +961,23 @@ Stream_Getc_No_Echo(StmInf *pstm)
   else
     {
       Start_Protect_Regs_For_Signal;
+      if (simulate)
+	c = pstm->fct_getc((FILE *) file);
 #ifndef NO_USE_LINEDIT
-      c = TTY_Getc_No_Echo((TTYInf *) file);
-      Stop_Protect_Regs_For_Signal;
-    }
-#else
-      c = pstm->fct_getc((FILE *) file);
-      Stop_Protect_Regs_For_Signal;
-    }
-
-  if (c != '\n')
-    while (pstm->fct_getc((FILE *) file) >= ' ')
-      ;
-
-  if (pstm - stm_tbl == stm_stdin)
-    Update_Counters((stm_tbl + stm_stdout), '\n');
+      else
+	c = TTY_Get_Key(echo, catch_ctrl_c);
 #endif
+      Stop_Protect_Regs_For_Signal;
+    }
+
+  
+  if (simulate && c != '\n')
+    {
+      while (pstm->fct_getc((FILE *) file) >= ' ')
+	;
+
+      Update_Counters((stm_tbl + stm_stdout), '\n'); /* reflect \n */
+    }
 
   if (c == EOF)
     pstm->eof_reached = TRUE;
@@ -1134,6 +1012,15 @@ Stream_Getc(StmInf *pstm)
   else
     {
       Start_Protect_Regs_For_Signal;
+
+#ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
+      if (pstm->file == (long) stdin && 
+	  pstm->fct_getc == fgetc && SYS_VAR_SAY_GETC)
+	{
+	  putchar(CHAR_TO_EMIT_WHEN_CHAR);
+	  fflush(stdout);
+	}
+#endif
       c = (*pstm->fct_getc) (file);
       Stop_Protect_Regs_For_Signal;
     }
@@ -1596,7 +1483,6 @@ Add_Str_Stream(Bool use_global, char *buff)
     }
 
   prop.text = 1;
-  prop.tty = FALSE;
   prop.reposition = FALSE;
   prop.buffering = STREAM_BUFFERING_NONE;
   prop.eof_action = STREAM_EOF_ACTION_EOF_CODE;

@@ -78,101 +78,115 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
  * Auxiliary engine macros         *
  *---------------------------------*/
 
-#define Trail_Fd_Int_Variable_If_Necessary(fdv_adr)                         \
-    do {                                                                    \
-     if (Word_Needs_Trailing(&FD_Tag_Value(fdv_adr)))                       \
-        {                                                                   \
-         Trail_OV(&FD_Tag_Value(fdv_adr));                                  \
-         Trail_OV(&FD_INT_Date(fdv_adr));                                   \
-         Trail_Range_If_Necessary(fdv_adr);                                 \
-        }                                                                   \
-    } while(0)
+#define Trail_Fd_Int_Variable_If_Necessary(fdv_adr)  	\
+  do							\
+    {							\
+      if (Word_Needs_Trailing(&FD_Tag_Value(fdv_adr)))	\
+	{						\
+	  Trail_OV(&FD_Tag_Value(fdv_adr));		\
+	  Trail_OV(&FD_INT_Date(fdv_adr));		\
+	  Trail_Range_If_Necessary(fdv_adr);		\
+	}						\
+    }							\
+  while (0)
 
 
 
 
-#define Trail_Range_If_Necessary(fdv_adr)                                   \
-    do {                                                                    \
-     if (Range_Stamp(fdv_adr)!=STAMP)                                       \
-        {                                                                   \
-         Trail_MV(fdv_adr+OFFSET_RANGE,RANGE_SIZE);                         \
-         if (Is_Sparse(Range(fdv_adr)))                                     \
-             Trail_MV((WamWord *) Vec(fdv_adr),vec_size);                   \
-         Range_Stamp(fdv_adr)=STAMP;                                        \
-        }                                                                   \
-    } while(0)
+#define Trail_Range_If_Necessary(fdv_adr)                 	\
+  do								\
+    {								\
+      if (Range_Stamp(fdv_adr) != STAMP)			\
+	{							\
+	  Trail_MV(fdv_adr + OFFSET_RANGE, RANGE_SIZE);		\
+	  if (Is_Sparse(Range (fdv_adr)))			\
+	      Trail_MV((WamWord *) Vec(fdv_adr), vec_size);	\
+								\
+	  Range_Stamp(fdv_adr) = STAMP;				\
+	}							\
+    }								\
+  while (0)
 
 
 
 
-#define Trail_Chains_If_Necessary(fdv_adr)                                  \
-    do {                                                                    \
-     if (Chains_Stamp(fdv_adr)!=STAMP)                                      \
-        {                                                                   \
-         Trail_MV(fdv_adr+OFFSET_CHAINS,CHAINS_SIZE);                       \
-         Chains_Stamp(fdv_adr)=STAMP;                                       \
-        }                                                                   \
-    } while(0)
+
+#define Trail_Chains_If_Necessary(fdv_adr)           		\
+  do								\
+    {								\
+      if (Chains_Stamp(fdv_adr) != STAMP)			\
+	{							\
+	  Trail_MV(fdv_adr + OFFSET_CHAINS, CHAINS_SIZE);	\
+	  Chains_Stamp(fdv_adr) = STAMP;			\
+	}							\
+    }								\
+  while (0)
 
 
 
 
-#define Update_Range_From_Int(fdv_adr,n,propag)                             \
-    do {                                                                    \
-     propag=MASK_EMPTY;                                                     \
-                                                                            \
-     Trail_Fd_Int_Variable_If_Necessary(fdv_adr);                           \
-     Nb_Elem(fdv_adr)=1;                                                    \
-                                                                            \
-     Set_Min_Max_Mask(propag);                                              \
-     Set_Dom_Mask(propag);                                                  \
-     Set_Val_Mask(propag);                                                  \
-                                                                            \
-     if (Min(fdv_adr) != n)                                                 \
-        {                                                                   \
-         Min(fdv_adr)=n;                                                    \
-         Set_Min_Mask(propag);                                              \
-        }                                                                   \
-                                                                            \
-     if (Max(fdv_adr) != n)                                                 \
-        {                                                                   \
-         Max(fdv_adr)=n;                                                    \
-         Set_Max_Mask(propag);                                              \
-        }                                                                   \
-                                                                            \
-     Vec(fdv_adr)=NULL;                                                     \
-     FD_Tag_Value(fdv_adr)=Tag_INT(n);                                      \
-     FD_INT_Date(fdv_adr) =DATE;                                            \
-    } while(0)
+#define Update_Range_From_Int(fdv_adr, n, propag)  	\
+  do							\
+    {							\
+      propag = MASK_EMPTY;				\
+							\
+      Trail_Fd_Int_Variable_If_Necessary(fdv_adr);	\
+      Nb_Elem(fdv_adr) = 1;				\
+							\
+      Set_Min_Max_Mask(propag);				\
+      Set_Dom_Mask(propag);				\
+      Set_Val_Mask(propag);				\
+							\
+      if (Min(fdv_adr) != n)				\
+	{						\
+	  Min(fdv_adr) = n;				\
+	  Set_Min_Mask(propag);				\
+	}						\
+							\
+      if (Max(fdv_adr) != n)				\
+	{						\
+	  Max(fdv_adr) = n;				\
+	  Set_Max_Mask(propag);				\
+	}						\
+							\
+      Vec(fdv_adr) = NULL;				\
+      FD_Tag_Value(fdv_adr) = Tag_INT(n);		\
+      FD_INT_Date(fdv_adr) = DATE;			\
+    }							\
+  while (0)
 
 
 
 
-#define Update_Interval_From_Interval(fdv_adr,nb_elem,min,max,propag)       \
-    do {                                                                    \
-     propag=MASK_EMPTY;                                                     \
-                                                                            \
-     if (Nb_Elem(fdv_adr) != nb_elem)                                       \
-        {                                                                   \
-         Trail_Range_If_Necessary(fdv_adr);                                 \
-         Nb_Elem(fdv_adr)=nb_elem;                                          \
-                                                                            \
-         Set_Min_Max_Mask(propag);                                          \
-         Set_Dom_Mask(propag);                                              \
-                                                                            \
-         if (Min(fdv_adr) != min)                                           \
-            {                                                               \
-             Min(fdv_adr)=min;                                              \
-             Set_Min_Mask(propag);                                          \
-            }                                                               \
-                                                                            \
-         if (Max(fdv_adr) != max)                                           \
-            {                                                               \
-             Max(fdv_adr)=max;                                              \
-             Set_Max_Mask(propag);                                          \
-            }                                                               \
-        }                                                                   \
-    } while(0)
+#define Update_Interval_From_Interval(fdv_adr, nb_elem, min, max, propag) \
+  do									  \
+    {									  \
+      propag = MASK_EMPTY;						  \
+									  \
+      if (Nb_Elem(fdv_adr) != nb_elem)					  \
+	{								  \
+	  Trail_Range_If_Necessary(fdv_adr);				  \
+	  Nb_Elem(fdv_adr) = nb_elem;					  \
+									  \
+	  Set_Min_Max_Mask(propag);					  \
+	  Set_Dom_Mask(propag);						  \
+									  \
+	  if (Min(fdv_adr) != min)					  \
+	    {								  \
+	      Min(fdv_adr) = min;					  \
+	      Set_Min_Mask(propag);					  \
+	    }								  \
+									  \
+	  if (Max(fdv_adr) != max)					  \
+	    {								  \
+	      Max(fdv_adr) = max;					  \
+	      Set_Max_Mask(propag);					  \
+	    }								  \
+	}								  \
+    }									  \
+  while (0)
+
+
 
 
 #define FD_Word_Needs_Trailing(adr)  ((adr) <  CSB(B))
@@ -180,49 +194,53 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 
 
 
-#define FD_Bind_OV(adr, word)                                               \
-  do {                                                                      \
-    if (FD_Word_Needs_Trailing(adr))                                        \
-      Trail_OV(adr);                                                        \
-   *(adr) = (word);                                                         \
-  } while(0)
+#define FD_Bind_OV(adr, word)       		\
+  do						\
+    {						\
+      if (FD_Word_Needs_Trailing(adr))		\
+	Trail_OV(adr);				\
+      *(adr) = (word);				\
+    }						\
+  while (0)
 
 
 
 
-#define Update_Range_From_Range(fdv_adr,nb_elem,range,propag)               \
-    do {                                                                    \
-     Range *r=Range(fdv_adr);                                               \
-     propag=MASK_EMPTY;                                                     \
-                                                                            \
-     if (Min(fdv_adr) != (range)->min)                                      \
-        {                                                                   \
-         Set_Min_Mask(propag);                                              \
-         Set_Min_Max_Mask(propag);                                          \
-        }                                                                   \
-                                                                            \
-     if (Max(fdv_adr) != (range)->max)                                      \
-        {                                                                   \
-         Set_Max_Mask(propag);                                              \
-         Set_Min_Max_Mask(propag);                                          \
-        }                                                                   \
-                                                                            \
-     if (Nb_Elem(fdv_adr) != nb_elem)                                       \
-         Set_Dom_Mask(propag);                                              \
-                                                                            \
-     if (propag || (Is_Interval(r) && Is_Sparse(range)))                    \
-        {                                                                   \
-         Trail_Range_If_Necessary(fdv_adr);                                 \
-         Nb_Elem(fdv_adr)=nb_elem;                                          \
-         Range_Copy(r,range);                                               \
-        }                                                                   \
-      else                                                                  \
-         if (r->extra_cstr!=(range)->extra_cstr)                            \
-            {                                                               \
-             FD_Bind_OV((WamWord *) &(r->extra_cstr),(range->extra_cstr));  \
-             Set_Dom_Mask(propag);                                          \
-            }                                                               \
-    } while(0)
+#define Update_Range_From_Range(fdv_adr, nb_elem, range, propag)           \
+  do									   \
+    {									   \
+      Range *r = Range (fdv_adr);					   \
+									   \
+      propag = MASK_EMPTY;						   \
+									   \
+      if (Min(fdv_adr) != (range)->min)					   \
+	{								   \
+	  Set_Min_Mask(propag);						   \
+	  Set_Min_Max_Mask(propag);					   \
+	}								   \
+									   \
+      if (Max(fdv_adr) != (range)->max)					   \
+	{								   \
+	  Set_Max_Mask(propag);						   \
+	  Set_Min_Max_Mask(propag);					   \
+	}								   \
+									   \
+      if (Nb_Elem(fdv_adr) != nb_elem)					   \
+	Set_Dom_Mask(propag);						   \
+									   \
+      if (propag || (Is_Interval(r) && Is_Sparse(range)))		   \
+	{								   \
+	  Trail_Range_If_Necessary(fdv_adr);				   \
+	  Nb_Elem(fdv_adr) = nb_elem;					   \
+	  Range_Copy(r, range);						   \
+	}								   \
+      else if (r->extra_cstr != (range)->extra_cstr)			   \
+	{								   \
+	  FD_Bind_OV((WamWord *) &(r->extra_cstr), (range->extra_cstr));   \
+	  Set_Dom_Mask(propag);						   \
+	}								   \
+    }									   \
+  while (0)
 
 
 

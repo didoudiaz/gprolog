@@ -80,10 +80,9 @@
 #define Tag_Is_Non_Generic_Var(t)  (!Tag_Is_Generic_Var(t))
 
 
-#define Type_Test(test,x)                                                    \
-   WamWord word, tag_mask;                                                   \
-                                                                             \
-   DEREF(x, word, tag_mask);                                                 \
+#define Type_Test(test, x)			\
+   WamWord word, tag_mask;  			\
+   DEREF(x, word, tag_mask);			\
    return test(tag_mask)
 
 

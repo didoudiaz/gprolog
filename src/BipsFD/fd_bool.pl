@@ -78,7 +78,7 @@ LE #\\/ RE :-
 
 
 
-        /* Symbolic boolean constraints */
+        % Symbolic boolean constraints
 
 
 fd_cardinality(List, Count) :-

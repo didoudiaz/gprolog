@@ -66,7 +66,7 @@ RegInf;
 typedef enum
 {
   SHORT_UNS,
-  INTEGER,
+  LONG_INT,
   ADDRESS
 }
 TypTag;
@@ -183,6 +183,13 @@ main(void)
 	 "No"
 #endif
     );
+  printf("Use piped consult : %s\n",
+#ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
+	 "Yes"
+#else
+	 "No"
+#endif
+    );
 #ifdef M_ix86_win32
   printf("Use GUI console   : %s\n",
 #ifdef W32_GUI_CONSOLE
@@ -206,13 +213,6 @@ main(void)
 	 "No"
 #endif
     );
-  printf("Use machine regs. : %s\n",
-#ifndef NO_USE_REGS
-	 "Yes"
-#else
-	 "No"
-#endif
-    );
 #ifdef COULD_COMPILE_FOR_FC
   printf("Use fast call     : %s\n",
 #ifndef NO_USE_FAST_CALL
@@ -222,6 +222,13 @@ main(void)
 #endif
     );
 #endif
+  printf("Use machine regs. : %s\n",
+#ifndef NO_USE_REGS
+	 "Yes"
+#else
+	 "No"
+#endif
+    );
 
   nb_of_used_regs = Generate_Archi();
   Write_C_Compiler_Info(nb_of_used_regs);
@@ -708,7 +715,7 @@ Generate_Regs(FILE *f, FILE *g)
  *                                                                         *
  * tag description:                                                        *
  *    @tag name type value                                                 *
- *         type: integer/short_uns/address                                 *
+ *         type: long_int/short_uns/address                                *
  *         value: >= 0                                                     *
  *-------------------------------------------------------------------------*/
 void
@@ -747,8 +754,8 @@ Generate_Tags(FILE *f, FILE *g)
 	  strcpy(tag[nb_tag].name, Read_Identifier(p2 + 1, 1, &p2));
 	  p1 = Read_Identifier(p2 + 1, 1, &p2);
 
-	  if (strcmp(p1, "integer") == 0)
-	    tag[nb_tag].type = INTEGER;
+	  if (strcmp(p1, "long_int") == 0)
+	    tag[nb_tag].type = LONG_INT;
 	  else if (strcmp(p1, "short_uns") == 0)
 	    tag[nb_tag].type = SHORT_UNS;
 	  else if (strcmp(p1, "address") == 0)
@@ -823,7 +830,7 @@ Generate_Tags(FILE *f, FILE *g)
 
   fprintf(g, "\n");
   fprintf(g, "\t/* General Tag/UnTag macros */\n\n");
-  fprintf(g, "#define Tag_Integer(tm, v)  \t((((unsigned long) ((v) << %d)) >> %d) | (tm))\n",
+  fprintf(g, "#define Tag_Long_Int(tm, v)  \t((((unsigned long) ((v) << %d)) >> %d) | (tm))\n",
 	  tag_size, tag_size_high);
 
 
@@ -836,10 +843,10 @@ Generate_Tags(FILE *f, FILE *g)
   fprintf(g, "#define Tag_Address(tm, v)  \t((unsigned long) (v) + (tm))\n");
 
   fprintf(g, "\n");
-  fprintf(g, "#define UnTag_Integer(w)    \t((long) ((w) << %d) >> %d)\n",
+  fprintf(g, "#define UnTag_Long_Int(w)    \t((long) ((w) << %d) >> %d)\n",
 	  tag_size_high, tag_size);
 
-  fprintf(g, "#define UnTag_Short_Uns(w)\tUnTag_Integer(w)\n");
+  fprintf(g, "#define UnTag_Short_Uns(w)\tUnTag_Long_Int(w)\n");
 
   fprintf(g, "#define UnTag_Address(w)  \t((WamWord *) ((w) & VALUE_MASK))\n");
 
@@ -854,7 +861,7 @@ Generate_Tags(FILE *f, FILE *g)
       fprintf(g, "#define Tag_%s(v)  \t\t", tag[i].name);
       switch(tag[i].type)
 	{
-	case INTEGER:
+	case LONG_INT:
 	  if (tag[i].value == 0)
 	    fprintf(g, "(((unsigned long) (v) << %d) & VALUE_MASK)\n", 
 		    tag_size_low);
@@ -863,7 +870,7 @@ Generate_Tags(FILE *f, FILE *g)
 	    fprintf(g, "(((unsigned long) (v) << %d) | TAG_MASK)\n", 
 		    tag_size_low);
 	  else
-	    fprintf(g, "Tag_Integer(TAG_%s_MASK, v)\n", tag[i].name);
+	    fprintf(g, "Tag_Long_Int(TAG_%s_MASK, v)\n", tag[i].name);
 	  break;
 
 	case SHORT_UNS:
@@ -883,8 +890,8 @@ Generate_Tags(FILE *f, FILE *g)
       fprintf(g, "#define UnTag_%s(w)  \t\t", tag[i].name);
       switch(tag[i].type)
 	{
-	case INTEGER:
-	  fprintf(g, "UnTag_Integer(w)\n");
+	case LONG_INT:
+	  fprintf(g, "UnTag_Long_Int(w)\n");
 	  break;
 
 	case SHORT_UNS:
@@ -913,7 +920,7 @@ Generate_Tags(FILE *f, FILE *g)
 
   fprintf(g, "\ntypedef enum\n");
   fprintf(g, "{\n");
-  fprintf(g, "  INTEGER,\n");
+  fprintf(g, "  LONG_INT,\n");
   fprintf(g, "  SHORT_UNS,\n");
   fprintf(g, "  ADDRESS\n");
   fprintf(g, "}TypTag;\n");
@@ -933,7 +940,7 @@ Generate_Tags(FILE *f, FILE *g)
   for (i = 0; i < nb_tag; i++)
     {
       fprintf(g, "  { \"%s\", %s, %d, %#lxUL }%s", tag[i].name,
-	      (tag[i].type == INTEGER) ? "INTEGER" :
+	      (tag[i].type == LONG_INT) ? "LONG_INT" :
 	      (tag[i].type == SHORT_UNS) ? "SHORT_UNS" : "ADDRESS",
 	      tag[i].value,
 	      Mk_Tag_Mask(tag[i].value),

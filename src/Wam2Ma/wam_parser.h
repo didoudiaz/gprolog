@@ -32,6 +32,23 @@
  * Type Definitions                *
  *---------------------------------*/
 
+typedef enum
+{				/* skip 256 to specify a given char */
+  ATOM = 256,			/* an atom */
+  INTEGER,			/* an integer */
+  FLOAT,			/* a double */
+  X_Y,				/* x(X) or y(Y) */
+  F_N,				/* a ATOM / INTEGER */
+  LABEL,			/* a label */
+  ANY				/* ATOM or INTEGER or F_N or FLOAT or X_Y */
+}
+ArgTyp;
+
+
+#define L1(t)                  L2(t, 0)
+#define L2(t1, t2)             ((t1 << 16) | (t2))
+#define DECODE_L2(a, t1, t2)   t1 = (a) >> 16; t2 = (a) & ((1 << 16) - 1)
+
 typedef double ArgVal;		/* to ensure double alignment */
 
 
@@ -51,6 +68,6 @@ void Syntax_Error(char *s);
 
 
 
-#define Add_Arg(ptr,type,val)   (*((type *) (ptr))=(val) , (ptr)++)
+#define Add_Arg(ptr, type, val)   (*((type *) (ptr)) = (val) , (ptr)++)
 
-#define Get_Arg(ptr,type,val)   ((val)=*((type *) (ptr)) , (ptr)++)
+#define Get_Arg(ptr, type, val)   ((val) = *((type *) (ptr)) , (ptr)++)

@@ -28,21 +28,7 @@
 
 #include "engine_pl.h"
 #include "bips_pl.h"
-
-#if defined(M_ix86_cygwin) || defined(M_ix86_win32)
-#include <process.h>
-#endif
-
-#ifdef M_ix86_win32
-#include <io.h>
-#include <fcntl.h>
-#else
-#include <unistd.h>
-#include <sys/wait.h>
-#endif
-
-
-
+#include "linedit.h"
 
 /*---------------------------------*
  * Constants                       *
@@ -62,9 +48,6 @@
 
 #if 1
 
-
-
-
 /*-------------------------------------------------------------------------*
  * CONSULT_2                                                               *
  *                                                                         *
@@ -75,18 +58,34 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   char *tmp_file = Rd_String_Check(tmp_file_word);
   char *pl_file = Rd_String_Check(pl_file_word);
   char *singl_warn = (Flag_Value(FLAG_SINGLETON_WARNING)) ? NULL
-       : "--no-singl-warn";
-  StmInf *pstm = stm_tbl + stm_top_level_output;
+    : "--no-singl-warn";
+  StmInf *pstm_o = stm_tbl + stm_top_level_output;
+  StmInf *pstm_i = stm_tbl + stm_top_level_input;
   int pid;
-  FILE *f_out;
+  FILE *f_out, *f_in;
+  FILE **pf_in;
+  long save;
+  unsigned char *p = NULL;
   int status, c;
   char *arg[] = { "pl2wam", "-w", "--compile-msg", "--no-redef-error",
-    "--pl-state", tmp_file, "-o", tmp_file, pl_file,
-    singl_warn, NULL
-  };
+		  "--pl-state", tmp_file, "-o", tmp_file, pl_file,
+		  singl_warn, NULL };
+
+  Bool Write_Pl_State_File(WamWord file_word);
+  
+  save = SYS_VAR_SAY_GETC;
+#ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
+  SYS_VAR_SAY_GETC = 1;
+  pf_in = &f_in;
+#else
+  f_in = NULL;
+  pf_in = NULL;
+#endif
+  Write_Pl_State_File(tmp_file_word);
+  SYS_VAR_SAY_GETC = save;
 
   Flush_All_Streams();
-  pid = M_Spawn_Redirect(arg, 0, NULL, &f_out, &f_out);
+  pid = M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
   Os_Test_Error(pid == -1);
   if (pid == -2)
     {
@@ -99,12 +98,37 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   for (;;)
     {
       c = fgetc(f_out);
-      if (c < 0)
+      if (c == EOF)
 	break;
-
-      Stream_Putc(c, pstm);
+	  
+#ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
+      if (c == CHAR_TO_EMIT_WHEN_CHAR)
+	{
+	  if (p == NULL)
+	    {
+	      if ((c = Stream_Getc(pstm_i)) == EOF)
+		{
+		eof_reached:
+		  p = "end_of_file.\n";
+		  c = *p++;
+		}
+	    }
+	  else
+	    {
+	      if (*p == '\0')
+		goto eof_reached;
+	      else
+		c = *p++;
+	    }
+	  fputc(c, f_in);
+	  fflush(f_in);
+	  continue;
+	}
+#endif
+      Stream_Putc(c, pstm_o);
     }
-
+  if (f_in)
+    fclose(f_in);
   fclose(f_out);
 
   status = M_Get_Status(pid);

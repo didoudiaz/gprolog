@@ -31,6 +31,12 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
+#ifndef NO_USE_LINEDIT
+#include "ctrl_c.h"
+#else
+#include "../Linedit/ctrl_c.c"
+#endif
+
 
 
 
@@ -66,7 +72,7 @@
 Prolog_Prototype(ABORT, 0);
 Prolog_Prototype(BREAK, 0);
 
-static void Ctrl_C_Handler(int sig);
+static long Ctrl_C_Manager(int from_callback);
 
 
 
@@ -78,30 +84,23 @@ static void Ctrl_C_Handler(int sig);
 void
 Set_Ctrl_C_Handler_0(void)
 {
-  signal(SIGINT, Ctrl_C_Handler);
-  signal(SIGQUIT, Ctrl_C_Handler);
+  Install_Ctrl_C_Handler(Ctrl_C_Manager);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CTRL_C_HANDLER                                                          *
+ * CTRL_C_MANAGER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Ctrl_C_Handler(int sig)
+static long
+Ctrl_C_Manager(int from_callback)
 {
   StmInf *pstm = stm_tbl + stm_top_level_output;
   PredInf *pred;
   int c;
-
-#ifndef M_ix86_win32
-  sigset_t set;
-#endif
-
-  signal(SIGINT, SIG_IGN);
-  signal(SIGQUIT, SIG_IGN);
+  CodePtr to_execute;
 
   Reset_Prolog_In_Signal();
 
@@ -109,23 +108,16 @@ start:
   Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
   Stream_Flush(pstm);
 
-  c = Stream_Getc_No_Echo(stm_tbl + stm_top_level_input);
+  c = Stream_Get_Key(stm_tbl + stm_top_level_input, TRUE, TRUE);
   Stream_Putc('\n', pstm);
-
-  signal(SIGINT, Ctrl_C_Handler);
-  signal(SIGQUIT, Ctrl_C_Handler);
-
-#ifndef M_ix86_win32
-  sigemptyset(&set);
-  sigaddset(&set, SIGINT);
-  sigaddset(&set, SIGQUIT);
-  sigprocmask(SIG_UNBLOCK, &set, NULL);
-#endif
 
   switch (c)
     {
     case 'a':			/* abort */
-      Execute_A_Continuation(Prolog_Predicate(ABORT, 0));
+      to_execute = Prolog_Predicate(ABORT, 0);
+      if (from_callback)
+	return (long) to_execute;
+      Execute_A_Continuation(to_execute);
       break;
 
     case 'b':			/* break */
@@ -160,4 +152,5 @@ start:
       Stream_Printf(pstm, "  h/? help\n");
       goto start;
     }
+  return 0;
 }

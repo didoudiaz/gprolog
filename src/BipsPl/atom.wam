@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : atom.pl
-% date    : 9 28 2001
-% time    : 20:43:40
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/atom.pl').
@@ -14,130 +14,130 @@ predicate('$use_atom'/0,29,static,private,built_in,[
 predicate(atom_length/2,32,static,private,built_in,[
     put_atom(atom_length,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Atom_Length_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Atom_Length_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(atom_concat/3,39,static,private,built_in,[
     put_atom(atom_concat,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
-    call_c_test('Atom_Concat_3',[0,1,2]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Atom_Concat_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$atom_concat_alt'/0,43,static,private,built_in,[
-    call_c_test('Atom_Concat_Alt_0',[]),
+    call_c('Atom_Concat_Alt_0',[boolean],[]),
     proceed]).
 
 
 predicate(sub_atom/5,48,static,private,built_in,[
     put_atom(sub_atom,5),
     put_integer(5,6),
-    call_c('Set_Bip_Name_2',[5,6]),
-    call_c_test('Sub_Atom_5',[0,1,2,3,4]),
+    call_c('Set_Bip_Name_2',[],[x(5),x(6)]),
+    call_c('Sub_Atom_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
 predicate('$sub_atom_alt'/0,53,static,private,built_in,[
-    call_c_test('Sub_Atom_Alt_0',[]),
+    call_c('Sub_Atom_Alt_0',[boolean],[]),
     proceed]).
 
 
 predicate(atom_chars/2,59,static,private,built_in,[
     put_atom(atom_chars,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Atom_Chars_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Atom_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(atom_codes/2,66,static,private,built_in,[
     put_atom(atom_codes,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Atom_Codes_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Atom_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(number_atom/2,73,static,private,built_in,[
     put_atom(number_atom,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Number_Atom_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Number_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(number_chars/2,80,static,private,built_in,[
     put_atom(number_chars,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Number_Chars_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Number_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(number_codes/2,87,static,private,built_in,[
     put_atom(number_codes,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Number_Codes_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Number_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(char_code/2,94,static,private,built_in,[
     put_atom(char_code,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Char_Code_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Char_Code_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(name/2,101,static,private,built_in,[
     put_atom(name,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(lower_upper/2,108,static,private,built_in,[
     put_atom(lower_upper,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Lower_Upper_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Lower_Upper_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(atom_hash/2,115,static,private,built_in,[
     put_atom(atom_hash,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Atom_Hash_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Atom_Hash_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(current_atom/1,122,static,private,built_in,[
     put_atom(current_atom,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$current_atom'/1)]).
 
 
 predicate('$current_atom'/1,127,static,private,built_in,[
     put_integer(1,1),
-    call_c_test('Current_Atom_2',[0,1]),
+    call_c('Current_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_atom_any'/1,130,static,private,built_in,[
     put_integer(0,1),
-    call_c_test('Current_Atom_2',[0,1]),
+    call_c('Current_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_atom_alt'/0,134,static,private,built_in,[
-    call_c_test('Current_Atom_Alt_0',[]),
+    call_c('Current_Atom_Alt_0',[boolean],[]),
     proceed]).
 
 
@@ -147,7 +147,7 @@ predicate(atom_property/2,141,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(atom_property,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(0),0),
     call('$current_atom'/1),
     put_value(y(0),0),
@@ -183,7 +183,7 @@ predicate('$atom_property1'/2,153,static,private,built_in,[
     put_variable(x(4),8),
     put_variable(x(5),9),
     put_variable(x(6),10),
-    call_c('Atom_Property_6',[0,1,7,8,9,10]),
+    call_c('Atom_Property_6',[],[x(0),x(1),x(7),x(8),x(9),x(10)]),
     put_value(y(1),0),
     put_value(y(0),1),
     deallocate,
@@ -192,7 +192,7 @@ predicate('$atom_property1'/2,153,static,private,built_in,[
 
 predicate('$check_atom_prop'/1,160,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
@@ -278,7 +278,7 @@ label(3),
 label(4),
     get_structure(length/1,0),
     unify_variable(x(0)),
-    call_c_test('Atom_Length_2',[1,0]),
+    call_c('Atom_Length_2',[boolean],[x(1),x(0)]),
     proceed,
 
 label(5),
@@ -287,7 +287,7 @@ label(5),
 label(6),
     get_structure(hash/1,0),
     unify_variable(x(0)),
-    call_c_test('Atom_Hash_2',[1,0]),
+    call_c('Atom_Hash_2',[boolean],[x(1),x(0)]),
     proceed,
 
 label(7),
@@ -336,15 +336,15 @@ predicate(new_atom/1,202,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(new_atom,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_atom(atom_,0),
     put_integer(0,1),
     put_value(y(0),2),
-    call_c_test('New_Atom_3',[0,1,2]),
     deallocate,
+    call_c('New_Atom_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
@@ -354,15 +354,15 @@ predicate(new_atom/2,207,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(new_atom,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_integer(0,1),
     put_value(y(1),2),
-    call_c_test('New_Atom_3',[0,1,2]),
     deallocate,
+    call_c('New_Atom_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
@@ -373,13 +373,13 @@ predicate(new_atom/3,212,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(new_atom,0),
     put_integer(3,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
     put_value(y(2),2),
-    call_c_test('New_Atom_3',[0,1,2]),
     deallocate,
+    call_c('New_Atom_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

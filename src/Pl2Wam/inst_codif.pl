@@ -24,18 +24,21 @@
 
 /* $Id$ */
 
-          /* alias stopping instructions */
+          % alias stopping instructions
 
 alias_stop_instruction(InstW) :-
 	functor(InstW, F, _),
 	(   F = call
 	;   F = execute
+        ;   F = call_c,
+	    arg(2, InstW, LCOpt),
+	    (memberchk(jump, LCOpt) ; memberchk(use_x_args, LCOpt))
 	), !.
 
 
 
 
-          /* instruction codification */
+          % instruction codification
 
 codification(WamInst, LCode) :-
 	codif(WamInst, LCode), !.
@@ -109,20 +112,15 @@ codif(load_cut_level(Tmp), [w(Tmp)]).
 
 codif(cut(x(Tmp)), [r(Tmp)]).
 
-codif(function(_, Reg, LReg), LCode) :-
-	lst_r_for_function(LReg, Reg, LCode).
-
-codif(call_c(_, LReg), LCode) :-
-	lst_rw_for_call_c(LReg, [], LCode).
-
-codif(call_c_test(_, LReg), LCode) :-
-	lst_rw_for_call_c(LReg, [], LCode).
-
-codif(call_c_jump(_, LReg), LCode) :-
-	lst_rw_for_call_c(LReg, [], LCode).
+codif(call_c(_, LCOpt, LReg), LCode) :-
+	(   member(x(Tmp), LCOpt) ->
+	    End = [w(Tmp)]
+	;   End = []
+        ),
+	lst_rw_for_c_call(LReg, End, LCode).
 
 codif(foreign_call_c(_, _, LReg, _), LCode) :-
-	lst_rw_for_call_c(LReg, [], LCode).
+	lst_rw_for_foreign_c_call(LReg, [], LCode).
 
 	% instructions which use no temporaries
 
@@ -140,15 +138,20 @@ lst_r_for_call_execute(I, N, [r(I)|L]) :-
 
 
 
-lst_r_for_function([], WReg, [w(WReg)]).
+lst_rw_for_foreign_c_call([], End, End).
 
-lst_r_for_function([Reg|LReg], WReg, [r(Reg)|LCode]) :-
-	lst_r_for_function(LReg, WReg, LCode).
-
-
+lst_rw_for_foreign_c_call([Reg|LReg], End, [r(Reg)|LCode]) :-
+	lst_rw_for_foreign_c_call(LReg, [w(Reg)|End], LCode).
 
 
-lst_rw_for_call_c([], End, End).
 
-lst_rw_for_call_c([Reg|LReg], End, [r(Reg)|LCode]) :-
-	lst_rw_for_call_c(LReg, [w(Reg)|End], LCode).
+
+lst_rw_for_c_call([], End, End).
+
+lst_rw_for_c_call([x(Reg)|LReg], End, [r(Reg)|LCode]) :-
+	!,
+	lst_rw_for_c_call(LReg, [w(Reg)|End], LCode).
+
+lst_rw_for_c_call([_|LReg], End, LCode) :-
+	lst_rw_for_c_call(LReg, End, LCode).
+

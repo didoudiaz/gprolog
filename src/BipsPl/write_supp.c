@@ -35,11 +35,14 @@
 #include "bips_pl.h"
 
 
-				/* define to only put spaces for fx, xfx, xf */
+				/* spaces for non-assoc op (fx, xfx, xf) */
 #if 0
 #define SPACE_ARGS_RESTRICTED
 #endif
-
+				/* spaces around the | inside lists */
+#if 0
+#define SPACE_ARGS_FOR_LIST_PIPE
+#endif
 
 
 
@@ -101,6 +104,14 @@ static int last_prefix_op = W_NO_PREFIX_OP;
  * Function Prototypes             *
  *---------------------------------*/
 
+static void Need_Space(int c);
+
+static void Out_Space(void);
+
+static void Out_Char(int c);
+
+static void Out_String(char *str);
+
 static void Show_Term(int depth, int prec, int context, WamWord term_word);
 
 static void Show_Global_Var(WamWord *adr);
@@ -117,14 +128,8 @@ static void Show_Float(double x);
 
 static void Show_List_Arg(int depth, WamWord *lst_adr);
 
-static
-  void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
-
-static void Out_String(char *str);
-
-static void Out_Char(int c);
-
-static void Need_Space(int c);
+static void Show_Structure(int depth, int prec, int context,
+			   WamWord *stc_adr);
 
 static Bool Try_Portray(WamWord word);
 
@@ -184,6 +189,91 @@ Write_Simple(WamWord term_word)
   Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
 	     term_word);
   /* like write/1 */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * OUT_SPACE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Out_Space(void)
+{
+  Stream_Putc(' ', pstm_o);
+  last_writing = W_NOTHING;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * OUT_CHAR                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Out_Char(int c)
+{
+  Need_Space(c);
+  Stream_Putc(c, pstm_o);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * OUT_STRING                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Out_String(char *str)
+{
+  Need_Space(*str);
+  Stream_Puts(str, pstm_o);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * NEED_SPACE                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Need_Space(int c)
+{
+  int c_type = char_type[c];
+  int space;
+
+  switch (last_writing)
+    {
+    case W_NUMBER:
+      space = (c_type & (UL | CL | SL | DI)) || c == '.';
+      break;
+
+    case W_IDENTIFIER:
+      space = (c_type & (UL | CL | SL | DI)) || c == '[' || c == '{';
+      break;
+
+    case W_QUOTED:
+      space = (c_type == QT);
+      break;
+
+    case W_GRAPHIC:
+      space = (c_type == GR);
+      break;
+
+    default:
+      space = FALSE;
+    }
+
+  if (space || (c == '(' && last_prefix_op) ||
+      (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS))
+    Stream_Putc(' ', pstm_o);
+
+  last_prefix_op = W_NO_PREFIX_OP;
+  last_writing = W_NOTHING;
 }
 
 
@@ -426,7 +516,7 @@ Show_Atom(int context, int atom)
 	      }
 	    else if (!isprint(*p))
 	      {
-		sprintf(str, "\\x%x\\", (unsigned) *p);
+		sprintf(str, "\\x%x\\", (unsigned) (unsigned char) *p);
 		Out_String(str);
 	      }
 	    else
@@ -505,6 +595,13 @@ Show_Float(double x)
  * SHOW_LIST_ARG                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
+
+#ifdef SPACE_ARGS_FOR_LIST_PIPE
+#define SHOW_LIST_PIPE if (space_args) Out_String(" | "); else Out_Char('|')
+#else
+#define SHOW_LIST_PIPE Out_Char('|')
+#endif
+
 static void
 Show_List_Arg(int depth, WamWord *lst_adr)
 {
@@ -524,14 +621,14 @@ Show_List_Arg(int depth, WamWord *lst_adr)
   switch (Tag_From_Tag_Mask(tag_mask))
     {
     case REF:
-      Out_Char('|');
+      SHOW_LIST_PIPE;
       Show_Global_Var(UnTag_REF(word));
       break;
 
     case ATM:
       if (word != NIL_WORD)
 	{
-	  Out_Char('|');
+	  SHOW_LIST_PIPE;
 	  if (Try_Portray(word))
 	    return;
 
@@ -541,7 +638,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 
 #ifndef NO_USE_FD_SOLVER
     case FDV:
-      Out_Char('|');
+      SHOW_LIST_PIPE;
       if (Try_Portray(word))
 	return;
 
@@ -550,7 +647,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 #endif
 
     case INT:
-      Out_Char('|');
+      SHOW_LIST_PIPE;
       if (Try_Portray(word))
 	return;
 
@@ -558,7 +655,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       break;
 
     case FLT:
-      Out_Char('|');
+      SHOW_LIST_PIPE;
       if (Try_Portray(word))
 	return;
 
@@ -568,13 +665,13 @@ Show_List_Arg(int depth, WamWord *lst_adr)
     case LST:
       Out_Char(',');
       if (space_args)
-	Out_Char(' ');
+	Out_Space();
       lst_adr = UnTag_LST(word);
       goto terminal_rec;
       break;
 
     case STC:
-      Out_Char('|');
+      SHOW_LIST_PIPE;
       if (Try_Portray(word))
 	return;
 
@@ -648,10 +745,10 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
     {
       Out_Char('{');
       if (space_args)
-	Out_Char(' ');
+	Out_Space();
       Show_Term(depth, MAX_PREC, GENERAL_TERM, Arg(stc_adr, 0));
       if (space_args)
-	Out_Char(' ');
+	Out_Space();
       Out_Char('}');
       return;
     }
@@ -693,7 +790,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  && oper->prec > oper->right
 #endif
 	  )
-	Out_Char(' ');
+	Out_Space();
       else
 	if (strcmp(atom_tbl[functor].name, "-") == 0)
 	  last_prefix_op = W_PREFIX_OP_MINUS;
@@ -727,7 +824,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  && oper->prec > oper->left
 #endif
 	  )
-	Out_Char(' ');
+	Out_Space();
 
       Show_Atom(GENERAL_TERM, functor);
 
@@ -757,7 +854,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	{
 	  Out_Char(',');
 	  if (space_args)
-	    Out_Char(' ');
+	    Out_Space();
 	}
       else
 	{
@@ -772,13 +869,13 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	       ))
 	    {
 	      surround_space = TRUE;
-	      Out_Char(' ');
+	      Out_Space();
 	    }
 
 	  Show_Atom(GENERAL_TERM, functor);
 
 	  if (surround_space)
-	    Out_Char(' ');
+	    Out_Space();
 	}
 
       Show_Term(depth, oper->right, INSIDE_ANY_OP, Arg(stc_adr, 1));
@@ -805,7 +902,7 @@ functional:			/* functional notation */
     {
       Out_Char(',');
       if (space_args)
-	Out_Char(' ');
+	Out_Space();
     start_display:
       Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, *adr++);
     }
@@ -815,84 +912,11 @@ functional:			/* functional notation */
     {
       Out_Char(',');
       if (space_args)
-	Out_Char(' ');
+	Out_Space();
       Show_Atom(GENERAL_TERM, atom_dots);
     }
 
   Out_Char(')');
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * OUT_CHAR                                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Out_Char(int c)
-{
-  Need_Space(c);
-  Stream_Putc(c, pstm_o);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * OUT_STRING                                                              *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Out_String(char *str)
-{
-  Need_Space(*str);
-  Stream_Puts(str, pstm_o);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * NEED_SPACE                                                              *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Need_Space(int c)
-{
-  int c_type = char_type[c];
-  int space;
-
-
-
-  switch (last_writing)
-    {
-    case W_NUMBER:
-      space = (c_type & (UL | CL | SL | DI)) || c == '.';
-      break;
-
-    case W_IDENTIFIER:
-      space = (c_type & (UL | CL | SL | DI)) || c == '[' || c == '{';
-      break;
-
-    case W_QUOTED:
-      space = (c_type == QT);
-      break;
-
-    case W_GRAPHIC:
-      space = (c_type == GR);
-      break;
-
-    default:
-      space = FALSE;
-    }
-
-  if (space || (c == '(' && last_prefix_op) ||
-      (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS))
-    Stream_Putc(' ', pstm_o);
-
-  last_prefix_op = W_NO_PREFIX_OP;
-  last_writing = W_NOTHING;
 }
 
 

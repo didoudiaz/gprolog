@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.8 (Oct 8 2001)
+% compiler: GNU Prolog 1.2.9 (Oct 15 2001)
 % file    : syn_sugar.pl
-% date    : 10 16 2001
-% time    : 17:31:41
+% date    : 12 6 2001
+% time    : 12:17:44
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/syn_sugar.pl').
@@ -21,7 +21,7 @@ label(1),
     trust_me_else_fail,
     put_atom(aux,0),
     put_integer(1,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -66,7 +66,7 @@ predicate(normalize_cuts/2,46,static,private,user,[
     get_variable(y(1),2),
     put_atom(has_cut,1),
     put_atom(f,2),
-    call_c_test('Blt_G_Assign',[1,2]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(1),x(2)]),
     put_variable(y(2),1),
     put_variable(y(3),2),
     call(normalize_cuts1/3),
@@ -83,7 +83,7 @@ predicate('$normalize_cuts/2_$aux1'/3,46,static,private,user,[
     try_me_else(1),
     put_atom(has_cut,4),
     put_atom(t,5),
-    call_c_test('Blt_G_Read',[4,5]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(4),x(5)]),
     cut(x(3)),
     get_structure((',')/2,0),
     unify_variable(x(0)),
@@ -101,7 +101,7 @@ label(1),
 predicate(normalize_cuts1/3,55,static,private,user,[
     try_me_else(1),
     get_variable(x(3),0),
-    call_c_test('Blt_Var',[3]),
+    call_c('Blt_Var',[fast_call,boolean],[x(3)]),
     put_structure(call/1,0),
     unify_local_value(x(3)),
     execute(normalize_cuts1/3),
@@ -126,7 +126,7 @@ label(5),
     get_structure((;)/2,0),
     unify_variable(x(0)),
     unify_variable(y(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     get_structure((->)/2,0),
     unify_variable(x(3)),
     unify_variable(x(0)),
@@ -184,7 +184,7 @@ label(9),
     unify_local_value(x(1)),
     put_atom(has_cut,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(10),
@@ -272,21 +272,15 @@ label(19),
 
 label(20),
     trust_me_else_fail,
-    allocate(2),
-    get_variable(y(0),0),
-    get_variable(y(1),2),
-    put_value(y(0),0),
-    call('$normalize_cuts1/3_$aux1'/1),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    deallocate,
-    execute(pred_rewriting/2)]).
+    get_value(x(2),0),
+    put_value(x(2),0),
+    execute('$normalize_cuts1/3_$aux1'/1)]).
 
 
 predicate('$normalize_cuts1/3_$aux1'/1,90,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Callable',[0]),
+    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -299,28 +293,29 @@ label(1),
     execute(error/2)]).
 
 
-predicate(normalize_alts/3,100,static,private,user,[
+predicate(normalize_alts/3,99,static,private,user,[
     load_cut_level(3),
     allocate(1),
     get_variable(y(0),3),
     put_variable(x(5),3),
     put_variable(x(4),6),
-    call_c_test('Blt_Functor',[1,3,6]),
+    call_c('Blt_Functor',[fast_call,boolean],[x(1),x(3),x(6)]),
     put_atom(head_functor,3),
-    call_c_test('Blt_G_Assign',[3,5]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(3),x(5)]),
     put_atom(head_arity,3),
-    call_c_test('Blt_G_Assign',[3,4]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(3),x(4)]),
     call(normalize_alts1/3),
     cut(y(0)),
     deallocate,
     proceed]).
 
 
-predicate(normalize_alts1/3,107,static,private,user,[
+predicate(normalize_alts1/3,106,static,private,user,[
+    load_cut_level(3),
     try_me_else(1),
     get_structure(call/1,2),
     unify_local_value(x(0)),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
@@ -383,10 +378,10 @@ label(6),
     call(length/2),
     put_atom(head_functor,1),
     put_variable(x(0),2),
-    call_c_test('Blt_G_Read',[1,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_atom(head_arity,2),
     put_variable(x(1),3),
-    call_c_test('Blt_G_Read',[2,3]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(2),x(3)]),
     put_variable(y(7),2),
     put_value(y(6),3),
     call(init_aux_pred_name/4),
@@ -394,10 +389,10 @@ label(6),
     put_list(1),
     unify_local_value(y(7)),
     unify_local_value(y(5)),
-    call_c_test('Blt_Univ',[0,1]),
+    call_c('Blt_Univ',[fast_call,boolean],[x(0),x(1)]),
     put_atom(where,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_structure((;)/2,0),
     unify_value(y(0)),
     unify_value(y(1)),
@@ -413,7 +408,12 @@ label(6),
 
 label(7),
     trust_me_else_fail,
-    get_value(x(2),0),
+    allocate(1),
+    get_variable(y(0),3),
+    put_value(x(2),1),
+    call(pred_rewriting/2),
+    cut(y(0)),
+    deallocate,
     proceed]).
 
 
@@ -427,11 +427,11 @@ predicate(init_aux_pred_name/4,132,static,private,user,[
     get_variable(y(4),4),
     put_atom(aux,0),
     put_variable(x(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(x(2),0),
-    function('Fct_Fast_Inc',1,[0]),
+    call_c('Fct_Fast_Inc',[fast_call,x(1)],[x(0)]),
     put_atom(aux,0),
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     put_value(y(2),3),
@@ -545,7 +545,7 @@ predicate(lst_var/3,165,static,private,user,[
     try_me_else(1),
     get_variable(x(4),1),
     get_variable(x(1),0),
-    call_c_test('Blt_Var',[1]),
+    call_c('Blt_Var',[fast_call,boolean],[x(1)]),
     cut(x(3)),
     put_value(x(4),0),
     execute(set_add/3),
@@ -556,7 +556,7 @@ label(1),
     get_variable(x(3),1),
     put_void(2),
     put_variable(x(1),5),
-    call_c_test('Blt_Functor',[0,2,5]),
+    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(2),x(5)]),
     put_value(x(0),2),
     put_integer(1,0),
     execute(lst_var_args/5)]).
@@ -576,17 +576,17 @@ predicate('$lst_var_args/5_$aux1'/5,175,static,private,user,[
     get_variable(y(3),4),
     math_fast_load_value(y(0),0),
     math_fast_load_value(y(1),1),
-    call_c_test('Blt_Fast_Lte',[0,1]),
+    call_c('Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     cut(x(5)),
     put_value(y(0),1),
     put_value(y(2),2),
     put_variable(x(0),4),
-    call_c_test('Blt_Arg',[1,2,4]),
+    call_c('Blt_Arg',[fast_call,boolean],[x(1),x(2),x(4)]),
     put_value(x(3),1),
     put_variable(y(4),2),
     call(lst_var/3),
     math_fast_load_value(y(0),0),
-    function('Fct_Fast_Inc',0,[0]),
+    call_c('Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
     put_value(y(1),1),
     put_value(y(2),2),
     put_unsafe_value(y(4),3),
@@ -601,7 +601,6 @@ label(1),
 
 
 predicate(pred_rewriting/2,189,static,private,user,[
-    load_cut_level(2),
     try_me_else(6),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -612,88 +611,176 @@ label(2),
     try_me_else(4),
 
 label(3),
-    allocate(1),
+    allocate(2),
     get_structure(fd_tell/1,0),
-    unify_variable(x(0)),
-    get_structure('$call_c_test'/1,1),
-    unify_value(x(0)),
-    get_variable(y(0),2),
+    unify_variable(y(0)),
+    get_variable(y(1),1),
     put_structure((/)/2,0),
     unify_atom(fd_tell),
     unify_integer(1),
-    call(test_call_c_allowed/1),
-    cut(y(0)),
+    call(test_c_call_allowed/1),
+    put_structure('$call_c'/2,0),
+    unify_value(y(0)),
+    unify_list,
+    unify_atom(boolean),
+    unify_nil,
+    put_value(y(1),1),
     deallocate,
-    proceed,
+    execute(pred_rewriting/2),
 
 label(4),
     trust_me_else_fail,
 
 label(5),
-    allocate(4),
+    allocate(3),
     get_structure(set_bip_name/2,0),
     unify_variable(y(0)),
     unify_variable(y(1)),
     get_variable(y(2),1),
-    get_variable(y(3),2),
     put_atom(inline,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     put_value(y(1),0),
-    call_c_test('Blt_Non_Var',[0]),
-    cut(y(3)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     put_value(y(0),0),
     call('$pred_rewriting/2_$aux1'/1),
     put_value(y(1),0),
     call('$pred_rewriting/2_$aux2'/1),
-    cut(y(3)),
-    put_value(y(2),0),
-    get_structure('$call_c'/1,0),
+    put_structure('$call_c'/1,0),
     unify_structure('Set_Bip_Name_2'/2),
     unify_value(y(0)),
     unify_value(y(1)),
+    put_value(y(2),1),
     deallocate,
-    proceed,
+    execute(pred_rewriting/2),
 
 label(6),
     retry_me_else(7),
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    get_variable(y(2),2),
     put_atom(inline,0),
     put_atom(t,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom(fast_math,0),
     put_atom(f,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
-    put_variable(y(3),1),
+    put_variable(y(2),1),
     put_integer(2,2),
-    call_c_test('Blt_Functor',[0,1,2]),
-    put_value(y(3),0),
+    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    put_value(y(2),0),
     call('$pred_rewriting/2_$aux3'/1),
-    cut(y(2)),
+    put_structure('$call_c'/1,0),
+    unify_structure('Set_Bip_Name_2'/2),
+    unify_local_value(y(2)),
+    unify_integer(2),
+    put_variable(y(3),1),
+    call(pred_rewriting/2),
     put_value(y(1),0),
     get_structure((',')/2,0),
-    unify_variable(x(0)),
-    unify_local_value(y(0)),
-    get_structure('$call_c'/1,0),
-    unify_structure('Set_Bip_Name_2'/2),
     unify_local_value(y(3)),
-    unify_integer(2),
+    unify_local_value(y(0)),
     deallocate,
     proceed,
 
 label(7),
+    retry_me_else(17),
+    switch_on_term(9,fail,fail,fail,8),
+
+label(8),
+    switch_on_structure([('$call_c'/2,10),('$call_c'/1,12),('$call_c_test'/1,14),('$call_c_jump'/1,16)]),
+
+label(9),
+    try_me_else(11),
+
+label(10),
+    allocate(2),
+    get_structure('$call_c'/2,0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    get_structure('$call_c'/2,1),
+    unify_value(x(0)),
+    unify_variable(y(1)),
+    put_structure((/)/2,0),
+    unify_atom('$call_c'),
+    unify_integer(2),
+    call(test_c_call_allowed/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute(no_internal_transf/2),
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    allocate(2),
+    get_structure('$call_c'/1,0),
+    unify_variable(y(0)),
+    get_variable(y(1),1),
+    put_structure((/)/2,0),
+    unify_atom('$call_c'),
+    unify_integer(1),
+    call(test_c_call_allowed/1),
+    put_structure('$call_c'/2,0),
+    unify_value(y(0)),
+    unify_nil,
+    put_value(y(1),1),
+    deallocate,
+    execute(pred_rewriting/2),
+
+label(13),
+    retry_me_else(15),
+
+label(14),
+    allocate(2),
+    get_structure('$call_c_test'/1,0),
+    unify_variable(y(0)),
+    get_variable(y(1),1),
+    put_structure((/)/2,0),
+    unify_atom('$call_c_test'),
+    unify_integer(1),
+    call(test_c_call_allowed/1),
+    put_structure('$call_c'/2,0),
+    unify_value(y(0)),
+    unify_list,
+    unify_atom(boolean),
+    unify_nil,
+    put_value(y(1),1),
+    deallocate,
+    execute(pred_rewriting/2),
+
+label(15),
+    trust_me_else_fail,
+
+label(16),
+    allocate(2),
+    get_structure('$call_c_jump'/1,0),
+    unify_variable(y(0)),
+    get_variable(y(1),1),
+    put_structure((/)/2,0),
+    unify_atom('$call_c_jump'),
+    unify_integer(1),
+    call(test_c_call_allowed/1),
+    put_structure('$call_c'/2,0),
+    unify_value(y(0)),
+    unify_list,
+    unify_atom(jump),
+    unify_nil,
+    put_value(y(1),1),
+    deallocate,
+    execute(pred_rewriting/2),
+
+label(17),
     trust_me_else_fail,
     get_value(x(1),0),
     proceed]).
 
 
-predicate('$pred_rewriting/2_$aux3'/1,204,static,private,user,[
+predicate('$pred_rewriting/2_$aux3'/1,205,static,private,user,[
     try_me_else(1),
     get_atom(is,0),
     proceed,
@@ -704,9 +791,9 @@ label(1),
     execute(math_cmp_functor_name/2)]).
 
 
-predicate('$pred_rewriting/2_$aux2'/1,192,static,private,user,[
+predicate('$pred_rewriting/2_$aux2'/1,193,static,private,user,[
     try_me_else(1),
-    call_c_test('Blt_Integer',[0]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
@@ -718,9 +805,9 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$pred_rewriting/2_$aux1'/1,192,static,private,user,[
+predicate('$pred_rewriting/2_$aux1'/1,193,static,private,user,[
     try_me_else(1),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
@@ -732,12 +819,12 @@ label(1),
     execute(error/2)]).
 
 
-predicate(test_call_c_allowed/1,219,static,private,user,[
+predicate(test_c_call_allowed/1,250,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(call_c,0),
     put_atom(t,2),
-    call_c_test('Blt_G_Read',[0,2]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
     cut(x(1)),
     proceed,
 
@@ -750,7 +837,31 @@ label(1),
     execute(error/2)]).
 
 
-predicate(add_wrapper_to_dyn_clause/4,228,static,private,user,[
+predicate(not_dangerous_c_call/1,260,static,private,user,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    get_list(0),
+    unify_variable(x(1)),
+    unify_variable(x(0)),
+    put_atom(jump,2),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(1),x(2)]),
+    put_atom(use_x_regs,2),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(1),x(2)]),
+    execute(not_dangerous_c_call/1)]).
+
+
+predicate(add_wrapper_to_dyn_clause/4,270,static,private,user,[
     allocate(5),
     get_variable(y(0),1),
     get_structure((+)/2,2),
@@ -778,7 +889,7 @@ predicate(add_wrapper_to_dyn_clause/4,228,static,private,user,[
     execute(assertz/1)]).
 
 
-predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,228,static,private,user,[
+predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,270,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
@@ -801,13 +912,13 @@ label(1),
     execute(head_wrapper/3)]).
 
 
-predicate(head_wrapper/3,238,static,private,user,[
+predicate(head_wrapper/3,280,static,private,user,[
     put_list(4),
     unify_void(1),
     unify_variable(x(3)),
-    call_c_test('Blt_Univ',[0,4]),
+    call_c('Blt_Univ',[fast_call,boolean],[x(0),x(4)]),
     put_list(0),
     unify_local_value(x(1)),
     unify_value(x(3)),
-    call_c_test('Blt_Univ',[2,0]),
+    call_c('Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
     proceed]).

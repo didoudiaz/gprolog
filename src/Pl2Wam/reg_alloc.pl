@@ -33,9 +33,9 @@
  *                                                                         *
  * Two predicates must be provided in addition to the allocater:           *
  *                                                                         *
- * codification(InstW,LCode):                                              *
+ * codification(InstW, LCode):                                             *
  *    defines the action of InstW on the registers as a list LCode of codes*
- *    c(R1,R2) (copy R1 into R2), r(R) (read R) or w(R) (write R).         *
+ *    c(R1, R2) (copy R1 into R2), r(R) (read R) or w(R) (write R).        *
  *                                                                         *
  * alias_stop_instruction(InstW):                                          *
  *     true if InstW stop aliasing propagation.                            *
@@ -49,46 +49,38 @@
  *                                                                         *
  *  1) computing aliases (i.e. list of same values at entry of each inst): *
  *     LAlias is a list of aliases (one for each instruction)              *
- *     LAlias=[Alias,...]                                                  *
+ *     LAlias = [Alias,...]                                                *
  *     The aliases (Alias) are represented as a set of same values (LSame) *
- *     Alias=[LSame,...].                                                  *
+ *     Alias = [LSame,...].                                                *
  *     each LSame is a set of Regs (integers or variables)                 *
- *     eg Alias=[ [1,2,X,Y],[3,Z,4] ] means 1,2,X,Y are aliased, 3,Z,4 also*
+ *     eg Alias = [[1,2,X,Y],[3,Z,4]] means 1,2,X,Y are aliased, 3,Z,4 also*
  *                                                                         *
- *  2) computing the list of temporaries LTmp=[tmp(Tmp,Imposs,Wish),...]   *
+ *  2) computing the list of temporaries LTmp=[tmp(Tmp, Imposs, Wish),...] *
  *     where Imposs is a set of impossible values and Wish a set of wanted *
  *     values (to give rise to useless copy instructions).                 *
  *     The code is traversed in reverse order, computing at each time the  *
- *     set of Regs in life (InLife) (see Mats Carlsson's PhD Thesis).      *
+ *     set of Regs in life (InLife) (see PhD Thesis of Mats Carlsson).     *
  *                                                                         *
- *  3) Each Tmp in LTmp is assigned wrt to Wish and Imposs in 2 steps:     *
+ *  3) Each Tmp in LTmp is assigned w.r.t. to Wish and Imposs in 2 steps:  *
  *                                                                         *
- *     a) from [tmp(Tmp,Imposs,Wish)|LTmp]:                                *
+ *     a) from [tmp(Tmp, Imposs, Wish)|LTmp]:                              *
  *                                                                         *
  *        while there exists Tmpj in Wish and not in Imposs:               *
- *           let tmp(Tmpj,Impossj,Wishj) be the associated record in LTmp  *
- *           Imposs:=Imposs+Impossj and Wish:=Wish+Wishj,                  *
- *           LTmp:=LTmp - tmp(Tmpj,Impossj,Wishj) (remove Tmpj from LTmp)  *
- *           Tmpj=Tmp (unify them)                                         *
+ *           let tmp(Tmpj, Impossj, Wishj) be the associated record in LTmp*
+ *           Imposs := Imposs + Impossj and Wish := Wish + Wishj,          *
+ *           LTmp := LTmp-tmp(Tmpj, Impossj, Wishj) (remove Tmpj from LTmp)*
+ *           Tmpj = Tmp (unify them)                                       *
  *                                                                         *
  *        At the end of the loop:                                          *
- *        if there exists an integer k in Wish-Imposs then  (see comment *)*
- *           Tmp=k else replace tmp(Tmp,Imposs,Wish) in LTmp               *
+ *        if there exists an integer k in Wish-Imposs then  (see NB below) *
+ *           Tmp = k else replace tmp(Tmp, Imposs, Wish) in LTmp           *
  *                                                                         *
  *     b) for each Tmp remaining in LTmp assign a value w.r.t to Imposs    *
  *        by chosing the first integer not present in Imposs (after sort)  *
  *                                                                         *
- * Comments:                                                               *
- *                                                                         *
- * It seems, from the construction, that, in Wish, only remains possible   *
- * so the compl(Wish,Imposs,AssignOK) would be useless, but I have to check*
- * this correctly.                                                         *
- *                                                                         *
- * It would be possible to eliminate useless instructions. In codification *
- * we could add an argument specifying that when a w(Reg) code is handled  *
- * and Reg is not in InLife then the surrounding instruction is useless.   *
- * it is the case for get_variable(x(_),_)/put_value(x(_),_),              *
- * not for put_variable(x(_),_).  Is it useful ?                           *
+ * NB: it seems, from the construction, that, in Wish, only remains        *
+ * possible values so the compl(Wish, Imposs, AssignOK) would be useless,  *
+ * but I have to check this in depth.                                      *
  *-------------------------------------------------------------------------*/
 
 allocate_registers(LInstW) :-
@@ -107,7 +99,7 @@ allocate_registers(LInstW, MaxRegUsed) :-
 
 
 
-          /* Aliasing information creation */
+          % Aliasing information creation
 
 aliases([], _, []).
 
@@ -175,7 +167,7 @@ remove_aliases_of([LSame|Alias], Reg, Alias1) :-
 
 
 
-          /* Temporarie dictionnary creation (lifetime analysis) */
+          % Temporaries dictionnary creation (lifetime analysis)
 
 create_lst_tmp([], [], [], []).
 
@@ -292,7 +284,7 @@ make_imposs([Reg|Cstr], Imposs, LTmp, LTmp2) :-
 
 
 
-          /* Register assignment */
+          % Register assignment
 
 assign_lst_tmp(LTmp, MaxRegUsed) :-
 	g_read(reg_opt, OptReg),
@@ -394,7 +386,7 @@ find_hole([Reg|Imposs], Nb, Nb2) :-
 
 
 
-          /*--- set handling (without unification) ---*/
+          % Set handling (without unification)
 
 set_add([], X, [X]).
 

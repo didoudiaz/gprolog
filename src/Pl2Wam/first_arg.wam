@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.8 (Oct 8 2001)
+% compiler: GNU Prolog 1.2.9 (Oct 15 2001)
 % file    : first_arg.pl
-% date    : 10 16 2001
-% time    : 17:31:42
+% date    : 12 6 2001
+% time    : 12:17:45
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/first_arg.pl').
@@ -125,7 +125,7 @@ label(5),
     get_structure(c/2,0),
     unify_variable(x(1)),
     unify_variable(x(0)),
-    call_c_test('Blt_Term_Neq',[1,0]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(1),x(0)]),
     get_integer(0,0),
     proceed,
 

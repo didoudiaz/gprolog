@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : unify.pl
-% date    : 9 28 2001
-% time    : 20:43:39
+% date    : 10 13 2001
+% time    : 14:53:0
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/unify.pl').
@@ -17,7 +17,7 @@ predicate((=)/2,32,static,private,built_in,[
 
 
 predicate(unify_with_occurs_check/2,37,static,private,built_in,[
-    call_c_test('Unify_Occurs_Check',[0,1]),
+    call_c('Unify_Occurs_Check',[boolean,fast_call],[x(0),x(1)]),
     proceed]).
 
 

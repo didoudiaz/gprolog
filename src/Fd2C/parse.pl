@@ -726,8 +726,7 @@ sem_error(Msg, Args) -->
 
 
 
-          /* utilities */
-
+          % Utilities
 
 
 add_use_to_dep(LUse, _) :-

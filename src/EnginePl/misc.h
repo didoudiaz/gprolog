@@ -51,15 +51,15 @@ char *Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
 
 char *Strdup_Check(char *str, char *src_file, int src_line);
 
-#define Malloc(size)      Malloc_Check(size,__FILE__,__LINE__)
+#define Malloc(size)       Malloc_Check(size, __FILE__, __LINE__)
 
-#define Calloc(nb,size)   Calloc_Check(nb,size,__FILE__,__LINE__)
+#define Calloc(nb, size)   Calloc_Check(nb, size, __FILE__, __LINE__)
 
-#define Realloc(ptr,size) Realloc_Check(ptr,size,__FILE__,__LINE__)
+#define Realloc(ptr, size) Realloc_Check(ptr, size, __FILE__, __LINE__)
 
-#define Free(ptr)         free(ptr)
+#define Free(ptr)          free(ptr)
 
-#define Strdup(str)       Strdup_Check(str,__FILE__,__LINE__)
+#define Strdup(str)        Strdup_Check(str, __FILE__, __LINE__)
 
 void Extend_Table_If_Needed(char **hash_tbl);
 

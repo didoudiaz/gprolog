@@ -83,7 +83,7 @@ int M_Get_Status(int pid);
 
 
 
-char *M_Mktemp(char *template);
+char *M_Mktemp(char *tmp_template);
 
 char *M_Tempnam(char *dir, char *pfx);
 

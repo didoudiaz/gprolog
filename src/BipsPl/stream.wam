@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : stream.pl
-% date    : 9 28 2001
-% time    : 20:43:41
+% date    : 10 7 2001
+% time    : 9:45:0
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/stream.pl').
@@ -15,12 +15,12 @@ predicate(current_input/1,32,static,private,built_in,[
     allocate(1),
     put_atom(current_input,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$check_stream_or_var'/2),
     put_unsafe_value(y(0),0),
-    call_c_test('Current_Input_1',[0]),
     deallocate,
+    call_c('Current_Input_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -28,12 +28,12 @@ predicate(current_output/1,40,static,private,built_in,[
     allocate(1),
     put_atom(current_output,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$check_stream_or_var'/2),
     put_unsafe_value(y(0),0),
-    call_c_test('Current_Output_1',[0]),
     deallocate,
+    call_c('Current_Output_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -59,45 +59,45 @@ label(1),
 
 predicate('$$check_stream_or_var/2_$aux1'/1,48,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    call_c_test('Blt_Integer',[0]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(set_input/1,59,static,private,built_in,[
     put_atom(set_input,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c('Set_Input_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Set_Input_1',[],[x(0)]),
     proceed]).
 
 
 predicate(set_output/1,66,static,private,built_in,[
     put_atom(set_output,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c('Set_Output_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Set_Output_1',[],[x(0)]),
     proceed]).
 
 
 predicate('$set_top_level_streams'/2,73,static,private,built_in,[
-    call_c('Set_Top_Level_Streams_2',[0,1]),
+    call_c('Set_Top_Level_Streams_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$set_debugger_streams'/2,79,static,private,built_in,[
-    call_c('Set_Debugger_Streams_2',[0,1]),
+    call_c('Set_Debugger_Streams_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate(open/3,98,static,private,built_in,[
     put_atom(open,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
     put_nil(3),
     execute('$open'/4)]).
 
@@ -105,7 +105,7 @@ predicate(open/3,98,static,private,built_in,[
 predicate(open/4,103,static,private,built_in,[
     put_atom(open,4),
     put_integer(4,5),
-    call_c('Set_Bip_Name_2',[4,5]),
+    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
     execute('$open'/4)]).
 
 
@@ -125,7 +125,7 @@ predicate('$open'/4,108,static,private,built_in,[
     put_value(y(0),0),
     put_value(y(1),1),
     put_unsafe_value(y(4),2),
-    call_c('Open_3',[0,1,2]),
+    call_c('Open_3',[],[x(0),x(1),x(2)]),
     put_unsafe_value(y(5),0),
     put_value(y(2),1),
     deallocate,
@@ -145,7 +145,7 @@ predicate('$get_open_stm'/2,124,static,private,built_in,[
 predicate('$$get_open_stm/2_$aux1'/2,124,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
     put_value(x(0),1),
     put_atom(variable,0),
@@ -206,7 +206,7 @@ label(4),
 predicate('$get_open_options2'/3,145,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
 
 label(1),
@@ -223,7 +223,7 @@ label(4),
     get_value(x(2),1),
     get_structure(type/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     execute('$$get_open_options2/3_$aux1'/1),
 
 label(5),
@@ -234,7 +234,7 @@ label(6),
     get_value(x(2),1),
     get_structure(reposition/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     call('$$get_open_options2/3_$aux2'/1),
     put_integer(0,0),
     put_integer(2,1),
@@ -249,7 +249,7 @@ label(8),
     get_value(x(2),1),
     get_structure(eof_action/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     call('$$get_open_options2/3_$aux3'/1),
     put_integer(0,0),
     put_integer(5,1),
@@ -264,7 +264,7 @@ label(10),
     get_value(x(2),1),
     get_structure(buffering/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     call('$$get_open_options2/3_$aux4'/1),
     put_integer(0,0),
     put_integer(8,1),
@@ -280,7 +280,7 @@ label(12),
     get_list(2),
     unify_value(x(0)),
     unify_local_value(x(1)),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(3)),
     execute('$$get_open_options2/3_$aux5'/1),
 
@@ -294,7 +294,7 @@ label(13),
 predicate('$$get_open_options2/3_$aux5'/1,194,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Test_Alias_Not_Assigned_1',[0]),
+    call_c('Test_Alias_Not_Assigned_1',[boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -472,14 +472,14 @@ label(4),
     get_list(0),
     unify_variable(x(2)),
     unify_variable(x(0)),
-    call_c('Add_Stream_Alias_2',[1,2]),
+    call_c('Add_Stream_Alias_2',[],[x(1),x(2)]),
     execute('$add_alias_to_stream'/2)]).
 
 
 predicate(close/1,225,static,private,built_in,[
     put_atom(close,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_nil(1),
     execute('$close'/2)]).
 
@@ -487,7 +487,7 @@ predicate(close/1,225,static,private,built_in,[
 predicate(close/2,229,static,private,built_in,[
     put_atom(close,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
     execute('$close'/2)]).
 
 
@@ -501,8 +501,8 @@ predicate('$close'/2,234,static,private,built_in,[
     put_value(y(1),0),
     call('$get_close_options'/1),
     put_value(y(0),0),
-    call_c('Close_1',[0]),
     deallocate,
+    call_c('Close_1',[],[x(0)]),
     proceed]).
 
 
@@ -545,14 +545,14 @@ label(4),
 
 predicate('$get_close_options2'/1,254,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
 
 label(1),
     retry_me_else(2),
     get_structure(force/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     execute('$$get_close_options2/1_$aux1'/1),
 
 label(2),
@@ -592,8 +592,8 @@ predicate(add_stream_alias/2,272,static,private,built_in,[
     try_me_else(1),
     put_atom(add_stream_alias,3),
     put_integer(2,4),
-    call_c('Set_Bip_Name_2',[3,4]),
-    call_c_test('Add_Stream_Alias_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Add_Stream_Alias_2',[boolean],[x(0),x(1)]),
     cut(x(2)),
     proceed,
 
@@ -615,7 +615,7 @@ predicate(set_stream_type/2,282,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(set_stream_type,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(1),0),
     call('$set_stream_type/2_$aux1'/1),
     put_value(y(1),0),
@@ -624,8 +624,8 @@ predicate(set_stream_type/2,282,static,private,built_in,[
     cut(y(2)),
     put_value(y(0),0),
     put_unsafe_value(y(3),1),
-    call_c('Set_Stream_Type_2',[0,1]),
     deallocate,
+    call_c('Set_Stream_Type_2',[],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -660,7 +660,7 @@ label(5),
 predicate('$set_stream_type/2_$aux1'/1,282,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -678,7 +678,7 @@ predicate(set_stream_eof_action/2,301,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(set_stream_eof_action,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(1),0),
     call('$set_stream_eof_action/2_$aux1'/1),
     put_value(y(1),0),
@@ -687,8 +687,8 @@ predicate(set_stream_eof_action/2,301,static,private,built_in,[
     cut(y(2)),
     put_value(y(0),0),
     put_unsafe_value(y(3),1),
-    call_c('Set_Stream_Eof_Action_2',[0,1]),
     deallocate,
+    call_c('Set_Stream_Eof_Action_2',[],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -731,7 +731,7 @@ label(7),
 predicate('$set_stream_eof_action/2_$aux1'/1,301,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -749,7 +749,7 @@ predicate(set_stream_buffering/2,322,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(set_stream_buffering,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(1),0),
     call('$set_stream_buffering/2_$aux1'/1),
     put_value(y(1),0),
@@ -758,8 +758,8 @@ predicate(set_stream_buffering/2,322,static,private,built_in,[
     cut(y(2)),
     put_value(y(0),0),
     put_unsafe_value(y(3),1),
-    call_c('Set_Stream_Buffering_2',[0,1]),
     deallocate,
+    call_c('Set_Stream_Buffering_2',[],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -802,7 +802,7 @@ label(7),
 predicate('$set_stream_buffering/2_$aux1'/1,322,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -814,16 +814,16 @@ label(1),
 predicate(flush_output/0,343,static,private,built_in,[
     put_atom(flush_output,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[0,1]),
-    call_c('Flush_Output_0',[]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Flush_Output_0',[],[]),
     proceed]).
 
 
 predicate(flush_output/1,347,static,private,built_in,[
     put_atom(flush_output,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c('Flush_Output_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Flush_Output_1',[],[x(0)]),
     proceed]).
 
 
@@ -831,7 +831,7 @@ predicate(current_stream/1,354,static,private,built_in,[
     allocate(1),
     put_atom(current_stream,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$check_stream_or_var'/2),
     put_unsafe_value(y(0),0),
@@ -840,12 +840,12 @@ predicate(current_stream/1,354,static,private,built_in,[
 
 
 predicate('$current_stream'/1,362,static,private,built_in,[
-    call_c_test('Current_Stream_1',[0]),
+    call_c('Current_Stream_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate('$current_stream_alt'/0,366,static,private,built_in,[
-    call_c_test('Current_Stream_Alt_0',[]),
+    call_c('Current_Stream_Alt_0',[boolean],[]),
     proceed]).
 
 
@@ -856,7 +856,7 @@ predicate(stream_property/2,372,static,private,built_in,[
     get_variable(y(1),2),
     put_atom(stream_property,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(2),1),
     call('$check_stream_or_var'/2),
     put_value(y(0),0),
@@ -869,12 +869,12 @@ predicate(stream_property/2,372,static,private,built_in,[
 predicate('$stream_property/2_$aux1'/3,372,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     get_structure(alias/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(3)),
-    call_c_test('From_Alias_To_Stream_2',[0,1]),
+    call_c('From_Alias_To_Stream_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -896,7 +896,7 @@ label(1),
 
 predicate('$check_stream_prop'/1,387,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
@@ -1017,7 +1017,7 @@ label(3),
 label(4),
     get_structure(file_name/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_File_Name_2',[0,1]),
+    call_c('Stream_Prop_File_Name_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(5),
@@ -1026,7 +1026,7 @@ label(5),
 label(6),
     get_structure(mode/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_Mode_2',[0,1]),
+    call_c('Stream_Prop_Mode_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(7),
@@ -1034,7 +1034,7 @@ label(7),
 
 label(8),
     get_atom(input,0),
-    call_c_test('Stream_Prop_Input_1',[1]),
+    call_c('Stream_Prop_Input_1',[boolean],[x(1)]),
     proceed,
 
 label(9),
@@ -1042,7 +1042,7 @@ label(9),
 
 label(10),
     get_atom(output,0),
-    call_c_test('Stream_Prop_Output_1',[1]),
+    call_c('Stream_Prop_Output_1',[boolean],[x(1)]),
     proceed,
 
 label(11),
@@ -1061,7 +1061,7 @@ label(13),
 label(14),
     get_structure(type/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_Type_2',[0,1]),
+    call_c('Stream_Prop_Type_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(15),
@@ -1070,7 +1070,7 @@ label(15),
 label(16),
     get_structure(reposition/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_Reposition_2',[0,1]),
+    call_c('Stream_Prop_Reposition_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(17),
@@ -1079,7 +1079,7 @@ label(17),
 label(18),
     get_structure(eof_action/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_Eof_Action_2',[0,1]),
+    call_c('Stream_Prop_Eof_Action_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(19),
@@ -1088,7 +1088,7 @@ label(19),
 label(20),
     get_structure(buffering/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_Buffering_2',[0,1]),
+    call_c('Stream_Prop_Buffering_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(21),
@@ -1108,23 +1108,23 @@ label(23),
 label(24),
     get_structure(end_of_stream/1,0),
     unify_variable(x(0)),
-    call_c_test('Stream_Prop_End_Of_Stream_2',[0,1]),
+    call_c('Stream_Prop_End_Of_Stream_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(at_end_of_stream/0,455,static,private,built_in,[
     put_atom(at_end_of_stream,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[0,1]),
-    call_c_test('At_End_Of_Stream_0',[]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('At_End_Of_Stream_0',[boolean],[]),
     proceed]).
 
 
 predicate(at_end_of_stream/1,459,static,private,built_in,[
     put_atom(at_end_of_stream,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c_test('At_End_Of_Stream_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('At_End_Of_Stream_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -1133,7 +1133,7 @@ predicate(current_alias/2,466,static,private,built_in,[
     get_variable(y(0),1),
     put_atom(current_alias,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(1),1),
     call('$check_stream_or_var'/2),
     put_value(y(0),0),
@@ -1145,9 +1145,9 @@ predicate(current_alias/2,466,static,private,built_in,[
 predicate('$current_alias/2_$aux1'/2,466,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(2)),
-    call_c_test('From_Alias_To_Stream_2',[0,1]),
+    call_c('From_Alias_To_Stream_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -1164,89 +1164,89 @@ label(1),
 
 
 predicate('$current_alias'/2,478,static,private,built_in,[
-    call_c_test('Current_Alias_2',[0,1]),
+    call_c('Current_Alias_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_alias_alt'/0,481,static,private,built_in,[
-    call_c_test('Current_Alias_Alt_0',[]),
+    call_c('Current_Alias_Alt_0',[boolean],[]),
     proceed]).
 
 
 predicate(stream_position/2,487,static,private,built_in,[
     put_atom(stream_position,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
     execute('$stream_position'/2)]).
 
 
 predicate('$stream_position'/2,492,static,private,built_in,[
-    call_c_test('Stream_Position_2',[0,1]),
+    call_c('Stream_Position_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(set_stream_position/2,498,static,private,built_in,[
     put_atom(set_stream_position,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Set_Stream_Position_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Set_Stream_Position_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(seek/4,505,static,private,built_in,[
     put_atom(seek,4),
     put_integer(4,5),
-    call_c('Set_Bip_Name_2',[4,5]),
-    call_c_test('Seek_4',[0,1,2,3]),
+    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Seek_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(character_count/2,512,static,private,built_in,[
     put_atom(character_count,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Character_Count_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Character_Count_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(line_count/2,519,static,private,built_in,[
     put_atom(line_count,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Line_Count_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Line_Count_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(line_position/2,526,static,private,built_in,[
     put_atom(line_position,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Line_Position_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Line_Position_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(stream_line_column/3,533,static,private,built_in,[
     put_atom(stream_line_column,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
-    call_c_test('Stream_Line_Column_3',[0,1,2]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Stream_Line_Column_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(set_stream_line_column/3,540,static,private,built_in,[
     put_atom(set_stream_line_column,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
-    call_c_test('Set_Stream_Line_Column_3',[0,1,2]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Set_Stream_Line_Column_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(open_input_atom_stream/2,556,static,private,built_in,[
+predicate(open_input_atom_stream/2,553,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(open_input_atom_stream,0),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[0,2]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(1),1),
     call('$get_open_stm'/2),
@@ -1255,17 +1255,17 @@ predicate(open_input_atom_stream/2,556,static,private,built_in,[
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
-    call_c('Open_Input_Term_Stream_2',[0,1]),
     deallocate,
+    call_c('Open_Input_Term_Stream_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(open_input_chars_stream/2,565,static,private,built_in,[
+predicate(open_input_chars_stream/2,562,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(open_input_chars_stream,0),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[0,2]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(1),1),
     call('$get_open_stm'/2),
@@ -1274,17 +1274,17 @@ predicate(open_input_chars_stream/2,565,static,private,built_in,[
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
-    call_c('Open_Input_Term_Stream_2',[0,1]),
     deallocate,
+    call_c('Open_Input_Term_Stream_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(open_input_codes_stream/2,574,static,private,built_in,[
+predicate(open_input_codes_stream/2,571,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(open_input_codes_stream,0),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[0,2]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(1),1),
     call('$get_open_stm'/2),
@@ -1293,150 +1293,150 @@ predicate(open_input_codes_stream/2,574,static,private,built_in,[
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
-    call_c('Open_Input_Term_Stream_2',[0,1]),
     deallocate,
+    call_c('Open_Input_Term_Stream_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(close_input_atom_stream/1,583,static,private,built_in,[
+predicate(close_input_atom_stream/1,580,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(close_input_atom_stream,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
-    call_c('Close_Input_Term_Stream_1',[0]),
     deallocate,
+    call_c('Close_Input_Term_Stream_1',[],[x(0)]),
     proceed]).
 
 
-predicate(close_input_chars_stream/1,591,static,private,built_in,[
+predicate(close_input_chars_stream/1,588,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(close_input_chars_stream,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
-    call_c('Close_Input_Term_Stream_1',[0]),
     deallocate,
+    call_c('Close_Input_Term_Stream_1',[],[x(0)]),
     proceed]).
 
 
-predicate(close_input_codes_stream/1,599,static,private,built_in,[
+predicate(close_input_codes_stream/1,596,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(close_input_codes_stream,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
-    call_c('Close_Input_Term_Stream_1',[0]),
     deallocate,
+    call_c('Close_Input_Term_Stream_1',[],[x(0)]),
     proceed]).
 
 
-predicate(open_output_atom_stream/1,607,static,private,built_in,[
+predicate(open_output_atom_stream/1,604,static,private,built_in,[
     allocate(1),
     put_atom(open_output_atom_stream,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_unsafe_value(y(0),0),
-    call_c('Open_Output_Term_Stream_1',[0]),
     deallocate,
+    call_c('Open_Output_Term_Stream_1',[],[x(0)]),
     proceed]).
 
 
-predicate(open_output_chars_stream/1,616,static,private,built_in,[
+predicate(open_output_chars_stream/1,613,static,private,built_in,[
     allocate(1),
     put_atom(open_output_chars_stream,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_unsafe_value(y(0),0),
-    call_c('Open_Output_Term_Stream_1',[0]),
     deallocate,
+    call_c('Open_Output_Term_Stream_1',[],[x(0)]),
     proceed]).
 
 
-predicate(open_output_codes_stream/1,625,static,private,built_in,[
+predicate(open_output_codes_stream/1,622,static,private,built_in,[
     allocate(1),
     put_atom(open_output_codes_stream,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
     put_unsafe_value(y(0),0),
-    call_c('Open_Output_Term_Stream_1',[0]),
     deallocate,
+    call_c('Open_Output_Term_Stream_1',[],[x(0)]),
     proceed]).
 
 
-predicate(close_output_atom_stream/2,634,static,private,built_in,[
+predicate(close_output_atom_stream/2,631,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_atom(close_output_atom_stream,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Close_Output_Term_Stream_2',[0,1]),
     deallocate,
+    call_c('Close_Output_Term_Stream_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(close_output_chars_stream/2,642,static,private,built_in,[
+predicate(close_output_chars_stream/2,639,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_atom(close_output_chars_stream,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Close_Output_Term_Stream_2',[0,1]),
     deallocate,
+    call_c('Close_Output_Term_Stream_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(close_output_codes_stream/2,650,static,private,built_in,[
+predicate(close_output_codes_stream/2,647,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_atom(close_output_codes_stream,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Close_Output_Term_Stream_2',[0,1]),
     deallocate,
+    call_c('Close_Output_Term_Stream_2',[boolean],[x(0),x(1)]),
     proceed]).

@@ -304,103 +304,127 @@ Bool truth_x_plus_c_gte_y(WamWord x, WamWord c, WamWord y, WamWord b);
 
 #ifdef DEBUG
 
-#define DEBUG_2(f,a1,a2)               Debug_Display(#f,2,a1,a2);
+#define DEBUG_2(f, a1, a2)                 Debug_Display(#f, 2, a1, a2)
 
-#define DEBUG_3(f,a1,a2,a3)            Debug_Display(#f,3,a1,a2,a3);
+#define DEBUG_3(f, a1, a2, a3)             Debug_Display(#f, 3, a1, a2, a3)
 
-#define DEBUG_4(f,a1,a2,a3,a4)         Debug_Display(#f,4,a1,a2,a3,a4);
+#define DEBUG_4(f, a1, a2, a3, a4)         Debug_Display(#f, 4, a1, a2, a3, a4)
 
-#define DEBUG_5(f,a1,a2,a3,a4,a5)      Debug_Display(#f,5,a1,a2,a3,a4,a5);
+#define DEBUG_5(f, a1, a2, a3, a4, a5)     Debug_Display(#f, 5, a1, a2, a3, a4, a5)
 
-#define DEBUG_6(f,a1,a2,a3,a4,a5,a6)   Debug_Display(#f,6,a1,a2,a3,a4,a5,a6);
+#define DEBUG_6(f, a1, a2, a3, a4, a5, a6) Debug_Display(#f, 6, a1, a2, a3, a4, a5, a6)
 
 #else
 
-#define DEBUG_2(f,a1,a2)
+#define DEBUG_2(f, a1, a2)
 
-#define DEBUG_3(f,a1,a2,a3)
+#define DEBUG_3(f, a1, a2, a3)
 
-#define DEBUG_4(f,a1,a2,a3,a4)
+#define DEBUG_4(f, a1, a2, a3, a4)
 
-#define DEBUG_5(f,a1,a2,a3,a4,a5)
+#define DEBUG_5(f, a1, a2, a3, a4, a5)
 
-#define DEBUG_6(f,a1,a2,a3,a4,a5,a6)
+#define DEBUG_6(f, a1, a2, a3, a4, a5, a6)
 
 #endif
 
-#define PRIM_CSTR_2(f,a1,a2)                                                \
-    do {                                                                    \
-     DEBUG_2(f,a1,a2)                                                       \
-     if (!f(a1,a2))                                                         \
-         return FALSE;                                                      \
-    } while(0)
-
-#define PRIM_CSTR_3(f,a1,a2,a3)                                             \
-    do {                                                                    \
-     DEBUG_3(f,a1,a2,a3)                                                    \
-     if (!f(a1,a2,a3))                                                      \
-         return FALSE;                                                      \
-    } while(0)
-
-#define PRIM_CSTR_4(f,a1,a2,a3,a4)                                          \
-    do {                                                                    \
-     DEBUG_4(f,a1,a2,a3,a4)                                                 \
-     if (!f(a1,a2,a3,a4))                                                   \
-         return FALSE;                                                      \
-    } while(0)
-
-#define PRIM_CSTR_5(f,a1,a2,a3,a4,a5)                                       \
-    do {                                                                    \
-     DEBUG_5(f,a1,a2,a3,a4,a5)                                              \
-     if (!f(a1,a2,a3,a4,a5))                                                \
-         return FALSE;                                                      \
-    } while(0)
-
-#define PRIM_CSTR_6(f,a1,a2,a3,a4,a5,a6)                                    \
-    do {                                                                    \
-     DEBUG_6(f,a1,a2,a3,a4,a5,a6)                                           \
-     if (!f(a1,a2,a3,a4,a5,a6))                                             \
-         return FALSE;                                                      \
-    } while(0)
 
 
+#define PRIM_CSTR_2(f, a1, a2)			\
+  do						\
+    {						\
+      DEBUG_2(f, a1, a2);			\
+      if (!f(a1, a2))				\
+	return FALSE;				\
+    }						\
+  while (0)
 
-#define MATH_CSTR_2(f,a1,a2)                                                \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_2(f,a1,a2);                                              \
-      else                                                                  \
-         PRIM_CSTR_2(f##_F,a1,a2);                                          \
-    } while(0)
+#define PRIM_CSTR_3(f, a1, a2, a3)		\
+  do						\
+    {						\
+      DEBUG_3(f, a1, a2, a3);			\
+      if (!f(a1, a2, a3))			\
+	return FALSE;				\
+    }						\
+  while (0)
 
-#define MATH_CSTR_3(f,a1,a2,a3)                                             \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_3(f,a1,a2,a3);                                           \
-      else                                                                  \
-         PRIM_CSTR_3(f##_F,a1,a2,a3);                                       \
-    } while(0)
+#define PRIM_CSTR_4(f, a1, a2, a3, a4)		\
+  do						\
+    {						\
+      DEBUG_4(f, a1, a2, a3, a4);		\
+      if (!f(a1, a2, a3, a4))			\
+	return FALSE;				\
+    }						\
+  while (0)
 
-#define MATH_CSTR_4(f,a1,a2,a3,a4)                                          \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_4(f,a1,a2,a3,a4);                                        \
-      else                                                                  \
-         PRIM_CSTR_4(f##_F,a1,a2,a3,a4);                                    \
-    } while(0)
+#define PRIM_CSTR_5(f, a1, a2, a3, a4, a5)	\
+  do						\
+    {						\
+      DEBUG_5(f, a1, a2, a3, a4, a5);		\
+      if (!f(a1, a2, a3, a4, a5))		\
+	return FALSE;				\
+    }						\
+  while (0)
 
-#define MATH_CSTR_5(f,a1,a2,a3,a4,a5)                                       \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_5(f,a1,a2,a3,a4,a5);                                     \
-      else                                                                  \
-         PRIM_CSTR_5(f##_F,a1,a2,a3,a4,a5);                                 \
-    } while(0)
+#define PRIM_CSTR_6(f, a1, a2, a3, a4, a5, a6)	\
+  do						\
+    {						\
+      DEBUG_6(f, a1, a2, a3, a4, a5, a6);	\
+      if (!f(a1, a2, a3, a4, a5, a6))		\
+	return FALSE;				\
+    }						\
+  while (0)
 
-#define MATH_CSTR_6(f,a1,a2,a3,a4,a5,a6)                                    \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_6(f,a1,a2,a3,a4,a5,a6);                                  \
-      else                                                                  \
-         PRIM_CSTR_6(f##_F,a1,a2,a3,a4,a5,a6);                              \
-    } while(0)
+
+
+
+#define MATH_CSTR_2(f, a1, a2)			\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_2(f, a1, a2);			\
+      else					\
+	PRIM_CSTR_2(f##_F, a1, a2);		\
+    }						\
+  while (0)
+
+#define MATH_CSTR_3(f, a1, a2, a3)		\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_3(f, a1, a2, a3);		\
+      else					\
+	PRIM_CSTR_3(f##_F, a1, a2, a3);		\
+    }						\
+  while (0)
+
+#define MATH_CSTR_4(f, a1, a2, a3, a4)		\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_4(f, a1, a2, a3, a4);		\
+      else					\
+	PRIM_CSTR_4(f##_F, a1, a2, a3, a4);	\
+    }						\
+  while (0)
+
+#define MATH_CSTR_5(f, a1, a2, a3, a4, a5)	\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_5(f, a1, a2, a3, a4, a5);	\
+      else					\
+	PRIM_CSTR_5(f##_F, a1, a2, a3, a4, a5);	\
+    }						\
+  while (0)
+
+#define MATH_CSTR_6(f, a1, a2, a3, a4, a5, a6)		\
+  do							\
+    {							\
+      if (full_ac == FALSE)				\
+	PRIM_CSTR_6(f, a1, a2, a3, a4, a5, a6);		\
+      else						\
+	PRIM_CSTR_6(f##_F, a1, a2, a3, a4, a5, a6);	\
+    }							\
+  while (0)
+

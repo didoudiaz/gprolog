@@ -23,6 +23,11 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 /* $Id$ */
+#ifndef _GPROLOG_H
+#define _GPROLOG_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 #define HAVE_TERMIOS_H 1
@@ -30,14 +35,15 @@
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
 #define HAVE_MKSTEMP 1
+#define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
 #define M_linux 1
 #define M_ix86_linux 1
 #define PROLOG_NAME1               "gprolog"
 #define PROLOG_NAME                "GNU Prolog"
-#define PROLOG_VERSION             "1.2.8"
-#define PROLOG_DATE                "Oct 8 2001"
+#define PROLOG_VERSION             "1.2.9"
+#define PROLOG_DATE                "Oct 15 2001"
 #define PROLOG_COPYRIGHT           "Copyright (C) 1999-2001 Daniel Diaz"
 #define TOP_LEVEL                  "gprolog"
 #define GPLC                       "gplc"
@@ -48,8 +54,8 @@
 #define M_OS                       "linux-gnu"
 #define CC                         "gcc"
 #define CFLAGS_PREFIX_REG          "-ffixed-%s"
-#define CFLAGS                     "-O3 "
-#define CFLAGS_MACHINE             "-mpentiumpro -fomit-frame-pointer"
+#define CFLAGS                     "-g -Wall"
+#define CFLAGS_MACHINE             "-mpentiumpro"
 #define LDFLAGS                    ""
 #define LDLIBS                     "-lm"
 #define AS                         "as"
@@ -59,8 +65,8 @@
 #define EXE_SUFFIX                 ""
 #define CC_OBJ_NAME_OPT            "-o "
 #define CC_EXE_NAME_OPT            "-o "
+#define DLL_W32GUICONS             "w32guicons.dll"
 #define LIB_LINEDIT                "liblinedit.a"
-#define LIB_W32GUICONS             "libw32guicons.a"
 #define LIB_ENGINE_PL              "libengine_pl.a"
 #define LIB_BIPS_PL                "libbips_pl.a"
 #define LIB_ENGINE_FD              "libengine_fd.a"
@@ -69,7 +75,7 @@
 #define WORD_SIZE                  (8*SIZEOF_LONG)
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
-#ifdef M_ix86_win32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #define MAXPATHLEN                 1024
 #define SIGQUIT                    SIGTERM
 #define fdopen                     _fdopen
@@ -82,8 +88,8 @@
 #define popen                      _popen
 #define pclose                     _pclose
 #define getpid                     _getpid
-#define strcasecmp                 _stricmp
-#define strncasecmp                _strnicmp
+#define strcasecmp                 stricmp
+#define strncasecmp                strnicmp
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
@@ -107,9 +113,9 @@
 #define DIR_SEP_C                  '/'
 #endif
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
-#define Set_Line_Buf(s)            setvbuf(s,NULL,_IOLBF,0)
+#define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
 #elif defined(M_ix86_win32)
-#define Set_Line_Buf(s)            setbuf(s,NULL)
+#define Set_Line_Buf(s)            setbuf(s, NULL)
 #else
 #define Set_Line_Buf(s)            setlinebuf(s)
 #endif
@@ -126,6 +132,9 @@
 #endif
 #if !defined(_WIN32) && !defined(__unix__)
 #define __unix__
+#endif
+#ifndef HAVE_FGETC
+#define fgetc getc
 #endif
 #if defined(M_ix86)
 #define COULD_COMPILE_FOR_FC
@@ -193,17 +202,17 @@ typedef int Bool;
 #endif
 #endif /* !_BOOL_H */
 #define MAP_REG_TR        	"ebx"
-#define MAP_REG_B         	"ebp"
-#define MAP_OFFSET_H     	((NB_OF_X_REGS+0)*4)
-#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+1)*4)
-#define MAP_OFFSET_CP    	((NB_OF_X_REGS+2)*4)
-#define MAP_OFFSET_E     	((NB_OF_X_REGS+3)*4)
-#define MAP_OFFSET_CS    	((NB_OF_X_REGS+4)*4)
-#define MAP_OFFSET_S     	((NB_OF_X_REGS+5)*4)
-#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+6)*4)
-#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+7)*4)
-#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+8)*4)
-#define CFLAGS_REGS		"-ffixed-ebx -ffixed-ebp "
+#define MAP_OFFSET_B     	((NB_OF_X_REGS+0)*4)
+#define MAP_OFFSET_H     	((NB_OF_X_REGS+1)*4)
+#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+2)*4)
+#define MAP_OFFSET_CP    	((NB_OF_X_REGS+3)*4)
+#define MAP_OFFSET_E     	((NB_OF_X_REGS+4)*4)
+#define MAP_OFFSET_CS    	((NB_OF_X_REGS+5)*4)
+#define MAP_OFFSET_S     	((NB_OF_X_REGS+6)*4)
+#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+7)*4)
+#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+8)*4)
+#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+9)*4)
+#define CFLAGS_REGS		"-ffixed-ebx "
 typedef long WamWord;		/* a wamword is a long (32/64 bits) */
 typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
 typedef CodePtr WamCont;	/* a continuation is a code pointer */
@@ -212,21 +221,21 @@ typedef CodePtr WamCont;	/* a continuation is a code pointer */
 #define A(a)                       (reg_bank[a])
 typedef WamWord *WamWordP;
 register WamWordP		TR  asm ("ebx");
-register WamWordP		B   asm ("ebp");
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+2])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+3])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+6])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+8])
+#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	2
-#define NB_OF_NOT_ALLOC_REGS	9
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
-#define NB_OF_USED_MACHINE_REGS 2
+#define NB_OF_USED_MACHINE_REGS 1
 #ifdef ENGINE_FILE
 WamWord reg_bank[REG_BANK_SIZE];
 WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
@@ -279,16 +288,12 @@ extern char *reg_tbl[];
 #define Save_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
-    register long reg1 asm ("ebp"); \
     buff_save[0] = reg0; \
-    buff_save[1] = reg1; \
   } while(0)
 #define Restore_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
-    register long reg1 asm ("ebp"); \
     reg0 = buff_save[0]; \
-    reg1 = buff_save[1]; \
   } while(0)
 #define Start_Protect_Regs_For_Signal \
   do { \
@@ -330,11 +335,11 @@ extern char *reg_tbl[];
 #define FLT        		4 
 #define FDV        		5 
 #define INT        		7 
-#define Tag_Integer(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
+#define Tag_Long_Int(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
 #define Tag_Short_Uns(tm, v)	(((unsigned long) (v) << 2) + (tm))
 #define Tag_Address(tm, v)  	((unsigned long) (v) + (tm))
-#define UnTag_Integer(w)    	((long) ((w) << 1) >> 3)
-#define UnTag_Short_Uns(w)	UnTag_Integer(w)
+#define UnTag_Long_Int(w)    	((long) ((w) << 1) >> 3)
+#define UnTag_Short_Uns(w)	UnTag_Long_Int(w)
 #define UnTag_Address(w)  	((WamWord *) ((w) & VALUE_MASK))
 #define Tag_REF(v)  		Tag_Address(TAG_REF_MASK, v)
 #define Tag_LST(v)  		Tag_Address(TAG_LST_MASK, v)
@@ -349,7 +354,7 @@ extern char *reg_tbl[];
 #define UnTag_ATM(w)  		((unsigned long) (w) >> 2)
 #define UnTag_FLT(w)  		UnTag_Address(w)
 #define UnTag_FDV(w)  		UnTag_Address(w)
-#define UnTag_INT(w)  		UnTag_Integer(w)
+#define UnTag_INT(w)  		UnTag_Long_Int(w)
 #define Tag_Is_REF(w)  		(Tag_Mask_Of(w) == TAG_REF_MASK)
 #define Tag_Is_LST(w)  		(Tag_Mask_Of(w) == TAG_LST_MASK)
 #define Tag_Is_STC(w)  		(Tag_Mask_Of(w) == TAG_STC_MASK)
@@ -359,7 +364,7 @@ extern char *reg_tbl[];
 #define Tag_Is_INT(w)  		(Tag_Mask_Of(w) == TAG_INT_MASK)
 typedef enum
 {
-  INTEGER,
+  LONG_INT,
   SHORT_UNS,
   ADDRESS
 }TypTag;
@@ -379,7 +384,7 @@ InfTag tag_tbl[] =
   { "ATM", SHORT_UNS, 3, 0x3UL },
   { "FLT", ADDRESS, 4, 0x80000000UL },
   { "FDV", ADDRESS, 5, 0x80000001UL },
-  { "INT", INTEGER, 7, 0x80000003UL }
+  { "INT", LONG_INT, 7, 0x80000003UL }
 };
 #else
 extern InfTag tag_tbl[];
@@ -441,21 +446,23 @@ extern InfStack stk_tbl[];
 #   undef  M_Check_Stacks()
 #   define M_Check_Stacks()
 #endif
-#define cpp_recurs(p,n)            p##_##n
-#define Prolog_Predicate(p,n)      cpp_recurs(p,n)
-#define Prolog_Prototype(p,n)      void Prolog_Predicate(p,n)()
+#define cpp_recurs(p, n)           p##_##n
+#define Prolog_Predicate(p, n)     cpp_recurs(p, n)
+#define Prolog_Prototype(p, n)     void Prolog_Predicate(p, n)()
 #ifdef ENGINE_FILE
 int os_argc;
 char **os_argv;
 char glob_buff[10240];
 long *base_fl;			/* overwritten by foreign if present */
 double *base_fd;		/* overwritten by foreign if present */
+int use_gui;
 #else
 extern int os_argc;
 extern char **os_argv;
 extern char glob_buff[];
 extern long *base_fl;
 extern double *base_fd;
+extern int use_gui;
 #endif
 int Start_Prolog(int argc, char *argv[]);
 void Stop_Prolog(void);
@@ -470,7 +477,7 @@ Bool Call_Prolog_Next_Sol(WamWord *query_b);
 void Keep_Rest_For_Prolog(WamWord *query_b);
 void Exit_With_Exception(void);
 void Execute_A_Continuation(CodePtr codep);
-#define   Goto_Predicate(p,n)   ((*Prolog_Predicate(p,n))())
+#define   Goto_Predicate(p, n)  ((*Prolog_Predicate(p, n))())
 #if 1
 #define OPTIM_1_CHAR_ATOM
 #endif
@@ -577,16 +584,16 @@ char *Calloc_Check(unsigned nb, unsigned size, char *src_file,
 		   int src_line);
 char *Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
 char *Strdup_Check(char *str, char *src_file, int src_line);
-#define Malloc(size)      Malloc_Check(size,__FILE__,__LINE__)
-#define Calloc(nb,size)   Calloc_Check(nb,size,__FILE__,__LINE__)
-#define Realloc(ptr,size) Realloc_Check(ptr,size,__FILE__,__LINE__)
-#define Free(ptr)         free(ptr)
-#define Strdup(str)       Strdup_Check(str,__FILE__,__LINE__)
+#define Malloc(size)       Malloc_Check(size, __FILE__, __LINE__)
+#define Calloc(nb, size)   Calloc_Check(nb, size, __FILE__, __LINE__)
+#define Realloc(ptr, size) Realloc_Check(ptr, size, __FILE__, __LINE__)
+#define Free(ptr)          free(ptr)
+#define Strdup(str)        Strdup_Check(str, __FILE__, __LINE__)
 void Extend_Table_If_Needed(char **hash_tbl);
 void Fatal_Error(char *format, ...);
 #define MAX_PREC                   1200
 #define MAX_ARG_OF_FUNCTOR_PREC    999
-#define Make_Oper_Key(a,t)         (((unsigned long) (a) << 2) | (t))
+#define Make_Oper_Key(a, t)        (((unsigned long) (a) << 2) | (t))
 #define Atom_Of_Oper(k)            ((unsigned long) (k) >> 2)
 #define Type_Of_Oper(k)            ((unsigned long) (k) & 3)
 #define PREFIX                     0
@@ -611,9 +618,9 @@ OperInf *Create_Oper(int atom_op, int type, int prec, int left, int right);
 OperInf *Lookup_Oper(int atom_op, int type);
 OperInf *Lookup_Oper_Any_Type(int atom_op);
 OperInf *Delete_Oper(int atom_op, int type);
-#define Check_Oper(atom_op,type)                                            \
+#define Check_Oper(atom_op, type) \
      (atom_tbl[(atom_op)].prop.op_mask & Make_Op_Mask(type))
-#define Check_Oper_Any_Type(atom_op)                                        \
+#define Check_Oper_Any_Type(atom_op) \
      (atom_tbl[(atom_op)].prop.op_mask)
 #include <stdio.h>
 #define M_OS_UNIX                  0
@@ -636,7 +643,7 @@ int M_Spawn(char *arg[]);
 int M_Spawn_Redirect(char *arg[], int detach,
 		     FILE **f_in, FILE **f_out, FILE **f_err);
 int M_Get_Status(int pid);
-char *M_Mktemp(char *template);
+char *M_Mktemp(char *tmp_template);
 char *M_Tempnam(char *dir, char *pfx);
 #define   DBGPRINTF             printf
 void Init_Machine(void);
@@ -661,16 +668,16 @@ int Is_Win32_SEGV(void *exp);
 void SIGSEGV_Handler(void);
 #endif
 #if defined(M_sparc_sunos)
-#    define M_USED_REGS            {"g6","g7",0}
+#    define M_USED_REGS            {"g6", "g7", 0}
 #elif defined(M_sparc_solaris)
-#    define M_USED_REGS            {"g6","g7",0}
+#    define M_USED_REGS            {"g6", "g7", 0}
 #elif defined(M_mips_irix)
-#define M_USED_REGS                {"$16","$17","$18","$19","$20",\
-                                    "$21","$22","$23",0}
+#define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
+                                    "$21", "$22", "$23", 0}
 #elif defined(M_alpha_linux)
-#    define M_USED_REGS            {"$9","$10","$11","$12","$13","$14",0}
+#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 #elif defined(M_alpha_osf)
-#    define M_USED_REGS            {"$9","$10","$11","$12","$13","$14",0}
+#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 #elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
       defined(M_ix86_solaris) || defined(M_ix86_cygwin)
 #ifdef NO_USE_EBP
@@ -679,7 +686,7 @@ void SIGSEGV_Handler(void);
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
 #elif defined(M_powerpc_linux)
-#    define M_USED_REGS            {"15","20",0}
+#    define M_USED_REGS            {"15", "20", 0}
 #else
 #    define M_USED_REGS            {0}
 #endif
@@ -850,6 +857,12 @@ void Allocate(int n) FC;
 void Deallocate(void) FC;
 CodePtr Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 		       CodePtr c_lst, CodePtr c_stc) FC;
+CodePtr Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm) FC;
+CodePtr Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc) FC;
+CodePtr Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
+				   CodePtr c_lst) FC;
+CodePtr Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
+				   CodePtr c_stc) FC;
 CodePtr Switch_On_Atom(SwtTbl t, int size) FC;
 long Switch_On_Integer(void) FC;
 CodePtr Switch_On_Structure(SwtTbl t, int size) FC;
@@ -858,11 +871,23 @@ void Cut(WamWord b_word) FC;
 void Global_Push_Float(double n) FC;
 double Obtain_Float(WamWord *adr) FC;
 void Create_Choice_Point(CodePtr codep_alt, int arity) FC;
+void Create_Choice_Point1(CodePtr codep_alt) FC;
+void Create_Choice_Point2(CodePtr codep_alt) FC;
+void Create_Choice_Point3(CodePtr codep_alt) FC;
+void Create_Choice_Point4(CodePtr codep_alt) FC;
 void Update_Choice_Point(CodePtr codep_alt, int arity) FC;
+void Update_Choice_Point1(CodePtr codep_alt) FC;
+void Update_Choice_Point2(CodePtr codep_alt) FC;
+void Update_Choice_Point3(CodePtr codep_alt) FC;
+void Update_Choice_Point4(CodePtr codep_alt) FC;
 void Delete_Choice_Point(int arity) FC;
+void Delete_Choice_Point1(void) FC;
+void Delete_Choice_Point2(void) FC;
+void Delete_Choice_Point3(void) FC;
+void Delete_Choice_Point4(void) FC;
 void Untrail(WamWord *low_adr) FC;
 Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
-Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
+Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
 #if 0
 #define DEREF_STATS
 #endif
@@ -873,80 +898,97 @@ long chain_len;
 #else
 #define DEREF_COUNT(x)
 #endif
-#define DEREF(start_word, word, tag_mask)                                   \
-  do					                                    \
-    {                                                                       \
-      WamWord deref_last_word;                                              \
-      word = start_word;                                                    \
-                                                                            \
-      DEREF_COUNT(nb_deref);                                                \
-      do                                                                    \
-	{                                                                   \
-	  DEREF_COUNT(chain_len);                                           \
-	  deref_last_word = word;                                           \
-	  tag_mask = Tag_Mask_Of(word);                                     \
-	  if (tag_mask != TAG_REF_MASK)                                     \
-	    break;                                                          \
-	  word = *(UnTag_REF(word));                                        \
-	}                                                                   \
-      while (word != deref_last_word);                                      \
-    }                                                                       \
-  while(0)
-#define Word_Needs_Trailing(adr) \
+#define DEREF(start_word, word, tag_mask)	\
+  do						\
+    {						\
+      WamWord deref_last_word;			\
+						\
+      word = start_word;			\
+						\
+      DEREF_COUNT(nb_deref);			\
+      do					\
+	{					\
+	  DEREF_COUNT(chain_len);		\
+	  deref_last_word = word;		\
+	  tag_mask = Tag_Mask_Of(word);		\
+	  if (tag_mask != TAG_REF_MASK)		\
+	    break;				\
+	  word = *(UnTag_REF(word));		\
+	}					\
+      while (word != deref_last_word);		\
+    }						\
+  while (0)
+#define Word_Needs_Trailing(adr)			\
   ((adr) < HB1 || (Is_A_Local_Adr(adr) && (adr) < B))
-#define Bind_UV(adr, word)                                                  \
-  do {                                                                      \
-    if (Word_Needs_Trailing(adr))                                           \
-      Trail_UV(adr);                                                        \
-   *(adr) = (word);                                                         \
-  } while(0)
-#define Bind_OV(adr, word)                                                  \
-  do {                                                                      \
-    if (Word_Needs_Trailing(adr))                                           \
-      Trail_OV(adr);                                                        \
-   *(adr) = (word);                                                         \
-  } while(0)
-#define Bind_MV(adr, nb, real_adr)                                          \
-  do {                                                                      \
-    if (Word_Needs_Trailing(adr))                                           \
-      Trail_MV(adr, nb);                                                    \
-   Mem_Word_Cpy(adr, real_adr, nb);                                         \
-  } while(0)
-#define Trail_UV(adr)                                                       \
+#define Bind_UV(adr, word)			\
+  do						\
+    {						\
+      if (Word_Needs_Trailing(adr))		\
+	Trail_UV(adr);				\
+      *(adr) = (word);				\
+    }						\
+  while (0)
+#define Bind_OV(adr, word)			\
+  do						\
+    {						\
+      if (Word_Needs_Trailing(adr))		\
+	Trail_OV(adr);				\
+      *(adr) = (word);				\
+    }						\
+  while (0)
+#define Bind_MV(adr, nb, real_adr)		\
+  do						\
+    {						\
+      if (Word_Needs_Trailing(adr))		\
+	Trail_MV(adr, nb);			\
+      Mem_Word_Cpy(adr, real_adr, nb);		\
+    }						\
+  while (0)
+#define Trail_UV(adr)				\
   Trail_Push(Trail_Tag_Value(TUV, adr))
-#define Trail_OV(adr)                                                       \
-  do {                                                                      \
-    Trail_Push(*(adr));                                                     \
-    Trail_Push(Trail_Tag_Value(TOV, adr));                                  \
-  } while(0)
-#define Trail_MV(adr,nb)                                                    \
-  do {                                                                      \
-    Mem_Word_Cpy(TR, adr, nb);                                              \
-    TR += nb;                                                               \
-    Trail_Push(nb);                                                         \
-    Trail_Push(Trail_Tag_Value(TMV, adr));                                  \
-  } while(0)
-#define Trail_FC(fct)                                                       \
+#define Trail_OV(adr)				\
+  do						\
+    {						\
+      Trail_Push(*(adr));			\
+      Trail_Push(Trail_Tag_Value(TOV, adr));	\
+    }						\
+  while (0)
+#define Trail_MV(adr, nb)			\
+  do						\
+    {						\
+      Mem_Word_Cpy(TR, adr, nb);		\
+      TR += nb;					\
+      Trail_Push(nb);				\
+      Trail_Push(Trail_Tag_Value(TMV, adr));	\
+    }						\
+  while (0)
+#define Trail_FC(fct)  				\
   Trail_Push(Trail_Tag_Value(TFC,fct))
 #define Assign_B(newB)              (B = (newB), HB1 = HB(B))
 #define Delete_Last_Choice_Point()  Assign_B(BB(B))
-#define Globalize_Local_Unbound_Var(adr, res_word)                          \
-  do {                                                                      \
-    WamWord *cur_H = H;                                                     \
-    res_word = Make_Self_Ref(cur_H);                                        \
-    *cur_H = res_word;                                                      \
-    H++;                                                                    \
-    Bind_UV(adr, res_word);                                                 \
-  } while(0)
-#define Mem_Word_Cpy(dst, src, nb)                                          \
-  do {                                                                      \
-    register long *s = (long *) (src);                                      \
-    register long *d = (long *) (dst);                                      \
-    register int counter = (nb);                                            \
-    do                                                                      \
-      *d++ = *s++;                                                          \
-    while(--counter);                                                       \
-  } while(0)
+#define Globalize_Local_Unbound_Var(adr, res_word)	\
+  do							\
+    {							\
+      WamWord *cur_H = H;				\
+							\
+      res_word = Make_Self_Ref(cur_H);			\
+      *cur_H = res_word;				\
+      H++;						\
+      Bind_UV(adr, res_word);				\
+    }							\
+  while (0)
+#define Mem_Word_Cpy(dst, src, nb)		\
+  do						\
+    {						\
+      register long *s = (long *) (src);	\
+      register long *d = (long *) (dst);	\
+      register int counter = (nb);		\
+						\
+      do					\
+	*d++ = *s++;				\
+      while (--counter);			\
+    }						\
+  while (0)
 #ifdef IF_NO_FD_FILE
 void (*fd_init_solver) ();	/* overwritten by FD if present */
 void (*fd_reset_solver) ();
@@ -966,110 +1008,113 @@ extern char *(*fd_variable_to_string) ();
 #endif
 void Fd_Init_Solver(void);
 void Fd_Reset_Solver(void);
-#define Fd_Unify_With_Integer(f,n) ((*fd_unify_with_integer)(f,n))
-#define Fd_Unify_With_Fd_Var(f1,f2)((*fd_unify_with_fd_var)(f1,f2))
-#define Fd_Variable_Size(f)        ((*fd_variable_size)(f))
-#define Fd_Copy_Variable(dst_adr,f)((*fd_copy_variable)(dst_adr,f))
-#define Fd_Variable_To_String(f)   ((*fd_variable_to_string)(f))
+#define Fd_Unify_With_Integer(f, n) ((*fd_unify_with_integer)(f, n))
+#define Fd_Unify_With_Fd_Var(f1, f2)((*fd_unify_with_fd_var)(f1, f2))
+#define Fd_Variable_Size(f)         ((*fd_variable_size)(f))
+#define Fd_Copy_Variable(dst_adr, f)((*fd_copy_variable)(dst_adr, f))
+#define Fd_Variable_To_String(f)    ((*fd_variable_to_string)(f))
 #define MAX_STREAM                 256
 #define MAX_VAR_NAME_LENGTH        256
 #define MAX_VAR_IN_TERM            2048
 #define MAX_SYS_VARS               256
-Bool Blt_Var(WamWord x);
-Bool Blt_Non_Var(WamWord x);
-Bool Blt_Atom(WamWord x);
-Bool Blt_Integer(WamWord x);
-Bool Blt_Float(WamWord x);
-Bool Blt_Number(WamWord x);
-Bool Blt_Atomic(WamWord x);
-Bool Blt_Compound(WamWord x);
-Bool Blt_Callable(WamWord x);
-Bool Blt_Fd_Var(WamWord x);
-Bool Blt_Non_Fd_Var(WamWord x);
-Bool Blt_Generic_Var(WamWord x);
-Bool Blt_Non_Generic_Var(WamWord x);
-Bool Blt_List(WamWord x);
-Bool Blt_Partial_List(WamWord x);
-Bool Blt_List_Or_Partial_List(WamWord x);
-Bool Blt_Term_Eq(WamWord x, WamWord y);
-Bool Blt_Term_Neq(WamWord x, WamWord y);
-Bool Blt_Term_Lt(WamWord x, WamWord y);
-Bool Blt_Term_Lte(WamWord x, WamWord y);
-Bool Blt_Term_Gt(WamWord x, WamWord y);
-Bool Blt_Term_Gte(WamWord x, WamWord y);
-Bool Blt_Compare(WamWord cmp_word, WamWord x, WamWord y);
-Bool Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word);
+Bool Blt_Var(WamWord x) FC;
+Bool Blt_Non_Var(WamWord x) FC;
+Bool Blt_Atom(WamWord x) FC;
+Bool Blt_Integer(WamWord x) FC;
+Bool Blt_Float(WamWord x) FC;
+Bool Blt_Number(WamWord x) FC;
+Bool Blt_Atomic(WamWord x) FC;
+Bool Blt_Compound(WamWord x) FC;
+Bool Blt_Callable(WamWord x) FC;
+Bool Blt_Fd_Var(WamWord x) FC;
+Bool Blt_Non_Fd_Var(WamWord x) FC;
+Bool Blt_Generic_Var(WamWord x) FC;
+Bool Blt_Non_Generic_Var(WamWord x) FC;
+Bool Blt_List(WamWord x) FC;
+Bool Blt_Partial_List(WamWord x) FC;
+Bool Blt_List_Or_Partial_List(WamWord x) FC;
+Bool Blt_Term_Eq(WamWord x, WamWord y) FC;
+Bool Blt_Term_Neq(WamWord x, WamWord y) FC;
+Bool Blt_Term_Lt(WamWord x, WamWord y) FC;
+Bool Blt_Term_Lte(WamWord x, WamWord y) FC;
+Bool Blt_Term_Gt(WamWord x, WamWord y) FC;
+Bool Blt_Term_Gte(WamWord x, WamWord y) FC;
+Bool Blt_Compare(WamWord cmp_word, WamWord x, WamWord y) FC;
+Bool Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word) FC;
 Bool Blt_Functor(WamWord term_word, WamWord functor_word,
-		 WamWord arity_word);
-Bool Blt_Univ(WamWord term_word, WamWord list_word);
-Bool Blt_G_Assign(WamWord x, WamWord y);
-Bool Blt_G_Assignb(WamWord x, WamWord y);
-Bool Blt_G_Link(WamWord x, WamWord y);
-Bool Blt_G_Read(WamWord x, WamWord y);
-Bool Blt_G_Array_Size(WamWord x, WamWord y);
+		 WamWord arity_word) FC;
+Bool Blt_Univ(WamWord term_word, WamWord list_word) FC;
+Bool Blt_G_Assign(WamWord x, WamWord y) FC;
+Bool Blt_G_Assignb(WamWord x, WamWord y) FC;
+Bool Blt_G_Link(WamWord x, WamWord y) FC;
+Bool Blt_G_Read(WamWord x, WamWord y) FC;
+Bool Blt_G_Array_Size(WamWord x, WamWord y) FC;
 void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 void Math_Load_Value(WamWord start_word, WamWord *word_adr) FC;
-WamWord Fct_Fast_Neg(WamWord x);
-WamWord Fct_Fast_Inc(WamWord x);
-WamWord Fct_Fast_Dec(WamWord x);
-WamWord Fct_Fast_Add(WamWord x, WamWord y);
-WamWord Fct_Fast_Sub(WamWord x, WamWord y);
-WamWord Fct_Fast_Mul(WamWord x, WamWord y);
-WamWord Fct_Fast_Div(WamWord x, WamWord y);
-WamWord Fct_Fast_Rem(WamWord x, WamWord y);
-WamWord Fct_Fast_Mod(WamWord x, WamWord y);
-WamWord Fct_Fast_And(WamWord x, WamWord y);
-WamWord Fct_Fast_Or(WamWord x, WamWord y);
-WamWord Fct_Fast_Xor(WamWord x, WamWord y);
-WamWord Fct_Fast_Not(WamWord x);
-WamWord Fct_Fast_Shl(WamWord x, WamWord y);
-WamWord Fct_Fast_Shr(WamWord x, WamWord y);
-WamWord Fct_Fast_Abs(WamWord x);
-WamWord Fct_Fast_Sign(WamWord x);
-WamWord Fct_Neg(WamWord x);
-WamWord Fct_Inc(WamWord x);
-WamWord Fct_Dec(WamWord x);
-WamWord Fct_Add(WamWord x, WamWord y);
-WamWord Fct_Sub(WamWord x, WamWord y);
-WamWord Fct_Mul(WamWord x, WamWord y);
-WamWord Fct_Div(WamWord x, WamWord y);
-WamWord Fct_Float_Div(WamWord x, WamWord y);
-WamWord Fct_Rem(WamWord x, WamWord y);
-WamWord Fct_Mod(WamWord x, WamWord y);
-WamWord Fct_And(WamWord x, WamWord y);
-WamWord Fct_Or(WamWord x, WamWord y);
-WamWord Fct_Xor(WamWord x, WamWord y);
-WamWord Fct_Not(WamWord x);
-WamWord Fct_Shl(WamWord x, WamWord y);
-WamWord Fct_Shr(WamWord x, WamWord y);
-WamWord Fct_Abs(WamWord x);
-WamWord Fct_Sign(WamWord x);
-WamWord Fct_Pow(WamWord x, WamWord y);
-WamWord Fct_Sqrt(WamWord x);
-WamWord Fct_Atan(WamWord x);
-WamWord Fct_Cos(WamWord x);
-WamWord Fct_Sin(WamWord x);
-WamWord Fct_Exp(WamWord x);
-WamWord Fct_Log(WamWord x);
-WamWord Fct_Float(WamWord x);
-WamWord Fct_Ceiling(WamWord x);
-WamWord Fct_Floor(WamWord x);
-WamWord Fct_Round(WamWord x);
-WamWord Fct_Truncate(WamWord x);
-WamWord Fct_Float_Fract_Part(WamWord x);
-WamWord Fct_Float_Integ_Part(WamWord x);
-Bool Blt_Fast_Eq(WamWord x, WamWord y);
-Bool Blt_Fast_Neq(WamWord x, WamWord y);
-Bool Blt_Fast_Lt(WamWord x, WamWord y);
-Bool Blt_Fast_Lte(WamWord x, WamWord y);
-Bool Blt_Fast_Gt(WamWord x, WamWord y);
-Bool Blt_Fast_Gte(WamWord x, WamWord y);
-Bool Blt_Eq(WamWord x, WamWord y);
-Bool Blt_Neq(WamWord x, WamWord y);
-Bool Blt_Lt(WamWord x, WamWord y);
-Bool Blt_Lte(WamWord x, WamWord y);
-Bool Blt_Gt(WamWord x, WamWord y);
-Bool Blt_Gte(WamWord x, WamWord y);
+WamWord Fct_Fast_Neg(WamWord x) FC;
+WamWord Fct_Fast_Inc(WamWord x) FC;
+WamWord Fct_Fast_Dec(WamWord x) FC;
+WamWord Fct_Fast_Add(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Sub(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Mul(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Div(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Rem(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Mod(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_And(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Or(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Xor(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Not(WamWord x) FC;
+WamWord Fct_Fast_Shl(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Shr(WamWord x, WamWord y) FC;
+WamWord Fct_Fast_Abs(WamWord x) FC;
+WamWord Fct_Fast_Sign(WamWord x) FC;
+WamWord Fct_Neg(WamWord x) FC;
+WamWord Fct_Inc(WamWord x) FC;
+WamWord Fct_Dec(WamWord x) FC;
+WamWord Fct_Add(WamWord x, WamWord y) FC;
+WamWord Fct_Sub(WamWord x, WamWord y) FC;
+WamWord Fct_Mul(WamWord x, WamWord y) FC;
+WamWord Fct_Div(WamWord x, WamWord y) FC;
+WamWord Fct_Float_Div(WamWord x, WamWord y) FC;
+WamWord Fct_Rem(WamWord x, WamWord y) FC;
+WamWord Fct_Mod(WamWord x, WamWord y) FC;
+WamWord Fct_And(WamWord x, WamWord y) FC;
+WamWord Fct_Or(WamWord x, WamWord y) FC;
+WamWord Fct_Xor(WamWord x, WamWord y) FC;
+WamWord Fct_Not(WamWord x) FC;
+WamWord Fct_Shl(WamWord x, WamWord y) FC;
+WamWord Fct_Shr(WamWord x, WamWord y) FC;
+WamWord Fct_Abs(WamWord x) FC;
+WamWord Fct_Sign(WamWord x) FC;
+WamWord Fct_Pow(WamWord x, WamWord y) FC;
+WamWord Fct_Sqrt(WamWord x) FC;
+WamWord Fct_Atan(WamWord x) FC;
+WamWord Fct_Cos(WamWord x) FC;
+WamWord Fct_Acos(WamWord x) FC;
+WamWord Fct_Sin(WamWord x) FC;
+WamWord Fct_Asin(WamWord x) FC;
+WamWord Fct_Exp(WamWord x) FC;
+WamWord Fct_Log(WamWord x) FC;
+WamWord Fct_Float(WamWord x) FC;
+WamWord Fct_Ceiling(WamWord x) FC;
+WamWord Fct_Floor(WamWord x) FC;
+WamWord Fct_Round(WamWord x) FC;
+WamWord Fct_Truncate(WamWord x) FC;
+WamWord Fct_Float_Fract_Part(WamWord x) FC;
+WamWord Fct_Float_Integ_Part(WamWord x) FC;
+WamWord Fct_Identity(WamWord x) FC;
+Bool Blt_Fast_Eq(WamWord x, WamWord y) FC;
+Bool Blt_Fast_Neq(WamWord x, WamWord y) FC;
+Bool Blt_Fast_Lt(WamWord x, WamWord y) FC;
+Bool Blt_Fast_Lte(WamWord x, WamWord y) FC;
+Bool Blt_Fast_Gt(WamWord x, WamWord y) FC;
+Bool Blt_Fast_Gte(WamWord x, WamWord y) FC;
+Bool Blt_Eq(WamWord x, WamWord y) FC;
+Bool Blt_Neq(WamWord x, WamWord y) FC;
+Bool Blt_Lt(WamWord x, WamWord y) FC;
+Bool Blt_Lte(WamWord x, WamWord y) FC;
+Bool Blt_Gt(WamWord x, WamWord y) FC;
+Bool Blt_Gte(WamWord x, WamWord y) FC;
 long Rd_Integer_Check(WamWord start_word);
 long Rd_Integer(WamWord start_word);
 long Rd_Positive_Check(WamWord start_word);
@@ -1305,7 +1350,6 @@ typedef struct			/* Stream properties              */
   unsigned reposition:1;	/* can it be repositioned ?       */
   unsigned eof_action:2;	/* see STREAM_EOF_ACTION_xxx defs */
   unsigned buffering:2;		/* see STREAM_BUFFERING_xxx defs  */
-  unsigned tty:1;		/* is it a tty ?                  */
   unsigned special_close:1;	/* does it need a special close ? */
   unsigned other:8;		/* other prop (1,2,3=term_streams */
 }				/*             4=socket_stream)   */
@@ -1451,7 +1495,7 @@ void Check_Stream_Type(int stm, Bool check_text, Bool for_input);
 FILE *File_Star_Of_Stream(int stm);
 int File_Number_Of_Stream(int stm);
 int Stream_Getc(StmInf *pstm);
-int Stream_Getc_No_Echo(StmInf *pstm);
+int Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
 void Stream_Ungetc(int c, StmInf *pstm);
 int Stream_Peekc(StmInf *pstm);
 char *Stream_Gets(char *str, int size, StmInf *pstm);
@@ -1469,34 +1513,40 @@ int Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos);
 int Add_Str_Stream(Bool use_global, char *buff);
 void Delete_Str_Stream(int stm);
 char *Term_Write_Str_Stream(int stm);
-#define PB_Init(pb)          pb.ptr=pb.buff, pb.nb_elems=0;
-#define PB_Is_Empty(pb)      (pb.nb_elems==0)
-#define PB_Push(pb,elem)                                                    \
-    do {                                                                    \
-     *(pb.ptr)=(elem);                                                      \
-     if (pb.ptr!=pb.buff+STREAM_PB_SIZE-1)                                  \
-         pb.ptr++;                                                          \
-      else                                                                  \
-         pb.ptr=pb.buff;                                                    \
-     if (pb.nb_elems<STREAM_PB_SIZE)                                        \
-         pb.nb_elems++;                                                     \
-    } while(0)
-#define PB_Pop(pb,elem)                                                     \
-    do {                                                                    \
-     if (pb.ptr!=pb.buff)                                                   \
-         pb.ptr--;                                                          \
-      else                                                                  \
-         pb.ptr=pb.buff+STREAM_PB_SIZE-1;                                   \
-     (elem)=*pb.ptr;                                                        \
-     pb.nb_elems--;                                                         \
-    } while(0)
-#define PB_Top(pb,elem)                                                     \
-    do {                                                                    \
-     if (pb.ptr!=pb.buff)                                                   \
-         (elem)=pb.ptr[-1];                                                 \
-      else                                                                  \
-         (elem)=pb.buff[STREAM_PB_SIZE-1];                                  \
-    } while(0)
+#define PB_Init(pb)          pb.ptr = pb.buff, pb.nb_elems = 0;
+#define PB_Is_Empty(pb)      (pb.nb_elems == 0)
+#define PB_Push(pb, elem)                  		\
+  do							\
+    {							\
+      *(pb.ptr) = (elem);				\
+      if (pb.ptr != pb.buff + STREAM_PB_SIZE - 1)	\
+	pb.ptr++;					\
+      else						\
+	pb.ptr = pb.buff;				\
+      if (pb.nb_elems < STREAM_PB_SIZE)			\
+	pb.nb_elems++;					\
+    }							\
+  while (0)
+#define PB_Pop(pb, elem)                    	\
+  do						\
+    {						\
+      if (pb.ptr != pb.buff)			\
+	pb.ptr--;				\
+      else					\
+	pb.ptr = pb.buff + STREAM_PB_SIZE - 1;	\
+      (elem) = *pb.ptr;				\
+      pb.nb_elems--;				\
+    }						\
+  while (0)
+#define PB_Top(pb, elem)                    	\
+  do						\
+    {						\
+      if (pb.ptr != pb.buff)			\
+	(elem) = pb.ptr[-1];			\
+      else					\
+	(elem) = pb.buff[STREAM_PB_SIZE - 1];	\
+    }						\
+  while (0)
 #ifdef ERROR_SUPP_FILE
 int type_atom;
 int type_atomic;
@@ -1805,6 +1855,8 @@ char *Float_To_String(double d);
 #define SYS_VAR_TOP_LEVEL           (sys_var[10])
 #define SYS_VAR_LINEDIT             (sys_var[12])
 #define SYS_VAR_DEBUGGER            (sys_var[13])
+#define SYS_VAR_SAY_GETC            (sys_var[20])
+#define CHAR_TO_EMIT_WHEN_CHAR      '\1'
 #define Flag_Value(flag)            (sys_var[200+(flag)])
 #ifdef FLAG_C_FILE
 long sys_var[MAX_SYS_VARS];
@@ -1877,7 +1929,7 @@ int Scan_Choice_Point_Pred(WamWord *b, int *arity);
 void Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
 			 WamWord *body_word);
 void Call_Info_Bip_Name_1(WamWord call_info_word);
-#define Call_Info(f,a,dc)          ((Functor_Arity(f,a)<<1)|dc)
+#define Call_Info(f, a, dc)        ((Functor_Arity(f, a) << 1) | dc)
 #ifdef BC_SUPP_FILE
 unsigned *byte_code;
 int byte_len;
@@ -1900,9 +1952,9 @@ Range;
 #define RANGE_TOP_STACK            CS
 #define INTERVAL_MAX_INTEGER       ((int)((1L<<(32-TAG_SIZE-1))-1))	/* only 32 bits */
 #ifndef WORD_SIZE
-#   define WORD_SIZE                32
+#   define WORD_SIZE               32
 #endif
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
 #   define WORD_SIZE_BITS          5
 #else
 #   define WORD_SIZE_BITS          6
@@ -1955,55 +2007,61 @@ void Range_Mul_Value(Range *range, int n);
 void Range_Div_Value(Range *range, int n);
 void Range_Mod_Value(Range *range, int n);
 char *Range_To_String(Range *range);
-#define Word_No_And_Bit_No(w,b)    (((VecWord) (w) << WORD_SIZE_BITS)|\
+#define Word_No_And_Bit_No(w, b)   (((VecWord) (w) << WORD_SIZE_BITS)|\
                                      (VecWord) (b))
 #define Word_No(n)                 ((VecWord) (n) >> WORD_SIZE_BITS)
-#define Bit_No(n)                  ((n) & (((VecWord) 1<<WORD_SIZE_BITS)-1))
-#define Vector_Test_Value(vec,n)   ((vec[Word_No(n)] & ((VecWord) 1 << Bit_No(n))) != 0)
-#define Vector_Set_Value(vec,n)    (vec[Word_No(n)] |= ((VecWord) 1 << Bit_No(n)))
-#define Vector_Reset_Value(vec,n)  (vec[Word_No(n)] &= ~((VecWord) 1 << Bit_No(n)))
-#define Vector_Allocate_If_Necessary(vec)                                   \
-   do {                                                                     \
-     if (vec==NULL)                                                         \
-         Vector_Allocate(vec);                                              \
-    } while(0)
-#define Vector_Allocate(vec)                                                \
-   do {                                                                     \
-     vec=(Vector) RANGE_TOP_STACK;                                          \
-     RANGE_TOP_STACK += vec_size;                                           \
-    } while(0)
-#define VECTOR_BEGIN_ENUM(vec,vec_elem)                                     \
-    {                                                                       \
-     Vector  enum_end=vec+vec_size,enum_i=vec;                              \
-     int     enum_j;                                                        \
-     VecWord enum_word;                                                     \
-                                                                            \
-     vec_elem=0;                                                            \
-     do                                                                     \
-        {                                                                   \
-         enum_word= *enum_i;                                                \
-         for(enum_j=0;enum_j++<WORD_SIZE;enum_word >>= 1,vec_elem++)        \
-            {                                                               \
-             if (enum_word & 1)                                             \
-                {
-#define VECTOR_END_ENUM                                                     \
-                }                                                           \
-            }                                                               \
-        }                                                                   \
-     while(++enum_i<enum_end);                                              \
-    }
-#define Is_Interval(range)         ((range)->vec==NULL)
-#define Is_Sparse(range)           ((range)->vec!=NULL)
-#define Is_Empty(range)            ((range)->min > (range)->max)
-#define Is_Not_Empty(range)        ((range)->max >=(range)->min)
-#define Set_To_Empty(range)        (range)->max=(int)(1 << (sizeof(int)*8-1))
-#define Range_Init_Interval(range,r_min,r_max)                              \
-    do {                                                                    \
-     (range)->extra_cstr=FALSE;                                             \
-     (range)->min       =(r_min);                                           \
-     (range)->max       =(r_max);                                           \
-     (range)->vec       =NULL;                                              \
-    } while(0)
+#define Bit_No(n)                  ((n) & (((VecWord) 1 << WORD_SIZE_BITS)-1))
+#define Vector_Test_Value(vec, n)  ((vec[Word_No(n)] & ((VecWord) 1 << Bit_No(n))) != 0)
+#define Vector_Set_Value(vec, n)   (vec[Word_No(n)] |= ((VecWord) 1 << Bit_No(n)))
+#define Vector_Reset_Value(vec, n) (vec[Word_No(n)] &= ~((VecWord) 1 << Bit_No(n)))
+#define Vector_Allocate_If_Necessary(vec)	\
+  do						\
+    {						\
+      if (vec == NULL)				\
+	Vector_Allocate(vec);			\
+    }						\
+  while (0)
+#define Vector_Allocate(vec)       		\
+  do						\
+    {						\
+      vec = (Vector) RANGE_TOP_STACK;		\
+      RANGE_TOP_STACK += vec_size;		\
+    }						\
+  while (0)
+#define VECTOR_BEGIN_ENUM(vec, vec_elem)                              	  \
+{									  \
+  Vector enum_end = vec + vec_size, enum_i = vec;			  \
+  int enum_j;								  \
+  VecWord enum_word;							  \
+									  \
+  vec_elem = 0;								  \
+  do									  \
+    {									  \
+      enum_word = *enum_i;						  \
+      for (enum_j = 0; enum_j++ < WORD_SIZE; enum_word >>= 1, vec_elem++) \
+	{								  \
+	  if (enum_word & 1)						  \
+	    {
+#define VECTOR_END_ENUM                                              	\
+	    }								\
+	}								\
+    }									\
+  while (++enum_i < enum_end);						\
+}
+#define Is_Interval(range)         ((range)->vec == NULL)
+#define Is_Sparse(range)           ((range)->vec != NULL)
+#define Is_Empty(range)            ((range)->min >  (range)->max)
+#define Is_Not_Empty(range)        ((range)->max >= (range)->min)
+#define Set_To_Empty(range) (range)->max = (int)(1 << (sizeof(int) * 8 - 1))
+#define Range_Init_Interval(range, r_min, r_max)	\
+  do							\
+    {							\
+      (range)->extra_cstr = FALSE;			\
+      (range)->min = (r_min);				\
+      (range)->max = (r_max);				\
+      (range)->vec = NULL;				\
+    }							\
+  while (0)
 #define FD_VARIABLE_FRAME_SIZE     (OFFSET_RANGE+RANGE_SIZE+CHAINS_SIZE)
 #define FD_INT_VARIABLE_FRAME_SIZE (OFFSET_RANGE+RANGE_SIZE)
 #define OFFSET_RANGE               5
@@ -2062,8 +2120,8 @@ char *Range_To_String(Range *range);
 #define ENV_VAR_VECTOR_MAX         "VECTORMAX"
 #define DEFAULT_VECTOR_MAX         127
 #define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr))==INT)
-#define math_min(x,y)              ((x) <= (y) ? (x) : (y))
-#define math_max(x,y)              ((x) >= (y) ? (x) : (y))
+#define math_min(x, y)             ((x) <= (y) ? (x) : (y))
+#define math_max(x, y)             ((x) >= (y) ? (x) : (y))
 #ifdef FD_INST_FILE
 WamWord DATE;
 WamWord *TP;
@@ -2230,83 +2288,103 @@ Bool truth_x_plus_c_lte_y(WamWord x, WamWord c, WamWord y, WamWord b);
 Bool truth_x_gte_c(WamWord x, WamWord c, WamWord b);
 Bool truth_x_plus_c_gte_y(WamWord x, WamWord c, WamWord y, WamWord b);
 #ifdef DEBUG
-#define DEBUG_2(f,a1,a2)               Debug_Display(#f,2,a1,a2);
-#define DEBUG_3(f,a1,a2,a3)            Debug_Display(#f,3,a1,a2,a3);
-#define DEBUG_4(f,a1,a2,a3,a4)         Debug_Display(#f,4,a1,a2,a3,a4);
-#define DEBUG_5(f,a1,a2,a3,a4,a5)      Debug_Display(#f,5,a1,a2,a3,a4,a5);
-#define DEBUG_6(f,a1,a2,a3,a4,a5,a6)   Debug_Display(#f,6,a1,a2,a3,a4,a5,a6);
+#define DEBUG_2(f, a1, a2)                 Debug_Display(#f, 2, a1, a2)
+#define DEBUG_3(f, a1, a2, a3)             Debug_Display(#f, 3, a1, a2, a3)
+#define DEBUG_4(f, a1, a2, a3, a4)         Debug_Display(#f, 4, a1, a2, a3, a4)
+#define DEBUG_5(f, a1, a2, a3, a4, a5)     Debug_Display(#f, 5, a1, a2, a3, a4, a5)
+#define DEBUG_6(f, a1, a2, a3, a4, a5, a6) Debug_Display(#f, 6, a1, a2, a3, a4, a5, a6)
 #else
-#define DEBUG_2(f,a1,a2)
-#define DEBUG_3(f,a1,a2,a3)
-#define DEBUG_4(f,a1,a2,a3,a4)
-#define DEBUG_5(f,a1,a2,a3,a4,a5)
-#define DEBUG_6(f,a1,a2,a3,a4,a5,a6)
+#define DEBUG_2(f, a1, a2)
+#define DEBUG_3(f, a1, a2, a3)
+#define DEBUG_4(f, a1, a2, a3, a4)
+#define DEBUG_5(f, a1, a2, a3, a4, a5)
+#define DEBUG_6(f, a1, a2, a3, a4, a5, a6)
 #endif
-#define PRIM_CSTR_2(f,a1,a2)                                                \
-    do {                                                                    \
-     DEBUG_2(f,a1,a2)                                                       \
-     if (!f(a1,a2))                                                         \
-         return FALSE;                                                      \
-    } while(0)
-#define PRIM_CSTR_3(f,a1,a2,a3)                                             \
-    do {                                                                    \
-     DEBUG_3(f,a1,a2,a3)                                                    \
-     if (!f(a1,a2,a3))                                                      \
-         return FALSE;                                                      \
-    } while(0)
-#define PRIM_CSTR_4(f,a1,a2,a3,a4)                                          \
-    do {                                                                    \
-     DEBUG_4(f,a1,a2,a3,a4)                                                 \
-     if (!f(a1,a2,a3,a4))                                                   \
-         return FALSE;                                                      \
-    } while(0)
-#define PRIM_CSTR_5(f,a1,a2,a3,a4,a5)                                       \
-    do {                                                                    \
-     DEBUG_5(f,a1,a2,a3,a4,a5)                                              \
-     if (!f(a1,a2,a3,a4,a5))                                                \
-         return FALSE;                                                      \
-    } while(0)
-#define PRIM_CSTR_6(f,a1,a2,a3,a4,a5,a6)                                    \
-    do {                                                                    \
-     DEBUG_6(f,a1,a2,a3,a4,a5,a6)                                           \
-     if (!f(a1,a2,a3,a4,a5,a6))                                             \
-         return FALSE;                                                      \
-    } while(0)
-#define MATH_CSTR_2(f,a1,a2)                                                \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_2(f,a1,a2);                                              \
-      else                                                                  \
-         PRIM_CSTR_2(f##_F,a1,a2);                                          \
-    } while(0)
-#define MATH_CSTR_3(f,a1,a2,a3)                                             \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_3(f,a1,a2,a3);                                           \
-      else                                                                  \
-         PRIM_CSTR_3(f##_F,a1,a2,a3);                                       \
-    } while(0)
-#define MATH_CSTR_4(f,a1,a2,a3,a4)                                          \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_4(f,a1,a2,a3,a4);                                        \
-      else                                                                  \
-         PRIM_CSTR_4(f##_F,a1,a2,a3,a4);                                    \
-    } while(0)
-#define MATH_CSTR_5(f,a1,a2,a3,a4,a5)                                       \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_5(f,a1,a2,a3,a4,a5);                                     \
-      else                                                                  \
-         PRIM_CSTR_5(f##_F,a1,a2,a3,a4,a5);                                 \
-    } while(0)
-#define MATH_CSTR_6(f,a1,a2,a3,a4,a5,a6)                                    \
-    do {                                                                    \
-     if (full_ac==FALSE)                                                    \
-         PRIM_CSTR_6(f,a1,a2,a3,a4,a5,a6);                                  \
-      else                                                                  \
-         PRIM_CSTR_6(f##_F,a1,a2,a3,a4,a5,a6);                              \
-    } while(0)
+#define PRIM_CSTR_2(f, a1, a2)			\
+  do						\
+    {						\
+      DEBUG_2(f, a1, a2);			\
+      if (!f(a1, a2))				\
+	return FALSE;				\
+    }						\
+  while (0)
+#define PRIM_CSTR_3(f, a1, a2, a3)		\
+  do						\
+    {						\
+      DEBUG_3(f, a1, a2, a3);			\
+      if (!f(a1, a2, a3))			\
+	return FALSE;				\
+    }						\
+  while (0)
+#define PRIM_CSTR_4(f, a1, a2, a3, a4)		\
+  do						\
+    {						\
+      DEBUG_4(f, a1, a2, a3, a4);		\
+      if (!f(a1, a2, a3, a4))			\
+	return FALSE;				\
+    }						\
+  while (0)
+#define PRIM_CSTR_5(f, a1, a2, a3, a4, a5)	\
+  do						\
+    {						\
+      DEBUG_5(f, a1, a2, a3, a4, a5);		\
+      if (!f(a1, a2, a3, a4, a5))		\
+	return FALSE;				\
+    }						\
+  while (0)
+#define PRIM_CSTR_6(f, a1, a2, a3, a4, a5, a6)	\
+  do						\
+    {						\
+      DEBUG_6(f, a1, a2, a3, a4, a5, a6);	\
+      if (!f(a1, a2, a3, a4, a5, a6))		\
+	return FALSE;				\
+    }						\
+  while (0)
+#define MATH_CSTR_2(f, a1, a2)			\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_2(f, a1, a2);			\
+      else					\
+	PRIM_CSTR_2(f##_F, a1, a2);		\
+    }						\
+  while (0)
+#define MATH_CSTR_3(f, a1, a2, a3)		\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_3(f, a1, a2, a3);		\
+      else					\
+	PRIM_CSTR_3(f##_F, a1, a2, a3);		\
+    }						\
+  while (0)
+#define MATH_CSTR_4(f, a1, a2, a3, a4)		\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_4(f, a1, a2, a3, a4);		\
+      else					\
+	PRIM_CSTR_4(f##_F, a1, a2, a3, a4);	\
+    }						\
+  while (0)
+#define MATH_CSTR_5(f, a1, a2, a3, a4, a5)	\
+  do						\
+    {						\
+      if (full_ac == FALSE)			\
+	PRIM_CSTR_5(f, a1, a2, a3, a4, a5);	\
+      else					\
+	PRIM_CSTR_5(f##_F, a1, a2, a3, a4, a5);	\
+    }						\
+  while (0)
+#define MATH_CSTR_6(f, a1, a2, a3, a4, a5, a6)		\
+  do							\
+    {							\
+      if (full_ac == FALSE)				\
+	PRIM_CSTR_6(f, a1, a2, a3, a4, a5, a6);		\
+      else						\
+	PRIM_CSTR_6(f##_F, a1, a2, a3, a4, a5, a6);	\
+    }							\
+  while (0)
 unsigned Power(unsigned x, unsigned n);
 unsigned Nth_Root_Dn(unsigned y, unsigned n);
 unsigned Nth_Root_Up(unsigned y, unsigned n);
@@ -2324,3 +2402,7 @@ void Full_Nth_Root(Range *x, Range *y, int a);
 void Full_Max_Cst_Var(Range *z, int a, Range *x);
 void Full_Min_Cst_Var(Range *z, int a, Range *x);
 #endif /* NO_USE_FD_SOLVER */
+#ifdef __cplusplus
+}
+#endif
+#endif

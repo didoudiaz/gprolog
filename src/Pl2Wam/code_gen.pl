@@ -75,6 +75,7 @@ generate_body1(fail, 0, _, _, _, _, [fail]) :-
 
 generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
 	inline_predicate(Pred, N),
+	!,
 	gen_inline_pred(Pred, N, LArg, WamBody, WamPred), !,
 	(   Body = [] ->
 	    (   NoPred > 1 ->
@@ -82,6 +83,28 @@ generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
 	    ;   WamBody = [proceed]
 	    )
 	;   generate_body(Body, NbChunk, WamBody)
+	).
+
+generate_body1('$call_c', 2, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
+	!,
+	(   Arg = atm(Name),
+	    LStcArg = []
+	;   Arg = stc(Name, _, LStcArg)
+	),
+	(   Body \== [], memberchk(jump, LCOpt) ->
+	    LCOpt1 = [set_cp|LCOpt]
+	;   LCOpt1 = LCOpt
+        ),
+	load_c_call_args(LCOpt, LStcArg, LValue, WamCallC1, WamArgs),
+	WamCallCInst = call_c(Name, LCOpt1, LValue),
+	(   Body = [] ->
+	    (   NoPred > 1 ->
+	        WamCallC1 = [deallocate, WamCallCInst,proceed]
+	    ;   WamCallC1 = [WamCallCInst,proceed]
+	    )
+	;
+	    WamCallC1 = [WamCallCInst|WamBody],
+	    generate_body(Body, NbChunk, WamBody)
 	).
 
 generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamLArg) :-
@@ -114,10 +137,10 @@ reorder_body_arg_lst(LArg, LReg, LArg1, LReg1) :-
 
 
 
-          /* split LArg/LReg in:                                     */
-          /*       LArgK/LRegK: known elements (without temporaries) */
-          /*       LArgS/LRegS: structures containing temporaries    */
-          /*       LArgT/LRegT: temporaries                          */
+          % split LArg/LReg in:
+          %       LArgK/LRegK: known elements (without temporaries)
+          %       LArgS/LRegS: structures containing temporaries
+          %       LArgT/LRegT: temporaries
 
 split_arg_lst([], [], [], [], [], [], [], []).
 
@@ -161,7 +184,7 @@ has_temporaries([Arg|LArg]) :-
 
 
 
-	/* gen_unif_arg_lst(LArg,LReg,WamNext,WamLArg) */
+	% gen_unif_arg_lst(LArg, LReg, WamNext, WamLArg)
 
 gen_unif_arg_lst([], [], WamNext, WamNext).
 
@@ -172,7 +195,7 @@ gen_unif_arg_lst([Arg|LArg], [Reg|LReg], WamNext, WamArg) :-
 
 
 
-	/* gen_unif_arg(Arg,Reg,WamNext,WamArg) */
+	% gen_unif_arg(Arg, Reg, WamNext, WamArg)
 
 gen_unif_arg(var(VarName, Info), Reg, WamNext, WamArg) :-
 	(   var(Info) ->
@@ -205,7 +228,7 @@ gen_unif_arg(stc(F, N, LStcArg), Reg, WamNext, [WamInst|WamStcArg]) :-
 
 
 
-	/* gen_load_arg_lst(LArg,LReg,WamNext,WamLArg) */
+	% gen_load_arg_lst(LArg, LReg, WamNext, WamLArg)
 
 gen_load_arg_lst([], [], WamNext, WamNext).
 
@@ -216,7 +239,7 @@ gen_load_arg_lst([Arg|LArg], [Reg|LReg], WamNext, WamArg) :-
 
 
 
-	/* gen_load_arg(Arg,Reg,WamNext,WamArg) */
+	% gen_load_arg(Arg, Reg, WamNext, WamArg)
 
 gen_load_arg(var(VarName, Info), Reg, WamNext, [WamInst|WamNext]) :-
 	(   var(Info) ->
@@ -255,7 +278,7 @@ gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
 
 
 
-          /* flat_stc_arg_lst(LStcArg,HB,LStcArg1,LArgAux,LRegAux) */
+          % flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux)
 
 flat_stc_arg_lst([], _, [], [], []).
 
@@ -288,7 +311,7 @@ simple_stc_arg(nil).
 
 
 
-           /* gen_subterm_arg_lst(LStcArg,WamNext,WamLStcArg) */
+           % gen_subterm_arg_lst(LStcArg, WamNext, WamLStcArg)
 
 gen_subterm_arg_lst([], WamNext, WamNext).
 
@@ -351,21 +374,21 @@ gen_list_integers(I, N, L) :-
 
 
 
-          /* called at code emission */
+          % called at code emission
 
 special_form(put_variable(x(X), X), put_void(X)).
 
 
 
 
-dummy_instruction(get_variable(x(X), X)).
-dummy_instruction(put_value(x(X), X)).
+dummy_instruction(get_variable(x(X), X), f).
+dummy_instruction(put_value(x(X), X), f).
 
 
 
 
 	% Inline predicate code generation:
-	%      gen_inline_pred(Pred,Arite,LArg,WamNext,WamPred)
+	%      gen_inline_pred(Pred, Arity, LArg, WamNext, WamPred)
         %
 	% the predicates defined here must have a corresponding clause
 	% inline_predicate/2 (in pass 2).
@@ -373,7 +396,7 @@ dummy_instruction(put_value(x(X), X)).
 :-	discontiguous(gen_inline_pred / 5).
 
 
-	/* Cut inline ('$get_cut_level'/1,'$cut'/1) */
+	% Cut inline ('$get_cut_level'/1,'$cut'/1)
 
 gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	cur_pred(Pred, N),
@@ -386,7 +409,7 @@ gen_inline_pred('$cut', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
 
 
 
-	/* Unification inline (=/2) */
+	% Unification inline (=/2)
 
 gen_inline_pred(=, 2, [Arg1, Arg2], WamNext, WamEqual) :-
 	equal(Arg1, Arg2, WamNext, WamEqual), !.
@@ -451,8 +474,18 @@ inline_unif_reg_term(Info, Reg, Arg, WamNext, WamUnif) :-
 
 
 
-	/* Mathematical inlines (is/2 =:=/2 ...) */
-
+	% Mathematical inlines (is/2, =:=/2, ...)
+/* provisional... pb with allocator to reuse VN2 for VN1
+gen_inline_pred(is, 2, [var(VN1, Info1), stc(+, 2, [var(VN2, Info2), int(1)])], WamNext, WamMath) :-
+	var(Info1),
+	!,
+	(   var(Info2) ->
+	    error('unbound variable in arithmetic expression', [])
+	;   true
+	),
+	Info1 = not_in_cur_env,
+	WamMath = [call_c('Math_X_is_inc_y',[fast],[&,VN1,VN2])|WamNext].
+*/
 gen_inline_pred(is, 2, [Arg1, Arg2], WamNext, WamMath) :-
 	load_math_expr(Arg2, Reg, WamUnif, WamMath), !,
 	gen_unif_arg(Arg1, Reg, WamNext, WamUnif).
@@ -494,21 +527,13 @@ load_math_expr1(+, 2, [Arg1, int(1)], Reg, WamNext, WamMath) :-
 load_math_expr1(-, 2, [Arg1, int(1)], Reg, WamNext, WamMath) :-
 	load_math_expr1(dec, 1, [Arg1], Reg, WamNext, WamMath).
 
-load_math_expr1(F, 1, [Arg], Reg, WamNext, WamMath) :-
-	(   g_read(fast_math, t) ->
-	    fast_exp_functor_name(F, 1, Name)
-	;   math_exp_functor_name(F, 1, Name)
-	),
-	load_math_expr(Arg, Reg1, WamInst, WamMath),
-	WamInst = [function(Name, Reg, [Reg1])|WamNext].
-
 load_math_expr1(F, N, LArg, Reg, WamNext, WamMath) :-
 	(   g_read(fast_math, t) ->
 	    fast_exp_functor_name(F, N, Name)
 	;   math_exp_functor_name(F, N, Name)
 	),
-	load_math_arg_lst(LArg, LReg, WamInst, WamMath),
-	WamInst = [function(Name, Reg, LReg)|WamNext].
+	load_math_arg_lst(LArg, LValue, WamInst, WamMath),
+	WamInst = [call_c(Name, [fast_call,x(Reg)], LValue)|WamNext].
 
 load_math_expr1(F, N, _, _, _, _) :-
 	math_exp_functor_name(F, N, _),
@@ -522,7 +547,7 @@ load_math_expr1(F, N, _, _, _, _) :-
 
 load_math_arg_lst([], [], WamNext, WamNext).
 
-load_math_arg_lst([Arg|LArg], [Reg|LReg], WamNext, WamMath) :-
+load_math_arg_lst([Arg|LArg], [x(Reg)|LReg], WamNext, WamMath) :-
 	load_math_expr(Arg, Reg, WamLArg, WamMath),
 	load_math_arg_lst(LArg, LReg, WamNext, WamLArg).
 
@@ -594,9 +619,8 @@ gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-
 	    fast_cmp_functor_name(F, Name)
 	;   math_cmp_functor_name(F, Name)
 	),
-	load_math_arg_lst(LArg, LReg, WamInst, WamMath),
-	WamInst = [call_c_test(Name, LReg)|WamNext].
-
+	load_math_arg_lst(LArg, LValue, WamInst, WamMath),
+	WamInst = [call_c(Name, [fast_call, boolean], LValue)|WamNext].
 
 
 
@@ -617,101 +641,103 @@ math_cmp_functor_name(>=, 'Blt_Gte').
 
 
 
-	/* Low level C interface ('$call_c'/1) */
+	% foreign C call
 
-gen_inline_pred(CallC, 1, [Arg], WamNext, WamCallC) :-
-	(   CallC = '$call_c',
-	    CallCType = simple
-	;   CallC = '$call_c_test',
-	    CallCType = test
-	;   CallC = '$call_c_jump',
-	    CallCType = jump
-	), !,
-	(   Arg = atm(Name),
-	    LStcArg = []
-	;   Arg = stc(Name, _, LStcArg)
-	),
-	gen_call_c(Name, LStcArg, CallCType, WamNext, WamCallC).
+gen_inline_pred('$foreign_call_c', 1, [args(FctName, Return, BipPred, ChcSize, LType)], WamNext, WamInst) :-
+	WamInst = [foreign_call_c(FctName, Return, BipPred, ChcSize, LType)|WamNext].
 
 
 
 
-	/* foreign C call */
-
-gen_inline_pred('$foreign_call_c', 7, [X, Types, atm(FctName), atm(Return), atm(BipName), int(BipArity), int(ChcSize)], WamNext, WamCallC) :-
-	(   X = stc(_, _, LArg)
-	;   X = atm(_),
-	    LArg = []
-	), !,
-	gen_load_arg_lst(LArg, LReg, WamInst, WamCallC),
-	gen_foreign_types(Types, LType),
-	WamInst = [foreign_call_c(FctName, Return, BipName, BipArity, ChcSize, LType, LReg)|WamNext].
+          % call_c/3 management predicates
 
 
-gen_foreign_types(nil, []).
+load_c_call_args(LCOpt, LArg, LValue, WamNext, WamArg) :-
+	memberchk(by_value, LCOpt),
+	load_by_value_arg_lst(LArg, LValue, WamNext, WamArg), !.
 
-gen_foreign_types(stc('.', _, [stc(',', 2, [atm(A), int(O)]), Types]), [(A, O)|LType]) :-
-	gen_foreign_types(Types, LType).
+
+load_c_call_args(_, LArg, LValue, WamNext, WamArg) :-
+	load_by_reg_arg_lst(LArg, LValue, WamNext, WamArg), !.
 
 
 
 
+load_by_reg_arg_lst([], [], WamNext, WamNext).
 
-          /* Other inlines */
+load_by_reg_arg_lst([Arg|LArg], [x(Reg)|LReg], WamNext, WamArg) :-
+	gen_load_arg(Arg, Reg, WamLArg, WamArg),
+	load_by_reg_arg_lst(LArg, LReg, WamNext, WamLArg).
+
+
+
+
+load_by_value_arg_lst([], [], WamNext, WamNext).
+
+load_by_value_arg_lst([Arg|LArg], [Value|LValue], WamNext, WamArg) :-
+	load_by_value_arg(Arg, Value, WamLArg, WamArg),
+	load_by_value_arg_lst(LArg, LValue, WamNext, WamLArg).
+
+
+load_by_value_arg(atm(A), A, WamNext, WamNext).
+
+load_by_value_arg(int(N), N, WamNext, WamNext).
+
+load_by_value_arg(flt(N), N, WamNext, WamNext).
+
+load_by_value_arg(nil, [], WamNext, WamNext).
+
+load_by_value_arg(stc('/', 2, [atm(F), int(N)]), F/N, WamNext, WamNext).
+
+load_by_value_arg(Arg, x(Reg), WamArg, WamNext) :-
+	gen_load_arg(Arg, Reg, WamArg, WamNext).
+
+
+
+
+          % Other inlines
 
 gen_inline_pred(F, N, LArg, WamNext, WamCallC) :-
-	c_fct_name(F, N, CallCType, Name),
-	gen_call_c(Name, LArg, CallCType, WamNext, WamCallC).
+	c_fct_name(F, N, Name),
+	LCOpt = [fast_call, boolean],
+	load_c_call_args(LCOpt, LArg, LValue, WamInst, WamCallC),
+	WamInst = [call_c(Name, LCOpt, LValue)|WamNext].
 
 
 
+c_fct_name(var, 1, 'Blt_Var').
+c_fct_name(nonvar, 1, 'Blt_Non_Var').
+c_fct_name(atom, 1, 'Blt_Atom').
+c_fct_name(integer, 1, 'Blt_Integer').
+c_fct_name(float, 1, 'Blt_Float').
+c_fct_name(number, 1, 'Blt_Number').
+c_fct_name(atomic, 1, 'Blt_Atomic').
+c_fct_name(compound, 1, 'Blt_Compound').
+c_fct_name(callable, 1, 'Blt_Callable').
+c_fct_name(list, 1, 'Blt_List').
+c_fct_name(partial_list, 1, 'Blt_Partial_List').
+c_fct_name(list_or_partial_list, 1, 'Blt_List_Or_Partial_List').
 
-gen_call_c(Name, LArg, CallCType, WamNext, WamCallC) :-
-	gen_load_arg_lst(LArg, LReg, WamInst, WamCallC),
-	WamInst = [WamCallCInst|WamNext],
-	(   CallCType = simple ->
-	    WamCallCInst = call_c(Name, LReg)
-	;   CallCType = test ->
-	    WamCallCInst = call_c_test(Name, LReg)
-	;   WamCallCInst = call_c_jump(Name, LReg)
-	).
-
-
-
-
-c_fct_name(var, 1, test, 'Blt_Var').
-c_fct_name(nonvar, 1, test, 'Blt_Non_Var').
-c_fct_name(atom, 1, test, 'Blt_Atom').
-c_fct_name(integer, 1, test, 'Blt_Integer').
-c_fct_name(float, 1, test, 'Blt_Float').
-c_fct_name(number, 1, test, 'Blt_Number').
-c_fct_name(atomic, 1, test, 'Blt_Atomic').
-c_fct_name(compound, 1, test, 'Blt_Compound').
-c_fct_name(callable, 1, test, 'Blt_Callable').
-c_fct_name(list, 1, test, 'Blt_List').
-c_fct_name(partial_list, 1, test, 'Blt_Partial_List').
-c_fct_name(list_or_partial_list, 1, test, 'Blt_List_Or_Partial_List').
-
-c_fct_name(fd_var, 1, test, 'Blt_Fd_Var').
-c_fct_name(non_fd_var, 1, test, 'Blt_Non_Fd_Var').
-c_fct_name(generic_var, 1, test, 'Blt_Generic_Var').
-c_fct_name(non_generic_var, 1, test, 'Blt_Non_Generic_Var').
+c_fct_name(fd_var, 1, 'Blt_Fd_Var').
+c_fct_name(non_fd_var, 1, 'Blt_Non_Fd_Var').
+c_fct_name(generic_var, 1, 'Blt_Generic_Var').
+c_fct_name(non_generic_var, 1, 'Blt_Non_Generic_Var').
 
 
-c_fct_name(arg, 3, test, 'Blt_Arg').
-c_fct_name(functor, 3, test, 'Blt_Functor').
-c_fct_name(compare, 3, test, 'Blt_Compare').
-c_fct_name(=.., 2, test, 'Blt_Univ').
+c_fct_name(arg, 3, 'Blt_Arg').
+c_fct_name(functor, 3, 'Blt_Functor').
+c_fct_name(compare, 3, 'Blt_Compare').
+c_fct_name(=.., 2, 'Blt_Univ').
 
-c_fct_name(==, 2, test, 'Blt_Term_Eq').
-c_fct_name(\==, 2, test, 'Blt_Term_Neq').
-c_fct_name(@<, 2, test, 'Blt_Term_Lt').
-c_fct_name(@=<, 2, test, 'Blt_Term_Lte').
-c_fct_name(@>, 2, test, 'Blt_Term_Gt').
-c_fct_name(@>=, 2, test, 'Blt_Term_Gte').
+c_fct_name(==, 2, 'Blt_Term_Eq').
+c_fct_name(\==, 2, 'Blt_Term_Neq').
+c_fct_name(@<, 2, 'Blt_Term_Lt').
+c_fct_name(@=<, 2, 'Blt_Term_Lte').
+c_fct_name(@>, 2, 'Blt_Term_Gt').
+c_fct_name(@>=, 2, 'Blt_Term_Gte').
 
-c_fct_name(g_assign, 2, test, 'Blt_G_Assign').
-c_fct_name(g_assignb, 2, test, 'Blt_G_Assignb').
-c_fct_name(g_link, 2, test, 'Blt_G_Link').
-c_fct_name(g_read, 2, test, 'Blt_G_Read').
-c_fct_name(g_array_size, 2, test, 'Blt_G_Array_Size').
+c_fct_name(g_assign, 2, 'Blt_G_Assign').
+c_fct_name(g_assignb, 2, 'Blt_G_Assignb').
+c_fct_name(g_link, 2, 'Blt_G_Link').
+c_fct_name(g_read, 2, 'Blt_G_Read').
+c_fct_name(g_array_size, 2, 'Blt_G_Array_Size').

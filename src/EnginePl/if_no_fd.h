@@ -70,12 +70,12 @@ void Fd_Init_Solver(void);
 
 void Fd_Reset_Solver(void);
 
-#define Fd_Unify_With_Integer(f,n) ((*fd_unify_with_integer)(f,n))
+#define Fd_Unify_With_Integer(f, n) ((*fd_unify_with_integer)(f, n))
 
-#define Fd_Unify_With_Fd_Var(f1,f2)((*fd_unify_with_fd_var)(f1,f2))
+#define Fd_Unify_With_Fd_Var(f1, f2)((*fd_unify_with_fd_var)(f1, f2))
 
-#define Fd_Variable_Size(f)        ((*fd_variable_size)(f))
+#define Fd_Variable_Size(f)         ((*fd_variable_size)(f))
 
-#define Fd_Copy_Variable(dst_adr,f)((*fd_copy_variable)(dst_adr,f))
+#define Fd_Copy_Variable(dst_adr, f)((*fd_copy_variable)(dst_adr, f))
 
-#define Fd_Variable_To_String(f)   ((*fd_variable_to_string)(f))
+#define Fd_Variable_To_String(f)    ((*fd_variable_to_string)(f))

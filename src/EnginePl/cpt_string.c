@@ -35,10 +35,10 @@
 
 #ifdef USE_ALONE
 
-#define Malloc(size)      malloc(size)
-#define Calloc(nb,size)   calloc(nb,size)
-#define Realloc(ptr,size) realloc(ptr,size)
-#define Free(ptr)         free(ptr)
+#define Malloc(size)       malloc(size)
+#define Calloc(nb, size)   calloc(nb, size)
+#define Realloc(ptr, size) realloc(ptr, size)
+#define Free(ptr)          free(ptr)
 
 #else
 

@@ -78,8 +78,7 @@ display(SorA, Term) :-
 
 
 
-          /* see file print.pl for the definition of print/1-2 */
-
+          % see file print.pl for the definition of print/1-2
 
 
 

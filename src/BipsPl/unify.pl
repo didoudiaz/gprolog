@@ -35,7 +35,7 @@ X = X.
 
 
 unify_with_occurs_check(X, Y) :-
-	'$call_c_test'('Unify_Occurs_Check'(X, Y)).
+	'$call_c'('Unify_Occurs_Check'(X, Y), [boolean, fast_call]).
 
 
 

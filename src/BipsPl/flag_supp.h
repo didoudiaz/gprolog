@@ -86,6 +86,9 @@
 #define SYS_VAR_LINEDIT             (sys_var[12])
 #define SYS_VAR_DEBUGGER            (sys_var[13])
 
+#define SYS_VAR_SAY_GETC            (sys_var[20])
+#define CHAR_TO_EMIT_WHEN_CHAR      '\1'
+
 #define Flag_Value(flag)            (sys_var[200+(flag)])
 
 
@@ -135,7 +138,8 @@ extern long sys_var[];
  *  10: permanent top level depth (for top-level and stop/abort).          *
  *  11: permanent top level handler (B level) for abort and stop.          *
  *  12: permanent: is linedit present ?                                    *
- *  13: permanent: is the debugger present ?                               *
+ *                                                                         *
+ *  20: permanent: should Stream_Getc emit a char before calling fgetc ?   *
  *                                                                         *
  * 200..: some prolog flag values.                                         *
  *-------------------------------------------------------------------------*/

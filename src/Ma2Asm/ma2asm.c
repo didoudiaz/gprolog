@@ -130,7 +130,7 @@ void Display_Help(void);
 
 
 
-#define Check_Arg(i,str)      (strncmp(argv[i],str,strlen(argv[i]))==0)
+#define Check_Arg(i, str)      (strncmp(argv[i], str, strlen(argv[i])) == 0)
 
 
 
@@ -716,7 +716,7 @@ Parse_Arguments(int argc, char *argv[])
  *-------------------------------------------------------------------------*/
 void
 Display_Help(void)
-#define L(msg)  fprintf(stderr,"%s\n",msg)
+#define L(msg)  fprintf(stderr, "%s\n", msg)
 {
   L("Usage: ma2asm [option...] file");
   L("");

@@ -1,9 +1,10 @@
-LIB_BIPS_FD = @LIB_BIPS_FD@
-GPLC        = @GPLC@
-CC          = @CC@
-CFLAGS      = @CFLAGS@
-AR_RC       = @AR_RC@
-RANLIB      = @RANLIB@
+LIB_BIPS_FD   = @LIB_BIPS_FD@
+LIB_ENGINE_FD = @LIB_ENGINE_FD@
+GPLC          = @GPLC@
+CC            = @CC@
+CFLAGS        = @CFLAGS@
+AR_RC         = @AR_RC@
+RANLIB        = @RANLIB@
 
 
 LIBNAME = $(LIB_BIPS_FD)
@@ -53,7 +54,7 @@ distclean: clean
 t_fd.c: t_fd.fd ../Fd2C/fd2c
 	$(GPLC) --fd-to-c t_fd.fd
 
-t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_fd@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EngineFD/libengine_fd.a \
+t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_fd@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EngineFD/$(LIB_ENGINE_FD) \
             ../EngineFD/fd_to_c.h $(LIBNAME)
 	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_fd@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@
 

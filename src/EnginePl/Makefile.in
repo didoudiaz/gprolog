@@ -81,10 +81,12 @@ obj_end@OBJ_SUFFIX@: obj_chain.h obj_end.c
 
 # Prolog engine
 
+# engine1 should be compiled without optimizations
+
+engine1@OBJ_SUFFIX@: engine1.c
+	$(GPLC) -c engine1.c
 
 engine@OBJ_SUFFIX@: engine.h engine.c 
-
-engine1@OBJ_SUFFIX@: engine1.c 
 
 wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c
 

@@ -50,9 +50,9 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  Bool Compute_Next_BLA(int mask, AtomInf *patom, AtomInf *psub_atom,
-			int b, int l, int a, int *b1, int *l1, int *a1);
+static Bool
+Compute_Next_BLA(int mask, AtomInf *patom, AtomInf *psub_atom,
+		 int b, int l, int a, int *b1, int *l1, int *a1);
 
 
 

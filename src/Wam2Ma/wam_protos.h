@@ -154,8 +154,4 @@ void F_function(ArgVal arg[]);
 
 void F_call_c(ArgVal arg[]);
 
-void F_call_c_test(ArgVal arg[]);
-
-void F_call_c_jump(ArgVal arg[]);
-
 void F_foreign_call_c(ArgVal arg[]);

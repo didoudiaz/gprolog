@@ -169,9 +169,7 @@ close_last_prolog_file :-
 
 
 
-          /*------------------*
-           * Read a predicate *
-           *------------------*/
+          % Read of a predicate
 
 read_predicate(Pred, N, LSrcCl) :-
 	repeat,
@@ -394,8 +392,8 @@ get_next_clause1(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	check_predicate(Pred, N),
 	display_singletons(SingNames, Pred / N).
 
-get_next_clause1(_, _, _, Pred, N, SrcCl) :-
                                           % ignore clause with --foreign-only
+get_next_clause1(_, _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
 
 
@@ -537,27 +535,30 @@ handle_directive(foreign, [Template], Where) :-
 
 handle_directive(foreign, _, _) :-
 	g_read(call_c, f), !,
-	warn('foreign directive ignored in byte-code compilation mode', []).
+	warn('foreign directive ignored (not allowed in this mode)', []).
 
 handle_directive(foreign, [Template, Options], Where) :-
 	!,
 	callable(Template),
 	list(Options),
 	functor(Template, Pred, N),
+	(   test_pred_info(pub, Pred, N) ->
+	    error('foreign predicate ~q should not be public/dynamic', [Pred/N])
+	;   true),
+	define_predicate(Pred, N),
 	g_assign(foreign_fct_name, Pred),
 	g_assign(foreign_return, boolean),
-	g_assign(foreign_bip_name, Pred),
-	g_assign(foreign_bip_arity, N),
+	g_assign(foreign_bip, Pred/N),
 	g_assign(foreign_choice_size, -1),
 	foreign_get_options(Options),
-	foreign_check_types(0, N, Template, LArgType),
+	foreign_check_types(0, N, Template, LType),
 	g_read(foreign_fct_name, FctName),
 	g_read(foreign_return, Return),
-	g_read(foreign_bip_name, BipName),
-	g_read(foreign_bip_arity, BipArity),
+	g_read(foreign_bip, BipPred),
 	g_read(foreign_choice_size, ChcSize),
+	no_internal_transf(args(FctName, Return, BipPred, ChcSize, LType), Args),
 	functor(Head, Pred, N),
-	SrcCl = Where + (Head :- '$foreign_call_c'(Head, LArgType, FctName, Return, BipName, BipArity, ChcSize)),
+	SrcCl = Where + (Head :- '$foreign_call_c'(Args)),
 	assertz(buff_discontig_clause(Pred, N, SrcCl)),
 	add_ensure_linked('$force_foreign_link' / 0).
                      % to force the link of foreign.o and then foreign_supp.o
@@ -568,7 +569,7 @@ handle_directive(foreign, [Template, Options], Where) :-
 foreign_get_options([]).
 
 foreign_get_options([X|Options]) :-
-	foreign_get_options1(X),
+	foreign_get_options1(X), !,
 	foreign_get_options(Options).
 
 
@@ -587,14 +588,17 @@ foreign_get_options1(return(Return)) :-
 foreign_get_options1(bip_name(X)) :-
 	nonvar(X),
 	X = none,
-	g_assign(foreign_bip_name, ''),
-	g_assign(foreign_bip_arity, -2).
+	g_assign(foreign_bip, ''/ -1).
 
 foreign_get_options1(bip_name(BipName, BipArity)) :-
 	atom(BipName),
 	integer(BipArity),
-	g_assign(foreign_bip_name, BipName),
-	g_assign(foreign_bip_arity, BipArity).
+	g_assign(foreign_bip, BipName/BipArity).
+
+foreign_get_options1(bip_name(BipName/BipArity)) :-
+	atom(BipName),
+	integer(BipArity),
+	g_assign(foreign_bip, BipName/BipArity).
 
 foreign_get_options1(choice_size(ChcSize)) :-
 	integer(ChcSize),
@@ -606,19 +610,19 @@ foreign_get_options1(choice_size(ChcSize)) :-
 foreign_check_types(N, N, _, []) :-
 	!.
 
-foreign_check_types(I, N, Template, [(A, Mode)|LArgType]) :-
+foreign_check_types(I, N, Template, [(Mode, A)|LArgType]) :-
 	I1 is I + 1,
 	arg(I1, Template, Arg),
 	nonvar(Arg),
 	(   Arg = + A,
-	    Mode = 0
+	    Mode = in
 	;   Arg = - A,
-	    Mode = 1
+	    Mode = out
 	;   Arg = ? A,
-	    Mode = 2
+	    Mode = in_out
 	;   Arg = term,
 	    A = term,
-	    Mode = 0
+	    Mode = in
 	),                                                     % term = +term
 	nonvar(A),
 	foreign_check_arg(A),
@@ -918,7 +922,7 @@ disp_lines(L1 - L2) :-
 
 
 
-          /*--- exception recovery ---*/
+          % Exception recovery
 
 exception(error(syntax_error(_), _)) :-
 	!,

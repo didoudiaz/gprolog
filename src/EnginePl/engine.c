@@ -39,6 +39,10 @@
 
 #include "engine_pl.h"
 
+#ifndef NO_USE_LINEDIT
+#include "../Linedit/linedit.h"
+#endif
+
 
 /*---------------------------------*
  * Constants                       *
@@ -56,6 +60,8 @@
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
+
+void (*init_stream_supp)();	/* overwritten by foreign if present */
 
 #if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
 static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
@@ -99,8 +105,8 @@ Start_Prolog(int argc, char *argv[])
   int i, x;
   char *p;
 
-  setlocale (LC_ALL, "");
-  setlocale (LC_NUMERIC, "C");	/* make sure floats come out right... */
+  setlocale(LC_ALL, "");
+  setlocale(LC_NUMERIC, "C");	/* make sure floats come out right... */
 
   Init_Machine();
 
@@ -148,6 +154,16 @@ Start_Prolog(int argc, char *argv[])
   Init_Atom();
   Init_Pred();
   Init_Oper();
+
+#ifndef NO_USE_LINEDIT
+  if (le_initialize != NULL)
+    use_gui = (*le_initialize)();
+  else
+#endif
+    use_gui = 0;
+
+  if (init_stream_supp)
+    (*init_stream_supp)();
 
   Reset_Prolog();
   Fd_Init_Solver();

@@ -1,4 +1,59 @@
+ri Dec  7 19:01:02 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* add several options to the top-level to execute goals
+	* add an environment variable LINEDIT to control linedit options
+	* fix bug in linedit on \b in start of line (using ANSI ESC sequence)
+	* now linedit works with XFree keyboard encoding
+
+Tue Dec  4 20:29:00 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* simplify linedit: only apply to stdin
+	* now linedit is reentrant
+	* rename built-in get_code_no_echo/1-2 by get_key_no_echo/1-2
+	* add built-in get_key/1-2
+	* use get_key/1-2 in the top_level + debugger (thus with echo)
+	* improve the top-level Ctrl+C manager
+
+Mon Dec  3 18:13:16 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* fix bux on linux configured with --disable-regs
+	* add pipe to pl2wam stdin when called by consult/1
+
+Mon Nov  5 10:25:29 CEST 2001 <Daniel.Diaz@inria.fr>
+	
+	* fix bug in FD: forall is now recognized in .fd files
+	* fix bug in DCG: expand_term((a --> X), Y) is OK
+
+Wed Oct 31 20:31:04 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* fix X paste problem in linedit
+
+Wed Oct 31 17:31:04 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* re-write Windows GUI Console in pure Win32 (no more MFC)
+
+Tue Oct 3O 17:31:04 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* simplify top_comp.c to better control include dirs in devel. mode
+
+Sun Oct 14 17:12:32 CEST 2001 <Daniel.Diaz@inria.fr>
+	
+	* specialized functions for create/update/delete choice points
+
+Tue Oct  9 12:11:44 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
+
+Mon Oct  8 12:33:02 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* include patch to support basic sockets under win32 - due to:
+	  Brent Fulgham <brent.fulgham@xpsystems.com>
+	* arithmetic functions and inlined built-ins use fast call
+	* specialized functions for switch_on_term_xxx
+	* modify pl2wam to generalize '$call_c' (add options)
+
 Mon Oct  8 11:33:02 CEST 2001 <Daniel.Diaz@inria.fr>
+
 	* fix bug - delete file created by mkstemp(2), patch from:
 	  Salvador Abreu <spa@debian.org>
 
@@ -9,7 +64,7 @@ Fri Sep 28 17:09:35 CEST 2001 <Daniel.Diaz@inria.fr>
 
 Sat Sep 15 12:49:19 CET 2001 <Daniel.Diaz@inria.fr>
 
-	* add a --foreign-only to pl2wam
+	* add a --foreign-only option to pl2wam
 	* foreign/2 directives are ignored in byte-code mode (no fatal error)
 
 Fri Sep  7 09:58:36 CET 2001 <Daniel.Diaz@inria.fr>
@@ -19,6 +74,7 @@ Fri Sep  7 09:58:36 CET 2001 <Daniel.Diaz@inria.fr>
 	* fix bug in pl2wam to include break/0, trace/0,... in bip_list.pl
 
 Thu Jul 12 16:03:30 CET 2001 <Daniel.Diaz@inria.fr>
+
 	* get rid of mktemp and tempnam calls (use mkstemp if available)
 
 Thu Jun  7 20:34:13 CET 2001 <Daniel.Diaz@inria.fr>
@@ -307,3 +363,6 @@ Wed Mar 10 11:57:25 MET 1999 <Daniel.Diaz@inria.fr>
 Mon Mar 8 20:39:25 MET 1999 <Daniel.Diaz@inria.fr>
 
 	* Calypso version 1.0-beta7 ready for internal use
+
+
+

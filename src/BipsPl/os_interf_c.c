@@ -1004,7 +1004,6 @@ Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
   prop.buffering = STREAM_BUFFERING_LINE;
-  prop.tty = FALSE;
   prop.special_close = FALSE;
   prop.other = 0;
 
@@ -1069,7 +1068,6 @@ Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
   prop.buffering = STREAM_BUFFERING_LINE;
-  prop.tty = FALSE;
   prop.special_close = FALSE;
   prop.other = 0;
   stm =

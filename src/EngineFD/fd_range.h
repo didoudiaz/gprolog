@@ -59,12 +59,12 @@ Range;
 	  /* Default definitions (if not defined in fd_hook_range.h) */
 
 #ifndef WORD_SIZE
-#   define WORD_SIZE                32
+#   define WORD_SIZE               32
 #endif
 
 
 
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
 
 #   define WORD_SIZE_BITS          5
 
@@ -184,77 +184,79 @@ char *Range_To_String(Range *range);
  * Vector Management Macros        *
  *---------------------------------*/
 
-#define Word_No_And_Bit_No(w,b)    (((VecWord) (w) << WORD_SIZE_BITS)|\
+#define Word_No_And_Bit_No(w, b)   (((VecWord) (w) << WORD_SIZE_BITS)|\
                                      (VecWord) (b))
 #define Word_No(n)                 ((VecWord) (n) >> WORD_SIZE_BITS)
-#define Bit_No(n)                  ((n) & (((VecWord) 1<<WORD_SIZE_BITS)-1))
+#define Bit_No(n)                  ((n) & (((VecWord) 1 << WORD_SIZE_BITS)-1))
 
 
 
-#define Vector_Test_Value(vec,n)   ((vec[Word_No(n)] & ((VecWord) 1 << Bit_No(n))) != 0)
-
-
-
-
-#define Vector_Set_Value(vec,n)    (vec[Word_No(n)] |= ((VecWord) 1 << Bit_No(n)))
+#define Vector_Test_Value(vec, n)  ((vec[Word_No(n)] & ((VecWord) 1 << Bit_No(n))) != 0)
 
 
 
 
-#define Vector_Reset_Value(vec,n)  (vec[Word_No(n)] &= ~((VecWord) 1 << Bit_No(n)))
+#define Vector_Set_Value(vec, n)   (vec[Word_No(n)] |= ((VecWord) 1 << Bit_No(n)))
 
 
 
 
-#define Vector_Allocate_If_Necessary(vec)                                   \
-   do {                                                                     \
-     if (vec==NULL)                                                         \
-         Vector_Allocate(vec);                                              \
-    } while(0)
+#define Vector_Reset_Value(vec, n) (vec[Word_No(n)] &= ~((VecWord) 1 << Bit_No(n)))
 
 
 
 
-#define Vector_Allocate(vec)                                                \
-   do {                                                                     \
-     vec=(Vector) RANGE_TOP_STACK;                                          \
-     RANGE_TOP_STACK += vec_size;                                           \
-    } while(0)
+#define Vector_Allocate_If_Necessary(vec)	\
+  do						\
+    {						\
+      if (vec == NULL)				\
+	Vector_Allocate(vec);			\
+    }						\
+  while (0)
 
 
 
 
-	  /* To enumerate a vector use VECTOR_BEGIN_ENUM / VECTOR_END_ENUM */
-	  /* macros as follows:                                            */
-	  /* ...                                                           */
-	  /* VECTOR_BEGIN_ENUM(the_vector,vec_elem)                        */
-	  /*    your code (vec_elem contains the current range element)    */
-	  /* VECTOR_END_ENUM                                               */
-
-#define VECTOR_BEGIN_ENUM(vec,vec_elem)                                     \
-    {                                                                       \
-     Vector  enum_end=vec+vec_size,enum_i=vec;                              \
-     int     enum_j;                                                        \
-     VecWord enum_word;                                                     \
-                                                                            \
-     vec_elem=0;                                                            \
-     do                                                                     \
-        {                                                                   \
-         enum_word= *enum_i;                                                \
-         for(enum_j=0;enum_j++<WORD_SIZE;enum_word >>= 1,vec_elem++)        \
-            {                                                               \
-             if (enum_word & 1)                                             \
-                {
+#define Vector_Allocate(vec)       		\
+  do						\
+    {						\
+      vec = (Vector) RANGE_TOP_STACK;		\
+      RANGE_TOP_STACK += vec_size;		\
+    }						\
+  while (0)
 
 
 
 
-#define VECTOR_END_ENUM                                                     \
-                }                                                           \
-            }                                                               \
-        }                                                                   \
-     while(++enum_i<enum_end);                                              \
-    }
+	  /* To enumerate a vector use VECTOR_BEGIN_ENUM / VECTOR_END_ENUM *
+	   * macros as follows:                                            *
+	   * ...                                                           *
+	   * VECTOR_BEGIN_ENUM(the_vector,vec_elem)                        *
+	   *    your code (vec_elem contains the current range element)    *
+	   * VECTOR_END_ENUM                                               */
+
+#define VECTOR_BEGIN_ENUM(vec, vec_elem)                              	  \
+{									  \
+  Vector enum_end = vec + vec_size, enum_i = vec;			  \
+  int enum_j;								  \
+  VecWord enum_word;							  \
+									  \
+  vec_elem = 0;								  \
+  do									  \
+    {									  \
+      enum_word = *enum_i;						  \
+      for (enum_j = 0; enum_j++ < WORD_SIZE; enum_word >>= 1, vec_elem++) \
+	{								  \
+	  if (enum_word & 1)						  \
+	    {
+
+
+#define VECTOR_END_ENUM                                              	\
+	    }								\
+	}								\
+    }									\
+  while (++enum_i < enum_end);						\
+}
 
 
 
@@ -263,19 +265,22 @@ char *Range_To_String(Range *range);
  * Range Management Macros         *
  *---------------------------------*/
 
-#define Is_Interval(range)         ((range)->vec==NULL)
-#define Is_Sparse(range)           ((range)->vec!=NULL)
-#define Is_Empty(range)            ((range)->min > (range)->max)
-#define Is_Not_Empty(range)        ((range)->max >=(range)->min)
+#define Is_Interval(range)         ((range)->vec == NULL)
+#define Is_Sparse(range)           ((range)->vec != NULL)
+#define Is_Empty(range)            ((range)->min >  (range)->max)
+#define Is_Not_Empty(range)        ((range)->max >= (range)->min)
 
 
-#define Set_To_Empty(range)        (range)->max=(int)(1 << (sizeof(int)*8-1))
+#define Set_To_Empty(range) (range)->max = (int)(1 << (sizeof(int) * 8 - 1))
 
 
-#define Range_Init_Interval(range,r_min,r_max)                              \
-    do {                                                                    \
-     (range)->extra_cstr=FALSE;                                             \
-     (range)->min       =(r_min);                                           \
-     (range)->max       =(r_max);                                           \
-     (range)->vec       =NULL;                                              \
-    } while(0)
+#define Range_Init_Interval(range, r_min, r_max)	\
+  do							\
+    {							\
+      (range)->extra_cstr = FALSE;			\
+      (range)->min = (r_min);				\
+      (range)->max = (r_max);				\
+      (range)->vec = NULL;				\
+    }							\
+  while (0)
+

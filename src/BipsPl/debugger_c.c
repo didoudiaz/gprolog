@@ -857,8 +857,8 @@ Print_Wam_Word(WamWord *word_adr)
     {
       switch (tag_tbl[tag].type)
 	{
-	case INTEGER:
-	  value = (WamWord) UnTag_Integer(word);
+	case LONG_INT:
+	  value = (WamWord) UnTag_Long_Int(word);
 	  Stream_Printf(pstm_o, "%s,%*ld", tag_tbl[tag].name,
 			VALUE_PART_LENGTH, (long) value);
 	  break;
@@ -1000,12 +1000,12 @@ Modify_Wam_Word(WamWord *word_adr)
 	{
 	  switch (tag_tbl[i].type)
 	    {
-	    case INTEGER:
+	    case LONG_INT:
 	      word = strtol(comma, &p, 0);
 	      if (*p != '\0')
 		goto err;
 
-	      *word_adr = Tag_Integer(tag_tbl[i].tag_mask, Read_An_Integer(1));
+	      *word_adr = Tag_Long_Int(tag_tbl[i].tag_mask, Read_An_Integer(1));
 	      return;
 
 	    case SHORT_UNS:
@@ -1135,7 +1135,7 @@ Help(void)
 {
   int i;
 
-#define L(str)  Stream_Printf(pstm_o,"%s\n",str)
+#define L(str)  Stream_Printf(pstm_o, "%s\n", str)
 
 
   L("Wam debugging options:");

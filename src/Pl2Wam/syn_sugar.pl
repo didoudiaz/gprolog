@@ -87,12 +87,11 @@ normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity, true)) :-
 normalize_cuts1(throw(B), _, '$throw'(B, Func, Arity, true)) :-
 	cur_pred_without_aux(Func, Arity).
 
-normalize_cuts1(P, _, P1) :-
+normalize_cuts1(P, _, P) :-
 	(   callable(P) ->
 	    true
 	;   error('body goal is not callable (~q)', [P])
-	),
-	pred_rewriting(P, P1).
+	).
 
 
 
@@ -124,7 +123,8 @@ normalize_alts1((P ; Q), RestC, AuxPred) :-
 	linearize((P ; Q), AuxPred, Where, LAuxSrcCl),
 	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
 
-normalize_alts1(P, _, P).
+normalize_alts1(P, _, P1) :-
+	pred_rewriting(P, P1), !.
 
 
 
@@ -184,43 +184,85 @@ lst_var_args(I, N, P, V, V2) :-
 
 
 
-        /* Other predicate rewriting */
+        % Other predicate rewriting
 
-pred_rewriting(fd_tell(X), '$call_c_test'(X)) :-          % FD transformation
-	test_call_c_allowed(fd_tell / 1), !.
+pred_rewriting(fd_tell(X), T) :-                          % FD transformation
+	test_c_call_allowed(fd_tell / 1),
+	pred_rewriting('$call_c'(X, [boolean]), T).
 
 pred_rewriting(set_bip_name(Name, Arity), Pred1) :-
-	g_read(inline, t),            % also if -wbc since implies -no-inline
+	g_read(inline, t),      % also if byte code since implies --no-inline
 	nonvar(Name),
-	nonvar(Arity), !,
+	nonvar(Arity),
 	(   atom(Name)
 	;   error('set_bip_name/2 inline: atom expected instead of ~q', [Name])
 	),
 	(   integer(Arity)
 	;   error('set_bip_name/2 inline: integer expected instead of ~q', [Arity])
-	), !,
-	Pred1 = '$call_c'('Set_Bip_Name_2'(Name, Arity)).
+	),
+	pred_rewriting('$call_c'('Set_Bip_Name_2'(Name, Arity)), Pred1).
 
-pred_rewriting(Pred, Pred1) :-                      % math define current bip
-	g_read(inline, t),
+pred_rewriting(Pred, Pred1) :-                     % math define current bip
+	g_read(inline, t),      % also if byte code since implies --no-inline
 	g_read(fast_math, f),
 	functor(Pred, F, 2),
 	(   F = (is)
 	;   math_cmp_functor_name(F, _)
-	),                                                  % see code_gen.pl
-	   !,
-	Pred1 = ('$call_c'('Set_Bip_Name_2'(F, 2)), Pred).
+	),					            % see code_gen.pl
+	pred_rewriting('$call_c'('Set_Bip_Name_2'(F, 2)), T),
+	Pred1 = (T, Pred).
+
+
+          % The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
+          % LCOpt is a list containing:
+          %   jump/boolean
+          %   fast_call (use a fact call convention)
+          %   tagged (use tagged calls for atom, integers and F/N)
+          %   by_value (pass atom, numbers, F/N by value not by WamWord)
+          %   use_x_regs (the function can destroy any X register)
+          %
+          % Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
+          % kept for the moment...
+
+          % do not use LCOpt1 = '$no_internal$'(LCOpt) for bootstrapping
+pred_rewriting('$call_c'(F, LCOpt), '$call_c'(F, LCOpt1)) :-
+	test_c_call_allowed('$call_c' / 2),
+	no_internal_transf(LCOpt, LCOpt1).
+
+pred_rewriting('$call_c'(F), T) :-
+	test_c_call_allowed('$call_c' / 1),
+	pred_rewriting('$call_c'(F, []), T).
+
+						% backward compatibility
+pred_rewriting('$call_c_test'(F), T) :-
+	test_c_call_allowed('$call_c_test' / 1),
+	pred_rewriting('$call_c'(F, [boolean]), T).
+
+						% backward compatibility
+pred_rewriting('$call_c_jump'(F), T) :-
+	test_c_call_allowed('$call_c_jump' / 1),
+	pred_rewriting('$call_c'(F, [jump]), T).
 
 pred_rewriting(P, P).
 
 
 
-
-test_call_c_allowed(_) :-
+test_c_call_allowed(_) :-
 	g_read(call_c, t), !.
 
-test_call_c_allowed(X) :-
+test_c_call_allowed(X) :-
 	error('~q not allowed in this mode', [X]).
+
+
+
+          % can be considered as inline (neither CP nor X regs to save)
+
+not_dangerous_c_call([]).
+
+not_dangerous_c_call([COpt|LCOpt]) :-
+	COpt \== jump,
+	COpt \== use_x_regs,
+	not_dangerous_c_call(LCOpt).
 
 
 

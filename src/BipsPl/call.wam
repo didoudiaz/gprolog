@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : call.pl
-% date    : 9 28 2001
-% time    : 20:43:40
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call.pl').
@@ -72,10 +72,10 @@ predicate('$call/2_$aux2'/3,46,static,private,built_in,[
     try_me_else(1),
     put_atom(>,4),
     put_integer(2,5),
-    call_c('Set_Bip_Name_2',[4,5]),
+    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
-    call_c_test('Blt_Gt',[0,1]),
+    call_c('Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
     cut(x(3)),
     get_atom(false,2),
     proceed,
@@ -89,15 +89,15 @@ label(1),
 predicate('$call/2_$aux1'/1,46,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     put_atom(false,2),
-    call_c_test('Blt_Term_Neq',[0,2]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
     put_atom(true,2),
-    call_c_test('Blt_Term_Neq',[0,2]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
     cut(x(1)),
     put_atom(call,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
     put_value(x(0),1),
     put_atom(boolean,0),
     execute('$pl_err_type'/2),
@@ -108,14 +108,14 @@ label(1),
 
 
 predicate('$call'/4,65,static,private,built_in,[
-    call_c('Save_Call_Info_3',[1,2,3]),
+    call_c('Save_Call_Info_3',[],[x(1),x(2),x(3)]),
     put_integer(0,1),
     execute('$call1'/2)]).
 
 
 predicate('$call1'/2,69,static,private,built_in,[
     put_integer(1,2),
-    call_c('Load_Call_Info_Arg_1',[2]),
+    call_c('Load_Call_Info_Arg_1',[],[x(2)]),
     execute('$call_internal'/2)]).
 
 
@@ -124,7 +124,7 @@ predicate('$call_internal'/2,73,static,private,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_value(y(1),0),
-    call_c('Call_Info_Bip_Name_1',[0]),
+    call_c('Call_Info_Bip_Name_1',[],[x(0)]),
     put_value(y(0),0),
     call('$$call_internal/2_$aux1'/1),
     put_value(y(0),0),
@@ -140,7 +140,7 @@ predicate('$call_internal'/2,73,static,private,built_in,[
 predicate('$$call_internal/2_$aux1'/1,73,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -277,7 +277,7 @@ label(20),
 label(21),
     trust_me_else_fail,
     put_integer(1,2),
-    call_c_jump('BC_Call_Terminal_Pred_3',[0,1,2]),
+    call_c('BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
     proceed]).
 
 
@@ -334,5 +334,5 @@ label(1),
 
 predicate('$call_from_debugger'/2,149,static,private,built_in,[
     put_integer(0,2),
-    call_c_jump('BC_Call_Terminal_Pred_3',[0,1,2]),
+    call_c('BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
     proceed]).

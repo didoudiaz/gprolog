@@ -29,18 +29,27 @@
 '$use_char_io'.
 
 
-get_code_no_echo(Code) :-
-	set_bip_name(get_code_no_echo, 1),
-	'$call_c_test'('Get_Code_No_Echo_1'(Code)).
+get_key(Code) :-
+	set_bip_name(get_key, 1),
+	'$call_c_test'('Get_Key_1'(Code)).
 
-get_code_no_echo(SorA, Code) :-
-	set_bip_name(get_code_no_echo, 2),
-	'$call_c_test'('Get_Code_No_Echo_2'(SorA, Code)).
-
-
+get_key(SorA, Code) :-
+	set_bip_name(get_key, 2),
+	'$call_c_test'('Get_Key_2'(SorA, Code)).
 
 
-          /* get predicates */
+get_key_no_echo(Code) :-
+	set_bip_name(get_key_no_echo, 1),
+	'$call_c_test'('Get_Key_No_Echo_1'(Code)).
+
+get_key_no_echo(SorA, Code) :-
+	set_bip_name(get_key_no_echo, 2),
+	'$call_c_test'('Get_Key_No_Echo_2'(SorA, Code)).
+
+
+
+
+          % get predicates
 
 get_char(Char) :-
 	set_bip_name(get_char, 1),
@@ -76,7 +85,7 @@ get_byte(SorA, Byte) :-
 
 
 
-          /* unget predicates */
+          % unget predicates
 
 unget_char(Char) :-
 	set_bip_name(unget_char, 1),
@@ -111,7 +120,7 @@ unget_byte(SorA, Byte) :-
 
 
 
-          /* peek predicates */
+          % peek predicates
 
 peek_char(Char) :-
 	set_bip_name(peek_char, 1),
@@ -146,7 +155,7 @@ peek_byte(SorA, Byte) :-
 
 
 
-          /* put predicates */
+          % put predicates
 
 put_char(Char) :-
 	set_bip_name(put_char, 1),

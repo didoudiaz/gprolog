@@ -13,8 +13,8 @@ dnl ***************************
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.2.8'
-PROLOG_DATE='Oct 8 2001'
+PROLOG_VERSION='1.2.9'
+PROLOG_DATE='Oct 15 2001'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2001 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
@@ -22,15 +22,14 @@ GPLC=gplc
 HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
 
-USE_REGS=yes
 USE_EBP=yes
 USE_LINEDIT=yes
 USE_GUI_CONSOLE=yes
 USE_SOCKETS=yes
 USE_FD_SOLVER=yes
 
+DLL_W32GUICONS=w32guicons
 LIB_LINEDIT=liblinedit
-LIB_W32GUICONS=libw32guicons
 LIB_ENGINE_PL=libengine_pl
 LIB_BIPS_PL=libbips_pl
 LIB_ENGINE_FD=libengine_fd
@@ -69,11 +68,9 @@ AC_SUBST(AR_SEP)
 AC_SUBST(AS)
 AC_SUBST(STRIP)
 
-AC_SUBST(USE_REGS)
-AC_SUBST(USE_LINEDIT)
-AC_SUBST(USE_GUI_CONSOLE)
-AC_SUBST(USE_SOCKETS)
-AC_SUBST(USE_FD_SOLVER)
+AC_SUBST(RC)
+AC_SUBST(LD)
+AC_SUBST(LD_OUT_NAME_OPT)
 
 AC_SUBST(ROOT_DIR)
 AC_SUBST(ROOT_DIR1)
@@ -84,6 +81,7 @@ AC_SUBST(DOC_DIR)
 AC_SUBST(HTML_DIR)
 AC_SUBST(EXAMPLES_DIR)
 
+AC_SUBST(TXT_FILES)
 AC_SUBST(BIN_FILES)
 AC_SUBST(OBJ_FILES)
 AC_SUBST(LIB_FILES)
@@ -101,8 +99,8 @@ AC_SUBST(MAKE_FD_DIRS)
 AC_SUBST(MAKE_LE_INTERF_OBJS)
 AC_SUBST(MAKE_SOCKETS_OBJS)
 
+AC_SUBST(DLL_W32GUICONS)
 AC_SUBST(LIB_LINEDIT)
-AC_SUBST(LIB_W32GUICONS)
 AC_SUBST(LIB_ENGINE_PL)
 AC_SUBST(LIB_BIPS_PL)
 AC_SUBST(LIB_ENGINE_FD)
@@ -163,7 +161,15 @@ AC_ARG_ENABLE(linedit,   [  --disable-linedit       do not include line editor f
 		   *)  USE_LINEDIT=yes;;
 	       esac])
 
-AC_ARG_ENABLE(gui-console,[  --disable-gui-console   do not use the Win 32 GUI console],
+
+AC_ARG_ENABLE(piped-consult, [  --disable-piped-consult do not pipe stdin of pl2wam when consult/1],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_PIPED_STDIN_FOR_CONSULT);;
+		   *)  ;;
+	       esac])
+
+
+AC_ARG_ENABLE(gui-console,[  --disable-gui-console   do not use the Win32 GUI console],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no;;
 		   *)  USE_GUI_CONSOLE=yes;;
@@ -204,6 +210,9 @@ if test "$WITH_MSVC" != no; then
         AR_SEP=''
 	STRIP=:
         RANLIB=:
+	RC=rc
+	LD=link
+	LD_OUT_NAME_OPT='/out:'
 else
 	AC_PROG_CC
 	if test "$GCC" != yes; then
@@ -232,8 +241,8 @@ AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
+DLL_W32GUICONS=$DLL_W32GUICONS.dll
 LIB_LINEDIT=$LIB_LINEDIT$LIB_SUFFIX
-LIB_W32GUICONS=$LIB_W32GUICONS$LIB_SUFFIX
 LIB_ENGINE_PL=$LIB_ENGINE_PL$LIB_SUFFIX
 LIB_BIPS_PL=$LIB_BIPS_PL$LIB_SUFFIX
 LIB_ENGINE_FD=$LIB_ENGINE_FD$LIB_SUFFIX
@@ -294,8 +303,7 @@ fi
 AC_CHECK_SIZEOF(long)
 AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
 AC_FUNC_MMAP 
-AC_CHECK_FUNCS(mallopt)
-AC_CHECK_FUNCS(mkstemp)
+AC_CHECK_FUNCS(mallopt mkstemp fgetc)
 
 
 dnl ********************
@@ -309,16 +317,14 @@ AC_C_INLINE
 
 if test "$WITH_MSVC" != no; then
 	case "$WITH_C_FLAGS" in
-		debug) CFLAGS='/nologo /W3 /ZI /Ge';;
-		no)    CFLAGS='/nologo';;
-		yes)   CFLAGS='/nologo /Ox';;
+		debug) CFLAGS='/W3 /ZI /GX';;
+		no)    CFLAGS='';;
+		yes)   CFLAGS='/O2 /GX';;
 		*)     CFLAGS="$WITH_C_FLAGS";;
 	esac
 
 	CFLAGS_UNSIGNED_CHAR='/J'
-#  using multi-thread
-	CFLAGS_MACHINE='/nologo /MD'
-#	CFLAGS_MACHINE='/nologo'
+	CFLAGS_MACHINE='/nologo'
 
 else
 	case "$WITH_C_FLAGS" in
@@ -371,8 +377,7 @@ dnl ********************
 
 if test "$WITH_MSVC" != no; then
 	LDFLAGS='/nologo'
-	LDLIBS=
-#	LDLIBS='user32.lib'
+	LDLIBS='advapi32.lib user32.lib'
 else
 	LDLIBS='-lm'
 fi
@@ -427,8 +432,8 @@ AC_DEFINE_UNQUOTED(EXE_SUFFIX,       "$EXE_SUFFIX")
 AC_DEFINE_UNQUOTED(CC_OBJ_NAME_OPT,  "$CC_OBJ_NAME_OPT")
 AC_DEFINE_UNQUOTED(CC_EXE_NAME_OPT,  "$CC_EXE_NAME_OPT")
 
+AC_DEFINE_UNQUOTED(DLL_W32GUICONS,   "$DLL_W32GUICONS")
 AC_DEFINE_UNQUOTED(LIB_LINEDIT,      "$LIB_LINEDIT")
-AC_DEFINE_UNQUOTED(LIB_W32GUICONS,   "$LIB_W32GUICONS")
 AC_DEFINE_UNQUOTED(LIB_ENGINE_PL,    "$LIB_ENGINE_PL")
 AC_DEFINE_UNQUOTED(LIB_BIPS_PL,      "$LIB_BIPS_PL")
 AC_DEFINE_UNQUOTED(LIB_ENGINE_FD,    "$LIB_ENGINE_FD")
@@ -554,12 +559,14 @@ dnl ******************
 dnl * sub-components *
 dnl ******************
 
+TXT_FILES='COPYING VERSION NEWS ChangeLog'
+
 BIN_FILES=
 OBJ_FILES=
 LIB_FILES=
 
 INC_FILES="$PROLOG_NAME1.h fd_to_c.h"
-DOC_FILES='???*.dvi ???*.ps ???*.pdf'
+DOC_FILES='???*.dvi ???*.ps ???*.pdf ???*.chm'
 HTML_FILES='???*.html ???*.gif'
 EXPL_FILES='Makefile README PROGS ??*.pl'
 EXC_FILES='Makefile README ??*.pl ??*_c.c'
@@ -588,7 +595,7 @@ fi
 if test "$USE_GUI_CONSOLE" = yes; then
         TOP_LEVEL_FLAGS=--gui-console
 	MAKE_W32GC_DIRS='$(W32GC_DIRS)'
-        L="$L $LIB_W32GUICONS GUICons.res"
+        L="$L $DLL_W32GUICONS"
         O="$O w32gc_interf"
 else
         TOP_LEVEL_FLAGS=

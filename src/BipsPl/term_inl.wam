@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : term_inl.pl
-% date    : 9 28 2001
-% time    : 20:43:41
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
@@ -12,83 +12,83 @@ predicate('$use_term_inl'/0,29,static,private,built_in,[
 
 
 predicate(compare/3,32,static,private,built_in,[
-    call_c_test('Blt_Compare',[0,1,2]),
+    call_c('Blt_Compare',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate((==)/2,36,static,private,built_in,[
-    call_c_test('Blt_Term_Eq',[0,1]),
+    call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((\==)/2,39,static,private,built_in,[
-    call_c_test('Blt_Term_Neq',[0,1]),
+    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@<)/2,42,static,private,built_in,[
-    call_c_test('Blt_Term_Lt',[0,1]),
+    call_c('Blt_Term_Lt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@=<)/2,45,static,private,built_in,[
-    call_c_test('Blt_Term_Lte',[0,1]),
+    call_c('Blt_Term_Lte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@>)/2,48,static,private,built_in,[
-    call_c_test('Blt_Term_Gt',[0,1]),
+    call_c('Blt_Term_Gt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@>=)/2,51,static,private,built_in,[
-    call_c_test('Blt_Term_Gte',[0,1]),
+    call_c('Blt_Term_Gte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(arg/3,57,static,private,built_in,[
-    call_c_test('Blt_Arg',[0,1,2]),
+    call_c('Blt_Arg',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(functor/3,63,static,private,built_in,[
-    call_c_test('Blt_Functor',[0,1,2]),
+    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate((=..)/2,69,static,private,built_in,[
-    call_c_test('Blt_Univ',[0,1]),
+    call_c('Blt_Univ',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(copy_term/2,75,static,private,built_in,[
     put_atom(copy_term,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Copy_Term_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Copy_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(setarg/3,82,static,private,built_in,[
     put_atom(setarg,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
     put_atom(true,3),
-    call_c_test('Setarg_4',[0,1,2,3]),
+    call_c('Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(setarg/4,87,static,private,built_in,[
     put_atom(setarg,4),
     put_integer(4,5),
-    call_c('Set_Bip_Name_2',[4,5]),
-    call_c_test('Setarg_4',[0,1,2,3]),
+    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(term_ref/2,94,static,private,built_in,[
     put_atom(term_ref,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Term_Ref_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Term_Ref_2',[boolean],[x(0),x(1)]),
     proceed]).

@@ -83,6 +83,7 @@
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
+
 static WamWord bool_tbl[NB_OF_OP];
 static WamWord bool_xor;
 
@@ -166,20 +167,29 @@ Bool Fd_Lte_2(WamWord le_word, WamWord re_word);
 
 
 
-#define BOOL_CSTR_2(f,a1,a2)                                                \
-    do {                                                                    \
-     if (!Fd_Check_For_Bool_Var(a1)) return FALSE;                          \
-     if (!Fd_Check_For_Bool_Var(a2)) return FALSE;                          \
-     PRIM_CSTR_2(f,a1,a2);                                                  \
-    } while(0)
+#define BOOL_CSTR_2(f, a1, a2)                    	\
+  do							\
+    {							\
+      if (!Fd_Check_For_Bool_Var(a1))			\
+	return FALSE;					\
+      if (!Fd_Check_For_Bool_Var(a2))			\
+	return FALSE;					\
+      PRIM_CSTR_2(f, a1, a2);				\
+    }							\
+  while (0)
 
-#define BOOL_CSTR_3(f,a1,a2,a3)                                             \
-    do {                                                                    \
-     if (!Fd_Check_For_Bool_Var(a1)) return FALSE;                          \
-     if (!Fd_Check_For_Bool_Var(a2)) return FALSE;                          \
-                                                             /* a3 is OK */ \
-     PRIM_CSTR_3(f,a1,a2,a3);                                               \
-    } while(0)
+
+#define BOOL_CSTR_3(f, a1, a2, a3)                    	\
+  do							\
+    {							\
+      if (!Fd_Check_For_Bool_Var(a1))			\
+	return FALSE;					\
+      if (!Fd_Check_For_Bool_Var(a2))			\
+	return FALSE;					\
+                                      /* a3 is OK */	\
+      PRIM_CSTR_3(f, a1, a2, a3);			\
+    }							\
+  while (0)
 
 
 

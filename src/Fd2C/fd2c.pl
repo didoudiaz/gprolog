@@ -80,7 +80,7 @@ c_file(CFile, _, CFile).
 
 
 
-          /*--- command-line options reading ---*/
+          % Command-line options reading
 
 cmd_line_args(Args, FdFile, CFile) :-
 	g_assign(fdfile, ''),
@@ -159,7 +159,7 @@ cmd_line_arg1(FdFile, LArg, LArg) :-
 
 
 
-          /*--- copying ---*/
+          % Copying
 
 display_copying :-
 	current_prolog_flag(prolog_name, Name),
@@ -177,7 +177,7 @@ display_copying :-
 	
 
 
-          /*--- help ---*/
+          % Help
 
 h('Usage: fd2c [OPTION...] FILE').
 h('').
@@ -191,7 +191,7 @@ h('''user'' can be given as FILE for the standard input/output').
 
 
 
-          /*--- exception recovery ---*/
+          % Exception recovery
 
 exception(error(syntax_error(_), _)) :-
 	!,
@@ -231,7 +231,7 @@ warn(Msg, Args) :-
 
 
 
-          /*--- starting directive ---*/
+          % Starting directive
 
 go :-
 	argument_list(L),

@@ -58,6 +58,9 @@
 /* Define if you don't want to include line editor facility */
 #undef NO_USE_LINEDIT
 
+/* Define if you don't want consult/1 launches pl2wam with pipe on its input */
+#undef NO_USE_PIPED_STDIN_FOR_CONSULT
+
 /* Define if you don't want to use the win32 GUI console */
 #undef NO_USE_GUI_CONSOLE
 
@@ -186,8 +189,8 @@
 #define CC_EXE_NAME_OPT            any
 
 
+#define DLL_W32GUICONS             any
 #define LIB_LINEDIT                any
-#define LIB_W32GUICONS             any
 #define LIB_ENGINE_PL              any
 #define LIB_BIPS_PL                any
 #define LIB_ENGINE_FD              any

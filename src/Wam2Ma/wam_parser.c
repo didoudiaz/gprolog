@@ -55,28 +55,6 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef enum
-{
-  ATOM = 256,			/* order of ATOM INTEGER F_N important */
-  INTEGER,
-  F_N,
-
-  FLOAT,
-  X_Y,
-  LABEL,
-
-  LST_INTEGER,			/* order important */
-  LST_F_N,
-
-  LST_ATOM_INTEGER,		/* order important */
-  LST_INTEGER_INTEGER,
-  LST_F_N_INTEGER,
-}
-ArgTyp;
-
-
-
-
 typedef struct
 {
   char *keyword;
@@ -137,9 +115,9 @@ InstInf inst[] = {
   {"label", F_label, 1, {INTEGER}},
 
   {"switch_on_term", F_switch_on_term, 5, {LABEL, LABEL, LABEL, LABEL, LABEL}},
-  {"switch_on_atom", F_switch_on_atom, 1, {LST_ATOM_INTEGER}},
-  {"switch_on_integer", F_switch_on_integer, 1, {LST_INTEGER_INTEGER}},
-  {"switch_on_structure", F_switch_on_structure, 1, {LST_F_N_INTEGER,}},
+  {"switch_on_atom", F_switch_on_atom, 1, {L2(ATOM, INTEGER)}},
+  {"switch_on_integer", F_switch_on_integer, 1, {L2(INTEGER, INTEGER)}},
+  {"switch_on_structure", F_switch_on_structure, 1, {L2(F_N, INTEGER)}},
 
   {"try_me_else", F_try_me_else, 1, {INTEGER}},
   {"retry_me_else", F_retry_me_else, 1, {INTEGER}},
@@ -152,15 +130,10 @@ InstInf inst[] = {
   {"load_cut_level", F_load_cut_level, 1, {INTEGER}},
   {"cut", F_cut, 1, {X_Y}},
 
-  {"function", F_function, 3, {ATOM, INTEGER, LST_INTEGER}},
+  {"call_c", F_call_c, 3, {ATOM, L1(ANY), L1(ANY)}},
 
-  {"call_c", F_call_c, 2, {ATOM, LST_INTEGER}},
-  {"call_c_test", F_call_c_test, 2, {ATOM, LST_INTEGER}},
-  {"call_c_jump", F_call_c_jump, 2, {ATOM, LST_INTEGER}},
-
-
-  {"foreign_call_c", F_foreign_call_c, 7,
-   {ATOM, ATOM, ATOM, INTEGER, INTEGER, LST_ATOM_INTEGER, LST_INTEGER}},
+  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER, 
+					   L2(ATOM, ATOM)}},
 
   {NULL, NULL, 0, {0}}
 };
@@ -200,12 +173,13 @@ static void Parser(void);
 
 static void Read_Instruction(void);
 
-static void Read_Argument(int arg_type, ArgVal **top);
+static void Read_Argument(ArgTyp arg_type, ArgVal **top);
 
 static void Read_Token(int what);
 
 static int Scanner(int complex_atom);
 
+static char Peek_Char(int skip_spaces);
 
 
 
@@ -279,7 +253,7 @@ Parser(void)
 	{
 	  top = arg;
 	  Read_Token('(');
-	  Read_Argument(LST_F_N, &top);
+	  Read_Argument(L1(F_N), &top);
 	  Read_Token(')');
 	  Read_Token('.');
 	  Ensure_Linked(arg);
@@ -413,67 +387,63 @@ Read_Instruction(void)
  *                                                                         *
  * arguments are loaded in the array 'arg' as follows:                     *
  *                                                                         *
- * ATOM         : the (char *) pointing to a copy of the associated string *
- * INTEGER      : the associated (int)                                     *
- * FLOAT        : the associated (double)                                  *
- * X_Y          : the (int) associated to the var no (Y vars from 5000)    *
- * F_N          : the loading of ATOM F and the loading of INTEGER N       *
- * LABEL        : the associated (int) or -1 for 'fail'                    *
- * LST_INTEGER  : an (int) n associated to the number of element and,      *
- *                for each integer the loading of INTEGER                  *
- * LST_F_N      : an (int) n associated to the number of element and,      *
- *                for each f/n the loading of F_N                          *
- * LST_A_INTEGER: (A=ATOM, INTEGER or F_N)                                 *
- *                an (int) n associated to the number of cases and,        *
- *                for each pair (A,INTEGER),                               *
- *                the loading of A and the loading of INTEGER              *
+ * ATOM      : the (char *) pointing to a copy of the associated string    *
+ * INTEGER   : the associated (int)                                        *
+ * FLOAT     : the associated (double)                                     *
+ * X_Y       : the (int) associated to the var no (Y vars from 5000)       *
+ * F_N       : the loading of ATOM (F) and the loading of INTEGER (N)      *
+ * LABEL     : the associated (int) or -1 for 'fail'                       *
+ * ANY       : the type of the arg (an INTEGER) and the loading of arg     *
+ * L1(T)     : an (int) n associated to the number of elements and         *
+ *             n * the loading of T                                        *
+ * L2(T1, T2): an (int) n associated to the number of elements and         *
+ *             n * (the loading of T1 followed by the loading of T2)       *
  *-------------------------------------------------------------------------*/
 static void
-Read_Argument(int arg_type, ArgVal **top)
+Read_Argument(ArgTyp arg_type, ArgVal **top)
 {
   int k, n;
   ArgVal *top1;
+  ArgTyp t1, t2;
 
   switch (arg_type)
     {
     case ATOM:
       Read_Token(ATOM);
       Add_Arg(*top, char *, strdup(str_val));
-
-      break;
+      return;
 
     case INTEGER:
       Read_Token(INTEGER);
+    load_integer:
       Add_Arg(*top, long, int_val);
-
-      break;
+      return;
 
     case FLOAT:
       Read_Token(FLOAT);
+    load_float:
       Add_Arg(*top, double, dbl_val);
-
-      break;
+      return;
 
     case X_Y:
       if (Scanner(0) != ATOM ||
 	  (*str_val != 'x' && *str_val != 'y') || str_val[1] != '\0')
 	Syntax_Error("x(...) or y(...) expected");
+    load_x_y:
       Read_Token('(');
       Read_Token(INTEGER);
       Read_Token(')');
       if (*str_val == 'x')
 	Add_Arg(*top, long, int_val);
-
       else
 	Add_Arg(*top, long, 5000 + int_val);
-
-      break;
+      return;
 
     case F_N:
       Read_Argument(ATOM, top);
       Read_Token('/');
       Read_Argument(INTEGER, top);
-      break;
+      return;
 
     case LABEL:
       k = Scanner(0);
@@ -485,66 +455,75 @@ Read_Argument(int arg_type, ArgVal **top)
 	    int_val = -1;
 	}
       Add_Arg(*top, long, int_val);
+      return;
 
-      break;
+    case ANY:
+      t1 = Scanner(1);
+      top1 = *top;		/* to update type if needed */
+      Add_Arg(*top, long, t1);
 
-    case LST_INTEGER:
-    case LST_F_N:
-      arg_type = arg_type - LST_INTEGER + INTEGER;
-      top1 = *top;
-      Add_Arg(*top, long, 0);	/* reserve space for case counter */
+      if (t1 == INTEGER)
+	goto load_integer;
 
-      n = 0;
-      k = Scanner(1);
-      if (k == ATOM && strcmp(str_val, "[]") == 0)	/* empty list */
-	break;
-      if (k != '[')
-	Syntax_Error("[] or [ expected");
+      if (t1 == FLOAT)
+	goto load_float;
 
-      for (;;)
+      if (t1 != ATOM)
+	Syntax_Error("x(...), y(...), atom, integer or float expected");
+
+				/* t1 is an ATOM */
+
+      if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' &&
+	  Peek_Char(0) == '(')
 	{
-	  n++;
-	  Read_Argument(arg_type, top);
-	  k = Scanner(0);
-	  if (k == ']')
-	    break;
-	  if (k != ',')
-	    Syntax_Error("] or , expected");
+	  Add_Arg(top1, long, X_Y);
+	  goto load_x_y;
 	}
-      Add_Arg(top1, long, n);
 
-      break;
-
-    default:			/*  LST_x_INTEGER with x in (ATOM,INTEGER,F_N) */
-      arg_type = arg_type - LST_ATOM_INTEGER + ATOM;
-      top1 = *top;
-      Add_Arg(*top, long, 0);	/* reserve space for case counter */
-
-      n = 0;
-      k = Scanner(1);
-      if (k == ATOM && strcmp(str_val, "[]") == 0)	/* empty list */
-	break;
-      if (k != '[')
-	Syntax_Error("[] or [ expected");
-
-      for (;;)
+      Add_Arg(*top, char *, strdup(str_val)); /* load the atom */
+      if (Peek_Char(1) == '/')
 	{
-	  n++;
-	  Read_Token('(');
-	  Read_Argument(arg_type, top);
-	  Read_Token(',');
+	  Read_Token('/');
 	  Read_Argument(INTEGER, top);
-	  Read_Token(')');
-	  k = Scanner(0);
-	  if (k == ']')
-	    break;
-	  if (k != ',')
-	    Syntax_Error("] or , expected");
+	  Add_Arg(top1, long, F_N);
 	}
-      Add_Arg(top1, long, n);
-
-      break;
+      return;
     }
+
+				/* arg_type is a list L1(t) or L2(t1, t2) */
+  DECODE_L2(arg_type, t1, t2);
+
+  top1 = *top;
+  Add_Arg(*top, long, 0);	/* reserve space for counter */
+
+  n = 0;
+  k = Scanner(1);
+  if (k == ATOM && strcmp(str_val, "[]") == 0)	/* empty list */
+    return;
+  if (k != '[')
+    Syntax_Error("[] or [ expected");
+
+  for (;;)
+    {
+      n++;
+      if (t2 == 0)		/* case L1(t1) */
+	Read_Argument(t1, top);
+      else			/* case L2(t1, t2) */
+	{
+	  Read_Token('(');
+	  Read_Argument(t1, top);
+	  Read_Token(',');
+	  Read_Argument(t2, top);
+	  Read_Token(')');
+	}
+
+      k = Scanner(0);
+      if (k == ']')
+	break;
+      if (k != ',')
+	Syntax_Error("] or , expected");
+    }
+  Add_Arg(top1, long, n);
 }
 
 
@@ -752,6 +731,21 @@ Scanner(int complex_atom)
 
 
 
+
+/*-------------------------------------------------------------------------*
+ * PEEK_CHAR                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char
+Peek_Char(int skip_spaces)
+{
+  char *p = cur_line_p;
+  if (skip_spaces)
+    while(isspace(*p))
+      p++;
+
+  return *p;
+}
 
 /*-------------------------------------------------------------------------*
  * SYNTAX_ERROR                                                            *

@@ -51,7 +51,7 @@ keysort(List1, List2) :-
 	'$call_c_test'('Sort_List_2'(List1, List2)).
 
 
-        /* sort in-place predicates */
+        % sort in-place predicates
 
 sort(List) :-
 	set_bip_name(sort, 1),

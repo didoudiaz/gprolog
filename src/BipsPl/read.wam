@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : read.pl
-% date    : 9 28 2001
-% time    : 20:43:39
+% date    : 10 7 2001
+% time    : 9:44:58
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/read.pl').
@@ -16,11 +16,11 @@ predicate(read/1,37,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(read,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
-    call_c_test('Read_1',[0]),
     deallocate,
+    call_c('Read_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -30,12 +30,12 @@ predicate(read/2,42,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(read,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Read_2',[0,1]),
     deallocate,
+    call_c('Read_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -45,7 +45,7 @@ predicate(read_term/2,64,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(read_term,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(1),0),
     put_variable(y(2),1),
@@ -56,8 +56,8 @@ predicate(read_term/2,64,static,private,built_in,[
     put_unsafe_value(y(2),1),
     put_unsafe_value(y(3),2),
     put_unsafe_value(y(4),3),
-    call_c_test('Read_Term_4',[0,1,2,3]),
     deallocate,
+    call_c('Read_Term_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
@@ -68,7 +68,7 @@ predicate(read_term/3,71,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(read_term,0),
     put_integer(3,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(2),0),
     put_variable(y(3),1),
@@ -80,8 +80,8 @@ predicate(read_term/3,71,static,private,built_in,[
     put_unsafe_value(y(3),2),
     put_unsafe_value(y(4),3),
     put_unsafe_value(y(5),4),
-    call_c_test('Read_Term_5',[0,1,2,3,4]),
     deallocate,
+    call_c('Read_Term_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
@@ -106,24 +106,24 @@ predicate('$get_read_options'/4,87,static,private,built_in,[
     call('$check_list'/1),
     put_atom('$read_variables',0),
     put_nil(1),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$read_variable_names',0),
     put_nil(1),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$read_singletons',0),
     put_nil(1),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     call('$get_read_options1'/1),
     put_atom('$read_variables',0),
     put_value(y(1),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$read_variable_names',0),
     put_value(y(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$read_singletons',0),
     put_value(y(3),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed]).
 
@@ -157,7 +157,7 @@ label(4),
 
 predicate('$get_read_options2'/1,105,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
 
 label(1),
@@ -174,7 +174,7 @@ label(4),
     get_structure(variables/1,0),
     unify_variable(x(1)),
     put_atom('$read_variables',0),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     execute('$sys_var_set_bit'/2),
@@ -186,7 +186,7 @@ label(6),
     get_structure(variable_names/1,0),
     unify_variable(x(1)),
     put_atom('$read_variable_names',0),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(1,1),
     execute('$sys_var_set_bit'/2),
@@ -198,7 +198,7 @@ label(8),
     get_structure(singletons/1,0),
     unify_variable(x(1)),
     put_atom('$read_singletons',0),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(2,1),
     execute('$sys_var_set_bit'/2),
@@ -209,7 +209,7 @@ label(9),
 label(10),
     get_structure(syntax_error/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     execute('$$get_read_options2/1_$aux1'/1),
 
 label(11),
@@ -218,7 +218,7 @@ label(11),
 label(12),
     get_structure(end_of_term/1,0),
     unify_variable(x(0)),
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     execute('$$get_read_options2/1_$aux2'/1),
 
 label(13),
@@ -292,11 +292,11 @@ predicate(read_atom/1,145,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(read_atom,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
-    call_c_test('Read_Atom_1',[0]),
     deallocate,
+    call_c('Read_Atom_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -306,12 +306,12 @@ predicate(read_atom/2,151,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(read_atom,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Read_Atom_2',[0,1]),
     deallocate,
+    call_c('Read_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -320,11 +320,11 @@ predicate(read_integer/1,159,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(read_integer,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
-    call_c_test('Read_Integer_1',[0]),
     deallocate,
+    call_c('Read_Integer_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -334,12 +334,12 @@ predicate(read_integer/2,165,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(read_integer,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Read_Integer_2',[0,1]),
     deallocate,
+    call_c('Read_Integer_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -348,11 +348,11 @@ predicate(read_number/1,173,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(read_number,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
-    call_c_test('Read_Number_1',[0]),
     deallocate,
+    call_c('Read_Number_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -362,55 +362,55 @@ predicate(read_number/2,179,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(read_number,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_read_defaults'/0),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c_test('Read_Number_2',[0,1]),
     deallocate,
+    call_c('Read_Number_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(read_token/1,187,static,private,built_in,[
     put_atom(read_token,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c_test('Read_Token_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Read_Token_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(read_token/2,191,static,private,built_in,[
     put_atom(read_token,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Read_Token_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Read_Token_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(last_read_start_line_column/2,197,static,private,built_in,[
     put_atom(last_read_start_line_column,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Last_Read_Start_Line_Column_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Last_Read_Start_Line_Column_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(char_conversion/2,204,static,private,built_in,[
     put_atom(char_conversion,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c('Char_Conversion_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Char_Conversion_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate(current_char_conversion/2,211,static,private,built_in,[
     put_atom(current_char_conversion,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Current_Char_Conversion_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Current_Char_Conversion_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_char_conversion_alt'/0,218,static,private,built_in,[
-    call_c_test('Current_Char_Conversion_Alt_0',[]),
+    call_c('Current_Char_Conversion_Alt_0',[boolean],[]),
     proceed]).

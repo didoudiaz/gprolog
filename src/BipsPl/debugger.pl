@@ -55,10 +55,7 @@
 
 
 
-          /*---------------------------------------------------------------* 
-           * Debugger built-in predicates                                  * 
-           *                                                               * 
-           *---------------------------------------------------------------*/
+           % Debugger built-in predicates
 
 wam_debug :-
 	set_bip_name(wam_debug, 0),
@@ -439,12 +436,10 @@ nospyall.
 
 
 
-          /*---------------------------------------------------------------* 
-           * The debugger:                                                 * 
-           *                                                               * 
-           * '$debug_call'/2 is called by meta-call (cf Call_2()) when the * 
-           * debugger is active, ie. Set_Debug_Call_Code() has been called * 
-           *---------------------------------------------------------------*/
+          % The debugger:
+          %
+          % '$debug_call'/2 is called by meta-call (cf Call_2()) when the
+          % debugger is active, ie. Set_Debug_Call_Code() has been called
 
 '$debug_call'(notrace, _) :-
 	!,
@@ -562,7 +557,7 @@ nospyall.
 
 
 
-          /* debug_port */
+          % debug_port
 
 '$debug_port'(Goal, Invoc, Index, AncLst, Port) :-
 	'$get_current_B'(B),
@@ -638,7 +633,7 @@ nospyall.
 '$debug_read_cmd'(C) :-
 	write(debugger_output, ' ? '),
 	flush_output(debugger_output),
-	get_code_no_echo(debugger_input, X),
+	get_key(debugger_input, X),
 	X >= 0,
 	X < 255,
 	char_code(C, X),

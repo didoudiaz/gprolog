@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : sockets.pl
-% date    : 9 28 2001
-% time    : 20:43:43
+% date    : 10 7 2001
+% time    : 9:45:2
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/sockets.pl').
@@ -14,24 +14,24 @@ predicate('$use_sockets'/0,29,static,private,built_in,[
 predicate(socket/2,32,static,private,built_in,[
     put_atom(socket,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Socket_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Socket_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(socket_close/1,39,static,private,built_in,[
     put_atom(socket_close,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c_test('Socket_Close_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Socket_Close_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(socket_bind/2,46,static,private,built_in,[
     put_atom(socket_bind,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Socket_Bind_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Socket_Bind_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -42,7 +42,7 @@ predicate(socket_connect/4,53,static,private,built_in,[
     get_variable(y(2),3),
     put_atom(socket_connect,0),
     put_integer(4,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(x(2),0),
     put_variable(y(3),1),
     call('$get_open_stm'/2),
@@ -53,16 +53,16 @@ predicate(socket_connect/4,53,static,private,built_in,[
     put_value(y(1),1),
     put_unsafe_value(y(3),2),
     put_unsafe_value(y(4),3),
-    call_c_test('Socket_Connect_4',[0,1,2,3]),
     deallocate,
+    call_c('Socket_Connect_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(socket_listen/2,62,static,private,built_in,[
     put_atom(socket_listen,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Socket_Listen_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Socket_Listen_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -72,7 +72,7 @@ predicate(socket_accept/3,69,static,private,built_in,[
     get_variable(y(1),2),
     put_atom(socket_accept,0),
     put_integer(3,2),
-    call_c('Set_Bip_Name_2',[0,2]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(2),1),
     call('$get_open_stm'/2),
@@ -83,8 +83,8 @@ predicate(socket_accept/3,69,static,private,built_in,[
     put_void(1),
     put_unsafe_value(y(2),2),
     put_unsafe_value(y(3),3),
-    call_c_test('Socket_Accept_4',[0,1,2,3]),
     deallocate,
+    call_c('Socket_Accept_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
@@ -96,7 +96,7 @@ predicate(socket_accept/4,76,static,private,built_in,[
     get_variable(y(3),3),
     put_atom(socket_accept,0),
     put_integer(4,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(1),0),
     call('$socket_accept/4_$aux1'/1),
     put_value(y(2),0),
@@ -109,15 +109,15 @@ predicate(socket_accept/4,76,static,private,built_in,[
     put_value(y(1),1),
     put_unsafe_value(y(4),2),
     put_unsafe_value(y(5),3),
-    call_c_test('Socket_Accept_4',[0,1,2,3]),
     deallocate,
+    call_c('Socket_Accept_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate('$socket_accept/4_$aux1'/1,76,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -134,7 +134,7 @@ predicate('$assoc_socket_streams'/3,89,static,private,built_in,[
     get_variable(y(1),2),
     put_atom('$assoc_socket_streams',0),
     put_integer(3,2),
-    call_c('Set_Bip_Name_2',[0,2]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(2),1),
     call('$get_open_stm'/2),
@@ -144,14 +144,14 @@ predicate('$assoc_socket_streams'/3,89,static,private,built_in,[
     put_value(y(0),0),
     put_unsafe_value(y(2),1),
     put_unsafe_value(y(3),2),
-    call_c_test('Assoc_Socket_Streams_3',[0,1,2]),
     deallocate,
+    call_c('Assoc_Socket_Streams_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(hostname_address/2,98,static,private,built_in,[
     put_atom(hostname_address,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Hostname_Address_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Hostname_Address_2',[boolean],[x(0),x(1)]),
     proceed]).

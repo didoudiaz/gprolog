@@ -30,7 +30,7 @@
 
 
 
-          /* Warning the name '$catch_internal1' is tested by the debugger */
+          % Warning the name '$catch_internal1' is tested by the debugger
 
 '$catch'(Goal, Catch, Recovery, Func, Arity, DebugCall) :-
 	'$call_c'('Save_Call_Info_3'(Func, Arity, DebugCall)),

@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : control.pl
-% date    : 9 28 2001
-% time    : 20:43:40
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/control.pl').
@@ -22,13 +22,13 @@ label(1),
 
 predicate(abort/0,42,static,private,built_in,[
     put_integer(1,0),
-    call_c_jump('Halt_If_No_Top_Level_1',[0]),
+    call_c('Halt_If_No_Top_Level_1',[jump],[x(0)]),
     proceed]).
 
 
 predicate(stop/0,46,static,private,built_in,[
     put_integer(0,0),
-    call_c_jump('Halt_If_No_Top_Level_1',[0]),
+    call_c('Halt_If_No_Top_Level_1',[jump],[x(0)]),
     proceed]).
 
 
@@ -40,19 +40,19 @@ predicate(halt/0,53,static,private,built_in,[
 predicate(halt/1,59,static,private,built_in,[
     put_atom(halt,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c('Halt_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Halt_1',[],[x(0)]),
     proceed]).
 
 
 predicate(for/3,67,static,private,built_in,[
     put_atom(for,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[3,4]),
-    call_c_test('For_3',[0,1,2]),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('For_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$for_alt'/0,72,static,private,built_in,[
-    call_c('For_Alt_0',[]),
+    call_c('For_Alt_0',[],[]),
     proceed]).

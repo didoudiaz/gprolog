@@ -32,7 +32,7 @@
 #define MAX_ARG_OF_FUNCTOR_PREC    999
 
 
-#define Make_Oper_Key(a,t)         (((unsigned long) (a) << 2) | (t))
+#define Make_Oper_Key(a, t)        (((unsigned long) (a) << 2) | (t))
 #define Atom_Of_Oper(k)            ((unsigned long) (k) >> 2)
 #define Type_Of_Oper(k)            ((unsigned long) (k) & 3)
 
@@ -100,10 +100,10 @@ OperInf *Delete_Oper(int atom_op, int type);
 
 
 
-#define Check_Oper(atom_op,type)                                            \
+#define Check_Oper(atom_op, type) \
      (atom_tbl[(atom_op)].prop.op_mask & Make_Op_Mask(type))
 
 
 
-#define Check_Oper_Any_Type(atom_op)                                        \
+#define Check_Oper_Any_Type(atom_op) \
      (atom_tbl[(atom_op)].prop.op_mask)

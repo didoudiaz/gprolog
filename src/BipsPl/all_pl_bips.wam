@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : all_pl_bips.pl
-% date    : 9 28 2001
-% time    : 20:43:43
+% date    : 10 7 2001
+% time    : 9:45:2
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_pl_bips.pl').

@@ -292,6 +292,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
   DEREF(dcg_body_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
+      adr = UnTag_REF(word);
       func = atom_phrase;
       arity = 1;
       goto non_term;

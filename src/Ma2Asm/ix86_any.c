@@ -84,7 +84,7 @@ int call_c_reverse_args = 0;
  *
  * The extract_asm command line used is shown below. We ask extract_asm to :
  *
- *   - ignore pushl/popl %ebp/%edi/%esi (Prolog code does not them to be
+ *   - ignore pushl/popl %ebp/%edi/%esi (Prolog code does not need them to be
  *     saved, and we will finally return C by a longjmp restoring all regs).
  *     NB: the original code should be checked before since some pushl are
  *     used to pass arguments to functions not compiled with FC (see below).
@@ -124,7 +124,7 @@ int call_c_reverse_args = 0;
  * Here are some parts of the original assembly code of this function
  * produced by gcc (use: extract_asm -a file.s -c ../EnginePl/wam_inst.c).
  *
- * Switch_On_Term:             # ret adr is at 0(%esp) and arsg from 4(%esp)
+ * Switch_On_Term:             # ret adr is at 0(%esp) and args from 4(%esp)
  *         subl $16,%esp       # reserve space - args are from 20(%esp)
  *         pushl %ebp          # save 3 registers 
  *         pushl %edi          # 12 more bytes in the stack
@@ -151,7 +151,7 @@ int call_c_reverse_args = 0;
  * to simulate the push of the return address replacing $16,%esp by
  * $20,%esp. If we want to remove pushl/popl registers we can then replace
  * $20,%esp by $32,%esp. If we want to avoid stack adjustements we have to
- * remove subl/addl xxx,%esp (done by extrac_asm) and adjust all off(%esp).
+ * remove subl/addl xxx,%esp (done by extract_asm) and adjust all off(%esp).
  * We subtract 32 for all offets for arguments (offsets are then >= 32) and
  * for local vars we remap them in the stack after arguments (in our example
  * from 8(%esp) is correct).

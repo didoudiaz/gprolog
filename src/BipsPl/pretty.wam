@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : pretty.pl
-% date    : 9 28 2001
-% time    : 20:43:43
+% date    : 10 7 2001
+% time    : 9:45:1
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pretty.pl').
@@ -19,7 +19,7 @@ predicate(portray_clause/1,32,static,private,built_in,[
     put_integer(1,1),
     call('$portray_clause'/2),
     put_value(y(0),0),
-    call_c('Portray_Clause_1',[0]),
+    call_c('Portray_Clause_1',[],[x(0)]),
     fail,
 
 label(1),
@@ -37,7 +37,7 @@ predicate(portray_clause/2,42,static,private,built_in,[
     call('$portray_clause'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c('Portray_Clause_2',[0,1]),
+    call_c('Portray_Clause_2',[],[x(0),x(1)]),
     fail,
 
 label(1),
@@ -69,7 +69,7 @@ predicate('$portray_clause'/2,52,static,private,built_in,[
 predicate('$$portray_clause/2_$aux2'/1,52,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Callable',[0]),
+    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -83,7 +83,7 @@ label(1),
 predicate('$$portray_clause/2_$aux1'/1,52,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -95,16 +95,16 @@ label(1),
 predicate(name_singleton_vars/1,69,static,private,built_in,[
     put_atom(name_singleton_vars,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[1,2]),
-    call_c('Name_Singleton_Vars_1',[0]),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Name_Singleton_Vars_1',[],[x(0)]),
     proceed]).
 
 
 predicate(name_query_vars/2,76,static,private,built_in,[
     put_atom(name_query_vars,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[2,3]),
-    call_c_test('Name_Query_Vars_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Name_Query_Vars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -114,7 +114,7 @@ predicate(bind_variables/2,85,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(bind_variables,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(1),0),
     put_variable(y(2),1),
@@ -130,7 +130,7 @@ predicate(bind_variables/2,85,static,private,built_in,[
 
 
 predicate('$bind_variables'/4,92,static,private,built_in,[
-    call_c_test('Bind_Variables_4',[0,1,2,3]),
+    call_c('Bind_Variables_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
@@ -150,24 +150,24 @@ predicate('$get_bind_variables_options'/4,104,static,private,built_in,[
     call('$check_list'/1),
     put_atom('$bind_exclude',0),
     put_nil(1),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$bind_from',0),
     put_integer(0,1),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$bind_next',0),
     put_void(1),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     call('$get_bind_variables_options1'/1),
     put_atom('$bind_exclude',0),
     put_value(y(1),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$bind_from',0),
     put_value(y(2),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$bind_next',0),
     put_value(y(3),1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed]).
 
@@ -201,7 +201,7 @@ label(4),
 
 predicate('$get_bind_variables_options2'/1,122,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
 
 label(1),
@@ -221,7 +221,7 @@ label(5),
     get_structure(exclude/1,0),
     unify_variable(x(1)),
     put_atom('$bind_exclude',0),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(6),
@@ -231,7 +231,7 @@ label(7),
     get_structure(from/1,0),
     unify_variable(x(1)),
     put_atom('$bind_from',0),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(8),
@@ -241,7 +241,7 @@ label(9),
     get_structure(next/1,0),
     unify_variable(x(1)),
     put_atom('$bind_next',0),
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(10),
@@ -274,7 +274,7 @@ predicate(numbervars/1,147,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(numbervars,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(0),0),
     put_nil(1),
@@ -291,7 +291,7 @@ predicate(numbervars/3,153,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(numbervars,0),
     put_integer(3,1),
-    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(0),0),
     put_nil(1),

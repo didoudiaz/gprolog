@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : g_var_inl.pl
-% date    : 9 28 2001
-% time    : 20:43:41
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/g_var_inl.pl').
@@ -12,25 +12,25 @@ predicate('$use_g_var_inl'/0,29,static,private,built_in,[
 
 
 predicate(g_assign/2,32,static,private,built_in,[
-    call_c_test('Blt_G_Assign',[0,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(g_assignb/2,38,static,private,built_in,[
-    call_c_test('Blt_G_Assignb',[0,1]),
+    call_c('Blt_G_Assignb',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(g_link/2,44,static,private,built_in,[
-    call_c_test('Blt_G_Link',[0,1]),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(g_read/2,50,static,private,built_in,[
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(g_array_size/2,56,static,private,built_in,[
-    call_c_test('Blt_G_Array_Size',[0,1]),
+    call_c('Blt_G_Array_Size',[fast_call,boolean],[x(0),x(1)]),
     proceed]).

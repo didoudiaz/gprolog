@@ -246,7 +246,7 @@ display_counters :-
 
 
 
-          /*--- command-line options reading ---*/
+          % Command-line options reading
 
 cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(plfile, ''),
@@ -400,7 +400,7 @@ cmd_line_arg1(PlFile, LArg, LArg) :-
 
 
 
-          /*--- copying ---*/
+          % Copying
 
 display_copying :-
 	prolog_name(Name),
@@ -433,7 +433,7 @@ prolog_copyright(Copyright) :-
 
 
 
-          /*--- help ---*/
+          % Help
 
 h('Usage: pl2wam [OPTION...] FILE').
 h('').
@@ -464,7 +464,7 @@ h('''user'' can be given as FILE for the standard input/output').
 
 
 
-          /*--- starting directive ---*/
+          % Starting directive
 
 go :-
 	argument_list(LArg),

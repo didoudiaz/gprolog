@@ -733,6 +733,9 @@ Write_Pl_State_File(WamWord file_word)
   i = Flag_Value(FLAG_SINGLETON_WARNING);
   fwrite(&i, sizeof(i), 1, f);
 
+  i = SYS_VAR_SAY_GETC;
+  fwrite(&i, sizeof(i), 1, f);
+
   for (c = 0; c < 256; c++)
     if (char_conv[c] != c)
       {
@@ -794,6 +797,9 @@ Read_Pl_State_File(WamWord file_word)
 
   fread(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_SINGLETON_WARNING) = i;
+
+  fread(&i, sizeof(i), 1, f);
+  SYS_VAR_SAY_GETC = i;
 
   for (;;)
     {

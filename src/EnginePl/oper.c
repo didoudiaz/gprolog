@@ -51,21 +51,21 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-#define T_FX(p)                    PREFIX, p,0  ,p-1
+#define T_FX(p)                    PREFIX, p, 0  , p-1
 
-#define T_FY(p)                    PREFIX, p,0  ,p
+#define T_FY(p)                    PREFIX,  p, 0  , p
 
-#define T_XF(p)                    POSTFIX,p,p-1,0
+#define T_XF(p)                    POSTFIX, p, p-1, 0
 
-#define T_YF(p)                    POSTFIX,p,p,  0
+#define T_YF(p)                    POSTFIX, p, p,   0
 
-#define T_XFX(p)                   INFIX,  p,p-1,p-1
+#define T_XFX(p)                   INFIX,   p, p-1, p-1
 
-#define T_XFY(p)                   INFIX,  p,p-1,p
+#define T_XFY(p)                   INFIX,   p, p-1, p
 
-#define T_YFX(p)                   INFIX,  p,p,  p-1
+#define T_YFX(p)                   INFIX,   p, p,   p-1
 
-#define ADD_OPER(prec,type,name)   Create_Oper(Create_Atom(name),T_##type(prec))
+#define ADD_OPER(prec, type, name) Create_Oper(Create_Atom(name), T_##type(prec))
 
 
 

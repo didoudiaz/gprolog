@@ -577,22 +577,22 @@ M_Get_Status(int pid)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Mktemp(char *template)
+M_Mktemp(char *tmp_template)
 {
 #ifdef HAVE_MKSTEMP
 
-  int fd = mkstemp(template);
+  int fd = mkstemp(tmp_template);
   if (fd == -1)
     return NULL;
 
   close(fd);
-  unlink(template);		/* don't leave it sitting around... */
-  return template;
+  unlink(tmp_template);		/* don't leave it sitting around... */
+  return tmp_template;
 
 #else
 
   errno = 0;
-  return mktemp(template);
+  return mktemp(tmp_template);
 
 #endif
 }
@@ -669,7 +669,7 @@ M_Tempnam(char *dir, char *pfx)
      return NULL;
 
   close(fd);
-  unlink(tmpl);
+  unlink(tmpl);			/* don't leave it sitting around... */
   return strdup(tmpl);
 
 #else
@@ -697,52 +697,88 @@ M_Tempnam(char *dir, char *pfx)
 #if defined(__unix__) || defined(__CYGWIN__)
 #define PREFIX_DIR
 #else
-#define PREFIX_DIR "\\bin\\"
+#define PREFIX_DIR "c:\\cygwin\\bin\\"
 #endif
 
-#define READ(str,f) \
-{ \
- char buff[1024]; \
- DBGPRINTF("\n   Reading redirected %s\n",str); \
- while(fgets(buff,sizeof(buff),f)) \
-    { \
-     if (buff[strlen(buff)-1]=='\n') \
-         buff[strlen(buff)-1]='\0'; \
-     DBGPRINTF("   <%s>\n",buff); \
-if (feof(f)) break; \
-    } \
- fclose(f); \
- DBGPRINTF("   End reading redirected %s\n",str); \
+
+#define READ(str, f)					\
+{							\
+  char buff[1024];					\
+ 							\
+  DBGPRINTF("\n   Reading redirected %s\n", str);	\
+  while (fgets(buff, sizeof(buff), f))			\
+    {							\
+      if (buff[strlen(buff) - 1] == '\n')		\
+        buff[strlen(buff) - 1] = '\0';			\
+      DBGPRINTF("   <%s>\n", buff);			\
+      if (feof(f))					\
+        break;						\
+    }							\
+  fclose(f);						\
+  DBGPRINTF("   End reading redirected %s\n", str);	\
 }
 
-#define CHECK(pid) \
-{ \
- if (pid== -1) \
-    { \
-     DBGPRINTF("   ERROR executing Spawn: errno=%d\n",errno); \
-     exit(1); \
-    } \
- if (pid== -2) \
-    { \
-     DBGPRINTF(   "ERROR executing Spawn: unknown error\n"); \
-     exit(1); \
-    } \
- DBGPRINTF("   pid=%d (%x)\n",pid,pid); \
+
+#define CHECK(pid)						\
+{								\
+  if (pid == -1)						\
+    {								\
+      DBGPRINTF("   ERROR executing Spawn: errno=%d\n", errno);	\
+      exit(1);							\
+    }								\
+  if (pid == -2)						\
+    {								\
+      DBGPRINTF("ERROR executing Spawn: unknown error\n");	\
+      exit(1);							\
+    }								\
+  DBGPRINTF("   pid=%d (%x)\n", pid, pid);			\
 }
 
-#define STAT(pid) \
-{ \
- int status=M_Get_Status(pid); \
- STATUS(status) \
+
+#define STAT(pid)				\
+{						\
+  int status = M_Get_Status(pid);		\
+  STATUS(status)				\
 }
 
-#define STATUS(status) \
-{ \
- DBGPRINTF("   status=%d",status); \
- if (status== -1) \
-     DBGPRINTF(" errno=%d",errno); \
- DBGPRINTF("\n\n"); \
+#define STATUS(status)				\
+{						\
+  DBGPRINTF("   status=%d", status);		\
+  if (status == -1)				\
+    DBGPRINTF(" errno=%d", errno);		\
+  DBGPRINTF("\n\n");				\
 }
+
+
+#if 1
+#define COMMAND								\
+  strcpy(buff, PREFIX_DIR "bc --q");    /* should be modifiable */	\
+  arg[0] = buff;							\
+  arg[1] = (char *) 1;
+#else
+#define COMMAND
+ arg[0]=PREFIX_DIR "bc";			\
+ arg[1]="-q";					\
+ arg[2]=NULL;
+#endif
+
+#define CDE_STRING "1+255\n$foo\n2^10\nquit\n"
+#define CDE_INPUT  fprintf(i, CDE_STRING); fclose(i);
+
+
+#if 0
+#define POLL
+#include <sys/poll.h>
+#endif
+#ifdef POLL
+  {
+    int fd = fileno(i);
+    struct pollfd ufd = { fd, 7, 0 };
+    int r = poll(&ufd, 1, 100);
+    DBGPRINTF("poll ret:%d on fd %d returned events :%x\n", r, fd, ufd.revents);
+    return 0;
+  }
+#endif
 
 int
 main(int argc, char *argv[])
@@ -793,65 +829,56 @@ main(int argc, char *argv[])
   strcpy(buff, PREFIX_DIR "uname -a");	/* should be modifiable */
   arg[0] = buff;
   arg[1] = (char *) 1;
-  pid = M_Spawn_Redirect(arg, 0, &i, &o, NULL);
+  pid = M_Spawn_Redirect(arg, 0, NULL, &o, NULL);
   CHECK(pid);
   READ("output", o);
   STAT(pid);
 #endif
 
-  DBGPRINTF("Executing gdb: p /x 12, xxx (unknown command) and p 0xFF\n");
+  COMMAND;
+  DBGPRINTF("Command is: %s with following input:\n" CDE_STRING,
+	    arg[0]);
+  DBGPRINTF("--- end of input\n");
+
+
 
 #if 1
-#define GDB_COMMAND \
- strcpy(buff,PREFIX_DIR "gdb --nw --quiet");    /* should be modifiable */ \
- arg[0]=buff; \
- arg[1]=(char *) 1;
-#else
-#define GDB_COMMAND \
- arg[0]=PREFIX_DIR "gdb"; \
- arg[1]="--nw"; \
- arg[2]="--quiet"; \
- arg[3]=NULL;
-#endif
-
-#define GDB_INPUT  fprintf(i,"p /x 12\nxxx\np 0xFF\nquit\n"); fclose(i);
-
-#if 1
-  DBGPRINTF("3- gdb with redirected input\n");
-  GDB_COMMAND;
+  DBGPRINTF("3- command with redirected input\n");
+  COMMAND;
   pid = M_Spawn_Redirect(arg, 0, &i, NULL, NULL);
   CHECK(pid);
-  GDB_INPUT;
+    
+  CDE_INPUT;
   STAT(pid);
 #endif
 
 #if 1
-  DBGPRINTF("4- gdb with redirected input and output\n");
-  GDB_COMMAND;
+  DBGPRINTF("4- command with redirected input and output\n");
+  COMMAND;
   pid = M_Spawn_Redirect(arg, 0, &i, &o, NULL);
   CHECK(pid);
-  GDB_INPUT;
+  CDE_INPUT;
   READ("output", o);
   STAT(pid);
 #endif
 
 #if 1
-  DBGPRINTF("5- gdb with redirected input output and error\n");
-  GDB_COMMAND;
+  DBGPRINTF("5- command with redirected input output and error\n");
+  COMMAND;
   pid = M_Spawn_Redirect(arg, 0, &i, &o, &e);
   CHECK(pid);
-  GDB_INPUT;
+  CDE_INPUT;
   READ("output", o);
   READ("error", e);
   STAT(pid);
 #endif
 
 #if 1
-  DBGPRINTF("6- gdb with redirected input and output=error\n");
-  GDB_COMMAND;
+  DBGPRINTF("6- command with redirected input and output=error\n");
+  COMMAND;
   pid = M_Spawn_Redirect(arg, 0, &i, &o, &o);
   CHECK(pid);
-  GDB_INPUT;
+  CDE_INPUT;
   READ("output/error", o);
   STAT(pid);
 #endif

@@ -23,13 +23,19 @@
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
+#ifndef M_ix86_win32
+#include <unistd.h>
 #include <sys/socket.h>
+#else
+#include <io.h>
+#include <winsock2.h>
+#endif
 
        /* old versions of CYGWIN do not support AF_UNIX - modify next line */
 #if defined(__unix__) || defined(__CYGWIN__)
@@ -39,9 +45,11 @@
 #ifdef SUPPORT_AF_UNIX
 #include <sys/un.h>
 #endif
+#ifndef M_ix86_win32
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#endif
 
 #define OBJ_INIT Socket_Initializer
 
@@ -89,10 +97,27 @@ static
 static void
 Socket_Initializer(void)
 {
+#ifdef M_ix86_win32
+  WORD versReqstd = MAKEWORD( 2, 2);		// Current Winsock 2 DLL's
+  WSADATA wsaData;
+  int err;
+#endif
+
 #ifdef SUPPORT_AF_UNIX
   atom_AF_UNIX = Create_Atom("AF_UNIX");
 #endif
   atom_AF_INET = Create_Atom("AF_INET");
+
+#ifdef M_ix86_win32
+  if ((err = WSAStartup(versReqstd, &wsaData)) != 0 ||
+      wsaData.wVersion != versReqstd)
+    {
+      Stream_Printf(stm_tbl + stm_top_level_output,
+		    "warning: cannot find a usable WinSock DLL\n");
+      if (err == 0)
+	WSACleanup();
+    }
+#endif
 }
 
 
@@ -106,7 +131,11 @@ Bool
 Socket_2(WamWord domain_word, WamWord socket_word)
 {
   int domain;
+#ifdef M_ix86_win32
+  SOCKET sock;
+#else
   int sock;
+#endif
 
   domain = Rd_Atom_Check(domain_word);
   if (
@@ -126,7 +155,11 @@ Socket_2(WamWord domain_word, WamWord socket_word)
 #endif
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
+#ifdef M_ix86_win32
+  Os_Test_Error(sock == INVALID_SOCKET);
+#else
   Os_Test_Error(sock == -1);
+#endif
 
   return Get_Integer(sock, socket_word);
 }
@@ -141,7 +174,11 @@ Socket_2(WamWord domain_word, WamWord socket_word)
 Bool
 Socket_Close_1(WamWord socket_word)
 {
+#ifndef M_ix86_win32
   int sock;
+#else
+  SOCKET sock;
+#endif
 
   sock = Rd_Integer_Check(socket_word);
   if (sock < 2)
@@ -150,7 +187,11 @@ Socket_Close_1(WamWord socket_word)
       Os_Test_Error(1);
     }
   else
+#ifndef M_ix86_win32
     Os_Test_Error(close(sock));
+#else
+    Os_Test_Error(closesocket(sock));
+#endif
 
   return TRUE;
 }
@@ -239,7 +280,7 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   if (tag_mask != TAG_REF_MASK)
     port = Rd_Integer_Check(word);
 
-  adr_in.sin_port = htons(port);
+  adr_in.sin_port = htons((unsigned short) port);
   adr_in.sin_family = AF_INET;
   adr_in.sin_addr.s_addr = INADDR_ANY;
 
@@ -332,7 +373,7 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
     return FALSE;
 
   adr_in.sin_family = AF_INET;
-  adr_in.sin_port = htons(port);
+  adr_in.sin_port = htons((unsigned short) port);
   memcpy(&adr_in.sin_addr, host_entry->h_addr_list[0],
 	 host_entry->h_length);
 
@@ -470,7 +511,6 @@ Create_Socket_Streams(int sock, char *stream_name,
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
   prop.buffering = STREAM_BUFFERING_BLOCK;
-  prop.tty = FALSE;
   prop.special_close = FALSE;
   prop.other = 4;
 

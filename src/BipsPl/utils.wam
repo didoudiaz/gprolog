@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : utils.pl
-% date    : 9 28 2001
-% time    : 20:43:39
+% date    : 10 7 2001
+% time    : 9:44:58
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/utils.pl').
@@ -13,15 +13,15 @@ predicate('$term_to_goal'/3,30,static,private,built_in,[
     allocate(1),
     get_variable(y(0),3),
     put_atom('$call_call_info',3),
-    call_c_test('Blt_G_Assign',[3,1]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(3),x(1)]),
     put_atom('$new_term',1),
     put_atom(f,3),
-    call_c_test('Blt_G_Assign',[1,3]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(1),x(3)]),
     put_value(x(2),1),
     call('$term_to_goal1'/2),
     put_atom('$new_term',0),
     put_atom(t,1),
-    call_c_test('Blt_G_Read',[0,1]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     cut(y(0)),
     deallocate,
     proceed,
@@ -53,14 +53,14 @@ predicate('$term_to_goal2'/2,47,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),0),
-    call_c_test('Blt_Var',[3]),
+    call_c('Blt_Var',[fast_call,boolean],[x(3)]),
     cut(x(2)),
     put_atom('$call_call_info',2),
     put_variable(x(0),4),
-    call_c_test('Blt_G_Read',[2,4]),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(2),x(4)]),
     put_atom('$new_term',2),
     put_atom(t,4),
-    call_c_test('Blt_G_Assign',[2,4]),
+    call_c('Blt_G_Assign',[fast_call,boolean],[x(2),x(4)]),
     put_value(x(3),2),
     execute('$$term_to_goal2/2_$aux1'/3),
 
@@ -128,7 +128,7 @@ label(8),
 label(9),
     trust_me_else_fail,
     get_value(x(1),0),
-    call_c_test('Blt_Callable',[1]),
+    call_c('Blt_Callable',[fast_call,boolean],[x(1)]),
     proceed]).
 
 
@@ -152,13 +152,13 @@ label(1),
 predicate('$check_list'/1,81,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_List',[0]),
+    call_c('Blt_List',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
 label(1),
     retry_me_else(2),
-    call_c_test('Blt_List_Or_Partial_List',[0]),
+    call_c('Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -172,7 +172,7 @@ label(2),
 predicate('$check_list_or_partial_list'/1,94,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_List_Or_Partial_List',[0]),
+    call_c('Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -186,7 +186,7 @@ label(1),
 predicate('$check_atom_or_atom_list'/1,103,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -202,7 +202,7 @@ label(1),
 
 predicate('$check_atom_or_atom_list1'/1,110,static,private,built_in,[
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
 
 label(1),
@@ -239,13 +239,13 @@ label(6),
 predicate('$check_atom_or_atom_list2'/1,124,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
 label(1),
     retry_me_else(2),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -277,7 +277,7 @@ label(1),
 predicate('$check_head'/1,147,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -289,7 +289,7 @@ label(1),
 predicate('$$check_head/1_$aux1'/1,151,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c_test('Blt_Callable',[0]),
+    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -301,5 +301,5 @@ label(1),
 
 
 predicate('$get_pred_indic'/3,160,static,private,built_in,[
-    call_c_test('Get_Pred_Indic_3',[0,1,2]),
+    call_c('Get_Pred_Indic_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

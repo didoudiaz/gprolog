@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : type_inl.pl
-% date    : 9 28 2001
-% time    : 20:43:41
+% date    : 10 7 2001
+% time    : 9:44:59
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/type_inl.pl').
@@ -12,80 +12,80 @@ predicate('$use_type_inl'/0,29,static,private,built_in,[
 
 
 predicate(var/1,32,static,private,built_in,[
-    call_c_test('Blt_Var',[0]),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(nonvar/1,35,static,private,built_in,[
-    call_c_test('Blt_Non_Var',[0]),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(atom/1,38,static,private,built_in,[
-    call_c_test('Blt_Atom',[0]),
+    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(integer/1,41,static,private,built_in,[
-    call_c_test('Blt_Integer',[0]),
+    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(float/1,44,static,private,built_in,[
-    call_c_test('Blt_Float',[0]),
+    call_c('Blt_Float',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(number/1,47,static,private,built_in,[
-    call_c_test('Blt_Number',[0]),
+    call_c('Blt_Number',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(atomic/1,50,static,private,built_in,[
-    call_c_test('Blt_Atomic',[0]),
+    call_c('Blt_Atomic',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(compound/1,53,static,private,built_in,[
-    call_c_test('Blt_Compound',[0]),
+    call_c('Blt_Compound',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(callable/1,56,static,private,built_in,[
-    call_c_test('Blt_Callable',[0]),
+    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(list/1,59,static,private,built_in,[
-    call_c_test('Blt_List',[0]),
+    call_c('Blt_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(partial_list/1,62,static,private,built_in,[
-    call_c_test('Blt_Partial_List',[0]),
+    call_c('Blt_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(list_or_partial_list/1,65,static,private,built_in,[
-    call_c_test('Blt_List_Or_Partial_List',[0]),
+    call_c('Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(fd_var/1,71,static,private,built_in_fd,[
-    call_c_test('Blt_Fd_Var',[0]),
+    call_c('Blt_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(non_fd_var/1,74,static,private,built_in_fd,[
-    call_c_test('Blt_Non_Fd_Var',[0]),
+    call_c('Blt_Non_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(generic_var/1,77,static,private,built_in_fd,[
-    call_c_test('Blt_Generic_Var',[0]),
+    call_c('Blt_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
 predicate(non_generic_var/1,80,static,private,built_in_fd,[
-    call_c_test('Blt_Non_Generic_Var',[0]),
+    call_c('Blt_Non_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).

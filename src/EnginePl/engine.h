@@ -37,10 +37,10 @@
  *---------------------------------*/
 
 
-#define cpp_recurs(p,n)            p##_##n
-#define Prolog_Predicate(p,n)      cpp_recurs(p,n)
+#define cpp_recurs(p, n)           p##_##n
+#define Prolog_Predicate(p, n)     cpp_recurs(p, n)
 
-#define Prolog_Prototype(p,n)      void Prolog_Predicate(p,n)()
+#define Prolog_Prototype(p, n)     void Prolog_Predicate(p, n)()
 
 
 
@@ -65,6 +65,8 @@ char glob_buff[10240];
 long *base_fl;			/* overwritten by foreign if present */
 double *base_fd;		/* overwritten by foreign if present */
 
+int use_gui;
+
 #else
 
 extern int os_argc;
@@ -74,6 +76,8 @@ extern char glob_buff[];
 
 extern long *base_fl;
 extern double *base_fd;
+
+extern int use_gui;
 
 #endif
 
@@ -112,4 +116,4 @@ void Execute_A_Continuation(CodePtr codep);
 
 
 
-#define   Goto_Predicate(p,n)   ((*Prolog_Predicate(p,n))())
+#define   Goto_Predicate(p, n)  ((*Prolog_Predicate(p, n))())
