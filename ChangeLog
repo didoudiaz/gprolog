@@ -1,3 +1,7 @@
+Wed Jan  8 15:22:09 CET 2003 <Daniel.Diaz@inria.fr>
+
+	* fix a bug with _XXX (re)displayed under the top-level
+
 Mon Dec 16 13:00:42 CET 2002 <Daniel.Diaz@inria.fr>
 
 	* port to x86_64/linux - many thanks to:

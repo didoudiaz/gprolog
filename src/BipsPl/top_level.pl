@@ -211,12 +211,12 @@ break :-
 	'$call'(X, top_level, 0, true),
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
-	'$set_query_vars_names'(QueryVars, ToDispVars1),
+	'$set_query_vars_names'(QueryVars, ToDispVars),
 	(   fail,                             % do not activate 'alt if vars'
-	    ToDispVars1 = [] ->
+	    ToDispVars = [] ->
 	    true                              % no alt if only anonymous vars
 	;
-	    '$write_solution'(ToDispVars1, B1, B),
+	    '$write_solution'(ToDispVars, B1, B),
 	    (   B1 > B ->
 	        g_read('$all_solutions', f),          % fail for previous 'a'
 	        write(top_level_output, ' ? '),
@@ -228,7 +228,7 @@ break :-
 
 
 
-'$set_query_vars_names'(QueryVars, ToDispVars) :-
+'$set_query_vars_names'(QueryVars, ToDispVars1) :-
 	name_query_vars(QueryVars, ToDispVars),
 	'$remove_underscore_vars'(ToDispVars, ToDispVars1),
 	name_singleton_vars(ToDispVars1),

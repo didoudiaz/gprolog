@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.17 (Dec 16 2002)
 % file    : top_level.pl
-% date    : 1 6 2003
-% time    : 13:22:57
+% date    : 1 8 2003
+% time    : 15:59:15
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
@@ -641,14 +641,14 @@ predicate('$set_query_vars_names'/2,231,static,private,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_value(y(0),0),
-    put_value(y(1),1),
-    call(name_query_vars/2),
-    put_value(y(1),0),
     put_variable(y(2),1),
-    call('$remove_underscore_vars'/2),
+    call(name_query_vars/2),
     put_value(y(2),0),
+    put_value(y(1),1),
+    call('$remove_underscore_vars'/2),
+    put_value(y(1),0),
     call(name_singleton_vars/1),
-    put_unsafe_value(y(2),0),
+    put_value(y(1),0),
     put_structure(exclude/1,2),
     unify_local_value(y(0)),
     put_list(1),
