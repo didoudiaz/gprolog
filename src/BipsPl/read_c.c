@@ -449,8 +449,10 @@ Current_Char_Conversion_Alt_0(void)
     Delete_Last_Choice_Point();
   else				/* non deterministic case */
     {
-/*   AB(B,0)=in_char_word;                                     not changed */
-/*   AB(B,1)=out_char_word;                                    not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = in_char_word;
+      AB(B, 1) = out_char_word;
+#endif
       AB(B, 2) = c_in1;
       AB(B, 3) = c_out1;
     }

@@ -303,10 +303,12 @@ Current_Op_Alt_0(void)
 	}
 
 
-/*   AB(B,0)=prec_word;                                        not changed */
-/*   AB(B,1)=specif_word;                                      not changed */
-/*   AB(B,2)=oper_word;                                        not changed */
-/*   AB(B,3)=(WamWord) scan.endt;                              not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = prec_word;
+      AB(B, 1) = specif_word;
+      AB(B, 2) = oper_word;
+      AB(B, 3) = (WamWord) scan.endt;
+#endif
       AB(B, 4) = (WamWord) scan.cur_t;
       AB(B, 5) = (WamWord) scan.cur_p;
     }

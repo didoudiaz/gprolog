@@ -221,9 +221,11 @@ Atom_Concat_Alt_0(void)
     Delete_Last_Choice_Point();
   else				/* non deterministic case */
     {
-/*   AB(B,0)=          atom1_word;                             not changed */
-/*   AB(B,1)=          atom2_word;                             not changed */
-/*   AB(B,2)=(WamWord) patom3;                                 not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = atom1_word;
+      AB(B, 1) = atom2_word;
+      AB(B, 2) = (WamWord) patom3;
+#endif
       AB(B, 3) = (WamWord) (p + 1);
     }
 
@@ -432,13 +434,15 @@ Sub_Atom_Alt_0(void)
     Delete_Last_Choice_Point();
   else				/* non deterministic case */
     {
-/*   AB(B,0)=          before_word;                            not changed */
-/*   AB(B,1)=          length_word;                            not changed */
-/*   AB(B,2)=          after_word;                             not changed */
-/*   AB(B,3)=          sub_atom_word;                          not changed */
-/*   AB(B,4)=(WamWord) patom;                                  not changed */
-/*   AB(B,5)=(WamWord) psub_atom;                              not changed */
-/*   AB(B,6)=          mask;                                   not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = before_word;
+      AB(B, 1) = length_word;
+      AB(B, 2) = after_word;
+      AB(B, 3) = sub_atom_word;
+      AB(B, 4) = (WamWord) patom;
+      AB(B, 5) = (WamWord) psub_atom;
+      AB(B, 6) = mask;
+#endif
       AB(B, 7) = b1;
       AB(B, 8) = l1;
       AB(B, 9) = a1;
@@ -947,8 +951,10 @@ Current_Atom_Alt_0(void)
     }
   /* non deterministic case */
 
-/* AB(B,0)=atom_word;                                          not changed */
-/* AB(B,1)=hide;                                               not changed */
+#if 0 /* the following data is unchanged */
+  AB(B, 0) = atom_word;
+  AB(B, 1) = hide;
+#endif
   AB(B, 2) = atom;
 
   return Get_Atom(atom, atom_word);

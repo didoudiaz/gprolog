@@ -87,8 +87,7 @@ static Bool Indomain_Random(WamWord *fdv_adr);
 
 static Bool Cmp_First_Fail(WamWord *last_fdv_adr, WamWord *new_fdv_adr);
 
-static
-  Bool Cmp_Most_Constrained(WamWord *last_fdv_adr, WamWord *new_fdv_adr);
+static Bool Cmp_Most_Constrained(WamWord *last_fdv_adr, WamWord *new_fdv_adr);
 
 static Bool Cmp_Smallest(WamWord *last_fdv_adr, WamWord *new_fdv_adr);
 
@@ -119,10 +118,10 @@ Prolog_Prototype(INDOMAIN_LIMITS_ALT, 0)
 Prolog_Prototype(INDOMAIN_RANDOM_ALT, 0) Prolog_Prototype(EXTRA_CSTR_ALT, 0)
 
   /* defined in fd_values_fd.fd */
-     Bool
-     fd_domain(WamWord list_word, WamWord l_word, WamWord u_word);
-     Bool
-     fd_domain_r(WamWord list_word, WamWord r_word);
+
+Bool fd_domain(WamWord list_word, WamWord l_word, WamWord u_word);
+
+Bool fd_domain_r(WamWord list_word, WamWord r_word);
 
 
 
@@ -131,8 +130,8 @@ Prolog_Prototype(INDOMAIN_RANDOM_ALT, 0) Prolog_Prototype(EXTRA_CSTR_ALT, 0)
  * FD_DOMAIN_BOOL_1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     Bool
-     Fd_Domain_Bool_1(WamWord list_word)
+Bool
+Fd_Domain_Bool_1(WamWord list_word)
 {
   WamWord word, tag, *adr;
   WamWord save_list_word;
@@ -349,9 +348,11 @@ Indomain_Min_Alt_0(void)
 
   if (cur != end)
     {
-/*   AB(B,0)=(WamWord) fdv_adr;                                not changed */
-/*   AB(B,1)=(WamWord) range;                                  not changed */
-/*   AB(B,2)=          end;                                    not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = (WamWord) fdv_adr;
+      AB(B, 1) = (WamWord) range;
+      AB(B, 2) = end;
+#endif
       AB(B, 3) = cur;
     }
   else if (Extra_Cstr(fdv_adr))
@@ -417,9 +418,11 @@ Indomain_Max_Alt_0(void)
 
   if (cur != end)
     {
-/*   AB(B,0)=(WamWord) fdv_adr;                                not changed */
-/*   AB(B,1)=(WamWord) range;                                  not changed */
-/*   AB(B,2)=          end;                                    not changed */
+#if 0 /* the following data is unchanged */ 
+      AB(B, 0) = (WamWord) fdv_adr;
+      AB(B, 1) = (WamWord) range;
+      AB(B, 2) = end;
+#endif
       AB(B, 3) = cur;
     }
   else if (Extra_Cstr(fdv_adr))
@@ -511,9 +514,11 @@ Indomain_Middle_Alt_0(void)
 
   if (cur != end)
     {
-/*   AB(B,0)=(WamWord) fdv_adr;                                not changed */
-/*   AB(B,1)=(WamWord) range;                                  not changed */
-/*   AB(B,2)=          end;                                    not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = (WamWord) fdv_adr;
+      AB(B, 1) = (WamWord) range;
+      AB(B, 2) = end;
+#endif
       AB(B, 3) = cur_left;
       AB(B, 4) = cur_right;
       AB(B, 5) = is_right;
@@ -609,9 +614,11 @@ Indomain_Limits_Alt_0(void)
 
   if (cur != end)
     {
-/*   AB(B,0)=(WamWord) fdv_adr;                                not changed */
-/*   AB(B,1)=(WamWord) range;                                  not changed */
-/*   AB(B,2)=          end;                                    not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = (WamWord) fdv_adr;
+      AB(B, 1) = (WamWord) range;
+      AB(B, 2) = end;
+#endif
       AB(B, 3) = cur_left;
       AB(B, 4) = cur_right;
       AB(B, 5) = is_right;
@@ -684,10 +691,14 @@ Indomain_Random_Alt_0(void)
 
   if (n > 1)
     {
-/*   AB(B,0)=(WamWord) fdv_adr;                                not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = (WamWord) fdv_adr;
+#endif
       AB(B, 1) = n;
-/*   AB(B,2...2-1+vecsize) = ...                             updated below */
-    }
+#if 0 /* the following data is changed below */
+      AB(B,2...2-1+vecsize) = ...
+#endif
+	}
   else if (Extra_Cstr(fdv_adr))
     ALTB(B) = (CodePtr) Prolog_Predicate(EXTRA_CSTR_ALT, 0);
   else

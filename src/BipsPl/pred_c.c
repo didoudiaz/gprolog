@@ -186,10 +186,12 @@ Current_Predicate_Alt_0(void)
     }
   /* non deterministic case */
 
-/* AB(B,0)=name_word;                                          not changed */
-/* AB(B,1)=arity_word;                                         not changed */
-/* AB(B,2)=hide;                                               not changed */
-/* AB(B,3)=(WamWord) scan.endt;                                not changed */
+#if 0 /* the following data is unchanged */
+  AB(B, 0) = name_word;
+  AB(B, 1) = arity_word;
+  AB(B, 2) = hide;
+  AB(B, 3) = (WamWord) scan.endt;
+#endif
   AB(B, 4) = (WamWord) scan.cur_t;
   AB(B, 5) = (WamWord) scan.cur_p;
 

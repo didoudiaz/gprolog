@@ -104,7 +104,8 @@ Prolog_Prototype(CURRENT_ALIAS_ALT, 0)
  * CURRENT_INPUT_1                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     Bool Current_Input_1(WamWord stm_word)
+Bool
+Current_Input_1(WamWord stm_word)
 {
   return Get_Integer(stm_input, stm_word);
 }
@@ -572,7 +573,9 @@ Current_Stream_Alt_0(void)
     }
   else				/* non deterministic case */
     {
-/*   AB(B,0)=stm_word;                                         not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = stm_word;
+#endif
       AB(B, 1) = i + 1;
     }
 
@@ -929,9 +932,11 @@ Current_Alias_Alt_0(void)
 
   if (alias)			/* non deterministic case */
     {
-/*   AB(B,0)=          stm;                                    not changed */
-/*   AB(B,1)=          alias_word;                             not changed */
-/*   AB(B,2)=(WamWord) scan.endt;                              not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 0) = stm;
+      AB(B, 1) = alias_word;
+      AB(B, 2) = (WamWord) scan.endt;
+#endif
       AB(B, 3) = (WamWord) scan.cur_t;
       AB(B, 4) = (WamWord) scan.cur_p;
       AB(B, 5) = (WamWord) alias;

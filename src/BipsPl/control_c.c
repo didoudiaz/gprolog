@@ -152,9 +152,13 @@ For_Alt_0(void)
     Delete_Last_Choice_Point();
   else				/* non deterministic case */
     {
-/*   AB(B,0)=i_word;                                           not changed */
+#if 0 /* the following data is unchanged */
+      AB(B,0)=i_word;
+#endif
       AB(B, 1) = l + 1;
-/*   AB(B,2)=u;                                                not changed */
+#if 0 /* the following data is unchanged */
+      AB(B,2)=u;
+#endif
     }
 
   Get_Integer(l, i_word);	/* always TRUE */

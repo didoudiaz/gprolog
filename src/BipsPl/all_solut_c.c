@@ -526,8 +526,10 @@ Group_Solutions_Alt_0(void)
   else				/* non deterministic case */
     {
       AB(B, 0) = word;
-/*   AB(B,1)=gl_key_word;                                      not changed */
-/*   AB(B,2)=sol_word;                                         not changed */
+#if 0 /* the following data is unchanged */
+      AB(B, 1) = gl_key_word;
+      AB(B, 2) = sol_word;
+#endif
     }
 
   Unify(key_word, gl_key_word);
