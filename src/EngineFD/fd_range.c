@@ -253,7 +253,7 @@ Vector_Nb_Elem(Vector vec)
       nb_elem += nb_bits_in_byte[(vec_word >> 8) & 0xFF];
       nb_elem += nb_bits_in_byte[(vec_word >> 16) & 0xFF];
       nb_elem += nb_bits_in_byte[(vec_word >> 24) & 0xFF];
-#if WORD_SIZE==64
+#if WORD_SIZE == 64
       nb_elem += nb_bits_in_byte[(vec_word >> 32) & 0xFF];
       nb_elem += nb_bits_in_byte[(vec_word >> 40) & 0xFF];
       nb_elem += nb_bits_in_byte[(vec_word >> 48) & 0xFF];

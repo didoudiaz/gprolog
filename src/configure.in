@@ -277,8 +277,9 @@ else
 fi
 
 AC_CHECK_SIZEOF(long)
-AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h)
-
+AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
+AC_FUNC_MMAP 
+AC_CHECK_FUNCS(mallopt)
 
 
 dnl ********************

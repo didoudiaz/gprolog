@@ -37,6 +37,10 @@
 
 #include "gp_config.h"
 
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #ifdef M_ix86_win32
 #include <windows.h>
 #include <process.h>
@@ -191,6 +195,10 @@ Init_Machine(void)
   start_real_time = M_Real_Time();
 
   getcwd(cur_work_dir, sizeof(cur_work_dir) - 1);
+
+#if defined(HAVE_MALLOPT) && defined(M_MMAP_MAX)
+  mallopt(M_MMAP_MAX, 0);
+#endif
 
   Init_Machine1();
 }

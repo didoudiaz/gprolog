@@ -32,7 +32,7 @@
  * inserting an appropriate file.                                          *
  *-------------------------------------------------------------------------*/
 
-#if defined(M_ix86_linux)
+#if defined(M_ix86_linuxxx)
 
 #ifdef HAVE_MMAP
 #undef  HAVE_MMAP

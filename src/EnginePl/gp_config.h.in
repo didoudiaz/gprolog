@@ -31,11 +31,14 @@
 /* Define if you have termios.h */
 #undef HAVE_TERMIOS_H
 
-/* Define if you have termio.h */
-#undef HAVE_TERMIO_H
+/* Define if you have termios.h */
+#undef HAVE_MALLOC_H
 
-/* Define if you have a working `mmap' system call.  */
+/* Define if you have a working `mmap' system call */
 #undef HAVE_MMAP
+
+/* Define if you have a mallopt function */
+#undef HAVE_MALLOPT
 
 /* Define inline keyword */
 #undef inline
