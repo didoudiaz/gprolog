@@ -2,6 +2,7 @@
 
 # Daniel Diaz 
 # LaTeX and PDF LaTeX compiler invocator
+# also executes makeindex and bibtex if needed
 # version 1.0
 # Fri Jan 24 16:33:11 CET 2003
 
@@ -79,13 +80,20 @@ save ()
 one_cmd ()
 {
  trace_msg "executing $1 $redir"
+ outfile=$base.$type
+ outfileerr=$base.err.$type
  eval $1 $redir
  err=$?
- if test $err -ne 0; then
-     outfile=$base.$type
-     trace_msg "compilation error (status=$err) - removing $outfile"
-     rm -f $outfile
-     exit $err
+ if test $err = 0; then
+    trace_msg "removing $outfileerr"
+    rm -f $outfileerr
+ else
+    trace_msg "compilation error (status=$err)"
+    if test -f $outfile; then
+	trace_msg "moving partial resulting file $outfile to $outfileerr"
+	mv $outfile $outfileerr
+    fi
+    exit $err
  fi
 }
 
@@ -104,6 +112,10 @@ compile ()
  fi
 
  redo=0
+ if fgrep -q '\bibdata{' $base.aux; then
+    one_cmd "bibtex $base"
+ fi
+
  for s in $suffixes; do
     save $base $s
  done
@@ -111,7 +123,7 @@ compile ()
 
 
 
-suffixes='aux toc idx ind'
+suffixes='aux toc idx ind bbl'
 
 type=dvi
 compiler=latex
