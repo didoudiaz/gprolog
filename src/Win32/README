@@ -1,0 +1,50 @@
+			Building GNU-Prolog Win32 Setup
+			-------------------------------
+
+Auto-extract installation files are created with Inno Setup. Refer to
+http://www.jrsoftware.org/ for more information. 
+
+
+1) Building a setup classically
+-------------------------------
+
+To build a setup for GNU-Prolog:
+
+   make setup
+
+The stages executed are:
+
+   1- build a distribution file (gprolog-VERSION.tar.gz) if needed using 
+      'make dist' in the src (parent) directory.
+
+   2- copy it under the /tmp
+
+   3- uncompressing it
+
+   4- configure
+
+   5- compile locally
+
+   6- install it in /tmp/gprolog_win32
+
+   7- build the setup auto-extract file
+
+The setup  spec file created is called: gprolog.spec (it is also copied in the
+SPECS directory of the RPM tree).
+
+The setup file is created in /tmp and called setup-gprolog-VERSION.exe
+
+
+
+2) Building a setup fastly 
+--------------------------
+
+If you have locally compiled GNU-Prolog (using './configure' followed by
+'make' in the src (parent) directory) you can avoid stages 1, 2, 3, and 5
+described above using:
+
+   make setup-link
+
+This will do a ./configure in src (parent) directory to specify
+/tmp/gprolog_win32 as install dir, then make and make install. The setup file
+is created similarly.
