@@ -87,7 +87,7 @@ call(Goal, Deterministic) :-
 
                                     % also called by C code BC_Emulate_Clause
 
-'$call_internal_with_cut'((P,Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P, Q), CallInfo, VarCut) :-
 	!,
 	'$call_internal_with_cut'(P, CallInfo, VarCut),
 	'$call_internal_with_cut'(Q, CallInfo, VarCut).

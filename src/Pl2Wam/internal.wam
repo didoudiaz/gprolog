@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : internal.pl
-% date    : 9 17 2001
-% time    : 19:18:8
+% date    : 9 28 2001
+% time    : 20:28:32
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/internal.pl').
+file_name('/home/diaz/GP1/src/src/Pl2Wam/internal.pl').
 
 
 predicate(internal_format/6,60,static,private,user,[

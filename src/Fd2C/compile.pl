@@ -526,7 +526,7 @@ emit_inst_lst([WInst|LWInst], Alloc) :-
 
 
 
-:-	include('../Pl2Wam/reg_alloc').
+:-	include('../Pl2Wam/reg_alloc.pl').
 
           % alias stopping instructions
 

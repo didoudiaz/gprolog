@@ -647,7 +647,11 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (f_n == curly_brackets_1)
     {
       Out_Char('{');
+      if (space_args)
+	Out_Char(' ');
       Show_Term(depth, MAX_PREC, GENERAL_TERM, Arg(stc_adr, 0));
+      if (space_args)
+	Out_Char(' ');
       Out_Char('}');
       return;
     }
@@ -749,8 +753,12 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
-      if (functor == ATOM_CHAR(',') && !ignore_op)
-	Out_Char(',');
+      if (functor == ATOM_CHAR(','))
+	{
+	  Out_Char(',');
+	  if (space_args)
+	    Out_Char(' ');
+	}
       else
 	{
 	  surround_space = FALSE;

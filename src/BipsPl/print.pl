@@ -43,7 +43,7 @@ print(SorA, Term) :-
 '$try_portray'(Term) :-
 	'$current_predicate'(portray / 1),
 	g_assign('$portray_ok', 0),
-	'$catch'((portray(Term),!), Err, (format(top_level_output, 'exception from portray/1: ~q~n', [Err]),fail), portray, 1, false),
+	'$catch'((portray(Term), !), Err, (format(top_level_output, 'exception from portray/1: ~q~n', [Err]), fail), portray, 1, false),
 	g_assign('$portray_ok', 1),
 	fail.
 

@@ -27,10 +27,10 @@
 parse_user_cstr(uc(Name, AFSize, LHVar, Body)) -->
 	head(Name, NbHVar, LHVar),
 	terminal_check('{'),
-	{g_assign(afsize, NbHVar),retractall(hvar(_)),asserta(hvar(LHVar)),retractall(bname(_, _))},
+	{ g_assign(afsize, NbHVar), retractall(hvar(_)), asserta(hvar(LHVar)), retractall(bname(_, _)) },
 	body(Body),
 	terminal_check('}'), !,
-	{g_read(afsize, AFSize),close_list(LHVar)}.
+	{ g_read(afsize, AFSize), close_list(LHVar) }.
 
 
 
@@ -46,7 +46,7 @@ head(Name, NbHVar, LHVar) -->
 
 decl_lst(I, NbHVar, [HVar|LHVar]) -->
 	decl_one(I, HVar),
-	{I1 is I + 1},
+	{ I1 is I + 1 },
 	decl_rest_lst(I1, NbHVar, LHVar).
 
 
@@ -99,9 +99,9 @@ body(_) -->
 
 wait_swt(ws(LUse, LCase)) -->
 	terminal(wait_switch), !,
-	{clause(hvar(LVar), _)},
+	{ clause(hvar(LVar), _) },
 	case_lst(LVar, LUse, LCase),
-	{close_list(LUse)}.
+	{ close_list(LUse) }.
 
 wait_swt(no_wait_switch) -->
 	[].
@@ -141,8 +141,8 @@ stop_lst([]) -->
 stop_one(BNoStop) -->
 	terminal(stop), !,
 	ident_check(BName),
-	(   {clause(bname(BName, BNoStop), _)} ->
-	    {true}
+	(   { clause(bname(BName, BNoStop), _) } ->
+	    { true }
 	;   sem_error('undeclared bloc name "~a"', [BName])
 	).
 
@@ -160,16 +160,16 @@ bloc_lst([]) -->
 
 
 bloc_one(bl(BNo, LDep, LUse, LWInst, TellFdv, Always)) -->
-	{clause(hvar(LVar), _)},
+	{ clause(hvar(LVar), _) },
 	terminal(start),
 	bloc_name(BNo),
 	elem_lst(LVar, LUse, LWInst1, LWInst),
 	forall(LVar, LUse, LWInst2, LWInst1, HasForAll),
 	last_elem(LVar, LUse, TellFdv, LWInst3, LWInst2),
-	{HasForAll = t -> LWInst3 = [fd_forall_end] ; LWInst3 = []},
+	{ HasForAll = t -> LWInst3 = [fd_forall_end] ; LWInst3 = [] },
 	trig(LVar, LUse, LDep),
 	always(Always),
-	{close_list(LDep),close_list(LUse)}.
+	{ close_list(LDep), close_list(LUse) }.
 
 
 
@@ -177,9 +177,9 @@ bloc_one(bl(BNo, LDep, LUse, LWInst, TellFdv, Always)) -->
 bloc_name(BNo) -->
 	terminal('('), !,
 	ident_check(BName),
-	(   {clause(bname(BName, _), _)} ->
+	(   { clause(bname(BName, _), _) } ->
 	    sem_error('bloc name already used "~a"', [BName])
-	;   {g_read(afsize, BNo),AFSize is BNo + 1,g_assign(afsize, AFSize),assertz(bname(BName, BNo))}
+	;   { g_read(afsize, BNo), AFSize is BNo + 1, g_assign(afsize, AFSize), assertz(bname(BName, BNo)) }
 	),
 	terminal_check(')').
 
@@ -194,7 +194,7 @@ trig(LVar, LUse, LDep) -->
 	terminal(also), !,
 	terminal_check(on),
 	trig_lst(LVar, LDep),
-	{add_use_to_dep(LUse, LDep)}.
+	{ add_use_to_dep(LUse, LDep) }.
 
 trig(LVar, _, LDep) -->
 	terminal(trigger), !,
@@ -202,7 +202,7 @@ trig(LVar, _, LDep) -->
 	trig_lst(LVar, LDep).
 
 trig(_, LUse, LDep) -->
-	{add_use_to_dep(LUse, LDep)}.
+	{ add_use_to_dep(LUse, LDep) }.
 
 
 
@@ -222,13 +222,13 @@ trig_rest_lst(_, _) -->
 
 trig_one(LVar, LDep) -->
 	terminal(What),
-	{What = min ; What = max ; What = dom ; What = val}, !,
+	{ What = min ; What = max ; What = dom ; What = val }, !,
 	terminal_check('('),
 	a_var(V),
 	terminal_check(')'),
-	{get_typeof(LVar, V, T, I),(T \== fdv,T \== l_fdv -> var_check_type(LVar, V, fdv, _, _, _)
+	{ get_typeof(LVar, V, T, I), (T \== fdv, T \== l_fdv -> var_check_type(LVar, V, fdv, _, _, _)
                                                                  % type error
-	                                                                                           ; true),(What = dom -> What1 = dom(_) ; What1 = What),add_marked_var(LDep, V, T, I, What1)}.
+	                                                                                              ; true), (What = dom -> What1 = dom(_) ; What1 = What), add_marked_var(LDep, V, T, I, What1) }.
 
 
 
@@ -256,13 +256,13 @@ elem_one(LVar, LUse, LWNext, LWInst) -->
 	type(T),
 	a_var(V), !,
 	check_type_int_or_range(T),
-	{add_local_var(LVar, v(V, T, I))},
+	{ add_local_var(LVar, v(V, T, I)) },
 	local_var_assign(LVar, LUse, V, T, I, LWNext, LWInst).
 
 elem_one(LVar, LUse, LWNext, LWInst) -->
 	a_var(V),
 	terminal(=), !,
-	{get_typeof(LVar, V, T, I)},
+	{ get_typeof(LVar, V, T, I) },
 	check_type_int_or_range(T),
 	assign_right_value(LVar, LUse, V, T, I, LWNext, LWInst).
 
@@ -270,13 +270,13 @@ elem_one(LVar, LUse, LWNext, LWInst) -->
 	terminal(fail), !,
 	terminal_check(if),
 	term(LVar, LUse, Term, LWInst1, LWInst),
-	{LWInst1 = [fd_test_fail_condition(Term)|LWNext]}.
+	{ LWInst1 = [fd_test_fail_condition(Term)|LWNext] }.
 
 elem_one(LVar, LUse, LWNext, LWInst) -->
 	terminal(exit), !,
 	terminal_check(if),
 	term(LVar, LUse, Term, LWInst1, LWInst),
-	{LWInst1 = [fd_test_exit_condition(Term)|LWNext]}.
+	{ LWInst1 = [fd_test_exit_condition(Term)|LWNext] }.
 
 
 
@@ -304,12 +304,12 @@ local_var_assign(_, _, _, _, _, LWNext, LWNext) -->
 
 
 assign_right_value(LVar, LUse, V, int, I, LWNext, LWInst) -->
-	{atom_concat(int, V, X),add_marked_var(LUse, V, int, I, _)},
+	{ atom_concat(int, V, X), add_marked_var(LUse, V, int, I, _) },
 	term(LVar, LUse, Term, LWInst, LWInst1), !,
-	{LWInst1 = [fd_init_local_value_var(X, Term)|LWNext]}.
+	{ LWInst1 = [fd_init_local_value_var(X, Term)|LWNext] }.
 
 assign_right_value(LVar, LUse, V, range, I, LWNext, LWInst) -->
-	{add_marked_var(LUse, V, range, I, range(Range))},
+	{ add_marked_var(LUse, V, range, I, range(Range)) },
 	range(LVar, LUse, Range, LWNext, LWInst), !.
 
 assign_right_value(_, _, _, _, _, _, _) -->
@@ -324,7 +324,7 @@ forall(LVar, LUse, LWNext, LWInst, t) -->
 	terminal_check(of),
 	var_check_type(LVar, VL, l_fdv, IL),
 	terminal_check(do),
-	{add_marked_var(LUse, VL, l_fdv, IL, _),g_read(afsize, I),AFSize is I + 1,g_assign(afsize, AFSize),add_local_var(LVar, v(V, fdv, I)),atom_concat(l_fdv, VL, VL1),LWInst = [fd_forall(I, VL1)|LWNext]}.
+	{ add_marked_var(LUse, VL, l_fdv, IL, _), g_read(afsize, I), AFSize is I + 1, g_assign(afsize, AFSize), add_local_var(LVar, v(V, fdv, I)), atom_concat(l_fdv, VL, VL1), LWInst = [fd_forall(I, VL1)|LWNext] }.
 
 forall(_, _, LWNext, LWNext, f) -->
 	[].
@@ -334,7 +334,7 @@ forall(_, _, LWNext, LWNext, f) -->
 
 last_elem(LVar, LUse, -1, LWNext, LWInst) -->
 	c_fct(LVar, LUse, Head, LArg, LWInst1, LWInst),
-	{Term =.. [Head|LArg],LWInst1 = [fd_check_fct(Term)|LWNext]}.
+	{ Term =.. [Head|LArg], LWInst1 = [fd_check_fct(Term)|LWNext] }.
 
 last_elem(LVar, LUse, TellFdv, LWNext, LWInst) -->
 	x_in_r(LVar, LUse, TellFdv, LWNext, LWInst), !.
@@ -346,7 +346,7 @@ x_in_r(LVar, LUse, I, LWNext, LWInst) -->
 	var_check_type(LVar, _, fdv, I),
 	terminal_check(in),
 	range(LVar, LUse, Range, LWInst1, LWInst),
-	{LWInst1 = [fd_tell_range(I, Range)|LWNext]}.
+	{ LWInst1 = [fd_tell_range(I, Range)|LWNext] }.
 
 
 
@@ -358,7 +358,7 @@ range(LVar, LUse, Range, LWNext, LWInst) -->
 r_rest_add(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(:), !,
 	r_add(LVar, LUse, Range1, LWInst1, LWInst),
-	{LWInst1 = [fd_range_union(Range, Range1)|LWInst2]},
+	{ LWInst1 = [fd_range_union(Range, Range1)|LWInst2] },
 	r_rest_add(LVar, LUse, Range, LWNext, LWInst2).
 
 r_rest_add(_, _, _, LWNext, LWNext) -->
@@ -374,7 +374,7 @@ r_add(LVar, LUse, Range, LWNext, LWInst) -->
 r_rest_mul(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(&), !,
 	r_mul(LVar, LUse, Range1, LWInst1, LWInst),
-	{LWInst1 = [fd_range_inter(Range, Range1)|LWInst2]},
+	{ LWInst1 = [fd_range_inter(Range, Range1)|LWInst2] },
 	r_rest_mul(LVar, LUse, Range, LWNext, LWInst2).
 
 r_rest_mul(_, _, _, LWNext, LWNext) -->
@@ -387,9 +387,9 @@ r_mul(LVar, LUse, Range, LWNext, LWInst) -->
 
 r_rest_add2(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [++, --])}, !,
+	{ memberchk(Op, [++, --]) }, !,
 	r_add2(LVar, LUse, Range1, LWInst1, LWInst),
-	{make_inst(Range, Op, Range1, WInst),LWInst1 = [WInst|LWInst2]},
+	{ make_inst(Range, Op, Range1, WInst), LWInst1 = [WInst|LWInst2] },
 	r_rest_add2(LVar, LUse, Range, LWNext, LWInst2).
 
 r_rest_add2(_, _, _, LWNext, LWNext) -->
@@ -403,9 +403,9 @@ r_add2(LVar, LUse, Range, LWNext, LWInst) -->
 
 r_rest_mul2(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [**, //, '%%'])}, !,
+	{ memberchk(Op, [**, //, '%%']) }, !,
 	r_mul2(LVar, LUse, Range1, LWInst1, LWInst),
-	{make_inst(Range, Op, Range1, WInst),LWInst1 = [WInst|LWInst2]},
+	{ make_inst(Range, Op, Range1, WInst), LWInst1 = [WInst|LWInst2] },
 	r_rest_mul2(LVar, LUse, Range, LWNext, LWInst2).
 
 r_rest_mul2(_, _, _, LWNext, LWNext) -->
@@ -418,9 +418,9 @@ r_mul2(LVar, LUse, Range, LWNext, LWInst) -->
 
 r_rest_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [+, -, *, /, '%'])}, !,
+	{ memberchk(Op, [+, -, *, /, '%']) }, !,
 	term(LVar, LUse, Term, LWInst1, LWInst),
-	{make_inst(Range, Op, Term, WInst),LWInst1 = [WInst|LWInst2]},
+	{ make_inst(Range, Op, Term, WInst), LWInst1 = [WInst|LWInst2] },
 	r_rest_prim(LVar, LUse, Range, LWNext, LWInst2).
 
 r_rest_prim(_, _, _, LWNext, LWNext) -->
@@ -432,37 +432,37 @@ r_rest_prim(_, _, _, LWNext, LWNext) -->
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(~), !,
 	r_prim(LVar, LUse, Range, LWInst1, LWInst),
-	{LWInst1 = [fd_range_compl(Range)|LWNext]}.
+	{ LWInst1 = [fd_range_compl(Range)|LWNext] }.
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	term(LVar, LUse, Term1, LWInst1, LWInst),
 	terminal(..), !,
 	term(LVar, LUse, Term2, LWInst2, LWInst1),
-	{LWInst2 = [fd_range_interval(Range, Term1, Term2)|LWNext]}.
+	{ LWInst2 = [fd_range_interval(Range, Term1, Term2)|LWNext] }.
 
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal('{'), !,
 	term_lst(LVar, LUse, LTerm, LWInst1, LWInst),
 	terminal_check('}'),
-	{compile_term_lst(LTerm, Range, LWNext, LWInst1)}.
+	{ compile_term_lst(LTerm, Range, LWNext, LWInst1) }.
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	terminal(dom),
 	terminal_check('('),
 	var_check_type(LVar, V, fdv, I),
 	terminal_check(')'), !,
-	{add_marked_var(LUse, V, fdv, I, dom(Range1))},
-	{LWInst = [fd_range_copy(Range, Range1)|LWNext]}.
+	{ add_marked_var(LUse, V, fdv, I, dom(Range1)) },
+	{ LWInst = [fd_range_copy(Range, Range1)|LWNext] }.
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	a_var(V),
-	{get_typeof(LVar, V, range, I),!,add_marked_var(LUse, V, range, I, range(Range1))},
-	{LWInst = [fd_range_copy(Range, Range1)|LWNext]}.
+	{ get_typeof(LVar, V, range, I), !, add_marked_var(LUse, V, range, I, range(Range1)) },
+	{ LWInst = [fd_range_copy(Range, Range1)|LWNext] }.
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	c_fct(LVar, LUse, Head, LArg, LWInst1, LWInst), !,
-	{length(LArg, N),number_atom(N, NA),atom_concat(arg_, NA, NA1),Args =.. [NA1|LArg],LWInst1 = [fd_range_fct(Head, Range, Args)|LWNext]}.
+	{ length(LArg, N), number_atom(N, NA), atom_concat(arg_, NA, NA1), Args =.. [NA1|LArg], LWInst1 = [fd_range_fct(Head, Range, Args)|LWNext] }.
 	
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
@@ -514,9 +514,9 @@ term(LVar, LUse, Term1, LWNext, LWInst) -->
 
 t_rest_log(LVar, LUse, Term1, Term4, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [&&, '||'])}, !,
+	{ memberchk(Op, [&&, '||']) }, !,
 	t_log(LVar, LUse, Term2, LWInst1, LWInst),
-	{make_term(Term1, Op, Term2, Term3)},
+	{ make_term(Term1, Op, Term2, Term3) },
 	t_rest_log(LVar, LUse, Term3, Term4, LWNext, LWInst1).
 
 t_rest_log(_, _, Term, Term, LWNext, LWNext) -->
@@ -530,9 +530,9 @@ t_log(LVar, LUse, Term1, LWNext, LWInst) -->
 
 t_rest_cmp(LVar, LUse, Term1, Term3, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [=, ==, '!=', \=, <, <=, >, >=])}, !,
+	{ memberchk(Op, [=, ==, '!=', \=, <, <=, >, >=]) }, !,
 	t_cmp(LVar, LUse, Term2, LWNext, LWInst),
-	{make_term(Term1, Op, Term2, Term3)}.
+	{ make_term(Term1, Op, Term2, Term3) }.
 
 t_rest_cmp(_, _, Term, Term, LWNext, LWNext) -->
 	[].
@@ -546,9 +546,9 @@ t_cmp(LVar, LUse, Term1, LWNext, LWInst) -->
 
 t_rest_add(LVar, LUse, Term1, Term4, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [+, -])}, !,
+	{ memberchk(Op, [+, -]) }, !,
 	t_add(LVar, LUse, Term2, LWInst1, LWInst),
-	{make_term(Term1, Op, Term2, Term3)},
+	{ make_term(Term1, Op, Term2, Term3) },
 	t_rest_add(LVar, LUse, Term3, Term4, LWNext, LWInst1).
 
 t_rest_add(_, _, Term, Term, LWNext, LWNext) -->
@@ -562,9 +562,9 @@ t_add(LVar, LUse, Term1, LWNext, LWInst) -->
 
 t_rest_mul(LVar, LUse, Term1, Term4, LWNext, LWInst) -->
 	terminal(Op),
-	{memberchk(Op, [*, /<, />, mod])}, !,
+	{ memberchk(Op, [*, /<, />, mod]) }, !,
 	t_mul(LVar, LUse, Term2, LWInst1, LWInst),
-	{make_term(Term1, Op, Term2, Term3)},
+	{ make_term(Term1, Op, Term2, Term3) },
 	t_rest_mul(LVar, LUse, Term3, Term4, LWNext, LWInst1).
 
 t_rest_mul(_, _, Term, Term, LWNext, LWNext) -->
@@ -583,19 +583,19 @@ t_mul(_, _, max_integer, LWNext, LWNext) -->
 
 t_mul(LVar, LUse, Term, LWNext, LWNext) -->
 	terminal(What),
-	{What = min ; What = max ; What = val},
+	{ What = min ; What = max ; What = val },
 	terminal_check('('),
 	var_check_type(LVar, V, fdv, I),
 	terminal_check(')'), !,
-	{atom_concat(What, V, Term),add_marked_var(LUse, V, fdv, I, What)}.
+	{ atom_concat(What, V, Term), add_marked_var(LUse, V, fdv, I, What) }.
 
 t_mul(LVar, LUse, Term, LWNext, LWNext) -->
 	a_var(V),
-	{get_typeof(LVar, V, int, I),!,atom_concat(int, V, Term),add_marked_var(LUse, V, int, I, _)}.
+	{ get_typeof(LVar, V, int, I), !, atom_concat(int, V, Term), add_marked_var(LUse, V, int, I, _) }.
 
 t_mul(LVar, LUse, Term, LWNext, LWInst) -->
 	c_fct(LVar, LUse, Head, LArg, LWNext, LWInst), !,
-	{Term =.. [Head|LArg]}.
+	{ Term =.. [Head|LArg] }.
 
 t_mul(LVar, LUse, Term, LWNext, LWInst) -->
 	terminal('('),
@@ -640,8 +640,8 @@ parm_rest_lst(_, _, [], LWNext, LWNext) -->
 parm_one(LVar, LUse, Arg, LWNext, LWInst) -->
 	term(LVar, LUse, Arg, LWNext, LWInst),
 	(   terminal(..) ->
-	    {fail}
-	;   {true}
+	    { fail }
+	;   { true }
 	).
 
 parm_one(LVar, LUse, range_arg(Range), LWNext, LWInst) -->
@@ -649,7 +649,7 @@ parm_one(LVar, LUse, range_arg(Range), LWNext, LWInst) -->
 
 parm_one(LVar, LUse, Arg, LWNext, LWNext) -->
 	a_var(V),                                                 % local var
-	{get_typeof(LVar, V, T, I),atom_concat(T, V, Arg),add_marked_var(LUse, V, T, I, _)}.
+	{ get_typeof(LVar, V, T, I), atom_concat(T, V, Arg), add_marked_var(LUse, V, T, I, _) }.
 
 parm_one(LVar, LUse, &(Arg), LWNext, LWInst) -->
 	terminal(&),                                                 % adr of
@@ -660,9 +660,9 @@ parm_one(LVar, LUse, &(Arg), LWNext, LWInst) -->
 
 var_check_type(LVar, V, T, I) -->
 	a_var(V),
-	(   {get_typeof(LVar, V, T1, I)} ->
-	    (   {T = T1} ->
-	        {true}
+	(   { get_typeof(LVar, V, T1, I) } ->
+	    (   { T = T1 } ->
+	        { true }
 	    ;   sem_error('variable ~a declared as ~a used as ~a', [V, T1, T])
 	    )
 	;   sem_error('undeclared variable ~a', [V])
@@ -674,9 +674,9 @@ var_check_type(LVar, V, T, I) -->
 
 var_check_new(LVar, V) -->
 	a_var(V),
-	(   {get_typeof(LVar, V, T, _)} ->
+	(   { get_typeof(LVar, V, T, _) } ->
 	    sem_error('variable ~a already declared as ~a', [V, T])
-	;   {true}
+	;   { true }
 	).
 
 
@@ -699,7 +699,7 @@ ident_check(_) -->
 
 int(X) -->
 	terminal(X),
-	{integer(X)}.
+	{ integer(X) }.
 
 
 
@@ -716,12 +716,12 @@ terminal_check(X) -->
 
 syn_error(Expected) -->
 	[t(T, L, C)],
-	{error('~d: syntax error : ~w expected at "~w" (char:~d)', [L, Expected, T, C])}.
+	{ error('~d: syntax error : ~w expected at "~w" (char:~d)', [L, Expected, T, C]) }.
 
 
 sem_error(Msg, Args) -->
 	[t(_, L, C)],
-	{append([L, Msg|Args], [C], M),error('~d: ~? (char:~d)', M)}.
+	{ append([L, Msg|Args], [C], M), error('~d: ~? (char:~d)', M) }.
 
 
 

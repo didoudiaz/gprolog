@@ -29,7 +29,6 @@
 #define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
-#define HAVE_MKSTEMP 1
 #define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
@@ -37,8 +36,8 @@
 #define M_ix86_linux 1
 #define PROLOG_NAME1               "gprolog"
 #define PROLOG_NAME                "GNU Prolog"
-#define PROLOG_VERSION             "1.2.7"
-#define PROLOG_DATE                "Jan 25 2001"
+#define PROLOG_VERSION             "1.2.8"
+#define PROLOG_DATE                "Sep 28 2001"
 #define PROLOG_COPYRIGHT           "Copyright (C) 1999-2001 Daniel Diaz"
 #define TOP_LEVEL                  "gprolog"
 #define GPLC                       "gplc"

@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : first_arg.pl
-% date    : 9 17 2001
-% time    : 19:18:10
+% date    : 9 28 2001
+% time    : 20:28:33
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/first_arg.pl').
+file_name('/home/diaz/GP1/src/src/Pl2Wam/first_arg.pl').
 
 
 predicate(find_first_arg/2,27,static,private,user,[

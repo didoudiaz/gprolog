@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : os_interf.pl
-% date    : 9 17 2001
-% time    : 19:18:4
+% date    : 9 28 2001
+% time    : 20:28:48
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').
+file_name('/home/diaz/GP1/src/src/BipsPl/os_interf.pl').
 
 
 predicate('$use_os_interf'/0,29,static,private,built_in,[

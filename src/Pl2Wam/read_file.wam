@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : read_file.pl
-% date    : 9 17 2001
-% time    : 19:18:8
+% date    : 9 28 2001
+% time    : 20:28:30
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/read_file.pl').
+file_name('/home/diaz/GP1/src/src/Pl2Wam/read_file.pl').
 
 
 predicate(read_file_init/1,108,static,private,user,[

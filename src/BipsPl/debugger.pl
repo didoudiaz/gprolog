@@ -771,7 +771,7 @@ nospyall.
 '$debug_exec_cmd'(*, Goal, _, _, _, _) :-                 % spy conditionally
 	repeat,
 	write(debugger_output, 'Goal,Port,Test: '),
-	read(debugger_input, (Goal1,Port1,Test1)),
+	read(debugger_input, (Goal1, Port1, Test1)),
 	callable(Goal1),
 	functor(Goal, N, A),
 	functor(Goal1, N, A),

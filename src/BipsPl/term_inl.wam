@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : term_inl.pl
-% date    : 9 17 2001
-% time    : 19:18:3
+% date    : 9 28 2001
+% time    : 20:28:46
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
+file_name('/home/diaz/GP1/src/src/BipsPl/term_inl.pl').
 
 
 predicate('$use_term_inl'/0,29,static,private,built_in,[

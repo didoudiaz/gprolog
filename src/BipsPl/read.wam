@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : read.pl
-% date    : 9 17 2001
-% time    : 19:18:1
+% date    : 9 28 2001
+% time    : 20:28:44
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/read.pl').
+file_name('/home/diaz/GP1/src/src/BipsPl/read.pl').
 
 
 predicate('$use_read'/0,29,static,private,built_in,[

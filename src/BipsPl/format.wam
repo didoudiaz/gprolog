@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : format.pl
-% date    : 9 17 2001
-% time    : 19:18:4
+% date    : 9 28 2001
+% time    : 20:28:47
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/format.pl').
+file_name('/home/diaz/GP1/src/src/BipsPl/format.pl').
 
 
 predicate('$use_format'/0,29,static,private,built_in,[

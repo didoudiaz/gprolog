@@ -11,7 +11,7 @@ dnl ***************************
 dnl * initial variable values *
 dnl ***************************
 
-PROLOG_NAME='GNU Prolog'
+PROLOG_NAME='Contexts>>GNU Prolog'
 PROLOG_NAME1='gprolog'
 PROLOG_VERSION='1.2.7'
 PROLOG_DATE='Jan 25 2001'

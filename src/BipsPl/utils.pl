@@ -58,7 +58,7 @@
 	'$term_to_goal2'(P, P1),
 	'$term_to_goal2'(Q, Q1).
 
-'$term_to_goal2'((P,Q), (P1,Q1)) :-
+'$term_to_goal2'((P, Q), (P1, Q1)) :-
 	!,
 	'$term_to_goal2'(P, P1),
 	'$term_to_goal2'(Q, Q1).
