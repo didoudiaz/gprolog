@@ -4,6 +4,7 @@ GPLC            = @GPLC@
 HEXGPLC         = @HEXGPLC@
 CC              = @CC@
 CFLAGS          = @CFLAGS@
+LDLIBS          = @LDLIBS@
 
 EXECS     = $(GPLC)@EXE_SUFFIX@ $(HEXGPLC)@EXE_SUFFIX@
 ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
@@ -12,8 +13,8 @@ ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
 first:	$(EXECS)
 
 $(GPLC)@EXE_SUFFIX@: top_comp.c ../EnginePl/wam_regs.h \
-         ../EnginePl/gp_config.h decode_hexa.c copying.c
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c
+         ../EnginePl/gp_config.h decode_hexa.c copying.c prolog_path.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c $(LDLIBS)
 
 $(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c 
 	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(HEXGPLC)@EXE_SUFFIX@ hexfilter.c

@@ -27,8 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define OBJ_INIT Top_Level_Initializer
-
 #include "gprolog.h"
 #include "../TopComp/copying.c"
 
@@ -38,50 +36,70 @@
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
+
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
 static void Display_Help(void);
 
+#define Check_Arg(i, str)  (strncmp(argv[i], str, strlen(argv[i])) == 0)
 
+
+#define EXEC_CMD_LINE_GOAL  X24657865635F636D645F6C696E655F676F616C
+#define PREDICATE_TOP_LEVEL X746F705F6C6576656C
+
+Prolog_Prototype(PREDICATE_TOP_LEVEL, 0);
+Prolog_Prototype(EXEC_CMD_LINE_GOAL, 1);
 
 
 /*-------------------------------------------------------------------------*
  * To define a top_level simply compile an empty source file (Prolog or C) *
- * (linking the Prolog top-level). Since we want to recognize the --version*
- * option, we define an initializer to check the options (os_argc/os_argv) *
+ * (linking the Prolog top-level is done by default).                      *
+ * This file is because we want to take into account some options/arguments*
  *-------------------------------------------------------------------------*/
-
-#define Check_Arg(i,str)           (strncmp(os_argv[i],str,strlen(os_argv[i]))==0)
-
-
 
 
 /*-------------------------------------------------------------------------*
- * TOP_LEVEL_INITIALIZER                                                   *
+ * MAIN                                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Top_Level_Initializer(void)
+int
+main(int argc, char *argv[])
 {
   int i;
+  int new_argc = 0;
+  char **new_argv;
+  WamWord *goal;
+  int nb_goal = 0;
+  WamWord *query_goal;
+  int nb_query_goal = 0;
+  WamWord word;
 
-  for (i = 1; i < os_argc; i++)
+
+  Start_Prolog(argc, argv);	/* argc and argv will be changed */
+
+  new_argv = (char **) Malloc(sizeof(char *) * (argc + 1));
+  new_argv[new_argc++] = argv[0];
+
+  goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
+  query_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
+
+  for (i = 1; i < argc; i++)
     {
-      if (*os_argv[i] == '-' && os_argv[i][1] != '\0')
+      if (*argv[i] == '-' && argv[i][1] != '\0')
 	{
-	  if (strcmp(os_argv[i], "--") == 0)
+	  if (strcmp(argv[i], "--") == 0)
 	    {
-	      os_argv[i] = os_argv[0];
-	      os_argv += i;
-	      os_argc -= i;
+	      i++;
 	      break;
 	    }
 
@@ -91,17 +109,71 @@ Top_Level_Initializer(void)
 	      exit(0);
 	    }
 
+	  if (Check_Arg(i, "--init-goal"))
+	    {
+	      if (++i >= argc)
+		Fatal_Error("Goal missing after --init-goal option");
+
+	      A(0) = Tag_ATM(Create_Atom(argv[i]));
+	      Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
+	      Reset_Prolog();
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--entry-goal"))
+	    {
+	      if (++i >= argc)
+		Fatal_Error("Goal missing after --entry-goal option");
+
+	      goal[nb_goal++] = Tag_ATM(Create_Atom(argv[i]));
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--query-goal"))
+	    {
+	      if (++i >= argc)
+		Fatal_Error("Goal missing after --query-goal option");
+
+	      query_goal[nb_query_goal++] = Tag_ATM(Create_Atom(argv[i]));
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "-h") || Check_Arg(i, "--help"))
 	    {
 	      Display_Help();
 	      exit(0);
 	    }
-#if 0				/* unknown option is simply ignored (passed to Prolog) */
-	  Fatal_Error("unknown option %s - try %s --help", os_argv[i],
-		      TOP_LEVEL);
-#endif
 	}
+      /* unknown option is simply ignored (passed to Prolog) */
+      new_argv[new_argc++] = argv[i];
     }
+
+  while(i < argc)
+    new_argv[new_argc++] = argv[i++];
+
+  new_argv[new_argc] = NULL;
+
+  os_argc = new_argc;
+  os_argv = new_argv;
+
+  if (nb_goal)
+    {
+      word = Mk_Proper_List(nb_goal, goal);
+      Blt_G_Link(Tag_ATM(Create_Atom("$cmd_line_entry_goal")), word);
+    }
+  Free(goal);
+
+  if (nb_query_goal)
+    {
+      word = Mk_Proper_List(nb_query_goal, query_goal);
+      Blt_G_Link(Tag_ATM(Create_Atom("$cmd_line_query_goal")), word);
+    }
+  Free(query_goal);
+
+  Call_Prolog(Prolog_Predicate(PREDICATE_TOP_LEVEL, 0));
+
+  Stop_Prolog();
+  return 0;
 }
 
 
@@ -113,13 +185,16 @@ Top_Level_Initializer(void)
  *-------------------------------------------------------------------------*/
 static void
 Display_Help(void)
-#define L(msg)  fprintf(stderr,"%s\n",msg)
+#define L(msg)  fprintf(stderr, "%s\n", msg)
 {
   fprintf(stderr, "Usage: %s [OPTION]... \n", TOP_LEVEL);
-  L(" ");
+  L("");
+  L("  --init-goal GOAL            execute GOAL before top_level/0");
+  L("  --entry-goal GOAL           execute GOAL inside top_level/0");
+  L("  --query-goal GOAL           execute GOAL as a query for top_level/0");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
-  L("  --                          do not check following arguments (passed to Prolog");
+  L("  --                          do not parse the rest of the command-line");
   L("");
   L("Report bugs to bug-prolog@gnu.org.");
 }

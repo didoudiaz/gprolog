@@ -40,25 +40,18 @@
 #include <process.h>
 #include <fcntl.h>
 #include <io.h>
-#define StrStr(s1,s2) Str_Case_Str(s1,s2)
-char *Str_Case_Str(char *s1, char *s2);
 #else
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/param.h>
 #include <sys/wait.h>
-#define StrStr(s1,s2) strstr(s1,s2)
 #endif
 
-#ifdef M_ix86_cygwin
-#include <process.h>
-#endif
-
-#include "../EnginePl/arch_dep.h"
 #include "../EnginePl/wam_regs.h"
 
 #include "decode_hexa.c"
 #include "copying.c"
+#include "prolog_path.c"
 
 #include "../EnginePl/machine1.c"
 
@@ -72,8 +65,6 @@ char *Str_Case_Str(char *s1, char *s2);
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
-
-#define MAX_SUB_DIRS               128
 
 #define MAX_FILES                  1024
 
@@ -121,7 +112,7 @@ char *Str_Case_Str(char *s1, char *s2);
 #define MA_SUFFIX                  ".ma"
 #define FD_SUFFIX                  ".fd"
 #define C_SUFFIX                   ".c"
-#define C_SUFFIX_ALTERNATE         "|.C|.CC|.cc|.cxx|.c++|.cpp|"
+#define C_SUFFIX_ALTERNATE         "|.C|.cc|.CC|.cxx|.CXX|.c++|.C++|.cpp|.CPP|"
 
 #define CC_COMPILE_OPT             "-c "
 #define CC_INCLUDE_OPT             "-I"
@@ -161,7 +152,10 @@ CmdInf;
 char *start_path;
 
 int devel_mode = 0;
-char *devel_dir[MAX_SUB_DIRS];
+char *devel_dir[] = {
+  "EnginePl", "BipsPl", "EngineFD", "BipsFD", "Linedit", "W32GUICons",
+  NULL };
+
 
 FileInf file[MAX_FILES];
 int nb_file = 0;
@@ -221,10 +215,6 @@ char *suffixes[] =
 
 char *Search_Path(char *file);
 
-void Init_Develop_Dir(void);
-
-void Init_Develop_Dir_Rec(char *path, char ***p);
-
 void Determine_Pathnames(void);
 
 void Compile_Files(void);
@@ -253,7 +243,7 @@ void Display_Help(void);
 
 
 
-#define Record_Link_Warn_Option(i) sprintf(warn+strlen(warn),"%s ",argv[i])
+#define Record_Link_Warn_Option(i) sprintf(warn+strlen(warn), "%s ", argv[i])
 
 
 
@@ -269,11 +259,11 @@ void Display_Help(void);
 
 char *last_opt;
 
-#define Check_Arg(i,str)           (last_opt=str,strncmp(argv[i],str,strlen(argv[i]))==0)
+#define Check_Arg(i, str)   (last_opt = str, strncmp(argv[i], str, strlen(argv[i])) == 0)
 
-#define Add_Last_Option(opt)       sprintf(opt+strlen(opt),"%s ",last_opt)
+#define Add_Last_Option(opt)       sprintf(opt+strlen(opt), "%s ", last_opt)
 
-#define Add_Option(i,opt)          sprintf(opt+strlen(opt),"%s ",argv[i])
+#define Add_Option(i, opt)         sprintf(opt+strlen(opt), "%s ", argv[i])
 
 
 
@@ -285,9 +275,7 @@ char *last_opt;
 int
 main(int argc, char *argv[])
 {
-  static char resolved[MAXPATHLEN + 1];	/* realpath() fills up to MAXPATHLEN (NULL) */
-  static char buff[MAXPATHLEN];
-  char *p;
+  char **pdev;
 
 #ifdef M_ix86_win32
   setbuf(stdout, NULL);
@@ -298,80 +286,17 @@ main(int argc, char *argv[])
   if (verbose)
     fprintf(stderr, "\n");
 
-  if ((start_path = getenv(ENV_VARIABLE)) != NULL)
-    goto path_found;
-
-  strcpy(buff, argv[0]);
-
-#ifdef DEBUG
-  fprintf(stderr, "value of argv[0]: <%s>\n", buff);
-#endif
-
-  if (strcasecmp(buff + strlen(buff) - strlen(EXE_SUFFIX), EXE_SUFFIX) != 0)
-    strcat(buff, EXE_SUFFIX);
-
-#ifdef DEBUG
-  fprintf(stderr, "value of argv[0] with suffix: <%s>\n", buff);
-#endif
-
-#ifndef M_ix86_win32
-  if (access(buff, X_OK) == 0)
-    start_path = buff;
-  else
-#endif
-  if ((start_path = Search_Path(buff)) == NULL)
-    goto path_not_found;
-
-#if defined(__unix__) || defined(__CYGWIN__)
-  if (realpath(start_path, resolved + 1) == NULL)	/* +1 for eventual @ */
-    goto path_not_found;
-#else
-  strcpy(resolved + 1, start_path);	/* +1 for eventual @ */
-#endif
-
-#ifdef DEBUG
-  fprintf(stderr, "path of the executable: %s\n", start_path);
-#endif
-
-  sprintf(buff, DIR_SEP_S "bin" DIR_SEP_S "%s", GPLC);
-
-  if ((p = StrStr(resolved + 1, buff)) != NULL)
-    {
-      *p = '\0';
-      start_path = resolved + 1;
-      goto path_found;
-    }
-
-  sprintf(buff, DIR_SEP_S "TopComp" DIR_SEP_S "%s", GPLC);
-
-#ifdef DEBUG
-  fprintf(stderr, "path of the executable: %s\n", start_path);
-  fprintf(stderr, "sub-path to search:     %s\n", buff);
-#endif
-  if ((p = StrStr(resolved + 1, buff)) != NULL)
-    {
-      *p = '\0';
-      start_path = resolved;
-      *start_path = '@';	/* to enforce development mode */
-      goto path_found;
-    }
-
-path_not_found:
-  Fatal_Error
-    ("cannot find the path for %s, set the environment variable %s",
-     PROLOG_NAME, ENV_VARIABLE);
-
-path_found:
-  if (*start_path == '@')	/* development mode */
-    {
-      start_path++;
-      devel_mode = 1;
-    }
+  start_path = Get_Prolog_Path(&devel_mode);
+  if (start_path == NULL)
+    Fatal_Error("cannot find the path for %s, set environment variable %s",
+		PROLOG_NAME, ENV_VARIABLE);
 
   strcat(cmd_cc.opt, CFLAGS_MACHINE " " CFLAGS_REGS CC_COMPILE_OPT);
 
   if (devel_mode)
-    Init_Develop_Dir();
+    for (pdev = devel_dir; *pdev; pdev++)
+      sprintf(cmd_cc.opt + strlen(cmd_cc.opt), "%s%s" DIR_SEP_S "%s ",
+	      CC_INCLUDE_OPT, start_path, *pdev);
   else
     sprintf(cmd_cc.opt + strlen(cmd_cc.opt), "%s%s" DIR_SEP_S "include ",
 	    CC_INCLUDE_OPT, start_path);
@@ -385,160 +310,6 @@ path_found:
   Compile_Files();
 
   return 0;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * SEARCH_PATH                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Search_Path(char *file)
-{
-#ifndef M_ix86_win32
-
-  char *path = getenv("PATH");
-  char *p;
-  int l;
-  static char buff[MAXPATHLEN];
-
-  if (path == NULL)
-    return NULL;
-
-  p = path;
-  for (;;)
-    {
-      if ((p = strchr(path, ':')) != NULL)
-	{
-	  l = p - path;
-	  strncpy(buff, path, l);
-	}
-      else
-	{
-	  strcpy(buff, path);
-	  l = strlen(buff);
-	}
-
-      buff[l++] = DIR_SEP_C;
-
-      strcpy(buff + l, file);
-
-      if (access(buff, X_OK) == 0)
-	return buff;
-
-      if (p == NULL)
-	break;
-
-      path = p + 1;
-    }
-
-  return NULL;
-
-#else
-
-  static char buff[MAXPATHLEN];
-  char *file_part;
-
-  SearchPath(NULL, file, ".exe", MAXPATHLEN, buff, &file_part);
-
-  return buff;
-
-#endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * INIT_DEVELOP_DIR                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Init_Develop_Dir(void)
-{
-  char **p;
-
-  p = devel_dir;
-
-  Init_Develop_Dir_Rec(start_path, &p);
-
-  *p = NULL;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * INIT_DEVELOP_DIR                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Init_Develop_Dir_Rec(char *path, char ***p)
-{
-#ifdef M_ix86_win32
-  HANDLE h;
-  WIN32_FIND_DATA d;
-#else
-  DIR *dir;
-  struct dirent *cur_entry;
-  struct stat info;
-#endif
-  char *name;
-  char buff[MAXPATHLEN];
-
-
-#if 0
-  fprintf(stderr, "Searching sub-dir in: %s\n", path);
-#endif
-
-#ifdef M_ix86_win32
-  sprintf(buff, "%s\\*.*", path);
-  h = FindFirstFile(buff, &d);
-  if (h == INVALID_HANDLE_VALUE)
-#else
-  dir = opendir(path);
-  if (dir == NULL)
-#endif
-    Fatal_Error("Cannot access to %s", path);
-
-
-#ifdef M_ix86_win32
-  do
-    {
-      name = d.cFileName;
-#else
-  while ((cur_entry = readdir(dir)) != NULL)
-    {
-      name = cur_entry->d_name;
-#endif
-      sprintf(buff, "%s" DIR_SEP_S "%s", path, name);
-      if (*name != '.' && strcmp(name, "CVS") != 0 &&
-#ifdef M_ix86_win32
-	  (d.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-#else
-	  stat(buff, &info) == 0 && S_ISDIR(info.st_mode))
-#endif
-      {
-#ifdef DEBUG
-	fprintf(stderr, "sub-directory for include: %s (full: %s)\n", name,
-		buff);
-#endif
-	**p = strdup(buff);
-	(*p)++;
-	sprintf(cmd_cc.opt + strlen(cmd_cc.opt), "%s%s ",
-		CC_INCLUDE_OPT, buff);
-	Init_Develop_Dir_Rec(buff, p);
-      }
-#ifdef M_ix86_win32
-    }
-  while (FindNextFile(h, &d) != 0);
-  FindClose(h);
-#else
-    }
-  closedir(dir);
-#endif
 }
 
 
@@ -860,12 +631,10 @@ Link_Cmd(void)
     {
       if (gui_console)
 	{    /* modify Linedit/Makefile.in to follow this list of ld objects */
-	  Find_File(LIB_W32GUICONS, "", buff + strlen(buff));
-	  strcat(buff, " ");
 	  Find_File("w32gc_interf.obj", "", buff + strlen(buff));
-	  strcat(buff, " ");
-	  Find_File("GUICons.res", "", buff + strlen(buff));
+#if 0
 	  strcat(buff, " /link /subsystem:windows ");
+#endif
 	}
 #ifdef M_ix86_win32
       else
@@ -1009,7 +778,7 @@ void
 Find_File(char *file, char *suff, char *file_path)
 {
   char name[MAXPATHLEN];
-  char **p;
+  char **pdev;
 
   sprintf(name, "%s%s", file, suff);
   if (!devel_mode)
@@ -1020,43 +789,16 @@ Find_File(char *file, char *suff, char *file_path)
 	return;
     }
   else
-    for (p = devel_dir; *p; p++)
+    for (pdev = devel_dir; *pdev; pdev++)
       {
-	sprintf(file_path, "%s" DIR_SEP_S "%s", *p, name);
+	sprintf(file_path, "%s" DIR_SEP_S "%s" DIR_SEP_S "%s", start_path,
+		*pdev, name);
 	if (access(file_path, F_OK) == 0)
 	  return;
       }
 
   Fatal_Error("cannot locate file %s", name);
 }
-
-
-
-
-#ifdef M_ix86_win32
-
-/*-------------------------------------------------------------------------*
- * STR_CASE_STR                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Str_Case_Str(char *s1, char *s2)
-{
-  int l1 = strlen(s1);
-  int l2 = strlen(s2);
-  char *end = s1 + l1 - l2;
-
-  while (s1 <= end)
-    {
-      if (strncasecmp(s1, s2, l2) == 0)
-	return s1;
-      s1++;
-    }
-
-  return NULL;
-}
-
-#endif
 
 
 
@@ -1445,7 +1187,7 @@ Parse_Arguments(int argc, char *argv[])
       if (strcasecmp(PL_SUFFIX_ALTERNATE, f->suffix) == 0)
 	f->type = FILE_PL;
       else
-	if ((q = StrStr(C_SUFFIX_ALTERNATE, f->suffix)) &&
+	if ((q = strstr(C_SUFFIX_ALTERNATE, f->suffix)) &&
 	    q[-1] == '|' && q[strlen(f->suffix)] == '|')
 	f->type = FILE_C;
       else
@@ -1499,7 +1241,7 @@ Parse_Arguments(int argc, char *argv[])
  *-------------------------------------------------------------------------*/
 void
 Display_Help(void)
-#define L(msg)  fprintf(stderr,"%s\n",msg)
+#define L(msg)  fprintf(stderr, "%s\n", msg)
 {
   fprintf(stderr, "Usage: %s [OPTION]... FILE...\n", GPLC);
   L(" ");

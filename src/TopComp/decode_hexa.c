@@ -51,8 +51,8 @@ Decode_Hexa(char *str, char *format, int strict, int decode_aux)
   char *q, *s;
   int arity;
   int n;
-  char buff[1024];
-  static char result[2048];
+  static char buff[2048];
+  static char result[4096];
 
   if (format == NULL)
     format = "%s";

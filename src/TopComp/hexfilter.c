@@ -84,7 +84,7 @@ void Display_Help(void);
 
 
 
-#define Check_Arg(i,str)           (strncmp(argv[i],str,strlen(argv[i]))==0)
+#define Check_Arg(i, str)       (strncmp(argv[i], str, strlen(argv[i])) == 0)
 
 
 
@@ -163,7 +163,7 @@ One_Line(char *str)
   int n;
   char *p;
 
-#define Is_Sep(c) (c=='\0' || isspace(c) || strchr("'\"",c))
+#define Is_Sep(c) (c == '\0' || isspace(c) || strchr("'\"", c))
 
   if (encode)
     {
@@ -188,7 +188,8 @@ One_Line(char *str)
 		      break;
 		    }
 		}
-	      printf("%2X", *str++);
+	      printf("%2X", (unsigned) (unsigned char) *str);
+	      str++;
 	    }
 	}
       return;
@@ -320,7 +321,7 @@ Fatal_Error(char *format, ...)
  *-------------------------------------------------------------------------*/
 void
 Display_Help(void)
-#define L(msg)  fprintf(stderr,"%s\n",msg)
+#define L(msg)  fprintf(stderr, "%s\n", msg)
 {
   fprintf(stderr, "Usage: %s [OPTION]... [FILE...]", HEXGPLC);
   L(" ");
