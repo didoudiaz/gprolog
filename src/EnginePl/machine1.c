@@ -586,6 +586,7 @@ M_Mktemp(char *template)
     return NULL;
 
   close(fd);
+  unlink(template);		/* don't leave it sitting around... */
   return template;
 
 #else
