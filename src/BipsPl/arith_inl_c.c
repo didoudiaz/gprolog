@@ -56,7 +56,7 @@
 typedef struct
 {
   WamWord f_n;
-  WamWord (*fct) () FC;
+  FC WamWord (*fct) ();
 }
 ArithInf;
 

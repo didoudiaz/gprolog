@@ -42,242 +42,242 @@
 
 	  /* from type_inl_c.c */
 
-Bool Blt_Var(WamWord x) FC;
+Bool FC Blt_Var(WamWord x);
 
-Bool Blt_Non_Var(WamWord x) FC;
+Bool FC Blt_Non_Var(WamWord x);
 
-Bool Blt_Atom(WamWord x) FC;
+Bool FC Blt_Atom(WamWord x);
 
-Bool Blt_Integer(WamWord x) FC;
+Bool FC Blt_Integer(WamWord x);
 
-Bool Blt_Float(WamWord x) FC;
+Bool FC Blt_Float(WamWord x);
 
-Bool Blt_Number(WamWord x) FC;
+Bool FC Blt_Number(WamWord x);
 
-Bool Blt_Atomic(WamWord x) FC;
+Bool FC Blt_Atomic(WamWord x);
 
-Bool Blt_Compound(WamWord x) FC;
+Bool FC Blt_Compound(WamWord x);
 
-Bool Blt_Callable(WamWord x) FC;
+Bool FC Blt_Callable(WamWord x);
 
-Bool Blt_Fd_Var(WamWord x) FC;
+Bool FC Blt_Fd_Var(WamWord x);
 
-Bool Blt_Non_Fd_Var(WamWord x) FC;
+Bool FC Blt_Non_Fd_Var(WamWord x);
 
-Bool Blt_Generic_Var(WamWord x) FC;
+Bool FC Blt_Generic_Var(WamWord x);
 
-Bool Blt_Non_Generic_Var(WamWord x) FC;
+Bool FC Blt_Non_Generic_Var(WamWord x);
 
-Bool Blt_List(WamWord x) FC;
+Bool FC Blt_List(WamWord x);
 
-Bool Blt_Partial_List(WamWord x) FC;
+Bool FC Blt_Partial_List(WamWord x);
 
-Bool Blt_List_Or_Partial_List(WamWord x) FC;
+Bool FC Blt_List_Or_Partial_List(WamWord x);
 
 
 
 	  /* from term_inl_c.c */
 
-Bool Blt_Term_Eq(WamWord x, WamWord y) FC;
+Bool FC Blt_Term_Eq(WamWord x, WamWord y);
 
-Bool Blt_Term_Neq(WamWord x, WamWord y) FC;
+Bool FC Blt_Term_Neq(WamWord x, WamWord y);
 
-Bool Blt_Term_Lt(WamWord x, WamWord y) FC;
+Bool FC Blt_Term_Lt(WamWord x, WamWord y);
 
-Bool Blt_Term_Lte(WamWord x, WamWord y) FC;
+Bool FC Blt_Term_Lte(WamWord x, WamWord y);
 
-Bool Blt_Term_Gt(WamWord x, WamWord y) FC;
+Bool FC Blt_Term_Gt(WamWord x, WamWord y);
 
-Bool Blt_Term_Gte(WamWord x, WamWord y) FC;
+Bool FC Blt_Term_Gte(WamWord x, WamWord y);
 
 
 
-Bool Blt_Compare(WamWord cmp_word, WamWord x, WamWord y) FC;
+Bool FC Blt_Compare(WamWord cmp_word, WamWord x, WamWord y);
 
-Bool Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word) FC;
+Bool FC Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word);
 
-Bool Blt_Functor(WamWord term_word, WamWord functor_word,
-		 WamWord arity_word) FC;
+Bool FC Blt_Functor(WamWord term_word, WamWord functor_word,
+		    WamWord arity_word);
 
-Bool Blt_Univ(WamWord term_word, WamWord list_word) FC;
+Bool FC Blt_Univ(WamWord term_word, WamWord list_word);
 
 
 
 	  /* from g_var_inl_c.c */
 
-void Blt_G_Assign(WamWord x, WamWord y) FC;
+void FC Blt_G_Assign(WamWord x, WamWord y);
 
-void Blt_G_Assignb(WamWord x, WamWord y) FC;
+void FC Blt_G_Assignb(WamWord x, WamWord y);
 
-void Blt_G_Link(WamWord x, WamWord y) FC;
+void FC Blt_G_Link(WamWord x, WamWord y);
 
-Bool Blt_G_Read(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Read(WamWord x, WamWord y);
 
-Bool Blt_G_Array_Size(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Array_Size(WamWord x, WamWord y);
 
-void Blt_G_Inc(WamWord x) FC;
+void FC Blt_G_Inc(WamWord x);
 
-Bool Blt_G_Inco(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Inco(WamWord x, WamWord y);
 
-Bool Blt_G_Inc_2(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Inc_2(WamWord x, WamWord y);
 
-Bool Blt_G_Inc_3(WamWord x, WamWord y, WamWord z) FC;
+Bool FC Blt_G_Inc_3(WamWord x, WamWord y, WamWord z);
 
-void Blt_G_Dec(WamWord x) FC;
+void FC Blt_G_Dec(WamWord x);
 
-Bool Blt_G_Deco(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Deco(WamWord x, WamWord y);
 
-Bool Blt_G_Dec_2(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Dec_2(WamWord x, WamWord y);
 
-Bool Blt_G_Dec_3(WamWord x, WamWord y, WamWord z) FC;
+Bool FC Blt_G_Dec_3(WamWord x, WamWord y, WamWord z);
 
-void Blt_G_Set_Bit(WamWord x, WamWord y) FC;
+void FC Blt_G_Set_Bit(WamWord x, WamWord y);
 
-void Blt_G_Reset_Bit(WamWord x, WamWord y) FC;
+void FC Blt_G_Reset_Bit(WamWord x, WamWord y);
 
-Bool Blt_G_Test_Set_Bit(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Test_Set_Bit(WamWord x, WamWord y);
 
-Bool Blt_G_Test_Reset_Bit(WamWord x, WamWord y) FC;
+Bool FC Blt_G_Test_Reset_Bit(WamWord x, WamWord y);
 
 
 
 
 	  /* from arith_inl_c.c */
 
-void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr) FC;
+void FC Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr);
 
-void Math_Load_Value(WamWord start_word, WamWord *word_adr) FC;
+void FC Math_Load_Value(WamWord start_word, WamWord *word_adr);
 
-WamWord Fct_Fast_Neg(WamWord x) FC;
+WamWord FC Fct_Fast_Neg(WamWord x);
 
-WamWord Fct_Fast_Inc(WamWord x) FC;
+WamWord FC Fct_Fast_Inc(WamWord x);
 
-WamWord Fct_Fast_Dec(WamWord x) FC;
+WamWord FC Fct_Fast_Dec(WamWord x);
 
-WamWord Fct_Fast_Add(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Add(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Sub(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Sub(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Mul(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Mul(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Div(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Div(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Rem(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Rem(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Mod(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Mod(WamWord x, WamWord y);
 
-WamWord Fct_Fast_And(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_And(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Or(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Or(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Xor(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Xor(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Not(WamWord x) FC;
+WamWord FC Fct_Fast_Not(WamWord x);
 
-WamWord Fct_Fast_Shl(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Shl(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Shr(WamWord x, WamWord y) FC;
+WamWord FC Fct_Fast_Shr(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Abs(WamWord x) FC;
+WamWord FC Fct_Fast_Abs(WamWord x);
 
-WamWord Fct_Fast_Sign(WamWord x) FC;
+WamWord FC Fct_Fast_Sign(WamWord x);
 
-WamWord Fct_Neg(WamWord x) FC;
+WamWord FC Fct_Neg(WamWord x);
 
-WamWord Fct_Inc(WamWord x) FC;
+WamWord FC Fct_Inc(WamWord x);
 
-WamWord Fct_Dec(WamWord x) FC;
+WamWord FC Fct_Dec(WamWord x);
 
-WamWord Fct_Add(WamWord x, WamWord y) FC;
+WamWord FC Fct_Add(WamWord x, WamWord y);
 
-WamWord Fct_Sub(WamWord x, WamWord y) FC;
+WamWord FC Fct_Sub(WamWord x, WamWord y);
 
-WamWord Fct_Mul(WamWord x, WamWord y) FC;
+WamWord FC Fct_Mul(WamWord x, WamWord y);
 
-WamWord Fct_Div(WamWord x, WamWord y) FC;
+WamWord FC Fct_Div(WamWord x, WamWord y);
 
-WamWord Fct_Float_Div(WamWord x, WamWord y) FC;
+WamWord FC Fct_Float_Div(WamWord x, WamWord y);
 
-WamWord Fct_Rem(WamWord x, WamWord y) FC;
+WamWord FC Fct_Rem(WamWord x, WamWord y);
 
-WamWord Fct_Mod(WamWord x, WamWord y) FC;
+WamWord FC Fct_Mod(WamWord x, WamWord y);
 
-WamWord Fct_And(WamWord x, WamWord y) FC;
+WamWord FC Fct_And(WamWord x, WamWord y);
 
-WamWord Fct_Or(WamWord x, WamWord y) FC;
+WamWord FC Fct_Or(WamWord x, WamWord y);
 
-WamWord Fct_Xor(WamWord x, WamWord y) FC;
+WamWord FC Fct_Xor(WamWord x, WamWord y);
 
-WamWord Fct_Not(WamWord x) FC;
+WamWord FC Fct_Not(WamWord x);
 
-WamWord Fct_Shl(WamWord x, WamWord y) FC;
+WamWord FC Fct_Shl(WamWord x, WamWord y);
 
-WamWord Fct_Shr(WamWord x, WamWord y) FC;
+WamWord FC Fct_Shr(WamWord x, WamWord y);
 
-WamWord Fct_Abs(WamWord x) FC;
+WamWord FC Fct_Abs(WamWord x);
 
-WamWord Fct_Sign(WamWord x) FC;
+WamWord FC Fct_Sign(WamWord x);
 
 
 
-WamWord Fct_Min(WamWord x, WamWord y) FC;
+WamWord FC Fct_Min(WamWord x, WamWord y);
 
-WamWord Fct_Max(WamWord x, WamWord y) FC;
+WamWord FC Fct_Max(WamWord x, WamWord y);
 
-WamWord Fct_Pow(WamWord x, WamWord y) FC;
+WamWord FC Fct_Pow(WamWord x, WamWord y);
 
-WamWord Fct_Sqrt(WamWord x) FC;
+WamWord FC Fct_Sqrt(WamWord x);
 
-WamWord Fct_Atan(WamWord x) FC;
+WamWord FC Fct_Atan(WamWord x);
 
-WamWord Fct_Cos(WamWord x) FC;
+WamWord FC Fct_Cos(WamWord x);
 
-WamWord Fct_Acos(WamWord x) FC;
+WamWord FC Fct_Acos(WamWord x);
 
-WamWord Fct_Sin(WamWord x) FC;
+WamWord FC Fct_Sin(WamWord x);
 
-WamWord Fct_Asin(WamWord x) FC;
+WamWord FC Fct_Asin(WamWord x);
 
-WamWord Fct_Exp(WamWord x) FC;
+WamWord FC Fct_Exp(WamWord x);
 
-WamWord Fct_Log(WamWord x) FC;
+WamWord FC Fct_Log(WamWord x);
 
-WamWord Fct_Float(WamWord x) FC;
+WamWord FC Fct_Float(WamWord x);
 
-WamWord Fct_Ceiling(WamWord x) FC;
+WamWord FC Fct_Ceiling(WamWord x);
 
-WamWord Fct_Floor(WamWord x) FC;
+WamWord FC Fct_Floor(WamWord x);
 
-WamWord Fct_Round(WamWord x) FC;
+WamWord FC Fct_Round(WamWord x);
 
-WamWord Fct_Truncate(WamWord x) FC;
+WamWord FC Fct_Truncate(WamWord x);
 
-WamWord Fct_Float_Fract_Part(WamWord x) FC;
+WamWord FC Fct_Float_Fract_Part(WamWord x);
 
-WamWord Fct_Float_Integ_Part(WamWord x) FC;
+WamWord FC Fct_Float_Integ_Part(WamWord x);
 
-WamWord Fct_Identity(WamWord x) FC;
+WamWord FC Fct_Identity(WamWord x);
 
-Bool Blt_Fast_Eq(WamWord x, WamWord y) FC;
+Bool FC Blt_Fast_Eq(WamWord x, WamWord y);
 
-Bool Blt_Fast_Neq(WamWord x, WamWord y) FC;
+Bool FC Blt_Fast_Neq(WamWord x, WamWord y);
 
-Bool Blt_Fast_Lt(WamWord x, WamWord y) FC;
+Bool FC Blt_Fast_Lt(WamWord x, WamWord y);
 
-Bool Blt_Fast_Lte(WamWord x, WamWord y) FC;
+Bool FC Blt_Fast_Lte(WamWord x, WamWord y);
 
-Bool Blt_Fast_Gt(WamWord x, WamWord y) FC;
+Bool FC Blt_Fast_Gt(WamWord x, WamWord y);
 
-Bool Blt_Fast_Gte(WamWord x, WamWord y) FC;
+Bool FC Blt_Fast_Gte(WamWord x, WamWord y);
 
-Bool Blt_Eq(WamWord x, WamWord y) FC;
+Bool FC Blt_Eq(WamWord x, WamWord y);
 
-Bool Blt_Neq(WamWord x, WamWord y) FC;
+Bool FC Blt_Neq(WamWord x, WamWord y);
 
-Bool Blt_Lt(WamWord x, WamWord y) FC;
+Bool FC Blt_Lt(WamWord x, WamWord y);
 
-Bool Blt_Lte(WamWord x, WamWord y) FC;
+Bool FC Blt_Lte(WamWord x, WamWord y);
 
-Bool Blt_Gt(WamWord x, WamWord y) FC;
+Bool FC Blt_Gt(WamWord x, WamWord y);
 
-Bool Blt_Gte(WamWord x, WamWord y) FC;
+Bool FC Blt_Gte(WamWord x, WamWord y);

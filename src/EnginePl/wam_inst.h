@@ -333,14 +333,14 @@ void FC Allocate(int n);
 
 void FC Deallocate(void);
 
-CodePtr Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-		       CodePtr c_lst, CodePtr c_stc) FC;
+CodePtr FC Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
+		          CodePtr c_lst, CodePtr c_stc);
 CodePtr FC Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm);
 CodePtr FC Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc);
-CodePtr Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
-				   CodePtr c_lst) FC;
-CodePtr Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
-				   CodePtr c_stc) FC;
+CodePtr FC Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
+				      CodePtr c_lst);
+CodePtr FC Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
+				      CodePtr c_stc);
 
 CodePtr FC Switch_On_Atom(SwtTbl t, int size);
 

@@ -80,7 +80,7 @@ Html/index.html: $(HTMLNAME)
 
 chm: $(CHMNAME)
 
-$(CHMNAME): $(HTMLNAME) Html/hh-manual.hhp Html/index.html
+$(CHMNAME): $(HTMLNAME) Html/hh-$(PREFIX).hhp Html/index.html
 	-(cd Html; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) ..) 2>/dev/null || exit 0
 
 clean:

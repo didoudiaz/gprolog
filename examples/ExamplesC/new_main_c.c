@@ -68,6 +68,7 @@ Main_Wrapper(int argc, char *argv[])
   for (;;)
     {
       printf("\nEnter a name (or 'end' to finish): ");
+      fflush(stdout);
       scanf("%s", str);
 
       if (strcmp(str, "end") == 0)

@@ -251,7 +251,7 @@ extern int resource_too_big_fd_constraint; /* for FD */
 
 void Set_Bip_Name_2(WamWord func_word, WamWord arity_word);
 
-void Set_C_Bip_Name(char *func_str, int arity) FC;
+void FC Set_C_Bip_Name(char *func_str, int arity);
 
 void Unset_C_Bip_Name(void);
 

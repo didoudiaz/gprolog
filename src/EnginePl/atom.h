@@ -165,17 +165,17 @@ extern char escape_char[];
 
 void Init_Atom(void);
 
-int Create_Allocate_Atom(char *name) FC;
+int FC Create_Allocate_Atom(char *name);
 
-int Create_Atom(char *name) FC;
+int FC Create_Atom(char *name);
 
-WamWord Create_Atom_Tagged(char *name) FC;
+WamWord FC Create_Atom_Tagged(char *name);
 
-int Find_Atom(char *name) FC;
+int FC Find_Atom(char *name);
 
-int Gen_New_Atom(char *prefix, int hash) FC;
+int FC Gen_New_Atom(char *prefix, int hash);
 
-int Find_Next_Atom(int last_atom) FC;
+int FC Find_Next_Atom(int last_atom);
 
 
 
