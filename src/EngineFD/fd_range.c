@@ -1136,7 +1136,7 @@ Range_Set_Value(Range *range, int n)
 
       if (n == range->min - 1)
 	{
-	  range->min++;
+	  range->min--;
 	  return;
 	}
 

@@ -1,33 +1,5 @@
 
-foo(l_fdv list)
+foo(fdv i)
 {
- start forall i of list do
-   i in 1..10
-}
-
-
-dist_le(fdv s1, fdv s2, int d, int size_y)
-{
-  start s1 in Dist_LE(val(s2), d, size_y)
-  start s2 in Dist_LE(val(s1), d, size_y)
-}
-
-%{
-void
-Detect(Range *r, int x, int y)
-{
-  int n = (x == y);
-
-printf("n: %d\n", n);
-  Range_Init_Interval(r, n, n);
-}
-
-
-%}
-
-bar(fdv r, fdv x, fdv y)
-{
- start r in 0..1    /* a enlever si on se fout de r */
-                    /* avant que x et y soient clos */
- start r in Detect(val(x),val(y)) 
+ start i in 2..4:1..1
 }
