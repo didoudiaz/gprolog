@@ -1,0 +1,26 @@
+GPLC   = @GPLC@
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+
+# other local variables
+
+#CFLAGS    = -O3
+#CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer
+CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
+
+#CFLAGS= /Ox /Oy
+
+opt: 
+	 $(GPLC) -c -C '$(CFLAGS) -S' -o asm_inst.s asm_inst.c
+
+
+no:
+	 $(GPLC) -c -C '-S' -o asm_inst.s asm_inst.c
+
+clean:
+	-rm *.s
+
+
+
+

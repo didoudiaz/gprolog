@@ -1,0 +1,55 @@
+     GET_X_VARIABLE		| x       | x  | op |
+     GET_Y_VARIABLE		| y       | x  | op |
+     GET_X_VALUE		| x       | x  | op |
+     GET_Y_VALUE		| y       | x  | op |
+     GET_ATOM    		| cst16   | x  | op |
+     GET_INTEGER		| int16   | x  | op |
+     GET_INTEGER_BIG		| ------- | x  | op | | int32   |
+     GET_FLOAT			| ------- | x  | op | | dbl64-1 | | dbl64-2 |
+     GET_NIL			| ------- | x  | op |
+     GET_LIST			| ------- | x  | op |
+     GET_STRUCTURE		| fun16   | x  | op | | ari8    |
+     				 	        	     
+     PUT_X_VARIABLE		| x       | x  | op |
+     PUT_Y_VARIABLE		| y       | x  | op |
+     PUT_VOID			| ------- | x  | op |
+     PUT_X_VALUE		| x       | x  | op |
+     PUT_Y_VALUE		| y       | x  | op |
+     PUT_Y_UNSAFE_VALUE		| y       | x  | op |
+     PUT_ATOM    		| cst16   | x  | op |
+     PUT_INTEGER		| int16   | x  | op |
+     PUT_INTEGER_BIG		| ------- | x  | op | | int32   |
+     PUT_FLOAT			| ------- | x  | op | | dbl64-1 | | dbl64-2 |
+     PUT_NIL			| ------- | x  | op |
+     PUT_LIST			| ------- | x  | op |
+     PUT_STRUCTURE		| fun16   | x  | op | | ari8    |
+				 	        	     
+     MATH_LOAD_X_VALUE		| x       | x  | op |
+     MATH_LOAD_Y_VALUE		| y       | x  | op |
+     				 	        	     
+     UNIFY_X_VARIABLE		| x       | -- | op |
+     UNIFY_Y_VARIABLE		| y       | -- | op |
+     UNIFY_VOID			| int16   | -- | op |
+     UNIFY_X_VALUE		| x       | -- | op |
+     UNIFY_Y_VALUE		| y       | -- | op |
+     UNIFY_X_LOCAL_VALUE	| x       | -- | op |
+     UNIFY_Y_LOCAL_VALUE	| y       | -- | op |
+     UNIFY_ATOM    		| cst16   | -- | op |
+     UNIFY_INTEGER		| int16   | -- | op | | int32   |
+     UNIFY_INTEGER_BIG		| ------------ | op | | int32   |
+     UNIFY_NIL			| ------------ | op |
+     UNIFY_LIST			| ------------ | op |
+     UNIFY_STRUCTURE		| fun16   | ar8| op |
+     				 	        	     
+     ALLOCATE			| int16   | -- | op |
+     DEALLOCATE			| ------------ | op |
+     				 		     
+     CALL			| fun16   | ar8| op | | f/n | of the caller
+     CALL_NATIVE		| fun16   | ar8| op | | adr32/64|
+     EXECUTE			| fun16   | ar8| op | | f/n | of the caller
+     EXECUTE_NATIVE		| fun16   | ar8| op | | adr32/64|
+     PROCEED			| ------------ | op |
+     FAIL			| ------------ | op |
+     				 		     
+     CUT_X			| x       | -- | op |
+     CUT_Y			| y       | -- | op |

@@ -69,6 +69,7 @@ src/Ma2Asm/Makefile.in
 src/Ma2Asm/[a-z][a-z]?*.[ch]
 src/Ma2Asm/[a-z][a-z]?*.ma
 src/Ma2Asm/FromC/Makefile
+src/Ma2Asm/FromC/Makefile.in
 src/Ma2Asm/FromC/[a-z][a-z]?*.[ch]
 
 src/Fd2C/FD_SYNTAX
