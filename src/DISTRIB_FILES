@@ -9,7 +9,7 @@ VERSION
 doc/README
 doc/Makefile
 doc/check_fp
-doc/[a-z][a-z]?*.tex
+doc/[a-z][a-z-]?*.tex
 doc/[a-z][a-z]?*.sty
 doc/[a-z][a-z]?*.hva
 doc/[a-z][a-z]?*.fig
