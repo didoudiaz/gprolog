@@ -91,7 +91,7 @@ $(HTMLNAME): custom.hva $(TEX_SRC)
 
 Html/index.html: $(HTMLNAME)
 	rm -f Html/index.html Html/$(PREFIX)*.html
-	(cd Html && hacha -hrf -tocbis ../$(HTMLNAME) && hh_do_hhc_hhk $(PREFIX))
+	(cd Html && hacha -hrf -tocbis ../$(HTMLNAME) && ./hh_do_hhc_hhk $(PREFIX))
 
 chm: $(CHMNAME)
 
