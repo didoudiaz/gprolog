@@ -216,7 +216,7 @@ void Parse_Arguments(int argc, char *argv[]);
 
 void Display_Help(void);
 
-void Compute_Hexa(char *str, char *hexa);
+void Compute_Hexa(unsigned char *str, char *hexa);
 
 void Emit_Obj_Initializer(void);
 
@@ -415,7 +415,7 @@ main(int argc, char *argv[])
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Compute_Hexa(char *str, char *hexa)
+Compute_Hexa(unsigned char *str, char *hexa)
 {
   *hexa++ = 'X';
 

@@ -73,18 +73,6 @@ generate_body([p(NoPred, Pred / N, LArg)|Body], NbChunk, WamPred) :-
 generate_body1(fail, 0, _, _, _, _, [fail]) :-
 	!.
 
-generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
-	inline_predicate(Pred, N),
-	!,
-	gen_inline_pred(Pred, N, LArg, WamBody, WamPred), !,
-	(   Body = [] ->
-	    (   NoPred > 1 ->
-	        WamBody = [deallocate, proceed]
-	    ;   WamBody = [proceed]
-	    )
-	;   generate_body(Body, NbChunk, WamBody)
-	).
-
 generate_body1('$call_c', 2, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	!,
 	(   Arg = atm(Name),
@@ -99,12 +87,24 @@ generate_body1('$call_c', 2, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	WamCallCInst = call_c(Name, LCOpt1, LValue),
 	(   Body = [] ->
 	    (   NoPred > 1 ->
-	        WamCallC1 = [deallocate, WamCallCInst,proceed]
-	    ;   WamCallC1 = [WamCallCInst,proceed]
+	        WamCallC1 = [deallocate, WamCallCInst, proceed]
+	    ;   WamCallC1 = [WamCallCInst, proceed]
 	    )
 	;
 	    WamCallC1 = [WamCallCInst|WamBody],
 	    generate_body(Body, NbChunk, WamBody)
+	).
+
+generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
+	inline_predicate(Pred, N),
+	!,
+	gen_inline_pred(Pred, N, LArg, WamBody, WamPred), !,
+	(   Body = [] ->
+	    (   NoPred > 1 ->
+	        WamBody = [deallocate, proceed]
+	    ;   WamBody = [proceed]
+	    )
+	;   generate_body(Body, NbChunk, WamBody)
 	).
 
 generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamLArg) :-
