@@ -4,7 +4,7 @@
 
 # if you change here the version also change it in PROLOG_VERSION below
 
-AC_INIT(gprolog, 1.2.12, bug-prolog@gnu.org)
+AC_INIT(gprolog, 1.2.13, bug-prolog@gnu.org)
 AC_PREREQ(2.52)
 # AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -31,8 +31,8 @@ AC_CONFIG_FILES(Makefile
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.2.12'
-PROLOG_DATE='Mar 27 2002'
+PROLOG_VERSION='1.2.13'
+PROLOG_DATE='Apr 20 2002'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2002 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
@@ -304,21 +304,23 @@ else
 		cygwin*)        AC_DEFINE(M_cygwin);;
 		*sco*)          AC_DEFINE(M_sco);;
 		*bsd*)		AC_DEFINE(M_bsd);;
+		*darwin*)	AC_DEFINE(M_bsd);;
 	esac
 
 	case "$host" in
-		mips*irix*)     AC_DEFINE(M_mips_irix);;
-		sparc*sunos*)   AC_DEFINE(M_sparc_sunos);;
-		sparc*solaris*) AC_DEFINE(M_sparc_solaris);;
-	        alpha*osf*)     AC_DEFINE(M_alpha_osf);;
-	        alpha*linux*)   AC_DEFINE(M_alpha_linux);;
-		i*86*linux*)    AC_DEFINE(M_ix86_linux);;
-		i*86*solaris*)  AC_DEFINE(M_ix86_solaris);;
-		i*86*sco*)      AC_DEFINE(M_ix86_sco);;
-		i*86*bsd*)      AC_DEFINE(M_ix86_bsd);;
-        	powerpc*linux*) AC_DEFINE(M_powerpc_linux);;
-		*86*cygwin*)    AC_DEFINE(M_ix86_cygwin);;
-		*)              AC_MSG_ERROR(unsupported architecture)
+		mips*irix*)      AC_DEFINE(M_mips_irix);;
+		sparc*sunos*)    AC_DEFINE(M_sparc_sunos);;
+		sparc*solaris*)  AC_DEFINE(M_sparc_solaris);;
+	        alpha*osf*)      AC_DEFINE(M_alpha_osf);;
+	        alpha*linux*)    AC_DEFINE(M_alpha_linux);;
+		i*86*linux*)     AC_DEFINE(M_ix86_linux);;
+		i*86*solaris*)   AC_DEFINE(M_ix86_solaris);;
+		i*86*sco*)       AC_DEFINE(M_ix86_sco);;
+		i*86*bsd*)       AC_DEFINE(M_ix86_bsd);;
+        	powerpc*linux*)  AC_DEFINE(M_powerpc_linux);;
+		powerpc*darwin*) AC_DEFINE(M_powerpc_darwin);;
+		*86*cygwin*)     AC_DEFINE(M_ix86_cygwin);;
+		*)               AC_MSG_ERROR(unsupported architecture)
 	esac
 
 fi
@@ -326,7 +328,7 @@ fi
 AC_CHECK_SIZEOF(long)
 AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
 AC_FUNC_MMAP 
-AC_CHECK_FUNCS(mallopt mkstemp fgetc)
+AC_CHECK_FUNCS(mallopt fgetc)
 
 
 # ********************
@@ -368,6 +370,7 @@ else
 		i686*)             CFLAGS_MACHINE='-mcpu=pentiumpro';;
 		i586*)             CFLAGS_MACHINE='-mcpu=pentium';;
 		i*86*)             CFLAGS_MACHINE='-mcpu=i486';;
+		powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc';;
 	esac
 
 	case "$host" in
@@ -389,6 +392,12 @@ else
 #	case "$host" in
 #		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
 #	esac
+
+
+	case "$host" in
+		powerpc*darwin*)	RANLIB="$RANLIB -c";;
+	esac
+
 fi
 
 

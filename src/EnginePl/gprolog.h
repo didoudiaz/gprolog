@@ -34,7 +34,6 @@ extern "C" {
 #define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
-#define HAVE_MKSTEMP 1
 #define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
@@ -42,8 +41,8 @@ extern "C" {
 #define M_ix86_linux 1
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
-#define PROLOG_VERSION "1.2.12"
-#define PROLOG_DATE "Mar 27 2002"
+#define PROLOG_VERSION "1.2.13"
+#define PROLOG_DATE "Apr 20 2002"
 #define PROLOG_COPYRIGHT "Copyright (C) 1999-2002 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
@@ -157,9 +156,9 @@ extern "C" {
 #define START_PRED_TBL_SIZE        4096
 #define START_OPER_TBL_SIZE        1024
 #define ATOM_SIZE                  16
-#define MAX_ATOM                   (1<<ATOM_SIZE)	/* number of elements */
+#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
 #define NB_OF_X_REGS               256
-#define MAX_ARITY                  (NB_OF_X_REGS-1)
+#define MAX_ARITY                  (NB_OF_X_REGS - 1)
 typedef struct
 {
   char *endt;
@@ -695,10 +694,10 @@ void SIGSEGV_Handler(void);
 #if defined(M_ix86) && !defined(M_ix86_win32) && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
-    defined(M_ix86_linux)  || defined(M_powerpc_linux) || \
-    defined(M_ix86_sco)    || defined(M_ix86_solaris)  || \
-    defined(M_mips_irix)   || \
+#if defined(M_sparc_sunos) || defined(M_sparc_solaris)  || \
+    defined(M_ix86_linux)  || defined(M_powerpc_linux)  || \
+    defined(M_ix86_sco)    || defined(M_ix86_solaris)   || \
+    defined(M_mips_irix)   || defined(M_powerpc_darwin) || \
     defined(M_ix86_win32)
 #   define M_USE_MMAP
 #   define M_MMAP_HIGH_ADR         0x0ffffff0
@@ -715,7 +714,7 @@ void SIGSEGV_Handler(void);
 #if defined(M_sunos) || defined(M_solaris)
 #   define MMAP_NEEDS_FIXED
 #endif
-#ifdef M_USE_MALLOC
+#if defined(M_USE_MALLOC) || defined(M_powerpc_darwin)
 #define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 void M_Check_Magic_Words(void);
 #endif
@@ -1403,11 +1402,19 @@ typedef struct			/* Push Back stack                */
 }
 PbStk;
 typedef int (*StmFct) ();	/* generic type for file fctions */
-typedef struct			/* Stream information             */
+typedef struct stm_lst *PStmLst;
+typedef struct stm_lst		/* Chained stream list            */
+{				/* ------------------------------ */
+  int stm;			/* the stream                     */
+  PStmLst next;			/* next entry                     */
+} StmLst;
+typedef struct stm_inf		/* Stream information             */
 {				/* ------------------------------ */
   int atom_file_name;		/* atom associated to filename    */
-  long file;			/* accessor (FILE *,TTYInf *)!=0  */
+  long file;			/* accessor (FILE *,TTYInf *) != 0*/
   StmProp prop;			/* assoctiated properties         */
+  StmLst *mirror;		/* mirror streams                 */
+  StmLst *mirror_of;            /* streams this stream as mirror  */
   StmFct fct_getc;		/* get char function (mandatory)  */
   StmFct fct_putc;		/* put char function (mandatory)  */
   StmFct fct_flush;		/* flush    function (optional)   */
@@ -1415,7 +1422,7 @@ typedef struct			/* Stream information             */
   StmFct fct_tell;		/* tell     function (optional)   */
   StmFct fct_seek;		/* seek     function (optional)   */
   StmFct fct_clearerr;		/* clearerr function (optional)   */
-  Bool eof_reached;		/* eof char has been read ?       */
+  Bool eof_reached;		/* has eof char been read ?       */
   PbStk pb_char;		/* character push back stack      */
   int char_count;		/* character read count           */
   int line_count;		/* line read count                */
@@ -1523,24 +1530,28 @@ extern int atom_bof;
 extern int atom_current;
 extern int atom_eof;
 #endif
-StmProp Get_Stream_Mode(WamWord mode_word, Bool only_rw, char *open_str);
 int Add_Stream(int atom_file_name, long file, StmProp prop,
 	       StmFct fct_getc, StmFct fct_putc,
 	       StmFct fct_flush, StmFct fct_close,
 	       StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
+int Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text);
+int Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
 void Delete_Stream(int stm);
 int Find_Stream_By_Alias(int atom_alias);
 Bool Add_Alias_To_Stream(int atom_alias, int stm);
 void Reassign_Alias(int atom_alias, int stm);
-void Del_Aliases_Of_Stream(int stm);
+void Add_Mirror_To_Stream(int stm, int m_stm);
+Bool Del_Mirror_From_Stream(int stm, int m_stm);
 int Find_Stream_From_PStm(StmInf *pstm);
 void Flush_All_Streams(void);
 void Set_Stream_Buffering(int stm);
 int Get_Stream_Or_Alias(WamWord sora_word, int test_mask);
 void Check_Stream_Type(int stm, Bool check_text, Bool for_input);
 WamWord Make_Stream_Tagged_Word(int stm);
-int File_Number_Of_Stream(int stm);
-FILE *File_Star_Of_Stream(int stm);
+Bool Stdio_Is_Repositionable(FILE *f);
+void Stdio_Set_Buffering(FILE *f, int buffering);
+FILE *Stdio_Desc_Of_Stream(int stm);
+int Io_Fileno_Of_Stream(int stm);
 int Stream_Getc(StmInf *pstm);
 int Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
 void Stream_Ungetc(int c, StmInf *pstm);

@@ -677,11 +677,11 @@ Pl_Jump(char *label)
 
 
 /*-------------------------------------------------------------------------*
- * PL_CALL                                                                 *
+ * PREP_CP                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Call(char *label)
+Prep_CP(void)
 {
 #ifdef MAP_REG_CP
   Inst_Printf("lda", "%s,$Lcont%d", asm_reg_cp, w_label);	/* CP = $Lcont%d */
@@ -689,15 +689,38 @@ Pl_Call(char *label)
   Inst_Printf("lda", "$4,$Lcont%d", w_label);	/* CP = $Lcont%d */
   Inst_Printf("stq", "$4,%s", asm_reg_cp);
 #endif
+}
 
-  Pl_Jump(label);
 
+
+
+/*-------------------------------------------------------------------------*
+ * HERE_CP                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Here_CP(void)
+{
   Label_Printf("$Lcont%d:", w_label++);
 
   /* get GP back */
   /* this has only be introduced to get dynamic object loading work */
   /* Inst_Printf("ldgp","$gp,0($27)"); */
+}
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CALL                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Call(char *label)
+{
+  Prep_CP();
+  Pl_Jump(label);
+  Here_CP();
 }
 
 

@@ -35,6 +35,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "gp_config.h"		/* ensure __unix__ defined if not Win32 */
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
 #endif
@@ -124,9 +126,11 @@ static char cur_work_dir[MAXPATHLEN];
 
 #ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 
-static WamWord *check_adr[NB_OF_STACKS + 1];
+static WamWord *check_adr[NB_OF_STACKS];
 
-#else
+#endif
+
+#ifdef M_USE_MMAP
 
 static int page_size;
 
@@ -304,11 +308,14 @@ M_Allocate_Stacks(void)
 #endif
 
 #ifdef M_ix86_win32
-  if (addr == NULL)
+  if (addr == NULL
 #else
   if ((long) addr == -1
-      || (((unsigned long) (addr) + len) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
 #endif
+#if TAG_SIZE_HIGH > 0
+      || (((unsigned long) (addr) + len) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0
+#endif
+      )
     {
 #if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
       if (i == 0)
@@ -383,11 +390,15 @@ Fill_Magic_Adr_Table(void)
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
-      check_adr[i] = stk_tbl[i].stack + stk_tbl[i].size - M_SECURITY_MARGIN;
-      *check_adr[i] = M_MAGIC;
+      if (stk_tbl[i].size == 0)
+	check_adr[i] = (WamWord *) NULL;
+      else
+	{
+	  check_adr[i] = stk_tbl[i].stack + stk_tbl[i].size -
+	    M_SECURITY_MARGIN;
+	  *check_adr[i] = M_MAGIC;
+	}
     }
-
-  check_adr[NB_OF_STACKS] = NULL;
 }
 
 #endif
@@ -570,11 +581,11 @@ SIGSEGV_Handler(int sig)
 void
 M_Check_Magic_Words(void)
 {
-  WamWord **p = (WamWord **) check_adr;
+  int i;
 
-  for (p = (WamWord **) check_adr; *p; p++)
-    if (**p != M_MAGIC)
-      Stack_Overflow(p - (WamWord **) check_adr);
+  for (i = 0; i < NB_OF_STACKS; i++)
+    if (check_adr[i] && *check_adr[i] != M_MAGIC)
+      Stack_Overflow(i);
 }
 
 #endif

@@ -236,8 +236,11 @@ Parser(void)
   while ((k = Scanner(0)) != 0)	/* end of file */
     {
       if (k != ATOM)
-	Syntax_Error
-	  ("file_name, predicate, directive or ensure_linked expected");
+	{
+	top_error:
+	  Syntax_Error("file_name, predicate, directive "
+		       "or ensure_linked expected");
+	}
 
       if (strcmp(str_val, "file_name") == 0)
 	{
@@ -266,7 +269,7 @@ Parser(void)
       if (strcmp(str_val, "directive") == 0)
 	inside_directive = 1;
       else if (strcmp(str_val, "predicate") != 0)
-	Syntax_Error("file_name, predicate or directive expected");
+	goto top_error;
 
       Read_Token('(');
       if (!inside_directive)
@@ -746,6 +749,9 @@ Peek_Char(int skip_spaces)
 
   return *p;
 }
+
+
+
 
 /*-------------------------------------------------------------------------*
  * SYNTAX_ERROR                                                            *

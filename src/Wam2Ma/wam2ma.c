@@ -38,6 +38,7 @@
 #include "../BipsPl/pred_supp.h"
 
 #include "wam_parser.h"
+#include "wam_protos.h"
 #include "bt_string.c"
 #include "../TopComp/copying.c"
 
@@ -69,6 +70,7 @@
 #define DEFAULT_OUTPUT_SUFFIX      ".ma"
 
 #define MAX_PRED_NAME_LENGTH       2048
+#define MAX_HEXA_LENGTH            MAX_PRED_NAME_LENGTH * 2 + 2 + 16
 #define MAX_LABEL_LENGTH           32
 
 
@@ -141,7 +143,6 @@ typedef struct predinf
 {
   BTNode *functor;
   int arity;
-  char *hexa;
   int line_no;
   int prop;
   BTNode *pl_file;
@@ -184,7 +185,7 @@ BTString bt_tagged_f_n;
 
 BTNode *cur_pl_file;
 
-char buff_hexa[MAX_PRED_NAME_LENGTH * 2 + 2];
+char buff_hexa[MAX_HEXA_LENGTH];
 
 Pred dummy_pred_start;
 Pred *pred_end = &dummy_pred_start;
@@ -216,7 +217,9 @@ void Parse_Arguments(int argc, char *argv[]);
 
 void Display_Help(void);
 
-void Compute_Hexa(unsigned char *str, char *hexa);
+char *Compute_Hexa(unsigned char *str, char *hexa);
+
+void Make_Native_Hexa_Symbol(Pred *p, char *buff);
 
 void Emit_Obj_Initializer(void);
 
@@ -414,7 +417,7 @@ main(int argc, char *argv[])
  * COMPUTE_HEXA                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+char *
 Compute_Hexa(unsigned char *str, char *hexa)
 {
   *hexa++ = 'X';
@@ -427,6 +430,21 @@ Compute_Hexa(unsigned char *str, char *hexa)
     }
 
   *hexa = '\0';
+  return hexa;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * MAKE_NATIVE_HEXA_SYMBOL                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Make_Native_Hexa_Symbol(Pred *p, char *buff)
+{
+  buff = Compute_Hexa(p->functor->str, buff);
+  sprintf(buff, "_%d", p->arity);
 }
 
 
@@ -443,7 +461,7 @@ Emit_Obj_Initializer(void)
   Pred *p;
   int i, j;
   char l[MAX_LABEL_LENGTH];
-
+  char *q;
 
   Label_Printf("\n");
 
@@ -473,17 +491,20 @@ Emit_Obj_Initializer(void)
   for (p = dummy_pred_start.next; p; p = p->next)
     {
       fputc('\n', file_out);
+
       if (!(p->prop & MASK_PRED_DYNAMIC))
 	{
-	  Inst_Printf("call_c", FAST
-		      "Create_Pred(at(%d),%d,at(%d),%d,%d,&%s_%d)",
-		      p->functor->no, p->arity, p->pl_file->no, p->pl_line,
-		      p->prop, p->hexa, p->arity);
+	  q = buff_hexa;
+	  *q++ = '&';
+	  Make_Native_Hexa_Symbol(p, q);
 	}
       else
-	Inst_Printf("call_c", FAST "Create_Pred(at(%d),%d,at(%d),%d,%d,0)",
-		    p->functor->no, p->arity, p->pl_file->no, p->pl_line,
-		    p->prop);
+	strcpy(buff_hexa, "0");
+
+      Inst_Printf("call_c", FAST "Create_Pred(at(%d),%d,at(%d),%d,%d,%s)",
+		  p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		  p->prop, buff_hexa);
+      
 
       cur_pred_no++;		/* for FORMAT_LABEL */
 
@@ -685,28 +706,12 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
 	      int public, int built_in, int built_in_fd)
 {
   BTNode *atom;
-  char *hexa;
   int prop;
 
   atom = BT_String_Add(&bt_atom, functor);
 
-  if ((hexa = (char *) malloc(1 + 2 * strlen(functor) + 1)) == NULL)
-    {
-      fprintf(stderr, "Cannot allocate memory for hexa of: %s\n",
-	      atom->str);
-      exit(1);
-    }
-  Compute_Hexa(functor, hexa);
-
   cur_arity = arity;
   cur_sub_label = 0;
-
-
-  if (comment)
-    Label_Printf("\n\n; *** Predicate: %s/%d (%s:%d)",
-		 functor, arity, cur_pl_file->str, pl_line);
-
-  Label_Printf("\n\npl_code global %s_%d", hexa, arity);
 
   if (dynamic)
     prop = MASK_PRED_DYNAMIC;
@@ -735,7 +740,6 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
 
   cur_pred->functor = atom;
   cur_pred->arity = arity;
-  cur_pred->hexa = hexa;
   cur_pred->pl_file = cur_pl_file;
   cur_pred->pl_line = pl_line;
   cur_pred->prop = prop;
@@ -746,6 +750,13 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
 
   pred_end->next = cur_pred;
   pred_end = cur_pred;
+
+  if (comment)
+    Label_Printf("\n\n; *** Predicate: %s/%d (%s:%d)",
+		 functor, arity, cur_pl_file->str, pl_line);
+
+  Make_Native_Hexa_Symbol(cur_pred, buff_hexa);
+  Label_Printf("\n\npl_code global %s", buff_hexa);
 }
 
 
@@ -1839,7 +1850,7 @@ F_call_c(ArgVal arg[])
 
   Inst_Printf("call_c", NULL);
   if (fast_call)
-    fprintf(file_out, FAST "");
+    fputs(FAST "", file_out);
 
   fprintf(file_out, "%s(", fct_name);
 

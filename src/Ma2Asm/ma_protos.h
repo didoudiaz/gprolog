@@ -119,6 +119,10 @@ void Reload_E_In_Register(void);
 
 void Pl_Jump(char *label);
 
+void Prep_CP(void);
+
+void Here_CP(void);
+
 void Pl_Call(char *label);
 
 void Pl_Fail(void);

@@ -31,10 +31,11 @@
 #define START_OPER_TBL_SIZE        1024
 
 #define ATOM_SIZE                  16
-#define MAX_ATOM                   (1<<ATOM_SIZE)	/* number of elements */
+#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
 
 #define NB_OF_X_REGS               256
-#define MAX_ARITY                  (NB_OF_X_REGS-1)
+#define MAX_ARITY                  (NB_OF_X_REGS - 1)
 
 /* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
    also the byte code management */
+

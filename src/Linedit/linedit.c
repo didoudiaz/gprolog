@@ -33,6 +33,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "../EnginePl/gp_config.h"
+
 #define LE_DEFINE_HOOK_MACROS
 
 #include "terminal.h"

@@ -24,6 +24,8 @@
 
 /* $Id$ */
 
+#include "../EnginePl/gp_config.h"
+
 #include <stdio.h>
 #include <signal.h>
 #if defined(__unix__) || defined(__CYGWIN__)

@@ -1663,11 +1663,13 @@ the form \texttt{'\$stream'(I)} where \texttt{I} is an integer.
 
 \SPart{Stream aliases}: any stream may be associated with a stream alias
 which is an atom which may be used to refer to that stream. The association
-automatically ends when the stream is closed. A particular alias only refers
-to at most one stream at any one time. However, more than one alias can be
-associated to a stream. All built-in predicates which have a stream-term as
-an input argument also accept a stream alias as that argument. However,
-built-in predicates which return a stream-term do not accept a stream alias.
+can be done at open time or using \IdxPB{add\_stream\_alias/2}
+\RefSP{add-stream-alias/2}. Such an association automatically ends when the
+stream is closed. A particular alias only refers to at most one stream at any
+one time. However, more than one alias can be associated to a stream. Most
+built-in predicates which have a stream-term as an input argument also accept
+a stream alias as that argument. However, built-in predicates which return a
+stream-term do not accept a stream alias.
 
 \SPart{Standard streams}: two streams are predefined and open during the
 execution of every goal: the standard input stream which has the alias
@@ -1699,7 +1701,7 @@ defines where in the source/sink the next input or output will take place. A
 stream position is a ground term of the form
 \texttt{'\$stream\_position'(I1, I2, I3, I4)} where \texttt{I1},
 \texttt{I2}, \texttt{I3} and \texttt{I4} are integers. Stream positions are
-use to reposition a stream (when possible) using for instance
+used to reposition a stream (when possible) using for instance
 \IdxPB{set\_stream\_position/2} \RefSP{set-stream-position/2}.
 
 \SPart{The position end of stream}: when all data of a stream
@@ -1728,6 +1730,16 @@ should be used. Finally, it is also possible to use non-buffered streams, in
 that case input/output are directly done on the connected source/sink. This
 can be useful for communication purposes (e.g. sockets) or when a precise
 control is needed, e.g. \IdxPB{select/5} \RefSP{wait/2}.
+
+\SPart{Stream mirrors}: any stream may be associated with mirror streams
+specified at open time or using \IdxPB{add\_stream\_mirror/2}
+\RefSP{add-stream-mirror/2}. Then, all characters/bytes read from/written to
+the stream are also written on each mirror stream.  The association
+automatically ends when either the stream or the mirror stream is closed. It
+is also possible to explicitely remove a mirror stream using
+\IdxPB{remove\_stream\_mirror/2}
+\RefSP{remove-stream-mirror/2}.
+
 
 \subsubsection{\texttt{current\_input/1}}
    \AddPBD{current\_input/1}
@@ -1920,7 +1932,12 @@ The default value is \texttt{eof\_code}.
 
 \item \IdxPOD[alias]{alias(Alias)}: specifies that the atom \texttt{Alias}
 is to be an alias for the stream. By default no alias is attached to the
-stream.
+stream. Several aliases can be defined for a same stream.
+
+\item \IdxPOD[mirror]{mirror(Mirror)}: specifies the stream associated with
+the stream-term or alias \texttt{Mirror} is a mirror for the stream. By
+default no mirro is attached to the stream. Several mirrors can be defined
+for a same stream.
 
 \item \IdxPOD[buffering]{buffering(none}/\texttt{line}/\texttt{block)}:
 specifies which type of buffering is used by input/output operations on
@@ -1988,6 +2005,14 @@ variable nor a stream-option}
 \ErrTerm{permission\_error(open, source\_sink, alias(A))}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
+\texttt{mirror(M)} and \texttt{M} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, M)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Options} list is
+\texttt{mirror(M)} and \texttt{M} iis an input stream}
+\ErrTerm{permission\_error(output, stream, M)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Options} list is
 \texttt{reposition(true)} and it is not possible to reposition this stream} 
 \ErrTerm{permission\_error(open, source\_sink, reposition(true))}
 
@@ -1995,8 +2020,8 @@ variable nor a stream-option}
 
 \Portability
 
-ISO predicates. The \texttt{buffering/1} stream option is a GNU Prolog
-extension.
+ISO predicates. The \texttt{mirror/1} and \texttt{buffering/1} stream options
+are GNU Prolog extensions.
 
 \subsubsection{\texttt{close/2},
                \texttt{close/1}}
@@ -2167,6 +2192,9 @@ source/sink.
 \item \IdxPPD{output}: if it is an output stream.
 
 \item \IdxPPD[alias]{alias(A)}: \texttt{A} is an alias of the stream.
+
+\item \IdxPPD[mirror]{mirror(M)}: \texttt{M} is a mirror stream of the 
+stream.
 
 \item \IdxPPD[type]{type(T)}: \texttt{T} is the type of the stream
 (\texttt{text}, \texttt{binary}).
@@ -2615,6 +2643,7 @@ by character until the required position is reached.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{add\_stream\_alias/2}}
+\label{add-stream-alias/2}
    \AddPBD{add\_stream\_alias/2}
 
 \begin{TemplatesOneCol}
@@ -2676,6 +2705,129 @@ predicate is re-executable on backtracking.
 
 \ErrCond{\texttt{Alias} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, Alias)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{add\_stream\_mirror/2}}
+\label{add-stream-mirror/2}
+   \AddPBD{add\_stream\_mirror/2}
+
+\begin{TemplatesOneCol}
+add\_stream\_mirror(+stream\_or\_alias, +stream\_or\_alias)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{add\_stream\_mirror(SorA, Mirror)} adds the stream associated with
+the stream-term or alias \texttt{Mirror} as a new mirror to the stream
+associated with the stream-term or alias \texttt{SorA}. After this, all
+characters (or bytes) read from (or written to) \texttt{SorA} are also
+written to \texttt{Mirror}. This mirroring occurs until \texttt{Mirror} is
+explicitely removed using \IdxPB{remove\_stream\_mirror/2}
+\RefSP{remove-stream-mirror/2} or implicitely when \texttt{Mirror} is closed.
+Several mirror streams can be associated to a same stream. If \texttt{Mirror}
+represents the same stream as \texttt{SorA} or if \texttt{Mirror} is already
+a mirror for \texttt{SorA}, no mirror is added.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{SorA} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Mirror} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{SorA} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, SorA)}
+
+\ErrCond{\texttt{Mirror} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, Mirror)}
+
+\ErrCond{\texttt{SorA} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, SorA)}
+
+\ErrCond{\texttt{Mirror} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, Mirror)}
+
+\ErrCond{\texttt{Mirror} is an input stream}
+\ErrTerm{permission\_error(output, stream, Mirror)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{remove\_stream\_mirror/2}}
+\label{remove-stream-mirror/2}
+   \AddPBD{remove\_stream\_mirror/2}
+
+\begin{TemplatesOneCol}
+remove\_stream\_mirror(+stream\_or\_alias, +stream\_or\_alias)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{remove\_stream\_mirror(SorA, Mirror)} removes the stream associated
+with the stream-term or alias \texttt{Mirror} from the list of mirrors of the
+stream associated with the stream-term or alias \texttt{SorA}. This predicate
+fails if \texttt{Mirror} is not a mirror stream for \texttt{SorA}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{SorA} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Mirror} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{SorA} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, SorA)}
+
+\ErrCond{\texttt{Mirror} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, Mirror)}
+
+\ErrCond{\texttt{SorA} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, SorA)}
+
+\ErrCond{\texttt{Mirror} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, Mirror)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{current\_mirror/2}}
+   \AddPBD{current\_mirror/2}
+
+\begin{TemplatesOneCol}
+current\_mirror(?stream, ?stream)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{current\_mirror(Stream, M)} succeeds if
+\texttt{current\_stream(Stream)} succeeds \RefSP{current-stream/1} and if
+\texttt{M} unifies with one of the mirrors of the stream. It can be
+defined using \IdxPB{stream\_property/2} \RefSP{stream-property/2}. This
+predicate is re-executable on backtracking.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Stream} is neither a variable nor a stream-term}
+\ErrTerm{domain\_error(stream, Stream)}
+
+\ErrCond{\texttt{M} is neither a variable nor a stream-term}
+\ErrTerm{domain\_error(stream, M)}
 
 \end{PlErrors}
 
@@ -2782,7 +2934,8 @@ set\_stream\_buffering(+stream\_or\_alias, +atom)
 updates the buffering mode associated with the stream-term or alias
 \texttt{SorA}. The value of \texttt{Buffering} is one of the atoms
 \IdxPO{none}, \IdxPO{line} or \IdxPO{block} as for \IdxPB{open/4}
-\RefSP{open/4}.
+\RefSP{open/4}. This predicate may only be used after opening a stream
+and before any other operations have been performed on it.
 
 \begin{PlErrors}
 

@@ -91,11 +91,12 @@ TermSInf;
  *---------------------------------*/
 
 #define CURRENT_STREAM_ALT         X2463757272656E745F73747265616D5F616C74
-
 #define CURRENT_ALIAS_ALT          X2463757272656E745F616C6961735F616C74
+#define CURRENT_MIRROR_ALT         X2463757272656E745F6D6972726F725F616C74
 
 Prolog_Prototype(CURRENT_STREAM_ALT, 0);
 Prolog_Prototype(CURRENT_ALIAS_ALT, 0);
+Prolog_Prototype(CURRENT_MIRROR_ALT, 0);
 
 
 
@@ -198,16 +199,16 @@ void
 Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 {
   WamWord word, tag_mask;
+  int atom;
+  int mode;
+  Bool text;
   StmProp prop;
   char *path;
   int atom_file_name;
-  int istty;
   int stm;
-  char open_str[10];
   FILE *f;
-  long offset;
   int mask = SYS_VAR_OPTION_MASK;
-  Bool reposit;
+  Bool reposition;
 
 
   DEREF(source_sink_word, word, tag_mask);
@@ -221,14 +222,21 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   if ((path = M_Absolute_Path_Name(path)) == NULL)
     Pl_Err_Existence(existence_source_sink, source_sink_word);
 
-  prop = Get_Stream_Mode(mode_word, FALSE, open_str);
-
-  prop.text = mask & 1;
+  text = mask & 1;
   mask >>= 1;
+  
+  atom = Rd_Atom_Check(mode_word);
+  if (atom == atom_read)
+    mode = STREAM_MODE_READ;
+  else if (atom == atom_write)
+    mode = STREAM_MODE_WRITE;
+  else if (atom == atom_append)
+    mode = STREAM_MODE_APPEND;
+  else
+    Pl_Err_Domain(domain_io_mode, mode_word);
 
-  strcat(open_str, (prop.text) ? "t" : "b");
-
-  if ((f = fopen(path, open_str)) == NULL)
+  stm = Add_Stream_For_Stdio_File(path, mode, text);
+  if (stm < 0)
     {
       if (errno == ENOENT || errno == ENOTDIR)
 	Pl_Err_Existence(existence_source_sink, source_sink_word);
@@ -237,21 +245,15 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 			  permission_type_source_sink, source_sink_word);
     }
 
-  istty = (isatty(fileno(f)) != 0);
+  prop = stm_tbl[stm]->prop;
+  f = (FILE *) stm_tbl[stm]->file;
 
-  reposit = TRUE;
-  offset = ftell(f);
-  if (fseek(f, 0, SEEK_END) != 0 && errno != 0)
-    reposit = FALSE;
-  else
-    fseek(f, offset, SEEK_SET);
+				/* change properties wrt to specified ones */
 
-  if ((mask & 2) == 0)		/* not specified - set to default */
-    prop.reposition = reposit;
-  else
+  if ((mask & 2) != 0)		/* reposition specified */
     {
-      prop.reposition = mask & 1;
-      if (prop.reposition && !reposit)
+      reposition = mask & 1;
+      if (reposition && !prop.reposition)
 	{
 	  fclose(f);
 	  word = Put_Structure(atom_reposition, 1);
@@ -259,30 +261,26 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 	  Pl_Err_Permission(permission_operation_open,
 			    permission_type_source_sink, word);
 	}
+
+      prop.reposition = reposition;
     }
   mask >>= 2;
 
-
-  if ((mask & 4) == 0)		/* not specified - set to default */
-    prop.eof_action = (istty) ? STREAM_EOF_ACTION_RESET
-      : STREAM_EOF_ACTION_EOF_CODE;
-  else
-    prop.eof_action = mask & 3;
-  mask >>= 2;
+  if ((mask & 4) != 0)		/* eof_action specified */
+      prop.eof_action = mask & 3;
+  mask >>= 3;
 
 
-  if ((mask & 4) == 0)		/* not specified - set to default */
-    prop.buffering = (istty) ? STREAM_BUFFERING_LINE
-      : STREAM_BUFFERING_BLOCK;
-  else
-    prop.buffering = mask & 3;
-  mask >>= 2;
+  if ((mask & 4) != 0)		/* buffering specified */
+    if (prop.buffering != (mask & 3))
+      {
+	prop.buffering = mask & 3;
+	Stdio_Set_Buffering(f, prop.buffering);
+      }
+  mask >>= 3;
 
-  prop.special_close = FALSE;
-  prop.other = 0;
-
-  stm = Add_Stream(atom_file_name, (long) f, prop,
-		   NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  stm_tbl[stm]->atom_file_name = atom_file_name;
+  stm_tbl[stm]->prop = prop;
 
   Get_Integer(stm, stm_word);
 }
@@ -338,6 +336,57 @@ Add_Stream_Alias_2(WamWord sora_word, WamWord alias_word)
 
 
 /*-------------------------------------------------------------------------*
+ * CHECK_VALID_MIRROR_1                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Check_Valid_Mirror_1(WamWord mirror_word)
+{
+  Get_Stream_Or_Alias(mirror_word, STREAM_CHECK_OUTPUT);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ADD_STREAM_MIRROR_2                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Add_Stream_Mirror_2(WamWord sora_word, WamWord mirror_word)
+{
+  int stm;
+  int m_stm;
+
+  stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
+  m_stm = Get_Stream_Or_Alias(mirror_word, STREAM_CHECK_OUTPUT);
+
+  Add_Mirror_To_Stream(stm, m_stm);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * REMOVE_STREAM_MIRROR_2                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Remove_Stream_Mirror_2(WamWord sora_word, WamWord mirror_word)
+{
+  int stm;
+  int m_stm;
+
+  stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
+  m_stm = Get_Stream_Or_Alias(mirror_word, STREAM_CHECK_EXIST);
+
+  return Del_Mirror_From_Stream(stm, m_stm);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * SET_STREAM_TYPE_2                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -364,7 +413,7 @@ Set_Stream_Type_2(WamWord sora_word, WamWord is_text_word)
   {
     FILE *f;
 
-    f = File_Star_Of_Stream(stm);
+    f = Stdio_File_Of_Stream(stm);
     if (f == NULL)
       return;
 
@@ -963,6 +1012,72 @@ Current_Alias_Alt_0(void)
 
   Get_Atom(save_alias->atom, alias_word);
   return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CURRENT_MIRROR_2                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Current_Mirror_2(WamWord stm_word, WamWord m_stm_word)
+{
+  int stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  StmInf *pstm = stm_tbl[stm];
+  StmLst *m = pstm->mirror;
+
+				/* From here, the code also works with     */
+				/* m = m_pstm->mirror_of. Could be used    */
+				/* if m_stm_word is given and not stm_word */
+  if (m == NULL)
+    return FALSE;
+
+  if (m->next != NULL) /* non deterministic case */
+    {
+      A(0) = stm;
+      A(1) = m_stm_word;
+      A(2) = (WamWord) m->next;
+      Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_MIRROR_ALT, 0),
+			  3);
+    }
+
+  return Get_Integer(m->stm, m_stm_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CURRENT_MIRROR_ALT_0                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Current_Mirror_Alt_0(void)
+{
+  int stm;
+  WamWord m_stm_word;
+  StmLst *m;
+
+  Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_MIRROR_ALT, 0), 0);
+
+  stm = AB(B, 0);
+  m_stm_word = AB(B, 1);
+  m = (StmLst *) AB(B, 2);
+
+  if (m->next)			/* non deterministic case */
+    {
+#if 0				/* the following data is unchanged */
+      AB(B, 0) = stm;
+      AB(B, 1) = m_stm_word;
+#endif
+      AB(B, 2) = (WamWord) m->next;
+    }
+  else
+    Delete_Last_Choice_Point();
+
+  return Get_Integer(m->stm, m_stm_word);
 }
 
 

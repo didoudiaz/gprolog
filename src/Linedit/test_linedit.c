@@ -29,6 +29,9 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
+
+#include "../EnginePl/gp_config.h"
+
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
 #else

@@ -31,6 +31,8 @@
 #include <ctype.h>
 #include <fcntl.h>
 
+#include "../EnginePl/gp_config.h"
+
 #if defined(__unix__) || defined(__CYGWIN__)
 
 #include <unistd.h>
@@ -38,7 +40,6 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 
-#include "../EnginePl/gp_config.h"
 
 #if defined(HAVE_SYS_IOCTL_COMPAT_H)
 #include <sys/ioctl_compat.h>

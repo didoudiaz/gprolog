@@ -243,6 +243,34 @@ Pl_Jump(char *label)
 
 
 /*-------------------------------------------------------------------------*
+ * PREP_CP                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Prep_CP(void)
+{
+  fprintf(stderr, "PREP_CP not implemented\n");
+  exit(1);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * HERE_CP                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Here_CP(void)
+{
+  fprintf(stderr, "HERE_CP not implemented\n");
+  exit(1);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_CALL                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -380,21 +408,21 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 
 #define MAX_ARGS_IN_REGS 6
 
-#define BEFORE_ARG                                                          \
-{                                                                           \
-  char r[4];                                                                \
-                                                                            \
-  if (offset < MAX_ARGS_IN_REGS)                                            \
-    sprintf(r, "%%o%d", offset);                                            \
-  else                                                                      \
+#define BEFORE_ARG				\
+{						\
+  char r[4];					\
+						\
+  if (offset < MAX_ARGS_IN_REGS)		\
+    sprintf(r, "%%o%d", offset);		\
+  else						\
     strcpy(r, "%l7");
 
 
-#define AFTER_ARG                                                           \
-  if (offset >= MAX_ARGS_IN_REGS)                                           \
-    Delay_Printf("st","%s,[%%sp+%d]", r,                                    \
-                 92 + (offset - MAX_ARGS_IN_REGS) * 4);                     \
- }
+#define AFTER_ARG					\
+  if (offset >= MAX_ARGS_IN_REGS)			\
+    Delay_Printf("st","%s,[%%sp+%d]", r,		\
+                 92 + (offset - MAX_ARGS_IN_REGS) * 4);	\
+}
 
 
 

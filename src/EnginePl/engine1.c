@@ -83,6 +83,11 @@ Call_Compiled(CodePtr codep)
   register WamWord *rb asm("15") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
+#elif defined(M_powerpc_darwin)
+
+  register WamWord *rb asm("r15") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
 #elif defined(M_sparc)
 
   register WamWord *rb asm("%l0") = reg_bank;

@@ -187,7 +187,10 @@ Code_Start(char *label, int prolog, int global)
   Label(label);
 
   if (!prolog)
-    Inst_Printf("subl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
+    {
+      Inst_Printf("pushl", "%%esi"); /* used if argno>FC_MAX_ARGS_IN_REGS */
+      Inst_Printf("subl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
+    }
 }
 
 
@@ -251,15 +254,41 @@ Pl_Jump(char *label)
 
 
 /*-------------------------------------------------------------------------*
+ * PREP_CP                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Prep_CP(void)
+{
+  Inst_Printf("movl", "$.Lcont%d,%s", w_label, asm_reg_cp);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * HERE_CP                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Here_CP(void)
+{
+  Label_Printf(".Lcont%d:", w_label++);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_CALL                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
 Pl_Call(char *label)
 {
-  Inst_Printf("movl", "$.Lcont%d,%s", w_label, asm_reg_cp);
+  Prep_CP();
   Pl_Jump(label);
-  Label_Printf(".Lcont%d:", w_label++);
+  Here_CP();
 }
 
 
@@ -826,6 +855,7 @@ void
 C_Ret(void)
 {
   Inst_Printf("addl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
+  Inst_Printf("popl", "%%esi");
   Inst_Printf("ret", "");
 }
 

@@ -24,10 +24,24 @@
 
 /* $Id$ */
 
+#include <stdio.h>
+#include <errno.h>
 #include <string.h>
+
+#include "gp_config.h"
+
+#ifndef M_ix86_win32
+#include <unistd.h>
+#else
+#include <io.h>
+#endif
+
 
 #include "engine_pl.h"
 #include "bips_pl.h"
+
+
+
 
 /*---------------------------------*
  * Constants                       *
@@ -37,8 +51,9 @@
 #define UNDO                       1
 
 
-#define NO_INCLUDE_LIST            NULL
-#define CURRENT_INCLUDE_LIST       (SrIncWr *) 1
+#define REREAD_MASK                (1 << 16)
+#define REFLECT_EOF_MASK           (1 << 17)
+#define UNDO_DIRECTIVES_MASK       (1 << 18)
 
 
 
@@ -55,6 +70,8 @@ typedef enum
 } SRDirType;
 
 
+
+
 typedef struct sr_one_direct *PSROneDirect;
 
 typedef struct sr_one_direct
@@ -66,6 +83,8 @@ typedef struct sr_one_direct
 } SROneDirect;
 
 
+
+
 typedef struct
 {
   SROneDirect *first;		/* first directive or NULL */
@@ -74,12 +93,18 @@ typedef struct
 
 
 
+
 typedef struct sr_file *PSRFile;
 
 typedef struct sr_file
 {
   int atom_file_name;		/* file name atom */
-  int stm;			/* associated stream # */
+  int stm;			/* associated stream */
+  Bool reposition;		/* is it repositionable ? */
+  char *tmp_path;		/* tmp used for reread when !reposition */
+  int tmp_stm;			/* stm of the tmp file */
+  PSRFile next;			/* link to next file */
+				/* --- include stack information --- */
   Bool eof_reached;		/* is the EOF reached for this file ? */
   int include_line;		/* line # this file includes a child file */
   PSRFile parent_file;		/* link to the parent file (includer) */
@@ -109,7 +134,10 @@ typedef struct
   Bool in_use;			/* open ? */
   Bool close_master_at_end;	/* close master at sr_close/1 ? */
   int mask;			/* see src_rdr.pl */
+  SRFile *file_first;		/* queue of all files - first */
+  SRFile *file_last;		/* queue of all files - last */
   SRFile *file_top;		/* stack of open files (top = current) */
+  SRFile *next_to_reread;	/* NULL: in pass 1 or no more to reread */
   int cur_l1, cur_l2;		/* position (lines) of last read term */
   int char_count;		/* nb chars read in processed files */
   int line_count;		/* nb lines read in processed files */
@@ -141,6 +169,8 @@ static SRInf *cur_sr;		/* the current sr entry used */
  * Function Prototypes             *
  *---------------------------------*/
 
+
+static void Common_Clean(SRInf *sr, Bool for_reread);
 
 static SRInf *Get_Descriptor(WamWord desc_word, Bool accept_none);
 
@@ -186,6 +216,12 @@ void Format_3(WamWord sora_word, WamWord format_word, WamWord args_word);
 Prolog_Prototype(SR_CURRENT_DESC_ALT, 0);
 
 
+/* TODO:
+ * - use a table of pointers SRInf *[] + Malloc + Free
+ * - do not use a dup of !repositionable stream but
+ *   change the mirror before the read_term and restore after
+ * ???????????????????????????????????????????????????????????????????????
+ */
 
 
 /*-------------------------------------------------------------------------*
@@ -225,6 +261,10 @@ SR_Init_Open_2(WamWord desc_word, WamWord out_sora_word)
 
   sr->mask = SYS_VAR_OPTION_MASK;
 
+  sr->file_first = NULL;
+  sr->file_last = NULL;
+  sr->next_to_reread = NULL;	/* 1st read mode */
+
   sr->cur_l1 = sr->cur_l2 = 0;
   sr->char_count = 0;
   sr->line_count = 0;
@@ -253,39 +293,110 @@ SR_Init_Open_2(WamWord desc_word, WamWord out_sora_word)
 
 
 /*-------------------------------------------------------------------------*
- * SR_FINISH_OPEN_2                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-SR_Finish_Open_1(WamWord close_master_at_end_word)
-{
-  SRInf *sr = cur_sr;
-
-  sr->in_use = 1;
-  sr->close_master_at_end = Rd_Boolean(close_master_at_end_word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * SR_OPEN_FILE_2                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-SR_Open_File_2(WamWord file_name_word, WamWord stm_word)
+SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 {
   SRInf *sr = cur_sr;
-  SRFile *file = (SRFile *) Malloc(sizeof(SRFile));
+  int atom_file_name;
+  int stm;
+  SRFile *file;
+  Bool from_stream = Rd_Boolean(from_stream_word);
+  Bool master_file = (sr->file_top == NULL);
+  StmInf *pstm, *pstm_tmp;
 
-  file->atom_file_name = Rd_Atom(file_name_word);
-  file->stm = Rd_Integer(stm_word);
+  if (sr->next_to_reread == NULL)
+    {
+      if (from_stream)
+	{
+	  stm = Get_Stream_Or_Alias(file_name_word, STREAM_CHECK_INPUT);
+	  Check_Stream_Type(stm, TRUE, TRUE);
+	  atom_file_name = stm_tbl[stm]->atom_file_name;
+	}
+      else
+	{
+	  atom_file_name = Rd_Atom(file_name_word);
+	  if (strcmp(atom_tbl[atom_file_name].name, "user") == 0)
+#if 0
+	    stm = stm_input;
+#else
+	  {
+	    stm = Add_Stream(0, (long) 0, stm_tbl[stm_input]->prop,
+		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	    *stm_tbl[stm] = *stm_tbl[stm_input];
+	  }
+#endif
+	  else
+	    {
+	      stm = Add_Stream_For_Stdio_File(atom_tbl[atom_file_name].name,
+					      STREAM_MODE_READ, TRUE);
+	      if (stm < 0)
+		{
+		  if (errno == ENOENT || errno == ENOTDIR)
+		    Pl_Err_Existence(existence_source_sink, 
+				     file_name_word);
+		  else
+		    Pl_Err_Permission(permission_operation_open,
+				      permission_type_source_sink, 
+				      file_name_word);
+		}
+	    }
+	}
+      pstm = stm_tbl[stm];
+      file = (SRFile *) Malloc(sizeof(SRFile));
+      file->atom_file_name = atom_file_name;
+      file->stm = stm;
+      file->reposition = pstm->prop.reposition;
+      if (!file->reposition)
+	{
+	  file->tmp_path = M_Tempnam(NULL, NULL);
+	  file->tmp_stm = Add_Stream_For_Stdio_File(file->tmp_path,
+						    STREAM_MODE_WRITE, TRUE);
+	  if (file->tmp_stm < 0)
+	    Fatal_Error("cannot create tmp file %s in %s:%d", file->tmp_path,
+			__FILE__, __LINE__);
+
+				/* try to be similar to original file */
+	  pstm_tmp = stm_tbl[file->tmp_stm];
+	  pstm_tmp->atom_file_name = atom_file_name;
+	  pstm_tmp->prop.eof_action = pstm->prop.eof_action;
+	  if (pstm_tmp->prop.buffering != pstm->prop.buffering)
+	    {
+	      pstm_tmp->prop.buffering = pstm->prop.buffering;
+	      Stdio_Set_Buffering((FILE *) pstm_tmp->file,
+				  pstm_tmp->prop.buffering);
+	    }
+	  Add_Mirror_To_Stream(stm, file->tmp_stm);
+	}
+      else
+	{
+	  file->tmp_path = NULL;
+	  file->tmp_stm = -1;
+	}
+      file->next = NULL;
+      if (sr->file_first == NULL)
+	sr->file_first = file;
+      else
+	sr->file_last->next = file;
+      sr->file_last = file;
+    }
+  else
+    file = sr->next_to_reread;
+
+  
   file->eof_reached = FALSE;
   file->parent_file = sr->file_top;
-
   if (sr->file_top)
     sr->file_top->include_line = sr->cur_l1;
   sr->file_top = file;
+
+  if (master_file)		/* we see here the master file */
+    {
+      sr->close_master_at_end = !from_stream;
+      sr->in_use = TRUE;
+    }
 }
 
 
@@ -300,29 +411,50 @@ SR_Close_1(WamWord desc_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file, *file1;
-  SROneDirect *o, *o1;
-  SRModule *m, *m1;
 
-  file = sr->file_top;
-  if (!sr->close_master_at_end)
+  file = sr->file_first;
+  if (!sr->close_master_at_end && file->tmp_path == NULL)
     goto skip_first;
-
   do
     {
       Close_Stm(file->stm, TRUE);
+      if (file->tmp_path)
+	unlink(file->tmp_path);
+
     skip_first:
       file1 = file;
-      file = file->parent_file;
+      file = file->next;
       Free(file1);
     }
   while(file);
   sr->file_top = NULL;
 
-  if ((sr->mask & (1 << 18)) != 0)
+  Common_Clean(sr, FALSE);
+
+  sr->in_use = FALSE;
+  
+  while(sr_last_used >= 0 && !sr_tbl[sr_last_used].in_use)
+    sr_last_used--;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * COMMON_CLEAN                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Common_Clean(SRInf *sr, Bool for_reread)
+{
+  SROneDirect *o, *o1;
+  SRModule *m, *m1;
+
+  if (for_reread || (sr->mask & UNDO_DIRECTIVES_MASK) != 0)
     {
-      Undo_Directives(&sr->direct_lst);
       if (sr->cur_module)
 	Undo_Directives(&sr->cur_module->direct_lst);
+      Undo_Directives(&sr->direct_lst);
     }
 
   o = sr->direct_lst.first;
@@ -348,11 +480,68 @@ SR_Close_1(WamWord desc_word)
       Free(m);
     }
 
-  sr->in_use = FALSE;
-  sr->file_top = NULL;
-  
-  while(sr_last_used >= 0 && !sr_tbl[sr_last_used].in_use)
-    sr_last_used--;
+  if (for_reread)
+    {
+      sr->cur_l1 = sr->cur_l2 = 0;
+      sr->char_count = 0;
+      sr->line_count = 0;
+      sr->error_count = 0;
+      sr->warning_count = 0;
+      sr->direct_lst.first = NULL;
+      sr->direct_lst.last = NULL;
+
+      sr->module_lst = NULL;
+      sr->cur_module = NULL;
+      sr->interface = FALSE;
+    }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SR_NEW_PASS_1                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+SR_New_Pass_1(WamWord desc_word)
+{
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
+  StmInf *pstm;
+  SRFile *file;
+
+  if ((sr->mask & REREAD_MASK) == 0)
+    return FALSE;
+
+  if (!sr->file_last->reposition && !sr->file_top->eof_reached)
+    {
+      pstm = stm_tbl[sr->file_top->stm];
+      while(Stream_Getc(pstm) != EOF) /* read until EOF for mirror */
+	;
+    }
+
+  sr->next_to_reread = sr->file_first->next;
+
+  for(file = sr->file_first; file; file = file->next)
+    {
+      if (file->reposition)
+	Stream_Set_Position(stm_tbl[file->stm], SEEK_SET, 0, 0, 0, 0);
+      else
+	{
+	  if (file != sr->file_first || sr->close_master_at_end)
+	    Close_Stm(file->stm, TRUE);
+	  Close_Stm(file->tmp_stm, TRUE); /* close mirror file */
+	  file->stm = Add_Stream_For_Stdio_File(file->tmp_path, 
+						STREAM_MODE_READ, TRUE);
+	  file->reposition = TRUE;
+	}
+    }
+  sr->file_top = sr->file_first;
+  sr->file_top->eof_reached = FALSE;
+
+  Common_Clean(sr, TRUE);
+
+  return TRUE;
 }
 
 
@@ -483,7 +672,9 @@ void
 SR_Change_Options_0(void)
 {
   SRInf *sr = cur_sr;
-  sr->mask = SYS_VAR_OPTION_MASK;
+  int reread_mask = sr->mask & REREAD_MASK;
+
+  sr->mask = (SYS_VAR_OPTION_MASK & (~REREAD_MASK)) | reread_mask;
 }
 
 
@@ -508,16 +699,11 @@ SR_Get_Stm_For_Read_Term_1(WamWord stm_word)
 				/* a EOF is reached */
 
       if (file->parent_file == NULL)
-	break;			/* never close the master stream */
+	break;
 
       sr->char_count += stm_tbl[file->stm]->char_count;
       sr->line_count += stm_tbl[file->stm]->line_count;
       sr->file_top = file->parent_file;
-
-      if ((sr->mask & (1 << 16)) == 0)
-	Close_Stm(file->stm, TRUE);
-
-      Free(file);
     }
 
   Get_Integer(sr->file_top->stm, stm_word);
@@ -552,7 +738,7 @@ SR_EOF_Reached_1(WamWord err_word)
       return TRUE;		/* always reflect EOF for master file */
     }
 
-  return sr->mask & (1 << 17);
+  return (sr->mask & REFLECT_EOF_MASK);
 }
 
 
@@ -967,7 +1153,7 @@ SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word,
   char_count = sr->char_count;
   line_count = sr->line_count;
 
-  for(file = sr->file_top;file ; file = file->parent_file)
+  for(file = sr->file_top; file; file = file->parent_file)
     {
       char_count += stm_tbl[file->stm]->char_count;
       line_count += stm_tbl[file->stm]->line_count;
@@ -1057,7 +1243,7 @@ Get_Descriptor(WamWord desc_word, Bool accept_none)
     }
   desc = Rd_Integer_Check(desc_word);
 
-  if ((unsigned) desc > sr_last_used || !sr_tbl[desc].in_use)
+  if (desc < 0 || desc > sr_last_used || !sr_tbl[desc].in_use)
     Pl_Err_Existence(existence_sr_descriptor, desc_word);
 
   cur_sr = sr_tbl + desc;
@@ -1205,7 +1391,7 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
   last_output_sora = sora_word;
   Check_Stream_Type(stm, TRUE, FALSE);
 
-  if (list_word != NOT_A_WAM_WORD && sr != NULL)
+  if (list_word == NOT_A_WAM_WORD && sr != NULL)
     file = sr->file_top->parent_file;
 
   for (first = TRUE; ; first = FALSE)
@@ -1223,7 +1409,11 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
 	
 
       if (first)
-	Stream_Puts("In file included from ", pstm);
+	{
+	  if (pstm->line_pos != 0)
+	    Stream_Putc('\n', pstm);
+	  Stream_Puts("In file included from ", pstm);
+	}
       else
 	Stream_Printf(pstm, ",\n%*s from ", 16, "");
 

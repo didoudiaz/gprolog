@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
+% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : pretty.pl
-% date    : 4 19 2002
-% time    : 15:19:18
+% date    : 4 24 2002
+% time    : 18:57:30
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pretty.pl').
@@ -59,7 +59,14 @@ predicate('$portray_clause'/2,52,static,private,built_in,[
     put_value(y(0),0),
     call(name_singleton_vars/1),
     put_value(y(0),0),
-    call(numbervars/1),
+    put_structure(exclude/1,2),
+    unify_list,
+    unify_local_value(y(0)),
+    unify_nil,
+    put_list(1),
+    unify_value(x(2)),
+    unify_nil,
+    call(bind_variables/2),
     put_atom(portray_clause,0),
     put_value(y(1),1),
     deallocate,

@@ -1367,6 +1367,6 @@ Fd_Variable_To_String0(WamWord *fdv_adr)
 void
 Fd_Display_Extra_Cstr(WamWord *fdv_adr)
 {
-  Stream_Printf(stm_tbl + stm_stdout, MSG_VECTOR_TOO_SMALL,
+  Stream_Printf(stm_tbl[stm_stdout], MSG_VECTOR_TOO_SMALL,
 		Cstr_Offset(fdv_adr));
 }

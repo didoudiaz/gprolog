@@ -216,7 +216,7 @@ Os_Interf_Initializer(void)
   tsig[nb_sig].atom = Create_Atom("SIGIO");
   tsig[nb_sig++].sig = SIGIO;
 #endif
-#ifndef M_ix86_bsd
+#if !defined( M_ix86_bsd ) && !defined( M_powerpc_darwin )
   tsig[nb_sig].atom = Create_Atom("SIGPOLL");
   tsig[nb_sig++].sig = SIGPOLL;
 #endif
@@ -991,30 +991,37 @@ Bool
 Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
 {
   char *cmd;
-  StmProp prop;
+  int atom;
+  int mode;
   int stm;
   FILE *f;
   char open_str[10];
-  char stream_name[512];
 
   cmd = Rd_String_Check(cmd_word);
-  prop = Get_Stream_Mode(mode_word, TRUE, open_str);
 
-  prop.text = TRUE;
-  prop.reposition = FALSE;
-  prop.eof_action = STREAM_EOF_ACTION_RESET;
-  prop.buffering = STREAM_BUFFERING_LINE;
-  prop.special_close = FALSE;
-  prop.other = 0;
+  atom = Rd_Atom_Check(mode_word);
+  if (atom == atom_read)
+    {
+      mode = STREAM_MODE_READ;
+      strcpy(open_str, "r");
+    }
+  else if (atom == atom_write)
+    {
+      mode = STREAM_MODE_WRITE;
+      strcpy(open_str, "w");
+    }
+  else
+    Pl_Err_Domain(domain_io_mode, mode_word);
+
 
   Flush_All_Streams();
   f = popen(cmd, open_str);
   Os_Test_Error(f == NULL);
 
-  sprintf(stream_name, "popen_stream('%.*s')",
-	  (int) sizeof(stream_name) - 20, cmd);
-  stm = Add_Stream(Create_Allocate_Atom(stream_name), (long) f, prop,
-		   NULL, NULL, NULL, (StmFct) pclose, NULL, NULL, NULL);
+  sprintf(glob_buff, "popen_stream('%.1024s')", cmd);
+  atom = Create_Allocate_Atom(glob_buff);
+  stm = Add_Stream_For_Stdio_Desc(f, atom, mode, TRUE);
+  stm_tbl[stm]->fct_close = (StmFct) pclose;
 
   return Get_Integer(stm, stm_word);
 }
@@ -1032,12 +1039,10 @@ Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
 {
   char *cmd;
   char **arg;
-  StmProp prop;
   int stm;
   FILE *f_in, *f_out, *f_err;
   int pid;
   int mask = SYS_VAR_OPTION_MASK;
-  char stream_name[512];
   int atom;
   char err[64];
 
@@ -1057,44 +1062,28 @@ Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   if (mask & 1)			/* pid needed ? */
     Get_Integer(pid, pid_word);
 
-  sprintf(stream_name, "exec_stream('%.*s')",
-	  (int) sizeof(stream_name) - 20, cmd);
-  atom = Create_Allocate_Atom(stream_name);
+  sprintf(glob_buff, "exec_stream('%.1024s')", cmd);
+  atom = Create_Allocate_Atom(glob_buff);
 
-  prop.mode = STREAM_MODE_WRITE;
-  prop.input = FALSE;
-  prop.output = TRUE;
-  prop.text = TRUE;
-  prop.reposition = FALSE;
-  prop.eof_action = STREAM_EOF_ACTION_RESET;
-  prop.buffering = STREAM_BUFFERING_LINE;
-  prop.special_close = FALSE;
-  prop.other = 0;
-  stm =
-    Add_Stream(atom, (long) f_in, prop, NULL, NULL, NULL, NULL, NULL, NULL,
-	       NULL);
+  stm = Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE);
   Get_Integer(stm, stm_in_word);
 #ifdef DEBUG
-  DBGPRINTF("Add_Stream(Input)=%d\n", stm);
+  DBGPRINTF("Added Stream Input: %d\n", stm);
 #endif
 
-  prop.mode = STREAM_MODE_READ;
-  prop.input = TRUE;
-  prop.output = FALSE;
-  stm =
-    Add_Stream(atom, (long) f_out, prop, NULL, NULL, NULL, NULL, NULL, NULL,
-	       NULL);
+  stm = Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE);
+  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   Get_Integer(stm, stm_out_word);
+
 #ifdef DEBUG
-  DBGPRINTF("Add_Stream(Output)=%d\n", stm);
+  DBGPRINTF("Added Stream Output: %d\n", stm);
 #endif
 
-  stm =
-    Add_Stream(atom, (long) f_err, prop, NULL, NULL, NULL, NULL, NULL, NULL,
-	       NULL);
+  stm = Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE);
+  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   Get_Integer(stm, stm_err_word);
 #ifdef DEBUG
-  DBGPRINTF("Add_Stream(Error)=%d\n", stm);
+  DBGPRINTF("Added Stream Error: %d\n", stm);
 #endif
 
   return TRUE;
@@ -1193,7 +1182,7 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
 	{
 	  stm = Get_Stream_Or_Alias(word, check);
 
-	  fd = File_Number_Of_Stream(stm);
+	  fd = Io_Fileno_Of_Stream(stm);
 	  if (fd < 0)
 	    Pl_Err_Domain(domain_selectable_item, word);
 	}
@@ -1245,7 +1234,7 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       else
 	{
 	  stm = Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
-	  fd = (stm < 0) ? -1 : File_Number_Of_Stream(stm);
+	  fd = (stm < 0) ? -1 : Io_Fileno_Of_Stream(stm);
 	}
 
       if (FD_ISSET(fd, set))

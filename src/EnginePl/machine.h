@@ -147,10 +147,10 @@ void SIGSEGV_Handler(void);
  * Stacks Management               *
  *---------------------------------*/
 
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
-    defined(M_ix86_linux)  || defined(M_powerpc_linux) || \
-    defined(M_ix86_sco)    || defined(M_ix86_solaris)  || \
-    defined(M_mips_irix)   || \
+#if defined(M_sparc_sunos) || defined(M_sparc_solaris)  || \
+    defined(M_ix86_linux)  || defined(M_powerpc_linux)  || \
+    defined(M_ix86_sco)    || defined(M_ix86_solaris)   || \
+    defined(M_mips_irix)   || defined(M_powerpc_darwin) || \
     defined(M_ix86_win32)
 
 #   define M_USE_MMAP
@@ -177,7 +177,7 @@ void SIGSEGV_Handler(void);
 
 
 
-#ifdef M_USE_MALLOC
+#if defined(M_USE_MALLOC) || defined(M_powerpc_darwin)
 
 #define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 void M_Check_Magic_Words(void);

@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
+% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : control.pl
-% date    : 4 19 2002
-% time    : 15:19:17
+% date    : 4 24 2002
+% time    : 11:32:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/control.pl').

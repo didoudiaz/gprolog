@@ -64,16 +64,11 @@ sr_open(FileOrStream, D, Options) :-
 	;   '$pl_err_type'(variable, D)
 	),
 	'$call_c'('SR_Init_Open_2'(D, OutSorA)),
-	(   nonvar(FileOrStream),
-	    FileOrStream = '$stream'(Stm),
-	    '$sr_from_stream'(FileOrStream, Stm), !,
-	    CloseMasterAtEnd = false
+	(   nonvar(FileOrStream), FileOrStream = '$stream'(_) ->
+	    '$call_c'('SR_Open_File_2'(FileOrStream, true))
 	;
-	    File = FileOrStream,
-	    '$sr_open_new_prolog_file'(File),
-	    CloseMasterAtEnd = true
-	),
-	'$call_c'('SR_Finish_Open_1'(CloseMasterAtEnd)).
+	    '$sr_open_new_prolog_file'(FileOrStream)
+	).
 
 
 
@@ -86,7 +81,7 @@ sr_open(FileOrStream, D, Options) :-
           % char_conversion in b7/b6          1 / 0 = hide   
           % module          in b9/b8          1 / 1 = reflect
 	  %
-          % keep_files_open in b16 (0/1)
+          % restart         in b16 (0/1)
           % reflect_eof     in b17 (0/1)
           % undo_directives in b18 (0/1)
           % write_error     in b19 (0/1)
@@ -127,7 +122,7 @@ sr_open(FileOrStream, D, Options) :-
 	set_bip_name(sr_open, 3), % due to the use of is/2
 	'$sr_set_treat_pass_bits'(A, BitPass, BitTreat).
 
-'$get_sr_options2'(keep_files_open(X)) :-
+'$get_sr_options2'(restart(X)) :-
         nonvar(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 16)
@@ -204,36 +199,14 @@ sr_open(FileOrStream, D, Options) :-
 
 '$sr_open_new_prolog_file'(File) :-
 	'$call_c'('Prolog_File_Name_2'(File, File1)),
-	(   File1 = user ->
-	    current_input(Stream)
-	;   '$open'(File1, read, Stream, [])
-	),
-	Stream = '$stream'(Stm),
-	'$call_c'('SR_Open_File_2'(File1, Stm)).
-
-
-
-
-'$sr_from_stream'(_, Stm) :-
-	var(Stm),
-	'$pl_err_instantiation'.
-
-'$sr_from_stream'(Stream, Stm) :-
-	integer(Stm),
-	(   '$current_stream'(Stm) ->
-	    (   '$call_c_test'('Stream_Prop_Input_1'(Stm)) ->
-		true
-	    ;   '$pl_err_permission'(input, stream, Stream)
-	    )
-	;   '$pl_err_existence'(stream, Stream)
-	),
-	'$call_c_test'('Stream_Prop_File_Name_2'(File, Stm)),
-	'$call_c'('SR_Open_File_2'(File, Stm)).
-
-'$sr_from_stream'(Stream, _) :-
-        '$pl_err_domain'(sr_source, Stream).
-
-
+	'$call_c'('SR_Open_File_2'(File1, false)).
+/*
+	(   '$call_c_test'('File_Permission_2'(File, [read])) ->
+	    File1 = File
+	;
+	    '$call_c'('Prolog_File_Name_2'(File, File1))
+	  ),
+*/
 
 
 sr_change_options(D, Options) :-
@@ -248,6 +221,15 @@ sr_change_options(D, Options) :-
 sr_close(D) :-
 	set_bip_name(sr_close, 1),
 	'$call_c'('SR_Close_1'(D)).
+
+
+
+sr_new_pass(D) :-
+	set_bip_name(sr_new_pass, 1),
+	(   '$call_c_test'('SR_New_Pass_1'(D)) ->
+	    true
+	;   '$pl_err_permission'(new_pass, one_pass_reader, D)
+	).
 
 
 

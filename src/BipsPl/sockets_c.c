@@ -493,10 +493,10 @@ static Bool
 Create_Socket_Streams(int sock, char *stream_name,
 		      int *stm_in, int *stm_out)
 {
-  StmProp prop;
   int fd;
   FILE *f_in, *f_out;
-  int file_name;
+  int atom;
+  int stm;
 
 #ifdef M_ix86_win32
   int r;
@@ -511,27 +511,18 @@ Create_Socket_Streams(int sock, char *stream_name,
   Os_Test_Error((f_out = fdopen(fd, "wt")) == NULL);
 #endif
 
-  file_name = Create_Allocate_Atom(stream_name);
+  atom = Create_Allocate_Atom(stream_name);
 
-  prop.mode = STREAM_MODE_READ;
-  prop.input = TRUE;
-  prop.output = FALSE;
-  prop.text = TRUE;
-  prop.reposition = FALSE;
-  prop.eof_action = STREAM_EOF_ACTION_RESET;
-  prop.buffering = STREAM_BUFFERING_BLOCK;
-  prop.special_close = FALSE;
-  prop.other = 4;
+  stm = Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
+  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+  stm_tbl[stm]->prop.other = 4;
 
-  *stm_in = Add_Stream(file_name, (long) f_in, prop,
-		       NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  *stm_in = stm;
 
-  prop.mode = STREAM_MODE_WRITE;
-  prop.input = FALSE;
-  prop.output = TRUE;
+  stm = Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
+  stm_tbl[stm]->prop.other = 4;
 
-  *stm_out = Add_Stream(file_name, (long) f_out, prop,
-			NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  *stm_out = stm;
 
   return TRUE;
 }

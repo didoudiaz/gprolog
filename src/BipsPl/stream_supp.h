@@ -113,13 +113,22 @@ PbStk;
 
 typedef int (*StmFct) ();	/* generic type for file fctions */
 
+typedef struct stm_lst *PStmLst;
+
+typedef struct stm_lst		/* Chained stream list            */
+{				/* ------------------------------ */
+  int stm;			/* the stream                     */
+  PStmLst next;			/* next entry                     */
+} StmLst;
 
 
-typedef struct			/* Stream information             */
+typedef struct stm_inf		/* Stream information             */
 {				/* ------------------------------ */
   int atom_file_name;		/* atom associated to filename    */
-  long file;			/* accessor (FILE *,TTYInf *)!=0  */
+  long file;			/* accessor (FILE *,TTYInf *) != 0*/
   StmProp prop;			/* assoctiated properties         */
+  StmLst *mirror;		/* mirror streams                 */
+  StmLst *mirror_of;            /* streams this stream as mirror  */
 				/* ----- Basic I/O functions ---- */
   StmFct fct_getc;		/* get char function (mandatory)  */
   StmFct fct_putc;		/* put char function (mandatory)  */
@@ -129,7 +138,7 @@ typedef struct			/* Stream information             */
   StmFct fct_seek;		/* seek     function (optional)   */
   StmFct fct_clearerr;		/* clearerr function (optional)   */
 				/* ------ Read information  ----- */
-  Bool eof_reached;		/* eof char has been read ?       */
+  Bool eof_reached;		/* has eof char been read ?       */
   PbStk pb_char;		/* character push back stack      */
 				/* ---- Position information  --- */
   int char_count;		/* character read count           */
@@ -303,12 +312,14 @@ extern int atom_eof;
  * Function Prototypes             *
  *---------------------------------*/
 
-StmProp Get_Stream_Mode(WamWord mode_word, Bool only_rw, char *open_str);
-
 int Add_Stream(int atom_file_name, long file, StmProp prop,
 	       StmFct fct_getc, StmFct fct_putc,
 	       StmFct fct_flush, StmFct fct_close,
 	       StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
+
+int Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text);
+
+int Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
 
 void Delete_Stream(int stm);
 
@@ -318,7 +329,9 @@ Bool Add_Alias_To_Stream(int atom_alias, int stm);
 
 void Reassign_Alias(int atom_alias, int stm);
 
-void Del_Aliases_Of_Stream(int stm);
+void Add_Mirror_To_Stream(int stm, int m_stm);
+
+Bool Del_Mirror_From_Stream(int stm, int m_stm);
 
 int Find_Stream_From_PStm(StmInf *pstm);
 
@@ -332,9 +345,14 @@ void Check_Stream_Type(int stm, Bool check_text, Bool for_input);
 
 WamWord Make_Stream_Tagged_Word(int stm);
 
-int File_Number_Of_Stream(int stm);
+Bool Stdio_Is_Repositionable(FILE *f);
 
-FILE *File_Star_Of_Stream(int stm);
+void Stdio_Set_Buffering(FILE *f, int buffering);
+
+FILE *Stdio_Desc_Of_Stream(int stm);
+
+int Io_Fileno_Of_Stream(int stm);
+
 
 
 

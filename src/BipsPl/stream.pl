@@ -108,9 +108,14 @@ open(SourceSink, Mode, Stream, Options) :-
 '$open'(SourceSink, Mode, Stream, Options) :-
 	'$set_open_defaults',
 	'$get_open_stm'(Stream, Stm),
-	'$get_open_options'(Options, LAlias),
+	g_link('$open_aliases', LAlias),
+	g_link('$open_mirrors', LMirror),
+	'$get_open_options'(Options),
+	g_read('$open_aliases', []), % close the list
+	g_read('$open_mirrors', []), % close the list
 	'$call_c'('Open_3'(SourceSink, Mode, Stm)),
-	'$add_alias_to_stream'(LAlias, Stream).
+	'$add_aliases_to_stream'(LAlias, Stream),
+	'$add_mirrors_to_stream'(LMirror, Stream).
 
 
 
@@ -130,23 +135,23 @@ open(SourceSink, Mode, Stream, Options) :-
 
 
 
-'$get_open_options'(Options, LAlias) :-
+'$get_open_options'(Options) :-
 	'$check_list'(Options),
-	'$get_open_options1'(Options, [], LAlias).
+	'$get_open_options1'(Options).
 
 
-'$get_open_options1'([], LAlias, LAlias).
+'$get_open_options1'([]).
 
-'$get_open_options1'([X|Options], LAlias, LAlias2) :-
-	'$get_open_options2'(X, LAlias, LAlias1), !,
-	'$get_open_options1'(Options, LAlias1, LAlias2).
+'$get_open_options1'([X|Options]) :-
+	'$get_open_options2'(X), !,
+	'$get_open_options1'(Options).
 
 
-'$get_open_options2'(X, _, _) :-
+'$get_open_options2'(X) :-
 	var(X),
 	'$pl_err_instantiation'.
 
-'$get_open_options2'(type(X), LAlias, LAlias) :-
+'$get_open_options2'(type(X)) :-
 	nonvar(X),
 	(   X = text,
 	    '$sys_var_set_bit'(0, 0)
@@ -154,7 +159,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	    '$sys_var_reset_bit'(0, 0)
 	).
 
-'$get_open_options2'(reposition(X), LAlias, LAlias) :-
+'$get_open_options2'(reposition(X)) :-
 	nonvar(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 1)
@@ -163,7 +168,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	),
 	'$sys_var_set_bit'(0, 2).
 
-'$get_open_options2'(eof_action(X), LAlias, LAlias) :-
+'$get_open_options2'(eof_action(X)) :-
 	nonvar(X),
 	(   X = error,
 	    '$sys_var_reset_bit'(0, 4),
@@ -177,7 +182,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	),
 	'$sys_var_set_bit'(0, 5).
 
-'$get_open_options2'(buffering(X), LAlias, LAlias) :-
+'$get_open_options2'(buffering(X)) :-
 	nonvar(X),
 	(   X = none,
 	    '$sys_var_reset_bit'(0, 7),
@@ -191,24 +196,41 @@ open(SourceSink, Mode, Stream, Options) :-
 	),
 	'$sys_var_set_bit'(0, 8).
 
-'$get_open_options2'(alias(X), LAlias, [X|LAlias]) :-
+'$get_open_options2'(alias(X)) :-
 	atom(X), !,
 	(   '$call_c_test'('Test_Alias_Not_Assigned_1'(X)) ->
-	    true
+	    g_read('$open_aliases', [X|End]),
+	    g_link('$open_aliases', End) % write new end variable
 	;   '$pl_err_permission'(open, source_sink, alias(X))
 	).
 
-'$get_open_options2'(X, _, _) :-
+'$get_open_options2'(mirror(X)) :-
+	nonvar(X),
+	(X = '$stream'(MStm), integer(MStm) ; atom(X)),
+	!,
+	'$call_c'('Check_Valid_Mirror_1'(X)),
+	g_read('$open_mirrors', [X|End]),
+	g_link('$open_mirrors', End). % write new end variable
+
+'$get_open_options2'(X) :-
 	'$pl_err_domain'(stream_option, X).
 
 
 
 
-'$add_alias_to_stream'([], _).
+'$add_aliases_to_stream'([], _).
 
-'$add_alias_to_stream'([Alias|LAlias], Stream) :-
+'$add_aliases_to_stream'([Alias|LAlias], Stream) :-
 	'$call_c'('Add_Stream_Alias_2'(Stream, Alias)),
-	'$add_alias_to_stream'(LAlias, Stream).
+	'$add_aliases_to_stream'(LAlias, Stream).
+
+
+
+'$add_mirrors_to_stream'([], _).
+
+'$add_mirrors_to_stream'([Mirror|LMirror], Stream) :-
+	'$call_c'('Add_Stream_Mirror_2'(Stream, Mirror)),
+	'$add_mirrors_to_stream'(LMirror, Stream).
 
 
 
@@ -275,6 +297,20 @@ add_stream_alias(SorA, Alias) :-
 
 add_stream_alias(_, Alias) :-
 	'$pl_err_permission'(add_alias, source_sink, alias(Alias)).
+
+
+
+
+add_stream_mirror(SorA, Mirror) :-
+	set_bip_name(add_stream_mirror, 2),
+	'$call_c'('Add_Stream_Mirror_2'(SorA, Mirror)).
+
+
+
+
+remove_stream_mirror(SorA, Mirror) :-
+	set_bip_name(remove_stream_mirror, 2),
+	'$call_c_test'('Remove_Stream_Mirror_2'(SorA, Mirror)).
 
 
 
@@ -397,6 +433,8 @@ stream_property(Stream, Property) :-
 
 '$check_stream_prop'(alias(_)).
 
+'$check_stream_prop'(mirror(_)).
+
 '$check_stream_prop'(type(_)).
 
 '$check_stream_prop'(reposition(_)).
@@ -429,6 +467,10 @@ stream_property(Stream, Property) :-
 
 '$stream_property1'(alias(Alias), S) :-
 	'$current_alias'(S, Alias).
+
+'$stream_property1'(mirror(MS), S) :-
+	'$current_mirror'(S, MStm),
+	MS = '$stream'(MStm).
 
 '$stream_property1'(type(Type), S) :-
 	'$call_c_test'('Stream_Prop_Type_2'(Type, S)).
@@ -480,6 +522,25 @@ current_alias(Stream, Alias) :-
 
 '$current_alias_alt' :-             % used by C code to create a choice-point
 	'$call_c_test'('Current_Alias_Alt_0').
+
+
+
+
+current_mirror(Stream, MStream) :-
+	set_bip_name(current_mirror, 2),
+	'$check_stream_or_var'(Stream, S),
+	'$check_stream_or_var'(MStream, MStm),
+	'$current_stream'(S),
+	'$current_mirror'(S, MStm).
+
+
+
+
+'$current_mirror'(S, MStm) :-
+	'$call_c_test'('Current_Mirror_2'(S, MStm)).
+
+'$current_mirror_alt' :-             % used by C code to create a choice-point
+	'$call_c_test'('Current_Mirror_Alt_0').
 
 
 

@@ -216,9 +216,8 @@ static WamCont BC_Emulate_Clause(DynCInf *clause);
 
 static WamCont BC_Emulate_Byte_Code(BCWord *bc);
 
-static
-  void Prep_Debug_Call(int func, int arity, int caller_func,
-		       int caller_arity);
+static void Prep_Debug_Call(int func, int arity, int caller_func,
+			    int caller_arity);
 
 
 
@@ -751,7 +750,8 @@ BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
       return debug_call_code;
     }
 
-  if ((pred = Lookup_Pred(func, arity)) == NULL)
+  pred = Lookup_Pred(func, arity);
+  if (pred == NULL)
     {				/* case: fail/0 from '$call_from_debugger' */
       if (func != atom_fail || arity != 0)
 	{

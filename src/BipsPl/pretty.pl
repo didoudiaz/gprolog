@@ -60,7 +60,7 @@ portray_clause(_, _).
 	;   '$pl_err_type'(callable, Term)
 	),
 	name_singleton_vars(Term),
-	numbervars(Term),
+	bind_variables(Term, [exclude([Term])]),
 	set_bip_name(portray_clause, Arity).
 
 

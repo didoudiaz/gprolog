@@ -303,7 +303,7 @@ Pl_Query_Begin(Bool recoverable)
 
 {
   if (query_stack_top - query_stack >= QUERY_STACK_SIZE)
-    Fatal_Error("Too many nested Pl_Query_Start() (max: %d)",
+    Fatal_Error("too many nested Pl_Query_Start() (max: %d)",
 		QUERY_STACK_SIZE);
 
   if (recoverable)

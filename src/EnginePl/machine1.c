@@ -50,6 +50,7 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <sys/param.h>
+#include <time.h>
 #else
 #include <windows.h>
 #include <process.h>
@@ -578,17 +579,67 @@ M_Get_Status(int pid)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Mktemp(char *tmp_template)
+M_Mktemp(char *tmpl)
 {
-#ifdef HAVE_MKSTEMP
+#if defined(__unix__) || defined(__CYGWIN__)
+				/* this code comes from glibc */
+  int len;
+  char *XXXXXX;
+  static unsigned long value;
+  int count;
+  struct stat buf;
+  static const char letters[] =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-  int fd = mkstemp(tmp_template);
-  if (fd == -1)
-    return NULL;
+#ifndef TMP_MAX
+#define TMP_MAX 238328
+#endif
 
-  close(fd);
-  unlink(tmp_template);		/* don't leave it sitting around... */
-  return tmp_template;
+  len = strlen (tmpl);
+  if (len < 6 || strcmp(&tmpl[len - 6], "XXXXXX"))
+    {
+      errno = EINVAL;
+      return NULL;
+    }
+
+  /* This is where the Xs start.  */
+  XXXXXX = &tmpl[len - 6];
+
+  value += (unsigned long) time(NULL) ^ getpid();
+
+  for (count = 0; count < TMP_MAX; value += 7777, ++count)
+    {
+      unsigned long v = value;
+
+      /* Fill in the random bits.  */
+      XXXXXX[0] = letters[v % 62];
+      v /= 62;
+      XXXXXX[1] = letters[v % 62];
+      v /= 62;
+      XXXXXX[2] = letters[v % 62];
+      v /= 62;
+      XXXXXX[3] = letters[v % 62];
+      v /= 62;
+      XXXXXX[4] = letters[v % 62];
+      v /= 62;
+      XXXXXX[5] = letters[v % 62];
+
+      if (lstat(tmpl, &buf) < 0)
+	{
+	  if (errno == ENOENT)
+	    {
+	      errno = 0;
+	      return tmpl;
+	    }
+	  else
+	    /* Give up now. */
+	    return NULL;
+	}
+    }
+
+  /* We got out of the loop because we ran out of combinations to try.  */
+  errno = EEXIST;
+  return NULL;
 
 #else
 
@@ -608,17 +659,20 @@ M_Mktemp(char *tmp_template)
 char *
 M_Tempnam(char *dir, char *pfx)
 {
-#ifdef HAVE_MKSTEMP
+#if defined(__unix__) || defined(__CYGWIN__)
+				/* this code comes from glibc */
   char tmpl[MAXPATHLEN];
   char *d;
   int dlen, plen;
-  int fd;
   struct stat buf;
+
+#ifndef P_tmpdir
+#define P_tmpdir "/tmp"
+#endif
 
 #define Dir_Exists(dir) (stat(dir, &buf) == 0 && S_ISDIR (buf.st_mode))
 
 
-				/* this code comes from glibc */
   if (!pfx || !pfx[0])
     {
       pfx = "file";
@@ -664,14 +718,10 @@ M_Tempnam(char *dir, char *pfx)
     }
 
   sprintf(tmpl, "%.*s/%.*sXXXXXX", dlen, dir, plen, pfx);
-
-  fd = mkstemp(tmpl);
-  if (fd == -1)
-     return NULL;
-
-  close(fd);
-  unlink(tmpl);			/* don't leave it sitting around... */
-  return strdup(tmpl);
+  d = M_Mktemp(tmpl);
+  if (d)
+    d = strdup(d);
+  return d;
 
 #else
 

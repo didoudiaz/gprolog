@@ -55,6 +55,8 @@ enum
 {
   PL_CODE,
   PL_JUMP,
+  PREP_CP,
+  HERE_CP,
   PL_CALL,
   PL_FAIL,
   PL_RET,
@@ -81,12 +83,10 @@ enum
  * Global Variables                *
  *---------------------------------*/
 
-char *inst[] = { "pl_code", "pl_jump", "pl_call", "pl_fail", "pl_ret",
-  "jump", "move",
-  "call_c", "jump_ret", "fail_ret", "move_ret", "switch_ret",
-  "c_code", "c_ret",
-  "long", NULL
-};
+char *inst[] = {
+  "pl_code", "pl_jump", "prep_cp", "here_cp", "pl_call", "pl_fail",
+  "pl_ret", "jump", "move", "call_c", "jump_ret", "fail_ret", "move_ret",
+  "switch_ret", "c_code", "c_ret", "long", NULL };
 
 
 int reload_e;
@@ -232,6 +232,14 @@ Parser(void)
 	  reload_e = 1;
 	  break;
 
+	case PREP_CP:
+	  Prep_CP();
+	  break;
+
+	case HERE_CP:
+	  Here_CP();
+	  break;
+
 	case PL_CALL:
 	  Read_Token(IDENTIFIER);
 	  Pl_Call(str_val);
@@ -251,6 +259,7 @@ Parser(void)
 	case JUMP:
 	  Read_Token(IDENTIFIER);
 	  Jump(str_val);
+	  reload_e = 1;
 	  break;
 
 	case MOVE:
@@ -278,6 +287,7 @@ Parser(void)
 
 	case JUMP_RET:
 	  Jump_Ret();
+	  reload_e = 1;
 	  break;
 
 	case FAIL_RET:

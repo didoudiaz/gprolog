@@ -23,6 +23,9 @@ inst::=		'pl_jump' pl_label	Prolog jump to a predicate
 
 		'move' reg1 ',' reg2	move wam reg1 to reg2
 
+		'prep_cp'		save in CP address of next here_cp
+		'here_cp'		define the address of prev prep_cp
+		
 		'call_c' [ 'fast' ] fct_name '(' fct_arg ','...')'
 					call a C function (fc = fast call)
 		'jump_ret'		jump at the returned value

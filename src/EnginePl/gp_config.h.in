@@ -40,9 +40,6 @@
 /* Define if you have a mallopt function */
 #undef HAVE_MALLOPT
 
-/* Define if you have a mkstemp function */
-#undef HAVE_MKSTEMP
-
 /* Define inline keyword */
 #undef inline
 
@@ -153,6 +150,9 @@
 
 /* Define if the system is a powerpc/linux */
 #undef M_powerpc_linux
+
+/* Define if the system is a powerpc/bsd */
+#undef M_powerpc_darwin
 
 
 

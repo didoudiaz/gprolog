@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
+% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : src_rdr.pl
-% date    : 4 19 2002
-% time    : 15:19:18
+% date    : 4 24 2002
+% time    : 11:32:47
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').
@@ -12,58 +12,41 @@ predicate('$use_src_rdr'/0,29,static,private,built_in,[
 
 
 predicate(sr_open/3,58,static,private,built_in,[
-    load_cut_level(3),
-    allocate(6),
+    allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    get_variable(y(3),3),
     put_atom(sr_open,0),
     put_integer(3,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_sr_defaults'/0),
     put_value(y(2),0),
-    put_variable(y(4),1),
+    put_variable(y(3),1),
     call('$get_sr_options'/2),
     put_value(y(1),0),
     call('$sr_open/3_$aux1'/1),
     put_value(y(1),0),
-    put_value(y(4),1),
+    put_unsafe_value(y(3),1),
     call_c('SR_Init_Open_2',[],[x(0),x(1)]),
     put_value(y(0),0),
-    put_value(y(3),1),
-    put_variable(y(5),2),
-    call('$sr_open/3_$aux2'/3),
-    put_unsafe_value(y(5),0),
     deallocate,
-    call_c('SR_Finish_Open_1',[],[x(0)]),
-    proceed]).
+    execute('$sr_open/3_$aux2'/1)]).
 
 
-predicate('$sr_open/3_$aux2'/3,58,static,private,built_in,[
+predicate('$sr_open/3_$aux2'/1,58,static,private,built_in,[
+    load_cut_level(1),
     try_me_else(1),
-    allocate(2),
-    get_variable(y(0),1),
-    get_variable(y(1),2),
     call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     get_structure('$stream'/1,0),
-    unify_variable(x(1)),
-    call('$sr_from_stream'/2),
-    cut(y(0)),
-    put_value(y(1),0),
-    get_atom(false,0),
-    deallocate,
+    unify_void(1),
+    cut(x(1)),
+    put_atom(true,1),
+    call_c('SR_Open_File_2',[],[x(0),x(1)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    allocate(1),
-    get_variable(y(0),2),
-    call('$sr_open_new_prolog_file'/1),
-    put_value(y(0),0),
-    get_atom(true,0),
-    deallocate,
-    proceed]).
+    execute('$sr_open_new_prolog_file'/1)]).
 
 
 predicate('$sr_open/3_$aux1'/1,58,static,private,built_in,[
@@ -80,7 +63,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$set_sr_defaults'/0,96,static,private,built_in,[
+predicate('$set_sr_defaults'/0,91,static,private,built_in,[
     allocate(0),
     put_integer(0,0),
     put_integer(1022,1),
@@ -94,7 +77,7 @@ predicate('$set_sr_defaults'/0,96,static,private,built_in,[
     execute('$sys_var_write'/2)]).
 
 
-predicate('$get_sr_options'/2,102,static,private,built_in,[
+predicate('$get_sr_options'/2,97,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -112,7 +95,7 @@ predicate('$get_sr_options'/2,102,static,private,built_in,[
     proceed]).
 
 
-predicate('$get_sr_options1'/1,109,static,private,built_in,[
+predicate('$get_sr_options1'/1,104,static,private,built_in,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -139,7 +122,7 @@ label(4),
     execute('$get_sr_options1'/1)]).
 
 
-predicate('$get_sr_options2'/1,116,static,private,built_in,[
+predicate('$get_sr_options2'/1,111,static,private,built_in,[
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -182,13 +165,13 @@ label(2),
     switch_on_term(4,fail,fail,fail,3),
 
 label(3),
-    switch_on_structure([(keep_files_open/1,5),(reflect_eof/1,7),(undo_directives/1,9),(write_error/1,11),(output_stream/1,13)]),
+    switch_on_structure([(restart/1,5),(reflect_eof/1,7),(undo_directives/1,9),(write_error/1,11),(output_stream/1,13)]),
 
 label(4),
     try_me_else(6),
 
 label(5),
-    get_structure(keep_files_open/1,0),
+    get_structure(restart/1,0),
     unify_variable(x(0)),
     call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
     execute('$$get_sr_options2/1_$aux1'/1),
@@ -239,7 +222,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_sr_options2/1_$aux4'/1,154,static,private,built_in,[
+predicate('$$get_sr_options2/1_$aux4'/1,149,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -264,7 +247,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_sr_options2/1_$aux3'/1,146,static,private,built_in,[
+predicate('$$get_sr_options2/1_$aux3'/1,141,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -289,7 +272,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_sr_options2/1_$aux2'/1,138,static,private,built_in,[
+predicate('$$get_sr_options2/1_$aux2'/1,133,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -314,7 +297,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_sr_options2/1_$aux1'/1,130,static,private,built_in,[
+predicate('$$get_sr_options2/1_$aux1'/1,125,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -339,7 +322,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$sr_treat_pass_no'/3,174,static,private,built_in,[
+predicate('$sr_treat_pass_no'/3,169,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -418,7 +401,7 @@ label(17),
     proceed]).
 
 
-predicate('$sr_set_treat_pass_bits'/3,186,static,private,built_in,[
+predicate('$sr_set_treat_pass_bits'/3,181,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -481,104 +464,15 @@ label(9),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$sr_open_new_prolog_file'/1,205,static,private,built_in,[
-    allocate(2),
-    put_variable(y(0),1),
-    call_c('Prolog_File_Name_2',[],[x(0),x(1)]),
-    put_value(y(0),0),
-    put_variable(y(1),1),
-    call('$$sr_open_new_prolog_file/1_$aux1'/2),
-    put_unsafe_value(y(1),0),
-    get_structure('$stream'/1,0),
-    unify_variable(x(1)),
-    put_unsafe_value(y(0),0),
-    deallocate,
-    call_c('SR_Open_File_2',[],[x(0),x(1)]),
+predicate('$sr_open_new_prolog_file'/1,200,static,private,built_in,[
+    put_variable(x(1),2),
+    call_c('Prolog_File_Name_2',[],[x(0),x(2)]),
+    put_atom(false,0),
+    call_c('SR_Open_File_2',[],[x(1),x(0)]),
     proceed]).
 
 
-predicate('$$sr_open_new_prolog_file/1_$aux1'/2,205,static,private,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    get_atom(user,0),
-    cut(x(2)),
-    put_value(x(1),0),
-    execute(current_input/1),
-
-label(1),
-    trust_me_else_fail,
-    put_value(x(1),2),
-    put_atom(read,1),
-    put_nil(3),
-    execute('$open'/4)]).
-
-
-predicate('$sr_from_stream'/2,217,static,private,built_in,[
-    try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(1)]),
-    execute('$pl_err_instantiation'/0),
-
-label(1),
-    retry_me_else(2),
-    allocate(1),
-    get_variable(y(0),1),
-    put_value(y(0),1),
-    call_c('Blt_Integer',[fast_call,boolean],[x(1)]),
-    put_value(x(0),1),
-    put_value(y(0),0),
-    call('$$sr_from_stream/2_$aux1'/2),
-    put_variable(x(0),1),
-    put_value(y(0),2),
-    call_c('Stream_Prop_File_Name_2',[boolean],[x(1),x(2)]),
-    put_value(y(0),1),
-    deallocate,
-    call_c('SR_Open_File_2',[],[x(0),x(1)]),
-    proceed,
-
-label(2),
-    trust_me_else_fail,
-    put_value(x(0),1),
-    put_atom(sr_source,0),
-    execute('$pl_err_domain'/2)]).
-
-
-predicate('$$sr_from_stream/2_$aux1'/2,221,static,private,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    allocate(3),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    put_value(y(0),0),
-    call('$current_stream'/1),
-    cut(y(2)),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    deallocate,
-    execute('$$sr_from_stream/2_$aux2'/2),
-
-label(1),
-    trust_me_else_fail,
-    put_atom(stream,0),
-    execute('$pl_err_existence'/2)]).
-
-
-predicate('$$sr_from_stream/2_$aux2'/2,221,static,private,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    call_c('Stream_Prop_Input_1',[boolean],[x(0)]),
-    cut(x(2)),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    put_value(x(1),2),
-    put_atom(input,0),
-    put_atom(stream,1),
-    execute('$pl_err_permission'/3)]).
-
-
-predicate(sr_change_options/2,239,static,private,built_in,[
+predicate(sr_change_options/2,212,static,private,built_in,[
     allocate(0),
     put_atom(sr_change_options,2),
     put_integer(2,3),
@@ -591,7 +485,7 @@ predicate(sr_change_options/2,239,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_close/1,248,static,private,built_in,[
+predicate(sr_close/1,221,static,private,built_in,[
     put_atom(sr_close,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -599,7 +493,29 @@ predicate(sr_close/1,248,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_read_term/4,255,static,private,built_in,[
+predicate(sr_new_pass/1,227,static,private,built_in,[
+    put_atom(sr_new_pass,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    execute('$sr_new_pass/1_$aux1'/1)]).
+
+
+predicate('$sr_new_pass/1_$aux1'/1,227,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    call_c('SR_New_Pass_1',[boolean],[x(0)]),
+    cut(x(1)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    put_value(x(0),2),
+    put_atom(new_pass,0),
+    put_atom(one_pass_reader,1),
+    execute('$pl_err_permission'/3)]).
+
+
+predicate(sr_read_term/4,237,static,private,built_in,[
     load_cut_level(4),
     allocate(6),
     get_variable(y(0),0),
@@ -640,7 +556,7 @@ predicate(sr_read_term/4,255,static,private,built_in,[
     proceed]).
 
 
-predicate('$sr_read_term/4_$aux2'/2,255,static,private,built_in,[
+predicate('$sr_read_term/4_$aux2'/2,237,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),1),
@@ -658,7 +574,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_read_term/4_$aux1'/3,255,static,private,built_in,[
+predicate('$sr_read_term/4_$aux1'/3,237,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
@@ -674,7 +590,7 @@ label(1),
     execute('$sr_error_from_exception'/2)]).
 
 
-predicate('$sr_treat_term'/2,282,static,private,built_in,[
+predicate('$sr_treat_term'/2,264,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(end_of_file,3),
@@ -728,7 +644,7 @@ label(2),
     proceed]).
 
 
-predicate('$$sr_treat_term/2_$aux3'/2,290,static,private,built_in,[
+predicate('$$sr_treat_term/2_$aux3'/2,272,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
@@ -741,7 +657,7 @@ label(1),
     proceed]).
 
 
-predicate('$$sr_treat_term/2_$aux2'/4,290,static,private,built_in,[
+predicate('$$sr_treat_term/2_$aux2'/4,272,static,private,built_in,[
     load_cut_level(4),
     try_me_else(1),
     get_variable(x(5),2),
@@ -764,7 +680,7 @@ label(1),
     proceed]).
 
 
-predicate('$$sr_treat_term/2_$aux1'/2,282,static,private,built_in,[
+predicate('$$sr_treat_term/2_$aux1'/2,264,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
@@ -780,7 +696,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_exec_directive'/2,315,static,private,built_in,[
+predicate('$sr_exec_directive'/2,297,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -798,7 +714,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_directive1'/2,325,static,private,built_in,[
+predicate('$sr_directive1'/2,307,static,private,built_in,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -926,7 +842,7 @@ label(17),
     execute('$sr_stop_module'/3)]).
 
 
-predicate('$$sr_directive1/2_$aux3'/2,351,static,private,built_in,[
+predicate('$$sr_directive1/2_$aux3'/2,333,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -943,7 +859,7 @@ label(1),
     proceed]).
 
 
-predicate('$$sr_directive1/2_$aux2'/2,342,static,private,built_in,[
+predicate('$$sr_directive1/2_$aux2'/2,324,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -959,7 +875,7 @@ label(1),
     proceed]).
 
 
-predicate('$$sr_directive1/2_$aux1'/4,328,static,private,built_in,[
+predicate('$$sr_directive1/2_$aux1'/4,310,static,private,built_in,[
     load_cut_level(4),
     try_me_else(1),
     allocate(5),
@@ -990,7 +906,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_op_type'/2,375,static,private,built_in,[
+predicate('$sr_op_type'/2,357,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1053,7 +969,7 @@ label(15),
     proceed]).
 
 
-predicate('$sr_start_module'/3,386,static,private,built_in,[
+predicate('$sr_start_module'/3,368,static,private,built_in,[
     get_variable(x(3),0),
     put_variable(x(0),4),
     call_c('SR_Start_Module_3',[],[x(3),x(1),x(4)]),
@@ -1061,7 +977,7 @@ predicate('$sr_start_module'/3,386,static,private,built_in,[
     execute('$$sr_start_module/3_$aux1'/2)]).
 
 
-predicate('$$sr_start_module/3_$aux1'/2,386,static,private,built_in,[
+predicate('$$sr_start_module/3_$aux1'/2,368,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
@@ -1077,7 +993,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_stop_module'/3,395,static,private,built_in,[
+predicate('$sr_stop_module'/3,377,static,private,built_in,[
     get_variable(x(3),0),
     put_variable(x(0),4),
     call_c('SR_Stop_Module_3',[],[x(3),x(1),x(4)]),
@@ -1085,7 +1001,7 @@ predicate('$sr_stop_module'/3,395,static,private,built_in,[
     execute('$$sr_stop_module/3_$aux1'/2)]).
 
 
-predicate('$$sr_stop_module/3_$aux1'/2,395,static,private,built_in,[
+predicate('$$sr_stop_module/3_$aux1'/2,377,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
@@ -1101,7 +1017,7 @@ label(1),
     proceed]).
 
 
-predicate(sr_current_descriptor/1,404,static,private,built_in,[
+predicate(sr_current_descriptor/1,386,static,private,built_in,[
     put_atom(sr_current_descriptor,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -1109,12 +1025,12 @@ predicate(sr_current_descriptor/1,404,static,private,built_in,[
     proceed]).
 
 
-predicate('$sr_current_descriptor_alt'/0,411,static,private,built_in,[
+predicate('$sr_current_descriptor_alt'/0,393,static,private,built_in,[
     call_c('SR_Current_Descriptor_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(sr_get_stream/2,417,static,private,built_in,[
+predicate(sr_get_stream/2,399,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(sr_get_stream,0),
@@ -1130,7 +1046,7 @@ predicate(sr_get_stream/2,417,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_module/3,425,static,private,built_in,[
+predicate(sr_get_module/3,407,static,private,built_in,[
     put_atom(sr_get_module,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
@@ -1138,7 +1054,7 @@ predicate(sr_get_module/3,425,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_file_name/2,432,static,private,built_in,[
+predicate(sr_get_file_name/2,414,static,private,built_in,[
     put_atom(sr_get_file_name,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
@@ -1146,7 +1062,7 @@ predicate(sr_get_file_name/2,432,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_position/3,439,static,private,built_in,[
+predicate(sr_get_position/3,421,static,private,built_in,[
     put_atom(sr_get_position,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
@@ -1154,7 +1070,7 @@ predicate(sr_get_position/3,439,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_include_list/2,446,static,private,built_in,[
+predicate(sr_get_include_list/2,428,static,private,built_in,[
     put_atom(sr_get_include_list,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
@@ -1162,7 +1078,7 @@ predicate(sr_get_include_list/2,446,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_include_stream_list/2,453,static,private,built_in,[
+predicate(sr_get_include_stream_list/2,435,static,private,built_in,[
     put_atom(sr_get_include_stream_list,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
@@ -1170,7 +1086,7 @@ predicate(sr_get_include_stream_list/2,453,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_size_counters/3,460,static,private,built_in,[
+predicate(sr_get_size_counters/3,442,static,private,built_in,[
     put_atom(sr_get_size_counters,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
@@ -1178,7 +1094,7 @@ predicate(sr_get_size_counters/3,460,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_get_error_counters/3,467,static,private,built_in,[
+predicate(sr_get_error_counters/3,449,static,private,built_in,[
     put_atom(sr_get_error_counters,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
@@ -1186,7 +1102,7 @@ predicate(sr_get_error_counters/3,467,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_set_error_counters/3,474,static,private,built_in,[
+predicate(sr_set_error_counters/3,456,static,private,built_in,[
     put_atom(sr_set_error_counters,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
@@ -1194,7 +1110,7 @@ predicate(sr_set_error_counters/3,474,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_write_message/4,481,static,private,built_in,[
+predicate(sr_write_message/4,463,static,private,built_in,[
     put_atom(sr_write_message,4),
     put_integer(4,5),
     call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
@@ -1202,7 +1118,7 @@ predicate(sr_write_message/4,481,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_write_message/6,488,static,private,built_in,[
+predicate(sr_write_message/6,470,static,private,built_in,[
     put_atom(sr_write_message,6),
     put_integer(6,7),
     call_c('Set_Bip_Name_2',[],[x(6),x(7)]),
@@ -1210,7 +1126,7 @@ predicate(sr_write_message/6,488,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_write_message/8,495,static,private,built_in,[
+predicate(sr_write_message/8,477,static,private,built_in,[
     put_atom(sr_write_message,8),
     put_integer(8,9),
     call_c('Set_Bip_Name_2',[],[x(8),x(9)]),
@@ -1218,7 +1134,7 @@ predicate(sr_write_message/8,495,static,private,built_in,[
     proceed]).
 
 
-predicate(sr_write_error/2,502,static,private,built_in,[
+predicate(sr_write_error/2,484,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(7),
@@ -1250,7 +1166,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_write_error/2_$aux1'/6,502,static,private,built_in,[
+predicate('$sr_write_error/2_$aux1'/6,484,static,private,built_in,[
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     call_c('SR_Write_Message_4',[],[x(1),x(2),x(3),x(4)]),
@@ -1262,7 +1178,7 @@ label(1),
     proceed]).
 
 
-predicate(sr_write_error/4,516,static,private,built_in,[
+predicate(sr_write_error/4,498,static,private,built_in,[
     load_cut_level(4),
     try_me_else(1),
     allocate(9),
@@ -1301,7 +1217,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_write_error/4_$aux1'/4,516,static,private,built_in,[
+predicate('$sr_write_error/4_$aux1'/4,498,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     get_value(x(3),2),
@@ -1312,7 +1228,7 @@ label(1),
     proceed]).
 
 
-predicate(sr_write_error/6,527,static,private,built_in,[
+predicate(sr_write_error/6,509,static,private,built_in,[
     load_cut_level(6),
     try_me_else(1),
     allocate(11),
@@ -1355,7 +1271,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_write_error/6_$aux1'/4,527,static,private,built_in,[
+predicate('$sr_write_error/6_$aux1'/4,509,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     get_value(x(3),2),
@@ -1366,7 +1282,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_get_format_args_error'/6,539,static,private,built_in,[
+predicate('$sr_get_format_args_error'/6,521,static,private,built_in,[
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -1381,7 +1297,7 @@ label(1),
     execute('$sr_simpl_error'/5)]).
 
 
-predicate('$sr_simpl_error'/5,550,static,private,built_in,[
+predicate('$sr_simpl_error'/5,532,static,private,built_in,[
     load_cut_level(5),
     try_me_else(8),
     switch_on_term(2,fail,fail,fail,1),
@@ -1448,7 +1364,7 @@ label(8),
     proceed]).
 
 
-predicate(sr_error_from_exception/2,573,static,private,built_in,[
+predicate(sr_error_from_exception/2,555,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1463,7 +1379,7 @@ predicate(sr_error_from_exception/2,573,static,private,built_in,[
     execute('$sr_error_from_exception'/2)]).
 
 
-predicate('$sr_error_from_exception/2_$aux1'/1,573,static,private,built_in,[
+predicate('$sr_error_from_exception/2_$aux1'/1,555,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
@@ -1475,7 +1391,7 @@ label(1),
     proceed]).
 
 
-predicate('$sr_error_from_exception'/2,582,static,private,built_in,[
+predicate('$sr_error_from_exception'/2,564,static,private,built_in,[
     load_cut_level(2),
     try_me_else(7),
     switch_on_term(3,fail,fail,fail,1),
