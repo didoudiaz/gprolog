@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.18 (Jan 29 2004)
 % file    : consult.pl
-% date    : 3 18 2004
-% time    : 13:28:26
+% date    : 6 7 2004
+% time    : 15:18:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/consult.pl').

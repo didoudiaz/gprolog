@@ -278,7 +278,7 @@ Current_Bip_Name_2(WamWord func_word, WamWord arity_word)
  * SET_C_BIP_NAME                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Set_C_Bip_Name(char *func_str, int arity)
 {
   c_bip_func_str = func_str;

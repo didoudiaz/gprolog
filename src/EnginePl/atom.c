@@ -225,7 +225,7 @@ Init_Atom(void)
  * CREATE_ALLOCATE_ATOM                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Create_Allocate_Atom(char *name)
 {
   AtomInf *patom;
@@ -252,7 +252,7 @@ Create_Allocate_Atom(char *name)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Create_Atom(char *name)
 {
   AtomInf *patom;
@@ -346,7 +346,7 @@ finish:
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Create_Atom_Tagged(char *name)
 {
   return Tag_ATM(Create_Atom(name));
@@ -360,7 +360,7 @@ Create_Atom_Tagged(char *name)
  *                                                                         *
  * return the atom key or -1 if not exist.                                 *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Find_Atom(char *name)
 {
   AtomInf *patom;
@@ -450,7 +450,7 @@ Hash_String(char *str)
  * Find a new atom (gensym) beginning by a given prefix.                   *
  * hash<0 for any input or the index of the free atom to produce.          *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Gen_New_Atom(char *prefix, int hash)
 {
   AtomInf *patom;
@@ -532,7 +532,7 @@ Gen_Sym(unsigned char *prefix, int gen_sym_hash)
  *                                                                         *
  * returns the atom next after 'last_atom' (-1 to start) or -1 at the end  *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Find_Next_Atom(int last_atom)
 {
   while (++last_atom < MAX_ATOM)

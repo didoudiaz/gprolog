@@ -4566,12 +4566,12 @@ else
 
     CFLAGS_MACHINE=
     case "$host" in
-        mips*irix*)        CFLAGS_MACHINE='-mcpu=4000';;
+        mips*irix*)        CFLAGS_MACHINE='-march=4000';;
         *sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
         *sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
-        i686*)             CFLAGS_MACHINE='-mcpu=pentiumpro';;
-        i586*)             CFLAGS_MACHINE='-mcpu=pentium';;
-        i*86*)             CFLAGS_MACHINE='-mcpu=i486';;
+        i686*)             CFLAGS_MACHINE='-march=pentiumpro';;
+        i586*)             CFLAGS_MACHINE='-march=pentium';;
+        i*86*)             CFLAGS_MACHINE='-march=i486';;
         powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc -no-cpp-precomp';;
     esac
 

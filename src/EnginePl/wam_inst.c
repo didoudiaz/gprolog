@@ -85,7 +85,7 @@ Create_Functor_Arity_Tagged(char *func_str, int arity)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 
-SwtTbl
+SwtTbl FC
 Create_Swt_Table(int size)
 {
   SwtTbl t;
@@ -105,7 +105,7 @@ Create_Swt_Table(int size)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
 {
   SwtInf *swt = Locate_Swt_Element(t, size, atom);
@@ -122,7 +122,7 @@ Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
 		       CodePtr codep)
 {
@@ -176,7 +176,7 @@ Locate_Swt_Element(SwtTbl t, int size, long key)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Atom_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -199,7 +199,7 @@ Get_Atom_Tagged(WamWord w, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Atom(int atom, WamWord start_word)
 {
   return Get_Atom_Tagged(Tag_ATM(atom), start_word);
@@ -213,7 +213,7 @@ Get_Atom(int atom, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Integer_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -241,7 +241,7 @@ Get_Integer_Tagged(WamWord w, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Integer(long n, WamWord start_word)
 {
   return Get_Integer_Tagged(Tag_INT(n), start_word);
@@ -255,7 +255,7 @@ Get_Integer(long n, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Float(double n, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -279,7 +279,7 @@ Get_Float(double n, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Nil(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -302,7 +302,7 @@ Get_Nil(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_List(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -332,7 +332,7 @@ Get_List(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Structure_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -371,7 +371,7 @@ Get_Structure_Tagged(WamWord w, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Structure(int func, int arity, WamWord start_word)
 {
   return Get_Structure_Tagged(Functor_Arity(func, arity), start_word);
@@ -385,7 +385,7 @@ Get_Structure(int func, int arity, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_X_Variable(void)
 {
   WamWord res_word;
@@ -406,7 +406,7 @@ Put_X_Variable(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Y_Variable(WamWord *y_adr)
 {
   return *y_adr = Make_Self_Ref(y_adr);
@@ -420,7 +420,7 @@ Put_Y_Variable(WamWord *y_adr)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Unsafe_Value(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -448,7 +448,7 @@ Put_Unsafe_Value(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Atom_Tagged(WamWord w)
 {
   return w;
@@ -462,7 +462,7 @@ Put_Atom_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Atom(int atom)
 {
   return Tag_ATM(atom);
@@ -476,7 +476,7 @@ Put_Atom(int atom)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Integer_Tagged(WamWord w)
 {
   return w;
@@ -490,7 +490,7 @@ Put_Integer_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Integer(long n)
 {
   return Tag_INT(n);
@@ -504,7 +504,7 @@ Put_Integer(long n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Float(double n)
 {
   WamWord res_word;
@@ -522,7 +522,7 @@ Put_Float(double n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Nil(void)
 {
   return NIL_WORD;
@@ -536,7 +536,7 @@ Put_Nil(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_List(void)
 {
   S = WRITE_MODE;
@@ -551,7 +551,7 @@ Put_List(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Structure_Tagged(WamWord w)
 {
   WamWord *cur_H = H;
@@ -569,7 +569,7 @@ Put_Structure_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Structure(int func, int arity)
 {
   return Put_Structure_Tagged(Functor_Arity(func, arity));
@@ -583,7 +583,7 @@ Put_Structure(int func, int arity)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Unify_Variable(void)
 {
   WamWord tag_mask, word;
@@ -614,7 +614,7 @@ Unify_Variable(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Unify_Void(int n)
 {
   WamWord *cur_H;
@@ -643,7 +643,7 @@ Unify_Void(int n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Value(WamWord start_word)
 {
   if (S != WRITE_MODE)
@@ -661,7 +661,7 @@ Unify_Value(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Local_Value(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -691,7 +691,7 @@ Unify_Local_Value(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Atom_Tagged(WamWord w)
 {
   WamWord word, tag_mask;
@@ -722,7 +722,7 @@ Unify_Atom_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Atom(int atom)
 {
   return Unify_Atom_Tagged(Tag_ATM(atom));
@@ -736,7 +736,7 @@ Unify_Atom(int atom)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Integer_Tagged(WamWord w)
 {
   WamWord word, tag_mask;
@@ -771,7 +771,7 @@ Unify_Integer_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Integer(long n)
 {
   return Unify_Integer_Tagged(Tag_INT(n));
@@ -785,7 +785,7 @@ Unify_Integer(long n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Nil(void)
 {
   WamWord word, tag_mask;
@@ -815,7 +815,7 @@ Unify_Nil(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_List(void)
 {
   WamWord *cur_H;
@@ -838,7 +838,7 @@ Unify_List(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Structure_Tagged(WamWord w)
 {
   WamWord *cur_H;
@@ -862,7 +862,7 @@ Unify_Structure_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Structure(int func, int arity)
 {
   return Unify_Structure_Tagged(Functor_Arity(func, arity));
@@ -875,7 +875,7 @@ Unify_Structure(int func, int arity)
  * GLOBALIZE_IF_IN_LOCAL                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Globalize_If_In_Local(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -900,7 +900,7 @@ Globalize_If_In_Local(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Allocate(int n)
 {
   WamWord *old_E = E;
@@ -933,7 +933,7 @@ Allocate(int n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Deallocate(void)
 {
   WamWord *cur_E = E;
@@ -951,7 +951,7 @@ Deallocate(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-CodePtr
+CodePtr FC
 Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 	       CodePtr c_lst, CodePtr c_stc)
 {
@@ -978,7 +978,7 @@ Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 {
   WamWord word, tag_mask;
@@ -1002,7 +1002,7 @@ Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 {
   WamWord word, tag_mask;
@@ -1026,7 +1026,7 @@ Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 {
   WamWord word, tag_mask;
@@ -1053,7 +1053,7 @@ Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
 {
   WamWord word, tag_mask;
@@ -1089,7 +1089,7 @@ Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-CodePtr
+CodePtr FC
 Switch_On_Atom(SwtTbl t, int size)
 {
   SwtInf *swt;
@@ -1111,7 +1111,7 @@ Switch_On_Atom(SwtTbl t, int size)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-long
+long FC
 Switch_On_Integer(void)
 {
   return UnTag_INT(A(0));
@@ -1129,7 +1129,7 @@ Switch_On_Integer(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-CodePtr
+CodePtr FC
 Switch_On_Structure(SwtTbl t, int size)
 {
   SwtInf *swt;
@@ -1147,7 +1147,7 @@ Switch_On_Structure(SwtTbl t, int size)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Load_Cut_Level(WamWord *word_adr)
 {
   *word_adr = From_B_To_WamWord(B);
@@ -1161,7 +1161,7 @@ Load_Cut_Level(WamWord *word_adr)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Cut(WamWord b_word)
 {
   Assign_B(From_WamWord_To_B(b_word));
@@ -1178,7 +1178,7 @@ Cut(WamWord b_word)
  * GLOBAL_PUSH_FLOAT                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Global_Push_Float(double n)
 {
   DblInt di;
@@ -1198,7 +1198,7 @@ Global_Push_Float(double n)
  * OBTAIN_FLOAT                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-double
+double FC
 Obtain_Float(WamWord *adr)
 {
   DblInt di;
@@ -1270,7 +1270,7 @@ Obtain_Float(WamWord *adr)
 
 
 
-void
+void FC
 Create_Choice_Point(CodePtr codep_alt, int arity)
 {
   int i;
@@ -1283,7 +1283,7 @@ Create_Choice_Point(CodePtr codep_alt, int arity)
 
 
 
-void
+void FC
 Create_Choice_Point1(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(1);
@@ -1294,7 +1294,7 @@ Create_Choice_Point1(CodePtr codep_alt)
 
 
 
-void
+void FC
 Create_Choice_Point2(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(2);
@@ -1306,7 +1306,7 @@ Create_Choice_Point2(CodePtr codep_alt)
 
 
 
-void
+void FC
 Create_Choice_Point3(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(3);
@@ -1319,7 +1319,7 @@ Create_Choice_Point3(CodePtr codep_alt)
 
 
 
-void
+void FC
 Create_Choice_Point4(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(4);
@@ -1339,7 +1339,7 @@ Create_Choice_Point4(CodePtr codep_alt)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 
-void
+void FC
 Update_Choice_Point(CodePtr codep_alt, int arity)
 {
   int i;
@@ -1352,7 +1352,7 @@ Update_Choice_Point(CodePtr codep_alt, int arity)
 
 
 
-void
+void FC
 Update_Choice_Point1(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1363,7 +1363,7 @@ Update_Choice_Point1(CodePtr codep_alt)
 
 
 
-void
+void FC
 Update_Choice_Point2(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1375,7 +1375,7 @@ Update_Choice_Point2(CodePtr codep_alt)
 
 
 
-void
+void FC
 Update_Choice_Point3(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1388,7 +1388,7 @@ Update_Choice_Point3(CodePtr codep_alt)
 
 
 
-void
+void FC
 Update_Choice_Point4(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1407,7 +1407,7 @@ Update_Choice_Point4(CodePtr codep_alt)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Delete_Choice_Point(int arity)
 {
   int i;
@@ -1420,7 +1420,7 @@ Delete_Choice_Point(int arity)
 
 
 
-void
+void FC
 Delete_Choice_Point1(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1431,7 +1431,7 @@ Delete_Choice_Point1(void)
 
 
 
-void
+void FC
 Delete_Choice_Point2(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1443,7 +1443,7 @@ Delete_Choice_Point2(void)
 
 
 
-void
+void FC
 Delete_Choice_Point3(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1456,7 +1456,7 @@ Delete_Choice_Point3(void)
 
 
 
-void
+void FC
 Delete_Choice_Point4(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1474,7 +1474,7 @@ Delete_Choice_Point4(void)
  * UNTRAIL                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Untrail(WamWord *low_adr)
 {
   WamWord word;

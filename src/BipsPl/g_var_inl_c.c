@@ -179,7 +179,7 @@ G_Var_Initializer(void)
  * BLT_G_ASSIGN                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Assign(WamWord x, WamWord y)
 {
   Set_C_Bip_Name("g_assign", 2);
@@ -194,7 +194,7 @@ Blt_G_Assign(WamWord x, WamWord y)
  * BLT_G_ASSIGNB                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Assignb(WamWord x, WamWord y)
 {
   Set_C_Bip_Name("g_assignb", 2);
@@ -209,7 +209,7 @@ Blt_G_Assignb(WamWord x, WamWord y)
  * BLT_G_LINK                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Link(WamWord x, WamWord y)
 {
   Set_C_Bip_Name("g_link", 2);
@@ -224,7 +224,7 @@ Blt_G_Link(WamWord x, WamWord y)
  * BLT_G_READ                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Read(WamWord x, WamWord y)
 {
   Bool res;
@@ -242,7 +242,7 @@ Blt_G_Read(WamWord x, WamWord y)
  * BLT_G_ARRAY_SIZE                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Array_Size(WamWord x, WamWord y)
 {
   Bool res;
@@ -260,7 +260,7 @@ Blt_G_Array_Size(WamWord x, WamWord y)
  * BLT_G_INC                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Inc(WamWord x)
 {
   Set_C_Bip_Name("g_inc", 1);
@@ -275,7 +275,7 @@ Blt_G_Inc(WamWord x)
  * BLT_G_INCO                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Inco(WamWord x, WamWord y)
 {
   Bool res;
@@ -293,7 +293,7 @@ Blt_G_Inco(WamWord x, WamWord y)
  * BLT_G_INC_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Inc_2(WamWord x, WamWord y)
 {
   Bool res;
@@ -311,7 +311,7 @@ Blt_G_Inc_2(WamWord x, WamWord y)
  * BLT_G_INC_3                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Inc_3(WamWord x, WamWord y, WamWord z)
 {
   Bool res;
@@ -329,7 +329,7 @@ Blt_G_Inc_3(WamWord x, WamWord y, WamWord z)
  * BLT_G_DEC                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Dec(WamWord x)
 {
   Set_C_Bip_Name("g_dec", 1);
@@ -344,7 +344,7 @@ Blt_G_Dec(WamWord x)
  * BLT_G_DECO                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Deco(WamWord x, WamWord y)
 {
   Bool res;
@@ -362,7 +362,7 @@ Blt_G_Deco(WamWord x, WamWord y)
  * BLT_G_DEC_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Dec_2(WamWord x, WamWord y)
 {
   Bool res;
@@ -380,7 +380,7 @@ Blt_G_Dec_2(WamWord x, WamWord y)
  * BLT_G_DEC_3                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Dec_3(WamWord x, WamWord y, WamWord z)
 {
   Bool res;
@@ -398,7 +398,7 @@ Blt_G_Dec_3(WamWord x, WamWord y, WamWord z)
  * BLT_G_SET_BIT                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Set_Bit(WamWord x, WamWord y)
 {
   Set_C_Bip_Name("g_set_bit", 2);
@@ -413,7 +413,7 @@ Blt_G_Set_Bit(WamWord x, WamWord y)
  * BLT_G_RESET_BIT                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Blt_G_Reset_Bit(WamWord x, WamWord y)
 {
   Set_C_Bip_Name("g_reset_bit", 2);
@@ -428,7 +428,7 @@ Blt_G_Reset_Bit(WamWord x, WamWord y)
  * BLT_G_TEST_SET_BIT                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Test_Set_Bit(WamWord x, WamWord y)
 {
   Bool res;
@@ -446,7 +446,7 @@ Blt_G_Test_Set_Bit(WamWord x, WamWord y)
  * BLT_G_TEST_RESET_BIT                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_G_Test_Reset_Bit(WamWord x, WamWord y)
 {
   Bool res;

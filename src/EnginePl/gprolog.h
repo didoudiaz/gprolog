@@ -55,7 +55,7 @@ extern "C" {
 #define CC "gcc"
 #define CFLAGS_PREFIX_REG "-ffixed-%s"
 #define CFLAGS "-g -Wall"
-#define CFLAGS_MACHINE "-mcpu=pentiumpro"
+#define CFLAGS_MACHINE "-march=pentiumpro"
 #define LDFLAGS ""
 #define LDLIBS "-lm"
 #define AS "as"

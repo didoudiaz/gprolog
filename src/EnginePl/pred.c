@@ -73,7 +73,7 @@ Init_Pred(void)
  * Called by compiled prolog code, by dynamic predicate support and by     *
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
-PredInf *
+PredInf * FC
 Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
 	    long *codep)
 {
@@ -107,7 +107,7 @@ Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
  * LOOKUP_PRED                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-PredInf *
+PredInf * FC
 Lookup_Pred(int func, int arity)
 {
   long key = Functor_Arity(func, arity);
@@ -122,7 +122,7 @@ Lookup_Pred(int func, int arity)
  * DELETE_PRED                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Delete_Pred(int func, int arity)
 {
   long key = Functor_Arity(func, arity);
