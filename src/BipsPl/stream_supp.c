@@ -903,11 +903,7 @@ Stdio_Is_Repositionable(FILE *f)
 {
   int fd = fileno(f);
 
-  if (isatty(fd) || lseek(fd, 0, SEEK_END) < 0)
-    return FALSE;
-
-  lseek(fd, 0, SEEK_SET);
-  return TRUE;
+  return !isatty(fd) && lseek(fd, 0, SEEK_CUR) >= 0;
 }
 
 

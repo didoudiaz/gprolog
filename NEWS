@@ -1,3 +1,7 @@
+Change in GNU Prolog version 1.2.16:
+
+* fix bug when detecting if a stream can be repositioned
+
 Change in GNU Prolog version 1.2.15:
 
 * fix bug in output to constant terms (e.g. write_to_atom/2)
