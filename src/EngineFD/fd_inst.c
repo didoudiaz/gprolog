@@ -141,7 +141,7 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
         }                                                                   \
                                                                             \
      Vec(fdv_adr)=NULL;                                                     \
-     FD_Tag_Value(fdv_adr)=Tag_INT(n);                                \
+     FD_Tag_Value(fdv_adr)=Tag_INT(n);                                      \
      FD_INT_Date(fdv_adr) =DATE;                                            \
     } while(0)
 
@@ -692,7 +692,7 @@ Fd_New_Variable(void)
 
   Range_Stamp(fdv_adr) = STAMP;
   Nb_Elem(fdv_adr) = INTERVAL_MAX_INTEGER + 1;
-  Range_Init_Interval(Range (fdv_adr), 0, INTERVAL_MAX_INTEGER);
+  Range_Init_Interval(Range(fdv_adr), 0, INTERVAL_MAX_INTEGER);
 
   Chains_Stamp(fdv_adr) = STAMP;
   Nb_Cstr(fdv_adr) = 0;
@@ -744,7 +744,7 @@ Fd_New_Int_Variable(int n)
 
   Range_Stamp(fdv_adr) = STAMP;
   Nb_Elem(fdv_adr) = 1;
-  Range_Init_Interval(Range (fdv_adr), n, n);
+  Range_Init_Interval(Range(fdv_adr), n, n);
 
   CS += FD_INT_VARIABLE_FRAME_SIZE;
 
@@ -777,7 +777,7 @@ Fd_Tell_Value(WamWord *fdv_adr, int n)
 {
   int propag;
 
-  if (!Range_Test_Value(Range (fdv_adr), n))
+  if (!Range_Test_Value(Range(fdv_adr), n))
     {
       if (Extra_Cstr(fdv_adr) && n > vec_max_integer)
 	Fd_Display_Extra_Cstr(fdv_adr);
@@ -810,7 +810,7 @@ Fd_Tell_Not_Value(WamWord *fdv_adr, int n)
 
 start:
 
-  r = Range (fdv_adr);
+  r = Range(fdv_adr);
 
   if (!Range_Test_Value(r, n))
     return TRUE;
@@ -978,7 +978,7 @@ Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
     CS = range->vec;
   CS += vec_size;
 
-  Range_Inter(range, Range (fdv_adr));
+  Range_Inter(range, Range(fdv_adr));
 
   CS = save_CS;
 
@@ -1199,7 +1199,7 @@ Fd_Use_Vector(WamWord *fdv_adr)
 {
   Range range;
 
-  if (Is_Sparse(Range (fdv_adr)))
+  if (Is_Sparse(Range(fdv_adr)))
     return TRUE;
 
   Fd_Before_Add_Cstr();
@@ -1260,14 +1260,14 @@ Fd_Check_For_Bool_Var(WamWord x_word)
 
 				/* here min == 0 */
 
-  if (!Range_Test_Value(Range (fdv_adr), 1))
+  if (!Range_Test_Value(Range(fdv_adr), 1))
     return Fd_Unify_With_Integer0(fdv_adr, 0);
   
 
 				/* Check Bool == X in 0..1 */
   Fd_Before_Add_Cstr();
   
-  if (Is_Sparse(Range (fdv_adr)))
+  if (Is_Sparse(Range(fdv_adr)))
     {
       Range_Init_Interval(&range, 0, 1);
       
@@ -1292,7 +1292,7 @@ Fd_Variable_Size0(WamWord *fdv_adr)
 {
   int size = FD_VARIABLE_FRAME_SIZE;
 
-  if (Is_Sparse(Range (fdv_adr)))
+  if (Is_Sparse(Range(fdv_adr)))
       size += vec_size;
 
   return size;
@@ -1318,7 +1318,7 @@ Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
   Fd_New_Variable();		/* we know that it is pushed at CS (=dst_adr) */
   Nb_Elem(dst_adr) = Nb_Elem(fdv_adr);
 
-  Range_Copy(Range (dst_adr), Range (fdv_adr));
+  Range_Copy(Range(dst_adr), Range(fdv_adr));
 
   size = CS - dst_adr;
   CS = save_CS;
@@ -1336,7 +1336,7 @@ Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
 char *
 Fd_Variable_To_String0(WamWord *fdv_adr)
 {
-  return Range_To_String(Range (fdv_adr));
+  return Range_To_String(Range(fdv_adr));
 }
 
 

@@ -161,7 +161,7 @@ Fd_Dom_2(WamWord fdv_word, WamWord list_word)
   else
     {
       fdv_adr = UnTag_FDV(word);
-      if (Is_Interval(Range (fdv_adr)))
+      if (Is_Interval(Range(fdv_adr)))
 	{
 	  end = Max(fdv_adr);
 	  for (x = Min(fdv_adr); x <= end; x++)

@@ -258,7 +258,7 @@ Fd_Element_Var_I_To_V(Range *v, Range *i, WamWord **l)
       for (j = i->min; j <= i->max; j++)
 	{
 	  fdv_adr = l[j];
-	  Range_Union(v, Range (fdv_adr));
+	  Range_Union(v, Range(fdv_adr));
 	}
     }
   else
@@ -266,7 +266,7 @@ Fd_Element_Var_I_To_V(Range *v, Range *i, WamWord **l)
       VECTOR_BEGIN_ENUM(i->vec, j);
 
       fdv_adr = l[j];
-      Range_Union(v, Range (fdv_adr));
+      Range_Union(v, Range(fdv_adr));
 
       VECTOR_END_ENUM;
     }
@@ -295,7 +295,7 @@ Fd_Element_Var_V_To_I(Range *i, Range *v, WamWord **l)
   for (j = 1; j <= n; j++)
     {
       fdv_adr = l[j];
-      if (!Range_Test_Null_Inter(Range (fdv_adr), v))
+      if (!Range_Test_Null_Inter(Range(fdv_adr), v))
 	  Vector_Set_Value(i->vec, j);
     }
 
@@ -315,8 +315,7 @@ Fd_Element_V_To_Xi(int i, WamWord **array, Range *v)
   WamWord *fdv_adr = array[i];
 
   if (Fd_Variable_Is_Ground(fdv_adr))
-    if (!Fd_Tell_Int_Range(fdv_adr, v))
-      return FALSE;
+    return Fd_Tell_Int_Range(fdv_adr, v);
 
   return Fd_Tell_Range_Range(fdv_adr, v);
 }
@@ -384,7 +383,7 @@ Fd_Atleast(int n, WamWord **array, int v)
   p = array;
   for (i = 0; i < size; i++)
     {
-      if (!Range_Test_Value(Range (*p), v))
+      if (!Range_Test_Value(Range(*p), v))
 	  nb--;
 
       p++;
@@ -398,7 +397,7 @@ Fd_Atleast(int n, WamWord **array, int v)
       p = array;
       for (i = 0; i < size; i++)
 	{
-	  if (Range_Test_Value(Range (*p), v))
+	  if (Range_Test_Value(Range(*p), v))
 	    if (!Fd_Tell_Value(*p, v))
 	        return FALSE;
 
@@ -431,7 +430,7 @@ Fd_Exactly(int n, WamWord **array, int v)
     {
       if (FD_Tag_Value(*p) == word)
 	nb1++;
-      else if (!Range_Test_Value(Range (*p), v))
+      else if (!Range_Test_Value(Range(*p), v))
 	  nb2--;
 
       p++;
@@ -459,7 +458,7 @@ Fd_Exactly(int n, WamWord **array, int v)
       p = array;
       for (i = 0; i < size; i++)
 	{
-	  if (Range_Test_Value(Range (*p), v))
+	  if (Range_Test_Value(Range(*p), v))
 	    if (!Fd_Tell_Value(*p, v))
 	        return FALSE;
 

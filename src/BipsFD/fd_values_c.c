@@ -312,7 +312,7 @@ Indomain_Min(WamWord *fdv_adr)
   Range *range;
   int cur, end;
 
-  range = Range (fdv_adr);
+  range = Range(fdv_adr);
 
   end = Max(fdv_adr);
   cur = Min(fdv_adr);
@@ -382,7 +382,7 @@ Indomain_Max(WamWord *fdv_adr)
   Range *range;
   int cur, end;
 
-  range = Range (fdv_adr);
+  range = Range(fdv_adr);
 
   end = Min(fdv_adr);
   cur = Max(fdv_adr);
@@ -455,7 +455,7 @@ Indomain_Middle(WamWord *fdv_adr)
   Bool is_right;
   int i;
 
-  range = Range (fdv_adr);
+  range = Range(fdv_adr);
 
   end = Max(fdv_adr);
   i = (Nb_Elem(fdv_adr) + 1) / 2;
@@ -554,7 +554,7 @@ Indomain_Limits(WamWord *fdv_adr)
   int i;
 
 
-  range = Range (fdv_adr);
+  range = Range(fdv_adr);
 
   i = Nb_Elem(fdv_adr) / 2 + 1;
   end = Range_Ith_Elem(range, i);
@@ -1017,10 +1017,10 @@ Cmp_Max_Regret(WamWord *last_fdv_adr, WamWord *new_fdv_adr)
   int min;
 
   min = Min(last_fdv_adr);
-  l_diff = Range_Next_After(Range (last_fdv_adr), min) - min;
+  l_diff = Range_Next_After(Range(last_fdv_adr), min) - min;
 
   min = Min(new_fdv_adr);
-  n_diff = Range_Next_After(Range (new_fdv_adr), min) - min;
+  n_diff = Range_Next_After(Range(new_fdv_adr), min) - min;
 
   return n_diff > l_diff ||
     (n_diff == l_diff && Nb_Cstr(new_fdv_adr) > Nb_Cstr(last_fdv_adr));
