@@ -10,9 +10,10 @@
 % The package also provides hevea logos, html related commands (ahref
 % etc.), void cutting and image commands.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{hevea}[1999/08/11]
+\ProvidesPackage{hevea}[2002/01/11]
 \RequirePackage{comment}
 \newif\ifhevea\heveafalse
+\@ifundefined{ifimagen}{\newif\ifimagen\imagenfalse}
 \makeatletter%
 \newcommand{\heveasmup}[2]{%
 \raise #1\hbox{$\m@th$%
@@ -48,11 +49,13 @@
 \newcommand{\cutend}{}
 \newcommand{\htmlhead}[1]{}
 \newcommand{\htmlfoot}[1]{}
+\newcommand{\htmlprefix}[1]{}
 \newenvironment{cutflow}[1]{}{}
 \newcommand{\cutname}[1]{}
 \newcommand{\toplinks}[3]{}
 %%%% Html only
 \excludecomment{rawhtml}
+\newcommand{\rawhtmlinput}[1]{}
 \excludecomment{htmlonly}
 %%%% Latex only
 \newenvironment{latexonly}{}{}
@@ -63,4 +66,13 @@
 \def\verbimage{\endgroup}
 \def\endverbimage{\begingroup\def\@currenvir{verbimage}}
 \newcommand{\imageflush}[1][]{}
+%%% Bgcolor definition
+\newsavebox{\@bgcolorbin}
+\newenvironment{bgcolor}[2][]
+  {\newcommand{\@mycolor}{#2}\begin{lrbox}{\@bgcolorbin}\vbox\bgroup}
+  {\egroup\end{lrbox}%
+   \begin{flushleft}%
+   \colorbox{\@mycolor}{\usebox{\@bgcolorbin}}%
+   \end{flushleft}}
+%%% Postlude
 \makeatother

@@ -81,7 +81,7 @@ Html/index.html: $(HTMLNAME)
 chm: $(CHMNAME)
 
 $(CHMNAME): $(HTMLNAME) Html/index.html
-	-(cd Html; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) .. 2>/dev/null)
+	-(cd Html; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) ..) 2>/dev/null || exit 0
 
 clean:
 	rm -f $(PREFIX).aux $(PREFIX).toc $(PREFIX).ind $(PREFIX).idx
