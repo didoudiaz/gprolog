@@ -84,6 +84,239 @@ static WamWord Load_Math_Expression(WamWord exp);
 
 
 
+#define ADD_ARITH_OPER(atom_str, arity, f)                      \
+  arith_info.f_n = Functor_Arity(Create_Atom(atom_str), arity); \
+  arith_info.fct = f;                                           \
+  Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ARITH_INITIALIZER                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Arith_Initializer(void)
+{
+  ArithInf arith_info;
+
+  arith_tbl = Hash_Alloc_Table(START_ARITH_TBL_SIZE, sizeof(ArithInf));
+
+  ADD_ARITH_OPER("+", 1, Fct_Identity);
+
+  ADD_ARITH_OPER("-", 1, Fct_Neg);
+  ADD_ARITH_OPER("inc", 1, Fct_Inc);
+  ADD_ARITH_OPER("dec", 1, Fct_Dec);
+  ADD_ARITH_OPER("+", 2, Fct_Add);
+  ADD_ARITH_OPER("-", 2, Fct_Sub);
+  ADD_ARITH_OPER("*", 2, Fct_Mul);
+  ADD_ARITH_OPER("//", 2, Fct_Div);
+  ADD_ARITH_OPER("/", 2, Fct_Float_Div);
+  ADD_ARITH_OPER("mod", 2, Fct_Mod);
+  ADD_ARITH_OPER("/\\", 2, Fct_And);
+  ADD_ARITH_OPER("\\/", 2, Fct_Or);
+  ADD_ARITH_OPER("^", 2, Fct_Xor);
+  ADD_ARITH_OPER("\\", 1, Fct_Not);
+  ADD_ARITH_OPER("<<", 2, Fct_Shl);
+  ADD_ARITH_OPER(">>", 2, Fct_Shr);
+  ADD_ARITH_OPER("abs", 1, Fct_Abs);
+  ADD_ARITH_OPER("sign", 1, Fct_Sign);
+
+  ADD_ARITH_OPER("min", 2, Fct_Min);
+  ADD_ARITH_OPER("max", 2, Fct_Max);
+  ADD_ARITH_OPER("**", 2, Fct_Pow);
+  ADD_ARITH_OPER("sqrt", 1, Fct_Sqrt);
+  ADD_ARITH_OPER("atan", 1, Fct_Atan);
+  ADD_ARITH_OPER("cos", 1, Fct_Cos);
+  ADD_ARITH_OPER("acos", 1, Fct_Acos);
+  ADD_ARITH_OPER("sin", 1, Fct_Sin);
+  ADD_ARITH_OPER("asin", 1, Fct_Asin);
+  ADD_ARITH_OPER("exp", 1, Fct_Exp);
+  ADD_ARITH_OPER("log", 1, Fct_Log);
+  ADD_ARITH_OPER("float", 1, Fct_Float);
+  ADD_ARITH_OPER("ceiling", 1, Fct_Ceiling);
+  ADD_ARITH_OPER("floor", 1, Fct_Floor);
+  ADD_ARITH_OPER("round", 1, Fct_Round);
+  ADD_ARITH_OPER("truncate", 1, Fct_Truncate);
+  ADD_ARITH_OPER("float_fractional_part", 1, Fct_Float_Fract_Part);
+  ADD_ARITH_OPER("float_integer_part", 1, Fct_Float_Integ_Part);
+
+  ADD_ARITH_OPER("rem", 2, Fct_Rem);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DEFINE_MATH_BIP_2                                                       *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+void
+Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
+{
+  char *cur_bip_func;
+  int cur_bip_arity;
+
+  cur_bip_func = Rd_String_Check(func_word);
+  cur_bip_arity = Rd_Integer_Check(arity_word);
+  Set_C_Bip_Name(cur_bip_func, cur_bip_arity);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * MATH_LOAD_VALUE                                                         *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+void
+Math_Load_Value(WamWord start_word, WamWord *word_adr)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+
+  if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FLT_MASK)
+    word = Load_Math_Expression(word);
+
+  *word_adr = word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * MATH_FAST_LOAD_VALUE                                                    *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+void
+Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+  *word_adr = word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * MAKE_TAGGED_FLOAT                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Make_Tagged_Float(double d)
+{
+  WamWord x = Tag_FLT(H);
+
+  Global_Push_Float(d);
+
+  return x;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * TO_DOUBLE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static double
+To_Double(WamWord x)
+{
+  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) : 
+    Obtain_Float(UnTag_FLT(x));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LOAD_MATH_EXPRESSION                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Load_Math_Expression(WamWord exp)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  WamWord *lst_adr;
+  ArithInf *arith;
+
+  DEREF(exp, word, tag_mask);
+
+  if (tag_mask == TAG_INT_MASK || tag_mask == TAG_FLT_MASK)
+    return word;
+
+  if (tag_mask == TAG_LST_MASK)
+    {
+      lst_adr = UnTag_LST(word);
+      DEREF(Cdr(lst_adr), word, tag_mask);
+      if (word != NIL_WORD)
+	{
+	  word = Put_Structure(ATOM_CHAR('/'), 2);
+	  Unify_Atom(ATOM_CHAR('.'));
+	  Unify_Integer(2);
+	  Pl_Err_Type(type_evaluable, word);
+	}
+      return Load_Math_Expression(Car(lst_adr));
+    }
+
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+
+      arith = (ArithInf *) Hash_Find(arith_tbl, Functor_And_Arity(adr));
+      if (arith == NULL)
+	{
+	  word = Put_Structure(ATOM_CHAR('/'), 2);
+	  Unify_Atom(Functor(adr));
+	  Unify_Integer(Arity(adr));
+	  Pl_Err_Type(type_evaluable, word);
+	}
+      
+      if (Arity(adr) == 1)
+	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)));
+
+      return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)),
+			      Load_Math_Expression(Arg(adr, 1)));
+    }
+
+  if (tag_mask == TAG_REF_MASK)
+    Pl_Err_Instantiation();
+
+  if (tag_mask == TAG_ATM_MASK)
+    {
+      word = Put_Structure(ATOM_CHAR('/'), 2);
+      Unify_Value(exp);
+      Unify_Integer(0);		/* then type_error */
+    }
+
+  Pl_Err_Type(type_evaluable, word);
+  return word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ARITH_EVAL_2                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Arith_Eval_2(WamWord exp_word, WamWord x_word)
+{
+  return Unify(Load_Math_Expression(exp_word), x_word);
+}
+
+
+
+
 	  /* Mathematic Operations */
 
 #define C_Neg(x)     (- (x))
@@ -156,7 +389,7 @@ static WamWord Load_Math_Expression(WamWord exp);
   if (Tag_Is_INT(x))            /* error case */ \
     Pl_Err_Type(type_float, x);                  \
   else                                           \
-    d=Obtain_Float(UnTag_FLT(x));                \
+    d = Obtain_Float(UnTag_FLT(x));              \
   return Tag_INT((long) c_op(d))
 
 
@@ -166,7 +399,7 @@ static WamWord Load_Math_Expression(WamWord exp);
   if (Tag_Is_INT(x))            /* error case */ \
     Pl_Err_Type(type_float, x);                  \
   else                                           \
-    d=Obtain_Float(UnTag_FLT(x));                \
+    d = Obtain_Float(UnTag_FLT(x));              \
   return Make_Tagged_Float(c_op(d))
 
 
@@ -428,6 +661,36 @@ Fct_Sign(WamWord x)
 }
 
 WamWord
+Fct_Min(WamWord x, WamWord y)
+{
+  double dx = To_Double(x);
+  double dy = To_Double(y);
+
+  if (dx < dy)
+    return x;
+
+  if (dx > dy)
+    return y;
+
+  return Tag_Is_INT(x) ? x : y;
+}
+
+WamWord
+Fct_Max(WamWord x, WamWord y)
+{
+  double dx = To_Double(x);
+  double dy = To_Double(y);
+
+  if (dx > dy)
+    return x;
+
+  if (dx < dy)
+    return y;
+
+  return Tag_Is_INT(x) ? x : y;
+}
+
+WamWord
 Fct_Pow(WamWord x, WamWord y)
 {
   IFxIFtoF(x, y, pow);
@@ -616,235 +879,4 @@ Bool
 Blt_Gte(WamWord x, WamWord y)
 {
   Cmp_IFxIF(x, y, >=, Blt_Fast_Gte);
-}
-
-
-
-
-#define ADD_ARITH_OPER(atom_str, arity, f)                      \
-  arith_info.f_n = Functor_Arity(Create_Atom(atom_str), arity); \
-  arith_info.fct = f;                                           \
-  Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ARITH_INITIALIZER                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Arith_Initializer(void)
-{
-  ArithInf arith_info;
-
-  arith_tbl = Hash_Alloc_Table(START_ARITH_TBL_SIZE, sizeof(ArithInf));
-
-  ADD_ARITH_OPER("+", 1, Fct_Identity);
-
-  ADD_ARITH_OPER("-", 1, Fct_Neg);
-  ADD_ARITH_OPER("inc", 1, Fct_Inc);
-  ADD_ARITH_OPER("dec", 1, Fct_Dec);
-  ADD_ARITH_OPER("+", 2, Fct_Add);
-  ADD_ARITH_OPER("-", 2, Fct_Sub);
-  ADD_ARITH_OPER("*", 2, Fct_Mul);
-  ADD_ARITH_OPER("//", 2, Fct_Div);
-  ADD_ARITH_OPER("/", 2, Fct_Float_Div);
-  ADD_ARITH_OPER("mod", 2, Fct_Mod);
-  ADD_ARITH_OPER("/\\", 2, Fct_And);
-  ADD_ARITH_OPER("\\/", 2, Fct_Or);
-  ADD_ARITH_OPER("^", 2, Fct_Xor);
-  ADD_ARITH_OPER("\\", 1, Fct_Not);
-  ADD_ARITH_OPER("<<", 2, Fct_Shl);
-  ADD_ARITH_OPER(">>", 2, Fct_Shr);
-  ADD_ARITH_OPER("abs", 1, Fct_Abs);
-  ADD_ARITH_OPER("sign", 1, Fct_Sign);
-
-  ADD_ARITH_OPER("**", 2, Fct_Pow);
-  ADD_ARITH_OPER("sqrt", 1, Fct_Sqrt);
-  ADD_ARITH_OPER("atan", 1, Fct_Atan);
-  ADD_ARITH_OPER("cos", 1, Fct_Cos);
-  ADD_ARITH_OPER("acos", 1, Fct_Acos);
-  ADD_ARITH_OPER("sin", 1, Fct_Sin);
-  ADD_ARITH_OPER("asin", 1, Fct_Asin);
-  ADD_ARITH_OPER("exp", 1, Fct_Exp);
-  ADD_ARITH_OPER("log", 1, Fct_Log);
-  ADD_ARITH_OPER("float", 1, Fct_Float);
-  ADD_ARITH_OPER("ceiling", 1, Fct_Ceiling);
-  ADD_ARITH_OPER("floor", 1, Fct_Floor);
-  ADD_ARITH_OPER("round", 1, Fct_Round);
-  ADD_ARITH_OPER("truncate", 1, Fct_Truncate);
-  ADD_ARITH_OPER("float_fractional_part", 1, Fct_Float_Fract_Part);
-  ADD_ARITH_OPER("float_integer_part", 1, Fct_Float_Integ_Part);
-
-  ADD_ARITH_OPER("rem", 2, Fct_Rem);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * DEFINE_MATH_BIP_2                                                       *
- *                                                                         *
- * Called by compiled prolog code.                                         *
- *-------------------------------------------------------------------------*/
-void
-Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
-{
-  char *cur_bip_func;
-  int cur_bip_arity;
-
-  cur_bip_func = Rd_String_Check(func_word);
-  cur_bip_arity = Rd_Integer_Check(arity_word);
-  Set_C_Bip_Name(cur_bip_func, cur_bip_arity);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * MATH_LOAD_VALUE                                                         *
- *                                                                         *
- * Called by compiled prolog code.                                         *
- *-------------------------------------------------------------------------*/
-void
-Math_Load_Value(WamWord start_word, WamWord *word_adr)
-{
-  WamWord word, tag_mask;
-
-  DEREF(start_word, word, tag_mask);
-
-  if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FLT_MASK)
-    word = Load_Math_Expression(word);
-
-  *word_adr = word;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * MATH_FAST_LOAD_VALUE                                                    *
- *                                                                         *
- * Called by compiled prolog code.                                         *
- *-------------------------------------------------------------------------*/
-void
-Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
-{
-  WamWord word, tag_mask;
-
-  DEREF(start_word, word, tag_mask);
-  *word_adr = word;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * MAKE_TAGGED_FLOAT                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static WamWord
-Make_Tagged_Float(double d)
-{
-  WamWord x = Tag_FLT(H);
-
-  Global_Push_Float(d);
-
-  return x;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * TO_DOUBLE                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static double
-To_Double(WamWord x)
-{
-  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) : 
-    Obtain_Float(UnTag_FLT(x));
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * LOAD_MATH_EXPRESSION                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static WamWord
-Load_Math_Expression(WamWord exp)
-{
-  WamWord word, tag_mask;
-  WamWord *adr;
-  WamWord *lst_adr;
-  ArithInf *arith;
-
-  DEREF(exp, word, tag_mask);
-
-  if (tag_mask == TAG_INT_MASK || tag_mask == TAG_FLT_MASK)
-    return word;
-
-  if (tag_mask == TAG_LST_MASK)
-    {
-      lst_adr = UnTag_LST(word);
-      DEREF(Cdr(lst_adr), word, tag_mask);
-      if (word != NIL_WORD)
-	{
-	  word = Put_Structure(ATOM_CHAR('/'), 2);
-	  Unify_Atom(ATOM_CHAR('.'));
-	  Unify_Integer(2);
-	  Pl_Err_Type(type_evaluable, word);
-	}
-      return Load_Math_Expression(Car(lst_adr));
-    }
-
-  if (tag_mask == TAG_STC_MASK)
-    {
-      adr = UnTag_STC(word);
-
-      arith = (ArithInf *) Hash_Find(arith_tbl, Functor_And_Arity(adr));
-      if (arith == NULL)
-	{
-	  word = Put_Structure(ATOM_CHAR('/'), 2);
-	  Unify_Atom(Functor(adr));
-	  Unify_Integer(Arity(adr));
-	  Pl_Err_Type(type_evaluable, word);
-	}
-      
-      if (Arity(adr) == 1)
-	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)));
-
-      return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)),
-			      Load_Math_Expression(Arg(adr, 1)));
-    }
-
-  if (tag_mask == TAG_REF_MASK)
-    Pl_Err_Instantiation();
-
-  if (tag_mask == TAG_ATM_MASK)
-    {
-      word = Put_Structure(ATOM_CHAR('/'), 2);
-      Unify_Value(exp);
-      Unify_Integer(0);		/* then type_error */
-    }
-
-  Pl_Err_Type(type_evaluable, word);
-  return word;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ARITH_EVAL_2                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Arith_Eval_2(WamWord exp_word, WamWord x_word)
-{
-  return Unify(Load_Math_Expression(exp_word), x_word);
 }

@@ -1,3 +1,8 @@
+Change in GNU Prolog version 1.2.14:
+
+* added min/max to Prolog arithmetics
+* fix bugs in current_predicate and predicate_property
+
 Change in GNU Prolog version 1.2.13:
 
 * official release (Jun 14 2002)

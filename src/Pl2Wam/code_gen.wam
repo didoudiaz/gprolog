@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
+% compiler: GNU Prolog 1.2.14 (Jun 20 2002)
 % file    : code_gen.pl
-% date    : 6 12 2002
-% time    : 13:43:27
+% date    : 6 21 2002
+% time    : 16:36:7
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/code_gen.pl').
@@ -2348,22 +2348,24 @@ label(1),
                     ((>>),34),
                     (abs,36),
                     (sign,38),
-                    ((**),40),
-                    (sqrt,42),
-                    (atan,44),
-                    (cos,46),
-                    (acos,48),
-                    (sin,50),
-                    (asin,52),
-                    (exp,54),
-                    (log,56),
-                    (float,58),
-                    (ceiling,60),
-                    (floor,62),
-                    (round,64),
-                    (truncate,66),
-                    (float_fractional_part,68),
-                    (float_integer_part,70)]),
+                    (min,40),
+                    (max,42),
+                    ((**),44),
+                    (sqrt,46),
+                    (atan,48),
+                    (cos,50),
+                    (acos,52),
+                    (sin,54),
+                    (asin,56),
+                    (exp,58),
+                    (log,60),
+                    (float,62),
+                    (ceiling,64),
+                    (floor,66),
+                    (round,68),
+                    (truncate,70),
+                    (float_fractional_part,72),
+                    (float_integer_part,74)]),
 
 label(2),
     try(4),
@@ -2535,148 +2537,166 @@ label(39),
     retry_me_else(41),
 
 label(40),
-    get_atom(**,0),
+    get_atom(min,0),
     get_integer(2,1),
-    get_atom('Fct_Pow',2),
+    get_atom('Fct_Min',2),
     proceed,
 
 label(41),
     retry_me_else(43),
 
 label(42),
-    get_atom(sqrt,0),
-    get_integer(1,1),
-    get_atom('Fct_Sqrt',2),
+    get_atom(max,0),
+    get_integer(2,1),
+    get_atom('Fct_Max',2),
     proceed,
 
 label(43),
     retry_me_else(45),
 
 label(44),
-    get_atom(atan,0),
-    get_integer(1,1),
-    get_atom('Fct_Atan',2),
+    get_atom(**,0),
+    get_integer(2,1),
+    get_atom('Fct_Pow',2),
     proceed,
 
 label(45),
     retry_me_else(47),
 
 label(46),
-    get_atom(cos,0),
+    get_atom(sqrt,0),
     get_integer(1,1),
-    get_atom('Fct_Cos',2),
+    get_atom('Fct_Sqrt',2),
     proceed,
 
 label(47),
     retry_me_else(49),
 
 label(48),
-    get_atom(acos,0),
+    get_atom(atan,0),
     get_integer(1,1),
-    get_atom('Fct_Acos',2),
+    get_atom('Fct_Atan',2),
     proceed,
 
 label(49),
     retry_me_else(51),
 
 label(50),
-    get_atom(sin,0),
+    get_atom(cos,0),
     get_integer(1,1),
-    get_atom('Fct_Sin',2),
+    get_atom('Fct_Cos',2),
     proceed,
 
 label(51),
     retry_me_else(53),
 
 label(52),
-    get_atom(asin,0),
+    get_atom(acos,0),
     get_integer(1,1),
-    get_atom('Fct_Asin',2),
+    get_atom('Fct_Acos',2),
     proceed,
 
 label(53),
     retry_me_else(55),
 
 label(54),
-    get_atom(exp,0),
+    get_atom(sin,0),
     get_integer(1,1),
-    get_atom('Fct_Exp',2),
+    get_atom('Fct_Sin',2),
     proceed,
 
 label(55),
     retry_me_else(57),
 
 label(56),
-    get_atom(log,0),
+    get_atom(asin,0),
     get_integer(1,1),
-    get_atom('Fct_Log',2),
+    get_atom('Fct_Asin',2),
     proceed,
 
 label(57),
     retry_me_else(59),
 
 label(58),
-    get_atom(float,0),
+    get_atom(exp,0),
     get_integer(1,1),
-    get_atom('Fct_Float',2),
+    get_atom('Fct_Exp',2),
     proceed,
 
 label(59),
     retry_me_else(61),
 
 label(60),
-    get_atom(ceiling,0),
+    get_atom(log,0),
     get_integer(1,1),
-    get_atom('Fct_Ceiling',2),
+    get_atom('Fct_Log',2),
     proceed,
 
 label(61),
     retry_me_else(63),
 
 label(62),
-    get_atom(floor,0),
+    get_atom(float,0),
     get_integer(1,1),
-    get_atom('Fct_Floor',2),
+    get_atom('Fct_Float',2),
     proceed,
 
 label(63),
     retry_me_else(65),
 
 label(64),
-    get_atom(round,0),
+    get_atom(ceiling,0),
     get_integer(1,1),
-    get_atom('Fct_Round',2),
+    get_atom('Fct_Ceiling',2),
     proceed,
 
 label(65),
     retry_me_else(67),
 
 label(66),
-    get_atom(truncate,0),
+    get_atom(floor,0),
     get_integer(1,1),
-    get_atom('Fct_Truncate',2),
+    get_atom('Fct_Floor',2),
     proceed,
 
 label(67),
     retry_me_else(69),
 
 label(68),
+    get_atom(round,0),
+    get_integer(1,1),
+    get_atom('Fct_Round',2),
+    proceed,
+
+label(69),
+    retry_me_else(71),
+
+label(70),
+    get_atom(truncate,0),
+    get_integer(1,1),
+    get_atom('Fct_Truncate',2),
+    proceed,
+
+label(71),
+    retry_me_else(73),
+
+label(72),
     get_atom(float_fractional_part,0),
     get_integer(1,1),
     get_atom('Fct_Float_Fract_Part',2),
     proceed,
 
-label(69),
+label(73),
     trust_me_else_fail,
 
-label(70),
+label(74),
     get_atom(float_integer_part,0),
     get_integer(1,1),
     get_atom('Fct_Float_Integ_Part',2),
     proceed]).
 
 
-predicate(fast_cmp_functor_name/2,627,static,private,user,[
+predicate(fast_cmp_functor_name/2,629,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2731,7 +2751,7 @@ label(13),
     proceed]).
 
 
-predicate(math_cmp_functor_name/2,634,static,private,user,[
+predicate(math_cmp_functor_name/2,636,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2786,7 +2806,7 @@ label(13),
     proceed]).
 
 
-predicate(load_c_call_args/5,655,static,private,user,[
+predicate(load_c_call_args/5,657,static,private,user,[
     load_cut_level(5),
     try_me_else(1),
     allocate(5),
@@ -2821,7 +2841,7 @@ label(1),
     proceed]).
 
 
-predicate(load_by_reg_arg_lst/4,666,static,private,user,[
+predicate(load_by_reg_arg_lst/4,668,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2857,7 +2877,7 @@ label(4),
     execute(load_by_reg_arg_lst/4)]).
 
 
-predicate(load_by_value_arg_lst/4,675,static,private,user,[
+predicate(load_by_value_arg_lst/4,677,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2891,7 +2911,7 @@ label(4),
     execute(load_by_value_arg_lst/4)]).
 
 
-predicate(load_by_value_arg/4,682,static,private,user,[
+predicate(load_by_value_arg/4,684,static,private,user,[
     try_me_else(12),
     switch_on_term(2,9,fail,fail,1),
 
@@ -2963,7 +2983,7 @@ label(12),
     execute(gen_load_arg/4)]).
 
 
-predicate(c_fct_name/4,711,static,private,user,[
+predicate(c_fct_name/4,713,static,private,user,[
     switch_on_term(4,1,fail,fail,fail),
 
 label(1),
@@ -3631,7 +3651,7 @@ label(12),
     proceed]).
 
 
-predicate('$gen_inline_pred/5_$aux2'/2,700,static,private,user,[
+predicate('$gen_inline_pred/5_$aux2'/2,702,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     get_atom(bool,0),
@@ -3651,7 +3671,7 @@ label(1),
     proceed]).
 
 
-predicate('$gen_inline_pred/5_$aux1'/2,617,static,private,user,[
+predicate('$gen_inline_pred/5_$aux1'/2,619,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(fast_math,3),

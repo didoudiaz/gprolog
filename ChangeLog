@@ -1,3 +1,11 @@
+Fri Jun 21 18:32:06 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* added min/max to Prolog arithmetics
+
+Thu Jun 20 15:20:43 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* fix bugs in current_predicate and predicate_property
+
 Mon Jun 10 14:25:52 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* port to powerpc/Darwin (Mac OS X) - many thanks to:

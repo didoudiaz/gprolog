@@ -852,6 +852,16 @@ $\rightarrow$ IF & Y \\
 
 \hline
 
+\texttt{min(E1,E2)} & minimal value between \textit{eval}(\texttt{E1}) and
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & N \\
+
+\hline
+
+\texttt{max(E1,E2)} & maximal value between \textit{eval}(\texttt{E1}) and
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & N \\
+
+\hline
+
 \texttt{E1 ** E2} & \textit{eval}(\texttt{E1}) raised to the power of
 \textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ F & Y \\
 
@@ -956,6 +966,12 @@ and the result is an integer.
 \item IF, IF $\rightarrow$ IF: binary function: each operand can be an
 integer or a floating point number and the result is a floating point number
 if at least one operand is a floating point number, an integer otherwise.
+
+\item IF, IF $\rightarrow$ ?: binary function: each operand can be an
+integer or a floating point number and the result has the same type as the
+selected operand. This is used for \texttt{min} and \texttt{max}. Note that
+in case of equality between an integer and a floating point number the
+result is an integer.
 
 \end{itemize}
 

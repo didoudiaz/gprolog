@@ -594,6 +594,8 @@ math_exp_functor_name(>>, 2, 'Fct_Shr').
 math_exp_functor_name(abs, 1, 'Fct_Abs').
 math_exp_functor_name(sign, 1, 'Fct_Sign').
 
+math_exp_functor_name(min, 2, 'Fct_Min').
+math_exp_functor_name(max, 2, 'Fct_Max').
 math_exp_functor_name(**, 2, 'Fct_Pow').
 math_exp_functor_name(sqrt, 1, 'Fct_Sqrt').
 math_exp_functor_name(atan, 1, 'Fct_Atan').

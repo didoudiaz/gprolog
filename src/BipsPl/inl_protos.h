@@ -220,6 +220,10 @@ WamWord Fct_Sign(WamWord x) FC;
 
 
 
+WamWord Fct_Min(WamWord x, WamWord y) FC;
+
+WamWord Fct_Max(WamWord x, WamWord y) FC;
+
 WamWord Fct_Pow(WamWord x, WamWord y) FC;
 
 WamWord Fct_Sqrt(WamWord x) FC;
