@@ -104,8 +104,8 @@ src/W32GUICons/[A-Za-z]??*.cpp
 src/W32GUICons/GUICons*
 src/W32GUICons/[A-Za-z]??*.bat
 src/W32GUICons/[A-Za-z]??*.txt
-src/W32GUICons/res/*
-src/W32GUICons/hlp/*
+src/W32GUICons/res/*.*
+src/W32GUICons/hlp/*.*
 
 src/EnginePl/Makefile.in
 src/EnginePl/gp_config.h.in
