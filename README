@@ -63,7 +63,7 @@ PORTS
 GNU Prolog is ported to the following architectures:
 
    - ix86 / GNU/Linux
-   - ix86 / Win32 using Cygwin (see file src/CYGWIN)
+   - ix86 / Win32 using Cygwin (see file src/WINDOWS)
    - ix86 / Win32 using MSVC++ (tested with 6.0)
    - ix86 / SCO
    - ix86 / Solaris

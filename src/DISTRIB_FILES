@@ -48,7 +48,8 @@ src/DISTRIB_FILES
 src/SETVARS
 src/CSHSETVARS
 src/DOSSETVARS.BAT
-src/CYGWIN
+src/WINDOWS
+src/README
 src/AUTOCONF-INFO
 src/DEVELOPMENT
 src/PORTING
@@ -114,7 +115,6 @@ src/Linedit/Makefile.in
 src/Linedit/[a-z][a-z]?*.[ch]
 
 src/W32GUICons/Makefile.in
-src/W32GUICons/HTML-HELP
 src/W32GUICons/[a-z][a-z0-9]?*.[ch]
 src/W32GUICons/[a-z][a-z0-9]?*.rc
 

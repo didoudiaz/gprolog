@@ -31,8 +31,8 @@ The installation process is as follows:
    make install or (make install-strip)	install the package
 
 
-2) Intallation directories
---------------------------
+2) Installation directories
+---------------------------
 
 Directories used for the installation are as follows:
 
@@ -227,30 +227,6 @@ To clean up the local compilation (does not erase configuration files):
 To fully clean up the local compilation:
 
    make distclean
-
-
-7) Rebuilding a source distribution
------------------------------------
-
-To rebuild a source distribution file:
-
-   make dist
-
-this will create a file gprolog-xxx.tgz (in the src directory).
-
-
-
-8) Building a RPM distribution
--------------------------------
-
-Refer to the file src/RPM/README for more information
-
-
-
-9) Building a Win32 auto-install distribution
----------------------------------------------
-
-Refer to the file src/Win32/README for more information
 
 
 
