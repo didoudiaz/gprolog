@@ -383,16 +383,20 @@ The function \texttt{No\_More\_Choice()} deletes the choice point
 associated to the function.
 
 \subsubsection{Example: input and output arguments}
+All examples presented here can be found in the \texttt{ExamplesC}
+sub-directory of the distribution, in the files \texttt{examp.pl} (Prolog
+part) and \texttt{examp\_c.c} (C part).
+
 Let us define a predicate \texttt{first\_occurrence(A, C, P)} which unifies
 \texttt{P} with the position (from 0) of the first occurrence of the
 character \texttt{C} in the atom \texttt{A}. The predicate must fail if
 \texttt{C} does not appear in \texttt{A}.
 
-In the prolog file \texttt{prog.pl}:
+In the prolog file \texttt{examp.pl}:
 
 \OneLine{:- foreign(first\_occurrence(+string, +char, -positive)).}
 
-In the C file \texttt{utils.c}:
+In the C file \texttt{examp\_c.c}:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -400,7 +404,7 @@ In the C file \texttt{utils.c}:
 #include "gprolog.h"
 
 Bool
-first_occurrence(char *str, int c, long *pos)
+first_occurrence(char *str, long c, long *pos)
 {
   char *p;
 
@@ -414,9 +418,9 @@ first_occurrence(char *str, int c, long *pos)
 \end{verbatim}
 \end{Indentation}
 
-The compilation produces an executable called \texttt{prog}:
+The compilation produces an executable called \texttt{examp}:
 
-\OneLine{\% gplc prog.pl utils.c}
+\OneLine{\% gplc examp.pl examp\_c.c}
 
 Examples of use:
 
@@ -447,12 +451,12 @@ backtracking. The information that must be recorded between two invocations
 of the function is the next starting position in \texttt{A} to search for
 \texttt{C}.
 
-In the prolog file \texttt{prog.pl}:
+In the prolog file \texttt{examp.pl}:
 
 \OneLine{:- foreign(occurrence(+string, +char, -positive), 
 [choice\_size(1)]).}
 
-In the C file \texttt{utils.c}:
+In the C file \texttt{examp\_c.c}:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -460,7 +464,7 @@ In the C file \texttt{utils.c}:
 #include "gprolog.h"
 
 Bool
-occurrence(char *str, int c, long *pos)
+occurrence(char *str, long c, long *pos)
 {
   char **info_pos;
   char *p;
@@ -484,12 +488,11 @@ occurrence(char *str, int c, long *pos)
 \end{verbatim}
 \end{Indentation}
 
-The compilation produces an executable called \texttt{prog}:
+The compilation produces an executable called \texttt{examp}:
 
-\OneLine{\% gplc prog.pl utils.c}
+\OneLine{\% gplc examp.pl examp\_c.c}
 
 Examples of use:
-
 
 \begin{CodeTwoCols}
 \One{| ?- occurrence(prolog, o, X).}
@@ -506,13 +509,19 @@ Examples of use:
 \end{CodeTwoCols}
 
 In the first example when the second (the last) occurrence is found
-(\texttt{X=4}) the choice-point remains and the failure is detected only
-when another solution is requested (by pressing \texttt{;}). It is possible
-to improve this behavior by deleting the choice-point when there is no more
+(\texttt{X=4}) the choice-point remains and the failure is detected only when
+another solution is requested (by pressing \texttt{;}). It is possible to
+improve this behavior by deleting the choice-point when there is no more
 occurrence. To do this it is necessary to do one search ahead. The
-information stored is the position of the next occurrence.
+information stored is the position of the next occurrence. Let us define such
+a behavior for the predicate \texttt{occurrence2/3}.
 
-Here is the corresponding definition of the C function:
+In the prolog file \texttt{examp.pl}:
+
+\OneLine{:- foreign(occurrence2(+string, +char, -positive), 
+[choice\_size(1)]).}
+
+In the C file \texttt{examp\_c.c}:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -520,7 +529,7 @@ Here is the corresponding definition of the C function:
 #include "gprolog.h"
 
 Bool
-occurrence(char *str, int c, long *pos)
+occurrence2(char *str, long c, long *pos)
 {
   char **info_pos;
   char *p;
@@ -555,11 +564,11 @@ occurrence(char *str, int c, long *pos)
 Examples of use:
 
 \begin{CodeTwoCols}
-\One{| ?- occurrence(prolog, l, X).}
+\One{| ?- occurrence2(prolog, l, X).}
 \SkipLine
 \Two{X = 3}{(here the user is not prompted since there is no more alternative)}
 \SkipLine
-\One{| ?- occurrence(prolog, o, X).}
+\One{| ?- occurrence2(prolog, o, X).}
 \SkipLine
 \Two{X = 2 ?}{(here the user presses \texttt{;} to compute another solution)}
 \SkipLine
@@ -572,11 +581,11 @@ in both directions the character \texttt{Char} and its character-code
 \texttt{Code}. This predicate is then similar to \IdxPB{char\_code/2}
 \RefSP{char-code/2}.
 
-In the prolog file \texttt{prog.pl}:
+In the prolog file \texttt{examp.pl}:
 
 \OneLine{:- foreign(char\_ascii(?char, ?code), [fct\_name('Char\_Ascii')]).}
 
-In the C file \texttt{utils.c}:
+In the C file \texttt{examp\_c.c}:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -609,9 +618,9 @@ of the function \RefSP{Input/output-arguments}. If both \texttt{Char} and
 \texttt{instantiation\_error}. The way to raise Prolog errors is described
 later \RefSP{Raising-Prolog-errors}.
 
-The compilation produces an executable called \texttt{prog}:
+The compilation produces an executable called \texttt{examp}:
 
-\OneLine{\% gplc prog.pl utils.c}
+\OneLine{\% gplc examp.pl examp\_c.c}
 
 Examples of use:
 
@@ -1364,11 +1373,11 @@ We here define a predicate \texttt{my\_call(Goal)} which acts like
 \texttt{call(Goal)} except that we do not handle exceptions (if an exception
 occurs the goal simply fails):
 
-In the prolog file \texttt{prog.pl}:
+In the prolog file \texttt{examp.pl}:
 
 \OneLine{:- foreign(my\_call(term)).}
 
-In the C file \texttt{utils.c}:
+In the C file \texttt{examp\_c.c}:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -1392,9 +1401,9 @@ my_call(PlTerm goal)
 \end{verbatim}
 \end{Indentation}
 
-The compilation produces an executable called \texttt{prog}:
+The compilation produces an executable called \texttt{examp}:
 
-\OneLine{\% gplc prog.pl utils.c}
+\OneLine{\% gplc examp.pl examp\_c.c}
 
 Examples of use:
 
@@ -1488,11 +1497,11 @@ my_call(PlTerm goal)
 We here define a predicate \texttt{all\_op(List)} which unifies
 \texttt{List} with the list of all currently defined operators as would be done by: \texttt{findall(X,current\_op(\_,\_,X),List)}.
 
-In the prolog file \texttt{prog.pl}:
+In the prolog file \texttt{examp.pl}:
 
 \OneLine{:- foreign(all\_op(term)).}
 
-In the C file \texttt{utils.c}:
+In the C file \texttt{examp\_c.c}:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -1528,9 +1537,9 @@ Note that we know here that there is no source for exception. In that case
 the result of \texttt{Pl\_Query\_Call} and \texttt{Pl\_Query\_Next\_Solution}
 can be considered as a boolean.
 
-The compilation produces an executable called \texttt{prog}:
+The compilation produces an executable called \texttt{examp}:
 
-\OneLine{\% gplc prog.pl utils.c}
+\OneLine{\% gplc examp.pl examp\_c.c}
 
 Example of use:
 
@@ -1626,7 +1635,7 @@ main(int argc, char *argv[])
 \subsubsection{Example: asking for ancestors}
 
 In this example we use the following Prolog code (in a file called 
-\texttt{prog.pl}):
+\texttt{new\_main.pl}):
 
 \begin{Indentation}
 \begin{verbatim}
@@ -1645,9 +1654,9 @@ anc(X, Z) :-
 \end{verbatim}
 \end{Indentation}
 
-The following \texttt{main()} function asks for the name of a person and
-displays all successors of that person (this is equivalent to the Prolog
-query: \texttt{anc(Result, Name)}).
+The following file (called \texttt{new\_main\_c.c}) defines a \texttt{main()}
+function readinf the name of a person and displaying all successors of that
+person. This is equivalent to the Prolog query: \texttt{anc(Result, Name)}.
 
 \begin{Indentation}
 \begin{verbatim}
@@ -1696,9 +1705,9 @@ main(int argc, char *argv[])
 \end{verbatim}
 \end{Indentation}
 
-The compilation produces an executable called \texttt{prog}:
+The compilation produces an executable called \texttt{new\_main}:
 
-\OneLine{\% gplc prog.pl utils.c}
+\OneLine{\% gplc new\_main.pl new\_main\_c.c}
 
 Examples of use:
 
