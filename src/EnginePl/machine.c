@@ -238,7 +238,7 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
 #endif /* !MAP_ANON */
 			  0);
 
-  if (addr == -1)
+  if (addr == (WamWord *) -1)
     addr = NULL;
 
 #else
