@@ -339,9 +339,9 @@ void Untrail(WamWord *low_adr) FC;
 
 Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
 
-Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
-
-
+Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
+				/* do not use FC since it is called directly */
+				/* from Prolog (BipsPl/unify.pl) */
 
 
 /*---------------------------------*

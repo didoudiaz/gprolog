@@ -725,8 +725,8 @@ if test "${enable_regs+set}" = set; then
 		   no) cat >> confdefs.h <<\EOF
 #define NO_USE_EBP 1
 EOF
-;;
-		   *)  ;;
+ USE_EBP=no;;
+		   *)  USE_EBP=yes;;
 	       esac
 fi
 
@@ -2079,6 +2079,25 @@ EOF
 		i*86*)             CFLAGS_MACHINE='-m486';;
 	esac
 
+	case "$host" in
+		i*86*) if test "$USE_EBP" != no; then
+			CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
+			if test "$CF1" != "$CFLAGS"; then
+				echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
+				CFLAGS=$CF1
+				CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
+			else
+				echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
+				USE_EBP=no
+				cat >> confdefs.h <<\EOF
+#define NO_USE_EBP 1
+EOF
+
+			fi
+		       fi;;
+	esac
+
+
 #	case "$host" in
 #		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
 #	esac
@@ -2101,12 +2120,12 @@ if test "$USE_SOCKETS" = yes; then
 		LDLIBS="$LDLIBS ws2_32.lib"
 	else
 		echo $ac_n "checking for socket""... $ac_c" 1>&6
-echo "configure:2105: checking for socket" >&5
+echo "configure:2124: checking for socket" >&5
 if eval "test \"`echo '$''{'ac_cv_func_socket'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2110 "configure"
+#line 2129 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char socket(); below.  */
@@ -2129,7 +2148,7 @@ socket();
 
 ; return 0; }
 EOF
-if { (eval echo configure:2133: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2152: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_socket=yes"
 else
@@ -2147,7 +2166,7 @@ if eval "test \"`echo '$ac_cv_func_'socket`\" = yes"; then
 else
   echo "$ac_t""no" 1>&6
 echo $ac_n "checking for socket in -lsocket""... $ac_c" 1>&6
-echo "configure:2151: checking for socket in -lsocket" >&5
+echo "configure:2170: checking for socket in -lsocket" >&5
 ac_lib_var=`echo socket'_'socket | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2155,7 +2174,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2159 "configure"
+#line 2178 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2166,7 +2185,7 @@ int main() {
 socket()
 ; return 0; }
 EOF
-if { (eval echo configure:2170: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2189: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2191,12 +2210,12 @@ fi
 
 
 		echo $ac_n "checking for gethostbyname""... $ac_c" 1>&6
-echo "configure:2195: checking for gethostbyname" >&5
+echo "configure:2214: checking for gethostbyname" >&5
 if eval "test \"`echo '$''{'ac_cv_func_gethostbyname'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2200 "configure"
+#line 2219 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char gethostbyname(); below.  */
@@ -2219,7 +2238,7 @@ gethostbyname();
 
 ; return 0; }
 EOF
-if { (eval echo configure:2223: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2242: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_gethostbyname=yes"
 else
@@ -2237,7 +2256,7 @@ if eval "test \"`echo '$ac_cv_func_'gethostbyname`\" = yes"; then
 else
   echo "$ac_t""no" 1>&6
 echo $ac_n "checking for gethostbyname in -lnsl""... $ac_c" 1>&6
-echo "configure:2241: checking for gethostbyname in -lnsl" >&5
+echo "configure:2260: checking for gethostbyname in -lnsl" >&5
 ac_lib_var=`echo nsl'_'gethostbyname | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2245,7 +2264,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2249 "configure"
+#line 2268 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2256,7 +2275,7 @@ int main() {
 gethostbyname()
 ; return 0; }
 EOF
-if { (eval echo configure:2260: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2279: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else

@@ -146,8 +146,8 @@ AC_ARG_ENABLE(regs,      [  --disable-regs          do not use machine registers
 
 AC_ARG_ENABLE(regs,      [  --disable-ebp           do not use the ebp register on ix86 machines],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_EBP);;
-		   *)  ;;
+		   no) AC_DEFINE(NO_USE_EBP) USE_EBP=no;;
+		   *)  USE_EBP=yes;;
 	       esac])
 
 AC_ARG_ENABLE(fast-call, [  --disable-fast-call     do not use fast call on ix86],
@@ -342,6 +342,22 @@ else
 		i586*)             CFLAGS_MACHINE='-mpentium';;
 		i*86*)             CFLAGS_MACHINE='-m486';;
 	esac
+
+	case "$host" in
+		i*86*) if test "$USE_EBP" != no; then
+			CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
+			if test "$CF1" != "$CFLAGS"; then
+				echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
+				CFLAGS=$CF1
+				CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
+			else
+				echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
+				USE_EBP=no
+				AC_DEFINE(NO_USE_EBP)
+			fi
+		       fi;;
+	esac
+
 
 #	case "$host" in
 #		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;

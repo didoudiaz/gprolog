@@ -856,7 +856,7 @@ void Update_Choice_Point(CodePtr codep_alt, int arity) FC;
 void Delete_Choice_Point(int arity) FC;
 void Untrail(WamWord *low_adr) FC;
 Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
-Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
+Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
 #if 0
 #define DEREF_STATS
 #endif
