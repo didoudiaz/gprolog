@@ -130,7 +130,7 @@ dist-dvi: dvi $(DVIDIRNAME).tar.gz
 
 $(DVIDIRNAME).tar.gz: $(DVINAME)
 	ln -sf . $(DVIDIRNAME)
-	tar cvf $(DVIDIRNAME).tar $(DVIDIRNAME)/$(DVINAME) $(DVIDIRNAME)/??*.eps
+	tar cf $(DVIDIRNAME).tar $(DVIDIRNAME)/$(DVINAME) $(DVIDIRNAME)/??*.eps
 	gzip -f $(DVIDIRNAME).tar
 	rm -f $(DVIDIRNAME)
 	@echo DVI distribution is in $(DVIDIRNAME).tar.gz
@@ -140,7 +140,7 @@ dist-html: $(HTMLDIRNAME).tar.gz
 
 $(HTMLDIRNAME).tar.gz: Html/index.html
 	ln -sf Html $(HTMLDIRNAME)
-	tar cvf $(HTMLDIRNAME).tar $(HTMLDIRNAME)/index.html $(HTMLDIRNAME)/$(PREFIX)*.html $(HTMLDIRNAME)/???*.gif
+	tar cf $(HTMLDIRNAME).tar $(HTMLDIRNAME)/index.html $(HTMLDIRNAME)/$(PREFIX)*.html $(HTMLDIRNAME)/???*.gif
 	gzip -f $(HTMLDIRNAME).tar
 	rm -f $(HTMLDIRNAME)
 	@echo HTML distribution is in $(HTMLDIRNAME).tar.gz

@@ -1,3 +1,7 @@
+Mon Sep 30 22:08:41 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* fix bug in predicate_property/2
+	
 Wed Sep 25 13:41:46 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* add new built-in fork_prolog/1 and create_pipe/2

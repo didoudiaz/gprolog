@@ -37,6 +37,9 @@ current_predicate(PI) :-
 	'$call_c_test'('Current_Predicate_2'(PI, 0)).
 
 
+'$current_predicate_bips'(PI) :-
+	'$call_c_test'('Current_Predicate_2'(PI, 1)).
+
 
 '$current_predicate_any'(PI) :-
 	'$call_c_test'('Current_Predicate_2'(PI, 2)).
@@ -50,7 +53,7 @@ current_predicate(PI) :-
 
 predicate_property(PI, Property) :-
 	set_bip_name(predicate_property, 2),
-	'$call_c_test'('Current_Predicate_2'(PI, 1)),
+	'$current_predicate_bips'(PI),
 	'$predicate_property1'(PI, Property).
 
 

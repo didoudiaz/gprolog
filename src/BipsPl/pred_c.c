@@ -118,9 +118,12 @@ Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
   A(5) = (WamWord) scan.cur_p;
   Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0),
 		      6);
-
+  return Get_Atom(Functor_Of(pred->f_n), name_word) &&
+    Get_Integer(Arity_Of(pred->f_n), arity_word);
+  /*
   return Un_Atom_Check(Functor_Of(pred->f_n), name_word) &&
     Un_Integer_Check(Arity_Of(pred->f_n), arity_word);
+  */
 }
 
 
@@ -202,7 +205,7 @@ Pred_Prop_Static_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -223,7 +226,7 @@ Pred_Prop_Dynamic_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -244,7 +247,7 @@ Pred_Prop_Private_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -265,7 +268,7 @@ Pred_Prop_Public_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -286,7 +289,7 @@ Pred_Prop_User_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -307,7 +310,7 @@ Pred_Prop_Built_In_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -328,7 +331,7 @@ Pred_Prop_Built_In_Fd_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -349,7 +352,7 @@ Pred_Prop_Native_Code_1(WamWord pred_indic_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -370,7 +373,7 @@ Pred_Prop_Prolog_File_2(WamWord pred_indic_word, WamWord pl_file_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -391,7 +394,7 @@ Pred_Prop_Prolog_Line_2(WamWord pred_indic_word, WamWord pl_line_word)
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -413,7 +416,7 @@ Get_Predicate_File_Info_3(WamWord pred_indic_word,
   int func, arity;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;
@@ -440,7 +443,7 @@ Set_Predicate_File_Info_3(WamWord pred_indic_word,
   int pl_file, pl_line;
   PredInf *pred;
 
-  func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     return FALSE;

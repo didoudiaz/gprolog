@@ -556,7 +556,7 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
       if (!Flag_Value(FLAG_STRICT_ISO) &&
 	  Rd_Callable(word, &func, arity) != NULL)
 	return func;
-    pi_error:
+
       Pl_Err_Type(type_predicate_indicator, pred_indic_word);
     }
 
@@ -571,11 +571,7 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
       if (tag_mask == TAG_REF_MASK)
 	func = -1;
       else
-	{
-	  if (tag_mask != TAG_ATM_MASK)
-	    goto pi_error;
-	  func = UnTag_ATM(word);
-	}
+	func = Rd_Atom_Check(pi_name_word);
     }
 
   if (must_be_ground)
@@ -592,12 +588,10 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
 	*arity = -1;
       else
 	{
-	  if (tag_mask != TAG_INT_MASK)
-	    goto pi_error;
+	  *arity = Rd_Positive_Check(pi_arity_word);
 
-	  *arity = UnTag_INT(word);
-	  if (*arity < 0 || *arity > MAX_ARITY)
-	    goto pi_error;
+	  if (*arity > MAX_ARITY)
+	    Pl_Err_Representation(representation_max_arity);
 	}
     }
 
