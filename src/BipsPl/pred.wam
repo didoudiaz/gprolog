@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : pred.pl
-% date    : 6 12 2002
-% time    : 13:44:57
+% date    : 6 20 2002
+% time    : 15:18:1
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
@@ -19,13 +19,13 @@ predicate(current_predicate/1,32,static,private,built_in,[
 
 
 predicate('$current_predicate'/1,36,static,private,built_in,[
-    put_integer(1,1),
+    put_integer(0,1),
     call_c('Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_predicate_any'/1,41,static,private,built_in,[
-    put_integer(0,1),
+    put_integer(2,1),
     call_c('Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
@@ -36,17 +36,11 @@ predicate('$current_predicate_alt'/0,45,static,private,built_in,[
 
 
 predicate(predicate_property/2,51,static,private,built_in,[
-    allocate(2),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    put_atom(predicate_property,0),
-    put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
-    put_value(y(0),0),
-    call('$current_predicate'/1),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    deallocate,
+    put_atom(predicate_property,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    put_integer(1,2),
+    call_c('Current_Predicate_2',[boolean],[x(0),x(2)]),
     execute('$predicate_property1'/2)]).
 
 

@@ -61,36 +61,37 @@ Prolog_Prototype(CURRENT_PREDICATE_ALT, 0);
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Current_Predicate_2(WamWord pred_indic_word, WamWord hide_word)
+Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
 {
   WamWord name_word, arity_word;
   HashScan scan;
   PredInf *pred;
-  Bool hide;
   int func, arity;
   int func1, arity1;
+  int which_preds;		/* 0=user, 1=user+bips, 2=user+bips+system */
   Bool all;
 
   func = Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
   name_word = pi_name_word;
   arity_word = pi_arity_word;
 
-  hide = Rd_Integer(hide_word);
+  which_preds = Rd_Integer(which_preds_word);
 
-  if (func >= 0)
+  if (which_preds == 0 && !Flag_Value(FLAG_STRICT_ISO))
+    which_preds = 1;
+
+#define Pred_Is_Ok(pred, func, which_preds) \
+  (which_preds == 2 || (atom_tbl[func].name[0] != '$' && \
+   (which_preds == 1 || !(pred->prop & MASK_PRED_ANY_BUILTIN))))
+
+  if (func >= 0 && arity >= 0)
     {
-      if (hide && atom_tbl[func].name[0] == '$')
-	return FALSE;
-
-      if (arity >= 0)
-	{
-	  pred = Lookup_Pred(func, arity);
-	  return pred && (!Flag_Value(FLAG_STRICT_ISO) ||
-			  !(pred->prop & MASK_PRED_ANY_BUILTIN));
-	}
+      pred = Lookup_Pred(func, arity);
+      return pred && Pred_Is_Ok(pred, func, which_preds);
     }
 
-  all = (arity == -1);
+				/* here func or arity == -1 (or both) */
+  all = (func == -1 && arity == -1);
 
   pred = (PredInf *) Hash_First(pred_tbl, &scan);
   for (;;)
@@ -98,24 +99,20 @@ Current_Predicate_2(WamWord pred_indic_word, WamWord hide_word)
       if (pred == NULL)
 	return FALSE;
 
-      if (!hide || !Flag_Value(FLAG_STRICT_ISO) ||
-	  !(pred->prop & MASK_PRED_ANY_BUILTIN))
-	{
-	  func1 = Functor_Of(pred->f_n);
-	  arity1 = Arity_Of(pred->f_n);
+      func1 = Functor_Of(pred->f_n);
+      arity1 = Arity_Of(pred->f_n);
 
-	  if ((all || func == func1 || arity == arity1) &&
-	      (!hide || atom_tbl[func1].name[0] != '$'))
-	    break;
-	}
+      if ((all || func == func1 || arity == arity1) &&
+	  Pred_Is_Ok(pred, func1, which_preds))
+	break;
 
       pred = (PredInf *) Hash_Next(&scan);
     }
 
-  /* non deterministic case */
+				/* non deterministic case */
   A(0) = name_word;
   A(1) = arity_word;
-  A(2) = hide;
+  A(2) = which_preds;
   A(3) = (WamWord) scan.endt;
   A(4) = (WamWord) scan.cur_t;
   A(5) = (WamWord) scan.cur_p;
@@ -139,7 +136,7 @@ Current_Predicate_Alt_0(void)
   WamWord name_word, arity_word;
   HashScan scan;
   PredInf *pred;
-  Bool hide;
+  int which_preds;
   int func, arity;
   int func1, arity1;
   Bool all;
@@ -149,22 +146,16 @@ Current_Predicate_Alt_0(void)
 
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
-  hide = AB(B, 2);
+  which_preds = AB(B, 2);
   scan.endt = (char *) AB(B, 3);
   scan.cur_t = (char *) AB(B, 4);
   scan.cur_p = (char *) AB(B, 5);
 
   func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
   arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : UnTag_INT(arity_word);
-  if (func >= 0)
-    {
-      if (hide && atom_tbl[func].name[0] == '$')
-	return FALSE;
 
-      if (arity >= 0)
-	return Lookup_Pred(func, arity) != NULL;
-    }
-  all = (arity == -1);
+				/* here func or arity == -1 (or both) */
+  all = (func == -1 && arity == -1);
 
   for (;;)
     {
@@ -175,23 +166,20 @@ Current_Predicate_Alt_0(void)
 	  return FALSE;
 	}
 
-      if (!hide || !Flag_Value(FLAG_STRICT_ISO) ||
-	  !(pred->prop & MASK_PRED_ANY_BUILTIN))
-	{
-	  func1 = Functor_Of(pred->f_n);
-	  arity1 = Arity_Of(pred->f_n);
+      func1 = Functor_Of(pred->f_n);
+      arity1 = Arity_Of(pred->f_n);
 
-	  if ((all || func == func1 || arity == arity1) &&
-	      (!hide || atom_tbl[func1].name[0] != '$'))
-	    break;
-	}
+      if ((all || func == func1 || arity == arity1) &&
+	  Pred_Is_Ok(pred, func1, which_preds))
+	break;
     }
-  /* non deterministic case */
 
-#if 0 /* the following data is unchanged */
+				/* non deterministic case */
+
+#if 0				/* the following data is unchanged */
   AB(B, 0) = name_word;
   AB(B, 1) = arity_word;
-  AB(B, 2) = hide;
+  AB(B, 2) = which_preds;
   AB(B, 3) = (WamWord) scan.endt;
 #endif
   AB(B, 4) = (WamWord) scan.cur_t;
