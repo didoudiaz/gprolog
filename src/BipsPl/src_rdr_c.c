@@ -37,6 +37,10 @@
 #define UNDO                       1
 
 
+#define NO_INCLUDE_LIST            NULL
+#define CURRENT_INCLUDE_LIST       (SrIncWr *) 1
+
+
 
 
 /*---------------------------------*
@@ -49,7 +53,7 @@ typedef enum
   SET_PROLOG_FLAG,
   CHAR_CONVERSION
 } SRDirType;
-  
+
 
 typedef struct sr_one_direct *PSROneDirect;
 
@@ -112,7 +116,6 @@ typedef struct
   int error_count;		/* nb of errors emitted */
   int warning_count;		/* nb of warnings emitted */
   int out_sora_word;		/* SorA for writing (or NOT_A_WAM_WORD) */
-  int last_stm_write_includes;	/* last stream used to write include list */
   SRDirect direct_lst;		/* list of directives */
   SRModule *module_lst;		/* list of defined modules */
   SRModule *cur_module;		/* NULL or current module */
@@ -139,7 +142,7 @@ static SRInf *cur_sr;		/* the current sr entry used */
  *---------------------------------*/
 
 
-static SRInf *Get_Descriptor(WamWord desc_word);
+static SRInf *Get_Descriptor(WamWord desc_word, Bool accept_none);
 
 static void Do_Directives(SRDirect *direct);
 
@@ -236,8 +239,6 @@ SR_Init_Open_2(WamWord desc_word, WamWord out_sora_word)
   else
     sr->out_sora_word = NOT_A_WAM_WORD;
 
-  sr->last_stm_write_includes = -1;
-
   sr->direct_lst.first = NULL;
   sr->direct_lst.last = NULL;
 
@@ -285,8 +286,6 @@ SR_Open_File_2(WamWord file_name_word, WamWord stm_word)
   if (sr->file_top)
     sr->file_top->include_line = sr->cur_l1;
   sr->file_top = file;
-
-  sr->last_stm_write_includes = -1;
 }
 
 
@@ -299,7 +298,7 @@ SR_Open_File_2(WamWord file_name_word, WamWord stm_word)
 void
 SR_Close_1(WamWord desc_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file, *file1;
   SROneDirect *o, *o1;
   SRModule *m, *m1;
@@ -507,7 +506,6 @@ SR_Get_Stm_For_Read_Term_1(WamWord stm_word)
       if (!file->eof_reached)
 	break;
 				/* a EOF is reached */
-      sr->last_stm_write_includes = -1;
 
       if (file->parent_file == NULL)
 	break;			/* never close the master stream */
@@ -819,7 +817,7 @@ SR_Is_Bit_Set_1(WamWord bit_word)
 Bool
 SR_Get_Stm_2(WamWord desc_word, WamWord stm_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   return Get_Integer(sr->file_top->stm, stm_word);
 }
 
@@ -834,7 +832,7 @@ Bool
 SR_Get_Module_3(WamWord desc_word, WamWord module_name_word, 
 		WamWord interface_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRModule *m = sr->cur_module;
 
   Check_For_Un_Atom(module_name_word);
@@ -862,7 +860,7 @@ SR_Get_Module_3(WamWord desc_word, WamWord module_name_word,
 Bool
 SR_Get_File_Name_2(WamWord desc_word, WamWord file_name_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   return Un_Atom_Check(sr->file_top->atom_file_name, file_name_word);
 }
 
@@ -876,7 +874,7 @@ SR_Get_File_Name_2(WamWord desc_word, WamWord file_name_word)
 Bool
 SR_Get_Position_3(WamWord desc_word, WamWord l1_word, WamWord l2_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
 
   Check_For_Un_Integer(l1_word);
   Check_For_Un_Integer(l2_word);
@@ -895,7 +893,7 @@ SR_Get_Position_3(WamWord desc_word, WamWord l1_word, WamWord l2_word)
 Bool
 SR_Get_Include_List_2(WamWord desc_word, WamWord list_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file;
   WamWord word;
 
@@ -927,7 +925,7 @@ SR_Get_Include_List_2(WamWord desc_word, WamWord list_word)
 Bool
 SR_Get_Include_Stream_List_2(WamWord desc_word, WamWord list_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file;
   WamWord word;
 
@@ -959,7 +957,7 @@ Bool
 SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word, 
 		       WamWord lines_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file;
   int char_count, line_count;
 
@@ -990,7 +988,7 @@ Bool
 SR_Get_Error_Counters_3(WamWord desc_word, WamWord errors_word, 
 			WamWord warnings_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   
   Check_For_Un_Integer(errors_word);
   Check_For_Un_Integer(warnings_word);
@@ -1010,7 +1008,7 @@ void
 SR_Set_Error_Counters_3(WamWord desc_word, WamWord errors_word, 
 			WamWord warnings_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, FALSE);
   int errors = Rd_Integer_Check(errors_word);
   int warnings = Rd_Integer_Check(warnings_word);
   
@@ -1028,7 +1026,7 @@ SR_Set_Error_Counters_3(WamWord desc_word, WamWord errors_word,
 void
 SR_Check_Descriptor_1(WamWord desc_word)
 {
-  Get_Descriptor(desc_word);
+  Get_Descriptor(desc_word, FALSE);
 }
 
 
@@ -1039,10 +1037,24 @@ SR_Check_Descriptor_1(WamWord desc_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static SRInf *
-Get_Descriptor(WamWord desc_word)
+Get_Descriptor(WamWord desc_word, Bool accept_none)
 {
+  WamWord word, tag_mask;
   int desc;
+  int atom;
 
+  if (accept_none)
+    {
+      DEREF(desc_word, word, tag_mask);
+      atom = UnTag_ATM(word);
+      if (tag_mask == TAG_ATM_MASK && 
+	  strcmp(atom_tbl[atom].name, "none") == 0)
+	{
+	  cur_sr = NULL;
+	  return cur_sr;
+	}
+      
+    }
   desc = Rd_Integer_Check(desc_word);
 
   if ((unsigned) desc > sr_last_used || !sr_tbl[desc].in_use)
@@ -1064,16 +1076,26 @@ void
 SR_Write_Message_4(WamWord desc_word,
 		   WamWord type_word, WamWord format_word, WamWord args_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
   int atom_file_name;
   int l1, l2c;
   WamWord sora_word;
 
-  sora_word = sr->out_sora_word;
-  atom_file_name = sr->file_top->atom_file_name;
-  l1 = sr->cur_l1;
-  l2c = sr->cur_l2;
+  if (sr)
+    {
+      sora_word = sr->out_sora_word;
+      atom_file_name = sr->file_top->atom_file_name;
+      l1 = sr->cur_l1;
+      l2c = sr->cur_l2;
+    }
+  else
+    {
+      sora_word = NOT_A_WAM_WORD;
+      atom_file_name = atom_void;
+      l1 = 0;
+      l2c = 0;
+    }
 
   pstm = Write_Location(sora_word, NOT_A_WAM_WORD, atom_file_name, l1, l2c);
   Write_Message_Text(pstm, sora_word, type_word, format_word, args_word);
@@ -1091,14 +1113,23 @@ SR_Write_Message_6(WamWord desc_word,
 		   WamWord l1_word, WamWord l2c_word,
 		   WamWord type_word, WamWord format_word, WamWord args_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
   int atom_file_name;
   int l1, l2c;
   WamWord sora_word;
 
-  sora_word = sr->out_sora_word;
-  atom_file_name = sr->file_top->atom_file_name;
+  if (sr)
+    {
+      sora_word = sr->out_sora_word;
+      atom_file_name = sr->file_top->atom_file_name;
+    }
+  else
+    {
+      sora_word = NOT_A_WAM_WORD;
+      atom_file_name = atom_void;
+    }
+
   l1 = Rd_Integer_Check(l1_word);
   l2c = Rd_Integer_Check(l2c_word);
   
@@ -1119,7 +1150,7 @@ SR_Write_Message_8(WamWord desc_word, WamWord list_word,
 		   WamWord l1_word, WamWord l2c_word,
 		   WamWord type_word, WamWord format_word, WamWord args_word)
 {
-  SRInf *sr = Get_Descriptor(desc_word);
+  SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
   int atom_file_name;
   int l1, l2c;
@@ -1128,6 +1159,15 @@ SR_Write_Message_8(WamWord desc_word, WamWord list_word,
   if (!Blt_List(list_word))
     Pl_Err_Type(type_list, list_word);
   
+  if (sr)
+    {
+      sora_word = sr->out_sora_word;
+    }
+  else
+    {
+      sora_word = NOT_A_WAM_WORD;
+    }
+
   sora_word = sr->out_sora_word;
   atom_file_name = Rd_Atom_Check(file_name_word);
   l1 = Rd_Integer_Check(l1_word);
@@ -1155,30 +1195,18 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
   WamWord *lst_adr;
   Bool first;
   SRInf *sr = cur_sr;
-  SRFile *file;
+  SRFile *file = NULL;
+  int char_count;
 
   stm = (sora_word == NOT_A_WAM_WORD)
     ? stm_output : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = stm_tbl[stm];
 
-  if (pstm->line_pos != 0)
-    Stream_Putc('\n', pstm);
-
   last_output_sora = sora_word;
   Check_Stream_Type(stm, TRUE, FALSE);
 
-  if (list_word == NOT_A_WAM_WORD)
-    {
-      if (sr->last_stm_write_includes == stm && (sr->mask & (1 << 19)) != 0)
-	file = NULL;		/* short_write -> skip include list */
-      else
-	{
-	  file = sr->file_top->parent_file;
-	  sr->last_stm_write_includes = stm;
-	}
-    }
-  else
-    sr->last_stm_write_includes = -1;
+  if (list_word != NOT_A_WAM_WORD && sr != NULL)
+    file = sr->file_top->parent_file;
 
   for (first = TRUE; ; first = FALSE)
     {
@@ -1218,22 +1246,28 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
   if (!first)
     Stream_Puts(":\n", pstm);
 
-  Stream_Puts(atom_tbl[atom_file_name].name, pstm);
 
-  if (l1 >= 0)
+  char_count = pstm->char_count;
+
+  if (atom_file_name != atom_void)
+    Stream_Puts(atom_tbl[atom_file_name].name, pstm);
+
+  if (l1 > 0)
     {
       Stream_Printf(pstm, ":%d", l1);
 
       if (l2c != l1)
 	{
-	  if (l2c >= 0)
+	  if (l2c > 0)
 	    Stream_Printf(pstm, "--%d", l2c);
 	  else
 	    Stream_Printf(pstm, ":%d", -l2c);
 	}
     }
 
-  Stream_Puts(": ", pstm);
+  if (char_count != pstm->char_count)
+    Stream_Puts(": ", pstm);
+
   return pstm;
 }
 
@@ -1254,10 +1288,13 @@ Write_Message_Text(StmInf *pstm, WamWord sora_word,
   if (*type)
     {
       Stream_Printf(pstm, "%s: ", type);
-      if (strstr(type, "error"))
-	sr->error_count++;
-      else if (strstr(type, "warning"))
-	sr->warning_count++;
+      if (sr)
+	{
+	  if (strstr(type, "error") || strstr(type, "exception"))
+	    sr->error_count++;
+	  else if (strstr(type, "warning"))
+	    sr->warning_count++;
+	}
     }
 				/* accepts sora_word = NOT_A_WAM_WORD */
   Format_3(sora_word, format_word, args_word); 

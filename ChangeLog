@@ -1,3 +1,8 @@
+Wed Apr 10 15:04:23 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* fix bug in decompose_file_name/4 (tried to modify read-only string)
+	* now open/4 better detects if a stream can be is repositioned
+
 Mon Apr  8 20:08:29 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* add source reader facility (built-in) - not yet documented

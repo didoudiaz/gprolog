@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.2.12:
 
+* fix bug in decompose_file_name/4 (tried to modify read-only string)
+* now open/4 better detects if a stream can be is repositioned
 * add source reader facility (built-in) - not yet documented
 * fix current_predicate bug, now current_predicate(nl/0) fails
 * fix linedit bug in tab pasting and add Esc-Tab function

@@ -74,10 +74,10 @@ Prolog_Prototype(ATOM_CONCAT_ALT, 0);
 Prolog_Prototype(SUB_ATOM_ALT, 0);
 Prolog_Prototype(CURRENT_ATOM_ALT, 0);
 
-#define MALLOC_STR(n) \
-   if (n<0) \
-     return FALSE; \
-   str=(char *) Malloc(n+1)
+#define MALLOC_STR(n)				\
+   if (n<0)					\
+     return FALSE;				\
+   str = (char *) Malloc(n + 1)
 
 
 

@@ -92,7 +92,8 @@ Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
   int atom;
   char c;
 
-  path = atom_tbl[Rd_Atom_Check(path_word)].name;
+  strcpy(glob_buff, atom_tbl[Rd_Atom_Check(path_word)].name);
+  path = glob_buff;
 
 
   Check_For_Un_Atom(dir_word);

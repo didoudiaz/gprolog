@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : flag.pl
-% date    : 4 5 2002
-% time    : 9:46:30
+% date    : 4 9 2002
+% time    : 18:7:9
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/flag.pl').

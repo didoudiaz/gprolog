@@ -207,6 +207,7 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   FILE *f;
   long offset;
   int mask = SYS_VAR_OPTION_MASK;
+  Bool reposit;
 
 
   DEREF(source_sink_word, word, tag_mask);
@@ -238,10 +239,27 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 
   istty = (isatty(fileno(f)) != 0);
 
-  if ((mask & 2) == 0)		/* not specified - set to default */
-    prop.reposition = !istty;
+  reposit = TRUE;
+  offset = ftell(f);
+  if (fseek(f, 0, SEEK_END) != 0 && errno != 0)
+    reposit = FALSE;
   else
-    prop.reposition = mask & 1;
+    fseek(f, offset, SEEK_SET);
+
+  if ((mask & 2) == 0)		/* not specified - set to default */
+    prop.reposition = reposit;
+  else
+    {
+      prop.reposition = mask & 1;
+      if (prop.reposition && !reposit)
+	{
+	  fclose(f);
+	  word = Put_Structure(atom_reposition, 1);
+	  Unify_Atom(atom_true);
+	  Pl_Err_Permission(permission_operation_open,
+			    permission_type_source_sink, word);
+	}
+    }
   mask >>= 2;
 
 
@@ -259,19 +277,6 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   else
     prop.buffering = mask & 3;
   mask >>= 2;
-
-  if (prop.reposition)
-    {
-      offset = ftell(f);
-      if (fseek(f, 0, SEEK_END) != 0 && errno != 0)
-	{
-	  word = Put_Structure(atom_reposition, 1);
-	  Unify_Atom(atom_true);
-	  Pl_Err_Permission(permission_operation_open,
-			    permission_type_source_sink, word);
-	}
-      fseek(f, offset, SEEK_SET);
-    }
 
   prop.special_close = FALSE;
   prop.other = 0;

@@ -29,8 +29,8 @@
 '$use_src_rdr'.
 
 /* API
- 
- set_prolog_flag(strict_iso,off), setof(Y:X,(predicate_property(X, prolog_file('/home/diaz/GP/src/src/BipsPl/t.pl')),predicate_property(X, built_in),predicate_property(X, prolog_line(Y))), L), member(_:A,L), write(A), nl, fail.
+
+set_prolog_flag(strict_iso, off), setof(Y:X,(predicate_property(X, prolog_file(F)), decompose_file_name(F, _, src_rdr, '.pl'), predicate_property(X, prolog_line(Y))), L), member(_:A, L), write(A), nl, fail.
 
 sr_open/3
 sr_change_options/2
@@ -49,6 +49,10 @@ sr_set_error_counters/3
 sr_write_message/4
 sr_write_message/6
 sr_write_message/8
+sr_write_error/2
+sr_write_error/4
+sr_write_error/6
+sr_error_from_exception/2
 */
 
 sr_open(FileOrStream, D, Options) :-
@@ -85,14 +89,13 @@ sr_open(FileOrStream, D, Options) :-
           % keep_files_open in b16 (0/1)
           % reflect_eof     in b17 (0/1)
           % undo_directives in b18 (0/1)
-          % short_write     in b19 (0/1)
-          % write_error     in b20 (0/1)
+          % write_error     in b19 (0/1)
           %
           % in sys_var[1]: is output stream specified ?
 
 '$set_sr_defaults' :-
         '$sys_var_write'(0, 0b1111111110),                     % default mask
-	'$sys_var_set_bit'(0, 20),
+	'$sys_var_set_bit'(0, 19),
         '$sys_var_write'(1, 0).
 
 
@@ -148,28 +151,12 @@ sr_open(FileOrStream, D, Options) :-
             '$sys_var_set_bit'(0, 18)
         ).
 
-'$get_sr_options2'(short_write(X)) :-
+'$get_sr_options2'(write_error(X)) :-
         nonvar(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 19)
         ;   X = true,
             '$sys_var_set_bit'(0, 19)
-        ).
-
-'$get_sr_options2'(write_error(X)) :-
-        nonvar(X),
-        (   X = false,
-            '$sys_var_reset_bit'(0, 20)
-        ;   X = true,
-            '$sys_var_set_bit'(0, 20)
-        ).
-
-'$get_sr_options2'(write_error(X)) :-
-        nonvar(X),
-        (   X = false,
-            '$sys_var_reset_bit'(0, 20)
-        ;   X = true,
-            '$sys_var_set_bit'(0, 20)
         ).
 
 '$get_sr_options2'(output_stream(SorA)) :-
@@ -277,11 +264,11 @@ sr_read_term(D, Term, Options, SRError) :-
 	(   var(Excep) ->
 	    '$sr_treat_term'(Term, SRError)
 	;   Term = '$sr_read_term_error',
-	    '$sr_mk_error_from_exception'(Excep, SRError)
+	    '$sr_error_from_exception'(Excep, SRError)
 	),
-	(   SRError = sr_error(Type, Error),
-	    '$call_c_test'('SR_Is_Bit_Set_1'(20)) ->
-	    '$sr_write_error'(Type, Error, D)
+	(   SRError = sr_error(_, _),
+	    '$call_c_test'('SR_Is_Bit_Set_1'(19)) ->
+	    sr_write_error(D, SRError)
 	;   true
 	), !.			% cut to remove repeat choice-point
 
@@ -312,11 +299,13 @@ sr_read_term(D, Term, Options, SRError) :-
 	(   '$call_c_test'('SR_Is_Bit_Set_1'(BitTreat)) ->
 	    '$catch'('$sr_exec_directive'(Directive, SRError),
 		     Excep,
-		     '$sr_mk_error_from_exception'(Excep, SRError),
+		     '$sr_error_from_exception'(Excep, SRError),
 		     any, 0, false)
 	;
 	    true),
-	'$call_c_test'('SR_Is_Bit_Set_1'(BitPass)). % can fail
+	(   var(Excep) ->
+	    '$call_c_test'('SR_Is_Bit_Set_1'(BitPass)) % can fail
+	;   true).
 
 '$sr_treat_term'(_, sr_ok).
 
@@ -510,21 +499,92 @@ sr_write_message(D, IncList, File, L1, L2C, Type, Format, Args) :-
 
 
 
+sr_write_error(D, SRError) :-
+	set_bip_name(sr_write_error, 2),
+	'$sr_get_format_args_error'(SRError, L1, L2C, Type, Format, Args),
+	(   var(L1),
+	    '$call_c'('SR_Write_Message_4'(D, Type, Format, Args))
+	;
+	    '$call_c'('SR_Write_Message_6'(D, L1, L2C, Type, Format, Args))
+	), !.
 
-'$sr_mk_error_from_exception'(error(Excep, _), sr_error(error, Excep)) :-
-	!.
-
-'$sr_mk_error_from_exception'(Excep, sr_error(exception, Excep)).
+sr_write_error(_, _).		% succes - nothing written for sr_ok
 
 
 
 
-'$sr_write_error'(error, syntax_error(_), D) :-
+sr_write_error(D, L1, L2C, SRError) :-
+	set_bip_name(sr_write_error, 4),
+	'$sr_get_format_args_error'(SRError, EL1, EL2C, Type, Format, Args),
+	(   L1 = EL1, L2C = EL2C  ; true ),
+	'$call_c'('SR_Write_Message_6'(D, EL1, EL2C, Type, Format, Args)), !.
+
+sr_write_error(_, _, _, _).	% succes - nothing written for sr_ok
+
+
+
+
+sr_write_error(D, IncList, File, L1, L2C, SRError) :-
+	set_bip_name(sr_write_error, 6),
+	'$sr_get_format_args_error'(SRError, EL1, EL2C, Type, Format, Args),
+	(   L1 = EL1, L2C = EL2C  ; true ),
+	'$call_c'('SR_Write_Message_8'(D, IncList, File, EL1, EL2C,
+				       Type, Format, Args)), !.
+
+sr_write_error(_, _, _, _, _, _). % succes - nothing written for sr_ok
+
+
+
+
+'$sr_get_format_args_error'(SRError, _, _, _, _, _) :-
+	var(SRError),
+	'$pl_err_instantiation'.
+
+'$sr_get_format_args_error'(SRError, L1, L2C, Type, Format, Args) :-
+	SRError = sr_error(Type, Error), % fail for sr_ok
+	'$sr_simpl_error'(Error, L1, L2C, Format, Args).
+
+
+
+
+'$sr_simpl_error'(syntax(Line, Char, Error), Line, L2C, Format, Args) :-
+	!,
+	L2C is -Char,
+	Format = '~a~n',
+	Args = [Error].
+
+'$sr_simpl_error'(existence_error(source_sink, F), _, _, Format, Args) :-
+	!,
+	Format = 'cannot open file ~a - does not exist~n',
+	Args = [F].
+
+'$sr_simpl_error'(permission_error(open, source_sink, F), _, _, Format, Args) :-
+	!,
+	Format = 'cannot open file ~a - permission error~n',
+	Args = [F].
+
+'$sr_simpl_error'(Error, _, _, Format, Args) :-
+	Format = '~w~n',
+	Args = [Error].
+
+
+
+
+sr_error_from_exception(Excep, SRError) :-
+	set_bip_name(sr_error_from_exception, 2),
+	(   var(Excep) ->
+	    '$pl_err_instantiation'
+	;   true
+	),
+	'$sr_error_from_exception'(Excep, SRError).
+
+
+'$sr_error_from_exception'(error(syntax_error(_), _), SRError) :-
 	!,
 	syntax_error_info(_, Line, Char, Error),
-	L2C is -Char,
-	sr_write_message(D, Line, L2C, error, '~a~n', [Error]).
+	SRError = sr_error(error, syntax(Line, Char, Error)).
 
-'$sr_write_error'(Type, Error, D) :-
-	!,
-	sr_write_message(D, Type, '~w~n', [Error]).
+'$sr_error_from_exception'(error(Excep, _), sr_error(error, Excep)) :-
+	!.
+
+'$sr_error_from_exception'(Excep, sr_error(exception, Excep)).
