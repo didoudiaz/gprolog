@@ -505,9 +505,11 @@ PKG_NAME=$PROLOG_NAME1-$PROLOG_VERSION
 # *-------------*
 
 if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
+	IN_PLACE=yes
 	INSTALL_DIR=$ROOT_DIR
 	test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
 else
+	IN_PLACE=no
 	if test -z "$WITH_INSTALL_DIR"; then
              INSTALL_DIR=$prefix/$PKG_NAME
         else
@@ -593,7 +595,11 @@ echo "--> Examples:           $EXAMPLES_DIR"
 # ******************
 
 
-TXT_FILES='COPYING VERSION NEWS ChangeLog'
+if test "$IN_PLACE" = no; then
+	TXT_FILES='COPYING VERSION NEWS ChangeLog'
+else
+	TXT_FILES=
+fi
 
 BIN_FILES=
 OBJ_FILES=

@@ -156,7 +156,9 @@ static void Str_Stream_Putc(int c, StrSInf *str_stream);
 static void
 Init_Stream_Supp(void)
 {
+#ifndef NO_USE_LINEDIT
   StmInf *pstm;
+#endif
 
   stm_tbl_size = 32;
   stm_tbl = (StmInf **) Calloc(stm_tbl_size, sizeof(StmInf *));
@@ -728,8 +730,10 @@ void
 Set_Stream_Buffering(int stm)
 {
   StmInf *pstm = stm_tbl[stm];
-  int buff_flag;
   FILE *f;
+#ifndef NO_USE_LINEDIT
+  int buff_flag;
+#endif
 
   f = Stdio_Desc_Of_Stream(stm);
   if (f == NULL)

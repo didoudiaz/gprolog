@@ -1,7 +1,8 @@
-Fri May 10 16:55:49 CEST 2002 <Daniel.Diaz@inria.fr>
+Fri May 17 10:37:25 CEST 2002 <Daniel.Diaz@inria.fr>
 
-	* port to powerpc/Darwin (MacOs X) - many thanks to:
+	* port to powerpc/Darwin (Mac OS X) - many thanks to:
           Lindsey Spratt <spratt@alum.mit.edu>
+	* fix bug with in-place installation procedure
 
 Wed Apr 24 19:00:03 CEST 2002 <Daniel.Diaz@inria.fr>
 

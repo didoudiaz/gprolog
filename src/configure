@@ -4019,9 +4019,11 @@ PKG_NAME=$PROLOG_NAME1-$PROLOG_VERSION
 # *-------------*
 
 if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
+	IN_PLACE=yes
 	INSTALL_DIR=$ROOT_DIR
 	test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
 else
+	IN_PLACE=no
 	if test -z "$WITH_INSTALL_DIR"; then
              INSTALL_DIR=$prefix/$PKG_NAME
         else
@@ -4099,7 +4101,11 @@ echo "--> Examples:           $EXAMPLES_DIR"
 # * sub-components *
 # ******************
 
-TXT_FILES='COPYING VERSION NEWS ChangeLog'
+if test "$IN_PLACE" = no; then
+	TXT_FILES='COPYING VERSION NEWS ChangeLog'
+else
+	TXT_FILES=
+fi
 
 BIN_FILES=
 OBJ_FILES=
@@ -4274,7 +4280,7 @@ DEFS=-DHAVE_CONFIG_H
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
 ac_clean_files="$ac_clean_files $CONFIG_STATUS"
-{ echo "$as_me:4277: creating $CONFIG_STATUS" >&5
+{ echo "$as_me:4283: creating $CONFIG_STATUS" >&5
 echo "$as_me: creating $CONFIG_STATUS" >&6;}
 cat >$CONFIG_STATUS <<_ACEOF
 #! $SHELL
@@ -4447,7 +4453,7 @@ cat >>$CONFIG_STATUS <<\EOF
     echo "$ac_cs_version"; exit 0 ;;
   --he | --h)
     # Conflict between --help and --header
-    { { echo "$as_me:4450: error: ambiguous option: $1
+    { { echo "$as_me:4456: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -4466,7 +4472,7 @@ Try \`$0 --help' for more information." >&2;}
     ac_need_defaults=false;;
 
   # This is an error.
-  -*) { { echo "$as_me:4469: error: unrecognized option: $1
+  -*) { { echo "$as_me:4475: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -4515,7 +4521,7 @@ do
   "BipsFD/Makefile" ) CONFIG_FILES="$CONFIG_FILES BipsFD/Makefile" ;;
   "$OTHER_MAKEFILES" ) CONFIG_FILES="$CONFIG_FILES $OTHER_MAKEFILES" ;;
   "EnginePl/gp_config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS EnginePl/gp_config.h" ;;
-  *) { { echo "$as_me:4518: error: invalid argument: $ac_config_target" >&5
+  *) { { echo "$as_me:4524: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
   esac
@@ -4789,7 +4795,7 @@ done; }
   esac
 
   if test x"$ac_file" != x-; then
-    { echo "$as_me:4792: creating $ac_file" >&5
+    { echo "$as_me:4798: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
     rm -f "$ac_file"
   fi
@@ -4807,7 +4813,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:4810: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:4816: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -4820,7 +4826,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:4823: error: cannot find input file: $f" >&5
+           { { echo "$as_me:4829: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -4881,7 +4887,7 @@ for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
   * )   ac_file_in=$ac_file.in ;;
   esac
 
-  test x"$ac_file" != x- && { echo "$as_me:4884: creating $ac_file" >&5
+  test x"$ac_file" != x- && { echo "$as_me:4890: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
 
   # First look for the input files in the build tree, otherwise in the
@@ -4892,7 +4898,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:4895: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:4901: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -4905,7 +4911,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:4908: error: cannot find input file: $f" >&5
+           { { echo "$as_me:4914: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -5022,7 +5028,7 @@ cat >>$CONFIG_STATUS <<\EOF
   rm -f $tmp/in
   if test x"$ac_file" != x-; then
     if cmp -s $ac_file $tmp/config.h 2>/dev/null; then
-      { echo "$as_me:5025: $ac_file is unchanged" >&5
+      { echo "$as_me:5031: $ac_file is unchanged" >&5
 echo "$as_me: $ac_file is unchanged" >&6;}
     else
       ac_dir=`$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \

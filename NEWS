@@ -1,7 +1,8 @@
 Change in GNU Prolog version 1.2.13:
 
-* port to powerpc/Darwin (MacOs X) - many thanks to:
+* port to powerpc/Darwin (Mac OS X) - many thanks to:
   Lindsey Spratt <spratt@alum.mit.edu>
+* fix bug with in-place installation procedure
 * fix problem with portray_clause/2 using $VARNAME and $VAR
   now portray_clause((p(Z):-p('$VARNAME'('A'),Z))) is ok
 * fix bug with stream buffering (open/4 and set_stream_buffering/2)
