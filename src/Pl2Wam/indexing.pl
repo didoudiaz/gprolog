@@ -281,7 +281,7 @@ gen_switch(List, Ins, Lab, LNext, [label(Lab), SwtW|WamTRT]) :-
 
 create_switch_list([], [], LNext, LNext).
 
-create_switch_list([a(F, LAd)|List], [(F,Lab)|LSwt], LNext, WamTRT) :-
+create_switch_list([a(F, LAd)|List], [(F, Lab)|LSwt], LNext, WamTRT) :-
 	gen_list(LAd, Lab, WamTRT1, WamTRT),
 	create_switch_list(List, LSwt, LNext, WamTRT1).
 

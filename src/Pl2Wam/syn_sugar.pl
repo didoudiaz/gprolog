@@ -47,7 +47,7 @@ normalize_cuts(Body, Body2) :-
 	g_assign(has_cut, f),
 	normalize_cuts1(Body, CutVar, Body1), !,
 	(   g_read(has_cut, t) ->
-	    Body2 = ('$get_cut_level'(CutVar),Body1)
+	    Body2 = ('$get_cut_level'(CutVar), Body1)
 	;   Body2 = Body1
 	).
 
@@ -59,18 +59,18 @@ normalize_cuts1(X, VarCut, P) :-
 normalize_cuts1((If ; R), CutVar, Body) :-
 	nonvar(If),
 	If = (P -> Q),
-	Body = ('$get_cut_level'(CutVar1),P,'$cut'(CutVar1),Q1 ; R1),
+	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; R1),
 	normalize_cuts1(Q, CutVar, Q1),
 	normalize_cuts1(R, CutVar, R1).
 
 normalize_cuts1((P -> Q), CutVar, Body) :-
-	Body = ('$get_cut_level'(CutVar1),P,'$cut'(CutVar1),Q1 ; fail),
+	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; fail),
 	normalize_cuts1(Q, CutVar, Q1).
 
 normalize_cuts1(!, CutVar, '$cut'(CutVar)) :-
 	g_assign(has_cut, t).
 
-normalize_cuts1((P,Q), CutVar, (P1,Q1)) :-
+normalize_cuts1((P, Q), CutVar, (P1, Q1)) :-
 	normalize_cuts1(P, CutVar, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
@@ -107,9 +107,9 @@ normalize_alts(Body, Head, Body1) :-
 normalize_alts1(X, _, call(X)) :-
 	var(X).
 
-normalize_alts1((P,Q), RestC, (P1,Q1)) :-
-	normalize_alts1(P, (RestC,Q), P1),
-	normalize_alts1(Q, (RestC,P), Q1).
+normalize_alts1((P, Q), RestC, (P1, Q1)) :-
+	normalize_alts1(P, (RestC, Q), P1),
+	normalize_alts1(Q, (RestC, P), Q1).
 
 normalize_alts1((P ; Q), RestC, AuxPred) :-
 	lst_var(RestC, [], VarRestC),
@@ -209,7 +209,7 @@ pred_rewriting(Pred, Pred1) :-                      % math define current bip
 	;   math_cmp_functor_name(F, _)
 	),                                                  % see code_gen.pl
 	   !,
-	Pred1 = ('$call_c'('Set_Bip_Name_2'(F, 2)),Pred).
+	Pred1 = ('$call_c'('Set_Bip_Name_2'(F, 2)), Pred).
 
 pred_rewriting(P, P).
 

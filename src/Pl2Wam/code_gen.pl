@@ -650,7 +650,7 @@ gen_inline_pred('$foreign_call_c', 7, [X, Types, atm(FctName), atm(Return), atm(
 
 gen_foreign_types(nil, []).
 
-gen_foreign_types(stc('.', _, [stc(',', 2, [atm(A), int(O)]), Types]), [(A,O)|LType]) :-
+gen_foreign_types(stc('.', _, [stc(',', 2, [atm(A), int(O)]), Types]), [(A, O)|LType]) :-
 	gen_foreign_types(Types, LType).
 
 

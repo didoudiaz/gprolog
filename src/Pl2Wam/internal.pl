@@ -74,7 +74,7 @@ format_head(Head, DicoVar, Head1) :-
 format_body(Body, DicoVar, Body1, NbChunk) :-
 	format_body1(Body, 0, DicoVar, t, [], Body1, NbChunk, _).
 
-format_body1((P,Q), NoPred, DicoVar, StartChunk, LNext, P1, NoPred2, StartChunk2) :-
+format_body1((P, Q), NoPred, DicoVar, StartChunk, LNext, P1, NoPred2, StartChunk2) :-
 	!,
 	format_body1(P, NoPred, DicoVar, StartChunk, Q1, P1, NoPred1, StartChunk1),
 	format_body1(Q, NoPred1, DicoVar, StartChunk1, LNext, Q1, NoPred2, StartChunk2).

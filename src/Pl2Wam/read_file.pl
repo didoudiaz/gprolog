@@ -203,7 +203,7 @@ read_predicate_next(_, _, _).
 
 
 read_predicate1(Pred, N, LSrcCl) :-
-	retract(buff_aux_pred(Pred, N, LSrcCl)), !. 
+	retract(buff_aux_pred(Pred, N, LSrcCl)), !.
                                                    % aux. pred (cf syn_sugar)
 
 read_predicate1(Pred, N, LSrcCl) :-
@@ -606,7 +606,7 @@ foreign_get_options1(choice_size(ChcSize)) :-
 foreign_check_types(N, N, _, []) :-
 	!.
 
-foreign_check_types(I, N, Template, [(A,Mode)|LArgType]) :-
+foreign_check_types(I, N, Template, [(A, Mode)|LArgType]) :-
 	I1 is I + 1,
 	arg(I1, Template, Arg),
 	nonvar(Arg),
@@ -688,7 +688,7 @@ add_empty_dyn([P1|P2], Where) :-
 	add_empty_dyn(P1, Where),
 	add_empty_dyn(P2, Where).
 
-add_empty_dyn((P1,P2), Where) :-
+add_empty_dyn((P1, P2), Where) :-
 	!,
 	add_empty_dyn(P1, Where),
 	add_empty_dyn(P2, Where).
@@ -707,7 +707,7 @@ add_ensure_linked([P1|P2]) :-
 	add_ensure_linked(P1),
 	add_ensure_linked(P2).
 
-add_ensure_linked((P1,P2)) :-
+add_ensure_linked((P1, P2)) :-
 	!,
 	add_ensure_linked(P1),
 	add_ensure_linked(P2).
@@ -729,7 +729,7 @@ set_flag_for_preds([P1|P2], Flag) :-
 	set_flag_for_preds(P1, Flag),
 	set_flag_for_preds(P2, Flag).
 
-set_flag_for_preds((P1,P2), Flag) :-
+set_flag_for_preds((P1, P2), Flag) :-
 	!,
 	set_flag_for_preds(P1, Flag),
 	set_flag_for_preds(P2, Flag).
