@@ -645,7 +645,7 @@ M_Mktemp(char *tmpl)
 #else
 
   errno = 0;
-  return mktemp(tmp_template);
+  return mktemp(tmpl);
 
 #endif
 }
