@@ -1,9 +1,28 @@
-/*-------------------------------------------------------------------------*/
-/* FD Buit-In Predicates                                Daniel Diaz - 1998 */
-/* Boolean and Meta-constraint predicate management - FD part              */
-/*                                                                         */
-/* fd_bool_fd.fd                          Copyright (C) 1998, INRIA France */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint solver buit-in predicates                         *
+ * File  : fd_bool_fd.fd                                                   *
+ * Descr.: boolean and meta-constraint predicate management - FD part      *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
+
+/* $Id$ */
 
 %{
 #define not(x)   (1 - (x))
@@ -17,65 +36,69 @@
 
 
 
-/*-------------------------------------------------------------------------*/
-/* How are written the boolean primitive constraints.                      */
-/*                                                                         */
-/* I- When a variable X can only be determined when all other variables are*/
-/* instantiated, we use:                                                   */
-/*                                                                         */
-/*    X in { true_formula }                                                */
-/*                                                                         */
-/* where true_formula is the formula when X is true.                       */
-/* The value of the other variables are get with val() to avoid useless    */
-/* reevaluation of the constraint.                                         */
-/*                                                                         */
-/* Ex: #~ X <=> B                                                          */
-/*                                                                         */
-/* var  true_formula                                                 X B   */
-/* ---  ------------                                                 ---   */
-/*  B    ~X                                                          0 1   */
-/*  X    ~B                                                          1 0   */
-/*                                                                         */
-/*  X in { not(val(B)) }                                                   */
-/*  B in { not(val(X)) }                                                   */
-/*                                                                         */
-/*                                                                         */
-/* II- When a variable X can be determined thanks to a subset of other     */
-/* variables, we use:                                                      */
-/*                                                                         */
-/*    X in true_formula .. not_false_formula                               */
-/*                                                                         */
-/* where true_formula is the formula when X is true and not_false_formula  */
-/* is the negation of the formula when X is false.                         */
-/* NB: for functions, true_formula = not_false_formula but it is not the   */
-/* case for surjective mappings. The value of the other variables are get  */
-/* with min() in the lower bound of the constraint (or inside a not in the */
-/* upper bound and with max in the upper bound of the constraint (or inside*/
-/* a not in the lower bound).                                              */
-/*                                                                         */
-/* Ex: X ==> Y <=> B                                                       */
-/*                                                                         */
-/* var  true_formula   false_formula    not_false_formula          X Y B   */
-/* ---  ------------   -------------    -----------------          -----   */
-/*  B    ~X \/ Y       X /\ ~Y          ~X \/ Y                    0 0 1   */
-/*  X    ~B            B /\ ~Y          ~B \/ Y                    0 1 1   */
-/*  Y    X /\ B        ~B               B                          1 0 0   */
-/*                                                                 1 1 1   */
-/*  B in or(not(max(X)),min(Y)) .. or(not(min(X)),max(Y))                  */
-/*  X in not(max(B))            .. or(not(min(B)),max(Y))                  */
-/*  Y in and(min(B),min(X))     .. max(B)                                  */
-/*                                                                         */
-/* The obtained formula are simplified if possible. For instance in        */
-/* X /\ Y <=> B the true_formula for X is Y /\ B, However, B ==> Y, then   */
-/* the formula becomes: B (since if B is false, Y /\ B is false and if B is*/
-/* true, Y is also true (since B==>Y) then Y /\ B is also true).           */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * How are written the boolean primitive constraints.                      * 
+ *                                                                         * 
+ * I- When a variable X can only be determined when all other variables are* 
+ * instantiated, we use:                                                   * 
+ *                                                                         * 
+ *    X in { true_formula }                                                * 
+ *                                                                         * 
+ * where true_formula is the formula when X is true.                       * 
+ * The value of the other variables are get with val() to avoid useless    * 
+ * reevaluation of the constraint.                                         * 
+ *                                                                         * 
+ * Ex: #~ X <=> B                                                          * 
+ *                                                                         * 
+ * var  true_formula                                                 X B   * 
+ * ---  ------------                                                 ---   * 
+ *  B    ~X                                                          0 1   * 
+ *  X    ~B                                                          1 0   * 
+ *                                                                         * 
+ *  X in { not(val(B)) }                                                   * 
+ *  B in { not(val(X)) }                                                   * 
+ *                                                                         * 
+ *                                                                         * 
+ * II- When a variable X can be determined thanks to a subset of other     * 
+ * variables, we use:                                                      * 
+ *                                                                         * 
+ *    X in true_formula .. not_false_formula                               * 
+ *                                                                         * 
+ * where true_formula is the formula when X is true and not_false_formula  * 
+ * is the negation of the formula when X is false. To find when a variable * 
+ * is true (resp. false) look at the truth table of THAT VARIABLE(the table* 
+ * determinig that variable from all combinations of the other variables). * 
+ * Combinations when the variable can be 0 or 1 (undefined) are ignored.   * 
+ *                                                                         * 
+ * NB: for functions, true_formula = not_false_formula but it is not the   * 
+ * case for surjective mappings. The value of the other variables are get  * 
+ * with min() in the lower bound of the constraint (or inside a not in the * 
+ * upper bound and with max in the upper bound of the constraint (or inside* 
+ * a not in the lower bound).                                              * 
+ *                                                                         * 
+ * Ex: X ==> Y <=> B                                                       * 
+ *                                                                         * 
+ * var  true_formula   false_formula    not_false_formula          X Y B   * 
+ * ---  ------------   -------------    -----------------          -----   * 
+ *  B    ~X \/ Y       X /\ ~Y          ~X \/ Y                    0 0 1   * 
+ *  X    ~B            B /\ ~Y          ~B \/ Y                    0 1 1   * 
+ *  Y    X /\ B        ~B               B                          1 0 0   * 
+ *                                                                 1 1 1   * 
+ *  B in or(not(max(X)),min(Y)) .. or(not(min(X)),max(Y))                  * 
+ *  X in not(max(B))            .. or(not(min(B)),max(Y))                  * 
+ *  Y in and(min(B),min(X))     .. max(B)                                  * 
+ *                                                                         * 
+ * The obtained formula is simplified if possible. For instance in         * 
+ * X /\ Y <=> B the true_formula for X is Y /\ B, However, B ==> Y, then   * 
+ * the formula becomes: B (since if B is false, Y /\ B is false and if B is* 
+ * true, Y is also true (since B==>Y) then Y /\ B is also true).           * 
+ *-------------------------------------------------------------------------*/
 
 
-/*-------------------------------------------------------------------------*/
-/* NOT                                                                     */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * NOT                                                                     * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 not_x_eq_b(fdv X,fdv B)
 
@@ -87,10 +110,10 @@ not_x_eq_b(fdv X,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* EQUIVALENT                                                              */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * EQUIVALENT                                                              * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_equiv_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -103,10 +126,10 @@ x_equiv_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* NOT EQUIVALENT (ie. XOR)                                                */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * NOT EQUIVALENT (ie. XOR)                                                * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_nequiv_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -119,10 +142,10 @@ x_nequiv_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* IMPLY                                                                   */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * IMPLY                                                                   * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_imply_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -145,10 +168,10 @@ x_imply_y_eq_1(fdv X,fdv Y)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* NOT IMLPY                                                               */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * NOT IMLPY                                                               * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_nimply_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -161,10 +184,10 @@ x_nimply_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* AND                                                                     */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * AND                                                                     * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_and_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -187,10 +210,10 @@ x_and_y_eq_0(fdv X,fdv Y)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* NOT AND                                                                 */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * NOT AND                                                                 * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_nand_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -203,10 +226,10 @@ x_nand_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* OR                                                                      */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * OR                                                                      * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_or_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -229,10 +252,10 @@ x_or_y_eq_1(fdv X,fdv Y)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* NOR                                                                     */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * NOR                                                                     * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 x_nor_y_eq_b(fdv X,fdv Y,fdv B)
 
@@ -245,15 +268,15 @@ x_nor_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* TRUTH OF EQUAL (LINEAR)                                                 */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * TRUTH OF EQUAL (LINEAR)                                                 * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 
-	/*------------*/
-	/* Partial AC */
-	/*------------*/
+	/*------------* 
+	 * Partial AC * 
+	 *------------*/
 
 
 truth_x_eq_c(fdv X,int C,fdv B)
@@ -318,9 +341,9 @@ truth_x_plus_c_eq_y(fdv X,int C,fdv Y,fdv B)
 }
 
 
-	/*------------*/
-	/*  Full AC   */
-	/*------------*/
+	/*------------* 
+	 *  Full AC   * 
+	 *------------*/
 
 
 truth_x_eq_c_F(fdv X,int C,fdv B)
@@ -386,15 +409,15 @@ truth_x_plus_c_eq_y_F(fdv X,int C,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* TRUTH OF DIFFERENT (LINEAR)                                             */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * TRUTH OF DIFFERENT (LINEAR)                                             * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 
-	/*------------*/
-	/* Partial AC */
-	/*------------*/
+	/*------------* 
+	 * Partial AC * 
+	 *------------*/
 
 
 truth_x_neq_c(fdv X,int C,fdv B)
@@ -460,9 +483,9 @@ truth_x_plus_c_neq_y(fdv X,int C,fdv Y,fdv B)
 
 
 
-	/*------------*/
-	/*  Full AC   */
-	/*------------*/
+	/*------------* 
+	 *  Full AC   * 
+	 *------------*/
 
 
 truth_x_neq_c_F(fdv X,int C,fdv B)
@@ -529,15 +552,15 @@ truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* TRUTH OF LESS THAN (LINEAR)                                             */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * TRUTH OF LESS THAN (LINEAR)                                             * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 
-	/*------------*/
-	/* Partial AC */
-	/*------------*/
+	/*------------* 
+	 * Partial AC * 
+	 *------------*/
 
 
 truth_x_lt_y(fdv X,fdv Y,fdv B)
@@ -562,15 +585,15 @@ truth_x_lt_y(fdv X,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* TRUTH OF LESS THAN OR EQUAL TO (LINEAR)                                 */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * TRUTH OF LESS THAN OR EQUAL TO (LINEAR)                                 * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 
-	/*------------*/
-	/* Partial AC */
-	/*------------*/
+	/*------------* 
+	 * Partial AC * 
+	 *------------*/
 
 
 truth_x_lte_c(fdv X,int C,fdv B)
@@ -637,15 +660,15 @@ truth_x_plus_c_lte_y(fdv X,int C,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------*/
-/* TRUTH OF GREATER THAN OR EQUAL TO (LINEAR)                              */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * TRUTH OF GREATER THAN OR EQUAL TO (LINEAR)                              * 
+ *                                                                         * 
+ *-------------------------------------------------------------------------*/
 
 
-	/*------------*/
-	/* Partial AC */
-	/*------------*/
+	/*------------* 
+	 * Partial AC * 
+	 *------------*/
 
 
 truth_x_gte_c(fdv X,int C,fdv B)
