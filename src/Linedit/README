@@ -1,0 +1,8 @@
+NB: to run test_linedit, the PATH should contain ../W32GUICons since
+the dll is there, (use ../SETVARS)
+
+VCTestLinedit contains a MSVC project to compile both test_linedit and the dll
+
+LccTestLinedit contains a LCC project to compile test_linedit under wedit
+cd ../W32GUICons for more
+

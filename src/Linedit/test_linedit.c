@@ -67,7 +67,7 @@
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Ctrl_C_Manager(int from_call_back)
+Ctrl_C_Manager(int from_callback)
 {
   int c;
   char prefix[100];
@@ -145,6 +145,7 @@ main(int argc, char *argv[])
   static char line[MAX_SIZE];
   char *p;
   char sep[100];
+  int ret_val;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   setbuf(stdout, NULL);
@@ -186,5 +187,8 @@ main(int argc, char *argv[])
 
   printf("End of testing\n");
 
-  return 12;
+  ret_val = 12;
+  if (le_hook_exit_process)
+    (*le_hook_exit_process)(ret_val);
+  return ret_val;
 }

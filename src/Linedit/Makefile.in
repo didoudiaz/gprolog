@@ -27,7 +27,6 @@ clean:
 distclean: clean
 	rm -f test_linedit@EXE_SUFFIX@ test_noecho@EXE_SUFFIX@
 
-
 # test files
 # under win32: use make W=Y test_linedit.exe (or test_noecho.exe) to
 # link the GUI console

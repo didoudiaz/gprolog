@@ -73,6 +73,8 @@ int (*le_hook_get_line_buffering) ();
 void (*le_hook_flush) ();
 int (*le_hook_confirm_box) ();
 void (*le_hook_message_box) ();
+void (*le_hook_exit_process) ();
+
 
 #ifdef LE_DEFINE_HOOK_MACROS
 
@@ -138,7 +140,7 @@ int LE_Printf(char *format, ...);
 
 
 
-#ifdef LINEDIT_FILE
+#ifdef TERMINAL_FILE
 
 int (*le_initialize)() = LE_Initialize;
 
