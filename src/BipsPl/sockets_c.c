@@ -498,9 +498,18 @@ Create_Socket_Streams(int sock, char *stream_name,
   FILE *f_in, *f_out;
   int file_name;
 
+#ifdef M_ix86_win32
+  int r;
+
+  Os_Test_Error((fd = _open_osfhandle(sock, _IOWRT)) == -1);
+  Os_Test_Error((r = _open_osfhandle(sock, _IOREAD)) == -1);
+  Os_Test_Error((f_in = fdopen(r, "r")) == NULL);
+  Os_Test_Error((f_out = fdopen(fd, "w")) == NULL);
+#else
   Os_Test_Error((fd = dup(sock)) < 0);
   Os_Test_Error((f_in = fdopen(sock, "rt")) == NULL);
   Os_Test_Error((f_out = fdopen(fd, "wt")) == NULL);
+#endif
 
   file_name = Create_Allocate_Atom(stream_name);
 

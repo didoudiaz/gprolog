@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.9 (Oct 15 2001)
+% compiler: GNU Prolog 1.2.9 (Dec 20 2001)
 % file    : read.pl
-% date    : 12 12 2001
-% time    : 13:12:0
+% date    : 1 8 2002
+% time    : 16:14:14
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/read.pl').

@@ -66,10 +66,8 @@
  * Constants                       *
  *---------------------------------*/
 
-#define MAX_FILES                  1024
-
 #define CMD_LINE_MAX_OPT           4096
-#define CMD_LINE_LENGTH            (MAXPATHLEN+CMD_LINE_MAX_OPT+1)
+#define CMD_LINE_LENGTH            (MAXPATHLEN + CMD_LINE_MAX_OPT + 1)
 
 #define TEMP_FILE_PREFIX           GPLC
 
@@ -102,6 +100,8 @@
 #define FILE_C                     6
 #define FILE_LINK                  7
 
+#define LINK_OPTION                8
+
 
 
 
@@ -127,6 +127,7 @@ typedef struct
 {
   char *name;
   char *suffix;
+  char *file_part;
   int type;
   char *work_name1;
   char *work_name2;
@@ -157,8 +158,8 @@ char *devel_dir[] = {
   NULL };
 
 
-FileInf file[MAX_FILES];
-int nb_file = 0;
+FileInf *file_lopt;
+int nb_file_lopt = 0;
 
 int stop_after = FILE_LINK;
 int verbose = 0;
@@ -203,8 +204,7 @@ char *cc_fd2c_flags = CFLAGS " ";
 
 char *suffixes[] =
   { PL_SUFFIX, WAM_SUFFIX, MA_SUFFIX, ASM_SUFFIX, OBJ_SUFFIX,
-  FD_SUFFIX, C_SUFFIX, NULL
-};
+  FD_SUFFIX, C_SUFFIX, NULL };
 
 
 
@@ -218,6 +218,8 @@ char *Search_Path(char *file);
 void Determine_Pathnames(void);
 
 void Compile_Files(void);
+
+void Create_Output_File_Name(FileInf *f, char *buff);
 
 void New_Work_File(FileInf *f, int stage, int stop_after);
 
@@ -243,17 +245,18 @@ void Display_Help(void);
 
 
 
-#define Record_Link_Warn_Option(i) sprintf(warn+strlen(warn), "%s ", argv[i])
+#define Record_Link_Warn_Option(i) sprintf(warn + strlen(warn), "%s ", argv[i])
 
 
 
-#define Before_Cmd(cmd)                                                     \
-     if (verbose)                                                           \
-         fprintf(stderr,"%s\n",cmd)
+#define Before_Cmd(cmd)				\
+  if (verbose)					\
+    fprintf(stderr, "%s\n", cmd)
 
-#define After_Cmd(error)                                                    \
-     if (error)                                                             \
-         Fatal_Error("compilation failed")
+
+#define After_Cmd(error)			\
+  if (error)					\
+    Fatal_Error("compilation failed")
 
 
 
@@ -261,9 +264,9 @@ char *last_opt;
 
 #define Check_Arg(i, str)   (last_opt = str, strncmp(argv[i], str, strlen(argv[i])) == 0)
 
-#define Add_Last_Option(opt)       sprintf(opt+strlen(opt), "%s ", last_opt)
+#define Add_Last_Option(opt)       sprintf(opt + strlen(opt), "%s ", last_opt)
 
-#define Add_Option(i, opt)         sprintf(opt+strlen(opt), "%s ", argv[i])
+#define Add_Option(i, opt)         sprintf(opt + strlen(opt), "%s ", argv[i])
 
 
 
@@ -281,6 +284,10 @@ main(int argc, char *argv[])
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
 #endif
+
+  file_lopt = (FileInf *) calloc(argc + 1, sizeof(FileInf));
+  if (file_lopt == NULL)
+    Fatal_Error("memory allocation fault");
 
   Parse_Arguments(argc, argv);
   if (verbose)
@@ -348,7 +355,7 @@ Compile_Files(void)
 
   if (needs_stack_file)
     {
-      f = file + nb_file;
+      f = file_lopt + nb_file_lopt;
 
       f->work_name2 = NULL;
       New_Work_File(f, FILE_WAM, 10000);	/* to create work_name2 */
@@ -381,8 +388,11 @@ Compile_Files(void)
     fprintf(stderr, "\n*** Compiling\n");
 
 
-  for (f = file; f->name; f++)
+  for (f = file_lopt; f->name; f++)
     {
+      if (f->type == LINK_OPTION)
+	continue;
+
       if (verbose &&
 	  (f->type == FILE_FD || f->type == FILE_C || f->type <= stage_end))
 	fprintf(stderr, "\n--- file: %s\n", f->name);
@@ -436,7 +446,7 @@ Compile_Files(void)
 
 	    case FILE_MA:
 	      Compile_Cmd(&cmd_ma2asm, f);
-	      if (needs_stack_file && f == file + nb_file &&
+	      if (needs_stack_file && f == file_lopt + nb_file_lopt &&
 		  !no_del_temp_files)
 		{
 		  if (verbose)
@@ -465,9 +475,76 @@ Compile_Files(void)
   Link_Cmd();
 
   /* removing temp files after link */
-  for (f = file; f->name; f++)
-    if (f->work_name1 != f->name)
+  for (f = file_lopt; f->name; f++)
+    if (f->work_name1 != f->name) /* also ok if f->type == LINK_OPTION */
       Delete_Temp_File(f->work_name1);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CREATE_OUTPUT_FILE_NAME                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Create_Output_File_Name(FileInf *f, char *buff)
+{
+  char *p;
+  int l;
+  static int counter = 0;
+
+  for(p = file_name_out; *p; p++)
+    {
+      if (*p != '%')
+	*buff++ = *p;
+      else
+	switch(* ++p)
+	  {
+	  case 'd':		/* %d = the directory part */
+	    strcpy(buff, f->name);
+	    l = f->file_part - f->name;
+	    buff += l;
+	    break;
+
+	  case 'f':		/* %f = the whole file name */
+	    strcpy(buff, f->name);
+	    buff += strlen(buff);
+	    break;
+
+	  case 'F':		/* %F = the whole file name (without dir) */
+	    strcpy(buff, f->file_part);
+	    buff += strlen(buff);
+	    break;
+
+	  case 'p':		/* %p = the prefix file name */
+	    strcpy(buff, f->name);
+	    l = f->suffix - f->name;
+	    buff += l;
+	    break;
+
+	  case 'P':		/* %P = the prefix file name (without dir) */
+	    strcpy(buff, f->file_part);
+	    l = f->suffix - f->file_part;
+	    buff += l;
+	    break;
+
+	  case 's':		/* %s = the suffix */
+	    strcpy(buff, f->suffix);
+	    buff += strlen(buff);
+	    break;
+
+	  case 'c':		/* %c = a counter */
+	    sprintf(buff, "%d", ++counter);
+	    buff += strlen(buff);
+	    break;
+
+	  default:
+	    *buff++ = '%';		/* no special % sequence */
+	    *buff++ = *p;
+	  }
+    }
+  *buff = '\0';
 }
 
 
@@ -491,12 +568,12 @@ New_Work_File(FileInf *f, int stage, int stop_after)
     }
   else				/* final stage */
     if (file_name_out)		/* specified output filename */
-    strcpy(buff, file_name_out);
-  else
-    {
-      strcpy(buff, f->name);
-      strcpy(buff + (f->suffix - f->name), suffixes[stage + 1]);
-    }
+      Create_Output_File_Name(f, buff);
+    else
+      {
+	strcpy(buff, f->name);
+	strcpy(buff + (f->suffix - f->name), suffixes[stage + 1]);
+      }
 
   Free_Work_File2(f);
   f->work_name2 = strdup(buff);
@@ -551,16 +628,14 @@ Link_Cmd(void)
 {
   static char file_out[MAXPATHLEN];
   static char buff[CMD_LINE_LENGTH];
-  FileInf *f;
+  FileInf *f = file_lopt;	/* use first file name by default */
 
 
   if (file_name_out == NULL)
-    {
-      f = file;
-      strcpy(file_out, f->name);
-      file_out[f->suffix - f->name] = '\0';
-      file_name_out = file_out;
-    }
+    file_name_out = "%p";	/* will reuse first file name */
+
+  Create_Output_File_Name(f, file_out);
+  file_name_out = file_out;
 
   sprintf(buff, "%s%s%s%s ", cmd_link.exe_name, cmd_link.opt,
 	  cmd_link.out_opt, file_name_out);
@@ -568,7 +643,8 @@ Link_Cmd(void)
   Find_File(OBJ_FILE_OBJ_BEGIN, OBJ_SUFFIX, buff + strlen(buff));
   strcat(buff, " ");
 
-  for (f = file; f->name; f++)
+				/* f->work_name1 is OK for LINK_OPTION */
+  for (f = file_lopt; f->name; f++)
     sprintf(buff + strlen(buff), "%s ", f->work_name1);
 
   if (!min_pl_bips)
@@ -632,9 +708,6 @@ Link_Cmd(void)
       if (gui_console)
 	{    /* modify Linedit/Makefile.in to follow this list of ld objects */
 	  Find_File("w32gc_interf.obj", "", buff + strlen(buff));
-#if 0
-	  strcat(buff, " /link /subsystem:windows ");
-#endif
 	}
 #ifdef M_ix86_win32
       else
@@ -825,8 +898,9 @@ Fatal_Error(char *format, ...)
   if (verbose)
     fprintf(stderr, "deleting temporary files before exit\n");
 
-  for (f = file; f->name; f++)
+  for (f = file_lopt; f->name; f++)
     {
+				/* also ok if f->type == LINK_OPTION */
       if (f->work_name1 && f->work_name1 != f->name &&
 	  (file_name_out == NULL
 	   || strcasecmp(f->work_name1, file_name_out) != 0))
@@ -853,7 +927,8 @@ Parse_Arguments(int argc, char *argv[])
 {
   int i, file_name_out_i;
   char **p, *q;
-  FileInf *f = file;
+  FileInf *f = file_lopt;
+  int nb_file = 0;
 
 
   for (i = 1; i < argc; i++)
@@ -1015,7 +1090,7 @@ Parse_Arguments(int argc, char *argv[])
 		Fatal_Error("OPTION missing after %s option", last_opt);
 
 	      Add_Option(i, cmd_cc.opt);
-/* if C options specified do not take into account fd2c default C options */
+	      /* if C options specified do not take into account fd2c default C options */
 	      cc_fd2c_flags = "";
 	      continue;
 	    }
@@ -1166,40 +1241,52 @@ Parse_Arguments(int argc, char *argv[])
 	      if (++i >= argc)
 		Fatal_Error("OPTION missing after %s option", last_opt);
 
-	      Add_Option(i, cmd_link.opt);
 	      Record_Link_Warn_Option(i);
+#if 0
+	      Add_Option(i, cmd_link.opt);
+#else
+	      f->name = f->work_name1 = argv[i];
+	      f->type = LINK_OPTION;
+	      nb_file_lopt++;
+	      f++;
+#endif
 	      continue;
 	    }
 
 	  Fatal_Error("unknown option %s - try %s --help", argv[i], GPLC);
 	}
 
-      if (nb_file == MAX_FILES - 1)	/* reserve 1 for stack sizes file */
-	Fatal_Error("too many files (max=%d)", MAX_FILES);
-
-      nb_file++;
 
       f->name = argv[i];
 
       if ((f->suffix = strrchr(argv[i], '.')) == NULL)
 	f->suffix = argv[i] + strlen(argv[i]);
 
+      for(q = f->suffix; q >= f->name; q--)
+	if (*q == '/'
+#ifdef M_ix86_win32
+	    || *q == '\\'
+#endif
+	    )
+	  break;
+      f->file_part = q + 1;
+
       if (strcasecmp(PL_SUFFIX_ALTERNATE, f->suffix) == 0)
 	f->type = FILE_PL;
       else
 	if ((q = strstr(C_SUFFIX_ALTERNATE, f->suffix)) &&
 	    q[-1] == '|' && q[strlen(f->suffix)] == '|')
-	f->type = FILE_C;
-      else
-	{
-	  f->type = FILE_LINK;
-	  for (p = suffixes; *p; p++)
-	    if (strcasecmp(*p, f->suffix) == 0)
-	      {
-		f->type = p - suffixes;
-		break;
-	      }
-	}
+	  f->type = FILE_C;
+	else
+	  {
+	    f->type = FILE_LINK;
+	    for (p = suffixes; *p; p++)
+	      if (strcasecmp(*p, f->suffix) == 0)
+		{
+		  f->type = p - suffixes;
+		  break;
+		}
+	  }
 
       f->work_name1 = f->name;
       f->work_name2 = NULL;
@@ -1210,11 +1297,13 @@ Parse_Arguments(int argc, char *argv[])
 	  exit(1);
 	}
 
+      nb_file_lopt++;
+      nb_file++;
       f++;
     }
 
 
-  if (f == file)
+  if (f == file_lopt)
     {
       if (verbose)
 	exit(0);		/* --verbose with no files same as --version */
@@ -1224,8 +1313,10 @@ Parse_Arguments(int argc, char *argv[])
 
   f->name = NULL;
 
-  if (nb_file > 1 && stop_after < FILE_LINK && file_name_out)
+  if (nb_file > 1 && stop_after < FILE_LINK && file_name_out &&
+      strchr(file_name_out, '%') == NULL)
     {
+      fprintf(stderr, "named output file ignored with multiples output (or use meta-characters, e.g. %%p)\n");
       Record_Link_Warn_Option(file_name_out_i);
       Record_Link_Warn_Option(file_name_out_i + 1);
       file_name_out = NULL;
@@ -1246,7 +1337,7 @@ Display_Help(void)
   fprintf(stderr, "Usage: %s [OPTION]... FILE...\n", GPLC);
   L(" ");
   L("General options:");
-  L("  -o FILE, --output FILE      set output file name");
+  L("  -o FILE, --output FILE      set output file name (see below)");
   L("  -W, --wam-for-native        stop after producing WAM file(s)");
   L("  -w, --wam-for-byte-code     stop after producing WAM for byte-code file(s) (force --no-call-c)");
   L("  -M, --mini-assembly         stop after producing mini-assembly file(s)");
@@ -1309,6 +1400,13 @@ Display_Help(void)
   L("  --no-fd-lib                 do not look for the FD library (maintenance only)");
   L("  -s, --strip                 strip the executable");
   L("  -L OPTION                   pass OPTION to the linker");
+  L("");
+  L("The file name specified after --output can include meta-characters:");
+  L("  %f for the whole input file name, %F same as %f without directory");
+  L("  %p for the whole prefix name, %P same as %p without directory");
+  L("  %s for the suffix (or empty if not specified)");
+  L("  %d for the directory part (or empty if not specified)");
+  L("  %c for a auto-increment counter");
   L("");
   L("Report bugs to bug-prolog@gnu.org.");
 }
