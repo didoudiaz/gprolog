@@ -294,7 +294,7 @@ Free_Var(WamWord *adr)
  * (done in Prolog) + Group_Solutions_3 (written in C). However, keysort/2 *
  * tests a term equality (==) while a structural equality is needed.       *
  *                                                                         *
- * Structual equality: T1 and T2 are structurally equal if their tree      *
+ * Structural equality: T1 and T2 are structurally equal if their tree     *
  * representation is equivalent (we say that T1 and T2 are variant). Namely*
  * there is a a bijection f from the variable of T1 to the variables of T2 *
  * such that T2 == f(T1).                                                  *
@@ -317,7 +317,7 @@ Free_Var(WamWord *adr)
  *       - otherwise push V (*key_var_ptr++=V)                             *
  *                                                                         *
  * E.g. the keys [A,B,A], [f(C),D,E,F], [G,H,G] and [f(C),D,E,F] become:   *
- * [X1,X2,X1], [f(X1),X2,X3,X4], [f(X1),X2,X3] and [f(X1),X2,X3,X4]        *
+ * [X1,X2,X1], [f(X1),X2,X3,X4], [X1,X2,X1] and [f(X1),X2,X3,X4]           *
  * The fact that a same variable (e.g. X1) appears in 2 keys that are not  *
  * variants is not a problem since they will not be unified at the same    *
  * moment. Indeed, they corresponds to 2 different group of solutions which*
@@ -433,7 +433,7 @@ Handle_Key_Variables(WamWord start_word)
 
   DEREF(start_word, word, tag_mask);
   adr = UnTag_STC(word);
-  Treat_Vars_Of_Term(Arg(adr, 0), FALSE, Link_Key_Var);
+  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Link_Key_Var);
 }
 
 

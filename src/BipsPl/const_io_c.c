@@ -88,15 +88,17 @@ Write_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Write_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -111,15 +113,17 @@ Write_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Write_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -134,15 +138,17 @@ Write_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Write_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 
@@ -157,15 +163,17 @@ Writeq_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Writeq_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -180,15 +188,17 @@ Writeq_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Writeq_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -203,15 +213,17 @@ Writeq_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Writeq_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 
@@ -226,15 +238,17 @@ Write_Canonical_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Write_Canonical_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -249,15 +263,17 @@ Write_Canonical_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Write_Canonical_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -272,15 +288,17 @@ Write_Canonical_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Write_Canonical_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 
@@ -295,15 +313,17 @@ Display_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Display_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -318,15 +338,17 @@ Display_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Display_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -341,15 +363,17 @@ Display_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Display_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 
@@ -364,15 +388,17 @@ Print_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Print_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -387,15 +413,17 @@ Print_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Print_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -410,15 +438,17 @@ Print_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Print_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 
@@ -433,15 +463,17 @@ Write_Term_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Write_Term_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -456,15 +488,17 @@ Write_Term_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Write_Term_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -479,15 +513,17 @@ Write_Term_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Write_Term_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 
@@ -502,15 +538,17 @@ Format_To_Atom_3(WamWord atom_word, WamWord format_word, WamWord args_word)
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
   Format_3(Make_Stream_Tagged_Word(stm), format_word, args_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_String_Check(str, atom_word);
   Delete_Str_Stream(stm);
 
-  return Un_String_Check(str, atom_word);
+  return ret;
 }
 
 
@@ -526,15 +564,17 @@ Format_To_Chars_3(WamWord chars_word, WamWord format_word,
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
   Format_3(Make_Stream_Tagged_Word(stm), format_word, args_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Chars_Check(str, chars_word);
   Delete_Str_Stream(stm);
 
-  return Un_Chars_Check(str, chars_word);
+  return ret;
 }
 
 
@@ -550,15 +590,17 @@ Format_To_Codes_3(WamWord codes_word, WamWord format_word,
 {
   int stm;
   char *str;
+  Bool ret;
 
   stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
   Format_3(Make_Stream_Tagged_Word(stm), format_word, args_word);
 
   str = Term_Write_Str_Stream(stm);
+  ret = Un_Codes_Check(str, codes_word);
   Delete_Str_Stream(stm);
 
-  return Un_Codes_Check(str, codes_word);
+  return ret;
 }
 
 

@@ -34,7 +34,10 @@
 #include <sys/socket.h>
 #else
 #include <io.h>
+#include <fcntl.h>
 #include <winsock2.h>
+#define SO_OPENTYPE     0x7008
+#define SO_SYNCHRONOUS_NONALERT 0x20
 #endif
 
        /* old versions of CYGWIN do not support AF_UNIX - modify next line */
@@ -101,6 +104,7 @@ Socket_Initializer(void)
   WORD versReqstd = MAKEWORD( 2, 2);		// Current Winsock 2 DLL's
   WSADATA wsaData;
   int err;
+  int optionValue = SO_SYNCHRONOUS_NONALERT;
 #endif
 
 #ifdef SUPPORT_AF_UNIX
@@ -117,6 +121,10 @@ Socket_Initializer(void)
       if (err == 0)
 	WSACleanup();
     }
+  /* Allow Windows sockets to act as filehandles */
+  Os_Test_Error(setsockopt(INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE, 
+			   (char *)&optionValue,
+			   sizeof(optionValue)) == SOCKET_ERROR);
 #endif
 }
 
@@ -133,30 +141,37 @@ Socket_2(WamWord domain_word, WamWord socket_word)
   int domain;
 #ifdef M_ix86_win32
   SOCKET sock;
+  int proto = IPPROTO_TCP;
+
 #else
   int sock;
+  int proto = 0;
 #endif
 
   domain = Rd_Atom_Check(domain_word);
   if (
 #ifdef SUPPORT_AF_UNIX
-       domain != atom_AF_UNIX &&
+      domain != atom_AF_UNIX &&
 #endif
-       domain != atom_AF_INET)
+      domain != atom_AF_INET)
     Pl_Err_Domain(domain_socket_domain, domain_word);
 
   Check_For_Un_Variable(socket_word);
 
-
 #ifdef SUPPORT_AF_UNIX
   if (domain == atom_AF_UNIX)
-    sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    sock = socket(AF_UNIX, SOCK_STREAM, proto);
   else
 #endif
-    sock = socket(AF_INET, SOCK_STREAM, 0);
+    sock = socket(AF_INET, SOCK_STREAM, proto);
 
 #ifdef M_ix86_win32
   Os_Test_Error(sock == INVALID_SOCKET);
+  /*
+   * Windows (by default) causes sockets to be inherited
+   * by child processes.  Turn this off.
+   */
+  SetHandleInformation((HANDLE) sock, HANDLE_FLAG_INHERIT, 0);
 #else
   Os_Test_Error(sock == -1);
 #endif
@@ -361,6 +376,10 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
 		    (sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
       sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)",
 	      path_name, sock);
+#ifdef M_ix86_win32
+	  /* Check for in-progress connection */
+	  Os_Test_Error( send(sock, "", 0, 0) );
+#endif
       goto create_streams;
     }
 #endif
@@ -501,10 +520,10 @@ Create_Socket_Streams(int sock, char *stream_name,
 #ifdef M_ix86_win32
   int r;
 
-  Os_Test_Error((fd = _open_osfhandle(sock, _IOWRT)) == -1);
-  Os_Test_Error((r = _open_osfhandle(sock, _IOREAD)) == -1);
-  Os_Test_Error((f_in = fdopen(r, "r")) == NULL);
+  Os_Test_Error((fd = _open_osfhandle(sock, _O_BINARY | _O_RDWR | _O_BINARY)) == -1);
+  Os_Test_Error((r = dup(fd)) == -1);
   Os_Test_Error((f_out = fdopen(fd, "w")) == NULL);
+  Os_Test_Error((f_in = fdopen(r, "r")) == NULL);
 #else
   Os_Test_Error((fd = dup(sock)) < 0);
   Os_Test_Error((f_in = fdopen(sock, "rt")) == NULL);

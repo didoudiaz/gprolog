@@ -1,3 +1,11 @@
+Thu Sep 12 18:45:10 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* fix bug in output to constant terms (e.g. write_to_atom/2)
+	* include another additional patch for sockets under win32 - due to:
+	  Brent Fulgham <brent.fulgham@xpsystems.com>
+	* fix bug in bagof/3 with FD variables
+	* fix bug with randomize/0
+
 Fri Jun 21 18:32:06 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* added min/max to Prolog arithmetics

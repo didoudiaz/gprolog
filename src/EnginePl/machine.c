@@ -786,8 +786,14 @@ M_Real_Time(void)
 void
 M_Randomize(void)
 {
-  M_Set_Seed(M_Real_Time());
-  M_Set_Seed(M_Random_Integer(256));
+  struct timeval tv;
+  int seed;
+
+  gettimeofday(&tv, NULL);
+  seed = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) ^ getpid();
+  seed = seed & 0xFFFFFF;
+
+  M_Set_Seed(seed);
 }
 
 

@@ -142,4 +142,4 @@ WamWord Pl_Get_Exception(void);
 
 #define atom_nil               ATOM_NIL
 
-#define Stream_Pointer(s)      (stm_tbl+(s))
+#define Stream_Pointer(s)      (stm_tbl + (s))
