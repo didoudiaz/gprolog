@@ -8,7 +8,7 @@ VERSION
 
 doc/README
 doc/Makefile
-doc/check_fp
+doc/do_latex
 doc/[a-z][a-z-]?*.tex
 doc/[a-z][a-z]?*.sty
 doc/[a-z][a-z]?*.hva
