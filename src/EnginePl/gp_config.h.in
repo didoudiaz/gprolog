@@ -85,6 +85,8 @@
 /* Define if the cpu is a powerpc */
 #undef M_powerpc
 
+/* Define if the cpu is a x86-64 */
+#undef M_x86_64
 
 
 /* Define if the OS is an SGI IRIX */
@@ -153,6 +155,9 @@
 
 /* Define if the system is a powerpc/bsd */
 #undef M_powerpc_darwin
+
+/* Define if the system is a x86-64/linux */
+#undef M_x86_64_linux
 
 
 

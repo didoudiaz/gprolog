@@ -355,7 +355,7 @@ M_Allocate_Stacks(void)
 #endif
 
 #if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-    defined(M_ix86_sco)
+    defined(M_ix86_sco) || defined(M_x86_64_linux)
   {
     struct sigaction act;
 
@@ -494,6 +494,10 @@ SIGSEGV_Handler(void)
 
 void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
+#elif defined(M_x86_64_linux)
+
+void
+SIGSEGV_Handler(int sig, siginfo_t *sip, void *scp)
 #else
 
 static void
@@ -523,6 +527,10 @@ SIGSEGV_Handler(int sig)
 #elif defined(M_ix86_linux)
 
   WamWord *addr = (WamWord *) scp.cr2;
+
+#elif defined(M_x86_64_linux)
+
+  WamWord *addr = (WamWord *) sip->si_addr;
 
 #elif defined(M_ix86_sco)
 

@@ -690,6 +690,8 @@ void SIGSEGV_Handler(void);
 #    define M_USED_REGS            {"15", "20", 0}
 #elif defined(M_powerpc_darwin)
 #    define M_USED_REGS            {"15", "20", 0}
+#elif defined(M_x86_64_linux)
+#    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 #else
 #    define M_USED_REGS            {0}
 #endif
@@ -708,6 +710,10 @@ void SIGSEGV_Handler(void);
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
 #   define M_USE_MMAP
 #   define M_MMAP_HIGH_ADR         0x3f800000000ULL
+#   define M_Check_Stacks()
+#elif defined(M_x86_64_linux)
+#   define M_USE_MMAP
+#   define M_MMAP_HIGH_ADR         0x4000000000ULL
 #   define M_Check_Stacks()
 #else
 #   define M_USE_MALLOC

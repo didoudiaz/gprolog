@@ -73,6 +73,10 @@
 
 #include "powerpc_any.c"
 
+#elif defined(M_x86_64)
+
+#include "x86_64_any.c"
+
 #endif
 
 #endif

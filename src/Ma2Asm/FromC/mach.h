@@ -12,7 +12,8 @@
  *---------------------------------*/
 
 #if defined(M_sony_news) || defined(M_ultrix_dec) || defined(M_alpha_osf) ||\
-    defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd)
+    defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd) ||\
+    defined(M_x86_64_linux)
 
 #   define M_Asm_Symbol1(name)     #name
 #   define M_Asm_Symbol(name)      M_Asm_Symbol1(name)
@@ -66,6 +67,10 @@
 
 #    define M_Direct_Goto(lab)     {_asm {jmp M_Asm_Symbol(lab)}; return;}
 
+#elif defined(M_x86_64_linux)
+
+#    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
+
 #elif defined(M_powerpc_linux)
 
 #    define M_Direct_Goto(lab)     {asm("b " M_Asm_Symbol(lab)); return;}
@@ -92,6 +97,10 @@ register WamWord *reg_bank asm("ebx");
 #elif defined(M_powerpc_linux)
 
 register WamWord *reg_bank asm("r31");
+
+#elif defined(M_x86_64_linux)
+
+register WamWord *reg_bank asm("r12");
 
 #else
 

@@ -93,6 +93,11 @@ Call_Compiled(CodePtr codep)
   register WamWord *rb asm("%l0") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
+#elif defined(M_x86_64_linux)
+
+  register WamWord *rb asm("%r12") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
 #endif
 
 #endif
