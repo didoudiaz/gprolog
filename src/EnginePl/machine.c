@@ -226,7 +226,7 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
     Fatal_Error(ERR_CANNOT_OPEN_DEV0, M_Sys_Err_String(errno));
 #endif /* !MAP_ANON */
 
-  addr = (WamWord *) mmap((caddr_t) addr, length, PROT_READ | PROT_WRITE,
+  addr = (WamWord *) mmap((void *) addr, length, PROT_READ | PROT_WRITE,
 			  MAP_PRIVATE
 #ifdef MMAP_NEEDS_FIXED
 			  | MAP_FIXED
@@ -267,7 +267,7 @@ Virtual_Mem_Free(WamWord *addr, int length)
 
 #elif defined(HAVE_MMAP)
 
-  if (munmap(addr, length) == -1)
+  if (munmap((void *) addr, length) == -1)
     Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
 
 #else 
@@ -296,9 +296,9 @@ Virtual_Mem_Protect(WamWord *addr, int length)
 #elif defined(HAVE_MMAP)
 
 #ifdef HAVE_MPROTECT
-  if (mprotect(addr, length, PROT_NONE) == -1)
+  if (mprotect((void *) addr, length, PROT_NONE) == -1)
 #endif
-    if (munmap(addr, length) == -1)
+    if (munmap((void *) addr, length) == -1)
       Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
 
 #else

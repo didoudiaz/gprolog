@@ -56,6 +56,11 @@ Call_Compiled(CodePtr codep)
 {
   WamWord reserved_stack_space[1024];
 
+#if defined(M_sparc) && !defined(M_sparc_bsd)
+  register long *rfl asm("%l2") = base_fl;
+  register double *rfd asm("%l3") = base_fd;
+#endif
+
 #if !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK)
 
 #if defined(M_ix86_linux) || \
@@ -101,11 +106,6 @@ Call_Compiled(CodePtr codep)
 
 #endif
 
-#endif
-
-#if defined(M_sparc) && !defined(M_sparc_bsd)
-  register long *rfl asm("%l2") = base_fl;
-  register double *rfd asm("%l3") = base_fd;
 #endif
 
   ensure_reserved = reserved_stack_space;

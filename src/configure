@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROLOG_NAME1 PROLOG_NAME PROLOG_VERSION PROLOG_DATE PROLOG_COPYRIGHT TOP_LEVEL GPLC HEXGPLC ENV_VARIABLE TOP_LEVEL_FLAGS CFLAGS_PREFIX_REG CFLAGS_MACHINE CFLAGS_UNSIGNED_CHAR LDLIBS LDGUILIBS ASM_SUFFIX OBJ_SUFFIX EXE_SUFFIX CC_OBJ_NAME_OPT CC_EXE_NAME_OPT AR_RC AR_SEP AS STRIP RC RCFLAGS RC_OUT_NAME_OPT LD LD_OUT_NAME_OPT LD_DLL_NAME_OPT ROOT_DIR ROOT_DIR1 PKG_NAME INSTALL_DIR LINKS_DIR DOC_DIR HTML_DIR EXAMPLES_DIR TXT_FILES BIN_FILES OBJ_FILES LIB_FILES INC_FILES DOC_FILES HTML_FILES EXPL_FILES EXC_FILES EXFD_FILES MAKE_LE_DIRS MAKE_W32GC_DIRS MAKE_FD_DIRS MAKE_LE_INTERF_OBJS MAKE_SOCKETS_OBJS DLL_W32GUICONS LIB_LINEDIT LIB_ENGINE_PL LIB_BIPS_PL LIB_ENGINE_FD LIB_BIPS_FD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT NASM RANLIB ac_ct_RANLIB SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROLOG_NAME1 PROLOG_NAME PROLOG_VERSION PROLOG_DATE PROLOG_COPYRIGHT TOP_LEVEL GPLC HEXGPLC ENV_VARIABLE TOP_LEVEL_FLAGS CFLAGS_PREFIX_REG CFLAGS_MACHINE CFLAGS_UNSIGNED_CHAR LDLIBS LDGUILIBS ASM_SUFFIX OBJ_SUFFIX EXE_SUFFIX CC_OBJ_NAME_OPT CC_EXE_NAME_OPT AR_RC AR_SEP AS STRIP RC RCFLAGS RC_OUT_NAME_OPT LD LD_OUT_NAME_OPT LD_DLL_NAME_OPT ROOT_DIR ROOT_DIR1 PKG_NAME INSTALL_DIR LINKS_DIR DOC_DIR HTML_DIR EXAMPLES_DIR WIN_TMP_DIR WIN_CONF_OPT TXT_FILES BIN_FILES OBJ_FILES LIB_FILES INC_FILES DOC_FILES HTML_FILES EXPL_FILES EXC_FILES EXFD_FILES MAKE_LE_DIRS MAKE_W32GC_DIRS MAKE_FD_DIRS MAKE_LE_INTERF_OBJS MAKE_SOCKETS_OBJS DLL_W32GUICONS LIB_LINEDIT LIB_ENGINE_PL LIB_BIPS_PL LIB_ENGINE_FD LIB_BIPS_FD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT NASM RANLIB ac_ct_RANLIB SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1296,11 +1296,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 # AC_CONFIG_AUX_DIR(ConfUtils) to do...
 
-          ac_config_headers="$ac_config_headers EnginePl/gp_config.h"
-
-                                                                                                                                  ac_config_files="$ac_config_files Makefile TopComp/Makefile Pl2Wam/Makefile Wam2Ma/Makefile Ma2Asm/Makefile Fd2C/Makefile Linedit/Makefile W32GUICons/Makefile EnginePl/Makefile BipsPl/Makefile EngineFD/Makefile BipsFD/Makefile $OTHER_MAKEFILES"
-
-
 
 
 # ***************************
@@ -1334,6 +1329,9 @@ LIB_BIPS_FD=libbips_fd
 # ******************
 # * variable names *
 # ******************
+
+
+
 
 
 
@@ -1574,6 +1572,7 @@ fi
 if test "$WITH_MSVC" != no; then
     echo "using MSVC++ as C compiler"
     CC=cl
+    WIN_CONF_OPT=--with-msvc
 fi
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
@@ -2827,6 +2826,14 @@ host_vendor=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
 host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
+
+# determine windows path associated to posix path /tmp
+
+case "$host_os" in
+    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
+esac
+
 if test "$WITH_MSVC" != no; then
 
     cat >>confdefs.h <<\_ACEOF
@@ -2844,6 +2851,7 @@ _ACEOF
     host_vendor=Microsoft
     host_os=win32
     WIN32=yes
+
 else
 
     WIN32=no
@@ -2988,6 +2996,8 @@ echo "$as_me: error: unsupported architecture" >&2;}
     esac
 
 fi
+
+
 
 
 ac_ext=c
@@ -5213,8 +5223,8 @@ fi
 if test "$USE_GUI_CONSOLE" = yes; then
     TOP_LEVEL_FLAGS=--gui-console
     MAKE_W32GC_DIRS='$(W32GC_DIRS)'
-    L="$L $DLL_W32GUICONS"
     O="$O w32gc_interf"
+    BIN_FILES="$DLL_W32GUICONS"
 else
     TOP_LEVEL_FLAGS=
     MAKE_W32GC_DIRS=
@@ -5261,7 +5271,7 @@ else
     mv /tmp/version_no.tex ../doc/version_no.tex
 fi
 
-echo "$PROLOG_COPYRIGHT" >/tmp/copyrigth.tex
+echo "$PROLOG_COPYRIGHT" >/tmp/copyright.tex
 if diff /tmp/copyright.tex ../doc/copyright.tex >/dev/null 2>&1; then
     rm /tmp/copyright.tex
 else
@@ -5275,12 +5285,16 @@ fi
 # ********************
 
 OTHER_MAKEFILES=
-for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile
+for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile Win32/Makefile Win32/gp-setup.iss
 do
     if test -f $i.in; then
         OTHER_MAKEFILES="$OTHER_MAKEFILES $i"
     fi
 done
+
+          ac_config_headers="$ac_config_headers EnginePl/gp_config.h"
+
+                                                                                                                                  ac_config_files="$ac_config_files Makefile TopComp/Makefile Pl2Wam/Makefile Wam2Ma/Makefile Ma2Asm/Makefile Fd2C/Makefile Linedit/Makefile W32GUICons/Makefile EnginePl/Makefile BipsPl/Makefile EngineFD/Makefile BipsFD/Makefile $OTHER_MAKEFILES"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5942,6 +5956,8 @@ s,@LINKS_DIR@,$LINKS_DIR,;t t
 s,@DOC_DIR@,$DOC_DIR,;t t
 s,@HTML_DIR@,$HTML_DIR,;t t
 s,@EXAMPLES_DIR@,$EXAMPLES_DIR,;t t
+s,@WIN_TMP_DIR@,$WIN_TMP_DIR,;t t
+s,@WIN_CONF_OPT@,$WIN_CONF_OPT,;t t
 s,@TXT_FILES@,$TXT_FILES,;t t
 s,@BIN_FILES@,$BIN_FILES,;t t
 s,@OBJ_FILES@,$OBJ_FILES,;t t

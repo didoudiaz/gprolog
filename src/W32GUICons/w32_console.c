@@ -917,7 +917,11 @@ Get_CHM_Help_Path(char *path)
 #endif
 
     if (devel_mode)
-        sprintf(path, "%s\\..\\..\\doc\\manual.chm", p);
+    {
+        sprintf(path, "%s\\..\\doc\\manual.chm", p);
+	    if (access(path, F_OK) != 0)
+	        sprintf(path, "%s\\..\\..\\doc\\manual.chm", p);
+    }
     else
         sprintf(path, "%s\\doc\\manual.chm", p);
     return 1;

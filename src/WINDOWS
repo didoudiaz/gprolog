@@ -10,6 +10,10 @@ However, even to compile a source distribution of GNU Prolog with MSVC, you
 need a Unix-like environment (providing standard Unix tools like: make, rm,
 cp, ...). You can either use Cygwin or MinGW/MSYS for this.
 
+NB: The current version DOES NOT accept spaces in pathnames. Do not
+uncompress your source distribution under a pathname containing spaces. Do
+not install it under a pathname containing spaces.
+
 
 1) Installing and configuring Cygwin
 ------------------------------------
@@ -122,10 +126,10 @@ is possible to the MinGW
 4) Compiling GNU Prolog using MSVC++
 ------------------------------------
 
-You need MSVC++ (tested with version 6.0) and the Microsoft SDK (which
-updates C/C++ header files and libs). This SDK can be
-downloaded from www.microsoft.com/msdownload/platformsdk/sdkupdate/ There are
-several SDK, among all of them you can install:
+You need MSVC++ (tested with version 6.0) and the preferably Microsoft SDK
+(which updates C/C++ header files and libs). This SDK can be downloaded from
+www.microsoft.com/msdownload/platformsdk/sdkupdate/ There are several SDK,
+among all of them you can install:
 
 	the core SDK
 	Common Setup Files

@@ -68,7 +68,7 @@ static SwtInf *Locate_Swt_Element(SwtTbl t, int size, long key);
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Create_Functor_Arity_Tagged(char *func_str, int arity)
 {
   int func = Create_Atom(func_str);

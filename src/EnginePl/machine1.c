@@ -144,7 +144,7 @@ Init_Machine1(void)
 
 
 
-#if defined(_WIN32) && !defined(CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
 
 /*-------------------------------------------------------------------------*
  * GET_WINDOWS_OS_NAME                                                     *
@@ -198,6 +198,7 @@ Get_Windows_OS_Name(char *buff)
       if (osvi.dwMajorVersion <= 4)
 	buff += sprintf(buff, "Microsoft Windows NT ");
 
+#ifdef VER_SUITE_BLADE		/* for old Win32 headers */
       // Test for specific product on Windows NT 4.0 SP6 and later.
       if (bOsVersionInfoEx)
 	{
@@ -276,7 +277,7 @@ Get_Windows_OS_Name(char *buff)
 
 	  buff += sprintf(buff, "%ld.%ld ", osvi.dwMajorVersion, osvi.dwMinorVersion);
 	}
-
+#endif
       // Display service pack (if any) and build number.
 
       if (osvi.dwMajorVersion == 4 &&

@@ -126,7 +126,7 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
 	  v_tag == FLT)
 	return 1;
 
-      return (v_tag != INT) ? -1 : u_word - v_word;
+      return (v_tag != INT) ? -1 : UnTag_INT(u_word) - UnTag_INT(v_word);
 
     case ATM:
       if (v_tag == REF ||

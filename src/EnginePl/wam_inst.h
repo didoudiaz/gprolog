@@ -252,135 +252,135 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamWord Create_Functor_Arity_Tagged(char *func_str, int arity) FC;
+WamWord FC Create_Functor_Arity_Tagged(char *func_str, int arity);
 
-SwtTbl Create_Swt_Table(int size) FC;
+SwtTbl FC Create_Swt_Table(int size);
 
-void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep) FC;
+void FC Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep);
 
-void Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
-			    CodePtr codep) FC;
+void FC Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
+			    CodePtr codep);
 
-Bool Get_Atom_Tagged(WamWord w, WamWord start_word) FC;
+Bool FC Get_Atom_Tagged(WamWord w, WamWord start_word);
 
-Bool Get_Atom(int atom, WamWord start_word) FC;
+Bool FC Get_Atom(int atom, WamWord start_word);
 
-Bool Get_Integer_Tagged(WamWord w, WamWord start_word) FC;
+Bool FC Get_Integer_Tagged(WamWord w, WamWord start_word);
 
-Bool Get_Integer(long n, WamWord start_word) FC;
+Bool FC Get_Integer(long n, WamWord start_word);
 
-Bool Get_Float(double n, WamWord start_word) FC;
+Bool FC Get_Float(double n, WamWord start_word);
 
-Bool Get_Nil(WamWord start_word) FC;
+Bool FC Get_Nil(WamWord start_word);
 
-Bool Get_List(WamWord start_word) FC;
+Bool FC Get_List(WamWord start_word);
 
-Bool Get_Structure_Tagged(WamWord w, WamWord start_word) FC;
+Bool FC Get_Structure_Tagged(WamWord w, WamWord start_word);
 
-Bool Get_Structure(int func, int arity, WamWord start_word) FC;
+Bool FC Get_Structure(int func, int arity, WamWord start_word);
 
-WamWord Put_X_Variable(void) FC;
+WamWord FC Put_X_Variable(void);
 
-WamWord Put_Y_Variable(WamWord *y_adr) FC;
+WamWord FC Put_Y_Variable(WamWord *y_adr);
 
-WamWord Put_Unsafe_Value(WamWord start_word) FC;
+WamWord FC Put_Unsafe_Value(WamWord start_word);
 
-WamWord Put_Atom_Tagged(WamWord w) FC;
+WamWord FC Put_Atom_Tagged(WamWord w);
 
-WamWord Put_Atom(int atom) FC;
+WamWord FC Put_Atom(int atom);
 
-WamWord Put_Integer_Tagged(WamWord w) FC;
+WamWord FC Put_Integer_Tagged(WamWord w);
 
-WamWord Put_Integer(long n) FC;
+WamWord FC Put_Integer(long n);
 
-WamWord Put_Float(double n) FC;
+WamWord FC Put_Float(double n);
 
-WamWord Put_Nil(void) FC;
+WamWord FC Put_Nil(void);
 
-WamWord Put_List(void) FC;
+WamWord FC Put_List(void);
 
-WamWord Put_Structure_Tagged(WamWord w) FC;
+WamWord FC Put_Structure_Tagged(WamWord w);
 
-WamWord Put_Structure(int func, int arity) FC;
+WamWord FC Put_Structure(int func, int arity);
 
-WamWord Unify_Variable(void) FC;
+WamWord FC Unify_Variable(void);
 
-void Unify_Void(int n) FC;
+void FC Unify_Void(int n);
 
-Bool Unify_Value(WamWord start_word) FC;
+Bool FC Unify_Value(WamWord start_word);
 
-Bool Unify_Local_Value(WamWord start_word) FC;
+Bool FC Unify_Local_Value(WamWord start_word);
 
-Bool Unify_Atom_Tagged(WamWord w) FC;
+Bool FC Unify_Atom_Tagged(WamWord w);
 
-Bool Unify_Atom(int atom) FC;
+Bool FC Unify_Atom(int atom);
 
-Bool Unify_Integer_Tagged(WamWord w) FC;
+Bool FC Unify_Integer_Tagged(WamWord w);
 
-Bool Unify_Integer(long n) FC;
+Bool FC Unify_Integer(long n);
 
-Bool Unify_Nil(void) FC;
+Bool FC Unify_Nil(void);
 
-Bool Unify_List(void) FC;
+Bool FC Unify_List(void);
 
-Bool Unify_Structure_Tagged(WamWord w) FC;
+Bool FC Unify_Structure_Tagged(WamWord w);
 
-Bool Unify_Structure(int func, int arity) FC;
+Bool FC Unify_Structure(int func, int arity);
 
-WamWord Globalize_If_In_Local(WamWord start_word) FC;
+WamWord FC Globalize_If_In_Local(WamWord start_word);
 
-void Allocate(int n) FC;
+void FC Allocate(int n);
 
-void Deallocate(void) FC;
+void FC Deallocate(void);
 
 CodePtr Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 		       CodePtr c_lst, CodePtr c_stc) FC;
-CodePtr Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm) FC;
-CodePtr Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc) FC;
+CodePtr FC Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm);
+CodePtr FC Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc);
 CodePtr Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
 				   CodePtr c_lst) FC;
 CodePtr Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
 				   CodePtr c_stc) FC;
 
-CodePtr Switch_On_Atom(SwtTbl t, int size) FC;
+CodePtr FC Switch_On_Atom(SwtTbl t, int size);
 
-long Switch_On_Integer(void) FC;
+long FC Switch_On_Integer(void);
 
-CodePtr Switch_On_Structure(SwtTbl t, int size) FC;
+CodePtr FC Switch_On_Structure(SwtTbl t, int size);
 
-void Load_Cut_Level(WamWord *word_adr) FC;
+void FC Load_Cut_Level(WamWord *word_adr);
 
-void Cut(WamWord b_word) FC;
+void FC Cut(WamWord b_word);
 
-void Global_Push_Float(double n) FC;
+void FC Global_Push_Float(double n);
 
-double Obtain_Float(WamWord *adr) FC;
-
-
-void Create_Choice_Point(CodePtr codep_alt, int arity) FC;
-void Create_Choice_Point1(CodePtr codep_alt) FC;
-void Create_Choice_Point2(CodePtr codep_alt) FC;
-void Create_Choice_Point3(CodePtr codep_alt) FC;
-void Create_Choice_Point4(CodePtr codep_alt) FC;
+double FC Obtain_Float(WamWord *adr);
 
 
-void Update_Choice_Point(CodePtr codep_alt, int arity) FC;
-void Update_Choice_Point1(CodePtr codep_alt) FC;
-void Update_Choice_Point2(CodePtr codep_alt) FC;
-void Update_Choice_Point3(CodePtr codep_alt) FC;
-void Update_Choice_Point4(CodePtr codep_alt) FC;
+void FC Create_Choice_Point(CodePtr codep_alt, int arity);
+void FC Create_Choice_Point1(CodePtr codep_alt);
+void FC Create_Choice_Point2(CodePtr codep_alt);
+void FC Create_Choice_Point3(CodePtr codep_alt);
+void FC Create_Choice_Point4(CodePtr codep_alt);
 
-void Delete_Choice_Point(int arity) FC;
-void Delete_Choice_Point1(void) FC;
-void Delete_Choice_Point2(void) FC;
-void Delete_Choice_Point3(void) FC;
-void Delete_Choice_Point4(void) FC;
 
-void Untrail(WamWord *low_adr) FC;
+void FC Update_Choice_Point(CodePtr codep_alt, int arity);
+void FC Update_Choice_Point1(CodePtr codep_alt);
+void FC Update_Choice_Point2(CodePtr codep_alt);
+void FC Update_Choice_Point3(CodePtr codep_alt);
+void FC Update_Choice_Point4(CodePtr codep_alt);
 
-Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
+void FC Delete_Choice_Point(int arity);
+void FC Delete_Choice_Point1(void);
+void FC Delete_Choice_Point2(void);
+void FC Delete_Choice_Point3(void);
+void FC Delete_Choice_Point4(void);
 
-Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
+void FC Untrail(WamWord *low_adr);
+
+Bool FC Unify(WamWord start_u_word, WamWord start_v_word);
+
+Bool FC Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
 
 
 #endif /* FRAME_ONLY */

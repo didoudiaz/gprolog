@@ -1,10 +1,15 @@
 #!/bin/sh
 
-# compile_install SRCPATH DSTPATH
+# compile_install CONFOPT SRCPATH DSTPATH
 
-cd $1 || exit 1
-(cd ../doc/; make chm)
-./configure --with-msvc --with-install-dir=$2 --without-links-dir || exit 1
+confopt="$1"
+src="$2"
+dst="$3"
+
+cd $src || exit 1
+( if test -d ../doc; then cd ../doc; else cd ../../doc; fi; \
+  make chm ) || exit 1
+./configure $confopt --with-install-dir=$dst --without-links-dir || exit 1
 make || exit 1
 make install
 

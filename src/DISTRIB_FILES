@@ -18,8 +18,12 @@ doc/[a-z][a-z]?*.dvi
 doc/[a-z][a-z]?*.ps
 doc/[a-z][a-z]?*.pdf
 doc/[a-z][a-z]?*.chm
+doc/[a-z][a-z]?*.html
 doc/Html/[a-z][a-z]?*.html
 doc/Html/[a-z][a-z]?*.gif
+doc/Html/[a-z][a-z]?*.hh[ckp]
+doc/Html/[a-z][a-z]?*.tex
+doc/Html/hh_do_hhc_hhk
 
 ExamplesPl/Makefile
 ExamplesPl/README
@@ -70,14 +74,12 @@ src/RPM/rpm_env.spec
 src/RPM/initial.spec
 src/RPM/gprolog.spec
 
-src/Win32/Makefile
+src/Win32/Makefile.in
 src/Win32/README
-src/Win32/addcrlf
 src/Win32/compile_install
 src/Win32/create-initial.iss
 src/Win32/create_bat.c
-src/Win32/gp-setup.iss
-src/Win32/initial.iss
+src/Win32/gp-setup.iss.in
 
 src/debian/README.Debian
 src/debian/all-packages
