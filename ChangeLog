@@ -1,3 +1,20 @@
+Tue Sep 12 15:42:48 CEST 2000 <Daniel.Diaz@inria.fr>
+
+	* full re-indentation of the sources for CVS
+
+Thu Sep  7 18:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
+
+	* added acos/asin to Prolog arithmetics
+
+Wed Sep  6 20:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
+
+	* port to alpha/linux - many thanks to:
+	Alexander Diemand <ax@apax.net>
+	* port to alpha/OSF1
+	* port to mips/irix - many thanks to:
+	Alexander Diemand <ax@apax.net>
+	* fix a bug in stty.c (use standard termios if present)
+
 Mon Jul 31 11:42:44 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* fix a bug in stty.c (use termio by default and else termios)

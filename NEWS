@@ -1,10 +1,22 @@
+Change in GNU Prolog version 1.2.3:
+
+* added acos/asin to Prolog arithmetics
+* full re-indentation of the sources for CVS
+
+Change in GNU Prolog version 1.2.2:
+
+* port to alpha/linux - many thanks to: Alexander Diemand <ax@apax.net>
+* port to alpha/OSF1
+* port to mips/irix - many thanks to: Alexander Diemand <ax@apax.net>
+* fix a bug in stty.c (use standard termios if present)
+
 Change in GNU Prolog version 1.2.1:
 
 * fix a bug in stty.c (use termio by default and else termios)
 
 Change in GNU Prolog version 1.2.0:
 
-* 4th official release (Fri Jul 28)
+* official release (Fri Jul 28)
 
 Change in GNU Prolog version 1.1.7:
 
@@ -42,7 +54,7 @@ Change in GNU Prolog version 1.1.3:
 
 Change in GNU Prolog version 1.1.2:
 
-* 3rd official release (Mon Nov 29)
+* official release (Mon Nov 29)
 * fix a bug in the scanner about 0'<character>
 * fix a bug in the compiler about \t in quoted atoms
 
@@ -53,7 +65,7 @@ Change in GNU Prolog version 1.1.1:
 
 Change in GNU Prolog version 1.1.0:
 
-* 2nd official release (Mon Oct 4)
+* official release (Mon Oct 4)
 * fix a bug in the output of some extended characters in native-compilation
 
 Change in GNU Prolog version 1.0.6:
@@ -87,7 +99,7 @@ Change in GNU Prolog version 1.0.1:
 
 Change in GNU Prolog version 1.0.0:
 
-* 1st official release (Fri Apr 16)
+* official release (Fri Apr 16)
 * rewrite DCG in C (unification optimized, avoid ill-balanced conjunctions)
 * fix known bugs
 

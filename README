@@ -73,6 +73,9 @@ GNU Prolog is ported to the following architectures:
    - PowerPC / GNU/Linux
    - sparc / SunOS (4.1.3 or higher)
    - sparc / Solaris
+   - alpha / linux
+   - alpha / OSF1
+   - mips / irix
 
 
 

@@ -36,5 +36,5 @@ ix86/FreeBSD (OpenBSD ?):
 	check before (this is maybe no longer true)
 
 ix86/sco:
-	On SCO UnixWare use --host=i586-pc-sco when using ./confgure
+	On SCO UnixWare use --host=i586-pc-sco when using ./configure
 	(until autoconf is updated to recognize UnixWare).
