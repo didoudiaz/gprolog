@@ -31,12 +31,11 @@
 
 
 
-q:- 	statistics(runtime,_), 
-	queens(16,L), statistics(runtime,[_,Y]), 
-	write(L), nl,
-	write('time : '), write(Y), nl.
-
-
+queens(ShowResult) :-
+	queens(16, R),
+	(   ShowResult = true ->
+	    write(R), nl
+	;   true).
 
 
 queens(N,Qs):-
@@ -59,8 +58,7 @@ queens(UnplacedQs,SafeQs,Qs):-
 not_attack(Xs,X):-
 	not_attack(Xs,X,1).
 
-not_attack([],_,_):-
-	!.
+not_attack([],_,_).
 
 not_attack([Y|Ys],X,N):-
 	X =\= Y+N, 
@@ -87,8 +85,9 @@ range(M,N,[M|Ns]):-
 	range(M1,N,Ns).
 
 
+% benchmark interface
 
+benchmark(ShowResult) :-
+	queens(ShowResult).
 
-:- initialization(q).
-
-
+:- include(common).

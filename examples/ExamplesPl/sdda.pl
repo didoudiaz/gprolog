@@ -18,32 +18,27 @@
 
 
 
-q:-     statistics(runtime,_), 
-        sdda, statistics(runtime,[_,Y]), 
-        write('time : '), write(Y), nl.
-
-
-
-
 % Front end for simulator use
-sdda:-
-	do_sdda(test,_A,_B,_C).
+sdda(ShowResult):-
+	do_sdda(test,_A,_B,_C, ShowResult).
 
 % Does the sdda on FileName, instantiates Exitmodes to list of exit modes,
 % ExitModes structure: [[Funtor/Arity, Activation, Exit], ... ],
 % e.g. [[a/2, [g,X], [g,g]]
-do_sdda(_FileName, ExitModes, _BackList, _PredList) :-
+do_sdda(_FileName, ExitModes, _BackList, _PredList, ShowResult) :-
 	%%see(FileName),
 	read_procedures(Procs, ExitModes, Entries),	% collect all procedures
 	%%seen,
-	write('Procedures '), nl, write_list(Procs), nl,
-	write('Entry points '), nl, write_list(Entries), nl,
-	(nonvar(ExitModes) ->				% Don't mention there
+	(   ShowResult = true ->
+	    write('Procedures '), nl, write_list(Procs), nl,
+	    write('Entry points '), nl, write_list(Entries), nl,
+	    (nonvar(ExitModes) ->				% Don't mention there
 		(write('Declared exit modes '), nl, 	% aren't any
 		 write_list(ExitModes), nl) ;
 		true),
-	entry_exit_modes_list(Procs, ExitModes, Entries),
-	write('Exit modes '), nl, write_list(ExitModes), nl.
+	    entry_exit_modes_list(Procs, ExitModes, Entries),
+	    write('Exit modes '), nl, write_list(ExitModes), nl
+	;   true).
 
 %%%  !!! Hard code in read for test:
 %	sdda_entry(c(A,B,C)).
@@ -325,5 +320,11 @@ build_name(Count, IntName, [IntName|Rest]) :- Count>0,
 
 
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	sdda(ShowResult).
+
+:- include(common).
+
 

@@ -3,13 +3,7 @@
 
 
 
-q :- statistics(runtime,_), zebra,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-
-
-zebra :-
+zebra(ShowResult) :-
 	houses(Houses),
 	mymember(house(red, english, _, _, _), Houses),
 	mymember(house(_, spanish, dog, _, _), Houses),
@@ -27,7 +21,10 @@ zebra :-
 	next_to(house(_,norwegian,_,_,_), house(blue,_,_,_,_), Houses),
 	mymember(house(_, _, zebra, _, _), Houses),
 	mymember(house(_, _, _, water, _), Houses),
-	print_houses(Houses).
+	(   ShowResult = true ->
+	    print_houses(Houses)
+	;   true).
+
 
 houses([
 	house(_, _, _, _, _),
@@ -47,12 +44,17 @@ next_to(A, B, [_ | Y]) :- next_to(A, B, Y).
 mymember(X, [X|_]).
 mymember(X, [_|Y]) :- mymember(X, Y).
 
-print_houses([A|B]) :- !,
+print_houses([]).
+print_houses([A|B]) :-
 	write(A), nl,
 	print_houses(B).
-print_houses([]).
 
 
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	zebra(ShowResult).
+
+:- include(common).
 

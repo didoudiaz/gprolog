@@ -2,12 +2,8 @@
 
 
 
-q:-	statistics(runtime,[S|_]), 
-	bench(250),
-	statistics(runtime,[S1|_]), Y is S1-S,
-	write('time : '), write(Y), nl.
-
-
+nrev(ShowResult) :-
+	bench(250, ShowResult).
 
 
 
@@ -25,15 +21,21 @@ app([X|L1],L2,[X|L3]):-
 	app(L1,L2,L3).
 
 
+/* commented since it is defined in common.pl
+get_cpu_time(T) :- 
+	statistics(runtime,[T|_]).
+*/
 
 
-bench(Count):-
-	statistics(runtime,[T0|_]),
+bench(Count, ShowResult):-
+	get_cpu_time(T0),
 	dodummy(Count),
-	statistics(runtime,[T1|_]),
+	get_cpu_time(T1),
 	dobench(Count),
-	statistics(runtime,[T2|_]),
-	report(Count,T0,T1,T2).
+	get_cpu_time(T2),
+	(   ShowResult = true ->
+	    report(Count,T0,T1,T2)
+	;   true).
 
 
 
@@ -101,4 +103,10 @@ report(Count,T0,T1,T2) :-
 
 
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	nrev(ShowResult).
+
+:- include(common).
+

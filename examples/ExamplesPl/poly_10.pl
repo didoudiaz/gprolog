@@ -10,14 +10,11 @@
 
 
 
-q :- statistics(runtime,_), poly_10,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-
 :- op(700,xfx,less_than).
 
-poly_10 :- test_poly(P), poly_exp(10, P, _).
+poly_10(_ShowResult) :-
+	test_poly(P),
+	poly_exp(10, P, _R).
 
 % test polynomial definition
 
@@ -108,5 +105,9 @@ mul_through([term(E,Term)|Terms], Poly, [term(E,NewTerm)|NewTerms]) :-
     mul_through(Terms, Poly, NewTerms).
 
 
-:- initialization(q).
+% benchmark interface
 
+benchmark(ShowResult) :-
+	poly_10(ShowResult).
+
+:- include(common).

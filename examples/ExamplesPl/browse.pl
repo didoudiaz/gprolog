@@ -9,14 +9,7 @@
 
 
 
-q:-     statistics(runtime,_),
-        browse, statistics(runtime,[_,Y]),
-        write('time : '), write(Y), nl.
-
-
-
-
-browse:- 
+browse(_) :- 
     init(100,10,4,
          [[a,a,a,b,b,b,b,a,a,a,a,a,b,b,a,a,a],
           [a,a,b,b,b,b,a,a,[a,a],[b,b]],
@@ -29,6 +22,17 @@ browse:-
                  [star(SA),star(SB),star(SB),star(SA),[star(SA)],[star(SB)]],
                  [_,_,star(_),[b,a],star(_),_,_]
                 ]).
+
+my_length(L, N) :-
+        my_length1(L, 0, N).
+
+
+my_length1([], N, N).
+
+my_length1([_|L], M, N) :-
+        M1 is M+1,
+        my_length1(L, M1, N).
+
 
 init(N,M,Npats,Ipats,Result) :- init(N,M,M,Npats,Ipats,Result).
 
@@ -49,7 +53,7 @@ fill(N,L,[dummy([])|Rest]) :-
 
 randomize([],[],_) :- !.
 randomize(In,[X|Out],Rand) :-
-    length(In,Lin),
+    my_length(In,Lin),
     Rand1 is (Rand * 17) mod 251,
     N is Rand1 mod Lin,
     split(N,In,X,In1),
@@ -75,7 +79,7 @@ get_pats(N,[X|Xs],[X|Ys],Ipats) :-
 get_pats(N,[],Ys,Ipats) :-
     get_pats(N,Ipats,Ys,Ipats).
 
-property([],_,_) :- fail.	/* don't really need this */
+property([],_,_) :- fail.	/* do not really need this */
 property([Prop|_],P,Val) :-
     functor(Prop,P,_),!,
     arg(1,Prop,Val).
@@ -107,4 +111,9 @@ match([X|PRest],[Y|SRest]) :-
 concat([],L,L).
 concat([X|L1],L2,[X|L3]) :- concat(L1,L2,L3).
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	browse(ShowResult).
+
+:- include(common).

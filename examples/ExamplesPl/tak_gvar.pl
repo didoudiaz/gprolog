@@ -11,18 +11,15 @@
 % uses global variables to tabulate results
 
 
-q :-    init_tak_array,
-	statistics(runtime,_), tak,
-	statistics(runtime,[_,Y]), write('time : '),write(Y), nl.
-
+tak_gvar(ShowResult) :-
+	init_tak_array,
+	tak(18,12,6,R),
+	(   ShowResult = true ->
+	    write(tak(18,12,6)=R), nl
+	;   true).
 
 init_tak_array:- 
 	g_assign(tak,g_array(20,g_array(20,g_array(20,nothing)))).
-
-
-
-tak :- tak(18,12,6,R), write(tak(18,12,6)=R), nl.
-
 
 
 
@@ -47,6 +44,10 @@ tak1(X,Y,Z,A):-
         tak(Z1,X,Y,A3),
         tak(A1,A2,A3,A).
 
+% benchmark interface
 
-:- initialization(q).
+benchmark(ShowResult) :-
+	tak_gvar(ShowResult).
+
+:- include(common).
 

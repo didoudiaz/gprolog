@@ -28,12 +28,11 @@
 %  ( A -> fail ; true ).
 
 
-
-q:- 	statistics(runtime,_), 
-	interpret(qsort), statistics(runtime,[_,Y]), 
-	write('time : '), write(Y), nl.
-
-
+meta_qsort(ShowResult) :-
+	interpret(qsort(R)),
+	(   ShowResult = true ->
+	    write(R), nl
+	;   true).
 
 
 interpret(Goal):-
@@ -119,12 +118,12 @@ interpret_built_in(write(X)):- write(X), nl.
 
 
 
-define(qsort,(
+define(qsort(R),(
        qsort([27,74,17,33,94,18,46,83,65, 2,
               32,53,28,85,99,47,28,82, 6,11,
               55,29,39,81,90,37,10, 0,66,51,
                7,21,85,27,31,63,75, 4,95,99,
-              11,28,61,74,18,92,40,53,59, 8],R,[]),write(R))).
+              11,28,61,74,18,92,40,53,59, 8],R,[]))).
 
 define(qsort([X|L],R,R0),(
        partition(L,X,L1,L2),
@@ -139,7 +138,9 @@ define(partition([X|L],Y,L1,[X|L2]),(
        partition(L,Y,L1,L2))).
 define(partition([],_,[],[]),true).
 
+% benchmark interface
 
+benchmark(ShowResult) :-
+	meta_qsort(ShowResult).
 
-
-:- initialization(q).
+:- include(common).

@@ -9,12 +9,7 @@
 
 
 
-q :- statistics(runtime,_), send,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-
-send :-
+sendmore(ShowResult) :-
 	digit(D), digit(E), D=\=E,
 	sumdigit(0, D, E, Y, C1),
 	digit(N), N=\=Y, N=\=E, N=\=D,
@@ -25,12 +20,15 @@ send :-
 	leftdigit(S), S=\=O, S=\=R, S=\=N, S=\=Y, S=\=E, S=\=D,
 	leftdigit(M), M=\=S, M=\=O, M=\=R, M=\=N, M=\=Y, M=\=E, M=\=D,
 	sumdigit(C3,S, M, O, M),
-	write(' '),write(S),write(E),write(N),write(D),nl,
-	write('+'),write(M),write(O),write(R),write(E),nl,
-	write('-----'),nl,
-	write(M),write(O),write(N),write(E),write(Y),nl,nl,
+	(   ShowResult = true ->
+	    write(' '),write(S),write(E),write(N),write(D),nl,
+	    write('+'),write(M),write(O),write(R),write(E),nl,
+	    write('-----'),nl,
+	    write(M),write(O),write(N),write(E),write(Y),nl,nl
+	;   true),
 	fail.
-send.
+
+sendmore(_).
 
 sumdigit(C, A, B, S, D) :-
 	X is (C+A+B),
@@ -62,5 +60,11 @@ leftdigit(9).
 
 
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	sendmore(ShowResult).
+
+:- include(common).
+
 

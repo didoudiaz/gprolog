@@ -6,16 +6,13 @@
 %  Fernando C. N. Pereira and David H. D. Warren
 
 
+chat_parser(_) :-
+	chat_parser1.
 
-q :- statistics(runtime,_), chat_parser,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-
-chat_parser :- string(X),
+chat_parser1 :- string(X),
                determinate_say(X,_),
                fail.
-chat_parser.
+chat_parser1.
 
 
 %  query set
@@ -1178,6 +1175,10 @@ verb_type(flow,main+intrans).
 adverb(yesterday).
 adverb(tomorrow).
 
+% benchmark interface
 
+benchmark(ShowResult) :-
+	chat_parser(ShowResult).
 
-:- initialization(q).
+:- include(common).
+

@@ -8,14 +8,12 @@
 %   (almost) Takeuchi function (recursive arithmetic)
 
 
+tak(ShowResult) :-
+	tak(18,12,6,R),
+	(   ShowResult = true ->
+	    write(tak(18,12,6)=R), nl
+	;   true).
 
-q :- statistics(runtime,_), tak,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-
-
-tak :- tak(18,12,6,R), write(tak(18,12,6)=R), nl.
 
 tak(X,Y,Z,A):-
         X =< Y,
@@ -32,5 +30,11 @@ tak(X,Y,Z,A):-
         tak(A1,A2,A3,A).
 
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	tak(ShowResult).
+
+:- include(common).
+
 

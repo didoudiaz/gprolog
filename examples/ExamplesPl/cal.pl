@@ -15,24 +15,16 @@ This algorithm was published in comp.programming and comes from
 
 
 
-
-q:- 	go(10000).
-
-
-
-go(N):-
+cal(ShowResult):-
+	N = 10000,
 	day_of_week(1993,4,9,Day),
-	statistics,
-	write('April 9, 1993 is: '),
-	write(Day), nl,
-	statistics(runtime,_),
+	(   ShowResult = true ->
+	    write('April 9, 1993 is: '),
+	    write(Day), 
+	    write(' fools_days = '), write(N), nl
+	;   true),
 	empty_loop(N),
-	statistics(runtime,[T1|_]),
-	full_loop(N),
-	statistics(runtime,[T2|_]),
-	T is T2-T1,
-	write([fools_days=N,time=T]), nl.
-
+	full_loop(N).
 
 
 
@@ -172,29 +164,9 @@ cal_key('November',2, 0).
 cal_key('December', 4, 0).
 
 
-:- initialization(q).
+% benchmark interface
 
+benchmark(ShowResult) :-
+	cal(ShowResult).
 
-/* -----------------------------------------------------------------
-
-Comparison with some standard and improved WAM implementations:
-
-	      On Sparc ELC (23.7 Mips)      Sparc 2 (28.5 Mips)
-
-Sicstus 0.6 (consult) -------->                   8650
-
-SbProlog 3.1 -----------------> 1820    /1.2      1516
-
-C-emulated Sicstus 2.1 -------> 1440              1200
-
-Sicstus 0.6 (compile) -------->                   730
-
-BinProlog 1.71 --------------->  800              666
-
-Quintus 3.1.1  --------------->  584              486
-
-wamcc ------------------------>                   300
-
-Native Sicstus 2.1 ----------->  350              291
-
-------------------------------------------------------------------- */
+:- include(common).

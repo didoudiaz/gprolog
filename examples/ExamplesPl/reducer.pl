@@ -9,22 +9,21 @@
 
 % Uses write/1, compare/3, functor/3, arg/3.
 
-q :- statistics(runtime,_), reducer,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-
-
-reducer :-
+reducer(ShowResult) :-
 	try(fac(3), _ans1),
-	write(_ans1), nl,
+	(ShowResult = true ->
+	    write(_ans1), nl
+	;   true),
 	try(quick([3,1,2]), _ans2),
-	write(_ans2), nl.
+	(ShowResult = true ->
+	    write(_ans2), nl
+	;   true).
 
 try(_inpexpr, _anslist) :-
 	listify(_inpexpr, _list),
 	curry(_list, _curry),
-	t_reduce(_curry, _ans), nl,
+	t_reduce(_curry, _ans), 
+	% nl,
 	make_list(_ans, _anslist).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,7 +64,7 @@ t_reduce([_y,_x|'.'], [_yr,_xr|'.']) :-
 	!.
 t_reduce(_expr, _ans) :-
 	t_append(_next, _red, _form, _expr),
-	write('.'),
+	% write('.'),
 	t_redex(_form, _red),
 	!,
 	t_reduce(_next, _ans), 
@@ -105,7 +104,7 @@ t_redex([_arg|tl], _y) :-
 % Arithmetic:
 t_redex([_y,_x|_op], _res) :-
 	atom(_op),
-	member(_op, ['+', '-', '*', '//', 'mod']),
+	my_member(_op, ['+', '-', '*', '//', 'mod']),
 	t_reduce(_x, _xres),
 	t_reduce(_y, _yres),
 	number(_xres), number(_yres),
@@ -114,7 +113,7 @@ t_redex([_y,_x|_op], _res) :-
 % Tests:
 t_redex([_y,_x|_test], _res) :-
 	atom(_test),
-	member(_test, ['<', '>', '=<', '>=', '=\\=', '=:=']),
+	my_member(_test, ['<', '>', '=<', '>=', '=\\=', '=:=']),
 	t_reduce(_x, _xres),
 	t_reduce(_y, _yres),
 	number(_xres), number(_yres),
@@ -132,7 +131,7 @@ t_redex([_y,_x|=], _res) :-
 % Arithmetic functions:
 t_redex([_x|_op], _res) :-
 	atom(_op),
-	member(_op, ['-']),
+	my_member(_op, ['-']),
 	t_reduce(_x, _xres),
 	number(_xres),
 	eval1(_op, _t, _xres).
@@ -141,11 +140,11 @@ t_redex([_x|_op], _res) :-
 % Assumes a fact t_def(_func,_def) in the database for every
 % defined function.
 t_redex(_in, _out) :-
-	append(_par,_func,_in),
+	my_append(_par,_func,_in),
 	atom(_func),
 	t_def(_func, _args, _expr),
 	t(_args, _expr, _def),
-	append(_par,_def,_out).
+	my_append(_par,_def,_out).
 
 % Basic arithmetic and relational operators:
 
@@ -288,13 +287,13 @@ listify_list(I, N, _Expr, [_LA|_LArgs]) :- I=<N, !,
 	listify(_A, _LA),
 	I1 is I+1,
 	listify_list(I1, N, _Expr, _LArgs).
-/*
-member(X, [X|_]).
-member(X, [_|L]) :- member(X, L).
 
-append([], L, L).
-append([X|L1], L2, [X|L3]) :- append(L1, L2, L3).
-*/
+my_member(X, [X|_]).
+my_member(X, [_|L]) :- my_member(X, L).
+
+my_append([], L, L).
+my_append([X|L1], L2, [X|L3]) :- my_append(L1, L2, L3).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Set utilities:
@@ -318,8 +317,17 @@ intersectv_3(>, A, S1, _, S2,     S) :- intersectv_2(S2, A, S1, S).
 intersectv_list([], []).
 intersectv_list([InS|Sets], OutS) :- intersectv_list(Sets, InS, OutS).
 
+
+/* without DCG */
+intersectv_list([], A, A).
+intersectv_list([A|B], C, D) :-
+        intersectv(A, C, E),
+        intersectv_list(B, E, D).
+
+/* PB to compile DCG with CIAO in our general environment
 intersectv_list([]) --> [].
 intersectv_list([S|Sets]) --> intersectv(S), intersectv_list(Sets).
+*/
 
 % *** Difference
 diffv([], _, []).
@@ -381,6 +389,10 @@ notinv_3(>, A, S) :- notinv_2(S, A).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- initialization(q).
+% benchmark interface
 
+benchmark(ShowResult) :-
+	reducer(ShowResult).
+
+:- include(common).
 

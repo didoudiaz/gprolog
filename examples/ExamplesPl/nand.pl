@@ -31,22 +31,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+nand(ShowResult) :- nand_main(0, ShowResult).
 
-q :- statistics(runtime,_), nand,
-     statistics(runtime,[_,Y]), write('time : '), write(Y), nl.
-
-
-:- ensure_linked((=)/2).                        % to force the link of (=)/2
-
-nand :- nand_main(0).
-
-nand_main(N) :-
+nand_main(N, ShowResult) :-
 	init_state(N, NumVars, NumGs, Gs),
 	add_necessary_functions(NumVars, NumGs, Gs, NumGs2, Gs2),
 	test_bounds(NumVars, NumGs2, Gs2),
-	search(NumVars, NumGs2, Gs2).
-nand_main(_) :-
-	write('Search completed'), nl.
+	search(NumVars, NumGs2, Gs2, ShowResult).
+
+nand_main(_, ShowResult) :-
+	(   ShowResult = true ->
+	    write('Search completed'), nl
+	;   true).
 
 %  Test input
 %  init_state(circuit(NumInputs, NumOutputs, FunctionList))
@@ -85,6 +81,8 @@ init_state(4, 3, 5, [		% do sum and carry together
 		function(0, [1,3,5,7], [0,2,4,6], [], [], [], [], [])
 		]) :-
 	update_bounds(_, 100, _).
+
+/* commented for XSB, compiler complexity too high on big lists
 init_state(5, 5, 8, [		% 2 bit full adder
 		function(7,		% A2 (output)
 			[1,3,4,6,9,11,12,14,16,18,21,23,24,26,29,31],
@@ -120,20 +118,22 @@ init_state(5, 5, 8, [		% 2 bit full adder
 			[], [], [], [], [])
 		]) :-
 	update_bounds(_, 21, _).
-
+*/
 
 %  Iterate over all the TRUE vectors that need to be covered.
 %  If no vectors remain to be covered (select_vector fails), then
 %  the circuit is complete (printout results, update bounds, and
 %  continue search for a lower cost circuit).
-search(NumVars, NumGsIn, GsIn) :-
+search(NumVars, NumGsIn, GsIn, ShowResult) :-
 	select_vector(NumVars, NumGsIn, GsIn, Gj, Vector), !,
 	cover_vector(NumVars, NumGsIn, GsIn, Gj, Vector, NumGs, Gs),
 	add_necessary_functions(NumVars, NumGs, Gs, NumGsOut, GsOut),
 	test_bounds(NumVars, NumGsOut, GsOut),
-	search(NumVars, NumGsOut, GsOut).
-search(NumVars, NumGs, Gs) :-
-	output_results(NumVars, NumGs, Gs),
+	search(NumVars, NumGsOut, GsOut, ShowResult).
+search(NumVars, NumGs, Gs, ShowResult) :-
+	(   ShowResult = true ->
+	    output_results(NumVars, NumGs, Gs)
+	;   true),
 	update_bounds(NumVars, NumGs, Gs),
 	fail.
 
@@ -146,8 +146,10 @@ search(NumVars, NumGs, Gs) :-
 select_vector(NumVars, NumGs, Gs, Gj, Vector) :-
 	select_vector(Gs, NumVars, NumGs, Gs,
 		dummy, 0, nf, 999, Gj, Vector, Type, _), !,
-	\+ Type = cov,
-	\+ Type = nf.
+	\+ unif(Type, cov),
+	\+ unif(Type, nf).
+
+unif(X, X).
 
 % loop over functions
 select_vector([Gk|_], NumVars, _, _, Gj, V, Type, N, Gj, V, Type, N) :-
@@ -241,17 +243,21 @@ best_vector(Gj1, _, Type, _, Gj2, V2, Type, N2, Gj2, V2, Type, N2) :-
 	function_number(Gj1, J1), function_number(Gj2, J2),
 	J1 < J2, !.
 best_vector(Gj1, V1, Type, N1, Gj2, _, Type, _, Gj1, V1, Type, N1) :-
-	\+ (Type = exp ; Type = var),
+	\+ unif2(Type, exp, var),
 	function_number(Gj1, J1), function_number(Gj2, J2),
 	J1 < J2, !.
 best_vector(Gj1, _, Type, _, Gj2, V2, Type, N2, Gj2, V2, Type, N2) :-
-	\+ (Type = exp ; Type = var),
+	\+ unif2(Type, exp, var),
 	function_number(Gj1, J1), function_number(Gj2, J2),
 	J1 > J2, !.
 best_vector(Gj1, V1, Type1, N1, _, _, Type2, _, Gj1, V1, Type1, N1) :-
 	type_order(Type2, Type1), !.
 best_vector(_, _, Type1, _, Gj2, V2, Type2, N2, Gj2, V2, Type2, N2) :-
 	type_order(Type1, Type2), !.
+
+unif2(X, X, _).
+unif2(X, _, X).
+
 
 max_type(T1, T2, T1) :- type_order(T1, T2), !.
 max_type(T1, T2, T2) :- \+ type_order(T1, T2), !.
@@ -495,11 +501,34 @@ update_bounds(_, NumGs, _) :-
 	set(bound, NumGs).
 
 % set and access for systems that don't support them
+/* Original source
+set(N, A) :-
+        (recorded(N, _, Ref) -> erase(Ref) ; true),
+        recorda(N, A, _).
+
+access(N, A) :-
+        recorded(N, A, _).
+*/
+
+/* bet for GNU Prolog
 set(N, A) :-
 	g_assign(N, A).
 
 access(N, A) :-
 	g_read(N, A).
+
+*/
+
+/* ISO version */
+
+set(N, A) :-
+	(   access(N, _) -> 
+	    retract(store_value(N, _))
+        ;   true),
+        asserta(store_value(N, A)).
+
+access(N, A) :-
+        clause(store_value(N, A), _).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Output predicates:
@@ -569,6 +598,10 @@ set_member(X, [X|_]).
 set_member(X, [Y|T]) :- X > Y, set_member(X, T).
 
 
+% benchmark interface
 
+benchmark(ShowResult) :-
+	nand(ShowResult).
 
-:- initialization(q).
+:- include(common).
+

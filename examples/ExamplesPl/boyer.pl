@@ -11,17 +11,19 @@
 
 
 
-q:-     statistics(runtime,_),
-        boyer, statistics(runtime,[_,Y]),
-        write('time : '), write(Y), nl.
 
 
 
 
-boyer:- wff(Wff),
-        write('rewriting...'),nl,
+boyer(ShowResult) :-
+	wff(Wff),
+        (   ShowResult = true ->
+	    write('rewriting...'), nl
+	;   true),
 	rewrite(Wff,NewWff),
-        write('proving...'),nl,
+        (   ShowResult = true ->
+	    write('proving...'), nl
+	;   true),
 	tautology(NewWff,[],[]).
 
 wff(implies(and(implies(X,Y),
@@ -391,4 +393,9 @@ times(X,         add1(Y),        if(numberp(Y),
                                     plus(X,times(X,Y)),
                                     fix(X))                       ).
 
-:- initialization(q).
+% benchmark interface
+
+benchmark(ShowResult) :-
+	boyer(ShowResult).
+
+:- include(common).

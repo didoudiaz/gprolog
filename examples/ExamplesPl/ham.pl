@@ -1,21 +1,20 @@
+ham(true) :-
+	ham_show, fail ; true.
+
+ham(false) :-
+	ham_silent, fail ; true.
 
 
-q:- 	statistics(runtime,_), 
-	(ham(_),
-	 fail 
-           ; 
-	 true),
-	statistics(runtime,[_,Y]), 
-	write('time : '), write(Y), nl.
-
-
-
-
-
-ham(X):-
-	cycle_ham([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t],X),
+ham_show :-
+	ham1(X),
 	write(X), nl.
 
+
+ham_silent :-
+	ham1(_).
+
+ham1(X):-
+	cycle_ham([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t],X).
 
 
 
@@ -79,11 +78,9 @@ connect(s,[r,t,h]).
 connect(t,[p,s,j]).
 
 
+% benchmark interface
 
+benchmark(ShowResult) :-
+	ham(ShowResult).
 
-:- initialization(q).
-
-
-
-
-
+:- include(common).
