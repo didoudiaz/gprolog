@@ -92,8 +92,8 @@ src/Wam2Ma/[a-z][a-z]?*.[ch]
 src/Ma2Asm/MA_SYNTAX
 src/Ma2Asm/INLINED
 src/Ma2Asm/Makefile.in
-src/Ma2Asm/[a-z][a-z]?*.[ch]
-src/Ma2Asm/[a-z][a-z]?*.ma
+src/Ma2Asm/[a-z][a-z0-9]?*.[ch]
+src/Ma2Asm/[a-z][a-z0-9]?*.ma
 src/Ma2Asm/FromC/Makefile
 src/Ma2Asm/FromC/Makefile.in
 src/Ma2Asm/FromC/[a-z][a-z]?*.[ch]
