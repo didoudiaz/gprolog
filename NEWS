@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.16:
 
+* official release (Oct 1 2002)
 * fix bug in predicate_property/2
 * add new built-in fork_prolog/1 and create_pipe/2
 * fix a bug in atom_concat/3
