@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.13:
 
+* official release (Jun 14 2002)
 * port to powerpc/Darwin (Mac OS X) - many thanks to:
   Lindsey Spratt <spratt@alum.mit.edu>
 * fix bug in Win32 GUI console (deal with edit control text limit)
