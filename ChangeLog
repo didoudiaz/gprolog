@@ -1,3 +1,8 @@
+Thu Jan 25 21:12:06 CET 2001 <Daniel.Diaz@inria.fr>
+
+	* fix a bug with unify_with_occurs_check/2
+	* fix bug on ix86 using ebp (add -fomit-frame-pointer in CFLAGS_MACHINE)
+
 Mon Jan 22 12:41:26 CET 2001 <Daniel.Diaz@inria.fr>
 
 	* fix a bug with ! in dynamic code

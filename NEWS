@@ -1,3 +1,8 @@
+Change in GNU Prolog version 1.2.7:
+
+* fix a bug with unify_with_occurs_check/2
+* fix bug on ix86 using ebp (add -fomit-frame-pointer in CFLAGS_MACHINE)
+
 Change in GNU Prolog version 1.2.6:
 
 * fix a bug with ! in dynamic code
