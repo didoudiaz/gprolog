@@ -1,3 +1,7 @@
+Mon Feb 17 13:45:05 CET 2003 <Daniel.Diaz@inria.fr>
+
+	* fix a but with CTRL+C handler not reinstalled
+
 Wed Jan  8 15:22:09 CET 2003 <Daniel.Diaz@inria.fr>
 
 	* fix a bug with _XXX (re)displayed under the top-level

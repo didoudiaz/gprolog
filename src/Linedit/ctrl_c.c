@@ -86,6 +86,14 @@ Wrapper_Handler(int sig)
 
   int from_callback1;
 
+#if defined(__unix__) || defined(__CYGWIN__)
+  sigemptyset(&set);
+  sigaddset(&set, sig);
+  sigprocmask(SIG_UNBLOCK, &set, NULL);
+#elif !defined(WIN32_CONSOLE_CTRL_HANDLER)
+  signal(sig, Wrapper_Handler);
+#endif
+
   if (inside_ctrl_c)
     {
       printf("Already in a Ctrl+C handler - ignored\n");
@@ -94,20 +102,13 @@ Wrapper_Handler(int sig)
     }
   else
     {
-      inside_ctrl_c = 1;
+      inside_ctrl_c = from_callback; /* only 1 if from_callback */
 
       from_callback1 = from_callback;
       from_callback = 0;
       ret_val = (*ctrl_c_handler) (from_callback1);
     }
 
-#if defined(__unix__) || defined(__CYGWIN__)
-  sigemptyset(&set);
-  sigaddset(&set, sig);
-  sigprocmask(SIG_UNBLOCK, &set, NULL);
-#elif !defined(WIN32_CONSOLE_CTRL_HANDLER)
-  signal(sig, Wrapper_Handler);
-#endif
 
   inside_ctrl_c = 0;
 
