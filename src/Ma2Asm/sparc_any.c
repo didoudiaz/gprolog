@@ -66,10 +66,6 @@ char asm_reg_cp[16];
 
 int w_label = 0;
 
-#ifndef MAP_REG_E
-int use_envir = 0;
-#endif
-
 char *delay_op;
 char delay_operands[64];
 
@@ -167,19 +163,6 @@ Asm_Stop(void)
 
 
 /*-------------------------------------------------------------------------*
- * LABEL                                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Label(char *label)
-{
-  Label_Printf("\n" UN "%s:", label);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * CODE_START                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -200,10 +183,6 @@ Code_Start(char *label, int prolog, int global)
 
   if (!prolog)
     Inst_Printf("save", "%%sp,-104,%%sp");
-
-#ifndef MAP_REG_E
-  use_envir = 0;
-#endif
 }
 
 
@@ -216,6 +195,34 @@ Code_Start(char *label, int prolog, int global)
 void
 Code_Stop(void)
 {
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL                                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Label(char *label)
+{
+  Label_Printf("\n" UN "%s:", label);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * RELOAD_E_IN_REGISTER                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Reload_E_In_Register(void)
+{
+#ifndef MAP_REG_E
+  Inst_Printf("ld", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
+#endif
 }
 
 
@@ -247,11 +254,6 @@ Pl_Call(char *label)
   Inst_Printf("mov", "%%o7,%s", asm_reg_cp);	/* delay slot */
 #else
   Inst_Printf("st", "%%o7,%s", asm_reg_cp);	/* delay slot */
-#endif
-
-#ifndef MAP_REG_E
-  if (use_envir)
-    Inst_Printf("ld", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
 #endif
 }
 
@@ -624,18 +626,10 @@ Call_C_Invoke(char *fct_name, int nb_args)
 void
 Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
 {
-  int reinit_e = (p_inline && INL_ACCESS_INFO(p_inline));
-
 #ifndef MAP_REG_E
-  if (strcmp(fct_name, "Allocate") == 0)
-    {
-      use_envir = 1;
-      reinit_e = 1;
-    }
+  if (p_inline && INL_ACCESS_INFO(p_inline))
+    reload_e = 1;
 #endif
-
-  if (reinit_e)
-    Inst_Printf("ld", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
 }
 
 

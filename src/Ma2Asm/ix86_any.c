@@ -65,11 +65,6 @@ char asm_reg_cp[16];
 
 int w_label = 0;
 
-#ifndef MAP_REG_E
-int use_envir = 0;
-#endif
-
-
 char *fc_arg_regs[] = FC_SET_OF_REGISTERS;
 int inside_fc;
 int fc_off_in_stack;
@@ -1730,23 +1725,6 @@ Asm_Stop(void)
 
 
 /*-------------------------------------------------------------------------*
- * LABEL                                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Label(char *label)
-{
-  Label_Printf("");
-#if 0
-  Inst_Printf(".align", "4");
-#endif
-  Label_Printf(UN "%s:", label);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * CODE_START                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1766,10 +1744,6 @@ Code_Start(char *label, int prolog, int global)
 
   if (!prolog)
     Inst_Printf("subl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
-
-#ifndef MAP_REG_E
-  use_envir = 0;
-#endif
 }
 
 
@@ -1782,6 +1756,38 @@ Code_Start(char *label, int prolog, int global)
 void
 Code_Stop(void)
 {
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL                                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Label(char *label)
+{
+  Label_Printf("");
+#if 0
+  Inst_Printf(".align", "4");
+#endif
+  Label_Printf(UN "%s:", label);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * RELOAD_E_IN_REGISTER                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Reload_E_In_Register(void)
+{
+#ifndef MAP_REG_E
+  Inst_Printf("movl", "%s,%s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
+#endif
 }
 
 
@@ -1810,11 +1816,6 @@ Pl_Call(char *label)
   Inst_Printf("movl", "$.Lcont%d,%s", w_label, asm_reg_cp);
   Pl_Jump(label);
   Label_Printf(".Lcont%d:", w_label++);
-
-#ifndef MAP_REG_E
-  if (use_envir)
-    Inst_Printf("movl", "%s,%s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
-#endif
 }
 
 
@@ -2229,18 +2230,10 @@ Call_C_Invoke(char *fct_name, int nb_args)
 void
 Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
 {
-  int reinit_e = (p_inline && INL_ACCESS_INFO(p_inline));
-
 #ifndef MAP_REG_E
-  if (strcmp(fct_name, "Allocate") == 0)
-    {
-      use_envir = 1;
-      reinit_e = 1;
-    }
+  if (p_inline && INL_ACCESS_INFO(p_inline))
+    reload_e = 1;
 #endif
-
-  if (reinit_e)
-    Inst_Printf("movl", "%s,%s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
 }
 
 

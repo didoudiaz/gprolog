@@ -62,6 +62,15 @@ extern char *inline_asm_data[];
 #endif
 
 
+	  /* defined in ma_parser.c */
+
+#ifndef MA_PARSER_FILE
+
+extern int reload_e;
+
+#endif
+
+
 
 /*---------------------------------*
  * Function Prototypes             *
@@ -105,6 +114,8 @@ void Code_Start(char *label, int prolog, int global);
 void Code_Stop(void);
 
 void Label(char *label);
+
+void Reload_E_In_Register(void);
 
 void Pl_Jump(char *label);
 

@@ -1,12 +1,10 @@
 #!/bin/sh
-\cp pl2wam.wam  pl2wam.wam1
-\cp read_file.wam read_file.wam1
-\cp bip_list.wam bip_list.wam1
-\cp syn_sugar.wam syn_sugar.wam1
-\cp internal.wam internal.wam1
-\cp code_gen.wam code_gen.wam1
-\cp inst_codif.wam inst_codif.wam1
-\cp first_arg.wam first_arg.wam1
-\cp indexing.wam indexing.wam1
-\cp wam_emit.wam wam_emit.wam1
+pl_files='pl2wam read_file bip_list syn_sugar internal code_gen inst_codif first_arg indexing wam_emit'
+
+
+files=${*:-$pl_files}
+for i in $files; do
+    \cp $i.wam $i.wam1
+done
+
 

@@ -1,3 +1,7 @@
+Tue Dec 19 16:32:39 CET 20000 <Daniel.Diaz@inria.fr>
+
+	* big modification (1 month) to optimize the execution speed
+
 Thu Nov  9 19:06:06 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* implement fast call (mainly for WAM functions)

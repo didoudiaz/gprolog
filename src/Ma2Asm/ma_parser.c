@@ -32,6 +32,8 @@
 #include <setjmp.h>
 
 
+#define MA_PARSER_FILE
+
 #include "ma_parser.h"
 #include "ma_protos.h"
 
@@ -86,6 +88,8 @@ char *inst[] = { "pl_code", "pl_jump", "pl_call", "pl_fail", "pl_ret",
   "long", NULL
 };
 
+
+int reload_e;
 
 
 int init_already_read;
@@ -217,28 +221,31 @@ Parser(void)
 	{
 	case PL_CODE:
 	  global = Read_If_Global(0);
-
 	  Read_Token(IDENTIFIER);
 	  Code_Start(str_val, 1, global);
-
+	  reload_e = 1;
 	  break;
 
 	case PL_JUMP:
 	  Read_Token(IDENTIFIER);
 	  Pl_Jump(str_val);
+	  reload_e = 1;
 	  break;
 
 	case PL_CALL:
 	  Read_Token(IDENTIFIER);
 	  Pl_Call(str_val);
+	  reload_e = 1;
 	  break;
 
 	case PL_FAIL:
 	  Pl_Fail();
+	  reload_e = 1;
 	  break;
 
 	case PL_RET:
 	  Pl_Ret();
+	  reload_e = 1;
 	  break;
 
 	case JUMP:
@@ -325,7 +332,6 @@ Parser(void)
 	      Declare_Initializer(str_val);
 	    }
 	  Code_Start(str_val, 0, global);
-
 	  break;
 
 	case C_RET:
@@ -672,7 +678,14 @@ Scanner(void)
 	return X_REG;
 
       if (str_val[0] == 'Y' && str_val[1] == '\0' && *cur_line_p == '(')
-	return Y_REG;
+	{
+	  if (reload_e)
+	    {
+	      Reload_E_In_Register();
+	      reload_e = 0;
+	    }
+	  return Y_REG;
+	}
 
       if (strcmp(str_val, "FL") == 0 && *cur_line_p == '(')
 	return FL_ARRAY;

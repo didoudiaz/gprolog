@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : indexing.pl
-% date    : 12 15 2000
-% time    : 21:44:5
+% date    : 12 19 2000
+% time    : 18:35:51
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/indexing.pl').
