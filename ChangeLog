@@ -1,3 +1,17 @@
+Sat Sep 15 12:49:19 CET 2001 <Daniel.Diaz@inria.fr>
+
+	* add a --foreign-only to pl2wam
+	* foreign/2 directives are ignored in byte-code mode (no fatal error)
+
+Fri Sep  7 09:58:36 CET 2001 <Daniel.Diaz@inria.fr>
+
+	* space_args(true) now displays space between operators and arguments
+	* add CVS $Id$ to prolog files
+	* fix bug in pl2wam to include break/0, trace/0,... in bip_list.pl
+
+Thu Jul 12 16:03:30 CET 2001 <Daniel.Diaz@inria.fr>
+	* get rid of mktemp and tempnam calls (use mkstemp if available)
+
 Thu Jun  7 20:34:13 CET 2001 <Daniel.Diaz@inria.fr>
 
 	* fix a bug in fd_element_var/3 constraint
@@ -39,7 +53,7 @@ Fri Nov  3 09:17:19 CEST 2000 <Daniel.Diaz@inria.fr>
 Fri Oct 13 17:46:38 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* no longer use dl_malloc on Linux but prevent MMAP using mallopt
-	
+
 Tue Sep 12 15:42:48 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* full re-indentation of the sources for CVS
@@ -99,7 +113,7 @@ Tue Apr 18 13:23:02 CEST 2000 <Daniel.Diaz@inria.fr>
 	* added creation/1 and last_access/1 property to file_property/2
 
 Wed Mar 1 14:23:45 CEST 2000 <Daniel.Diaz@inria.fr>
-	
+
 	* start of native Win32 port
 
 Mon Feb 14 14:00:46 CET 2000 <Daniel.Diaz@inria.fr>
@@ -131,7 +145,7 @@ Thu Dec  2 17:31:31 CET 1999 <Daniel.Diaz@inria.fr>
 Thu Nov 25 14:27:11 CET 1999 <Daniel.Diaz@inria.fr>
 
 	* fix a bug in the compiler about \t in quoted atoms
-	
+
 Fri Oct 22 14:59:47 CEST 1999 <Daniel.Diaz@inria.fr>
 
 	* fix a bug in the scanner about 0'<character>
@@ -181,7 +195,7 @@ Wed Jun 23 13:49:07 MEST 1999 <Daniel.Diaz@inria.fr>
 Fri Jun 18 12:29:03 CEST 1999 <Daniel.Diaz@inria.fr>
 
 	* fix message from consult when pl2wam cannot be found
-	
+
 Thu Jun 17 16:12:53 MEST 1999 <Daniel.Diaz@inria.fr>
 
 	* fix precision bug on floating constants
@@ -216,7 +230,7 @@ Wed Apr 21 09:53:00 MEST 1999 <Daniel.Diaz@inria.fr>
 
 	* work release 1.0.1
 	* fix bug --disable-regs works now for solaris
-	
+
 Mon Apr 19 19:46:07 MEST 1999 <Daniel.Diaz@inria.fr>
 
 	* optimize FD equations (math_supp.c) avoid qsort sometimes
@@ -229,7 +243,7 @@ Fri Apr 16 15:49:34 MEST 1999 <Daniel.Diaz@inria.fr>
 	  optimize unifications, no more ill-balanced conjunctions
 	* fix bug in bc_supp.c to avoid aux pred name for unknown predicate
 	* fix bug in pl2wam (:- set_prolog_flag(singleton_warning,off))
-	
+
 Thu Apr  8 19:09:40 MEST 1999 <Daniel.Diaz@inria.fr>
 
 	* current_prolog/1 conforms to ISO thanks to strict_iso flag
@@ -237,7 +251,7 @@ Thu Apr  8 19:09:40 MEST 1999 <Daniel.Diaz@inria.fr>
 	* fix bug setof (not sorted when comes down to findall)
 
 Tue Apr  6 20:48:32 MEST 1999 <Daniel.Diaz@inria.fr>
-	
+
 	* add Prolog flag strict_iso (to relax predicate indicators)
 	* fix number_chars and friends non ISO conforming behavior
 	* modify wam2ma to avoid static arrays (use dynamic allocation)
@@ -251,7 +265,7 @@ Wed Mar 31 16:26:10 MET 1999 <Daniel.Diaz@inria.fr>
 	* add copyright headers in source files
 
 Thu Mar 30 17:20:10 MET 1999 <Daniel.Diaz@inria.fr>
-	
+
 	* rewrite all solutions built-in predicates (in C)
 	* add in-place sorts
 

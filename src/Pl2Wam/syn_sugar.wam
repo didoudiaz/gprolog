@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : syn_sugar.pl
-% date    : 9 16 2001
-% time    : 18:21:0
+% date    : 9 17 2001
+% time    : 19:18:8
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/syn_sugar.pl').
