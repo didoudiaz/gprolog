@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/OSF on alpha                         *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2003 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *

@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2003 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *

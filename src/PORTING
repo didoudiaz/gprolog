@@ -1,5 +1,5 @@
 
-Here are some help to port GNU Prolog (I suppose you are in src/).
+Here are some help to port GNU Prolog.
 
 1) I suppose you are in ROOT_DIR/src:
 
@@ -32,13 +32,13 @@ mini-assembly. You have to write a translator for the target machine
 (mini-asm to assembly). You can use an existing translation file as example
 and/or look at the assembly produced by gcc. For that you can do:
 
-% Ma2Asm/FromC
+% cd Ma2Asm/FromC
 % make
 
 This will create a file asm_inst.s from asm_inst.c. The study of both files
-can help you to write the translater.
+can help you to write the translater (in Ma2Asm/).
 
-You can check your trnaslation using the check program (in Ma2Asm/):
+You can check your translation using the check program (in Ma2Asm/):
 
 % make check
 % ./check
