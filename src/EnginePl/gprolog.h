@@ -41,8 +41,8 @@ extern "C" {
 #define M_ix86_linux 1
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
-#define PROLOG_VERSION "1.2.14"
-#define PROLOG_DATE "Jun 20 2002"
+#define PROLOG_VERSION "1.2.15"
+#define PROLOG_DATE "Sep 12 2002"
 #define PROLOG_COPYRIGHT "Copyright (C) 1999-2002 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
@@ -1332,7 +1332,7 @@ WamWord Pl_Get_Exception(void);
 #define Atom_Needs_Quote(a)    (atom_tbl[(a)].prop.needs_quote)
 #define Atom_Needs_Scan(a)     (atom_tbl[(a)].prop.needs_scan)
 #define atom_nil               ATOM_NIL
-#define Stream_Pointer(s)      (stm_tbl+(s))
+#define Stream_Pointer(s)      (stm_tbl + (s))
 #define MASK_PRED_NATIVE_CODE      1
 #define MASK_PRED_DYNAMIC          2
 #define MASK_PRED_PUBLIC           4

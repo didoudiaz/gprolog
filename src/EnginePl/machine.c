@@ -786,12 +786,16 @@ M_Real_Time(void)
 void
 M_Randomize(void)
 {
+#ifdef M_ix86_win32
+  int seed = GetTickCount();
+#else
   struct timeval tv;
   int seed;
 
   gettimeofday(&tv, NULL);
-  seed = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) ^ getpid();
-  seed = seed & 0xFFFFFF;
+  seed = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+#endif
+  seed = (seed ^ getpid()) & 0xFFFFFF;
 
   M_Set_Seed(seed);
 }
