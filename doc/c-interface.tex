@@ -51,7 +51,7 @@ which applies. Possible options are:
 \item \IdxPOD[fct\_name]{fct\_name(F)}: \texttt{F} is an atom representing
 the name of the C function to call. By default the name of the C function is
 the same as the principal functor of \texttt{Template}. In any case, the atom
-associated to the name of the function must conforms to the syntax of C
+associated with the name of the function must conforms to the syntax of C
 identifiers.
 
 \item \IdxPOD[return]{return(boolean}/\texttt{none}/\texttt{jump)}:
@@ -230,7 +230,7 @@ explained in the following sections.
 \label{Input-arguments}
 An input argument is tested at run-time to check if its type conforms to the
 foreign type and then it is passed to the C function. The type of the
-associated C argument is given by the above table \RefSP{foreign/2-directive}. For instance, the effective argument \texttt{Arg} associated to
+associated C argument is given by the above table \RefSP{foreign/2-directive}. For instance, the effective argument \texttt{Arg} associated with
 \texttt{+positive} foreign declaration is submitted to the following
 process:
 
@@ -263,7 +263,7 @@ An output argument is tested at run-time to check if its type conforms to
 the foreign type and it is unified with the value set by the C function. The
 type of the associated C argument is a pointer to the type given by the
 above table \RefSP{foreign/2-directive}. For instance, the effective
-argument \texttt{Arg} associated to \texttt{-positive} foreign declaration
+argument \texttt{Arg} associated with \texttt{-positive} foreign declaration
 is handled as follows:
 
 \begin{itemize}
@@ -326,7 +326,7 @@ argument with the same conventions as for input arguments
 conventions as for output arguments
 \RefSP{Output-arguments}.
 
-For instance, the effective argument \texttt{Arg} associated to
+For instance, the effective argument \texttt{Arg} associated with
 \texttt{?positive} foreign declaration is handled as follows:
 
 \begin{itemize}
@@ -382,7 +382,7 @@ The macro \texttt{Get\_Choice\_Buffer(\Param{TYPE})} returns a
 pointer to the buffer (casted to \Param{TYPE}).
 
 The function \texttt{No\_More\_Choice()} deletes the choice point
-associated to the function.
+associated with the function.
 
 \subsubsection{Example: input and output arguments}
 All examples presented here can be found in the \texttt{ExamplesC}
@@ -726,7 +726,7 @@ atom whose name is \texttt{str} or \texttt{-1} if does not exist.
 
 All atoms corresponding to a single character already exist and their
 key can be obtained via the macro \texttt{ATOM\_CHAR}.  For
-instance \texttt{ATOM\_CHAR('.')} is the atom associated to
+instance \texttt{ATOM\_CHAR('.')} is the atom associated with
 \texttt{'.'} (this atom is the functor of lists). The other variables
 correspond to the internal key of frequently used atoms: \texttt{[]},
 \texttt{false}, \texttt{true} and \texttt{end\_of\_file}.
@@ -1122,7 +1122,7 @@ The following function raises a type error \RefSP{Type-error}:
 
 \OneLine{void Pl\_Err\_Type(int atom\_type, PlTerm culprit)}
 
-\texttt{atom\_type} is (the internal key of) the atom associated to the
+\texttt{atom\_type} is (the internal key of) the atom associated with the
 expected type. For each type name \Param{T} there is a
 corresponding predefined atom stored in a global variable whose name is of
 the form \texttt{type\_\Param{T}}. \texttt{culprit} is the argument which
@@ -1136,7 +1136,7 @@ The following function raises a domain error \RefSP{Domain-error}:
 
 \OneLine{void Pl\_Err\_Domain(int atom\_domain, PlTerm culprit)}
 
-\texttt{atom\_domain} is (the internal key of) the atom associated to the
+\texttt{atom\_domain} is (the internal key of) the atom associated with the
 expected domain. For each domain name \Param{D} there is a
 corresponding predefined atom stored in a global variable whose name is of
 the form \texttt{domain\_\Param{D}}. \texttt{culprit} is the argument which
@@ -1150,7 +1150,7 @@ The following function raises an existence error \RefSP{Existence-error}:
 
 \OneLine{void Pl\_Err\_Existence(int atom\_object, PlTerm culprit)}
 
-\texttt{atom\_object} is (the internal key of) the atom associated to the
+\texttt{atom\_object} is (the internal key of) the atom associated with the
 type of the object. For each object name \Param{O} there is a
 corresponding predefined atom stored in a global variable whose name is of
 the form \texttt{existence\_\Param{O}}. \texttt{culprit} is the argument
@@ -1165,12 +1165,12 @@ The following function raises a permission error \RefSP{Permission-error}:
 \OneLine{void Pl\_Err\_Permission(int atom\_operation, int atom\_permission,
 PlTerm culprit)}
 
-\texttt{atom\_operation} is (the internal key of) the atom associated to the
+\texttt{atom\_operation} is (the internal key of) the atom associated with the
 operation which caused the error. For each operation name
 \Param{O} there is a corresponding predefined atom stored in a
 global variable whose name is of the form
 \texttt{permission\_operation\_\Param{O}}. \texttt{atom\_permission} is
-(the internal key of) the atom associated to the tried permission. For each
+(the internal key of) the atom associated with the tried permission. For each
 permission name \Param{P} there is a corresponding predefined atom
 stored in a global variable whose name is of the form
 \texttt{permission\_type\_\Param{P}}. \texttt{culprit} is the argument
@@ -1185,7 +1185,7 @@ The following function raises a representation error \RefSP{Representation-error
 
 \OneLine{void Pl\_Err\_Representation(int atom\_limit)}
 
-\texttt{atom\_limit} is (the internal key of) the atom associated to the
+\texttt{atom\_limit} is (the internal key of) the atom associated with the
 reached limit. For each limit name \Param{L} there is a
 corresponding predefined atom stored in a global variable whose name is of
 the form \texttt{representation\_\Param{L}}.
@@ -1198,7 +1198,7 @@ The following function raises an evaluation error \RefSP{Evaluation-error}:
 
 \OneLine{void Pl\_Err\_Evaluation(int atom\_error)}
 
-\texttt{atom\_error} is (the internal key of) the atom associated to the
+\texttt{atom\_error} is (the internal key of) the atom associated with the
 error. For each evaluation error name \Param{E} there is a
 corresponding predefined atom stored in a global variable whose name is of
 the form \texttt{evaluation\_\Param{E}}.
@@ -1211,7 +1211,7 @@ The following function raises a resource error \RefSP{Resource-error}:
 
 \OneLine{void Pl\_Err\_Resource(int atom\_resource)}
 
-\texttt{atom\_resource} is (the internal key of) the atom associated to the
+\texttt{atom\_resource} is (the internal key of) the atom associated with the
 resource. For each resource error name \Param{R} there is a
 corresponding predefined atom stored in a global variable whose name is of
 the form \texttt{resource\_\Param{R}}.
@@ -1224,7 +1224,7 @@ The following function raises a syntax error \RefSP{Syntax-error}:
 
 \OneLine{void Pl\_Err\_Syntax(int atom\_error)}
 
-\texttt{atom\_error} is (the internal key of) the atom associated to the
+\texttt{atom\_error} is (the internal key of) the atom associated with the
 error. There is no predefined syntax error atoms. 
 
 \SPart{Example}: a \texttt{/} is expected:
@@ -1251,13 +1251,13 @@ The following function raises a system error (4.3.11, page *):
 
 \OneLine{void Pl\_Err\_System(int atom\_error)}
 
-\texttt{atom\_error} is (the internal key of) the atom associated to the
+\texttt{atom\_error} is (the internal key of) the atom associated with the
 error. There is no predefined system error atoms. 
 
 \SPart{Example}: an invalid pathname is given:
 \texttt{Pl\_Err\_System(Create\_Atom("invalid path name"))}.
 
-The following function emits a system error associated to an operating
+The following function emits a system error associated with an operating
 system error according to the value of the \IdxPF{os\_error}
 \Idx{Prolog flag} \RefSP{set-prolog-flag/2}. This function can then return (if the value of the flag is either \texttt{warning} or \texttt{fail}).
 In that case the calling function should fail (e.g. returning

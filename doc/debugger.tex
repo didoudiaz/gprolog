@@ -36,11 +36,11 @@ Each arrow corresponds to a \emph{port}. An arrow to the box indicates
 that the control is given to this predicate while an arrow from the box
 indicates that the control is given back from the procedure. This model
 visualizes the control flow through these five ports and the connections
-between the boxes associated to subgoals. Finally, it should be clear that a
-box is associated to one invocation of a given predicate. In particular, a
+between the boxes associated with subgoals. Finally, it should be clear that a
+box is associated with one invocation of a given predicate. In particular, a
 recursive predicate will give raise to a box for each invocation of the
 predicate with different entries/exits in the control flow. Since this might
-get confusing for the user, the debugger associates to each box a unique
+get confusing for the user, the debugger associates with each box a unique
 identifier (i.e. the invocation number). 
 
 \subsection{Debugging predicates}
@@ -60,7 +60,7 @@ will be traced.
 \texttt{debug/0} activates the debugger. The next invocation of a predicate
 on which a spy-point has been set will be traced.
 
-It is important to understand that the information associated to the control
+It is important to understand that the information associated with the control
 flow is only available when the debugger is on. For efficiency reasons, when
 the debugger is off the information concerning the control flow (i.e. the
 boxes) is not retained. So, if the debugger is activated in the middle of a
@@ -313,7 +313,7 @@ indicator. Uses \IdxDB{spypoint\_condition/3} \RefSP{Spy-points} \\
 
 \hline
 
-\texttt{L} & listing & list the clauses associated to the current predicate.
+\texttt{L} & listing & list the clauses associated with the current predicate.
 Uses \IdxPB{listing/1} \RefSP{listing/1} \\
 
 \hline

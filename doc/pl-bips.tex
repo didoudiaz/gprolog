@@ -700,7 +700,7 @@ term\_ref(?term, +integer)
 
 \texttt{term\_ref(Term, Ref)} succeeds if the internal reference of
 \texttt{Term} is \texttt{Ref}. This predicate can be used either to obtain
-the internal reference of a term or to obtain the term associated to a given
+the internal reference of a term or to obtain the term associated with a given
 reference. Note that two identical terms can have different internal
 references. A good way to use this predicate is to first record the internal
 reference of a given term and to later re-obtain the term via this
@@ -1265,7 +1265,7 @@ static procedure}
 
 \Portability
 
-ISO predicate. In the ISO reference, the operation associated to the
+ISO predicate. In the ISO reference, the operation associated with the
 \texttt{permission\_error} is \texttt{access} while it is \texttt{modify} in
 GNU Prolog. This seems to be an error of the ISO reference since for
 \texttt{asserta/1} (which is similar in spirit to \texttt{retract/1}) the
@@ -1658,7 +1658,7 @@ data from a source. A source/sink may be a file (regular file, terminal,
 device,\ldots), a constant term, a pipe, a socket,\ldots 
 
 \SPart{Associating a stream to a source/sink}: to manipulate a source/sink
-it must be associated to a stream. This provides a logical and uniform view
+it must be associated with a stream. This provides a logical and uniform view
 of the source/sink whatever its type. Once this association has been
 established, i.e. a stream has been created, all subsequent references to
 the source/sink are made by referring the stream. A stream is
@@ -1669,7 +1669,7 @@ makes it possible to treat a Prolog constant term as a source/sink and
 provides built-in predicates to associate a stream to such a term
 \RefSP{Constant-term-streams}. GNU Prolog provides operating system interface
 predicates defining pipes between GNU Prolog and child processes with streams
-associated to these pipes, e.g. \IdxPB{popen/3} \RefSP{popen/3}.
+associated with these pipes, e.g. \IdxPB{popen/3} \RefSP{popen/3}.
 Similarly, socket interface predicates associate streams to a socket to
 allow the communication, e.g. \IdxPB{socket\_connect/4}
 \RefSP{socket-connect/4}.
@@ -1684,7 +1684,7 @@ which is an atom which may be used to refer to that stream. The association
 can be done at open time or using \IdxPB{add\_stream\_alias/2}
 \RefSP{add-stream-alias/2}. Such an association automatically ends when the
 stream is closed. A particular alias only refers to at most one stream at any
-one time. However, more than one alias can be associated to a stream. Most
+one time. However, more than one alias can be associated with a stream. Most
 built-in predicates which have a stream-term as an input argument also accept
 a stream alias as that argument. However, built-in predicates which return a
 stream-term do not accept a stream alias.
@@ -1892,7 +1892,7 @@ open(+source\_sink, +io\_mode, -stream)
 \texttt{open(SourceSink, Mode, Stream, Options)} opens the source/sink
 \texttt{SourceSink} for input or output as indicated by \texttt{Mode} and
 the list of stream-options \texttt{Options} and unifies \texttt{Stream} with
-the stream-term which is associated to this stream. See
+the stream-term which is associated with this stream. See
 \IdxPB{absolute\_file\_name/2} for information about the syntax of
 \texttt{SourceSink} \RefSP{absolute-file-name/2}.
 
@@ -2233,7 +2233,7 @@ the stream position is end-of-stream then \texttt{E} is unified with
 is unified with \texttt{past} else \texttt{E} is unified with \texttt{not}.
 
 \item \IdxPPD[position]{position(P)}: \texttt{P} is the stream-position
-term associated to the current position.
+term associated with the current position.
 
 \end{itemize}
 
@@ -2314,7 +2314,7 @@ stream\_position(+stream\_or\_alias, ?stream\_position)
 \Description
 
 \texttt{stream\_position(SorA, Position)} succeeds unifying
-\texttt{Position} with the stream-position term associated to the current
+\texttt{Position} with the stream-position term associated with the current
 position of the stream-term or alias \texttt{SorA}. This predicate can be
 defined using \IdxPB{stream\_property/2} \RefSP{stream-property/2}.
 
@@ -2748,7 +2748,7 @@ characters (or bytes) read from (or written to) \texttt{SorA} are also
 written to \texttt{Mirror}. This mirroring occurs until \texttt{Mirror} is
 explicitely removed using \IdxPB{remove\_stream\_mirror/2}
 \RefSP{remove-stream-mirror/2} or implicitely when \texttt{Mirror} is closed.
-Several mirror streams can be associated to a same stream. If \texttt{Mirror}
+Several mirror streams can be associated with a same stream. If \texttt{Mirror}
 represents the same stream as \texttt{SorA} or if \texttt{Mirror} is already
 a mirror for \texttt{SorA}, no mirror is added.
 
@@ -3014,7 +3014,7 @@ open\_input\_codes\_stream(+character\_code\_list, -stream)
 \Description
 
 \texttt{open\_input\_atom\_stream(Atom, Stream)} unifies \texttt{Stream}
-with the stream-term which is associated to a new input text-stream whose
+with the stream-term which is associated with a new input text-stream whose
 data are the characters of \texttt{Atom}.
 
 \texttt{open\_input\_chars\_stream(Chars, Stream)} is similar to
@@ -3137,7 +3137,7 @@ open\_output\_codes\_stream(-stream)
 \Description
 
 \texttt{open\_output\_atom\_stream(Stream)} unifies \texttt{Stream} with the
-stream-term which is associated to a new output text-stream. All characters
+stream-term which is associated with a new output text-stream. All characters
 written to this stream are collected and will be returned as an atom when
 the stream is closed by \texttt{close\_ouput\_atom\_stream/2}
 \RefSP{close-output-atom-stream/2}.
@@ -3180,7 +3180,7 @@ close\_output\_codes\_stream(+stream\_or\_alias, ?character\_code\_list)
 
 \texttt{close\_output\_atom\_stream(SorA, Atom)} closes the constant term
 stream associated with the stream-term or alias \texttt{SorA}. \texttt{SorA} must
-be associated to a stream open with \texttt{open\_output\_atom\_stream/1}
+be associated with a stream open with \texttt{open\_output\_atom\_stream/1}
 \RefSP{open-output-atom-stream/1}.  \texttt{Atom} is unified with an atom
 formed with all characters written on the stream.
 
@@ -3834,7 +3834,7 @@ order. Anonymous variables are included in the list \texttt{VL}.
 
 \item \IdxPOD[variable\_names]{variable\_names(VNL)}: \texttt{VNL} is
 unified with the list of pairs \texttt{Name = Var} where \texttt{Var} is a
-named variable of the term and \texttt{Name} is the atom associated to the
+named variable of the term and \texttt{Name} is the atom associated with the
 name of \texttt{Var}.  Anonymous variables are not included in the list
 \texttt{VNL}.
 
@@ -4101,7 +4101,7 @@ syntax\_error\_info(?atom, ?integer, ?integer, ?atom)
 \Description
 
 \texttt{syntax\_error\_info(FileName, Line, Column, Error)} returns the
-information associated to the last syntax error. \texttt{Line} is the line
+information associated with the last syntax error. \texttt{Line} is the line
 number of the error, \texttt{Column} is the column number of the error and
 \texttt{Error} is an atom explaining the error.
 
@@ -4136,7 +4136,7 @@ last\_read\_start\_line\_column(?integer, ?integer)
 \Description
 
 \texttt{last\_read\_start\_line\_column(Line, Column)} unifies \texttt{Line}
-and \texttt{Column} with the line number and the column number associated to
+and \texttt{Column} with the line number and the column number associated with
 the start of the last read predicate. This predicate can be used after
 calling one of the following predicates: \IdxPB{read\_term/3},
 \IdxPB{read\_term/2}, \IdxPB{read/2}, \IdxPB{read/1}
@@ -4392,7 +4392,7 @@ Format sequence  & type of the argument & Description \\
 
 \hline
 
-\texttt{\~{}Nc} & character code & print the character associated to the
+\texttt{\~{}Nc} & character code & print the character associated with the
 code. \texttt{N} is the number of times to print the character (default: 1)\\
 
 \hline
@@ -4623,7 +4623,7 @@ get\_print\_stream(?stream)
 \Description
 
 \texttt{get\_print\_stream(Stream)} unifies \texttt{Stream} with the
-stream-term associated to the output stream used by \IdxPB{print/2}
+stream-term associated with the output stream used by \IdxPB{print/2}
 \RefSP{write-term/3}. The purpose of this predicate is to allow a
 user-defined \IdxPB{portray/1} predicate to identify the output stream in
 use.
@@ -5364,7 +5364,7 @@ provided as \texttt{FileName} to these predicates.
 
 \Errors
 
-See errors associated to \texttt{open/4} \RefSP{open/4}.
+See errors associated with \texttt{open/4} \RefSP{open/4}.
 
 \Portability
 
@@ -6298,7 +6298,7 @@ atom\_hash(?atom, +integer)
 \Description
 
 \texttt{atom\_hash(Atom, Hash)} succeeds if \texttt{Hash} is the internal
-key associated to \texttt{Atom} (an existing atom). The internal key of an
+key associated with \texttt{Atom} (an existing atom). The internal key of an
 atom is a unique integer $\geq$ 0 and $<$ to the \IdxPF{max\_atom}
 \Idx{Prolog flag} \RefSP{set-prolog-flag/2}.
 
@@ -6797,7 +6797,7 @@ GNU Prolog predicates.
 \label{Global-variables}
 
 GNU Prolog provides a simple and powerful way to assign and read global
-variables. A global variable is associated to each atom, its initial value is
+variables. A global variable is associated with each atom, its initial value is
 the integer 0. A global variable can store 3 kinds of objects:
 
 \begin{itemize}
@@ -6811,11 +6811,11 @@ the integer 0. A global variable can store 3 kinds of objects:
 \end{itemize}
 
 The space necessary for copies and arrays is dynamically allocated and
-recovered as soon as possible. For instance, when an atom is associated to a
+recovered as soon as possible. For instance, when an atom is associated with a
 global variable whose current value is an array, the space for this array is
 recovered (unless the assignment is to be undone when backtracking occurs).
 
-When a link to a term is associated to a global variable, the reference to
+When a link to a term is associated with a global variable, the reference to
 this term is stored and thus the original term is returned when the content
 of the variable is read.
 
@@ -6856,13 +6856,13 @@ When a \Param{GVarName} is used as an index or an argument number
 Here are some examples of the naming convention:
 
 \begin{tabular}{ll}
-\texttt{a} & the content of variable associated to \texttt{a} (any kind) \\
-\texttt{t(1)} & the 2nd element of the array associated to \texttt{t} \\
-\texttt{t(k)} & if the value associated to \texttt{k} is I, the Ith element of the array associated to \texttt{t} \\
-\texttt{a-1-2} & if the value associated to \texttt{a} is \texttt{f(g(a,b,c),2)}, the sub-term \texttt{b} \\
+\texttt{a} & the content of variable associated with \texttt{a} (any kind) \\
+\texttt{t(1)} & the 2nd element of the array associated with \texttt{t} \\
+\texttt{t(k)} & if the value associated with \texttt{k} is I, the Ith element of the array associated with \texttt{t} \\
+\texttt{a-1-2} & if the value associated with \texttt{a} is \texttt{f(g(a,b,c),2)}, the sub-term \texttt{b} \\
 \end{tabular}
 
-Here are the errors associated to global variable names and common to all
+Here are the errors associated with global variable names and common to all
 predicates.
 
 \begin{PlErrorsNoTitle}
@@ -8258,7 +8258,7 @@ absolute\_file\_name(+atom, atom)
 \Description
 
 \texttt{absolute\_file\_name(File1, File2)} succeeds if \texttt{File2} is
-the absolute pathname associated to the relative file name \texttt{File1}.
+the absolute pathname associated with the relative file name \texttt{File1}.
 \texttt{File1} can contain \texttt{\$\Param{VAR\_NAME}} sub-strings. When
 such a sub-string is encountered, it is expanded with the value of the
 environment variable whose name is \Param{VAR\_NAME} if exists
@@ -8354,7 +8354,7 @@ prolog\_file\_name(+atom, ?atom)
 \Description
 
 \texttt{prolog\_file\_name(File1, File2)} unifies \texttt{File2} with the
-Prolog file name associated to \texttt{File1}. More precisely \texttt{File2}
+Prolog file name associated with \texttt{File1}. More precisely \texttt{File2}
 is computed as follows:
 
 \begin{itemize}
@@ -8476,7 +8476,7 @@ argument\_list(?list)
 \Description
 
 \texttt{argument\_list(Args)} succeeds if \texttt{Args} unifies with the
-list of atoms associated to each argument on the command-line other than the
+list of atoms associated with each argument on the command-line other than the
 first argument (the name of the running program).
 
 \begin{PlErrors}
@@ -9323,11 +9323,11 @@ exec(+atom, -stream, -stream, -stream)
 \texttt{exec(Command, StreamIn, StreamOut, StreamErr, Pid)} invokes a new
 default shell passing \texttt{Command} for execution and associates streams
 to standard streams of the created process. \texttt{StreamIn} is unified
-with the stream-term associated to the standard input stream of
+with the stream-term associated with the standard input stream of
 \texttt{Command} (it is an output stream). \texttt{StreamOut} is unified
-with the stream-term associated to the standard output stream of
+with the stream-term associated with the standard output stream of
 \texttt{Command} (it is an input stream). \texttt{StreamErr} is unified with
-the stream-term associated to the standard error stream of \texttt{Command}
+the stream-term associated with the standard error stream of \texttt{Command}
 (it is an input stream). \texttt{Pid} is unified with the process identifier
 of the new process. This information is only useful if it is necessary to
 obtain the status of the execution using \texttt{wait/2} \RefSP{wait/2}.
@@ -9416,8 +9416,8 @@ create\_pipe(-stream, -stream)
 
 \texttt{create\_pipe(StreamIn, StreamOut)} creates  a  pair  of streams
 pointing to a pipe inode. \texttt{StreamIn} is unified with the stream-term
-associated to the input side of the pipe and \texttt{StreamOut} is unified
-with the stream-term associated to output side. This predicate is an
+associated with the input side of the pipe and \texttt{StreamOut} is unified
+with the stream-term associated with output side. This predicate is an
 interface to the C Unix function \texttt{pipe(2)}.
 
 \begin{PlErrors}
@@ -9638,11 +9638,11 @@ list is an integer $<$ 0}
 list is a stream-tern or alias not associated with an open stream}
 \ErrTerm{existence\_error(stream, E)}
 
-\ErrCond{an element \texttt{E} of the \texttt{Reads} list is associated to
+\ErrCond{an element \texttt{E} of the \texttt{Reads} list is associated with
 an output stream}
 \ErrTerm{permission\_error(input, stream, E)}
 
-\ErrCond{an element \texttt{E} of the \texttt{Writes} list is associated to
+\ErrCond{an element \texttt{E} of the \texttt{Writes} list is associated with
 an input stream}
 \ErrTerm{permission\_error(output, stream, E)}
 
@@ -9682,7 +9682,7 @@ An address is either of the form \texttt{'AF\_INET'(HostName, Port)} or
 machine name, \texttt{Port} is a port number and \texttt{SocketName} is an
 atom denoting a socket. 
 
-By default, streams associated to sockets are \texttt{block} buffered. The
+By default, streams associated with sockets are \texttt{block} buffered. The
 predicate \IdxPB{set\_stream\_buffering/2} \RefSP{set-stream-buffering/2}
 can be used to change this mode. They are also text streams by default. Use
 \IdxPB{set\_stream\_type/2} \RefSP{set-stream-type/2} to change the type
@@ -9837,9 +9837,9 @@ socket\_connect(+integer, +socket\_address, -stream, -stream)
 \texttt{socket\_connect(Socket, Address, StreamIn, StreamOut)} connects the
 socket whose descriptor is \texttt{Socket} to the address specified by
 \texttt{Address} \RefSP{Sockets-input/output}. \texttt{StreamIn} is
-unified with a stream-term associated to the input of the connection (it is
+unified with a stream-term associated with the input of the connection (it is
 an input stream). Reading from this stream gets data from the socket.
-\texttt{StreamOut} is unified with a stream-term associated to the output of
+\texttt{StreamOut} is unified with a stream-term associated with the output of
 the connection (it is an output stream). Writing to this stream sends data
 to the socket. The use of \IdxPB{select/5} can be useful
 \RefSP{select/5}. This predicate is an interface to the C Unix function
@@ -9951,9 +9951,9 @@ first connection to the socket whose descriptor is \texttt{Socket}. If the
 domain is \texttt{'AF\_INET'}, \texttt{Client} is unified with an atom whose
 name is the Internet host address in numbers-and-dots notation of the
 connecting machine. \texttt{StreamIn} is unified with a stream-term
-associated to the input of the connection (it is an input stream). Reading
+associated with the input of the connection (it is an input stream). Reading
 from this stream gets data from the socket. \texttt{StreamOut} is unified
-with a stream-term associated to the output of the connection (it is an
+with a stream-term associated with the output of the connection (it is an
 output stream). Writing to this stream sends data to the socket. The use of
 \IdxPB{select/5} can be useful \RefSP{select/5}. This predicate is an
 interface to the C Unix function \texttt{accept(2)}.

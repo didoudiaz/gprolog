@@ -75,7 +75,7 @@ switching occurs some values in the domain of \texttt{X} can be lost since
 \texttt{X} is constrained by the solver to the domain
 \texttt{0..vector\_max} (via an imaginary constraint
 \texttt{X \#={\lt} \Param{vector\_max}}). An \IdxFKD{extra\_cstr} is
-associated to each FD variable to indicate that values have been lost due to
+associated with each FD variable to indicate that values have been lost due to
 the switch to a sparse representation. This flag is updated on every
 operations. The domain of an extra-constrained FD variable is output followed
 by the \texttt{@} symbol. When a constraint fails on a extra-constrained

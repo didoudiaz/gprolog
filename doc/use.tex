@@ -599,7 +599,7 @@ known words and uses it to complete the prefix of a word. Initially this list
 contains all predefined atoms and the atoms corresponding to available
 predicates. This list is dynamically updated when a new atom appears in the
 system (whether read at the top-level, created with a built-in predicate,
-associated to a new consulted predicate,\ldots). When the completion key
+associated with a new consulted predicate,\ldots). When the completion key
 (\texttt{Tab}) is pressed \texttt{linedit} acts as follows:
 
 \begin{itemize}
@@ -1014,7 +1014,7 @@ The name of the output file is controlled via the \texttt{-o}
 \Param{FILE} option. If present the output file produced will be
 named \Param{FILE}. If not specified, the output file name depends on the
 last stage reached by the compiler. If the link is not done the output file
-name(s) is the input file name(s) with the suffix associated to the last
+name(s) is the input file name(s) with the suffix associated with the last
 stage. If the link is done, the name of the executable is the name (without
 suffix) of the first file name encountered in the command-line.  Note that if
 the link is not done \texttt{-o} has no sense in the presence of multiple
@@ -1245,7 +1245,7 @@ Example: \texttt{'x+y=z'} will be encoded as \texttt{X782B793D7A} since
 
 Since Prolog allows the user to define several predicates with the same name
 but with a different arity GNU Prolog encodes predicate indicators (predicate
-name followed by the arity). The symbol associated to the predicate name is
+name followed by the arity). The symbol associated with the predicate name is
 then followed by an underscore and by the decimal notation of the arity.
 
 Example: \texttt{'x+y=z'/3} will be encoded as \texttt{X782B793D7A\_3}.
@@ -1255,7 +1255,7 @@ by its hexadecimal encoding. The knowledge of this encoding is normally not
 of interest for the user, i.e. the Prolog programmer. For this reason the
 GNU Prolog compiler hides this encoding. When an error occurs on a predicate
 (undefined predicate, predicate with multiple definitions,\ldots) the
-compiler has to decode the symbol associated to the predicate indicator. For
+compiler has to decode the symbol associated with the predicate indicator. For
 this \IdxK{gplc} filters each message emitted by the linker to locate and
 decode eventual predicate indicators. This filtering can be deactivated
 specifying \texttt{--no-decode-hexa} when invoking \IdxK{gplc} \RefSP{Using-the-compiler}.

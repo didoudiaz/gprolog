@@ -294,7 +294,7 @@ provided to raise errors. These predicates are of the form
 \texttt{'\$pl\_err\_...'} and they all refer to the implicit error context.
 The predicates \IdxPB{set\_bip\_name/2} \RefSP{set-bip-name/2} and
 \IdxPB{current\_bip\_name/2} \RefSP{current-bip-name/2} are provided to
-set and recover the name and the arity associated to this context (an arity
+set and recover the name and the arity associated with this context (an arity
 $<$ 0 means that only the atom corresponding to the functor is significant).
 Using these system predicates the user could define the above predicate as
 follow:
@@ -643,7 +643,7 @@ error in the current error context \RefSP{General-format-and-error-context}.
 
 \subsubsection{System error}
 A system error can occur at any stage. A system error is generally
-associated to an external component (e.g. operating system).
+associated with an external component (e.g. operating system).
 \Param{ErrorTerm} has the following form:
 \texttt{system\_error(\Param{Error})} where \Param{Error} is an
 atom explaining the error. This is an extension to ISO which only defines
