@@ -41,6 +41,7 @@
 #include <direct.h>
 #include <io.h>
 #include <winsock.h>
+#include <fcntl.h>
 #else
 #define _XOPEN_SOURCE_EXTENDED	/* for alpha/OSF (usleep prototype) */
 #include <dirent.h>
@@ -1104,7 +1105,11 @@ Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
   FILE *f_in, *f_out;
   int atom;
 
+#ifdef M_ix86_win32
+  Os_Test_Error(_pipe(p, 4096, O_TEXT));
+#else
   Os_Test_Error(pipe(p));
+#endif
 
   Os_Test_Error((f_in = fdopen(p[0], "rt")) == NULL);
   sprintf(glob_buff, "pipe_stream_in");
@@ -1133,12 +1138,21 @@ Bool
 Fork_Prolog_1(WamWord pid_word)
 
 {
+#if defined(M_ix86_win32)
+
+  Pl_Err_Resource(Create_Atom("not implemented"));
+  return FALSE;
+
+#else
+
   int pid;
 
   pid = fork();
   Os_Test_Error(pid == -1);
 
   return Get_Integer(pid, pid_word);
+
+#endif
 }
 
 

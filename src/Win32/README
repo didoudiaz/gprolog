@@ -29,9 +29,6 @@ The stages executed are:
 
    7- build the setup auto-extract file
 
-The setup  spec file created is called: gprolog.spec (it is also copied in the
-SPECS directory of the RPM tree).
-
 The setup file is created in /tmp and called setup-gprolog-VERSION.exe
 
 
