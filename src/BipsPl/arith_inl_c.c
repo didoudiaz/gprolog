@@ -109,7 +109,7 @@ static WamWord Load_Math_Expression(WamWord exp);
 #define DFract(x)    ((double) ((x) - (long) (x)))
 
 
-#define X_and_Y_are_INT(x, y)  Tag_Is_INT(x | y)
+#define X_and_Y_are_INT(x, y)  Tag_Is_INT(x & y)
 
 
 #define IFxIFtoIF(x, y, c_op, fast_op)                     \

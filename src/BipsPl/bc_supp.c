@@ -862,7 +862,7 @@ BC_Emulate_Clause(DynCInf *clause)
 
   if (bc)			/* emulated code */
     return BC_Emulate_Byte_Code(bc);
-  /* interpreted code */
+				/* interpreted code */
   Copy_Clause_To_Heap(clause, &head_word, &body_word);
 
   arg_adr = Rd_Callable_Check(head_word, &func, &arity);
@@ -871,9 +871,9 @@ BC_Emulate_Clause(DynCInf *clause)
     if (!Unify(A(i), *arg_adr++))
       goto fail;
 
+  A(2) = A(arity);		/* before since pb with cut if arity <= 1 */
   A(0) = body_word;
   A(1) = Tag_INT(Call_Info(func, arity, debug_call));
-  A(2) = A(arity);
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 3);
 
 fail:

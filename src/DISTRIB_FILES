@@ -28,6 +28,7 @@ ExamplesPl/YAP/[A-B,D-Z]*
 ExamplesPl/WAMCC/[A-B,D-Z]*
 ExamplesPl/SICSTUS/[A-B,D-Z]*
 ExamplesPl/CIAO/[A-B,D-Z]*
+ExamplesPl/BINPROLOG/[A-B,D-Z]*
 ExamplesPl/XSB/[A-B,D-Z]*
 ExamplesPl/SWI/[A-B,D-Z]*
 

@@ -1271,7 +1271,6 @@ void Copy_Term(WamWord *dst_adr, WamWord *src_adr);
 void Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 int Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 		       int *arity);
-char *Float_To_String(double d);
 #include <stdio.h>
 #define STREAM_PB_SIZE             8	/* push back buffer size */
 #define STREAM_MODE_READ           0
@@ -1723,7 +1722,7 @@ char *Scan_Next_Number(StmInf *pstm, Bool integer_only);
 #define PARSE_END_OF_TERM_EOF      1
 typedef struct			/* Parsed variable information    */
 {				/* ------------------------------ */
-  char name[MAX_VAR_NAME_LENGTH];	/* variable name                */
+  char name[MAX_VAR_NAME_LENGTH]; /* variable name                */
   WamWord word;			/* associated WAM word            */
   Bool named;			/* has it a name ?                */
   int nb_of_uses;		/* occurrence counter             */
@@ -1762,6 +1761,7 @@ void Write_Term(StmInf *pstm, int depth, int prec, int mask,
 		WamWord term_word);
 void Write_Simple(WamWord term_word);
 void Write_A_Char(StmInf *pstm, int c);
+char *Float_To_String(double d);
 #define FLAG_BOUNDED               0	/* flags defining integer type */
 #define FLAG_MAX_INTEGER           1
 #define FLAG_MIN_INTEGER           2

@@ -1,3 +1,8 @@
+Mon Jan 22 12:41:26 CET 2001 <Daniel.Diaz@inria.fr>
+
+	* fix a bug with ! in dynamic code
+	* fix a bug in arithmetics
+
 Tue Dec 19 16:32:39 CET 20000 <Daniel.Diaz@inria.fr>
 
 	* big modification (1 month) to optimize the execution speed

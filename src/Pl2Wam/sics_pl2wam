@@ -1,2 +1,2 @@
 #!/bin/sh
-sicstus -l sicslib -a $*
+sicstus -l sicstus -a $*

@@ -1,3 +1,8 @@
+Change in GNU Prolog version 1.2.6:
+
+* fix a bug with ! in dynamic code
+* fix a bug in arithmetics
+
 Change in GNU Prolog version 1.2.5:
 
 * big modification (1 month) to optimize the execution speed

@@ -830,7 +830,7 @@ Generate_Tags(FILE *f, FILE *g)
   fprintf(g, "#define Tag_Short_Uns(tm, v)\t(((unsigned long) (v) << %d) + (tm))\n", tag_size_low);
 
 /* For Tag_Address the + (tm) is better than | (tm) since the C compiler can
- * optimizes thinks like Tag_Address(2, H + 1) with only 1 instruction (+ 6)
+ * optimizes things like Tag_Address(2, H + 1) with only 1 instruction (+ 6)
  * instead of 2 (1 for + 4, 1 for | TAG_STC_MASK) 
  */
   fprintf(g, "#define Tag_Address(tm, v)  \t((unsigned long) (v) + (tm))\n");
@@ -858,6 +858,7 @@ Generate_Tags(FILE *f, FILE *g)
 	  if (tag[i].value == 0)
 	    fprintf(g, "(((unsigned long) (v) << %d) & VALUE_MASK)\n", 
 		    tag_size_low);
+	  /* testing if high bits are 1 should suffice below - TO DO */
 	  else if (tag[i].value == (1 << tag_size) - 1)
 	    fprintf(g, "(((unsigned long) (v) << %d) | TAG_MASK)\n", 
 		    tag_size_low);
