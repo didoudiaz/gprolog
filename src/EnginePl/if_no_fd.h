@@ -6,7 +6,7 @@
  * Descr.: FD interface for Prolog engine - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ * Copyright (C) 1999-2001 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
