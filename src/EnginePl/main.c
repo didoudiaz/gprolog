@@ -60,8 +60,6 @@ main(int argc, char *argv[])
   int nb_user_directive;
   Bool top_level;
 
-  setlocale (LC_ALL, "");	/* Inherit locale from environment */
-
   nb_user_directive = Start_Prolog(argc, argv);
 
   top_level = Try_Execute_Top_Level();
