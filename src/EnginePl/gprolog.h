@@ -23,66 +23,21 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 /* $Id$ */
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : engine_pl.h                                                     *
- * Descr.: general header file                                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : configuration                                                   *
- * File  : gp_config.h.in                                                  *
- * Descr.: general configuration file (handled by autoconf) - header file  *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999 Daniel Diaz                                          *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 #define HAVE_TERMIOS_H 1
 #define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
+#define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
 #define M_linux 1
 #define M_ix86_linux 1
 #define PROLOG_NAME1               "gprolog"
 #define PROLOG_NAME                "GNU Prolog"
-#define PROLOG_VERSION             "1.2.4"
-#define PROLOG_DATE                "Oct 13 2000"
+#define PROLOG_VERSION             "1.2.5"
+#define PROLOG_DATE                "Dec 1 2000"
 #define PROLOG_COPYRIGHT           "Copyright (C) 1999,2000 Daniel Diaz"
 #define TOP_LEVEL                  "gprolog"
 #define GPLC                       "gplc"
@@ -93,8 +48,8 @@
 #define M_OS                       "linux-gnu"
 #define CC                         "gcc"
 #define CFLAGS_PREFIX_REG          "-ffixed-%s"
-#define CFLAGS                     "-O3 -finline-functions -fomit-frame-pointer"
-#define CFLAGS_MACHINE             "-mpentiumpro -malign-loops=2 -malign-jumps=2 -malign-functions=2"
+#define CFLAGS                     "-g -Wall"
+#define CFLAGS_MACHINE             "-mpentiumpro"
 #define LDFLAGS                    ""
 #define LDLIBS                     "-lm"
 #define AS                         "as"
@@ -112,38 +67,6 @@
 #define LIB_BIPS_FD                "libbips_fd.a"
 #define SIZEOF_LONG                4
 #define WORD_SIZE                  (8*SIZEOF_LONG)
-/*---------------------------------*
- * Miscellaneous                   *
- *---------------------------------*/
-#ifndef NO_USE_GUI_CONSOLE
-#define W32_GUI_CONSOLE
-#endif
-#ifdef M_sparc_sunos
-#define __USE_FIXED_PROTOTYPES__
-#endif
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : configuration                                                   *
- * File  : arch_dep.h                                                      *
- * Descr.: architecture dependent features - Header file                   *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 #ifdef M_ix86_win32
@@ -168,7 +91,6 @@
 #define W_OK                       02
 #define R_OK                       04
 #define X_OK                       F_OK
-#define stat                       _stat
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	           (((m)&_S_IFMT) == _S_IFDIR)
 #define	S_ISCHR(m)                 (((m)&_S_IFMT) == _S_IFCHR)
@@ -191,6 +113,12 @@
 #else
 #define Set_Line_Buf(s)            setlinebuf(s)
 #endif
+#ifndef NO_USE_GUI_CONSOLE
+#define W32_GUI_CONSOLE
+#endif
+#ifdef M_sparc_sunos
+#define __USE_FIXED_PROTOTYPES__
+#endif
 #if defined(M_ix86_sco)
 #ifndef MAXPATHLEN
 #define MAXPATHLEN 1024
@@ -199,41 +127,23 @@
 #if !defined(_WIN32) && !defined(__unix__)
 #define __unix__
 #endif
-#if defined(NO_USE_FAST_CALL) || !defined(M_ix86)
-#define FC
-#else
+#if defined(M_ix86)
+#define COULD_COMPILE_FOR_FC
 #ifdef __GNUC__
-#define FC_MAX_ARGS_IN_REGS 3
-#define FC __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
+#define FC_MAX_ARGS_IN_REGS 3	
+#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
+#define FC_ATTRIB __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
 #else  /* MSVC++ ? */
-#define FC
 #endif
+#endif
+#if !defined(NO_USE_FAST_CALL) && defined(FC_ATTRIB)
+#define FC_USED_TO_COMPILE_CORE
+#define FC FC_ATTRIB
+#else
+#define FC
 #endif
 #endif /* !_ARCH_DEP_H */
 #endif /* !_GP_CONFIG_H */
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : pl_params.h                                                     *
- * Descr.: parameter header file                                           *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #define MAX_OBJECT                 1024
 #define START_PRED_TBL_SIZE        4096
 #define START_OPER_TBL_SIZE        1024
@@ -241,37 +151,6 @@
 #define MAX_ATOM                   (1<<ATOM_SIZE)	/* number of elements */
 #define NB_OF_X_REGS               256
 #define MAX_ARITY                  (NB_OF_X_REGS-1)
-/* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
-   also the byte code management */
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : hash.h                                                          *
- * Descr.: hash table management - header file                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct
 {
   char *endt;
@@ -279,12 +158,6 @@ typedef struct
   char *cur_p;
 }
 HashScan;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 char *Hash_Alloc_Table(int tbl_size, int elem_size);
 void Hash_Free_Table(char *tbl);
 char *Hash_Realloc_Table(char *tbl, int new_tbl_size);
@@ -299,40 +172,17 @@ int Hash_Nb_Elements(char *tbl);
 #ifdef DEBUG
 void Hash_Check_Table(char *tbl);
 #endif
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : configuration                                                   *
- * File  : bool.h                                                          *
- * Descr.: boolean type definition - header file                           *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #ifndef _BOOL_H
 #define _BOOL_H
 #ifdef FALSE
-#    if FALSE!=0
+#    if FALSE != 0
 #        error "FALSE already defined with a value != 0"
 #    endif
 #else
 #define FALSE 0
 #endif
 #ifdef TRUE
-#    if TRUE!=1
+#    if TRUE != 1
 #        error "TRUE already defined with a value != 1"
 #    endif
 #else
@@ -342,73 +192,267 @@ void Hash_Check_Table(char *tbl);
 typedef int Bool;
 #endif
 #endif /* !_BOOL_H */
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : engine.h                                                        *
- * Descr.: general engine - header file                                    *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
+#define MAP_REG_TR        	"ebx"
+#define MAP_OFFSET_B     	((NB_OF_X_REGS+0)*4)
+#define MAP_OFFSET_H     	((NB_OF_X_REGS+1)*4)
+#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+2)*4)
+#define MAP_OFFSET_CP    	((NB_OF_X_REGS+3)*4)
+#define MAP_OFFSET_E     	((NB_OF_X_REGS+4)*4)
+#define MAP_OFFSET_CS    	((NB_OF_X_REGS+5)*4)
+#define MAP_OFFSET_S     	((NB_OF_X_REGS+6)*4)
+#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+7)*4)
+#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+8)*4)
+#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+9)*4)
+#define CFLAGS_REGS		"-ffixed-ebx "
+typedef long WamWord;		/* a wamword is a long (32/64 bits) */
+typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
+typedef CodePtr WamCont;	/* a continuation is a code pointer */
+#ifndef ONLY_TAG_PART
+#define X(x)                       (reg_bank[x])
+#define A(a)                       (reg_bank[a])
+typedef WamWord *WamWordP;
+register WamWordP		TR  asm ("ebx");
+#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
+#define NB_OF_REGS          	11
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
+#define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
+#define NB_OF_USED_MACHINE_REGS 1
+#ifdef ENGINE_FILE
+WamWord reg_bank[REG_BANK_SIZE];
+WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
+char *reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
+#else
+extern WamWord reg_bank[];
+extern WamWord buff_signal_reg[];
+extern char *reg_tbl[];
+#endif
+#define Init_Reg_Bank(x)  save_reg_bank = reg_bank = x
+#define Reg(i)			(((i)==0) ? (WamWord) TR 	: \
+				 ((i)==1) ? (WamWord) B  	: \
+				 ((i)==2) ? (WamWord) H  	: \
+				 ((i)==3) ? (WamWord) HB1	: \
+				 ((i)==4) ? (WamWord) CP 	: \
+				 ((i)==5) ? (WamWord) E  	: \
+				 ((i)==6) ? (WamWord) CS 	: \
+				 ((i)==7) ? (WamWord) S  	: \
+				 ((i)==8) ? (WamWord) STAMP	: \
+				 ((i)==9) ? (WamWord) BCI	: \
+				            (WamWord) LSSA)
+#define Save_All_Regs(buff_save) \
+  do { \
+    buff_save[0] = (WamWord) TR; \
+    buff_save[1] = (WamWord) B; \
+    buff_save[2] = (WamWord) H; \
+    buff_save[3] = (WamWord) HB1; \
+    buff_save[4] = (WamWord) CP; \
+    buff_save[5] = (WamWord) E; \
+    buff_save[6] = (WamWord) CS; \
+    buff_save[7] = (WamWord) S; \
+    buff_save[8] = (WamWord) STAMP; \
+    buff_save[9] = (WamWord) BCI; \
+    buff_save[10] = (WamWord) LSSA; \
+  } while(0)
+#define Restore_All_Regs(buff_save) \
+  do { \
+    TR     = (WamWordP) buff_save[0]; \
+    B      = (WamWordP) buff_save[1]; \
+    H      = (WamWordP) buff_save[2]; \
+    HB1    = (WamWordP) buff_save[3]; \
+    CP     = (WamCont ) buff_save[4]; \
+    E      = (WamWordP) buff_save[5]; \
+    CS     = (WamWordP) buff_save[6]; \
+    S      = (WamWordP) buff_save[7]; \
+    STAMP  = (WamWord ) buff_save[8]; \
+    BCI    = (WamWord ) buff_save[9]; \
+    LSSA   = (WamWordP) buff_save[10]; \
+  } while(0)
+#define Save_Machine_Regs(buff_save) \
+  do { \
+    register long reg0 asm ("ebx"); \
+    buff_save[0] = reg0; \
+  } while(0)
+#define Restore_Machine_Regs(buff_save) \
+  do { \
+    register long reg0 asm ("ebx"); \
+    reg0 = buff_save[0]; \
+  } while(0)
+#define Start_Protect_Regs_For_Signal \
+  do { \
+    Save_Machine_Regs(buff_signal_reg); \
+    buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \
+  } while(0)
+#define Stop_Protect_Regs_For_Signal \
+  buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \
+
+#define Restore_Protect_Regs_For_Signal \
+  do { \
+    if (buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \
+      Restore_Machine_Regs(buff_signal_reg); \
+      Stop_Protect_Regs_For_Signal; \
+    } \
+  } while(0)
+#endif
+#define TAG_SIZE     		3
+#define TAG_SIZE_LOW 		2
+#define TAG_SIZE_HIGH		1
+#define VALUE_SIZE   		29
+#define TAG_MASK     		0x80000003UL
+#define VALUE_MASK   		0x7ffffffcUL
+#define Tag_Mask_Of(w)		((unsigned long) (w) & (TAG_MASK))
+#define Tag_From_Tag_Mask(w) 	(((unsigned long) (w) >> 29) | ((w) & 3))
+#define Tag_Of(w)     		((((unsigned long) (w) >> 31) << 2) | ((w) & 3))
+#define TAG_REF_MASK		0UL
+#define TAG_LST_MASK		0x1UL
+#define TAG_STC_MASK		0x2UL
+#define TAG_ATM_MASK		0x3UL
+#define TAG_FLT_MASK		0x80000000UL
+#define TAG_FDV_MASK		0x80000001UL
+#define TAG_INT_MASK		0x80000003UL
+#define NB_OF_TAGS       	7
+#define REF        		0 
+#define LST        		1 
+#define STC        		2 
+#define ATM        		3 
+#define FLT        		4 
+#define FDV        		5 
+#define INT        		7 
+#define Tag_Integer(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
+#define Tag_Short_Uns(tm, v)	(((unsigned long) (v) << 2) + (tm))
+#define Tag_Address(tm, v)  	((unsigned long) (v) + (tm))
+#define UnTag_Integer(w)    	((long) ((w) << 1) >> 3)
+#define UnTag_Short_Uns(w)	UnTag_Integer(w)
+#define UnTag_Address(w)  	((WamWord *) ((w) & VALUE_MASK))
+#define Tag_REF(v)  		Tag_Address(TAG_REF_MASK, v)
+#define Tag_LST(v)  		Tag_Address(TAG_LST_MASK, v)
+#define Tag_STC(v)  		Tag_Address(TAG_STC_MASK, v)
+#define Tag_ATM(v)  		Tag_Short_Uns(TAG_ATM_MASK, v)
+#define Tag_FLT(v)  		Tag_Address(TAG_FLT_MASK, v)
+#define Tag_FDV(v)  		Tag_Address(TAG_FDV_MASK, v)
+#define Tag_INT(v)  		(((unsigned long) (v) << 2) | TAG_MASK)
+#define UnTag_REF(w)  		((WamWord *) (w))
+#define UnTag_LST(w)  		UnTag_Address(w)
+#define UnTag_STC(w)  		UnTag_Address(w)
+#define UnTag_ATM(w)  		((unsigned long) (w) >> 2)
+#define UnTag_FLT(w)  		UnTag_Address(w)
+#define UnTag_FDV(w)  		UnTag_Address(w)
+#define UnTag_INT(w)  		UnTag_Integer(w)
+#define Tag_Is_REF(w)  		(Tag_Mask_Of(w) == TAG_REF_MASK)
+#define Tag_Is_LST(w)  		(Tag_Mask_Of(w) == TAG_LST_MASK)
+#define Tag_Is_STC(w)  		(Tag_Mask_Of(w) == TAG_STC_MASK)
+#define Tag_Is_ATM(w)  		(Tag_Mask_Of(w) == TAG_ATM_MASK)
+#define Tag_Is_FLT(w)  		(Tag_Mask_Of(w) == TAG_FLT_MASK)
+#define Tag_Is_FDV(w)  		(Tag_Mask_Of(w) == TAG_FDV_MASK)
+#define Tag_Is_INT(w)  		(Tag_Mask_Of(w) == TAG_INT_MASK)
+typedef enum
+{
+  INTEGER,
+  SHORT_UNS,
+  ADDRESS
+}TypTag;
+typedef struct
+{
+  char *name;
+  TypTag type;
+  int value;
+  long tag_mask;
+}InfTag;
+#ifdef ENGINE_FILE
+InfTag tag_tbl[] =
+{
+  { "REF", ADDRESS, 0, 0UL },
+  { "LST", ADDRESS, 1, 0x1UL },
+  { "STC", ADDRESS, 2, 0x2UL },
+  { "ATM", SHORT_UNS, 3, 0x3UL },
+  { "FLT", ADDRESS, 4, 0x80000000UL },
+  { "FDV", ADDRESS, 5, 0x80000001UL },
+  { "INT", INTEGER, 7, 0x80000003UL }
+};
+#else
+extern InfTag tag_tbl[];
+#endif
+#ifndef ONLY_TAG_PART
+#define KBytes_To_Wam_Words(kb)    ((1024 * kb + sizeof(WamWord) - 1) / sizeof(WamWord))
+#define Wam_Words_To_KBytes(ww)    (ww * sizeof(WamWord) / 1024)
+#define Local_Top                  ((B >= E) ? B : E)
+#define NB_OF_STACKS 		4
+#define Trail_Stack       	(stk_tbl[0].stack)
+#define Trail_Size        	(stk_tbl[0].size)
+#define Trail_Offset(adr) 	((WamWord *)(adr) - Trail_Stack)
+#define Trail_Used_Size   	Trail_Offset(TR)
+#define Cstr_Stack       	(stk_tbl[1].stack)
+#define Cstr_Size        	(stk_tbl[1].size)
+#define Cstr_Offset(adr) 	((WamWord *)(adr) - Cstr_Stack)
+#define Cstr_Used_Size   	Cstr_Offset(CS)
+#define Global_Stack       	(stk_tbl[2].stack)
+#define Global_Size        	(stk_tbl[2].size)
+#define Global_Offset(adr) 	((WamWord *)(adr) - Global_Stack)
+#define Global_Used_Size   	Global_Offset(H)
+#define Local_Stack       	(stk_tbl[3].stack)
+#define Local_Size        	(stk_tbl[3].size)
+#define Local_Offset(adr) 	((WamWord *)(adr) - Local_Stack)
+#define Local_Used_Size   	Local_Offset(Local_Top)
+#define Stack_Top(s)       	(((s) == 0) ? TR : ((s) == 1) ? CS : ((s) == 2) ? H : Local_Top)
+typedef struct
+{
+  char *name;
+  char *env_var_name;
+  long *p_def_size;
+  int default_size; 	/* in WamWords */
+  int size;         	/* in WamWords */
+  WamWord *stack;
+}InfStack;
+#ifdef ENGINE_FILE
+long def_trail_size;
+long def_cstr_size;
+long def_global_size;
+long def_local_size;
+long fixed_sizes;
+InfStack stk_tbl[] =
+{
+ { "trail", "TRAILSZ", &def_trail_size, 524288, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 524288, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 1048576, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 817152, 0, NULL }
+};
+#else
+extern long def_trail_size;
+extern long def_cstr_size;
+extern long def_global_size;
+extern long def_local_size;
+extern long fixed_sizes;
+extern InfStack stk_tbl[];
+#endif
+#endif
 #ifdef NO_STACK_TEST
 #   undef  M_Check_Stacks()
 #   define M_Check_Stacks()
 #endif
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define cpp_recurs(p,n)            p##_##n
 #define Prolog_Predicate(p,n)      cpp_recurs(p,n)
-#define Prolog_Prototype(p,n)      void Prolog_Predicate(p,n)();
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-typedef long WamWord;		/* a wamword is a long (32/64 bits) */
-typedef void (*CodePtr) ();	/* a code pointer is an ptr to fct  */
-typedef CodePtr WamCont;	/* a continuation is a code pointer */
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
+#define Prolog_Prototype(p,n)      void Prolog_Predicate(p,n)()
 #ifdef ENGINE_FILE
 int os_argc;
 char **os_argv;
 char glob_buff[10240];
 long *base_fl;			/* overwritten by foreign if present */
 double *base_fd;		/* overwritten by foreign if present */
-/* we need some extra space to save our registers while in a libc routine!
- * otherwise they are not correct after a signal has raised.
- */
-#ifdef M_alpha_linux
-unsigned long bug_reg_buffer[32];
-#endif
 #else
 extern int os_argc;
 extern char **os_argv;
 extern char glob_buff[];
 extern long *base_fl;
 extern double *base_fd;
-#ifdef M_alpha_linux
-extern unsigned long bug_reg_buffer[];
 #endif
-#endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 int Start_Prolog(int argc, char *argv[]);
 void Stop_Prolog(void);
 void Reset_Prolog(void);
@@ -417,43 +461,15 @@ void Set_Heap_Actual_Start(WamWord *heap_actual_start);
 void Execute_Directive(int pl_file, int pl_line, Bool is_system,
 		       CodePtr proc);
 Bool Try_Execute_Top_Level(void);
-void Switch_Reg_Bank(WamWord *new_reg_bank);
 Bool Call_Prolog(CodePtr codep);
 Bool Call_Prolog_Next_Sol(WamWord *query_b);
 void Keep_Rest_For_Prolog(WamWord *query_b);
 void Exit_With_Exception(void);
 void Execute_A_Continuation(CodePtr codep);
 #define   Goto_Predicate(p,n)   ((*Prolog_Predicate(p,n))())
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : atom.h                                                          *
- * Descr.: atom table management - header file                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #if 1
 #define OPTIM_1_CHAR_ATOM
 #endif
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-	  /* Character Classification */
 #define LA                         1	/* layout character      */
 #define SC                         2	/* solo character        */
 #define QT                         4	/* quote                 */
@@ -468,7 +484,6 @@ void Execute_A_Continuation(CodePtr codep);
 #define CM                      2048	/* comment character (%) */
 #define EX                      4096	/* extended character    */
 #define ATOM_NIL                  1766
-	  /* Atom Type */
 #define IDENTIFIER_ATOM            0
 #define GRAPHIC_ATOM               1
 #define SOLO_ATOM                  2
@@ -477,9 +492,6 @@ void Execute_A_Continuation(CodePtr codep);
 #define Is_Valid_Byte(c)           ((unsigned) (c) <256)	/* 0=< c <256 */
 #define Is_Valid_Atom(a)           ((a)>=0 && (a)<MAX_ATOM && \
                                     atom_tbl[(a)].name!=NULL)
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct			/* Atom properties                */
 {				/* ------------------------------ */
   unsigned length:16;		/* its length (in characters)     */
@@ -495,9 +507,6 @@ typedef struct			/* Atom information               */
   AtomProp prop;		/* associated properties          */
 }
 AtomInf;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef ATOM_FILE
 AtomInf atom_tbl[MAX_ATOM];
 int nb_atom;
@@ -509,10 +518,7 @@ int atom_end_of_file;
 #ifndef OPTIM_1_CHAR_ATOM
 int atom_char[256];
 #endif
-    /* int     char_type[256];                    see definition in atom.c */
 char char_conv[256];
-    /* char    escape_symbol[];                   see definition in atom.c */
-    /* char    escape_char  [];                   see definition in atom.c */
 #else
 extern AtomInf atom_tbl[];
 extern int nb_atom;
@@ -529,49 +535,18 @@ extern int char_type[];
 extern char escape_symbol[];
 extern char escape_char[];
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Init_Atom(void);
-int Create_Allocate_Atom(char *name);
-int Create_Atom(char *name);
-int Find_Atom(char *name);
-int Gen_New_Atom(char *prefix, int hash);
-int Find_Next_Atom(int last_atom);
+int Create_Allocate_Atom(char *name) FC;
+int Create_Atom(char *name) FC;
+WamWord Create_Atom_Tagged(char *name) FC;
+int Find_Atom(char *name) FC;
+int Gen_New_Atom(char *prefix, int hash) FC;
+int Find_Next_Atom(int last_atom) FC;
 #ifdef OPTIM_1_CHAR_ATOM
 #define ATOM_CHAR(c)            ((int) (unsigned char) (c))
 #else
 #define ATOM_CHAR(c)            (atom_char[(int) (unsigned char) (c)])
 #endif
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : pred.h                                                          *
- * Descr.: predicate table management - header file                        *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *-----------a----------------------*/
 typedef struct			/* Predicate information          */
 {				/* ------------------------------ */
   long f_n;			/* key is <functor_atom,arity>    */
@@ -582,58 +557,17 @@ typedef struct			/* Predicate information          */
   long *dyn;			/* dynamic info (cf BipsPl)       */
 }
 PredInf;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef PRED_FILE
 char *pred_tbl;
 #else
 extern char *pred_tbl;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Init_Pred(void);
 PredInf *Create_Pred(int func, int arity, int pl_file, int pl_line,
-		     int prop, long *codep);
-PredInf *Lookup_Pred(int func, int arity);
-void Delete_Pred(int func, int arity);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : misc.h                                                          *
- * Descr.: miscellaneous operations - header file                          *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
+		     int prop, long *codep) FC;
+PredInf *Lookup_Pred(int func, int arity) FC;
+void Delete_Pred(int func, int arity) FC;
 #include <stdlib.h>
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 char *Malloc_Check(unsigned size, char *src_file, int src_line);
 char *Calloc_Check(unsigned nb, unsigned size, char *src_file,
 		   int src_line);
@@ -646,45 +580,15 @@ char *Strdup_Check(char *str, char *src_file, int src_line);
 #define Strdup(str)       Strdup_Check(str,__FILE__,__LINE__)
 void Extend_Table_If_Needed(char **hash_tbl);
 void Fatal_Error(char *format, ...);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : oper.h                                                          *
- * Descr.: operator table management - header file                         *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define MAX_PREC                   1200
 #define MAX_ARG_OF_FUNCTOR_PREC    999
 #define Make_Oper_Key(a,t)         (((unsigned long) (a) << 2) | (t))
 #define Atom_Of_Oper(k)            ((unsigned long) (k) >> 2)
 #define Type_Of_Oper(k)            ((unsigned long) (k) & 3)
-	  /* operator type */
 #define PREFIX                     0
 #define POSTFIX                    1
 #define INFIX                      2
 #define Make_Op_Mask(type)         (1<<(type))
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct			/* Operator information           */
 {				/* ------------------------------ */
   long a_t;			/* key is <atom,operator type>    */
@@ -693,17 +597,11 @@ typedef struct			/* Operator information           */
   int right;			/* precedence of the operator rhs */
 }
 OperInf;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef OPER_FILE
 char *oper_tbl;
 #else
 extern char *oper_tbl;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Init_Oper(void);
 OperInf *Create_Oper(int atom_op, int type, int prec, int left, int right);
 OperInf *Lookup_Oper(int atom_op, int type);
@@ -713,229 +611,10 @@ OperInf *Delete_Oper(int atom_op, int type);
      (atom_tbl[(atom_op)].prop.op_mask & Make_Op_Mask(type))
 #define Check_Oper_Any_Type(atom_op)                                        \
      (atom_tbl[(atom_op)].prop.op_mask)
-#define MAP_REG_BANK		"ebx"
-#define MAP_OFFSET_H     	((NB_OF_X_REGS+0)*4)
-#define MAP_OFFSET_B     	((NB_OF_X_REGS+1)*4)
-#define MAP_OFFSET_TR    	((NB_OF_X_REGS+2)*4)
-#define MAP_OFFSET_CP    	((NB_OF_X_REGS+3)*4)
-#define MAP_OFFSET_E     	((NB_OF_X_REGS+4)*4)
-#define MAP_OFFSET_CS    	((NB_OF_X_REGS+5)*4)
-#define MAP_OFFSET_S     	((NB_OF_X_REGS+6)*4)
-#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+7)*4)
-#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+8)*4)
-#define CFLAGS_REGS		"-ffixed-ebx "
-#define X(x)                       (reg_bank[x])
-#define A(a)                       (reg_bank[a])
-typedef WamWord *WamWordP;
-   /*--- Begin Register Generation ---*/
-register WamWord 		*reg_bank asm ("ebx");
-#define H			((WamWordP)	 (reg_bank[NB_OF_X_REGS+0]))
-#define B			((WamWordP)	 (reg_bank[NB_OF_X_REGS+1]))
-#define TR			((WamWordP)	 (reg_bank[NB_OF_X_REGS+2]))
-#define CP			((WamCont)	 (reg_bank[NB_OF_X_REGS+3]))
-#define E			((WamWordP)	 (reg_bank[NB_OF_X_REGS+4]))
-#define CS			((WamWordP)	 (reg_bank[NB_OF_X_REGS+5]))
-#define S			((WamWordP)	 (reg_bank[NB_OF_X_REGS+6]))
-#define STAMP			((WamWord)	 (reg_bank[NB_OF_X_REGS+7]))
-#define BCI			((WamWord)	 (reg_bank[NB_OF_X_REGS+8]))
-#define NB_OF_REGS          	9
-#define NB_OF_ALLOC_REGS    	0
-#define NB_OF_NOT_ALLOC_REGS	9
-#define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
-#define Reg(i)			(((i)==0) ? (WamWord) H  	: \
-				 ((i)==1) ? (WamWord) B  	: \
-				 ((i)==2) ? (WamWord) TR 	: \
-				 ((i)==3) ? (WamWord) CP 	: \
-				 ((i)==4) ? (WamWord) E  	: \
-				 ((i)==5) ? (WamWord) CS 	: \
-				 ((i)==6) ? (WamWord) S  	: \
-				 ((i)==7) ? (WamWord) STAMP	: \
-				            (WamWord) BCI)
-#ifdef ENGINE_FILE
-       char    *reg_tbl[]=	{"H","B","TR","CP","E","CS","S","STAMP","BCI"};
-#else
-extern char    *reg_tbl[];
-#endif
-#define Save_All_Regs(buff_save)		\
-    do {            				\
-     buff_save[0]=(WamWord) H     ;		\
-     buff_save[1]=(WamWord) B     ;		\
-     buff_save[2]=(WamWord) TR    ;		\
-     buff_save[3]=(WamWord) CP    ;		\
-     buff_save[4]=(WamWord) E     ;		\
-     buff_save[5]=(WamWord) CS    ;		\
-     buff_save[6]=(WamWord) S     ;		\
-     buff_save[7]=(WamWord) STAMP ;		\
-     buff_save[8]=(WamWord) BCI   ;		\
-    } while(0)
-#define Restore_All_Regs(buff_save)		\
-    do {            				\
-     H     =(WamWordP)	buff_save[0];		\
-     B     =(WamWordP)	buff_save[1];		\
-     TR    =(WamWordP)	buff_save[2];		\
-     CP    =(WamCont)	buff_save[3];		\
-     E     =(WamWordP)	buff_save[4];		\
-     CS    =(WamWordP)	buff_save[5];		\
-     S     =(WamWordP)	buff_save[6];		\
-     STAMP =(WamWord)	buff_save[7];		\
-     BCI   =(WamWord)	buff_save[8];		\
-    } while(0)
-#define NB_OF_USED_MACHINE_REGS 1
-#define Save_Machine_Regs(buff_save)		\
-    do {            				\
-     register long reg0 asm ("ebx");		\
-     buff_save[0]=reg0;				\
-    } while(0)
-#define Restore_Machine_Regs(buff_save)		\
-    do {            				\
-     register long reg0 asm ("ebx");		\
-     reg0=buff_save[0];				\
-    } while(0)
-   /*--- End Register Generation ---*/
-   /*--- Begin Tag Generation ---*/
-#define TAG_SIZE   		3
-#define VALUE_SIZE 		29
-#define INT        		0 
-#define REF        		1 
-#define FDV        		2 
-#define ATM        		3 
-#define FLT        		4 
-#define LST        		5 
-#define STC        		6 
-#define MALLOC_MASK 		0
-#define STACK_MASK  		0
-#define Tag_Value(t,v)		(((unsigned long) (v) << 3) | (t))
-#define Tag_Of(w)     		((unsigned long) (w) & 0x7)
-#define UnTag_Integer(w) 	((long) (w) >> 3)
-#define UnTag_Unsigned(w)	((unsigned long) (w) >> 3)
-#define UnTag_Stack(w)   	((WamWord *) (((unsigned long) (w) >> 3) | STACK_MASK))
-#define UnTag_Malloc(w)  	((unsigned long) (((unsigned long) (w) >> 3) | MALLOC_MASK))
-#define NB_OF_TAGS       	7
-#define Tag_INT(v)  		Tag_Value(INT,v)
-#define UnTag_INT(w) 		UnTag_Integer(w)
-#define Tag_REF(v)  		Tag_Value(REF,v)
-#define UnTag_REF(w) 		UnTag_Stack(w)
-#define Tag_FDV(v)  		Tag_Value(FDV,v)
-#define UnTag_FDV(w) 		UnTag_Stack(w)
-#define Tag_ATM(v)  		Tag_Value(ATM,v)
-#define UnTag_ATM(w) 		UnTag_Integer(w)
-#define Tag_FLT(v)  		Tag_Value(FLT,v)
-#define UnTag_FLT(w) 		UnTag_Stack(w)
-#define Tag_LST(v)  		Tag_Value(LST,v)
-#define UnTag_LST(w) 		UnTag_Stack(w)
-#define Tag_STC(v)  		Tag_Value(STC,v)
-#define UnTag_STC(w) 		UnTag_Stack(w)
-typedef enum
-{
-  INTEGER,
-  UNSIGNED,
-  STACK,
-  MALLOC
-}TypTag;
-typedef struct
-{
-  char    *name;
-  TypTag   type;
-}InfTag;
-#ifdef ENGINE_FILE
-InfTag   tag_tbl[]=	{{"INT",INTEGER},
-				 {"REF",STACK},
-				 {"FDV",STACK},
-				 {"ATM",INTEGER},
-				 {"FLT",STACK},
-				 {"LST",STACK},
-				 {"STC",STACK}};
-#else
-extern InfTag   tag_tbl[];
-#endif
-   /*--- End Tag Generation ---*/
-#define KBytes_To_Wam_Words(kb)    ((1024*kb+sizeof(WamWord)-1)/sizeof(WamWord))
-#define Wam_Words_To_KBytes(ww)    (ww*sizeof(WamWord)/1024)
-#define Local_Top                  ((B>=E) ? B : E)
-   /*--- Begin Stack Generation ---*/
-#define NB_OF_STACKS 		4
-#define Trail_Stack       	(stk_tbl[0].stack)
-#define Trail_Size        	(stk_tbl[0].size)
-#define Trail_Offset(adr) 	((WamWord *)(adr)-Trail_Stack)
-#define Trail_Used_Size   	Trail_Offset(TR)
-#define Cstr_Stack       	(stk_tbl[1].stack)
-#define Cstr_Size        	(stk_tbl[1].size)
-#define Cstr_Offset(adr) 	((WamWord *)(adr)-Cstr_Stack)
-#define Cstr_Used_Size   	Cstr_Offset(CS)
-#define Global_Stack       	(stk_tbl[2].stack)
-#define Global_Size        	(stk_tbl[2].size)
-#define Global_Offset(adr) 	((WamWord *)(adr)-Global_Stack)
-#define Global_Used_Size   	Global_Offset(H)
-#define Local_Stack       	(stk_tbl[3].stack)
-#define Local_Size        	(stk_tbl[3].size)
-#define Local_Offset(adr) 	((WamWord *)(adr)-Local_Stack)
-#define Local_Used_Size   	Local_Offset(Local_Top)
-#define Stack_Top(s)       	(((s)==0) ? TR : ((s)==1) ? CS : ((s)==2) ? H : Local_Top)
-typedef struct
-{
-  char    *name;
-  char    *env_var_name;
-  long    *p_def_size;
-  int      default_size; 	/* in WamWords */
-  int      size;         	/* in WamWords */
-  WamWord *stack;
-}InfStack;
-#ifdef ENGINE_FILE
-    /* these variables can be overwritten by top_comp.c (see stack size file) */
-long def_trail_size;
-long def_cstr_size;
-long def_global_size;
-long def_local_size;
-long fixed_sizes;
-InfStack  stk_tbl[]=	{{"trail","TRAILSZ",&def_trail_size,524288,0,NULL},
-			 {"cstr","CSTRSZ",&def_cstr_size,524288,0,NULL},
-			 {"global","GLOBALSZ",&def_global_size,1048576,0,NULL},
-			 {"local","LOCALSZ",&def_local_size,817152,0,NULL}};
-#else
-extern long def_trail_size;
-extern long def_cstr_size;
-extern long def_global_size;
-extern long def_local_size;
-extern long fixed_sizes;
-extern InfStack stk_tbl[];
-#endif
-   /*--- End Stack Generation ---*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine + Compiler                                        *
- * File  : machine1.h                                                      *
- * Descr.: machine dependent features - Header file                        *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #include <stdio.h>
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define M_OS_UNIX                  0
 #define M_OS_WINDOWS               1
 #define M_OS_WINDOWS_NT            2
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef MACHINE1_FILE
 int m_os_type;
 char m_architecture[32];
@@ -945,9 +624,6 @@ extern int m_os_type;
 extern char m_architecture[];
 extern char m_os_version[];
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Init_Machine1(void);
 char **M_Create_Shell_Command(char *cmd);
 char **M_Cmd_Line_To_Argv(char *cmd, int *argc);
@@ -957,41 +633,6 @@ int M_Spawn_Redirect(char *arg[], int detach,
 		     FILE **f_in, FILE **f_out, FILE **f_err);
 int M_Get_Status(int pid);
 #define   DBGPRINTF             printf
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : machine.h                                                       *
- * Descr.: machine dependent features - Header file                        *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Init_Machine(void);
 void M_Allocate_Stacks(void);
 char *M_Sys_Err_String(int err_no);
@@ -1013,9 +654,6 @@ int getpagesize(void);
 int Is_Win32_SEGV(void *exp);
 void SIGSEGV_Handler(void);
 #endif
-/*---------------------------------*
- * Register Definitions            *
- *---------------------------------*/
 #if defined(M_sparc_sunos)
 #    define M_USED_REGS            {"g6","g7",0}
 #elif defined(M_sparc_solaris)
@@ -1029,15 +667,19 @@ void SIGSEGV_Handler(void);
 #    define M_USED_REGS            {"$9","$10","$11","$12","$13","$14",0}
 #elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
       defined(M_ix86_solaris) || defined(M_ix86_cygwin)
-#    define M_USED_REGS            {"ebx",0}
+#ifdef NO_USE_EBP
+#    define M_USED_REGS            {"ebx", 0}
+#else
+#    define M_USED_REGS            {"ebx", "ebp", 0}
+#endif
 #elif defined(M_powerpc_linux)
 #    define M_USED_REGS            {"15","20",0}
 #else
 #    define M_USED_REGS            {0}
 #endif
-/*---------------------------------*
- * Stacks Management               *
- *---------------------------------*/
+#if defined(M_ix86) && !defined(M_ix86_win32) && !defined(NO_USE_REGS)
+#define NO_MACHINE_REG_FOR_REG_BANK
+#endif
 #if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
     defined(M_ix86_linux)  || defined(M_powerpc_linux) || \
     defined(M_ix86_sco)    || defined(M_ix86_solaris)  || \
@@ -1045,7 +687,7 @@ void SIGSEGV_Handler(void);
     defined(M_ix86_win32)
 #   define M_USE_MMAP
 #   define M_MMAP_HIGH_ADR         0x0ffffff0
-#   define M_MMAP_HIGH_ADR_ALT     0x1ffffff0
+#   define M_MMAP_HIGH_ADR_ALT     0x3ffffff0
 #   define M_Check_Stacks()
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
 #   define M_USE_MMAP
@@ -1059,37 +701,8 @@ void SIGSEGV_Handler(void);
 #define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 void M_Check_Magic_Words(void);
 #endif
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : obj_chain.h                                                     *
- * Descr.: object chaining management - header file                        *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define OBJ_CHAIN_MAGIC_1          0xdeadbeef
 #define OBJ_CHAIN_MAGIC_2          0x12345678
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 #ifndef _MSC_VER
 typedef struct objchain *PObjChain;
 typedef struct objchain
@@ -1101,12 +714,6 @@ typedef struct objchain
 }
 ObjChain;
 #endif
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Find_Linked_Objects(void);
 void New_Object(void (*fct_exec_system) (), void (*fct_exec_user) ());
 #ifdef OBJ_INIT
@@ -1122,45 +729,15 @@ static long obj_chain_start = (long) OBJ_INIT;
 #pragma data_seg()
 #endif /* _MSC_VER */
 #endif /* OBJ_INIT */
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : wam_inst.h                                                      *
- * Descr.: WAM instruction implementation - header file                    *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-#define NOT_A_WAM_WORD             Tag_Value(-1,-1)
-#define NIL_WORD                   Tag_Value(ATM,ATOM_NIL)
-	  /* Read/Write Modes */
-	  /* if S==NULL iff we are in the write mode */
+#define NOT_A_WAM_WORD             Tag_REF(0)
+#define NIL_WORD                   Tag_ATM(ATOM_NIL)
 #define WRITE_MODE                 NULL
-	  /* Environment Frame */
 #define ENVIR_STATIC_SIZE          3
 #define CPE(e)                     ((WamCont)   (e[-1]))
 #define BCIE(e)                    ((WamWord)   (e[-2]))
 #define EE(e)                      ((WamWord *) (e[-3]))
-#define Y(e,y)                     ((WamWord)   (e[-4-(y)]))
-#define ENVIR_NAMES                {"CPE","BCIE","EE"}
-	  /* Choice Point Frame */
+#define Y(e, y)                    ((WamWord)   (e[-4 - (y)]))
+#define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 #define CHOICE_STATIC_SIZE         8
 #define ALTB(b)                    ((CodePtr)   (b[-1]))
 #define CPB(b)                     ((WamCont)   (b[-2]))
@@ -1170,59 +747,54 @@ static long obj_chain_start = (long) OBJ_INIT;
 #define HB(b)                      ((WamWord *) (b[-6]))
 #define TRB(b)                     ((WamWord *) (b[-7]))
 #define CSB(b)                     ((WamWord *) (b[-8]))
-#define AB(b,a)                    ((WamWord)   (b[-9-(a)]))
-#define CHOICE_NAMES               {"ALTB","CPB","BCIB","EB","BB","HB",     \
-                                    "TRB","CSB"}
-	  /* Wam Objects Manipulation */
-	  /* Trail Tags */
+#define AB(b, a)                   ((WamWord)   (b[-9 - (a)]))
+#define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
+                                    "HB", "TRB", "CSB"}
 #define NB_OF_TRAIL_TAGS           4
 #define TUV                        0	/* Trail Unbound Variable   */
 #define TOV                        1	/* Trail One Value          */
 #define TMV                        2	/* Trail Multiple Values    */
 #define TFC                        3	/* Trail for Function Call  */
-#define TRAIL_TAG_NAMES            {"TUV","TOV","TMV","TFC"}
-#define Trail_Tag_Value(t,v)       ((unsigned long) (v) | (t))
+#define TRAIL_TAG_NAMES            {"TUV", "TOV", "TMV", "TFC"}
+#define Trail_Tag_Value(t, v)      ((unsigned long) (v) | (t))
 #define Trail_Tag_Of(w)            ((unsigned long) (w) & 0x3)
 #define Trail_Value_Of(w)          ((unsigned long) (w) & (~0x3))
-	  /* Functor/arity */
-#define Functor_Arity(f,n)         (((n) << ATOM_SIZE) + (f))
-#define Functor_Of(word)           ((word) & (MAX_ATOM-1))
+#define Functor_Arity(f, n)        (((n) << ATOM_SIZE) + (f))
+#define Functor_Of(word)           ((word) & (MAX_ATOM - 1))
 #define Arity_Of(word)             ((word) >> ATOM_SIZE)
-#define Dont_Separate_Tag(t)       ((t)==FDV)
-	  /* Unbound Variables */
-#define Make_Self_Ref(adr)         (Tag_Value(REF,adr))
-	  /* Atom */
-	  /* Integer */
+#ifndef NO_USE_FD_SOLVER
+#define Dont_Separate_Tag(tag_mask) ((tag_mask) == TAG_FDV_MASK)
+#else
+#define Dont_Separate_Tag(tag_mask) (0)
+#endif
+#define Do_Copy_Of_Word(tag_mask, word) \
+  if (Dont_Separate_Tag(tag_mask)) \
+    word = Tag_REF(UnTag_Address(word))
+#define Make_Self_Ref(adr)         (Tag_REF(adr))
 #define INT_GREATEST_VALUE         ((long) ((1L<<(WORD_SIZE-TAG_SIZE-1))-1))
 #define INT_LOWEST_VALUE           ((long) ((-INT_GREATEST_VALUE)-1))
-	  /* List */
 #define OFFSET_CAR                 0
 #define Car(adr)                   (((WamWord *) adr)[OFFSET_CAR])
 #define Cdr(adr)                   (((WamWord *) adr)[OFFSET_CAR+1])
-	  /* Structure */
 #define OFFSET_ARG                 1
 #define Functor(adr)               (Functor_Of(Functor_And_Arity(adr)))
 #define Arity(adr)                 (Arity_Of(Functor_And_Arity(adr)))
 #define Functor_And_Arity(adr)     (((WamWord *) (adr))[0])
-#define Arg(adr,i)                 (((WamWord *) (adr))[OFFSET_ARG+i])
-							/* i in 0..arity-1 */
-	  /* Stacks */
-#define Global_Push(word)          (*H++=(WamWord) (word))
+#define Arg(adr, i)                (((WamWord *) (adr))[OFFSET_ARG+i])
+#define Global_Push(word)          (*H++ = (WamWord) (word))
 #define Global_Pop                 (*--H)
-#define Trail_Push(word)           (*TR++=(WamWord) (word))
+#define Trail_Push(word)           (*TR++ = (WamWord) (word))
 #define Trail_Pop                  (*--TR)
-#define Is_A_Local_Adr(adr)        ((adr)>=Local_Stack)
-	  /* CP management */
+#define Is_A_Local_Adr(adr)        ((adr) >= LSSA)
+#define From_B_To_WamWord(b)       (Tag_INT((b) - LSSA))
+#define From_WamWord_To_B(word)    (LSSA + UnTag_INT(word))
 #ifdef M_sparc
-#define Adjust_CP(cp)              ((WamCont) ((unsigned long) (cp)-8))
-#define UnAdjust_CP(cp)            ((WamCont) ((unsigned long) (cp)+8))
+#define Adjust_CP(cp)              ((WamCont) ((unsigned long) (cp) - 8))
+#define UnAdjust_CP(cp)            ((WamCont) ((unsigned long) (cp) + 8))
 #else
 #define Adjust_CP(p)               ((WamCont) (p))
 #define UnAdjust_CP(cp)            (cp)
 #endif
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct			/* Switch item information         */
 {				/* ------------------------------- */
   long key;			/* key: atm, int (if no_opt), f/n  */
@@ -1230,39 +802,43 @@ typedef struct			/* Switch item information         */
 }
 SwtInf;
 typedef SwtInf *SwtTbl;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
+WamWord Create_Functor_Arity_Tagged(char *func_str, int arity) FC;
 SwtTbl Create_Swt_Table(int size) FC;
 void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep) FC;
 void Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
 			    CodePtr codep) FC;
+Bool Get_Atom_Tagged(WamWord w, WamWord start_word) FC;
 Bool Get_Atom(int atom, WamWord start_word) FC;
+Bool Get_Integer_Tagged(WamWord w, WamWord start_word) FC;
 Bool Get_Integer(long n, WamWord start_word) FC;
 Bool Get_Float(double n, WamWord start_word) FC;
 Bool Get_Nil(WamWord start_word) FC;
 Bool Get_List(WamWord start_word) FC;
+Bool Get_Structure_Tagged(WamWord w, WamWord start_word) FC;
 Bool Get_Structure(int func, int arity, WamWord start_word) FC;
 WamWord Put_X_Variable(void) FC;
 WamWord Put_Y_Variable(WamWord *y_adr) FC;
 WamWord Put_Unsafe_Value(WamWord start_word) FC;
+WamWord Put_Atom_Tagged(WamWord w) FC;
 WamWord Put_Atom(int atom) FC;
+WamWord Put_Integer_Tagged(WamWord w) FC;
 WamWord Put_Integer(long n) FC;
 WamWord Put_Float(double n) FC;
 WamWord Put_Nil(void) FC;
 WamWord Put_List(void) FC;
+WamWord Put_Structure_Tagged(WamWord w) FC;
 WamWord Put_Structure(int func, int arity) FC;
 WamWord Unify_Variable(void) FC;
 void Unify_Void(int n) FC;
 Bool Unify_Value(WamWord start_word) FC;
 Bool Unify_Local_Value(WamWord start_word) FC;
+Bool Unify_Atom_Tagged(WamWord w) FC;
 Bool Unify_Atom(int atom) FC;
+Bool Unify_Integer_Tagged(WamWord w) FC;
 Bool Unify_Integer(long n) FC;
 Bool Unify_Nil(void) FC;
 Bool Unify_List(void) FC;
+Bool Unify_Structure_Tagged(WamWord w) FC;
 Bool Unify_Structure(int func, int arity) FC;
 void Allocate(int n) FC;
 void Deallocate(void) FC;
@@ -1279,121 +855,92 @@ void Create_Choice_Point(CodePtr codep_alt, int arity) FC;
 void Update_Choice_Point(CodePtr codep_alt, int arity) FC;
 void Delete_Choice_Point(int arity) FC;
 void Untrail(WamWord *low_adr) FC;
-WamWord Make_Copy_Of_Word(int tag, WamWord word) FC;
 Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
 Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
-/*---------------------------------*
- * Auxiliary engine macros         *
- *---------------------------------*/
-	  /*---------------------------------------------------------------*
-           * Deref dereferences the word start_word and sets :             *
-           *   word : dereferenced word                                    *
-           *   tag  : dereferenced word's tag                              *
-           *   adr  : only if tag==REF then adr==value==self adress        *
-           *---------------------------------------------------------------*/
-#define Deref(start_word,word,tag,adr)                                      \
-    do {                                                                    \
-     WamWord *working_adr;                                                  \
-     word=start_word;                                                       \
-     adr=NULL;                                                              \
-     for(;;)                                                                \
-        {                                                                   \
-         tag=Tag_Of(word);                                                  \
-         if (tag!=REF || (working_adr=UnTag_REF(word))==adr)                \
-             break;                                                         \
+#if 0
+#define DEREF_STATS
+#endif
+#ifdef DEREF_STATS
+long nb_deref;
+long chain_len;
+#define DEREF_COUNT(x)  x++
+#else
+#define DEREF_COUNT(x)
+#endif
+#define DEREF(start_word, word, tag_mask)                                   \
+  do					                                    \
+    {                                                                       \
+      WamWord deref_last_word;                                              \
+      word = start_word;                                                    \
                                                                             \
-         adr=working_adr;                                                   \
-         word=*adr;                                                         \
-        }                                                                   \
-    } while(0)
-	  /* Trail Stack Management */
-#define Word_Needs_Trailing(adr)           ((adr)<(WamWord *) HB(B) ||      \
-                                            (Is_A_Local_Adr(adr) && (adr)<B))
-#define Bind_UV(adr,word)                                                   \
-    do {                                                                    \
-     if (Word_Needs_Trailing(adr))                                          \
-         Trail_UV(adr);                                                     \
-     *(adr)=(word);                                                         \
-    } while(0)
-#define Bind_OV(adr,word)                                                   \
-    do {                                                                    \
-     if (Word_Needs_Trailing(adr))                                          \
-         Trail_OV(adr);                                                     \
-     *(adr)=(word);                                                         \
-    } while(0)
-#define Bind_MV(adr,nb,real_adr)                                            \
-    do {                                                                    \
-     if (Word_Needs_Trailing(adr))                                          \
-         Trail_MV(adr,nb);                                                  \
-     Mem_Word_Cpy(adr,real_adr,nb)                                          \
-    } while(0)
+      DEREF_COUNT(nb_deref);                                                \
+      do                                                                    \
+	{                                                                   \
+	  DEREF_COUNT(chain_len);                                           \
+	  deref_last_word = word;                                           \
+	  tag_mask = Tag_Mask_Of(word);                                     \
+	  if (tag_mask != TAG_REF_MASK)                                     \
+	    break;                                                          \
+	  word = *(UnTag_REF(word));                                        \
+	}                                                                   \
+      while (word != deref_last_word);                                      \
+    }                                                                       \
+  while(0)
+#define Word_Needs_Trailing(adr) \
+  ((adr) < HB1 || (Is_A_Local_Adr(adr) && (adr) < B))
+#define Bind_UV(adr, word)                                                  \
+  do {                                                                      \
+    if (Word_Needs_Trailing(adr))                                           \
+      Trail_UV(adr);                                                        \
+   *(adr) = (word);                                                         \
+  } while(0)
+#define Bind_OV(adr, word)                                                  \
+  do {                                                                      \
+    if (Word_Needs_Trailing(adr))                                           \
+      Trail_OV(adr);                                                        \
+   *(adr) = (word);                                                         \
+  } while(0)
+#define Bind_MV(adr, nb, real_adr)                                          \
+  do {                                                                      \
+    if (Word_Needs_Trailing(adr))                                           \
+      Trail_MV(adr, nb);                                                    \
+   Mem_Word_Cpy(adr, real_adr, nb);                                         \
+  } while(0)
 #define Trail_UV(adr)                                                       \
-     Trail_Push(Trail_Tag_Value(TUV,adr))
+  Trail_Push(Trail_Tag_Value(TUV, adr))
 #define Trail_OV(adr)                                                       \
-    do {                                                                    \
-     Trail_Push(*(adr));                                                    \
-     Trail_Push(Trail_Tag_Value(TOV,adr));                                  \
-    } while(0)
+  do {                                                                      \
+    Trail_Push(*(adr));                                                     \
+    Trail_Push(Trail_Tag_Value(TOV, adr));                                  \
+  } while(0)
 #define Trail_MV(adr,nb)                                                    \
-    do {                                                                    \
-     Mem_Word_Cpy(TR,adr,nb);                                               \
-     TR+=nb;                                                                \
-     Trail_Push(nb);                                                        \
-     Trail_Push(Trail_Tag_Value(TMV,adr));                                  \
-    } while(0)
+  do {                                                                      \
+    Mem_Word_Cpy(TR, adr, nb);                                              \
+    TR += nb;                                                               \
+    Trail_Push(nb);                                                         \
+    Trail_Push(Trail_Tag_Value(TMV, adr));                                  \
+  } while(0)
 #define Trail_FC(fct)                                                       \
-     Trail_Push(Trail_Tag_Value(TFC,fct))
-#define Delete_Last_Choice_Point()         B=BB(B)
-	    /* Globalization */
-#define Globalize_Local_Unbound_Var(adr)                                    \
-    do {                                                                    \
-     WamWord word;                                                          \
-                                                                            \
-     Bind_UV(adr,Tag_Value(REF,H));                                         \
-     word=Make_Self_Ref(H);                                                 \
-     Global_Push(word);                                                     \
-    } while(0)
-#define Mem_Word_Cpy(dst,src,nb)                                            \
-    do {                                                                    \
-     register long *s=(long *) (src);                                       \
-     register long *d=(long *) (dst);                                       \
-     register int   counter=(nb);                                           \
-                                                                            \
-     while(counter--)                                                       \
-         *d++ = *s++;                                                       \
-    } while(0)
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog engine                                                   *
- * File  : if_no_fd.h                                                      *
- * Descr.: FD interface for Prolog engine - header file                    *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
+  Trail_Push(Trail_Tag_Value(TFC,fct))
+#define Assign_B(newB)              (B = (newB), HB1 = HB(B))
+#define Delete_Last_Choice_Point()  Assign_B(BB(B))
+#define Globalize_Local_Unbound_Var(adr, res_word)                          \
+  do {                                                                      \
+    WamWord *cur_H = H;                                                     \
+    res_word = Make_Self_Ref(cur_H);                                        \
+    *cur_H = res_word;                                                      \
+    H++;                                                                    \
+    Bind_UV(adr, res_word);                                                 \
+  } while(0)
+#define Mem_Word_Cpy(dst, src, nb)                                          \
+  do {                                                                      \
+    register long *s = (long *) (src);                                      \
+    register long *d = (long *) (dst);                                      \
+    register int counter = (nb);                                            \
+    do                                                                      \
+      *d++ = *s++;                                                          \
+    while(--counter);                                                       \
+  } while(0)
 #ifdef IF_NO_FD_FILE
 void (*fd_init_solver) ();	/* overwritten by FD if present */
 void (*fd_reset_solver) ();
@@ -1411,9 +958,6 @@ extern int (*fd_variable_size) ();
 extern int (*fd_copy_variable) ();
 extern char *(*fd_variable_to_string) ();
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Fd_Init_Solver(void);
 void Fd_Reset_Solver(void);
 #define Fd_Unify_With_Integer(f,n) ((*fd_unify_with_integer)(f,n))
@@ -1421,92 +965,10 @@ void Fd_Reset_Solver(void);
 #define Fd_Variable_Size(f)        ((*fd_variable_size)(f))
 #define Fd_Copy_Variable(dst_adr,f)((*fd_copy_variable)(dst_adr,f))
 #define Fd_Variable_To_String(f)   ((*fd_variable_to_string)(f))
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : bips_pl.h                                                       *
- * Descr.: general header file                                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : b_params.h                                                      *
- * Descr.: parameter header file                                           *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #define MAX_STREAM                 256
 #define MAX_VAR_NAME_LENGTH        256
 #define MAX_VAR_IN_TERM            2048
 #define MAX_SYS_VARS               256
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : inl_protos.h                                                    *
- * Descr.: inline predicate prototypes - header file                       *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
-	  /* from type_inl_c.c */
 Bool Blt_Var(WamWord x);
 Bool Blt_Non_Var(WamWord x);
 Bool Blt_Atom(WamWord x);
@@ -1523,7 +985,6 @@ Bool Blt_Non_Generic_Var(WamWord x);
 Bool Blt_List(WamWord x);
 Bool Blt_Partial_List(WamWord x);
 Bool Blt_List_Or_Partial_List(WamWord x);
-	  /* from term_inl_c.c */
 Bool Blt_Term_Eq(WamWord x, WamWord y);
 Bool Blt_Term_Neq(WamWord x, WamWord y);
 Bool Blt_Term_Lt(WamWord x, WamWord y);
@@ -1535,32 +996,30 @@ Bool Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word);
 Bool Blt_Functor(WamWord term_word, WamWord functor_word,
 		 WamWord arity_word);
 Bool Blt_Univ(WamWord term_word, WamWord list_word);
-	  /* from g_var_inl_c.c */
 Bool Blt_G_Assign(WamWord x, WamWord y);
 Bool Blt_G_Assignb(WamWord x, WamWord y);
 Bool Blt_G_Link(WamWord x, WamWord y);
 Bool Blt_G_Read(WamWord x, WamWord y);
 Bool Blt_G_Array_Size(WamWord x, WamWord y);
-	  /* from arith_inl_c.c */
 void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 void Math_Load_Value(WamWord start_word, WamWord *word_adr) FC;
-WamWord Fct_Fast_Neg(int x);
-WamWord Fct_Fast_Inc(int x);
-WamWord Fct_Fast_Dec(int x);
-WamWord Fct_Fast_Add(int x, int y);
-WamWord Fct_Fast_Sub(int x, int y);
-WamWord Fct_Fast_Mul(int x, int y);
-WamWord Fct_Fast_Div(int x, int y);
-WamWord Fct_Fast_Rem(int x, int y);
-WamWord Fct_Fast_Mod(int x, int y);
-WamWord Fct_Fast_And(int x, int y);
-WamWord Fct_Fast_Or(int x, int y);
-WamWord Fct_Fast_Xor(int x, int y);
-WamWord Fct_Fast_Not(int x);
-WamWord Fct_Fast_Shl(int x, int y);
-WamWord Fct_Fast_Shr(int x, int y);
-WamWord Fct_Fast_Abs(int x);
-WamWord Fct_Fast_Sign(int x);
+WamWord Fct_Fast_Neg(WamWord x);
+WamWord Fct_Fast_Inc(WamWord x);
+WamWord Fct_Fast_Dec(WamWord x);
+WamWord Fct_Fast_Add(WamWord x, WamWord y);
+WamWord Fct_Fast_Sub(WamWord x, WamWord y);
+WamWord Fct_Fast_Mul(WamWord x, WamWord y);
+WamWord Fct_Fast_Div(WamWord x, WamWord y);
+WamWord Fct_Fast_Rem(WamWord x, WamWord y);
+WamWord Fct_Fast_Mod(WamWord x, WamWord y);
+WamWord Fct_Fast_And(WamWord x, WamWord y);
+WamWord Fct_Fast_Or(WamWord x, WamWord y);
+WamWord Fct_Fast_Xor(WamWord x, WamWord y);
+WamWord Fct_Fast_Not(WamWord x);
+WamWord Fct_Fast_Shl(WamWord x, WamWord y);
+WamWord Fct_Fast_Shr(WamWord x, WamWord y);
+WamWord Fct_Fast_Abs(WamWord x);
+WamWord Fct_Fast_Sign(WamWord x);
 WamWord Fct_Neg(WamWord x);
 WamWord Fct_Inc(WamWord x);
 WamWord Fct_Dec(WamWord x);
@@ -1605,41 +1064,6 @@ Bool Blt_Lt(WamWord x, WamWord y);
 Bool Blt_Lte(WamWord x, WamWord y);
 Bool Blt_Gt(WamWord x, WamWord y);
 Bool Blt_Gte(WamWord x, WamWord y);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : c_supp.h                                                        *
- * Descr.: C interface support - header file                               *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 long Rd_Integer_Check(WamWord start_word);
 long Rd_Integer(WamWord start_word);
 long Rd_Positive_Check(WamWord start_word);
@@ -1761,41 +1185,12 @@ WamWord Mk_Proper_List(int n, WamWord *arg);
 WamWord Mk_Compound(int func, int arity, WamWord *arg);
 WamWord Mk_Callable(int func, int arity, WamWord *arg);
 WamWord Mk_Variable(void);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : foreign_supp.h                                                  *
- * Descr.: foreign interface support - header file                         *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define PL_RECOVER                 0
 #define PL_CUT                     1
 #define PL_KEEP_FOR_PROLOG         2
 #define PL_FAILURE                 FALSE
 #define PL_SUCCESS                 TRUE
 #define PL_EXCEPTION               2
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct
 {
   Bool is_var;
@@ -1809,9 +1204,6 @@ typedef struct
   value;
 }
 FIOArg;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef FOREIGN_SUPP_FILE
 int foreign_bkt_counter;
 char *foreign_bkt_buffer;
@@ -1819,9 +1211,6 @@ char *foreign_bkt_buffer;
 extern int foreign_bkt_counter;
 extern char *foreign_bkt_buffer;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Foreign_Create_Choice(CodePtr codep_alt, int arity, int choice_size);
 void Foreign_Update_Choice(CodePtr codep_alt, int arity, int choice_size);
 CodePtr Foreign_Jump_Ret(CodePtr codep);
@@ -1851,84 +1240,16 @@ WamWord Pl_Get_Exception(void);
 #define Atom_Needs_Scan(a)     (atom_tbl[(a)].prop.needs_scan)
 #define atom_nil               ATOM_NIL
 #define Stream_Pointer(s)      (stm_tbl+(s))
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : pred_supp.h                                                     *
- * Descr.: predicate management support - header file                      *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-					  /* if modified -> modif wam2ma.c */
 #define MASK_PRED_NATIVE_CODE      1
 #define MASK_PRED_DYNAMIC          2
 #define MASK_PRED_PUBLIC           4
 #define MASK_PRED_BUILTIN          8
 #define MASK_PRED_BUILTIN_FD       16
 #define MASK_PRED_ANY_BUILTIN      (MASK_PRED_BUILTIN | MASK_PRED_BUILTIN_FD)
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 char *Detect_If_Aux_Name(int func);
 int Father_Pred_Of_Aux(int func, int *father_arity);
 int Pred_Without_Aux(int func, int arity, int *arity1);
 int Make_Aux_Name(int func, int arity, int aux_nb);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : term_supp.h                                                     *
- * Descr.: term support - header file                                      *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef TERM_SUPP_FILE
 WamWord pi_name_word;
 WamWord pi_arity_word;
@@ -1938,10 +1259,7 @@ extern WamWord pi_name_word;
 extern WamWord pi_arity_word;
 extern long glob_dico_var[];
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
-int Term_Compare(WamWord start_u_word, WamWord start_v_word);
+long Term_Compare(WamWord start_u_word, WamWord start_v_word);
 Bool Is_List(WamWord start_word);
 Bool Is_Partial_List(WamWord start_word);
 Bool Is_List_Or_Partial(WamWord start_word);
@@ -1954,33 +1272,7 @@ void Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 int Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 		       int *arity);
 char *Float_To_String(double d);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : stream_supp.h                                                   *
- * Descr.: stream support - header file                                    *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #include <stdio.h>
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define STREAM_PB_SIZE             8	/* push back buffer size */
 #define STREAM_MODE_READ           0
 #define STREAM_MODE_WRITE          1
@@ -1994,15 +1286,11 @@ char *Float_To_String(double d);
 #define STREAM_EOF_NOT             0
 #define STREAM_EOF_AT              1
 #define STREAM_EOF_PAST            2
-					 /* values for Get_Stream_Or_Alias */
 #define STREAM_CHECK_VALID         0	/* simply a valid stream */
 #define STREAM_CHECK_EXIST         1	/* valid and exist */
 #define STREAM_CHECK_INPUT         2	/* valid, exist and mode=input  */
 #define STREAM_CHECK_OUTPUT        3	/* valid, exist and mode=output */
 #define STREAM_FCT_UNDEFINED       ((StmFct) (-1))	/* for optional fct */
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct			/* Stream properties              */
 {				/* ------------------------------ */
   unsigned mode:2;		/* see STREAM_MODE_xxx defs       */
@@ -2030,7 +1318,6 @@ typedef struct			/* Stream information             */
   int atom_file_name;		/* atom associated to filename    */
   long file;			/* accessor (FILE *,TTYInf *)!=0  */
   StmProp prop;			/* assoctiated properties         */
-  /* ----- Basic I/O functions ---- */
   StmFct fct_getc;		/* get char function (mandatory)  */
   StmFct fct_putc;		/* put char function (mandatory)  */
   StmFct fct_flush;		/* flush    function (optional)   */
@@ -2038,10 +1325,8 @@ typedef struct			/* Stream information             */
   StmFct fct_tell;		/* tell     function (optional)   */
   StmFct fct_seek;		/* seek     function (optional)   */
   StmFct fct_clearerr;		/* clearerr function (optional)   */
-  /* ------ Read information  ----- */
   Bool eof_reached;		/* eof char has been read ?       */
   PbStk pb_char;		/* character push back stack      */
-  /* ---- Position information  --- */
   int char_count;		/* character read count           */
   int line_count;		/* line read count                */
   int line_pos;			/* line position                  */
@@ -2061,9 +1346,6 @@ typedef struct			/* String Stream information      */
   Bool buff_alloc_size;		/* mallocated size (iff output)   */
 }
 StrSInf;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef STREAM_SUPP_FILE
 StmInf stm_tbl[MAX_STREAM + 1];	/* +1 for global term stream */
 int stm_last_used = -1;
@@ -2147,9 +1429,6 @@ extern int atom_bof;
 extern int atom_current;
 extern int atom_eof;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 StmProp Get_Stream_Mode(WamWord mode_word, Bool only_rw, char *open_str);
 int Add_Stream(int atom_file_name, long file, StmProp prop,
 	       StmFct fct_getc, StmFct fct_putc,
@@ -2213,38 +1492,6 @@ char *Term_Write_Str_Stream(int stm);
       else                                                                  \
          (elem)=pb.buff[STREAM_PB_SIZE-1];                                  \
     } while(0)
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : error_supp.h                                                    *
- * Descr.: Prolog errors support - header file                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef ERROR_SUPP_FILE
 int type_atom;
 int type_atomic;
@@ -2321,7 +1568,6 @@ int representation_max_arity;
 int representation_max_integer;
 int representation_min_integer;
 int representation_too_many_variables;
-						    /* for Copy_Term(),... */
 int evluation_float_overflow;
 int evluation_int_overflow;
 int evluation_undefined;
@@ -2406,7 +1652,6 @@ extern int representation_max_arity;
 extern int representation_max_integer;
 extern int representation_min_integer;
 extern int representation_too_many_variables;
-						    /* for Copy_Term(),... */
 extern int evluation_float_overflow;
 extern int evluation_int_overflow;
 extern int evluation_undefined;
@@ -2416,9 +1661,6 @@ extern int resource_too_many_open_streams;	/* for streams */
 extern int resource_print_object_not_linked;	/* for print and format */
 extern int resource_too_big_fd_constraint;	/* for FD */
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Set_Bip_Name_2(WamWord func_word, WamWord arity_word);
 void Set_C_Bip_Name(char *func_str, int arity) FC;
 void Unset_C_Bip_Name(void);
@@ -2440,36 +1682,7 @@ void Pl_Err_Syntax(int atom_error);
 void Pl_Err_System(int atom_error);
 #define Os_Test_Error(tst)  \
       do { if (tst) { Os_Error(); return FALSE; } } while(0)
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : scan_supp.h                                                     *
- * Descr.: scanner support - header file                                   *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define SCAN_BIG_BUFFER            10240
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef enum
 {
   TOKEN_VARIABLE,
@@ -2496,53 +1709,18 @@ typedef struct
   int col;			/* source column of the token           */
 }
 TokInf;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef SCAN_SUPP_FILE
 TokInf token;
 #else
 extern TokInf token;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 int Scan_Peek_Char(StmInf *pstm, Bool convert);
 char *Scan_Token(StmInf *pstm, Bool comma_is_punct);
 void Recover_After_Error(StmInf *pstm);
 char *Scan_Next_Atom(StmInf *pstm);
 char *Scan_Next_Number(StmInf *pstm, Bool integer_only);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : parse_supp.h                                                    *
- * Descr.: parser support - header file                                    *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define PARSE_END_OF_TERM_DOT      0
 #define PARSE_END_OF_TERM_EOF      1
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef struct			/* Parsed variable information    */
 {				/* ------------------------------ */
   char name[MAX_VAR_NAME_LENGTH];	/* variable name                */
@@ -2551,9 +1729,6 @@ typedef struct			/* Parsed variable information    */
   int nb_of_uses;		/* occurrence counter             */
 }
 InfVar;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef PARSE_SUPP_FILE
 int parse_end_of_term;
 InfVar parse_dico_var[MAX_VAR_IN_TERM];
@@ -2567,90 +1742,26 @@ extern int parse_nb_var;
 extern int last_read_line;
 extern int last_read_col;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 WamWord Read_Term(StmInf *pstm);
 WamWord Read_Atom(StmInf *pstm);
 WamWord Read_Integer(StmInf *pstm);
 WamWord Read_Number(StmInf *pstm);
 WamWord Read_Token(StmInf *pstm);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : write_supp.h                                                    *
- * Descr.: term writing support - header file                              *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define WRITE_QUOTED                1
 #define WRITE_IGNORE_OP             2
 #define WRITE_NUMBER_VARS           4
 #define WRITE_NAME_VARS             8
 #define WRITE_SPACE_ARGS           16
 #define WRITE_PORTRAYED            32
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef WRITE_SUPP_FILE
 int last_writing;
 #else
 extern int last_writing;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Write_Term(StmInf *pstm, int depth, int prec, int mask,
 		WamWord term_word);
 void Write_Simple(WamWord term_word);
 void Write_A_Char(StmInf *pstm, int c);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : flag_supp.h                                                     *
- * Descr.: Prolog flag and system variable support - header file           *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define FLAG_BOUNDED               0	/* flags defining integer type */
 #define FLAG_MAX_INTEGER           1
 #define FLAG_MIN_INTEGER           2
@@ -2689,71 +1800,13 @@ void Write_A_Char(StmInf *pstm, int c);
 #define SYS_VAR_LINEDIT             (sys_var[12])
 #define SYS_VAR_DEBUGGER            (sys_var[13])
 #define Flag_Value(flag)            (sys_var[200+(flag)])
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef FLAG_C_FILE
 long sys_var[MAX_SYS_VARS];
 #else
 extern long sys_var[];
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
-/*-------------------------------------------------------------------------*
- * System variables (C and Prolog) - bank description                      *
- *                                                                         *
- *   0: temporary (e.g. masks for option lists (open/read/write)).         *
- *   1: temporary (e.g. depth in write).                                   *
- *   2: temporary (e.g. reorder in FD labeling).                           *
- *   3: temporary (e.g. backtracks counter in FD labeling).                *
- *                                                                         *
- *   6: pseudo-permanent current print stream (for get_print_stream/1)     *
- *                                                                         *
- *   7: permanent catch handler.                                           *
- *   8: permanent catch ball.                                              *
- *                                                                         *
- *  10: permanent top level depth (for top-level and stop/abort).          *
- *  11: permanent top level handler (B level) for abort and stop.          *
- *  12: permanent: is linedit present ?                                    *
- *  13: permanent: is the debugger present ?                               *
- *                                                                         *
- * 200..: some prolog flag values.                                         *
- *-------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : dynam_supp.h                                                    *
- * Descr.: dynamic predicate support - header file                         *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define DYN_ALT_FCT_FOR_TEST       0
 #define DYN_ALT_FCT_FOR_JUMP       1
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef long (*ScanFct) ();
 typedef unsigned long DynStamp;
 typedef struct dynpinf *DynPInfP;
@@ -2806,12 +1859,6 @@ typedef struct dynpinf		/* Dynamic predicate information  */
   DynPInfP next_dyn_with_erase;	/* next dyn with erased clauses   */
 }
 DynPInf;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 DynCInf *Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
 			    Bool asserta, Bool check_perm);
 void Delete_Dynamic_Clause(DynCInf *clause);
@@ -2823,75 +1870,8 @@ DynCInf *Scan_Dynamic_Pred(int owner_func, int owner_arity,
 int Scan_Choice_Point_Pred(WamWord *b, int *arity);
 void Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
 			 WamWord *body_word);
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : callinf_supp.h                                                  *
- * Descr.: meta call info support - header file                            *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 void Call_Info_Bip_Name_1(WamWord call_info_word);
 #define Call_Info(f,a,dc)          ((Functor_Arity(f,a)<<1)|dc)
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : bc_supp.h                                                       *
- * Descr.: byte-Code support - header file                                 *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef BC_SUPP_FILE
 unsigned *byte_code;
 int byte_len;
@@ -2899,63 +1879,8 @@ int byte_len;
 extern unsigned *byte_code;
 extern int byte_len;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 WamCont BC_Emulate_Pred(int func, DynPInf *dyn);
 #ifndef NO_USE_FD_SOLVER
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver                                            *
- * File  : engine_fd.h                                                     *
- * Descr.: general header file                                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver                                            *
- * File  : fd_range.h                                                      *
- * Descr.: FD Range Implementation - header file                           *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
 typedef unsigned long VecWord;
 typedef VecWord *Vector;
 typedef struct			/* Ranges are always handled through pointers */
@@ -2966,60 +1891,7 @@ typedef struct			/* Ranges are always handled through pointers */
   Vector vec;
 }
 Range;
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver                                            *
- * File  : fd_hook_range.h                                                 *
- * Descr.: FD Range Implementation - customizable header file              *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
 #ifdef FD_RANGE_FILE
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver                                            *
- * File  : fd_inst.h                                                       *
- * Descr.: FD instruction implementation - header file                     *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-	  /* FD Variable Frame */
 #define FD_VARIABLE_FRAME_SIZE     (OFFSET_RANGE+RANGE_SIZE+CHAINS_SIZE)
 #define FD_INT_VARIABLE_FRAME_SIZE (OFFSET_RANGE+RANGE_SIZE)
 #define OFFSET_RANGE               5
@@ -3042,12 +1914,10 @@ Range;
 #define Chain_Min_Max(fdv_adr)     (((WamWord *) fdv_adr)[OFFSET_CHAINS+5])
 #define Chain_Dom(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+6])
 #define Chain_Val(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+7])
-	  /* Shorthands for Range(fdv_adr)'s fields */
 #define Extra_Cstr(fdv_adr)        (Range(fdv_adr)->extra_cstr)
 #define Min(fdv_adr)               (Range(fdv_adr)->min)
 #define Max(fdv_adr)               (Range(fdv_adr)->max)
 #define Vec(fdv_adr)               (Range(fdv_adr)->vec)
-	  /* Chain / Propagation Mask */
 #define CHAIN_NB_MIN               0
 #define CHAIN_NB_MAX               1
 #define CHAIN_NB_MIN_MAX           2
@@ -3069,28 +1939,19 @@ Range;
 #define Set_Min_Max_Mask(mask)     ((mask) |= MASK_MIN_MAX)
 #define Set_Dom_Mask(mask)         ((mask) |= MASK_DOM)
 #define Set_Val_Mask(mask)         ((mask) |= MASK_VAL)
-	  /* Chain Record Frame */
 #define CHAIN_RECORD_FRAME_SIZE    2
 #define CF_Pointer(rec_adr)        ((WamWord *) (rec_adr[0]))
 #define Next_Chain(rec_adr)        ((WamWord *) (rec_adr[1]))
-	  /* Constraint Frame */
 #define CONSTRAINT_FRAME_SIZE      3
 #define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to */
 #define AF_Pointer(cf)             ((WamWord *)  (cf[0]))
 #define Optim_Pointer(cf)          ((WamWord *)  (cf[1]))	/* this cell */
 #define Cstr_Address(cf)           ((long (*)()) (cf[2]))
-	  /* Miscellaneous */
 #define ENV_VAR_VECTOR_MAX         "VECTORMAX"
 #define DEFAULT_VECTOR_MAX         127
 #define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr))==INT)
 #define math_min(x,y)              ((x) <= (y) ? (x) : (y))
 #define math_max(x,y)              ((x) >= (y) ? (x) : (y))
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef FD_INST_FILE
 WamWord DATE;
 WamWord *TP;
@@ -3102,9 +1963,6 @@ extern WamWord *TP;
 extern WamWord vec_size;
 extern WamWord vec_max_integer;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 WamWord *Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok);
 Range *Fd_Prolog_To_Range(WamWord list_word);
 int Fd_Prolog_To_Value(WamWord arg_word);
@@ -3135,17 +1993,19 @@ Bool Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
 Bool Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
 Bool Fd_Use_Vector(WamWord *fdv_adr);
 Bool Fd_Check_For_Bool_Var(WamWord x_word);
-int Fd_Deref_Check_Fd_Var(WamWord *fdv_word);
 int Fd_Variable_Size0(WamWord *fdv_adr);
 int Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
 char *Fd_Variable_To_String0(WamWord *fdv_adr);
+#define Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask)         \
+  DEREF(fdv_word, word, tag_mask);                              \
+  if (tag_mask == TAG_REF_MASK)                                 \
+    Pl_Err_Instantiation();                                     \
+                                                                \
+  if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FDV_MASK)     \
+    Pl_Err_Type(type_fd_variable, word)
 #endif
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define RANGE_TOP_STACK            CS
 #define INTERVAL_MAX_INTEGER       ((int)((1L<<(32-TAG_SIZE-1))-1))	/* only 32 bits */
-	  /* Default definitions (if not defined in fd_hook_range.h) */
 #ifndef WORD_SIZE
 #   define WORD_SIZE                32
 #endif
@@ -3154,9 +2014,6 @@ char *Fd_Variable_To_String0(WamWord *fdv_adr);
 #else
 #   define WORD_SIZE_BITS          6
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 int Least_Significant_Bit(VecWord x);
 int Most_Significant_Bit(VecWord x);
 void Define_Vector_Size(int max_val);
@@ -3205,9 +2062,6 @@ void Range_Mul_Value(Range *range, int n);
 void Range_Div_Value(Range *range, int n);
 void Range_Mod_Value(Range *range, int n);
 char *Range_To_String(Range *range);
-/*---------------------------------*
- * Vector Management Macros        *
- *---------------------------------*/
 #define Word_No_And_Bit_No(w,b)    (((VecWord) (w) << WORD_SIZE_BITS)|\
                                      (VecWord) (b))
 #define Word_No(n)                 ((VecWord) (n) >> WORD_SIZE_BITS)
@@ -3225,12 +2079,6 @@ char *Range_To_String(Range *range);
      vec=(Vector) RANGE_TOP_STACK;                                          \
      RANGE_TOP_STACK += vec_size;                                           \
     } while(0)
-	  /* To enumerate a vector use VECTOR_BEGIN_ENUM / VECTOR_END_ENUM */
-	  /* macros as follows:                                            */
-	  /* ...                                                           */
-	  /* VECTOR_BEGIN_ENUM(the_vector,vec_elem)                        */
-	  /*    your code (vec_elem contains the current range element)    */
-	  /* VECTOR_END_ENUM                                               */
 #define VECTOR_BEGIN_ENUM(vec,vec_elem)                                     \
     {                                                                       \
      Vector  enum_end=vec+vec_size,enum_i=vec;                              \
@@ -3251,9 +2099,6 @@ char *Range_To_String(Range *range);
         }                                                                   \
      while(++enum_i<enum_end);                                              \
     }
-/*---------------------------------*
- * Range Management Macros         *
- *---------------------------------*/
 #define Is_Interval(range)         ((range)->vec==NULL)
 #define Is_Sparse(range)           ((range)->vec!=NULL)
 #define Is_Empty(range)            ((range)->min > (range)->max)
@@ -3266,68 +2111,12 @@ char *Range_To_String(Range *range);
      (range)->max       =(r_max);                                           \
      (range)->vec       =NULL;                                              \
     } while(0)
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver buit-in predicates                         *
- * File  : bips_fd.h                                                       *
- * Descr.: general header file                                             *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver buit-in predicates                         *
- * File  : math_supp.h                                                     *
- * Descr.: mathematical support - header file                              *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
 #define MASK_EMPTY                 0
 #define MASK_LEFT                  1
 #define MASK_RIGHT                 2
-#define TAGGED_1                   Tag_Value(INT,1)
 #if 0
 #define DEBUG
 #endif
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
 #ifdef MATH_SUPP_FILE
 Bool full_ac;
 #ifdef DEBUG
@@ -3339,19 +2128,13 @@ char *cur_op;
 #endif
 extern Bool full_ac;
 #endif
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
-Bool Load_Left_Right(Bool optim_eq,
-		     WamWord le_word, WamWord re_word,
-		     int *mask, WamWord *c_word,
-		     WamWord *l_word, WamWord *r_word);
+Bool Load_Left_Right(Bool optim_eq, WamWord le_word, WamWord re_word,
+		     int *mask, long *c, WamWord *l_word, WamWord *r_word);
 Bool Term_Math_Loading(WamWord l_word, WamWord r_word);
 Bool Fd_Math_Unify_X_Y(WamWord x, WamWord y);
 #ifdef DEBUG
 void Debug_Display(char *fct, int n, ...);
 #endif
-	  /* defined in fd_math_fd.fd */
 Bool x_eq_c(WamWord x, WamWord c);	/* in math_supp.c */
 Bool x_eq_y(WamWord x, WamWord y);
 Bool x_plus_c_eq_y(WamWord x, WamWord c, WamWord y);
@@ -3412,7 +2195,6 @@ Bool quot_rem_x_y_r_eq_z(WamWord x, WamWord y, WamWord r, WamWord z);
 Bool quot_rem_a_y_r_eq_z_F(WamWord a, WamWord y, WamWord r, WamWord z);
 Bool quot_rem_x_a_r_eq_z_F(WamWord x, WamWord a, WamWord r, WamWord z);
 Bool quot_rem_x_y_r_eq_z_F(WamWord x, WamWord y, WamWord r, WamWord z);
-	  /* defined in fd_bool_fd.fd */
 Bool not_x_eq_b(WamWord x, WamWord b);
 Bool x_equiv_y_eq_b(WamWord x, WamWord y, WamWord b);
 Bool x_nequiv_y_eq_b(WamWord x, WamWord y, WamWord b);
@@ -3521,41 +2303,6 @@ Bool truth_x_plus_c_gte_y(WamWord x, WamWord c, WamWord y, WamWord b);
       else                                                                  \
          PRIM_CSTR_6(f##_F,a1,a2,a3,a4,a5,a6);                              \
     } while(0)
-/*-------------------------------------------------------------------------*
- * GNU Prolog                                                              *
- *                                                                         *
- * Part  : FD constraint solver buit-in predicates                         *
- * File  : oper_supp.h                                                     *
- * Descr.: FD Operation support - header file                              *
- * Author: Daniel Diaz                                                     *
- *                                                                         *
- * Copyright (C) 1999,2000 Daniel Diaz                                     *
- *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
- *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
- *-------------------------------------------------------------------------*/
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
 unsigned Power(unsigned x, unsigned n);
 unsigned Nth_Root_Dn(unsigned y, unsigned n);
 unsigned Nth_Root_Up(unsigned y, unsigned n);

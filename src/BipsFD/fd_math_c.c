@@ -57,10 +57,7 @@
 void
 Fd_Set_Full_Ac_Flag_1(WamWord full_ac_word)
 {
-  WamWord word, tag, *adr;
-
-  Deref(full_ac_word, word, tag, adr);
-  full_ac = UnTag_INT(word);
+  full_ac = Rd_Integer(full_ac_word);
 }
 
 
@@ -74,51 +71,51 @@ Bool
 Fd_Eq_2(WamWord le_word, WamWord re_word)
 {
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "#=#" : "#=";
 #endif
 
-  if (!Load_Left_Right
-      (TRUE, le_word, re_word, &mask, &c_word, &l_word, &r_word))
+  if (!Load_Left_Right(TRUE, le_word, re_word, &mask, &c, &l_word, &r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      if (c_word != 0)
+      if (c != 0)
 	return FALSE;
       goto term_load;
 
     case MASK_LEFT:
-      if (c_word > 0)
+      if (c > 0)
 	return FALSE;
 
-      PRIM_CSTR_2(x_eq_c, l_word, -c_word);
+      PRIM_CSTR_2(x_eq_c, l_word, Tag_INT(-c));
       goto term_load;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	return FALSE;
 
-      PRIM_CSTR_2(x_eq_c, r_word, c_word);
+      PRIM_CSTR_2(x_eq_c, r_word, Tag_INT(c));
       goto term_load;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      MATH_CSTR_3(x_plus_c_eq_y, l_word, c_word, r_word);
+      MATH_CSTR_3(x_plus_c_eq_y, l_word, Tag_INT(c), r_word);
       goto term_load;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      MATH_CSTR_3(x_plus_c_eq_y, r_word, -c_word, l_word);
+      MATH_CSTR_3(x_plus_c_eq_y, r_word, Tag_INT(-c), l_word);
       goto term_load;
     }
-  /* if c_word==0 nothing to do since preference via pref_load_word */
+  /* if c == 0 nothing to do since preference via pref_load_word */
 term_load:
   return Term_Math_Loading(l_word, r_word);
 }
@@ -134,54 +131,54 @@ Bool
 Fd_Neq_2(WamWord le_word, WamWord re_word)
 {
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "#\\=#" : "#\\=";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word))
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word, &r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      if (c_word == 0)
+      if (c == 0)
 	return FALSE;
       goto term_load;
 
     case MASK_LEFT:
-      if (c_word > 0)
+      if (c > 0)
 	{
 	  Fd_Prolog_To_Fd_Var(l_word, TRUE);
 	  goto term_load;
 	}
 
-      PRIM_CSTR_2(x_neq_c, l_word, -c_word);
+      PRIM_CSTR_2(x_neq_c, l_word, Tag_INT(-c));
       goto term_load;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	{
 	  Fd_Prolog_To_Fd_Var(r_word, TRUE);
 	  goto term_load;
 	}
 
-      PRIM_CSTR_2(x_neq_c, r_word, c_word);
+      PRIM_CSTR_2(x_neq_c, r_word, Tag_INT(c));
       goto term_load;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      PRIM_CSTR_3(x_plus_c_neq_y, l_word, c_word, r_word);
+      PRIM_CSTR_3(x_plus_c_neq_y, l_word, Tag_INT(c), r_word);
       goto term_load;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      PRIM_CSTR_3(x_plus_c_neq_y, r_word, -c_word, l_word);
+      PRIM_CSTR_3(x_plus_c_neq_y, r_word, Tag_INT(-c), l_word);
       goto term_load;
     }
 
@@ -202,51 +199,52 @@ Bool
 Fd_Lt_2(WamWord le_word, WamWord re_word)
 {
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "#<#" : "#<";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word))
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word,
+		       &r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      if (c_word >= 0)
+      if (c >= 0)
 	return FALSE;
       goto term_load;
 
     case MASK_LEFT:
-      if (c_word >= 0)
+      if (c >= 0)
 	return FALSE;
 
-      PRIM_CSTR_2(x_lte_c, l_word, -c_word - TAGGED_1);
+      PRIM_CSTR_2(x_lte_c, l_word, Tag_INT(-c - 1));
       goto term_load;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	{
 	  Fd_Prolog_To_Fd_Var(r_word, TRUE);
 	  goto term_load;
 	}
 
-      PRIM_CSTR_2(x_gte_c, r_word, c_word + TAGGED_1);
+      PRIM_CSTR_2(x_gte_c, r_word, Tag_INT(c + 1));
       goto term_load;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      PRIM_CSTR_3(x_plus_c_lte_y, l_word, c_word + TAGGED_1, r_word);
+      PRIM_CSTR_3(x_plus_c_lte_y, l_word, Tag_INT(c + 1), r_word);
       goto term_load;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      PRIM_CSTR_3(x_plus_c_gte_y, r_word, -c_word - TAGGED_1, l_word);
+      PRIM_CSTR_3(x_plus_c_gte_y, r_word, Tag_INT(-c - 1), l_word);
       goto term_load;
     }
 
@@ -267,51 +265,52 @@ Bool
 Fd_Lte_2(WamWord le_word, WamWord re_word)
 {
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "#=<#" : "#=<";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word))
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word,
+		       &r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      if (c_word > 0)
+      if (c > 0)
 	return FALSE;
       goto term_load;
 
     case MASK_LEFT:
-      if (c_word > 0)
+      if (c > 0)
 	return FALSE;
 
-      PRIM_CSTR_2(x_lte_c, l_word, -c_word);
+      PRIM_CSTR_2(x_lte_c, l_word, Tag_INT(-c));
       goto term_load;
 
     case MASK_RIGHT:
-      if (c_word <= 0)
+      if (c <= 0)
 	{
 	  Fd_Prolog_To_Fd_Var(r_word, TRUE);
 	  goto term_load;
 	}
 
-      PRIM_CSTR_2(x_gte_c, r_word, c_word);
+      PRIM_CSTR_2(x_gte_c, r_word, Tag_INT(c));
       goto term_load;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      PRIM_CSTR_3(x_plus_c_lte_y, l_word, c_word, r_word);
+      PRIM_CSTR_3(x_plus_c_lte_y, l_word, Tag_INT(c), r_word);
       goto term_load;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      PRIM_CSTR_3(x_plus_c_gte_y, r_word, -c_word, l_word);
+      PRIM_CSTR_3(x_plus_c_gte_y, r_word, Tag_INT(-c), l_word);
       goto term_load;
     }
 

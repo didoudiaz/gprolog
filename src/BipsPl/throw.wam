@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : throw.pl
-% date    : 9 6 2000
-% time    : 17:33:15
+% date    : 12 1 2000
+% time    : 16:12:59
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/throw.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/throw.pl').
 
 
 predicate('$use_throw'/0,27,static,private,built_in,[
@@ -49,7 +49,7 @@ label(1),
     proceed]).
 
 
-predicate('$unwind'/1,51,static,private,built_in,[
+predicate('$unwind'/1,52,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),

@@ -36,27 +36,41 @@
  * Global Variables                *
  *---------------------------------*/
 
-			      /* overwritten by W32 GUI console if present */
+/* overwritten if needed to customize linedit */
 
-int w32gc_present;
-void (*w32gc_screen_size) ();
-int (*w32gc_kbd_is_not_empty) ();
-void (*w32gc_emit_beep) ();
-void (*w32gc_msg) ();
-void (*w32gc_ins_mode) ();
-int (*w32gc_get_char0) ();
-void (*w32gc_put_char) ();
-void (*w32gc_erase) ();
-void (*w32gc_backd) ();
-void (*w32gc_forwd) ();
-void (*w32gc_displ) ();
-void (*w32gc_display_string) ();
-void (*w32gc_set_title) ();
-void (*w32gc_restart_exit_msg) ();
-void (*w32gc_restart) ();
-void (*w32gc_adjust_stack_sizes) ();
+int le_hook_present;
 
+void (*le_hook_emit_beep) ();
+void (*le_hook_put_char) ();
+int  (*le_hook_get_char0) ();
+void (*le_hook_ins_mode) ();
 
+void (*le_hook_screen_size) ();
+int  (*le_hook_kbd_is_not_empty) ();
+
+void (*le_hook_backd) ();
+void (*le_hook_forwd) ();
+void (*le_hook_displ) ();
+void (*le_hook_displ_str) ();
+void (*le_hook_erase) ();
+
+#ifdef LE_DEFINE_HOOK_MACROS
+
+#define EMIT_BEEP(fd_out)         ((*le_hook_emit_beep)(fd_out))
+#define PUT_CHAR(c, fd_out)       ((*le_hook_put_char)(c, fd_out))
+#define GET_CHAR0(fd_in)          ((*le_hook_get_char0)(fd_in))
+#define INS_MODE(ins_mode)        ((*le_hook_ins_mode)(ins_mode))
+
+#define SCREEN_SIZE(fd_out, r, c) ((*le_hook_screen_size)(fd_out, r, c))
+#define KBD_IS_NOT_EMPTY(fd_in)   ((*le_hook_kbd_is_not_empty)(fd_in))
+
+#define BACKD(fd_out, n)          ((*le_hook_backd)(fd_out, n))
+#define FORWD(fd_out, n, str)     ((*le_hook_forwd)(fd_out, n, str))
+#define DISPL(fd_out, n, str)     ((*le_hook_displ)(fd_out, n, str))
+#define DISPL_STR(fd_out, str)    ((*le_hook_displ_str)(fd_out, str))
+#define ERASE(fd_out, n)          ((*le_hook_erase)(fd_out, n))
+
+#endif
 
 
 /*---------------------------------*

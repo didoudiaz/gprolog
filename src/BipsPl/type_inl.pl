@@ -22,60 +22,60 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_type_inl'.
 
 
-var(X):-
-        var(X).
+var(X) :-
+	var(X).
 
-nonvar(X):-
-        nonvar(X).
+nonvar(X) :-
+	nonvar(X).
 
-atom(X):-
-        atom(X).
+atom(X) :-
+	atom(X).
 
-integer(X):-
-        integer(X).
+integer(X) :-
+	integer(X).
 
-float(X):-
-        float(X).
+float(X) :-
+	float(X).
 
-number(X):-
-        number(X).
+number(X) :-
+	number(X).
 
-atomic(X):-
-        atomic(X).
+atomic(X) :-
+	atomic(X).
 
-compound(X):-
-        compound(X).
+compound(X) :-
+	compound(X).
 
-callable(X):-
-        callable(X).
+callable(X) :-
+	callable(X).
 
-list(X):-
+list(X) :-
 	list(X).
 
-partial_list(X):-
+partial_list(X) :-
 	partial_list(X).
 
-list_or_partial_list(X):-
+list_or_partial_list(X) :-
 	list_or_partial_list(X).
 
 
-:- built_in_fd(fd_var/1,non_fd_var/1,generic_var/1,non_generic_var/1).
+:-	built_in_fd(fd_var/1, non_fd_var/1, generic_var/1, non_generic_var/1).
 
-fd_var(X):-
+fd_var(X) :-
 	fd_var(X).
 
-non_fd_var(X):-
+non_fd_var(X) :-
 	non_fd_var(X).
 
-generic_var(X):-
+generic_var(X) :-
 	generic_var(X).
 
-non_generic_var(X):-
+non_generic_var(X) :-
 	non_generic_var(X).
 
 

@@ -263,7 +263,7 @@ M_Allocate_Stacks(void)
   WamWord *addr;
   int i;
 
-#ifndef MAP_ANON
+#if !defined(M_ix86_win32) && !defined(MAP_ANON)
   int fd;
 
   fd = open("/dev/zero", 0);
@@ -282,7 +282,8 @@ M_Allocate_Stacks(void)
     }
 
   addr = (WamWord *) M_MMAP_HIGH_ADR;
-#ifdef M_MMAP_HIGH_ADR_ALT
+  len *= sizeof(WamWord);
+#if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
   i = 0;
 try_mmap:
 #endif
@@ -291,7 +292,6 @@ try_mmap:
 #endif
   addr = (WamWord *) Round_Down((long) addr, getpagesize());
   addr -= len;
-  len *= sizeof(WamWord);
 
 #ifdef M_ix86_win32
   addr = (WamWord *) VirtualAlloc(addr, len,
@@ -320,7 +320,7 @@ try_mmap:
       || ((long) addr & (((1L << TAG_SIZE) - 1) << VALUE_SIZE)) != 0)
 #endif
     {
-#ifdef M_MMAP_HIGH_ADR_ALT
+#if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
       if (i == 0)
 	{
 	  i = 1;

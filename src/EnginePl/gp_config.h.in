@@ -46,6 +46,9 @@
 /* Define if you don't want to use machine registers */
 #undef NO_USE_REGS
 
+/* Define if you don't want to use the ebp register on ix86 */
+#undef NO_USE_EBP
+
 /* Define if you don't want to fast call on ix86 */
 #undef NO_USE_FAST_CALL
 
@@ -190,21 +193,6 @@
 
 #define SIZEOF_LONG                any
 #define WORD_SIZE                  (8*SIZEOF_LONG)
-
-
-
-
-/*---------------------------------*
- * Miscellaneous                   *
- *---------------------------------*/
-
-#ifndef NO_USE_GUI_CONSOLE
-#define W32_GUI_CONSOLE
-#endif
-
-#ifdef M_sparc_sunos
-#define __USE_FIXED_PROTOTYPES__
-#endif
 
 #include "arch_dep.h"
 

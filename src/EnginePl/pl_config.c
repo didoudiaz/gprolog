@@ -65,10 +65,9 @@ RegInf;
 
 typedef enum
 {
+  SHORT_UNS,
   INTEGER,
-  UNSIGNED,
-  STACK,
-  MALLOC
+  ADDRESS
 }
 TypTag;
 
@@ -77,7 +76,7 @@ typedef struct
 {
   char name[32];
   TypTag type;
-  char cast[32];
+  int value;
 }
 TagInf;
 
@@ -214,7 +213,7 @@ main(void)
 	 "No"
 #endif
     );
-#ifdef M_ix86
+#ifdef COULD_COMPILE_FOR_FC
   printf("Use fast call     : %s\n",
 #ifndef NO_USE_FAST_CALL
 	 "Yes"
@@ -430,6 +429,7 @@ Generate_Regs(FILE *f, FILE *g)
   char **p;
   int total_nb_reg = 0;
   int nb_not_alloc = 0;
+  int regs_to_save_for_signal;
   int i, j, k;
 
 #ifdef NO_USE_REGS
@@ -486,6 +486,7 @@ Generate_Regs(FILE *f, FILE *g)
   fprintf(g, "\n\n   /*--- Begin Register Generation ---*/\n\n");
 
   p = used_regs;
+#ifndef NO_MACHINE_REG_FOR_REG_BANK
   if (*p)
     {
       nb_of_used_regs++;
@@ -500,6 +501,7 @@ Generate_Regs(FILE *f, FILE *g)
       fprintf(g, "extern WamWord \t\t\t*reg_bank;\n");
       fprintf(g, "\n#endif\n\n");
     }
+#endif
 
   for (i = 0; i < 10; i++)
     for (j = 0, total_nb_reg += nb_reg[i]; j < nb_reg[i]; j++)
@@ -517,7 +519,7 @@ Generate_Regs(FILE *f, FILE *g)
 	  }
 	else
 	  {
-	    fprintf(g, "#define %s\t\t\t((%s)\t (reg_bank[%s%d]))\n",
+	    fprintf(g, "#define %s\t\t\t(((%-8s *) reg_bank)[%s%d])\n",
 		    dp->name, dp->type, str_base, nb_not_alloc);
 	    fprintf(fw_r, "#define MAP_OFFSET_%-6s\t((%s%d)*%d)\n",
 		    dp->name, str_base, nb_not_alloc++, (int) sizeof(long));
@@ -532,6 +534,58 @@ Generate_Regs(FILE *f, FILE *g)
   fprintf(g, "#define NB_OF_NOT_ALLOC_REGS\t%d\n", nb_not_alloc);
   fprintf(g, "#define REG_BANK_SIZE       \t(%sNB_OF_NOT_ALLOC_REGS)\n",
 	  str_base);
+  fprintf(g, "\n\n\n\n#define NB_OF_USED_MACHINE_REGS %d\n",
+	  nb_of_used_regs);	/* same as NB_OF_ALLOC_REGS :-) ? */
+
+
+#ifndef NO_MACHINE_REG_FOR_REG_BANK /* reg_bank restored anyway */
+  regs_to_save_for_signal = (nb_of_used_regs > 1);
+#else
+  regs_to_save_for_signal = (nb_of_used_regs >= 1);
+#endif
+    
+  fprintf(g, "\n");
+  fprintf(g, "#ifdef ENGINE_FILE\n\n");
+#ifdef NO_MACHINE_REG_FOR_REG_BANK
+  fprintf(g, "WamWord reg_bank[REG_BANK_SIZE];\n");
+#else
+  fprintf(g, "WamWord *save_reg_bank;\n\n");
+#endif
+
+  if (regs_to_save_for_signal)
+    fprintf(g, "WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];\n\n");
+
+  fprintf(g, "char *reg_tbl[] = { ");
+  k = 0;
+  for (i = 0; i < 10; i++)
+    for (j = 0; j < nb_reg[i]; j++)
+      {
+	dp = &reg[i][j];
+	fprintf(g, "\"%s\"%s", dp->name,
+		k < total_nb_reg - 1 ? ", " : "};\n");
+	k++;
+      }
+
+  fprintf(g, "\n#else\n\n");
+#ifdef NO_MACHINE_REG_FOR_REG_BANK
+  fprintf(g, "extern WamWord reg_bank[];\n");
+#else
+  fprintf(g, "extern WamWord *save_reg_bank;\n\n");
+#endif
+
+  if (regs_to_save_for_signal)
+    fprintf(g, "extern WamWord buff_signal_reg[];\n\n");
+  
+  fprintf(g, "extern char *reg_tbl[];\n");
+
+  fprintf(g, "\n#endif\n");
+
+#ifdef NO_MACHINE_REG_FOR_REG_BANK
+  fprintf(g, "#define Init_Reg_Bank(x)  save_reg_bank = reg_bank = x\n");
+#else
+  fprintf(g, "#define Init_Reg_Bank(x)\n");
+#endif
+
 
   fprintf(g, "\n\n");
   fprintf(g, "#define Reg(i)\t\t\t(");
@@ -548,87 +602,96 @@ Generate_Regs(FILE *f, FILE *g)
       }
 
 
-  fprintf(g, "\n");
-  fprintf(g, "#ifdef ENGINE_FILE\n\n");
-  fprintf(g, "       char    *reg_tbl[]=\t{");
-  k = 0;
-  for (i = 0; i < 10; i++)
-    for (j = 0; j < nb_reg[i]; j++)
-      {
-	dp = &reg[i][j];
-	fprintf(g, "\"%s\"%s", dp->name,
-		k < total_nb_reg - 1 ? "," : "};\n");
-	k++;
-      }
-
-  fprintf(g, "\n#else\n\n");
-  fprintf(g, "extern char    *reg_tbl[];\n");
-
-  fprintf(g, "\n#endif\n");
-
-
-
-  fprintf(g, "\n\n\n\n#define Save_All_Regs(buff_save)\t\t\\\n");
-  fprintf(g, "    do {            \t\t\t\t\\\n");
+  fprintf(g, "\n\n\n\n#define Save_All_Regs(buff_save) \\\n");
+  fprintf(g, "  do { \\\n");
 
   k = 0;
   for (i = 0; i < 10; i++)
     for (j = 0; j < nb_reg[i]; j++)
       {
 	dp = &reg[i][j];
-	fprintf(g, "     buff_save[%d]=(WamWord) %-6s;\t\t\\\n", k,
+	fprintf(g, "    buff_save[%d] = (WamWord) %s; \\\n", k,
 		dp->name);
 	k++;
       }
 
-  fprintf(g, "    } while(0)\n");
+  fprintf(g, "  } while(0)\n");
 
 
-
-  fprintf(g, "\n\n\n\n#define Restore_All_Regs(buff_save)\t\t\\\n");
-  fprintf(g, "    do {            \t\t\t\t\\\n");
+  fprintf(g, "\n\n\n\n#define Restore_All_Regs(buff_save) \\\n");
+  fprintf(g, "  do { \\\n");
 
   k = 0;
   for (i = 0; i < 10; i++)
     for (j = 0; j < nb_reg[i]; j++)
       {
 	dp = &reg[i][j];
-	fprintf(g, "     %-6s=(%s)\tbuff_save[%d];\t\t\\\n",
+	fprintf(g, "    %-6s = (%-8s) buff_save[%d]; \\\n",
 		dp->name, dp->type, k);
 	k++;
       }
 
-  fprintf(g, "    } while(0)\n");
+  fprintf(g, "  } while(0)\n");
 
 
 
-  fprintf(g, "\n\n\n\n#define NB_OF_USED_MACHINE_REGS %d\n",
-	  nb_of_used_regs);
-  fprintf(g, "\n\n\n\n#define Save_Machine_Regs(buff_save)\t\t\\\n");
-  fprintf(g, "    do {            \t\t\t\t\\\n");
+  fprintf(g, "\n\n\n\n#define Save_Machine_Regs(buff_save) \\\n");
+  fprintf(g, "  do { \\\n");
 
   for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "     register long reg%d asm (\"%s\");\t\t\\\n", i,
+    fprintf(g, "    register long reg%d asm (\"%s\"); \\\n", i,
 	    used_regs[i]);
 
   for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "     buff_save[%d]=reg%d;\t\t\t\t\\\n", i, i);
+    fprintf(g, "    buff_save[%d] = reg%d; \\\n", i, i);
 
-  fprintf(g, "    } while(0)\n");
+  fprintf(g, "  } while(0)\n");
 
 
 
-  fprintf(g, "\n\n\n\n#define Restore_Machine_Regs(buff_save)\t\t\\\n");
-  fprintf(g, "    do {            \t\t\t\t\\\n");
+  fprintf(g, "\n\n#define Restore_Machine_Regs(buff_save) \\\n");
+  fprintf(g, "  do { \\\n");
 
   for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "     register long reg%d asm (\"%s\");\t\t\\\n", i,
+    fprintf(g, "    register long reg%d asm (\"%s\"); \\\n", i,
 	    used_regs[i]);
 
   for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "     reg%d=buff_save[%d];\t\t\t\t\\\n", i, i);
+    fprintf(g, "    reg%d = buff_save[%d]; \\\n", i, i);
 
-  fprintf(g, "    } while(0)\n");
+  fprintf(g, "  } while(0)\n");
+
+
+
+  if (regs_to_save_for_signal)
+    {
+      fprintf(g, "\n\n\n\n#define Start_Protect_Regs_For_Signal \\\n");
+      fprintf(g, "  do { \\\n");
+      fprintf(g, "    Save_Machine_Regs(buff_signal_reg); \\\n");
+      fprintf(g, "    buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \\\n");
+      fprintf(g, "  } while(0)\n");
+
+      fprintf(g, "\n\n#define Stop_Protect_Regs_For_Signal \\\n");
+      fprintf(g, "  buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \\\n");
+
+      fprintf(g, "\n\n#define Restore_Protect_Regs_For_Signal \\\n");
+      fprintf(g, "  do { \\\n");
+      fprintf(g, "    if (buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \\\n");
+      fprintf(g, "      Restore_Machine_Regs(buff_signal_reg); \\\n");
+      fprintf(g, "      Stop_Protect_Regs_For_Signal; \\\n");
+      fprintf(g, "    } \\\n");
+#ifndef NO_MACHINE_REG_FOR_REG_BANK
+      fprintf(g, "    reg_bank = save_reg_bank; \\\n");
+#endif
+      fprintf(g, "  } while(0)\n");
+    }
+  else
+    {
+      fprintf(g, "\n\n\n\n#define Start_Protect_Regs_For_Signal\n");
+      fprintf(g, "\n\n#define Stop_Protect_Regs_For_Signal\n");
+      fprintf(g, "\n\n#define Restore_Protect_Regs_For_Signal\n");
+    }
+
 
 
 
@@ -644,8 +707,9 @@ Generate_Regs(FILE *f, FILE *g)
  * GENERATE_TAGS                                                           *
  *                                                                         *
  * tag description:                                                        *
- *    @tag name type [cast_type]                                           *
- *         type of the value: int/unsigned/stack/malloc                    *
+ *    @tag name type value                                                 *
+ *         type: integer/short_uns/address                                 *
+ *         value: >= 0                                                     *
  *-------------------------------------------------------------------------*/
 void
 Generate_Tags(FILE *f, FILE *g)
@@ -654,9 +718,8 @@ Generate_Tags(FILE *f, FILE *g)
   char *p1, *p2;
   TagInf tag[128];
   int nb_tag = 0;
-  int tag_size, value_size;
-  unsigned long malloc_start;
-  unsigned long malloc_high_adr;
+  int tag_size, tag_size_low, tag_size_high, value_size;
+  int max_value = 0;
   unsigned long tag_mask;
   int i;
 
@@ -684,22 +747,18 @@ Generate_Tags(FILE *f, FILE *g)
 	  strcpy(tag[nb_tag].name, Read_Identifier(p2 + 1, 1, &p2));
 	  p1 = Read_Identifier(p2 + 1, 1, &p2);
 
-	  if (strcmp(p1, "int") == 0)
+	  if (strcmp(p1, "integer") == 0)
 	    tag[nb_tag].type = INTEGER;
-	  else if (strcmp(p1, "unsigned") == 0)
-	    tag[nb_tag].type = UNSIGNED;
-	  else if (strcmp(p1, "stack") == 0)
-	    tag[nb_tag].type = STACK;
-	  else if (strcmp(p1, "malloc") == 0)
-	    tag[nb_tag].type = MALLOC;
-	  else
+	  else if (strcmp(p1, "short_uns") == 0)
+	    tag[nb_tag].type = SHORT_UNS;
+	  else if (strcmp(p1, "address") == 0)
+	    tag[nb_tag].type = ADDRESS;
+	  else 
 	    Fatal_Error("Syntax error: wrong tag type in: %s", save_str);
 
-	  if ((p1 = Read_Identifier(p2 + 1, 0, &p2)))
-	    strcpy(tag[nb_tag].cast, p1);
-	  else
-	    tag[nb_tag].cast[0] = '\0';
-
+	  tag[nb_tag].value = Read_Integer(p2 + 1, &p2);
+	  if (tag[nb_tag].value > max_value)
+	    max_value = tag[nb_tag].value;
 	  nb_tag++;
 	  continue;
 	}
@@ -708,118 +767,171 @@ Generate_Tags(FILE *f, FILE *g)
     }
 
 
-
-
   fprintf(g, "\n\n   /*--- Begin Tag Generation ---*/\n\n");
 
-  for (tag_size = 0; (1 << tag_size) < nb_tag; tag_size++)
-    ;
+#define Mk_Tag_Mask(x) (unsigned long) ((((x) >> tag_size_low) << (value_size + tag_size_low)) | ((x) & ((1 << tag_size_low) - 1)))
 
-  value_size = WORD_SIZE - tag_size;
-
-  tag_mask = (unsigned long) (((unsigned long) -1) << value_size);
-
-  malloc_start = (unsigned long) malloc(512);
-  malloc_high_adr = malloc_start + 15 * 1024 * 1024;
-
-  fprintf(g, "#define TAG_SIZE   \t\t%d\n", tag_size);
-  fprintf(g, "#define VALUE_SIZE \t\t%d\n", value_size);
-
-  fprintf(g, "\n");
-  for (i = 0; i < nb_tag; i++)
-    fprintf(g, "#define %-10s \t\t%-2d\n", tag[i].name, i);
-
-  fprintf(g, "\n");
-  fprintf(g, "#define MALLOC_MASK \t\t%#lx\n",
-	  (long) (malloc_high_adr & tag_mask));
-
-#if defined(M_USE_MMAP)
-
-  fprintf(g, "#define STACK_MASK  \t\t%#lx\n",
-	  (long) (M_MMAP_HIGH_ADR & tag_mask));
-
-#elif defined(M_USE_SHM)
-
-  fprintf(g, "#define STACK_MASK  \t\t%#lx\n",
-	  (long) (M_SHM_HIGH_ADR & tag_mask));
-
+#if 0
+  tag_size = 4;
 #else
+  max_value++;
+  if (max_value < nb_tag)
+    Fatal_Error("There is an invalid tag value (repetition ?)\n");
 
-  fprintf(g, "#define STACK_MASK  \t\tMALLOC_MASK\n");
-
+  for (tag_size = 0; (1 << tag_size) < max_value; tag_size++)
+    ;
 #endif
 
-  fprintf(g, "\n");
-  fprintf(g,
-	  "#define Tag_Value(t,v)\t\t(((unsigned long) (v) << %d) | (t))\n",
-	  tag_size);
-  fprintf(g, "#define Tag_Of(w)     \t\t((unsigned long) (w) & %#x)\n",
-	  (1 << tag_size) - 1);
+  tag_size_low = 2;
+
+  tag_size_high = tag_size - tag_size_low;
+  value_size = WORD_SIZE - tag_size;
+
+  tag_mask = Mk_Tag_Mask((1 << tag_size) - 1);
+
+  fprintf(g, "#define TAG_SIZE     \t\t%d\n", tag_size);
+  fprintf(g, "#define TAG_SIZE_LOW \t\t%d\n", tag_size_low);
+  fprintf(g, "#define TAG_SIZE_HIGH\t\t%d\n", tag_size_high);
+  fprintf(g, "#define VALUE_SIZE   \t\t%d\n", value_size);
+  fprintf(g, "#define TAG_MASK     \t\t%#lxUL\n", tag_mask);
+  fprintf(g, "#define VALUE_MASK   \t\t%#lxUL\n", ~tag_mask);
+
+  fprintf(g, "#define Tag_Mask_Of(w)\t\t((unsigned long) (w) & (TAG_MASK))\n");
+
+  fprintf(g, "#define Tag_From_Tag_Mask(w) \t(((unsigned long) (w) >> %d) | ((w) & %d))\n", value_size, (1 << tag_size_low) -1);
+  fprintf(g, "#define Tag_Of(w)     \t\t((((unsigned long) (w) >> %d) << %d) | ((w) & %d))\n", WORD_SIZE-tag_size_high, tag_size_low, (1 << tag_size_low) -1);
+
+  for (i = 0; i < nb_tag; i++)
+    fprintf(g, "#define TAG_%s_MASK\t\t%#lxUL\n", tag[i].name, 
+	    Mk_Tag_Mask(tag[i].value));
 
   fprintf(g, "\n");
-  fprintf(g, "#define UnTag_Integer(w) \t((long) (w) >> %d)\n", tag_size);
 
-  fprintf(g, "#define UnTag_Unsigned(w)\t((unsigned long) (w) >> %d)\n",
-	  tag_size);
+  fprintf(g, "#define NB_OF_TAGS       \t%d\n", nb_tag);
 
-  fprintf(g,
-	  "#define UnTag_Stack(w)   \t((WamWord *) (((unsigned long) (w) >> %d) | STACK_MASK))\n",
-	  tag_size);
-  fprintf(g,
-	  "#define UnTag_Malloc(w)  \t((unsigned long) (((unsigned long) (w) >> %d) | MALLOC_MASK))\n",
-	  tag_size);
-
+  for (i = 0; i < nb_tag; i++)
+    fprintf(g, "#define %-10s \t\t%-2d\n", tag[i].name, tag[i].value);
 
   fprintf(g, "\n");
+  fprintf(g, "\t/* General Tag/UnTag macros */\n\n");
+  fprintf(g, "#define Tag_Integer(tm, v)  \t((((unsigned long) ((v) << %d)) >> %d) | (tm))\n",
+	  tag_size, tag_size_high);
 
-  fprintf(g, "#define NB_OF_TAGS       \t%d\n\n", nb_tag);
+
+  fprintf(g, "#define Tag_Short_Uns(tm, v)\t(((unsigned long) (v) << %d) + (tm))\n", tag_size_low);
+
+/* For Tag_Address the + (tm) is better than | (tm) since the C compiler can
+ * optimizes thinks like Tag_Address(2, H + 1) with only 1 instruction (+ 6)
+ * instead of 2 (1 for + 4, 1 for | TAG_STC_MASK) 
+ */
+  fprintf(g, "#define Tag_Address(tm, v)  \t((unsigned long) (v) + (tm))\n");
+
+  fprintf(g, "\n");
+  fprintf(g, "#define UnTag_Integer(w)    \t((long) ((w) << %d) >> %d)\n",
+	  tag_size_high, tag_size);
+
+  fprintf(g, "#define UnTag_Short_Uns(w)\tUnTag_Integer(w)\n");
+
+  fprintf(g, "#define UnTag_Address(w)  \t((WamWord *) ((w) & VALUE_MASK))\n");
+
+  fprintf(g, "\n");
+  fprintf(g, "\n");
+  fprintf(g, "\t/* Specialized Tag/UnTag macros */\n\n");
+
+  fprintf(g, "\n");
 
   for (i = 0; i < nb_tag; i++)
     {
-      fprintf(g, "#define Tag_%s(v)  \t\tTag_Value(%s,v)\n",
-	      tag[i].name, tag[i].name);
-      fprintf(g, "#define UnTag_%s(w) \t\t", tag[i].name);
+      fprintf(g, "#define Tag_%s(v)  \t\t", tag[i].name);
+      switch(tag[i].type)
+	{
+	case INTEGER:
+	  if (tag[i].value == 0)
+	    fprintf(g, "(((unsigned long) (v) << %d) & VALUE_MASK)\n", 
+		    tag_size_low);
+	  else if (tag[i].value == (1 << tag_size) - 1)
+	    fprintf(g, "(((unsigned long) (v) << %d) | TAG_MASK)\n", 
+		    tag_size_low);
+	  else
+	    fprintf(g, "Tag_Integer(TAG_%s_MASK, v)\n", tag[i].name);
+	  break;
 
-      if (tag[i].cast[0])
-	fprintf(g, "((%s) ", tag[i].cast);
+	case SHORT_UNS:
+	  fprintf(g, "Tag_Short_Uns(TAG_%s_MASK, v)\n", tag[i].name);
+	  break;
 
-      fprintf(g, "UnTag_%s(w)%s\n\n",
-	      (tag[i].type == INTEGER) ? "Integer" :
-	      (tag[i].type == UNSIGNED) ? "Unsigned" :
-	      (tag[i].type == STACK) ? "Stack" : "Malloc",
-	      (tag[i].cast[0]) ? ")" : "");
+	case ADDRESS:
+	  fprintf(g, "Tag_Address(TAG_%s_MASK, v)\n", tag[i].name);
+	  break;
+	}
+    }
+
+  fprintf(g, "\n");
+
+  for (i = 0; i < nb_tag; i++)
+    {
+      fprintf(g, "#define UnTag_%s(w)  \t\t", tag[i].name);
+      switch(tag[i].type)
+	{
+	case INTEGER:
+	  fprintf(g, "UnTag_Integer(w)\n");
+	  break;
+
+	case SHORT_UNS:
+	  if (tag[i].value <= 3)
+	    fprintf(g, "((unsigned long) (w) >> %d)\n", tag_size_low);
+	  else
+	    fprintf(g, "UnTag_Short_Uns(w)\n");
+	  break;
+
+	case ADDRESS:
+	  if (tag[i].value == 0)
+	    fprintf(g, "((WamWord *) (w))\n");
+	  else
+	    fprintf(g, "UnTag_Address(w)\n");
+	  break;
+	}
+    }
+
+  fprintf(g, "\n");
+
+  for (i = 0; i < nb_tag; i++)
+    {
+      fprintf(g, "#define Tag_Is_%s(w)  \t\t(Tag_Mask_Of(w) == TAG_%s_MASK)\n", tag[i].name, tag[i].name);
     }
 
 
   fprintf(g, "\ntypedef enum\n");
   fprintf(g, "{\n");
   fprintf(g, "  INTEGER,\n");
-  fprintf(g, "  UNSIGNED,\n");
-  fprintf(g, "  STACK,\n");
-  fprintf(g, "  MALLOC\n");
+  fprintf(g, "  SHORT_UNS,\n");
+  fprintf(g, "  ADDRESS\n");
   fprintf(g, "}TypTag;\n");
 
   fprintf(g, "\ntypedef struct\n");
   fprintf(g, "{\n");
-  fprintf(g, "  char    *name;\n");
-  fprintf(g, "  TypTag   type;\n");
+  fprintf(g, "  char *name;\n");
+  fprintf(g, "  TypTag type;\n");
+  fprintf(g, "  int value;\n");
+  fprintf(g, "  long tag_mask;\n");
   fprintf(g, "}InfTag;\n\n\n");
 
 
   fprintf(g, "#ifdef ENGINE_FILE\n\n");
-  fprintf(g, "InfTag   tag_tbl[]=\t{");
+  fprintf(g, "InfTag tag_tbl[] =\n{\n");
 
   for (i = 0; i < nb_tag; i++)
     {
-      fprintf(g, "{\"%s\",%s}%s", tag[i].name,
+      fprintf(g, "  { \"%s\", %s, %d, %#lxUL }%s", tag[i].name,
 	      (tag[i].type == INTEGER) ? "INTEGER" :
-	      (tag[i].type == UNSIGNED) ? "UNSIGNED" :
-	      (tag[i].type == STACK) ? "STACK" : "MALLOC",
-	      (i < nb_tag - 1) ? ",\n\t\t\t\t " : "};\n");
+	      (tag[i].type == SHORT_UNS) ? "SHORT_UNS" : "ADDRESS",
+	      tag[i].value,
+	      Mk_Tag_Mask(tag[i].value),
+	      (i < nb_tag - 1) ? ",\n" : "\n};\n");
     }
 
   fprintf(g, "\n#else\n\n");
-  fprintf(g, "extern InfTag   tag_tbl[];\n");
+  fprintf(g, "extern InfTag tag_tbl[];\n");
   fprintf(g, "\n#endif\n");
 
 
@@ -890,7 +1002,7 @@ Generate_Stacks(FILE *f, FILE *g)
 
       fprintf(g, "#define %s_Stack       \t(stk_tbl[%d].stack)\n", str, i);
       fprintf(g, "#define %s_Size        \t(stk_tbl[%d].size)\n", str, i);
-      fprintf(g, "#define %s_Offset(adr) \t((WamWord *)(adr)-%s_Stack)\n",
+      fprintf(g, "#define %s_Offset(adr) \t((WamWord *)(adr) - %s_Stack)\n",
 	      str, str);
       fprintf(g, "#define %s_Used_Size   \t%s_Offset(%s)\n\n", str, str,
 	      stack[i].top_macro);
@@ -898,18 +1010,18 @@ Generate_Stacks(FILE *f, FILE *g)
 
   fprintf(g, "\n#define Stack_Top(s)       \t(");
   for (i = 0; i < nb_stack - 1; i++)
-    fprintf(g, "((s)==%d) ? %s : ", i, stack[i].top_macro);
+    fprintf(g, "((s) == %d) ? %s : ", i, stack[i].top_macro);
 
   fprintf(g, "%s)\n", stack[nb_stack - 1].top_macro);
 
 
   fprintf(g, "\ntypedef struct\n");
   fprintf(g, "{\n");
-  fprintf(g, "  char    *name;\n");
-  fprintf(g, "  char    *env_var_name;\n");
-  fprintf(g, "  long    *p_def_size;\n");
-  fprintf(g, "  int      default_size; \t/* in WamWords */\n");
-  fprintf(g, "  int      size;         \t/* in WamWords */\n");
+  fprintf(g, "  char *name;\n");
+  fprintf(g, "  char *env_var_name;\n");
+  fprintf(g, "  long *p_def_size;\n");
+  fprintf(g, "  int default_size; \t/* in WamWords */\n");
+  fprintf(g, "  int size;         \t/* in WamWords */\n");
   fprintf(g, "  WamWord *stack;\n");
   fprintf(g, "}InfStack;\n\n\n");
 
@@ -923,7 +1035,7 @@ Generate_Stacks(FILE *f, FILE *g)
     fprintf(g, "long def_%s_size;\n", stack[i].name);
   fprintf(g, "long fixed_sizes;\n\n");
 
-  fprintf(g, "InfStack  stk_tbl[]=\t{");
+  fprintf(g, "InfStack stk_tbl[] =\n{\n");
 
   for (i = 0; i < nb_stack; i++)
     {
@@ -931,10 +1043,11 @@ Generate_Stacks(FILE *f, FILE *g)
       for (p1 = str; *p1; p1++)
 	*p1 = toupper(*p1);
 
-      fprintf(g, "{\"%s\",\"%sSZ\",&def_%s_size,%d,0,NULL}%s",
-	      stack[i].name, str, stack[i].name, stack[i].def_size,
-	      (i < nb_stack - 1) ? ",\n\t\t\t " : "};\n");
+      fprintf(g, " { \"%s\", \"%sSZ\", &def_%s_size, %d, 0, NULL }%s",
+	      stack[i].name, str, stack[i].name, stack[i].def_size, 
+              (i < nb_stack - 1) ? ",\n" : "\n};\n");
     }
+
 
   fprintf(g, "\n#else\n\n");
   for (i = 0; i < nb_stack; i++)

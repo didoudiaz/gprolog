@@ -142,8 +142,8 @@ static void Check_Chain(D2ChHdr *p, int index_no);
 
 #define SCAN_DYN_JUMP_ALT          X247363616E5F64796E5F6A756D705F616C74
 
-Prolog_Prototype(SCAN_DYN_TEST_ALT, 0)
-Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
+Prolog_Prototype(SCAN_DYN_TEST_ALT, 0);
+Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
 
 
 
@@ -267,7 +267,7 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 #endif
 
 
-  lst_h_b = Tag_Value(LST, H);
+  lst_h_b = Tag_LST(H);
   H[0] = head_word;
   H[1] = body_word;
 
@@ -386,15 +386,17 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
 static int
 Index_From_First_Arg(WamWord first_arg_word, long *key)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int index_no;
 
 
-  Deref(first_arg_word, word, tag, adr);
-  switch (tag)
+  DEREF(first_arg_word, word, tag_mask);
+  switch (Tag_From_Tag_Mask(tag_mask))
     {
     case REF:
+#ifndef NO_USE_FD_SOLVER
     case FDV:
+#endif
       index_no = VAR_INDEX;
       break;
 

@@ -220,7 +220,7 @@ Stream_Supp_Initializer(void)
 
 
 #ifdef W32_GUI_CONSOLE
-  if (w32gc_present)		/* linked with W32GUICons */
+  if (le_hook_present)
     istty = 1;
   else
 #endif
@@ -250,7 +250,7 @@ Stream_Supp_Initializer(void)
 
 
 #ifdef W32_GUI_CONSOLE
-  if (w32gc_present)		/* linked with W32GUICons */
+  if (le_hook_present)		/* linked with W32GUICons */
     istty = 1;
   else
 #endif
@@ -419,7 +419,7 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
 	  d = 1;
 	}
 #ifdef W32_GUI_CONSOLE
-      else if (w32gc_present)
+      else if (le_hook_present)
 	{
 	  d = 2;
 	}
@@ -666,46 +666,47 @@ Set_Stream_Buffering(int stm)
 int
 Get_Stream_Or_Alias(WamWord sora_word, int test)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask, tag_mask1;
   int atom;
   WamWord *stc_adr;
   int stm = 0;			/* only for the compiler */
   int perm_oper;
 
 
-  Deref(sora_word, word, tag, adr);
-  switch (tag)
+  DEREF(sora_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK)	/* alias ? */
     {
-    case REF:
-      Pl_Err_Instantiation();
-      break;
-
-    case ATM:			/* alias */
       atom = UnTag_ATM(word);
       stm = (atom == atom_glob_stream_alias) ? MAX_STREAM
 	: Find_Stream_By_Alias(atom);
-      break;
+      goto next_test;
+    }
 
-    case STC:
+  if (tag_mask == TAG_STC_MASK) /* stream ? */
+    {
       stc_adr = UnTag_STC(word);
-      Deref(Arg(stc_adr, 0), word, tag, adr);
+      DEREF(Arg(stc_adr, 0), word, tag_mask1);
       stm = UnTag_INT(word);
 
-      if (Functor_And_Arity(stc_adr) == stream_1 && tag == INT)
-	break;
-
-      /* else error in default: */
-    default:
-      Pl_Err_Domain(domain_stream_or_alias, sora_word);
+      if (Functor_And_Arity(stc_adr) == stream_1 && tag_mask1 == TAG_INT_MASK)
+	goto next_test;
     }
+
+  if (tag_mask == TAG_REF_MASK)
+    Pl_Err_Instantiation();
+
+  Pl_Err_Domain(domain_stream_or_alias, sora_word);
+
+
+ next_test:
 
   if (stm < 0 || stm > MAX_STREAM || stm_tbl[stm].file == 0 ||
       (stm == MAX_STREAM && glob_str_stream.ptr == NULL))	/* global not in use */
     {
       if (test == STREAM_CHECK_VALID)
 	return -1;
-      else
-	Pl_Err_Existence(existence_stream, sora_word);
+
+      Pl_Err_Existence(existence_stream, sora_word);
     }
 
   if (test == STREAM_CHECK_VALID || test == STREAM_CHECK_EXIST)
@@ -718,7 +719,7 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
 
       perm_oper = permission_operation_input;
     }
-  else				/* test==STREAM_CHECK_OUTPUT */
+  else				/* test == STREAM_CHECK_OUTPUT */
     {
       if (stm_tbl[stm].prop.output)
 	goto ok;
@@ -728,7 +729,7 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
 
   Pl_Err_Permission(perm_oper, permission_type_stream, sora_word);
 
-ok:
+ ok:
   return stm;
 }
 
@@ -980,7 +981,7 @@ TTY_Clearerr(TTYInf *tty)
 static void
 W32_Putc(int c, long file)
 {
-  (*w32gc_put_char) (c);
+  (*le_hook_put_char) (c, file);
 }
 
 
@@ -1055,15 +1056,14 @@ Stream_Getc_No_Echo(StmInf *pstm)
     }
   else
     {
-#ifdef M_alpha_linux
-      Save_Machine_Regs(bug_reg_buffer);
-      bug_reg_buffer[NB_OF_USED_MACHINE_REGS] = 1;	/* is valid */
-#endif
+      Start_Protect_Regs_For_Signal;
 #ifndef NO_USE_LINEDIT
       c = TTY_Getc_No_Echo((TTYInf *) file);
+      Stop_Protect_Regs_For_Signal;
     }
 #else
       c = pstm->fct_getc((FILE *) file);
+      Stop_Protect_Regs_For_Signal;
     }
 
   if (c != '\n')
@@ -1106,11 +1106,9 @@ Stream_Getc(StmInf *pstm)
     }
   else
     {
-#ifdef M_alpha_linux
-      Save_Machine_Regs(bug_reg_buffer);
-      bug_reg_buffer[NB_OF_USED_MACHINE_REGS] = 1;	/* is valid */
-#endif
+      Start_Protect_Regs_For_Signal;
       c = (*pstm->fct_getc) (file);
+      Stop_Protect_Regs_For_Signal;
     }
   if (c == EOF)
     pstm->eof_reached = TRUE;

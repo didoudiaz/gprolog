@@ -151,7 +151,7 @@ typedef union
 DblUns;
 
 
-#if WORD_SIZE==64
+#if WORD_SIZE == 64
 
 typedef union
 {
@@ -191,8 +191,6 @@ static Bool debug_call;
 
 WamCont debug_call_code;	/* overwritten by debugger_c.c */
 
-#define DEBUG_CALL_MASK            (1<<TAG_SIZE)
-
 
 
 
@@ -205,12 +203,6 @@ static int Find_Inst_Code_Op(int inst);
 static int Compar_Inst_Code_Op(BCWord *w1, BCWord *w2);
 
 static int BC_Arg_X_Or_Y(WamWord arg_word, int *op);
-
-static int BC_Arg_Atom(WamWord arg_word);
-
-static int BC_Arg_Integer(WamWord arg_word);
-
-static double BC_Arg_Float(WamWord arg_word);
 
 static int BC_Arg_Func_Arity(WamWord arg_word, int *arity);
 
@@ -236,9 +228,9 @@ static
 
 #define CALL_INTERNAL_WITH_CUT     X2463616C6C5F696E7465726E616C5F776974685F637574
 
-Prolog_Prototype(BC_EMULATE_ALT, 0)
-Prolog_Prototype(BC_EMULATE_CONT, 0)
-Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3)
+Prolog_Prototype(BC_EMULATE_ALT, 0);
+Prolog_Prototype(BC_EMULATE_CONT, 0);
+Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define BC_Op(w)                   ((w).t1.code_op)
 
@@ -266,22 +258,22 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3)
 
 #define Op_In_Tbl(str,op)    BC_Op(*p)=op; BC_Atm(*p)=Create_Atom(str); p++
 
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
 
-#define Compute_Branch_Adr(bc,codep)                                        \
-    {                                                                       \
-     codep=(WamCont) (bc->word); bc++;                                      \
-    }
+#define Compute_Branch_Adr(bc, codep)   \
+{                                       \
+  codep = (WamCont) (bc->word); bc++;   \
+}
 
 #else
 
-#define Compute_Branch_Adr(bc,codep)                                        \
-    {                                                                       \
-     PtrUns pu;                                                             \
-     pu.u[0]=(unsigned) (bc->word); bc++;                                   \
-     pu.u[1]=(unsigned) (bc->word); bc++;                                   \
-     codep=(WamCont) (pu.p);                                                \
-    }
+#define Compute_Branch_Adr(bc, codep)     \
+{                                         \
+  PtrUns pu;                              \
+  pu.u[0] = (unsigned) (bc->word); bc++;  \
+  pu.u[1] = (unsigned) (bc->word); bc++;  \
+  codep = (WamCont) (pu.p);               \
+}
 
 #endif
 
@@ -292,7 +284,8 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3)
  * BYTE_CODE_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void Byte_Code_Initializer(void)
+static void
+Byte_Code_Initializer(void)
 {
   BCWord *p = op_tbl;
 
@@ -510,7 +503,7 @@ BC_Emit_Inst_1(WamWord inst_word)
   int nb_word;
   DblUns du;
 
-#if WORD_SIZE==64
+#if WORD_SIZE == 64
   PtrUns pu;
 #endif
   PredInf *pred;
@@ -540,18 +533,18 @@ BC_Emit_Inst_1(WamWord inst_word)
     case PUT_Y_UNSAFE_VALUE - 1:
     case MATH_LOAD_X_VALUE:
       BC_XY(w) = BC_Arg_X_Or_Y(*arg_adr++, &op);
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
     case GET_ATOM:
     case PUT_ATOM:
-      BC_Atm(w) = BC_Arg_Atom(*arg_adr++);
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      BC_Atm(w) = Rd_Atom(*arg_adr++);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
     case GET_INTEGER:
     case PUT_INTEGER:
-      w1 = BC_Arg_Integer(*arg_adr++);
+      w1 = Rd_Integer(*arg_adr++);
       if (Fit_In_16bits(w1))
 	BC_Int(w) = w1;
       else
@@ -559,14 +552,14 @@ BC_Emit_Inst_1(WamWord inst_word)
 	  op++;
 	  nb_word = 2;
 	}
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
     case GET_FLOAT:
     case PUT_FLOAT:
       nb_word = 3;
-      du.d = BC_Arg_Float(*arg_adr++);
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      du.d = Rd_Float(*arg_adr++);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       w1 = du.u[0];
       w2 = du.u[1];
       break;
@@ -575,18 +568,18 @@ BC_Emit_Inst_1(WamWord inst_word)
     case GET_LIST:
     case PUT_NIL:
     case PUT_LIST:
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
     case GET_STRUCTURE:
     case PUT_STRUCTURE:
       nb_word = 2;
       BC_Fun(w) = BC_Arg_Func_Arity(*arg_adr++, &w1);
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
     case PUT_VOID:
-      BC_X0(w) = BC_Arg_Integer(*arg_adr);
+      BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
 
@@ -598,11 +591,11 @@ BC_Emit_Inst_1(WamWord inst_word)
       break;
 
     case UNIFY_ATOM:
-      BC_Atm(w) = BC_Arg_Atom(*arg_adr);
+      BC_Atm(w) = Rd_Atom(*arg_adr);
       break;
 
     case UNIFY_INTEGER:
-      w1 = BC_Arg_Integer(*arg_adr++);
+      w1 = Rd_Integer(*arg_adr++);
       if (Fit_In_16bits(w1))
 	BC_Int(w) = w1;
       else
@@ -619,7 +612,7 @@ BC_Emit_Inst_1(WamWord inst_word)
 
     case UNIFY_VOID:
     case ALLOCATE:
-      BC_Int(w) = BC_Arg_Integer(*arg_adr);
+      BC_Int(w) = Rd_Integer(*arg_adr);
       break;
 
 
@@ -631,7 +624,7 @@ BC_Emit_Inst_1(WamWord inst_word)
       if (pred && (pred->prop & MASK_PRED_NATIVE_CODE))
 	{
 	  op++;
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
 	  nb_word = 2;
 	  w1 = (unsigned) (pred->codep);
 #else
@@ -693,63 +686,16 @@ BC_Emit_Inst_1(WamWord inst_word)
 static int
 BC_Arg_X_Or_Y(WamWord arg_word, int *op)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
 
-  Deref(arg_word, word, tag, adr);
+  DEREF(arg_word, word, tag_mask);
   adr = UnTag_STC(word);
 
   if (Functor(adr) != ATOM_CHAR('x'))
     (*op)++;			/* +1 for op when Y is involved */
 
-  return BC_Arg_Integer(Arg(adr, 0));
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * BC_ARG_ATOM                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-BC_Arg_Atom(WamWord arg_word)
-{
-  WamWord word, tag, *adr;
-
-  Deref(arg_word, word, tag, adr);
-  return UnTag_ATM(word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * BC_ARG_INTEGER                                                          *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-BC_Arg_Integer(WamWord arg_word)
-{
-  WamWord word, tag, *adr;
-
-  Deref(arg_word, word, tag, adr);
-  return UnTag_INT(word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * BC_ARG_FLOAT                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static double
-BC_Arg_Float(WamWord arg_word)
-{
-  WamWord word, tag, *adr;
-
-  Deref(arg_word, word, tag, adr);
-  return Obtain_Float(UnTag_FLT(word));
+  return Rd_Integer(Arg(adr, 0));
 }
 
 
@@ -762,17 +708,16 @@ BC_Arg_Float(WamWord arg_word)
 static int
 BC_Arg_Func_Arity(WamWord arg_word, int *arity)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *stc_adr;
 
-  Deref(arg_word, word, tag, adr);	/* f/n */
+  DEREF(arg_word, word, tag_mask);              /* functor/arity */
   stc_adr = UnTag_STC(word);
 
-  Deref(Arg(stc_adr, 1), word, tag, adr);	/* arity */
+  DEREF(Arg(stc_adr, 1), word, tag_mask);	/* arity */
   *arity = UnTag_INT(word);
 
-  Deref(Arg(stc_adr, 0), word, tag, adr);	/* arity */
-
+  DEREF(Arg(stc_adr, 0), word, tag_mask);	/* functor */
   return UnTag_ATM(word);
 }
 
@@ -790,7 +735,7 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
  *-------------------------------------------------------------------------*/
 WamCont
 BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
-			WamWord first_call)
+			WamWord first_call_word)
 {
   int func, arity;
   WamWord *arg_adr;
@@ -799,9 +744,10 @@ BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
 
   arg_adr = Rd_Callable_Check(pred_word, &func, &arity);
 
-  debug_call = (call_info_word & DEBUG_CALL_MASK) != 0;
+  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
 
-  if (debug_call_code != NULL && debug_call && first_call)
+  if (debug_call_code != NULL && debug_call && 
+      (first_call_word & (1 << TAG_SIZE_LOW)))
     {
       A(0) = pred_word;
       A(1) = call_info_word;
@@ -926,7 +872,7 @@ BC_Emulate_Clause(DynCInf *clause)
       goto fail;
 
   A(0) = body_word;
-  A(1) = Tag_Value(INT, Call_Info(func, arity, debug_call));
+  A(1) = Tag_INT(Call_Info(func, arity, debug_call));
   A(2) = A(arity);
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 3);
 
@@ -1227,8 +1173,8 @@ bc_loop:
 	  w1 = bc->word;
 	  caller_func = Functor_Of(w1);
 	  caller_arity = Arity_Of(w1);
-	  Set_Bip_Name_2(Tag_Value(ATM, caller_func),
-			 Tag_Value(INT, caller_arity));
+	  Set_Bip_Name_2(Tag_ATM(caller_func),
+			 Tag_INT(caller_arity));
 	  Unknown_Pred_Error(func, arity);
 	  goto fail;
 	}
@@ -1324,10 +1270,10 @@ Prep_Debug_Call(int func, int arity, int caller_func, int caller_arity)
   WamWord word;
 
   if (arity == 0)
-    A(0) = Tag_Value(ATM, func);
+    A(0) = Tag_ATM(func);
   else
     {
-      word = Tag_Value(STC, H);
+      word = Tag_STC(H);
       Global_Push(Functor_Arity(func, arity));
 
       for (i = 0; i < arity; i++)
@@ -1335,5 +1281,5 @@ Prep_Debug_Call(int func, int arity, int caller_func, int caller_arity)
 
       A(0) = word;
     }
-  A(1) = Tag_Value(INT, Call_Info(caller_func, caller_arity, debug_call));
+  A(1) = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
 }

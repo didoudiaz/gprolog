@@ -115,14 +115,15 @@ Expand_Initializer(void)
 Bool
 Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord in_word, out_word;
   WamWord head_word, body_word;
   WamWord *end_lst_adr;
 
-  Deref(rule_word, word, tag, adr);
+  DEREF(rule_word, word, tag_mask);
   adr = UnTag_STC(word);
-  if (tag != STC || Functor_And_Arity(adr) != dcg_2)
+  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(adr) != dcg_2)
     return FALSE;
 
   top = Local_Top;		/* use local stack for the stack */
@@ -166,7 +167,8 @@ static WamWord
 Dcg_Head(WamWord dcg_head_word, WamWord *in_word,
 	 WamWord *out_word, WamWord **end_lst_adr)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *save_H, *p;
   int func, arity;
   Bool first;
@@ -181,16 +183,16 @@ start:
     {
       first = FALSE;
       dcg_head_word = *adr++;
-      Deref(*adr, word, tag, adr);
+      DEREF(*adr, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word != NIL_WORD)
 	{
-	  if (tag != LST)
+	  if (tag_mask != TAG_LST_MASK)
 	    Pl_Err_Type(type_list, word);
-
+	  
 	  *end_lst_adr = UnTag_LST(word);
 	}
       goto start;
@@ -206,7 +208,7 @@ start:
   *p++ = *out_word = Make_Self_Ref(adr);
   H = p;
 
-  return Tag_Value(STC, save_H);
+  return Tag_STC(save_H);
 }
 
 
@@ -252,7 +254,7 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
 
   if (top == base)
     {
-      word = Tag_Value(ATM, atom_true);
+      word = Tag_ATM(atom_true);
       goto finish;
     }
 
@@ -264,7 +266,7 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
       *p++ = *--top;
       *p++ = word;
       H = p;
-      word = Tag_Value(STC, save_H);
+      word = Tag_STC(save_H);
     }
 
 finish:
@@ -284,13 +286,14 @@ finish:
 static void
 Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord w1, w2;
   WamWord *save_H, *p;
   int func, arity;
 
-  Deref(dcg_body_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(dcg_body_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
       func = atom_phrase;
       arity = 1;
@@ -304,7 +307,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
       return;
     }
 
-  if (tag == LST)
+  if (tag_mask == TAG_LST_MASK)
     {
       Dcg_Term_List_On_Stack(UnTag_LST(word), in_word, out_word);
       return;
@@ -367,7 +370,7 @@ non_term:
   *p++ = in_word;
   *p++ = out_word;
   H = p;
-  *top++ = Tag_Value(STC, save_H);
+  *top++ = Tag_STC(save_H);
 }
 
 
@@ -380,7 +383,8 @@ non_term:
 static void
 Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *save_lst_adr = lst_adr;
   WamWord *save_H, *p;
 
@@ -389,23 +393,23 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
     {
       *p++ = Car(lst_adr);
 
-      Deref(Cdr(lst_adr), word, tag, adr);
-      if (tag == REF)
+      DEREF(Cdr(lst_adr), word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
-	Pl_Err_Type(type_list, Tag_Value(LST, save_lst_adr));
+      if (tag_mask != TAG_LST_MASK)
+	Pl_Err_Type(type_list, Tag_LST(save_lst_adr));
 
       lst_adr = UnTag_LST(word);
       adr = p + 1;
-      *p++ = Tag_Value(LST, adr);
+      *p++ = Tag_LST(adr);
     }
   *p++ = out_word;
   H = p;
-  word = Tag_Value(LST, save_H);
+  word = Tag_LST(save_H);
 
   if (opt_term_unif)
     Unify(in_word, word);
@@ -433,5 +437,5 @@ Dcg_Compound2(int func, WamWord w1, WamWord w2)
   *p++ = w1;
   *p++ = w2;
   H = p;
-  return Tag_Value(STC, save_H);
+  return Tag_STC(save_H);
 }

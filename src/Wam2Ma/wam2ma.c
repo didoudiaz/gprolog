@@ -32,16 +32,22 @@
 #include "wam_parser.h"
 #include "../EnginePl/gp_config.h"
 #include "../EnginePl/arch_dep.h"
+#define ONLY_TAG_PART
+#include "../EnginePl/wam_archi.h"
 #include "../EnginePl/pl_params.h"
 #include "../BipsPl/pred_supp.h"
 
 #include "bt_string.c"
 #include "../TopComp/copying.c"
 
-#ifdef FC
+#ifdef FC_USED_TO_COMPILE_CORE
 #define FAST "fast "
 #else
 #define FAST
+#endif
+
+#if 1
+#define USE_TAGGED_CALLS
 #endif
 
 #if 0
@@ -166,11 +172,16 @@ Direct;
 
 char *file_name_in;
 char *file_name_out;
-int keep_source_lines;
+int comment;
 
 FILE *file_out;
 
 BTString bt_atom;
+#ifdef USE_TAGGED_CALLS
+BTString bt_tagged_atom;
+BTString bt_tagged_f_n;
+#endif
+
 
 BTNode *cur_pl_file;
 
@@ -214,6 +225,14 @@ void Emit_Exec_Directives(void);
 
 void Emit_One_Atom(int no, char *str);
 
+#ifdef USE_TAGGED_CALLS
+void Emit_One_Atom_Tagged(int no, char *str);
+
+int Add_F_N_Tagged(char *atom, int n);
+
+void Emit_One_F_N_Tagged(int no, char *str);
+#endif
+
 void Label_Printf(char *label, ...) GCCPRINTF(1);
 
 void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
@@ -224,7 +243,7 @@ void Write_Call_C(char *fct_name, ArgVal arg[]);
 
 
 
-#define Check_Arg(i,str)      (strncmp(argv[i],str,strlen(argv[i]))==0)
+#define Check_Arg(i, str)      (strncmp(argv[i], str, strlen(argv[i]))==0)
 
 
 
@@ -232,7 +251,7 @@ void Write_Call_C(char *fct_name, ArgVal arg[]);
 
 #define DEF_ATOM(atom)        BTNode *atom; char *str_##atom
 
-#define DEF_PRED(hexa)        char *hexa=buff_hexa; char *str_##hexa
+#define DEF_PRED(hexa)        char *hexa = buff_hexa; char *str_##hexa
 
 #define DEF_INTEGER(n)        long n
 
@@ -240,63 +259,80 @@ void Write_Call_C(char *fct_name, ArgVal arg[]);
 
 #define DEF_X_Y(xy)           long xy; char c
 
-#define DEF_F_N(atom,n)       DEF_ATOM(atom); DEF_INTEGER(n)
+#ifdef USE_TAGGED_CALLS
+#define DEF_F_N(atom, n)      DEF_STR(str_##atom); DEF_INTEGER(n); int f_n_no
+#else
+#define DEF_F_N(atom, n)      DEF_ATOM(atom); DEF_INTEGER(n)
+#endif
 
-#define DEF_P_N(hexa,n)       DEF_PRED(hexa); DEF_INTEGER(n)
+#define DEF_P_N(hexa, n)      DEF_PRED(hexa); DEF_INTEGER(n)
 
 #define DEF_LABEL(l)          char l[MAX_LABEL_LENGTH]; long val_##l
 
 
 
-#define LOAD_STR(str)         Get_Arg(top,char *,str)
+#define LOAD_STR(str)         Get_Arg(top, char *, str)
 
-#define LOAD_ATOM(atom)       Get_Arg(top,char *,str_##atom); \
-                              atom=BT_String_Add(&bt_atom,str_##atom)
+#define LOAD_ATOM_T(atom, t)  Get_Arg(top, char *, str_##atom); \
+                              atom = BT_String_Add(&t, str_##atom)
 
-#define LOAD_PRED(hexa)       Get_Arg(top,char *,str_##hexa); \
-                              Compute_Hexa(str_##hexa,buff_hexa)
+#ifdef USE_TAGGED_CALLS
+#define LOAD_ATOM(atom)       LOAD_ATOM_T(atom, bt_tagged_atom)
+#else
+#define LOAD_ATOM(atom)       LOAD_ATOM_T(atom, bt_atom)
+#endif
 
-#define LOAD_INTEGER(n)       Get_Arg(top,long,n)
+#define LOAD_PRED(hexa)       Get_Arg(top, char *, str_##hexa); \
+                              Compute_Hexa(str_##hexa, buff_hexa)
 
-#define LOAD_FLOAT(n)         Get_Arg(top,double,n)
+#define LOAD_INTEGER(n)       Get_Arg(top, long, n)
 
-#define LOAD_X_Y(xy)          Get_Arg(top,long,xy); \
-                              if (xy<5000) c='X'; else xy-=5000, c='Y'
+#define LOAD_FLOAT(n)         Get_Arg(top, double, n)
 
-#define LOAD_F_N(atom,n)      LOAD_ATOM(atom); LOAD_INTEGER(n)
+#define LOAD_X_Y(xy)          Get_Arg(top, long, xy); \
+                              if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
 
-#define LOAD_P_N(hexa,n)      LOAD_PRED(hexa); LOAD_INTEGER(n)
+#ifdef USE_TAGGED_CALLS
+#define LOAD_F_N(atom, n)     LOAD_STR(str_##atom); LOAD_INTEGER(n);\
+                              f_n_no = Add_F_N_Tagged(str_##atom, n)
+#else
+#define LOAD_F_N(atom, n)     LOAD_ATOM_T(atom, bt_atom); LOAD_INTEGER(n)
+#endif
 
-#define LOAD_LABEL(l)         Get_Arg(top,long,val_##l); \
-                              if (val_##l==-1) strcpy(l,"0"); \
-                              else sprintf(l,FORMAT_LABEL(val_##l))
+#define LOAD_P_N(hexa, n)     LOAD_PRED(hexa); LOAD_INTEGER(n)
+
+#define LOAD_LABEL(l)         Get_Arg(top, long, val_##l); \
+                              if (val_##l==-1) strcpy(l, "0"); \
+                              else sprintf(l, FORMAT_LABEL(val_##l))
 
 #define Args1(a1)             ArgVal *top=arg; DEF_##a1; \
                               LOAD_##a1
 
-#define Args2(a1,a2)          ArgVal *top=arg; DEF_##a1; DEF_##a2; \
+#define Args2(a1, a2)         ArgVal *top=arg; DEF_##a1; DEF_##a2; \
                               LOAD_##a1; LOAD_##a2
 
-#define Args3(a1,a2,a3)       ArgVal *top=arg; DEF_##a1; DEF_##a2; DEF_##a3;\
+#define Args3(a1, a2, a3)     ArgVal *top=arg; DEF_##a1; DEF_##a2; DEF_##a3;\
                               LOAD_##a1; LOAD_##a2; LOAD_##a3
 
-#define Args4(a1,a2,a3,a4)    ArgVal *top=arg; \
+#define Args4(a1, a2, a3, a4) ArgVal *top=arg; \
                               DEF_##a1; DEF_##a2; DEF_##a3; DEF_##a4; \
                               LOAD_##a1; LOAD_##a2; LOAD_##a3; LOAD_##a4
 
-#define Args5(a1,a2,a3,a4,a5) ArgVal *top=arg; \
+#define Args5(a1, a2, a3, a4, a5) \
+                              ArgVal *top=arg; \
                               DEF_##a1; DEF_##a2; DEF_##a3; DEF_##a4; DEF_##a5; \
                               LOAD_##a1; LOAD_##a2; LOAD_##a3; LOAD_##a4; LOAD_##a5
 
-#define Args6(a1,a2,a3,a4,a5,a6) ArgVal *top=arg; \
+#define Args6(a1, a2, a3, a4, a5, a6) \
+                              ArgVal *top=arg; \
                               DEF_##a1; DEF_##a2; DEF_##a3; DEF_##a4; DEF_##a5; DEF_##a6; \
                               LOAD_##a1; LOAD_##a2; LOAD_##a3; LOAD_##a4; LOAD_##a5; LOAD_##a6
 
 
 
-#define FORMAT_LABEL(l)       "Lpred%d_%ld",cur_pred_no,(l)
+#define FORMAT_LABEL(l)       "Lpred%d_%ld", cur_pred_no, (l)
 
-#define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%ld",cur_pred_no,(sl)
+#define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%ld", cur_pred_no, (sl)
 
 
 
@@ -305,7 +341,8 @@ void Write_Call_C(char *fct_name, ArgVal arg[]);
  * MAIN                                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
   Parse_Arguments(argc, argv);
 
@@ -318,12 +355,16 @@ void Write_Call_C(char *fct_name, ArgVal arg[]);
     }
 
   BT_String_Init(&bt_atom);
+#ifdef USE_TAGGED_CALLS
+  BT_String_Init(&bt_tagged_atom);
+  BT_String_Init(&bt_tagged_f_n);
+#endif
 
   Init_Foreign_Table();
   dummy_pred_start.next = NULL;
   dummy_direct_start.next = NULL;
 
-  if (!Parse_Wam_File(file_name_in, keep_source_lines))
+  if (!Parse_Wam_File(file_name_in, comment))
     {
       fprintf(stderr, "Translation aborted\n");
       exit(1);
@@ -377,16 +418,31 @@ Emit_Obj_Initializer(void)
 
   Label_Printf("\n");
 
-  Label_Printf("long local at(%d)", bt_atom.nb_elem);
-  Label_Printf("long local st(%d)", nb_swt_tbl);
+  if (bt_atom.nb_elem)
+    Label_Printf("long local at(%d)", bt_atom.nb_elem);
 
-  fputc('\n', file_out);
+#ifdef USE_TAGGED_CALLS
+  if (bt_tagged_atom.nb_elem)
+    Label_Printf("long local ta(%d)", bt_tagged_atom.nb_elem);
+
+  if (bt_tagged_f_n.nb_elem)
+    Label_Printf("long local fn(%d)", bt_tagged_f_n.nb_elem);
+#endif
+
+  if (nb_swt_tbl)
+    Label_Printf("long local st(%d)", nb_swt_tbl);
+
+  Label_Printf("\n");
 
   Label_Printf("c_code  initializer Object_Initializer\n");
 
   Inst_Printf("call_c", "New_Object(&System_Directives,&User_Directives)");
 
   BT_String_List(&bt_atom, Emit_One_Atom);
+#ifdef USE_TAGGED_CALLS
+  BT_String_List(&bt_tagged_atom, Emit_One_Atom_Tagged);
+  BT_String_List(&bt_tagged_f_n, Emit_One_F_N_Tagged);
+#endif
 
   cur_pred_no = 0;
   for (p = dummy_pred_start.next; p; p = p->next)
@@ -394,13 +450,13 @@ Emit_Obj_Initializer(void)
       fputc('\n', file_out);
       if (!(p->prop & MASK_PRED_DYNAMIC))
 	{
-	  Inst_Printf("call_c",
+	  Inst_Printf("call_c", FAST
 		      "Create_Pred(at(%d),%d,at(%d),%d,%d,&%s_%d)",
 		      p->functor->no, p->arity, p->pl_file->no, p->pl_line,
 		      p->prop, p->hexa, p->arity);
 	}
       else
-	Inst_Printf("call_c", "Create_Pred(at(%d),%d,at(%d),%d,%d,0)",
+	Inst_Printf("call_c", FAST "Create_Pred(at(%d),%d,at(%d),%d,%d,0)",
 		    p->functor->no, p->arity, p->pl_file->no, p->pl_line,
 		    p->prop);
 
@@ -507,9 +563,67 @@ Emit_Exec_Directives(void)
 void
 Emit_One_Atom(int no, char *str)
 {
-  Inst_Printf("call_c", "Create_Atom(\"%s\")", str);
+  Inst_Printf("call_c", FAST "Create_Atom(\"%s\")", str);
   Inst_Printf("move_ret", "at(%d)", no);
 }
+
+
+
+
+#ifdef USE_TAGGED_CALLS
+/*-------------------------------------------------------------------------*
+ * EMIT_ONE_ATOM_TAGGED                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_One_Atom_Tagged(int no, char *str)
+{
+  Inst_Printf("call_c", FAST "Create_Atom_Tagged(\"%s\")", str);
+  Inst_Printf("move_ret", "ta(%d)", no);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ADD_F_N_TAGGED                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Add_F_N_Tagged(char *atom, int n)
+{
+  int l = strlen(atom);
+
+
+  atom = (char *) realloc(atom, l + 5 + 1);
+  sprintf(atom + l, "/%d", n);
+
+  return BT_String_Add(&bt_tagged_f_n, atom)->no;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_ONE_F_N_TAGGED                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_One_F_N_Tagged(int no, char *str)
+{
+  int n;
+  char *p = str + strlen(str) - 1;
+
+  for(p = str + strlen(str) - 1; *p != '/'; p--)
+    ;
+
+  n = atoi(p+1);
+  *p = '\0';
+
+  Inst_Printf("call_c", FAST "Create_Functor_Arity_Tagged(\"%s\",%d)", str, n);
+  Inst_Printf("move_ret", "fn(%d)", no);
+}
+#endif
 
 
 
@@ -566,7 +680,7 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
   cur_sub_label = 0;
 
 
-  if (keep_source_lines)
+  if (comment)
     Label_Printf("\n\n; *** Predicate: %s/%d (%s:%d)",
 		 functor, arity, cur_pl_file->str, pl_line);
 
@@ -641,7 +755,7 @@ New_Directive(int pl_line, int system)
   direct_end->next = p;
   direct_end = p;
 
-  if (keep_source_lines)
+  if (comment)
     Label_Printf("\n\n; *** %s Directive (%s:%d)",
 		 (system) ? "System" : "User", cur_pl_file->str, pl_line);
 
@@ -758,7 +872,11 @@ void
 F_get_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), INTEGER(a));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Get_Atom_Tagged(ta(%d),X(%ld))", atom->no, a);
+#else
   Inst_Printf("call_c", FAST "Get_Atom(at(%d),X(%ld))", atom->no, a);
+#endif
   Inst_Printf("fail_ret", "");
 }
 
@@ -773,7 +891,11 @@ void
 F_get_integer(ArgVal arg[])
 {
   Args2(INTEGER(n), INTEGER(a));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Get_Integer_Tagged(%ld,X(%ld))", Tag_INT(n), a);
+#else
   Inst_Printf("call_c", FAST "Get_Integer(%ld,X(%ld))", n, a);
+#endif
   Inst_Printf("fail_ret", "");
 }
 
@@ -833,8 +955,13 @@ void
 F_get_structure(ArgVal arg[])
 {
   Args2(F_N(atom, n), INTEGER(a));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Get_Structure_Tagged(fn(%d),X(%ld))", f_n_no,
+	      a);
+#else
   Inst_Printf("call_c", FAST "Get_Structure(at(%d),%ld,X(%ld))", atom->no,
 	      n, a);
+#endif
   Inst_Printf("fail_ret", "");
 }
 
@@ -917,7 +1044,11 @@ void
 F_put_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), INTEGER(a));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Put_Atom_Tagged(ta(%d))", atom->no);
+#else
   Inst_Printf("call_c", FAST "Put_Atom(at(%d))", atom->no);
+#endif
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -932,7 +1063,11 @@ void
 F_put_integer(ArgVal arg[])
 {
   Args2(INTEGER(n), INTEGER(a));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Put_Integer_Tagged(%ld)", Tag_INT(n));
+#else
   Inst_Printf("call_c", FAST "Put_Integer(%ld)", n);
+#endif
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -992,7 +1127,11 @@ void
 F_put_structure(ArgVal arg[])
 {
   Args2(F_N(atom, n), INTEGER(a));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Put_Structure_Tagged(fn(%d))", f_n_no);
+#else
   Inst_Printf("call_c", FAST "Put_Structure(at(%d),%ld)", atom->no, n);
+#endif
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -1094,7 +1233,11 @@ void
 F_unify_atom(ArgVal arg[])
 {
   Args1(ATOM(atom));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Unify_Atom_Tagged(ta(%d))", atom->no);
+#else
   Inst_Printf("call_c", FAST "Unify_Atom(at(%d))", atom->no);
+#endif
   Inst_Printf("fail_ret", "");
 }
 
@@ -1109,7 +1252,11 @@ void
 F_unify_integer(ArgVal arg[])
 {
   Args1(INTEGER(n));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Unify_Integer_Tagged(%ld)", Tag_INT(n));
+#else
   Inst_Printf("call_c", FAST "Unify_Integer(%ld)", n);
+#endif
   Inst_Printf("fail_ret", "");
 }
 
@@ -1152,7 +1299,11 @@ void
 F_unify_structure(ArgVal arg[])
 {
   Args1(F_N(atom, n));
+#ifdef USE_TAGGED_CALLS
+  Inst_Printf("call_c", FAST "Unify_Structure_Tagged(fn(%d))", f_n_no);
+#else
   Inst_Printf("call_c", FAST "Unify_Structure(at(%d),%ld)", atom->no, n);
+#endif
   Inst_Printf("fail_ret", "");
 }
 
@@ -1870,7 +2021,7 @@ Parse_Arguments(int argc, char *argv[])
 
 
   file_name_in = file_name_out = NULL;
-  keep_source_lines = 0;
+  comment = 0;
 
   for (i = 1; i < argc; i++)
     {
@@ -1891,7 +2042,7 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--comment"))
 	    {
-	      keep_source_lines = 1;
+	      comment = 1;
 	      continue;
 	    }
 

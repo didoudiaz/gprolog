@@ -188,7 +188,8 @@ Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
 Bool
 Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord tag_functor;
   int arity;
   Bool res;
@@ -196,40 +197,36 @@ Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 
   Set_C_Bip_Name("functor", 3);
 
-  Deref(term_word, word, tag, adr);
-
-  switch (tag)
+  DEREF(term_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     {
-    case REF:
-      break;
+      if (tag_mask == TAG_LST_MASK)
+	res = Un_Atom_Check(ATOM_CHAR('.'), functor_word) &&
+	  Un_Integer_Check(2, arity_word);
+      else if (tag_mask == TAG_STC_MASK)
+	{
+	  adr = UnTag_STC(word);
+	  res = Un_Atom_Check(Functor(adr), functor_word) &&
+	    Un_Integer_Check(Arity(adr), arity_word);
+	}
+      else
+	res = Unify(word, functor_word) && Un_Integer_Check(0, arity_word);
 
-    case LST:
-      res = Un_Atom_Check(ATOM_CHAR('.'), functor_word) &&
-	Un_Integer_Check(2, arity_word);
       goto finish;
-
-    case STC:
-      adr = UnTag_STC(word);
-      res = Un_Atom_Check(Functor(adr), functor_word) &&
-	Un_Integer_Check(Arity(adr), arity_word);
-      goto finish;
-
-    default:
-      res = Unify(word, functor_word) && Un_Integer_Check(0, arity_word);
-      goto finish;
-
     }
 
 
-  /* tag==REF */
-  Deref(functor_word, word, tag, adr);
-  if (tag == REF)
+				/* tag_mask == TAG_REF_MASK */
+
+  DEREF(functor_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag != ATM && tag != INT && tag != FLT)
+  if (tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK && 
+      tag_mask != TAG_FLT_MASK)
     Pl_Err_Type(type_atomic, functor_word);
 
-  tag_functor = tag;
+  tag_functor = tag_mask;
   functor_word = word;
 
   arity = Rd_Positive_Check(arity_word);
@@ -237,14 +234,14 @@ Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
   if (arity > MAX_ARITY)
     Pl_Err_Representation(representation_max_arity);
 
-  if (tag_functor == ATM && UnTag_ATM(functor_word) == ATOM_CHAR('.')
+  if (tag_functor == TAG_ATM_MASK && UnTag_ATM(functor_word) == ATOM_CHAR('.')
       && arity == 2)
     {
       res = (Get_List(term_word)) ? Unify_Void(2), TRUE : FALSE;
       goto finish;
     }
 
-  if (tag_functor == ATM && arity > 0)
+  if (tag_functor == TAG_ATM_MASK && arity > 0)
     {
       res = (Get_Structure(UnTag_ATM(functor_word), arity, term_word)) ?
 	Unify_Void(arity), TRUE : FALSE;
@@ -272,7 +269,8 @@ finish:
 Bool
 Blt_Univ(WamWord term_word, WamWord list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord car_word;
   int lst_length;
   WamWord *arg1_adr;
@@ -284,42 +282,40 @@ Blt_Univ(WamWord term_word, WamWord list_word)
 
   Set_C_Bip_Name("=..", 2);
 
-  Deref(term_word, word, tag, term_adr);
+  DEREF(term_word, word, tag_mask);
 
-  switch (tag)
+  if (tag_mask == TAG_REF_MASK)
+    goto list_to_term;
+
+				/* from term to list functor+args */
+
+  if (tag_mask == TAG_LST_MASK)
     {
-    case REF:
-      goto list_to_term;
-
-      /* from term to list functor+args */
-    case FDV:
-      adr = UnTag_FDV(word);
-      car_word = Tag_Value(REF, adr);	/* since Dont_Separate_Tag */
-      lst_length = 1 + 0;
-      break;
-
-    case INT:
-    case FLT:
-    case ATM:
-      car_word = word;
-      lst_length = 1 + 0;
-      break;
-
-    case LST:
       adr = UnTag_LST(word);
-      car_word = Tag_Value(ATM, ATOM_CHAR('.'));
+      car_word = Tag_ATM(ATOM_CHAR('.'));
       lst_length = 1 + 2;
       arg1_adr = &Car(adr);
-      break;
-
-    case STC:
-      adr = UnTag_LST(word);
-      car_word = Tag_Value(ATM, Functor(adr));
+    }
+  else if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+      car_word = Tag_ATM(Functor(adr));
       lst_length = 1 + Arity(adr);
       arg1_adr = &Arg(adr, 0);
-      break;
     }
-
+#ifndef NO_USE_FD_SOLVER
+  else if (tag_mask == TAG_FDV_MASK)
+    {
+      adr = UnTag_FDV(word);
+      car_word = Tag_REF(adr);	/* since Dont_Separate_Tag */
+      lst_length = 1 + 0;
+    } 
+#endif
+  else				/* TAG_ATM/INT/FLT_MASK */
+    {
+      car_word = word;
+      lst_length = 1 + 0;
+    }
 
   Check_For_Un_List(list_word);
 
@@ -344,63 +340,66 @@ Blt_Univ(WamWord term_word, WamWord list_word)
 
 list_to_term:
 
-  Deref(list_word, word, tag, adr);
-  if (tag == REF)
+  term_adr = UnTag_REF(word);
+
+  DEREF(list_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
   if (word == NIL_WORD)
     Pl_Err_Domain(domain_non_empty_list, list_word);
 
-  if (tag != LST)
+  if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(type_list, list_word);
 
   lst_adr = UnTag_LST(word);
-  Deref(Car(lst_adr), functor_word, functor_tag, adr);
-  if (functor_tag == REF)
+  DEREF(Car(lst_adr), functor_word, functor_tag);
+  if (functor_tag == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  Deref(Cdr(lst_adr), word, tag, adr);
+  DEREF(Cdr(lst_adr), word, tag_mask);
 
   if (word == NIL_WORD)
     {
-      if (functor_tag != ATM && functor_tag != INT && functor_tag != FLT)
+      if (functor_tag != TAG_ATM_MASK && functor_tag != TAG_INT_MASK &&
+	  functor_tag != TAG_FLT_MASK)
 	Pl_Err_Type(type_atomic, functor_word);
 
       term_word = functor_word;
       goto finish;
     }
 
-  if (functor_tag != ATM)
+  if (functor_tag != TAG_ATM_MASK)
     Pl_Err_Type(type_atom, functor_word);
 
-  if (tag == REF)
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag != LST)
+  if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(type_list, list_word);
 
   functor = UnTag_ATM(functor_word);
 
   stc_adr = H;
 
-  H++;				/* reserve space for f/n maybe lost if a list */
+  H++;				/* space for f/n maybe lost if a list */
   arity = 0;
 
   for (;;)
     {
       arity++;
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
       Global_Push(word);
 
-      Deref(Cdr(lst_adr), word, tag, adr);
+      DEREF(Cdr(lst_adr), word, tag_mask);
       if (word == NIL_WORD)
 	break;
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, list_word);
     }
 
@@ -408,11 +407,11 @@ list_to_term:
     Pl_Err_Representation(representation_max_arity);
 
   if (functor == ATOM_CHAR('.') && arity == 2)	/* a list */
-    term_word = Tag_Value(LST, stc_adr + 1);
+    term_word = Tag_LST(stc_adr + 1);
   else
     {
       *stc_adr = Functor_Arity(functor, arity);
-      term_word = Tag_Value(STC, stc_adr);
+      term_word = Tag_STC(stc_adr);
     }
 
 finish:
@@ -433,9 +432,14 @@ Copy_Term_2(WamWord u_word, WamWord v_word)
 {
   WamWord word;
   int size;
+/* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
+ * it allocates a frame even with -fomit-frame-pointer.
+ * This corrupts ebp on ix86 */
+  static WamWord fix_bug;
 
   size = Term_Size(u_word);
-  Copy_Term(H, &u_word);
+  fix_bug = u_word;	
+  Copy_Term(H, &fix_bug);
   word = *H;
   H += size;
 
@@ -453,7 +457,7 @@ Bool
 Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
 	 WamWord undo_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int func, arity;
   int undo;
   WamWord *arg_adr;
@@ -463,8 +467,8 @@ Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
   arg_no = Rd_Positive_Check(arg_no_word) - 1;
   undo = Rd_Boolean_Check(undo_word);
 
-  Deref(new_value_word, word, tag, adr);
-  if (!undo && tag != ATM && tag != INT)
+  DEREF(new_value_word, word, tag_mask);
+  if (!undo && tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK)
     Pl_Err_Type(type_atomic, word);	/* type_atomic but float not allowed */
 
   if ((unsigned) arg_no >= (unsigned) arity)
@@ -488,11 +492,25 @@ Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
 Bool
 Term_Ref_2(WamWord term_word, WamWord ref_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord word1, *adr;
   int ref;
+				/* my own DEREF here to get the address */
+  adr = NULL;			/* added this */
+  word = term_word;
+  do
+    {
+      word1 = word;
+      tag_mask = Tag_Mask_Of(word);
+      if (tag_mask != TAG_REF_MASK)
+	break;
 
-  Deref(term_word, word, tag, adr);
-  if (tag == REF)
+      adr = UnTag_REF(word);	/* added this */
+      word = *adr;
+    }
+  while (word != word1);
+
+  if (tag_mask == TAG_REF_MASK)
     {
       ref = Rd_Positive_Check(ref_word);
       adr = Global_Stack + ref;

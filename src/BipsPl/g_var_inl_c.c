@@ -38,7 +38,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define G_VAR_INITIAL_VALUE        0	/* i.e. Tag_Value(INT,0) */
+#define G_VAR_INITIAL_VALUE        Tag_INT(0)
 
 
 
@@ -73,17 +73,14 @@ static int atom_g_array_extend;
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  Bool G_Assign(WamWord gvar_word, WamWord gval_word,
-		Bool backtrack, Bool copy);
+static Bool G_Assign(WamWord gvar_word, WamWord gval_word,
+		     Bool backtrack, Bool copy);
 
-static
-  Bool G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
-			Bool backtrack, Bool copy);
+static Bool G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
+			     Bool backtrack, Bool copy);
 
-static
-  Bool G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr,
-		      Bool extend, Bool copy);
+static Bool G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr,
+			   Bool extend, Bool copy);
 
 static GVarElt *G_Get_Element(WamWord gvar_word);
 
@@ -109,11 +106,18 @@ static Bool G_Array_Size(WamWord gvar_word, WamWord size_word);
 static void
 G_Var_Initializer(void)
 {
+  int i;
+
   atom_g_array = Create_Atom("g_array");
   atom_g_array_extend = Create_Atom("g_array_extend");
 
-  /* g_var_tbl already initialized to {0,0} */
-  /* i.e size=0 and val=Tag_Value(INT,0)    */
+  for(i = 0; i < MAX_ATOM; i++)
+    {
+#if 0
+      g_var_tbl[i].size = 0;	/* already initialized to 0 */
+#endif
+      g_var_tbl[i].val = G_VAR_INITIAL_VALUE;
+    }
 }
 
 
@@ -267,7 +271,8 @@ static Bool
 G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
 		 Bool backtrack, Bool copy)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   int size;
   int size_base = 0;
   int atom;
@@ -276,17 +281,16 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
 
   save_g_elem = *g_elem;
 
-  Deref(gval_word, word, tag, adr);
+  DEREF(gval_word, word, tag_mask);
 
-  if (tag == STC)
+  if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(word);
       atom = Functor(adr);
 
       if (atom == atom_g_array || atom == atom_g_array_extend)	/* an array */
 	{
-	  if (!G_Assign_Array
-	      (g_elem, adr, atom == atom_g_array_extend, copy))
+	  if (!G_Assign_Array(g_elem, adr, atom == atom_g_array_extend, copy))
 	    return FALSE;
 
 	  goto finish;
@@ -295,16 +299,14 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
 
 
 
-  if (!copy || tag == ATM || tag == INT)	/* a link */
-    {
-      if (tag == REF && Is_A_Local_Adr(adr))
-	{
-	  word = Tag_Value(REF, H);
-	  Globalize_Local_Unbound_Var(adr);
-	}
+  if (!copy || tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
+    {				/* a link */
+      if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
+	Globalize_Local_Unbound_Var(adr, word);
 
       g_elem->size = 0;
-      g_elem->val = Make_Copy_Of_Word(tag, word);
+      Do_Copy_Of_Word(tag_mask, word);
+      g_elem->val = word;
       goto finish;
     }
 
@@ -318,8 +320,6 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
 
   Copy_Term(adr, &word);
 
-
-
 finish:
 
   if (backtrack)
@@ -331,7 +331,6 @@ finish:
     }
   else
     G_Free_Element(&save_g_elem);
-
 
   return TRUE;
 }
@@ -346,7 +345,7 @@ finish:
 static GVarElt *
 G_Get_Element(WamWord gvar_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord word1;
   int atom;
   int arity;
@@ -365,9 +364,9 @@ G_Get_Element(WamWord gvar_word)
 
       word1 = *arg_adr;
     deref:
-      Deref(word1, word, tag, adr);
+      DEREF(word1, word, tag_mask);
 
-      if (tag != INT)
+      if (tag_mask != TAG_INT_MASK)
 	{
 	  word1 = Make_Self_Ref(H);
 	  Global_Push(word1);
@@ -399,7 +398,7 @@ G_Get_Element(WamWord gvar_word)
 static Bool
 G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, Bool extend, Bool copy)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int arity;
   Bool same_init_value;
   WamWord init_word;
@@ -411,15 +410,15 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, Bool extend, Bool copy)
 
   arity = Arity(stc_adr);
 
-  Deref(Arg(stc_adr, 0), word, tag, adr);
-  new_size = (tag == LST) ? List_Length(word) : UnTag_INT(word);
+  DEREF(Arg(stc_adr, 0), word, tag_mask);
+  new_size = (tag_mask == TAG_LST_MASK) ? List_Length(word) : UnTag_INT(word);
 
-  if (!
-      (new_size > 0
-       && ((tag == INT && arity <= 2) || (tag == LST && arity == 1))))
-    Pl_Err_Domain(domain_g_array_index, Tag_Value(STC, stc_adr));
+  if (!(new_size > 0 && 
+	((tag_mask == TAG_INT_MASK && arity <= 2) || 
+	 (tag_mask == TAG_LST_MASK && arity == 1))))
+    Pl_Err_Domain(domain_g_array_index, Tag_STC(stc_adr));
 
-  if (tag == INT)
+  if (tag_mask == TAG_INT_MASK)
     {
       same_init_value = TRUE;
       init_word = (arity == 1) ? G_VAR_INITIAL_VALUE : Arg(stc_adr, 1);
@@ -505,7 +504,7 @@ G_Free_Element(GVarElt *g_elem)
 	G_Free_Element(p++);
     }
 
-  /* a copy or an array: free */
+				/* a copy or an array: free */
   Free((char *) g_elem->val);
 }
 
@@ -549,7 +548,7 @@ G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem)
       return;
     }
 
-  /* a copy: alloc + copy */
+				/* a copy: alloc + copy */
 
   adr = (WamWord *) Malloc(size * sizeof(WamWord));
 
@@ -621,7 +620,7 @@ G_Read_Element(GVarElt *g_elem, WamWord gval_word)
       return Unify(word, gval_word);
     }
 
-  /* an array: unify with array([elt1,...]) */
+				/* an array: unify with array([elt1,...]) */
   size = -size;
   p = (GVarElt *) g_elem->val;
 

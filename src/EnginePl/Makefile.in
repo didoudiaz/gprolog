@@ -1,4 +1,4 @@
-ROOT_DIR      = @ROOT_DIR@
+ROOT_DIR1     = @ROOT_DIR1@
 TOP_LEVEL     = @TOP_LEVEL@
 LIB_ENGINE_PL = @LIB_ENGINE_PL@
 GPLC          = @GPLC@
@@ -55,7 +55,7 @@ cpp_headers@EXE_SUFFIX@: cpp_headers.c
 
 
 $(TOP_LEVEL).h: headers.h cpp_headers
-	D=`(cd ..;for i in *;do test -d $$i && X="$$X $(ROOT_DIR)/src/$$i";done;echo $$X)`; ./cpp_headers headers.h $(TOP_LEVEL).h $$D
+	D=`(cd ..;for i in *;do test -d $$i && X="$$X $(ROOT_DIR1)/src/$$i";done;echo $$X)`; ./cpp_headers headers.h $(TOP_LEVEL).h $$D
 
 
 # General core
@@ -84,9 +84,7 @@ obj_end@OBJ_SUFFIX@: obj_chain.h obj_end.c
 
 engine@OBJ_SUFFIX@: engine.h engine.c 
 
-                                          # warning: no C optim for engine1.c
 engine1@OBJ_SUFFIX@: engine1.c 
-	$(GPLC) -c engine1.c
 
 wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c
 

@@ -143,7 +143,7 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
         }                                                                   \
                                                                             \
      Vec(fdv_adr)=NULL;                                                     \
-     FD_Tag_Value(fdv_adr)=Tag_Value(INT,n);                                \
+     FD_Tag_Value(fdv_adr)=Tag_INT(n);                                \
      FD_INT_Date(fdv_adr) =DATE;                                            \
     } while(0)
 
@@ -177,6 +177,19 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
     } while(0)
 
 
+#define FD_Word_Needs_Trailing(adr)  ((adr) <  CSB(B))
+
+
+
+
+#define FD_Bind_OV(adr, word)                                               \
+  do {                                                                      \
+    if (FD_Word_Needs_Trailing(adr))                                        \
+      Trail_OV(adr);                                                        \
+   *(adr) = (word);                                                         \
+  } while(0)
+
+
 
 
 #define Update_Range_From_Range(fdv_adr,nb_elem,range,propag)               \
@@ -208,7 +221,7 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
       else                                                                  \
          if (r->extra_cstr!=(range)->extra_cstr)                            \
             {                                                               \
-             Bind_OV((WamWord *) &(r->extra_cstr),(range->extra_cstr));     \
+             FD_Bind_OV((WamWord *) &(r->extra_cstr),(range->extra_cstr));  \
              Set_Dom_Mask(propag);                                          \
             }                                                               \
     } while(0)
@@ -266,35 +279,31 @@ Fd_Reset_Solver0(void)
 WamWord *
 Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
 {
-  WamWord word, tag, *adr;
-  WamWord *fdv_adr;
+  WamWord word, tag_mask;
+  WamWord *adr, *fdv_adr;
 
 
-  Deref(arg_word, word, tag, adr);
+  DEREF(arg_word, word, tag_mask);
 
-  switch (tag)
+  if (tag_mask == TAG_REF_MASK)
     {
-    case REF:
       if (!pl_var_ok)
 	Pl_Err_Instantiation();
 
+      adr = UnTag_REF(word);
       fdv_adr = Fd_New_Variable();
-      Bind_UV(adr, Tag_Value(REF, fdv_adr));
-      break;
-
-    case INT:
-      fdv_adr = Fd_New_Int_Variable(UnTag_INT(word));
-      break;
-
-    case FDV:
-      fdv_adr = UnTag_FDV(word);
-      break;
-
-    default:
-      Pl_Err_Type(type_fd_variable, word);
+      Bind_UV(adr, Tag_REF(fdv_adr));
+      return fdv_adr;
     }
 
-  return fdv_adr;
+  if (tag_mask == TAG_INT_MASK)
+    return Fd_New_Int_Variable(UnTag_INT(word));
+  
+  if (tag_mask == TAG_FDV_MASK)
+    return UnTag_FDV(word);
+  
+  Pl_Err_Type(type_fd_variable, word);
+  return NULL;
 }
 
 
@@ -329,14 +338,14 @@ Fd_Prolog_To_Range(WamWord list_word)
 int
 Fd_Prolog_To_Value(WamWord arg_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(arg_word, word, tag, adr);
+  DEREF(arg_word, word, tag_mask);
 
-  if (tag == REF)
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag != INT)
+  if (tag_mask != TAG_INT_MASK)
     Pl_Err_Type(type_integer, word);
 
   return UnTag_INT(word);
@@ -352,7 +361,7 @@ Fd_Prolog_To_Value(WamWord arg_word)
 void
 Fd_List_Int_To_Range(Range *range, WamWord list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   WamWord val;
@@ -367,23 +376,23 @@ Fd_List_Int_To_Range(Range *range, WamWord list_word)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
-
-      if (tag == REF)
+      DEREF(list_word, word, tag_mask);
+      
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
-      if (tag == REF)
+      DEREF(Car(lst_adr), word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
-      if (tag != INT)
+      if (tag_mask != TAG_INT_MASK)
 	Pl_Err_Type(type_integer, word);
 
 
@@ -416,7 +425,7 @@ Fd_List_Int_To_Range(Range *range, WamWord list_word)
 WamWord *
 Fd_Prolog_To_Array_Int(WamWord list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   WamWord val;
@@ -434,23 +443,23 @@ Fd_Prolog_To_Array_Int(WamWord list_word)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
-      if (tag == REF)
+      DEREF(Car(lst_adr), word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
-      if (tag != INT)
+      if (tag_mask != TAG_INT_MASK)
 	Pl_Err_Type(type_integer, word);
 
 
@@ -480,7 +489,7 @@ Fd_Prolog_To_Array_Int(WamWord list_word)
 WamWord *
 Fd_Prolog_To_Array_Any(WamWord list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   int n = 0;
@@ -497,15 +506,15 @@ Fd_Prolog_To_Array_Any(WamWord list_word)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
@@ -534,7 +543,7 @@ Fd_Prolog_To_Array_Any(WamWord list_word)
 WamWord *
 Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   int n = 0;
@@ -550,8 +559,8 @@ Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
-      if (tag != LST)
+      DEREF(list_word, word, tag_mask);
+      if (tag_mask != TAG_LST_MASK)
 	break;
       lst_adr = UnTag_LST(word);
       n++;
@@ -569,15 +578,15 @@ Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
@@ -677,7 +686,7 @@ Fd_New_Variable(void)
 {
   WamWord *fdv_adr = CS;
 
-  FD_Tag_Value(fdv_adr) = Tag_Value(FDV, fdv_adr);
+  FD_Tag_Value(fdv_adr) = Tag_FDV(fdv_adr);
   FD_INT_Date(fdv_adr) = always_date;	/* must be>DATE while tag==FDV */
   Queue_Date_At_Push(fdv_adr) = 0;
   Queue_Propag_Mask(fdv_adr) = 0;
@@ -729,7 +738,7 @@ Fd_New_Int_Variable(int n)
 {
   WamWord *fdv_adr = CS;
 
-  FD_Tag_Value(fdv_adr) = Tag_Value(INT, n);
+  FD_Tag_Value(fdv_adr) = Tag_INT(n);
   FD_INT_Date(fdv_adr) = DATE;	/* put a great value to have an exact optim #2 */
   Queue_Date_At_Push(fdv_adr) = 0;
   Queue_Propag_Mask(fdv_adr) = 0;
@@ -1120,8 +1129,8 @@ Fd_After_Add_Cstr(void)
 void
 Fd_Stop_Constraint(WamWord *CF)
 {
-  Bind_OV((WamWord *) (CF + OFFSET_OF_OPTIM_POINTER),
-	  (WamWord) (&never_date));
+  FD_Bind_OV((WamWord *) (CF + OFFSET_OF_OPTIM_POINTER),
+	     (WamWord) (&never_date));
 }
 
 
@@ -1131,7 +1140,7 @@ Fd_Stop_Constraint(WamWord *CF)
  * FD_ASSIGN_VALUE                                                         *
  *                                                                         *
  * fdv_adr is a FDV and n belongs to the range of the FD var               *
- * like  Fd_Unify_With_Integer0 but specialized Fd_Tell_Value without      *
+ * like Fd_Unify_With_Integer0 but specialized Fd_Tell_Value without       *
  * useless tests (ie. groundness and Range_Test_Value())                   *
  * Used by labeling predicates.                                            *
  *-------------------------------------------------------------------------*/
@@ -1177,7 +1186,7 @@ Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2)
   Bool unify_x_y(WamWord x, WamWord y);
 
   /* defined in fd_unify.fd as a constraint */
-  return unify_x_y(Tag_Value(REF, fdv_adr1), Tag_Value(REF, fdv_adr2));
+  return unify_x_y(Tag_REF(fdv_adr1), Tag_REF(fdv_adr2));
 }
 
 
@@ -1214,29 +1223,26 @@ Fd_Use_Vector(WamWord *fdv_adr)
 Bool
 Fd_Check_For_Bool_Var(WamWord x_word)
 {
-  WamWord word, tag, *adr;
-  WamWord *fdv_adr;
+  WamWord word, tag_mask;
+  WamWord *adr, *fdv_adr;
   Range range;
 
 
-  Deref(x_word, word, tag, adr);
+  DEREF(x_word, word, tag_mask);
 
-  switch (tag)
+  if (tag_mask == TAG_REF_MASK)
     {
-    case REF:
+      adr = UnTag_REF(word);
       fdv_adr = Fd_New_Bool_Variable();
-      Bind_UV(adr, Tag_Value(REF, fdv_adr));
+      Bind_UV(adr, Tag_REF(fdv_adr));
       return TRUE;
-
-    case INT:
-      return (unsigned) (UnTag_INT(word)) <= 1;
-
-    case FDV:
-      break;
-
-    default:
-      Pl_Err_Type(type_fd_variable, word);
     }
+
+  if (tag_mask == TAG_INT_MASK)
+    return (unsigned long) (UnTag_INT(word)) <= 1;
+
+  if (tag_mask != TAG_FDV_MASK)
+    Pl_Err_Type(type_fd_variable, word);
 
   fdv_adr = UnTag_FDV(word);
 
@@ -1245,21 +1251,23 @@ Fd_Check_For_Bool_Var(WamWord x_word)
 
   if (Max(fdv_adr) <= 1)
     return TRUE;
-  /* here max>1 */
+				/* here max > 1 */
   if (Min(fdv_adr) == 1)
     return Fd_Unify_With_Integer0(fdv_adr, 1);
-  /* here min==0 */
+
+				/* here min == 0 */
+
   if (!Range_Test_Value(Range (fdv_adr), 1))
-      return Fd_Unify_With_Integer0(fdv_adr, 0);
+    return Fd_Unify_With_Integer0(fdv_adr, 0);
+  
 
-
-  /* Check Bool == X in 0..1 */
+				/* Check Bool == X in 0..1 */
   Fd_Before_Add_Cstr();
-
+  
   if (Is_Sparse(Range (fdv_adr)))
     {
       Range_Init_Interval(&range, 0, 1);
-
+      
       if (!Fd_Tell_Range_Range(fdv_adr, &range))
 	return FALSE;
     }
@@ -1267,29 +1275,6 @@ Fd_Check_For_Bool_Var(WamWord x_word)
     return FALSE;
 
   return Fd_After_Add_Cstr();
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * FD_DEREF_CHECK_FD_VAR                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Fd_Deref_Check_Fd_Var(WamWord *fdv_word)
-{
-  WamWord word, tag, *adr;
-
-  Deref(*fdv_word, word, tag, adr);
-  if (tag == REF)
-    Pl_Err_Instantiation();
-
-  if (tag != INT && tag != FDV)
-    Pl_Err_Type(type_fd_variable, word);
-
-  *fdv_word = word;
-  return tag;
 }
 
 

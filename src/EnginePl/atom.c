@@ -334,6 +334,20 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
+ * CREATE_ATOM                                                             *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Create_Atom_Tagged(char *name)
+{
+  return Tag_ATM(Create_Atom(name));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * FIND_ATOM                                                               *
  *                                                                         *
  * return the atom key or -1 if not exist.                                 *

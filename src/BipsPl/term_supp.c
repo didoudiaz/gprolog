@@ -70,11 +70,12 @@ static void Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p);
  * TERM_COMPARE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+long
 Term_Compare(WamWord start_u_word, WamWord start_v_word)
 {
-  WamWord u_word, u_tag, *u_adr;
-  WamWord v_word, v_tag, *v_adr;
+  WamWord u_word, u_tag_mask;
+  WamWord v_word, v_tag_mask;
+  WamWord u_tag, v_tag;
   int u_func, u_arity;
   WamWord *u_arg_adr;
   int v_func, v_arity;
@@ -82,23 +83,31 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
   int i, x;
   double d1, d2;
 
+  DEREF(start_u_word, u_word, u_tag_mask);
+  DEREF(start_v_word, v_word, v_tag_mask);
 
-  Deref(start_u_word, u_word, u_tag, u_adr);
-  Deref(start_v_word, v_word, v_tag, v_adr);
+  u_tag = Tag_From_Tag_Mask(u_tag_mask);
+  v_tag = Tag_From_Tag_Mask(v_tag_mask);
 
   switch (u_tag)
     {
     case REF:
-      return (v_tag != REF) ? -1 : u_adr - v_adr;
+      return (v_tag != REF) ? -1 :  UnTag_REF(u_word) - UnTag_REF(v_word);
 
+#ifndef NO_USE_FD_SOLVER
     case FDV:
       if (v_tag == REF)
 	return 1;
 
       return (v_tag != FDV) ? -1 : UnTag_FDV(u_word) - UnTag_FDV(v_word);
+#endif
 
     case FLT:
-      if (v_tag == REF || v_tag == FDV)
+      if (v_tag == REF
+#ifndef NO_USE_FD_SOLVER
+	  || v_tag == FDV
+#endif
+	  )
 	return 1;
 
       if (v_tag != FLT)
@@ -110,23 +119,31 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
 
 
     case INT:
-      if (v_tag == REF || v_tag == FDV || v_tag == FLT)
+      if (v_tag == REF ||
+#ifndef NO_USE_FD_SOLVER
+	  v_tag == FDV ||
+#endif
+	  v_tag == FLT)
 	return 1;
 
       return (v_tag != INT) ? -1 : u_word - v_word;
 
     case ATM:
-      if (v_tag == REF || v_tag == FDV || v_tag == FLT || v_tag == INT)
+      if (v_tag == REF ||
+#ifndef NO_USE_FD_SOLVER
+	  v_tag == FDV ||
+#endif
+	  v_tag == FLT || v_tag == INT)
 	return 1;
 
       return (v_tag != ATM) ? -1 : strcmp(atom_tbl[UnTag_ATM(u_word)].name,
 					  atom_tbl[UnTag_ATM(v_word)].name);
     }
 
-  /* u_tag==LST/STC */
+				/* u_tag == LST / STC */
 
   v_arg_adr = Rd_Compound(v_word, &v_func, &v_arity);
-  if (v_arg_adr == NULL)	/* v_tag!=LST/STC */
+  if (v_arg_adr == NULL)	/* v_tag != LST / STC */
     return 1;
 
   u_arg_adr = Rd_Compound(u_word, &u_func, &u_arity);
@@ -155,22 +172,26 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
 void
 Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, void (*fct) ())
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   int i;
 
 terminal_rec:
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
 
-  switch (tag)
+  switch (Tag_Mask_Of(word))
     {
+    case REF:
+      (*fct) (UnTag_REF(word), word);
+      break;
+
+#ifndef NO_USE_FD_SOLVER
     case FDV:
       if (!generic_var)
-	break;
-      adr = UnTag_FDV(word);
-    case REF:
-      (*fct) (adr, word);
+	(*fct) (UnTag_FDV(word), word);
       break;
+#endif
 
     case LST:
       adr = UnTag_LST(word);
@@ -189,9 +210,6 @@ terminal_rec:
 
       start_word = *adr;
       goto terminal_rec;
-
-    default:
-      break;
     }
 }
 
@@ -208,25 +226,24 @@ terminal_rec:
 int
 List_Length(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int n = 0;
 
   for (;;)
     {
-      Deref(start_word, word, tag, adr);
+      DEREF(start_word, word, tag_mask);
 
       if (word == NIL_WORD)
 	return n;
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	return -1;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	return -2;
 
       n++;
-      adr = UnTag_LST(word);
-      start_word = Cdr(adr);
+      start_word = Cdr(UnTag_LST(word));
     }
 }
 
@@ -240,21 +257,24 @@ List_Length(WamWord start_word)
 int
 Term_Size(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   int i;
   int n = 0;			/* init to zero for terminal_rec */
 
 terminal_rec:
 
-  Deref(start_word, word, tag, adr);
-
-  switch (tag)
+  DEREF(start_word, word, tag_mask);
+  
+  switch (Tag_From_Tag_Mask(tag_mask))
     {
-    case FDV:			/* 1+ for <REF,->fdv_adr> since Dont_Separate_Tag(FDV) */
+#ifndef NO_USE_FD_SOLVER
+    case FDV:		   /* 1+ for <REF,->fdv_adr> since Dont_Separate_Tag */
       return n + 1 + Fd_Variable_Size(UnTag_FDV(word));
+#endif
 
     case FLT:
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
       return n + 1 + 2;
 #else
       return n + 1 + 1;
@@ -297,19 +317,24 @@ Copy_Term(WamWord *dst_adr, WamWord *src_adr)
 {
   WamWord *qtop, *base;
   WamWord *p;
+/* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
+ * it allocates a frame even with -fomit-frame-pointer.
+ * This corrupts ebp on ix86 */
+  static WamWord *fix_bug;
 
   base_copy = dst_adr++;
 
   base = top_vars = vars;
 
-  Copy_Term_Rec(base_copy, src_adr, &dst_adr);
+  fix_bug = dst_adr;
+  Copy_Term_Rec(base_copy, src_adr, &fix_bug);
 
-  /* restore original self references */
+				/* restore original self references */
   qtop = top_vars;
   while (qtop != base)
     {
       p = (WamWord *) (*--qtop);	/* address to restore */
-      *p = *--qtop;		/* word    to restore */
+      *p = *--qtop;		        /* word    to restore */
     }
 }
 
@@ -319,21 +344,24 @@ Copy_Term(WamWord *dst_adr, WamWord *src_adr)
 /*-------------------------------------------------------------------------*
  * COPY_TERM_REC                                                           *
  *                                                                         *
+ * p is the next address to use to store the rest of a term.               *
  *-------------------------------------------------------------------------*/
 static void
 Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *q;
   int i;
 
 terminal_rec:
 
-  Deref(*src_adr, word, tag, adr);
+  DEREF(*src_adr, word, tag_mask);
 
-  switch (tag)
+  switch (Tag_From_Tag_Mask(tag_mask))
     {
     case REF:
+      adr = UnTag_REF(word);
       q = *p;
       if (adr < q && adr >= base_copy)	/* already a copy */
 	{
@@ -344,47 +372,49 @@ terminal_rec:
       if (top_vars >= end_vars)
 	Pl_Err_Representation(representation_too_many_variables);
 
-      *top_vars++ = word;	/* word to restore    */
-      *top_vars++ = (WamWord) adr;	/* address to restore */
-      *adr = *dst_adr = Tag_Value(REF, dst_adr);	/* bind to a new copy */
+      *top_vars++ = word;	                /* word to restore    */
+      *top_vars++ = (WamWord) adr;	        /* address to restore */
+      *adr = *dst_adr = Tag_REF(dst_adr);	/* bind to a new copy */
       return;
 
+#ifndef NO_USE_FD_SOLVER
     case FDV:
       adr = UnTag_FDV(word);
       q = *p;
       if (adr < q && adr >= base_copy)	/* already a copy */
 	{
-	  *dst_adr = Tag_Value(REF, adr);	/* since Dont_Separate_Tag(FDV) */
+	  *dst_adr = Tag_REF(adr);	/* since Dont_Separate_Tag */
 	  return;
 	}
 
       if (top_vars >= end_vars)
 	Pl_Err_Representation(representation_too_many_variables);
 
-      *top_vars++ = word;	/* word to restore    */
+      *top_vars++ = word;	        /* word to restore    */
       *top_vars++ = (WamWord) adr;	/* address to restore */
       q = *p;
       *p = q + Fd_Copy_Variable(q, adr);
-      *adr = *dst_adr = Tag_Value(REF, q);	/* bind to a new copy */
+      *adr = *dst_adr = Tag_REF(q);	/* bind to a new copy */
       return;
+#endif
 
     case FLT:
       adr = UnTag_FLT(word);
       q = *p;
       q[0] = adr[0];
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
       q[1] = adr[1];
       *p = q + 2;
 #else
       *p = q + 1;
 #endif
-      *dst_adr = Tag_Value(FLT, q);
+      *dst_adr = Tag_FLT(q);
       return;
 
     case LST:
       adr = UnTag_LST(word);
       q = *p;
-      *dst_adr = Tag_Value(LST, q);
+      *dst_adr = Tag_LST(q);
 
       *p = &Cdr(q) + 1;
       q = &Car(q);
@@ -398,7 +428,7 @@ terminal_rec:
     case STC:
       adr = UnTag_STC(word);
       q = *p;
-      *dst_adr = Tag_Value(STC, q);
+      *dst_adr = Tag_STC(q);
 
       Functor_And_Arity(q) = Functor_And_Arity(adr);
 
@@ -445,30 +475,32 @@ terminal_rec:
     case REF:
       adr = UnTag_REF(word);
       q = Old_Adr_To_New_Adr(adr);
-      *dst_adr = Tag_Value(REF, q);
-      if (adr > src_adr)	/* only useful for Dont_Separate_Tag() */
+      *dst_adr = Tag_REF(q);
+      if (adr > src_adr)	/* only useful for Dont_Separate_Tag */
 	Copy_Contiguous_Term(q, adr);
       return;
 
+#ifndef NO_USE_FD_SOLVER
     case FDV:
       adr = UnTag_FDV(word);
       Fd_Copy_Variable(dst_adr, adr);
       return;
+#endif
 
     case FLT:
       adr = UnTag_FLT(word);
       q = Old_Adr_To_New_Adr(adr);
       q[0] = adr[0];
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
       q[1] = adr[1];
 #endif
-      *dst_adr = Tag_Value(FLT, q);
+      *dst_adr = Tag_FLT(q);
       return;
 
     case LST:
       adr = UnTag_LST(word);
       q = Old_Adr_To_New_Adr(adr);
-      *dst_adr = Tag_Value(LST, q);
+      *dst_adr = Tag_LST(q);
       q = &Car(q);
       adr = &Car(adr);
       Copy_Contiguous_Term(q++, adr++);
@@ -479,7 +511,7 @@ terminal_rec:
     case STC:
       adr = UnTag_STC(word);
       q = Old_Adr_To_New_Adr(adr);
-      *dst_adr = Tag_Value(STC, q);
+      *dst_adr = Tag_STC(q);
 
       Functor_And_Arity(q) = Functor_And_Arity(adr);
 
@@ -507,16 +539,16 @@ terminal_rec:
  * GET_PRED_INDICATOR                                                      *
  *                                                                         *
  * returns the functor and initializes the arity of the predicate indicator*
- * func= -1 if its a variable, arity= -1 if a variable                     *
+ * func= -1 if it is a variable, arity= -1 if it is a variable             *
  *-------------------------------------------------------------------------*/
 int
 Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int func;
 
-  Deref(pred_indic_word, word, tag, adr);
-  if (tag == REF && must_be_ground)
+  DEREF(pred_indic_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK && must_be_ground)
     Pl_Err_Instantiation();
 
   if (!Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word))
@@ -535,12 +567,12 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
     func = Rd_Atom_Check(pi_name_word);
   else
     {
-      Deref(pi_name_word, word, tag, adr);
-      if (tag == REF)
+      DEREF(pi_name_word, word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
 	func = -1;
       else
 	{
-	  if (tag != ATM)
+	  if (tag_mask != TAG_ATM_MASK)
 	    goto pi_error;
 	  func = UnTag_ATM(word);
 	}
@@ -555,12 +587,12 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
     }
   else
     {
-      Deref(pi_arity_word, word, tag, adr);
-      if (tag == REF)
+      DEREF(pi_arity_word, word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
 	*arity = -1;
       else
 	{
-	  if (tag != INT)
+	  if (tag_mask != TAG_INT_MASK)
 	    goto pi_error;
 
 	  *arity = UnTag_INT(word);

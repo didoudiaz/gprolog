@@ -165,7 +165,7 @@ Socket_Close_1(WamWord socket_word)
 Bool
 Socket_Bind_2(WamWord socket_word, WamWord address_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *stc_adr;
   int dom;
   int sock;
@@ -177,21 +177,22 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   struct sockaddr_un adr_un;
 #endif
   struct sockaddr_in adr_in;
-  static int atom_host_name = -1;	/* not created in an init since implies to */
-
-  /* establish a connection */
+  static int atom_host_name = -1; /* not created in an init since */
+				  /* establishes a connection */
 
   sock = Rd_Integer_Check(socket_word);
 
 
-  Deref(address_word, word, tag, adr);
+  DEREF(address_word, word, tag_mask);
 
-  if (tag == REF)
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag != STC)
-  err_domain:
-    Pl_Err_Domain(domain_socket_address, word);
+  if (tag_mask != TAG_STC_MASK)
+    {
+    err_domain:
+      Pl_Err_Domain(domain_socket_address, word);
+    }
 
   stc_adr = UnTag_STC(word);
 
@@ -200,10 +201,10 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
     dom = AF_UNIX;
   else
 #endif
-  if (Functor_Arity(atom_AF_INET, 2) == Functor_And_Arity(stc_adr))
-    dom = AF_INET;
-  else
-    goto err_domain;
+    if (Functor_Arity(atom_AF_INET, 2) == Functor_And_Arity(stc_adr))
+      dom = AF_INET;
+    else
+      goto err_domain;
 
 #ifdef SUPPORT_AF_UNIX
   if (dom == AF_UNIX)
@@ -222,8 +223,8 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
 #endif
   /* case AF_INET */
 
-  Deref(Arg(stc_adr, 0), word, tag, adr);
-  if (tag == REF)
+  DEREF(Arg(stc_adr, 0), word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
       if (atom_host_name < 0)
 	atom_host_name = Create_Allocate_Atom(M_Host_Name_From_Name(NULL));
@@ -234,8 +235,8 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
     Rd_Atom_Check(word);	/* only to test the type */
 
   port = 0;
-  Deref(Arg(stc_adr, 1), word, tag, adr);
-  if (tag != REF)
+  DEREF(Arg(stc_adr, 1), word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     port = Rd_Integer_Check(word);
 
   adr_in.sin_port = htons(port);
@@ -243,7 +244,7 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   adr_in.sin_addr.s_addr = INADDR_ANY;
 
   Os_Test_Error(bind(sock, (struct sockaddr *) &adr_in, sizeof(adr_in)));
-  if (tag == INT)
+  if (tag_mask == TAG_INT_MASK)
     return TRUE;
 
   l = sizeof(adr_in);
@@ -265,7 +266,7 @@ Bool
 Socket_Connect_4(WamWord socket_word, WamWord address_word,
 		 WamWord stm_in_word, WamWord stm_out_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *stc_adr;
   int dom;
   int sock;
@@ -283,14 +284,16 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
 
   sock = Rd_Integer_Check(socket_word);
 
-  Deref(address_word, word, tag, adr);
+  DEREF(address_word, word, tag_mask);
 
-  if (tag == REF)
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag != STC)
-  err_domain:
-    Pl_Err_Domain(domain_socket_address, word);
+  if (tag_mask != TAG_STC_MASK)
+    {
+    err_domain:
+      Pl_Err_Domain(domain_socket_address, word);
+    }
 
   stc_adr = UnTag_STC(word);
 
@@ -494,14 +497,14 @@ Create_Socket_Streams(int sock, char *stream_name,
 Bool
 Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   char *host_name;
   char *host_address;
   struct hostent *host_entry;
   struct in_addr iadr;
 
-  Deref(host_name_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(host_name_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
       host_address = Rd_String_Check(host_address_word);
       host_name = M_Host_Name_From_Adr(host_address);

@@ -57,7 +57,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS>0
+#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
 static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
 #endif
 
@@ -70,8 +70,6 @@ static jmp_buf *p_jumper;
 static WamWord *p_buff_save;
 
 static CodePtr cont_jmp;	/* we use a global var to support DEC alpha */
-
-static WamWord *save_reg_bank;
 
 
 
@@ -138,10 +136,11 @@ Start_Prolog(int argc, char *argv[])
   M_Allocate_Stacks();
   Save_Machine_Regs(init_buff_regs);
 
-  reg_bank = Global_Stack;	/* allocated X regs + other non alloc regs */
-  Global_Stack += REG_BANK_SIZE;	/* at the beginning of the heap */
+#ifndef NO_MACHINE_REG_FOR_REG_BANK
+  Init_Reg_Bank(Global_Stack);  /* allocated X regs + other non alloc regs */
+  Global_Stack += REG_BANK_SIZE; /* at the beginning of the heap */
   Global_Size -= REG_BANK_SIZE;
-  save_reg_bank = reg_bank;	/* to restore reg_bank if lost (cf. signal) */
+#endif
 
   /* must be changed to store global info (see the debugger) */
   heap_actual_start = Global_Stack;
@@ -168,6 +167,10 @@ Start_Prolog(int argc, char *argv[])
 void
 Stop_Prolog(void)
 {
+#ifdef DEREF_STATS
+  double d = (double) chain_len / (double) nb_deref;
+  printf("Deref: nb: %ld  avg len = %g\n", nb_deref, d);
+#endif
   Restore_Machine_Regs(init_buff_regs);
 }
 
@@ -182,7 +185,7 @@ Stop_Prolog(void)
 void
 Reset_Prolog(void)
 {
-  E = B = Local_Stack;
+  E = B = LSSA = Local_Stack;
   H = heap_actual_start;	/* restart after needed global terms */
   TR = Trail_Stack;
   CP = NULL;
@@ -205,17 +208,7 @@ Reset_Prolog(void)
 void
 Reset_Prolog_In_Signal(void)
 {
-  reg_bank = save_reg_bank;
-#ifdef M_alpha_linux
-  /* reset the possible trashed $10 (in a call to fgetc) */
-  if (bug_reg_buffer[NB_OF_USED_MACHINE_REGS] == 1)
-    {
-      /*   fprintf (stdout, "restoring registers\n"); */
-      Restore_Machine_Regs(bug_reg_buffer);
-      bug_reg_buffer[NB_OF_USED_MACHINE_REGS] = 0;	/* invalidate */
-    }
-#endif
-
+  Restore_Protect_Regs_For_Signal;
 }
 
 
@@ -280,31 +273,6 @@ Try_Execute_Top_Level(void)
 
   Reset_Prolog();
   return FALSE;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * SWITCH_REG_BANK                                                         *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Switch_Reg_Bank(WamWord *new_reg_bank)
-{
-  int i;
-  WamWord *p1, *p2;
-
-  if (reg_bank != new_reg_bank)
-    {
-      p1 = reg_bank + NB_OF_X_REGS;
-      p2 = new_reg_bank + NB_OF_X_REGS;
-
-      for (i = 0; i < NB_OF_NOT_ALLOC_REGS; i++)
-	*p2++ = *p1++;
-
-      reg_bank = new_reg_bank;
-    }
 }
 
 

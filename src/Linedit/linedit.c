@@ -33,6 +33,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#define LE_DEFINE_HOOK_MACROS
+
 #include "stty.h"
 #include "char_io.h"
 #include "linedit.h"
@@ -51,7 +53,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define LINEDIT_VERSION            "2.1"
+#define LINEDIT_VERSION            "2.2"
 
 #define MAX_HISTORY_LINES          64
 #define MAX_SEPARATORS             256
@@ -132,17 +134,21 @@ static CompNode *comp_cur_match;
  * Function Prototypes             *
  *---------------------------------*/
 
+static void Initialize(void);
+
 static void Backd(int fd_out, int n);
 
 static void Forwd(int fd_out, int n, char *str);
 
 static void Displ(int fd_out, int n, char *str);
 
+static void Displ_Str(int fd_out, char *s);      
+
 static void Erase(int fd_out, int n);
 
-static
-  int New_Char(int c, int ins_mode, char *str, int size,
-	       int fd_out, char **p_pos, char **p_end);
+
+static int New_Char(int c, int ins_mode, char *str, int size,
+		    int fd_out, char **p_pos, char **p_end);
 
 static char *Skip(char *from, char *limit, int res_sep_cmp, int direction);
 
@@ -158,20 +164,16 @@ static int History_Get_Line(char *str, int hist_no);
 
 
 
-static
-  char *Completion_Do_Match(char *prefix, int prefix_length,
-			    int *rest_length);
+static char *Completion_Do_Match(char *prefix, int prefix_length,
+				 int *rest_length);
 
 static void Completion_Print_All(int fd_in, int fd_out);
-
-static void Display_String(int fd_out, char *s);
 
 static void Display_Help(int fd_out);
 
 
 
-#define NewLn()  {LE_Put_Char('\n',fd_out);  }
-
+#define NewLn()  { PUT_CHAR('\n', fd_out); }
 
 
 #define Hist_Inc(n)   { if (++(n)==MAX_HISTORY_LINES) (n)=0; }
@@ -203,6 +205,40 @@ static void Display_Help(int fd_out);
 #define Emit_Signal(sig)      printf("\nlinedit: should send a signal(%d) - to do\n",sig)
 
 #endif
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INITIALIZE                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Initialize(void)
+{
+  static int initialized = 0;
+
+  if (!initialized)
+    initialized = 1;
+
+  if (le_hook_present)
+    return;
+
+				/* inside char_io.c */
+ le_hook_emit_beep = LE_Emit_Beep;
+ le_hook_put_char = LE_Put_Char;
+ le_hook_get_char0 = LE_Get_Char0;
+ le_hook_ins_mode = LE_Ins_Mode;
+ 				/* inside stty.c */
+ le_hook_screen_size = LE_Screen_Size;
+ le_hook_kbd_is_not_empty = LE_Kbd_Is_Not_Empty;
+ 				/* inside linedit.c */
+ le_hook_backd = Backd;
+ le_hook_forwd = Forwd;
+ le_hook_displ = Displ;
+ le_hook_erase = Erase;
+ le_hook_displ_str = Displ_Str;
+}
 
 
 
@@ -254,13 +290,15 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
   char *close_bracket = ")]}";
   int count_bracket[3];
 
+  Initialize();
+
   size--;			/* -1 for '\0' */
 
   LE_Init(fd_in, fd_out);
   global_str = str;
 
 #if 1				/* avoid to redisplay a buffered full line */
-  while (LE_Kbd_Is_Not_Empty(fd_in))
+  while (KBD_IS_NOT_EMPTY(fd_in))
     {
       if (end - str >= size)
 	{
@@ -285,7 +323,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 #endif
 
   if (prompt && display_prompt)
-    Display_String(fd_out, prompt);
+    DISPL_STR(fd_out, prompt);
 
   for (;;)
     {
@@ -307,12 +345,12 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 
 	re_display_line:	/* display prompt + full line */
 	  if (prompt)
-	    Display_String(fd_out, prompt);
+	    DISPL_STR(fd_out, prompt);
 	  p = pos;
 	  pos = str;
-	  Displ(fd_out, end - str, pos);
+	  DISPL(fd_out, end - str, pos);
 	  pos = p;
-	  Backd(fd_out, end - pos);
+	  BACKD(fd_out, end - pos);
 	  continue;
 	}
 
@@ -340,14 +378,14 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	{
 	case KEY_CTRL('A'):	/* go to begin of line */
 	case KEY_EXT_HOME:
-	  Backd(fd_out, pos - str);
+	  BACKD(fd_out, pos - str);
 	  pos = str;
 	  continue;
 
 
 	case KEY_CTRL('E'):	/* go to end of line */
 	case KEY_EXT_END:
-	  Forwd(fd_out, end - pos, pos);
+	  FORWD(fd_out, end - pos, pos);
 	  pos = end;
 	  continue;
 
@@ -356,7 +394,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	case KEY_EXT_LEFT:
 	  if (pos == str)
 	    goto error;
-	  Backd(fd_out, 1);
+	  BACKD(fd_out, 1);
 	  pos--;
 	  continue;
 
@@ -365,7 +403,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	case KEY_EXT_RIGHT:
 	  if (pos == end)
 	    goto error;
-	  Forwd(fd_out, 1, pos);
+	  FORWD(fd_out, 1, pos);
 	  pos++;
 	  continue;
 
@@ -377,12 +415,12 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	del_last:
 	  for (p = pos; p < end; p++)
 	    p[-1] = *p;
-	  Backd(fd_out, 1);
+	  BACKD(fd_out, 1);
 	  pos--;
 	  end--;
-	  Displ(fd_out, end - pos, pos);
-	  Erase(fd_out, 1);
-	  Backd(fd_out, end - pos);
+	  DISPL(fd_out, end - pos, pos);
+	  ERASE(fd_out, 1);
+	  BACKD(fd_out, end - pos);
 	  continue;
 
 
@@ -391,7 +429,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  if (pos == end)
 	    goto error;
 	  /* simply equivalent to ^F + BACKSPACE */
-	  Forwd(fd_out, 1, pos);
+	  FORWD(fd_out, 1, pos);
 	  pos++;
 	  goto del_last;
 
@@ -409,10 +447,10 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 
 	  pos = str;
 	  end -= n;
-	  Backd(fd_out, n);
-	  Displ(fd_out, end - pos, pos);
-	  Erase(fd_out, n);
-	  Backd(fd_out, end - pos);
+	  BACKD(fd_out, n);
+	  DISPL(fd_out, end - pos, pos);
+	  ERASE(fd_out, n);
+	  BACKD(fd_out, end - pos);
 	  continue;
 
 
@@ -423,7 +461,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  while (p < end)	/* add deleted part to clipboard */
 	    *q++ = *p++;
 	  *q = '\0';
-	  Erase(fd_out, end - pos);
+	  ERASE(fd_out, end - pos);
 	  end = pos;
 	  continue;
 
@@ -468,12 +506,12 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	    p[-n] = *p;
 
 	  if (mark < pos)
-	    Backd(fd_out, n);
+	    BACKD(fd_out, n);
 	  pos = start;
 	  end -= n;
-	  Displ(fd_out, end - pos, pos);
-	  Erase(fd_out, n);
-	  Backd(fd_out, end - pos);
+	  DISPL(fd_out, end - pos, pos);
+	  ERASE(fd_out, n);
+	  BACKD(fd_out, end - pos);
 	  continue;
 
 
@@ -483,7 +521,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  p = Skip(p, str, 1, -1);	/* skip separators */
 	  p = Skip(p, str, 0, -1);	/* skip non separators */
 	  p = Skip(p, end, 1, +1);	/* skip separators */
-	  Backd(fd_out, pos - p);
+	  BACKD(fd_out, pos - p);
 	  pos = p;
 	  continue;
 
@@ -493,7 +531,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  p = pos;
 	  p = Skip(p, end, 0, +1);	/* skip non separators */
 	  p = Skip(p, end, 1, +1);	/* skip separators */
-	  Forwd(fd_out, p - pos, pos);
+	  FORWD(fd_out, p - pos, pos);
 	  pos = p;
 	  continue;
 
@@ -504,7 +542,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  if (islower(*p))
 	    *p = *p - 'a' + 'A';
 	  p = Skip(p, end, 0, +1);	/* skip non separators */
-	  Displ(fd_out, p - pos, pos);
+	  DISPL(fd_out, p - pos, pos);
 	  pos = p;
 	  continue;
 
@@ -514,7 +552,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  p = Skip(p, end, 1, +1);	/* skip separators */
 	  for (; p < end && !Is_A_Separator(*p); p++)
 	    *p = tolower(*p);
-	  Displ(fd_out, p - pos, pos);
+	  DISPL(fd_out, p - pos, pos);
 	  pos = p;
 	  continue;
 
@@ -524,7 +562,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  p = Skip(p, end, 1, +1);	/* skip separators */
 	  for (; p < end && !Is_A_Separator(*p); p++)
 	    *p = toupper(*p);
-	  Displ(fd_out, p - pos, pos);
+	  DISPL(fd_out, p - pos, pos);
 	  pos = p;
 	  continue;
 
@@ -566,19 +604,19 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	case KEY_CTRL('V'):	/* switch insert mode (on/off) */
 	case KEY_EXT_INSERT:
 	  ins_mode = 1 - ins_mode;
-	  LE_Ins_Mode(ins_mode);
+	  INS_MODE(ins_mode);
 	  continue;
 
 
 	case KEY_CTRL('T'):	/* swap last and current char */
 	  if (pos == str || pos == end)
 	    goto error;
-	  Backd(fd_out, 1);
+	  BACKD(fd_out, 1);
 	  pos--;
 	  w = *pos;
 	  *pos = pos[1];
 	  pos[1] = w;
-	  Displ(fd_out, 2, pos);
+	  DISPL(fd_out, 2, pos);
 	  pos += 2;
 	  continue;
 
@@ -600,13 +638,13 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  History_Update_Line(str, end - str, h_no);
 	  Hist_Dec(h_no);
 	write_hist_line:
-	  Backd(fd_out, pos - str);
+	  BACKD(fd_out, pos - str);
 	  pos = str;
 	  p = end;
 	  end = str + History_Get_Line(str, h_no);
-	  Displ(fd_out, end - str, pos);
+	  DISPL(fd_out, end - str, pos);
 	  if (end < p)
-	    Erase(fd_out, p - end);
+	    ERASE(fd_out, p - end);
 	  pos = end;
 	  continue;
 
@@ -636,10 +674,10 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	write_hist_match_line:
 	  p = end;
 	  end = str + History_Get_Line(str, h_no);
-	  Displ(fd_out, end - pos, pos);
+	  DISPL(fd_out, end - pos, pos);
 	  if (end < p)
-	    Erase(fd_out, p - end);
-	  Backd(fd_out, end - pos);
+	    ERASE(fd_out, p - end);
+	  BACKD(fd_out, end - pos);
 	  continue;
 
 
@@ -689,7 +727,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  if (!isprint(c) || c > 255)
 	    {
 	      n = c;
-	      LE_Emit_Beep(fd_out);
+	      EMIT_BEEP(fd_out);
 	      c = LE_Get_Char(fd_in);
 	      if (c != n)
 		goto one_char;
@@ -699,7 +737,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  if (!New_Char(c, ins_mode, str, size, fd_out, &pos, &end))
 	    goto error;
 	  /* brackets ([{ }]): matching */
-	  if (LE_Kbd_Is_Not_Empty(fd_in) ||
+	  if (KBD_IS_NOT_EMPTY(fd_in) ||
 	      (q = strchr(close_bracket, c)) == NULL)
 	    continue;
 
@@ -734,12 +772,12 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 #endif
 	    }
 
-	  if (LE_Kbd_Is_Not_Empty(fd_in))
+	  if (KBD_IS_NOT_EMPTY(fd_in))
 	    continue;
 
 	  n = pos - p;
 	  q = pos;
-	  Backd(fd_out, n);
+	  BACKD(fd_out, n);
 #ifdef _MSC_VER
 
 	  {
@@ -747,7 +785,7 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 
 	    do
 	      t1 = clock();
-	    while (!LE_Kbd_Is_Not_Empty(fd_in) &&
+	    while (!KBD_IS_NOT_EMPTY(fd_in) &&
 		   (t1 - t0) * 1000000 / CLOCKS_PER_SEC < BRACKET_TIMMING);
 	  }
 
@@ -767,13 +805,13 @@ LE_FGets(char *str, int size, int fd_in, int fd_out, char *prompt,
 	  usleep(BRACKET_TIMMING);
 #endif
 	  pos = p;
-	  Displ(fd_out, n, pos);
+	  DISPL(fd_out, n, pos);
 	  pos = q;
 	bracket_exit:
 	  continue;
 	}
     error:
-      LE_Emit_Beep(fd_out);
+      EMIT_BEEP(fd_out);
     }
 
 finish:
@@ -808,7 +846,7 @@ New_Char(int c, int ins_mode, char *str, int size, int fd_out,
       *pos = (char) c;
       if (++pos > end)
 	end = pos;
-      LE_Put_Char(c, fd_out);
+      PUT_CHAR(c, fd_out);
     }
   else
     {
@@ -817,9 +855,9 @@ New_Char(int c, int ins_mode, char *str, int size, int fd_out,
 
       *pos = (char) c;
       end++;
-      Displ(fd_out, end - pos, pos);
+      DISPL(fd_out, end - pos, pos);
       pos++;
-      Backd(fd_out, end - pos);
+      BACKD(fd_out, end - pos);
     }
 
   *p_pos = pos;
@@ -838,13 +876,6 @@ New_Char(int c, int ins_mode, char *str, int size, int fd_out,
 static void
 Backd(int fd_out, int n)
 {
-#ifdef W32_GUI_CONSOLE
-  if (w32gc_backd)
-    {
-      (*w32gc_backd) (n);
-      return;
-    }
-#endif
   while (n--)
     LE_Put_Char('\b', fd_out);
 }
@@ -859,13 +890,6 @@ Backd(int fd_out, int n)
 static void
 Forwd(int fd_out, int n, char *str)
 {
-#ifdef W32_GUI_CONSOLE
-  if (w32gc_forwd)
-    {
-      (*w32gc_forwd) (n);
-      return;
-    }
-#endif
   while (n--)
     LE_Put_Char(*str++, fd_out);
 }
@@ -880,16 +904,8 @@ Forwd(int fd_out, int n, char *str)
 static void
 Displ(int fd_out, int n, char *str)
 {
-#ifdef W32_GUI_CONSOLE
-  if (w32gc_displ)
-    {
-      (*w32gc_displ) (n, str);
-      return;
-    }
-#endif
   Forwd(fd_out, n, str);
 }
-
 
 
 
@@ -903,17 +919,24 @@ Erase(int fd_out, int n)
 {
   int n0 = n;
 
-#ifdef W32_GUI_CONSOLE
-  if (w32gc_erase)
-    {
-      (*w32gc_erase) (n);
-      return;
-    }
-#endif
   while (n--)
     LE_Put_Char(' ', fd_out);
 
   Backd(fd_out, n0);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DISPL_STR                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Displ_Str(int fd_out, char *str)
+{
+  while (*str)
+    LE_Put_Char(*str++, fd_out);
 }
 
 
@@ -1295,7 +1318,7 @@ Completion_Print_All(int fd_in, int fd_out)
   int l, c;
 
 
-  LE_Screen_Size(fd_out, &row, &col);
+  SCREEN_SIZE(fd_out, &row, &col);
 
   nb_in_a_line = col / (comp_match_max_lg + 2);	/* at least 2 chars to separate */
 
@@ -1313,7 +1336,7 @@ Completion_Print_All(int fd_in, int fd_out)
   if (nb_lines > NB_MATCH_LINES_BEFORE_ASK)	/* too many matchings ? */
     {
       sprintf(buff, "Show all %d possibilities (y/n) ? ", comp_nb_match);
-      Display_String(fd_out, buff);
+      DISPL_STR(fd_out, buff);
       c = LE_Get_Char(fd_in);
       NewLn();
       if (c != 'y')
@@ -1328,14 +1351,14 @@ Completion_Print_All(int fd_in, int fd_out)
       c = 0;
       for (;;)
 	{
-	  Display_String(fd_out, p1->word);
+	  DISPL_STR(fd_out, p1->word);
 
 	  if (++c == ((l < nb_lines - 1) ? nb_in_a_line : nb_in_last_line))
 	    break;
 
 	  sprintf(buff, "%*s", comp_match_max_lg - p1->word_length + spaces,
 		  "");
-	  Display_String(fd_out, buff);
+	  DISPL_STR(fd_out, buff);
 
 	  skip = nb_lines;
 	  if (c > nb_in_a_line - nb_miss_in_last_line)
@@ -1356,34 +1379,12 @@ Completion_Print_All(int fd_in, int fd_out)
 
 
 /*-------------------------------------------------------------------------*
- * DISPLAY_STRING                                                          *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Display_String(int fd_out, char *s)
-{
-#ifdef W32_GUI_CONSOLE
-  if (w32gc_display_string)
-    {
-      (*w32gc_display_string) (s);
-      return;
-    }
-#endif
-
-  while (*s)
-    LE_Put_Char(*s++, fd_out);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * DISPLAY_HELP                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
 Display_Help(int fd_out)
-#define L(msg)     Display_String(fd_out,msg); NewLn()
+#define L(msg)     DISPL_STR(fd_out,msg); NewLn()
 {
   char buff[80];
 
@@ -1436,6 +1437,7 @@ LE_FGetc_No_Echo(int fd_in, int fd_out)
   int c;
   int sig;
 
+  Initialize();
 
 start:
   LE_Init(fd_in, fd_out);
@@ -1467,18 +1469,14 @@ int
 LE_Printf(char *format, ...)
 {
   va_list arg_ptr;
+  char buff[1024];
   int ret;
 
-  va_start(arg_ptr, format);
-  if (w32gc_present)
-    {
-      char buff[1024];
+  Initialize();
 
-      ret = vsprintf(buff, format, arg_ptr);
-      (*w32gc_display_string) (buff);
-    }
-  else
-    ret = vprintf(format, arg_ptr);
+  va_start(arg_ptr, format);
+  ret = vsprintf(buff, format, arg_ptr);
+  DISPL_STR(1, buff);
   va_end(arg_ptr);
 
   return ret;

@@ -104,15 +104,14 @@ static void Link_Key_Var(WamWord *adr);
 
 
 
-static
-  WamWord Group(WamWord all_sol_word, WamWord gl_key_word,
-		WamWord *key_adr);
+static WamWord Group(WamWord all_sol_word, WamWord gl_key_word,
+		     WamWord *key_adr);
 
 
 
-#define GROUP_SOLUTIONS_ALT            X2467726F75705F736F6C7574696F6E735F616C74
+#define GROUP_SOLUTIONS_ALT       X2467726F75705F736F6C7574696F6E735F616C74
 
-Prolog_Prototype(GROUP_SOLUTIONS_ALT, 0)
+Prolog_Prototype(GROUP_SOLUTIONS_ALT, 0);
 
 
 
@@ -121,7 +120,8 @@ Prolog_Prototype(GROUP_SOLUTIONS_ALT, 0)
  * ALL_SOLUT_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void All_Solut_Initializer(void)
+static void
+All_Solut_Initializer(void)
 {
   exist_2 = Functor_Arity(ATOM_CHAR('^'), 2);
 }
@@ -173,7 +173,7 @@ Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
   if (nb_free_var <= MAX_ARITY)
     {
       *save_H = Functor_Arity(ATOM_CHAR('.'), nb_free_var);
-      gl_key_word = Tag_Value(STC, save_H);
+      gl_key_word = Tag_STC(save_H);
     }
   else
     {
@@ -230,17 +230,18 @@ Bound_Var(WamWord *adr)
 static WamWord
 Existential_Variables(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
 
-  Deref(start_word, word, tag, adr);
-
-  if (tag == STC)
+  DEREF(start_word, word, tag_mask);
+  
+  if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(word);
       if (Functor_And_Arity(adr) == exist_2)
 	{
-	  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var),
-	    word = Existential_Variables(Arg(adr, 1));
+	  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var);
+	  word = Existential_Variables(Arg(adr, 1));
 	}
     }
 
@@ -264,7 +265,7 @@ Free_Var(WamWord *adr)
     if (*p == (long) adr)
       return;
 
-  word = Tag_Value(REF, adr);	/* if an FDV for a Dont_Separate_Tag */
+  word = Tag_REF(adr);	/* if an FDV for a Dont_Separate_Tag */
 
   for (p = free_var_base; p < H; p++)
     if (*p == word)
@@ -347,16 +348,20 @@ Store_Solution_1(WamWord term_word)
 {
   OneSol *s;
   int size;
+/* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
+ * it allocates a frame even with -fomit-frame-pointer.
+ * This corrupts ebp on ix86 */
+  static WamWord fix_bug;
 
   size = Term_Size(term_word);
 
-  s =
-    (OneSol *) Malloc(sizeof(OneSol) - sizeof(WamWord) +
-		      size * sizeof(WamWord));
+  s = (OneSol *) Malloc(sizeof(OneSol) - sizeof(WamWord) +
+			size * sizeof(WamWord));
   s->prev = sol;
   s->sol_no = sol->sol_no + 1;
   s->term_size = size;
-  Copy_Term(&s->term_word, &term_word);
+  fix_bug = term_word;	
+  Copy_Term(&s->term_word, &fix_bug);
   sol = s;
 }
 
@@ -393,11 +398,11 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
   while (nb_sol--)
     {
       p--;
-      *p = Tag_Value(LST, p + 1);
-      *--p = Tag_Value(REF, H);
+      *p = Tag_LST(p + 1);
+      *--p = Tag_REF(H);
       Copy_Contiguous_Term(H, &sol->term_word);
 
-      if (handle_key_word)
+      if (handle_key)
 	Handle_Key_Variables(*H);
 
       H += sol->term_size;
@@ -407,7 +412,7 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
     }
 
   q[-1] = NIL_WORD;
-  return Unify(Tag_Value(LST, p), list_word);
+  return Unify(Tag_LST(p), list_word);
 }
 
 
@@ -420,12 +425,13 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
 static void
 Handle_Key_Variables(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
 
   save_key_var_ptr = key_var_ptr;
   next_key_var_ptr = glob_dico_var;
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
   adr = UnTag_STC(word);
   Treat_Vars_Of_Term(Arg(adr, 0), FALSE, Link_Key_Var);
 }
@@ -447,7 +453,7 @@ Link_Key_Var(WamWord *adr)
       return;
 
   if (next_key_var_ptr < save_key_var_ptr)
-    {				/* same as Unify(Tag_Value(REF,adr),*next_key_var_ptr++) */
+    {		      /* same as Unify(Tag_REF(adr), *next_key_var_ptr++) */
       *adr = *(WamWord *) (*next_key_var_ptr);
       next_key_var_ptr++;
       return;
@@ -478,13 +484,13 @@ Bool
 Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
 		  WamWord sol_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord key_word;
 
-  Deref(all_sol_word, word, tag, adr);
+  DEREF(all_sol_word, word, tag_mask);
   if (word == NIL_WORD)
     return FALSE;
-
+  
   word = Group(all_sol_word, gl_key_word, &key_word);
   if (word != NOT_A_WAM_WORD)
     {
@@ -546,29 +552,30 @@ Group_Solutions_Alt_0(void)
 static WamWord
 Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr, *prev_lst_adr;
   WamWord key_word, key_word1;
 
-  Deref(all_sol_word, word, tag, adr);
+  DEREF(all_sol_word, word, tag_mask);
 
   lst_adr = UnTag_LST(word);
-  Deref(Car(lst_adr), word, tag, adr);	/* term of the form Key-Value */
+  DEREF(Car(lst_adr), word, tag_mask);	/* term of the form Key-Value */
   adr = UnTag_STC(word);
   *key_adr = key_word = Arg(adr, 0);
 
   for (;;)
-    {
-      Car(lst_adr) = Arg(adr, 1);	/* Arg(adr,1) cannot be a Dont_Separate_Tag */
+    {				/* Arg(adr,1) cannot be a Dont_Separate_Tag */
+      Car(lst_adr) = Arg(adr, 1);
 
       prev_lst_adr = lst_adr;
-      Deref(Cdr(lst_adr), word, tag, adr);
+      DEREF(Cdr(lst_adr), word, tag_mask);
       if (word == NIL_WORD)
 	return NOT_A_WAM_WORD;
 
       prev_lst_adr = lst_adr;
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);	/* term of the form Key-Value */
+      DEREF(Car(lst_adr), word, tag_mask); /* term of the form Key-Value */
       adr = UnTag_STC(word);
       key_word1 = Arg(adr, 0);
 
@@ -578,5 +585,6 @@ Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr)
 
   all_sol_word = Cdr(prev_lst_adr);
   Cdr(prev_lst_adr) = NIL_WORD;
+
   return all_sol_word;
 }

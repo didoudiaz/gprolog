@@ -1,11 +1,16 @@
 #!/bin/sh
-diff -I '% date' -I '% compiler' -I '% time' pl2wam.wam  pl2wam.wam1
-diff -I '% date' -I '% compiler' -I '% time' read_file.wam read_file.wam1
-diff -I '% date' -I '% compiler' -I '% time' bip_list.wam bip_list.wam1
-diff -I '% date' -I '% compiler' -I '% time' syn_sugar.wam syn_sugar.wam1
-diff -I '% date' -I '% compiler' -I '% time' internal.wam internal.wam1
-diff -I '% date' -I '% compiler' -I '% time' code_gen.wam code_gen.wam1
-diff -I '% date' -I '% compiler' -I '% time' inst_codif.wam inst_codif.wam1
-diff -I '% date' -I '% compiler' -I '% time' first_arg.wam first_arg.wam1
-diff -I '% date' -I '% compiler' -I '% time' indexing.wam indexing.wam1
-diff -I '% date' -I '% compiler' -I '% time' wam_emit.wam wam_emit.wam1
+do_diff() {
+    diff --ignore-space-change -I '% date' -I '% compiler' -I '% time' $1 $2
+}
+
+do_diff pl2wam.wam     pl2wam.wam1
+do_diff pl2wam.wam     pl2wam.wam1
+do_diff read_file.wam  read_file.wam1
+do_diff bip_list.wam   bip_list.wam1
+do_diff syn_sugar.wam  syn_sugar.wam1
+do_diff internal.wam   internal.wam1
+do_diff code_gen.wam   code_gen.wam1
+do_diff inst_codif.wam inst_codif.wam1
+do_diff first_arg.wam  first_arg.wam1
+do_diff indexing.wam   indexing.wam1
+do_diff wam_emit.wam   wam_emit.wam1

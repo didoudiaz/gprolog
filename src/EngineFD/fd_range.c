@@ -145,7 +145,7 @@ Most_Significant_Bit(VecWord x)
 {
   int bit = WORD_SIZE - 1;
 
-#if WORD_SIZE==64
+#if WORD_SIZE == 64
   if (x >> 32 == 0)
     bit -= 32, x <<= 32;
 #endif

@@ -31,7 +31,6 @@
 
 
 
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -64,10 +63,27 @@ static SwtInf *Locate_Swt_Element(SwtTbl t, int size, long key);
 
 
 /*-------------------------------------------------------------------------*
+ * CREATE_FUNCTOR_ARITY_TAGGED                                             *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Create_Functor_Arity_Tagged(char *func_str, int arity)
+{
+  int func = Create_Atom(func_str);
+
+  return Functor_Arity(func, arity);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * CREATE_SWT_TABLE                                                        *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
+
 SwtTbl
 Create_Swt_Table(int size)
 {
@@ -136,8 +152,8 @@ Locate_Swt_Element(SwtTbl t, int size, long key)
 #else
   n = (key ^ ((unsigned long) key >> 16)) % size;
 #endif
-  /* here either the key is in the table */
-  /* or there is at least one free cell. */
+				/* here either the key is in the table */
+				/* or there is at least one free cell. */
   swt = t + n;
   endt = t + size;
 
@@ -155,6 +171,29 @@ Locate_Swt_Element(SwtTbl t, int size, long key)
 
 
 /*-------------------------------------------------------------------------*
+ * GET_ATOM_TAGGED                                                         *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Get_Atom_Tagged(WamWord w, WamWord start_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
+    {
+      Bind_UV(UnTag_REF(word), w);
+      return TRUE;
+    }
+
+ return (word == w);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * GET_ATOM                                                                *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -162,20 +201,35 @@ Locate_Swt_Element(SwtTbl t, int size, long key)
 Bool
 Get_Atom(int atom, WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  return Get_Atom_Tagged(Tag_ATM(atom), start_word);
+}
 
-  Deref(start_word, word, tag, adr);
-  switch (tag)
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_INTEGER_TAGGED                                                      *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Get_Integer_Tagged(WamWord w, WamWord start_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
-    case REF:
-      Bind_UV(adr, Tag_Value(ATM, atom));
+      Bind_UV(UnTag_REF(word), w);
       return TRUE;
-
-    case ATM:
-      return (UnTag_ATM(word) == atom);
     }
 
-  return FALSE;
+#ifndef NO_USE_FD_SOLVER
+  if (tag_mask == TAG_FDV_MASK)
+    return Fd_Unify_With_Integer(UnTag_FDV(word), UnTag_INT(w));
+#endif
+
+  return (word == w);
 }
 
 
@@ -189,23 +243,7 @@ Get_Atom(int atom, WamWord start_word)
 Bool
 Get_Integer(long n, WamWord start_word)
 {
-  WamWord word, tag, *adr;
-
-  Deref(start_word, word, tag, adr);
-  switch (tag)
-    {
-    case INT:
-      return (UnTag_INT(word) == n);
-
-    case REF:
-      Bind_UV(adr, Tag_Value(INT, n));
-      return TRUE;
-
-    case FDV:
-      return Fd_Unify_With_Integer(UnTag_FDV(word), n);
-    }
-
-  return FALSE;
+  return Get_Integer_Tagged(Tag_INT(n), start_word);
 }
 
 
@@ -219,21 +257,17 @@ Get_Integer(long n, WamWord start_word)
 Bool
 Get_Float(double n, WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(start_word, word, tag, adr);
-  switch (tag)
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
-    case REF:
-      Bind_UV(adr, Tag_Value(FLT, H));
+      Bind_UV(UnTag_REF(word), Tag_FLT(H));
       Global_Push_Float(n);
       return TRUE;
-
-    case FLT:
-      return (Obtain_Float(UnTag_FLT(word)) == n);
     }
 
-  return FALSE;
+  return (tag_mask == TAG_FLT_MASK && Obtain_Float(UnTag_FLT(word)) == n);
 }
 
 
@@ -247,12 +281,12 @@ Get_Float(double n, WamWord start_word)
 Bool
 Get_Nil(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(start_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
-      Bind_UV(adr, NIL_WORD);
+      Bind_UV(UnTag_REF(word), NIL_WORD);
       return TRUE;
     }
 
@@ -270,18 +304,58 @@ Get_Nil(WamWord start_word)
 Bool
 Get_List(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(start_word, word, tag, adr);
-  switch (tag)
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     {
-    case REF:
-      Bind_UV(adr, Tag_Value(LST, H));
+      Bind_UV(UnTag_REF(word), Tag_LST(H));
       S = WRITE_MODE;
       return TRUE;
+    }
 
-    case LST:			/* init S, i.e. MODE=READ */
-      S = (WamWord *) UnTag_LST(word) + OFFSET_CAR;
+  if (tag_mask == TAG_LST_MASK)
+    {
+      S = UnTag_LST(word) + OFFSET_CAR;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_STRUCTURE_TAGGED                                                    *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Get_Structure_Tagged(WamWord w, WamWord start_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
+    {
+      WamWord *cur_H = H;
+      *cur_H = w;
+      H++;
+      S = WRITE_MODE;
+      Bind_UV(UnTag_REF(word), Tag_STC(cur_H));
+      return TRUE;
+    }
+
+
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+      if (Functor_And_Arity(adr) != w)
+	return FALSE;
+
+      S = adr + OFFSET_ARG;
       return TRUE;
     }
 
@@ -299,27 +373,7 @@ Get_List(WamWord start_word)
 Bool
 Get_Structure(int func, int arity, WamWord start_word)
 {
-  WamWord word, tag, *adr;
-
-  Deref(start_word, word, tag, adr);
-  switch (tag)
-    {
-    case REF:
-      Bind_UV(adr, Tag_Value(STC, H));
-      Global_Push(Functor_Arity(func, arity));
-      S = WRITE_MODE;
-      return TRUE;
-
-    case STC:			/* init S, i.e. MODE=READ */
-      adr = UnTag_STC(word);
-      if (Functor_And_Arity(adr) != Functor_Arity(func, arity))
-	return FALSE;
-
-      S = adr + OFFSET_ARG;
-      return TRUE;
-    }
-
-  return FALSE;
+  return Get_Structure_Tagged(Functor_Arity(func, arity), start_word);
 }
 
 
@@ -334,9 +388,12 @@ WamWord
 Put_X_Variable(void)
 {
   WamWord res_word;
+  WamWord *cur_H = H;
+ 
+  res_word = Make_Self_Ref(cur_H);
+  *cur_H = res_word;
+  H++;
 
-  res_word = Make_Self_Ref(H);
-  Global_Push(res_word);
   return res_word;
 }
 
@@ -365,20 +422,39 @@ Put_Y_Variable(WamWord *y_adr)
 WamWord
 Put_Unsafe_Value(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord res_word;
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
 
-  if (tag == REF && adr >= (WamWord *) EE(E))
+  if (tag_mask == TAG_REF_MASK &&
+      (adr = UnTag_REF(word)) >= (WamWord *) EE(E))
     {
-      res_word = Tag_Value(REF, H);
-      Globalize_Local_Unbound_Var(adr);
+      Globalize_Local_Unbound_Var(adr, res_word);
+      return res_word;
     }
-  else
-    res_word = Make_Copy_Of_Word(tag, word);
 
-  return res_word;
+#if 0
+  Do_Copy_Of_Word(tag_mask, word);
+  return word;
+#else
+  return start_word;
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PUT_ATOM_TAGGED                                                         *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Put_Atom_Tagged(WamWord w)
+{
+  return w;
 }
 
 
@@ -392,7 +468,21 @@ Put_Unsafe_Value(WamWord start_word)
 WamWord
 Put_Atom(int atom)
 {
-  return Tag_Value(ATM, atom);
+  return Tag_ATM(atom);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PUT_INTEGER_TAGGED                                                      *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Put_Integer_Tagged(WamWord w)
+{
+  return w;
 }
 
 
@@ -406,7 +496,7 @@ Put_Atom(int atom)
 WamWord
 Put_Integer(long n)
 {
-  return Tag_Value(INT, n);
+  return Tag_INT(n);
 }
 
 
@@ -422,7 +512,7 @@ Put_Float(double n)
 {
   WamWord res_word;
 
-  res_word = Tag_Value(FLT, H);
+  res_word = Tag_FLT(H);
   Global_Push_Float(n);
   return res_word;
 }
@@ -453,7 +543,25 @@ WamWord
 Put_List(void)
 {
   S = WRITE_MODE;
-  return Tag_Value(LST, H);
+  return Tag_LST(H);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PUT_STRUCTURE_TAGGED                                                    *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Put_Structure_Tagged(WamWord w)
+{
+  WamWord *cur_H = H;
+  *cur_H = w;
+  H++;
+  S = WRITE_MODE;
+  return Tag_STC(cur_H);
 }
 
 
@@ -467,12 +575,7 @@ Put_List(void)
 WamWord
 Put_Structure(int func, int arity)
 {
-  WamWord res_word;
-
-  res_word = Tag_Value(STC, H);
-  Global_Push(Functor_Arity(func, arity));
-  S = WRITE_MODE;
-  return res_word;
+  return Put_Structure_Tagged(Functor_Arity(func, arity));
 }
 
 
@@ -486,19 +589,24 @@ Put_Structure(int func, int arity)
 WamWord
 Unify_Variable(void)
 {
-  WamWord tag, word;
+  WamWord tag_mask, word;
+  WamWord res_word;
+  WamWord *cur_H;
 
   if (S != WRITE_MODE)
     {
-      tag = Tag_Of(word = *S);
-      S++;
-      return Make_Copy_Of_Word(tag, word);
+      word = *S++;
+      tag_mask = Tag_Mask_Of(word);
+      Do_Copy_Of_Word(tag_mask, word);
+      return word;
     }
 
+  cur_H = H;
+  res_word = Make_Self_Ref(cur_H);
+  *cur_H = res_word;
+  H++;
 
-  word = Make_Self_Ref(H);
-  Global_Push(word);
-  return word;
+  return res_word;
 }
 
 
@@ -512,13 +620,22 @@ Unify_Variable(void)
 void
 Unify_Void(int n)
 {
-  WamWord *end_adr;
+  WamWord *cur_H;
 
   if (S != WRITE_MODE)
-    S += n;
-  else
-    for (end_adr = H + (n); H < end_adr; ++H)
-      *H = Make_Self_Ref(H);
+    {
+      S += n;
+      return;
+    }
+
+  cur_H = H;
+  H += n;
+  do
+    {
+      *cur_H = Make_Self_Ref(cur_H);
+      cur_H++;
+    }
+  while(--n > 0);
 }
 
 
@@ -533,12 +650,7 @@ Bool
 Unify_Value(WamWord start_word)
 {
   if (S != WRITE_MODE)
-    {
-      if (!Unify(start_word, *S))
-	return FALSE;
-      S++;
-      return TRUE;
-    }
+    return Unify(start_word, *S++);
 
   Global_Push(start_word);
   return TRUE;
@@ -555,18 +667,53 @@ Unify_Value(WamWord start_word)
 Bool
 Unify_Local_Value(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
 
   if (S != WRITE_MODE)
     return Unify(start_word, *S++);
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
 
-  if (tag == REF && Is_A_Local_Adr(adr))
-    Globalize_Local_Unbound_Var(adr);
+  if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
+    Globalize_Local_Unbound_Var(adr, word);
   else
-    Global_Push(Make_Copy_Of_Word(tag, word));
+    {
+      Do_Copy_Of_Word(tag_mask, word);
+      Global_Push(word);
+    }
 
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * UNIFY_ATOM_TAGGED                                                       *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Unify_Atom_Tagged(WamWord w)
+{
+  WamWord word, tag_mask;
+
+  if (S != WRITE_MODE)
+    {
+      DEREF(*S, word, tag_mask);
+      S++;
+
+      if (tag_mask == TAG_REF_MASK)
+	{
+	  Bind_UV(UnTag_REF(word), w);
+	  return TRUE;
+	}
+
+      return (word == w);
+    }
+      
+  Global_Push(w);
   return TRUE;
 }
 
@@ -581,27 +728,41 @@ Unify_Local_Value(WamWord start_word)
 Bool
 Unify_Atom(int atom)
 {
-  WamWord word, tag, *adr;
+  return Unify_Atom_Tagged(Tag_ATM(atom));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * UNIFY_INTEGER_TAGGED                                                    *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Unify_Integer_Tagged(WamWord w)
+{
+  WamWord word, tag_mask;
 
   if (S != WRITE_MODE)
     {
-      Deref(*S, word, tag, adr);
+      DEREF(*S, word, tag_mask);
       S++;
-      switch (tag)
+      if (tag_mask == TAG_REF_MASK)
 	{
-	case REF:
-	  Bind_UV(adr, Tag_Value(ATM, atom));
+	  Bind_UV(UnTag_REF(word), w);
 	  return TRUE;
-
-	case ATM:
-	  return (UnTag_ATM(word) == atom);
 	}
 
-      return FALSE;
+#ifndef NO_USE_FD_SOLVER
+      if (tag_mask == TAG_FDV_MASK)
+	return Fd_Unify_With_Integer(UnTag_FDV(word), UnTag_INT(w));
+#endif
+
+      return (word == w);
     }
 
-  Global_Push(Tag_Value(ATM, atom));
-
+  Global_Push(w);
   return TRUE;
 }
 
@@ -616,31 +777,7 @@ Unify_Atom(int atom)
 Bool
 Unify_Integer(long n)
 {
-  WamWord word, tag, *adr;
-
-  if (S != WRITE_MODE)
-    {
-      Deref(*S, word, tag, adr);
-      S++;
-      switch (tag)
-	{
-	case INT:
-	  return (UnTag_INT(word) == n);
-
-	case REF:
-	  Bind_UV(adr, Tag_Value(INT, n));
-	  return TRUE;
-
-	case FDV:
-	  return Fd_Unify_With_Integer(UnTag_FDV(word), n);
-	}
-
-      return FALSE;
-    }
-
-  Global_Push(Tag_Value(INT, n));
-
-  return TRUE;
+  return Unify_Integer_Tagged(Tag_INT(n));
 }
 
 
@@ -654,23 +791,22 @@ Unify_Integer(long n)
 Bool
 Unify_Nil(void)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
   if (S != WRITE_MODE)
     {
-      Deref(*S, word, tag, adr);
+      DEREF(*S, word, tag_mask);
       S++;
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	{
-	  Bind_UV(adr, NIL_WORD);
+	  Bind_UV(UnTag_REF(word), NIL_WORD);
 	  return TRUE;
 	}
-      else
-	return (word == NIL_WORD);
+      
+      return (word == NIL_WORD);
     }
 
   Global_Push(NIL_WORD);
-
   return TRUE;
 }
 
@@ -685,13 +821,38 @@ Unify_Nil(void)
 Bool
 Unify_List(void)
 {
-  WamWord *adr;
+  WamWord *cur_H;
 
   if (S != WRITE_MODE)
     return Get_List(*S);
 
-  adr = H++;
-  *adr = Put_List();
+  cur_H = H;
+  *cur_H = Tag_LST(cur_H + 1);
+  H++;
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * UNIFY_STRUCTURE_TAGGED                                                  *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Unify_Structure_Tagged(WamWord w)
+{
+  WamWord *cur_H;
+
+  if (S != WRITE_MODE)
+    return Get_Structure_Tagged(w, *S);
+
+  cur_H = H;
+  *cur_H = Tag_STC(cur_H + 1);
+  cur_H[1] = w;
+  H += 2;
 
   return TRUE;
 }
@@ -707,15 +868,7 @@ Unify_List(void)
 Bool
 Unify_Structure(int func, int arity)
 {
-  WamWord *adr;
-
-  if (S != WRITE_MODE)
-    return Get_Structure(func, arity, *S);
-
-  adr = H++;
-  *adr = Put_Structure(func, arity);
-
-  return TRUE;
+  return Unify_Structure_Tagged(Functor_Arity(func, arity));
 }
 
 
@@ -729,14 +882,14 @@ Unify_Structure(int func, int arity)
 void
 Allocate(int n)
 {
-  WamWord *adr;
+  WamWord *old_E = E;
+  WamWord *cur_E = Local_Top + ENVIR_STATIC_SIZE + n;
 
-  adr = E;
-  E = Local_Top + ENVIR_STATIC_SIZE + n;
+  E = cur_E;
 
-  CPE(E) = (WamCont) CP;
-  BCIE(E) = BCI;
-  EE(E) = (WamWord *) adr;
+  CPE(cur_E) = (WamCont) CP;
+  BCIE(cur_E) = BCI;
+  EE(cur_E) = (WamWord *) old_E;
 }
 
 
@@ -750,9 +903,11 @@ Allocate(int n)
 void
 Deallocate(void)
 {
-  CP = CPE(E);
-  BCI = BCIE(E);
-  E = EE(E);			/* Warning E must be the last element restored */
+  WamWord *cur_E = E;
+
+  CP = CPE(cur_E);
+  BCI = BCIE(cur_E);
+  E = EE(cur_E);
 }
 
 
@@ -767,33 +922,22 @@ CodePtr
 Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 	       CodePtr c_lst, CodePtr c_stc)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   CodePtr codep;
 
-  Deref(A(0), word, tag, adr);
+  DEREF(A(0), word, tag_mask);
   A(0) = word;
-  switch (tag)
-    {
-    case INT:
-      codep = c_int;
-      break;
 
-    case ATM:
-      codep = c_atm;
-      break;
-
-    case LST:
-      codep = c_lst;
-      break;
-
-    case STC:
-      codep = c_stc;
-      break;
-
-    default:			/* REF or FDV */
-      codep = c_var;
-      break;
-    }
+  if (tag_mask == TAG_INT_MASK)
+    codep = c_int;
+  else if (tag_mask == TAG_ATM_MASK)
+    codep = c_atm;
+  else if (tag_mask == TAG_LST_MASK)
+    codep = c_lst;
+  else if (tag_mask == TAG_STC_MASK)
+    codep = c_stc;
+  else				/* REF or FDV */
+    codep = c_var;
 
   return (codep) ? codep : ALTB(B);
 }
@@ -871,7 +1015,7 @@ Switch_On_Structure(SwtTbl t, int size)
 void
 Load_Cut_Level(WamWord *word_adr)
 {
-  *word_adr = Tag_Value(INT, B);
+  *word_adr = From_B_To_WamWord(B);
 }
 
 
@@ -885,9 +1029,8 @@ Load_Cut_Level(WamWord *word_adr)
 void
 Cut(WamWord b_word)
 {
-  B = UnTag_REF(b_word);	/* Tag_REF since stack adr as INT */
-}				/* only useful if STACK_MASK != 0 */
-
+  Assign_B(From_WamWord_To_B(b_word));
+}
 
 
 
@@ -908,7 +1051,7 @@ Global_Push_Float(double n)
   di.d = n;
   *H++ = di.i[0];
 
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
   *H++ = di.i[1];
 #endif
 }
@@ -927,7 +1070,7 @@ Obtain_Float(WamWord *adr)
 
   di.i[0] = adr[0];
 
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
   di.i[1] = adr[1];
 #endif
 
@@ -945,26 +1088,36 @@ Obtain_Float(WamWord *adr)
 void
 Create_Choice_Point(CodePtr codep_alt, int arity)
 {
-  WamWord *adr;
+  WamWord *old_B = B;
+  WamWord *cur_B = Local_Top + CHOICE_STATIC_SIZE + arity;
   int i;
 
+  B = cur_B;
 
-  adr = B;
-  B = Local_Top + CHOICE_STATIC_SIZE + arity;
-
-  ALTB(B) = codep_alt;
-  CPB(B) = CP;
-  BCIB(B) = BCI;
-  EB(B) = E;
-  BB(B) = adr;
-  HB(B) = H;
-  TRB(B) = TR;
-  CSB(B) = CS;
-
-  for (i = 0; i < arity; i++)
-    AB(B, i) = A(i);
+  ALTB(cur_B) = codep_alt;
+  CPB(cur_B) = CP;
+  BCIB(cur_B) = BCI;
+  EB(cur_B) = E;
+  BB(cur_B) = old_B;
+  HB(cur_B) = HB1 = H;
+  TRB(cur_B) = TR;
+  CSB(cur_B) = CS;
 
   STAMP++;
+
+#if 0
+  if (arity)
+    {
+      WamWord *p_args = &A(0);
+      WamWord *p_chc_args = &AB(cur_B, 0);
+      do
+	*p_chc_args-- = *p_args++;
+      while(--arity);
+    }
+#else
+  for (i = 0; i < arity; i++)
+    AB(cur_B, i) = A(i);
+#endif
 }
 
 
@@ -979,20 +1132,32 @@ void
 Update_Choice_Point(CodePtr codep_alt, int arity)
 {
   int i;
+  WamWord *cur_B = B;
 
 
-  ALTB(B) = codep_alt;
+  ALTB(cur_B) = codep_alt;
 
-  Untrail(TRB(B));
+  Untrail(TRB(cur_B));
 
-  CP = CPB(B);
-  BCI = BCIB(B);
-  E = EB(B);
-  H = HB(B);
-  CS = CSB(B);
+  CP = CPB(cur_B);
+  BCI = BCIB(cur_B);
+  E = EB(cur_B);
+  H = HB1 = HB(cur_B);
+  CS = CSB(cur_B);
 
+#if 0
+  if (arity)
+    {
+      WamWord *p_args = &A(0);
+      WamWord *p_chc_args = &AB(cur_B, 0);
+      do
+	*p_args++ = *p_chc_args--;
+      while(--arity);
+    }
+#else
   for (i = 0; i < arity; i++)
-    A(i) = AB(B, i);
+    A(i) = AB(cur_B, i);
+#endif
 }
 
 
@@ -1007,22 +1172,32 @@ void
 Delete_Choice_Point(int arity)
 {
   int i;
+  WamWord *cur_B = B;
 
+  Untrail(TRB(cur_B));
 
-  Untrail(TRB(B));
-
-  CP = CPB(B);
-  E = EB(B);
-  H = HB(B);
-  CS = CSB(B);
-  BCI = BCIB(B);
-
-  for (i = 0; i < arity; i++)
-    A(i) = AB(B, i);
-
-  B = BB(B);			/* B must be the last element restored */
+  CP = CPB(cur_B);
+  E = EB(cur_B);
+  Assign_B(BB(cur_B));
+  H = HB(cur_B);
+  CS = CSB(cur_B);
+  BCI = BCIB(cur_B);
 
   STAMP--;
+
+#if 0
+  if (arity)
+    {
+      WamWord *p_args = &A(0);
+      WamWord *p_chc_args = &AB(cur_B, 0);
+      do
+	*p_args++ = *p_chc_args--;
+      while(--arity);
+    }
+#else
+  for (i = 0; i < arity; i++)
+    A(i) = AB(cur_B, i);
+#endif
 }
 
 
@@ -1066,27 +1241,6 @@ Untrail(WamWord *low_adr)
 	  (*((int (*)()) adr)) ();
 	}
     }
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * MAKE_COPY_OF_WORD                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-WamWord
-Make_Copy_Of_Word(int tag, WamWord word)
-{
-  WamWord *adr;
-
-  if (Dont_Separate_Tag(tag))
-    {
-      adr = UnTag_REF(word);	/* in fact UnTag_XXX(word) */
-      word = Tag_Value(REF, adr);
-    }
-
-  return word;
 }
 
 

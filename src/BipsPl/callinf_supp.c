@@ -84,7 +84,7 @@ Load_Call_Info_Arg_1(WamWord arg_no_word)
   int arg_no;
 
   arg_no = Rd_Integer(arg_no_word);
-  A(arg_no) = Tag_Value(INT, save_call_info);
+  A(arg_no) = Tag_INT(save_call_info);
 }
 
 
@@ -105,5 +105,5 @@ Call_Info_Bip_Name_1(WamWord call_info_word)
   func = Functor_Of(call_info);
   arity = Arity_Of(call_info);
 
-  Set_Bip_Name_2(Tag_Value(ATM, func), Tag_Value(INT, arity));
+  Set_Bip_Name_2(Tag_ATM(func), Tag_INT(arity));
 }

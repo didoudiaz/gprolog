@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
+% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : first_arg.pl
-% date    : 11 9 2000
-% time    : 18:31:2
+% date    : 12 15 2000
+% time    : 21:44:4
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/first_arg.pl').
@@ -55,7 +55,7 @@ label(2),
     execute(find_first_arg/2)]).
 
 
-predicate(stopping_inst/1,39,static,private,user,[
+predicate(stopping_inst/1,38,static,private,user,[
     try_me_else(8),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -96,17 +96,14 @@ label(8),
     execute(assign_x0/1)]).
 
 
-predicate(assign_x0/1,52,static,private,user,[
-    switch_on_term(1,fail,fail,1,fail),
-
-label(1),
+predicate(assign_x0/1,51,static,private,user,[
     get_list(0),
     unify_variable(x(0)),
     unify_variable(x(1)),
     execute('$assign_x0/1_$aux1'/2)]).
 
 
-predicate('$assign_x0/1_$aux1'/2,52,static,private,user,[
+predicate('$assign_x0/1_$aux1'/2,51,static,private,user,[
     try_me_else(6),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -138,7 +135,7 @@ label(6),
     execute(assign_x0/1)]).
 
 
-predicate(defines_first_arg/2,58,static,private,user,[
+predicate(defines_first_arg/2,62,static,private,user,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),

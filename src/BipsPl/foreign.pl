@@ -22,7 +22,7 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
        % $force_foreign_link is used by pl2wam to force the link of
        % foreign.o and then foreign_supp.o needed by Ma2Asm for translations
@@ -33,6 +33,6 @@
 
 
 
-'$pl_query_recover_alt':-           % used by C code to create a choice-point
+'$pl_query_recover_alt' :-                       % used by C code to create a choice-point
 	'$call_c'('Pl_Query_Recover_Alt_0'),
 	fail.

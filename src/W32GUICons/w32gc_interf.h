@@ -40,30 +40,41 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void W32GC_Screen_Size(int *row, int *col);
+/* hooks for linedit */
 
-int W32GC_Kbd_Is_Not_Empty(void);
+void W32GC_Emit_Beep(int fd_out);
 
-void W32GC_Emit_Beep(void);
+void W32GC_Put_Char(int c, int fd_out);
 
-void W32GC_Msg(char *s);
+int W32GC_Get_Char0(int fd_in);
 
 void W32GC_Ins_Mode(int ins_mode);
 
-int W32GC_Get_Char0(void);
 
-void W32GC_Put_Char(int c);
+void W32GC_Screen_Size(int fd_out, int *row, int *col);
 
-void W32GC_Erase(int c);
+int W32GC_Kbd_Is_Not_Empty(int fd_in);
 
-void W32GC_Backd(int n);
 
-void W32GC_Forwd(int n);
+void W32GC_Backd(int fd_out, int n);
 
-void W32GC_Displ(int n, char *str);
+void W32GC_Forwd(int fd_out, int n);
 
-void W32GC_Display_String(char *str);
-void W32GC_Set_Title(char *title);
-void W32GC_Restart_Exit_Msg(char *msg);
-void W32GC_Restart();
-void W32GC_Adjust_Stack_Sizes(int *s1, int *s2, int *s3, int *s4);
+void W32GC_Displ(int fd_out, int n, char *str);
+
+void W32GC_Displ_Str(int fd_out, char *str);
+
+void W32GC_Erase(int fd_out, int n);
+
+
+/* Other utility functions */
+
+void W32GC_Msg(char *s);
+
+void W32GC_Set_Title(char *title);
+
+void W32GC_Restart_Exit_Msg(char *msg);
+
+void W32GC_Restart(void);
+
+void W32GC_Adjust_Stack_Sizes(int *s1, int *s2, int *s3, int *s4);

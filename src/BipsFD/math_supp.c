@@ -98,8 +98,8 @@
 
 typedef struct			/* Monomial term information      */
 {				/* ------------------------------ */
-  WamWord a_word;		/* coefficient a tagged <INT,val> */
-  WamWord x_word;		/* variable    a tagged <REF,adr> */
+  long a;			/* coefficient                    */
+  WamWord x_word;		/* variable a tagged <REF,adr>    */
 }
 Monom;
 
@@ -108,7 +108,7 @@ Monom;
 
 typedef struct			/* Polynomial term information    */
 {				/* ------------------------------ */
-  WamWord c_word;		/* the const. a tagged <INT,val>  */
+  long c;			/* the constant                   */
   int nb_monom;			/* nb of monomial terms           */
   Monom m[MAX_MONOMS];		/* table of monomial terms        */
 }
@@ -151,11 +151,10 @@ static Bool sort;
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  Bool Load_Left_Right_Rec(Bool optim_eq,
-			   WamWord le_word, WamWord re_word,
-			   int *mask, WamWord *c_word,
-			   WamWord *l_word, WamWord *r_word);
+static Bool Load_Left_Right_Rec(Bool optim_eq,
+				WamWord le_word, WamWord re_word,
+				int *mask, WamWord *c_word,
+				WamWord *l_word, WamWord *r_word);
 
 static int Compar_Monom(Monom *m1, Monom *m2);
 
@@ -164,7 +163,7 @@ static Bool Load_Term_Into_Word(WamWord e_word, WamWord *load_word);
 static WamWord Push_Delayed_Cstr(int cstr, WamWord a1, WamWord a2,
 				 WamWord a3);
 
-static void Add_Monom(Poly *p, int sign, WamWord a_word, WamWord x_word);
+static void Add_Monom(Poly *p, int sign, long a, WamWord x_word);
 
 static Bool Add_Multiply_Monom(Poly *p, int sign, Monom *m1, Monom *m2);
 
@@ -185,13 +184,12 @@ void Write_1(WamWord term_word);
 
 #endif
 
-#define New_Tagged_Fd_Variable  (Tag_Value(REF,Fd_New_Variable()))
+#define New_Tagged_Fd_Variable  (Tag_REF(Fd_New_Variable()))
 
-#define Add_Cst_To_Poly(p,s,w)  (p->c_word+=(s<0) ? -((long) (w)) : (w))
+#define New_Poly(p)             ((p).c = (p).nb_monom = 0)
 
-#define New_Poly(p)             ((p).c_word=(p).nb_monom=0)
+#define Add_Cst_To_Poly(p, s, w)  (p->c += s * w)
 
-#define Tag0_Mul(x,y)           ((x)*((y)>>TAG_SIZE))
 
 
 
@@ -234,14 +232,13 @@ Math_Supp_Initializer(void)
  *                                                                         *
  * Output:                                                                 *
  *   mask     : indicates if l_word and r_word are used (see MASK_... cst) *
- *   c_word   : the general (signed) constant as a      (tagged <INT,val>) *
+ *   c        : the general (signed) constant                              *
  *   l_word   : the variable containing the left  part  (tagged <REF,adr>) *
  *   r_word   : the variable containing the right part  (tagged <REF,adr>) *
  *-------------------------------------------------------------------------*/
 Bool
 Load_Left_Right(Bool optim_eq, WamWord le_word, WamWord re_word,
-		int *mask, WamWord *c_word,
-		WamWord *l_word, WamWord *r_word)
+		int *mask, long *c, WamWord *l_word, WamWord *r_word)
 {
 #ifdef DEBUG
   DBGPRINTF("\n*** Math constraint : ");
@@ -254,7 +251,7 @@ Load_Left_Right(Bool optim_eq, WamWord le_word, WamWord re_word,
   delay_sp = delay_cstr_stack;
   vars_sp = vars_tbl;
 
-  return Load_Left_Right_Rec(optim_eq, le_word, re_word, mask, c_word,
+  return Load_Left_Right_Rec(optim_eq, le_word, re_word, mask, c,
 			     l_word, r_word);
 }
 
@@ -268,8 +265,8 @@ Load_Left_Right(Bool optim_eq, WamWord le_word, WamWord re_word,
 Bool
 Term_Math_Loading(WamWord l_word, WamWord r_word)
 {
-  WamWord word, tag, *adr;
-  WamWord *fdv_adr;
+  WamWord word, tag_mask;
+  WamWord *adr, *fdv_adr;
 
   if (delay_sp != delay_cstr_stack)
     {
@@ -282,11 +279,12 @@ Term_Math_Loading(WamWord l_word, WamWord r_word)
 
   while (--vars_sp >= vars_tbl)
     {
-      Deref(*vars_sp, word, tag, adr);
-      if (tag == REF && word != l_word && word != r_word)
+      DEREF(*vars_sp, word, tag_mask);
+      if (tag_mask == TAG_REF_MASK && word != l_word && word != r_word)
 	{
+	  adr = UnTag_REF(word);
 	  fdv_adr = Fd_New_Variable();
-	  Bind_UV(adr, Tag_Value(REF, fdv_adr));
+	  Bind_UV(adr, Tag_REF(fdv_adr));
 	}
     }
 
@@ -299,14 +297,12 @@ Term_Math_Loading(WamWord l_word, WamWord r_word)
 /*-------------------------------------------------------------------------*
  * LOAD_LEFT_RIGHT_REC                                                     *
  *                                                                         *
- * This function can be called with re_word==NOT_A_WAM_WORD by the function*
+ * This function can be called with re_word == NOT_A_WAM_WORD by the fct   *
  * Load_Term_Into_Word(). In that case, re_word is simply ignored.         *
  *-------------------------------------------------------------------------*/
 static Bool
-Load_Left_Right_Rec(Bool optim_eq,
-		    WamWord le_word, WamWord re_word,
-		    int *mask, WamWord *c_word,
-		    WamWord *l_word, WamWord *r_word)
+Load_Left_Right_Rec(Bool optim_eq, WamWord le_word, WamWord re_word,
+		    int *mask, long *c, WamWord *l_word, WamWord *r_word)
 {
   Poly p;
   Monom *l_m, *r_m;
@@ -330,17 +326,17 @@ Load_Left_Right_Rec(Bool optim_eq,
 	    (int (*)(const void *, const void *)) Compar_Monom);
 
       for (i = 0; i < p.nb_monom; i++)	/* find left monomial terms */
-	if (p.m[i].a_word <= 0)
+	if (p.m[i].a <= 0)
 	  break;
 
       l_m = p.m;
       l_nb_monom = i;
 
       for (; i < p.nb_monom; i++)	/* find right monomial terms */
-	if (p.m[i].a_word >= 0)
+	if (p.m[i].a >= 0)
 	  break;
 	else
-	  p.m[i].a_word = -p.m[i].a_word;	/* only positive coefs now */
+	  p.m[i].a = -p.m[i].a;	        /* only positive coefs now */
 
       r_m = l_m + l_nb_monom;
       r_nb_monom = i - l_nb_monom;
@@ -353,15 +349,15 @@ Load_Left_Right_Rec(Bool optim_eq,
 
       for (cur = pos; cur < end; cur++)
 	{
-	  if (cur->a_word < 0)
+	  if (cur->a < 0)
 	    {
-	      neg->a_word = -cur->a_word;
+	      neg->a = -cur->a;
 	      neg->x_word = cur->x_word;
 	      neg++;
 	      continue;
 	    }
 
-	  if (cur->a_word > 0)
+	  if (cur->a > 0)
 	    {
 	      if (cur != pos)
 		*pos = *cur;
@@ -384,13 +380,13 @@ Load_Left_Right_Rec(Bool optim_eq,
   DBGPRINTF("normalization: ");
   for (i = 0; i < l_nb_monom; i++)
     {
-      DBGPRINTF("%d*", UnTag_INT(l_m[i].a_word));
+      DBGPRINTF("%ld*", l_m[i].a);
       Write_1(l_m[i].x_word);
       DBGPRINTF(" + ");
     }
 
-  if (p.c_word > 0)
-    DBGPRINTF("%d + ", UnTag_INT(p.c_word));
+  if (p.c > 0)
+    DBGPRINTF("%ld + ", p.c);
   else if (l_nb_monom == 0)
     DBGPRINTF("0 + ");
 
@@ -398,13 +394,13 @@ Load_Left_Right_Rec(Bool optim_eq,
 
   for (i = 0; i < r_nb_monom; i++)
     {
-      DBGPRINTF("%d*", UnTag_INT(r_m[i].a_word));
+      DBGPRINTF("%ld*", r_m[i].a);
       Write_1(r_m[i].x_word);
       DBGPRINTF(" + ");
     }
 
-  if (p.c_word < 0)
-    DBGPRINTF("%d + ", UnTag_INT(-p.c_word));
+  if (p.c < 0)
+    DBGPRINTF("%ld + ", -p.c);
   else if (r_nb_monom == 0 && re_word != NOT_A_WAM_WORD)
     DBGPRINTF("0 + ");
 
@@ -421,8 +417,7 @@ Load_Left_Right_Rec(Bool optim_eq,
   if (l_nb_monom)
     {
       *mask |= MASK_LEFT;
-      if (optim_eq && p.c_word == 0 && r_nb_monom == 1
-	  && r_m[0].a_word == TAGGED_1)
+      if (optim_eq && p.c == 0 && r_nb_monom == 1 && r_m[0].a == 1)
 	pref_load_word = r_m[0].x_word;
 
       if (!Load_Poly(l_nb_monom, l_m, pref_load_word, l_word))
@@ -434,7 +429,7 @@ Load_Left_Right_Rec(Bool optim_eq,
       *mask |= MASK_RIGHT;
       if (pref_load_word == NOT_A_WAM_WORD)
 	{
-	  if (optim_eq && p.c_word == 0 && l_nb_monom)
+	  if (optim_eq && p.c == 0 && l_nb_monom)
 	    pref_load_word = *l_word;
 
 	  if (!Load_Poly(r_nb_monom, r_m, pref_load_word, r_word))
@@ -442,7 +437,7 @@ Load_Left_Right_Rec(Bool optim_eq,
 	}
     }
 
-  *c_word = p.c_word;
+  *c = p.c;
 
   return TRUE;
 }
@@ -468,24 +463,24 @@ static Bool
 Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
 {
   int mask;
-  WamWord c_word, l_word, r_word;
-  WamWord word;
+  WamWord l_word, r_word, word;
+  long c;
 
 
   if (!Load_Left_Right_Rec
-      (FALSE, e_word, NOT_A_WAM_WORD, &mask, &c_word, &l_word, &r_word))
+      (FALSE, e_word, NOT_A_WAM_WORD, &mask, &c, &l_word, &r_word))
     return FALSE;
 
   if (mask == MASK_EMPTY)
     {
-      if (c_word < 0)
+      if (c < 0)
 	return FALSE;
 
-      *load_word = c_word;
+      *load_word = Tag_INT(c);
       return TRUE;
     }
 
-  if (mask == MASK_LEFT && c_word == 0)
+  if (mask == MASK_LEFT && c == 0)
     {
       *load_word = l_word;
       return TRUE;
@@ -495,24 +490,24 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
 
   switch (mask)
     {
-    case MASK_LEFT:		/* here c_word != 0 */
-      if (c_word > 0)
-	MATH_CSTR_3(x_plus_c_eq_y, l_word, c_word, *load_word);
+    case MASK_LEFT:		/* here c != 0 */
+      if (c > 0)
+	MATH_CSTR_3(x_plus_c_eq_y, l_word, Tag_INT(c), *load_word);
       else
-	MATH_CSTR_3(x_plus_c_eq_y, *load_word, -c_word, l_word);
+	MATH_CSTR_3(x_plus_c_eq_y, *load_word, Tag_INT(-c), l_word);
       return TRUE;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	return FALSE;
 
       word = New_Tagged_Fd_Variable;
       MATH_CSTR_3(x_plus_y_eq_z, r_word, *load_word, word);
-      PRIM_CSTR_2(x_eq_c, word, c_word);
+      PRIM_CSTR_2(x_eq_c, word, Tag_INT(c));
       return TRUE;
     }
 
-  if (c_word == 0)
+  if (c == 0)
     {
       MATH_CSTR_3(x_plus_y_eq_z, r_word, *load_word, l_word);
       return TRUE;
@@ -521,10 +516,10 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
   word = New_Tagged_Fd_Variable;
   MATH_CSTR_3(x_plus_y_eq_z, r_word, *load_word, word);
 
-  if (c_word > 0)
-    MATH_CSTR_3(x_plus_c_eq_y, l_word, c_word, word);
+  if (c > 0)
+    MATH_CSTR_3(x_plus_c_eq_y, l_word, Tag_INT(c), word);
   else
-    MATH_CSTR_3(x_plus_c_eq_y, word, -c_word, l_word);
+    MATH_CSTR_3(x_plus_c_eq_y, word, Tag_INT(-c), l_word);
 
   return TRUE;
 }
@@ -546,14 +541,14 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
 static int
 Compar_Monom(Monom *m1, Monom *m2)
 {
-  int cmp;
+  long cmp;
 
-  if (m1->a_word > 0)
-    cmp = (m2->a_word > 0) ? m2->a_word - m1->a_word : -1;
+  if (m1->a > 0)
+    cmp = (m2->a > 0) ? m2->a - m1->a : -1;
   else
-    cmp = (m2->a_word > 0) ? +1 : m1->a_word - m2->a_word;
+    cmp = (m2->a > 0) ? +1 : m1->a - m2->a;
 
-  return cmp;
+  return (cmp > 0) ? 1 : (cmp == 0) ? 0 : -1;
 }
 
 
@@ -593,27 +588,27 @@ Push_Delayed_Cstr(int cstr, WamWord a1, WamWord a2, WamWord a3)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Add_Monom(Poly *p, int sign, WamWord a_word, WamWord x_word)
+Add_Monom(Poly *p, int sign, long a, WamWord x_word)
 {
   int i;
 
-  if (a_word == 0)
+  if (a == 0)
     return;
 
   if (sign < 0)
-    a_word = -a_word;
+    a = -a;
 
   for (i = 0; i < p->nb_monom; i++)
     if (p->m[i].x_word == x_word)
       {
-	p->m[i].a_word += a_word;
+	p->m[i].a += a;
 	return;
       }
 
   if (p->nb_monom >= MAX_MONOMS)
     Pl_Err_Resource(resource_too_big_fd_constraint);
 
-  p->m[p->nb_monom].a_word = a_word;
+  p->m[p->nb_monom].a = a;
   p->m[p->nb_monom].x_word = x_word;
   p->nb_monom++;
 }
@@ -628,19 +623,19 @@ Add_Monom(Poly *p, int sign, WamWord a_word, WamWord x_word)
 static Bool
 Add_Multiply_Monom(Poly *p, int sign, Monom *m1, Monom *m2)
 {
-  WamWord a_word;
+  long a;
   WamWord x_word;
 
-  a_word = Tag0_Mul(m1->a_word, m2->a_word);
+  a = m1->a * m2->a;
 
-  if (a_word == 0)
+  if (a == 0)
     return TRUE;
 
   x_word = (m1->x_word == m2->x_word)
     ? Push_Delayed_Cstr(DC_X2_EQ_Y, m1->x_word, 0, 0)
     : Push_Delayed_Cstr(DC_XY_EQ_Z, m1->x_word, m2->x_word, 0);
 
-  Add_Monom(p, sign, a_word, x_word);
+  Add_Monom(p, sign, a, x_word);
   return TRUE;
 }
 
@@ -678,53 +673,58 @@ Add_Multiply_Monom(Poly *p, int sign, Monom *m1, Monom *m2)
 static Bool
 Normalize(WamWord e_word, int sign, Poly *p)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *fdv_adr;
   WamWord word1, word2, word3;
   WamWord f_n, le_word, re_word;
   int i;
-  int n1, n2, n3;
+  long n1, n2, n3;
 
+  DEREF(e_word, word, tag_mask);
 
-  Deref(e_word, word, tag, adr);
-  switch (tag)
+  if (tag_mask == TAG_FDV_MASK)
     {
-    case REF:
+      fdv_adr = UnTag_FDV(word);
+      Add_Monom(p, sign, 1, Tag_REF(fdv_adr));
+      return TRUE;
+    }
+
+  if (tag_mask == TAG_INT_MASK)
+    {
+      n1 = UnTag_INT(word);
+      if (n1 > MAX_COEF_FOR_SORT)
+	sort = TRUE;
+
+      Add_Cst_To_Poly(p, sign, n1);
+      return TRUE;
+    }
+
+  if (tag_mask == TAG_REF_MASK)
+    {
       if (vars_sp - vars_tbl == VARS_STACK_SIZE)
 	Pl_Err_Resource(resource_too_big_fd_constraint);
 
       *vars_sp++ = word;
-      Add_Monom(p, sign, TAGGED_1, word);
+      Add_Monom(p, sign, 1, word);
       return TRUE;
+    }
 
-    case FDV:
-      fdv_adr = UnTag_FDV(word);
-      Add_Monom(p, sign, TAGGED_1, Tag_Value(REF, fdv_adr));
-      return TRUE;
-
-    case INT:
-      if (word > Tag_Value(INT, MAX_COEF_FOR_SORT))
-	sort = TRUE;
-
-      Add_Cst_To_Poly(p, sign, word);
-      return TRUE;
-
-    case ATM:
+  if (tag_mask == TAG_ATM_MASK)
+    {
       word = Put_Structure(ATOM_CHAR('/'), 2);
       Unify_Value(e_word);
       Unify_Integer(0);
-      goto type_error;
-
-    case STC:
-      break;
-
-    default:
     type_error:
       Pl_Err_Type(type_fd_evaluable, word);
     }
 
-  adr = UnTag_STC(word);
+  if (tag_mask != TAG_STC_MASK)
+    goto type_error;
 
+  
+  adr = UnTag_STC(word);
+  
   f_n = Functor_And_Arity(adr);
   for (i = 0; i < NB_OF_OP; i++)
     if (arith_tbl[i] == f_n)
@@ -749,26 +749,27 @@ Normalize(WamWord e_word, int sign, Poly *p)
 
     case TIMES_2:
 #if 1				/* optimize frequent use: INT*VAR */
-      Deref(le_word, word, tag, adr);
-      if (tag != INT)
+      DEREF(le_word, word, tag_mask);
+      if (tag_mask != TAG_INT_MASK)
 	goto any;
 
-      if (word > Tag_Value(INT, MAX_COEF_FOR_SORT))
+      n1 = UnTag_INT(word);
+
+      if (n1 > MAX_COEF_FOR_SORT)
 	sort = TRUE;
 
-      word1 = word;
-      Deref(re_word, word, tag, adr);
-      if (tag != REF)
+      DEREF(re_word, word, tag_mask);
+      if (tag_mask != TAG_REF_MASK)
 	{
-	  if (tag != FDV)
+	  if (tag_mask != TAG_FDV_MASK)
 	    goto any;
 	  else
 	    {
 	      fdv_adr = UnTag_FDV(word);
-	      word = Tag_Value(REF, fdv_adr);
+	      word = Tag_REF(fdv_adr);
 	    }
 	}
-      Add_Monom(p, sign, word1, word);
+      Add_Monom(p, sign, n1, word);
       return TRUE;
     any:
 #endif
@@ -782,20 +783,19 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	if (!Normalize(le_word, 1, &p1) || !Normalize(re_word, 1, &p2))
 	  return FALSE;
 
-	word = Tag0_Mul(p1.c_word, p2.c_word);
-	Add_Cst_To_Poly(p, sign, word);
+	Add_Cst_To_Poly(p, sign, p1.c * p2.c);
 
 	for (i1 = 0; i1 < p1.nb_monom; i1++)
 	  {
-	    Add_Monom(p, sign, Tag0_Mul(p1.m[i1].a_word, p2.c_word),
-		      p1.m[i1].x_word);
+	    Add_Monom(p, sign, p1.m[i1].a * p2.c, p1.m[i1].x_word);
 	    for (i2 = 0; i2 < p2.nb_monom; i2++)
 	      if (!Add_Multiply_Monom(p, sign, p1.m + i1, p2.m + i2))
 		return FALSE;
 	  }
+
 	for (i2 = 0; i2 < p2.nb_monom; i2++)
-	  Add_Monom(p, sign, Tag0_Mul(p2.m[i2].a_word, p1.c_word),
-		    p2.m[i2].x_word);
+	  Add_Monom(p, sign, p2.m[i2].a * p1.c, p2.m[i2].x_word);
+
 	return TRUE;
       }
 
@@ -804,23 +804,22 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  !Load_Term_Into_Word(re_word, &word2))
 	return FALSE;
 
-      if (Tag_Of(word1) == INT)
+      if (Tag_Is_INT(word1))
 	{
 	  n1 = UnTag_INT(word1);
-	  if (Tag_Of(word2) == INT)
+	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
 	      if ((n1 = Power(n1, n2)) < 0)
 		return FALSE;
 
-	      word = Tag_Value(INT, n1);
-	      Add_Cst_To_Poly(p, sign, word);
+	      Add_Cst_To_Poly(p, sign, n1);
 	      return TRUE;
 	    }
 
 	  if (n1 == 1)
 	    {
-	      Add_Cst_To_Poly(p, sign, TAGGED_1);
+	      Add_Cst_To_Poly(p, sign, 1);
 	      return TRUE;
 	    }
 
@@ -830,14 +829,14 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  goto end_power;
 	}
 
-      if (Tag_Of(word2) != INT)
+      if (Tag_Mask_Of(word2) != TAG_INT_MASK)
 	Pl_Err_Instantiation();
       else
 	{
 	  n2 = UnTag_INT(word2);
 	  if (n2 == 0)
 	    {
-	      Add_Cst_To_Poly(p, sign, TAGGED_1);
+	      Add_Cst_To_Poly(p, sign, 1);
 	      return TRUE;
 	    }
 
@@ -848,7 +847,7 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	    : Push_Delayed_Cstr(DC_X_POWER_A_EQ_Y, word1, word2, 0);
 	}
     end_power:
-      Add_Monom(p, sign, TAGGED_1, word);
+      Add_Monom(p, sign, 1, word);
       return TRUE;
 
     case MIN_2:
@@ -856,15 +855,14 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  !Load_Term_Into_Word(re_word, &word2))
 	return FALSE;
 
-      if (Tag_Of(word1) == INT)
+      if (Tag_Is_INT(word1))
 	{
 	  n1 = UnTag_INT(word1);
-	  if (Tag_Of(word2) == INT)
+	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
 	      n1 = math_min(n1, n2);
-	      word = Tag_Value(INT, n1);
-	      Add_Cst_To_Poly(p, sign, word);
+	      Add_Cst_To_Poly(p, sign, n1);
 	      return TRUE;
 	    }
 
@@ -872,13 +870,13 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  goto end_min;
 	}
 
-      if (Tag_Of(word2) == INT)
+      if (Tag_Is_INT(word2))
 	word = Push_Delayed_Cstr(DC_MIN_X_A_EQ_Z, word1, word2, 0);
       else
 	word = Push_Delayed_Cstr(DC_MIN_X_Y_EQ_Z, word1, word2, 0);
 
     end_min:
-      Add_Monom(p, sign, TAGGED_1, word);
+      Add_Monom(p, sign, 1, word);
       return TRUE;
 
     case MAX_2:
@@ -886,15 +884,14 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  !Load_Term_Into_Word(re_word, &word2))
 	return FALSE;
 
-      if (Tag_Of(word1) == INT)
+      if (Tag_Is_INT(word1))
 	{
 	  n1 = UnTag_INT(word1);
-	  if (Tag_Of(word2) == INT)
+	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
 	      n1 = math_max(n1, n2);
-	      word = Tag_Value(INT, n1);
-	      Add_Cst_To_Poly(p, sign, word);
+	      Add_Cst_To_Poly(p, sign, n1);
 	      return TRUE;
 	    }
 
@@ -902,13 +899,13 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  goto end_max;
 	}
 
-      if (Tag_Of(word2) == INT)
+      if (Tag_Is_INT(word2))
 	word = Push_Delayed_Cstr(DC_MAX_X_A_EQ_Z, word1, word2, 0);
       else
 	word = Push_Delayed_Cstr(DC_MAX_X_Y_EQ_Z, word1, word2, 0);
 
     end_max:
-      Add_Monom(p, sign, TAGGED_1, word);
+      Add_Monom(p, sign, 1, word);
       return TRUE;
 
     case DIST_2:
@@ -916,15 +913,14 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  !Load_Term_Into_Word(re_word, &word2))
 	return FALSE;
 
-      if (Tag_Of(word1) == INT)
+      if (Tag_Is_INT(word1))
 	{
 	  n1 = UnTag_INT(word1);
-	  if (Tag_Of(word2) == INT)
+	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
 	      n1 = (n1 >= n2) ? n1 - n2 : n2 - n1;
-	      word = Tag_Value(INT, n1);
-	      Add_Cst_To_Poly(p, sign, word);
+	      Add_Cst_To_Poly(p, sign, n1);
 	      return TRUE;
 	    }
 
@@ -932,13 +928,13 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  goto end_dist;
 	}
 
-      if (Tag_Of(word2) == INT)
+      if (Tag_Is_INT(word2))
 	word = Push_Delayed_Cstr(DC_ABS_X_MINUS_A_EQ_Z, word1, word2, 0);
       else
 	word = Push_Delayed_Cstr(DC_ABS_X_MINUS_Y_EQ_Z, word1, word2, 0);
 
     end_dist:
-      Add_Monom(p, sign, TAGGED_1, word);
+      Add_Monom(p, sign, 1, word);
       return TRUE;
 
     case QUOT_2:
@@ -953,68 +949,65 @@ Normalize(WamWord e_word, int sign, Poly *p)
 
     case QUOT_REM_3:
     quot_rem:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2) ||
-	  (i == QUOT_REM_3 && !Load_Term_Into_Word(Arg(adr, 2), &word3)))
-	return FALSE;
+    if (!Load_Term_Into_Word(le_word, &word1) ||
+	!Load_Term_Into_Word(re_word, &word2) ||
+	(i == QUOT_REM_3 && !Load_Term_Into_Word(Arg(adr, 2), &word3)))
+      return FALSE;
 
-      if (Tag_Of(word1) == INT)
-	{
-	  n1 = UnTag_INT(word1);
-	  if (Tag_Of(word2) == INT)
-	    {
-	      n2 = UnTag_INT(word2);
-	      if (n2 == 0)
-		return FALSE;
-	      n3 = n1 % n2;
-	      word = Tag_Value(INT, n3);
+    if (Tag_Is_INT(word1))
+      {
+	n1 = UnTag_INT(word1);
+	if (Tag_Is_INT(word2))
+	  {
+	    n2 = UnTag_INT(word2);
+	    if (n2 == 0)
+	      return FALSE;
+	    n3 = n1 % n2;
 
-	      if (i == QUOT_2 || i == QUOT_REM_3)
-		{
-		  if (i == QUOT_REM_3)
-		    PRIM_CSTR_2(x_eq_c, word3, word);
-		  else
-		    H--;	/* recover word3 space */
-		  n1 = n1 / n2;
-		  word = Tag_Value(INT, n1);
-		}
+	    if (i == QUOT_2 || i == QUOT_REM_3)
+	      {
+		if (i == QUOT_REM_3)
+		  PRIM_CSTR_2(x_eq_c, word3, word);
+		else
+		  H--;	/* recover word3 space */
+		n3 = n1 / n2;
+	      }
 
-	      Add_Cst_To_Poly(p, sign, word);
-	      return TRUE;
-	    }
+	    Add_Cst_To_Poly(p, sign, n3);
+	    return TRUE;
+	  }
 
-	  word = Push_Delayed_Cstr(DC_QUOT_REM_A_Y_R_EQ_Z, word1, word2,
-				   word3);
-	  goto end_quot_rem;
-	}
-
-      if (Tag_Of(word2) == INT)
-	word = Push_Delayed_Cstr(DC_QUOT_REM_X_A_R_EQ_Z, word1, word2,
+	word = Push_Delayed_Cstr(DC_QUOT_REM_A_Y_R_EQ_Z, word1, word2,
 				 word3);
-      else
-	word = Push_Delayed_Cstr(DC_QUOT_REM_X_Y_R_EQ_Z, word1, word2,
-				 word3);
+	goto end_quot_rem;
+      }
+
+    if (Tag_Is_INT(word2))
+      word = Push_Delayed_Cstr(DC_QUOT_REM_X_A_R_EQ_Z, word1, word2,
+			       word3);
+    else
+      word = Push_Delayed_Cstr(DC_QUOT_REM_X_Y_R_EQ_Z, word1, word2,
+			       word3);
 
     end_quot_rem:
-      Add_Monom(p, sign, TAGGED_1, (i == REM_2) ? word3 : word);
-      return TRUE;
+    Add_Monom(p, sign, 1, (i == REM_2) ? word3 : word);
+    return TRUE;
 
     case DIV_2:
       if (!Load_Term_Into_Word(le_word, &word1) ||
 	  !Load_Term_Into_Word(re_word, &word2))
 	return FALSE;
 
-      if (Tag_Of(word1) == INT)
+      if (Tag_Is_INT(word1))
 	{
 	  n1 = UnTag_INT(word1);
-	  if (Tag_Of(word2) == INT)
+	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
 	      if (n2 == 0 || n1 % n2 != 0)
 		return FALSE;
 	      n1 /= n2;
-	      word = Tag_Value(INT, n1);
-	      Add_Cst_To_Poly(p, sign, word);
+	      Add_Cst_To_Poly(p, sign, n1);
 	      return TRUE;
 	    }
 
@@ -1022,13 +1015,13 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  goto end_div;
 	}
 
-      if (Tag_Of(word2) == INT)
+      if (Tag_Is_INT(word2))
 	word = Push_Delayed_Cstr(DC_DIV_X_A_EQ_Z, word1, word2, 0);
       else
 	word = Push_Delayed_Cstr(DC_DIV_X_Y_EQ_Z, word1, word2, 0);
 
     end_div:
-      Add_Monom(p, sign, TAGGED_1, word);
+      Add_Monom(p, sign, 1, word);
       return TRUE;
 
     default:
@@ -1062,7 +1055,7 @@ static Bool
 Load_Poly(int nb_monom, Monom *m, WamWord pref_load_word,
 	  WamWord *load_word)
 {
-  if (nb_monom == 1 && m[0].a_word == TAGGED_1)
+  if (nb_monom == 1 && m[0].a == 1)
     {
       if (pref_load_word != NOT_A_WAM_WORD)
 	{
@@ -1105,8 +1098,8 @@ Load_Poly_Rec(int nb_monom, Monom *m, WamWord load_word)
   WamWord load_word1;
 
   if (nb_monom == 1)
-    {				/* here m[0].a_word!=TAGGED_1 */
-      MATH_CSTR_3(ax_eq_y, m[0].a_word, m[0].x_word, load_word);
+    {				/* here m[0].a != 1 */
+      MATH_CSTR_3(ax_eq_y, Tag_INT(m[0].a), m[0].x_word, load_word);
 
       return TRUE;
     }
@@ -1114,46 +1107,46 @@ Load_Poly_Rec(int nb_monom, Monom *m, WamWord load_word)
 
   if (nb_monom == 2)
     {
-      if (m[0].a_word == TAGGED_1)
+      if (m[0].a == 1)
 	{
-	  if (m[1].a_word == TAGGED_1)
+	  if (m[1].a == 1)
 	    MATH_CSTR_3(x_plus_y_eq_z, m[0].x_word, m[1].x_word, load_word);
 	  else
-	    MATH_CSTR_4(ax_plus_y_eq_z, m[1].a_word, m[1].x_word,
+	    MATH_CSTR_4(ax_plus_y_eq_z, Tag_INT(m[1].a), m[1].x_word,
 			m[0].x_word, load_word);
 	}
-      else if (m[1].a_word == TAGGED_1)
-	MATH_CSTR_4(ax_plus_y_eq_z, m[0].a_word, m[0].x_word, m[1].x_word,
+      else if (m[1].a == 1)
+	MATH_CSTR_4(ax_plus_y_eq_z, Tag_INT(m[0].a), m[0].x_word, m[1].x_word,
 		    load_word);
       else
-	MATH_CSTR_5(ax_plus_by_eq_z, m[0].a_word, m[0].x_word,
-		    m[1].a_word, m[1].x_word, load_word);
+	MATH_CSTR_5(ax_plus_by_eq_z, Tag_INT(m[0].a), m[0].x_word,
+		    Tag_INT(m[1].a), m[1].x_word, load_word);
 
       return TRUE;
     }
 
-  if (nb_monom == 3 && m[2].a_word == TAGGED_1)
+  if (nb_monom == 3 && m[2].a == 1)
     load_word1 = m[2].x_word;
   else
     load_word1 = New_Tagged_Fd_Variable;
 
-  if (m[0].a_word == TAGGED_1)
+  if (m[0].a == 1)
     {
-      if (m[1].a_word == TAGGED_1)
+      if (m[1].a == 1)
 	MATH_CSTR_4(x_plus_y_plus_z_eq_t, m[0].x_word, m[1].x_word,
 		    load_word1, load_word);
       else
-	MATH_CSTR_5(ax_plus_y_plus_z_eq_t, m[1].a_word, m[1].x_word,
+	MATH_CSTR_5(ax_plus_y_plus_z_eq_t, Tag_INT(m[1].a), m[1].x_word,
 		    m[0].x_word, load_word1, load_word);
     }
-  else if (m[1].a_word == TAGGED_1)
-    MATH_CSTR_5(ax_plus_y_plus_z_eq_t, m[0].a_word, m[0].x_word,
+  else if (m[1].a == 1)
+    MATH_CSTR_5(ax_plus_y_plus_z_eq_t, Tag_INT(m[0].a), m[0].x_word,
 		m[1].x_word, load_word1, load_word);
   else
-    PRIM_CSTR_6(ax_plus_by_plus_z_eq_t, m[0].a_word, m[0].x_word,
-		m[1].a_word, m[1].x_word, load_word1, load_word);
+    PRIM_CSTR_6(ax_plus_by_plus_z_eq_t, Tag_INT(m[0].a), m[0].x_word,
+		Tag_INT(m[1].a), m[1].x_word, load_word1, load_word);
 
-  if (!(nb_monom == 3 && m[2].a_word == TAGGED_1))
+  if (!(nb_monom == 3 && m[2].a == 1))
     return Load_Poly_Rec(nb_monom - 2, m + 2, load_word1);
 
   return TRUE;
@@ -1184,7 +1177,7 @@ Load_Delay_Cstr_Part(void)
 	  break;
 
 	case DC_DIV_A_Y_EQ_Z:
-	  PRIM_CSTR_2(x_gte_c, i->a2, TAGGED_1);
+	  PRIM_CSTR_2(x_gte_c, i->a2, Tag_INT(1));
 	  MATH_CSTR_3(xy_eq_z, i->res, i->a2, i->a1);
 	  break;
 
@@ -1193,7 +1186,7 @@ Load_Delay_Cstr_Part(void)
 	  break;
 
 	case DC_DIV_X_Y_EQ_Z:
-	  PRIM_CSTR_2(x_gte_c, i->a2, TAGGED_1);
+	  PRIM_CSTR_2(x_gte_c, i->a2, Tag_INT(1));
 	  MATH_CSTR_3(xy_eq_z, i->res, i->a2, i->a1);
 	  break;
 
@@ -1261,13 +1254,13 @@ Load_Delay_Cstr_Part(void)
 Bool
 Fd_Math_Unify_X_Y(WamWord x, WamWord y)
 {
-  WamWord x_word, x_tag, *adr;
+  WamWord x_word, x_tag;
   WamWord y_word, y_tag;
 
-  Deref(x, x_word, x_tag, adr);
-  Deref(y, y_word, y_tag, adr);
+  DEREF(x, x_word, x_tag);
+  DEREF(y, y_word, y_tag);
 
-  if (x_tag == FDV && y_tag == FDV)
+  if (x_tag == TAG_FDV_MASK && y_tag == TAG_FDV_MASK)
     {
       MATH_CSTR_2(x_eq_y, x, y);
       return TRUE;
@@ -1296,10 +1289,7 @@ Fd_Math_Unify_X_Y(WamWord x, WamWord y)
 Bool
 x_eq_c(WamWord x, WamWord c)
 {
-  WamWord word, tag, *adr;
-
-  Deref(c, word, tag, adr);
-  return Get_Integer(UnTag_INT(word), x);
+  return Get_Integer_Tagged(c, x);
 }
 
 

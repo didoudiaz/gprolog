@@ -52,7 +52,7 @@
 
 #define FIND_LINEDIT_COMPLETION_ALT X2466696E645F6C696E656469745F636F6D706C6574696F6E5F616C74
 
-Prolog_Prototype(FIND_LINEDIT_COMPLETION_ALT, 0)
+Prolog_Prototype(FIND_LINEDIT_COMPLETION_ALT, 0);
 
 
 
@@ -61,7 +61,8 @@ Prolog_Prototype(FIND_LINEDIT_COMPLETION_ALT, 0)
  * GET_LINEDIT_PROMPT_1                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     Bool Get_Linedit_Prompt_1(WamWord prompt_word)
+Bool
+Get_Linedit_Prompt_1(WamWord prompt_word)
 {
   return Un_String_Check(le_prompt, prompt_word);
 }

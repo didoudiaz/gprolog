@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : utils.pl
-% date    : 9 6 2000
-% time    : 17:33:10
+% date    : 12 1 2000
+% time    : 16:12:57
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/utils.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/utils.pl').
 
 
 predicate('$term_to_goal'/3,28,static,private,built_in,[
@@ -49,7 +49,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$term_to_goal2'/2,46,static,private,built_in,[
+predicate('$term_to_goal2'/2,45,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),0),
@@ -132,19 +132,16 @@ label(9),
     proceed]).
 
 
-predicate('$$term_to_goal2/2_$aux1'/3,46,static,private,built_in,[
+predicate('$$term_to_goal2/2_$aux1'/3,45,static,private,built_in,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom(none,0),
     cut(x(3)),
     get_structure(call/1,1),
     unify_local_value(x(2)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_structure('$call_internal'/2,1),
     unify_local_value(x(2)),
@@ -172,7 +169,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_list_or_partial_list'/1,94,static,private,built_in,[
+predicate('$check_list_or_partial_list'/1,92,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_List_Or_Partial_List',[0]),
@@ -186,7 +183,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_atom_or_atom_list'/1,104,static,private,built_in,[
+predicate('$check_atom_or_atom_list'/1,101,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Atom',[0]),
@@ -203,7 +200,7 @@ label(1),
     proceed]).
 
 
-predicate('$check_atom_or_atom_list1'/1,113,static,private,built_in,[
+predicate('$check_atom_or_atom_list1'/1,108,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     execute('$pl_err_instantiation'/0),
@@ -239,7 +236,7 @@ label(6),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_atom_or_atom_list2'/1,127,static,private,built_in,[
+predicate('$check_atom_or_atom_list2'/1,122,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Atom',[0]),
@@ -259,12 +256,9 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$get_head_and_body'/3,142,static,private,built_in,[
+predicate('$get_head_and_body'/3,135,static,private,built_in,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,fail,fail,fail,1),
-
-label(1),
+    try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
     unify_local_value(x(2)),
@@ -272,7 +266,7 @@ label(1),
     put_value(x(1),0),
     execute('$check_head'/1),
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_atom(true,2),
     get_value(x(1),0),
@@ -280,7 +274,7 @@ label(2),
     execute('$check_head'/1)]).
 
 
-predicate('$check_head'/1,152,static,private,built_in,[
+predicate('$check_head'/1,145,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -292,7 +286,7 @@ label(1),
     execute('$$check_head/1_$aux1'/1)]).
 
 
-predicate('$$check_head/1_$aux1'/1,157,static,private,built_in,[
+predicate('$$check_head/1_$aux1'/1,149,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Callable',[0]),
@@ -306,6 +300,6 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$get_pred_indic'/3,164,static,private,built_in,[
+predicate('$get_pred_indic'/3,158,static,private,built_in,[
     call_c_test('Get_Pred_Indic_3',[0,1,2]),
     proceed]).

@@ -62,17 +62,21 @@ WamWord query_exception;	/* overwritten by foreign_supp if present */
 void
 Throw_2(WamWord ball_word, WamWord b_word)
 {
-  WamWord *b = UnTag_REF(b_word);
+  WamWord word, tag_mask;
+  WamWord *b;
   StmInf *pstm;
+
+  DEREF(b_word, word, tag_mask);
+  b = From_WamWord_To_B(word);
 
   if (b <= query_top_b && query_top_b != NULL)
     {
-      B = query_top_b;
+      Assign_B(query_top_b);
       query_exception = ball_word;
       Exit_With_Exception();
     }
 
-  if (b == NULL)
+  if (b == LSSA)
     {
       pstm = stm_tbl + stm_top_level_output;
 
@@ -85,5 +89,4 @@ Throw_2(WamWord ball_word, WamWord b_word)
     }
 
   Cut(b_word);
-
 }

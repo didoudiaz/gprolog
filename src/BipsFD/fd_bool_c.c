@@ -83,7 +83,6 @@
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
 static WamWord bool_tbl[NB_OF_OP];
 static WamWord bool_xor;
 
@@ -259,13 +258,13 @@ Fd_Bool_Initializer(void)
 Bool
 Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
 {
-  WamWord word, tag, *adr;
-  WamWord *fdv_adr;
+  WamWord word, tag_mask;
+  WamWord *adr, *fdv_adr;
   WamWord *exp;
   int op;
 
 
-  Deref(op_word, word, tag, adr);
+  DEREF(op_word, word, tag_mask);
   op = UnTag_INT(op_word);
 
   H[0] = bool_tbl[op];		/* also works for NOT/1 */
@@ -275,7 +274,7 @@ Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
   sp = stack;
   vars_sp = vars_tbl;
 
-  exp = Simplify(1, Tag_Value(STC, H));
+  exp = Simplify(1, Tag_STC(H));
 
 #ifdef DEBUG
   Display_Stack(exp);
@@ -293,11 +292,12 @@ Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
       }
     else			/* FD var */
       {
-	Deref(*vars_sp, word, tag, adr);
-	if (tag == REF)
+	DEREF(*vars_sp, word, tag_mask);
+	if (tag_mask == TAG_REF_MASK)
 	  {
+	    adr = UnTag_REF(word);
 	    fdv_adr = Fd_New_Variable();
-	    Bind_UV(adr, Tag_Value(REF, fdv_adr));
+	    Bind_UV(adr, Tag_REF(fdv_adr));
 	  }
       }
 
@@ -350,7 +350,8 @@ Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
 static WamWord *
 Simplify(int sign, WamWord e_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord f_n, le_word, re_word;
   int op, n;
   WamWord *exp, l, r;
@@ -361,12 +362,10 @@ Simplify(int sign, WamWord e_word)
   if (sp - stack > BOOL_STACK_SIZE - 5)
     Pl_Err_Resource(resource_too_big_fd_constraint);
 
-  Deref(e_word, word, tag, adr);
-  switch (tag)
+  DEREF(e_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_FDV_MASK)
     {
-    case REF:
-    case FDV:
-      adr = UnTag_REF(word);
+      adr = UnTag_Address(word);
       if (vars_sp - vars_tbl == VARS_STACK_SIZE)
 	Pl_Err_Resource(resource_too_big_fd_constraint);
 
@@ -376,31 +375,32 @@ Simplify(int sign, WamWord e_word)
       if (sign != 1)
 	*sp++ = NOT;
 
-      *sp++ = Tag_Value(REF, adr);
+      *sp++ = Tag_REF(adr);
       return exp;
+    }
 
-    case INT:
+  if (tag_mask == TAG_INT_MASK)
+    {
       n = UnTag_INT(word);
       if ((unsigned) n > 1)
 	goto type_error;
 
       *sp++ = ZERO + ((sign == 1) ? n : 1 - n);
       return exp;
+    }
 
-    case ATM:
+  if (tag_mask == TAG_ATM_MASK)
+    {
       word = Put_Structure(ATOM_CHAR('/'), 2);
       Unify_Value(e_word);
       Unify_Integer(0);
-      goto type_error;
-
-    case STC:
-      break;
-
-    default:
     type_error:
       Pl_Err_Type(type_fd_bool_evaluable, word);
     }
 
+
+  if (tag_mask != TAG_STC_MASK)
+    goto type_error;
 
   adr = UnTag_STC(word);
 
@@ -511,14 +511,14 @@ Simplify(int sign, WamWord e_word)
 	  break;
 	}
 
-      if (IsVar(l) && !IsVar(r))	/* X ~<=> R is X <=> ~R */
+      if (IsVar(l) && !IsVar(r)) /* X ~<=> R is X <=> ~R */
 	{
 	  exp[0] = EQUIV;
 	  exp[2] = (WamWord) Simplify(-1, re_word);
 	  break;
 	}
 
-      if (IsVar(r) && !IsVar(l))	/* L ~<=> X is L <=> ~X */
+      if (IsVar(r) && !IsVar(l)) /* L ~<=> X is L <=> ~X */
 	{
 	  exp[0] = EQUIV;
 	  exp[1] = (WamWord) Simplify(-1, le_word);
@@ -527,7 +527,7 @@ Simplify(int sign, WamWord e_word)
       break;
 
     case IMPLY:
-      if (l == ZERO || r == ONE)	/* 0 ==> R is 1 , L ==> 1 is 1 */
+      if (l == ZERO || r == ONE) /* 0 ==> R is 1 , L ==> 1 is 1 */
 	{
 	  sp = exp;
 	  *sp++ = ONE;
@@ -556,7 +556,7 @@ Simplify(int sign, WamWord e_word)
       break;
 
     case NIMPLY:
-      if (l == ZERO || r == ONE)	/* 0 ~==> R is 0 , L ~==> 1 is 0 */
+      if (l == ZERO || r == ONE) /* 0 ~==> R is 0 , L ~==> 1 is 0 */
 	{
 	  sp = exp;
 	  *sp++ = ZERO;
@@ -585,7 +585,7 @@ Simplify(int sign, WamWord e_word)
       break;
 
     case AND:
-      if (l == ZERO || r == ZERO)	/* 0 /\ R is 0 , L /\ 0 is 0 */
+      if (l == ZERO || r == ZERO) /* 0 /\ R is 0 , L /\ 0 is 0 */
 	{
 	  sp = exp;
 	  *sp++ = ZERO;
@@ -616,7 +616,7 @@ Simplify(int sign, WamWord e_word)
       break;
 
     case NAND:
-      if (l == ZERO || r == ZERO)	/* 0 ~/\ R is 1 , L ~/\ 0 is 1 */
+      if (l == ZERO || r == ZERO) /* 0 ~/\ R is 1 , L ~/\ 0 is 1 */
 	{
 	  sp = exp;
 	  *sp++ = ONE;
@@ -796,29 +796,33 @@ Display_Stack(WamWord *exp)
 static void
 Add_Fd_Variables(WamWord e_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   int i;
 
-  Deref(e_word, word, tag, adr);
+  DEREF(e_word, word, tag_mask);
 
-  switch (tag)
+  if (tag_mask == TAG_REF_MASK)
     {
-    case REF:
       if (vars_sp - vars_tbl == VARS_STACK_SIZE)
 	Pl_Err_Resource(resource_too_big_fd_constraint);
 
       *vars_sp++ = word;
       *vars_sp++ = 1;		/* FD var */
-      break;
+      return;
+    }
 
-    case LST:
+
+  if (tag_mask == TAG_LST_MASK)
+    {
       Add_Fd_Variables(Car(adr));
       Add_Fd_Variables(Cdr(adr));
-      break;
+    }
 
-    case STC:			/* tag==STC */
+  if (tag_mask == TAG_STC_MASK)
+    {
       adr = UnTag_STC(word);
-
+      
       i = Arity(adr);
       do
 	Add_Fd_Variables(Arg(adr, --i));
@@ -840,13 +844,13 @@ Add_Fd_Variables(WamWord e_word)
  *               2=result into the word pointed by load_word.              *
  *                                                                         *
  * Output:                                                                 *
- *    load_word: if result=2 it  will contain the tagged word of the term: *
+ *    load_word: if result=2 it will contain the tagged word of the term:  *
  *               a <INT,0/1> or a <REF,adr>                                *
  *-------------------------------------------------------------------------*/
 static Bool
 Load_Bool_Into_Word(WamWord *exp, int result, WamWord *load_word)
 {
-  WamWord op = *exp;
+  unsigned long op = *exp;
 
   if (op >= EQ_F && op <= LTE_F)
     {
@@ -875,7 +879,8 @@ Set_Zero(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* 0 is true */
     return FALSE;
 
-  return Get_Integer(0, *load_word);	/* 0=B */
+				/* 0 = B */
+  return Get_Integer(0, *load_word);
 }
 
 
@@ -894,7 +899,8 @@ Set_One(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* 1 is true */
     return TRUE;
 
-  return Get_Integer(1, *load_word);	/* 1=B */
+				/* 1 = B */
+  return Get_Integer(1, *load_word);
 }
 
 
@@ -913,7 +919,7 @@ Set_Var(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* X is true */
     return Get_Integer(1, *exp);
 
-  *load_word = *exp;		/* X=B */
+  *load_word = *exp;		/* X = B */
   return TRUE;
 }
 
@@ -933,8 +939,9 @@ Set_Not(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* ~X is true */
     return Get_Integer(0, exp[1]);
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_2(not_x_eq_b, exp[1], *load_word);	/* ~X=B */
+				/* ~X=B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_2(not_x_eq_b, exp[1], *load_word);
   return TRUE;
 }
 
@@ -963,8 +970,9 @@ Set_Equiv(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* L <=> R is true */
     return Fd_Math_Unify_X_Y(load_l, load_r);
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_equiv_y_eq_b, load_l, load_r, *load_word);	/* L <=> R = B */
+				/* L <=> R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_equiv_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -987,8 +995,9 @@ Set_Nequiv(WamWord *exp, int result, WamWord *load_word)
       !Load_Bool_Into_Word((WamWord *) (exp[2]), 2, &load_r))
     return FALSE;
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_nequiv_y_eq_b, load_l, load_r, *load_word);	/* L ~<=> R = B */
+				/* L ~<=> R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_nequiv_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -1018,8 +1027,9 @@ Set_Imply(WamWord *exp, int result, WamWord *load_word)
       return TRUE;
     }
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_imply_y_eq_b, load_l, load_r, *load_word);	/* L ==> R = B */
+				/* L ==> R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_imply_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -1042,8 +1052,9 @@ Set_Nimply(WamWord *exp, int result, WamWord *load_word)
       !Load_Bool_Into_Word((WamWord *) (exp[2]), 2, &load_r))
     return FALSE;
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_nimply_y_eq_b, load_l, load_r, *load_word);	/* L ~==> R = B */
+				/* L ~==> R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_nimply_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -1073,8 +1084,9 @@ Set_And(WamWord *exp, int result, WamWord *load_word)
       return TRUE;
     }
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_and_y_eq_b, load_l, load_r, *load_word);	/* L /\ R = B */
+				/* L /\ R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_and_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -1097,8 +1109,9 @@ Set_Nand(WamWord *exp, int result, WamWord *load_word)
       !Load_Bool_Into_Word((WamWord *) (exp[2]), 2, &load_r))
     return FALSE;
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_nand_y_eq_b, load_l, load_r, *load_word);	/* L ~/\ R = B */
+				/* L ~/\ R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_nand_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -1128,8 +1141,9 @@ Set_Or(WamWord *exp, int result, WamWord *load_word)
       return TRUE;
     }
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_or_y_eq_b, load_l, load_r, *load_word);	/* L \/ R = B */
+				/* L \/ R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_or_y_eq_b, load_l, load_r, *load_word);	
   return TRUE;
 }
 
@@ -1152,8 +1166,9 @@ Set_Nor(WamWord *exp, int result, WamWord *load_word)
       !Load_Bool_Into_Word((WamWord *) (exp[2]), 2, &load_r))
     return FALSE;
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
-  BOOL_CSTR_3(x_nor_y_eq_b, load_l, load_r, *load_word);	/* L ~\/ R = B */
+				/* L ~\/ R = B */
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
+  BOOL_CSTR_3(x_nor_y_eq_b, load_l, load_r, *load_word);
   return TRUE;
 }
 
@@ -1173,7 +1188,8 @@ Set_Eq(WamWord *exp, int result, WamWord *load_word)
 {
   WamWord le_word, re_word;
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
   le_word = exp[1];
   re_word = exp[2];
@@ -1184,46 +1200,47 @@ Set_Eq(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* L = R is true */
     return Fd_Eq_2(le_word, re_word);
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "truth#=#" : "truth#=";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word)
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word, &r_word)
       || !Term_Math_Loading(l_word, r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      return Get_Integer(c_word == 0, *load_word);
+      return Get_Integer(c == 0, *load_word);
 
     case MASK_LEFT:
-      if (c_word > 0)
+      if (c > 0)
 	return Get_Integer(0, *load_word);
 
-      MATH_CSTR_3(truth_x_eq_c, l_word, -c_word, *load_word);
+      MATH_CSTR_3(truth_x_eq_c, l_word, Tag_INT(-c), *load_word);
       return TRUE;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	return Get_Integer(0, *load_word);
 
-      MATH_CSTR_3(truth_x_eq_c, r_word, c_word, *load_word);
+      MATH_CSTR_3(truth_x_eq_c, r_word, Tag_INT(c), *load_word);
       return TRUE;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      MATH_CSTR_4(truth_x_plus_c_eq_y, l_word, c_word, r_word, *load_word);
+      MATH_CSTR_4(truth_x_plus_c_eq_y, l_word, Tag_INT(c), r_word,
+		  *load_word);
       return TRUE;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      MATH_CSTR_4(truth_x_plus_c_eq_y, r_word, -c_word, l_word, *load_word);
+      MATH_CSTR_4(truth_x_plus_c_eq_y, r_word, Tag_INT(-c), l_word,
+		  *load_word);
       return TRUE;
     }
 
@@ -1243,7 +1260,8 @@ Set_Neq(WamWord *exp, int result, WamWord *load_word)
 {
   WamWord le_word, re_word;
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
   le_word = exp[1];
   re_word = exp[2];
@@ -1254,46 +1272,46 @@ Set_Neq(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* L \= R is true */
     return Fd_Neq_2(le_word, re_word);
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "truth#\\=#" : "truth#\\=";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word)
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word, &r_word)
       || !Term_Math_Loading(l_word, r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      return Get_Integer(c_word != 0, *load_word);
+      return Get_Integer(c != 0, *load_word);
 
     case MASK_LEFT:
-      if (c_word > 0)
+      if (c > 0)
 	return Get_Integer(1, *load_word);
 
-      MATH_CSTR_3(truth_x_neq_c, l_word, -c_word, *load_word);
+      MATH_CSTR_3(truth_x_neq_c, l_word, Tag_INT(-c), *load_word);
       return TRUE;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	return Get_Integer(1, *load_word);
 
-      MATH_CSTR_3(truth_x_neq_c, r_word, c_word, *load_word);
+      MATH_CSTR_3(truth_x_neq_c, r_word, Tag_INT(c), *load_word);
       return TRUE;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      MATH_CSTR_4(truth_x_plus_c_neq_y, l_word, c_word, r_word, *load_word);
+      MATH_CSTR_4(truth_x_plus_c_neq_y, l_word, Tag_INT(c), r_word,
+		  *load_word);
       return TRUE;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      MATH_CSTR_4(truth_x_plus_c_neq_y, r_word, -c_word, l_word,
+      MATH_CSTR_4(truth_x_plus_c_neq_y, r_word, Tag_INT(-c), l_word,
 		  *load_word);
       return TRUE;
     }
@@ -1315,7 +1333,8 @@ Set_Lt(WamWord *exp, int result, WamWord *load_word)
 {
   WamWord le_word, re_word;
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
   le_word = exp[1];
   re_word = exp[2];
@@ -1326,47 +1345,46 @@ Set_Lt(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* L < R is true */
     return Fd_Lt_2(le_word, re_word);
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "truth#<#" : "truth#<";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word)
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word, &r_word)
       || !Term_Math_Loading(l_word, r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      return Get_Integer(c_word < 0, *load_word);
+      return Get_Integer(c < 0, *load_word);
 
     case MASK_LEFT:
-      if (c_word >= 0)
+      if (c >= 0)
 	return Get_Integer(0, *load_word);
 
-      PRIM_CSTR_3(truth_x_lte_c, l_word, -c_word - TAGGED_1, *load_word);
+      PRIM_CSTR_3(truth_x_lte_c, l_word, Tag_INT(-c - 1), *load_word);
       return TRUE;
 
     case MASK_RIGHT:
-      if (c_word < 0)
+      if (c < 0)
 	return Get_Integer(1, *load_word);
 
-      PRIM_CSTR_3(truth_x_gte_c, r_word, c_word + TAGGED_1, *load_word);
+      PRIM_CSTR_3(truth_x_gte_c, r_word, Tag_INT(c + 1), *load_word);
       return TRUE;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      PRIM_CSTR_4(truth_x_plus_c_lte_y, l_word, c_word + TAGGED_1, r_word,
+      PRIM_CSTR_4(truth_x_plus_c_lte_y, l_word, Tag_INT(c + 1), r_word,
 		  *load_word);
       return TRUE;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      PRIM_CSTR_4(truth_x_plus_c_gte_y, r_word, -c_word - TAGGED_1, l_word,
+      PRIM_CSTR_4(truth_x_plus_c_gte_y, r_word, Tag_INT(-c - 1), l_word,
 		  *load_word);
       return TRUE;
     }
@@ -1387,7 +1405,8 @@ Set_Lte(WamWord *exp, int result, WamWord *load_word)
 {
   WamWord le_word, re_word;
   int mask;
-  WamWord c_word, l_word, r_word;
+  WamWord l_word, r_word;
+  long c;
 
   le_word = exp[1];
   re_word = exp[2];
@@ -1398,46 +1417,46 @@ Set_Lte(WamWord *exp, int result, WamWord *load_word)
   if (result == 1)		/* L <= R is true */
     return Fd_Lte_2(le_word, re_word);
 
-  *load_word = Tag_Value(REF, Fd_New_Bool_Variable());
+  *load_word = Tag_REF(Fd_New_Bool_Variable());
 
 #ifdef DEBUG
   cur_op = (full_ac) ? "truth#=<#" : "truth#=<";
 #endif
 
-  if (!Load_Left_Right
-      (FALSE, le_word, re_word, &mask, &c_word, &l_word, &r_word)
+  if (!Load_Left_Right(FALSE, le_word, re_word, &mask, &c, &l_word, &r_word)
       || !Term_Math_Loading(l_word, r_word))
     return FALSE;
 
   switch (mask)
     {
     case MASK_EMPTY:
-      return Get_Integer(c_word <= 0, *load_word);
+      return Get_Integer(c <= 0, *load_word);
 
     case MASK_LEFT:
-      if (c_word > 0)
+      if (c > 0)
 	return Get_Integer(0, *load_word);
 
-      PRIM_CSTR_3(truth_x_lte_c, l_word, -c_word, *load_word);
+      PRIM_CSTR_3(truth_x_lte_c, l_word, Tag_INT(-c), *load_word);
       return TRUE;
 
     case MASK_RIGHT:
-      if (c_word <= 0)
+      if (c <= 0)
 	return Get_Integer(1, *load_word);
 
-      PRIM_CSTR_3(truth_x_gte_c, r_word, c_word, *load_word);
+      PRIM_CSTR_3(truth_x_gte_c, r_word, Tag_INT(c), *load_word);
       return TRUE;
     }
 
-  if (c_word > 0)
+  if (c > 0)
     {
-      PRIM_CSTR_4(truth_x_plus_c_lte_y, l_word, c_word, r_word, *load_word);
+      PRIM_CSTR_4(truth_x_plus_c_lte_y, l_word, Tag_INT(c), r_word,
+		  *load_word);
       return TRUE;
     }
 
-  if (c_word < 0)
+  if (c < 0)
     {
-      PRIM_CSTR_4(truth_x_plus_c_gte_y, r_word, -c_word, l_word,
+      PRIM_CSTR_4(truth_x_plus_c_gte_y, r_word, Tag_INT(-c), l_word,
 		  *load_word);
       return TRUE;
     }

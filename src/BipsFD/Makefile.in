@@ -63,4 +63,5 @@ t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_fd@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EngineFD/libeng
 
 math_supp@OBJ_SUFFIX@: math_supp.h
 fd_math_c@OBJ_SUFFIX@: math_supp.h
+fd_bool_c@OBJ_SUFFIX@: math_supp.h
 

@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : write.pl
-% date    : 9 6 2000
-% time    : 17:33:12
+% date    : 12 1 2000
+% time    : 16:12:57
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/write.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/write.pl').
 
 
 predicate('$use_write'/0,27,static,private,built_in,[
@@ -157,7 +157,7 @@ label(4),
     execute('$get_write_options1'/1)]).
 
 
-predicate('$get_write_options2'/1,132,static,private,built_in,[
+predicate('$get_write_options2'/1,131,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     execute('$pl_err_instantiation'/0),
@@ -240,7 +240,7 @@ label(17),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux6'/1,166,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux6'/1,175,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -265,7 +265,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux5'/1,160,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux5'/1,167,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -290,7 +290,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux4'/1,154,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux4'/1,159,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -315,7 +315,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux3'/1,148,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux3'/1,151,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -340,7 +340,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux2'/1,142,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux2'/1,143,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -365,7 +365,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux1'/1,136,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux1'/1,135,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -390,7 +390,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(nl/0,182,static,private,built_in,[
+predicate(nl/0,193,static,private,built_in,[
     put_atom(nl,0),
     put_integer(0,1),
     call_c('Set_Bip_Name_2',[0,1]),
@@ -398,7 +398,7 @@ predicate(nl/0,182,static,private,built_in,[
     proceed]).
 
 
-predicate(nl/1,186,static,private,built_in,[
+predicate(nl/1,197,static,private,built_in,[
     put_atom(nl,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),

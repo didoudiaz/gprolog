@@ -123,13 +123,6 @@ double dbl_val;
 
 
 
-	  /* <cpu>_<os>.c variables */
-
-extern int strings_need_null;
-
-
-
-
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -158,11 +151,11 @@ static int Scanner(void);
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Parse_Ma_File(char *file_name_in, int keep_lines)
+Parse_Ma_File(char *file_name_in, int comment)
 {
   int ret_val;
 
-  keep_source_lines = keep_lines;
+  keep_source_lines = comment;
   init_already_read = 0;
 
   if (file_name_in == NULL)
@@ -637,7 +630,8 @@ Scanner(void)
 	      p = cur_line_p + strlen(cur_line_p) - 1;
 	      if (*p == '\n')
 		*p = '\0';
-	      Source_Line(cur_line_no, cur_line_p);
+	      Label_Printf("\t%s %6d: %s", comment_prefix, cur_line_no,
+			   cur_line_p);
 	    }
 	}
     }

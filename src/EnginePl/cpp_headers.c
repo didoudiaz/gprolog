@@ -29,6 +29,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "gp_config.h"
+
 #define DO_NOT_ADD_COMMENTS
 #define REMOVE_COMMENTS
 #define REMOVE_BLANK_LINES
@@ -120,6 +122,9 @@ Cpp_File(char *name, int skip_comment)
   char *p, *q;
   int line = 0;
   char name1[1024];
+#ifdef REMOVE_COMMENTS
+  int inside_comment = 0;
+#endif
 
 #ifdef REMOVE_BLANK_LINES
   int can_be_removed = 1;
@@ -142,23 +147,29 @@ Cpp_File(char *name, int skip_comment)
   while (fgets(buff, sizeof(buff), fin))
     {
       line++;
+#ifdef REMOVE_COMMENTS
       if (skip_comment)
 	{
-	  if (*buff != '/' || buff[1] != '*')
-	    goto stop_skip_comment;
-	  p = buff + strlen(buff) - 1;
-	  while (isspace(*p))
-	    p--;
-	  if (p[-1] != '*' || *p != '/')
-	    goto stop_skip_comment;
-	  continue;
+	  if (!inside_comment)
+	    {
+	      for(p = buff; isspace(*p); p++)
+		;
 
-	stop_skip_comment:
-#ifndef REMOVE_COMMENTS
-	  skip_comment = 0;
-#endif
+	      if (*p == '/' && p[1] == '*')
+		{
+		  if (strstr(p, "*/") == NULL)
+		    inside_comment = 1;
+		  continue;
+		}
+	    }
+	  else
+	    {
+	      if (strstr(p, "*/") != NULL)
+		inside_comment = 0;
+	      continue;
+	    }
 	}
-
+#endif
 
       if (*buff != '#')
 	goto reflect_line;

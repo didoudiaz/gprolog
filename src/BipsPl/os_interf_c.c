@@ -468,7 +468,7 @@ File_Exists_1(WamWord path_name_word)
 Bool
 File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_perm_list_word;
   WamWord *lst_adr;
   char *path_name;
@@ -487,8 +487,8 @@ File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 
   is_a_directory = (res == 0) && S_ISDIR(mode);
 
-  Deref(perm_list_word, word, tag, adr);
-  if (tag == ATM && word != NIL_WORD)
+  DEREF(perm_list_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
     perm |= Flag_Of_Permission(word, is_a_directory);
   else
     {
@@ -496,15 +496,15 @@ File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 
       for (;;)
 	{
-	  Deref(perm_list_word, word, tag, adr);
+	  DEREF(perm_list_word, word, tag_mask);
 
-	  if (tag == REF)
+	  if (tag_mask == TAG_REF_MASK)
 	    Pl_Err_Instantiation();
 
 	  if (word == NIL_WORD)
 	    break;
 
-	  if (tag != LST)
+	  if (tag_mask != TAG_LST_MASK)
 	    Pl_Err_Type(type_list, save_perm_list_word);
 
 	  lst_adr = UnTag_LST(word);
@@ -665,13 +665,13 @@ File_Prop_Size_2(WamWord size_word, WamWord path_name_word)
 Bool
 Check_Prop_Perm_And_File_2(WamWord perm_word, WamWord path_name_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   char *path_name;
 
   path_name = Get_Path_Name(path_name_word);
 
-  Deref(perm_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(perm_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     Flag_Of_Permission(perm_word, FALSE);	/* to check perm validity */
 
   Os_Test_Error(access(path_name, F_OK));	/* to check file existence */
@@ -796,17 +796,17 @@ Date_Time_1(WamWord date_time_word)
 Bool
 Host_Name_1(WamWord host_name_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int atom;
-  static int atom_host_name = -1;	/* not created in an init since implies to */
-
-  /* establish a connection (if !NO_USE_SOCKETS) */
+  static int atom_host_name = -1;	/* not created in an init since */
+				        /* establishes a connection */
+				        /* (ifndef NO_USE_SOCKETS) */
 
   if (atom_host_name < 0)
     atom_host_name = Create_Allocate_Atom(M_Host_Name_From_Name(NULL));
 
-  Deref(host_name_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(host_name_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     return Get_Atom(atom_host_name, host_name_word);
 
   atom = Rd_Atom_Check(word);
@@ -841,10 +841,6 @@ Architecture_1(WamWord architecture_word)
 {
   return Un_String_Check(m_architecture, architecture_word);
 }
-
-
-
-
 
 
 
@@ -937,7 +933,7 @@ System_2(WamWord cmd_word, WamWord status_word)
 Bool
 Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   char *arg[MAX_SPAWN_ARGS];
@@ -951,17 +947,17 @@ Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
-
+      
       lst_adr = UnTag_LST(word);
 
       *p++ = Rd_String_Check(Car(lst_adr));
@@ -1171,7 +1167,7 @@ Select_5(WamWord reads_word, WamWord ready_reads_word,
 static int
 Select_Init_Set(WamWord list_word, fd_set *set, int check)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   int stm;
@@ -1182,20 +1178,20 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
   save_list_word = list_word;
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
-      if (tag == INT)
+      DEREF(Car(lst_adr), word, tag_mask);
+      if (tag_mask == TAG_INT_MASK)
 	fd = Rd_Positive_Check(word);
       else
 	{
@@ -1234,21 +1230,21 @@ static Bool
 Select_Init_Ready_List(WamWord list_word, fd_set *set,
 		       WamWord ready_list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *lst_adr;
   int stm;
   int fd;
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
       if (word == NIL_WORD)
 	break;
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
 
-      if (tag == INT)
+      if (tag_mask == TAG_INT_MASK)
 	fd = UnTag_INT(word);
       else
 	{
@@ -1297,7 +1293,7 @@ Prolog_Pid_1(WamWord prolog_pid_word)
 Bool
 Send_Signal_2(WamWord pid_word, WamWord signal_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int pid;
   int sig;
   int atom;
@@ -1305,8 +1301,8 @@ Send_Signal_2(WamWord pid_word, WamWord signal_word)
 
   pid = Rd_Integer_Check(pid_word);
 
-  Deref(signal_word, word, tag, adr);
-  if (tag == ATM)
+  DEREF(signal_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK)
     {
       atom = UnTag_ATM(word);
       sig = -1;
@@ -1401,7 +1397,7 @@ Get_Path_Name(WamWord path_name_word)
 static Bool
 Date_Time_To_Prolog(time_t *t, WamWord date_time_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord year_word, month_word, day_word;
   WamWord hour_word, minute_word, second_word;
   struct tm *tm;
@@ -1418,8 +1414,9 @@ Date_Time_To_Prolog(time_t *t, WamWord date_time_word)
   second = tm->tm_sec;
 
 
-  Deref(date_time_word, word, tag, adr);
-  if (tag != REF && tag != LST && tag != STC)
+  DEREF(date_time_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK &&
+      tag_mask != TAG_STC_MASK)
     Pl_Err_Type(type_compound, word);
 
   if (!Get_Structure(atom_dt, 6, word))

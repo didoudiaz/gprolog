@@ -22,26 +22,26 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_file'.
 
 
-absolute_file_name(F1,F2):-
-	set_bip_name(absolute_file_name,2),
-	'$call_c_test'('Absolute_File_Name_2'(F1,F2)).
+absolute_file_name(F1, F2) :-
+	set_bip_name(absolute_file_name, 2),
+	'$call_c_test'('Absolute_File_Name_2'(F1, F2)).
 
 
 
 
-decompose_file_name(Path,Dir,Prefix,Suffix):-
-	set_bip_name(decompose_file_name,4),
-	'$call_c_test'('Decompose_File_Name_4'(Path,Dir,Prefix,Suffix)).
+decompose_file_name(Path, Dir, Prefix, Suffix) :-
+	set_bip_name(decompose_file_name, 4),
+	'$call_c_test'('Decompose_File_Name_4'(Path, Dir, Prefix, Suffix)).
 
 
 
 
-prolog_file_name(PlFile,PlFile1):-
-	set_bip_name(prolog_file_name,2),
-	'$call_c_test'('Prolog_File_Name_2'(PlFile,PlFile1)).
+prolog_file_name(PlFile, PlFile1) :-
+	set_bip_name(prolog_file_name, 2),
+	'$call_c_test'('Prolog_File_Name_2'(PlFile, PlFile1)).
 

@@ -22,33 +22,33 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_stat'.
 
 
-statistics:-
-	set_bip_name(statistics,0),
+statistics :-
+	set_bip_name(statistics, 0),
 	'$call_c'('Statistics_0').
 
 
-statistics(Key,Values):-
-	set_bip_name(statistics,2),
-        '$check_stat_key'(Key),
-        !,
-	(Values=[Val1,Val2]
-            -> true
-            ;  '$pl_err_domain'(statistics_value,Values)),
-	'$stat'(Key,Val1,Val2).
+statistics(Key, Values) :-
+	set_bip_name(statistics, 2),
+	'$check_stat_key'(Key), !,
+	(   Values=[Val1, Val2] ->
+	    true
+	;   '$pl_err_domain'(statistics_value, Values)
+	),
+	'$stat'(Key, Val1, Val2).
 
 
 
 
-'$check_stat_key'(Key):-
-        var(Key).
+'$check_stat_key'(Key) :-
+	var(Key).
 
 '$check_stat_key'(user_time).
-'$check_stat_key'(runtime).               % runtime is a synonym of user_time
+'$check_stat_key'(runtime).
 
 '$check_stat_key'(system_time).
 
@@ -64,62 +64,66 @@ statistics(Key,Values):-
 
 '$check_stat_key'(cstr_stack).
 
-'$check_stat_key'(Key):-
-        '$pl_err_domain'(statistics_key,Key).
+'$check_stat_key'(Key) :-
+	'$pl_err_domain'(statistics_key, Key).
 
 
 
 
-'$stat'(X,SinceStart,SinceLast):-
-	(atom(X) -> (X=user_time ; X=runtime), !
-                 ;  X=user_time),
-	'$call_c_test'('Statistics_User_Time_2'(SinceStart,SinceLast)).
+'$stat'(X, SinceStart, SinceLast) :-
+	(   atom(X) ->
+	    (   X=user_time
+	    ;   X=runtime
+	    ), !
+	;   X=user_time
+	),
+	'$call_c_test'('Statistics_User_Time_2'(SinceStart, SinceLast)).
 
-'$stat'(system_time,SinceStart,SinceLast):-
-	'$call_c_test'('Statistics_System_Time_2'(SinceStart,SinceLast)).
+'$stat'(system_time, SinceStart, SinceLast) :-
+	'$call_c_test'('Statistics_System_Time_2'(SinceStart, SinceLast)).
 
-'$stat'(cpu_time,SinceStart,SinceLast):-
-	'$call_c_test'('Statistics_Cpu_Time_2'(SinceStart,SinceLast)).
+'$stat'(cpu_time, SinceStart, SinceLast) :-
+	'$call_c_test'('Statistics_Cpu_Time_2'(SinceStart, SinceLast)).
 
-'$stat'(real_time,SinceStart,SinceLast):-
-	'$call_c_test'('Statistics_Real_Time_2'(SinceStart,SinceLast)).
+'$stat'(real_time, SinceStart, SinceLast) :-
+	'$call_c_test'('Statistics_Real_Time_2'(SinceStart, SinceLast)).
 
-'$stat'(local_stack,Used,Free):-
-	'$call_c_test'('Statistics_Local_Stack_2'(Used,Free)).
+'$stat'(local_stack, Used, Free) :-
+	'$call_c_test'('Statistics_Local_Stack_2'(Used, Free)).
 
-'$stat'(global_stack,Used,Free):-
-	'$call_c_test'('Statistics_Global_Stack_2'(Used,Free)).
+'$stat'(global_stack, Used, Free) :-
+	'$call_c_test'('Statistics_Global_Stack_2'(Used, Free)).
 
-'$stat'(trail_stack,Used,Free):-
-	'$call_c_test'('Statistics_Trail_Stack_2'(Used,Free)).
+'$stat'(trail_stack, Used, Free) :-
+	'$call_c_test'('Statistics_Trail_Stack_2'(Used, Free)).
 
-'$stat'(cstr_stack,Used,Free):-
-	'$call_c_test'('Statistics_Cstr_Stack_2'(Used,Free)).
-
-
+'$stat'(cstr_stack, Used, Free) :-
+	'$call_c_test'('Statistics_Cstr_Stack_2'(Used, Free)).
 
 
-user_time(SinceStart):-
-	set_bip_name(user_time,1),
+
+
+user_time(SinceStart) :-
+	set_bip_name(user_time, 1),
 	'$call_c_test'('User_Time_1'(SinceStart)).
 
 
 
 
-system_time(SinceStart):-
-	set_bip_name(system_time,1),
+system_time(SinceStart) :-
+	set_bip_name(system_time, 1),
 	'$call_c_test'('System_Time_1'(SinceStart)).
 
 
 
 
-cpu_time(SinceStart):-
-	set_bip_name(cpu_time,1),
+cpu_time(SinceStart) :-
+	set_bip_name(cpu_time, 1),
 	'$call_c_test'('Cpu_Time_1'(SinceStart)).
 
 
 
 
-real_time(SinceStart):-
-	set_bip_name(real_time,1),
+real_time(SinceStart) :-
+	set_bip_name(real_time, 1),
 	'$call_c_test'('Real_Time_1'(SinceStart)).

@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : stat.pl
-% date    : 9 6 2000
-% time    : 17:33:18
+% date    : 12 1 2000
+% time    : 16:13:0
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/stat.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/stat.pl').
 
 
 predicate('$use_stat'/0,27,static,private,built_in,[
@@ -44,10 +44,7 @@ predicate(statistics/2,35,static,private,built_in,[
 
 predicate('$statistics/2_$aux1'/3,35,static,private,built_in,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,fail,fail,1,fail),
-
-label(1),
+    try_me_else(1),
     get_list(0),
     unify_local_value(x(1)),
     unify_list,
@@ -56,7 +53,7 @@ label(1),
     cut(x(3)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     put_value(x(0),1),
     put_atom(statistics_value,0),
@@ -237,9 +234,6 @@ predicate('$$stat/3_$aux1'/2,73,static,private,built_in,[
 
 label(1),
     trust_me_else_fail,
-    switch_on_term(2,2,fail,fail,fail),
-
-label(2),
     get_atom(user_time,0),
     proceed]).
 
@@ -265,7 +259,7 @@ label(5),
     proceed]).
 
 
-predicate(user_time/1,102,static,private,built_in,[
+predicate(user_time/1,106,static,private,built_in,[
     put_atom(user_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -273,7 +267,7 @@ predicate(user_time/1,102,static,private,built_in,[
     proceed]).
 
 
-predicate(system_time/1,109,static,private,built_in,[
+predicate(system_time/1,113,static,private,built_in,[
     put_atom(system_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -281,7 +275,7 @@ predicate(system_time/1,109,static,private,built_in,[
     proceed]).
 
 
-predicate(cpu_time/1,116,static,private,built_in,[
+predicate(cpu_time/1,120,static,private,built_in,[
     put_atom(cpu_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -289,7 +283,7 @@ predicate(cpu_time/1,116,static,private,built_in,[
     proceed]).
 
 
-predicate(real_time/1,123,static,private,built_in,[
+predicate(real_time/1,127,static,private,built_in,[
     put_atom(real_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),

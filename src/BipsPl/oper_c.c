@@ -74,7 +74,7 @@ static int Detect_Oper_Specif(OperInf *oper);
 
 #define CURRENT_OP_ALT             X2463757272656E745F6F705F616C74
 
-Prolog_Prototype(CURRENT_OP_ALT, 0)
+Prolog_Prototype(CURRENT_OP_ALT, 0);
 
 
 
@@ -83,7 +83,8 @@ Prolog_Prototype(CURRENT_OP_ALT, 0)
  * OPER_INITIALIZER                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void Oper_Initializer(void)
+static void
+Oper_Initializer(void)
 {
   char *a[7] = { "fx", "fy", "xf", "yf", "xfx", "xfy", "yfx" };
   int i;
@@ -173,7 +174,7 @@ Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 Bool
 Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   HashScan scan;
   int prec;
   int atom_specif;
@@ -182,21 +183,22 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   int op_mask;
   int i;
 
-  Deref(oper_word, word, tag, adr);
-  if (tag != REF && tag != ATM)
+  DEREF(oper_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(type_atom, word);
   oper_word = word;
 
 
-  Deref(prec_word, word, tag, adr);
+  DEREF(prec_word, word, tag_mask);
   prec = UnTag_INT(word);
-  if (tag != REF && (tag != INT || prec < 0 || prec > MAX_PREC))
+  if (tag_mask != TAG_REF_MASK && 
+      (tag_mask != TAG_INT_MASK || prec < 0 || prec > MAX_PREC))
     Pl_Err_Domain(domain_operator_priority, word);
   prec_word = word;
 
 
-  Deref(specif_word, word, tag, adr);
-  if (tag == ATM)
+  DEREF(specif_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK)
     {
       atom_specif = UnTag_ATM(word);
 
@@ -204,12 +206,12 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 	;
     }
 
-  if (tag != REF && (tag != ATM || i >= 7))
+  if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK || i >= 7))
     Pl_Err_Domain(domain_operator_specifier, specif_word);
   specif_word = word;
 
 
-  if (Tag_Of(oper_word) == ATM)
+  if (Tag_Mask_Of(oper_word) == TAG_ATM_MASK)
     {
       atom = UnTag_ATM(oper_word);
       op_mask = atom_tbl[atom].prop.op_mask;
@@ -219,6 +221,7 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
       for (i = PREFIX; i <= POSTFIX; i++)
 	if (op_mask & Make_Op_Mask(i))
 	  break;
+
       op_mask &= ~Make_Op_Mask(i);
       if (op_mask)		/* non deterministic case */
 	{
@@ -276,7 +279,7 @@ Current_Op_Alt_0(void)
   specif_word = AB(B, 1);
   oper_word = AB(B, 2);
 
-  if (Tag_Of(oper_word) == ATM)
+  if (Tag_Mask_Of(oper_word) == TAG_ATM_MASK)
     {
       atom = UnTag_ATM(oper_word);
       op_mask = AB(B, 3);

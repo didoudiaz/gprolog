@@ -22,18 +22,18 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_format'.
 
 
-format(Format,Args):-
-	set_bip_name(format,2),
-	'$call_c'('Format_2'(Format,Args)).
+format(Format, Args) :-
+	set_bip_name(format, 2),
+	'$call_c'('Format_2'(Format, Args)).
 
 
 
 
-format(SorA,Format,Args):-
-	set_bip_name(format,3),
-	'$call_c'('Format_3'(SorA,Format,Args)).
+format(SorA, Format, Args) :-
+	set_bip_name(format, 3),
+	'$call_c'('Format_3'(SorA, Format, Args)).

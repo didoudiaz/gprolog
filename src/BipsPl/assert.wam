@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : assert.pl
-% date    : 9 6 2000
-% time    : 17:33:11
+% date    : 12 15 2000
+% time    : 21:17:53
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/assert.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').
 
 
 predicate('$use_assert'/0,27,static,private,built_in,[
@@ -94,12 +94,12 @@ label(2),
     proceed]).
 
 
-predicate('$retract_last_found'/0,81,static,private,built_in,[
+predicate('$retract_last_found'/0,80,static,private,built_in,[
     call_c('Retract_Last_Found_0',[]),
     proceed]).
 
 
-predicate(clause/2,87,static,private,built_in,[
+predicate(clause/2,85,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -115,12 +115,23 @@ predicate(clause/2,87,static,private,built_in,[
     execute('$clause'/3)]).
 
 
-predicate('$clause'/3,93,static,private,built_in,[
+predicate('$clause'/3,91,static,private,built_in,[
     call_c_test('Clause_3',[0,1,2]),
     proceed]).
 
 
-predicate(abolish/1,99,static,private,built_in,[
+predicate('$instance_for_setarg'/2,96,static,private,built_in,[
+    put_integer(0,2),
+    call_c_test('Clause_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$setarg_in_last_found'/2,99,static,private,built_in,[
+    call_c('Setarg_Of_Last_Found_2',[0,1]),
+    proceed]).
+
+
+predicate(abolish/1,104,static,private,built_in,[
     put_atom(abolish,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -128,16 +139,16 @@ predicate(abolish/1,99,static,private,built_in,[
     proceed]).
 
 
-predicate('$remove_predicate'/2,106,static,private,built_in,[
+predicate('$remove_predicate'/2,111,static,private,built_in,[
     call_c('Remove_Predicate_2',[0,1]),
     proceed]).
 
 
-predicate('$scan_dyn_test_alt'/0,112,static,private,built_in,[
+predicate('$scan_dyn_test_alt'/0,117,static,private,built_in,[
     call_c_test('Scan_Dynamic_Pred_Alt_0',[]),
     proceed]).
 
 
-predicate('$scan_dyn_jump_alt'/0,115,static,private,built_in,[
+predicate('$scan_dyn_jump_alt'/0,120,static,private,built_in,[
     call_c_jump('Scan_Dynamic_Pred_Alt_0',[]),
     proceed]).

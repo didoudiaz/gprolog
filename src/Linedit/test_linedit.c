@@ -59,9 +59,6 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-
-
-
 /*-------------------------------------------------------------------------*
  * INTERRUPT_HANDLER                                                       *
  *                                                                         *
@@ -174,3 +171,15 @@ main(int argc, char *argv[])
 
   return 12;
 }
+
+
+/* To Compile with W32GUICons */
+char **
+M_Cmd_Line_To_Argv(char *cmd,int *argc)
+{
+  *argc = 0;
+  return NULL;
+}
+
+
+

@@ -50,7 +50,6 @@
 #define W_OK                       02
 #define R_OK                       04
 #define X_OK                       F_OK
-#define stat                       _stat
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	           (((m)&_S_IFMT) == _S_IFDIR)
 #define	S_ISCHR(m)                 (((m)&_S_IFMT) == _S_IFCHR)
@@ -79,6 +78,15 @@
 #endif
 
 
+#ifndef NO_USE_GUI_CONSOLE
+#define W32_GUI_CONSOLE
+#endif
+
+#ifdef M_sparc_sunos
+#define __USE_FIXED_PROTOTYPES__
+#endif
+
+
 #if defined(M_ix86_sco)
 
 #ifndef MAXPATHLEN
@@ -87,23 +95,36 @@
 
 #endif
 
+
+
 #if !defined(_WIN32) && !defined(__unix__)
 #define __unix__
 #endif
 
-#if defined(NO_USE_FAST_CALL) || !defined(M_ix86)
 
-#define FC
+				/* Fast call macros */
+#if defined(M_ix86)
 
-#else
+/* FC_MAX_ARGS_IN_REGS can be decreased (0, 1, 2) - but the inline_asm_data
+ * is compiled with 3, if changed, change inlined code in mapper */
 
+#define COULD_COMPILE_FOR_FC
 #ifdef __GNUC__
-#define FC_MAX_ARGS_IN_REGS 3
-#define FC __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
+#define FC_MAX_ARGS_IN_REGS 3	
+#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
+#define FC_ATTRIB __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
 #else  /* MSVC++ ? */
-#define FC
+/* TO DO */
 #endif
 
+#endif
+
+
+#if !defined(NO_USE_FAST_CALL) && defined(FC_ATTRIB)
+#define FC_USED_TO_COMPILE_CORE
+#define FC FC_ATTRIB
+#else
+#define FC
 #endif
 
 

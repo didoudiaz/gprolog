@@ -96,15 +96,16 @@ static char *Context_Error_String(void);
 
 
 
-Prolog_Prototype(PL_ERR_INSTANTIATION, 0)
-Prolog_Prototype(PL_ERR_TYPE, 2)
-Prolog_Prototype(PL_ERR_DOMAIN, 2)
-Prolog_Prototype(PL_ERR_EXISTENCE, 2)
-Prolog_Prototype(PL_ERR_PERMISSION, 3)
-Prolog_Prototype(PL_ERR_REPRESENTATION, 1)
-Prolog_Prototype(PL_ERR_EVALUATION, 1)
-Prolog_Prototype(PL_ERR_RESOURCE, 1)
-Prolog_Prototype(PL_ERR_SYNTAX, 1) Prolog_Prototype(PL_ERR_SYSTEM, 1)
+Prolog_Prototype(PL_ERR_INSTANTIATION, 0);
+Prolog_Prototype(PL_ERR_TYPE, 2);
+Prolog_Prototype(PL_ERR_DOMAIN, 2);
+Prolog_Prototype(PL_ERR_EXISTENCE, 2);
+Prolog_Prototype(PL_ERR_PERMISSION, 3);
+Prolog_Prototype(PL_ERR_REPRESENTATION, 1);
+Prolog_Prototype(PL_ERR_EVALUATION, 1);
+Prolog_Prototype(PL_ERR_RESOURCE, 1);
+Prolog_Prototype(PL_ERR_SYNTAX, 1);
+Prolog_Prototype(PL_ERR_SYSTEM, 1);
 
 
 
@@ -113,8 +114,8 @@ Prolog_Prototype(PL_ERR_SYNTAX, 1) Prolog_Prototype(PL_ERR_SYSTEM, 1)
  * ERROR_SUPP_INITIALIZER                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void
-     Error_Supp_Initializer(void)
+static void
+Error_Supp_Initializer(void)
 {
   type_atom = Create_Atom("atom");
   type_atomic = Create_Atom("atomic");
@@ -510,7 +511,7 @@ void
 Pl_Err_Type(int atom_type, WamWord term)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_type);
+  A(0) = Tag_ATM(atom_type);
   A(1) = term;
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_TYPE, 2));
 }
@@ -526,7 +527,7 @@ void
 Pl_Err_Domain(int atom_domain, WamWord term)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_domain);
+  A(0) = Tag_ATM(atom_domain);
   A(1) = term;
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_DOMAIN, 2));
 }
@@ -542,7 +543,7 @@ void
 Pl_Err_Existence(int atom_object, WamWord term)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_object);
+  A(0) = Tag_ATM(atom_object);
   A(1) = term;
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_EXISTENCE, 2));
 }
@@ -558,8 +559,8 @@ void
 Pl_Err_Permission(int atom_oper, int atom_perm, WamWord term)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_oper);
-  A(1) = Tag_Value(ATM, atom_perm);
+  A(0) = Tag_ATM(atom_oper);
+  A(1) = Tag_ATM(atom_perm);
   A(2) = term;
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_PERMISSION, 3));
 }
@@ -575,7 +576,7 @@ void
 Pl_Err_Representation(int atom_flag)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_flag);
+  A(0) = Tag_ATM(atom_flag);
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_REPRESENTATION, 1));
 }
 
@@ -590,7 +591,7 @@ void
 Pl_Err_Evaluation(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_error);
+  A(0) = Tag_ATM(atom_error);
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_EVALUATION, 1));
 }
 
@@ -605,7 +606,7 @@ void
 Pl_Err_Resource(int atom_resource)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_resource);
+  A(0) = Tag_ATM(atom_resource);
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_RESOURCE, 1));
 }
 
@@ -620,7 +621,7 @@ void
 Pl_Err_Syntax(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_error);
+  A(0) = Tag_ATM(atom_error);
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_SYNTAX, 1));
 }
 
@@ -635,6 +636,6 @@ void
 Pl_Err_System(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_Value(ATM, atom_error);
+  A(0) = Tag_ATM(atom_error);
   Execute_A_Continuation(Prolog_Predicate(PL_ERR_SYSTEM, 1));
 }

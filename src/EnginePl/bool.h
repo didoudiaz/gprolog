@@ -29,7 +29,7 @@
 
 #ifdef FALSE
 
-#    if FALSE!=0
+#    if FALSE != 0
 #        error "FALSE already defined with a value != 0"
 #    endif
 #else
@@ -40,7 +40,7 @@
 
 #ifdef TRUE
 
-#    if TRUE!=1
+#    if TRUE != 1
 #        error "TRUE already defined with a value != 1"
 #    endif
 #else

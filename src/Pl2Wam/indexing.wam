@@ -1,13 +1,13 @@
-% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
+% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : indexing.pl
-% date    : 11 9 2000
-% time    : 18:31:2
+% date    : 12 15 2000
+% time    : 21:44:5
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/indexing.pl').
 
 
-predicate(indexing/2,121,static,private,user,[
+predicate(indexing/2,120,static,private,user,[
     allocate(4),
     get_variable(y(0),1),
     put_atom(f,1),
@@ -31,7 +31,7 @@ predicate(indexing/2,121,static,private,user,[
     execute(allocate_labels/3)]).
 
 
-predicate('$indexing/2_$aux1'/4,121,static,private,user,[
+predicate('$indexing/2_$aux1'/4,120,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(4),
@@ -86,7 +86,7 @@ predicate(indexing1/4,132,static,private,user,[
     proceed]).
 
 
-predicate(look_for_var/5,140,static,private,user,[
+predicate(look_for_var/5,139,static,private,user,[
     load_cut_level(5),
     switch_on_term(2,3,fail,1,fail),
 
@@ -144,7 +144,7 @@ label(7),
     execute('$look_for_var/5_$aux2'/2)]).
 
 
-predicate('$look_for_var/5_$aux2'/2,147,static,private,user,[
+predicate('$look_for_var/5_$aux2'/2,148,static,private,user,[
     load_cut_level(2),
     try_me_else(6),
     switch_on_term(2,fail,1,fail,fail),
@@ -176,24 +176,21 @@ label(6),
     proceed]).
 
 
-predicate('$look_for_var/5_$aux1'/2,142,static,private,user,[
+predicate('$look_for_var/5_$aux1'/2,141,static,private,user,[
     load_cut_level(2),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_nil(0),
     cut(x(2)),
     get_integer(14,1),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_integer(13,1),
     proceed]).
 
 
-predicate(mk_indexing/6,156,static,private,user,[
+predicate(mk_indexing/6,160,static,private,user,[
     load_cut_level(6),
     switch_on_term(2,fail,1,fail,fail),
 
@@ -329,212 +326,98 @@ label(10),
     trust_me_else_fail,
 
 label(11),
-    allocate(19),
+    allocate(18),
     get_integer(2,0),
     get_variable(y(0),1),
     get_variable(y(1),6),
     put_value(x(4),0),
     put_value(x(5),1),
     put_variable(y(2),2),
-    put_variable(y(3),3),
-    put_variable(y(4),4),
-    put_variable(y(5),5),
-    put_variable(y(6),6),
-    put_variable(y(7),7),
-    call('$mk_indexing/6_$aux5'/8),
+    call('$mk_indexing/6_$aux5'/3),
     put_value(y(0),0),
-    put_variable(y(8),1),
-    put_variable(y(9),2),
-    put_variable(y(10),3),
-    put_variable(y(11),4),
+    put_variable(y(3),1),
+    put_value(y(2),2),
+    put_variable(y(4),3),
+    put_variable(y(5),4),
+    put_variable(y(6),5),
+    put_variable(y(7),6),
+    put_variable(y(8),7),
+    call('$mk_indexing/6_$aux6'/8),
+    put_value(y(3),0),
+    get_variable(y(9),0),
+    put_value(y(0),0),
+    put_variable(y(10),1),
+    put_variable(y(11),2),
+    put_variable(y(12),3),
+    put_variable(y(13),4),
     call(split/5),
     cut(y(1)),
-    put_value(y(8),0),
-    put_value(y(3),1),
-    put_variable(y(12),2),
-    put_variable(y(13),3),
-    call('$mk_indexing/6_$aux6'/4),
-    put_value(y(9),0),
-    put_value(y(4),1),
-    put_value(y(12),2),
-    put_value(y(13),3),
-    call('$mk_indexing/6_$aux7'/4),
     put_value(y(10),0),
-    put_value(y(5),1),
-    put_value(y(12),2),
-    put_value(y(13),3),
-    call('$mk_indexing/6_$aux8'/4),
-    put_value(y(11),0),
-    put_value(y(6),1),
-    put_value(y(12),2),
-    put_value(y(13),3),
-    call('$mk_indexing/6_$aux9'/4),
-    put_value(y(13),0),
-    put_value(y(7),1),
-    put_variable(y(14),2),
-    put_value(y(12),3),
-    call('$mk_indexing/6_$aux10'/4),
-    put_value(y(8),0),
     put_atom(switch_on_atom,1),
-    put_value(y(3),2),
+    put_value(y(5),2),
+    put_variable(y(14),3),
+    put_value(y(9),4),
+    call(gen_switch/5),
+    put_value(y(11),0),
+    put_atom(switch_on_integer,1),
+    put_value(y(6),2),
     put_variable(y(15),3),
     put_value(y(14),4),
     call(gen_switch/5),
-    put_value(y(9),0),
-    put_atom(switch_on_integer,1),
-    put_value(y(4),2),
-    put_variable(y(16),3),
-    put_value(y(15),4),
-    call(gen_switch/5),
-    put_value(y(10),0),
-    put_value(y(5),1),
-    put_variable(y(17),2),
-    put_value(y(16),3),
+    put_value(y(12),0),
+    put_value(y(7),1),
+    put_variable(y(16),2),
+    put_value(y(15),3),
     call(gen_list/4),
-    put_value(y(11),0),
+    put_value(y(13),0),
     put_atom(switch_on_structure,1),
-    put_value(y(6),2),
-    put_variable(y(18),3),
-    put_value(y(17),4),
+    put_value(y(8),2),
+    put_variable(y(17),3),
+    put_value(y(16),4),
     call(gen_switch/5),
     put_value(y(0),0),
-    put_unsafe_value(y(2),1),
-    put_unsafe_value(y(18),2),
+    put_unsafe_value(y(4),1),
+    put_unsafe_value(y(17),2),
     deallocate,
     execute(gen_insts/3)]).
 
 
-predicate('$mk_indexing/6_$aux10'/4,179,static,private,user,[
-    load_cut_level(4),
-    try_me_else(1),
-    put_atom(t,5),
-    call_c_test('Blt_Term_Eq',[0,5]),
-    cut(x(4)),
-    get_value(x(2),1),
-    get_atom(fail,3),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    get_value(x(2),1),
-    proceed]).
-
-
-predicate('$mk_indexing/6_$aux9'/4,179,static,private,user,[
-    load_cut_level(4),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
-    get_nil(0),
-    cut(x(4)),
-    get_value(x(2),1),
-    get_atom(t,3),
-    proceed,
-
-label(2),
-    trust_me_else_fail,
-    proceed]).
-
-
-predicate('$mk_indexing/6_$aux8'/4,179,static,private,user,[
-    load_cut_level(4),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
-    get_nil(0),
-    cut(x(4)),
-    get_value(x(2),1),
-    get_atom(t,3),
-    proceed,
-
-label(2),
-    trust_me_else_fail,
-    proceed]).
-
-
-predicate('$mk_indexing/6_$aux7'/4,179,static,private,user,[
-    load_cut_level(4),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
-    get_nil(0),
-    cut(x(4)),
-    get_value(x(2),1),
-    get_atom(t,3),
-    proceed,
-
-label(2),
-    trust_me_else_fail,
-    proceed]).
-
-
-predicate('$mk_indexing/6_$aux6'/4,179,static,private,user,[
-    load_cut_level(4),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
-    get_nil(0),
-    cut(x(4)),
-    get_value(x(2),1),
-    get_atom(t,3),
-    proceed,
-
-label(2),
-    trust_me_else_fail,
-    proceed]).
-
-
-predicate('$mk_indexing/6_$aux5'/8,179,static,private,user,[
+predicate('$mk_indexing/6_$aux6'/8,191,static,private,user,[
     load_cut_level(8),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
-    get_atom(f,0),
+    try_me_else(1),
+    get_list(0),
+    unify_void(1),
+    unify_nil,
     cut(x(8)),
     get_list(1),
+    unify_void(1),
     unify_variable(x(0)),
-    unify_local_value(x(7)),
-    get_structure(switch_on_term/5,0),
-    unify_local_value(x(2)),
-    unify_local_value(x(3)),
-    unify_local_value(x(4)),
-    unify_local_value(x(5)),
-    unify_local_value(x(6)),
+    get_value(x(0),2),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
-    get_list(1),
-    unify_atom(trust_me_else_fail),
-    unify_list,
+    get_list(2),
     unify_variable(x(0)),
-    unify_local_value(x(7)),
+    unify_local_value(x(1)),
     get_structure(switch_on_term/5,0),
-    unify_local_value(x(2)),
     unify_local_value(x(3)),
     unify_local_value(x(4)),
     unify_local_value(x(5)),
     unify_local_value(x(6)),
+    unify_local_value(x(7)),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux4'/3,175,static,private,user,[
+predicate('$mk_indexing/6_$aux5'/3,191,static,private,user,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom(f,0),
     cut(x(3)),
     get_value(x(2),1),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_list(1),
     unify_atom(trust_me_else_fail),
@@ -542,64 +425,71 @@ label(2),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux3'/3,169,static,private,user,[
+predicate('$mk_indexing/6_$aux4'/3,185,static,private,user,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
+    try_me_else(1),
+    get_atom(f,0),
+    cut(x(3)),
+    get_value(x(2),1),
+    proceed,
 
 label(1),
+    trust_me_else_fail,
+    get_list(1),
+    unify_atom(trust_me_else_fail),
+    unify_local_value(x(2)),
+    proceed]).
+
+
+predicate('$mk_indexing/6_$aux3'/3,177,static,private,user,[
+    load_cut_level(3),
+    try_me_else(1),
     get_atom(f,0),
     cut(x(3)),
     get_structure(try_me_else/1,1),
     unify_local_value(x(2)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_structure(retry_me_else/1,1),
     unify_local_value(x(2)),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux2'/3,163,static,private,user,[
+predicate('$mk_indexing/6_$aux2'/3,169,static,private,user,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom(f,0),
     cut(x(3)),
     get_structure(try_me_else/1,1),
     unify_local_value(x(2)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_structure(retry_me_else/1,1),
     unify_local_value(x(2)),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux1'/3,156,static,private,user,[
+predicate('$mk_indexing/6_$aux1'/3,160,static,private,user,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom(f,0),
     cut(x(3)),
     get_structure(try_me_else/1,1),
     unify_local_value(x(2)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_structure(retry_me_else/1,1),
     unify_local_value(x(2)),
     proceed]).
 
 
-predicate(split/5,208,static,private,user,[
+predicate(split/5,210,static,private,user,[
     allocate(6),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -630,7 +520,7 @@ predicate(split/5,208,static,private,user,[
     execute(terminate_list/2)]).
 
 
-predicate(split1/9,215,static,private,user,[
+predicate(split1/9,217,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -682,7 +572,7 @@ label(4),
     execute(split1/9)]).
 
 
-predicate(split2/10,222,static,private,user,[
+predicate(split2/10,224,static,private,user,[
     switch_on_term(2,7,fail,fail,1),
 
 label(1),
@@ -755,7 +645,7 @@ label(9),
     execute(add_to_list/4)]).
 
 
-predicate(add_to_list/4,236,static,private,user,[
+predicate(add_to_list/4,238,static,private,user,[
     load_cut_level(4),
     switch_on_term(2,3,fail,1,fail),
 
@@ -816,7 +706,7 @@ label(7),
     execute(add_to_list/4)]).
 
 
-predicate(terminate_list/2,247,static,private,user,[
+predicate(terminate_list/2,249,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -847,7 +737,7 @@ label(4),
     execute(terminate_list/2)]).
 
 
-predicate(gen_switch/5,255,static,private,user,[
+predicate(gen_switch/5,257,static,private,user,[
     load_cut_level(5),
     try_me_else(5),
     switch_on_term(1,2,fail,4,fail),
@@ -857,6 +747,7 @@ label(1),
 
 label(2),
     get_nil(0),
+    get_atom(fail,2),
     get_value(x(4),3),
     cut(x(5)),
     proceed,
@@ -903,7 +794,7 @@ label(5),
     proceed]).
 
 
-predicate(create_switch_list/4,276,static,private,user,[
+predicate(create_switch_list/4,278,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -943,7 +834,7 @@ label(4),
     execute(create_switch_list/4)]).
 
 
-predicate(gen_list/4,285,static,private,user,[
+predicate(gen_list/4,287,static,private,user,[
     load_cut_level(4),
     switch_on_term(2,3,fail,1,fail),
 
@@ -956,6 +847,7 @@ label(2),
 
 label(3),
     get_nil(0),
+    get_atom(fail,1),
     get_value(x(3),2),
     proceed,
 
@@ -991,7 +883,7 @@ label(7),
     execute(gen_list1/3)]).
 
 
-predicate(gen_list1/3,295,static,private,user,[
+predicate(gen_list1/3,297,static,private,user,[
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -1027,7 +919,7 @@ label(5),
     execute(gen_list1/3)]).
 
 
-predicate(gen_insts/3,304,static,private,user,[
+predicate(gen_insts/3,306,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,fail,fail,1,fail),
 
@@ -1091,7 +983,7 @@ label(5),
     proceed]).
 
 
-predicate(gen_insts1/3,313,static,private,user,[
+predicate(gen_insts1/3,317,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,fail,fail,1,fail),
 
@@ -1161,7 +1053,7 @@ label(5),
     proceed]).
 
 
-predicate(allocate_labels/3,323,static,private,user,[
+predicate(allocate_labels/3,327,static,private,user,[
     load_cut_level(3),
     try_me_else(7),
     switch_on_term(1,2,fail,4,6),

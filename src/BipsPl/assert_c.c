@@ -66,17 +66,11 @@ void
 Assert_4(WamWord head_word, WamWord body_word,
 	 WamWord asserta_word, WamWord check_perm_word)
 {
-  WamWord word, tag, *adr;
-  Bool asserta, check_perm;
-
-  Deref(asserta_word, word, tag, adr);
-  asserta = UnTag_INT(word);
-
-  Deref(check_perm_word, word, tag, adr);
-  check_perm = UnTag_INT(word);
-
-  last_clause =
-    Add_Dynamic_Clause(head_word, body_word, asserta, check_perm);
+  Bool asserta = Rd_Integer(asserta_word);
+  Bool check_perm = Rd_Integer(check_perm_word);
+  
+  last_clause = Add_Dynamic_Clause(head_word, body_word, asserta,
+				   check_perm);
 }
 
 
@@ -92,7 +86,7 @@ Assert_4(WamWord head_word, WamWord body_word,
 Bool
 Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *first_arg_adr;
   WamWord head_word1, body_word1;
   int func, arity;
@@ -104,9 +98,10 @@ Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
 
   first_arg_adr = Rd_Callable_Check(head_word, &func, &arity);
 
-  Deref(body_word, word, tag, adr);
+  DEREF(body_word, word, tag_mask);
   body_word = word;
-  if (tag != REF && tag != ATM && tag != LST && tag != STC)
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&
+      tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
     Pl_Err_Type(type_callable, body_word);
 
   for_what = Rd_Integer_Check(for_what_word);
@@ -182,7 +177,7 @@ Clause_Alt(DynCInf *clause, WamWord *w)
 Bool
 Retract_2(WamWord head_word, WamWord body_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *first_arg_adr;
   WamWord head_word1, body_word1;
   int func, arity;
@@ -193,9 +188,10 @@ Retract_2(WamWord head_word, WamWord body_word)
 
   first_arg_adr = Rd_Callable_Check(head_word, &func, &arity);
 
-  Deref(body_word, word, tag, adr);
+  DEREF(body_word, word, tag_mask);
   body_word = word;
-  if (tag != REF && tag != ATM && tag != LST && tag != STC)
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&
+      tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
     Pl_Err_Type(type_callable, body_word);
 
 #ifdef DEBUG
@@ -282,13 +278,40 @@ Retract_Last_Found_0(void)
 
 
 /*-------------------------------------------------------------------------*
+ * SETARG_Of_LAST_FOUND_2                                                  *
+ *                                                                         *
+ * update in place the ArgNo th argument of last_clause. NewValue must be  *
+ * a 1-tagged word data (atom, integer).                                   *
+ *-------------------------------------------------------------------------*/
+void
+Setarg_Of_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  int arg_no;
+
+  arg_no = Rd_Integer(arg_no_word) - 1;
+
+  DEREF(last_clause->head_word, word, tag_mask);
+  adr = UnTag_Address(word);
+
+  DEREF(new_value_word, word, tag_mask);
+
+  Arg(adr, arg_no) = word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * RETRACTALL_IF_EMPTY_HEAD_1                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
 Retractall_If_Empty_Head_1(WamWord head_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *arg_adr;
   int func, arity;
   PredInf *pred;
@@ -313,14 +336,15 @@ Retractall_If_Empty_Head_1(WamWord head_word)
   ret = TRUE;			/* check if all args are singletons variables */
   for (i = 0; i < arity; i++)
     {
-      Deref(*arg_adr, word, tag, adr);
-      if (tag != REF)
+      DEREF(*arg_adr, word, tag_mask);
+      if (tag_mask != TAG_REF_MASK)
 	{
 	  ret = FALSE;		/* not a var */
 	  break;
 	}
+      adr = UnTag_REF(word);
       ref_adr[i] = adr;
-      *adr = Tag_Value(INT, 0);	/* patch the argument to an INT */
+      *adr = Tag_INT(0);	/* patch the argument to an INT */
       arg_adr++;
     }
 
@@ -328,7 +352,7 @@ Retractall_If_Empty_Head_1(WamWord head_word)
   for (i = 0; i < j; i++)	/* restore the args */
     {
       adr = ref_adr[i];
-      *adr = Tag_Value(REF, adr);
+      *adr = Make_Self_Ref(adr);
     }
 
   if (ret)

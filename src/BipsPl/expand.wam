@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : expand.pl
-% date    : 9 6 2000
-% time    : 17:33:20
+% date    : 12 1 2000
+% time    : 16:13:1
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/expand.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/expand.pl').
 
 
 predicate('$use_expand'/0,27,static,private,built_in,[
@@ -55,7 +55,7 @@ label(3),
     proceed]).
 
 
-predicate('$call_term_expansion'/2,48,static,private,built_in,[
+predicate('$call_term_expansion'/2,46,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -73,18 +73,18 @@ predicate('$call_term_expansion'/2,48,static,private,built_in,[
     execute('$call'/4)]).
 
 
-predicate(phrase/2,55,static,private,built_in,[
+predicate(phrase/2,53,static,private,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(phrase/3,61,static,private,built_in,[
+predicate(phrase/3,59,static,private,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate('$phrase'/4,67,static,private,built_in,[
+predicate('$phrase'/4,65,static,private,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -110,11 +110,11 @@ predicate('$phrase'/4,67,static,private,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$dcg_trans_rule'/2,77,static,private,built_in,[
+predicate('$dcg_trans_rule'/2,75,static,private,built_in,[
     call_c_test('Dcg_Trans_Rule_2',[0,1]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,83,static,private,built_in,[
+predicate('$dcg_trans_body'/4,81,static,private,built_in,[
     call_c_test('Dcg_Trans_Body_4',[0,1,2,3]),
     proceed]).

@@ -24,6 +24,19 @@
 
 /* $Id$ */
 
+#if 0
+#define CHECK_PRINTF_ARGS
+#endif
+
+#ifdef CHECK_PRINTF_ARGS
+#define GCCPRINTF(x) __attribute__((format(printf,x,x+1)))
+#else
+#define GCCPRINTF(x)
+#endif
+
+
+
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -36,10 +49,26 @@
  * Global Variables                *
  *---------------------------------*/
 
+	  /* defined in mapper files */
+
+#ifndef MAPPER_FILE
+
+extern char *comment_prefix;
+extern char *local_symb_prefix;
+extern int strings_need_null;
+extern int call_c_reverse_args;
+extern char *inline_asm_data[];
+
+#endif
+
+
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+
+	  /* defined in ma2asm.c - used by the parser */
 
 void Declare_Initializer(char *initializer_fct);
 
@@ -50,10 +79,22 @@ void Switch_Ret(int nb_swt, SwtInf swt[]);
 void Decl_Long(char *name, int global, VType vtype, long value);
 
 
+	  /* defined in ma2asm.c - used by mappers */
 
-	  /* from os_cpu.c files */
+void Label_Printf(char *label, ...) GCCPRINTF(1);
 
-void Source_Line(int line_no, char *cmt);
+void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
+
+void Inst_Out(char *op, char *operands);
+
+void Char_Out(char c);
+
+void String_Out(char *s);
+
+void Int_Out(int d);
+
+
+	  /* defined in mapper files */
 
 void Asm_Start(void);
 
@@ -83,7 +124,7 @@ void Move_To_Reg_X(int index);
 
 void Move_To_Reg_Y(int index);
 
-void Call_C_Start(char *fct_name, int fc, int nb_args);
+void Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline);
 
 int Call_C_Arg_Int(int offset, long int_val);
 
@@ -101,7 +142,9 @@ int Call_C_Arg_Foreign_L(int offset, int adr_of, int index);
 
 int Call_C_Arg_Foreign_D(int offset, int adr_of, int index);
 
-void Call_C_Stop(char *fct_name, int nb_args);
+void Call_C_Invoke(char *fct_name, int nb_args);
+
+void Call_C_Stop(char *fct_name, int nb_args, char **p_inline);
 
 void Call_C_Adjust_Stack(int nb_pushes);
 
@@ -142,3 +185,18 @@ void Dico_Long_Stop(int nb);
 void Data_Start(char *initializer_fct);
 
 void Data_Stop(char *initializer_fct);
+
+
+
+
+#define INL_ACCESS_NAME(p)  (p[0])
+#define INL_ACCESS_NEXT(p)  (p[1])
+#define INL_ACCESS_LEVEL(p) (long) (p[2])
+#define INL_ACCESS_INFO(p)  (long) (p[3])
+
+#define INL_NEXT            ((char *) (0))
+#define INL_LEVEL(x)        ((char *) (x))
+#define INL_INFO(x)         ((char *) (x))
+#define INL_LABEL(x)        ((char *) (x))
+#define INL_END_FUNC        ((char *) (-1))
+

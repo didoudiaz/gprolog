@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : sort.pl
-% date    : 9 6 2000
-% time    : 17:33:17
+% date    : 12 1 2000
+% time    : 16:13:0
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/sort.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/sort.pl').
 
 
 predicate('$use_sort'/0,27,static,private,built_in,[

@@ -1,0 +1,2 @@
+#!/bin/sh
+pl -g "op(0, fx, dynamic), [whole, swilib], go_other" -- $*

@@ -1,32 +1,39 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog engine                                                   */
-/* File  : wam_archi.def (gives rise to wam_archi.h)                       */
-/* Descr.: Wam architecture definition - description file                  */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog engine                                                   *
+ * File  : wam_archi.def (gives rise to wam_archi.h)                       *
+ * Descr.: Wam architecture definition - description file                  *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*---------------------------------*/
-/* Register Descriptions           */
-/*---------------------------------*/
+/*---------------------------------*
+ * Register Descriptions           *
+ *---------------------------------*/
 
 
+typedef long WamWord;		/* a wamword is a long (32/64 bits) */
+
+typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
+
+typedef CodePtr WamCont;	/* a continuation is a code pointer */
+
+#ifndef ONLY_TAG_PART
 
 #define X(x)                       (reg_bank[x])
 #define A(a)                       (reg_bank[a])
@@ -38,64 +45,73 @@ typedef WamWord *WamWordP;
 
 @filler NB_OF_X_REGS
 
-@reg 3 WamCont  CP                          /* Continuation pointer        */
+@reg 4 WamCont  CP		/* Continuation pointer        */
 
-@reg 3 WamWordP E                           /* Last environment pointer    */
+@reg 4 WamWordP E		/* Last environment pointer    */
 
-@reg 2 WamWordP B                           /* Last choice point pointer   */
+@reg 2 WamWordP B		/* Last choice point pointer   */
 
-@reg 1 WamWordP H                           /* Top of the heap             */
+@reg 3 WamWordP H		/* Top of the heap             */
+@reg 3 WamWordP HB1		/* copy of HB(B)               */
 
-@reg 2 WamWordP TR                          /* Top of the trail            */
-@reg 4 WamWordP S                           /* Unification pointer         */
+@reg 1 WamWordP TR		/* Top of the trail            */
+@reg 5 WamWordP S		/* Unification pointer         */
 
-@reg 9 WamWord  STAMP                       /* Choice point stamp (for FD) */
-@reg 3 WamWordP CS                          /* Top of the constraint stack */
+@reg 9 WamWord  STAMP		/* Choice point stamp (for FD) */
+@reg 4 WamWordP CS		/* Top of the constraint stack */
 
-@reg 9 WamWord  BCI                         /* Byte-Code info              */
+@reg 9 WamWord  BCI		/* Byte-code info              */
+
+@reg 9 WamWordP LSSA		/* Local stack start address   */
 
 
 @end regs
 
+#endif
 
 
-
-/*---------------------------------*/
-/* Tag Descriptions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Tag Descriptions                *
+ *---------------------------------*/
 
 
 @begin tags
 
-@tag INT int                                /* Integer (must be the first) */
-@tag REF stack                              /* Reference                   */
-@tag FDV stack                              /* Finite Domain Variable      */
-@tag ATM int                                /* Atom                        */
-@tag FLT stack                              /* Float                       */
-@tag LST stack                              /* List                        */
-@tag STC stack                              /* Structure                   */
+@tag REF address 0		/* Reference                   */
+@tag LST address 1		/* List                        */
+@tag STC address 2		/* Structure                   */
+
+@tag ATM short_uns 3		/* Atom                        */
+
+@tag FLT address 4		/* Float                       */
+@tag FDV address 5		/* Finite Domain Variable      */
+
+@tag INT integer 7		/* Integer                     */
 
 @end tags
 
 
 
 
-/*---------------------------------*/
-/* Stack Descriptions              */
-/*---------------------------------*/
+/*---------------------------------*
+ * Stack Descriptions              *
+ *---------------------------------*/
 
+#ifndef ONLY_TAG_PART
 
-#define KBytes_To_Wam_Words(kb)    ((1024*kb+sizeof(WamWord)-1)/sizeof(WamWord))
+#define KBytes_To_Wam_Words(kb)    ((1024 * kb + sizeof(WamWord) - 1) / sizeof(WamWord))
 
-#define Wam_Words_To_KBytes(ww)    (ww*sizeof(WamWord)/1024)
+#define Wam_Words_To_KBytes(ww)    (ww * sizeof(WamWord) / 1024)
 
-#define Local_Top                  ((B>=E) ? B : E)
+#define Local_Top                  ((B >= E) ? B : E)
 
 @begin stacks
 
-@stack trail  2048 TR                        /* Trail  stack               */
-@stack cstr   2048 CS                        /* Constraint stack           */
-@stack global 4096 H                         /* Global stack               */
-@stack local  3192 Local_Top                 /* Local  stack (after global)*/
+@stack trail  2048 TR		/* Trail  stack               */
+@stack cstr   2048 CS		/* Constraint stack           */
+@stack global 4096 H		/* Global stack               */
+@stack local  3192 Local_Top	/* Local  stack (after global)*/
 
 @end stacks
+
+#endif

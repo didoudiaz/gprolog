@@ -70,13 +70,14 @@ static Bool String_To_Number(char *str, WamWord number_word);
 
 
 
-Prolog_Prototype(ATOM_CONCAT_ALT, 0)
-Prolog_Prototype(SUB_ATOM_ALT, 0) Prolog_Prototype(CURRENT_ATOM_ALT, 0)
+Prolog_Prototype(ATOM_CONCAT_ALT, 0);
+Prolog_Prototype(SUB_ATOM_ALT, 0);
+Prolog_Prototype(CURRENT_ATOM_ALT, 0);
 
-#define MALLOC_STR(n)                                                       \
- if (n<0)                                                                   \
-     return FALSE;                                                          \
- str=(char *) Malloc(n+1)
+#define MALLOC_STR(n) \
+   if (n<0) \
+     return FALSE; \
+   str=(char *) Malloc(n+1)
 
 
 
@@ -85,8 +86,8 @@ Prolog_Prototype(SUB_ATOM_ALT, 0) Prolog_Prototype(CURRENT_ATOM_ALT, 0)
  * ATOM_LENGTH_2                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     Bool
-     Atom_Length_2(WamWord atom_word, WamWord length_word)
+Bool
+Atom_Length_2(WamWord atom_word, WamWord length_word)
 {
   int atom;
 
@@ -104,43 +105,43 @@ Prolog_Prototype(SUB_ATOM_ALT, 0) Prolog_Prototype(CURRENT_ATOM_ALT, 0)
 Bool
 Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int tag1, tag2, tag3;
   AtomInf *patom1, *patom2, *patom3;
   char *str;
   int l;
 
 
-  Deref(atom1_word, word, tag, adr);
-  if (tag != REF && tag != ATM)
+  DEREF(atom1_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(type_atom, atom1_word);
-  tag1 = tag;
+  tag1 = tag_mask;
   atom1_word = word;
 
 
-  Deref(atom2_word, word, tag, adr);
-  if (tag != REF && tag != ATM)
+  DEREF(atom2_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(type_atom, atom2_word);
-  tag2 = tag;
+  tag2 = tag_mask;
   atom2_word = word;
 
 
-  Deref(atom3_word, word, tag, adr);
-  if (tag != REF && tag != ATM)
+  DEREF(atom3_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(type_atom, atom3_word);
-  tag3 = tag;
+  tag3 = tag_mask;
   atom3_word = word;
 
 
-  if (tag3 == REF && (tag1 == REF || tag2 == REF))
+  if (tag3 == TAG_REF_MASK && (tag1 == TAG_REF_MASK || tag2 == TAG_REF_MASK))
     Pl_Err_Instantiation();
 
 
-  if (tag1 == ATM)
+  if (tag1 == TAG_ATM_MASK)
     {
       patom1 = atom_tbl + UnTag_ATM(atom1_word);
 
-      if (tag2 == ATM)
+      if (tag2 == TAG_ATM_MASK)
 	{
 	  patom2 = atom_tbl + UnTag_ATM(atom2_word);
 	  l = patom1->prop.length + patom2->prop.length;
@@ -159,7 +160,7 @@ Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
 	&& Get_Atom(Create_Malloc_Atom(str), atom2_word);
     }
 
-  if (tag2 == ATM)		/* here tag1==REF */
+  if (tag2 == TAG_ATM_MASK)	/* here tag1 == REF */
     {
       patom2 = atom_tbl + UnTag_ATM(atom2_word);
       patom3 = atom_tbl + UnTag_ATM(atom3_word);
@@ -183,12 +184,11 @@ Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
       A(1) = atom2_word;
       A(2) = (WamWord) patom3;
       A(3) = (WamWord) (patom3->name + 1);
-      Create_Choice_Point((CodePtr) Prolog_Predicate(ATOM_CONCAT_ALT, 0),
-			  4);
+      Create_Choice_Point((CodePtr) Prolog_Predicate(ATOM_CONCAT_ALT, 0), 4);
     }
 
   Get_Atom(atom_void, atom1_word);
-  Get_Atom(UnTag_ATM(atom3_word), atom2_word);
+  Get_Atom_Tagged(atom3_word, atom2_word);
 
   return TRUE;
 }
@@ -248,22 +248,22 @@ Atom_Concat_Alt_0(void)
 
 
 
-#define DEREF_LG(lg_word,lg)                                                \
- Deref(lg_word,word,tag,adr);                                               \
- mask<<=1;                                                                  \
- if (tag==INT)                                                              \
+#define DEREF_LG(lg_word, lg)                                               \
+  DEREF(lg_word, word, tag_mask);                                           \
+  mask <<= 1;                                                               \
+  if (tag_mask == TAG_INT_MASK)                                             \
     {                                                                       \
-     if ((lg=UnTag_INT(word))<0)                                            \
-         Pl_Err_Domain(domain_not_less_than_zero,word);                     \
-     mask|=1;                                                               \
+      if ((lg = UnTag_INT(word)) < 0)                                       \
+        Pl_Err_Domain(domain_not_less_than_zero, word);                     \
+      mask |= 1;                                                            \
     }                                                                       \
   else                                                                      \
     {                                                                       \
-     lg=0;                                                                  \
-     if (tag!=REF)                                                          \
-         Pl_Err_Type(type_integer,word);                                    \
+      lg = 0;                                                               \
+      if (tag_mask != TAG_REF_MASK)                                         \
+        Pl_Err_Type(type_integer, word);                                    \
     }                                                                       \
- lg_word=word
+  lg_word = word
 
 
 
@@ -276,7 +276,7 @@ Bool
 Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
 	   WamWord after_word, WamWord sub_atom_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   AtomInf *patom;
   AtomInf *psub_atom = NULL;	/* only for the compiler */
   int length;
@@ -295,18 +295,18 @@ Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
   DEREF_LG(after_word, a);
 
 
-  Deref(sub_atom_word, word, tag, adr);
-  if (tag != REF && tag != ATM)
+  DEREF(sub_atom_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(type_atom, word);
   sub_atom_word = word;
-  if (tag == ATM)
+  if (tag_mask == TAG_ATM_MASK)
     {
       psub_atom = atom_tbl + UnTag_ATM(word);
       l = psub_atom->prop.length;
       if (!Get_Integer(l, length_word))
 	return FALSE;
 
-      if ((mask & 5) == 5 && length != b + l + a)	/* B and A fixed */
+      if ((mask & 5) == 5 && length != b + l + a) /* B and A fixed */
 	return FALSE;
 
       if (mask & 4)		/* B fixed */
@@ -326,7 +326,7 @@ Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
     }
 
 
-  switch (mask)			/* mask <=7 (3 bits) B L A (1 if fixed, 0 if var) */
+  switch (mask)			/* mask <= 7, B L A (1: fixed, 0: var) */
     {
     case 0:			/* nothing fixed */
     case 2:			/* L fixed */
@@ -475,7 +475,7 @@ Compute_Next_BLA(int mask, AtomInf *patom, AtomInf *psub_atom,
   char *str;
 
 
-  switch (mask)			/* mask (3 bits) B L A (1 if fixed, 0 if var) */
+  switch (mask)			/* mask B L A (1: fixed, 0: var) */
     {
     case 0:			/* nothing fixed */
       if (++l > length - b)
@@ -508,8 +508,10 @@ Compute_Next_BLA(int mask, AtomInf *patom, AtomInf *psub_atom,
     default:			/* sub_atom fixed */
       if (++b > length - l)
 	return FALSE;
+
       if ((str = strstr(patom->name + b, psub_atom->name)) == NULL)
 	return FALSE;
+
       b = str - patom->name;
       a = length - b - l;
       break;
@@ -551,10 +553,10 @@ Create_Malloc_Atom(char *str)
 Bool
 Atom_Chars_2(WamWord atom_word, WamWord chars_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(atom_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(atom_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     return Un_Chars_Check(Rd_String_Check(word), chars_word);
 
   return Un_String_Check(Rd_Chars_Check(chars_word), atom_word);
@@ -570,10 +572,10 @@ Atom_Chars_2(WamWord atom_word, WamWord chars_word)
 Bool
 Atom_Codes_2(WamWord atom_word, WamWord codes_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(atom_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(atom_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     return Un_Codes_Check(Rd_String_Check(word), codes_word);
 
   return Un_String_Check(Rd_Codes_Check(codes_word), atom_word);
@@ -589,18 +591,18 @@ Atom_Codes_2(WamWord atom_word, WamWord codes_word)
 Bool
 Number_Atom_2(WamWord number_word, WamWord atom_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   char *str;
 
-  Deref(atom_word, word, tag, adr);
-  if (tag == ATM)
+  DEREF(atom_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK)
     return String_To_Number(atom_tbl[UnTag_ATM(word)].name, number_word);
 
-  if (tag != REF)
+  if (tag_mask != TAG_REF_MASK)
     Pl_Err_Type(type_atom, word);
 
-  Deref(number_word, word, tag, adr);
-  if (tag == INT)
+  DEREF(number_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
     {
       sprintf(glob_buff, "%ld", UnTag_INT(word));
       return Un_String_Check(glob_buff, atom_word);
@@ -620,7 +622,7 @@ Number_Atom_2(WamWord number_word, WamWord atom_word)
 Bool
 Number_Chars_2(WamWord number_word, WamWord chars_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *lst_adr, list_word;
   char *str = glob_buff;
   int atom;
@@ -628,18 +630,18 @@ Number_Chars_2(WamWord number_word, WamWord chars_word)
   list_word = chars_word;
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	goto from_nb;
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
       atom = UnTag_ATM(word);
-      if (tag != ATM || atom_tbl[atom].prop.length != 1)
+      if (tag_mask != TAG_ATM_MASK || atom_tbl[atom].prop.length != 1)
 	goto from_nb;
 
       *str++ = atom_tbl[atom].name[0];
@@ -650,14 +652,14 @@ Number_Chars_2(WamWord number_word, WamWord chars_word)
   return String_To_Number(glob_buff, number_word);
 
 from_nb:
-  Deref(number_word, word, tag, adr);
-  if (tag == INT)
+  DEREF(number_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
     {
       sprintf(glob_buff, "%ld", UnTag_INT(word));
       return Un_Chars(glob_buff, chars_word);
     }
 
-  if (tag != REF)
+  if (tag_mask != TAG_REF_MASK)
     {
       str = Float_To_String(Rd_Number_Check(word));
       return Un_Chars(str, chars_word);
@@ -677,7 +679,7 @@ from_nb:
 Bool
 Number_Codes_2(WamWord number_word, WamWord codes_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *lst_adr, list_word;
   char *str = glob_buff;
   int c;
@@ -685,18 +687,18 @@ Number_Codes_2(WamWord number_word, WamWord codes_word)
   list_word = codes_word;
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	goto from_nb;
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
       c = UnTag_INT(word);
-      if (tag != INT || !Is_Valid_Code(c))
+      if (tag_mask != TAG_INT_MASK || !Is_Valid_Code(c))
 	goto from_nb;
 
       *str++ = c;
@@ -707,14 +709,14 @@ Number_Codes_2(WamWord number_word, WamWord codes_word)
   return String_To_Number(glob_buff, number_word);
 
 from_nb:
-  Deref(number_word, word, tag, adr);
-  if (tag == INT)
+  DEREF(number_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
     {
       sprintf(glob_buff, "%ld", UnTag_INT(word));
       return Un_Codes(glob_buff, codes_word);
     }
 
-  if (tag != REF)
+  if (tag_mask != TAG_REF_MASK)
     {
       str = Float_To_String(Rd_Number_Check(word));
       return Un_Codes(str, codes_word);
@@ -734,10 +736,10 @@ from_nb:
 Bool
 Char_Code_2(WamWord char_word, WamWord code_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(char_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(char_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     return Un_Code_Check(Rd_Char_Check(word), code_word);
 
   return Un_Char_Check(Rd_Code_Check(code_word), char_word);
@@ -753,20 +755,20 @@ Char_Code_2(WamWord char_word, WamWord code_word)
 Bool
 Name_2(WamWord atomic_word, WamWord codes_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int syn_flag;
   Bool is_number;
   char *str;
 
 
-  Deref(atomic_word, word, tag, adr);
-  if (tag == ATM)
+  DEREF(atomic_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK)
     return Atom_Codes_2(word, codes_word);
 
-  if (tag == INT || tag == FLT)
+  if (tag_mask == TAG_INT_MASK || tag_mask == TAG_FLT_MASK)
     return Number_Codes_2(word, codes_word);
 
-  if (tag != REF)
+  if (tag_mask != TAG_REF_MASK)
     Pl_Err_Type(type_atomic, word);
 
 
@@ -795,10 +797,10 @@ Name_2(WamWord atomic_word, WamWord codes_word)
 Bool
 Lower_Upper_2(WamWord lower_word, WamWord upper_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(lower_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(lower_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     return Un_Char_Check(toupper(Rd_Char_Check(word)), upper_word);
 
   return Un_Char_Check(tolower(Rd_Char_Check(upper_word)), lower_word);
@@ -821,7 +823,8 @@ String_To_Number(char *str, WamWord number_word)
 
   Check_For_Un_Number(number_word);
 
-#if 0				/* #if 0 since layout leading chars allowed in ISO cf. number_chars */
+/* #if 0 since layout leading chars allowed in ISO cf. number_chars */
+#if 0
   if (!isdigit(*str) && *str != '-')
     {
       Set_Last_Syntax_Error("", 1, 1, "non numeric character");
@@ -864,13 +867,13 @@ String_To_Number(char *str, WamWord number_word)
 Bool
 Atom_Hash_2(WamWord atom_word, WamWord hash_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int hash;
 
-  Deref(atom_word, word, tag, adr);
+  DEREF(atom_word, word, tag_mask);
   atom_word = word;
 
-  if (tag != REF)
+  if (tag_mask != TAG_REF_MASK)
     return Un_Positive_Check(Rd_Atom_Check(word), hash_word);
 
   hash = Rd_Positive_Check(hash_word);
@@ -888,14 +891,14 @@ Atom_Hash_2(WamWord atom_word, WamWord hash_word)
 Bool
 Current_Atom_2(WamWord atom_word, WamWord hide_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   Bool hide;
   int atom;
 
   hide = Rd_Integer_Check(hide_word);
 
-  Deref(atom_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(atom_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     return *Rd_String_Check(word) != '$' || !hide;
 
   atom = -1;
@@ -908,7 +911,7 @@ Current_Atom_2(WamWord atom_word, WamWord hide_word)
       if (!hide || atom_tbl[atom].name[0] != '$')
 	break;
     }
-  /* non deterministic case */
+				/* non deterministic case */
   A(0) = atom_word;
   A(1) = hide;
   A(2) = atom;
@@ -949,9 +952,9 @@ Current_Atom_Alt_0(void)
       if (!hide || atom_tbl[atom].name[0] != '$')
 	break;
     }
-  /* non deterministic case */
+				/* non deterministic case */
 
-#if 0 /* the following data is unchanged */
+#if 0				/* the following data is unchanged */
   AB(B, 0) = atom_word;
   AB(B, 1) = hide;
 #endif
@@ -973,11 +976,11 @@ Atom_Property_6(WamWord atom_word,
 		WamWord postfix_op_word,
 		WamWord needs_quote_word, WamWord needs_scan_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int atom;
   AtomInf *patom;
 
-  Deref(atom_word, word, tag, adr);
+  DEREF(atom_word, word, tag_mask);
   atom = UnTag_ATM(word);
   patom = atom_tbl + atom;
 

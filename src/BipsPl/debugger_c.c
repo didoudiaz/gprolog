@@ -41,7 +41,7 @@
 
 #define BANK_NAME_OFFSET_LENGTH    15
 
-#if WORD_SIZE==32
+#if WORD_SIZE == 32
 #define HEXADECIMAL_LENGTH         10
 #define DECIMAL_LENGTH             10
 #else
@@ -96,6 +96,8 @@ static StmInf *pstm_o;
  * Function Prototypes             *
  *---------------------------------*/
 
+static void My_System_Directives(void);
+
 static void Scan_Command(char *source_str);
 
 static FctPtr Find_Function(void);
@@ -112,13 +114,11 @@ static Bool Environment(void);
 
 static Bool Backtrack(void);
 
-static
-  WamWord *Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name);
+static WamWord *Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name);
 
 static long Read_An_Integer(int arg_nb);
 
-static
-  void Print_Bank_Name_Offset(char *prefix, char *bank_name, int offset);
+static void Print_Bank_Name_Offset(char *prefix, char *bank_name, int offset);
 
 static void Print_Wam_Word(WamWord *word_adr);
 
@@ -136,7 +136,8 @@ static Bool Help(void);
 
 #define DEBUG_CALL                 X2464656275675F63616C6C
 
-Prolog_Prototype(INIT_DEBUGGER, 0) Prolog_Prototype(DEBUG_CALL, 2)
+Prolog_Prototype(INIT_DEBUGGER, 0);
+Prolog_Prototype(DEBUG_CALL, 2);
 
 
 
@@ -147,12 +148,22 @@ Prolog_Prototype(INIT_DEBUGGER, 0) Prolog_Prototype(DEBUG_CALL, 2)
  * Calls '$init_debugger' and reset the heap actual start (cf. engine.c).  *
  * '$init_debugger' is not called via a directive :- initialize to avoid to*
  * count it in Exec_Directive() (cf engine.c).                             *
+ * However, it cannot be called directly since we do not if the initializer*
+ * of g_var_inl_c.c has been executed ('$init_debugger' uses g_assign).    *
+ * We thus act like a Prolog object, calling New_Object.                   *
  *-------------------------------------------------------------------------*/
-     static void
-     Debug_Initializer(void)
+static void
+Debug_Initializer(void)
+{
+  New_Object(My_System_Directives, NULL);
+}
+
+
+static void
+My_System_Directives(void)
 {
   Call_Prolog(Prolog_Predicate(INIT_DEBUGGER, 0));
-
+  
   Set_Heap_Actual_Start(H);	/* changed to store global info */
 }
 
@@ -195,9 +206,13 @@ Reset_Debug_Call_Code_0(void)
 void
 Remove_One_Choice_Point_1(WamWord b_word)
 {
-  WamWord *b = UnTag_REF(b_word);
+  WamWord word, tag_mask;
+  WamWord *b;
+   
+  DEREF(b_word, word, tag_mask);
+  b = From_WamWord_To_B(word);
 
-  B = BB(b);
+  Assign_B(BB(b));
 }
 
 
@@ -211,7 +226,7 @@ void
 Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
 		    WamWord lastb_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *b;
   HashScan scan;
   PredInf *pred;
@@ -221,11 +236,10 @@ Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
   int func, arity;
 
 
-  Deref(b_word, word, tag, adr);
-  b = UnTag_REF(word);
+  DEREF(b_word, word, tag_mask);
+  b = From_WamWord_To_B(word);
 
   code = (WamCont) ALTB(b);
-
 
   for (pred = (PredInf *) Hash_First(pred_tbl, &scan); pred;
        pred = (PredInf *) Hash_Next(&scan))
@@ -243,7 +257,7 @@ Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
 
   Get_Atom(func, name_word);
   Get_Integer(arity, arity_word);
-  Get_Integer((long) BB(b), lastb_word);
+  Unify(From_B_To_WamWord(BB(b)), lastb_word);
 }
 
 
@@ -257,12 +271,12 @@ Bool
 Scan_Choice_Point_Info_3(WamWord b_word, WamWord name_word,
 			 WamWord arity_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *b;
   int func, arity;
 
-  Deref(b_word, word, tag, adr);
-  b = UnTag_REF(word);
+  DEREF(b_word, word, tag_mask);
+  b = From_WamWord_To_B(word);
 
   func = Scan_Choice_Point_Pred(b, &arity);
   if (func < 0)
@@ -275,6 +289,8 @@ Scan_Choice_Point_Info_3(WamWord b_word, WamWord name_word,
 }
 
 
+
+
 /*-------------------------------------------------------------------------*
  * CHOICE_POINT_ARG_3                                                      *
  *                                                                         *
@@ -282,15 +298,15 @@ Scan_Choice_Point_Info_3(WamWord b_word, WamWord name_word,
 void
 Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *b;
   int i;
 
 
-  Deref(b_word, word, tag, adr);
-  b = UnTag_REF(word);
+  DEREF(b_word, word, tag_mask);
+  b = From_WamWord_To_B(word);
 
-  Deref(i_word, word, tag, adr);
+  DEREF(i_word, word, tag_mask);
   i = UnTag_INT(word) - 1;
 
   Unify(arg_word, AB(b, i));
@@ -541,14 +557,28 @@ Dereference(void)
   char *bank_name;
   char *stack_name;
   int offset;
-  WamWord word, tag, *adr;
-  WamWord *d_adr;
+  WamWord word, tag_mask;
+  WamWord word1, *d_adr;
+  WamWord *adr;
 
   if ((adr = Read_Bank_Adr(FALSE, 1, &bank_name)) != NULL)
     {
       offset = (nb_read_arg < 3) ? 0 : Read_An_Integer(2);
 
-      Deref(adr[offset], word, tag, d_adr);
+				/* my own DEREF here to get the address */
+      d_adr = NULL;		/* added this */
+      word = adr[offset];
+      do
+	{
+	  word1 = word;
+	  tag_mask = Tag_Mask_Of(word);
+	  if (tag_mask != TAG_REF_MASK)
+	    break;
+
+	  d_adr = UnTag_REF(word); /* added this */
+	  word = *d_adr;
+	}
+      while (word != word1);
 
       Print_Bank_Name_Offset((adr == reg_copy) ? reg_tbl[offset] : "",
 			     bank_name, offset);
@@ -833,8 +863,8 @@ Print_Wam_Word(WamWord *word_adr)
 			VALUE_PART_LENGTH, (long) value);
 	  break;
 
-	case UNSIGNED:
-	  value = (WamWord) UnTag_Unsigned(word);
+	case SHORT_UNS:
+	  value = (WamWord) UnTag_Short_Uns(word);
 	  if (tag == ATM && value >= 0 && value < MAX_ATOM &&
 	      atom_tbl[value].name != NULL)
 	    Stream_Printf(pstm_o, "ATM,%*s (%ld)",
@@ -845,8 +875,8 @@ Print_Wam_Word(WamWord *word_adr)
 			  VALUE_PART_LENGTH, (long) value);
 	  break;
 
-	case STACK:
-	  value = (WamWord) UnTag_Stack(word);
+	case ADDRESS:
+	  value = (WamWord) UnTag_Address(word);
 	  if ((adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL)
 	    {
 	      Stream_Printf(pstm_o, "%s,", tag_tbl[tag].name);
@@ -856,9 +886,6 @@ Print_Wam_Word(WamWord *word_adr)
 	  else
 	    tag = -1;
 	  break;
-
-	default:
-	  ;
 	}
     }
   else
@@ -917,7 +944,7 @@ Modify_Wam_Word(WamWord *word_adr)
   char *comma;
   char *slash;
   char *p;
-  int i;
+  int i, j;
 
   for (;;)
     {
@@ -974,31 +1001,33 @@ Modify_Wam_Word(WamWord *word_adr)
 	  switch (tag_tbl[i].type)
 	    {
 	    case INTEGER:
-	    case UNSIGNED:
+	      word = strtol(comma, &p, 0);
+	      if (*p != '\0')
+		goto err;
+
+	      *word_adr = Tag_Integer(tag_tbl[i].tag_mask, Read_An_Integer(1));
+	      return;
+
+	    case SHORT_UNS:
 	      word = strtol(comma, &p, 0);
 	      if (*p == '\0')
-		{
-		  *word_adr = Tag_Value(i, Read_An_Integer(1));
-		  return;
-		}
+		j = Read_An_Integer(1);
 	      else if (strcmp(read_arg[0], "ATM") == 0)
-		{
-		  *word_adr = Tag_Value(i, Create_Allocate_Atom(comma));
-		  return;
-		}
-	      goto err;
+		  j = Create_Allocate_Atom(comma);
+	      else
+		goto err;
+	      
+	      *word_adr = Tag_Short_Uns(tag_tbl[i].tag_mask, j);
+	      return;
 
-	    case STACK:
+	    case ADDRESS:
 	      if ((adr = Read_Bank_Adr(TRUE, 1, &bank_name)) != NULL)
 		{
 		  offset = (nb_read_arg < 3) ? 0 : Read_An_Integer(2);
-		  *word_adr = Tag_Value(i, adr + offset);
+		  *word_adr = Tag_Address(tag_tbl[i].tag_mask, adr + offset);
 		  return;
 		}
 	      goto err;
-
-	    default:
-	      ;
 	    }
 	}
 

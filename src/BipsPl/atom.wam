@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : atom.pl
-% date    : 9 6 2000
-% time    : 17:33:13
+% date    : 12 1 2000
+% time    : 16:12:58
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/atom.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/atom.pl').
 
 
 predicate('$use_atom'/0,27,static,private,built_in,[
@@ -190,7 +190,7 @@ predicate('$atom_property1'/2,151,static,private,built_in,[
     execute('$atom_property2'/7)]).
 
 
-predicate('$check_atom_prop'/1,161,static,private,built_in,[
+predicate('$check_atom_prop'/1,158,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     proceed,
@@ -263,7 +263,7 @@ label(18),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$atom_property2'/7,184,static,private,built_in,[
+predicate('$atom_property2'/7,181,static,private,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -331,7 +331,7 @@ label(16),
     proceed]).
 
 
-predicate(new_atom/1,203,static,private,built_in,[
+predicate(new_atom/1,200,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(new_atom,0),
@@ -348,7 +348,7 @@ predicate(new_atom/1,203,static,private,built_in,[
     proceed]).
 
 
-predicate(new_atom/2,208,static,private,built_in,[
+predicate(new_atom/2,205,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -366,7 +366,7 @@ predicate(new_atom/2,208,static,private,built_in,[
     proceed]).
 
 
-predicate(new_atom/3,213,static,private,built_in,[
+predicate(new_atom/3,210,static,private,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),

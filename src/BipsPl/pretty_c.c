@@ -177,14 +177,14 @@ Portray_Clause_1(WamWord term_word)
 static void
 Portray_Clause(StmInf *pstm, WamWord term_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord arg_word[2];
 
   if (Check_Structure(term_word, atom_clause, 2, arg_word))
     {
       Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
-      Deref(arg_word[1], word, tag, adr);
-      if (tag != ATM || UnTag_ATM(word) != atom_true)
+      DEREF(arg_word[1], word, tag_mask);
+      if (tag_mask != TAG_ATM_MASK || UnTag_ATM(word) != atom_true)
 	{
 	  Stream_Puts(" :-", pstm);
 	  Start_Line(pstm, 0, ' ');
@@ -197,8 +197,8 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
   if (Check_Structure(term_word, atom_dcg, 2, arg_word))
     {
       Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
-      Deref(arg_word[1], word, tag, adr);
-      if (tag != ATM || UnTag_ATM(word) != atom_true)
+      DEREF(arg_word[1], word, tag_mask);
+      if (tag_mask != TAG_ATM_MASK || UnTag_ATM(word) != atom_true)
 	{
 	  Stream_Puts(" -->", pstm);
 	  Start_Line(pstm, 0, ' ');
@@ -230,12 +230,13 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 static Bool
 Check_Structure(WamWord term_word, int func, int arity, WamWord arg_word[])
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   int i;
 
 
-  Deref(term_word, word, tag, adr);
-  if (tag != STC)
+  DEREF(term_word, word, tag_mask);
+  if (tag_mask != TAG_STC_MASK)
     return FALSE;
 
   adr = UnTag_STC(word);
@@ -259,14 +260,14 @@ Check_Structure(WamWord term_word, int func, int arity, WamWord arg_word[])
 static Bool
 Is_Cut(WamWord body_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord arg_word[2];
 
   while (Check_Structure(body_word, ATOM_CHAR(','), 2, arg_word))
     body_word = arg_word[0];
 
-  Deref(body_word, word, tag, adr);
-  return (tag == ATM && UnTag_ATM(word) == ATOM_CHAR('!'));
+  DEREF(body_word, word, tag_mask);
+  return (word == Tag_ATM(ATOM_CHAR('!')));
 }
 
 
@@ -280,10 +281,8 @@ static void
 Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
 {
   WamWord arg_word[2];
-  static
-    int prec[] =
-
-    { 1200 - 1, 1000 - 1, 1000, 1100 - 1, 1100, 1050 - 1, 1050 };
+  static 
+    int prec[] = { 1200 - 1, 1000 - 1, 1000, 1100 - 1, 1100, 1050 - 1, 1050 };
 
 
   if (Check_Structure(body_word, ATOM_CHAR(','), 2, arg_word))
@@ -451,7 +450,7 @@ Collect_Singleton(WamWord *adr)
 Bool
 Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr, *stc_adr;
 
@@ -461,31 +460,31 @@ Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 
   for (;;)
     {
-      Deref(query_list_word, word, tag, adr);
+      DEREF(query_list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
 
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
       stc_adr = UnTag_STC(word);
-      if (tag == STC && Functor_And_Arity(stc_adr) == equal_2)
+      if (tag_mask == TAG_STC_MASK && Functor_And_Arity(stc_adr) == equal_2)
 	{			/* form: Name=Value */
-	  Deref(Arg(stc_adr, 0), word, tag, adr);
-	  if (tag != ATM)
+	  DEREF(Arg(stc_adr, 0), word, tag_mask);
+	  if (tag_mask != TAG_ATM_MASK)
 	    goto unchanged;
-	  /* Value is a variable */
-	  Deref(Arg(stc_adr, 1), word, tag, adr);
-	  if (tag != REF)
+				/* Value is a variable */
+	  DEREF(Arg(stc_adr, 1), word, tag_mask);
+	  if (tag_mask != TAG_REF_MASK)
 	    goto unchanged;
-	  /* Value is a variable */
+				/* Value is a variable */
 	  Get_Structure(atom_dollar_varname, 1, word);
 	  Unify_Value(Arg(stc_adr, 0));	/* bind Value to '$VARNAME'(Name) */
 	}
@@ -517,7 +516,7 @@ Bool
 Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 		 WamWord from_word, WamWord next_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr, *stc_adr;
   int i;
@@ -531,27 +530,27 @@ Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 
   for (;;)
     {
-      Deref(exclude_list_word, word, tag, adr);
+      DEREF(exclude_list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
 
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
       Collect_Excluded_Rec(word);
 
       stc_adr = UnTag_STC(word);
-      if (tag == STC && Functor_And_Arity(stc_adr) == equal_2)
+      if (tag_mask == TAG_STC_MASK && Functor_And_Arity(stc_adr) == equal_2)
 	{			/* form: Name=Value */
-	  Deref(Arg(stc_adr, 0), word, tag, adr);
-	  if (tag == ATM)
+	  DEREF(Arg(stc_adr, 0), word, tag_mask);
+	  if (tag_mask == TAG_ATM_MASK)
 	    Exclude_A_Var_Number(Var_Name_To_Var_Number(UnTag_ATM(word)));
 	}
 
@@ -613,15 +612,16 @@ Exclude_A_Var_Number(int n)
 static void
 Collect_Excluded_Rec(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *stc_adr;
   int i;
 
-terminal_rec:
+ terminal_rec:
 
-  Deref(start_word, word, tag, adr);
-
-  if (tag == LST)
+  DEREF(start_word, word, tag_mask);
+  
+  if (tag_mask == TAG_LST_MASK)
     {
       adr = UnTag_LST(word);
       adr = &Car(adr);
@@ -630,14 +630,14 @@ terminal_rec:
       goto terminal_rec;
     }
 
-  if (tag != STC)
+  if (tag_mask != TAG_STC_MASK)
     return;
 
   stc_adr = UnTag_STC(word);
   if (Functor_And_Arity(stc_adr) == dollar_var_1)
     {
-      Deref(Arg(stc_adr, 0), word, tag, adr);
-      if (tag != INT)
+      DEREF(Arg(stc_adr, 0), word, tag_mask);
+      if (tag_mask != TAG_INT_MASK)
 	goto normal_compound;
 
       Exclude_A_Var_Number(UnTag_INT(word));
@@ -646,15 +646,15 @@ terminal_rec:
 
   if (Functor_And_Arity(stc_adr) == dollar_varname_1)
     {
-      Deref(Arg(stc_adr, 0), word, tag, adr);
-      if (tag != ATM)
+      DEREF(Arg(stc_adr, 0), word, tag_mask);
+      if (tag_mask != TAG_ATM_MASK)
 	goto normal_compound;
 
       Exclude_A_Var_Number(Var_Name_To_Var_Number(UnTag_ATM(word)));
       return;
     }
 
-normal_compound:
+ normal_compound:
   i = Arity(stc_adr);
   adr = &Arg(stc_adr, 0);
   while (--i)

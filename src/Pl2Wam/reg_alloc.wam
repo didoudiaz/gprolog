@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
+% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : reg_alloc.pl
-% date    : 11 9 2000
-% time    : 18:31:0
+% date    : 12 15 2000
+% time    : 21:44:2
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/reg_alloc.pl').
@@ -49,7 +49,7 @@ label(1),
     proceed]).
 
 
-predicate(aliases/3,108,static,private,user,[
+predicate(aliases/3,110,static,private,user,[
     load_cut_level(3),
     switch_on_term(1,2,fail,4,fail),
 
@@ -84,7 +84,7 @@ label(4),
     execute(aliases/3)]).
 
 
-predicate('$aliases/3_$aux1'/3,110,static,private,user,[
+predicate('$aliases/3_$aux1'/3,112,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -111,7 +111,7 @@ label(1),
     execute(aliases1/3)]).
 
 
-predicate(aliases1/3,120,static,private,user,[
+predicate(aliases1/3,121,static,private,user,[
     load_cut_level(3),
     switch_on_term(1,2,fail,4,fail),
 
@@ -144,7 +144,7 @@ label(4),
     execute(aliases1/3)]).
 
 
-predicate('$aliases1/3_$aux1'/3,122,static,private,user,[
+predicate('$aliases1/3_$aux1'/3,123,static,private,user,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -191,7 +191,7 @@ label(7),
     execute(add_alias/4)]).
 
 
-predicate(add_alias/4,135,static,private,user,[
+predicate(add_alias/4,137,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -222,7 +222,7 @@ label(4),
     execute('$add_alias/4_$aux1'/6)]).
 
 
-predicate('$add_alias/4_$aux1'/6,137,static,private,user,[
+predicate('$add_alias/4_$aux1'/6,139,static,private,user,[
     load_cut_level(6),
     try_me_else(1),
     allocate(6),
@@ -252,17 +252,14 @@ label(1),
     execute(add_alias/4)]).
 
 
-predicate(find_aliases_of/3,147,static,private,user,[
-    switch_on_term(1,fail,fail,1,fail),
-
-label(1),
+predicate(find_aliases_of/3,150,static,private,user,[
     get_list(0),
     unify_variable(x(0)),
     unify_variable(x(3)),
     execute('$find_aliases_of/3_$aux1'/4)]).
 
 
-predicate('$find_aliases_of/3_$aux1'/4,147,static,private,user,[
+predicate('$find_aliases_of/3_$aux1'/4,150,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(1),
@@ -278,7 +275,7 @@ label(1),
     execute(find_aliases_of/3)]).
 
 
-predicate(remove_aliases_of/3,156,static,private,user,[
+predicate(remove_aliases_of/3,159,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -299,7 +296,7 @@ label(4),
     execute('$remove_aliases_of/3_$aux1'/4)]).
 
 
-predicate('$remove_aliases_of/3_$aux1'/4,158,static,private,user,[
+predicate('$remove_aliases_of/3_$aux1'/4,161,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(4),
@@ -324,7 +321,7 @@ label(1),
     execute(remove_aliases_of/3)]).
 
 
-predicate('$remove_aliases_of/3_$aux2'/3,158,static,private,user,[
+predicate('$remove_aliases_of/3_$aux2'/3,161,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
@@ -346,7 +343,7 @@ label(1),
     proceed]).
 
 
-predicate('$remove_aliases_of/3_$aux3'/1,158,static,private,user,[
+predicate('$remove_aliases_of/3_$aux3'/1,161,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -366,7 +363,7 @@ label(4),
     proceed]).
 
 
-predicate(create_lst_tmp/4,171,static,private,user,[
+predicate(create_lst_tmp/4,178,static,private,user,[
     load_cut_level(4),
     switch_on_term(1,2,fail,4,fail),
 
@@ -411,7 +408,7 @@ label(4),
     execute(handle_lst_code/6)]).
 
 
-predicate(handle_lst_code/6,182,static,private,user,[
+predicate(handle_lst_code/6,188,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -449,7 +446,7 @@ label(4),
     execute(handle_one_code/7)]).
 
 
-predicate(handle_one_code/7,191,static,private,user,[
+predicate(handle_one_code/7,197,static,private,user,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -521,7 +518,7 @@ label(7),
     execute(handle_one_code/7)]).
 
 
-predicate('$handle_one_code/7_$aux2'/7,203,static,private,user,[
+predicate('$handle_one_code/7_$aux2'/7,214,static,private,user,[
     load_cut_level(7),
     try_me_else(1),
     allocate(5),
@@ -549,7 +546,7 @@ label(1),
     execute('$handle_one_code/7_$aux4'/6)]).
 
 
-predicate('$handle_one_code/7_$aux4'/6,203,static,private,user,[
+predicate('$handle_one_code/7_$aux4'/6,214,static,private,user,[
     load_cut_level(6),
     try_me_else(1),
     allocate(7),
@@ -588,7 +585,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_one_code/7_$aux5'/3,203,static,private,user,[
+predicate('$handle_one_code/7_$aux5'/3,214,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     get_variable(x(4),1),
@@ -605,7 +602,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_one_code/7_$aux3'/4,203,static,private,user,[
+predicate('$handle_one_code/7_$aux3'/4,214,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_variable(x(5),3),
@@ -626,7 +623,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_one_code/7_$aux1'/7,191,static,private,user,[
+predicate('$handle_one_code/7_$aux1'/7,197,static,private,user,[
     load_cut_level(7),
     try_me_else(1),
     allocate(7),
@@ -681,7 +678,7 @@ label(1),
     execute('$handle_one_code/7_$aux7'/5)]).
 
 
-predicate('$handle_one_code/7_$aux7'/5,191,static,private,user,[
+predicate('$handle_one_code/7_$aux7'/5,197,static,private,user,[
     load_cut_level(5),
     try_me_else(1),
     get_variable(x(6),1),
@@ -697,7 +694,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_one_code/7_$aux6'/4,191,static,private,user,[
+predicate('$handle_one_code/7_$aux6'/4,197,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_variable(x(5),3),
@@ -718,7 +715,7 @@ label(1),
     proceed]).
 
 
-predicate(constraints/4,224,static,private,user,[
+predicate(constraints/4,241,static,private,user,[
     get_variable(x(4),2),
     get_variable(x(2),1),
     get_variable(x(1),0),
@@ -726,7 +723,7 @@ predicate(constraints/4,224,static,private,user,[
     execute('$constraints/4_$aux1'/4)]).
 
 
-predicate('$constraints/4_$aux1'/4,224,static,private,user,[
+predicate('$constraints/4_$aux1'/4,241,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(4),
@@ -751,7 +748,7 @@ label(1),
     proceed]).
 
 
-predicate(update_tmp/5,232,static,private,user,[
+predicate(update_tmp/5,251,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -789,7 +786,7 @@ label(4),
     execute('$update_tmp/5_$aux1'/10)]).
 
 
-predicate('$update_tmp/5_$aux1'/10,234,static,private,user,[
+predicate('$update_tmp/5_$aux1'/10,253,static,private,user,[
     load_cut_level(10),
     try_me_else(1),
     allocate(8),
@@ -830,10 +827,7 @@ label(1),
     execute(update_tmp/5)]).
 
 
-predicate(remove_tmp/5,247,static,private,user,[
-    switch_on_term(1,fail,fail,1,fail),
-
-label(1),
+predicate(remove_tmp/5,267,static,private,user,[
     get_variable(x(6),4),
     get_variable(x(4),3),
     get_variable(x(9),1),
@@ -848,7 +842,7 @@ label(1),
     execute('$remove_tmp/5_$aux1'/9)]).
 
 
-predicate('$remove_tmp/5_$aux1'/9,247,static,private,user,[
+predicate('$remove_tmp/5_$aux1'/9,267,static,private,user,[
     load_cut_level(9),
     try_me_else(1),
     call_c_test('Blt_Term_Eq',[0,1]),
@@ -869,7 +863,7 @@ label(1),
     execute(remove_tmp/5)]).
 
 
-predicate(make_imposs/4,260,static,private,user,[
+predicate(make_imposs/4,281,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -902,7 +896,7 @@ label(4),
     execute(make_imposs/4)]).
 
 
-predicate('$make_imposs/4_$aux1'/4,262,static,private,user,[
+predicate('$make_imposs/4_$aux1'/4,283,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_variable(x(5),1),
@@ -920,7 +914,7 @@ label(1),
     proceed]).
 
 
-predicate(assign_lst_tmp/2,272,static,private,user,[
+predicate(assign_lst_tmp/2,295,static,private,user,[
     allocate(2),
     get_variable(y(0),1),
     get_variable(x(1),0),
@@ -936,19 +930,16 @@ predicate(assign_lst_tmp/2,272,static,private,user,[
     execute(assign_values/3)]).
 
 
-predicate('$assign_lst_tmp/2_$aux1'/3,272,static,private,user,[
+predicate('$assign_lst_tmp/2_$aux1'/3,295,static,private,user,[
     load_cut_level(3),
-    try_me_else(2),
-    switch_on_term(1,fail,1,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_integer(2,0),
     cut(x(3)),
     put_value(x(1),0),
     put_value(x(2),1),
     execute(assign_wishes/2),
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_variable(x(3),1),
     get_variable(x(1),0),
@@ -956,7 +947,7 @@ label(2),
     execute(no_wish/3)]).
 
 
-predicate(assign_wishes/2,281,static,private,user,[
+predicate(assign_wishes/2,306,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1000,7 +991,7 @@ label(4),
     execute(assign_wishes/2)]).
 
 
-predicate('$assign_wishes/2_$aux1'/4,283,static,private,user,[
+predicate('$assign_wishes/2_$aux1'/4,308,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -1019,7 +1010,7 @@ label(1),
     proceed]).
 
 
-predicate(collapse_tmps/7,293,static,private,user,[
+predicate(collapse_tmps/7,320,static,private,user,[
     load_cut_level(7),
     switch_on_term(2,3,fail,1,fail),
 
@@ -1121,7 +1112,7 @@ label(9),
     execute(collapse_tmps/7)]).
 
 
-predicate('$collapse_tmps/7_$aux1'/3,295,static,private,user,[
+predicate('$collapse_tmps/7_$aux1'/3,322,static,private,user,[
     try_me_else(1),
     call_c_test('Blt_Term_Eq',[0,1]),
     proceed,
@@ -1133,7 +1124,7 @@ label(1),
     execute(set_elt/2)]).
 
 
-predicate(try_a_whish/3,315,static,private,user,[
+predicate(try_a_whish/3,342,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -1153,7 +1144,7 @@ label(1),
     proceed]).
 
 
-predicate(no_wish/3,324,static,private,user,[
+predicate(no_wish/3,350,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1193,12 +1184,9 @@ label(4),
     execute(no_wish/3)]).
 
 
-predicate('$no_wish/3_$aux1'/4,326,static,private,user,[
+predicate('$no_wish/3_$aux1'/4,352,static,private,user,[
     load_cut_level(4),
-    try_me_else(2),
-    switch_on_term(1,fail,1,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_integer(0,0),
     cut(x(4)),
     put_value(x(1),0),
@@ -1206,13 +1194,13 @@ label(1),
     put_value(x(3),2),
     execute(set_union/3),
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_value(x(1),3),
     proceed]).
 
 
-predicate(assign_values/3,334,static,private,user,[
+predicate(assign_values/3,362,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1253,7 +1241,7 @@ label(4),
     execute(assign_values/3)]).
 
 
-predicate('$assign_values/3_$aux1'/3,336,static,private,user,[
+predicate('$assign_values/3_$aux1'/3,364,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     math_fast_load_value(x(0),4),
@@ -1269,7 +1257,7 @@ label(1),
     proceed]).
 
 
-predicate(find_hole/3,346,static,private,user,[
+predicate(find_hole/3,376,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -1306,7 +1294,7 @@ label(7),
     execute('$find_hole/3_$aux1'/4)]).
 
 
-predicate('$find_hole/3_$aux1'/4,353,static,private,user,[
+predicate('$find_hole/3_$aux1'/4,382,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     math_fast_load_value(x(0),0),
@@ -1330,7 +1318,7 @@ label(1),
     execute(find_hole/3)]).
 
 
-predicate('$find_hole/3_$aux2'/3,353,static,private,user,[
+predicate('$find_hole/3_$aux2'/3,382,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     call_c_test('Blt_Term_Eq',[0,1]),
@@ -1346,7 +1334,7 @@ label(1),
     proceed]).
 
 
-predicate(set_add/3,365,static,private,user,[
+predicate(set_add/3,397,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -1391,7 +1379,7 @@ label(7),
     execute(set_add/3)]).
 
 
-predicate(set_delete/3,377,static,private,user,[
+predicate(set_delete/3,408,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,fail,fail,1,fail),
 
@@ -1423,7 +1411,7 @@ label(5),
     execute(set_delete/3)]).
 
 
-predicate(set_elt/2,387,static,private,user,[
+predicate(set_elt/2,418,static,private,user,[
     load_cut_level(2),
     switch_on_term(2,fail,fail,1,fail),
 
@@ -1452,7 +1440,7 @@ label(5),
     execute(set_elt/2)]).
 
 
-predicate(set_inter/3,397,static,private,user,[
+predicate(set_inter/3,427,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -1500,7 +1488,7 @@ label(7),
     execute(set_inter/3)]).
 
 
-predicate(set_union/3,410,static,private,user,[
+predicate(set_union/3,439,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -1549,7 +1537,7 @@ label(7),
     execute(set_union/3)]).
 
 
-predicate(set_diff/3,423,static,private,user,[
+predicate(set_diff/3,451,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1579,7 +1567,7 @@ label(4),
     execute(set_diff/3)]).
 
 
-predicate('$set_diff/3_$aux1'/4,425,static,private,user,[
+predicate('$set_diff/3_$aux1'/4,453,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(3),

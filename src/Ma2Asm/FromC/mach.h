@@ -83,12 +83,7 @@
  * WAM                             * 
  *---------------------------------*/
 
-typedef long WamWord;
-typedef WamWord *WamWordP;
-typedef void (*WamCont) ();
-typedef void (*CodePtr) ();
-
-#if 1
+#if 0
 
 #if defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd)
 
@@ -104,25 +99,6 @@ WamWord *reg_bank;
 
 #endif
 
-#else
-
-WamWord *reg_bank;
-
 #endif
 
 
-#if 0
-
-#else
-
-#define B                       ((WamWordP) (reg_bank[NB_OF_X_REGS+1]))
-#define CP                      ((WamCont)   (reg_bank[NB_OF_X_REGS+3]))
-#define E                       ((WamWordP) (reg_bank[NB_OF_X_REGS+4]))
-
-#define ALTB(b)                    ((CodePtr)   (b[-1]))
-
-#endif
-
-
-#define X(x)                       (reg_bank[x])
-#define Y(e,y)                     ((WamWord)   (e[-4-(y)]))

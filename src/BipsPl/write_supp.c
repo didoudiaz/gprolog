@@ -107,7 +107,9 @@ static void Show_Atom(int context, int atom);
 
 static void Show_Integer(long x);
 
+#ifndef NO_USE_FD_SOLVER
 static void Show_Fd_Variable(WamWord *fdv_adr);
+#endif
 
 static void Show_Float(double x);
 
@@ -206,7 +208,8 @@ Write_A_Char(StmInf *pstm, int c)
 static void
 Show_Term(int depth, int prec, int context, WamWord term_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
 
   if (depth == 0)
     {
@@ -214,29 +217,31 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       return;
     }
 
-  Deref(term_word, word, tag, adr);
-  if (tag != REF && Try_Portray(word))
+  DEREF(term_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && Try_Portray(word))
     return;
 
-  switch (tag)
+  switch (Tag_From_Tag_Mask(tag_mask))
     {
     case REF:
+      adr = UnTag_REF(word);
       if (Is_A_Local_Adr(adr))
 	{
-	  Show_Global_Var(H);	/* Write before, because H */
-	  Globalize_Local_Unbound_Var(adr);
+	  Globalize_Local_Unbound_Var(adr, word);
+	  adr = UnTag_REF(word);
 	}
-      else
-	Show_Global_Var(adr);
+      Show_Global_Var(adr);
       break;
 
     case ATM:
       Show_Atom(context, UnTag_ATM(word));
       break;
 
+#ifndef NO_USE_FD_SOLVER
     case FDV:
       Show_Fd_Variable(UnTag_FDV(word));
       break;
+#endif
 
     case INT:
       Show_Integer(UnTag_INT(word));
@@ -405,7 +410,7 @@ Show_Integer(long x)
 
 
 
-
+#ifndef NO_USE_FD_SOLVER
 /*-------------------------------------------------------------------------*
  * SHOW_FD_VARIABLE                                                        *
  *                                                                         *
@@ -423,7 +428,7 @@ Show_Fd_Variable(WamWord *fdv_adr)
 
   last_writing = W_IDENTIFIER;
 }
-
+#endif
 
 
 
@@ -449,9 +454,9 @@ Show_Float(double x)
 static void
 Show_List_Arg(int depth, WamWord *lst_adr)
 {
-  WamWord word, tag, *adr;
-  int atom;
+  WamWord word, tag_mask;
 
+ terminal_rec:
   depth--;
 
   Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(lst_adr));
@@ -460,27 +465,27 @@ Show_List_Arg(int depth, WamWord *lst_adr)
     return;
 
 
-  Deref(Cdr(lst_adr), word, tag, adr);
+  DEREF(Cdr(lst_adr), word, tag_mask);
 
-  switch (tag)
+  switch (Tag_From_Tag_Mask(tag_mask))
     {
     case REF:
       Out_Char('|');
-      Show_Global_Var(adr);
+      Show_Global_Var(UnTag_REF(word));
       break;
 
     case ATM:
-      atom = UnTag_ATM(word);
-      if (atom != ATOM_NIL)
+      if (word != NIL_WORD)
 	{
 	  Out_Char('|');
 	  if (Try_Portray(word))
 	    return;
 
-	  Show_Atom(GENERAL_TERM, atom);
+	  Show_Atom(GENERAL_TERM, UnTag_ATM(word));
 	}
       break;
 
+#ifndef NO_USE_FD_SOLVER
     case FDV:
       Out_Char('|');
       if (Try_Portray(word))
@@ -488,6 +493,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 
       Show_Fd_Variable(UnTag_FDV(word));
       break;
+#endif
 
     case INT:
       Out_Char('|');
@@ -506,20 +512,20 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       break;
 
     case LST:
-      adr = UnTag_LST(word);
       Out_Char(',');
       if (space_args)
 	Out_Char(' ');
-      Show_List_Arg(depth, adr);
+      lst_adr = UnTag_LST(word);
+      goto terminal_rec;
       break;
 
     case STC:
-      adr = UnTag_STC(word);
       Out_Char('|');
       if (Try_Portray(word))
 	return;
 
-      Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, adr);
+      Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, 
+		     UnTag_STC(word));
       break;
     }
 }
@@ -534,7 +540,8 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 static void
 Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord f_n = Functor_And_Arity(stc_adr);
   int functor = Functor(stc_adr);
   int arity = Arity(stc_adr);
@@ -550,8 +557,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   if (name_vars && f_n == dollar_varname_1)
     {
-      Deref(Arg(stc_adr, 0), word, tag, adr);
-      if (tag == ATM)
+      DEREF(Arg(stc_adr, 0), word, tag_mask);
+      if (tag_mask == TAG_ATM_MASK)
 	{
 	  Out_String(atom_tbl[UnTag_ATM(word)].name);
 	  last_writing = W_IDENTIFIER;
@@ -561,8 +568,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   if (number_vars && f_n == dollar_var_1)
     {
-      Deref(Arg(stc_adr, 0), word, tag, adr);
-      if (tag == INT && (n = UnTag_INT(word)) >= 0)
+      DEREF(Arg(stc_adr, 0), word, tag_mask);
+      if (tag_mask == TAG_INT_MASK && (n = UnTag_INT(word)) >= 0)
 	{
 	  i = n % 26;
 	  j = n / 26;
@@ -704,8 +711,7 @@ functional:			/* functional notation */
   Show_Atom(GENERAL_TERM, functor);
   Out_Char('(');
 
-  nb_args_to_disp = i = (arity < depth + 1
-			 || depth < 0) ? arity : depth + 1;
+  nb_args_to_disp = i = (arity < depth + 1 || depth < 0) ? arity : depth + 1;
   adr = &Arg(stc_adr, 0);
 
   goto start_display;

@@ -1,0 +1,15 @@
+To use another Prolog system to execute pl2wam:
+
+With SWI Prolog:
+
+use the shell-script: swi_pl2wam [ OPTION... ] [ FILE ]
+
+With SICStus Prolog:
+
+use the shell-script sics_pl2wam [ OPTION... ] [ FILE ]
+
+If no FILE is specified, you can compile under the top_level, using
+pl2wam(ARGS).
+
+ARGS is a list of pl2wam command-line options/arguments.
+

@@ -1,32 +1,39 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog engine                                                   */
-/* File  : wam_archi.def (gives rise to wam_archi.h)                       */
-/* Descr.: Wam architecture definition - description file                  */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog engine                                                   *
+ * File  : wam_archi.def (gives rise to wam_archi.h)                       *
+ * Descr.: Wam architecture definition - description file                  *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*---------------------------------*/
-/* Register Descriptions           */
-/*---------------------------------*/
+/*---------------------------------*
+ * Register Descriptions           *
+ *---------------------------------*/
 
 
+typedef long WamWord;		/* a wamword is a long (32/64 bits) */
+
+typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
+
+typedef CodePtr WamCont;	/* a continuation is a code pointer */
+
+#ifndef ONLY_TAG_PART
 
 #define X(x)                       (reg_bank[x])
 #define A(a)                       (reg_bank[a])
@@ -38,190 +45,247 @@ typedef WamWord *WamWordP;
 
    /*--- Begin Register Generation ---*/
 
-register WamWord 		*reg_bank asm ("ebx");
-
-#define H			((WamWordP)	 (reg_bank[NB_OF_X_REGS+0]))
-#define B			((WamWordP)	 (reg_bank[NB_OF_X_REGS+1]))
-#define TR			((WamWordP)	 (reg_bank[NB_OF_X_REGS+2]))
-#define CP			((WamCont)	 (reg_bank[NB_OF_X_REGS+3]))
-#define E			((WamWordP)	 (reg_bank[NB_OF_X_REGS+4]))
-#define CS			((WamWordP)	 (reg_bank[NB_OF_X_REGS+5]))
-#define S			((WamWordP)	 (reg_bank[NB_OF_X_REGS+6]))
-#define STAMP			((WamWord)	 (reg_bank[NB_OF_X_REGS+7]))
-#define BCI			((WamWord)	 (reg_bank[NB_OF_X_REGS+8]))
+register WamWordP		TR  asm ("ebx");
 
 
-#define NB_OF_REGS          	9
-#define NB_OF_ALLOC_REGS    	0
-#define NB_OF_NOT_ALLOC_REGS	9
+#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
+
+
+#define NB_OF_REGS          	11
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
-
-
-#define Reg(i)			(((i)==0) ? (WamWord) H  	: \
-				 ((i)==1) ? (WamWord) B  	: \
-				 ((i)==2) ? (WamWord) TR 	: \
-				 ((i)==3) ? (WamWord) CP 	: \
-				 ((i)==4) ? (WamWord) E  	: \
-				 ((i)==5) ? (WamWord) CS 	: \
-				 ((i)==6) ? (WamWord) S  	: \
-				 ((i)==7) ? (WamWord) STAMP	: \
-				            (WamWord) BCI)
-
-#ifdef ENGINE_FILE
-
-       char    *reg_tbl[]=	{"H","B","TR","CP","E","CS","S","STAMP","BCI"};
-
-#else
-
-extern char    *reg_tbl[];
-
-#endif
-
-
-
-
-#define Save_All_Regs(buff_save)		\
-    do {            				\
-     buff_save[0]=(WamWord) H     ;		\
-     buff_save[1]=(WamWord) B     ;		\
-     buff_save[2]=(WamWord) TR    ;		\
-     buff_save[3]=(WamWord) CP    ;		\
-     buff_save[4]=(WamWord) E     ;		\
-     buff_save[5]=(WamWord) CS    ;		\
-     buff_save[6]=(WamWord) S     ;		\
-     buff_save[7]=(WamWord) STAMP ;		\
-     buff_save[8]=(WamWord) BCI   ;		\
-    } while(0)
-
-
-
-
-#define Restore_All_Regs(buff_save)		\
-    do {            				\
-     H     =(WamWordP)	buff_save[0];		\
-     B     =(WamWordP)	buff_save[1];		\
-     TR    =(WamWordP)	buff_save[2];		\
-     CP    =(WamCont)	buff_save[3];		\
-     E     =(WamWordP)	buff_save[4];		\
-     CS    =(WamWordP)	buff_save[5];		\
-     S     =(WamWordP)	buff_save[6];		\
-     STAMP =(WamWord)	buff_save[7];		\
-     BCI   =(WamWord)	buff_save[8];		\
-    } while(0)
 
 
 
 
 #define NB_OF_USED_MACHINE_REGS 1
 
+#ifdef ENGINE_FILE
+
+WamWord reg_bank[REG_BANK_SIZE];
+WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
+
+char *reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
+
+#else
+
+extern WamWord reg_bank[];
+extern WamWord buff_signal_reg[];
+
+extern char *reg_tbl[];
+
+#endif
+#define Init_Reg_Bank(x)  save_reg_bank = reg_bank = x
+
+
+#define Reg(i)			(((i)==0) ? (WamWord) TR 	: \
+				 ((i)==1) ? (WamWord) B  	: \
+				 ((i)==2) ? (WamWord) H  	: \
+				 ((i)==3) ? (WamWord) HB1	: \
+				 ((i)==4) ? (WamWord) CP 	: \
+				 ((i)==5) ? (WamWord) E  	: \
+				 ((i)==6) ? (WamWord) CS 	: \
+				 ((i)==7) ? (WamWord) S  	: \
+				 ((i)==8) ? (WamWord) STAMP	: \
+				 ((i)==9) ? (WamWord) BCI	: \
+				            (WamWord) LSSA)
 
 
 
-#define Save_Machine_Regs(buff_save)		\
-    do {            				\
-     register long reg0 asm ("ebx");		\
-     buff_save[0]=reg0;				\
-    } while(0)
+
+#define Save_All_Regs(buff_save) \
+  do { \
+    buff_save[0] = (WamWord) TR; \
+    buff_save[1] = (WamWord) B; \
+    buff_save[2] = (WamWord) H; \
+    buff_save[3] = (WamWord) HB1; \
+    buff_save[4] = (WamWord) CP; \
+    buff_save[5] = (WamWord) E; \
+    buff_save[6] = (WamWord) CS; \
+    buff_save[7] = (WamWord) S; \
+    buff_save[8] = (WamWord) STAMP; \
+    buff_save[9] = (WamWord) BCI; \
+    buff_save[10] = (WamWord) LSSA; \
+  } while(0)
 
 
 
 
-#define Restore_Machine_Regs(buff_save)		\
-    do {            				\
-     register long reg0 asm ("ebx");		\
-     reg0=buff_save[0];				\
-    } while(0)
+#define Restore_All_Regs(buff_save) \
+  do { \
+    TR     = (WamWordP) buff_save[0]; \
+    B      = (WamWordP) buff_save[1]; \
+    H      = (WamWordP) buff_save[2]; \
+    HB1    = (WamWordP) buff_save[3]; \
+    CP     = (WamCont ) buff_save[4]; \
+    E      = (WamWordP) buff_save[5]; \
+    CS     = (WamWordP) buff_save[6]; \
+    S      = (WamWordP) buff_save[7]; \
+    STAMP  = (WamWord ) buff_save[8]; \
+    BCI    = (WamWord ) buff_save[9]; \
+    LSSA   = (WamWordP) buff_save[10]; \
+  } while(0)
+
+
+
+
+#define Save_Machine_Regs(buff_save) \
+  do { \
+    register long reg0 asm ("ebx"); \
+    buff_save[0] = reg0; \
+  } while(0)
+
+
+#define Restore_Machine_Regs(buff_save) \
+  do { \
+    register long reg0 asm ("ebx"); \
+    reg0 = buff_save[0]; \
+  } while(0)
+
+
+
+
+#define Start_Protect_Regs_For_Signal \
+  do { \
+    Save_Machine_Regs(buff_signal_reg); \
+    buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \
+  } while(0)
+
+
+#define Stop_Protect_Regs_For_Signal \
+  buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \
+
+
+#define Restore_Protect_Regs_For_Signal \
+  do { \
+    if (buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \
+      Restore_Machine_Regs(buff_signal_reg); \
+      Stop_Protect_Regs_For_Signal; \
+    } \
+  } while(0)
 
 
    /*--- End Register Generation ---*/
 
 
+#endif
 
 
-
-/*---------------------------------*/
-/* Tag Descriptions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Tag Descriptions                *
+ *---------------------------------*/
 
 
 
 
    /*--- Begin Tag Generation ---*/
 
-#define TAG_SIZE   		3
-#define VALUE_SIZE 		29
-
-#define INT        		0 
-#define REF        		1 
-#define FDV        		2 
-#define ATM        		3 
-#define FLT        		4 
-#define LST        		5 
-#define STC        		6 
-
-#define MALLOC_MASK 		0
-#define STACK_MASK  		0
-
-#define Tag_Value(t,v)		(((unsigned long) (v) << 3) | (t))
-#define Tag_Of(w)     		((unsigned long) (w) & 0x7)
-
-#define UnTag_Integer(w) 	((long) (w) >> 3)
-#define UnTag_Unsigned(w)	((unsigned long) (w) >> 3)
-#define UnTag_Stack(w)   	((WamWord *) (((unsigned long) (w) >> 3) | STACK_MASK))
-#define UnTag_Malloc(w)  	((unsigned long) (((unsigned long) (w) >> 3) | MALLOC_MASK))
+#define TAG_SIZE     		3
+#define TAG_SIZE_LOW 		2
+#define TAG_SIZE_HIGH		1
+#define VALUE_SIZE   		29
+#define TAG_MASK     		0x80000003UL
+#define VALUE_MASK   		0x7ffffffcUL
+#define Tag_Mask_Of(w)		((unsigned long) (w) & (TAG_MASK))
+#define Tag_From_Tag_Mask(w) 	(((unsigned long) (w) >> 29) | ((w) & 3))
+#define Tag_Of(w)     		((((unsigned long) (w) >> 31) << 2) | ((w) & 3))
+#define TAG_REF_MASK		0UL
+#define TAG_LST_MASK		0x1UL
+#define TAG_STC_MASK		0x2UL
+#define TAG_ATM_MASK		0x3UL
+#define TAG_FLT_MASK		0x80000000UL
+#define TAG_FDV_MASK		0x80000001UL
+#define TAG_INT_MASK		0x80000003UL
 
 #define NB_OF_TAGS       	7
+#define REF        		0 
+#define LST        		1 
+#define STC        		2 
+#define ATM        		3 
+#define FLT        		4 
+#define FDV        		5 
+#define INT        		7 
 
-#define Tag_INT(v)  		Tag_Value(INT,v)
-#define UnTag_INT(w) 		UnTag_Integer(w)
+	/* General Tag/UnTag macros */
 
-#define Tag_REF(v)  		Tag_Value(REF,v)
-#define UnTag_REF(w) 		UnTag_Stack(w)
+#define Tag_Integer(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
+#define Tag_Short_Uns(tm, v)	(((unsigned long) (v) << 2) + (tm))
+#define Tag_Address(tm, v)  	((unsigned long) (v) + (tm))
 
-#define Tag_FDV(v)  		Tag_Value(FDV,v)
-#define UnTag_FDV(w) 		UnTag_Stack(w)
+#define UnTag_Integer(w)    	((long) ((w) << 1) >> 3)
+#define UnTag_Short_Uns(w)	UnTag_Integer(w)
+#define UnTag_Address(w)  	((WamWord *) ((w) & VALUE_MASK))
 
-#define Tag_ATM(v)  		Tag_Value(ATM,v)
-#define UnTag_ATM(w) 		UnTag_Integer(w)
 
-#define Tag_FLT(v)  		Tag_Value(FLT,v)
-#define UnTag_FLT(w) 		UnTag_Stack(w)
+	/* Specialized Tag/UnTag macros */
 
-#define Tag_LST(v)  		Tag_Value(LST,v)
-#define UnTag_LST(w) 		UnTag_Stack(w)
 
-#define Tag_STC(v)  		Tag_Value(STC,v)
-#define UnTag_STC(w) 		UnTag_Stack(w)
+#define Tag_REF(v)  		Tag_Address(TAG_REF_MASK, v)
+#define Tag_LST(v)  		Tag_Address(TAG_LST_MASK, v)
+#define Tag_STC(v)  		Tag_Address(TAG_STC_MASK, v)
+#define Tag_ATM(v)  		Tag_Short_Uns(TAG_ATM_MASK, v)
+#define Tag_FLT(v)  		Tag_Address(TAG_FLT_MASK, v)
+#define Tag_FDV(v)  		Tag_Address(TAG_FDV_MASK, v)
+#define Tag_INT(v)  		(((unsigned long) (v) << 2) | TAG_MASK)
 
+#define UnTag_REF(w)  		((WamWord *) (w))
+#define UnTag_LST(w)  		UnTag_Address(w)
+#define UnTag_STC(w)  		UnTag_Address(w)
+#define UnTag_ATM(w)  		((unsigned long) (w) >> 2)
+#define UnTag_FLT(w)  		UnTag_Address(w)
+#define UnTag_FDV(w)  		UnTag_Address(w)
+#define UnTag_INT(w)  		UnTag_Integer(w)
+
+#define Tag_Is_REF(w)  		(Tag_Mask_Of(w) == TAG_REF_MASK)
+#define Tag_Is_LST(w)  		(Tag_Mask_Of(w) == TAG_LST_MASK)
+#define Tag_Is_STC(w)  		(Tag_Mask_Of(w) == TAG_STC_MASK)
+#define Tag_Is_ATM(w)  		(Tag_Mask_Of(w) == TAG_ATM_MASK)
+#define Tag_Is_FLT(w)  		(Tag_Mask_Of(w) == TAG_FLT_MASK)
+#define Tag_Is_FDV(w)  		(Tag_Mask_Of(w) == TAG_FDV_MASK)
+#define Tag_Is_INT(w)  		(Tag_Mask_Of(w) == TAG_INT_MASK)
 
 typedef enum
 {
   INTEGER,
-  UNSIGNED,
-  STACK,
-  MALLOC
+  SHORT_UNS,
+  ADDRESS
 }TypTag;
 
 typedef struct
 {
-  char    *name;
-  TypTag   type;
+  char *name;
+  TypTag type;
+  int value;
+  long tag_mask;
 }InfTag;
 
 
 #ifdef ENGINE_FILE
 
-InfTag   tag_tbl[]=	{{"INT",INTEGER},
-				 {"REF",STACK},
-				 {"FDV",STACK},
-				 {"ATM",INTEGER},
-				 {"FLT",STACK},
-				 {"LST",STACK},
-				 {"STC",STACK}};
+InfTag tag_tbl[] =
+{
+  { "REF", ADDRESS, 0, 0UL },
+  { "LST", ADDRESS, 1, 0x1UL },
+  { "STC", ADDRESS, 2, 0x2UL },
+  { "ATM", SHORT_UNS, 3, 0x3UL },
+  { "FLT", ADDRESS, 4, 0x80000000UL },
+  { "FDV", ADDRESS, 5, 0x80000001UL },
+  { "INT", INTEGER, 7, 0x80000003UL }
+};
 
 #else
 
-extern InfTag   tag_tbl[];
+extern InfTag tag_tbl[];
 
 #endif
 
@@ -232,16 +296,17 @@ extern InfTag   tag_tbl[];
 
 
 
-/*---------------------------------*/
-/* Stack Descriptions              */
-/*---------------------------------*/
+/*---------------------------------*
+ * Stack Descriptions              *
+ *---------------------------------*/
 
+#ifndef ONLY_TAG_PART
 
-#define KBytes_To_Wam_Words(kb)    ((1024*kb+sizeof(WamWord)-1)/sizeof(WamWord))
+#define KBytes_To_Wam_Words(kb)    ((1024 * kb + sizeof(WamWord) - 1) / sizeof(WamWord))
 
-#define Wam_Words_To_KBytes(ww)    (ww*sizeof(WamWord)/1024)
+#define Wam_Words_To_KBytes(ww)    (ww * sizeof(WamWord) / 1024)
 
-#define Local_Top                  ((B>=E) ? B : E)
+#define Local_Top                  ((B >= E) ? B : E)
 
 
 
@@ -251,34 +316,34 @@ extern InfTag   tag_tbl[];
 
 #define Trail_Stack       	(stk_tbl[0].stack)
 #define Trail_Size        	(stk_tbl[0].size)
-#define Trail_Offset(adr) 	((WamWord *)(adr)-Trail_Stack)
+#define Trail_Offset(adr) 	((WamWord *)(adr) - Trail_Stack)
 #define Trail_Used_Size   	Trail_Offset(TR)
 
 #define Cstr_Stack       	(stk_tbl[1].stack)
 #define Cstr_Size        	(stk_tbl[1].size)
-#define Cstr_Offset(adr) 	((WamWord *)(adr)-Cstr_Stack)
+#define Cstr_Offset(adr) 	((WamWord *)(adr) - Cstr_Stack)
 #define Cstr_Used_Size   	Cstr_Offset(CS)
 
 #define Global_Stack       	(stk_tbl[2].stack)
 #define Global_Size        	(stk_tbl[2].size)
-#define Global_Offset(adr) 	((WamWord *)(adr)-Global_Stack)
+#define Global_Offset(adr) 	((WamWord *)(adr) - Global_Stack)
 #define Global_Used_Size   	Global_Offset(H)
 
 #define Local_Stack       	(stk_tbl[3].stack)
 #define Local_Size        	(stk_tbl[3].size)
-#define Local_Offset(adr) 	((WamWord *)(adr)-Local_Stack)
+#define Local_Offset(adr) 	((WamWord *)(adr) - Local_Stack)
 #define Local_Used_Size   	Local_Offset(Local_Top)
 
 
-#define Stack_Top(s)       	(((s)==0) ? TR : ((s)==1) ? CS : ((s)==2) ? H : Local_Top)
+#define Stack_Top(s)       	(((s) == 0) ? TR : ((s) == 1) ? CS : ((s) == 2) ? H : Local_Top)
 
 typedef struct
 {
-  char    *name;
-  char    *env_var_name;
-  long    *p_def_size;
-  int      default_size; 	/* in WamWords */
-  int      size;         	/* in WamWords */
+  char *name;
+  char *env_var_name;
+  long *p_def_size;
+  int default_size; 	/* in WamWords */
+  int size;         	/* in WamWords */
   WamWord *stack;
 }InfStack;
 
@@ -292,10 +357,13 @@ long def_global_size;
 long def_local_size;
 long fixed_sizes;
 
-InfStack  stk_tbl[]=	{{"trail","TRAILSZ",&def_trail_size,524288,0,NULL},
-			 {"cstr","CSTRSZ",&def_cstr_size,524288,0,NULL},
-			 {"global","GLOBALSZ",&def_global_size,1048576,0,NULL},
-			 {"local","LOCALSZ",&def_local_size,817152,0,NULL}};
+InfStack stk_tbl[] =
+{
+ { "trail", "TRAILSZ", &def_trail_size, 524288, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 524288, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 1048576, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 817152, 0, NULL }
+};
 
 #else
 
@@ -313,3 +381,5 @@ extern InfStack stk_tbl[];
 
    /*--- End Stack Generation ---*/
 
+
+#endif

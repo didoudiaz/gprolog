@@ -13,8 +13,8 @@ dnl ***************************
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.2.4'
-PROLOG_DATE='Oct 13 2000'
+PROLOG_VERSION='1.2.5'
+PROLOG_DATE='Dec 1 2000'
 PROLOG_COPYRIGHT='Copyright (C) 1999,2000 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
@@ -75,6 +75,7 @@ AC_SUBST(USE_SOCKETS)
 AC_SUBST(USE_FD_SOLVER)
 
 AC_SUBST(ROOT_DIR)
+AC_SUBST(ROOT_DIR1)
 AC_SUBST(PKG_NAME)
 AC_SUBST(INSTALL_DIR)
 AC_SUBST(LINKS_DIR)
@@ -113,60 +114,66 @@ dnl * package options *
 dnl *******************
 
 
-AC_ARG_WITH(install-dir,[  --with-install-dir=DIR specify INSTALL_DIR],
+AC_ARG_WITH(install-dir, [  --with-install-dir=DIR  specify INSTALL_DIR],
 		[WITH_INSTALL_DIR="$withval"])
 
-AC_ARG_WITH(links-dir,  [  --with-links-dir=DIR   specify LINKS_DIR],
+AC_ARG_WITH(links-dir,   [  --with-links-dir=DIR    specify LINKS_DIR],
 		[WITH_LINKS_DIR="$withval"])
 
-AC_ARG_WITH(doc-dir,    [  --with-doc-dir=DIR     specify DOC_DIR],
+AC_ARG_WITH(doc-dir,     [  --with-doc-dir=DIR      specify DOC_DIR],
 		[WITH_DOC_DIR="$withval"])
 
-AC_ARG_WITH(html-dir,   [  --with-html-dir=DIR    specify HTML_DIR],
+AC_ARG_WITH(html-dir,    [  --with-html-dir=DIR     specify HTML_DIR],
 		[WITH_HTML_DIR="$withval"])
 
 AC_ARG_WITH(examples-dir,[  --with-examples-dir=DIR specify EXAMPLES_DIR],
 		[WITH_EXAMPLES_DIR="$withval"])
 
-AC_ARG_WITH(msvc,       [  --with-msvc            use MS VC++],
+AC_ARG_WITH(msvc,        [  --with-msvc             use MS VC++],
 		[WITH_MSVC="$withval"],
 		[WITH_MSVC=no])
 
-AC_ARG_WITH(c-flags,    [  --with-c-flags[=FLAGS] specify C flags],
+AC_ARG_WITH(c-flags,     [  --with-c-flags[=FLAGS]  specify C flags],
 		[WITH_C_FLAGS="$withval"],
 		[WITH_C_FLAGS=yes])
 
-AC_ARG_ENABLE(regs,     [  --disable-regs         do not use machine registers],
+AC_ARG_ENABLE(regs,      [  --disable-regs          do not use machine registers],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_REGS);;
 		   *)  ;;
 	       esac])
 
-AC_ARG_ENABLE(fast-call,[  --disable-fast-call    do not use fast call on ix86],
+AC_ARG_ENABLE(regs,      [  --disable-ebp           do not use the ebp register on ix86 machines],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_EBP);;
+		   *)  ;;
+	       esac])
+
+AC_ARG_ENABLE(fast-call, [  --disable-fast-call     do not use fast call on ix86],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_FAST_CALL);;
 		   *)  ;;
 	       esac])
 
-AC_ARG_ENABLE(linedit,  [  --disable-linedit      do not include line editor facility],
+AC_ARG_ENABLE(linedit,   [  --disable-linedit       do not include line editor facility],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_LINEDIT) USE_LINEDIT=no;;
 		   *)  USE_LINEDIT=yes;;
 	       esac])
 
-AC_ARG_ENABLE(gui-console,[  --disable-gui-console  do not use the Win 32 GUI console],
+AC_ARG_ENABLE(gui-console,[  --disable-gui-console   do not use the Win 32 GUI console],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no;;
 		   *)  USE_GUI_CONSOLE=yes;;
 	       esac])
 
-AC_ARG_ENABLE(sockets,  [  --disable-sockets      do not include sockets facility],
+AC_ARG_ENABLE(sockets,   [  --disable-sockets       do not include sockets facility],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_SOCKETS)  USE_SOCKETS=no;;
 		   *)  USE_SOCKETS=yes;;
 	       esac])
 
-AC_ARG_ENABLE(fd-solver,[  --disable-fd-solver    do not include the FD constraint solver],
+AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constraint solver],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_FD_SOLVER) USE_FD_SOLVER=no;;
 		   *)  USE_FD_SOLVER=yes;;
@@ -306,16 +313,22 @@ if test "$WITH_MSVC" != no; then
 	esac
 
 	CFLAGS_UNSIGNED_CHAR='/J'
+#  using multi-thread
 	CFLAGS_MACHINE='/nologo /MD'
+#	CFLAGS_MACHINE='/nologo'
 
 else
 	case "$WITH_C_FLAGS" in
 		debug) CFLAGS='-g -Wall';;
 		no)    CFLAGS='';;
-		yes)   CFLAGS='-O3 -finline-functions -fomit-frame-pointer';;
+		yes)   CFLAGS='-O3 -fomit-frame-pointer';;
 		*)     CFLAGS="$WITH_C_FLAGS";;
 	esac
 
+
+	expr "$CFLAGS" : '.*-fomit-frame-pointer' >/dev/null || AC_DEFINE(NO_USE_EBP)
+
+	
 	CFLAGS_PREFIX_REG='-ffixed-%s'
 	CFLAGS_UNSIGNED_CHAR='-funsigned-char'
 
@@ -329,9 +342,9 @@ else
 		i*86*)             CFLAGS_MACHINE='-m486';;
 	esac
 
-	case "$host" in
-		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
-	esac
+#	case "$host" in
+#		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
+#	esac
 fi
 
 
@@ -343,7 +356,8 @@ dnl ********************
 
 if test "$WITH_MSVC" != no; then
 	LDFLAGS='/nologo'
-	LDLIBS='user32.lib'
+	LDLIBS=
+#	LDLIBS='user32.lib'
 else
 	LDLIBS='-lm'
 fi
@@ -421,9 +435,12 @@ same_directory()
  test $f1 = $f2
 }
 
-cd ..
-ROOT_DIR=`pwd`
-cd src
+ROOT_DIR=`(cd .. ; pwd)`
+if test -x /bin/cygpath.exe; then
+	ROOT_DIR1=`cygpath -a -w ..`
+else
+	ROOT_DIR1=$ROOT_DIR
+fi
 
 test "$prefix"      = NONE && prefix=/usr/local
 test "$exec_prefix" = NONE && exec_prefix=$prefix

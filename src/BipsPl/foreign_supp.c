@@ -85,7 +85,8 @@ static CodePtr Prepare_Call(int func, int arity, WamWord *arg_adr);
 
 #define PL_QUERY_RECOVER_ALT       X24706C5F71756572795F7265636F7665725F616C74
 
-Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0) Prolog_Prototype(CALL_INTERNAL, 2)
+Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
+Prolog_Prototype(CALL_INTERNAL, 2);
 
 
 
@@ -162,12 +163,12 @@ FIOArg *
 Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, long (*rd_fct) (),
 		  int fio_arg_index)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   FIOArg *fa = fio_arg_array + fio_arg_index;
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
 
-  fa->is_var = fa->unify = (tag == REF);
+  fa->is_var = fa->unify = (tag_mask == TAG_REF_MASK);
 
   if (rd_fct == NULL)
     fa->value.l = (long) word;
@@ -230,11 +231,11 @@ Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg)
 int
 Type_Of_Term(WamWord start_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
 
-  return tag;
+  return Tag_From_Tag_Mask(tag_mask);
 }
 
 
@@ -256,18 +257,18 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
   if (pred == NULL || !(pred->prop & MASK_PRED_NATIVE_CODE))
     {
       if (arity == 0)
-	A(0) = Tag_Value(ATM, func);
+	A(0) = Tag_ATM(func);
       else
 	{
 	  w = goal_H;
-	  A(0) = Tag_Value(STC, w);
+	  A(0) = Tag_STC(w);
 	  *w++ = Functor_Arity(func, arity);
 	  for (i = 0; i < arity; i++)
 	    *w++ = *arg_adr++;
 	}
 
       bip_func = Get_Current_Bip(&bip_arity);
-      A(1) = Tag_Value(INT, Call_Info(bip_func, bip_arity, 0));
+      A(1) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
       return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
     }
 
@@ -383,7 +384,7 @@ Pl_Query_End(int op)
   switch (op)
     {
     case PL_RECOVER:
-      B = query_b;
+      Assign_B(query_b);
       if (!recoverable)
 	Fatal_Error("Pl_Query_End(PL_RECOVER) but unrecoverable query");
 
@@ -391,14 +392,14 @@ Pl_Query_End(int op)
       break;
 
     case PL_CUT:
-      B = (recoverable) ? prev_b : query_b;
+      Assign_B((recoverable) ? prev_b : query_b);
       break;
 
     default:			/* case PL_KEEP_FOR_PROLOG */
       if (recoverable)
 	{
 	  if (B == query_b)
-	    B = prev_b;
+	    Assign_B(prev_b);
 	  else
 	    for (b = B; b > query_b; b = BB(b))	/* unlink recover chc-point */
 	      if (BB(b) == query_b)

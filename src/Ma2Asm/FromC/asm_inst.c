@@ -1,9 +1,6 @@
-#include "../../EnginePl/gp_config.h"
-#include "../../EnginePl/pl_params.h"
-
 #define OBJ_INIT initializer_fct
 
-#include "../../EnginePl/obj_chain.h"
+#include "engine_pl.h"
 #include "mach.h"
 
 #define YY(k) Y(E,k)
@@ -152,7 +149,7 @@ TRANS_call_c(void)
   bar1(v3[4], &v3[2], v3[0]);
 
   /* regs / &regs */
-  bar2(X(2), &X(4), YY(0), &YY(12));
+  bar2(X(0), &X(4), YY(0), &YY(12));
 }
 
 

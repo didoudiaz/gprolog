@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
+% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : pl2wam.pl
-% date    : 11 9 2000
-% time    : 18:30:53
+% date    : 12 15 2000
+% time    : 21:43:54
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
@@ -76,10 +76,7 @@ predicate(pl2wam1/1,31,static,private,user,[
 
 predicate('$pl2wam1/1_$aux2'/6,31,static,private,user,[
     load_cut_level(6),
-    try_me_else(2),
-    switch_on_term(1,fail,1,fail,fail),
-
-label(1),
+    try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -97,7 +94,7 @@ label(1),
     deallocate,
     execute(compile_msg_end/5),
 
-label(2),
+label(1),
     trust_me_else_fail,
     allocate(0),
     put_list(1),
@@ -111,16 +108,13 @@ label(2),
 
 predicate('$pl2wam1/1_$aux1'/5,31,static,private,user,[
     load_cut_level(5),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_nil(0),
     cut(x(5)),
     cut(x(1)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     allocate(4),
     get_variable(y(0),0),
@@ -137,7 +131,7 @@ label(2),
     fail]).
 
 
-predicate(compile_and_emit_pred/4,61,static,private,user,[
+predicate(compile_and_emit_pred/4,63,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -208,7 +202,7 @@ label(5),
     execute(add_counter/2)]).
 
 
-predicate(compile_emit_inits/5,78,static,private,user,[
+predicate(compile_emit_inits/5,80,static,private,user,[
     allocate(3),
     get_variable(y(0),2),
     get_variable(y(1),3),
@@ -241,7 +235,7 @@ predicate(compile_emit_inits/5,78,static,private,user,[
     execute(absolute_file_name/2)]).
 
 
-predicate(compile_lst_clause/2,88,static,private,user,[
+predicate(compile_lst_clause/2,90,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -274,10 +268,7 @@ label(4),
     execute(compile_lst_clause/2)]).
 
 
-predicate(compile_clause/3,97,static,private,user,[
-    switch_on_term(1,fail,fail,fail,1),
-
-label(1),
+predicate(compile_clause/3,99,static,private,user,[
     allocate(8),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -325,7 +316,7 @@ label(1),
     execute(add_counter/2)]).
 
 
-predicate(bc_compile_lst_clause/2,113,static,private,user,[
+predicate(bc_compile_lst_clause/2,115,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -361,7 +352,7 @@ label(4),
     execute(bc_compile_lst_clause/2)]).
 
 
-predicate(compile_msg_start/2,122,static,private,user,[
+predicate(compile_msg_start/2,124,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(compile_msg,0),
@@ -387,24 +378,21 @@ label(1),
     execute(format/2)]).
 
 
-predicate('$compile_msg_start/2_$aux1'/2,126,static,private,user,[
+predicate('$compile_msg_start/2_$aux1'/2,127,static,private,user,[
     load_cut_level(2),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom(t,0),
     cut(x(2)),
     get_atom('native code',1),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     get_atom('byte code',1),
     proceed]).
 
 
-predicate(compile_msg_end/5,134,static,private,user,[
+predicate(compile_msg_end/5,137,static,private,user,[
     load_cut_level(5),
     try_me_else(1),
     put_atom(compile_msg,0),
@@ -435,7 +423,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate(cur_pred/2,146,static,private,user,[
+predicate(cur_pred/2,147,static,private,user,[
     put_atom(cur_func,2),
     call_c_test('Blt_G_Read',[2,0]),
     put_atom(cur_arity,0),
@@ -443,7 +431,7 @@ predicate(cur_pred/2,146,static,private,user,[
     proceed]).
 
 
-predicate(cur_pred_without_aux/2,151,static,private,user,[
+predicate(cur_pred_without_aux/2,152,static,private,user,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -458,7 +446,7 @@ predicate(cur_pred_without_aux/2,151,static,private,user,[
     execute('$pred_without_aux'/4)]).
 
 
-predicate(init_counters/0,158,static,private,user,[
+predicate(init_counters/0,159,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     put_atom(statistics,1),
@@ -522,7 +510,7 @@ label(1),
     execute(last_times/2)]).
 
 
-predicate(add_counter/2,176,static,private,user,[
+predicate(add_counter/2,184,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(statistics,0),
@@ -559,7 +547,7 @@ label(1),
     proceed]).
 
 
-predicate(last_times/2,192,static,private,user,[
+predicate(last_times/2,199,static,private,user,[
     allocate(1),
     get_variable(y(0),0),
     get_variable(x(0),1),
@@ -580,7 +568,7 @@ predicate(last_times/2,192,static,private,user,[
     execute(statistics/2)]).
 
 
-predicate(display_counters/0,199,static,private,user,[
+predicate(display_counters/0,206,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     put_atom(statistics,1),
@@ -760,7 +748,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate(cmd_line_args/3,237,static,private,user,[
+predicate(cmd_line_args/3,249,static,private,user,[
     allocate(2),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -822,12 +810,9 @@ predicate(cmd_line_args/3,237,static,private,user,[
     proceed]).
 
 
-predicate('$cmd_line_args/3_$aux1'/1,237,static,private,user,[
+predicate('$cmd_line_args/3_$aux1'/1,249,static,private,user,[
     load_cut_level(1),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     allocate(0),
     get_atom('',0),
     cut(x(1)),
@@ -837,12 +822,12 @@ label(1),
     deallocate,
     execute(abort/0),
 
-label(2),
+label(1),
     trust_me_else_fail,
     proceed]).
 
 
-predicate(cmd_line_args/1,262,static,private,user,[
+predicate(cmd_line_args/1,277,static,private,user,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -871,7 +856,7 @@ label(4),
     execute(cmd_line_args/1)]).
 
 
-predicate(cmd_line_arg1/3,270,static,private,user,[
+predicate(cmd_line_arg1/3,284,static,private,user,[
     try_me_else(48),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -1166,17 +1151,14 @@ label(49),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux5'/1,360,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux5'/1,385,static,private,user,[
     load_cut_level(1),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom('',0),
     cut(x(1)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     allocate(0),
     put_list(1),
@@ -1188,7 +1170,7 @@ label(2),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/0,350,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux4'/0,369,static,private,user,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1209,7 +1191,7 @@ label(1),
     execute(stop/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,284,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux3'/0,302,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -1229,17 +1211,14 @@ label(1),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux2'/1,273,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux2'/1,287,static,private,user,[
     load_cut_level(1),
-    try_me_else(2),
-    switch_on_term(1,1,fail,fail,fail),
-
-label(1),
+    try_me_else(1),
     get_atom('',0),
     cut(x(1)),
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     allocate(0),
     put_list(1),
@@ -1251,11 +1230,8 @@ label(2),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux1'/3,273,static,private,user,[
-    try_me_else(2),
-    switch_on_term(1,fail,fail,1,fail),
-
-label(1),
+predicate('$cmd_line_arg1/3_$aux1'/3,287,static,private,user,[
+    try_me_else(1),
     allocate(1),
     get_list(0),
     unify_local_value(x(1)),
@@ -1272,7 +1248,7 @@ label(1),
     deallocate,
     proceed,
 
-label(2),
+label(1),
     trust_me_else_fail,
     allocate(0),
     put_atom('FILE missing after --output option~n',0),
@@ -1282,7 +1258,7 @@ label(2),
     execute(abort/0)]).
 
 
-predicate(display_copying/0,373,static,private,user,[
+predicate(display_copying/0,399,static,private,user,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1322,31 +1298,31 @@ predicate(display_copying/0,373,static,private,user,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,388,static,private,user,[
+predicate(prolog_name/1,415,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,391,static,private,user,[
+predicate(prolog_version/1,418,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,394,static,private,user,[
+predicate(prolog_date/1,421,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,397,static,private,user,[
+predicate(prolog_copyright/1,424,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,405,static,private,user,[
+predicate(h/1,432,static,private,user,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -1525,7 +1501,7 @@ label(50),
     proceed]).
 
 
-predicate(go/0,435,static,private,user,[
+predicate(go/0,462,static,private,user,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1534,5 +1510,5 @@ predicate(go/0,435,static,private,user,[
     execute(pl2wam/1)]).
 
 
-directive(437,user,[
+directive(466,user,[
     execute(go/0)]).

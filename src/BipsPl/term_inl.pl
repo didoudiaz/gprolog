@@ -22,74 +22,74 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_term_inl'.
 
 
-compare(C,T1,T2):-
-        compare(C,T1,T2).
+compare(C, T1, T2) :-
+	compare(C, T1, T2).
 
 
-X == Y:-
-        X == Y.
+X==Y :-
+	X==Y.
 
-X \== Y:-
-        X \== Y.
+X\==Y :-
+	X\==Y.
 
-X @< Y:-
-        X @< Y.
+X@<Y :-
+	X@<Y.
 
-X @=< Y:-
-        X @=< Y.
+X@=<Y :-
+	X@=<Y.
 
-X @> Y:-
-        X @> Y.
+X@>Y :-
+	X@>Y.
 
-X @>= Y:-
-        X @>= Y.
-
-
-
-
-arg(N,T,A):-
-        arg(N,T,A).
+X@>=Y :-
+	X@>=Y.
 
 
 
 
-functor(T,F,N):-
-       functor(T,F,N).
+arg(N, T, A) :-
+	arg(N, T, A).
 
 
 
 
-Term =.. List:-
-        Term =.. List.
+functor(T, F, N) :-
+	functor(T, F, N).
 
 
 
 
-copy_term(T1,T2):-
-	set_bip_name(copy_term,2),
-	'$call_c_test'('Copy_Term_2'(T1,T2)).
+Term=..List :-
+	Term=..List.
 
 
 
 
-setarg(ArgNo,Term,NewValue):-
-	set_bip_name(setarg,3),
-	'$call_c_test'('Setarg_4'(ArgNo,Term,NewValue,true)).
-
-
-setarg(ArgNo,Term,NewValue,Undo):-
-	set_bip_name(setarg,4),
-	'$call_c_test'('Setarg_4'(ArgNo,Term,NewValue,Undo)).
+copy_term(T1, T2) :-
+	set_bip_name(copy_term, 2),
+	'$call_c_test'('Copy_Term_2'(T1, T2)).
 
 
 
 
-term_ref(Term,Ref):-
-	set_bip_name(term_ref,2),
-	'$call_c_test'('Term_Ref_2'(Term,Ref)).
+setarg(ArgNo, Term, NewValue) :-
+	set_bip_name(setarg, 3),
+	'$call_c_test'('Setarg_4'(ArgNo, Term, NewValue, true)).
+
+
+setarg(ArgNo, Term, NewValue, Undo) :-
+	set_bip_name(setarg, 4),
+	'$call_c_test'('Setarg_4'(ArgNo, Term, NewValue, Undo)).
+
+
+
+
+term_ref(Term, Ref) :-
+	set_bip_name(term_ref, 2),
+	'$call_c_test'('Term_Ref_2'(Term, Ref)).
 

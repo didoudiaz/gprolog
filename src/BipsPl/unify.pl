@@ -22,7 +22,7 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_unify'.
 
@@ -32,14 +32,14 @@ X=X.
 
 
 
-unify_with_occurs_check(X,Y):-
-	'$call_c_test'('Unify_Occurs_Check'(X,Y)).
+unify_with_occurs_check(X, Y) :-
+	'$call_c_test'('Unify_Occurs_Check'(X, Y)).
 
 
 
 
-X \= Y:-
-	\+(X=Y).
+X\=Y :-
+	\+X=Y.
 
 
 

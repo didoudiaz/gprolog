@@ -22,59 +22,60 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_stream'.
 
 
-current_input(Stream):-
-	set_bip_name(current_input,1),
-	'$check_stream_or_var'(Stream,S),
+current_input(Stream) :-
+	set_bip_name(current_input, 1),
+	'$check_stream_or_var'(Stream, S),
 	'$call_c_test'('Current_Input_1'(S)).
 
 
 
 
-current_output(Stream):-
-	set_bip_name(current_output,1),
-	'$check_stream_or_var'(Stream,S),
+current_output(Stream) :-
+	set_bip_name(current_output, 1),
+	'$check_stream_or_var'(Stream, S),
 	'$call_c_test'('Current_Output_1'(S)).
 
 
 
 
-'$check_stream_or_var'('$stream'(S),S):-
-	(var(S) ; integer(S)),
-	!.
+'$check_stream_or_var'('$stream'(S), S) :-
+	(   var(S)
+	;   integer(S)
+	), !.
 
-'$check_stream_or_var'(Stream,_):-
-	'$pl_err_domain'(stream,Stream).
+'$check_stream_or_var'(Stream, _) :-
+	'$pl_err_domain'(stream, Stream).
 
 
 
 
-set_input(SorA):-
-	set_bip_name(set_input,1),
+set_input(SorA) :-
+	set_bip_name(set_input, 1),
 	'$call_c'('Set_Input_1'(SorA)).
 
 
 
 
-set_output(SorA):-
-	set_bip_name(set_output,1),
+set_output(SorA) :-
+	set_bip_name(set_output, 1),
 	'$call_c'('Set_Output_1'(SorA)).
 
 
 
 
-'$set_top_level_streams'(SorAIn,SorAOut):-
-	'$call_c'('Set_Top_Level_Streams_2'(SorAIn,SorAOut)).
+'$set_top_level_streams'(SorAIn, SorAOut) :-
+	'$call_c'('Set_Top_Level_Streams_2'(SorAIn, SorAOut)).
 
 
 
 
-'$set_debugger_streams'(SorAIn,SorAOut):-
-	'$call_c'('Set_Debugger_Streams_2'(SorAIn,SorAOut)).
+'$set_debugger_streams'(SorAIn, SorAOut) :-
+	'$call_c'('Set_Debugger_Streams_2'(SorAIn, SorAOut)).
 
 
 
@@ -92,105 +93,120 @@ set_output(SorA):-
           %     2=block         2=reset
 
 
-open(SourceSink,Mode,Stream):-
-	set_bip_name(open,3),
-	'$open'(SourceSink,Mode,Stream,[]).
+open(SourceSink, Mode, Stream) :-
+	set_bip_name(open, 3),
+	'$open'(SourceSink, Mode, Stream, []).
 
 
-open(SourceSink,Mode,Stream,Options):-
-	set_bip_name(open,4),
-	'$open'(SourceSink,Mode,Stream,Options).
+open(SourceSink, Mode, Stream, Options) :-
+	set_bip_name(open, 4),
+	'$open'(SourceSink, Mode, Stream, Options).
 
 
-'$open'(SourceSink,Mode,Stream,Options):-
+'$open'(SourceSink, Mode, Stream, Options) :-
 	'$set_open_defaults',
-	'$get_open_stm'(Stream,Stm),
-	'$get_open_options'(Options,LAlias),
-	'$call_c'('Open_3'(SourceSink,Mode,Stm)),
-	'$add_alias_to_stream'(LAlias,Stream).
+	'$get_open_stm'(Stream, Stm),
+	'$get_open_options'(Options, LAlias),
+	'$call_c'('Open_3'(SourceSink, Mode, Stm)),
+	'$add_alias_to_stream'(LAlias, Stream).
 
 
 
 
-'$set_open_defaults':-
-	'$sys_var_write'(0,0b000001).                          % default mask
+'$set_open_defaults' :-
+	'$sys_var_write'(0, 1).
 
 
 
 
-'$get_open_stm'(Stream,Stm):-
-	(nonvar(Stream) -> '$pl_err_type'(variable,Stream)
-                        ;  Stream='$stream'(Stm)).
+'$get_open_stm'(Stream, Stm) :-
+	(   nonvar(Stream) ->
+	    '$pl_err_type'(variable, Stream)
+	;   Stream='$stream'(Stm)
+	).
 
 
 
 
-'$get_open_options'(Options,LAlias):-
+'$get_open_options'(Options, LAlias) :-
 	'$check_list'(Options),
-	'$get_open_options1'(Options,[],LAlias).
+	'$get_open_options1'(Options, [], LAlias).
 
 
-'$get_open_options1'([],LAlias,LAlias).
+'$get_open_options1'([], LAlias, LAlias).
 
-'$get_open_options1'([X|Options],LAlias,LAlias2):-
-	'$get_open_options2'(X,LAlias,LAlias1),
-	!,
-	'$get_open_options1'(Options,LAlias1,LAlias2).
+'$get_open_options1'([X|Options], LAlias, LAlias2) :-
+	'$get_open_options2'(X, LAlias, LAlias1), !,
+	'$get_open_options1'(Options, LAlias1, LAlias2).
 
 
-'$get_open_options2'(X,_,_):-
+'$get_open_options2'(X, _, _) :-
 	var(X),
 	'$pl_err_instantiation'.
 
-'$get_open_options2'(type(X),LAlias,LAlias):-
+'$get_open_options2'(type(X), LAlias, LAlias) :-
 	nonvar(X),
-	(X=text,   '$sys_var_set_bit'(0,0)
-               ;
-	 X=binary, '$sys_var_reset_bit'(0,0)).
+	(   X=text,
+	    '$sys_var_set_bit'(0, 0)
+	;   X=binary,
+	    '$sys_var_reset_bit'(0, 0)
+	).
 
-'$get_open_options2'(reposition(X),LAlias,LAlias):-
+'$get_open_options2'(reposition(X), LAlias, LAlias) :-
 	nonvar(X),
-	(X=false, '$sys_var_reset_bit'(0,1)
-               ;
-	 X=true,  '$sys_var_set_bit'(0,1)),
-	'$sys_var_set_bit'(0,2).
+	(   X=false,
+	    '$sys_var_reset_bit'(0, 1)
+	;   X=true,
+	    '$sys_var_set_bit'(0, 1)
+	),
+	'$sys_var_set_bit'(0, 2).
 
-'$get_open_options2'(eof_action(X),LAlias,LAlias):-
+'$get_open_options2'(eof_action(X), LAlias, LAlias) :-
 	nonvar(X),
-	(X=error,    '$sys_var_reset_bit'(0,4), '$sys_var_reset_bit'(0,3)
-               ;
-	 X=eof_code, '$sys_var_reset_bit'(0,4), '$sys_var_set_bit'(0,3)
-               ;
-	 X=reset,    '$sys_var_set_bit'(0,4),   '$sys_var_reset_bit'(0,3)),
-	'$sys_var_set_bit'(0,5).
+	(   X=error,
+	    '$sys_var_reset_bit'(0, 4),
+	    '$sys_var_reset_bit'(0, 3)
+	;   X=eof_code,
+	    '$sys_var_reset_bit'(0, 4),
+	    '$sys_var_set_bit'(0, 3)
+	;   X=reset,
+	    '$sys_var_set_bit'(0, 4),
+	    '$sys_var_reset_bit'(0, 3)
+	),
+	'$sys_var_set_bit'(0, 5).
 
-'$get_open_options2'(buffering(X),LAlias,LAlias):-
+'$get_open_options2'(buffering(X), LAlias, LAlias) :-
 	nonvar(X),
-	(X=none,    '$sys_var_reset_bit'(0,7), '$sys_var_reset_bit'(0,6)
-               ;
-	 X=line,     '$sys_var_reset_bit'(0,7), '$sys_var_set_bit'(0,6)
-               ;
-	 X=block,    '$sys_var_set_bit'(0,7),   '$sys_var_reset_bit'(0,6)),
-	'$sys_var_set_bit'(0,8).
+	(   X=none,
+	    '$sys_var_reset_bit'(0, 7),
+	    '$sys_var_reset_bit'(0, 6)
+	;   X=line,
+	    '$sys_var_reset_bit'(0, 7),
+	    '$sys_var_set_bit'(0, 6)
+	;   X=block,
+	    '$sys_var_set_bit'(0, 7),
+	    '$sys_var_reset_bit'(0, 6)
+	),
+	'$sys_var_set_bit'(0, 8).
 
-'$get_open_options2'(alias(X),LAlias,[X|LAlias]):-
-	atom(X),
-	!,
-        ('$call_c_test'('Test_Alias_Not_Assigned_1'(X))
-                 -> true
-                 ;  '$pl_err_permission'(open,source_sink,alias(X))).
+'$get_open_options2'(alias(X), LAlias, [X|LAlias]) :-
+	atom(X), !,
+	(   '$call_c_test'('Test_Alias_Not_Assigned_1'(X)) ->
+	    true
+	;   '$pl_err_permission'(open, source_sink, alias(X))
+	).
 
-'$get_open_options2'(X,_,_):-
-	'$pl_err_domain'(stream_option,X).
-
-
+'$get_open_options2'(X, _, _) :-
+	'$pl_err_domain'(stream_option, X).
 
 
-'$add_alias_to_stream'([],_).
 
-'$add_alias_to_stream'([Alias|LAlias],Stream):-
-	'$call_c'('Add_Stream_Alias_2'(Stream,Alias)),
-	'$add_alias_to_stream'(LAlias,Stream).
+
+'$add_alias_to_stream'([], _).
+
+'$add_alias_to_stream'([Alias|LAlias], Stream) :-
+	'$call_c'('Add_Stream_Alias_2'(Stream, Alias)),
+	'$add_alias_to_stream'(LAlias, Stream).
 
 
 
@@ -204,159 +220,169 @@ open(SourceSink,Mode,Stream,Options):-
           %   1=true
 
 
-close(SorA):-
-	set_bip_name(close,1),
-	'$close'(SorA,[]).
+close(SorA) :-
+	set_bip_name(close, 1),
+	'$close'(SorA, []).
 
-close(SorA,Options):-
-	set_bip_name(close,2),
-	'$close'(SorA,Options).
+close(SorA, Options) :-
+	set_bip_name(close, 2),
+	'$close'(SorA, Options).
 
 
-'$close'(SorA,Options):-
-	'$sys_var_write'(0,0b0),                               % default mask
+'$close'(SorA, Options) :-
+	'$sys_var_write'(0, 0),                  % default mask
 	'$get_close_options'(Options),
 	'$call_c'('Close_1'(SorA)).
 
 
 
 
-'$get_close_options'(Options):-
+'$get_close_options'(Options) :-
 	'$check_list'(Options),
 	'$get_close_options1'(Options).
 
 
 '$get_close_options1'([]).
 
-'$get_close_options1'([X|Options]):-
-	'$get_close_options2'(X),
-	!,
+'$get_close_options1'([X|Options]) :-
+	'$get_close_options2'(X), !,
 	'$get_close_options1'(Options).
 
 
-'$get_close_options2'(X):-
+'$get_close_options2'(X) :-
 	var(X),
 	'$pl_err_instantiation'.
 
-'$get_close_options2'(force(X)):-
+'$get_close_options2'(force(X)) :-
 	nonvar(X),
-	(X=false, '$sys_var_reset_bit'(0,0)
-               ;
-	 X=true,  '$sys_var_set_bit'(0,0)).
+	(   X=false,
+	    '$sys_var_reset_bit'(0, 0)
+	;   X=true,
+	    '$sys_var_set_bit'(0, 0)
+	).
 
-'$get_close_options2'(X):-
-	'$pl_err_domain'(close_option,X).
-
-
-
-
-add_stream_alias(SorA,Alias):-
-	set_bip_name(add_stream_alias,2),
-	'$call_c_test'('Add_Stream_Alias_2'(SorA,Alias)),
-	!.
-
-add_stream_alias(_,Alias):-
-	'$pl_err_permission'(add_alias,source_sink,alias(Alias)).
+'$get_close_options2'(X) :-
+	'$pl_err_domain'(close_option, X).
 
 
 
 
-set_stream_type(SorA,Type):-
-	set_bip_name(set_stream_type,2),
-	(var(Type) -> '$pl_err_instantiation'
-                   ;  true),
-	(Type=text,   IsText=1
-               ;
-	 Type=binary, IsText=0),
-	!,
-	'$call_c'('Set_Stream_Type_2'(SorA,IsText)).
+add_stream_alias(SorA, Alias) :-
+	set_bip_name(add_stream_alias, 2),
+	'$call_c_test'('Add_Stream_Alias_2'(SorA, Alias)), !.
 
-set_stream_type(_,Type):-
-	'$pl_err_domain'(stream_type,Type).
+add_stream_alias(_, Alias) :-
+	'$pl_err_permission'(add_alias, source_sink, alias(Alias)).
 
 
 
 
-set_stream_eof_action(SorA,EofAction):-
-	set_bip_name(set_stream_eof_action,2),
-	(var(EofAction) -> '$pl_err_instantiation'
-                        ;  true),
-	(EofAction=error,    Action=0
-               ;
-	 EofAction=eof_code, Action=1
-               ;
-	 EofAction=reset,    Action=2),
-	!,
-	'$call_c'('Set_Stream_Eof_Action_2'(SorA,Action)).
+set_stream_type(SorA, Type) :-
+	set_bip_name(set_stream_type, 2),
+	(   var(Type) ->
+	    '$pl_err_instantiation'
+	;   true
+	),
+	(   Type=text,
+	    IsText=1
+	;   Type=binary,
+	    IsText=0
+	), !,
+	'$call_c'('Set_Stream_Type_2'(SorA, IsText)).
 
-set_stream_eof_action(_,EofAction):-
-	'$pl_err_domain'(eof_action,EofAction).
-
-
-
-
-set_stream_buffering(SorA,Buffering):-
-	set_bip_name(set_stream_buffering,2),
-	(var(Buffering) -> '$pl_err_instantiation'
-                        ;  true),
-	(Buffering=none,  BuffMode=0
-               ;
-	 Buffering=line,  BuffMode=1
-               ;
-	 Buffering=block, BuffMode=2),
-	!,
-	'$call_c'('Set_Stream_Buffering_2'(SorA,BuffMode)).
-
-set_stream_buffering(_,Buffering):-
-	'$pl_err_domain'(buffering_mode,Buffering).
+set_stream_type(_, Type) :-
+	'$pl_err_domain'(stream_type, Type).
 
 
 
 
-flush_output:-
-	set_bip_name(flush_output,0),
+set_stream_eof_action(SorA, EofAction) :-
+	set_bip_name(set_stream_eof_action, 2),
+	(   var(EofAction) ->
+	    '$pl_err_instantiation'
+	;   true
+	),
+	(   EofAction=error,
+	    Action=0
+	;   EofAction=eof_code,
+	    Action=1
+	;   EofAction=reset,
+	    Action=2
+	), !,
+	'$call_c'('Set_Stream_Eof_Action_2'(SorA, Action)).
+
+set_stream_eof_action(_, EofAction) :-
+	'$pl_err_domain'(eof_action, EofAction).
+
+
+
+
+set_stream_buffering(SorA, Buffering) :-
+	set_bip_name(set_stream_buffering, 2),
+	(   var(Buffering) ->
+	    '$pl_err_instantiation'
+	;   true
+	),
+	(   Buffering=none,
+	    BuffMode=0
+	;   Buffering=line,
+	    BuffMode=1
+	;   Buffering=block,
+	    BuffMode=2
+	), !,
+	'$call_c'('Set_Stream_Buffering_2'(SorA, BuffMode)).
+
+set_stream_buffering(_, Buffering) :-
+	'$pl_err_domain'(buffering_mode, Buffering).
+
+
+
+
+flush_output :-
+	set_bip_name(flush_output, 0),
 	'$call_c'('Flush_Output_0').
 
-flush_output(SorA):-
-	set_bip_name(flush_output,1),
+flush_output(SorA) :-
+	set_bip_name(flush_output, 1),
 	'$call_c'('Flush_Output_1'(SorA)).
 
 
 
 
-current_stream(Stream):-
-	set_bip_name(current_stream,1),
-	'$check_stream_or_var'(Stream,S),
+current_stream(Stream) :-
+	set_bip_name(current_stream, 1),
+	'$check_stream_or_var'(Stream, S),
 	'$current_stream'(S).
 
 
 
 
-'$current_stream'(S):-
+'$current_stream'(S) :-
 	'$call_c_test'('Current_Stream_1'(S)).
 
 
-'$current_stream_alt':-             % used by C code to create a choice-point
+'$current_stream_alt' :-                         % used by C code to create a choice-point
 	'$call_c_test'('Current_Stream_Alt_0').
 
 
 
 
-stream_property(Stream,Property):-
-	set_bip_name(stream_property,2),
-	'$check_stream_or_var'(Stream,S),
-         (nonvar(Property), Property=alias(Alias), atom(Alias)
-                -> '$call_c_test'('From_Alias_To_Stream_2'(Alias,S))
-                ;
-                   '$check_stream_prop'(Property),
-	           !,
-                   '$current_stream'(S),
-		   '$stream_property1'(Property,S)).
+stream_property(Stream, Property) :-
+	set_bip_name(stream_property, 2),
+	'$check_stream_or_var'(Stream, S),
+	(   nonvar(Property),
+	    Property=alias(Alias),
+	    atom(Alias) ->
+	    '$call_c_test'('From_Alias_To_Stream_2'(Alias, S))
+	;   '$check_stream_prop'(Property), !,
+	    '$current_stream'(S),
+	    '$stream_property1'(Property, S)
+	).
 
 
 
 	
-'$check_stream_prop'(Property):-
+'$check_stream_prop'(Property) :-
 	var(Property).
 
 '$check_stream_prop'(file_name(_)).
@@ -381,136 +407,137 @@ stream_property(Stream,Property):-
 
 '$check_stream_prop'(position(_)).
 
-'$check_stream_prop'(Property):-
-	'$pl_err_domain'(stream_property,Property).
+'$check_stream_prop'(Property) :-
+	'$pl_err_domain'(stream_property, Property).
 
 
 
 
-'$stream_property1'(file_name(File),S):-
-	'$call_c_test'('Stream_Prop_File_Name_2'(File,S)).
+'$stream_property1'(file_name(File), S) :-
+	'$call_c_test'('Stream_Prop_File_Name_2'(File, S)).
 
-'$stream_property1'(mode(Mode),S):-
-	'$call_c_test'('Stream_Prop_Mode_2'(Mode,S)).
+'$stream_property1'(mode(Mode), S) :-
+	'$call_c_test'('Stream_Prop_Mode_2'(Mode, S)).
 
-'$stream_property1'(input,S):-
+'$stream_property1'(input, S) :-
 	'$call_c_test'('Stream_Prop_Input_1'(S)).
 
-'$stream_property1'(output,S):-
+'$stream_property1'(output, S) :-
 	'$call_c_test'('Stream_Prop_Output_1'(S)).
 
-'$stream_property1'(alias(Alias),S):-
-	'$current_alias'(S,Alias).
+'$stream_property1'(alias(Alias), S) :-
+	'$current_alias'(S, Alias).
 
-'$stream_property1'(type(Type),S):-
-	'$call_c_test'('Stream_Prop_Type_2'(Type,S)).
+'$stream_property1'(type(Type), S) :-
+	'$call_c_test'('Stream_Prop_Type_2'(Type, S)).
 
-'$stream_property1'(reposition(Reposition),S):-
-	'$call_c_test'('Stream_Prop_Reposition_2'(Reposition,S)).
+'$stream_property1'(reposition(Reposition), S) :-
+	'$call_c_test'('Stream_Prop_Reposition_2'(Reposition, S)).
 
-'$stream_property1'(eof_action(EofAction),S):-
-	'$call_c_test'('Stream_Prop_Eof_Action_2'(EofAction,S)).
+'$stream_property1'(eof_action(EofAction), S) :-
+	'$call_c_test'('Stream_Prop_Eof_Action_2'(EofAction, S)).
 
-'$stream_property1'(buffering(Buffering),S):-
-	'$call_c_test'('Stream_Prop_Buffering_2'(Buffering,S)).
+'$stream_property1'(buffering(Buffering), S) :-
+	'$call_c_test'('Stream_Prop_Buffering_2'(Buffering, S)).
 
-'$stream_property1'(position(Position),S):-
-	'$stream_position'('$stream'(S),Position).
+'$stream_property1'(position(Position), S) :-
+	'$stream_position'('$stream'(S), Position).
 
-'$stream_property1'(end_of_stream(EndOfStream),S):-
-	'$call_c_test'('Stream_Prop_End_Of_Stream_2'(EndOfStream,S)).
-
-
+'$stream_property1'(end_of_stream(EndOfStream), S) :-
+	'$call_c_test'('Stream_Prop_End_Of_Stream_2'(EndOfStream, S)).
 
 
 
-at_end_of_stream:-
-	set_bip_name(at_end_of_stream,0),
+
+
+at_end_of_stream :-
+	set_bip_name(at_end_of_stream, 0),
 	'$call_c_test'('At_End_Of_Stream_0').
 
-at_end_of_stream(SorA):-
-	set_bip_name(at_end_of_stream,1),
+at_end_of_stream(SorA) :-
+	set_bip_name(at_end_of_stream, 1),
 	'$call_c_test'('At_End_Of_Stream_1'(SorA)).
 
 
 
 
-current_alias(Stream,Alias):-
-	set_bip_name(current_alias,2),
-	'$check_stream_or_var'(Stream,S),
-	(atom(Alias) -> '$call_c_test'('From_Alias_To_Stream_2'(Alias,S))
-                     ;
-                        '$current_stream'(S),
-                        '$current_alias'(S,Alias)).
+current_alias(Stream, Alias) :-
+	set_bip_name(current_alias, 2),
+	'$check_stream_or_var'(Stream, S),
+	(   atom(Alias) ->
+	    '$call_c_test'('From_Alias_To_Stream_2'(Alias, S))
+	;   '$current_stream'(S),
+	    '$current_alias'(S, Alias)
+	).
 
 
 
 
-'$current_alias'(S,Alias):-
-	'$call_c_test'('Current_Alias_2'(S,Alias)).
+'$current_alias'(S, Alias) :-
+	'$call_c_test'('Current_Alias_2'(S, Alias)).
 
-'$current_alias_alt':-             % used by C code to create a choice-point
+'$current_alias_alt' :-                          % used by C code to create a choice-point
 	'$call_c_test'('Current_Alias_Alt_0').
 
 
 
 
-stream_position(SorA,Position):-
-	set_bip_name(stream_position,2),
-	'$stream_position'(SorA,Position).
+stream_position(SorA, Position) :-
+	set_bip_name(stream_position, 2),
+	'$stream_position'(SorA, Position).
 
 
-'$stream_position'(SorA,Position):-
-	'$call_c_test'('Stream_Position_2'(SorA,Position)).
-
-
-
-
-set_stream_position(SorA,Position):-
-	set_bip_name(set_stream_position,2),
-	'$call_c_test'('Set_Stream_Position_2'(SorA,Position)).
+'$stream_position'(SorA, Position) :-
+	'$call_c_test'('Stream_Position_2'(SorA, Position)).
 
 
 
 
-seek(SorA,Whence,Offset,NewLoc):-
-	set_bip_name(seek,4),
-	'$call_c_test'('Seek_4'(SorA,Whence,Offset,NewLoc)).
+set_stream_position(SorA, Position) :-
+	set_bip_name(set_stream_position, 2),
+	'$call_c_test'('Set_Stream_Position_2'(SorA, Position)).
 
 
 
 
-character_count(SorA,Count):-
-	set_bip_name(character_count,2),
-	'$call_c_test'('Character_Count_2'(SorA,Count)).
+seek(SorA, Whence, Offset, NewLoc) :-
+	set_bip_name(seek, 4),
+	'$call_c_test'('Seek_4'(SorA, Whence, Offset, NewLoc)).
 
 
 
 
-line_count(SorA,Count):-
-	set_bip_name(line_count,2),
-	'$call_c_test'('Line_Count_2'(SorA,Count)).
+character_count(SorA, Count) :-
+	set_bip_name(character_count, 2),
+	'$call_c_test'('Character_Count_2'(SorA, Count)).
 
 
 
 
-line_position(SorA,Count):-
-	set_bip_name(line_position,2),
-	'$call_c_test'('Line_Position_2'(SorA,Count)).
+line_count(SorA, Count) :-
+	set_bip_name(line_count, 2),
+	'$call_c_test'('Line_Count_2'(SorA, Count)).
 
 
 
 
-stream_line_column(SorA,Line,Col):-
-	set_bip_name(stream_line_column,3),
-	'$call_c_test'('Stream_Line_Column_3'(SorA,Line,Col)).
+line_position(SorA, Count) :-
+	set_bip_name(line_position, 2),
+	'$call_c_test'('Line_Position_2'(SorA, Count)).
 
 
 
 
-set_stream_line_column(SorA,Line,Col):-
-	set_bip_name(set_stream_line_column,3),
-	'$call_c_test'('Set_Stream_Line_Column_3'(SorA,Line,Col)).
+stream_line_column(SorA, Line, Col) :-
+	set_bip_name(stream_line_column, 3),
+	'$call_c_test'('Stream_Line_Column_3'(SorA, Line, Col)).
+
+
+
+
+set_stream_line_column(SorA, Line, Col) :-
+	set_bip_name(set_stream_line_column, 3),
+	'$call_c_test'('Set_Stream_Line_Column_3'(SorA, Line, Col)).
 
 
 
@@ -524,102 +551,102 @@ set_stream_line_column(SorA,Line,Col):-
           % 0=atom, 1=chars, 2=codes, 
 
 
-open_input_atom_stream(SinkAtom,Stream):-
-	set_bip_name(open_input_atom_stream,2),
-	'$get_open_stm'(Stream,Stm),
-	'$sys_var_write'(0,0),
-	'$call_c'('Open_Input_Term_Stream_2'(SinkAtom,Stm)).
+open_input_atom_stream(SinkAtom, Stream) :-
+	set_bip_name(open_input_atom_stream, 2),
+	'$get_open_stm'(Stream, Stm),
+	'$sys_var_write'(0, 0),
+	'$call_c'('Open_Input_Term_Stream_2'(SinkAtom, Stm)).
 
 
 
 
-open_input_chars_stream(SinkChars,Stream):-
-	set_bip_name(open_input_chars_stream,2),
-	'$get_open_stm'(Stream,Stm),
-	'$sys_var_write'(0,1),
-	'$call_c'('Open_Input_Term_Stream_2'(SinkChars,Stm)).
+open_input_chars_stream(SinkChars, Stream) :-
+	set_bip_name(open_input_chars_stream, 2),
+	'$get_open_stm'(Stream, Stm),
+	'$sys_var_write'(0, 1),
+	'$call_c'('Open_Input_Term_Stream_2'(SinkChars, Stm)).
 
 
 
 
-open_input_codes_stream(SinkCodes,Stream):-
-	set_bip_name(open_input_codes_stream,2),
-	'$get_open_stm'(Stream,Stm),
-	'$sys_var_write'(0,2),
-	'$call_c'('Open_Input_Term_Stream_2'(SinkCodes,Stm)).
+open_input_codes_stream(SinkCodes, Stream) :-
+	set_bip_name(open_input_codes_stream, 2),
+	'$get_open_stm'(Stream, Stm),
+	'$sys_var_write'(0, 2),
+	'$call_c'('Open_Input_Term_Stream_2'(SinkCodes, Stm)).
 
 
 
 
-close_input_atom_stream(SorA):-
-	set_bip_name(close_input_atom_stream,1),
-	'$sys_var_write'(0,0),
+close_input_atom_stream(SorA) :-
+	set_bip_name(close_input_atom_stream, 1),
+	'$sys_var_write'(0, 0),
 	'$call_c'('Close_Input_Term_Stream_1'(SorA)).
 
 
 
 
-close_input_chars_stream(SorA):-
-	set_bip_name(close_input_chars_stream,1),
-	'$sys_var_write'(0,1),
+close_input_chars_stream(SorA) :-
+	set_bip_name(close_input_chars_stream, 1),
+	'$sys_var_write'(0, 1),
 	'$call_c'('Close_Input_Term_Stream_1'(SorA)).
 
 
 
 
-close_input_codes_stream(SorA):-
-	set_bip_name(close_input_codes_stream,1),
-	'$sys_var_write'(0,2),
+close_input_codes_stream(SorA) :-
+	set_bip_name(close_input_codes_stream, 1),
+	'$sys_var_write'(0, 2),
 	'$call_c'('Close_Input_Term_Stream_1'(SorA)).
 
 
 
 
-open_output_atom_stream(Stream):-
-	set_bip_name(open_output_atom_stream,1),
-	'$get_open_stm'(Stream,Stm),
-	'$sys_var_write'(0,0),
+open_output_atom_stream(Stream) :-
+	set_bip_name(open_output_atom_stream, 1),
+	'$get_open_stm'(Stream, Stm),
+	'$sys_var_write'(0, 0),
 	'$call_c'('Open_Output_Term_Stream_1'(Stm)).
 
 
 
 
-open_output_chars_stream(Stream):-
-	set_bip_name(open_output_chars_stream,1),
-	'$get_open_stm'(Stream,Stm),
-	'$sys_var_write'(0,1),
+open_output_chars_stream(Stream) :-
+	set_bip_name(open_output_chars_stream, 1),
+	'$get_open_stm'(Stream, Stm),
+	'$sys_var_write'(0, 1),
 	'$call_c'('Open_Output_Term_Stream_1'(Stm)).
 
 
 
 
-open_output_codes_stream(Stream):-
-	set_bip_name(open_output_codes_stream,1),
-	'$get_open_stm'(Stream,Stm),
-	'$sys_var_write'(0,2),
+open_output_codes_stream(Stream) :-
+	set_bip_name(open_output_codes_stream, 1),
+	'$get_open_stm'(Stream, Stm),
+	'$sys_var_write'(0, 2),
 	'$call_c'('Open_Output_Term_Stream_1'(Stm)).
 
 
 
 
-close_output_atom_stream(SorA,SinkAtom):-
-	set_bip_name(close_output_atom_stream,2),
-	'$sys_var_write'(0,0),
-	'$call_c_test'('Close_Output_Term_Stream_2'(SorA,SinkAtom)).
+close_output_atom_stream(SorA, SinkAtom) :-
+	set_bip_name(close_output_atom_stream, 2),
+	'$sys_var_write'(0, 0),
+	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkAtom)).
 
 
 
 
-close_output_chars_stream(SorA,SinkChars):-
-	set_bip_name(close_output_chars_stream,2),
-	'$sys_var_write'(0,1),
-	'$call_c_test'('Close_Output_Term_Stream_2'(SorA,SinkChars)).
+close_output_chars_stream(SorA, SinkChars) :-
+	set_bip_name(close_output_chars_stream, 2),
+	'$sys_var_write'(0, 1),
+	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkChars)).
 
 
 
 
-close_output_codes_stream(SorA,SinkCodes):-
-	set_bip_name(close_output_codes_stream,2),
-	'$sys_var_write'(0,2),
-	'$call_c_test'('Close_Output_Term_Stream_2'(SorA,SinkCodes)).
+close_output_codes_stream(SorA, SinkCodes) :-
+	set_bip_name(close_output_codes_stream, 2),
+	'$sys_var_write'(0, 2),
+	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkCodes)).
 

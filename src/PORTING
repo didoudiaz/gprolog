@@ -15,8 +15,10 @@ for more info).
 
 2) Modify the following files to create an entry M_<processor>_<os>
 
-configure.in        (+CFLAGS and others)
-EnginePl/config.h   (+regs)
+configure.in              (+CFLAGS and others)
+EnginePl/gp_config.h.in   (M_<processor>_<os>)
+EnginePl/machine.h        (+regs)
+eventually look at EnginePl/arch_dep.h
 
 3) you must be able to compile the following:
 

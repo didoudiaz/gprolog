@@ -22,9 +22,12 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-'$use_all_pl_bips':-
-	'$use_control', '$use_call', '$use_call_args',
-	'$use_catch', '$use_throw',
+'$use_all_pl_bips' :-
+	'$use_control',
+	'$use_call',
+	'$use_call_args',
+	'$use_catch',
+	'$use_throw',
 	'$use_unify',
 	'$use_arith_inl',
 	'$use_assert',

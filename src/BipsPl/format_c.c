@@ -70,7 +70,7 @@ static double Arg_Float(WamWord **lst_adr);
 void
 Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int stm;
   StmInf *pstm;
   char *str;
@@ -84,9 +84,9 @@ Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
   last_output_sora = sora_word;
   Check_Stream_Type(stm, TRUE, FALSE);
 
-  Deref(format_word, word, tag, adr);
+  DEREF(format_word, word, tag_mask);
 
-  if (tag == ATM && word != NIL_WORD)
+  if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
     str = atom_tbl[UnTag_ATM(word)].name;
   else
     {
@@ -393,7 +393,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 
 	    default:
 	      Pl_Err_Domain(domain_format_control_sequence,
-			    Tag_Value(ATM, ATOM_CHAR(*format)));
+			    Tag_ATM(ATOM_CHAR(*format)));
 	    }
 	  format++;
 	}
@@ -411,15 +411,16 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 static WamWord
 Read_Arg(WamWord **lst_adr)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord car_word;
 
 
-  Deref(**lst_adr, word, tag, adr);
+  DEREF(**lst_adr, word, tag_mask);
 
-  if (tag != LST)
+  if (tag_mask != TAG_LST_MASK)
     {
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
@@ -427,14 +428,12 @@ Read_Arg(WamWord **lst_adr)
 
       Pl_Err_Type(type_list, word);
     }
-
+  
   adr = UnTag_LST(word);
-
   car_word = Car(adr);
-
   *lst_adr = &Cdr(adr);
 
-  Deref(car_word, word, tag, adr);
+  DEREF(car_word, word, tag_mask);
   return word;
 }
 

@@ -213,11 +213,11 @@ static int Scanner(int complex_atom);
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Parse_Wam_File(char *file_name_in, int keep_lines)
+Parse_Wam_File(char *file_name_in, int comment)
 {
   int ret_val;
 
-  keep_source_lines = keep_lines;
+  keep_source_lines = comment;
 
   if (file_name_in == NULL)
     file_in = stdin;

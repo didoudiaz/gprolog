@@ -35,10 +35,6 @@
 
 
 
-#define TAGGED_1                   Tag_Value(INT,1)
-
-
-
 #if 0
 #define DEBUG
 #endif
@@ -78,10 +74,8 @@ extern Bool full_ac;
  * Function Prototypes             *
  *---------------------------------*/
 
-Bool Load_Left_Right(Bool optim_eq,
-		     WamWord le_word, WamWord re_word,
-		     int *mask, WamWord *c_word,
-		     WamWord *l_word, WamWord *r_word);
+Bool Load_Left_Right(Bool optim_eq, WamWord le_word, WamWord re_word,
+		     int *mask, long *c, WamWord *l_word, WamWord *r_word);
 
 Bool Term_Math_Loading(WamWord l_word, WamWord r_word);
 

@@ -240,7 +240,8 @@ Find_Linked_Objects(void)
       DBGPRINTF("\n+++ Executing Exec System Function at: %#lx\n",
 		(long) (obj_tbl[i].fct_exec_system));
 #endif
-      (*(obj_tbl[i].fct_exec_system)) ();
+      if (obj_tbl[i].fct_exec_system != NULL)
+	(*(obj_tbl[i].fct_exec_system)) ();
     }
 
   i = nb_obj;			/* call Exec User functions from last to first */
@@ -250,7 +251,8 @@ Find_Linked_Objects(void)
       DBGPRINTF("\n+++ Executing Exec User Function at: %#lx\n",
 		(long) (obj_tbl[i].fct_exec_user));
 #endif
-      (*(obj_tbl[i].fct_exec_user)) ();
+      if (obj_tbl[i].fct_exec_user != NULL)
+	(*(obj_tbl[i].fct_exec_user)) ();
     }
 #endif
 }

@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : pred.pl
-% date    : 9 6 2000
-% time    : 17:33:13
+% date    : 12 1 2000
+% time    : 16:12:58
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/pred.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
 
 
 predicate('$use_pred'/0,27,static,private,built_in,[
@@ -77,7 +77,7 @@ predicate('$predicate_property1'/2,62,static,private,built_in,[
     execute('$predicate_property2'/2)]).
 
 
-predicate('$check_pred_prop'/1,70,static,private,built_in,[
+predicate('$check_pred_prop'/1,69,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     proceed,
@@ -171,7 +171,7 @@ label(24),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$predicate_property2'/2,99,static,private,built_in,[
+predicate('$predicate_property2'/2,98,static,private,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -263,31 +263,31 @@ label(22),
     proceed]).
 
 
-predicate('$get_predicate_file_info'/3,132,static,private,built_in,[
+predicate('$get_predicate_file_info'/3,131,static,private,built_in,[
     call_c_test('Get_Predicate_File_Info_3',[0,1,2]),
     proceed]).
 
 
-predicate('$set_predicate_file_info'/3,138,static,private,built_in,[
+predicate('$set_predicate_file_info'/3,137,static,private,built_in,[
     call_c_test('Set_Predicate_File_Info_3',[0,1,2]),
     proceed]).
 
 
-predicate('$aux_name'/1,144,static,private,built_in,[
+predicate('$aux_name'/1,143,static,private,built_in,[
     call_c_test('Aux_Name_1',[0]),
     proceed]).
 
 
-predicate('$father_of_aux_name'/3,150,static,private,built_in,[
+predicate('$father_of_aux_name'/3,149,static,private,built_in,[
     call_c_test('Father_Of_Aux_Name_3',[0,1,2]),
     proceed]).
 
 
-predicate('$pred_without_aux'/4,156,static,private,built_in,[
+predicate('$pred_without_aux'/4,155,static,private,built_in,[
     call_c_test('Pred_Without_Aux_4',[0,1,2,3]),
     proceed]).
 
 
-predicate('$make_aux_name'/4,162,static,private,built_in,[
+predicate('$make_aux_name'/4,161,static,private,built_in,[
     call_c_test('Make_Aux_Name_4',[0,1,2,3]),
     proceed]).

@@ -24,61 +24,50 @@
 
 /* $Id$ */
 
+#define MAPPER_FILE
+
 #include "ma_parser.h"
 #include "ma_protos.h"
 
 #include "../EnginePl/gp_config.h"
 #include "../EnginePl/wam_regs.h"
+#include "../EnginePl/machine.h"
+#include "../EnginePl/pl_params.h"
+#include "../EnginePl/obj_chain.h"
 
-
-#if 0
-#define CHECK_PRINTF_ARGS
-#endif
-
-#ifdef CHECK_PRINTF_ARGS
-#define GCCPRINTF(x) __attribute__((format(printf,x,x+1)))
-#else
-#define GCCPRINTF(x)
-#endif
-
-	  /* defined in ma2asm.c */
-
-void
-Label_Printf(char *label, ...)
-GCCPRINTF(1);
-     void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
-     void Inst_Out(char *op, char *operands);
-     void Char_Out(char c);
-     void String_Out(char *s);
-     void Int_Out(int d);
-
-
-	  /* machined-dependent mapper (file: os_cpu.c) */
-
-#if   defined(M_ix86_linux) || defined(M_ix86_cygwin) || \
-      defined(M_ix86_sco)   || defined(M_ix86_solaris) || \
-      defined(M_ix86_bsd)
+#if 0				/* to force the inclusion of a mapper */
 
 #include "ix86_any.c"
 
-#elif defined(M_ix86_win32)
+#else
+
+	  /* include machine-dependent mapper file */
+
+#if defined(M_ix86_win32)
 
 #include "ix86_win32.c"
 
-#elif defined(M_powerpc_linux)
+#elif defined(M_ix86)
 
-#include "ppc_linux.c"
+#include "ix86_any.c"
 
-#elif defined(M_sparc_sunos) || defined(M_sparc_solaris)
+#elif defined(M_sparc)
 
 #include "sparc_any.c"
+
+#elif defined(M_alpha)
+
+#include "alpha_any.c"
 
 #elif defined(M_mips_irix)
 
 #include "mips_irix.c"
 
-#elif defined(M_alpha_linux) || defined(M_alpha_osf)
+#elif defined(M_powerpc_linux)
 
-#include "alpha_any.c"
+#include "ppc_linux.c"
+
+#endif
+
 
 #endif

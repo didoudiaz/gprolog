@@ -76,10 +76,6 @@ static char *arith_tbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-static int Error_Zero_Divisor(void);
-
-static WamWord Tagged_Mod(WamWord x, WamWord y);
-
 static WamWord Make_Tagged_Float(double d);
 
 static double To_Double(WamWord x);
@@ -98,220 +94,225 @@ static WamWord Load_Math_Expression(WamWord exp);
 
 #define C_Mul(x,y)   ((x) * (y))
 
-#define C_Div(x,y)   ((y)!=0 ? (x) / (y) : Error_Zero_Divisor())
+#define C_Div(x,y)   ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(evluation_zero_divisor), 0))
 
 #define Identity(x)  (x)
 
-#define DInc(x)      ((x)+1)
+#define DInc(x)      ((x) + 1)
 
-#define DDec(x)      ((x)-1)
+#define DDec(x)      ((x) - 1)
 
-#define DSign(x)     ((x) < 0.0 ? -1.0 : ((x) > 0.0 ? 1.0 : 0.0))
+#define DSign(x)     ((x) < 0.0 ? -1.0 : (x) > 0.0 ? 1.0 : 0.0)
 
 #define DInteg(x)    ((double) ((long) (x)))
 
 #define DFract(x)    ((double) ((x) - (long) (x)))
 
 
-
-#define IFxIFtoIF(x,y,c_op,int0_op)                                         \
- return (Tag_Of(x)==INT && Tag_Of(y)==INT)                                  \
-                ? int0_op(x,y)                                              \
-                : Make_Tagged_Float(c_op(To_Double(x),To_Double(y)));
+#define X_and_Y_are_INT(x, y)  Tag_Is_INT(x | y)
 
 
-
-#define IFxIFtoF(x,y,c_op)                                                  \
- return Make_Tagged_Float(c_op(To_Double(x),To_Double(y)));
+#define IFxIFtoIF(x, y, c_op, fast_op)                     \
+  return (X_and_Y_are_INT(x, y))                           \
+    ? fast_op(x, y)                                        \
+    : Make_Tagged_Float(c_op(To_Double(x), To_Double(y)))
 
 
 
-#define IxItoI(x,y,int0_op)                                                 \
- if (Tag_Of(x)!=INT)                                       /* error case */ \
-     Pl_Err_Type(type_integer,x);                                           \
- if (Tag_Of(y)!=INT)                                       /* error case */ \
-     Pl_Err_Type(type_integer,y);                                           \
- return int0_op(x,y);
+#define IFxIFtoF(x, y, c_op)                                \
+  return Make_Tagged_Float(c_op(To_Double(x), To_Double(y)))
 
 
 
-#define IFtoIF(x,c_op,int0_op)                                              \
- return (Tag_Of(x)==INT) ? int0_op(x)                                       \
-                         : Make_Tagged_Float(c_op(To_Double(x)));
+#define IxItoI(x, y, fast_op)                    \
+  if (Tag_Is_FLT(x))		/* error case */ \
+    Pl_Err_Type(type_integer, x);                \
+  if (Tag_Is_FLT(y))		/* error case */ \
+    Pl_Err_Type(type_integer, y);                \
+  return fast_op(x, y)
 
 
 
-#define ItoI(x,int0_op)                                                     \
- if (Tag_Of(x)!=INT)                                       /* error case */ \
-     Pl_Err_Type(type_integer,x);                                           \
- return int0_op(x);
+#define IFtoIF(x, c_op, fast_op)                 \
+  return (Tag_Is_INT(x)) ? fast_op(x) :          \
+    Make_Tagged_Float(c_op(To_Double(x)))
 
 
 
-#define IFtoF(x,c_op)                                                       \
- return Make_Tagged_Float(c_op(To_Double(x)));
+#define ItoI(x, fast_op)                         \
+  if (Tag_Is_FLT(x))            /* error case */ \
+    Pl_Err_Type(type_integer, x);                \
+  return fast_op(x)
 
 
 
-#define FtoI(x,c_op)                                                        \
- double d;                                                                  \
- if (Tag_Of(x)==INT)                                       /* error case */ \
-     Pl_Err_Type(type_float,x);                                             \
-  else                                                                      \
-     d=Obtain_Float(UnTag_FLT(x));                                          \
- return Tag_Value(INT,(long) c_op(d));
+#define IFtoF(x, c_op)                            \
+  return Make_Tagged_Float(c_op(To_Double(x)))
 
 
 
-#define FtoF(x,c_op)                                                        \
- double d;                                                                  \
- if (Tag_Of(x)==INT)                                       /* error case */ \
-     Pl_Err_Type(type_float,x);                                             \
-  else                                                                      \
-     d=Obtain_Float(UnTag_FLT(x));                                          \
- return Make_Tagged_Float(c_op(d));
+#define FtoI(x, c_op)                            \
+  double d;                                      \
+  if (Tag_Is_INT(x))            /* error case */ \
+    Pl_Err_Type(type_float, x);                  \
+  else                                           \
+    d=Obtain_Float(UnTag_FLT(x));                \
+  return Tag_INT((long) c_op(d))
 
 
 
-#define Tag0_Neg(x)     (-x)
-
-#define Tag0_Inc(x)     (x+Tag_Value(INT,1))
-
-#define Tag0_Dec(x)     (x-Tag_Value(INT,1))
-
-#define Tag0_Add(x,y)   (x+y)
-
-#define Tag0_Sub(x,y)   (x-y)
-
-#define Tag0_Mul(x,y)   (x*(y>>TAG_SIZE))
-
-#define Tag0_Div(x,y)   (y!=0 ? (x/y)<<TAG_SIZE : Error_Zero_Divisor())
-
-#define Tag0_Rem(x,y)   (y!=0 ? x%y             : Error_Zero_Divisor())
-
-#define Tag0_Mod(x,y)   (y!=0 ? Tagged_Mod(x,y) : Error_Zero_Divisor())
-
-#define Tag0_And(x,y)   (x&y)
-
-#define Tag0_Or(x,y)    (x|y)
-
-#define Tag0_Xor(x,y)   (Tag_Value(INT,UnTag_INT(x)^UnTag_INT(y)))
-
-#define Tag0_Not(x)     ((~x)-((1<<TAG_SIZE)-1))
-
-#define Tag0_Shl(x,y)   (x<<UnTag_INT(y))
-
-#define Tag0_Shr(x,y)   (Tag_Value(INT,UnTag_INT(x)>>UnTag_INT(y)))
-
-#define Tag0_Abs(x)     ((x) < 0 ? -x : x)
-
-#define Tag0_Sign(x)    ((x) < 0 ? Tag_INT(-1) \
-                                 : ((x) > 0.0 ? Tag_INT(1) : Tag_INT(0)))
+#define FtoF(x, c_op)                            \
+  double d;                                      \
+  if (Tag_Is_INT(x))            /* error case */ \
+    Pl_Err_Type(type_float, x);                  \
+  else                                           \
+    d=Obtain_Float(UnTag_FLT(x));                \
+  return Make_Tagged_Float(c_op(d))
 
 
 
 	  /* fast-math version */
 
 WamWord
-Fct_Fast_Neg(int x)
+Fct_Fast_Neg(WamWord x)
 {
-  return Tag0_Neg(x);
+  long vx = UnTag_INT(x);
+  return Tag_INT(-vx);
 }
 
 WamWord
-Fct_Fast_Inc(int x)
+Fct_Fast_Inc(WamWord x)
 {
-  return Tag0_Inc(x);
+  long vx = UnTag_INT(x);
+  return Tag_INT(vx + 1);
 }
 
 WamWord
-Fct_Fast_Dec(int x)
+Fct_Fast_Dec(WamWord x)
 {
-  return Tag0_Dec(x);
+  long vx = UnTag_INT(x);
+  return Tag_INT(vx - 1);
 }
 
 WamWord
-Fct_Fast_Add(int x, int y)
+Fct_Fast_Add(WamWord x, WamWord y)
 {
-  return Tag0_Add(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return Tag_INT(vx + vy);
 }
 
 WamWord
-Fct_Fast_Sub(int x, int y)
+Fct_Fast_Sub(WamWord x, WamWord y)
 {
-  return Tag0_Sub(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return Tag_INT(vx - vy);
 }
 
 WamWord
-Fct_Fast_Mul(int x, int y)
+Fct_Fast_Mul(WamWord x, WamWord y)
 {
-  return Tag0_Mul(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return Tag_INT(vx * vy);
 }
 
 WamWord
-Fct_Fast_Div(int x, int y)
+Fct_Fast_Div(WamWord x, WamWord y)
 {
-  return Tag0_Div(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+
+  if (vy == 0)
+    Pl_Err_Evaluation(evluation_zero_divisor);
+
+  return Tag_INT(vx / vy);
 }
 
 WamWord
-Fct_Fast_Rem(int x, int y)
+Fct_Fast_Rem(WamWord x, WamWord y)
 {
-  return Tag0_Rem(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+
+  if (vy == 0)
+    Pl_Err_Evaluation(evluation_zero_divisor);
+
+  return Tag_INT(vx % vy);
 }
 
 WamWord
-Fct_Fast_Mod(int x, int y)
+Fct_Fast_Mod(WamWord x, WamWord y)
 {
-  return Tag0_Mod(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  long m;
+
+  if (vy == 0)
+    Pl_Err_Evaluation(evluation_zero_divisor);
+
+  m = vx % vy;
+
+  if ((m ^ vy) < 0)		/* have m and vy different signs ? */
+    m += vy;
+
+  return Tag_INT(m);
 }
 
 WamWord
-Fct_Fast_And(int x, int y)
+Fct_Fast_And(WamWord x, WamWord y)
 {
-  return Tag0_And(x, y);
+  return x & y;
 }
 
 WamWord
-Fct_Fast_Or(int x, int y)
+Fct_Fast_Or(WamWord x, WamWord y)
 {
-  return Tag0_Or(x, y);
+  return x | y;
 }
 
 WamWord
-Fct_Fast_Xor(int x, int y)
+Fct_Fast_Xor(WamWord x, WamWord y)
 {
-  return Tag0_Xor(x, y);
+  return (x ^ y) | TAG_INT_MASK;
 }
 
 WamWord
-Fct_Fast_Not(int x)
+Fct_Fast_Not(WamWord x)
 {
-  return Tag0_Not(x);
+  long vx = UnTag_INT(x);
+  return Tag_INT(~vx);
 }
 
 WamWord
-Fct_Fast_Shl(int x, int y)
+Fct_Fast_Shl(WamWord x, WamWord y)
 {
-  return Tag0_Shl(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return Tag_INT(vx << vy);
 }
 
 WamWord
-Fct_Fast_Shr(int x, int y)
+Fct_Fast_Shr(WamWord x, WamWord y)
 {
-  return Tag0_Shr(x, y);
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return Tag_INT(vx >> vy);
 }
 
 WamWord
-Fct_Fast_Abs(int x)
+Fct_Fast_Abs(WamWord x)
 {
-  return Tag0_Abs(x);
+  long vx = UnTag_INT(x);
+  return (vx < 0) ? Tag_INT(-vx) : x;
 }
 
 WamWord
-Fct_Fast_Sign(int x)
+Fct_Fast_Sign(WamWord x)
 {
-  return Tag0_Sign(x);
+  long vx = UnTag_INT(x);
+  return (vx < 0) ? Tag_INT(-1) : (vx == 0) ? Tag_INT(0) : Tag_INT(1);
 }
 
 
@@ -321,139 +322,207 @@ Fct_Fast_Sign(int x)
 WamWord
 Fct_Neg(WamWord x)
 {
-IFtoIF(x, C_Neg, Tag0_Neg)}
+  IFtoIF(x, C_Neg, Fct_Fast_Neg);
+}
+
 WamWord
 Fct_Inc(WamWord x)
 {
-IFtoIF(x, DInc, Tag0_Inc)}
+  IFtoIF(x, DInc, Fct_Fast_Inc);
+}
+
 WamWord
 Fct_Dec(WamWord x)
 {
-IFtoIF(x, DDec, Tag0_Dec)}
+  IFtoIF(x, DDec, Fct_Fast_Dec);
+}
+
 WamWord
 Fct_Add(WamWord x, WamWord y)
 {
-IFxIFtoIF(x, y, C_Add, Tag0_Add)}
+  IFxIFtoIF(x, y, C_Add, Fct_Fast_Add);
+}
+
 WamWord
 Fct_Sub(WamWord x, WamWord y)
 {
-IFxIFtoIF(x, y, C_Sub, Tag0_Sub)}
+  IFxIFtoIF(x, y, C_Sub, Fct_Fast_Sub);
+}
+
 WamWord
 Fct_Mul(WamWord x, WamWord y)
 {
-IFxIFtoIF(x, y, C_Mul, Tag0_Mul)}
+  IFxIFtoIF(x, y, C_Mul, Fct_Fast_Mul);
+}
+
 WamWord
 Fct_Div(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Div)}
+  IxItoI(x, y, Fct_Fast_Div);
+}
+
 WamWord
 Fct_Float_Div(WamWord x, WamWord y)
 {
-IFxIFtoF(x, y, C_Div)}
+  IFxIFtoF(x, y, C_Div);
+}
+
 WamWord
 Fct_Rem(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Rem)}
+  IxItoI(x, y, Fct_Fast_Rem);
+}
+
 WamWord
 Fct_Mod(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Mod)}
+  IxItoI(x, y, Fct_Fast_Mod);
+}
+
 WamWord
 Fct_And(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_And)}
+  IxItoI(x, y, Fct_Fast_And);
+}
+
 WamWord
 Fct_Or(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Or)}
+  IxItoI(x, y, Fct_Fast_Or);
+}
+
 WamWord
 Fct_Xor(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Xor)}
+  IxItoI(x, y, Fct_Fast_Xor);
+}
+
 WamWord
 Fct_Not(WamWord x)
 {
-ItoI(x, Tag0_Not)}
+  ItoI(x, Fct_Fast_Not);
+}
+
 WamWord
 Fct_Shl(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Shl)}
+  IxItoI(x, y, Fct_Fast_Shl);
+}
+
 WamWord
 Fct_Shr(WamWord x, WamWord y)
 {
-IxItoI(x, y, Tag0_Shr)}
+  IxItoI(x, y, Fct_Fast_Shr);
+}
+
 WamWord
 Fct_Abs(WamWord x)
 {
-IFtoIF(x, fabs, Tag0_Abs)}
+  IFtoIF(x, fabs, Fct_Fast_Abs);
+}
+
 WamWord
 Fct_Sign(WamWord x)
 {
-IFtoIF(x, DSign, Tag0_Sign)}
+  IFtoIF(x, DSign, Fct_Fast_Sign);
+}
+
 WamWord
 Fct_Pow(WamWord x, WamWord y)
 {
-IFxIFtoF(x, y, pow)}
+  IFxIFtoF(x, y, pow);
+}
+
 WamWord
 Fct_Sqrt(WamWord x)
 {
-IFtoF(x, sqrt)}
+  IFtoF(x, sqrt);
+}
+
 WamWord
 Fct_Atan(WamWord x)
 {
-IFtoF(x, atan)}
+  IFtoF(x, atan);
+}
+
 WamWord
 Fct_Cos(WamWord x)
 {
-IFtoF(x, cos)}
+  IFtoF(x, cos);
+}
+
 WamWord
 Fct_Acos(WamWord x)
 {
-IFtoF(x, acos)}
+  IFtoF(x, acos);
+}
+
 WamWord
 Fct_Sin(WamWord x)
 {
-IFtoF(x, sin)}
+  IFtoF(x, sin);
+}
+
 WamWord
 Fct_Asin(WamWord x)
 {
-IFtoF(x, asin)}
+  IFtoF(x, asin);
+}
+
 WamWord
 Fct_Exp(WamWord x)
 {
-IFtoF(x, exp)}
+  IFtoF(x, exp);
+}
+
 WamWord
 Fct_Log(WamWord x)
 {
-IFtoF(x, log)}
+  IFtoF(x, log);
+}
+
 WamWord
 Fct_Float(WamWord x)
 {
-IFtoF(x, Identity)}
+  IFtoF(x, Identity);
+}
+
 WamWord
 Fct_Ceiling(WamWord x)
 {
-FtoI(x, ceil)}
+  FtoI(x, ceil);
+}
+
 WamWord
 Fct_Floor(WamWord x)
 {
-FtoI(x, floor)}
+  FtoI(x, floor);
+}
+
 WamWord
 Fct_Round(WamWord x)
 {
-FtoI(x, rint)}
+  FtoI(x, rint);
+}
+
 WamWord
 Fct_Truncate(WamWord x)
 {
-FtoI(x, Identity)}
+  FtoI(x, Identity);
+}
+
 WamWord
 Fct_Float_Fract_Part(WamWord x)
 {
-FtoF(x, DFract)}
+  FtoF(x, DFract);
+}
+
 WamWord
 Fct_Float_Integ_Part(WamWord x)
 {
-FtoF(x, DInteg)}
+  FtoF(x, DInteg);
+}
+
 WamWord
 Fct_Identity(WamWord x)
 {
@@ -461,20 +530,101 @@ Fct_Identity(WamWord x)
 }				/* for meta-call */
 
 
-
 	  /* Mathematic Comparisons */
 
-#define Cmp_IFxIF(x,y,op)                                                   \
- return (Tag_Of(x)==INT && Tag_Of(y)==INT)                                  \
-                ? ((long) (x) op (long) (y))                                \
-                : (To_Double(x) op To_Double(y));
+#define Cmp_IFxIF(x, y, c_op, fast_op)     \
+  return (X_and_Y_are_INT(x, y))           \
+    ? fast_op(x, y)                        \
+    : (To_Double(x) c_op To_Double(y))
+
+
+	  /* fast-math version */
+
+Bool
+Blt_Fast_Eq(WamWord x, WamWord y)
+{
+  return x == y;
+}
+
+Bool
+Blt_Fast_Neq(WamWord x, WamWord y)
+{
+  return x != y;
+}
+
+Bool
+Blt_Fast_Lt(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return vx < vy;
+}
+
+Bool
+Blt_Fast_Lte(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return vx <= vy;
+}
+
+Bool
+Blt_Fast_Gt(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return vx > vy;
+}
+
+Bool
+Blt_Fast_Gte(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  return vx >= vy;
+}
+
+
+	  /* standard version */
+
+Bool
+Blt_Eq(WamWord x, WamWord y)
+{
+  Cmp_IFxIF(x, y, ==, Blt_Fast_Eq);
+}
+Bool
+Blt_Neq(WamWord x, WamWord y)
+{
+  Cmp_IFxIF(x, y, !=, Blt_Fast_Neq);
+}
+Bool
+Blt_Lt(WamWord x, WamWord y)
+{
+  Cmp_IFxIF(x, y, <, Blt_Fast_Lt);
+}
+Bool
+Blt_Lte(WamWord x, WamWord y)
+{
+  Cmp_IFxIF(x, y, <=, Blt_Fast_Lte);
+}
+Bool
+Blt_Gt(WamWord x, WamWord y)
+{
+  Cmp_IFxIF(x, y, >, Blt_Fast_Gt);
+}
+Bool
+Blt_Gte(WamWord x, WamWord y)
+{
+  Cmp_IFxIF(x, y, >=, Blt_Fast_Gte);
+}
 
 
 
-#define ADD_ARITH_OPER(atom_str,arity,f)                                    \
-     arith_info.f_n=Functor_Arity(Create_Atom(atom_str),arity);             \
-     arith_info.fct=f;                                                      \
-     Hash_Insert(arith_tbl,(char *) &arith_info,FALSE)
+
+#define ADD_ARITH_OPER(atom_str, arity, f)                      \
+  arith_info.f_n = Functor_Arity(Create_Atom(atom_str), arity); \
+  arith_info.fct = f;                                           \
+  Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
 
 
 
@@ -488,9 +638,7 @@ Arith_Initializer(void)
 {
   ArithInf arith_info;
 
-
   arith_tbl = Hash_Alloc_Table(START_ARITH_TBL_SIZE, sizeof(ArithInf));
-
 
   ADD_ARITH_OPER("+", 1, Fct_Identity);
 
@@ -536,39 +684,6 @@ Arith_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * ERROR_ZERO_DIVISOR                                                      *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-Error_Zero_Divisor(void)
-{
-  Pl_Err_Evaluation(evluation_zero_divisor);
-
-  return 0;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * TAGGED_MOD                                                              *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static WamWord
-Tagged_Mod(WamWord x, WamWord y)
-{
-  WamWord m = Tag0_Rem(x, y);
-
-  if ((long) (((long) m ^ (long) y)) < 0)	/* have m and y different signs ? */
-    m = Tag0_Add(m, y);
-
-  return m;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * DEFINE_MATH_BIP_2                                                       *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -595,11 +710,11 @@ Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
 void
 Math_Load_Value(WamWord start_word, WamWord *word_adr)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
 
-  if (tag != INT && tag != FLT)
+  if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FLT_MASK)
     word = Load_Math_Expression(word);
 
   *word_adr = word;
@@ -616,80 +731,12 @@ Math_Load_Value(WamWord start_word, WamWord *word_adr)
 void
 Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
 
-  Deref(start_word, word, tag, adr);
+  DEREF(start_word, word, tag_mask);
   *word_adr = word;
 }
 
-
-
-
-	  /* fast-math version */
-
-Bool
-Blt_Fast_Eq(WamWord x, WamWord y)
-{
-  return x == y;
-}
-
-Bool
-Blt_Fast_Neq(WamWord x, WamWord y)
-{
-  return x != y;
-}
-
-Bool
-Blt_Fast_Lt(WamWord x, WamWord y)
-{
-  return x < y;
-}
-
-Bool
-Blt_Fast_Lte(WamWord x, WamWord y)
-{
-  return x <= y;
-}
-
-Bool
-Blt_Fast_Gt(WamWord x, WamWord y)
-{
-  return x > y;
-}
-
-Bool
-Blt_Fast_Gte(WamWord x, WamWord y)
-{
-  return x >= y;
-}
-
-
-	  /* standard version */
-
-Bool
-Blt_Eq(WamWord x, WamWord y)
-{
-Cmp_IFxIF(x, y, ==)}
-Bool
-Blt_Neq(WamWord x, WamWord y)
-{
-Cmp_IFxIF(x, y, !=)}
-Bool
-Blt_Lt(WamWord x, WamWord y)
-{
-Cmp_IFxIF(x, y, <)}
-Bool
-Blt_Lte(WamWord x, WamWord y)
-{
-Cmp_IFxIF(x, y, <=)}
-Bool
-Blt_Gt(WamWord x, WamWord y)
-{
-Cmp_IFxIF(x, y, >)}
-Bool
-Blt_Gte(WamWord x, WamWord y)
-{
-Cmp_IFxIF(x, y, >=)}
 
 
 
@@ -700,7 +747,7 @@ Cmp_IFxIF(x, y, >=)}
 static WamWord
 Make_Tagged_Float(double d)
 {
-  WamWord x = Tag_Value(FLT, H);
+  WamWord x = Tag_FLT(H);
 
   Global_Push_Float(d);
 
@@ -717,7 +764,7 @@ Make_Tagged_Float(double d)
 static double
 To_Double(WamWord x)
 {
-  return (Tag_Of(x) == INT) ? (double) (UnTag_INT(x)) :
+  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) : 
     Obtain_Float(UnTag_FLT(x));
 }
 
@@ -731,30 +778,20 @@ To_Double(WamWord x)
 static WamWord
 Load_Math_Expression(WamWord exp)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr;
   ArithInf *arith;
 
-  Deref(exp, word, tag, adr);
-  switch (tag)
+  DEREF(exp, word, tag_mask);
+
+  if (tag_mask == TAG_INT_MASK || tag_mask == TAG_FLT_MASK)
+    return word;
+
+  if (tag_mask == TAG_LST_MASK)
     {
-    case REF:
-      Pl_Err_Instantiation();
-      break;
-
-    case INT:
-    case FLT:
-      return word;
-
-    case ATM:
-      word = Put_Structure(ATOM_CHAR('/'), 2);
-      Unify_Value(exp);
-      Unify_Integer(0);
-      break;			/* then type_error */
-
-    case LST:
       lst_adr = UnTag_LST(word);
-      Deref(Cdr(lst_adr), word, tag, adr);
+      DEREF(Cdr(lst_adr), word, tag_mask);
       if (word != NIL_WORD)
 	{
 	  word = Put_Structure(ATOM_CHAR('/'), 2);
@@ -763,8 +800,10 @@ Load_Math_Expression(WamWord exp)
 	  Pl_Err_Type(type_evaluable, word);
 	}
       return Load_Math_Expression(Car(lst_adr));
+    }
 
-    case STC:
+  if (tag_mask == TAG_STC_MASK)
+    {
       adr = UnTag_STC(word);
 
       arith = (ArithInf *) Hash_Find(arith_tbl, Functor_And_Arity(adr));
@@ -775,12 +814,22 @@ Load_Math_Expression(WamWord exp)
 	  Unify_Integer(Arity(adr));
 	  Pl_Err_Type(type_evaluable, word);
 	}
-
+      
       if (Arity(adr) == 1)
 	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)));
-      else
-	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)),
-				Load_Math_Expression(Arg(adr, 1)));
+
+      return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)),
+			      Load_Math_Expression(Arg(adr, 1)));
+    }
+
+  if (tag_mask == TAG_REF_MASK)
+    Pl_Err_Instantiation();
+
+  if (tag_mask == TAG_ATM_MASK)
+    {
+      word = Put_Structure(ATOM_CHAR('/'), 2);
+      Unify_Value(exp);
+      Unify_Integer(0);		/* then type_error */
     }
 
   Pl_Err_Type(type_evaluable, word);

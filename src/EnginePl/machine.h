@@ -119,7 +119,11 @@ void SIGSEGV_Handler(void);
 #elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
       defined(M_ix86_solaris) || defined(M_ix86_cygwin)
 
-#    define M_USED_REGS            {"ebx",0}
+#ifdef NO_USE_EBP
+#    define M_USED_REGS            {"ebx", 0}
+#else
+#    define M_USED_REGS            {"ebx", "ebp", 0}
+#endif
 
 #elif defined(M_powerpc_linux)
 
@@ -129,6 +133,11 @@ void SIGSEGV_Handler(void);
 
 #    define M_USED_REGS            {0}
 
+#endif
+
+
+#if defined(M_ix86) && !defined(M_ix86_win32) && !defined(NO_USE_REGS)
+#define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
 
@@ -146,7 +155,7 @@ void SIGSEGV_Handler(void);
 
 #   define M_USE_MMAP
 #   define M_MMAP_HIGH_ADR         0x0ffffff0
-#   define M_MMAP_HIGH_ADR_ALT     0x1ffffff0
+#   define M_MMAP_HIGH_ADR_ALT     0x3ffffff0
 #   define M_Check_Stacks()
 
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)

@@ -22,52 +22,51 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_pred'.
 
 
-current_predicate(PI):-
-	set_bip_name(current_predicate,1),
+current_predicate(PI) :-
+	set_bip_name(current_predicate, 1),
 	'$current_predicate'(PI).
 
-'$current_predicate'(PI):-
-	'$call_c_test'('Current_Predicate_2'(PI,1)).
+'$current_predicate'(PI) :-
+	'$call_c_test'('Current_Predicate_2'(PI, 1)).
 
 
 
-'$current_predicate_any'(PI):-
-	'$call_c_test'('Current_Predicate_2'(PI,0)).
+'$current_predicate_any'(PI) :-
+	'$call_c_test'('Current_Predicate_2'(PI, 0)).
 
 
-'$current_predicate_alt':-          % used by C code to create a choice-point
+'$current_predicate_alt' :-                      % used by C code to create a choice-point
 	'$call_c_test'('Current_Predicate_Alt_0').
 
 
 
 
-predicate_property(PI,Property):-
-	set_bip_name(predicate_property,2),
+predicate_property(PI, Property) :-
+	set_bip_name(predicate_property, 2),
 	'$current_predicate'(PI),
-	'$predicate_property1'(PI,Property).
+	'$predicate_property1'(PI, Property).
 
 
-'$predicate_property_any'(PI,Property):-
+'$predicate_property_any'(PI, Property) :-
 	'$current_predicate_any'(PI),
-	'$predicate_property1'(PI,Property).
+	'$predicate_property1'(PI, Property).
 
 
 
 
-'$predicate_property1'(PI,Property):-
-	'$check_pred_prop'(Property),
-	!,
-	'$predicate_property2'(Property,PI).
+'$predicate_property1'(PI, Property) :-
+	'$check_pred_prop'(Property), !,
+	'$predicate_property2'(Property, PI).
 
 
 
 
-'$check_pred_prop'(Property):-
+'$check_pred_prop'(Property) :-
 	var(Property).
 
 '$check_pred_prop'(static).
@@ -90,76 +89,76 @@ predicate_property(PI,Property):-
 
 '$check_pred_prop'(prolog_line(_)).
 
-'$check_pred_prop'(Property):-
-	'$pl_err_domain'(predicate_property,Property).
+'$check_pred_prop'(Property) :-
+	'$pl_err_domain'(predicate_property, Property).
 
 
 
 
-'$predicate_property2'(static,PI):-
+'$predicate_property2'(static, PI) :-
 	'$call_c_test'('Pred_Prop_Static_1'(PI)).
 
-'$predicate_property2'(dynamic,PI):-
+'$predicate_property2'(dynamic, PI) :-
 	'$call_c_test'('Pred_Prop_Dynamic_1'(PI)).
 
-'$predicate_property2'(private,PI):-
+'$predicate_property2'(private, PI) :-
 	'$call_c_test'('Pred_Prop_Private_1'(PI)).
 
-'$predicate_property2'(public,PI):-
+'$predicate_property2'(public, PI) :-
 	'$call_c_test'('Pred_Prop_Public_1'(PI)).
 
-'$predicate_property2'(user,PI):-
+'$predicate_property2'(user, PI) :-
 	'$call_c_test'('Pred_Prop_User_1'(PI)).
 
-'$predicate_property2'(built_in,PI):-
+'$predicate_property2'(built_in, PI) :-
 	'$call_c_test'('Pred_Prop_Built_In_1'(PI)).
 
-'$predicate_property2'(built_in_fd,PI):-
+'$predicate_property2'(built_in_fd, PI) :-
 	'$call_c_test'('Pred_Prop_Built_In_Fd_1'(PI)).
 
-'$predicate_property2'(native_code,PI):-
+'$predicate_property2'(native_code, PI) :-
 	'$call_c_test'('Pred_Prop_Native_Code_1'(PI)).
 
-'$predicate_property2'(prolog_file(PlFile),PI):-
-	'$call_c_test'('Pred_Prop_Prolog_File_2'(PI,PlFile)).
+'$predicate_property2'(prolog_file(PlFile), PI) :-
+	'$call_c_test'('Pred_Prop_Prolog_File_2'(PI, PlFile)).
 
-'$predicate_property2'(prolog_line(PlLine),PI):-
-	'$call_c_test'('Pred_Prop_Prolog_Line_2'(PI,PlLine)).
-
-
-
-
-'$get_predicate_file_info'(PI,PlFile,PlLine):-
-	'$call_c_test'('Get_Predicate_File_Info_3'(PI,PlFile,PlLine)).
+'$predicate_property2'(prolog_line(PlLine), PI) :-
+	'$call_c_test'('Pred_Prop_Prolog_Line_2'(PI, PlLine)).
 
 
 
 
-'$set_predicate_file_info'(PI,PlFile,PlLine):-
-	'$call_c_test'('Set_Predicate_File_Info_3'(PI,PlFile,PlLine)).
+'$get_predicate_file_info'(PI, PlFile, PlLine) :-
+	'$call_c_test'('Get_Predicate_File_Info_3'(PI, PlFile, PlLine)).
 
 
 
 
-'$aux_name'(Name):-
+'$set_predicate_file_info'(PI, PlFile, PlLine) :-
+	'$call_c_test'('Set_Predicate_File_Info_3'(PI, PlFile, PlLine)).
+
+
+
+
+'$aux_name'(Name) :-
 	'$call_c_test'('Aux_Name_1'(Name)).
 
 
 
 
-'$father_of_aux_name'(Name,FatherName,FatherArity):-
-	'$call_c_test'('Father_Of_Aux_Name_3'(Name,FatherName,FatherArity)).
+'$father_of_aux_name'(Name, FatherName, FatherArity) :-
+	'$call_c_test'('Father_Of_Aux_Name_3'(Name, FatherName, FatherArity)).
 
 
 
 
-'$pred_without_aux'(Name,Arity,Name1,Arity1):-
-	'$call_c_test'('Pred_Without_Aux_4'(Name,Arity,Name1,Arity1)).
+'$pred_without_aux'(Name, Arity, Name1, Arity1) :-
+	'$call_c_test'('Pred_Without_Aux_4'(Name, Arity, Name1, Arity1)).
 
 
 
 
-'$make_aux_name'(Name,Arity,AuxNb,AuxName):-
-	'$call_c_test'('Make_Aux_Name_4'(Name,Arity,AuxNb,AuxName)).
+'$make_aux_name'(Name, Arity, AuxNb, AuxName) :-
+	'$call_c_test'('Make_Aux_Name_4'(Name, Arity, AuxNb, AuxName)).
 
 

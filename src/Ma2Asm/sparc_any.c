@@ -28,9 +28,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "../EnginePl/pl_params.h"
-#include "../EnginePl/obj_chain.h"
-
 
 
 
@@ -79,14 +76,14 @@ char delay_operands[64];
 
 
 
-	  /* variables for ma_parser.c */
+	  /* variables for ma_parser.c / ma2asm.c */
 
+char *comment_prefix = "#";
+char *local_symb_prefix = "L";
 int strings_need_null = 1;
-
-
-	  /* variables for ma2asm.c */
-
 int call_c_reverse_args = 0;
+
+char *inline_asm_data[] = { NULL };
 
 
 
@@ -372,7 +369,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args)
+Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 {
   delay_op = NULL;
 }
@@ -604,26 +601,41 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 
 
 /*-------------------------------------------------------------------------*
- * CALL_C_STOP                                                             *
+ * CALL_C_INVOKE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args)
+Call_C_Invoke(char *fct_name, int nb_args)
 {
   Inst_Printf("call", UN "%s", fct_name);
   if (delay_op)
     Inst_Out(delay_op, delay_operands);
   else
     Inst_Printf("nop", "");	/* delay slot */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CALL_C_STOP                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+{
+  int reinit_e = (p_inline && INL_ACCESS_INFO(p_inline));
 
 #ifndef MAP_REG_E
   if (strcmp(fct_name, "Allocate") == 0)
     {
       use_envir = 1;
-      Inst_Printf("ld", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E,
-		  asm_reg_e);
+      reinit_e = 1;
     }
 #endif
+
+  if (reinit_e)
+    Inst_Printf("ld", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
 }
 
 

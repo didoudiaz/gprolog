@@ -22,34 +22,34 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_g_var_inl'.
 
 
-g_assign(Var,Value):-
-        g_assign(Var,Value).
+g_assign(Var, Value) :-
+	g_assign(Var, Value).
 
 
 
 
-g_assignb(Var,Value):-
-        g_assignb(Var,Value).
+g_assignb(Var, Value) :-
+	g_assignb(Var, Value).
 
 
 
 
-g_link(Var,Value):-
-        g_link(Var,Value).
+g_link(Var, Value) :-
+	g_link(Var, Value).
 
 
 
 
-g_read(Var,Value):-
-        g_read(Var,Value).
+g_read(Var, Value) :-
+	g_read(Var, Value).
 
 
 
 
-g_array_size(Var,Type):-
-        g_array_size(Var,Type).
+g_array_size(Var, Type) :-
+	g_array_size(Var, Type).

@@ -94,8 +94,8 @@ TermSInf;
 
 #define CURRENT_ALIAS_ALT          X2463757272656E745F616C6961735F616C74
 
-Prolog_Prototype(CURRENT_STREAM_ALT, 0)
-Prolog_Prototype(CURRENT_ALIAS_ALT, 0)
+Prolog_Prototype(CURRENT_STREAM_ALT, 0);
+Prolog_Prototype(CURRENT_ALIAS_ALT, 0);
 
 
 
@@ -197,7 +197,7 @@ Set_Debugger_Streams_2(WamWord sora_in_word, WamWord sora_out_word)
 void
 Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   StmProp prop;
   char *path;
   int atom_file_name;
@@ -208,10 +208,10 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   int mask = SYS_VAR_OPTION_MASK;
 
 
-  Deref(source_sink_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(source_sink_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
-  if (tag != ATM)
+  if (tag_mask != TAG_ATM_MASK)
     Pl_Err_Domain(domain_source_sink, source_sink_word);
 
   atom_file_name = UnTag_ATM(word);
@@ -511,12 +511,12 @@ Flush_Output_0(void)
 Bool
 Current_Stream_1(WamWord stm_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int i = 0;
 
 
-  Deref(stm_word, word, tag, adr);	/* either an INT or a REF */
-  if (tag == INT)
+  DEREF(stm_word, word, tag_mask);	/* either an INT or a REF */
+  if (tag_mask == TAG_INT_MASK)
     return stm_tbl[UnTag_INT(word)].file != 0;
 
 
@@ -847,7 +847,7 @@ At_End_Of_Stream_0(void)
 Bool
 Current_Alias_2(WamWord stm_word, WamWord alias_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int stm;
   HashScan scan;
   AliasInf *alias;
@@ -855,8 +855,8 @@ Current_Alias_2(WamWord stm_word, WamWord alias_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  Deref(alias_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(alias_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     return Find_Stream_By_Alias(Rd_Atom_Check(word)) == stm;
 
   for (alias = (AliasInf *) Hash_First(alias_tbl, &scan); alias;
@@ -958,7 +958,7 @@ Current_Alias_Alt_0(void)
 Bool
 Stream_Position_2(WamWord sora_word, WamWord position_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord p_word[4];
   int p[4];
   int i;
@@ -979,11 +979,11 @@ Stream_Position_2(WamWord sora_word, WamWord position_word)
     {
       p_word[i] = Unify_Variable();
 
-      Deref(p_word[i], word, tag, adr);
-      if (tag != REF && tag != INT)
+      DEREF(p_word[i], word, tag_mask);
+      if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)
 	goto dom_error;
     }
-
+  
   for (i = 0; i < 4; i++)
     if (!Get_Integer(p[i], p_word[i]))
       return FALSE;
@@ -1001,7 +1001,7 @@ Stream_Position_2(WamWord sora_word, WamWord position_word)
 Bool
 Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord p_word[4];
   int p[4];
   int i;
@@ -1016,10 +1016,10 @@ Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
     Pl_Err_Permission(permission_operation_reposition,
 		      permission_type_stream, sora_word);
 
-  Deref(position_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(position_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
-
+  
   if (!Get_Structure(atom_stream_position, 4, position_word))
   dom_error:
     Pl_Err_Domain(domain_stream_position, position_word);
@@ -1028,11 +1028,11 @@ Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
     {
       p_word[i] = Unify_Variable();
 
-      Deref(p_word[i], word, tag, adr);
-      if (tag == REF)
+      DEREF(p_word[i], word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
-      if (tag != INT)
+      if (tag_mask != TAG_INT_MASK)
 	goto dom_error;
 
       p[i] = UnTag_INT(word);

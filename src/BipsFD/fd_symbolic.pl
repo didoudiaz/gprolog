@@ -22,94 +22,94 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in_fd.
+:-	built_in_fd.
 
 '$use_fd_symbolic'.
 
 
-fd_all_different(L):-
-        set_bip_name(fd_all_different,1),
-	'$call_c_test'('Fd_All_Different_1'(L,L)).
+fd_all_different(L) :-
+	set_bip_name(fd_all_different, 1),
+	'$call_c_test'('Fd_All_Different_1'(L, L)).
 
 
 
-fd_element(I,List,V):-
-        set_bip_name(fd_element,3),
-	'$fd_element'(I,List,V).
+fd_element(I, List, V) :-
+	set_bip_name(fd_element, 3),
+	'$fd_element'(I, List, V).
 
 
-'$fd_element'(I,List,V):-
-	fd_tell(fd_element(I,List,V)).
+'$fd_element'(I, List, V) :-
+	fd_tell(fd_element(I, List, V)).
 
 	
 
 
-fd_element_var(I,List,V):-
-        set_bip_name(fd_element_var,3),
-	fd_tell(fd_element_var(I,List,V)).
+fd_element_var(I, List, V) :-
+	set_bip_name(fd_element_var, 3),
+	fd_tell(fd_element_var(I, List, V)).
 
 
 
 
-fd_atmost(N,List,V):-
-        set_bip_name(fd_atmost,3),
-	fd_tell(fd_atmost(N,List,V)).
+fd_atmost(N, List, V) :-
+	set_bip_name(fd_atmost, 3),
+	fd_tell(fd_atmost(N, List, V)).
 
 
 
 
-fd_atleast(N,List,V):-
-        set_bip_name(fd_atleast,3),
-	fd_tell(fd_atleast(N,List,V)).
+fd_atleast(N, List, V) :-
+	set_bip_name(fd_atleast, 3),
+	fd_tell(fd_atleast(N, List, V)).
 
 
 
 
-fd_exactly(N,List,V):-
-        set_bip_name(fd_exactly,3),
-	fd_tell(fd_exactly(N,List,V)).
+fd_exactly(N, List, V) :-
+	set_bip_name(fd_exactly, 3),
+	fd_tell(fd_exactly(N, List, V)).
 
 
 
 
-fd_relation(Tuples,Vars):-
-        set_bip_name(fd_relation,2),
+fd_relation(Tuples, Vars) :-
+	set_bip_name(fd_relation, 2),
 	'$check_list'(Tuples),
 	'$check_list_or_partial_list'(Vars),
-        '$lines_to_columns'(Tuples,CTuples),
-        '$fd_relationc1'(CTuples,Vars,_).
+	'$lines_to_columns'(Tuples, CTuples),
+	'$fd_relationc1'(CTuples, Vars, _).
 
 
 
-fd_relationc(CTuples,Vars):-
-        set_bip_name(fd_relationc,2),
+fd_relationc(CTuples, Vars) :-
+	set_bip_name(fd_relationc, 2),
 	'$check_list'(CTuples),
 	'$check_list_or_partial_list'(Vars),
-        '$fd_relationc1'(CTuples,Vars,_).
+	'$fd_relationc1'(CTuples, Vars, _).
 
 
 
 
-'$fd_relationc1'([],[],_).
+'$fd_relationc1'([], [], _).
 
-'$fd_relationc1'([C|CTuples],[X|Vars],R):-
-        '$fd_element'(R,C,X),
-        '$fd_relationc1'(CTuples,Vars,R).
-
-
-
-
-'$lines_to_columns'([[]|_],[]):-
-        !.
-
-'$lines_to_columns'(Tuples,[Column|Columns]):-
-        '$create_column'(Tuples,Column,Tuples1),
-        '$lines_to_columns'(Tuples1,Columns).
+'$fd_relationc1'([C|CTuples], [X|Vars], R) :-
+	'$fd_element'(R, C, X),
+	'$fd_relationc1'(CTuples, Vars, R).
 
 
 
 
-'$create_column'([],[],[]).
+'$lines_to_columns'([[]|_], []) :-
+	!.
 
-'$create_column'([[X|L]|Tuples],[X|Column],[L|Tuples1]):-
-        '$create_column'(Tuples,Column,Tuples1).
+'$lines_to_columns'(Tuples, [Column|Columns]) :-
+	'$create_column'(Tuples, Column, Tuples1),
+	'$lines_to_columns'(Tuples1, Columns).
+
+
+
+
+'$create_column'([], [], []).
+
+'$create_column'([[X|L]|Tuples], [X|Column], [L|Tuples1]) :-
+	'$create_column'(Tuples, Column, Tuples1).

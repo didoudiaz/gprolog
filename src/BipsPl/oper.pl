@@ -22,34 +22,36 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_oper'.
 
-op(Prec,Specif,Oper):-
-	set_bip_name(op,3),
+op(Prec, Specif, Oper) :-
+	set_bip_name(op, 3),
 	'$check_atom_or_atom_list'(Oper),
-        (atom(Oper) -> '$op2'(Prec,Specif,Oper)
-                    ;  '$op1'(Oper,Specif,Prec)).
+	(   atom(Oper) ->
+	    '$op2'(Prec, Specif, Oper)
+	;   '$op1'(Oper, Specif, Prec)
+	).
 
 
-'$op1'([],_,_).
+'$op1'([], _, _).
 
-'$op1'([Oper|LOper],Specif,Prec):-
-        '$op2'(Prec,Specif,Oper),
-        '$op1'(LOper,Specif,Prec).
-
-
-'$op2'(Prec,Specif,Oper):-
-        '$call_c'('Op_3'(Prec,Specif,Oper)).
+'$op1'([Oper|LOper], Specif, Prec) :-
+	'$op2'(Prec, Specif, Oper),
+	'$op1'(LOper, Specif, Prec).
 
 
+'$op2'(Prec, Specif, Oper) :-
+	'$call_c'('Op_3'(Prec, Specif, Oper)).
 
 
-current_op(Prec,Specif,Oper):-
-	set_bip_name(current_op,3),
-	'$call_c_test'('Current_Op_3'(Prec,Specif,Oper)).
 
 
-'$current_op_alt':-                 % used by C code to create a choice-point
+current_op(Prec, Specif, Oper) :-
+	set_bip_name(current_op, 3),
+	'$call_c_test'('Current_Op_3'(Prec, Specif, Oper)).
+
+
+'$current_op_alt' :-                             % used by C code to create a choice-point
 	'$call_c_test'('Current_Op_Alt_0').

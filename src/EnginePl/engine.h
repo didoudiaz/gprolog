@@ -40,7 +40,7 @@
 #define cpp_recurs(p,n)            p##_##n
 #define Prolog_Predicate(p,n)      cpp_recurs(p,n)
 
-#define Prolog_Prototype(p,n)      void Prolog_Predicate(p,n)();
+#define Prolog_Prototype(p,n)      void Prolog_Predicate(p,n)()
 
 
 
@@ -48,14 +48,6 @@
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
-
-
-typedef long WamWord;		/* a wamword is a long (32/64 bits) */
-
-typedef void (*CodePtr) ();	/* a code pointer is an ptr to fct  */
-
-typedef CodePtr WamCont;	/* a continuation is a code pointer */
-
 
 
 
@@ -73,13 +65,6 @@ char glob_buff[10240];
 long *base_fl;			/* overwritten by foreign if present */
 double *base_fd;		/* overwritten by foreign if present */
 
-/* we need some extra space to save our registers while in a libc routine!
- * otherwise they are not correct after a signal has raised.
- */
-#ifdef M_alpha_linux
-unsigned long bug_reg_buffer[32];
-#endif
-
 #else
 
 extern int os_argc;
@@ -89,10 +74,6 @@ extern char glob_buff[];
 
 extern long *base_fl;
 extern double *base_fd;
-
-#ifdef M_alpha_linux
-extern unsigned long bug_reg_buffer[];
-#endif
 
 #endif
 
@@ -118,8 +99,6 @@ void Execute_Directive(int pl_file, int pl_line, Bool is_system,
 		       CodePtr proc);
 
 Bool Try_Execute_Top_Level(void);
-
-void Switch_Reg_Bank(WamWord *new_reg_bank);
 
 Bool Call_Prolog(CodePtr codep);
 

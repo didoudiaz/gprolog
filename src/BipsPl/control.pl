@@ -22,7 +22,7 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_control'.
 
@@ -31,42 +31,42 @@
 
 repeat.
 
-repeat:-
-        repeat.
+repeat :-
+	repeat.
 
 
 
 
-abort:-
+abort :-
 	'$call_c_jump'('Halt_If_No_Top_Level_1'(1)).
 
 
-stop:-
+stop :-
 	'$call_c_jump'('Halt_If_No_Top_Level_1'(0)).
 
 
 
 
 
-halt:-
+halt :-
 	halt(0).
 
 
 
 
-halt(X):-
-	set_bip_name(halt,1),
+halt(X) :-
+	set_bip_name(halt, 1),
 	'$call_c'('Halt_1'(X)).
 
 
 
 
 
-for(I,L,U):-
-	set_bip_name(for,3),
-        '$call_c_test'('For_3'(I,L,U)).
+for(I, L, U) :-
+	set_bip_name(for, 3),
+	'$call_c_test'('For_3'(I, L, U)).
 
 
-'$for_alt':-
+'$for_alt' :-
 	'$call_c'('For_Alt_0').
 

@@ -22,43 +22,43 @@
 /* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
 /*-------------------------------------------------------------------------*/
 
-:- built_in.
+:-	built_in.
 
 '$use_call_args'.
 
 
 
 
-call_with_args(_F):-
+call_with_args(_F) :-
 	'$call_c_jump'('Call_With_Args_1').
 
-call_with_args(_F,_A1):-
+call_with_args(_F, _A1) :-
 	'$call_c_jump'('Call_With_Args_2').
 
-call_with_args(_F,_A1,_A2):-
+call_with_args(_F, _A1, _A2) :-
 	'$call_c_jump'('Call_With_Args_3').
 
-call_with_args(_F,_A1,_A2,_A3):-
+call_with_args(_F, _A1, _A2, _A3) :-
 	'$call_c_jump'('Call_With_Args_4').
 
-call_with_args(_F,_A1,_A2,_A3,_A4):-
+call_with_args(_F, _A1, _A2, _A3, _A4) :-
 	'$call_c_jump'('Call_With_Args_5').
 
-call_with_args(_F,_A1,_A2,_A3,_A4,_A5):-
+call_with_args(_F, _A1, _A2, _A3, _A4, _A5) :-
 	'$call_c_jump'('Call_With_Args_6').
 
-call_with_args(_F,_A1,_A2,_A3,_A4,_A5,_A6):-
+call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6) :-
 	'$call_c_jump'('Call_With_Args_7').
 
-call_with_args(_F,_A1,_A2,_A3,_A4,_A5,_A6,_A7):-
+call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7) :-
 	'$call_c_jump'('Call_With_Args_8').
 
-call_with_args(_F,_A1,_A2,_A3,_A4,_A5,_A6,_A7,_A8):-
+call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8) :-
 	'$call_c_jump'('Call_With_Args_9').
 
-call_with_args(_F,_A1,_A2,_A3,_A4,_A5,_A6,_A7,_A8,_A9):-
+call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9) :-
 	'$call_c_jump'('Call_With_Args_10').
 
-call_with_args(_F,_A1,_A2,_A3,_A4,_A5,_A6,_A7,_A8,_A9,_A10):-
+call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9, _A10) :-
 	'$call_c_jump'('Call_With_Args_11').
 

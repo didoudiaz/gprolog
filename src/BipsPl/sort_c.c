@@ -53,11 +53,10 @@ static WamWord minus_2;
  * Function Prototypes             *
  *---------------------------------*/
 
-static int Keysort_Cmp(WamWord u_word, WamWord v_word);
+static long Keysort_Cmp(WamWord u_word, WamWord v_word);
 
-static
-  int Merge_Sort(WamWord *base, WamWord *aux, int n,
-		 Bool keep_dup, int (*cmp) ());
+static int Merge_Sort(WamWord *base, WamWord *aux, int n,
+		      Bool keep_dup, long (*cmp) ());
 
 
 
@@ -117,8 +116,8 @@ Sort_List_2(WamWord list1_word, WamWord list2_word)
 void
 Sort_List_1(WamWord list_word)
 {
-  WamWord word, tag, *adr;
-  WamWord *arg, *prev;
+  WamWord word, tag_mask;
+  WamWord *adr, *arg, *prev;
   int n;
   int sort_type;
 
@@ -136,7 +135,7 @@ Sort_List_1(WamWord list_word)
   /* update in-place the list */
   do
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
       adr = UnTag_LST(word);
       Car(adr) = *arg++;
       prev = &Cdr(adr);
@@ -153,23 +152,24 @@ Sort_List_1(WamWord list_word)
  * KEYSORT_CMP                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
+static long
 Keysort_Cmp(WamWord u_word, WamWord v_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
 
-  Deref(u_word, word, tag, adr);
+  DEREF(u_word, word, tag_mask);
   u_word = word;
-  if (tag == STC)
+  if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(u_word);
       if (Functor_And_Arity(adr) == minus_2)
 	u_word = Arg(adr, 0);
     }
-
-  Deref(v_word, word, tag, adr);
+  
+  DEREF(v_word, word, tag_mask);
   v_word = word;
-  if (tag == STC)
+  if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(v_word);
       if (Functor_And_Arity(adr) == minus_2)
@@ -190,7 +190,7 @@ Keysort_Cmp(WamWord u_word, WamWord v_word)
  * elements of the array (2 WamWords) and classically returns <0, 0, >0.   *
  *-------------------------------------------------------------------------*/
 static int
-Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, int (*cmp) ())
+Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, long (*cmp) ())
 {
   WamWord *l1, *l2;
   int n1, n2;

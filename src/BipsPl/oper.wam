@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : oper.pl
-% date    : 9 6 2000
-% time    : 17:33:13
+% date    : 12 1 2000
+% time    : 16:12:58
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/oper.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/oper.pl').
 
 
 predicate('$use_oper'/0,27,static,private,built_in,[
@@ -47,7 +47,7 @@ label(1),
     execute('$op1'/3)]).
 
 
-predicate('$op1'/3,36,static,private,built_in,[
+predicate('$op1'/3,38,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -77,12 +77,12 @@ label(4),
     execute('$op1'/3)]).
 
 
-predicate('$op2'/3,43,static,private,built_in,[
+predicate('$op2'/3,45,static,private,built_in,[
     call_c('Op_3',[0,1,2]),
     proceed]).
 
 
-predicate(current_op/3,49,static,private,built_in,[
+predicate(current_op/3,51,static,private,built_in,[
     put_atom(current_op,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[3,4]),
@@ -90,6 +90,6 @@ predicate(current_op/3,49,static,private,built_in,[
     proceed]).
 
 
-predicate('$current_op_alt'/0,54,static,private,built_in,[
+predicate('$current_op_alt'/0,56,static,private,built_in,[
     call_c_test('Current_Op_Alt_0',[]),
     proceed]).

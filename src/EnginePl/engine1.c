@@ -27,12 +27,11 @@
 #include "engine_pl.h"
 
 
+WamWord *ensure_reserved;
 
 
 /*-------------------------------------------------------------------------*
- * Call_Compiled is defined here to be sure that no C compiler optimization*
- * will be applied (see Makefile). Normally it is not a problem, but for   *
- * future ports the -fomit-frame-pointer option could be a problem.        *
+ * Call_Compiled invokes a Prolog code.                                    *
  * reserved_stack_space is only used to reserve some space in the stack and*
  * should not be removed by the compiler. This allows prolog compiled code *
  * to use this space to pass the arguments to C run-time functions, without*
@@ -43,6 +42,13 @@
  *                                                                         *
  * Warning: do not use nested { ... } blocs to declare register variables  *
  * The C compiler "forgets" them after the bloc (e.g. solaris 2.6).        *
+ *                                                                         *
+ * This functions is in a separate file for historical reasons. In versions*
+ * <= 1.2.4, this file was compiled without any C compiler optimization to *
+ * ensure reserved_stack_space was not removed but the C compiler. In order*
+ * to use ebp under ix86 it muet be compiled with -fmoit-frame-pointer. The*
+ * simpliest way was to use the same C compiler invocation but adding a    *
+ * global variable to ensure the stack is not removed.                     *
  *-------------------------------------------------------------------------*/
 
 void
@@ -50,29 +56,37 @@ Call_Compiled(CodePtr codep)
 {
   WamWord reserved_stack_space[1024];
 
-#ifndef MAP_REG_BANK
+#if !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK)
 
 #if defined(M_ix86_linux) || defined(M_ix86_cygwin) || \
     defined(M_ix86_sco) || defined(M_ix86_bsd)
 
   register WamWord *rb asm("%ebx") = reg_bank;
-
-#elif defined(M_mips_irix)
-  register WamWord *rb asm("$16") = reg_bank;
-
-#elif defined(M_alpha_linux) || defined(M_alpha_osf)
-  register WamWord *rb asm("$9") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_ix86_win32)
 
   _asm mov ebx, reg_bank
+
+#elif defined(M_mips_irix)
+
+  register WamWord *rb asm("$16") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
+#elif defined(M_alpha_linux) || defined(M_alpha_osf)
+
+  register WamWord *rb asm("$9") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
 #elif defined(M_powerpc_linux)
 
   register WamWord *rb asm("15") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_sparc)
 
   register WamWord *rb asm("%l0") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #endif
 
@@ -83,5 +97,6 @@ Call_Compiled(CodePtr codep)
   register double *rfd asm("%l3") = base_fd;
 #endif
 
+  ensure_reserved = reserved_stack_space;
   (*codep) ();
 }

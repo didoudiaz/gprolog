@@ -51,7 +51,7 @@
 
 #define CURRENT_PREDICATE_ALT   X2463757272656E745F7072656469636174655F616C74
 
-Prolog_Prototype(CURRENT_PREDICATE_ALT, 0)
+Prolog_Prototype(CURRENT_PREDICATE_ALT, 0);
 
 
 
@@ -60,9 +60,9 @@ Prolog_Prototype(CURRENT_PREDICATE_ALT, 0)
  * CURRENT_PREDICATE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     Bool Current_Predicate_2(WamWord pred_indic_word, WamWord hide_word)
+Bool
+Current_Predicate_2(WamWord pred_indic_word, WamWord hide_word)
 {
-  WamWord word, tag, *adr;
   WamWord name_word, arity_word;
   HashScan scan;
   PredInf *pred;
@@ -75,9 +75,7 @@ Prolog_Prototype(CURRENT_PREDICATE_ALT, 0)
   name_word = pi_name_word;
   arity_word = pi_arity_word;
 
-  Deref(hide_word, word, tag, adr);
-  hide = UnTag_INT(word);
-
+  hide = Rd_Integer(hide_word);
 
   if (func >= 0)
     {
@@ -152,8 +150,8 @@ Current_Predicate_Alt_0(void)
   scan.cur_t = (char *) AB(B, 4);
   scan.cur_p = (char *) AB(B, 5);
 
-  func = Tag_Of(name_word) == REF ? -1 : UnTag_ATM(name_word);
-  arity = Tag_Of(arity_word) == REF ? -1 : UnTag_INT(arity_word);
+  func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
+  arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : UnTag_INT(arity_word);
   if (func >= 0)
     {
       if (hide && atom_tbl[func].name[0] == '$')

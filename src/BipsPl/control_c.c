@@ -48,7 +48,7 @@
 
 #define FOR_ALT                    X24666F725F616C74
 
-Prolog_Prototype(FOR_ALT, 0)
+Prolog_Prototype(FOR_ALT, 0);
 
 
 
@@ -57,7 +57,8 @@ Prolog_Prototype(FOR_ALT, 0)
  * HALT_IF_NO_TOP_LEVEL_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     WamCont Halt_If_No_Top_Level_1(WamWord exit_code_word)
+WamCont
+Halt_If_No_Top_Level_1(WamWord exit_code_word)
 {
   PredInf *pred;
   int x;
@@ -100,14 +101,14 @@ Halt_1(WamWord exit_code_word)
 Bool
 For_3(WamWord i_word, WamWord l_word, WamWord u_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int i, l, u;
 
   l = Rd_Integer_Check(l_word);
   u = Rd_Integer_Check(u_word);
 
-  Deref(i_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(i_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     {
       i = Rd_Integer_Check(word);
       return i >= l && i <= u;
@@ -116,7 +117,7 @@ For_3(WamWord i_word, WamWord l_word, WamWord u_word)
 
   if (l > u)
     return FALSE;
-  /* here i_word is a variable */
+				/* here i_word is a variable */
   if (l < u)			/* non deterministic case */
     {
       A(0) = i_word;
@@ -125,7 +126,7 @@ For_3(WamWord i_word, WamWord l_word, WamWord u_word)
       Create_Choice_Point((CodePtr) Prolog_Predicate(FOR_ALT, 0), 3);
     }
 
-  return Get_Integer(l, i_word);	/* always TRUE */
+  return Get_Integer(l, i_word); /* always TRUE */
 }
 
 

@@ -78,7 +78,8 @@ InfLong;
 
 char *file_name_in;
 char *file_name_out;
-int keep_source_lines;
+int inline_asm;
+int comment;
 
 FILE *file_out;
 
@@ -94,16 +95,16 @@ char *initializer_fct = NULL;
 
 
 
-	  /* os_cpu.c variables */
-
-extern int call_c_reverse_args;
-
-
-
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+void Init_Inline_Data(void);
+
+char **Find_Inline_Data(char *fct_name);
+
+void Emit_Inline_Data(char **p_inline);
 
 void Switch_Rec(int start, int stop, SwtInf swt[]);
 
@@ -154,10 +155,12 @@ main(int argc, char *argv[])
       exit(1);
     }
 
+  Init_Inline_Data();
+
   BT_String_Init(&bt_string);
   Asm_Start();
 
-  if (!Parse_Ma_File(file_name_in, keep_source_lines))
+  if (!Parse_Ma_File(file_name_in, comment))
     {
       fprintf(stderr, "Translation aborted\n");
       exit(1);
@@ -222,8 +225,18 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
   int inc;
   int offset = 0;
   int no;
+  char **p_inline;
 
-  Call_C_Start(fct_name, fc, nb_args);
+  p_inline = Find_Inline_Data(fct_name);
+#if 0				/* to only inline a nth call (for debug) */
+  {
+    static int nth_inline = 0;
+    if (p_inline && ++nth_inline != 1)
+      p_inline = NULL;
+  }
+#endif
+
+  Call_C_Start(fct_name, fc, nb_args, p_inline);
 
   if (!call_c_reverse_args)
     i = 0, inc = 1;
@@ -276,7 +289,106 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
 	}
     }
 
-  Call_C_Stop(fct_name, nb_args);
+  if (p_inline)
+    {
+      if (comment)
+	Label_Printf("\t\t%s inlining %s", comment_prefix, fct_name);
+      Emit_Inline_Data(p_inline);
+    }
+  else
+    Call_C_Invoke(fct_name, nb_args);
+  
+  if (p_inline && comment)
+    Label_Printf("\t\t%s code after inlining (Call_C_Stop)", comment_prefix);
+  Call_C_Stop(fct_name, nb_args, p_inline);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INIT_INLINE_DATA                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Init_Inline_Data(void)
+
+{
+  char **p, **q;
+
+  if (inline_asm == 0)
+    return;
+
+  p = inline_asm_data;
+  while(*p)
+    {
+      q = &INL_ACCESS_NEXT(p);
+      for(p += 4; *p != INL_END_FUNC; p++)
+	;
+      p++;
+
+      *q = (char *) p;
+    }
+
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * FIND_INLINE_DATA                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char **
+Find_Inline_Data(char *fct_name)
+
+{
+  char **p;
+
+  if (inline_asm)
+    {
+      p = inline_asm_data;
+      while(*p && strcmp(*p, fct_name) != 0)
+	p = (char **) INL_ACCESS_NEXT(p);
+
+      if (*p && INL_ACCESS_LEVEL(p) <= inline_asm)
+	return p;
+    }
+
+  return NULL;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_INLINE_DATA                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_Inline_Data(char **p_inline)
+    
+{
+  char **p = p_inline;
+  unsigned l;
+  static int nb_inlined = 0;	/* a global variable */
+
+  nb_inlined++;
+
+  for(p += 4; *p != INL_END_FUNC; p++)
+    {
+      l = (unsigned) *p;
+      if (l < 1024)		/* label definition */
+	Label_Printf("%s%d_%d:", local_symb_prefix, nb_inlined, l);
+      else
+	{
+	  l = (unsigned) p[1];
+	  if (l < 1024)
+	    Inst_Printf(p[0], "%s%d_%d", local_symb_prefix, nb_inlined, l);
+	  else
+	    Inst_Printf(p[0], "%s", p[1]);
+	  p++;
+	}
+    }
 }
 
 
@@ -512,7 +624,8 @@ Parse_Arguments(int argc, char *argv[])
 
 
   file_name_in = file_name_out = NULL;
-  keep_source_lines = 0;
+  inline_asm = 0;
+  comment = 0;
 
   for (i = 1; i < argc; i++)
     {
@@ -531,9 +644,21 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--inline-asm"))
+	    {
+	      inline_asm = 1;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--full-inline-asm"))
+	    {
+	      inline_asm = 2;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--comment"))
 	    {
-	      keep_source_lines = 1;
+	      comment = 1;
 	      continue;
 	    }
 
@@ -597,6 +722,8 @@ Display_Help(void)
   L("");
   L("Options:");
   L("  -o FILE, --output FILE      set output file name");
+  L("  --inline-asm                inline some C calls as asm instructions");
+  L("  --full-inline-asm           inline most C calls as asm instructions");
   L("  --comment                   include comments in the output file");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");

@@ -97,12 +97,14 @@ Fd_Max_Integer_1(WamWord inf_word)
 Bool
 Fd_Min_2(WamWord fdv_word, WamWord min_word)
 {
+  WamWord word, tag_mask;
   int n;
 
-  if (Fd_Deref_Check_Fd_Var(&fdv_word) == INT)
-    n = UnTag_INT(fdv_word);
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
+    n = UnTag_INT(word);
   else
-    n = Min(UnTag_FDV(fdv_word));
+    n = Min(UnTag_FDV(word));
 
   return Un_Integer_Check(n, min_word);
 }
@@ -117,12 +119,14 @@ Fd_Min_2(WamWord fdv_word, WamWord min_word)
 Bool
 Fd_Max_2(WamWord fdv_word, WamWord max_word)
 {
+  WamWord word, tag_mask;
   int n;
 
-  if (Fd_Deref_Check_Fd_Var(&fdv_word) == INT)
-    n = UnTag_INT(fdv_word);
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
+    n = UnTag_INT(word);
   else
-    n = Max(UnTag_FDV(fdv_word));
+    n = Max(UnTag_FDV(word));
 
   return Un_Integer_Check(n, max_word);
 }
@@ -137,15 +141,17 @@ Fd_Max_2(WamWord fdv_word, WamWord max_word)
 Bool
 Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 {
+  WamWord word, tag_mask;
   WamWord *fdv_adr;
   int x, end;
   int vec_elem;
 
   Check_For_Un_List(list_word);
 
-  if (Fd_Deref_Check_Fd_Var(&fdv_word) == INT)
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
     {
-      x = UnTag_INT(fdv_word);
+      x = UnTag_INT(word);
 
       if (!Get_List(list_word) || !Unify_Integer(x))
 	return FALSE;
@@ -154,7 +160,7 @@ Fd_Dom_2(WamWord fdv_word, WamWord list_word)
     }
   else
     {
-      fdv_adr = UnTag_FDV(fdv_word);
+      fdv_adr = UnTag_FDV(word);
       if (Is_Interval(Range (fdv_adr)))
 	{
 	  end = Max(fdv_adr);
@@ -192,12 +198,14 @@ Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 Bool
 Fd_Size_2(WamWord fdv_word, WamWord size_word)
 {
+  WamWord word, tag_mask;
   int n;
 
-  if (Fd_Deref_Check_Fd_Var(&fdv_word) == INT)
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+  if (tag_mask == TAG_INT_MASK)
     n = 1;
   else
-    n = Nb_Elem(UnTag_FDV(fdv_word));
+    n = Nb_Elem(UnTag_FDV(word));
 
   return Un_Integer_Check(n, size_word);
 }
@@ -212,8 +220,11 @@ Fd_Size_2(WamWord fdv_word, WamWord size_word)
 Bool
 Fd_Has_Extra_Cstr_1(WamWord fdv_word)
 {
-  return Fd_Deref_Check_Fd_Var(&fdv_word) == FDV &&
-    Extra_Cstr(UnTag_FDV(fdv_word));
+  WamWord word, tag_mask;
+
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+
+  return tag_mask == TAG_FDV_MASK && Extra_Cstr(UnTag_FDV(word));
 }
 
 
@@ -226,8 +237,11 @@ Fd_Has_Extra_Cstr_1(WamWord fdv_word)
 Bool
 Fd_Has_Vector_1(WamWord fdv_word)
 {
-  return Fd_Deref_Check_Fd_Var(&fdv_word) == FDV &&
-    Is_Sparse(Range (UnTag_FDV(fdv_word)));
+  WamWord word, tag_mask;
+
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+
+  return tag_mask == TAG_FDV_MASK && Is_Sparse(Range(UnTag_FDV(word)));
 }
 
 
@@ -240,12 +254,9 @@ Fd_Has_Vector_1(WamWord fdv_word)
 Bool
 Fd_Use_Vector_1(WamWord fdv_word)
 {
-  WamWord *fdv_adr;
+  WamWord word, tag_mask;
 
-  if (Fd_Deref_Check_Fd_Var(&fdv_word) == INT)
-    return TRUE;
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
 
-  fdv_adr = UnTag_FDV(fdv_word);
-
-  return Fd_Use_Vector(fdv_adr);
+  return tag_mask == TAG_INT_MASK || Fd_Use_Vector(UnTag_FDV(word));
 }

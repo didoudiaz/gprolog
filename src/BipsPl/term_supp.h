@@ -59,7 +59,7 @@ extern long glob_dico_var[];
  * Function Prototypes             *
  *---------------------------------*/
 
-int Term_Compare(WamWord start_u_word, WamWord start_v_word);
+long Term_Compare(WamWord start_u_word, WamWord start_v_word);
 
 Bool Is_List(WamWord start_word);
 

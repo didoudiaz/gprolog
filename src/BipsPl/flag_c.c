@@ -102,8 +102,8 @@ static Bool Unif_Flag(int i, WamWord value_word);
 
 #define ENVIRON_ALT                X24656E7669726F6E5F616C74
 
-Prolog_Prototype(CURRENT_PROLOG_FLAG_ALT, 0)
-Prolog_Prototype(ENVIRON_ALT, 0)
+Prolog_Prototype(CURRENT_PROLOG_FLAG_ALT, 0);
+Prolog_Prototype(ENVIRON_ALT, 0);
 
 
 
@@ -112,7 +112,8 @@ Prolog_Prototype(ENVIRON_ALT, 0)
  * FLAG_INITIALIZER                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void Flag_Initializer(void)
+static void
+Flag_Initializer(void)
 {
   atom_flag_tbl[FLAG_BOUNDED] = Create_Atom("bounded");
   atom_flag_tbl[FLAG_MAX_INTEGER] = Create_Atom("max_integer");
@@ -180,12 +181,11 @@ Prolog_Prototype(ENVIRON_ALT, 0)
 Bool
 Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord term;
-  int atom = -1;
+  int atom;
   int i;
   PredInf *pred;
-
 
   atom = Rd_Atom_Check(flag_word);
 
@@ -196,8 +196,8 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   if (i >= NB_OF_FLAGS)
     Pl_Err_Domain(domain_prolog_flag, flag_word);
 
-  Deref(value_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(value_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
   atom = UnTag_ATM(word);
@@ -205,7 +205,8 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   switch (i)
     {
     case FLAG_BOUNDED:
-      if (tag != ATM || (atom != atom_true && atom != atom_false))
+      if (tag_mask != TAG_ATM_MASK ||
+	  (atom != atom_true && atom != atom_false))
 	goto err_value;
       goto err_perm;
 
@@ -215,12 +216,13 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_MAX_ATOM:
     case FLAG_MAX_STREAM:
     case FLAG_MAX_UNGET:
-      if (tag != INT)
+      if (tag_mask != TAG_INT_MASK)
 	goto err_value;
       goto err_perm;
 
     case FLAG_ROUNDING_FCT:
-      if (tag != ATM || (atom != atom_down && atom != atom_toward_zero))
+      if (tag_mask != TAG_ATM_MASK ||
+	  (atom != atom_down && atom != atom_toward_zero))
 	goto err_value;
       goto err_perm;
 
@@ -228,7 +230,7 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_DEBUG:
     case FLAG_SINGLETON_WARNING:
     case FLAG_STRICT_ISO:
-      if (tag != ATM || (atom != atom_on && atom != atom_off))
+      if (tag_mask != TAG_ATM_MASK || (atom != atom_on && atom != atom_off))
 	goto err_value;
 
       if (i != FLAG_DEBUG)
@@ -254,7 +256,7 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_UNKNOWN:
     case FLAG_SYNTAX_ERROR:
     case FLAG_OS_ERROR:
-      if (tag != ATM)
+      if (tag_mask != TAG_ATM_MASK)
 	goto err_value;
 
       if (atom == atom_error)
@@ -277,7 +279,7 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
       goto err_value;
 
     case FLAG_DOUBLE_QUOTES:
-      if (tag != ATM)
+      if (tag_mask != TAG_ATM_MASK)
 	goto err_value;
 
       if (atom == atom_codes)
@@ -303,7 +305,7 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_PROLOG_VERSION:
     case FLAG_PROLOG_DATE:
     case FLAG_PROLOG_COPYRIGHT:
-      if (tag != ATM)
+      if (tag_mask != TAG_ATM_MASK)
 	goto err_value;
       goto err_perm;
     }
@@ -335,12 +337,12 @@ err_perm:
 Bool
 Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int i;
   int atom;
 
-  Deref(flag_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(flag_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     {
       atom = Rd_Atom_Check(word);
 
@@ -503,8 +505,10 @@ Unif_Flag(int i, WamWord value_word)
       break;
     }
 
-  return (atom < 0) ? Get_Integer(n, value_word) : Get_Atom(atom,
-							    value_word);
+  if (atom < 0)
+    return Get_Integer(n, value_word);
+
+ return Get_Atom(atom, value_word);
 }
 
 
@@ -518,17 +522,7 @@ Unif_Flag(int i, WamWord value_word)
 void
 Sys_Var_Write_2(WamWord var_word, WamWord n_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
-  long n;
-
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  Deref(n_word, word, tag, adr);
-  n = UnTag_INT(word);
-
-  sys_var[sv] = n;
+  sys_var[Rd_Integer(var_word)] = Rd_Integer(n_word);
 }
 
 
@@ -541,13 +535,7 @@ Sys_Var_Write_2(WamWord var_word, WamWord n_word)
 Bool
 Sys_Var_Read_2(WamWord var_word, WamWord n_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
-
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  return Get_Integer(sys_var[sv], n_word);
+  return Get_Integer(sys_var[Rd_Integer(var_word)], n_word);
 }
 
 
@@ -560,13 +548,7 @@ Sys_Var_Read_2(WamWord var_word, WamWord n_word)
 void
 Sys_Var_Inc_1(WamWord var_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
-
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  sys_var[sv]++;
+  sys_var[Rd_Integer(var_word)]++;
 }
 
 
@@ -579,13 +561,7 @@ Sys_Var_Inc_1(WamWord var_word)
 void
 Sys_Var_Dec_1(WamWord var_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
-
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  sys_var[sv]--;
+  sys_var[Rd_Integer(var_word)]--;
 }
 
 
@@ -598,17 +574,7 @@ Sys_Var_Dec_1(WamWord var_word)
 void
 Sys_Var_Set_Bit_2(WamWord var_word, WamWord bit_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
-  int bit;
-
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  Deref(bit_word, word, tag, adr);
-  bit = UnTag_INT(word);
-
-  sys_var[sv] |= (1 << bit);
+  sys_var[Rd_Integer(var_word)] |= (1 << Rd_Integer(bit_word));
 }
 
 
@@ -621,17 +587,7 @@ Sys_Var_Set_Bit_2(WamWord var_word, WamWord bit_word)
 void
 Sys_Var_Reset_Bit_2(WamWord var_word, WamWord bit_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
-  int bit;
-
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  Deref(bit_word, word, tag, adr);
-  bit = UnTag_INT(word);
-
-  sys_var[sv] &= ~(1 << bit);
+  sys_var[Rd_Integer(var_word)] &= ~(1 << Rd_Integer(bit_word));
 }
 
 
@@ -644,30 +600,25 @@ Sys_Var_Reset_Bit_2(WamWord var_word, WamWord bit_word)
 void
 Sys_Var_Put_2(WamWord var_word, WamWord term_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
+  WamWord *adr;
   int sv;
   int size;
 
+  sv = Rd_Integer(var_word);
 
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
+  DEREF(term_word, word, tag_mask);
 
-
-  Deref(term_word, word, tag, adr);
-
-  if (tag == ATM || tag == INT)
+  if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
     {
       sys_var[sv] = word;
       return;
     }
 
   size = Term_Size(word);
-
   adr = (WamWord *) Malloc(size * sizeof(WamWord));	/* never recovered */
-
   Copy_Term(adr, &word);
-
-  sys_var[sv] = Tag_Value(REF, adr);
+  sys_var[sv] = Tag_REF(adr);
 }
 
 
@@ -680,29 +631,20 @@ Sys_Var_Put_2(WamWord var_word, WamWord term_word)
 Bool
 Sys_Var_Get_2(WamWord var_word, WamWord term_word)
 {
-  WamWord word, tag, *adr;
-  int sv;
+  WamWord word;
+  WamWord *adr;
   int size;
 
+  word = sys_var[Rd_Integer(var_word)];
 
-  Deref(var_word, word, tag, adr);
-  sv = UnTag_INT(word);
-
-  word = sys_var[sv];
-  tag = Tag_Of(word);
-
-  if (tag == ATM)
-    return Get_Atom(UnTag_ATM(word), term_word);
-
-  if (tag == INT)
-    return Get_Integer(UnTag_INT(word), term_word);
-
-  adr = UnTag_REF(word);
-
-  size = Term_Size(*adr);
-  Copy_Contiguous_Term(H, adr);
-  word = *H;
-  H += size;
+  if (Tag_Mask_Of(word) == TAG_REF_MASK)
+    {
+      adr = UnTag_REF(word);
+      size = Term_Size(*adr);
+      Copy_Contiguous_Term(H, adr);
+      word = *H;
+      H += size;
+    }
 
   return Unify(word, term_word);
 }
@@ -733,7 +675,10 @@ Get_Current_B_1(WamWord b_word)
 void
 Set_Current_B_1(WamWord b_word)
 {
-  Cut(b_word);
+  WamWord word, tag_mask;
+  
+  DEREF(b_word, word, tag_mask);
+  Cut(word);
 }
 
 
@@ -929,18 +874,17 @@ Argument_List_1(WamWord list_word)
 Bool
 Environ_2(WamWord var_name_word, WamWord value_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   char *var_name;
   char *value;
   char **cur_env;
   char *one_env;
   int lg;
 
-
   Check_For_Un_Atom(value_word);
 
-  Deref(var_name_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(var_name_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     {
       var_name = Rd_String_Check(word);
       value = (char *) getenv(var_name);

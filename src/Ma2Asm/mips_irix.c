@@ -29,8 +29,6 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "../EnginePl/pl_params.h"
-#include "../EnginePl/obj_chain.h"
 
 
 
@@ -59,90 +57,24 @@ int w_label = 0;
 
 static char dbl_arg_buffer[8192] = "\0";	/* a temp buffer for the double arguments */
 
-static char act_routine[512] = "\0";	/* remembers the actual routine we are building */
+char act_routine[512] = "\0";	/* remembers the actual routine we are building */
 
-static int inPrologCode = 0;	/* whether we are currently compiling a prolog code */
+int inPrologCode = 0;	/* whether we are currently compiling a prolog code */
 
-	 /* variables for ma_parser.c */
+	  /* variables for ma_parser.c / ma2asm.c */
 
+char *comment_prefix = "#";
+char *local_symb_prefix = ".L";
 int strings_need_null = 1;
-
-
-	  /* variables for ma2asm.c */
-
 int call_c_reverse_args = 0;
 
+char *inline_asm_data[] = { NULL };
 
 
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-static void
-emit_dehex(char *label)
-{
-  int i, a1, a2;
-  char *l;
-  char ll[256];
-  l = label;
-  if (*l != 'X')
-    {
-      strcpy(ll, label);
-      l += strlen(label);
-    }
-  else
-    {
-      l++;
-      for (i = 0; l <= label + strlen(label); l += 2)
-	{
-	  if (*l <= '9' && *l >= '0')
-	    {
-	      a1 = *l - '0';
-	    }
-	  else if (*l >= 'A' && *l <= 'F')
-	    {
-	      a1 = *l - 'A' + 10;
-	    }
-	  else
-	    {
-	      ll[i++] = *l;
-	      l--;
-	      continue;
-	    }
-	  if (*(l + 1) <= '9' && *(l + 1) >= '0')
-	    {
-	      a2 = *(l + 1) - '0';
-	    }
-	  else if (*(l + 1) >= 'A' && *(l + 1) <= 'F')
-	    {
-	      a2 = *(l + 1) - 'A' + 10;
-	    }
-	  else
-	    {
-	      ll[i++] = *(l + 1);
-	      l--;
-	      continue;
-	    }
-	  ll[i++] = a1 * 16 + a2;
-	  if (ll[i - 1] < 32 && ll[i - 1] > 126)
-	    {
-	      i--;
-	    }
-
-
-
-#if 0
-	  Label_Printf(" # %c%c %x %x", *l, *(l + 1), a1, a2);
-
-#endif
-	}
-      ll[i] = '\0';
-    }
-  Label_Printf(" # (%s)", ll);
-}
-
-
 
 
 /*-------------------------------------------------------------------------*
@@ -213,17 +145,6 @@ make_inline(char *fct_name, int nb_args)
 }
 
 
-/*-------------------------------------------------------------------------*
- * SOURCE_LINE                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Source_Line(int line_no, char *cmt)
-{
-  Label_Printf("\t # %6d: %s", line_no, cmt);
-}
-
-
 
 
 /*-------------------------------------------------------------------------*
@@ -233,7 +154,6 @@ Source_Line(int line_no, char *cmt)
 void
 Asm_Start(void)
 {
-  Label_Printf(" # ASM_START");
 #ifdef MAP_REG_BANK
   sprintf(asm_reg_bank, "%s", MAP_REG_BANK);
 #else
@@ -284,7 +204,6 @@ Asm_Start(void)
 void
 Asm_Stop(void)
 {
-  Label_Printf(" # ASM_STOP");
   /* we are printing the fixed doubles at the end of the file,
    * they will appear in the data section */
   if (dbl_arg_buffer[0] != '\0')
@@ -305,7 +224,6 @@ Asm_Stop(void)
 void
 Label(char *label)
 {
-  /* Label_Printf(" # LABEL"); */
   Label_Printf("\n%s:", label);
 }
 
@@ -322,12 +240,6 @@ Code_Start(char *label, int prolog, int global)
 
   if (act_routine[0] != '\0')
     Code_Stop();		/* we first have to close the previous code */
-
-  Label_Printf
-    (" # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #");
-  Label_Printf(" #CODE_START Prolog=%d, Global=%d\n", prolog, global);
-
-  emit_dehex(label);
 
   Inst_Printf(".text", "");
   Inst_Printf(".align", "2");
@@ -372,12 +284,9 @@ Code_Start(char *label, int prolog, int global)
 void
 Code_Stop(void)
 {
-  Label_Printf(" # CODE_STOP");
   Inst_Printf(".end", "%s", act_routine);
 
   act_routine[0] = '\0';
-  Label_Printf
-    (" # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
 }
 
 
@@ -390,9 +299,7 @@ Code_Stop(void)
 void
 Pl_Jump(char *label)
 {
-  Label_Printf(" # Pl_Jump");
   Inst_Printf("la", "$25,%s", label);
-  emit_dehex(label);
   Inst_Printf("j", "$25");
 }
 
@@ -404,8 +311,6 @@ Pl_Jump(char *label)
 void
 Pl_Call(char *label)
 {
-  Label_Printf(" # Pl_Call");
-  emit_dehex(label);
 #ifdef MAP_REG_CP
   Inst_Printf("la", "%s,.Lcont%d", asm_reg_cp, w_label);	/* CP = .Lcont%d */
 #else
@@ -427,7 +332,6 @@ Pl_Call(char *label)
 void
 Pl_Fail(void)
 {
-  Label_Printf(" # Pl_Fail");
 #ifdef MAP_REG_B
   Inst_Printf("lw", "$25,-4(%s)", asm_reg_b);
 #else
@@ -447,7 +351,6 @@ Pl_Fail(void)
 void
 Pl_Ret(void)
 {
-  Label_Printf(" # Pl_Ret");
   Inst_Printf(".align", "3");
   Inst_Printf("# nop", "");	/* I don't really know why, but it helps ;-) */
 #ifdef MAP_REG_CP
@@ -468,9 +371,7 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
-  Label_Printf(" # JUMP");
   Inst_Printf("la", "$25,%s", label);
-  emit_dehex(label);
   Inst_Printf("j", "$25");
 }
 
@@ -484,7 +385,6 @@ Jump(char *label)
 void
 Move_From_Reg_X(int index)
 {
-  Label_Printf(" # Move_From_Reg_X %d", index);
   Inst_Printf("lw", "$24,%d(%s)", 4 * index, asm_reg_bank);	/* asm_reg_bank */
 }
 
@@ -498,7 +398,6 @@ Move_From_Reg_X(int index)
 void
 Move_From_Reg_Y(int index)
 {
-  Label_Printf(" # Move_From_Reg_Y %d", index);
 #ifdef MAP_REG_E
   Inst_Printf("lw", "$24,-%d(%s)", index * 4 + 16, asm_reg_e);
 #else
@@ -517,7 +416,6 @@ Move_From_Reg_Y(int index)
 void
 Move_To_Reg_X(int index)
 {
-  Label_Printf(" # Move_To_Reg_X %d", index);
   Inst_Printf("sw", "$24,%d(%s)", 4 * index, asm_reg_bank);
 }
 
@@ -531,7 +429,6 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-  Label_Printf(" # Move_To_Reg_Y %d", index);
 #ifdef MAP_REG_E
   Inst_Printf("sw", "$24,-%d(%s)", index * 4 + 16, asm_reg_e);
 #else
@@ -548,9 +445,8 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args)
+Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 {
-  Label_Printf(" # Call_C_Start");
 }
 
 
@@ -563,7 +459,6 @@ Call_C_Start(char *fct_name, int fc, int nb_args)
 int
 Call_C_Arg_Int(int offset, long int_val)
 {
-  Label_Printf(" # Call_C_Arg_Int of:%d val:%d", offset, int_val);
   switch (offset)
     {
     case 0:
@@ -612,7 +507,6 @@ Call_C_Arg_Double(int offset, double dbl_val)
   sprintf(buf, "\t.align 3\n.LD%d:\n\t.double %1.20e\n", w_label++,
 	  dbl_val);
   strcat(dbl_arg_buffer, buf);
-  Label_Printf(" # Call_C_Arg_Double of:%d val:%3.2f", offset, dbl_val);
   Inst_Printf("la", "$24,.LD%d", (w_label - 1));
   switch (offset)
     {
@@ -657,7 +551,6 @@ Call_C_Arg_Double(int offset, double dbl_val)
 int
 Call_C_Arg_String(int offset, int str_no)
 {
-  Label_Printf(" # Call_C_Arg_String of:%d val:%d", offset, str_no);
   switch (offset)
     {
     case 0:
@@ -733,9 +626,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
       sprintf(dest, "%s", "$24");
       break;
     }
-  Label_Printf(" # Call_C_Arg_Mem_L offset:%d adr_of:%d index:%d", offset,
-	       adr_of, index);
-  emit_dehex(name);
+
   if (!adr_of)
     {
       Inst_Printf("la", "$25,%s", name);
@@ -794,8 +685,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
       sprintf(dest, "%s", "$24");
       break;
     }
-  Label_Printf(" # Call_C_Arg_Reg_X offset:%d adr_of:%d index:%d", offset,
-	       adr_of, index);
+
   if (!adr_of)
     {
       Inst_Printf("lw", "%s,%d(%s)", dest, index * 4, asm_reg_bank);
@@ -860,8 +750,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
       sprintf(dest, "%s", "$24");
       break;
     }
-  Label_Printf(" # Call_C_Arg_Reg_Y offset:%d adr_of:%d index:%d", offset,
-	       adr_of, index);
+
   if (!adr_of)
     {
 #ifdef MAP_REG_E
@@ -930,8 +819,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
       sprintf(dest, "%s", "$24");
       break;
     }
-  Label_Printf(" # Call_C_Arg_Foreign_L off:%d adr_of:%d index:%d", offset,
-	       adr_of, index);
+
   Inst_Printf("la", "$2,foreign_long");
   if (!adr_of)
     {
@@ -960,8 +848,6 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 {
   char dest[8];
 
-  Label_Printf(" # Call_C_Arg_Foreign_D off:%d adr_of:%d index:%d", offset,
-	       adr_of, index);
   if (adr_of)
     {
       switch (offset)
@@ -1048,13 +934,12 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 
 
 /*-------------------------------------------------------------------------*
- * CALL_C_STOP                                                             *
+ * CALL_C_INVOKE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args)
+Call_C_Invoke(char *fct_name, int nb_args)
 {
-  Label_Printf(" # Call_C_Stop");
 /*  if (!make_inline (fct_name, nb_args)) { */
   Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
   Inst_Printf("sd", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
@@ -1069,13 +954,24 @@ Call_C_Stop(char *fct_name, int nb_args)
 
 
 /*-------------------------------------------------------------------------*
+ * CALL_C_STOP                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * JUMP_RET                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
 Jump_Ret(void)
 {
-  Label_Printf(" # Jump_Ret");
   Inst_Printf("move", "$25,$2");
   Inst_Printf("j", "$25");
 }
@@ -1090,7 +986,6 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Label_Printf(" # Fail_Ret");
   Inst_Printf("bne", "$2,$0,.Lcont%d", w_label);
   Pl_Fail();
   Label_Printf(".Lcont%d:", w_label++);
@@ -1106,8 +1001,6 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
-  Label_Printf(" # Move_Ret_To_Mem_L");
-  emit_dehex(name);
   Inst_Printf("la", "$13,%s", name);
   Inst_Printf("sw", "$2,%d($13)", index * 4);
 }
@@ -1122,7 +1015,6 @@ Move_Ret_To_Mem_L(char *name, int index)
 void
 Move_Ret_To_Reg_X(int index)
 {				/* same as Move_To_Reg_X */
-  Label_Printf(" # Move_Ret_To_Reg_X %d", index);
   Inst_Printf("sw", "$2,%d(%s)", index * 4, asm_reg_bank);
 }
 
@@ -1136,7 +1028,6 @@ Move_Ret_To_Reg_X(int index)
 void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
-  Label_Printf(" # Move_Ret_To_Reg_Y %d", index);
 #ifdef MAP_REG_E
   Inst_Printf("sw", "$2,-%d(%s)", index * 4 + 16, asm_reg_e);
 #else
@@ -1155,7 +1046,6 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Label_Printf(" # Move_Ret_To_Foreign_L");
   Inst_Printf("la", "$13,foreign_long");
   Inst_Printf("sw", "$2,%d($13)", index * 4);
 }
@@ -1170,7 +1060,6 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Label_Printf(" # Move_Ret_To_Foreign_D");
   Inst_Printf("la", "$13,foreign_double");
   Inst_Printf("s.d", "$f0,%d($13)", index * 8);
 }
@@ -1185,7 +1074,6 @@ Move_Ret_To_Foreign_D(int index)
 void
 Cmp_Ret_And_Int(long int_val)
 {
-  Label_Printf(" # Cmp_Ret_And_Int");
   Inst_Printf("li", "$24,%d", int_val);
   Inst_Printf("sub", "$12,$2,$24");	/* $2 - $24 -> $12 */
 }
@@ -1200,8 +1088,6 @@ Cmp_Ret_And_Int(long int_val)
 void
 Jump_If_Equal(char *label)
 {
-  Label_Printf(" # Jump_If_Equal");
-  emit_dehex(label);
   Inst_Printf("beqz", "$12,%s", label);	/* $2 == 0 */
 }
 
@@ -1217,8 +1103,6 @@ Jump_If_Greater(char *label)
 {
   /* this is based on the comparison we did with Cmp_Ret_And_Int */
   /* means this is more or less a Jump_If_Not_Equal ! */
-  Label_Printf(" # Jump_If_Greater");
-  emit_dehex(label);
   Inst_Printf("bgtz", "$12,%s", label);	/* $3 == 1 */
 }
 
@@ -1232,7 +1116,6 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Label_Printf(" # C_Ret");
   Inst_Printf("ld", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
   Inst_Printf("ld", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
   Inst_Printf("addiu", "$sp,$sp,%d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
@@ -1249,7 +1132,6 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
-  Label_Printf(" # Dico_String_Start");
   Label_Printf(".section\t.rodata");
   Inst_Printf(".align", "3");
 }
@@ -1265,7 +1147,6 @@ void
 Dico_String(int str_no, char *asciiz)
 {
 
-  Label_Printf(" # Dico_String");
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
   Inst_Printf(".ascii", "%s", asciiz);
 }
@@ -1280,7 +1161,6 @@ Dico_String(int str_no, char *asciiz)
 void
 Dico_String_Stop(int nb_consts)
 {
-  Label_Printf(" # Dico_String_Stop");
 }
 
 
@@ -1293,7 +1173,6 @@ Dico_String_Stop(int nb_consts)
 void
 Dico_Long_Start(int nb_longs)
 {
-  Label_Printf(" # Dico_Long_Start");
   Label_Printf(".section\t.sdata");
   Inst_Printf(".align", "3");
 }
@@ -1308,7 +1187,6 @@ Dico_Long_Start(int nb_longs)
 void
 Dico_Long(char *name, int global, VType vtype, long value)
 {
-  Label_Printf(" # Dico_Long");
   switch (vtype)
     {
     case NONE:
@@ -1359,7 +1237,6 @@ Dico_Long(char *name, int global, VType vtype, long value)
 void
 Dico_Long_Stop(int nb_longs)
 {
-  Label_Printf(" # Dico_Long_Stop");
 }
 
 
@@ -1372,8 +1249,6 @@ Dico_Long_Stop(int nb_longs)
 void
 Data_Start(char *initializer_fct)
 {
-  Label_Printf(" # Data_Start");
-
   /* last routine has to be closed first */
   if (act_routine[0] != '\0')
     {
@@ -1381,8 +1256,6 @@ Data_Start(char *initializer_fct)
       Inst_Printf(".end", "%s", act_routine);
 
       act_routine[0] = '\0';
-      Label_Printf
-	(" # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
     }
 
   if (initializer_fct == NULL)
@@ -1415,8 +1288,6 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  Label_Printf(" # Data_Stop");
   if (initializer_fct == NULL)
     return;
-
 }

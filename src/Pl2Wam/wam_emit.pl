@@ -76,208 +76,223 @@
 /* A  : integer                                                            */
 /* N,K: integer                                                            */
 /* F,T: atom                                                               */
-/* L  : integer >= 1                                                       */
+/* L  : integer >= 1 (with no "holes") or 'fail' inside switch_on_term     */
 /*-------------------------------------------------------------------------*/
 
-emit_code_init(WamFile0,PlFile0):-
-	prolog_file_name(PlFile0,PlFile),
-	emit_code_files(WamFile0,PlFile,WamFile),
-	(WamFile=user -> current_output(Stream)
-                      ;  open(WamFile,write,Stream)),
-	g_assign(streamwamfile,Stream),
-	g_assign(cur_pl_file,''),
+emit_code_init(WamFile0, PlFile0) :-
+	prolog_file_name(PlFile0, PlFile),
+	emit_code_files(WamFile0, PlFile, WamFile),
+	(   WamFile=user ->
+	    current_output(Stream)
+	;   open(WamFile, write, Stream)
+	),
+	g_assign(streamwamfile, Stream),
+	g_assign(cur_pl_file, ''),
 	prolog_name(Name),
 	prolog_version(Version),
 	prolog_date(Date),
-	date_time(dt(Yr,Mh,Dy,Hr,Me,Sd)),
-	format(Stream,'%% compiler: ~a ~a (~a)~n',[Name,Version,Date]),
-	format(Stream,'%% file    : ~a~n',[PlFile]),
-	format(Stream,'%% date    : ~d ~d ~d~n',[Mh,Dy,Yr]),
-	format(Stream,'%% time    : ~d:~d:~d~n',[Hr,Me,Sd]).
+	date_time(dt(Yr, Mh, Dy, Hr, Me, Sd)),
+	format(Stream, '%% compiler: ~a ~a (~a)~n', [Name, Version, Date]),
+	format(Stream, '%% file    : ~a~n', [PlFile]),
+	format(Stream, '%% date    : ~d ~d ~d~n', [Mh, Dy, Yr]),
+	format(Stream, '%% time    : ~d:~d:~d~n', [Hr, Me, Sd]).
 
 
 
 
-emit_code_files('',user,user):-
+emit_code_files('', user, user) :-
 	!.
 
-emit_code_files('',PlFile,WamFile):-
+emit_code_files('', PlFile, WamFile) :-
 	!,
-	decompose_file_name(PlFile,_,Prefix,Suffix),
-	(g_read(native_code,t) -> WamSuffix='.wam'
-                               ;  WamSuffix='.wbc'),
-	(Suffix='.pl'
-              -> atom_concat(Prefix,WamSuffix,WamFile)
-              ;
-                 atom_concat(Prefix,Suffix,WF),
-		 atom_concat(WF,WamSuffix,WamFile)).
+	decompose_file_name(PlFile, _, Prefix, Suffix),
+	(   g_read(native_code, t) ->
+	    WamSuffix='.wam'
+	;   WamSuffix='.wbc'
+	),
+	(   Suffix='.pl' ->
+	    atom_concat(Prefix, WamSuffix, WamFile)
+	;   atom_concat(Prefix, Suffix, WF),
+	    atom_concat(WF, WamSuffix, WamFile)
+	).
 
-emit_code_files(WamFile,_,WamFile).
+emit_code_files(WamFile, _, WamFile).
 
 
 
 
-emit_code_term(Bytes,Lines):-
-	g_read(streamwamfile,Stream),
-	character_count(Stream,Bytes),
-	line_count(Stream,Lines),
+emit_code_term(Bytes, Lines) :-
+	g_read(streamwamfile, Stream),
+	character_count(Stream, Bytes),
+	line_count(Stream, Lines),
 	close(Stream).
 
 
 
 
-emit_code(Pred,N,PlFile,PlLine,WamCode):-
-	g_read(streamwamfile,Stream),
-	emit_pred_start(Pred,N,PlFile,PlLine,Stream,_),
-	emit_wam_code(WamCode,_,Stream),
-	write(Stream,']).'), nl(Stream).
+emit_code(Pred, N, PlFile, PlLine, WamCode) :-
+	g_read(streamwamfile, Stream),
+	emit_pred_start(Pred, N, PlFile, PlLine, Stream, _),
+	emit_wam_code(WamCode, _, Stream),
+	write(Stream, ']).'),
+	nl(Stream).
 
 
 
 
-emit_pred_start(Pred,0,PlFile,PlLine,Stream,Type):-
-	(Pred='$exe_user',   Type=user
-             ;
-	 Pred='$exe_system', Type=system),
-	!,
-	emit_file_name_if_needed(PlFile,Stream),
-        format(Stream,'~n~ndirective(~d,~a,',[PlLine,Type]).
+emit_pred_start(Pred, 0, PlFile, PlLine, Stream, Type) :-
+	(   Pred='$exe_user',
+	    Type=user
+	;   Pred='$exe_system',
+	    Type=system
+	), !,
+	emit_file_name_if_needed(PlFile, Stream),
+	format(Stream, '~n~ndirective(~d,~a,', [PlLine, Type]).
 
-emit_pred_start(Pred,N,PlFile,PlLine,Stream,_):-
-	emit_file_name_if_needed(PlFile,Stream),
-	(test_pred_info(dyn,Pred,N)
-                -> StaDyn=dynamic
-                ;  StaDyn=static),
-	(test_pred_info(pub,Pred,N)
-                 -> PubPriv=public
-                 ;  PubPriv=private),
-	(test_pred_info(bpl,Pred,N) 
-                 -> UsBplBfd=built_in
-                 ;  (test_pred_info(bfd,Pred,N)
-                             -> UsBplBfd=built_in_fd
-                             ;  UsBplBfd=user)),
-        format(Stream,'~n~npredicate(~q,~d,~a,~a,~a,',
-                      [Pred/N,PlLine,StaDyn,PubPriv,UsBplBfd]).
+emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
+	emit_file_name_if_needed(PlFile, Stream),
+	(   test_pred_info(dyn, Pred, N) ->
+	    StaDyn=dynamic
+	;   StaDyn=static
+	),
+	(   test_pred_info(pub, Pred, N) ->
+	    PubPriv=public
+	;   PubPriv=private
+	),
+	(   test_pred_info(bpl, Pred, N) ->
+	    UsBplBfd=built_in
+	;   test_pred_info(bfd, Pred, N) ->
+	    UsBplBfd=built_in_fd
+	;   UsBplBfd=user
+	),
+	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,', [Pred/N, PlLine, StaDyn, PubPriv, UsBplBfd]).
 
 
 
 
-emit_file_name_if_needed(PlFile,_):-
-	g_read(cur_pl_file,PlFile),
+emit_file_name_if_needed(PlFile, _) :-
+	g_read(cur_pl_file, PlFile), !.
+
+emit_file_name_if_needed(PlFile, Stream) :-
+	format(Stream, '~n~nfile_name(~q).~n', [PlFile]),
+	g_assign(cur_pl_file, PlFile).
+
+
+
+
+emit_wam_code([], _, _).
+
+emit_wam_code([WamInst|WamCode], First, Stream) :-
+	emit_wam_code(WamInst, First, Stream),   % for nested code
+	emit_wam_code(WamCode, First, Stream), !.
+
+emit_wam_code(WamInst, First, Stream) :-
+	special_form(WamInst, WamInst1),
+	emit_wam_code(WamInst1, First, Stream).
+
+emit_wam_code(WamInst, _, _) :-
+	g_read(keep_void_inst, f),
+	dummy_instruction(WamInst), !.
+
+emit_wam_code(WamInst, First, Stream) :-
+	WamInst=label(_), !,
+	(   var(First) ->
+	    Car='[',
+	    First=f
+	;   Car=(',')
+	),
+	format(Stream, '~a~n~n', [Car]),
+	emit_one_inst(WamInst, Stream).
+
+emit_wam_code(WamInst, First, Stream) :-
+	(   var(First) ->
+	    Car='[',
+	    First=f
+	;   Car=(',')
+	),
+	format(Stream, '~a~n    ', [Car]),
+	emit_one_inst(WamInst, Stream).
+
+
+
+
+emit_one_inst(WamInst, Stream) :-
+	atom(WamInst), !,
+	writeq(Stream, WamInst).
+
+emit_one_inst(WamInst, Stream) :-
+	functor(WamInst, F, N),
+	writeq(Stream, F),
+	emit_args(0, N, WamInst, Stream),
+	write(Stream, ')').
+
+emit_args(N, N, _, _) :-
 	!.
 
-emit_file_name_if_needed(PlFile,Stream):-
-	format(Stream,'~n~nfile_name(~q).~n',[PlFile]),
-	g_assign(cur_pl_file,PlFile).
-
-
-
-
-emit_wam_code([],_,_).
-
-emit_wam_code([WamInst|WamCode],First,Stream):-
-	emit_wam_code(WamInst,First,Stream),                % for nested code
-	emit_wam_code(WamCode,First,Stream),
-	!.
-
-emit_wam_code(WamInst,First,Stream):-
-	special_form(WamInst,WamInst1),
-	emit_wam_code(WamInst1,First,Stream).
-
-emit_wam_code(WamInst,_,_):-
-	g_read(keep_void_inst,f),
-	dummy_instruction(WamInst),
-	!.
-
-emit_wam_code(WamInst,First,Stream):-
-	WamInst=label(_),
-	!,
-	(var(First) ->  Car='[', First=f ; Car=(',')),
-	format(Stream,'~a~n~n',[Car]),
-	emit_one_inst(WamInst,Stream).
-
-emit_wam_code(WamInst,First,Stream):-
-	(var(First) ->  Car='[', First=f ; Car=(',')),
-	format(Stream,'~a~n    ',[Car]),
-	emit_one_inst(WamInst,Stream).
-
-
-
-
-emit_one_inst(WamInst,Stream):-
-	atom(WamInst),
-	!,
-	writeq(Stream,WamInst).
-
-emit_one_inst(WamInst,Stream):-
-	functor(WamInst,F,N),
-	writeq(Stream,F),
-	emit_args(0,N,WamInst,Stream),
-	write(Stream,')').
-
-emit_args(N,N,_,_):-
-	!.
-
-emit_args(I,N,WamInst,Stream):-
+emit_args(I, N, WamInst, Stream) :-
 	I1 is I+1,
-	(I1=1 -> Car='('
-              ;  Car=(',')),
-	arg(I1,WamInst,A),
-	format(Stream,'~a~q',[Car,A]),
-	emit_args(I1,N,WamInst,Stream).
+	(   I1=1 ->
+	    Car='('
+	;   Car=(',')
+	),
+	arg(I1, WamInst, A),
+	format(Stream, '~a~q', [Car, A]),
+	emit_args(I1, N, WamInst, Stream).
 
 
 
 
-emit_ensure_linked:-
-	g_read(streamwamfile,Stream),
-	retract(ensure_linked(Name,Arity)),
-	!,
-        format(Stream,'~n~nensure_linked([~q',[Name/Arity]),
-	(clause(ensure_linked(Name1,Arity1),_),
-         format(Stream,',~q',[Name1/Arity1]),
-	 fail
-          ;
-         true),
-	write(Stream,']).'), nl(Stream).
+emit_ensure_linked :-
+	g_read(streamwamfile, Stream),
+	retract(ensure_linked(Name, Arity)), !,
+	format(Stream, '~n~nensure_linked([~q', [Name/Arity]),
+	(   clause(ensure_linked(Name1, Arity1), _),
+	    format(Stream, ',~q', [Name1/Arity1]),
+	    fail
+	;   true
+	),
+	write(Stream, ']).'),
+	nl(Stream).
 
 emit_ensure_linked.
 
 
 
 
-bc_emit_code(Pred,N,PlFile,PlLine,LCompCl):-
-	g_read(streamwamfile,Stream),
-	emit_pred_start(Pred,N,PlFile,PlLine,Stream,Type),
-	(nonvar(Type) 
-            -> LCompCl=[bc((_:-Body),_)],
-	       bc_emit_prolog_term(Stream,Body),
-	       format(Stream,').~n',[])
-             ;
-	       length(LCompCl,NbCl),
-	       (LCompCl=[bc('$$empty$$predicate$$clause$$',[proceed])]
-                    -> NbCl1=0,    LCompCl1=[]
-                    ;  NbCl1=NbCl, LCompCl1=LCompCl),
-	       format(Stream,'~d).~n',[NbCl1]),
-	       bc_emit_lst_clause(LCompCl1,Stream)).
+bc_emit_code(Pred, N, PlFile, PlLine, LCompCl) :-
+	g_read(streamwamfile, Stream),
+	emit_pred_start(Pred, N, PlFile, PlLine, Stream, Type),
+	(   nonvar(Type) ->
+	    LCompCl=[bc((_:-Body), _)],
+	    bc_emit_prolog_term(Stream, Body),
+	    format(Stream, ').~n', [])
+	;   length(LCompCl, NbCl),
+	    (   LCompCl=[bc('$$empty$$predicate$$clause$$', [proceed])] ->
+	        NbCl1=0,
+	        LCompCl1=[]
+	    ;   NbCl1=NbCl,
+	        LCompCl1=LCompCl
+	    ),
+	    format(Stream, '~d).~n', [NbCl1]),
+	    bc_emit_lst_clause(LCompCl1, Stream)
+	).
 
 
 
 
-bc_emit_lst_clause([],_).
+bc_emit_lst_clause([], _).
 
-bc_emit_lst_clause([bc(Cl,WamCode)|LCompCl],Stream):-
-	format(Stream,'~n~nclause(',[]),
-	bc_emit_prolog_term(Stream,Cl),
-	write(Stream,','),
-	emit_wam_code(WamCode,_,Stream),
-	format(Stream,']).~n',[]),
-	bc_emit_lst_clause(LCompCl,Stream).
-
-
+bc_emit_lst_clause([bc(Cl, WamCode)|LCompCl], Stream) :-
+	format(Stream, '~n~nclause(', []),
+	bc_emit_prolog_term(Stream, Cl),
+	write(Stream, ','),
+	emit_wam_code(WamCode, _, Stream),
+	format(Stream, ']).~n', []),
+	bc_emit_lst_clause(LCompCl, Stream).
 
 
-bc_emit_prolog_term(Stream,X):-
-	numbervars(X,0,_),
-	write_term(Stream,X,[numbervars(true),ignore_ops(true),
-                             quoted(true)]).
+
+
+bc_emit_prolog_term(Stream, X) :-
+	numbervars(X, 0, _),
+	write_term(Stream, X, [numbervars(true), ignore_ops(true), quoted(true)]).

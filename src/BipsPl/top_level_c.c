@@ -63,9 +63,10 @@
 
 #define BREAK                      X627265616B
 
-Prolog_Prototype(ABORT, 0) Prolog_Prototype(BREAK, 0)
-     static void
-     Ctrl_C_Handler(int sig);
+Prolog_Prototype(ABORT, 0);
+Prolog_Prototype(BREAK, 0);
+
+static void Ctrl_C_Handler(int sig);
 
 
 
@@ -74,8 +75,8 @@ Prolog_Prototype(ABORT, 0) Prolog_Prototype(BREAK, 0)
  * SET_CTRL_C_HANDLER_0                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     void
-     Set_Ctrl_C_Handler_0(void)
+void
+Set_Ctrl_C_Handler_0(void)
 {
   signal(SIGINT, Ctrl_C_Handler);
   signal(SIGQUIT, Ctrl_C_Handler);

@@ -54,7 +54,7 @@ static
 
 #define CURRENT_CHAR_CONVERSION_ALT X2463757272656E745F636861725F636F6E76657273696F6E5F616C74
 
-Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0)
+Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
 
 
 
@@ -63,8 +63,8 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0)
  * COMMON_READ                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static Bool Common_Read(WamWord (*read_fct) (),
-			     WamWord sora_word, WamWord term_word)
+static Bool
+Common_Read(WamWord (*read_fct) (), WamWord sora_word, WamWord term_word)
 {
   WamWord word;
   int stm;
@@ -381,14 +381,14 @@ Char_Conversion_2(WamWord in_char_word, WamWord out_char_word)
 Bool
 Current_Char_Conversion_2(WamWord in_char_word, WamWord out_char_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   int c_in, c_out;
   int c_in1, c_out1;
 
   Check_For_Un_Char(out_char_word);
 
-  Deref(in_char_word, word, tag, adr);
-  if (tag != REF)
+  DEREF(in_char_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
     {
       c_in = Rd_Char_Check(word);
       c_out = char_conv[c_in];

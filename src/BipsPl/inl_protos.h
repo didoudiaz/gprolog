@@ -123,39 +123,39 @@ void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 
 void Math_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 
-WamWord Fct_Fast_Neg(int x);
+WamWord Fct_Fast_Neg(WamWord x);
 
-WamWord Fct_Fast_Inc(int x);
+WamWord Fct_Fast_Inc(WamWord x);
 
-WamWord Fct_Fast_Dec(int x);
+WamWord Fct_Fast_Dec(WamWord x);
 
-WamWord Fct_Fast_Add(int x, int y);
+WamWord Fct_Fast_Add(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Sub(int x, int y);
+WamWord Fct_Fast_Sub(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Mul(int x, int y);
+WamWord Fct_Fast_Mul(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Div(int x, int y);
+WamWord Fct_Fast_Div(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Rem(int x, int y);
+WamWord Fct_Fast_Rem(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Mod(int x, int y);
+WamWord Fct_Fast_Mod(WamWord x, WamWord y);
 
-WamWord Fct_Fast_And(int x, int y);
+WamWord Fct_Fast_And(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Or(int x, int y);
+WamWord Fct_Fast_Or(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Xor(int x, int y);
+WamWord Fct_Fast_Xor(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Not(int x);
+WamWord Fct_Fast_Not(WamWord x);
 
-WamWord Fct_Fast_Shl(int x, int y);
+WamWord Fct_Fast_Shl(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Shr(int x, int y);
+WamWord Fct_Fast_Shr(WamWord x, WamWord y);
 
-WamWord Fct_Fast_Abs(int x);
+WamWord Fct_Fast_Abs(WamWord x);
 
-WamWord Fct_Fast_Sign(int x);
+WamWord Fct_Fast_Sign(WamWord x);
 
 WamWord Fct_Neg(WamWord x);
 

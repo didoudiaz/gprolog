@@ -25,131 +25,131 @@
 
           /* alias stopping instructions */
 
-alias_stop_instruction(InstW):-
-	functor(InstW,F,_),
-	(F=call ; F=execute),
-	!.
+alias_stop_instruction(InstW) :-
+	functor(InstW, F, _),
+	(   F=call
+	;   F=execute
+	), !.
 
 
 
 
           /* instruction codification */
 
-codification(WamInst,LCode):-
-	codif(WamInst,LCode),
-	!.
+codification(WamInst, LCode) :-
+	codif(WamInst, LCode), !.
 
 
-codif(get_variable(x(Tmp),Arg),         [c(Arg,Tmp)]).
+codif(get_variable(x(Tmp), Arg), [c(Arg, Tmp)]).
 	
-codif(get_value(x(Tmp),Arg),            [r(Tmp), r(Arg)]).
+codif(get_value(x(Tmp), Arg), [r(Tmp), r(Arg)]).
 
-codif(get_variable(y(_),Arg),           [r(Arg)]).
+codif(get_variable(y(_), Arg), [r(Arg)]).
 
-codif(get_value(y(_),Arg),              [r(Arg)]).
+codif(get_value(y(_), Arg), [r(Arg)]).
 
-codif(get_atom(_,Arg),                  [r(Arg)]).
+codif(get_atom(_, Arg), [r(Arg)]).
 
-codif(get_integer(_,Arg),               [r(Arg)]).
+codif(get_integer(_, Arg), [r(Arg)]).
 
-codif(get_float(_,Arg),                 [r(Arg)]).
+codif(get_float(_, Arg), [r(Arg)]).
 
-codif(get_nil(Arg),                     [r(Arg)]).
+codif(get_nil(Arg), [r(Arg)]).
 
-codif(get_list(Reg),                    [r(Reg)]).
+codif(get_list(Reg), [r(Reg)]).
 
-codif(get_structure(_,Reg),             [r(Reg)]).
+codif(get_structure(_, Reg), [r(Reg)]).
 
-codif(put_variable(x(Tmp),Arg),         [w(Tmp), w(Arg)]).
+codif(put_variable(x(Tmp), Arg), [w(Tmp), w(Arg)]).
 
-codif(put_void(Arg),                    [w(Arg)]).
+codif(put_void(Arg), [w(Arg)]).
 
-codif(put_value(x(Tmp),Arg),            [c(Tmp,Arg)]).
+codif(put_value(x(Tmp), Arg), [c(Tmp, Arg)]).
 
-codif(put_variable(y(_),Arg),           [w(Arg)]).
+codif(put_variable(y(_), Arg), [w(Arg)]).
 
-codif(put_value(y(_),Arg),              [w(Arg)]).
+codif(put_value(y(_), Arg), [w(Arg)]).
 
-codif(put_unsafe_value(y(_),Arg),       [w(Arg)]).
+codif(put_unsafe_value(y(_), Arg), [w(Arg)]).
 
-codif(put_atom(_,Arg),                  [w(Arg)]).
+codif(put_atom(_, Arg), [w(Arg)]).
 
-codif(put_integer(_,Arg),               [w(Arg)]).
+codif(put_integer(_, Arg), [w(Arg)]).
 
-codif(put_float(_,Arg),                 [w(Arg)]).
+codif(put_float(_, Arg), [w(Arg)]).
 
-codif(put_nil(Arg),                     [w(Arg)]).
+codif(put_nil(Arg), [w(Arg)]).
 
-codif(put_list(Reg),                    [w(Reg)]).
+codif(put_list(Reg), [w(Reg)]).
 
-codif(put_structure(_,Reg),             [w(Reg)]).
+codif(put_structure(_, Reg), [w(Reg)]).
 
-codif(math_load_value(x(Reg),Tmp),      [r(Reg), w(Tmp)]).
+codif(math_load_value(x(Reg), Tmp), [r(Reg), w(Tmp)]).
 
-codif(math_load_value(y(_),Tmp),        [w(Tmp)]).
+codif(math_load_value(y(_), Tmp), [w(Tmp)]).
 
-codif(math_fast_load_value(x(Reg),Tmp), [r(Reg), w(Tmp)]).
+codif(math_fast_load_value(x(Reg), Tmp), [r(Reg), w(Tmp)]).
 
-codif(math_fast_load_value(y(_),Tmp),   [w(Tmp)]).
+codif(math_fast_load_value(y(_), Tmp), [w(Tmp)]).
 
-codif(unify_variable(x(Tmp)),           [w(Tmp)]).
+codif(unify_variable(x(Tmp)), [w(Tmp)]).
 
-codif(unify_value(x(Tmp)),              [r(Tmp)]).
+codif(unify_value(x(Tmp)), [r(Tmp)]).
 
-codif(unify_local_value(x(Tmp)),        [r(Tmp)]).
+codif(unify_local_value(x(Tmp)), [r(Tmp)]).
 
-codif(call(_/N),                        LCode):-
-	lst_r_for_call_execute(0,N,LCode).
+codif(call(_/N), LCode) :-
+	lst_r_for_call_execute(0, N, LCode).
 
-codif(execute(_/N),                     LCode):-
-	lst_r_for_call_execute(0,N,LCode).
+codif(execute(_/N), LCode) :-
+	lst_r_for_call_execute(0, N, LCode).
 
-codif(load_cut_level(Tmp),              [w(Tmp)]).
+codif(load_cut_level(Tmp), [w(Tmp)]).
 
-codif(cut(x(Tmp)),                      [r(Tmp)]).
+codif(cut(x(Tmp)), [r(Tmp)]).
 
-codif(function(_,Reg,LReg),             LCode):-
-	lst_r_for_function(LReg,Reg,LCode).
+codif(function(_, Reg, LReg), LCode) :-
+	lst_r_for_function(LReg, Reg, LCode).
 
-codif(call_c(_,LReg),                   LCode):-
-	lst_rw_for_call_c(LReg,[],LCode).
+codif(call_c(_, LReg), LCode) :-
+	lst_rw_for_call_c(LReg, [], LCode).
 
-codif(call_c_test(_,LReg),              LCode):-
-	lst_rw_for_call_c(LReg,[],LCode).
+codif(call_c_test(_, LReg), LCode) :-
+	lst_rw_for_call_c(LReg, [], LCode).
 
-codif(call_c_jump(_,LReg),              LCode):-
-	lst_rw_for_call_c(LReg,[],LCode).
+codif(call_c_jump(_, LReg), LCode) :-
+	lst_rw_for_call_c(LReg, [], LCode).
 
-codif(foreign_call_c(_,_,LReg,_),       LCode):-
-	lst_rw_for_call_c(LReg,[],LCode).
+codif(foreign_call_c(_, _, LReg, _), LCode) :-
+	lst_rw_for_call_c(LReg, [], LCode).
 
 	% instructions which use no temporaries
 
-codif(_,                                []).
+codif(_, []).
 
 
 
 
-lst_r_for_call_execute(N,N,[]).
+lst_r_for_call_execute(N, N, []).
 
-lst_r_for_call_execute(I,N,[r(I)|L]):-
+lst_r_for_call_execute(I, N, [r(I)|L]) :-
 	I1 is I+1,
-	lst_r_for_call_execute(I1,N,L).
+	lst_r_for_call_execute(I1, N, L).
 
 
 
 
-lst_r_for_function([],WReg,[w(WReg)]).
+lst_r_for_function([], WReg, [w(WReg)]).
 
-lst_r_for_function([Reg|LReg],WReg,[r(Reg)|LCode]):-
-	lst_r_for_function(LReg,WReg,LCode).
-
-
+lst_r_for_function([Reg|LReg], WReg, [r(Reg)|LCode]) :-
+	lst_r_for_function(LReg, WReg, LCode).
 
 
-lst_rw_for_call_c([],End,End).
 
-lst_rw_for_call_c([Reg|LReg],End,[r(Reg)|LCode]):-
-	lst_rw_for_call_c(LReg,[w(Reg)|End],LCode).
+
+lst_rw_for_call_c([], End, End).
+
+lst_rw_for_call_c([Reg|LReg], End, [r(Reg)|LCode]) :-
+	lst_rw_for_call_c(LReg, [w(Reg)|End], LCode).
 
 

@@ -28,9 +28,9 @@
  * Constants                       *
  *---------------------------------*/
 
-#define NOT_A_WAM_WORD             Tag_Value(-1,-1)
+#define NOT_A_WAM_WORD             Tag_REF(0)
 
-#define NIL_WORD                   Tag_Value(ATM,ATOM_NIL)
+#define NIL_WORD                   Tag_ATM(ATOM_NIL)
 
 
 
@@ -51,9 +51,9 @@
 #define CPE(e)                     ((WamCont)   (e[-1]))
 #define BCIE(e)                    ((WamWord)   (e[-2]))
 #define EE(e)                      ((WamWord *) (e[-3]))
-#define Y(e,y)                     ((WamWord)   (e[-4-(y)]))
+#define Y(e, y)                    ((WamWord)   (e[-4 - (y)]))
 
-#define ENVIR_NAMES                {"CPE","BCIE","EE"}
+#define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 
 
 
@@ -70,10 +70,10 @@
 #define HB(b)                      ((WamWord *) (b[-6]))
 #define TRB(b)                     ((WamWord *) (b[-7]))
 #define CSB(b)                     ((WamWord *) (b[-8]))
-#define AB(b,a)                    ((WamWord)   (b[-9-(a)]))
+#define AB(b, a)                   ((WamWord)   (b[-9 - (a)]))
 
-#define CHOICE_NAMES               {"ALTB","CPB","BCIB","EB","BB","HB",     \
-                                    "TRB","CSB"}
+#define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
+                                    "HB", "TRB", "CSB"}
 
 
 
@@ -90,10 +90,10 @@
 #define TFC                        3	/* Trail for Function Call  */
 
 
-#define TRAIL_TAG_NAMES            {"TUV","TOV","TMV","TFC"}
+#define TRAIL_TAG_NAMES            {"TUV", "TOV", "TMV", "TFC"}
 
 
-#define Trail_Tag_Value(t,v)       ((unsigned long) (v) | (t))
+#define Trail_Tag_Value(t, v)      ((unsigned long) (v) | (t))
 #define Trail_Tag_Of(w)            ((unsigned long) (w) & 0x3)
 #define Trail_Value_Of(w)          ((unsigned long) (w) & (~0x3))
 
@@ -102,19 +102,27 @@
 
 	  /* Functor/arity */
 
-#define Functor_Arity(f,n)         (((n) << ATOM_SIZE) + (f))
-#define Functor_Of(word)           ((word) & (MAX_ATOM-1))
+#define Functor_Arity(f, n)        (((n) << ATOM_SIZE) + (f))
+#define Functor_Of(word)           ((word) & (MAX_ATOM - 1))
 #define Arity_Of(word)             ((word) >> ATOM_SIZE)
 
 
-#define Dont_Separate_Tag(t)       ((t)==FDV)
+#ifndef NO_USE_FD_SOLVER
+#define Dont_Separate_Tag(tag_mask) ((tag_mask) == TAG_FDV_MASK)
+#else
+#define Dont_Separate_Tag(tag_mask) (0)
+#endif
 
+
+#define Do_Copy_Of_Word(tag_mask, word) \
+  if (Dont_Separate_Tag(tag_mask)) \
+    word = Tag_REF(UnTag_Address(word))
 
 
 
 	  /* Unbound Variables */
 
-#define Make_Self_Ref(adr)         (Tag_Value(REF,adr))
+#define Make_Self_Ref(adr)         (Tag_REF(adr))
 
 
 
@@ -149,7 +157,7 @@
 #define Functor(adr)               (Functor_Of(Functor_And_Arity(adr)))
 #define Arity(adr)                 (Arity_Of(Functor_And_Arity(adr)))
 #define Functor_And_Arity(adr)     (((WamWord *) (adr))[0])
-#define Arg(adr,i)                 (((WamWord *) (adr))[OFFSET_ARG+i])
+#define Arg(adr, i)                (((WamWord *) (adr))[OFFSET_ARG+i])
 							/* i in 0..arity-1 */
 
 
@@ -157,21 +165,29 @@
 
 	  /* Stacks */
 
-#define Global_Push(word)          (*H++=(WamWord) (word))
+#define Global_Push(word)          (*H++ = (WamWord) (word))
 
 #define Global_Pop                 (*--H)
 
 
 
 
-#define Trail_Push(word)           (*TR++=(WamWord) (word))
+#define Trail_Push(word)           (*TR++ = (WamWord) (word))
 
 #define Trail_Pop                  (*--TR)
 
 
 
 
-#define Is_A_Local_Adr(adr)        ((adr)>=Local_Stack)
+#define Is_A_Local_Adr(adr)        ((adr) >= LSSA)
+
+
+
+
+         /* Cut Management */
+
+#define From_B_To_WamWord(b)       (Tag_INT((b) - LSSA))
+#define From_WamWord_To_B(word)    (LSSA + UnTag_INT(word))
 
 
 
@@ -180,8 +196,8 @@
 
 #ifdef M_sparc
 
-#define Adjust_CP(cp)              ((WamCont) ((unsigned long) (cp)-8))
-#define UnAdjust_CP(cp)            ((WamCont) ((unsigned long) (cp)+8))
+#define Adjust_CP(cp)              ((WamCont) ((unsigned long) (cp) - 8))
+#define UnAdjust_CP(cp)            ((WamCont) ((unsigned long) (cp) + 8))
 
 #else
 
@@ -217,6 +233,8 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
+WamWord Create_Functor_Arity_Tagged(char *func_str, int arity) FC;
+
 SwtTbl Create_Swt_Table(int size) FC;
 
 void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep) FC;
@@ -224,7 +242,11 @@ void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep) FC;
 void Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
 			    CodePtr codep) FC;
 
+Bool Get_Atom_Tagged(WamWord w, WamWord start_word) FC;
+
 Bool Get_Atom(int atom, WamWord start_word) FC;
+
+Bool Get_Integer_Tagged(WamWord w, WamWord start_word) FC;
 
 Bool Get_Integer(long n, WamWord start_word) FC;
 
@@ -234,6 +256,8 @@ Bool Get_Nil(WamWord start_word) FC;
 
 Bool Get_List(WamWord start_word) FC;
 
+Bool Get_Structure_Tagged(WamWord w, WamWord start_word) FC;
+
 Bool Get_Structure(int func, int arity, WamWord start_word) FC;
 
 WamWord Put_X_Variable(void) FC;
@@ -242,7 +266,11 @@ WamWord Put_Y_Variable(WamWord *y_adr) FC;
 
 WamWord Put_Unsafe_Value(WamWord start_word) FC;
 
+WamWord Put_Atom_Tagged(WamWord w) FC;
+
 WamWord Put_Atom(int atom) FC;
+
+WamWord Put_Integer_Tagged(WamWord w) FC;
 
 WamWord Put_Integer(long n) FC;
 
@@ -251,6 +279,8 @@ WamWord Put_Float(double n) FC;
 WamWord Put_Nil(void) FC;
 
 WamWord Put_List(void) FC;
+
+WamWord Put_Structure_Tagged(WamWord w) FC;
 
 WamWord Put_Structure(int func, int arity) FC;
 
@@ -262,13 +292,19 @@ Bool Unify_Value(WamWord start_word) FC;
 
 Bool Unify_Local_Value(WamWord start_word) FC;
 
+Bool Unify_Atom_Tagged(WamWord w) FC;
+
 Bool Unify_Atom(int atom) FC;
+
+Bool Unify_Integer_Tagged(WamWord w) FC;
 
 Bool Unify_Integer(long n) FC;
 
 Bool Unify_Nil(void) FC;
 
 Bool Unify_List(void) FC;
+
+Bool Unify_Structure_Tagged(WamWord w) FC;
 
 Bool Unify_Structure(int func, int arity) FC;
 
@@ -301,8 +337,6 @@ void Delete_Choice_Point(int arity) FC;
 
 void Untrail(WamWord *low_adr) FC;
 
-WamWord Make_Copy_Of_Word(int tag, WamWord word) FC;
-
 Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
 
 Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
@@ -316,125 +350,141 @@ Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
 
 
 	  /*---------------------------------------------------------------*
-           * Deref dereferences the word start_word and sets :             *
-           *   word : dereferenced word                                    *
-           *   tag  : dereferenced word's tag                              *
-           *   adr  : only if tag==REF then adr==value==self adress        *
+           * DEREF dereferences the word start_word and sets :             *
+           *   word    : dereferenced word                                 *
+           *   tag_mask: dereferenced word's tag mask                      *
            *---------------------------------------------------------------*/
 
-#define Deref(start_word,word,tag,adr)                                      \
-    do {                                                                    \
-     WamWord *working_adr;                                                  \
-     word=start_word;                                                       \
-     adr=NULL;                                                              \
-     for(;;)                                                                \
-        {                                                                   \
-         tag=Tag_Of(word);                                                  \
-         if (tag!=REF || (working_adr=UnTag_REF(word))==adr)                \
-             break;                                                         \
-                                                                            \
-         adr=working_adr;                                                   \
-         word=*adr;                                                         \
-        }                                                                   \
-    } while(0)
+#if 0
+#define DEREF_STATS
+#endif
 
+#ifdef DEREF_STATS
+long nb_deref;
+long chain_len;
+#define DEREF_COUNT(x)  x++
+#else
+#define DEREF_COUNT(x)
+#endif
+
+#define DEREF(start_word, word, tag_mask)                                   \
+  do					                                    \
+    {                                                                       \
+      WamWord deref_last_word;                                              \
+      word = start_word;                                                    \
+                                                                            \
+      DEREF_COUNT(nb_deref);                                                \
+      do                                                                    \
+	{                                                                   \
+	  DEREF_COUNT(chain_len);                                           \
+	  deref_last_word = word;                                           \
+	  tag_mask = Tag_Mask_Of(word);                                     \
+	  if (tag_mask != TAG_REF_MASK)                                     \
+	    break;                                                          \
+	  word = *(UnTag_REF(word));                                        \
+	}                                                                   \
+      while (word != deref_last_word);                                      \
+    }                                                                       \
+  while(0)
 
 
 
 	  /* Trail Stack Management */
 
-#define Word_Needs_Trailing(adr)           ((adr)<(WamWord *) HB(B) ||      \
-                                            (Is_A_Local_Adr(adr) && (adr)<B))
+#define Word_Needs_Trailing(adr) \
+  ((adr) < HB1 || (Is_A_Local_Adr(adr) && (adr) < B))
 
 
 
-#define Bind_UV(adr,word)                                                   \
-    do {                                                                    \
-     if (Word_Needs_Trailing(adr))                                          \
-         Trail_UV(adr);                                                     \
-     *(adr)=(word);                                                         \
-    } while(0)
-
-
-
-
-#define Bind_OV(adr,word)                                                   \
-    do {                                                                    \
-     if (Word_Needs_Trailing(adr))                                          \
-         Trail_OV(adr);                                                     \
-     *(adr)=(word);                                                         \
-    } while(0)
+#define Bind_UV(adr, word)                                                  \
+  do {                                                                      \
+    if (Word_Needs_Trailing(adr))                                           \
+      Trail_UV(adr);                                                        \
+   *(adr) = (word);                                                         \
+  } while(0)
 
 
 
 
-#define Bind_MV(adr,nb,real_adr)                                            \
-    do {                                                                    \
-     if (Word_Needs_Trailing(adr))                                          \
-         Trail_MV(adr,nb);                                                  \
-     Mem_Word_Cpy(adr,real_adr,nb)                                          \
-    } while(0)
+#define Bind_OV(adr, word)                                                  \
+  do {                                                                      \
+    if (Word_Needs_Trailing(adr))                                           \
+      Trail_OV(adr);                                                        \
+   *(adr) = (word);                                                         \
+  } while(0)
+
+
+
+
+#define Bind_MV(adr, nb, real_adr)                                          \
+  do {                                                                      \
+    if (Word_Needs_Trailing(adr))                                           \
+      Trail_MV(adr, nb);                                                    \
+   Mem_Word_Cpy(adr, real_adr, nb);                                         \
+  } while(0)
 
 
 
 
 #define Trail_UV(adr)                                                       \
-     Trail_Push(Trail_Tag_Value(TUV,adr))
+  Trail_Push(Trail_Tag_Value(TUV, adr))
 
 
 
 
 #define Trail_OV(adr)                                                       \
-    do {                                                                    \
-     Trail_Push(*(adr));                                                    \
-     Trail_Push(Trail_Tag_Value(TOV,adr));                                  \
-    } while(0)
+  do {                                                                      \
+    Trail_Push(*(adr));                                                     \
+    Trail_Push(Trail_Tag_Value(TOV, adr));                                  \
+  } while(0)
 
 
 
 
 #define Trail_MV(adr,nb)                                                    \
-    do {                                                                    \
-     Mem_Word_Cpy(TR,adr,nb);                                               \
-     TR+=nb;                                                                \
-     Trail_Push(nb);                                                        \
-     Trail_Push(Trail_Tag_Value(TMV,adr));                                  \
-    } while(0)
+  do {                                                                      \
+    Mem_Word_Cpy(TR, adr, nb);                                              \
+    TR += nb;                                                               \
+    Trail_Push(nb);                                                         \
+    Trail_Push(Trail_Tag_Value(TMV, adr));                                  \
+  } while(0)
 
 
 
 
 #define Trail_FC(fct)                                                       \
-     Trail_Push(Trail_Tag_Value(TFC,fct))
+  Trail_Push(Trail_Tag_Value(TFC,fct))
 
 
 
 
-#define Delete_Last_Choice_Point()         B=BB(B)
+#define Assign_B(newB)              (B = (newB), HB1 = HB(B))
+
+#define Delete_Last_Choice_Point()  Assign_B(BB(B))
 
 
 
 
 	    /* Globalization */
 
-#define Globalize_Local_Unbound_Var(adr)                                    \
-    do {                                                                    \
-     WamWord word;                                                          \
-                                                                            \
-     Bind_UV(adr,Tag_Value(REF,H));                                         \
-     word=Make_Self_Ref(H);                                                 \
-     Global_Push(word);                                                     \
-    } while(0)
+#define Globalize_Local_Unbound_Var(adr, res_word)                          \
+  do {                                                                      \
+    WamWord *cur_H = H;                                                     \
+    res_word = Make_Self_Ref(cur_H);                                        \
+    *cur_H = res_word;                                                      \
+    H++;                                                                    \
+    Bind_UV(adr, res_word);                                                 \
+  } while(0)
 
 
 
 
-#define Mem_Word_Cpy(dst,src,nb)                                            \
-    do {                                                                    \
-     register long *s=(long *) (src);                                       \
-     register long *d=(long *) (dst);                                       \
-     register int   counter=(nb);                                           \
-                                                                            \
-     while(counter--)                                                       \
-         *d++ = *s++;                                                       \
-    } while(0)
+#define Mem_Word_Cpy(dst, src, nb)                                          \
+  do {                                                                      \
+    register long *s = (long *) (src);                                      \
+    register long *d = (long *) (dst);                                      \
+    register int counter = (nb);                                            \
+    do                                                                      \
+      *d++ = *s++;                                                          \
+    while(--counter);                                                       \
+  } while(0)

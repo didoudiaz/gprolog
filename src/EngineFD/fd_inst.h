@@ -243,10 +243,19 @@ Bool Fd_Use_Vector(WamWord *fdv_adr);
 
 Bool Fd_Check_For_Bool_Var(WamWord x_word);
 
-int Fd_Deref_Check_Fd_Var(WamWord *fdv_word);
-
 int Fd_Variable_Size0(WamWord *fdv_adr);
 
 int Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
 
 char *Fd_Variable_To_String0(WamWord *fdv_adr);
+
+
+
+
+#define Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask)         \
+  DEREF(fdv_word, word, tag_mask);                              \
+  if (tag_mask == TAG_REF_MASK)                                 \
+    Pl_Err_Instantiation();                                     \
+                                                                \
+  if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FDV_MASK)     \
+    Pl_Err_Type(type_fd_variable, word)

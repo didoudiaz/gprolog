@@ -78,7 +78,7 @@ Bool Read_Token_2(WamWord sora_word, WamWord token_word);
 
 
 
-#define GLOBAL_STREAM_ALIAS_WORD Tag_Value(ATM,atom_glob_stream_alias)
+#define GLOBAL_STREAM_ALIAS_WORD Tag_ATM(atom_glob_stream_alias)
 
 
 

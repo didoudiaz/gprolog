@@ -26,9 +26,17 @@ clean:
 	rm -f *@OBJ_SUFFIX@ ma2asm@EXE_SUFFIX@
 
 
-distclean: clean
+distclean: clean clean-check clean-extract_asm
 
 
+
+# for extract_asm
+
+extract_asm@EXE_SUFFIX@: extract_asm.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@extract_asm@EXE_SUFFIX@ extract_asm.c
+
+clean-extract_asm:
+	rm -f extract_asm@EXE_SUFFIX@
 
 # for check
 CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
@@ -42,9 +50,9 @@ check@OBJ_SUFFIX@: check.c
 	$(GPLC) -C "$(CFLAGS) $$FCFLAGS" -c check.c
 
 check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
-	if [ "$$FC" = "Y" ]; then cp check_ma.ma /tmp; \
-	else sed -e 's/ fast / /' check_ma.ma >/tmp/check_ma.ma; fi; \
-	$(GPLC) -S --comment /tmp/check_ma.ma -o check_ma@ASM_SUFFIX@
+	if [ "$$FC" = "Y" ]; then cp check_ma.ma tmp.ma; \
+	else sed -e 's/ fast / /' check_ma.ma >tmp.ma; fi; \
+	$(GPLC) -S --comment tmp.ma -o check_ma@ASM_SUFFIX@
 
 check_ma@OBJ_SUFFIX@: check_ma@ASM_SUFFIX@
 	$(GPLC) -c check_ma@ASM_SUFFIX@

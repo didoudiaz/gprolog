@@ -45,7 +45,7 @@ typedef double ArgVal;		/* to ensure double alignment */
  * Function Prototypes             *
  *---------------------------------*/
 
-int Parse_Wam_File(char *file_name_in, int keep_source_lines);
+int Parse_Wam_File(char *file_name_in, int comment);
 
 void Syntax_Error(char *s);
 

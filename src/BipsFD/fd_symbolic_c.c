@@ -50,7 +50,7 @@
  *---------------------------------*/
 
 static
-  Bool Fd_All_Different_Rec(WamWord list_word, int x_tag, WamWord x_word,
+  Bool Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
 			    WamWord save_list_word);
 
 
@@ -63,27 +63,28 @@ static
 Bool
 Fd_All_Different_1(WamWord list_word, WamWord save_list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *lst_adr;
 
 
-  Deref(list_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(list_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
   if (word == NIL_WORD)
     return TRUE;
 
-  if (tag != LST)
+  if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(type_list, save_list_word);
 
   lst_adr = UnTag_LST(word);
-  Deref(Car(lst_adr), word, tag, adr);
+  DEREF(Car(lst_adr), word, tag_mask);
 
-  if (tag != REF && tag != INT && tag != FDV)
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK &&
+      tag_mask != TAG_FDV_MASK)
     Pl_Err_Type(type_fd_variable, word);
-
-  return Fd_All_Different_Rec(Cdr(lst_adr), tag, word, save_list_word) &&
+  
+  return Fd_All_Different_Rec(Cdr(lst_adr), tag_mask, word, save_list_word) &&
     Fd_All_Different_1(Cdr(lst_adr), save_list_word);
 }
 
@@ -95,34 +96,37 @@ Fd_All_Different_1(WamWord list_word, WamWord save_list_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Fd_All_Different_Rec(WamWord list_word, int x_tag, WamWord x_word,
+Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
 		     WamWord save_list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord *lst_adr;
   int ret;
 
 
-  Deref(list_word, word, tag, adr);
-  if (tag == REF)
+  DEREF(list_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
-
+  
   if (word == NIL_WORD)
     return TRUE;
 
-  if (tag != LST)
+  if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(type_list, save_list_word);
-
+  
   lst_adr = UnTag_LST(word);
-  Deref(Car(lst_adr), word, tag, adr);
+  DEREF(Car(lst_adr), word, tag_mask);
 
-  if (tag != REF && tag != INT && tag != FDV)
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK &&
+      tag_mask != TAG_FDV_MASK)
     Pl_Err_Type(type_fd_variable, word);
 
-  if (x_tag == INT)
-    ret = (tag == INT) ? x_word != word : x_neq_c(word, x_word);
+  if (x_tag == TAG_INT_MASK)
+    ret = (tag_mask == TAG_INT_MASK) ? x_word != word : 
+             x_neq_c(word, x_word);
   else
-    ret = (tag == INT) ? x_neq_c(x_word, word) : x_neq_y(x_word, word);
+    ret = (tag_mask == TAG_INT_MASK) ? x_neq_c(x_word, word) :
+             x_neq_y(x_word, word);
 
   return ret &&
     Fd_All_Different_Rec(Cdr(lst_adr), x_tag, x_word, save_list_word);
@@ -328,7 +332,7 @@ Bool
 Fd_Atmost(int n, WamWord **array, int v)
 {
   WamWord **p;
-  WamWord word = Tag_Value(INT, v);
+  WamWord word = Tag_INT(v);
   long size = (long) array[0];
   int nb = 0;
   int i;
@@ -416,7 +420,7 @@ Bool
 Fd_Exactly(int n, WamWord **array, int v)
 {
   WamWord **p;
-  WamWord word = Tag_Value(INT, v);
+  WamWord word = Tag_INT(v);
   long size = (long) array[0];
   int nb1 = 0, nb2 = size;
   int i;

@@ -111,11 +111,12 @@ static Bool Cmp_Max_Regret(WamWord *last_fdv_adr, WamWord *new_fdv_adr);
 
 
 
-Prolog_Prototype(INDOMAIN_MIN_ALT, 0)
-Prolog_Prototype(INDOMAIN_MAX_ALT, 0)
-Prolog_Prototype(INDOMAIN_MIDDLE_ALT, 0)
-Prolog_Prototype(INDOMAIN_LIMITS_ALT, 0)
-Prolog_Prototype(INDOMAIN_RANDOM_ALT, 0) Prolog_Prototype(EXTRA_CSTR_ALT, 0)
+Prolog_Prototype(INDOMAIN_MIN_ALT, 0);
+Prolog_Prototype(INDOMAIN_MAX_ALT, 0);
+Prolog_Prototype(INDOMAIN_MIDDLE_ALT, 0);
+Prolog_Prototype(INDOMAIN_LIMITS_ALT, 0);
+Prolog_Prototype(INDOMAIN_RANDOM_ALT, 0);
+Prolog_Prototype(EXTRA_CSTR_ALT, 0);
 
   /* defined in fd_values_fd.fd */
 
@@ -133,27 +134,28 @@ Bool fd_domain_r(WamWord list_word, WamWord r_word);
 Bool
 Fd_Domain_Bool_1(WamWord list_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
 
 
-  Deref(list_word, word, tag, adr);
-  if (tag == REF || tag == INT || tag == FDV)
+  DEREF(list_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK ||
+      tag_mask == TAG_FDV_MASK)
     return Fd_Check_For_Bool_Var(word);
 
   save_list_word = list_word;
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
@@ -176,27 +178,28 @@ Fd_Domain_Bool_1(WamWord list_word)
 Bool
 Fd_Domain_2(WamWord list_word, WamWord r_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
 
 
-  Deref(list_word, word, tag, adr);
-  if (tag == REF || tag == INT || tag == FDV)
+  DEREF(list_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK || 
+      tag_mask == TAG_FDV_MASK)
     return fd_domain_r(word, r_word);
 
   save_list_word = list_word;
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
@@ -219,30 +222,30 @@ Fd_Domain_2(WamWord list_word, WamWord r_word)
 Bool
 Fd_Domain_3(WamWord list_word, WamWord l_word, WamWord u_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
 
 
-  if (l_word == Tag_Value(INT, 0) && u_word == Tag_Value(INT, 1))
+  if (l_word == Tag_INT(0) && u_word == Tag_INT(1))
     return Fd_Domain_Bool_1(list_word);
 
-  Deref(list_word, word, tag, adr);
-  if (tag == REF || tag == INT || tag == FDV)
+  DEREF(list_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK || tag_mask == TAG_FDV_MASK)
     return fd_domain(word, l_word, u_word);
 
   save_list_word = list_word;
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
@@ -265,12 +268,15 @@ Fd_Domain_3(WamWord list_word, WamWord l_word, WamWord u_word)
 Bool
 Indomain_2(WamWord fdv_word, WamWord method_word)
 {
+  WamWord word, tag_mask;
   WamWord *fdv_adr;
 
-  if (Fd_Deref_Check_Fd_Var(&fdv_word) == INT)
+  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+
+  if (tag_mask == TAG_INT_MASK)
     return TRUE;
 
-  fdv_adr = UnTag_FDV(fdv_word);
+  fdv_adr = UnTag_FDV(word);
 
   switch (Rd_Integer_Check(method_word))
     {
@@ -740,7 +746,7 @@ Extra_Cstr_Alt_0(void)
 Bool
 Fd_Sel_Array_From_List_2(WamWord list_word, WamWord sel_array_word)
 {
-  WamWord word, tag, *adr;
+  WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
   int n = 0;
@@ -759,27 +765,27 @@ Fd_Sel_Array_From_List_2(WamWord list_word, WamWord sel_array_word)
 
   for (;;)
     {
-      Deref(list_word, word, tag, adr);
+      DEREF(list_word, word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
 	break;
 
-      if (tag != LST)
+      if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      Deref(Car(lst_adr), word, tag, adr);
+      DEREF(Car(lst_adr), word, tag_mask);
 
-      if (tag == REF)
+      if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
-      if (tag != FDV && tag != INT)
+      if (tag_mask != TAG_FDV_MASK && tag_mask != TAG_INT_MASK)
 	Pl_Err_Type(type_fd_variable, word);
 
-      if (tag == FDV)
+      if (tag_mask == TAG_FDV_MASK)
 	{
 	  fdv_adr = UnTag_FDV(word);
 	  *array++ = (WamWord) fdv_adr;
@@ -929,7 +935,7 @@ Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
   fdv_adr = *res_elem;
 
 finish:
-  return Unify(Tag_Value(REF, fdv_adr), fdv_word);
+  return Unify(Tag_REF(fdv_adr), fdv_word);
 }
 
 

@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : sockets.pl
-% date    : 9 6 2000
-% time    : 17:33:23
+% date    : 12 1 2000
+% time    : 16:13:3
 
 
-file_name('/home/loews/loco/diaz/GNU-Prolog/src/BipsPl/sockets.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/sockets.pl').
 
 
 predicate('$use_sockets'/0,27,static,private,built_in,[
@@ -128,7 +128,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$assoc_socket_streams'/3,85,static,private,built_in,[
+predicate('$assoc_socket_streams'/3,87,static,private,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -149,7 +149,7 @@ predicate('$assoc_socket_streams'/3,85,static,private,built_in,[
     proceed]).
 
 
-predicate(hostname_address/2,94,static,private,built_in,[
+predicate(hostname_address/2,96,static,private,built_in,[
     put_atom(hostname_address,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),

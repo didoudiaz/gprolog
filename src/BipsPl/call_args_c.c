@@ -46,7 +46,7 @@
 
 #define CALL_INTERNAL              X2463616C6C5F696E7465726E616C
 
-Prolog_Prototype(CALL_INTERNAL, 2)
+Prolog_Prototype(CALL_INTERNAL, 2);
 
 
 
@@ -55,7 +55,8 @@ Prolog_Prototype(CALL_INTERNAL, 2)
  * CALL_WITH_ARGS                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static WamCont Call_With_Args(int arity)
+static WamCont
+Call_With_Args(int arity)
 {
   int call_info;
   int func;
@@ -73,7 +74,7 @@ Prolog_Prototype(CALL_INTERNAL, 2)
       if (arity > 0)
 	{
 	  w = H;
-	  A(0) = Tag_Value(STC, w);
+	  A(0) = Tag_STC(w);
 	  *w++ = Functor_Arity(func, arity);
 	  for (i = 0; i < arity;)
 	    *w++ = A(++i);
@@ -81,7 +82,7 @@ Prolog_Prototype(CALL_INTERNAL, 2)
 	}
 
       A(1) =
-	Tag_Value(INT,
+	Tag_INT(
 		  Call_Info(Create_Atom("call_with_args"), arity + 1, 1));
       return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
     }
