@@ -71,18 +71,11 @@ Prolog_Prototype(EXEC_CMD_LINE_GOAL, 1);
 /*-------------------------------------------------------------------------*
  * MAIN                                                                    *
  *                                                                         *
+ * See comments in EnginePl/main.c about the use of the wrapper function.  *
  *-------------------------------------------------------------------------*/
 
-/* A problem appeared in GCC 3.0.x: the main() function always use a frame *
- * (and thus ebp). To be able to use ebp main() simply calls an            *
- * intermediate function GCC_3_0_FIX_main() (the previous main() fuction). *
- * Since after Stop_Prolog() all registers are restored, ebp is correct    *
- * when returning in main() (which uses it to restore esp).                *
- * This is not a problem for EnginePl/main.c since ebp is not used between *
- * Start_Prolog() and Stop_Prolog() (while here it is used via argc/argv)  */
-
 static int
-GCC_3_0_FIX_main(int argc, char *argv[])
+Main_Wrapper(int argc, char *argv[])
 {
   int i;
   int new_argc = 0;
@@ -189,7 +182,7 @@ GCC_3_0_FIX_main(int argc, char *argv[])
 int
 main(int argc, char *argv[])
 {
-  return GCC_3_0_FIX_main(argc, argv);
+  return Main_Wrapper(argc, argv);
 }
 
 

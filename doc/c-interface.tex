@@ -36,11 +36,11 @@ non-deterministic C code.
    \AddDiD{foreign/2}
    \AddDiD{foreign/1}
 
-\texttt{foreign/2} directive \RefSP{foreign/2} declares a C function interface. The general form is
-\texttt{foreign(Template, Options)} which defines an interface predicate
-whose prototype is \texttt{Template} according to the options given by
-\texttt{Options}. \texttt{Template} is a callable term specifying the
-type/mode of each argument of the associated Prolog predicate.
+\texttt{foreign/2} directive \RefSP{foreign/2} declares a C function interface. 
+The general form is \texttt{foreign(Template, Options)} which defines an
+interface predicate whose prototype is \texttt{Template} according to the
+options given by \texttt{Options}. \texttt{Template} is a callable term
+specifying the type/mode of each argument of the associated Prolog predicate.
 
 \SPart{Foreign options}: \texttt{Options} is a list of foreign options. If
 this list contains contradictory options, the rightmost option is the one
@@ -1587,7 +1587,7 @@ directive to execute it at the start of the executable.  When all system
 directives have been executed the Prolog engine executes all initialization
 directives defined with \IdxDi{initialization/1}
 \RefSP{initialization/1}. The function returns the number of user
-directives (i.e. \texttt{initialization/1}) executed. This function mst be
+directives (i.e. \texttt{initialization/1}) executed. This function must be
 called only once.
 
 The function \texttt{Stop\_Prolog()} stops the Prolog engine. This function
@@ -1606,7 +1606,7 @@ Here is the definition of the default GNU Prolog \texttt{main()} function:
 \begin{Indentation}
 \begin{verbatim}
 int
-main(int argc, char *argv[])
+Main_Wrapper(int argc, char *argv[])
 {
   int nb_user_directive;
   Bool top_level;
@@ -1617,10 +1617,7 @@ main(int argc, char *argv[])
 
   Stop_Prolog();
 
-  if (top_level)
-    return 0;
-
-  if (nb_user_directive)
+  if (top_level || nb_user_directive)
     return 0;
 
   fprintf(stderr,
@@ -1631,8 +1628,20 @@ main(int argc, char *argv[])
 
   return 1;
 }
+
+int
+main(int argc, char *argv[])
+{
+  return Main_Wrapper(argc, argv);
+}
 \end{verbatim}
 \end{Indentation}
+
+Note that under some circumstances it is necessary to encapsulate the code of
+\texttt{main()} inside an intermediate function called by
+\texttt{main()}. Indeed, some C compilers (e.g. gcc) treats \texttt{main()}
+particularly, producing an uncompatible code w.r.t GNU Prolog. So it is a
+good idea to always use a wrapper function as shown above.
 
 \subsubsection{Example: asking for ancestors}
 
@@ -1662,8 +1671,8 @@ person. This is equivalent to the Prolog query: \texttt{anc(Result, Name)}.
 
 \begin{Indentation}
 \begin{verbatim}
-int
-main(int argc, char *argv[])
+static int
+Main_Wrapper(int argc, char *argv[])
 {
   int func;
   WamWord arg[10];
@@ -1703,6 +1712,12 @@ main(int argc, char *argv[])
 
   Stop_Prolog();
   return 0;
+}
+
+int
+main(int argc, char *argv[])
+{
+  return Main_Wrapper(argc, argv);
 }
 \end{verbatim}
 \end{Indentation}

@@ -49,9 +49,11 @@
 /*-------------------------------------------------------------------------*
  * MAIN                                                                    *
  *                                                                         *
+ * See comments in EnginePl/main.c about the use of the wrapper function.  *
  *-------------------------------------------------------------------------*/
-int
-main(int argc, char *argv[])
+
+static int
+Main_Wrapper(int argc, char *argv[])
 {
   int func;
   WamWord arg[10];
@@ -92,3 +94,11 @@ main(int argc, char *argv[])
   Stop_Prolog();
   return 0;
 }
+
+
+int
+main(int argc, char *argv[])
+{
+  return Main_Wrapper(argc, argv);
+}
+

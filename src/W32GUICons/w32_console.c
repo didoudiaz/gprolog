@@ -56,6 +56,8 @@
  * Constants                       *
  *---------------------------------*/
 
+#define EDIT_FIELD_SIZE            60000  /* must be < 64 Kb */
+
 #define ABOUT_TEXT \
     PROLOG_NAME " version " PROLOG_VERSION "\n" \
     "By Daniel Diaz\n" \
@@ -84,20 +86,20 @@ static CRITICAL_SECTION cs;
 static HANDLE event_char_in_queue;
 
 
-static HWND hwndMain;		//Main window handle
+static HWND hwndMain;		// Main window handle
 static HWND hwndEditControl;
 static WNDPROC lpEProc;
-static HINSTANCE hInst;		// Instance handle
+static HINSTANCE hInst; 	// Instance handle
 static LOGFONT CurrentFont;
 static HFONT hCourier;
 
-static int show_console = 0; // the associated text console
+static int show_console = 0; // is the associated text console shown ?
 static HWND hwnd_console;
 
 static int in_get_char = 0;
 static int last_is_read = 0; // to know if a msg box to display at exit
-static int posit = 0;
-static int line_buffering = 1;	/* default: line buffered */
+static int posit = 0;		 // position inside current (last) line
+static int line_buffering = 1;	// default: line buffered
 static char wr_buffer[4096];
 static char *wr_buffer_ptr = wr_buffer;
 
@@ -120,7 +122,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam,
                                     LPARAM lParam);
 
 static void MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl,
-                                  UINT codeNotify);
+								  UINT codeNotify);
 
 
 
@@ -342,6 +344,7 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         SendMessage(hwndChild, WM_SETFONT, (WPARAM) hCourier, 0L);
         SubClassEditField(hwndChild);
         hwndEditControl = hwndChild;
+		SendMessage(hwndEditControl, EM_SETLIMITTEXT, EDIT_FIELD_SIZE, 0);
         SetFocus(hwndChild);
         break;
         
@@ -549,7 +552,26 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
         case VK_F1:		/* not done by an accelerator for contextual help */
             Show_Help(Get_Current_Word());
             return 0;
-        }
+			
+#if 0 /* to include a test code */
+        case VK_F2:
+			{
+				int size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
+				int len = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
+				char s[100];
+				
+				int beg,end;
+				Set_Selection(3, 200);
+				SendMessage(hwndEditControl, EM_GETSEL, &beg, &end);
+				
+				sprintf(s,"limit: %d   len: %d   sel: %d-%d", size, len, beg, end);
+				MessageBox(NULL, s, "Error", MB_OK);
+				// size += 10;
+				SendMessage(hwndEditControl, EM_SETLIMITTEXT, size, 0);
+				return 0;
+			}
+#endif        
+		}
         
     }
     r = CallWindowProc(lpEProc, hwnd, msg, mp1, mp2);
@@ -769,9 +791,15 @@ Add_Clipboard_To_Queue(void)
             if (str)
                 while (*str)
                 {
-                    if (*str != '\r')
-                        Add_Char_To_Queue(*str);
-                    str++;
+					/* from terminal.h */
+#define KEY_ESC(x)                 ((2<<8) | ((x)|0x20))
+					
+					if (*str == '\t') /* send ESC+tab */
+						Add_Char_To_Queue(KEY_ESC('\t'));
+					else 
+						if (*str != '\r')
+							Add_Char_To_Queue(*str);
+						str++;
                 }
                 GlobalUnlock(hClipData);
         }
@@ -894,7 +922,7 @@ Display_Text(char *str, int n)
         case '\n':
             Flush_Buffer();	/* emit the line */
             Set_Selection(0x7fff, 0);	/* move caret at end of line */
-            SendMessage(hwndEditControl, EM_REPLACESEL, 1, (LPARAM) "\r\n");
+            SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) "\r\n");
             posit = 0;
             break;
             
@@ -919,13 +947,34 @@ static void
 Flush_Buffer(void)
 {
     int n = wr_buffer_ptr - wr_buffer;
+	int to_add = n + 2; /* maybe a \r\n after this */
+    int max_size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
+	int cur_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
     
     if (n == 0)
         return;
     
     *wr_buffer_ptr = '\0';
+	
+	if (n > 5) /* avoid this for short outputs, e.g. interactive reading with echo */
+	{
+		int start, end;
+		Set_Selection(posit, n);
+		SendMessage(hwndEditControl, EM_GETSEL, (LPARAM) &start, (LPARAM) &end);
+		to_add -= (end - start);
+	}
+	
+	
+	if (cur_size + to_add > max_size) /* not enough space - remove some beginning lines */
+	{
+		int line = SendMessage(hwndEditControl, EM_LINEFROMCHAR, to_add, 0);
+		int line_index = SendMessage(hwndEditControl, EM_LINEINDEX, line + 1, 0);
+		SendMessage(hwndEditControl, EM_SETSEL, 0, line_index);
+		SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer_ptr);  /* empty string to remove lines */
+	}
+	
     Set_Selection(posit, n);
-    SendMessage(hwndEditControl, EM_REPLACESEL, 1, (LPARAM) wr_buffer);
+    SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer);
     posit += n;
     wr_buffer_ptr = wr_buffer;
     last_is_read = 0;
@@ -1032,7 +1081,7 @@ W32GC_Erase(int n)
 {
     Flush_Buffer();		/* synchronize output and posit */
     Set_Selection(posit, n);
-    SendMessage(hwndEditControl, EM_REPLACESEL, 1, (LPARAM) "");
+    SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) "");
 }
 
 

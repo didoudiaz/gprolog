@@ -170,13 +170,31 @@ main(int argc, char *argv[])
 
   printf("enter lines (EOF to finish)\n");
 
+#if 0
+  {				/* test space overflow in WIN32 GUI console */
+    int i;
+    char buf[256];
+
+    for (i = 0; i < 280; i++)
+      {
+	sprintf(buf,
+		"line %3d tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\n",
+		i);
+	printf(buf);
+      }
+
+  }
+#endif
+
   for (;;)
     {
+#ifdef __unix__
       if (tempo)
 	{
 	  printf("tempo %d secs to allow you to buffer some chars:\n");
 	  sleep(tempo);
 	}
+#endif
 #if 0
       printf("enter a line:");
       if (LE_Gets(line) == NULL)
@@ -196,6 +214,6 @@ main(int argc, char *argv[])
 
   ret_val = 12;
   if (le_hook_exit_process)
-    (*le_hook_exit_process)(ret_val);
+    (*le_hook_exit_process) (ret_val);
   return ret_val;
 }

@@ -2,8 +2,8 @@
 
 [Setup]
 AppName=GNU Prolog
-AppVerName=GNU Prolog version 1.2.9
-AppVersion=1.2.9
+AppVerName=GNU Prolog version 1.2.13
+AppVersion=1.2.13
 AppPublisher=Daniel Diaz
 AppPublisherURL=http://gprolog.inria.fr
 AppSupportURL=http://gprolog.inria.fr
@@ -14,7 +14,7 @@ AllowNoIcons=yes
 AlwaysCreateUninstallIcon=yes
 SourceDir=C:\cygwin\tmp\gprolog_win32
 OutputDir=C:\cygwin\tmp
-OutputBaseFileName=setup-gprolog-1.2.9
+OutputBaseFileName=setup-gprolog-1.2.13
 
 ; TO DO: create an association for .pl and .pro files
 ; ChangesAssociations=yes
@@ -49,7 +49,7 @@ Name: "{group}\The GNU Prolog Web Site"; Filename: "{app}\gprolog.url"
 Name: "{userdesktop}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"; MinVersion: 4,4; Tasks: desktopicon
 
 [Registry]
-Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version"; ValueData: "1.2.9"
+Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version"; ValueData: "1.2.13"
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "RootPath"; ValueData: "{app}"
 
 [Run]

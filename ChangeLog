@@ -1,9 +1,8 @@
-Tue Jun  4 15:25:02 CEST 2002 <Daniel.Diaz@inria.fr>
+Mon Jun 10 14:25:52 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* port to powerpc/Darwin (Mac OS X) - many thanks to:
           Lindsey Spratt <spratt@alum.mit.edu>
-	* fix a bug in DCG translation
-	* fix a bug in the WAM engine (Put_Unsafe_Value)
+	* fix bug in Win32 GUI console (deal with edit control text limit)
 	* fix bug with in-place installation procedure
 
 Wed Apr 24 19:00:03 CEST 2002 <Daniel.Diaz@inria.fr>
