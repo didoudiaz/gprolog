@@ -80,7 +80,7 @@ install-links: uninstall-links
 
 uninstall-links:
 	if test $(LINKS_DIR) != none; then \
-	   (cd $(LINKS_DIR); rm -f $(BIN_FILES)); \
+	   (cd $(LINKS_DIR) 2>/dev/null && rm -f $(BIN_FILES)); \
 	   rmdir $(LINKS_DIR) 2>/dev/null; \
 	fi || exit 0;
 

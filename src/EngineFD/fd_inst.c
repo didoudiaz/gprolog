@@ -28,12 +28,10 @@
 #include <stdlib.h>
 
 #define FD_INST_FILE
-#if 0
+
 #include "engine_pl.h"
 #include "engine_fd.h"
-#else
-#include "fd_to_c.h"		/* for fd_(de)allocate in Fd_Use_Vector */
-#endif
+
 #include "bips_pl.h"
 
 
@@ -1202,15 +1200,20 @@ Fd_Use_Vector(WamWord *fdv_adr)
   Range range;
 
   if (Is_Sparse(Range (fdv_adr)))
-      return TRUE;
+    return TRUE;
 
   Fd_Before_Add_Cstr();
-  fd_allocate Range_Init_Interval(&range, 0, INTERVAL_MAX_INTEGER);
+  {
+    WamWord *save_CS=CS;	/* code of fd_allocate (from fd_to_c.h) */
+    CS+=vec_size;
 
-  Range_Becomes_Sparse(&range);
+    Range_Init_Interval(&range, 0, INTERVAL_MAX_INTEGER);
 
-  fd_deallocate
-    return Fd_Tell_Range_Range(fdv_adr, &range) && Fd_After_Add_Cstr();
+    Range_Becomes_Sparse(&range);
+
+    CS=save_CS;			/* code of fd_deallocate (from fd_to_c.h) */
+  }
+  return Fd_Tell_Range_Range(fdv_adr, &range) && Fd_After_Add_Cstr();
 }
 
 

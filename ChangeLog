@@ -1,3 +1,7 @@
+Thu Feb  8 11:25:30 CET 2001 <Daniel.Diaz@inria.fr>
+
+	* fix bug in fd headers (fd_to_c.h not installed)
+
 Thu Jan 25 21:12:06 CET 2001 <Daniel.Diaz@inria.fr>
 
 	* fix a bug with unify_with_occurs_check/2

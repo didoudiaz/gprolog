@@ -75,7 +75,6 @@
 
 
 
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -283,6 +282,7 @@ M_Allocate_Stacks(void)
 
   addr = (WamWord *) M_MMAP_HIGH_ADR;
   len *= sizeof(WamWord);
+
 #if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
   i = 0;
 try_mmap:

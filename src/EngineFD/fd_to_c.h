@@ -26,9 +26,12 @@
 
 #include <stdio.h>
 
+#if 0
 #include "engine_pl.h"
 #include "engine_fd.h"
-
+#else
+#include "gprolog.h"
+#endif
 
 
 

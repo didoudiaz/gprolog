@@ -24,14 +24,6 @@
 
 /* $Id$ */
 
-#ifdef FD_RANGE_FILE
-
-#    include "engine_pl.h"
-#    include "fd_inst.h"
-
-#endif
-
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/

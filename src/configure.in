@@ -560,7 +560,7 @@ BIN_FILES=
 OBJ_FILES=
 LIB_FILES=
 
-INC_FILES="$PROLOG_NAME1.h"
+INC_FILES="$PROLOG_NAME1.h fd_to_c.h"
 DOC_FILES='???*.dvi ???*.ps ???*.pdf'
 HTML_FILES='???*.html ???*.gif'
 EXPL_FILES='Makefile README PROGS ??*.pl'
