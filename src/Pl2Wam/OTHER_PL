@@ -1,15 +1,64 @@
-To use another Prolog system to execute pl2wam:
+		Compiling pl2wam with various Prolog Systems
+		--------------------------------------------
 
-With SWI Prolog:
 
-use the shell-script: swi_pl2wam [ OPTION... ] [ FILE ]
+Go to the src/Pl2Wam sub-directory. The idea is to compile the file whole.pl
+(which produces a file whole.wam).
 
-With SICStus Prolog:
 
-use the shell-script sics_pl2wam [ OPTION... ] [ FILE ]
+GNU-Prolog
+----------
+Then get the user time give by time
+   time pl2wam whole.pl
 
-If no FILE is specified, you can compile under the top_level, using
-pl2wam(ARGS).
 
-ARGS is a list of pl2wam command-line options/arguments.
+
+YAP Prolog
+----------
+
+under yap
+   ?- compile([compat,whole,yaplib]).
+
+   ?- statistics(runtime, _), pl2wam([whole]), statistics(runtime,[_,T]).
+
+
+
+SICStus Prolog
+--------------
+
+under sicstus
+   | ?- compile([compat,whole,sicslib]).
+when asked for predicate redefinitions: type 'p' (redefine all).
+
+To obtain a bench:
+   | ?- statistics(runtime, _), pl2wam([whole]), statistics(runtime,[_,T]).
+
+
+
+CIAO Prolog
+-----------
+
+I have a problem with the modules of CIAO Prolog. Here is a solution:
+
+Create a file x.pl as follows:
+
+   cat compat.pl whole.pl ciaolib.pl >x.pl
+   echo 'b(T):- statistics(runtime, _), pl2wam([whole]), statistics(runtime,[_,T]). ' >>x.pl
+
+under ciao:
+   ?- compile(x).
+
+To obtain a bench:
+   ?- b(T).
+
+
+
+SWI-Prolog
+----------
+
+under pl:
+   ?- [compat,whole,swilib].
+
+To obtain a bench:
+   ?- T0 is cputime, pl2wam([whole]), T is cputime-T0.
 
