@@ -1,3 +1,7 @@
+Mon Oct  8 11:33:02 CEST 2001 <Daniel.Diaz@inria.fr>
+	* fix bug - delete file created by mkstemp(2), patch from:
+	  Salvador Abreu <spa@debian.org>
+
 Fri Sep 28 17:09:35 CEST 2001 <Daniel.Diaz@inria.fr>
 
 	* space_args(true) now displays a space inside {}/1
@@ -11,7 +15,7 @@ Sat Sep 15 12:49:19 CET 2001 <Daniel.Diaz@inria.fr>
 Fri Sep  7 09:58:36 CET 2001 <Daniel.Diaz@inria.fr>
 
 	* space_args(true) now displays space between operators and arguments
-	* add CVS $Id$ to prolog files
+	* add CVS Id to prolog files
 	* fix bug in pl2wam to include break/0, trace/0,... in bip_list.pl
 
 Thu Jul 12 16:03:30 CET 2001 <Daniel.Diaz@inria.fr>
@@ -70,10 +74,10 @@ Thu Sep  7 18:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
 Wed Sep  6 20:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* port to alpha/linux - many thanks to:
-	Alexander Diemand <ax@apax.net>
+	  Alexander Diemand <ax@apax.net>
 	* port to alpha/OSF1
 	* port to mips/irix - many thanks to:
-	Alexander Diemand <ax@apax.net>
+	  Alexander Diemand <ax@apax.net>
 	* fix a bug in stty.c (use standard termios if present)
 
 Mon Jul 31 11:42:44 CEST 2000 <Daniel.Diaz@inria.fr>
@@ -87,7 +91,7 @@ Thu Jul  6 11:38:58 CEST 2000 <Daniel.Diaz@inria.fr>
 Mon Jun  3 19:57:20 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* port for ix86/NetBSD - many thanks to:
-	Brook Milligan <brook@nmsu.edu>
+	  Brook Milligan <brook@nmsu.edu>
 
 Wed Jun 28 11:38:37 CEST 2000 <Daniel.Diaz@inria.fr>
 
@@ -302,7 +306,4 @@ Wed Mar 10 11:57:25 MET 1999 <Daniel.Diaz@inria.fr>
 
 Mon Mar 8 20:39:25 MET 1999 <Daniel.Diaz@inria.fr>
 
-	* Calypso version 1.0-beta7 ready for iternal use
-
-
-
+	* Calypso version 1.0-beta7 ready for internal use

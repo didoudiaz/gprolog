@@ -46,29 +46,29 @@ typedef WamWord *WamWordP;
    /*--- Begin Register Generation ---*/
 
 register WamWordP		TR  asm ("ebx");
+register WamWordP		B   asm ("ebp");
 
 
-#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+2])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+3])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+6])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+8])
 
 
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	1
-#define NB_OF_NOT_ALLOC_REGS	10
+#define NB_OF_ALLOC_REGS    	2
+#define NB_OF_NOT_ALLOC_REGS	9
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
 
 
 
 
-#define NB_OF_USED_MACHINE_REGS 1
+#define NB_OF_USED_MACHINE_REGS 2
 
 #ifdef ENGINE_FILE
 
@@ -143,14 +143,18 @@ extern char *reg_tbl[];
 #define Save_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
+    register long reg1 asm ("ebp"); \
     buff_save[0] = reg0; \
+    buff_save[1] = reg1; \
   } while(0)
 
 
 #define Restore_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
+    register long reg1 asm ("ebp"); \
     reg0 = buff_save[0]; \
+    reg1 = buff_save[1]; \
   } while(0)
 
 

@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.2.8:
- 
+
+* fix bug - delete file created by mkstemp(2), patch from:
+  Salvador Abreu <spa@debian.org>
 * space_args(true) now displays a space inside {}/1
 * space_args(true) now displays a space after a comma (','/2)
 
@@ -8,7 +10,7 @@ Change in GNU Prolog version 1.2.7:
 * add a --foreign-only to pl2wam
 * foreign/2 directives are ignored in byte-code mode (no fatal error)
 * space_args(true) now displays space between operators and arguments
-* add CVS $Id$ to prolog files
+* add CVS Id to prolog files
 * get rid of mktemp and tempnam calls (use mkstemp if available)
 * fix bug in pl2wam to include break/0, trace/0,... in bip_list.pl
 * fix a bug in fd_element_var/3 constraint
