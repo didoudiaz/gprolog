@@ -1,13 +1,20 @@
-% To have a title on the first page:
+% To have a title on the first page
 
 \input{article.hva}
-\def\@color{194}
-\input{fancysection.hva}
-
 \title{GNU-Prolog Manual}
 
 
-% TO have a copyright footer
+
+
+% To have colored headings
+
+\def\@color{194}
+\input{fancysection.hva}       % comment this to switch off colors
+
+
+
+
+% To have a copyright footer
 
 \htmlfoot{
 \rule{\linewidth}{1mm}
