@@ -1,3 +1,8 @@
+Fri May 10 16:55:49 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* port to powerpc/Darwin (MacOs X) - many thanks to:
+          Lindsey Spratt <spratt@alum.mit.edu>
+
 Wed Apr 24 19:00:03 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* fix problem with portray_clause/2 using $VARNAME and $VAR

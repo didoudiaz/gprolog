@@ -184,7 +184,7 @@ int strip = 0;
 
 int no_decode_hex = 0;
 
-char warn[1024] = "";
+char warn_str[1024] = "";
 
 char *temp_dir = NULL;
 int no_del_temp_files = 0;
@@ -245,7 +245,9 @@ void Display_Help(void);
 
 
 
-#define Record_Link_Warn_Option(i) sprintf(warn + strlen(warn), "%s ", argv[i])
+#define Record_Link_Warn_Option(i) \
+  sprintf(warn_str + strlen(warn_str), "%s ", argv[i])
+
 
 
 
@@ -338,8 +340,8 @@ Compile_Files(void)
 
   if (stop_after < FILE_LINK)
     {
-      if (*warn)
-	fprintf(stderr, "link not done - ignored option(s): %s\n", warn);
+      if (*warn_str)
+	fprintf(stderr, "link not done - ignored option(s): %s\n", warn_str);
 
       stage_end = stop_after;
       needs_stack_file = 0;
@@ -628,11 +630,14 @@ Link_Cmd(void)
 {
   static char file_out[MAXPATHLEN];
   static char buff[CMD_LINE_LENGTH];
-  FileInf *f = file_lopt;	/* use first file name by default */
+  FileInf *f;
 
 
   if (file_name_out == NULL)
     file_name_out = "%p";	/* will reuse first file name */
+
+  for (f = file_lopt; f->type == LINK_OPTION; f++)
+    ;				/* use first file name by default */
 
   Create_Output_File_Name(f, file_out);
   file_name_out = file_out;

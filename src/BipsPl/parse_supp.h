@@ -60,18 +60,19 @@ InfVar;
 InfVar parse_dico_var[MAX_VAR_IN_TERM];
 int parse_nb_var;
 
-int last_read_line;
-int last_read_col;
-
 #else
 
 extern InfVar parse_dico_var[];
 extern int parse_nb_var;
 
-extern int last_read_line;
-extern int last_read_col;
-
 #endif
+
+
+				/* defined as this to avoid to force the   */
+				/* inclusion of parse_supp.o if not needed */
+				/* (stream_supp.c uses last_read_line/col) */
+int last_read_line;
+int last_read_col;
 
 
 

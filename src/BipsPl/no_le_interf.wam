@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : no_le_interf.pl
-% date    : 4 24 2002
-% time    : 11:32:47
+% date    : 5 10 2002
+% time    : 16:53:45
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/no_le_interf.pl').

@@ -370,7 +370,7 @@ else
 		i686*)             CFLAGS_MACHINE='-mcpu=pentiumpro';;
 		i586*)             CFLAGS_MACHINE='-mcpu=pentium';;
 		i*86*)             CFLAGS_MACHINE='-mcpu=i486';;
-		powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc';;
+		powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc -no-cpp-precomp';;
 	esac
 
 	case "$host" in
@@ -394,9 +394,10 @@ else
 #	esac
 
 
-	case "$host" in
-		powerpc*darwin*)	RANLIB="$RANLIB -c";;
-	esac
+# For MacOsX - try to avoid this (activate only for fast library fix)
+#	case "$host" in
+#		powerpc*darwin*)	RANLIB="$RANLIB -c";;
+#	esac
 
 fi
 

@@ -39,16 +39,18 @@
 
 #ifdef BC_SUPP_FILE
 
-unsigned *byte_code;
 int byte_len;
 
 #else
 
-extern unsigned *byte_code;
 extern int byte_len;
 
 #endif
 
+				/* defined as this to avoid to force the   */
+				/* inclusion of bc_supp.o if not needed    */
+				/* (dynam_supp.c uses byte_code)           */
+unsigned *byte_code;
 
 
 

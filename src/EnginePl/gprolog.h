@@ -688,6 +688,8 @@ void SIGSEGV_Handler(void);
 #endif
 #elif defined(M_powerpc_linux)
 #    define M_USED_REGS            {"15", "20", 0}
+#elif defined(M_powerpc_darwin)
+#    define M_USED_REGS            {"15", "20", 0}
 #else
 #    define M_USED_REGS            {0}
 #endif
@@ -1851,14 +1853,12 @@ InfVar;
 #ifdef PARSE_SUPP_FILE
 InfVar parse_dico_var[MAX_VAR_IN_TERM];
 int parse_nb_var;
-int last_read_line;
-int last_read_col;
 #else
 extern InfVar parse_dico_var[];
 extern int parse_nb_var;
-extern int last_read_line;
-extern int last_read_col;
 #endif
+int last_read_line;
+int last_read_col;
 WamWord Read_Term(StmInf *pstm, int parse_end_of_term);
 WamWord Read_Atom(StmInf *pstm);
 WamWord Read_Integer(StmInf *pstm);
@@ -2002,12 +2002,11 @@ void Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
 void Call_Info_Bip_Name_1(WamWord call_info_word);
 #define Call_Info(f, a, dc)        ((Functor_Arity(f, a) << 1) | dc)
 #ifdef BC_SUPP_FILE
-unsigned *byte_code;
 int byte_len;
 #else
-extern unsigned *byte_code;
 extern int byte_len;
 #endif
+unsigned *byte_code;
 WamCont BC_Emulate_Pred(int func, DynPInf *dyn);
 #ifndef NO_USE_FD_SOLVER
 typedef unsigned long VecWord;

@@ -581,6 +581,7 @@ M_Get_Status(int pid)
 char *
 M_Mktemp(char *tmpl)
 {
+				/* redefined to avoid link warning */
 #if defined(__unix__) || defined(__CYGWIN__)
 				/* this code comes from glibc */
   int len;

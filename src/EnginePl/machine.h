@@ -129,6 +129,10 @@ void SIGSEGV_Handler(void);
 
 #    define M_USED_REGS            {"15", "20", 0}
 
+#elif defined(M_powerpc_darwin)
+
+#    define M_USED_REGS            {"15", "20", 0}
+
 #else
 
 #    define M_USED_REGS            {0}
