@@ -42,8 +42,8 @@ extern "C" {
 #define M_ix86_linux 1
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
-#define PROLOG_VERSION "1.2.11"
-#define PROLOG_DATE "Mar 19 2002"
+#define PROLOG_VERSION "1.2.12"
+#define PROLOG_DATE "Mar 27 2002"
 #define PROLOG_COPYRIGHT "Copyright (C) 1999-2002 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
@@ -701,7 +701,11 @@ void SIGSEGV_Handler(void);
     defined(M_ix86_win32)
 #   define M_USE_MMAP
 #   define M_MMAP_HIGH_ADR         0x0ffffff0
+#ifdef M_ix86_linux
+#   define M_MMAP_FROM_1
+#else
 #   define M_MMAP_HIGH_ADR_ALT     0x3ffffff0
+#endif
 #   define M_Check_Stacks()
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
 #   define M_USE_MMAP

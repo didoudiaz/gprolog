@@ -49,9 +49,8 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  Bool Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
-			    WamWord save_list_word);
+static Bool Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
+				 WamWord save_list_word);
 
 
 
