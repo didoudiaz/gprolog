@@ -187,10 +187,8 @@ Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
       Create_Choice_Point((CodePtr) Prolog_Predicate(ATOM_CONCAT_ALT, 0), 4);
     }
 
-  Get_Atom(atom_void, atom1_word);
-  Get_Atom_Tagged(atom3_word, atom2_word);
-
-  return TRUE;
+  return Get_Atom(atom_void, atom1_word) &&
+    Get_Atom_Tagged(atom3_word, atom2_word);
 }
 
 
@@ -235,14 +233,13 @@ Atom_Concat_Alt_0(void)
   MALLOC_STR(l);
   strncpy(str, name, l + 1);
   str[l] = '\0';
-  Get_Atom(Create_Malloc_Atom(str), atom1_word);
+  if (!Get_Atom(Create_Malloc_Atom(str), atom1_word))
+    return FALSE;
 
   l = patom3->prop.length - l;
   MALLOC_STR(l);
   strcpy(str, p);
-  Get_Atom(Create_Malloc_Atom(str), atom2_word);
-
-  return TRUE;
+  return Get_Atom(Create_Malloc_Atom(str), atom2_word);
 }
 
 
