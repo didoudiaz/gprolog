@@ -4440,7 +4440,7 @@ GNU Prolog predicates.
    \AddPBD{get\_print\_stream/1}
 
 \begin{TemplatesOneCol}
-get\_print\_stream(-stream)
+get\_print\_stream(?stream)
 
 \end{TemplatesOneCol}
 
@@ -4454,8 +4454,8 @@ use.
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Stream} is not a variable}
-\ErrTerm{type\_error(variable, Stream)}
+\ErrCond{\texttt{Stream} is neither a variable nor a stream-term}
+\ErrTerm{domain\_error(stream, Stream)}
 
 \end{PlErrors}
 
@@ -7019,10 +7019,6 @@ Y \\
 \hline
 
 \IdxPFD{max\_atom} & an integer & maximum number of atoms & N \\
-
-\hline
-
-\IdxPFD{max\_stream} & an integer & maximum number of streams & N \\
 
 \hline
 
@@ -9654,5 +9650,61 @@ is a word beginning by \texttt{Prefix} and belongs to the list of
 \Portability
 
 GNU Prolog predicate.
+
+\subsection{Source reader facility}
+
+\subsubsection{Introduction}
+
+To be written...
+
+\subsubsection{\texttt{sr\_open/3}}
+   \AddPBD{sr\_open/3}
+
+\subsubsection{\texttt{sr\_change\_options/2}}
+   \AddPBD{sr\_change\_options/2}
+
+\subsubsection{\texttt{sr\_close/1}}
+   \AddPBD{sr\_close/1}
+
+\subsubsection{\texttt{sr\_read\_term/4}}
+   \AddPBD{sr\_read\_term/4}
+
+\subsubsection{\texttt{sr\_current\_descriptor/1}}
+   \AddPBD{sr\_current\_descriptor/1}
+
+\subsubsection{\texttt{sr\_get\_stream/2}}
+   \AddPBD{sr\_get\_stream/2}
+
+\subsubsection{\texttt{sr\_get\_module/3}}
+   \AddPBD{sr\_get\_module/3}
+
+\subsubsection{\texttt{sr\_get\_file\_name/2}}
+   \AddPBD{sr\_get\_file\_name/2}
+
+\subsubsection{\texttt{sr\_get\_position/3}}
+   \AddPBD{sr\_get\_position/3}
+
+\subsubsection{\texttt{sr\_get\_include\_list/2}}
+   \AddPBD{sr\_get\_include\_list/2}
+
+\subsubsection{\texttt{sr\_get\_include\_stream\_list/2}}
+   \AddPBD{sr\_get\_include\_stream\_list/2}
+
+\subsubsection{\texttt{sr\_get\_size\_counters/3}}
+   \AddPBD{sr\_get\_size\_counters/3}
+
+\subsubsection{\texttt{sr\_get\_error\_counters/3}}
+   \AddPBD{sr\_get\_error\_counters/3}
+
+\subsubsection{\texttt{sr\_set\_error\_counters/3}}
+   \AddPBD{sr\_set\_error\_counters/3}
+
+\subsubsection{\texttt{sr\_write\_message/8},
+               \texttt{sr\_write\_message/6},
+               \texttt{sr\_write\_message/4}}
+   \AddPBD{sr\_write\_message/8}
+   \AddPBD{sr\_write\_message/6}
+   \AddPBD{sr\_write\_message/4}
+
 
 %HEVEA\cutend

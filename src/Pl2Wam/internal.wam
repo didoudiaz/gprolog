@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : internal.pl
-% date    : 4 5 2002
-% time    : 9:46:17
+% date    : 4 9 2002
+% time    : 10:32:47
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/internal.pl').
