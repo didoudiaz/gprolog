@@ -1,3 +1,8 @@
+Mon Dec 16 13:00:42 CET 2002 <Daniel.Diaz@inria.fr>
+
+	* port to x86_64/linux - many thanks to:
+	  Gwenole Beauchesne <gbeauchesne@mandrakesoft.com>
+
 Mon Sep 30 22:08:41 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* fix bug in predicate_property/2

@@ -1,3 +1,8 @@
+Change in GNU Prolog version 1.2.17:
+
+* port to x86_64/linux - many thanks to:
+  Gwenole Beauchesne <gbeauchesne@mandrakesoft.com>
+
 Change in GNU Prolog version 1.2.16:
 
 * official release (Oct 1 2002)
