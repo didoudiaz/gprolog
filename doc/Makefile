@@ -88,7 +88,7 @@ $(HTMLNAME): custom.hva $(TEX_SRC)
 
 Html/index.html: $(HTMLNAME)
 	rm -f Html/index.html Html/$(PREFIX)*.html
-	(cd Html ; hacha ../$(HTMLNAME))
+	(cd Html ; cp ../$(HTMLNAME) .; hacha $(HTMLNAME) ; rm $(HTMLNAME))
 
 clean:
 	rm -f $(DVIROOT).aux $(DVIROOT).toc $(DVIROOT).idx $(DVIROOT).*.fp
