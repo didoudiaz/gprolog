@@ -236,7 +236,7 @@ extern WamWord reg_bank[];
 extern WamWord buff_signal_reg[];
 extern char *reg_tbl[];
 #endif
-#define Init_Reg_Bank(x)  save_reg_bank = reg_bank = x
+#define Init_Reg_Bank(x)
 #define Reg(i)			(((i)==0) ? (WamWord) TR 	: \
 				 ((i)==1) ? (WamWord) B  	: \
 				 ((i)==2) ? (WamWord) H  	: \

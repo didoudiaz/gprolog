@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
+% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : utils.pl
-% date    : 12 1 2000
-% time    : 16:12:57
+% date    : 12 20 2000
+% time    : 13:4:48
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/utils.pl').

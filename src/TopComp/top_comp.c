@@ -513,7 +513,7 @@ Init_Develop_Dir_Rec(char *path, char ***p)
       name = cur_entry->d_name;
 #endif
       sprintf(buff, "%s" DIR_SEP_S "%s", path, name);
-      if (*name != '.' &&
+      if (*name != '.' && strcmp(name, "CVS") != 0 &&
 #ifdef M_ix86_win32
 	  (d.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
 #else

@@ -17,6 +17,7 @@ INC_FILES      = @INC_FILES@
 DOC_FILES      = @DOC_FILES@
 HTML_FILES     = @HTML_FILES@
 EXPL_FILES     = @EXPL_FILES@
+EXC_FILES      = @EXC_FILES@
 EXFD_FILES     = @EXFD_FILES@
 
 INSTALL        = @INSTALL@
@@ -89,8 +90,8 @@ uninstall-links:
 install-doc:
 	if test $(DOC_DIR) != none; then \
 	   ./mkinstalldirs $(DOC_DIR); \
-           (cd ../doc; \
-	   for i in $(DOC_FILES); do $(INSTALL_DATA) $$i $(DOC_DIR); done); \
+	   (F=`cd ../doc; echo $(DOC_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../doc/$$i $(DOC_DIR); done); \
 	fi
 
 uninstall-doc:
@@ -105,8 +106,8 @@ uninstall-doc:
 install-html:
 	if test $(HTML_DIR) != none; then \
 	   ./mkinstalldirs $(HTML_DIR); \
-           (cd ../doc/Html; \
-	   for i in $(HTML_FILES); do $(INSTALL_DATA) $$i $(HTML_DIR); done); \
+	   (F=`cd ../doc/Html; echo $(HTML_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../doc/Html/$$i $(HTML_DIR); done); \
 	fi
 
 uninstall-html:
@@ -121,15 +122,19 @@ uninstall-html:
 install-examples:
 	if test $(EXAMPLES_DIR) != none; then \
 	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesPl; \
-	   (cd ../ExamplesPl; \
-	   for i in $(EXPL_FILES); do $(INSTALL_DATA) $$i $(EXAMPLES_DIR)/ExamplesPl; done); \
+	   (F=`cd ../ExamplesPl; echo $(EXPL_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../ExamplesPl/$$i $(EXAMPLES_DIR)/ExamplesPl; done); \
+	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesC; \
+	   (F=`cd ../ExamplesC; echo $(EXC_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../ExamplesC/$$i $(EXAMPLES_DIR)/ExamplesC; done); \
 	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesFD; \
-	   (cd ../ExamplesFD; \
-	   for i in $(EXFD_FILES); do $(INSTALL_DATA) $$i $(EXAMPLES_DIR)/ExamplesFD; done); \
+	   (F=`cd ../ExamplesFD; echo $(EXFD_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../ExamplesFD/$$i $(EXAMPLES_DIR)/ExamplesFD; done); \
 	fi
 
 uninstall-examples:
 	rm -rf $(EXAMPLES_DIR)/ExamplesPl
+	rm -rf $(EXAMPLES_DIR)/ExamplesC
 	rm -rf $(EXAMPLES_DIR)/ExamplesFD
 	rmdir $(EXAMPLES_DIR) 2>/dev/null || exit 0
 

@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : assert.pl
-% date    : 12 15 2000
-% time    : 21:17:53
+% date    : 12 20 2000
+% time    : 13:4:48
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').

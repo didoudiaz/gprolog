@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : pl2wam.pl
-% date    : 12 19 2000
-% time    : 18:35:46
+% date    : 12 20 2000
+% time    : 13:13:26
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
