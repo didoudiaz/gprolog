@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.16 (Sep 19 2002)
 % file    : pred.pl
-% date    : 9 30 2002
-% time    : 22:6:47
+% date    : 10 16 2002
+% time    : 11:52:13
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
