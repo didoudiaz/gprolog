@@ -578,9 +578,9 @@ Generate_Regs(FILE *f, FILE *g)
   
   fprintf(g, "extern char *reg_tbl[];\n");
 
-  fprintf(g, "\n#endif\n");
+  fprintf(g, "\n#endif\n\n");
 
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef NO_MACHINE_REG_FOR_REG_BANK
   fprintf(g, "#define Init_Reg_Bank(x)  save_reg_bank = reg_bank = x\n");
 #else
   fprintf(g, "#define Init_Reg_Bank(x)\n");
@@ -769,7 +769,7 @@ Generate_Tags(FILE *f, FILE *g)
 
   fprintf(g, "\n\n   /*--- Begin Tag Generation ---*/\n\n");
 
-#define Mk_Tag_Mask(x) (unsigned long) ((((x) >> tag_size_low) << (value_size + tag_size_low)) | ((x) & ((1 << tag_size_low) - 1)))
+#define Mk_Tag_Mask(x) ((((unsigned long) (x) >> tag_size_low) << (value_size + tag_size_low)) | ((x) & ((1 << tag_size_low) - 1)))
 
 #if 0
   tag_size = 4;
@@ -782,7 +782,11 @@ Generate_Tags(FILE *f, FILE *g)
     ;
 #endif
 
+#if WORD_SIZE == 32
   tag_size_low = 2;
+#else
+  tag_size_low = 3;
+#endif
 
   tag_size_high = tag_size - tag_size_low;
   value_size = WORD_SIZE - tag_size;
@@ -799,7 +803,12 @@ Generate_Tags(FILE *f, FILE *g)
   fprintf(g, "#define Tag_Mask_Of(w)\t\t((unsigned long) (w) & (TAG_MASK))\n");
 
   fprintf(g, "#define Tag_From_Tag_Mask(w) \t(((unsigned long) (w) >> %d) | ((w) & %d))\n", value_size, (1 << tag_size_low) -1);
-  fprintf(g, "#define Tag_Of(w)     \t\t((((unsigned long) (w) >> %d) << %d) | ((w) & %d))\n", WORD_SIZE-tag_size_high, tag_size_low, (1 << tag_size_low) -1);
+
+  if (tag_size_high > 0)
+    fprintf(g, "#define Tag_Of(w)     \t\t((((unsigned long) (w) >> %d) << %d) | ((w) & %d))\n",
+	    WORD_SIZE-tag_size_high, tag_size_low, (1 << tag_size_low) -1);
+  else
+    fprintf(g, "#define Tag_Of(w)     \t\tTag_Mask_Of(w)\n");
 
   for (i = 0; i < nb_tag; i++)
     fprintf(g, "#define TAG_%s_MASK\t\t%#lxUL\n", tag[i].name, 

@@ -369,19 +369,19 @@ Emit_Inline_Data(char **p_inline)
     
 {
   char **p = p_inline;
-  unsigned l;
+  unsigned long l;
   static int nb_inlined = 0;	/* a global variable */
 
   nb_inlined++;
 
   for(p += 4; *p != INL_END_FUNC; p++)
     {
-      l = (unsigned) *p;
+      l = (unsigned long) *p;
       if (l < 1024)		/* label definition */
 	Label_Printf("%s%d_%d:", local_symb_prefix, nb_inlined, l);
       else
 	{
-	  l = (unsigned) p[1];
+	  l = (unsigned long) p[1];
 	  if (l < 1024)
 	    Inst_Printf(p[0], "%s%d_%d", local_symb_prefix, nb_inlined, l);
 	  else
