@@ -580,7 +580,6 @@ Parse_List(Bool can_be_empty)
  * CREATE_STRUCTURE                                                        *
  *                                                                         *
  * like Mk_Compound but simplified since we know arity != 0 and arg != NULL*
- * and func != '.'                                                         *
  *-------------------------------------------------------------------------*/
 static WamWord
 Create_Structure(int func, int arity, WamWord *arg)
@@ -588,9 +587,18 @@ Create_Structure(int func, int arity, WamWord *arg)
   WamWord res_word;
   int i;
 
-  res_word = Put_Structure(func, arity);
-  for (i = 0; i < arity; i++)
-    Unify_Value(arg[i]);
+  if (arity == 2 && func == ATOM_CHAR('.'))
+    {
+      res_word = Put_List();
+      Unify_Value(arg[0]);
+      Unify_Value(arg[1]);
+    }
+  else
+    {
+      res_word = Put_Structure(func, arity);
+      for (i = 0; i < arity; i++)
+	Unify_Value(arg[i]);
+    }
 
   return res_word;
 }
