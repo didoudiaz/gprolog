@@ -9369,6 +9369,76 @@ from system processes as soon as it is terminated.
 
 GNU Prolog predicates.
 
+\subsubsection{\texttt{fork\_prolog/1}}
+   \AddPBD{fork\_prolog/1}
+
+\begin{TemplatesOneCol}
+fork\_prolog(-integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fork\_prolog(Pid)} creates a child process that differs from the parent
+process only in its PID. In the parent process \texttt{Pid} is unified with
+the PID of the child while in the child process \texttt{Pid} is unified with
+0. In the parent process, the status of the child process can be ontained
+using \texttt{wait/2} \RefSP{wait/2}. Until a call to \texttt{wait/2} is done
+the child process remains in the system processes table (as a zombie process
+if terminated). This predicate is an interface to the C Unix function
+\texttt{fork(2)}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Pid} is not a variable}
+\ErrTerm{type\_error(variable, Pid)}
+
+\ErrCond{an operating system error occurs and the value of the
+\texttt{os\_error} Prolog flag is \texttt{error}
+\RefSP{set-prolog-flag/2}}
+\ErrTerm{system\_error(\textit{atom explaining the error})}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{create\_pipe/2}}
+   \AddPBD{create\_pipe/2}
+
+\begin{TemplatesOneCol}
+create\_pipe(-stream, -stream)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{create\_pipe(StreamIn, StreamOut)} creates  a  pair  of streams
+pointing to a pipe inode. \texttt{StreamIn} is unified with the stream-term
+associated to the input side of the pipe and \texttt{StreamOut} is unified
+with the stream-term associated to output side. This predicate is an
+interface to the C Unix function \texttt{pipe(2)}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{StreamIn} is not a variable}
+\ErrTerm{type\_error(variable, StreamIn)}
+
+\ErrCond{\texttt{StreamOut} is not a variable}
+\ErrTerm{type\_error(variable, StreamOut)}
+
+\ErrCond{an operating system error occurs and the value of the
+\texttt{os\_error} Prolog flag is \texttt{error}
+\RefSP{set-prolog-flag/2}}
+\ErrTerm{system\_error(\textit{atom explaining the error})}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
 \subsubsection{\texttt{wait/2}}
 \label{wait/2}
    \AddPBD{wait/2}

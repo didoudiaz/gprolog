@@ -1093,6 +1093,58 @@ Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
 
 
 /*-------------------------------------------------------------------------*
+ * CREATE_PIPE_2                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
+{
+  int p[2];
+  int stm;
+  FILE *f_in, *f_out;
+  int atom;
+
+  Os_Test_Error(pipe(p));
+
+  Os_Test_Error((f_in = fdopen(p[0], "rt")) == NULL);
+  sprintf(glob_buff, "pipe_stream_in");
+  atom = Create_Allocate_Atom(glob_buff);
+  stm = Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
+  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+  Get_Integer(stm, stm_in_word);
+
+  Os_Test_Error((f_out = fdopen(p[1], "wt")) == NULL);
+  sprintf(glob_buff, "pipe_stream_out");
+  atom = Create_Allocate_Atom(glob_buff);
+  stm = Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
+  Get_Integer(stm, stm_out_word);
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * FORK_PROLOG_1                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Fork_Prolog_1(WamWord pid_word)
+
+{
+  int pid;
+
+  pid = fork();
+  Os_Test_Error(pid == -1);
+
+  return Get_Integer(pid, pid_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * SELECT_5                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/

@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.2.16:
 
+* add new built-in fork_prolog/1 and create_pipe/2
+* fix a bug in atom_concat/3
 * fix bug when detecting if a stream can be repositioned
 
 Change in GNU Prolog version 1.2.15:

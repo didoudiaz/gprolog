@@ -301,6 +301,26 @@ exec(Cmd, StreamIn, StreamOut, StreamErr) :-
 
 
 
+create_pipe(StreamIn, StreamOut) :-
+	set_bip_name(create_pipe, 2),
+	'$get_open_stm'(StreamIn, StmIn),
+	'$get_open_stm'(StreamOut, StmOut),
+	'$call_c_test'('Create_Pipe_2'(StmIn, StmOut)).
+
+
+
+
+fork_prolog(Pid) :-
+	set_bip_name(fork_prolog, 1),
+	(   nonvar(Pid) ->
+	    '$pl_err_type'(variable, Pid)
+	;   true
+	),
+	'$call_c_test'('Fork_Prolog_1'(Pid)).
+
+
+
+
 select(Reads, ReadyReads, Writes, ReadyWrites, TimeOut) :-
 	set_bip_name(select, 5),
 	'$call_c_test'('Select_5'(Reads, ReadyReads, Writes, ReadyWrites, TimeOut)).

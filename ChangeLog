@@ -1,5 +1,13 @@
-Thu Sep 19 12:53:45 CEST 2002 <Daniel.Diaz@inria.fr>
+Wed Sep 25 13:41:46 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* add new built-in fork_prolog/1 and create_pipe/2
 	
+Tue Sep 24 19:30:35 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* fix a bug in atom_concat/3
+
+Thu Sep 19 12:53:45 CEST 2002 <Daniel.Diaz@inria.fr>
+
 	* fix bug when detecting if a stream can be repositioned
 
 Thu Sep 12 18:45:10 CEST 2002 <Daniel.Diaz@inria.fr>
