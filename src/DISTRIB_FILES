@@ -70,7 +70,6 @@ src/RPM/initial.spec
 src/RPM/gprolog.spec
 
 src/debian/README.Debian
-src/debian/autodocs/[a-z]*
 src/debian/all-packages
 src/debian/[b-z]*
 

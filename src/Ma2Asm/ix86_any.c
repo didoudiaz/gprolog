@@ -38,7 +38,7 @@
 
 #define MAX_C_ARGS_IN_C_CODE       32
 
-#if (defined(M_ix86_cygwin) || defined(M_ix86_bsd)) && !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if (defined(M_ix86_cygwin) || defined(M_ix86_bsd)) && !defined(__FreeBSD__) && !defined(__NetBSD__) || !defined(__OpenBSD__)
 
 #define UN                         "_"
 

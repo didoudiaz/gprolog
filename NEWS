@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.18:
 
+* fix a problem in the port to x86/OpenBSD
 * port to sparc/NetBSD and powerpc/NetBSD - many thanks to:
   Jason Beegan <jtb@netbsd.org>
 * fix bug in =../2 involving FD variables
