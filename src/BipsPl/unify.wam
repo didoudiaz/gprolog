@@ -1,0 +1,29 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : unify.pl
+% date    : 4 17 2000
+% time    : 2:15:15
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\unify.pl').
+
+
+predicate('$use_unify'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate((=)/2,30,static,private,built_in,[
+    get_value(x(1),0),
+    proceed]).
+
+
+predicate(unify_with_occurs_check/2,35,static,private,built_in,[
+    call_c_test('Unify_Occurs_Check',[0,1]),
+    proceed]).
+
+
+predicate((\=)/2,41,static,private,built_in,[
+    get_variable(x(2),0),
+    put_structure((=)/2,0),
+    unify_local_value(x(2)),
+    unify_local_value(x(1)),
+    execute((\+)/1)]).

@@ -1,0 +1,58 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : le_interf.pl
+% date    : 4 17 2000
+% time    : 2:17:54
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\le_interf.pl').
+
+
+predicate('$use_le_interf'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(get_linedit_prompt/1,30,static,private,built_in,[
+    put_atom(get_linedit_prompt,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Get_Linedit_Prompt_1',[0]),
+    proceed]).
+
+
+predicate('$get_linedit_prompt'/1,37,static,private,built_in,[
+    call_c_test('Get_Linedit_Prompt_1',[0]),
+    proceed]).
+
+
+predicate(set_linedit_prompt/1,43,static,private,built_in,[
+    put_atom(set_linedit_prompt,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Set_Linedit_Prompt_1',[0]),
+    proceed]).
+
+
+predicate('$set_linedit_prompt'/1,50,static,private,built_in,[
+    call_c('Set_Linedit_Prompt_1',[0]),
+    proceed]).
+
+
+predicate(add_linedit_completion/1,56,static,private,built_in,[
+    put_atom(add_linedit_completion,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Add_Linedit_Completion_1',[0]),
+    proceed]).
+
+
+predicate(find_linedit_completion/2,63,static,private,built_in,[
+    put_atom(find_linedit_completion,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Find_Linedit_Completion_2',[0,1]),
+    proceed]).
+
+
+predicate('$find_linedit_completion_alt'/0,69,static,private,built_in,[
+    call_c_test('Find_Linedit_Completion_Alt_0',[]),
+    proceed]).

@@ -1,0 +1,70 @@
+GPLC      = @GPLC@
+GPLCFLAGS = --fast-math
+OBJS      = pl2wam@OBJ_SUFFIX@ read_file@OBJ_SUFFIX@ bip_list@OBJ_SUFFIX@ \
+            syn_sugar@OBJ_SUFFIX@ internal@OBJ_SUFFIX@ code_gen@OBJ_SUFFIX@ \
+            reg_alloc@OBJ_SUFFIX@ inst_codif@OBJ_SUFFIX@ \
+            first_arg@OBJ_SUFFIX@ indexing@OBJ_SUFFIX@ wam_emit@OBJ_SUFFIX@
+PLS       = pl2wam.pl read_file.pl bip_list.pl syn_sugar.pl internal.pl \
+            code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
+            indexing.pl wam_emit.pl
+
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .wam .pl $(SUFFIXES)
+
+
+.pl.wam:
+	$(GPLC) -W $(GPLCFLAGS) $*.pl
+.wam@OBJ_SUFFIX@:
+	$(GPLC) -c $*.wam
+
+
+pl2wam@EXE_SUFFIX@: $(OBJS)
+	-cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
+	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib --min-bips $(OBJS)
+
+
+clean:
+	-mv pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
+	rm -f *@OBJ_SUFFIX@
+
+
+clean-wam:
+	rm -f *.wam
+
+
+clean-full: clean-wam clean
+
+
+distclean: clean
+	rm -f pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@ make_bip_list@EXE_SUFFIX@
+
+
+
+
+pl2wam.wam:     pl2wam.pl
+read_file.wam:  read_file.pl
+bip_list.wam:   bip_list.pl
+syn_sugar.wam:  syn_sugar.pl
+internal.wam:   internal.pl
+code_gen.wam:   code_gen.pl
+reg_alloc.wam:  reg_alloc.pl
+inst_codif.wam: inst_codif.pl
+first_arg.wam:  first_arg.pl
+indexing.wam:   indexing.pl
+wam_emit.wam:   wam_emit.pl
+
+
+
+
+make_bip_list@EXE_SUFFIX@: make_bip_list.pl ../Bips??/[a-z]??*.pl
+	$(GPLC) -o make_bip_list@EXE_SUFFIX@ make_bip_list.pl --no-top-level
+	./make_bip_list@EXE_SUFFIX@ >bip_list.pl
+	make
+
+
+swi_pl2wam: swilib.pl $(PLS)
+	pl -o swi_pl2wam_main -c swilib.pl $(PLS) 
+	echo "#!/bin/sh" >swi_pl2wam
+	echo 'swi_pl2wam_main -g go -t halt -- $$*' >>swi_pl2wam
+	chmod a+x swi_pl2wam

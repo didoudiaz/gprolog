@@ -1,0 +1,37 @@
+TOP_LEVEL       = @TOP_LEVEL@
+TOP_LEVEL_FLAGS = @TOP_LEVEL_FLAGS@
+GPLC            = @GPLC@
+HEXGPLC         = @HEXGPLC@
+CC              = @CC@
+CFLAGS          = @CFLAGS@
+
+EXECS     = $(GPLC)@EXE_SUFFIX@ $(HEXGPLC)@EXE_SUFFIX@
+ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
+
+
+first:	$(EXECS)
+
+$(GPLC)@EXE_SUFFIX@: top_comp.c ../EnginePl/wam_regs.h \
+         ../EnginePl/gp_config.h decode_hexa.c copying.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c
+
+$(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c 
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(HEXGPLC)@EXE_SUFFIX@ hexfilter.c
+
+
+
+all: $(ALL_EXECS)
+
+$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level.c
+	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ top_level.c
+
+
+
+clean:
+	-mv $(TOP_LEVEL)@EXE_SUFFIX@ $(TOP_LEVEL)0@EXE_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ $(ALL_EXECS)
+
+distclean:
+	rm -f *@OBJ_SUFFIX@ $(ALL_EXECS) $(TOP_LEVEL)0@EXE_SUFFIX@
+
+

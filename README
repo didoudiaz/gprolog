@@ -1,0 +1,143 @@
+                                GNU PROLOG
+                                ==========
+
+			      by Daniel Diaz
+			   Daniel.Diaz@inria.fr
+
+
+INTRODUCTION
+************
+
+GNU Prolog is a native Prolog compiler with constraint solving over finite
+domains (FD) developed by Daniel Diaz (http://loco.inria.fr/~diaz).
+Last information can be found at http://www.gnu.org/software/prolog
+or better at http://gprolog.inria.fr.
+
+A lot of work has been devoted to the ISO compatibility. GNU Prolog is very
+close to the ISO standard (http://www.logic-programming.org/prolog_std.html).
+
+Here are some features of GNU Prolog:
+
+Prolog system:
+
+   - conforms to the ISO standard for Prolog (integer/floating arithmetic,
+     streams, dynamic code, exceptions).
+   - clause indexing.
+   - a lot of extensions: global variables, definite clause grammars (DCG),
+     sockets interface, operating system interface,...
+   - more than 300 Prolog built-in predicates.
+   - Prolog debugger and a low-level WAM debugger.
+   - line editing facility under the interactive interpreter with completion
+     on atoms.
+   - powerful bidirectional interface between Prolog and C.
+
+Compiler:
+
+   - native-code compiler producing stand alone executables.
+   - simple command-line compiler accepting a wide variety of files:
+     Prolog files, C files, WAM files,...
+   - direct generation of assembly code 15 times faster than wamcc + gcc.
+   - most of unused built-in predicates are not linked (to reduce the size
+     of the executables).
+   - compiled predicates (native-code) as fast as wamcc on average.
+   - consulted predicates (byte-code) 5 times faster than wamcc.
+
+Constraint solver:
+
+   - FD variables well integrated into the Prolog environment (full
+     compatibility with Prolog variables and
+   - integers). No need for explicit FD declarations.
+   - very efficient FD solver (comparable to commercial solvers).
+   - high-level constraints can be described in terms of simple primitives.
+   - a lot of predefined constraints: arithmetic constraints, boolean
+     constraints, symbolic constraints, reified constraints,...
+   - several predefined enumeration heuristics.
+   - the user can define his own new constraints.
+   - more than 50 FD built-in constraints/predicates.
+
+
+
+PORTS
+*****
+
+GNU Prolog is ported to the following architectures:
+
+   - ix86 / GNU/Linux
+   - ix86 / Win32 using Cygwin (see file src/CYGWIN)
+   - ix86 / Win32 using MSVC++ (tested with 6.0)
+   - ix86 / SCO
+   - ix86 / Solaris
+   - ix86 / FreeBSD
+   - ix86 / OpenBSD
+   - ix86 / NetBSD
+   - PowerPC / GNU/Linux
+   - sparc / SunOS (4.1.3 or higher)
+   - sparc / Solaris
+
+
+
+INSTALLATION
+************
+
+Please refer to the INSTALL file (in the same directory)
+
+
+
+USING GNU PROLOG
+****************
+
+Be sure that adequate environment variables are set (see INSTALL)
+
+You can then invoke the top-level using:
+
+	gprolog
+
+and the compiler using:
+
+	gplc FILE
+
+The simpliest way to compile a Prolog file 'prog.pl' is then:
+
+	gplc prog.pl
+
+which will produce the executable called prog (use gplc --help to have a
+brief overview of available options).
+
+Refer to the documentation for more information (see below).
+
+
+
+DOCUMENTATION
+*************
+
+The directory doc contains various versions of the manual. Refer to the
+file doc/README for more information.
+
+An in-line HTML version can be accessed from the GNU Prolog web page.
+
+
+
+WEB
+***
+
+The GNU Prolog web site is: http://www.gnu.org/software/prolog/
+or also (primary web site): http://gprolog.inria.fr/
+
+
+
+MAILING LIST
+************
+
+To communicate with other GNU Prolog users and/or implementors send a mail to
+users-prolog@gnu.org. To (un)subscribe to this mailing list send a mail to
+users-prolog-request@gnu.org with (un)subscribe in the subject line.
+
+
+
+BUGS
+****
+
+Please report bugs to bug-prolog@gnu.org. To (un)subscribe to this mailing
+list send a mail to bug-prolog-request@gnu.org with (un)subscribe in the
+subject line.
+

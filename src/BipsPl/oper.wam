@@ -1,0 +1,95 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : oper.pl
+% date    : 4 17 2000
+% time    : 2:15:21
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\oper.pl').
+
+
+predicate('$use_oper'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(op/3,29,static,private,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_atom(op,0),
+    put_integer(3,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_value(y(2),0),
+    call('$check_atom_or_atom_list'/1),
+    put_value(y(2),0),
+    put_value(y(0),1),
+    put_value(y(1),2),
+    deallocate,
+    execute('$op/3_$aux1'/3)]).
+
+
+predicate('$op/3_$aux1'/3,29,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    get_variable(x(4),2),
+    get_variable(x(2),0),
+    call_c_test('Blt_Atom',[2]),
+    cut(x(3)),
+    put_value(x(1),0),
+    put_value(x(4),1),
+    execute('$op2'/3),
+
+label(1),
+    trust_me_else_fail,
+    get_variable(x(3),2),
+    get_variable(x(2),1),
+    put_value(x(3),1),
+    execute('$op1'/3)]).
+
+
+predicate('$op1'/3,36,static,private,built_in,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(3),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_list(0),
+    unify_variable(x(2)),
+    unify_variable(y(0)),
+    put_value(y(2),0),
+    put_value(y(1),1),
+    call('$op2'/3),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    deallocate,
+    execute('$op1'/3)]).
+
+
+predicate('$op2'/3,43,static,private,built_in,[
+    call_c('Op_3',[0,1,2]),
+    proceed]).
+
+
+predicate(current_op/3,49,static,private,built_in,[
+    put_atom(current_op,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    call_c_test('Current_Op_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$current_op_alt'/0,54,static,private,built_in,[
+    call_c_test('Current_Op_Alt_0',[]),
+    proceed]).

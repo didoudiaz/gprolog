@@ -1,0 +1,58 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : control.pl
+% date    : 4 17 2000
+% time    : 2:15:25
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\control.pl').
+
+
+predicate('$use_control'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(repeat/0,32,static,private,built_in,[
+    try_me_else(1),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    execute(repeat/0)]).
+
+
+predicate(abort/0,40,static,private,built_in,[
+    put_integer(1,0),
+    call_c_jump('Halt_If_No_Top_Level_1',[0]),
+    proceed]).
+
+
+predicate(stop/0,44,static,private,built_in,[
+    put_integer(0,0),
+    call_c_jump('Halt_If_No_Top_Level_1',[0]),
+    proceed]).
+
+
+predicate(halt/0,51,static,private,built_in,[
+    put_integer(0,0),
+    execute(halt/1)]).
+
+
+predicate(halt/1,57,static,private,built_in,[
+    put_atom(halt,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Halt_1',[0]),
+    proceed]).
+
+
+predicate(for/3,65,static,private,built_in,[
+    put_atom(for,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    call_c_test('For_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$for_alt'/0,70,static,private,built_in,[
+    call_c('For_Alt_0',[]),
+    proceed]).

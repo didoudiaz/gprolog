@@ -1,0 +1,21 @@
+GPLC      = @GPLC@
+GPLCFLAGS = --fast-math
+OBJS      = fd2c@OBJ_SUFFIX@ read_file@OBJ_SUFFIX@ parse@OBJ_SUFFIX@ \
+            compile@OBJ_SUFFIX@
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .pl $(SUFFIXES)
+
+.pl@OBJ_SUFFIX@:
+	$(GPLC) -c $(GPLCFLAGS) $*.pl
+
+
+fd2c@EXE_SUFFIX@: $(OBJS)
+	$(GPLC) -o fd2c@EXE_SUFFIX@ --no-fd-lib --min-bips $(OBJS)
+
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ fd2c@EXE_SUFFIX@
+
+distclean: clean

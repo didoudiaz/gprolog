@@ -1,0 +1,124 @@
+user_cstr::=	head body
+
+head::=		c_ident '(' decl... ')'
+
+decl::=		type var ','
+
+
+type::=		int
+	|	fdv
+	|	any
+	|	l_int
+	|	l_fdv
+	|	l_any
+
+body::=		bloc_lst wait_swt
+
+
+
+wait_swt::=	'wait_switch' case...
+	|	empty
+
+case::=		'case' cond stop... bloc...
+
+stop::=		'stop' c_ident
+
+
+bloc_lst::=	bloc...
+	|	empty
+
+bloc::=		'start' bloc_name elem... forall last_elem trig always
+
+bloc_name::=	'(' c_ident ')'
+	|	empty
+
+elem::=		type var			type = int / range
+	|	'fail' 'if' cond
+      	|	'exit' 'if' cond
+	|	var '=' term			type = int
+	|	var '=' range			type = range
+	|	empty
+
+
+forall::=	'forall' var 'of' var 'do'
+	|	empty
+
+
+last_elem::=	x_in_r
+	|	c_fct
+
+
+x_in_r::=  	var 'in' range
+
+range::=	term '..' term
+	|	'{' term,... '}'
+	|	var				type = range
+	|	'dom' '(' var ')'		type = fdv
+
+	|	range ':' range
+	|	range '&' range
+	|	'~' range
+
+	|	range '++' range
+	|	range '--' range
+	|	range '**' range
+	|	range '//' range
+	|	range '%%' range
+
+	|	range '+' term
+	|	range '-' term
+	|	range '*' term
+	|	range '/' term
+	|	range '%' term
+
+	|	c_fct
+
+trig::= 	'trigger' [ 'also' ] 'on' trig_elem...
+	|	empty
+
+trig_elem::=	'min' '(' var ')'		type = fdv / l_fdv
+	|	'max' '(' var ')'		type = fdv / l_fdv
+	|	'val' '(' var ')'		type = fdv / l_fdv
+	|	'dom' '(' var ')'		type = fdv / l_fdv
+
+always::=	'always'
+	|	empty
+
+
+cond::=		term
+
+term::=		integer
+	|	'max_integer'
+	|	var				type = int
+	|	'min' '(' var ')'		type = fdv
+	|	'max' '(' var ')'		type = fdv
+	|	'val' '(' var ')'		type = fdv
+
+	|	term '+' term
+	|	term '-' term
+	|	term '*' term
+	|	term '/<' term
+	|	term '/>' term
+	|	term 'mod' term
+	|       other C expressions (using &&, ||, ==, !=, <, <=, >, >=)
+	|	c_fct
+	
+type::=		'int'
+	|	'range'
+	|	'fdv'
+	|	'any'
+	|	'l_fdv'
+	|	'l_int'
+                'l_any'
+
+c_fct::=	c_ident '(' arg... ')'
+
+arg::= 		term
+	|	range
+	|	var				type = all
+	|	'&' arg
+
+
+
+c_ident::=	[A-Z][a-zA-Z_0-9]*		cannot be a keyword
+

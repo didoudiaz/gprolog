@@ -1,0 +1,20 @@
+/*-------------------------------------------------------------------------*/
+/* FD Buit-In Predicates                                Daniel Diaz - 1998 */
+/* FD variable values management - FD part                                 */
+/*                                                                         */
+/* fd_values_fd.fd                        Copyright (C) 1998, INRIA France */
+/*-------------------------------------------------------------------------*/
+
+
+fd_domain(fdv X,int L,int U)
+
+{
+ start X in L .. U
+}
+
+
+fd_domain_r(fdv X,range R)
+
+{
+ start X in R
+}

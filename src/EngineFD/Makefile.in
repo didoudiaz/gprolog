@@ -1,0 +1,44 @@
+LIB_ENGINE_FD = @LIB_ENGINE_FD@
+GPLC          = @GPLC@
+CC            = @CC@
+CFLAGS        = @CFLAGS@
+AR_RC         = @AR_RC@
+RANLIB        = @RANLIB@
+
+
+LIBNAME = $(LIB_ENGINE_FD)
+OBJLIB  = fd_inst@OBJ_SUFFIX@ fd_range@OBJ_SUFFIX@  fd_unify@OBJ_SUFFIX@
+
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .c .fd $(SUFFIXES)
+
+
+$(LIBNAME): $(OBJLIB)
+	rm -f $(LIBNAME) 
+	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
+	$(RANLIB) $(LIBNAME)
+
+
+.fd@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS)' $*.fd
+
+.c@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS)' $*.c
+
+
+
+
+fd_inst@OBJ_SUFFIX@: fd_inst.h fd_inst.c fd_range.h fd_hook_range.h
+
+fd_range@OBJ_SUFFIX@: fd_range.h fd_hook_range.h fd_range.c
+
+fd_unify@OBJ_SUFFIX@: fd_unify.fd
+
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ $(LIBNAME)
+
+ 
+distclean: clean

@@ -1,0 +1,2 @@
+set a=`pwd`
+setenv PATH $a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:"$PATH"

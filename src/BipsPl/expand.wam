@@ -1,0 +1,120 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : expand.pl
+% date    : 4 17 2000
+% time    : 2:15:48
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\expand.pl').
+
+
+predicate('$use_expand'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(expand_term/2,30,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),1),
+    put_variable(y(1),1),
+    call('$expand_term1'/2),
+    put_unsafe_value(y(1),0),
+    get_value(y(0),0),
+    deallocate,
+    proceed]).
+
+
+predicate('$expand_term1'/2,34,static,private,built_in,[
+    load_cut_level(2),
+    allocate(1),
+    get_variable(y(0),2),
+    call('$$expand_term1/2_$aux1'/2),
+    cut(y(0)),
+    deallocate,
+    proceed]).
+
+
+predicate('$$expand_term1/2_$aux1'/2,34,static,private,built_in,[
+    try_me_else(1),
+    call_c_test('Blt_Var',[0]),
+    get_value(x(0),1),
+    proceed,
+
+label(1),
+    retry_me_else(2),
+    execute('$call_term_expansion'/2),
+
+label(2),
+    retry_me_else(3),
+    put_atom(expand_term,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    execute('$dcg_trans_rule'/2),
+
+label(3),
+    trust_me_else_fail,
+    get_value(x(0),1),
+    proceed]).
+
+
+predicate('$call_term_expansion'/2,48,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_structure((/)/2,0),
+    unify_atom(term_expansion),
+    unify_integer(2),
+    call(current_predicate/1),
+    put_structure(term_expansion/2,0),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    put_atom('$call_term_expansion',1),
+    put_integer(2,2),
+    put_atom(true,3),
+    deallocate,
+    execute('$call'/4)]).
+
+
+predicate(phrase/2,55,static,private,built_in,[
+    put_nil(2),
+    put_integer(2,3),
+    execute('$phrase'/4)]).
+
+
+predicate(phrase/3,61,static,private,built_in,[
+    put_integer(3,3),
+    execute('$phrase'/4)]).
+
+
+predicate('$phrase'/4,67,static,private,built_in,[
+    allocate(5),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    put_atom(phrase,0),
+    put_value(y(3),1),
+    call(set_bip_name/2),
+    put_value(y(1),0),
+    call('$check_list_or_partial_list'/1),
+    put_value(y(2),0),
+    call('$check_list_or_partial_list'/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_variable(y(4),3),
+    call('$dcg_trans_body'/4),
+    put_unsafe_value(y(4),0),
+    put_atom(phrase,1),
+    put_value(y(3),2),
+    put_atom(true,3),
+    deallocate,
+    execute('$call'/4)]).
+
+
+predicate('$dcg_trans_rule'/2,77,static,private,built_in,[
+    call_c_test('Dcg_Trans_Rule_2',[0,1]),
+    proceed]).
+
+
+predicate('$dcg_trans_body'/4,83,static,private,built_in,[
+    call_c_test('Dcg_Trans_Body_4',[0,1,2,3]),
+    proceed]).

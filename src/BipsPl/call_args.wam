@@ -1,0 +1,66 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : call_args.pl
+% date    : 4 17 2000
+% time    : 2:15:28
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\call_args.pl').
+
+
+predicate('$use_call_args'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(call_with_args/1,32,static,private,built_in,[
+    call_c_jump('Call_With_Args_1',[]),
+    proceed]).
+
+
+predicate(call_with_args/2,35,static,private,built_in,[
+    call_c_jump('Call_With_Args_2',[]),
+    proceed]).
+
+
+predicate(call_with_args/3,38,static,private,built_in,[
+    call_c_jump('Call_With_Args_3',[]),
+    proceed]).
+
+
+predicate(call_with_args/4,41,static,private,built_in,[
+    call_c_jump('Call_With_Args_4',[]),
+    proceed]).
+
+
+predicate(call_with_args/5,44,static,private,built_in,[
+    call_c_jump('Call_With_Args_5',[]),
+    proceed]).
+
+
+predicate(call_with_args/6,47,static,private,built_in,[
+    call_c_jump('Call_With_Args_6',[]),
+    proceed]).
+
+
+predicate(call_with_args/7,50,static,private,built_in,[
+    call_c_jump('Call_With_Args_7',[]),
+    proceed]).
+
+
+predicate(call_with_args/8,53,static,private,built_in,[
+    call_c_jump('Call_With_Args_8',[]),
+    proceed]).
+
+
+predicate(call_with_args/9,56,static,private,built_in,[
+    call_c_jump('Call_With_Args_9',[]),
+    proceed]).
+
+
+predicate(call_with_args/10,59,static,private,built_in,[
+    call_c_jump('Call_With_Args_10',[]),
+    proceed]).
+
+
+predicate(call_with_args/11,62,static,private,built_in,[
+    call_c_jump('Call_With_Args_11',[]),
+    proceed]).

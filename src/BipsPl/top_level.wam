@@ -1,0 +1,743 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : top_level.pl
+% date    : 4 17 2000
+% time    : 2:15:53
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\top_level.pl').
+
+
+predicate(top_level/0,30,static,private,built_in,[
+    allocate(3),
+    put_atom(prolog_name,0),
+    put_variable(y(0),1),
+    call(current_prolog_flag/2),
+    put_atom(prolog_version,0),
+    put_variable(y(1),1),
+    call(current_prolog_flag/2),
+    put_atom(prolog_copyright,0),
+    put_variable(y(2),1),
+    call(current_prolog_flag/2),
+    put_atom(top_level_output,0),
+    put_atom('~N~a ~a~n',1),
+    put_list(2),
+    unify_local_value(y(0)),
+    unify_list,
+    unify_local_value(y(1)),
+    unify_nil,
+    call(format/3),
+    put_atom('By Daniel Diaz',0),
+    call(write/1),
+    call(nl/0),
+    put_atom(top_level_output,0),
+    put_atom('~a~n',1),
+    put_list(2),
+    unify_local_value(y(2)),
+    unify_nil,
+    call(format/3),
+    deallocate,
+    execute(break/0)]).
+
+
+predicate(break/0,42,static,private,built_in,[
+    allocate(3),
+    call_c('Set_Ctrl_C_Handler_0',[]),
+    put_integer(10,0),
+    put_variable(y(0),1),
+    call('$sys_var_read'/2),
+    put_integer(11,0),
+    put_variable(y(1),1),
+    call('$sys_var_read'/2),
+    put_atom('$all_solutions',0),
+    put_variable(y(2),1),
+    call_c_test('Blt_G_Read',[0,1]),
+    put_value(y(0),0),
+    call('$break/0_$aux1'/1),
+    put_integer(10,0),
+    call('$sys_var_inc'/1),
+    call('$top_level1'/0),
+    put_integer(10,0),
+    call('$sys_var_dec'/1),
+    put_integer(11,0),
+    put_value(y(1),1),
+    call('$sys_var_write'/2),
+    put_atom('$all_solutions',0),
+    put_unsafe_value(y(2),1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    put_unsafe_value(y(0),0),
+    deallocate,
+    execute('$break/0_$aux2'/1)]).
+
+
+predicate('$break/0_$aux2'/1,42,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    put_atom(>,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),2),
+    put_integer(0,3),
+    call_c_test('Blt_Gt',[2,3]),
+    cut(x(1)),
+    put_list(2),
+    unify_local_value(x(0)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('~N{End Break}~n',1),
+    execute(format/3),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$break/0_$aux1'/1,42,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    put_atom(>,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),2),
+    put_integer(0,3),
+    call_c_test('Blt_Gt',[2,3]),
+    cut(x(1)),
+    put_list(2),
+    unify_local_value(x(0)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('~N{Break Level ~d}~n',1),
+    execute(format/3),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$top_level1'/0,60,static,private,built_in,[
+    load_cut_level(0),
+    allocate(1),
+    get_variable(y(0),0),
+    call(repeat/0),
+    put_structure('$top_level_exception'/1,2),
+    unify_variable(x(1)),
+    put_atom('$top_level2',0),
+    put_atom(false,3),
+    call('$catch_internal'/4),
+    cut(y(0)),
+    deallocate,
+    proceed]).
+
+
+predicate('$top_level_abort'/0,68,static,private,built_in,[
+    allocate(1),
+    put_integer(11,0),
+    put_variable(y(0),1),
+    call('$sys_var_read'/2),
+    put_atom(top_level_output,0),
+    put_atom('execution aborted~n',1),
+    put_nil(2),
+    call(format/3),
+    put_unsafe_value(y(0),0),
+    deallocate,
+    execute('$catch_sync_for_fail_at'/1)]).
+
+
+predicate('$top_level_stop'/0,76,static,private,built_in,[
+    allocate(1),
+    put_integer(11,0),
+    put_variable(y(0),1),
+    call('$sys_var_read'/2),
+    put_unsafe_value(y(0),0),
+    deallocate,
+    execute('$catch_sync_for_fail_at'/1)]).
+
+
+predicate('$top_level_exception'/1,83,static,private,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    call('$$top_level_exception/1_$aux1'/0),
+    put_atom(top_level_output,0),
+    put_atom('~Nuncaught exception: ',1),
+    put_nil(2),
+    call(format/3),
+    put_atom(top_level_output,0),
+    put_value(y(0),1),
+    put_structure(quoted/1,4),
+    unify_atom(true),
+    put_structure(numbervars/1,3),
+    unify_atom(false),
+    put_list(2),
+    unify_value(x(4)),
+    unify_list,
+    unify_value(x(3)),
+    unify_nil,
+    call(write_term/3),
+    put_atom(top_level_output,0),
+    call(nl/1),
+    fail]).
+
+
+predicate('$$top_level_exception/1_$aux1'/0,83,static,private,built_in,[
+    load_cut_level(0),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),0),
+    put_integer(12,0),
+    put_integer(1,1),
+    call('$sys_var_read'/2),
+    cut(y(0)),
+    put_atom('$user_prompt',1),
+    put_variable(x(0),2),
+    call_c_test('Blt_G_Read',[1,2]),
+    deallocate,
+    execute('$set_linedit_prompt'/1),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$top_level2'/0,98,static,private,built_in,[
+    load_cut_level(0),
+    allocate(6),
+    get_variable(y(0),0),
+    call(repeat/0),
+    put_variable(y(1),0),
+    call('$get_current_B'/1),
+    put_integer(11,0),
+    put_value(y(1),1),
+    call('$sys_var_write'/2),
+    call('$write_indicator'/0),
+    put_atom('| ?- ',1),
+    put_variable(y(2),0),
+    call('$$top_level2/0_$aux1'/2),
+    put_atom(top_level_output,0),
+    call(flush_output/1),
+    put_atom(top_level_input,0),
+    put_variable(y(3),1),
+    put_structure(variable_names/1,3),
+    unify_variable(y(4)),
+    put_list(2),
+    unify_value(x(3)),
+    unify_nil,
+    call(read_term/3),
+    put_value(y(2),0),
+    call('$$top_level2/0_$aux2'/1),
+    put_value(y(4),0),
+    put_variable(y(5),1),
+    call(sort/2),
+    put_unsafe_value(y(3),0),
+    put_value(y(0),1),
+    put_unsafe_value(y(5),2),
+    deallocate,
+    execute('$$top_level2/0_$aux3'/3)]).
+
+
+predicate('$$top_level2/0_$aux3'/3,98,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),1),
+    put_atom(end_of_file,1),
+    call_c_test('Blt_Term_Eq',[0,1]),
+    cut(x(3)),
+    put_atom(top_level_output,0),
+    call(nl/1),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    allocate(6),
+    get_variable(y(0),0),
+    get_variable(y(1),2),
+    put_variable(y(2),0),
+    call(user_time/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_variable(y(3),2),
+    call('$$top_level2/0_$aux4'/3),
+    put_variable(y(4),0),
+    call(user_time/1),
+    put_atom(is,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_atom(is,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    math_load_value(y(4),1),
+    math_load_value(y(2),0),
+    function('Fct_Sub',0,[1,0]),
+    get_variable(y(5),0),
+    put_atom(top_level_output,0),
+    put_atom('~N~n',1),
+    put_nil(2),
+    call(format/3),
+    put_value(y(5),0),
+    call('$$top_level2/0_$aux5'/1),
+    put_atom(top_level_output,0),
+    put_atom('~a~n',1),
+    put_list(2),
+    unify_local_value(y(3)),
+    unify_nil,
+    call(format/3),
+    fail]).
+
+
+predicate('$$top_level2/0_$aux5'/1,98,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(2),
+    switch_on_term(1,fail,1,fail,fail),
+
+label(1),
+    get_integer(0,0),
+    cut(x(1)),
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    put_list(2),
+    unify_local_value(x(0)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('(~d ms) ',1),
+    execute(format/3)]).
+
+
+predicate('$$top_level2/0_$aux4'/3,98,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),2),
+    get_variable(y(1),3),
+    call('$exec'/2),
+    cut(y(1)),
+    put_value(y(0),0),
+    get_atom(yes,0),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_atom(no,2),
+    proceed]).
+
+
+predicate('$$top_level2/0_$aux2'/1,98,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_integer(12,0),
+    put_integer(1,1),
+    call('$sys_var_read'/2),
+    cut(y(1)),
+    put_value(y(0),0),
+    deallocate,
+    execute('$set_linedit_prompt'/1),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$$top_level2/0_$aux1'/2,98,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_integer(12,0),
+    put_integer(1,1),
+    call('$sys_var_read'/2),
+    cut(y(2)),
+    put_value(y(0),0),
+    call('$get_linedit_prompt'/1),
+    put_atom('$user_prompt',0),
+    put_value(y(0),1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    put_value(y(1),0),
+    deallocate,
+    execute('$set_linedit_prompt'/1),
+
+label(1),
+    trust_me_else_fail,
+    put_atom(top_level_output,0),
+    execute(write/2)]).
+
+
+predicate('$write_indicator'/0,138,static,private,built_in,[
+    try_me_else(1),
+    allocate(2),
+    put_atom('$debug_mode',1),
+    put_variable(x(0),2),
+    call_c_test('Blt_G_Read',[1,2]),
+    put_variable(y(0),1),
+    call('$dbg_indicator'/2),
+    put_integer(10,0),
+    put_variable(y(1),1),
+    call('$sys_var_read'/2),
+    put_value(y(1),0),
+    put_value(y(0),1),
+    call('$$write_indicator/0_$aux1'/2),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$$write_indicator/0_$aux1'/2,138,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    get_variable(x(3),1),
+    put_atom(>,1),
+    put_integer(2,4),
+    call_c('Set_Bip_Name_2',[1,4]),
+    math_load_value(x(0),1),
+    put_integer(1,4),
+    call_c_test('Blt_Gt',[1,4]),
+    cut(x(2)),
+    put_atom(is,1),
+    put_integer(2,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    put_atom(is,1),
+    put_integer(2,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    math_load_value(x(0),0),
+    function('Fct_Dec',1,[0]),
+    put_value(x(3),0),
+    execute('$$write_indicator/0_$aux2'/2),
+
+label(1),
+    retry_me_else(2),
+    get_atom('',1),
+    cut(x(2)),
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    put_list(2),
+    unify_local_value(x(1)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('{~a}~n',1),
+    execute(format/3)]).
+
+
+predicate('$$write_indicator/0_$aux2'/2,138,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(2),
+    switch_on_term(1,1,fail,fail,fail),
+
+label(1),
+    get_atom('',0),
+    cut(x(2)),
+    put_list(2),
+    unify_local_value(x(1)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('{~d}~n',1),
+    execute(format/3),
+
+label(2),
+    trust_me_else_fail,
+    put_list(2),
+    unify_local_value(x(0)),
+    unify_list,
+    unify_local_value(x(1)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('{~a,~d}~n',1),
+    execute(format/3)]).
+
+
+predicate('$dbg_indicator'/2,155,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(trace,3),(debug,5),(nodebug,7)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(trace,0),
+    get_atom(trace,1),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_atom(debug,0),
+    get_atom(debug,1),
+    proceed,
+
+label(6),
+    trust_me_else_fail,
+
+label(7),
+    get_atom(nodebug,0),
+    get_atom('',1),
+    proceed]).
+
+
+predicate('$exec'/2,164,static,private,built_in,[
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_atom('$debug_mode',0),
+    put_variable(x(1),2),
+    call_c_test('Blt_G_Read',[0,2]),
+    put_atom('$debug_next',0),
+    call_c_test('Blt_G_Assign',[0,1]),
+    put_atom('$all_solutions',0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    put_variable(y(2),0),
+    call('$get_current_B'/1),
+    put_value(y(0),0),
+    put_atom(top_level,1),
+    put_integer(0,2),
+    put_atom(true,3),
+    call('$call'/4),
+    put_variable(y(3),0),
+    call('$get_current_B'/1),
+    put_atom(top_level_output,0),
+    put_atom('~N',1),
+    put_nil(2),
+    call(format/3),
+    put_value(y(1),0),
+    put_unsafe_value(y(3),1),
+    put_unsafe_value(y(2),2),
+    deallocate,
+    execute('$$exec/2_$aux1'/3)]).
+
+
+predicate('$$exec/2_$aux1'/3,164,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),3),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(0),0),
+    put_variable(y(3),1),
+    call(name_query_vars/2),
+    put_value(y(3),0),
+    call(name_singleton_vars/1),
+    put_value(y(3),0),
+    put_structure(exclude/1,2),
+    unify_local_value(y(0)),
+    put_list(1),
+    unify_value(x(2)),
+    unify_list,
+    unify_atom(namevars),
+    unify_nil,
+    call(bind_variables/2),
+    put_value(y(3),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    call('$write_solution'/3),
+    put_value(y(1),0),
+    put_value(y(2),1),
+    deallocate,
+    execute('$$exec/2_$aux2'/2)]).
+
+
+predicate('$$exec/2_$aux2'/2,164,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(0),
+    put_atom(>,3),
+    put_integer(2,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    put_atom(>,3),
+    put_integer(2,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Gt',[0,1]),
+    cut(x(2)),
+    put_atom('$all_solutions',0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Read',[0,1]),
+    put_atom(top_level_output,0),
+    put_atom(' ? ',1),
+    call(write/2),
+    deallocate,
+    execute('$read_return'/0),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$write_solution'/3,189,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(2),
+    switch_on_term(1,1,fail,fail,fail),
+
+label(1),
+    get_nil(0),
+    cut(x(3)),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    execute('$$write_solution/3_$aux1'/2),
+
+label(2),
+    trust_me_else_fail,
+    execute('$write_solution1'/1)]).
+
+
+predicate('$$write_solution/3_$aux1'/2,189,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    put_atom(>,3),
+    put_integer(2,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Gt',[0,1]),
+    cut(x(2)),
+    put_atom(top_level_output,0),
+    put_atom('~ntrue',1),
+    put_nil(2),
+    execute(format/3),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$write_solution1'/1,198,static,private,built_in,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(2),
+    get_list(0),
+    unify_variable(x(0)),
+    unify_variable(y(1)),
+    get_structure((=)/2,0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    put_list(2),
+    unify_value(x(0)),
+    unify_nil,
+    put_atom(top_level_output,0),
+    put_atom('~n~a = ',1),
+    call(format/3),
+    put_atom(top_level_output,0),
+    put_value(y(0),1),
+    put_structure(quoted/1,4),
+    unify_atom(true),
+    put_structure(numbervars/1,3),
+    unify_atom(false),
+    put_list(2),
+    unify_value(x(4)),
+    unify_list,
+    unify_value(x(3)),
+    unify_nil,
+    call(write_term/3),
+    put_value(y(1),0),
+    deallocate,
+    execute('$write_solution1'/1)]).
+
+
+predicate('$read_return'/0,208,static,private,built_in,[
+    load_cut_level(0),
+    allocate(2),
+    get_variable(y(0),0),
+    put_atom(top_level_output,0),
+    call(flush_output/1),
+    put_atom(top_level_input,0),
+    put_variable(y(1),1),
+    call(get_code_no_echo/2),
+    put_value(y(1),0),
+    call('$read_return'/1),
+    cut(y(0)),
+    deallocate,
+    proceed]).
+
+
+predicate('$read_return'/1,217,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(10),
+    switch_on_term(2,fail,1,fail,fail),
+
+label(1),
+    switch_on_integer([(10,3),(13,5),(97,7),(59,9)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_integer(10,0),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_integer(13,0),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_integer(97,0),
+    put_atom('$all_solutions',0),
+    put_atom(t,2),
+    call_c_test('Blt_G_Assign',[0,2]),
+    cut(x(1)),
+    fail,
+
+label(8),
+    trust_me_else_fail,
+
+label(9),
+    allocate(1),
+    get_integer(59,0),
+    get_variable(y(0),1),
+    put_atom(top_level_output,0),
+    put_atom('~N',1),
+    put_nil(2),
+    call(format/3),
+    cut(y(0)),
+    fail,
+
+label(10),
+    trust_me_else_fail,
+    allocate(0),
+    put_atom(top_level_output,0),
+    call(nl/1),
+    put_atom(top_level_output,0),
+    put_atom('Action (; for next solution, a for all solutions, RET to stop) ? ',1),
+    call(write/2),
+    deallocate,
+    execute('$read_return'/0)]).
+
+
+ensure_linked([consult/1,load/1]).

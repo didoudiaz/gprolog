@@ -1,0 +1,40 @@
+sparc/sunos:
+ 	under SunOs <= 4.1.2 even if the processor is a supersparc, the gcc
+	option -msupersparc cannot be used in CFLAGS_MACHINE. The configure
+	script omits it. 
+	Thus integer multiplication and division is very slow...
+
+
+sparc/solaris:
+	you should be able to access as/ld/ar/ranlib maybe you should
+	add /usr/ucb:/usr/ccs/bin/ ar something similar to your PATH variable
+
+
+ix86/win32 with Cygwin:
+	timmings system_time is always 0 and user time = real time
+	buffering not implemented (after setvbuf each read returns EOF)
+	sockets (AF_UNIX not supported with old versions of CYGWIN, modify
+        file BipsPl/sockets_c.c or use --disable-sockets)
+	stack overflow detection does not work
+
+ix86/win32 with VC++ 6.0:
+	sockets not implemented
+	shell/2 and system/2 do not return correct error code 
+        (due to command.com bad interpreted)
+        popen/3 does not work (due to command.com)
+	exec/5 does not work (due to command.com)
+        send_signal/2 (does not work apparently)
+        select/5 only implemented with sockets (to test more deeply)
+
+ppc/linux:
+	with no optimization options for gcc do not use global registers
+	(use: ./configure --with-c-flags=debug --disable-regs)
+
+ix86/FreeBSD (OpenBSD ?):
+	linedit is not yet supported, use --disable-linedit when 
+	using ./configure
+	check before (this is maybe no longer true)
+
+ix86/sco:
+	On SCO UnixWare use --host=i586-pc-sco when using ./confgure
+	(until autoconf is updated to recognize UnixWare).

@@ -1,0 +1,69 @@
+ma::=		code...
+
+code::=		prolog_code
+	|	c_code
+	|	decl
+	|	comment
+
+comment::=	';' ... '\n'
+
+
+prolog_code::=	'pl_code' ( 'local' | 'global' ) label inst...
+
+c_code::=	'c_code' ( 'initializer' | 'local' | 'global' ) label inst...
+
+inst::=		'pl_jump' pl_label	Prolog jump to a predicate
+		'pl_call' pl_label      Prolog call a predicate
+		'pl_fail'               Prolog fail
+		'pl_ret'                Prolog return
+
+		label ':'		declare a label
+
+		'jump' label            jump to a label
+
+		'move' reg1 ',' reg2	move wam reg1 to reg2
+
+		'call_c' fct_name '(' fct_arg ','...')'
+					call a C function
+		'jump_ret'		jump at the returned value
+		'fail_ret'              if returned value==0 then 'pl_fail'
+		'move_ret' ( mem | reg | f_array )
+                                       move returned value
+		'switch_ret' '(' swt_arg '=' label ',' ...)
+					switch on returned value
+					else 'pl_fail'
+
+		'c_ret'			C return
+
+decl::=		'long' ( 'local' | 'global' ) ident
+		[ '=' integer | '(' integer ')' ]
+
+
+fct_arg::=	integer
+	|	float
+	|	string
+        |       & label                   NB: & label = special case of & mem
+	|	[ '&' ] mem
+	|	[ '&' ] reg
+	|	[ '&' ] f_array
+
+swt_arg::=	mem
+	|       integer
+
+fct_name::= 	ident
+
+label	::=	ident
+
+pl_label::=	ident
+
+mem	::=	ident [ '(' integer ')' ]
+
+*** Tokens ***
+
+ident   ::= 	C identifier
+integer ::= 	C int
+float   ::= 	C double
+string  ::= 	C string
+reg     ::= 	( 'X'  | 'Y'  ) '(' integer ')' WAM X/Y reg
+f_array ::= 	( 'FL' | 'FD' ) '(' integer ')' foreign long/double array element
+

@@ -1,0 +1,38 @@
+                            GNU-Prolog Documentation
+
+
+1- Contents of this directory
+-----------------------------
+
+This directory contains the source of the manual written in LaTeX and several
+target versions:
+
+	- manual.dvi (DVI version)
+	- manual.pdf (PDF version)
+	- manual.ps  (PostScript version)
+
+The Html directory contains the HTML version (index.html, manual*.html)
+
+An on-line HTML version is also available at 
+http://gprolog.inria.fr/manual
+
+By default, the installation procedure copies each version in a directory
+INSTALL_DIR/doc (see file ../INSTALL for more details).
+
+
+
+2- Rebuilding the manual
+------------------------
+
+Each version can be reconstructed using the Makefile (type 'make help' for
+a brief summary of available targets). Be sure to have the following environment before trying to rebuild the manual:
+
+   - LaTeX2e (with standard packages) is needed to rebuild the DVI version.
+   - dvips is needed to rebuild the PostScript version from the DVI.
+   - pdflatex is needed to rebuild the PDF version.
+   - HeVeA (version >= 1.05) is required to rebuild the HTML version.
+     HeVeA can be obtained at http://pauillac.inria.fr/~maranget/hevea/
+
+
+
+

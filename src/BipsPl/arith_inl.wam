@@ -1,0 +1,85 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : arith_inl.pl
+% date    : 4 17 2000
+% time    : 2:15:31
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\arith_inl.pl').
+
+
+predicate('$use_arith_inl'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate((is)/2,30,static,private,built_in,[
+    put_atom(is,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(1),1),
+    get_value(x(0),1),
+    proceed]).
+
+
+predicate((=:=)/2,33,static,private,built_in,[
+    put_atom(=:=,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Eq',[0,1]),
+    proceed]).
+
+
+predicate((=\=)/2,36,static,private,built_in,[
+    put_atom(=\=,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Neq',[0,1]),
+    proceed]).
+
+
+predicate((<)/2,39,static,private,built_in,[
+    put_atom(<,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Lt',[0,1]),
+    proceed]).
+
+
+predicate((=<)/2,42,static,private,built_in,[
+    put_atom(=<,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Lte',[0,1]),
+    proceed]).
+
+
+predicate((>)/2,45,static,private,built_in,[
+    put_atom(>,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Gt',[0,1]),
+    proceed]).
+
+
+predicate((>=)/2,48,static,private,built_in,[
+    put_atom(>=,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Gte',[0,1]),
+    proceed]).
+
+
+predicate('$arith_eval'/2,52,static,private,built_in,[
+    call_c('Arith_Eval_2',[0,1]),
+    proceed]).

@@ -1,0 +1,21 @@
+/*-------------------------------------------------------------------------*/
+/* FD Buit-In Predicates                                Daniel Diaz - 1998 */
+/* Prime constraint management - FD part                                   */
+/*                                                                         */
+/* fd_prime_fd.fd                         Copyright (C) 1998, INRIA France */
+/*-------------------------------------------------------------------------*/
+
+prime_x(fdv X)
+
+{
+ start X in Prime_Range(0)
+}
+
+
+not_prime_x(fdv X)
+
+{
+ start X in Not_Prime_Range(0)
+}
+
+

@@ -1,0 +1,109 @@
+Change in GNU Prolog version 1.2.1:
+
+* fix a bug in stty.c (use termio by default and else termios)
+
+Change in GNU Prolog version 1.2.0:
+
+* 4th official release (Fri Jul 28)
+
+Change in GNU Prolog version 1.1.7:
+
+* port for ix86/NetBSD - many thanks to: Brook Milligan <brook@nmsu.edu>
+* more customizable configuration/installation procedure
+
+Change in GNU Prolog version 1.1.6:
+
+* start of native Win32 port
+* added creation/1 and last_access/1 property to file_property/2
+* fix a bug in the compiler about \\ inside quoted atoms
+* fix a bug in dynamic clause retraction (memory leak)
+* fix a bug in atom management (existing atoms eat mallocated space)
+* avoid to establish a connection at start to get the hostname
+* rename configuration file config.h by gp_config.h
+
+Change in GNU Prolog version 1.1.5:
+
+* internal version
+
+Change in GNU Prolog version 1.1.4:
+
+* fix a bug in the byte-code loader (bad realloc computation)
+* fix a bug in the malloc (used MMAP under linux)
+
+Change in GNU Prolog version 1.1.3:
+
+* port for ix86/SCO - many thanks to:
+  Clive Cox <clive@laluna.demon.co.uk> and
+  Edmund Grimley Evans <edmundo@rano.demon.co.uk>)
+* port for ix86/solaris - many thanks to: 
+  Andreas Stolcke <stolcke@speech.sri.com>
+* fix a bug in the FD solver for X#\=C (if C is max(X))
+* fix a bug with directory_files/2 (too many open files)
+
+Change in GNU Prolog version 1.1.2:
+
+* 3rd official release (Mon Nov 29)
+* fix a bug in the scanner about 0'<character>
+* fix a bug in the compiler about \t in quoted atoms
+
+Change in GNU Prolog version 1.1.1:
+
+* fix bug with popen/3
+* update machine.c for struct sigcontext under Linux
+
+Change in GNU Prolog version 1.1.0:
+
+* 2nd official release (Mon Oct 4)
+* fix a bug in the output of some extended characters in native-compilation
+
+Change in GNU Prolog version 1.0.6:
+
+* fix a bug in sign/1 for arithmetic evaluation
+* implementation of call_with_args
+
+Change in GNU Prolog version 1.0.5:
+
+* fix a bug in foreign C calling Prolog on sparc
+
+Change in GNU Prolog version 1.0.4:
+
+* fix a bug with sparc compilation
+
+Change in GNU Prolog version 1.0.3:
+
+* a first final port for cygwin (see PROBLEMS)
+* fix some bugs in the FD solver
+* fix some other bugs
+
+Change in GNU Prolog version 1.0.2:
+
+* fix precision bug on floating constants
+
+Change in GNU Prolog version 1.0.1:
+
+* add ensure_linked directive
+* fix known bugs under RedHat 6.0 usgin egcs
+* port for PowerPC / GNU/Linux
+
+Change in GNU Prolog version 1.0.0:
+
+* 1st official release (Fri Apr 16)
+* rewrite DCG in C (unification optimized, avoid ill-balanced conjunctions)
+* fix known bugs
+
+Change in GNU Prolog version 0.9.0:
+
+* Calypso becomes GNU Prolog
+* in-place installation facility
+* fix compiler bug
+* rewrite sorts built-in predicates and add in-place sorts predicates
+* rewrite DCG translation
+* rewrite all solutions built-in predicates
+
+Change in Calypso version 1.0-beta7:
+
+* use autoconf
+* fix known bugs
+* add :- built_in/0-1 and :- built_in_fd/0-1 directives
+* complete C foreign interface
+

@@ -1,0 +1,35 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : file.pl
+% date    : 4 17 2000
+% time    : 2:15:42
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\file.pl').
+
+
+predicate('$use_file'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(absolute_file_name/2,30,static,private,built_in,[
+    put_atom(absolute_file_name,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Absolute_File_Name_2',[0,1]),
+    proceed]).
+
+
+predicate(decompose_file_name/4,37,static,private,built_in,[
+    put_atom(decompose_file_name,4),
+    put_integer(4,5),
+    call_c('Set_Bip_Name_2',[4,5]),
+    call_c_test('Decompose_File_Name_4',[0,1,2,3]),
+    proceed]).
+
+
+predicate(prolog_file_name/2,44,static,private,built_in,[
+    put_atom(prolog_file_name,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Prolog_File_Name_2',[0,1]),
+    proceed]).

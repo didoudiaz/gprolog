@@ -1,0 +1,91 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : type_inl.pl
+% date    : 4 17 2000
+% time    : 2:15:32
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\type_inl.pl').
+
+
+predicate('$use_type_inl'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(var/1,30,static,private,built_in,[
+    call_c_test('Blt_Var',[0]),
+    proceed]).
+
+
+predicate(nonvar/1,33,static,private,built_in,[
+    call_c_test('Blt_Non_Var',[0]),
+    proceed]).
+
+
+predicate(atom/1,36,static,private,built_in,[
+    call_c_test('Blt_Atom',[0]),
+    proceed]).
+
+
+predicate(integer/1,39,static,private,built_in,[
+    call_c_test('Blt_Integer',[0]),
+    proceed]).
+
+
+predicate(float/1,42,static,private,built_in,[
+    call_c_test('Blt_Float',[0]),
+    proceed]).
+
+
+predicate(number/1,45,static,private,built_in,[
+    call_c_test('Blt_Number',[0]),
+    proceed]).
+
+
+predicate(atomic/1,48,static,private,built_in,[
+    call_c_test('Blt_Atomic',[0]),
+    proceed]).
+
+
+predicate(compound/1,51,static,private,built_in,[
+    call_c_test('Blt_Compound',[0]),
+    proceed]).
+
+
+predicate(callable/1,54,static,private,built_in,[
+    call_c_test('Blt_Callable',[0]),
+    proceed]).
+
+
+predicate(list/1,57,static,private,built_in,[
+    call_c_test('Blt_List',[0]),
+    proceed]).
+
+
+predicate(partial_list/1,60,static,private,built_in,[
+    call_c_test('Blt_Partial_List',[0]),
+    proceed]).
+
+
+predicate(list_or_partial_list/1,63,static,private,built_in,[
+    call_c_test('Blt_List_Or_Partial_List',[0]),
+    proceed]).
+
+
+predicate(fd_var/1,69,static,private,built_in_fd,[
+    call_c_test('Blt_Fd_Var',[0]),
+    proceed]).
+
+
+predicate(non_fd_var/1,72,static,private,built_in_fd,[
+    call_c_test('Blt_Non_Fd_Var',[0]),
+    proceed]).
+
+
+predicate(generic_var/1,75,static,private,built_in_fd,[
+    call_c_test('Blt_Generic_Var',[0]),
+    proceed]).
+
+
+predicate(non_generic_var/1,78,static,private,built_in_fd,[
+    call_c_test('Blt_Non_Generic_Var',[0]),
+    proceed]).

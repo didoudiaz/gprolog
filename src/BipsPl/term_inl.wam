@@ -1,0 +1,94 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : term_inl.pl
+% date    : 4 17 2000
+% time    : 2:15:33
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\term_inl.pl').
+
+
+predicate('$use_term_inl'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(compare/3,30,static,private,built_in,[
+    call_c_test('Blt_Compare',[0,1,2]),
+    proceed]).
+
+
+predicate((==)/2,34,static,private,built_in,[
+    call_c_test('Blt_Term_Eq',[0,1]),
+    proceed]).
+
+
+predicate((\==)/2,37,static,private,built_in,[
+    call_c_test('Blt_Term_Neq',[0,1]),
+    proceed]).
+
+
+predicate((@<)/2,40,static,private,built_in,[
+    call_c_test('Blt_Term_Lt',[0,1]),
+    proceed]).
+
+
+predicate((@=<)/2,43,static,private,built_in,[
+    call_c_test('Blt_Term_Lte',[0,1]),
+    proceed]).
+
+
+predicate((@>)/2,46,static,private,built_in,[
+    call_c_test('Blt_Term_Gt',[0,1]),
+    proceed]).
+
+
+predicate((@>=)/2,49,static,private,built_in,[
+    call_c_test('Blt_Term_Gte',[0,1]),
+    proceed]).
+
+
+predicate(arg/3,55,static,private,built_in,[
+    call_c_test('Blt_Arg',[0,1,2]),
+    proceed]).
+
+
+predicate(functor/3,61,static,private,built_in,[
+    call_c_test('Blt_Functor',[0,1,2]),
+    proceed]).
+
+
+predicate((=..)/2,67,static,private,built_in,[
+    call_c_test('Blt_Univ',[0,1]),
+    proceed]).
+
+
+predicate(copy_term/2,73,static,private,built_in,[
+    put_atom(copy_term,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Copy_Term_2',[0,1]),
+    proceed]).
+
+
+predicate(setarg/3,80,static,private,built_in,[
+    put_atom(setarg,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    put_atom(true,3),
+    call_c_test('Setarg_4',[0,1,2,3]),
+    proceed]).
+
+
+predicate(setarg/4,85,static,private,built_in,[
+    put_atom(setarg,4),
+    put_integer(4,5),
+    call_c('Set_Bip_Name_2',[4,5]),
+    call_c_test('Setarg_4',[0,1,2,3]),
+    proceed]).
+
+
+predicate(term_ref/2,92,static,private,built_in,[
+    put_atom(term_ref,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Term_Ref_2',[0,1]),
+    proceed]).

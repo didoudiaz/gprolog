@@ -1,0 +1,202 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : all_solut.pl
+% date    : 4 17 2000
+% time    : 2:15:35
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\all_solut.pl').
+
+
+predicate('$use_all_solut'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(findall/3,30,static,private,built_in,[
+    put_atom(findall,3),
+    execute('$findall'/4)]).
+
+
+predicate('$findall'/4,33,static,private,built_in,[
+    allocate(5),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    put_value(y(2),0),
+    put_value(y(3),1),
+    call('$check_list_arg'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_variable(y(4),2),
+    put_value(y(3),3),
+    call('$store_solutions'/4),
+    put_unsafe_value(y(4),0),
+    put_integer(0,1),
+    put_value(y(2),2),
+    call_c_test('Recover_Solutions_2',[0,1,2]),
+    deallocate,
+    proceed]).
+
+
+predicate(setof/3,41,static,private,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(2),0),
+    put_atom(setof,1),
+    call('$check_list_arg'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_atom(setof,3),
+    deallocate,
+    execute('$bagof'/4)]).
+
+
+predicate(bagof/3,49,static,private,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(2),0),
+    put_atom(bagof,1),
+    call('$check_list_arg'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_atom(bagof,3),
+    deallocate,
+    execute('$bagof'/4)]).
+
+
+predicate('$bagof'/4,54,static,private,built_in,[
+    load_cut_level(4),
+    try_me_else(1),
+    allocate(5),
+    get_variable(y(0),2),
+    get_variable(y(1),3),
+    get_variable(x(3),1),
+    get_variable(x(2),0),
+    put_variable(x(1),0),
+    put_variable(y(2),5),
+    call_c_test('Free_Variables_4',[2,3,0,5]),
+    cut(x(4)),
+    put_structure((-)/2,0),
+    unify_local_value(y(2)),
+    unify_local_value(x(2)),
+    put_variable(y(3),2),
+    put_value(y(1),3),
+    call('$store_solutions'/4),
+    put_value(y(1),0),
+    put_integer(3,1),
+    call(set_bip_name/2),
+    put_value(y(3),0),
+    put_integer(1,1),
+    put_variable(y(4),2),
+    call_c_test('Recover_Solutions_2',[0,1,2]),
+    put_value(y(1),0),
+    put_value(y(4),1),
+    call('$$bagof/4_$aux1'/2),
+    put_unsafe_value(y(4),0),
+    put_unsafe_value(y(2),1),
+    put_value(y(0),2),
+    deallocate,
+    execute('$group_solutions'/3),
+
+label(1),
+    trust_me_else_fail,
+    allocate(2),
+    get_variable(y(0),2),
+    get_variable(y(1),3),
+    put_variable(x(1),2),
+    call_c('Recover_Generator_1',[2]),
+    put_value(y(0),2),
+    put_value(y(1),3),
+    call('$findall'/4),
+    put_value(y(0),0),
+    put_nil(1),
+    call_c_test('Blt_Term_Neq',[0,1]),
+    put_value(y(1),0),
+    put_value(y(0),1),
+    deallocate,
+    execute('$$bagof/4_$aux2'/2)]).
+
+
+predicate('$$bagof/4_$aux2'/2,65,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(2),
+    switch_on_term(1,1,fail,fail,fail),
+
+label(1),
+    get_atom(bagof,0),
+    cut(x(2)),
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(1),0),
+    execute(sort/1)]).
+
+
+predicate('$$bagof/4_$aux1'/2,54,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(2),
+    switch_on_term(1,1,fail,fail,fail),
+
+label(1),
+    get_atom(bagof,0),
+    cut(x(2)),
+    put_value(x(1),0),
+    execute(keysort/1),
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(1),0),
+    execute(sort/1)]).
+
+
+predicate('$store_solutions'/4,75,static,private,built_in,[
+    get_variable(x(4),2),
+    get_variable(x(2),0),
+    call_c('Stop_Mark_1',[4]),
+    put_value(x(1),0),
+    put_value(x(3),1),
+    execute('$$store_solutions/4_$aux1'/3)]).
+
+
+predicate('$$store_solutions/4_$aux1'/3,75,static,private,built_in,[
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),2),
+    put_integer(3,2),
+    put_atom(true,3),
+    call('$call'/4),
+    put_value(y(0),0),
+    call_c('Store_Solution_1',[0]),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$group_solutions'/3,86,static,private,built_in,[
+    call_c_test('Group_Solutions_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$group_solutions_alt'/0,89,static,private,built_in,[
+    call_c_test('Group_Solutions_Alt_0',[]),
+    proceed]).
+
+
+predicate('$check_list_arg'/2,97,static,private,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    put_value(x(1),0),
+    put_integer(3,1),
+    call(set_bip_name/2),
+    put_value(y(0),0),
+    deallocate,
+    execute('$check_list_or_partial_list'/1)]).

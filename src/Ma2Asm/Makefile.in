@@ -1,0 +1,68 @@
+GPLC   = @GPLC@
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+
+all: ma2asm@EXE_SUFFIX@
+
+ma_parser@OBJ_SUFFIX@: ma_parser.c ma_parser.h ma_protos.h
+	$(CC) $(CFLAGS) -c ma_parser.c
+
+ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Wam2Ma/bt_string.c \
+          ../TopComp/copying.c
+	$(CC) $(CFLAGS) -c ma2asm.c
+
+ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
+               ix86_any.c ix86_win32.c ppc_linux.c sparc_any.c
+	$(CC) $(CFLAGS) -c ma2asm_inst.c
+
+ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \
+                    ma2asm_inst@OBJ_SUFFIX@ ma2asm_inst.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@ma2asm@EXE_SUFFIX@ ma2asm@OBJ_SUFFIX@ ma2asm_inst@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ ma2asm@EXE_SUFFIX@
+
+
+distclean: clean
+
+
+
+# for check
+CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
+
+check@OBJ_SUFFIX@: check.c
+	$(GPLC) -C '$(CFLAGS)' -c check.c
+
+check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
+	$(GPLC) -S --comment check_ma.ma
+
+check_ma@OBJ_SUFFIX@: check_ma@ASM_SUFFIX@
+	$(GPLC) -c check_ma@ASM_SUFFIX@
+
+check@EXE_SUFFIX@: $(CHECK_OBJS)
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@check@EXE_SUFFIX@ $(CHECK_OBJS)
+
+clean-check:
+	rm -f check@OBJ_SUFFIX@ check_ma@ASM_SUFFIX@ check_ma@OBJ_SUFFIX@ check@EXE_SUFFIX@
+
+
+
+# for test
+
+t.wam: t.pl
+	$(GPLC) -W t.pl
+
+t.ma: t.wam
+	$(GPLC) -M --comment t.wam
+
+t@ASM_SUFFIX@: t.ma
+	$(GPLC) -S --comment t.ma
+
+t@EXE_SUFFIX@: t@ASM_SUFFIX@
+	$(GPLC) -o t@EXE_SUFFIX@ t@ASM_SUFFIX@  --no-fd-lib
+
+
+
+

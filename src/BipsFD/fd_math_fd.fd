@@ -1,0 +1,1010 @@
+/*-------------------------------------------------------------------------*/
+/* FD Buit-In Predicates                                Daniel Diaz - 1998 */
+/* Mathematical predicate management - FD part                             */
+/*                                                                         */
+/* fd_math_fd.fd                          Copyright (C) 1998, INRIA France */
+/*-------------------------------------------------------------------------*/
+
+%{
+#include "bips_fd.h"
+#define ite(i,t,e)  ((i) ? (t) : (e))
+%}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* EQUAL (LINEAR)                                                          */
+/*                                                                         */
+/* NB: x_eq_c(fdv X,int C) is defined as a function in math_supp.c to avoid*/
+/* A Frame creation.                                                       */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+x_eq_y(fdv X,fdv Y)
+
+{
+ start X in min(Y) .. max(Y)
+ start Y in min(X) .. max(X)
+}
+
+
+
+
+x_plus_c_eq_y(fdv X,int C,fdv Y)
+
+{
+ start X in min(Y) - C .. max(Y) - C
+ start Y in min(X) + C .. max(X) + C
+}
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+
+x_eq_y_F(fdv X,fdv Y)
+
+{
+ start X in dom(Y)
+ start Y in dom(X)
+}
+
+
+
+
+x_plus_c_eq_y_F(fdv X,int C,fdv Y)
+
+{
+ start X in dom(Y) - C
+ start Y in dom(X) + C
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* DIFFERENT (LINEAR)                                                      */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+x_neq_c(fdv X,int C)
+
+{
+ start X in ~{C}
+}
+
+
+
+
+x_neq_y(fdv X,fdv Y)
+
+{
+ start X in ~{val(Y)}
+ start Y in ~{val(X)}
+}
+
+
+
+
+x_plus_c_neq_y(fdv X,int C,fdv Y)
+
+{
+ start X in ~{val(Y) - C}
+ start Y in ~{val(X) + C}
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* LESS THAN (LINEAR)                                                      */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+x_lt_y(fdv X,fdv Y)
+
+{
+ start X in 0 .. max(Y) - 1
+ start Y in min(X) + 1 .. max_integer
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* LESS THAN OR EQUAL TO (LINEAR)                                          */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+x_lte_c(fdv X,int C)
+
+{
+ start X in 0 .. C
+}
+
+
+
+
+x_lte_y(fdv X,fdv Y)
+
+{
+ start X in 0 .. max(Y)
+ start Y in min(X) .. max_integer
+}
+
+
+
+
+x_plus_c_lte_y(fdv X,int C,fdv Y)
+
+{
+ start X in 0 .. max(Y) - C
+ start Y in min(X) + C .. max_integer
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* GREATER THAN OR EQUAL TO (LINEAR)                                       */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+x_gte_c(fdv X,int C)
+
+{
+ start X in C .. max_integer
+}
+
+
+
+
+x_plus_c_gte_y(fdv X,int C,fdv Y)
+
+{
+ start X in min(Y) - C .. max_integer
+ start Y in 0 .. max(X) + C
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* OTHER EQUAL (LINEAR)                                                    */
+/*                                                                         */
+/* NB: used to split large equations introducing intermediate variables.   */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+ax_eq_y(int A,fdv X,fdv Y)
+
+{
+ start X in (min(Y)) /> A .. (max(Y)) /< A
+ start Y in A*min(X) .. A*max(X)
+}
+
+
+
+
+x_plus_y_eq_z(fdv X,fdv Y,fdv Z)
+
+{
+ start X in min(Z) - max(Y) .. max(Z) - min(Y)
+ start Y in min(Z) - max(X) .. max(Z) - min(X)
+ start Z in min(X) + min(Y) .. max(X) + max(Y)
+}
+
+
+
+
+ax_plus_y_eq_z(int A,fdv X,fdv Y,fdv Z)
+
+{
+ start X in (min(Z) - max(Y)) /> A .. (max(Z) - min(Y)) /< A
+ start Y in min(Z) - A*max(X) .. max(Z) - A*min(X)
+ start Z in A*min(X) + min(Y) .. A*max(X) + max(Y)
+}
+
+
+
+
+ax_plus_by_eq_z(int A,fdv X,int B,fdv Y,fdv Z)
+
+{
+ start X in (min(Z) - B*max(Y)) /> A .. (max(Z) - B*min(Y)) /< A
+ start Y in (min(Z) - A*max(X)) /> B .. (max(Z) - A*min(X)) /< B
+ start Z in A*min(X) + B*min(Y) .. A*max(X) + B*max(Y)
+}
+
+
+
+
+x_plus_y_plus_z_eq_t(fdv X,fdv Y,fdv Z,fdv T)
+
+{
+ start X in min(T) - max(Y) - max(Z) .. max(T) - min(Y) - min(Z)
+ start Y in min(T) - max(X) - max(Z) .. max(T) - min(X) - min(Z)
+ start Z in min(T) - max(X) - max(Y) .. max(T) - min(X) - min(Y)
+ start T in min(X) + min(Y) + min(Z) .. max(X) + max(Y) + max(Z)
+}
+
+
+
+
+ax_plus_y_plus_z_eq_t(int A,fdv X,fdv Y,fdv Z,fdv T)
+
+{
+ start X in (min(T) - max(Y) - max(Z)) /> A .. 
+            (max(T) - min(Y) - min(Z)) /< A
+ start Y in min(T) - A*max(X) - max(Z) .. max(T) - A*min(X) - min(Z)
+ start Z in min(T) - A*max(X) - max(Y) .. max(T) - A*min(X) - min(Y)
+ start T in A*min(X) + min(Y) + min(Z) .. A*max(X) + max(Y) + max(Z)
+}
+
+
+
+
+ax_plus_by_plus_z_eq_t(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
+
+{
+ start X in (min(T) - B*max(Y) - max(Z)) /> A .. 
+            (max(T) - B*min(Y) - min(Z)) /< A
+ start Y in (min(T) - A*max(X) - max(Z)) /> B .. 
+            (max(T) - A*min(X) - min(Z)) /< B
+ start Z in min(T) - A*max(X) - B*max(Y) .. max(T) - A*min(X) - B*min(Y)
+ start T in A*min(X) + B*min(Y) + min(Z) .. A*max(X) + B*max(Y) + max(Z)
+}
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+
+ax_eq_y_F(int A,fdv X,fdv Y)
+
+{
+ start X in (dom(Y)) / A
+ start Y in dom(X)*A
+}
+
+
+
+
+x_plus_y_eq_z_F(fdv X,fdv Y,fdv Z)
+
+{
+ start X in dom(Z) -- dom(Y)
+ start Y in dom(Z) -- dom(X)
+ start Z in dom(X) ++ dom(Y)
+}
+
+
+
+
+ax_plus_y_eq_z_F(int A,fdv X,fdv Y,fdv Z)
+
+{
+ start X in (dom(Z) -- dom(Y)) / A
+ start Y in dom(Z) -- dom(X)*A
+ start Z in dom(X)*A ++ dom(Y)
+}
+
+
+
+
+ax_plus_by_eq_z_F(int A,fdv X,int B,fdv Y,fdv Z)
+
+{
+ start X in (dom(Z) -- dom(Y)*B) / A
+ start Y in (dom(Z) -- dom(X)*A) / B
+ start Z in dom(X)*A ++ dom(Y)*B
+}
+
+
+
+
+x_plus_y_plus_z_eq_t_F(fdv X,fdv Y,fdv Z,fdv T)
+
+{
+ start X in dom(T) -- dom(Y) -- dom(Z)
+ start Y in dom(T) -- dom(X) -- dom(Z)
+ start Z in dom(T) -- dom(X) -- dom(Y)
+ start T in dom(X) ++ dom(Y) ++ dom(Z)
+}
+
+
+
+
+ax_plus_y_plus_z_eq_t_F(int A,fdv X,fdv Y,fdv Z,fdv T)
+
+{
+ start X in (dom(T) -- dom(Y) -- dom(Z)) / A
+ start Y in dom(T) -- dom(X)*A -- dom(Z)
+ start Z in dom(T) -- dom(X)*A -- dom(Y)
+ start T in dom(X)*A ++ dom(Y) ++ dom(Z)
+}
+
+
+
+
+ax_plus_by_plus_z_eq_t_F(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
+
+{
+ start X in (dom(T) -- dom(Y)*B -- dom(Z)) / A
+ start Y in (dom(T) -- dom(X)*A -- dom(Z)) / B
+ start Z in dom(T) -- dom(X)*A -- dom(Y)*B
+ start T in dom(X)*A ++ dom(Y)*B ++ dom(Z)
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* POWER and X * Y                                                         */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+zero_power_n_eq_y(fdv N,fdv Y)
+
+{
+ start Y in ite(max(N)==0,1,0)..ite(min(N)==0,1,0)
+ start N in ite(max(Y)==0,1,0)..ite(min(Y)==0,max_integer,0)
+}
+
+
+
+
+
+a_power_n_eq_y(int A,fdv N,fdv Y)                           /* here A >= 2 */
+
+{
+ start Y in Power(A,min(N))..Power(A,max(N))      /* before to ensure Y>=1 */
+ start N in Find_Expon_Up(A,min(Y))..Find_Expon_Dn(A,max(Y))
+}
+
+
+
+
+x_power_a_eq_y(fdv X,int A,fdv Y)                            /* here A > 2 */
+
+{
+ start Y in Power(min(X),A)..Power(max(X),A)
+ start X in Nth_Root_Up(min(Y),A)..Nth_Root_Dn(max(Y),A)
+}
+
+
+
+
+x2_eq_y(fdv X,fdv Y)
+
+{
+ start X in Sqrt_Up(min(Y))..Sqrt_Dn(max(Y))
+ start Y in min(X)*min(X)..max(X)*max(X)
+}
+
+
+
+
+xy_eq_z(fdv X,fdv Y,fdv Z)
+
+{
+ start X in ite(max(Y)==0,0,min(Z)/>max(Y)) ..
+            ite(min(Y)==0,max_integer,max(Z)/<min(Y))
+ start Y in ite(max(X)==0,0,min(Z)/>max(X)) ..
+            ite(min(X)==0,max_integer,max(Z)/<min(X))
+ start Z in min(X)*min(Y)..max(X)*max(Y)
+}
+
+
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+a_power_n_eq_y_F(int A,fdv N,fdv Y)                         /* here A >= 2 */
+
+{
+ start Y in Full_Coeff_Power_Var(A,dom(N))  /* to ensure Y<vec_max_integer */
+ start N in Full_Find_Expon(A,dom(Y))
+}
+
+
+
+
+x_power_a_eq_y_F(fdv X,int A,fdv Y)                          /* here A > 2 */
+
+{
+ start Y in Full_Var_Power_Coeff(dom(X),A)  /* to ensure Y<vec_max_integer */
+ start X in Full_Nth_Root(dom(Y),A)
+}
+
+
+
+
+x2_eq_y_F(fdv X,fdv Y)
+
+{
+ start Y in Full_Var_Power_2(dom(X))        /* to ensure Y<vec_max_integer */
+ start X in Full_Sqrt_Var(dom(Y))
+}
+
+
+
+
+xy_eq_z_F(fdv X,fdv Y,fdv Z)
+
+{
+ start Z in dom(X)**dom(Y)
+ wait_switch
+    case min(Z)>0
+            start Y in 1..max_integer
+            start X in dom(Z)//dom(Y)
+            start Y in dom(Z)//dom(X)
+
+    case max(Z)==0 && min(Y)>0
+            start X in { 0 }
+
+    case max(Z)==0 && min(X)>0
+            start Y in { 0 }
+}
+
+
+
+
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* MINIMUM                                                                 */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+min_x_y_eq_z(fdv X,fdv Y,fdv Z)
+
+{
+ start (c1) Z in math_min(min(X),min(Y)) .. max_integer   /* Z >= min(X,Y) */
+
+ start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c3) X in min(Z) .. max_integer
+
+ start (c4) Z in 0      .. max(Y)                                /* Z <= Y */
+ start (c5) Y in min(Z) .. max_integer
+
+
+ wait_switch
+	case min(Y)>max(Z)                                /* case : Y != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in min(X) .. max(X)                       /* Z = X */
+		start X in min(Z) .. max(Z)
+
+	case min(X)>max(Z)                                /* case : X != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in min(Y) .. max(Y)                       /* Z = Y */
+		start Y in min(Z) .. max(Z)
+}
+
+
+
+
+min_x_a_eq_z(fdv X,int A,fdv Z)
+
+{
+ start (c1) Z in math_min(min(X),A) .. max_integer        /* Z >= min(X,A) */
+
+ start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c3) X in min(Z) .. max_integer
+
+ start      Z in 0 .. A                                          /* Z <= A */
+
+
+ wait_switch
+	case A>max(Z)                                     /* case : A != Z */
+		stop c1
+		stop c2
+		stop c3
+		start Z in min(X) .. max(X)                       /* Z = X */
+		start X in min(Z) .. max(Z)
+}
+
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+
+min_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
+
+{
+ start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
+
+ start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c3) X in min(Z) .. max_integer
+
+ start (c4) Z in 0      .. max(Y)                                /* Z <= Y */
+ start (c5) Y in min(Z) .. max_integer
+
+ wait_switch
+	case Range_Test_Null_Inter(dom(Y),dom(Z))         /* case : Y != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in dom(X)                                 /* Z = X */
+		start X in dom(Z)
+
+	case Range_Test_Null_Inter(dom(X),dom(Z))         /* case : X != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in dom(Y)                                 /* Z = Y */
+		start Y in dom(Z)
+}
+
+
+
+
+min_x_a_eq_z_F(fdv X,int A,fdv Z)
+
+{
+ start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
+
+ start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c3) X in min(Z) .. max_integer
+
+ start      Z in 0 .. A                                          /* Z <= A */
+
+
+ wait_switch
+	case A>max(Z)                                     /* case : A != Z */
+		stop c1
+		stop c2
+		stop c3
+		start Z in dom(X)                                 /* Z = X */
+		start X in dom(Z)
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* MAXIMUM                                                                 */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+max_x_y_eq_z(fdv X,fdv Y,fdv Z)
+
+{
+ start (c1) Z in 0 .. math_max(max(X),max(Y))             /* Z <= max(X,Y) */
+
+ start (c2) Z in min(X) .. max_integer                           /* Z >= X */
+ start (c3) X in 0      .. max(Z)  
+
+ start (c4) Z in min(Y) .. max_integer                           /* Z >= Y */
+ start (c5) Y in 0      .. max(Z)
+
+
+ wait_switch
+	case max(Y)<min(Z)                                /* case : Y != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in min(X) .. max(X)                       /* Z = X */
+		start X in min(Z) .. max(Z)
+
+	case max(X)<min(Z)                                /* case : X != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in min(Y) .. max(Y)                       /* Z = Y */
+		start Y in min(Z) .. max(Z)
+}
+
+
+
+
+max_x_a_eq_z(fdv X,int A,fdv Z)
+
+{
+ start (c1) Z in 0 .. math_max(max(X),A)                  /* Z <= max(X,A) */
+
+ start (c2) Z in min(X) .. max_integer                           /* Z >= X */
+ start (c3) X in 0      .. max(Z)  
+
+ start      Z in A .. max_integer                                /* Z >= A */
+
+
+ wait_switch
+	case A<min(Z)                                     /* case : A != Z */
+		stop c1
+		stop c2
+		stop c3
+		start Z in min(X) .. max(X)                       /* Z = X */
+		start X in min(Z) .. max(Z)
+}
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+
+max_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
+
+{
+ start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
+
+ start (c2) Z in min(X) .. max_integer                           /* Z >= X */
+ start (c3) X in 0      .. max(Z)  
+
+ start (c4) Z in min(Y) .. max_integer                           /* Z >= Y */
+ start (c5) Y in 0      .. max(Z)
+
+
+ wait_switch
+	case Range_Test_Null_Inter(dom(Y),dom(Z))         /* case : Y != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in dom(X)                                 /* Z = X */
+		start X in dom(Z)
+
+	case Range_Test_Null_Inter(dom(X),dom(Z))         /* case : X != Z */
+		stop c1 
+		stop c2 
+		stop c3
+		stop c4
+		stop c5
+		start Z in dom(Y)                                 /* Z = Y */
+		start Y in dom(Z)
+}
+
+
+
+
+max_x_a_eq_z_F(fdv X,int A,fdv Z)
+
+{
+ start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
+
+ start (c2) Z in min(X) .. max_integer                           /* Z >= X */
+ start (c3) X in 0      .. max(Z)  
+
+ start      Z in A .. max_integer                                /* Z >= A */
+
+
+ wait_switch
+	case A<min(Z)                                     /* case : A != Z */
+		stop c1
+		stop c2
+		stop c3
+		start Z in dom(X)                                 /* Z = X */
+		start X in dom(Z)
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* ABSOLUTE VALUE                                                          */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+abs_x_minus_y_eq_z(fdv X,fdv Y,fdv Z)
+
+{
+ start (c1) X in min(Y) + min(Z) .. max(Y) + max(Z) :
+                 min(Y) - max(Z) .. max(Y) - min(Z)
+
+ start (c2) Y in min(X) + min(Z) .. max(X) + max(Z) :
+                 min(X) - max(Z) .. max(X) - min(Z)
+
+ start (c3) Z in min(X) - max(Y) .. max(X) - min(Y) :
+                 min(Y) - max(X) .. max(Y) - min(X)
+
+ wait_switch
+	case min(X) >= max(Y)                             /* case : X >= Y */
+		stop c1
+		stop c2
+		stop c3
+		start X in min(Y) + min(Z) .. max(Y) + max(Z)
+		start Y in min(X) - max(Z) .. max(X) - min(Z)
+		start Z in min(X) - max(Y) .. max(X) - min(Y)
+
+	case min(Y) >= max(X)                             /* case : Y >= X */
+		stop c1
+		stop c2
+		stop c3
+		start X in min(Y) - max(Z) .. max(Y) - min(Z)
+		start Y in min(X) + min(Z) .. max(X) + max(Z)
+		start Z in min(Y) - max(X) .. max(Y) - min(X)
+}
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+
+abs_x_minus_a_eq_z(fdv X,int A,fdv Z)
+
+{
+ start (c1) X in A + min(Z) .. A + max(Z) :
+                 A - max(Z) .. A - min(Z)
+
+ start (c2) Z in min(X) - A .. max(X) - A :
+                 A - max(X) .. A - min(X)
+
+ wait_switch
+	case min(X) >= A                                  /* case : X >= A */
+		stop c1
+		stop c2
+		start X in A + min(Z) .. A + max(Z)
+		start Z in min(X) - A .. max(X) - A
+
+	case A >= max(X)                                  /* case : A >= X */
+		stop c1
+		stop c2
+		start X in A - max(Z) .. A - min(Z)
+		start Z in A - max(X) .. A - min(X)
+}
+
+
+abs_x_minus_y_eq_z_F(fdv X,fdv Y,fdv Z)
+
+{
+ start (c1) X in dom(Y) ++ dom(Z) :
+                 dom(Y) -- dom(Z)
+
+ start (c2) Y in dom(X) ++ dom(Z) :
+                 dom(X) -- dom(Z)
+
+ start (c3) Z in dom(X) -- dom(Y) :
+                 dom(Y) -- dom(X)
+
+ wait_switch
+	case min(X) >= max(Y)                             /* case : X >= Y */
+		stop c1
+		stop c2
+		stop c3
+		start X in dom(Y) ++ dom(Z)
+		start Y in dom(X) -- dom(Z)
+		start Z in dom(X) -- dom(Y)
+
+	case min(Y) >= max(X)                             /* case : Y >= X */
+		stop c1
+		stop c2
+		stop c3
+		start X in dom(Y) -- dom(Z)
+		start Y in dom(X) ++ dom(Z)
+		start Z in dom(Y) -- dom(X)
+}
+
+
+
+
+abs_x_minus_a_eq_z_F(fdv X,int A,fdv Z)
+
+{
+ start (c1) X in dom(Z) + A :
+                 { A } -- dom(Z)
+
+ start (c2) Z in dom(X) - A :
+                 { A } -- dom(X)
+
+ wait_switch
+	case min(X) >= A                                  /* case : X >= A */
+		stop c1
+		stop c2
+		start X in dom(Z) + A
+		start Z in dom(X) - A
+
+	case A >= max(X)                                  /* case : A >= X */
+		stop c1
+		stop c2
+		start X in { A } -- dom(Z)
+		start Z in { A } -- dom(X)
+}
+
+
+
+
+/*-------------------------------------------------------------------------*/
+/* EUCLIDIAN DIVISION WITH REMAINDER                                       */
+/*                                                                         */
+/*-------------------------------------------------------------------------*/
+
+
+	/*------------*/
+	/* Partial AC */
+	/*------------*/
+
+
+quot_rem_x_y_r_eq_z(fdv X,fdv Y,fdv R,fdv Z)                  /* X = Z*Y+R */
+
+{
+ start Y in min(R)+1 .. max_integer                               /* R < Y */
+ start R in 0        .. max(Y)-1
+
+ start Z in (min(X)-max(R)) /> max(Y) .. (max(X)-min(R)) /< min(Y)
+ start R in min(X)-(max(Z)*max(Y))    .. max(X)-(min(Z)*min(Y))
+ start X in min(Z)*min(Y)+min(R)      .. max(Z)*max(Y)+max(R)
+
+ start Y in (min(X)/<(max(Z)+1))+1..max_integer             /* Y > X/(Z+1) */
+ start X in 0..(max(Z)+1)*max(Y)-1
+
+ wait_switch
+	case min(Z)>0
+		 start Y in (min(X)-max(R)) /> max(Z)..
+                            (max(X)-min(R)) /< min(Z)
+}
+
+
+
+
+quot_rem_a_y_r_eq_z(int A,fdv Y,fdv R,fdv Z)                  /* A = Z*Y+R */
+
+{
+ start Y in min(R)+1 .. max_integer                               /* R < Y */
+ start R in 0        .. max(Y)-1
+
+ start Y in (A/<(max(Z)+1))+1..max_integer                  /* Y > A/(Z+1) */
+
+ start Z in (A-max(R)) /> max(Y) .. (A-min(R)) /< min(Y)
+ start R in A-(max(Z)*max(Y))    .. A-(min(Z)*min(Y))
+
+ wait_switch
+	case min(Z)>0
+		 start Y in (A-max(R)) /> max(Z)..(A-min(R)) /< min(Z)
+}
+
+
+
+
+quot_rem_x_a_r_eq_z(fdv X,int A,fdv R,fdv Z)                  /* X = Z*A+R */
+{
+ start R in 0        .. A-1                                       /* R < A */
+
+ start Z in (min(X)-max(R)) /> A .. (max(X)-min(R)) /< A
+ start R in min(X)-(max(Z)*A)    .. max(X)-(min(Z)*A)
+ start X in min(Z)*A+min(R)      .. max(Z)*A+max(R)
+
+ start X in 0..(max(Z)+1)*A-1                               /* X < (Z+1)*A */
+}
+
+
+	/*------------*/
+	/*  Full AC   */
+	/*------------*/
+
+
+quot_rem_x_y_r_eq_z_F(fdv X,fdv Y,fdv R,fdv Z)                /* X = Z*Y+R */
+
+{
+ start Y in min(R)+1 .. max_integer                               /* R < Y */
+ start R in 0        .. max(Y)-1
+
+ start Z in (dom(X)--dom(R))//dom(Y)
+ start R in dom(X)--(dom(Z)**dom(Y))
+ start X in dom(Z)**dom(Y)++dom(R)
+
+ start Y in (min(X)/<(max(Z)+1))+1..max_integer             /* Y > X/(Z+1) */
+ start X in 0..(max(Z)+1)*max(Y)-1
+
+ wait_switch
+	case min(Z)>0
+		 start Y in (dom(X)--dom(R)) // dom(Z)
+}
+
+
+
+
+quot_rem_a_y_r_eq_z_F(int A,fdv Y,fdv R,fdv Z)                /* A = Z*Y+R */
+
+{
+ start Y in min(R)+1 .. max_integer                               /* R < Y */
+ start R in 0        .. max(Y)-1
+
+ start Y in (A/<(max(Z)+1))+1..max_integer                  /* Y > A/(Z+1) */
+
+ start Z in ({ A }--dom(R))//dom(Y)
+ start R in { A }--(dom(Z)**dom(Y))
+
+ wait_switch
+	case min(Z)>0
+		 start Y in ({ A }--dom(R)) // dom(Z)
+}
+
+
+
+
+quot_rem_x_a_r_eq_z_F(fdv X,int A,fdv R,fdv Z)                /* X = Z*A+R */
+{
+ start R in 0        .. A-1                                       /* R < A */
+
+ start Z in (dom(X)--dom(R))/A
+ start R in dom(X)--(dom(Z)*A)
+ start X in (dom(Z)*A)++dom(R)
+
+ start X in 0..(max(Z)+1)*A-1                               /* X < (Z+1)*A */
+}

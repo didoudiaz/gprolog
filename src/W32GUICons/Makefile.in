@@ -1,0 +1,41 @@
+LIB_W32GUICONS = @LIB_W32GUICONS@
+CC             = @CC@
+CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@ /D "_AFXDLL" /D "_MBCS"
+AR_RC          = @AR_RC@
+RANLIB         = @RANLIB@
+RC             = rc
+RCFLAGS        = /l 0x409 /d "_AFXDLL"
+
+LIBNAME = $(LIB_W32GUICONS)
+OBJLIB  = CntrItem.obj GUIConsDoc.obj  MainFrm.obj        StackSizeDlg.obj \
+          GUICons.obj  GUIConsView.obj RestartExitDlg.obj StdAfx.obj
+
+
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .cpp .c .res .rc $(SUFFIXES)
+
+.cpp@OBJ_SUFFIX@:
+	$(CC) -c $(CFLAGS) $*.cpp
+
+.c@OBJ_SUFFIX@:
+	$(CC) -c $(CFLAGS) $*.c
+
+.rc.res:
+	$(RC) $(RCFLAGS) $*.rc
+
+all: $(LIBNAME) GUICons.res w32gc_interf@OBJ_SUFFIX@
+
+$(LIBNAME): $(OBJLIB) GUICons.res
+	rm -f $(LIBNAME)
+	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
+	$(RANLIB) $(LIBNAME)	
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ $(LIBNAME) *.res
+
+
+distclean: clean
+
+

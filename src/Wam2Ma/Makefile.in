@@ -1,0 +1,21 @@
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+
+all: wam2ma@EXE_SUFFIX@
+
+
+wam_parser@OBJ_SUFFIX@: wam_parser.c wam_parser.h wam_protos.h
+	$(CC) $(CFLAGS) -c wam_parser.c
+
+wam2ma@OBJ_SUFFIX@: wam2ma.c wam_parser.h bt_string.c ../TopComp/copying.c
+	$(CC) $(CFLAGS) -c wam2ma.c
+
+wam2ma@EXE_SUFFIX@: wam2ma@OBJ_SUFFIX@ wam_parser@OBJ_SUFFIX@
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@wam2ma@EXE_SUFFIX@ wam2ma@OBJ_SUFFIX@ wam_parser@OBJ_SUFFIX@
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ wam2ma@EXE_SUFFIX@
+
+distclean: clean

@@ -1,0 +1,27 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : format.pl
+% date    : 4 17 2000
+% time    : 2:15:46
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\format.pl').
+
+
+predicate('$use_format'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(format/2,30,static,private,built_in,[
+    put_atom(format,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Format_2',[0,1]),
+    proceed]).
+
+
+predicate(format/3,37,static,private,built_in,[
+    put_atom(format,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[3,4]),
+    call_c('Format_3',[0,1,2]),
+    proceed]).

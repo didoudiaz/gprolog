@@ -1,0 +1,111 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : pl_error.pl
+% date    : 4 17 2000
+% time    : 2:15:13
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\pl_error.pl').
+
+
+predicate(set_bip_name/2,28,static,private,built_in,[
+    call_c('Set_Bip_Name_2',[0,1]),
+    proceed]).
+
+
+predicate(current_bip_name/2,31,static,private,built_in,[
+    call_c_test('Current_Bip_Name_2',[0,1]),
+    proceed]).
+
+
+predicate('$pl_err_instantiation'/0,37,static,private,built_in,[
+    put_atom(instantiation_error,0),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_type'/2,40,static,private,built_in,[
+    get_variable(x(2),0),
+    put_structure(type_error/2,0),
+    unify_local_value(x(2)),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_domain'/2,43,static,private,built_in,[
+    get_variable(x(2),0),
+    put_structure(domain_error/2,0),
+    unify_local_value(x(2)),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_existence'/2,46,static,private,built_in,[
+    get_variable(x(2),0),
+    put_structure(existence_error/2,0),
+    unify_local_value(x(2)),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_permission'/3,49,static,private,built_in,[
+    get_variable(x(3),0),
+    put_structure(permission_error/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_representation'/1,52,static,private,built_in,[
+    get_variable(x(1),0),
+    put_structure(representation_error/1,0),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_evaluation'/1,55,static,private,built_in,[
+    get_variable(x(1),0),
+    put_structure(evaluation_error/1,0),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_resource'/1,58,static,private,built_in,[
+    get_variable(x(1),0),
+    put_structure(resource_error/1,0),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_syntax'/1,61,static,private,built_in,[
+    get_variable(x(1),0),
+    put_structure(syntax_error/1,0),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_err_system'/1,64,static,private,built_in,[
+    get_variable(x(1),0),
+    put_structure(system_error/1,0),
+    unify_local_value(x(1)),
+    execute('$pl_error'/1)]).
+
+
+predicate('$pl_error'/1,71,static,private,built_in,[
+    get_variable(x(2),0),
+    put_variable(x(1),0),
+    call_c('Context_Error_1',[0]),
+    put_structure(error/2,0),
+    unify_local_value(x(2)),
+    unify_value(x(1)),
+    put_atom('$pl_error',1),
+    put_integer(1,2),
+    put_atom(true,3),
+    execute('$throw'/4)]).
+
+
+predicate(syntax_error_info/4,78,static,private,built_in,[
+    put_atom(syntax_error_info,4),
+    put_integer(4,5),
+    call_c('Set_Bip_Name_2',[4,5]),
+    call_c_test('Syntax_Error_Info_4',[0,1,2,3]),
+    proceed]).

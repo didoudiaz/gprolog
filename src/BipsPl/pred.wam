@@ -1,0 +1,293 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : pred.pl
+% date    : 4 17 2000
+% time    : 2:15:22
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\pred.pl').
+
+
+predicate('$use_pred'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(current_predicate/1,30,static,private,built_in,[
+    put_atom(current_predicate,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    execute('$current_predicate'/1)]).
+
+
+predicate('$current_predicate'/1,34,static,private,built_in,[
+    put_integer(1,1),
+    call_c_test('Current_Predicate_2',[0,1]),
+    proceed]).
+
+
+predicate('$current_predicate_any'/1,39,static,private,built_in,[
+    put_integer(0,1),
+    call_c_test('Current_Predicate_2',[0,1]),
+    proceed]).
+
+
+predicate('$current_predicate_alt'/0,43,static,private,built_in,[
+    call_c_test('Current_Predicate_Alt_0',[]),
+    proceed]).
+
+
+predicate(predicate_property/2,49,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_atom(predicate_property,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_value(y(0),0),
+    call('$current_predicate'/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$predicate_property1'/2)]).
+
+
+predicate('$predicate_property_any'/2,55,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(0),0),
+    call('$current_predicate_any'/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$predicate_property1'/2)]).
+
+
+predicate('$predicate_property1'/2,62,static,private,built_in,[
+    load_cut_level(2),
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(1),0),
+    call('$check_pred_prop'/1),
+    cut(y(2)),
+    put_value(y(1),0),
+    put_value(y(0),1),
+    deallocate,
+    execute('$predicate_property2'/2)]).
+
+
+predicate('$check_pred_prop'/1,70,static,private,built_in,[
+    try_me_else(1),
+    call_c_test('Blt_Var',[0]),
+    proceed,
+
+label(1),
+    retry_me_else(24),
+    switch_on_term(4,2,fail,fail,3),
+
+label(2),
+    switch_on_atom([(static,5),(dynamic,7),(private,9),(public,11),(user,13),(built_in,15),(built_in_fd,17),(native_code,19)]),
+
+label(3),
+    switch_on_structure([(prolog_file/1,21),(prolog_line/1,23)]),
+
+label(4),
+    try_me_else(6),
+
+label(5),
+    get_atom(static,0),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_atom(dynamic,0),
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    get_atom(private,0),
+    proceed,
+
+label(10),
+    retry_me_else(12),
+
+label(11),
+    get_atom(public,0),
+    proceed,
+
+label(12),
+    retry_me_else(14),
+
+label(13),
+    get_atom(user,0),
+    proceed,
+
+label(14),
+    retry_me_else(16),
+
+label(15),
+    get_atom(built_in,0),
+    proceed,
+
+label(16),
+    retry_me_else(18),
+
+label(17),
+    get_atom(built_in_fd,0),
+    proceed,
+
+label(18),
+    retry_me_else(20),
+
+label(19),
+    get_atom(native_code,0),
+    proceed,
+
+label(20),
+    retry_me_else(22),
+
+label(21),
+    get_structure(prolog_file/1,0),
+    unify_void(1),
+    proceed,
+
+label(22),
+    trust_me_else_fail,
+
+label(23),
+    get_structure(prolog_line/1,0),
+    unify_void(1),
+    proceed,
+
+label(24),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(predicate_property,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$predicate_property2'/2,99,static,private,built_in,[
+    switch_on_term(3,1,fail,fail,2),
+
+label(1),
+    switch_on_atom([(static,4),(dynamic,6),(private,8),(public,10),(user,12),(built_in,14),(built_in_fd,16),(native_code,18)]),
+
+label(2),
+    switch_on_structure([(prolog_file/1,20),(prolog_line/1,22)]),
+
+label(3),
+    try_me_else(5),
+
+label(4),
+    get_atom(static,0),
+    call_c_test('Pred_Prop_Static_1',[1]),
+    proceed,
+
+label(5),
+    retry_me_else(7),
+
+label(6),
+    get_atom(dynamic,0),
+    call_c_test('Pred_Prop_Dynamic_1',[1]),
+    proceed,
+
+label(7),
+    retry_me_else(9),
+
+label(8),
+    get_atom(private,0),
+    call_c_test('Pred_Prop_Private_1',[1]),
+    proceed,
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    get_atom(public,0),
+    call_c_test('Pred_Prop_Public_1',[1]),
+    proceed,
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    get_atom(user,0),
+    call_c_test('Pred_Prop_User_1',[1]),
+    proceed,
+
+label(13),
+    retry_me_else(15),
+
+label(14),
+    get_atom(built_in,0),
+    call_c_test('Pred_Prop_Built_In_1',[1]),
+    proceed,
+
+label(15),
+    retry_me_else(17),
+
+label(16),
+    get_atom(built_in_fd,0),
+    call_c_test('Pred_Prop_Built_In_Fd_1',[1]),
+    proceed,
+
+label(17),
+    retry_me_else(19),
+
+label(18),
+    get_atom(native_code,0),
+    call_c_test('Pred_Prop_Native_Code_1',[1]),
+    proceed,
+
+label(19),
+    retry_me_else(21),
+
+label(20),
+    get_structure(prolog_file/1,0),
+    unify_variable(x(0)),
+    call_c_test('Pred_Prop_Prolog_File_2',[1,0]),
+    proceed,
+
+label(21),
+    trust_me_else_fail,
+
+label(22),
+    get_structure(prolog_line/1,0),
+    unify_variable(x(0)),
+    call_c_test('Pred_Prop_Prolog_Line_2',[1,0]),
+    proceed]).
+
+
+predicate('$get_predicate_file_info'/3,132,static,private,built_in,[
+    call_c_test('Get_Predicate_File_Info_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$set_predicate_file_info'/3,138,static,private,built_in,[
+    call_c_test('Set_Predicate_File_Info_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$aux_name'/1,144,static,private,built_in,[
+    call_c_test('Aux_Name_1',[0]),
+    proceed]).
+
+
+predicate('$father_of_aux_name'/3,150,static,private,built_in,[
+    call_c_test('Father_Of_Aux_Name_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$pred_without_aux'/4,156,static,private,built_in,[
+    call_c_test('Pred_Without_Aux_4',[0,1,2,3]),
+    proceed]).
+
+
+predicate('$make_aux_name'/4,162,static,private,built_in,[
+    call_c_test('Make_Aux_Name_4',[0,1,2,3]),
+    proceed]).

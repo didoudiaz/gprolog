@@ -1,0 +1,35 @@
+Information for developers
+
+If you want to update/modify GNU-Prolog without having to install each
+working (intermediate) version simply use:
+
+   % cd src
+   % . ./SETVARS         (under sh/bash)
+   % source ./CSHSETVARS (under csh/tcsh)
+
+This updates the PATH variable and makes it possible to invoke gplc (and
+gprolog) which resides in src/TopComp. gplc then detects that it is in a
+development mode (use gplc -v to check this) and will use the libraries
+residing in src/EnginePl, src/BipsPl, src/EngineFD, src/BipsFD, src/Linedit
+(i.e the current development libraries and objects).
+
+To test a new (pure) Prolog feature, define a file t.pl and t_c.c (maybe
+empty) in BipsPl:
+
+   % cd BipsPl
+   % modify t.pl and t_c.c
+   % make t
+   % ./t to test
+
+There is an entry in the Makefile that reconstruct t from t.pl and t_c.c.
+
+Similarly, to test a new Prolog+FD feature, use t.pl, t_c.c and t_fd.fd in
+BipsFD:
+
+   % cd BipsFD
+   % modify t.pl and/or t_c.c and/or t_fd.fd
+   % make t
+   % ./t (to test)
+
+There is an entry in the Makefile that reconstruct t from t.pl, t_c.c and
+t_fd.fd. 

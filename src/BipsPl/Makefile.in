@@ -1,0 +1,169 @@
+MAKE_SOCKETS_OBJS    = @MAKE_SOCKETS_OBJS@
+MAKE_LE_INTERF_OBJS  = @MAKE_LE_INTERF_OBJS@
+LIB_BIPS_PL          = @LIB_BIPS_PL@
+GPLC                 = @GPLC@
+CC                   = @CC@
+CFLAGS               = @CFLAGS@
+CFLAGS_UNSIGNED_CHAR = @CFLAGS_UNSIGNED_CHAR@
+AR_RC                = @AR_RC@
+RANLIB               = @RANLIB@
+
+
+SOCKETS_OBJS      = sockets@OBJ_SUFFIX@ sockets_c@OBJ_SUFFIX@
+NO_SOCKETS_OBJS   = no_sockets@OBJ_SUFFIX@
+
+
+LE_INTERF_OBJS    = le_interf@OBJ_SUFFIX@ le_interf_c@OBJ_SUFFIX@
+NO_LE_INTERF_OBJS = no_le_interf@OBJ_SUFFIX@
+
+
+LIBNAME = $(LIB_BIPS_PL)
+OBJLIB  = error_supp@OBJ_SUFFIX@ \
+          c_supp@OBJ_SUFFIX@ \
+          foreign_supp@OBJ_SUFFIX@ \
+          pred_supp@OBJ_SUFFIX@ \
+          term_supp@OBJ_SUFFIX@ \
+          stream_supp@OBJ_SUFFIX@ \
+          scan_supp@OBJ_SUFFIX@ \
+          parse_supp@OBJ_SUFFIX@ \
+          write_supp@OBJ_SUFFIX@ \
+          dynam_supp@OBJ_SUFFIX@ \
+          callinf_supp@OBJ_SUFFIX@ \
+          bc_supp@OBJ_SUFFIX@ \
+          foreign@OBJ_SUFFIX@ \
+          pl_error@OBJ_SUFFIX@ \
+          utils@OBJ_SUFFIX@ \
+          unify@OBJ_SUFFIX@ \
+          assert@OBJ_SUFFIX@ assert_c@OBJ_SUFFIX@ \
+          read@OBJ_SUFFIX@ read_c@OBJ_SUFFIX@ \
+          write@OBJ_SUFFIX@ write_c@OBJ_SUFFIX@ print@OBJ_SUFFIX@ \
+          const_io@OBJ_SUFFIX@ const_io_c@OBJ_SUFFIX@ \
+          oper@OBJ_SUFFIX@ oper_c@OBJ_SUFFIX@ \
+          pred@OBJ_SUFFIX@ pred_c@OBJ_SUFFIX@ \
+          atom@OBJ_SUFFIX@ atom_c@OBJ_SUFFIX@ \
+          control@OBJ_SUFFIX@ control_c@OBJ_SUFFIX@ \
+          call@OBJ_SUFFIX@ \
+          call_args@OBJ_SUFFIX@ call_args_c@OBJ_SUFFIX@ \
+          catch@OBJ_SUFFIX@ throw@OBJ_SUFFIX@ throw_c@OBJ_SUFFIX@ \
+          flag@OBJ_SUFFIX@ flag_c@OBJ_SUFFIX@ \
+          arith_inl@OBJ_SUFFIX@ arith_inl_c@OBJ_SUFFIX@ \
+          type_inl@OBJ_SUFFIX@ type_inl_c@OBJ_SUFFIX@ \
+          term_inl@OBJ_SUFFIX@ term_inl_c@OBJ_SUFFIX@ \
+	  g_var_inl@OBJ_SUFFIX@ g_var_inl_c@OBJ_SUFFIX@ \
+          all_solut@OBJ_SUFFIX@ all_solut_c@OBJ_SUFFIX@ \
+          sort@OBJ_SUFFIX@ sort_c@OBJ_SUFFIX@ \
+          list@OBJ_SUFFIX@ \
+          stat@OBJ_SUFFIX@ stat_c@OBJ_SUFFIX@ \
+          stream@OBJ_SUFFIX@ stream_c@OBJ_SUFFIX@ \
+          file@OBJ_SUFFIX@ file_c@OBJ_SUFFIX@ \
+          char_io@OBJ_SUFFIX@ char_io_c@OBJ_SUFFIX@ \
+          dec10io@OBJ_SUFFIX@ \
+          format@OBJ_SUFFIX@ format_c@OBJ_SUFFIX@ \
+          os_interf@OBJ_SUFFIX@ os_interf_c@OBJ_SUFFIX@ \
+          expand@OBJ_SUFFIX@ expand_c@OBJ_SUFFIX@ \
+          consult@OBJ_SUFFIX@ consult_c@OBJ_SUFFIX@ \
+          pretty@OBJ_SUFFIX@ pretty_c@OBJ_SUFFIX@ \
+          random@OBJ_SUFFIX@ random_c@OBJ_SUFFIX@ \
+          top_level@OBJ_SUFFIX@ top_level_c@OBJ_SUFFIX@ \
+          debugger@OBJ_SUFFIX@ debugger_c@OBJ_SUFFIX@ \
+          all_pl_bips@OBJ_SUFFIX@ \
+          $(MAKE_SOCKETS_OBJS) \
+	  $(MAKE_LE_INTERF_OBJS)
+
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .c .wam .pl $(SUFFIXES)
+
+
+.pl.wam:
+	$(GPLC) -W $(GPLCFLAGS) --no-redef-error $*.pl
+.wam@OBJ_SUFFIX@:
+	$(GPLC) -c $*.wam
+
+.c@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS) $(CFLAGS_UNSIGNED_CHAR)' $*.c 
+
+$(LIBNAME): $(OBJLIB) no_sockets.wam sockets.wam \
+                      no_le_interf.wam le_interf.wam
+	rm -f $(LIBNAME) 
+	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
+	$(RANLIB) $(LIBNAME)
+
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ $(LIBNAME)
+
+
+distclean: clean
+
+
+# for test
+
+t.wam: t.pl
+
+t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/libengine_pl.a $(LIBNAME) \
+            ../Linedit/liblinedit.a 
+	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ --no-fd-lib
+
+
+# depending on ../EnginePl/gp_config.h
+
+error_supp@OBJ_SUFFIX@: ../EnginePl/gp_config.h
+stream_supp@OBJ_SUFFIX@: ../EnginePl/gp_config.h
+flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
+
+
+# depending on dynam_supp.h
+
+dynam_supp@OBJ_SUFFIX@: dynam_supp.h
+bc_supp@OBJ_SUFFIX@:    dynam_supp.h
+assert_c@OBJ_SUFFIX@:   dynam_supp.h
+
+foreign.wam:     foreign.pl
+
+all_pl_bips.wam: all_pl_bips.pl
+all_solut.wam:   all_solut.pl
+arith_inl.wam:   arith_inl.pl
+assert.wam:      assert.pl
+atom.wam:        atom.pl
+call.wam:        call.pl
+call_args.wam:   call_args.pl
+catch.wam:       catch.pl
+char_io.wam:     char_io.pl
+const_io.wam:	 const_io.pl
+consult.wam:     consult.pl
+control.wam:     control.pl
+expand.wam:      expand.pl
+debugger.wam:    debugger.pl
+	$(GPLC) -W $(GPLCFLAGS) --no-redef-error --fast-math debugger.pl
+dec10io.wam:     dec10io.pl
+file.wam:        file.pl
+flag.wam:        flag.pl
+format.wam:      format.pl
+g_var_inl.wam:   g_var_inl.pl
+le_interf.wam:   le_interf.pl
+list.wam:        list.pl
+stat.wam:        stat.pl
+no_le_interf.wam:no_le_interf.pl
+no_sockets.wam:	 no_sockets.pl
+oper.wam:        oper.pl
+os_interf.wam:   os_interf.pl
+pl_error.wam:    pl_error.pl
+pred.wam:        pred.pl
+pretty.wam:      pretty.pl
+random.wam:	 random.pl
+print.wam:       print.pl
+read.wam:        read.pl
+reg_alloc.wam:   reg_alloc.pl
+sockets.wam:	 sockets.pl
+sort.wam:        sort.pl
+stream.wam:      stream.pl
+term_inl.wam:    term_inl.pl
+throw.wam:       throw.pl
+top_level.wam:   top_level.pl
+type_inl.wam:    type_inl.pl
+unify.wam:       unify.pl
+utils.wam:       utils.pl
+write.wam:       write.pl
+

@@ -1,0 +1,184 @@
+/*-------------------------------------------------------------------------*/
+/* GNU Prolog                                                              */
+/*                                                                         */
+/* Part  : configuration                                                   */
+/* File  : gp_config.h.in                                                  */
+/* Descr.: general configuration file (handled by autoconf) - header file  */
+/* Author: Daniel Diaz                                                     */
+/*                                                                         */
+/* Copyright (C) 1999 Daniel Diaz                                          */
+/*                                                                         */
+/* GNU Prolog is free software; you can redistribute it and/or modify it   */
+/* under the terms of the GNU General Public License as published by the   */
+/* Free Software Foundation; either version 2, or any later version.       */
+/*                                                                         */
+/* GNU Prolog is distributed in the hope that it will be useful, but       */
+/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
+/* General Public License for more details.                                */
+/*                                                                         */
+/* You should have received a copy of the GNU General Public License along */
+/* with this program; if not, write to the Free Software Foundation, Inc.  */
+/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
+/*-------------------------------------------------------------------------*/
+
+#ifndef _GP_CONFIG_H
+#define _GP_CONFIG_H
+
+/* Define if you have sys/ioctl_compat.h */
+#undef HAVE_SYS_IOCTL_COMPAT_H
+
+/* Define if you have termios.h */
+#undef HAVE_TERMIOS_H
+
+/* Define if you have termio.h */
+#undef HAVE_TERMIO_H
+
+/* Define if you have a working `mmap' system call.  */
+#undef HAVE_MMAP
+
+/* Define inline keyword */
+#undef inline
+
+/* Define if you don't want to use machine registers */
+#undef NO_USE_REGS
+
+/* Define if you don't want to include line editor facility */
+#undef NO_USE_LINEDIT
+
+/* Define if you don't want to use the win32 GUI console */
+#undef NO_USE_GUI_CONSOLE
+
+/* Define if you don't want to include sockets facility */
+#undef NO_USE_SOCKETS
+
+/* Define if you don't want to include the FD constraint solver */
+#undef NO_USE_FD_SOLVER
+
+
+
+
+/* Define if the cpu is a sparc */
+#undef M_sparc
+
+/* Define if the cpu is a ix86 */
+#undef M_ix86
+
+/* Define if the cpu is a powerpc */
+#undef M_powerpc
+
+
+
+/* Define if the OS is a sunos */
+#undef M_sunos
+
+/* Define if the OS is a solaris */
+#undef M_solaris
+
+/* Define if the OS is a linux */
+#undef M_linux
+
+/* Define if the OS is a WinXX based on Cygwin */
+#undef M_cygwin
+
+/* Define if the OS is a WIN32 */
+#undef M_win32
+
+/* Define if the OS is a SCO */
+#undef M_sco
+
+/* Define if the OS is a BSD */
+#undef M_bsd
+
+
+/* Define if the system is a ix86/linux */
+#undef M_ix86_linux
+
+/* Define if the system is a ix86/sco */
+#undef M_ix86_sco
+
+/* Define if the system is a ix86/freebsd */
+#undef M_ix86_bsd
+
+/* Define if the system is a ix86/cygwin */
+#undef M_ix86_cygwin
+
+/* Define if the system is a ix86/win32 */
+#undef M_ix86_win32
+
+/* Define if the system is a ix86/solaris */
+#undef M_ix86_solaris
+
+/* Define if the system is a sparc/solaris */
+#undef M_sparc_solaris
+
+/* Define if the system is a sparc/sunos */
+#undef M_sparc_sunos
+
+/* Define if the system is a powerpc/linux */
+#undef M_powerpc_linux
+
+
+
+/* Constant definitions */
+
+#define PROLOG_NAME1               any
+#define PROLOG_NAME                any
+#define PROLOG_VERSION             any
+#define PROLOG_DATE                any
+#define PROLOG_COPYRIGHT           any
+
+#define TOP_LEVEL                  any
+#define GPLC                       any
+#define HEXGPLC                    any
+#define ENV_VARIABLE               any
+
+#define M_VENDOR                   any
+#define M_CPU                      any
+#define M_OS                       any
+
+#define CC                         any
+#define CFLAGS_PREFIX_REG          any
+#define CFLAGS                     any
+#define CFLAGS_MACHINE             any
+#define LDFLAGS                    any
+#define LDLIBS                     any
+#define AS                         any
+#define STRIP                      any
+
+#define ASM_SUFFIX                 any
+#define OBJ_SUFFIX                 any
+#define EXE_SUFFIX                 any
+#define CC_OBJ_NAME_OPT            any
+#define CC_EXE_NAME_OPT            any
+
+
+#define LIB_LINEDIT                any
+#define LIB_W32GUICONS             any
+#define LIB_ENGINE_PL              any
+#define LIB_BIPS_PL                any
+#define LIB_ENGINE_FD              any
+#define LIB_BIPS_FD                any
+
+
+#define SIZEOF_LONG                any
+#define WORD_SIZE                  (8*SIZEOF_LONG)
+
+
+
+
+/*---------------------------------*/
+/* Miscellaneous                   */
+/*---------------------------------*/
+
+#ifndef NO_USE_GUI_CONSOLE
+#define W32_GUI_CONSOLE
+#endif
+
+#ifdef M_sparc_sunos
+#     define __USE_FIXED_PROTOTYPES__
+#endif
+
+#include "arch_dep.h"
+
+#endif /* !_GP_CONFIG_H */

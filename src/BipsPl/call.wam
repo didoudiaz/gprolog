@@ -1,0 +1,341 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : call.pl
+% date    : 4 17 2000
+% time    : 2:15:26
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\call.pl').
+
+
+predicate('$use_call'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(once/1,31,static,private,built_in,[
+    load_cut_level(1),
+    allocate(1),
+    get_variable(y(0),1),
+    put_atom(once,1),
+    put_integer(1,2),
+    put_atom(true,3),
+    call('$call'/4),
+    cut(y(0)),
+    deallocate,
+    proceed]).
+
+
+predicate((\+)/1,36,static,private,built_in,[
+    execute('$\\+/1_$aux1'/1)]).
+
+
+predicate('$\\+/1_$aux1'/1,36,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),1),
+    put_atom(\+,1),
+    put_integer(1,2),
+    put_atom(true,3),
+    call('$call'/4),
+    cut(y(0)),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate(call/2,42,static,private,built_in,[
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(1),0),
+    call('$call/2_$aux1'/1),
+    put_variable(y(2),0),
+    call('$get_current_B'/1),
+    put_value(y(0),0),
+    put_atom(call,1),
+    put_integer(2,2),
+    put_atom(true,3),
+    call('$call'/4),
+    put_variable(y(3),0),
+    call('$get_current_B'/1),
+    put_unsafe_value(y(3),0),
+    put_unsafe_value(y(2),1),
+    put_value(y(1),2),
+    deallocate,
+    execute('$call/2_$aux2'/3)]).
+
+
+predicate('$call/2_$aux2'/3,42,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    put_atom(>,4),
+    put_integer(2,5),
+    call_c('Set_Bip_Name_2',[4,5]),
+    math_load_value(x(0),0),
+    math_load_value(x(1),1),
+    call_c_test('Blt_Gt',[0,1]),
+    cut(x(3)),
+    get_atom(false,2),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_atom(true,2),
+    proceed]).
+
+
+predicate('$call/2_$aux1'/1,42,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    call_c_test('Blt_Non_Var',[0]),
+    put_atom(false,2),
+    call_c_test('Blt_Term_Neq',[0,2]),
+    put_atom(true,2),
+    call_c_test('Blt_Term_Neq',[0,2]),
+    cut(x(1)),
+    put_atom(call,1),
+    put_integer(2,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    put_value(x(0),1),
+    put_atom(boolean,0),
+    execute('$pl_err_type'/2),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$call'/4,57,static,private,built_in,[
+    call_c('Save_Call_Info_3',[1,2,3]),
+    put_integer(0,1),
+    execute('$call1'/2)]).
+
+
+predicate('$call1'/2,61,static,private,built_in,[
+    put_integer(1,2),
+    call_c('Load_Call_Info_Arg_1',[2]),
+    execute('$call_internal'/2)]).
+
+
+predicate('$call_internal'/2,65,static,private,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(1),0),
+    call_c('Call_Info_Bip_Name_1',[0]),
+    put_value(y(0),0),
+    call('$$call_internal/2_$aux1'/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_variable(y(2),2),
+    call('$term_to_goal'/3),
+    put_unsafe_value(y(2),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$call_internal1'/2)]).
+
+
+predicate('$$call_internal/2_$aux1'/1,65,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    call_c_test('Blt_Var',[0]),
+    cut(x(1)),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$call_internal1'/2,73,static,private,built_in,[
+    load_cut_level(2),
+    execute('$call_internal_with_cut'/3)]).
+
+
+predicate('$call_internal_with_cut'/3,80,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(21),
+    switch_on_term(3,1,fail,fail,2),
+
+label(1),
+    switch_on_atom([(!,8),(fail,12),(true,14)]),
+
+label(2),
+    switch_on_structure([((',')/2,4),((;)/2,6),((->)/2,10),(call/1,16),(catch/3,18),(throw/1,20)]),
+
+label(3),
+    try_me_else(5),
+
+label(4),
+    allocate(3),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_structure((',')/2,0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    cut(x(3)),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    call('$call_internal_with_cut'/3),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    deallocate,
+    execute('$call_internal_with_cut'/3),
+
+label(5),
+    retry_me_else(7),
+
+label(6),
+    get_variable(x(4),2),
+    get_variable(x(2),1),
+    get_structure((;)/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    cut(x(3)),
+    put_value(x(4),3),
+    execute('$call_internal_or'/4),
+
+label(7),
+    retry_me_else(9),
+
+label(8),
+    get_atom(!,0),
+    cut(x(2)),
+    proceed,
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    allocate(4),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_structure((->)/2,0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    get_variable(y(3),3),
+    cut(y(3)),
+    put_value(y(1),1),
+    call('$call_internal'/2),
+    cut(y(3)),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    deallocate,
+    execute('$call_internal_with_cut'/3),
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    get_atom(fail,0),
+    cut(x(3)),
+    fail,
+
+label(13),
+    retry_me_else(15),
+
+label(14),
+    get_atom(true,0),
+    cut(x(3)),
+    proceed,
+
+label(15),
+    retry_me_else(17),
+
+label(16),
+    get_structure(call/1,0),
+    unify_variable(x(0)),
+    cut(x(3)),
+    execute('$call_internal'/2),
+
+label(17),
+    retry_me_else(19),
+
+label(18),
+    get_variable(x(4),1),
+    get_structure(catch/3,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    unify_variable(x(2)),
+    cut(x(3)),
+    put_value(x(4),3),
+    execute('$catch_internal'/4),
+
+label(19),
+    trust_me_else_fail,
+
+label(20),
+    get_structure(throw/1,0),
+    unify_variable(x(0)),
+    cut(x(3)),
+    execute('$throw_internal'/2),
+
+label(21),
+    trust_me_else_fail,
+    put_integer(1,2),
+    call_c_jump('BC_Call_Terminal_Pred_3',[0,1,2]),
+    proceed]).
+
+
+predicate('$call_internal_or'/4,124,static,private,built_in,[
+    load_cut_level(4),
+    try_me_else(2),
+    switch_on_term(1,fail,fail,fail,1),
+
+label(1),
+    get_variable(x(6),3),
+    get_variable(x(5),1),
+    get_structure((->)/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(3)),
+    cut(x(4)),
+    put_value(x(2),1),
+    put_value(x(4),2),
+    put_value(x(6),4),
+    execute('$$call_internal_or/4_$aux1'/6),
+
+label(2),
+    retry_me_else(3),
+    put_value(x(2),1),
+    put_value(x(3),2),
+    execute('$call_internal_with_cut'/3),
+
+label(3),
+    trust_me_else_fail,
+    put_value(x(1),0),
+    put_value(x(2),1),
+    put_value(x(3),2),
+    execute('$call_internal_with_cut'/3)]).
+
+
+predicate('$$call_internal_or/4_$aux1'/6,124,static,private,built_in,[
+    try_me_else(1),
+    allocate(4),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    get_variable(y(2),3),
+    get_variable(y(3),4),
+    put_value(y(0),1),
+    call('$call_internal'/2),
+    cut(y(1)),
+    put_value(y(2),0),
+    put_value(y(0),1),
+    put_value(y(3),2),
+    deallocate,
+    execute('$call_internal_with_cut'/3),
+
+label(1),
+    trust_me_else_fail,
+    put_value(x(5),0),
+    put_value(x(4),2),
+    execute('$call_internal_with_cut'/3)]).
+
+
+predicate('$call_from_debugger'/2,141,static,private,built_in,[
+    put_integer(0,2),
+    call_c_jump('BC_Call_Terminal_Pred_3',[0,1,2]),
+    proceed]).

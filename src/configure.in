@@ -1,0 +1,617 @@
+dnl *********************************
+dnl * autoconf configuration script *
+dnl *********************************
+
+AC_INIT(SETVARS)
+AC_CONFIG_HEADER(EnginePl/gp_config.h)
+
+
+
+dnl ***************************
+dnl * initial variable values *
+dnl ***************************
+
+PROLOG_NAME='GNU Prolog'
+PROLOG_NAME1='gprolog'
+PROLOG_VERSION='1.2.1'
+PROLOG_DATE='Jul 31 2000'
+PROLOG_COPYRIGHT='Copyright (C) 1999,2000 Daniel Diaz'
+
+TOP_LEVEL=$PROLOG_NAME1
+GPLC=gplc
+HEXGPLC=hexgplc
+ENV_VARIABLE=PL_PATH
+
+USE_REGS=yes
+USE_LINEDIT=yes
+USE_GUI_CONSOLE=yes
+USE_SOCKETS=yes
+USE_FD_SOLVER=yes
+
+LIB_LINEDIT=liblinedit
+LIB_W32GUICONS=libw32guicons
+LIB_ENGINE_PL=libengine_pl
+LIB_BIPS_PL=libbips_pl
+LIB_ENGINE_FD=libengine_fd
+LIB_BIPS_FD=libbips_fd
+
+
+
+dnl ******************
+dnl * variable names *
+dnl ******************
+
+AC_SUBST(PROLOG_NAME1)
+AC_SUBST(PROLOG_NAME)
+AC_SUBST(PROLOG_VERSION)
+AC_SUBST(PROLOG_DATE)
+AC_SUBST(PROLOG_COPYRIGHT)
+
+AC_SUBST(TOP_LEVEL)
+AC_SUBST(GPLC)
+AC_SUBST(HEXGPLC)
+AC_SUBST(ENV_VARIABLE)
+AC_SUBST(TOP_LEVEL_FLAGS)
+
+AC_SUBST(CFLAGS_PREFIX_REG)
+AC_SUBST(CFLAGS_MACHINE)
+AC_SUBST(CFLAGS_UNSIGNED_CHAR)
+AC_SUBST(LDLIBS)
+
+AC_SUBST(ASM_SUFFIX)
+AC_SUBST(OBJ_SUFFIX)
+AC_SUBST(EXE_SUFFIX)
+AC_SUBST(CC_OBJ_NAME_OPT)
+AC_SUBST(CC_EXE_NAME_OPT)
+AC_SUBST(AR_RC)
+AC_SUBST(AR_SEP)
+AC_SUBST(AS)
+AC_SUBST(STRIP)
+
+AC_SUBST(USE_REGS)
+AC_SUBST(USE_LINEDIT)
+AC_SUBST(USE_GUI_CONSOLE)
+AC_SUBST(USE_SOCKETS)
+AC_SUBST(USE_FD_SOLVER)
+
+AC_SUBST(ROOT_DIR)
+AC_SUBST(PKG_NAME)
+AC_SUBST(INSTALL_DIR)
+AC_SUBST(LINKS_DIR)
+AC_SUBST(DOC_DIR)
+AC_SUBST(HTML_DIR)
+AC_SUBST(EXAMPLES_DIR)
+
+AC_SUBST(BIN_FILES)
+AC_SUBST(OBJ_FILES)
+AC_SUBST(LIB_FILES)
+AC_SUBST(INC_FILES)
+AC_SUBST(DOC_FILES)
+AC_SUBST(HTML_FILES)
+AC_SUBST(EXFD_FILES)
+AC_SUBST(EXPL_FILES)
+
+AC_SUBST(MAKE_LE_DIRS)
+AC_SUBST(MAKE_W32GC_DIRS)
+AC_SUBST(MAKE_FD_DIRS)
+
+AC_SUBST(MAKE_LE_INTERF_OBJS)
+AC_SUBST(MAKE_SOCKETS_OBJS)
+
+AC_SUBST(LIB_LINEDIT)
+AC_SUBST(LIB_W32GUICONS)
+AC_SUBST(LIB_ENGINE_PL)
+AC_SUBST(LIB_BIPS_PL)
+AC_SUBST(LIB_ENGINE_FD)
+AC_SUBST(LIB_BIPS_FD)
+
+
+
+
+dnl *******************
+dnl * package options *
+dnl *******************
+
+
+AC_ARG_WITH(install-dir,[  --with-install-dir=DIR specify INSTALL_DIR],
+		[WITH_INSTALL_DIR="$withval"])
+
+AC_ARG_WITH(links-dir,  [  --with-links-dir=DIR   specify LINKS_DIR],
+		[WITH_LINKS_DIR="$withval"])
+
+AC_ARG_WITH(doc-dir,    [  --with-doc-dir=DIR     specify DOC_DIR],
+		[WITH_DOC_DIR="$withval"])
+
+AC_ARG_WITH(html-dir,   [  --with-html-dir=DIR    specify HTML_DIR],
+		[WITH_HTML_DIR="$withval"])
+
+AC_ARG_WITH(examples-dir,[  --with-examples-dir=DIR specify EXAMPLES_DIR],
+		[WITH_EXAMPLES_DIR="$withval"])
+
+AC_ARG_WITH(msvc,       [  --with-msvc            use MS VC++],
+		[WITH_MSVC="$withval"],
+		[WITH_MSVC=no])
+
+AC_ARG_WITH(c-flags,    [  --with-c-flags[=FLAGS] specify C flags],
+		[WITH_C_FLAGS="$withval"],
+		[WITH_C_FLAGS=yes])
+
+AC_ARG_ENABLE(regs,     [  --disable-regs         do not use machine registers],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_REGS);;
+		   *)  ;;
+	       esac])
+
+AC_ARG_ENABLE(linedit,  [  --disable-linedit      do not include line editor facility],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_LINEDIT) USE_LINEDIT=no;;
+		   *)  USE_LINEDIT=yes;;
+	       esac])
+
+AC_ARG_ENABLE(gui-console,[  --disable-gui-console  do not use the Win 32 GUI console],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no;;
+		   *)  USE_GUI_CONSOLE=yes;;
+	       esac])
+
+AC_ARG_ENABLE(sockets,  [  --disable-sockets      do not include sockets facility],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_SOCKETS)  USE_SOCKETS=no;;
+		   *)  USE_SOCKETS=yes;;
+	       esac])
+
+AC_ARG_ENABLE(fd-solver,[  --disable-fd-solver    do not include the FD constraint solver],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_FD_SOLVER) USE_FD_SOLVER=no;;
+		   *)  USE_FD_SOLVER=yes;;
+	       esac])
+
+
+
+dnl ***********************
+dnl * checks for programs *
+dnl ***********************
+
+if test "$WITH_MSVC" != no; then
+	echo "using MSVC++ as C compiler"
+	CC=cl
+	ASM_SUFFIX='.asm'
+	OBJ_SUFFIX='.obj'
+        LIB_SUFFIX='.lib'
+	CC_OBJ_NAME_OPT='/Fo'
+	CC_EXE_NAME_OPT='/Fe'
+	AC_CHECK_PROGS(NASM,nasmw nasm,no)
+	if test "$NASM" = no; then
+		AC_MSG_ERROR(nasm is required under win32)
+	fi
+	AS="$NASM -f win32"
+        AR_RC='lib /nologo /out:'
+        AR_SEP=''
+	STRIP=:
+        RANLIB=:
+else
+	AC_PROG_CC
+	if test "$GCC" != yes; then
+		AC_MSG_ERROR(gcc is required (or MSVC++ under win32))
+	fi
+	AS=as
+        AC_PROG_RANLIB
+
+	ASM_SUFFIX='.s'
+	OBJ_SUFFIX='.o'
+        LIB_SUFFIX='.a'
+	CC_OBJ_NAME_OPT='-o '
+	CC_EXE_NAME_OPT='-o '
+        AR_RC='ar rc '
+        AR_SEP=' '
+	STRIP=strip
+fi
+
+
+dnl for old versions of autoconf
+dnl EXEEXT=
+AC_EXEEXT
+
+EXE_SUFFIX=$EXEEXT
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+LIB_LINEDIT=$LIB_LINEDIT$LIB_SUFFIX
+LIB_W32GUICONS=$LIB_W32GUICONS$LIB_SUFFIX
+LIB_ENGINE_PL=$LIB_ENGINE_PL$LIB_SUFFIX
+LIB_BIPS_PL=$LIB_BIPS_PL$LIB_SUFFIX
+LIB_ENGINE_FD=$LIB_ENGINE_FD$LIB_SUFFIX
+LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
+
+
+
+dnl *******************************
+dnl * host detection and features *
+dnl *******************************
+
+AC_CANONICAL_HOST
+if test "$WITH_MSVC" != no; then
+	AC_DEFINE(M_ix86)
+	AC_DEFINE(M_win32)
+	AC_DEFINE(M_ix86_win32)
+        host_vendor=Microsoft
+        host_os=win32
+        WIN32=yes
+else
+        WIN32=no
+	case "$host_cpu" in
+		sparc)          AC_DEFINE(M_sparc);;
+		i*86)           AC_DEFINE(M_ix86);;
+        	powerpc|ppc)    AC_DEFINE(M_powerpc);;
+	esac
+
+	case "$host_os" in
+		sunos*)         AC_DEFINE(M_sunos);;
+		solaris*)       AC_DEFINE(M_solaris);;
+		linux*)         AC_DEFINE(M_linux);;
+		cygwin*)        AC_DEFINE(M_cygwin);;
+		*sco*)          AC_DEFINE(M_sco);;
+		*bsd*)		AC_DEFINE(M_bsd);;
+	esac
+
+	case "$host" in
+		sparc*sunos*)   AC_DEFINE(M_sparc_sunos);;
+		sparc*solaris*) AC_DEFINE(M_sparc_solaris);;
+		i*86*linux*)    AC_DEFINE(M_ix86_linux);;
+		i*86*solaris*)  AC_DEFINE(M_ix86_solaris);;
+		i*86*sco*)      AC_DEFINE(M_ix86_sco);;
+		i*86*bsd*)      AC_DEFINE(M_ix86_bsd);;
+        	powerpc*linux*) AC_DEFINE(M_powerpc_linux);;
+		*86*cygwin*)    AC_DEFINE(M_ix86_cygwin);;
+		*)              AC_MSG_ERROR(unsupported architecture)
+	esac
+
+fi
+
+AC_CHECK_SIZEOF(long)
+AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h termio.h)
+
+
+
+dnl ********************
+dnl * C compiler flags *
+dnl ********************
+
+CFLAGS_MACHINE=
+CFLAGS_PREFIX_REG=
+
+AC_C_INLINE
+
+if test "$WITH_MSVC" != no; then
+	case "$WITH_C_FLAGS" in
+		debug) CFLAGS='/nologo /W3 /ZI /Ge';;
+		no)    CFLAGS='/nologo';;
+		yes)   CFLAGS='/nologo /Ox';;
+		*)     CFLAGS="$WITH_C_FLAGS";;
+	esac
+
+	CFLAGS_UNSIGNED_CHAR='/J'
+	CFLAGS_MACHINE='/nologo /MD'
+
+else
+	case "$WITH_C_FLAGS" in
+		debug) CFLAGS='-g -Wall';;
+		no)    CFLAGS='';;
+		yes)   CFLAGS='-O3 -finline-functions -fomit-frame-pointer';;
+		*)     CFLAGS="$WITH_C_FLAGS";;
+	esac
+
+	CFLAGS_PREFIX_REG='-ffixed-%s'
+	CFLAGS_UNSIGNED_CHAR='-funsigned-char'
+
+        CFLAGS_MACHINE=
+	case "$host" in
+		*sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
+		*sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
+		i686*)             CFLAGS_MACHINE='-mpentiumpro';;
+		i586*)             CFLAGS_MACHINE='-mpentium';;
+		i*86*)             CFLAGS_MACHINE='-m486';;
+	esac
+
+	case "$host" in
+		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
+	esac
+fi
+
+
+
+dnl ********************
+dnl * libraries to add *
+dnl ********************
+
+
+if test "$WITH_MSVC" != no; then
+	LDFLAGS='/nologo'
+	LDLIBS='user32.lib'
+else
+	LDLIBS='-lm'
+fi
+
+if test "$USE_SOCKETS" = yes; then
+	if test "$WITH_MSVC" != no; then
+		LDLIBS="$LDLIBS ws2_32.lib"
+	else
+		AC_CHECK_FUNC(socket,[],
+                      AC_CHECK_LIB(socket,socket,LDLIBS="$LDLIBS -lsocket",
+                                   AC_MSG_ERROR(cannot find socket library)))
+
+		AC_CHECK_FUNC(gethostbyname,[],
+                      AC_CHECK_LIB(nsl,gethostbyname,LDLIBS="$LDLIBS -lnsl"))
+	dnl (No error here; just assume gethostbyname is in -lsocket.)
+	fi
+fi
+
+
+
+dnl ***********************
+dnl * gp_config.h defines *
+dnl ***********************
+
+AC_DEFINE_UNQUOTED(PROLOG_NAME,      "$PROLOG_NAME")
+AC_DEFINE_UNQUOTED(PROLOG_NAME1,     "$PROLOG_NAME1")
+AC_DEFINE_UNQUOTED(PROLOG_VERSION,   "$PROLOG_VERSION")
+AC_DEFINE_UNQUOTED(PROLOG_DATE,      "$PROLOG_DATE")
+AC_DEFINE_UNQUOTED(PROLOG_COPYRIGHT, "$PROLOG_COPYRIGHT")
+
+AC_DEFINE_UNQUOTED(TOP_LEVEL,        "$TOP_LEVEL")
+AC_DEFINE_UNQUOTED(GPLC,             "$GPLC")
+AC_DEFINE_UNQUOTED(HEXGPLC,          "$HEXGPLC")
+AC_DEFINE_UNQUOTED(ENV_VARIABLE,     "$ENV_VARIABLE")
+
+AC_DEFINE_UNQUOTED(M_CPU,            "$host_cpu")
+AC_DEFINE_UNQUOTED(M_VENDOR,         "$host_vendor")
+AC_DEFINE_UNQUOTED(M_OS,             "$host_os")
+
+AC_DEFINE_UNQUOTED(CC,               "$CC")
+AC_DEFINE_UNQUOTED(CFLAGS_PREFIX_REG,"$CFLAGS_PREFIX_REG")
+AC_DEFINE_UNQUOTED(CFLAGS,           "$CFLAGS")  
+AC_DEFINE_UNQUOTED(CFLAGS_MACHINE,   "$CFLAGS_MACHINE")
+AC_DEFINE_UNQUOTED(LDFLAGS,          "$LDFLAGS")
+AC_DEFINE_UNQUOTED(LDLIBS,           "$LDLIBS")
+AC_DEFINE_UNQUOTED(AS,               "$AS")
+AC_DEFINE_UNQUOTED(STRIP,            "$STRIP")
+
+AC_DEFINE_UNQUOTED(ASM_SUFFIX,       "$ASM_SUFFIX")
+AC_DEFINE_UNQUOTED(OBJ_SUFFIX,       "$OBJ_SUFFIX")
+AC_DEFINE_UNQUOTED(EXE_SUFFIX,       "$EXE_SUFFIX")
+AC_DEFINE_UNQUOTED(CC_OBJ_NAME_OPT,  "$CC_OBJ_NAME_OPT")
+AC_DEFINE_UNQUOTED(CC_EXE_NAME_OPT,  "$CC_EXE_NAME_OPT")
+
+AC_DEFINE_UNQUOTED(LIB_LINEDIT,      "$LIB_LINEDIT")
+AC_DEFINE_UNQUOTED(LIB_W32GUICONS,   "$LIB_W32GUICONS")
+AC_DEFINE_UNQUOTED(LIB_ENGINE_PL,    "$LIB_ENGINE_PL")
+AC_DEFINE_UNQUOTED(LIB_BIPS_PL,      "$LIB_BIPS_PL")
+AC_DEFINE_UNQUOTED(LIB_ENGINE_FD,    "$LIB_ENGINE_FD")
+AC_DEFINE_UNQUOTED(LIB_BIPS_FD,      "$LIB_BIPS_FD")
+
+
+
+dnl ***************
+dnl * directories *
+dnl ***************
+
+dnl a function to compare 2 directories (avoid diff with trailing /)
+dnl does not take into account symlinks...
+
+same_directory()
+{
+ f1=`dirname $1`/`basename $1`
+ f2=`dirname $2`/`basename $2`
+ test $f1 = $f2
+}
+
+cd ..
+ROOT_DIR=`pwd`
+cd src
+
+test "$prefix"      = NONE && prefix=/usr/local
+test "$exec_prefix" = NONE && exec_prefix=$prefix
+
+PKG_NAME=$PROLOG_NAME1-$PROLOG_VERSION
+
+dnl *-------------*
+dnl * INSTALL_DIR *
+dnl *-------------*
+
+if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
+	INSTALL_DIR=$ROOT_DIR
+	test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
+else
+	if test -z "$WITH_INSTALL_DIR"; then
+             INSTALL_DIR=$prefix/$PKG_NAME
+        else
+             INSTALL_DIR=$WITH_INSTALL_DIR
+        fi
+fi
+
+
+dnl *-----------*
+dnl * LINKS_DIR *
+dnl *-----------*
+
+case "$WITH_LINKS_DIR" in
+	no) LINKS_DIR=none;;
+	'') LINKS_DIR=$exec_prefix/bin;;
+	*)  LINKS_DIR=$WITH_LINKS_DIR;;
+esac
+
+
+dnl *---------*
+dnl * DOC_DIR *
+dnl *---------*
+
+case "$WITH_DOC_DIR" in
+	no) DOC_DIR=none;
+            test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/Html;;
+	'') DOC_DIR=$INSTALL_DIR/doc;;
+	*)  DOC_DIR=$WITH_DOC_DIR;;
+esac
+if same_directory "$DOC_DIR" $ROOT_DIR/doc; then
+	DOC_DIR=none
+fi
+
+
+dnl *----------*
+dnl * HTML_DIR *
+dnl *----------*
+
+
+case "$WITH_HTML_DIR" in
+	no) HTML_DIR=none;;
+	'') if test "$DOC_DIR" = none; then
+		WITH_HTML_DIR=no;
+		HTML_DIR=none
+	    else
+		HTML_DIR=$DOC_DIR/Html
+	    fi;;
+	*)  HTML_DIR=$WITH_HTML_DIR;;
+esac
+if same_directory "$HTML_DIR" $ROOT_DIR/doc/Html; then
+	HTML_DIR=none
+fi
+
+
+dnl *--------------*
+dnl * EXAMPLES_DIR *
+dnl *--------------*
+
+case "$WITH_EXAMPLES_DIR" in
+	no) EXAMPLES_DIR=none;;
+	'') EXAMPLES_DIR=$INSTALL_DIR;;
+	*)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
+esac
+if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
+	EXAMPLES_DIR=none
+fi
+
+
+dnl *---------*
+dnl * Summary *
+dnl *---------*
+
+echo 'DIRECTORIES'
+echo "--> Installation:       $INSTALL_DIR"
+echo "--> Link to binaries:   $LINKS_DIR"
+echo "--> Documentation:      $DOC_DIR"
+echo "--> HTML documentation: $HTML_DIR"
+echo "--> Examples:           $EXAMPLES_DIR"
+
+
+dnl ******************
+dnl * sub-components *
+dnl ******************
+
+BIN_FILES=
+OBJ_FILES=
+LIB_FILES=
+
+INC_FILES="$PROLOG_NAME1.h"
+DOC_FILES='???*.dvi ???*.ps ???*.pdf'
+HTML_FILES='???*.html ???*.gif'
+EXPL_FILES='Makefile ??*.pl'
+EXFD_FILES='Makefile ??*.pl ??*.fd'
+
+
+B="$GPLC $HEXGPLC $TOP_LEVEL pl2wam wam2ma ma2asm"
+O="obj_begin obj_end top_level all_pl_bips debugger"
+L="$LIB_ENGINE_PL $LIB_BIPS_PL"
+
+if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WIN32" = no \)
+then
+        AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no
+fi
+
+if test "$USE_LINEDIT" = yes; then
+	MAKE_LE_DIRS='$(LE_DIRS)'
+	MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
+        L="$L $LIB_LINEDIT"
+else
+	MAKE_LE_DIRS=
+	MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
+fi
+
+
+if test "$USE_GUI_CONSOLE" = yes; then
+        TOP_LEVEL_FLAGS=--gui-console
+	MAKE_W32GC_DIRS='$(W32GC_DIRS)'
+        L="$L $LIB_W32GUICONS GUICons.res"
+        O="$O w32gc_interf"
+else
+        TOP_LEVEL_FLAGS=
+	MAKE_W32GC_DIRS=
+fi
+
+if test "$USE_SOCKETS" = yes; then
+	MAKE_SOCKETS_OBJS='$(SOCKETS_OBJS)'
+else
+	MAKE_SOCKETS_OBJS='$(NO_SOCKETS_OBJS)'
+fi
+
+if test "$USE_FD_SOLVER" = yes; then
+	MAKE_FD_DIRS='$(FD_DIRS)'
+	B="$B fd2c"
+        L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
+        O="$O all_fd_bips"
+else
+	MAKE_FD_DIRS=
+fi
+
+for i in $B; do
+	BIN_FILES="$BIN_FILES $i$EXE_SUFFIX"
+done
+
+for i in $O; do
+	OBJ_FILES="$OBJ_FILES $i$OBJ_SUFFIX"
+done
+
+LIB_FILES=$L
+
+
+
+dnl ***********************
+dnl * Version & Copyright *
+dnl ***********************
+
+echo "$PKG_NAME" >VERSION
+echo "$PKG_NAME" >../VERSION
+echo "$PROLOG_VERSION" >version_no.tex
+if diff version_no.tex ../doc/version_no.tex >/dev/null 2>&1; then
+	rm version_no.tex
+else
+	mv version_no.tex ../doc/version_no.tex
+
+fi
+echo "$PROLOG_COPYRIGHT" >../doc/copyright.tex
+
+
+dnl ********************
+dnl * Files generation *
+dnl ********************
+
+OTHER_MAKEFILES=
+for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile
+do
+	if test -f $i.in; then
+		OTHER_MAKEFILES="$OTHER_MAKEFILES $i"
+	fi
+done
+
+AC_OUTPUT(Makefile
+          TopComp/Makefile
+          Pl2Wam/Makefile
+          Wam2Ma/Makefile
+          Ma2Asm/Makefile
+          Fd2C/Makefile
+          Linedit/Makefile
+          W32GUICons/Makefile
+          EnginePl/Makefile
+          BipsPl/Makefile
+          EngineFD/Makefile
+          BipsFD/Makefile
+          $OTHER_MAKEFILES)

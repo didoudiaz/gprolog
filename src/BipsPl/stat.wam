@@ -1,0 +1,297 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : stat.pl
+% date    : 4 17 2000
+% time    : 2:15:38
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\stat.pl').
+
+
+predicate('$use_stat'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(statistics/0,30,static,private,built_in,[
+    put_atom(statistics,0),
+    put_integer(0,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    call_c('Statistics_0',[]),
+    proceed]).
+
+
+predicate(statistics/2,35,static,private,built_in,[
+    load_cut_level(2),
+    allocate(5),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_atom(statistics,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_value(y(0),0),
+    call('$check_stat_key'/1),
+    cut(y(2)),
+    put_value(y(1),0),
+    put_variable(y(3),1),
+    put_variable(y(4),2),
+    call('$statistics/2_$aux1'/3),
+    put_value(y(0),0),
+    put_unsafe_value(y(3),1),
+    put_unsafe_value(y(4),2),
+    deallocate,
+    execute('$stat'/3)]).
+
+
+predicate('$statistics/2_$aux1'/3,35,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(2),
+    switch_on_term(1,fail,fail,1,fail),
+
+label(1),
+    get_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_local_value(x(2)),
+    unify_nil,
+    cut(x(3)),
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(statistics_value,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$check_stat_key'/1,47,static,private,built_in,[
+    try_me_else(1),
+    call_c_test('Blt_Var',[0]),
+    proceed,
+
+label(1),
+    retry_me_else(21),
+    switch_on_term(3,2,fail,fail,fail),
+
+label(2),
+    switch_on_atom([(user_time,4),(runtime,6),(system_time,8),(cpu_time,10),(real_time,12),(local_stack,14),(global_stack,16),(trail_stack,18),(cstr_stack,20)]),
+
+label(3),
+    try_me_else(5),
+
+label(4),
+    get_atom(user_time,0),
+    proceed,
+
+label(5),
+    retry_me_else(7),
+
+label(6),
+    get_atom(runtime,0),
+    proceed,
+
+label(7),
+    retry_me_else(9),
+
+label(8),
+    get_atom(system_time,0),
+    proceed,
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    get_atom(cpu_time,0),
+    proceed,
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    get_atom(real_time,0),
+    proceed,
+
+label(13),
+    retry_me_else(15),
+
+label(14),
+    get_atom(local_stack,0),
+    proceed,
+
+label(15),
+    retry_me_else(17),
+
+label(16),
+    get_atom(global_stack,0),
+    proceed,
+
+label(17),
+    retry_me_else(19),
+
+label(18),
+    get_atom(trail_stack,0),
+    proceed,
+
+label(19),
+    trust_me_else_fail,
+
+label(20),
+    get_atom(cstr_stack,0),
+    proceed,
+
+label(21),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(statistics_key,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$stat'/3,73,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    put_value(x(3),1),
+    call('$$stat/3_$aux1'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    call_c_test('Statistics_User_Time_2',[0,1]),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    switch_on_term(3,2,fail,fail,fail),
+
+label(2),
+    switch_on_atom([(system_time,4),(cpu_time,6),(real_time,8),(local_stack,10),(global_stack,12),(trail_stack,14),(cstr_stack,16)]),
+
+label(3),
+    try_me_else(5),
+
+label(4),
+    get_atom(system_time,0),
+    call_c_test('Statistics_System_Time_2',[1,2]),
+    proceed,
+
+label(5),
+    retry_me_else(7),
+
+label(6),
+    get_atom(cpu_time,0),
+    call_c_test('Statistics_Cpu_Time_2',[1,2]),
+    proceed,
+
+label(7),
+    retry_me_else(9),
+
+label(8),
+    get_atom(real_time,0),
+    call_c_test('Statistics_Real_Time_2',[1,2]),
+    proceed,
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    get_atom(local_stack,0),
+    call_c_test('Statistics_Local_Stack_2',[1,2]),
+    proceed,
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    get_atom(global_stack,0),
+    call_c_test('Statistics_Global_Stack_2',[1,2]),
+    proceed,
+
+label(13),
+    retry_me_else(15),
+
+label(14),
+    get_atom(trail_stack,0),
+    call_c_test('Statistics_Trail_Stack_2',[1,2]),
+    proceed,
+
+label(15),
+    trust_me_else_fail,
+
+label(16),
+    get_atom(cstr_stack,0),
+    call_c_test('Statistics_Cstr_Stack_2',[1,2]),
+    proceed]).
+
+
+predicate('$$stat/3_$aux1'/2,73,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),1),
+    call_c_test('Blt_Atom',[0]),
+    cut(x(2)),
+    call('$$stat/3_$aux2'/1),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    switch_on_term(2,2,fail,fail,fail),
+
+label(2),
+    get_atom(user_time,0),
+    proceed]).
+
+
+predicate('$$stat/3_$aux2'/1,73,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(user_time,3),(runtime,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(user_time,0),
+    proceed,
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(runtime,0),
+    proceed]).
+
+
+predicate(user_time/1,102,static,private,built_in,[
+    put_atom(user_time,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('User_Time_1',[0]),
+    proceed]).
+
+
+predicate(system_time/1,109,static,private,built_in,[
+    put_atom(system_time,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('System_Time_1',[0]),
+    proceed]).
+
+
+predicate(cpu_time/1,116,static,private,built_in,[
+    put_atom(cpu_time,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Cpu_Time_1',[0]),
+    proceed]).
+
+
+predicate(real_time/1,123,static,private,built_in,[
+    put_atom(real_time,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Real_Time_1',[0]),
+    proceed]).

@@ -1,0 +1,36 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : g_var_inl.pl
+% date    : 4 17 2000
+% time    : 2:15:34
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\g_var_inl.pl').
+
+
+predicate('$use_g_var_inl'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(g_assign/2,30,static,private,built_in,[
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed]).
+
+
+predicate(g_assignb/2,36,static,private,built_in,[
+    call_c_test('Blt_G_Assignb',[0,1]),
+    proceed]).
+
+
+predicate(g_link/2,42,static,private,built_in,[
+    call_c_test('Blt_G_Link',[0,1]),
+    proceed]).
+
+
+predicate(g_read/2,48,static,private,built_in,[
+    call_c_test('Blt_G_Read',[0,1]),
+    proceed]).
+
+
+predicate(g_array_size/2,54,static,private,built_in,[
+    call_c_test('Blt_G_Array_Size',[0,1]),
+    proceed]).

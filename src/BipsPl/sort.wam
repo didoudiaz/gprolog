@@ -1,0 +1,107 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : sort.pl
+% date    : 4 17 2000
+% time    : 2:15:36
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\sort.pl').
+
+
+predicate('$use_sort'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(sort/2,30,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_atom(sort,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_integer(0,0),
+    put_integer(0,1),
+    call('$sys_var_write'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    call_c_test('Sort_List_2',[0,1]),
+    deallocate,
+    proceed]).
+
+
+predicate(sort0/2,38,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_atom(sort0,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_integer(0,0),
+    put_integer(1,1),
+    call('$sys_var_write'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    call_c_test('Sort_List_2',[0,1]),
+    deallocate,
+    proceed]).
+
+
+predicate(keysort/2,46,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_atom(keysort,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_integer(0,0),
+    put_integer(2,1),
+    call('$sys_var_write'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    call_c_test('Sort_List_2',[0,1]),
+    deallocate,
+    proceed]).
+
+
+predicate(sort/1,54,static,private,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    put_atom(sort,0),
+    put_integer(1,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_integer(0,0),
+    put_integer(0,1),
+    call('$sys_var_write'/2),
+    put_value(y(0),0),
+    call_c('Sort_List_1',[0]),
+    deallocate,
+    proceed]).
+
+
+predicate(sort0/1,62,static,private,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    put_atom(sort0,0),
+    put_integer(1,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_integer(0,0),
+    put_integer(1,1),
+    call('$sys_var_write'/2),
+    put_value(y(0),0),
+    call_c('Sort_List_1',[0]),
+    deallocate,
+    proceed]).
+
+
+predicate(keysort/1,70,static,private,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    put_atom(keysort,0),
+    put_integer(1,1),
+    call_c('Set_Bip_Name_2',[0,1]),
+    put_integer(0,0),
+    put_integer(2,1),
+    call('$sys_var_write'/2),
+    put_value(y(0),0),
+    call_c('Sort_List_1',[0]),
+    deallocate,
+    proceed]).

@@ -1,0 +1,190 @@
+#                               MAIN MAKEFILE
+#                               -------------
+
+ROOT_DIR       = @ROOT_DIR@
+PKG_NAME       = @PKG_NAME@
+
+INSTALL_DIR    = @INSTALL_DIR@
+LINKS_DIR      = @LINKS_DIR@
+DOC_DIR        = @DOC_DIR@
+HTML_DIR       = @HTML_DIR@
+EXAMPLES_DIR   = @EXAMPLES_DIR@
+
+BIN_FILES      = @BIN_FILES@
+OBJ_FILES      = @OBJ_FILES@
+LIB_FILES      = @LIB_FILES@
+INC_FILES      = @INC_FILES@
+DOC_FILES      = @DOC_FILES@
+HTML_FILES     = @HTML_FILES@
+EXPL_FILES     = @EXPL_FILES@
+EXFD_FILES     = @EXFD_FILES@
+
+INSTALL        = @INSTALL@
+INSTALL_PROGRAM= @INSTALL_PROGRAM@
+INSTALL_DATA   = @INSTALL_DATA@
+
+TOP_LEVEL      = @TOP_LEVEL@
+
+LN_S           = @LN_S@
+RANLIB         = @RANLIB@
+
+LE_DIRS        = Linedit
+W32GC_DIRS     = W32GUICons
+FD_DIRS        = Fd2C EngineFD BipsFD
+SUB_DIRS       = TopComp EnginePl Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
+                 BipsPl Pl2Wam @MAKE_FD_DIRS@
+SUB_DIRS_ALL   = TopComp EnginePl Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
+                 BipsPl Pl2Wam $(FD_DIRS)
+
+
+# --- COMPILE --- #
+
+all:
+	(cd EnginePl; $(MAKE) config)
+	. ./SETVARS;for i in $(SUB_DIRS);do (cd $$i; $(MAKE)) || exit 1; done;\
+	(cd TopComp; $(MAKE) $(TOP_LEVEL)@EXE_SUFFIX@)
+
+
+# --- INSTALL --- #
+
+install-strip:
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+
+install: install-system install-doc install-html install-examples install-links
+
+install-system:
+	./mkinstalldirs $(INSTALL_DIR) $(INSTALL_DIR)/bin \
+	$(INSTALL_DIR)/include $(INSTALL_DIR)/lib
+	for i in $(BIN_FILES); do $(INSTALL_PROGRAM) */$$i $(INSTALL_DIR)/bin;done
+	for i in $(OBJ_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib;done
+	for i in $(LIB_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib;done
+	for i in $(INC_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/include;done
+	for i in $(INSTALL_DIR)/lib/*.a; do $(RANLIB) $$i; done
+
+
+uninstall: uninstall-links uninstall-html uninstall-doc uninstall-examples
+	rm -rf $(INSTALL_DIR)/bin
+	rm -rf $(INSTALL_DIR)/lib
+	rm -rf $(INSTALL_DIR)/include
+	rmdir $(INSTALL_DIR) 2>/dev/null || exit 0
+
+
+# --- Links --- #
+
+install-links: uninstall-links
+	if test $(LINKS_DIR) != none; then \
+	   ./mkinstalldirs $(LINKS_DIR); \
+	   (cd $(LINKS_DIR) ; $(LN_S) $(INSTALL_DIR)/bin/* .); \
+	fi
+
+uninstall-links:
+	if test $(LINKS_DIR) != none; then \
+	   (cd $(LINKS_DIR); rm -f $(BIN_FILES)); \
+	   rmdir $(LINKS_DIR) 2>/dev/null; \
+	fi || exit 0;
+
+
+# --- Documentation --- #
+
+install-doc:
+	if test $(DOC_DIR) != none; then \
+	   ./mkinstalldirs $(DOC_DIR); \
+           (cd ../doc; \
+	   for i in $(DOC_FILES); do $(INSTALL_DATA) $$i $(DOC_DIR); done); \
+	fi
+
+uninstall-doc:
+	if test $(DOC_DIR) != none; then \
+	   (cd $(DOC_DIR); rm -f $(DOC_FILES)); \
+	   rmdir $(DOC_DIR) 2>/dev/null; \
+	fi || exit 0;
+
+
+# --- HTML --- #
+
+install-html:
+	if test $(HTML_DIR) != none; then \
+	   ./mkinstalldirs $(HTML_DIR); \
+           (cd ../doc/Html; \
+	   for i in $(HTML_FILES); do $(INSTALL_DATA) $$i $(HTML_DIR); done); \
+	fi
+
+uninstall-html:
+	if test $(HTML_DIR) != none; then \
+	   (cd $(HTML_DIR); rm -f $(HTML_FILES)); \
+	   rmdir $(HTML_DIR) 2>/dev/null; \
+	fi || exit 0;
+
+
+# --- Examples --- #
+
+install-examples:
+	if test $(EXAMPLES_DIR) != none; then \
+	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesPl; \
+	   (cd ../ExamplesPl; \
+	   for i in $(EXPL_FILES); do $(INSTALL_DATA) $$i $(EXAMPLES_DIR)/ExamplesPl; done); \
+	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesFD; \
+	   (cd ../ExamplesFD; \
+	   for i in $(EXFD_FILES); do $(INSTALL_DATA) $$i $(EXAMPLES_DIR)/ExamplesFD; done); \
+	fi
+
+uninstall-examples:
+	rm -rf $(EXAMPLES_DIR)/ExamplesPl
+	rm -rf $(EXAMPLES_DIR)/ExamplesFD
+	rmdir $(EXAMPLES_DIR) 2>/dev/null || exit 0
+
+
+# --- CHECKS --- #
+
+check:
+	@echo "No checks implemented (yet)."
+
+
+# --- CLEAN --- #
+
+RUN_PL_DIRS = EnginePl BipsPl 
+RUN_FD_DIRS = EngineFD BipsFD
+RUN_SUB_DIRS= $(RUN_PL_DIRS) $(RUN_PL_DIRS)
+
+
+
+clean:
+	for i in $(SUB_DIRS_ALL); do (cd $$i; $(MAKE) clean); done
+
+clean-pl:
+	for i in $(RUN_PL_DIRS); do (cd $$i; $(MAKE) clean); done
+
+clean-fd:
+	for i in $(RUN_FD_DIRS); do (cd $$i; $(MAKE) clean); done
+
+clean-pl-fd: clean-pl clean-fd
+
+
+distclean:
+	rm -f config.status config.log config.cache
+	for i in $(SUB_DIRS_ALL); do (cd $$i; $(MAKE) distclean); done
+
+
+# --- DISTRIBUTION --- #
+
+DST=./$(PKG_NAME)
+
+dist: check_doc $(PKG_NAME).tar.gz
+
+check_doc:
+	(cd ../doc; make all)
+
+dist: $(PKG_NAME).tar.gz
+
+$(PKG_NAME).tar.gz:
+	rm -f $(DST)
+	(while read f;do \
+            if [ x$$f != x ]; then \
+                files="$$files $(PKG_NAME)/$$f"; \
+            fi; \
+         done <DISTRIB_FILES; \
+	 ln -s $(ROOT_DIR) $(DST); \
+	 tar cvf $(PKG_NAME).tar $$files)
+	gzip -f $(PKG_NAME).tar
+	rm -f $(DST)
+	@echo "distribution file: $(PKG_NAME).tar.gz"

@@ -1,0 +1,201 @@
+% compiler: GNU Prolog 1.1.7 (Jul 3 2000)
+% file    : first_arg.pl
+% date    : 7 20 2000
+% time    : 11:15:36
+
+
+file_name('/home/lima/diaz/GNU-Prolog/src/Pl2Wam/first_arg.pl').
+
+
+predicate(find_first_arg/2,26,static,private,user,[
+    load_cut_level(2),
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    get_atom(var,1),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(1),
+    get_list(0),
+    unify_variable(x(0)),
+    unify_variable(x(3)),
+    get_variable(y(0),2),
+    put_value(x(3),2),
+    call('$find_first_arg/2_$aux1'/3),
+    cut(y(0)),
+    deallocate,
+    proceed]).
+
+
+predicate('$find_first_arg/2_$aux1'/3,28,static,private,user,[
+    try_me_else(1),
+    execute(defines_first_arg/2),
+
+label(1),
+    retry_me_else(2),
+    allocate(1),
+    get_variable(y(0),1),
+    call(stopping_inst/1),
+    put_value(y(0),0),
+    get_atom(var,0),
+    deallocate,
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(2),0),
+    execute(find_first_arg/2)]).
+
+
+predicate(stopping_inst/1,39,static,private,user,[
+    try_me_else(8),
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([(call/1,3),(execute/1,5),(cut/1,7)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure(call/1,0),
+    unify_void(1),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_structure(execute/1,0),
+    unify_void(1),
+    proceed,
+
+label(6),
+    trust_me_else_fail,
+
+label(7),
+    get_structure(cut/1,0),
+    unify_void(1),
+    proceed,
+
+label(8),
+    trust_me_else_fail,
+    allocate(1),
+    put_variable(y(0),1),
+    call(codification/2),
+    put_unsafe_value(y(0),0),
+    deallocate,
+    execute(assign_x0/1)]).
+
+
+predicate(assign_x0/1,52,static,private,user,[
+    switch_on_term(1,fail,fail,1,fail),
+
+label(1),
+    get_list(0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    execute('$assign_x0/1_$aux1'/2)]).
+
+
+predicate('$assign_x0/1_$aux1'/2,52,static,private,user,[
+    try_me_else(6),
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([(w/1,3),(c/2,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure(w/1,0),
+    unify_integer(0),
+    proceed,
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_structure(c/2,0),
+    unify_variable(x(1)),
+    unify_variable(x(0)),
+    call_c_test('Blt_Term_Neq',[1,0]),
+    get_integer(0,0),
+    proceed,
+
+label(6),
+    trust_me_else_fail,
+    put_value(x(1),0),
+    execute(assign_x0/1)]).
+
+
+predicate(defines_first_arg/2,58,static,private,user,[
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([(get_atom/2,3),(get_integer/2,5),(get_nil/1,7),(get_list/1,9),(get_structure/2,11)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure(get_atom/2,0),
+    unify_variable(x(0)),
+    unify_integer(0),
+    get_structure(atm/1,1),
+    unify_value(x(0)),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_structure(get_integer/2,0),
+    unify_variable(x(0)),
+    unify_integer(0),
+    get_structure(int/1,1),
+    unify_value(x(0)),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_structure(get_nil/1,0),
+    unify_integer(0),
+    get_structure(atm/1,1),
+    unify_nil,
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    get_structure(get_list/1,0),
+    unify_integer(0),
+    get_atom(lst,1),
+    proceed,
+
+label(10),
+    trust_me_else_fail,
+
+label(11),
+    get_structure(get_structure/2,0),
+    unify_variable(x(0)),
+    unify_integer(0),
+    get_structure((/)/2,0),
+    unify_variable(x(2)),
+    unify_variable(x(0)),
+    get_structure(stc/2,1),
+    unify_value(x(2)),
+    unify_value(x(0)),
+    proceed]).

@@ -1,0 +1,219 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : char_io.pl
+% date    : 4 17 2000
+% time    : 2:15:43
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\char_io.pl').
+
+
+predicate('$use_char_io'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate(get_code_no_echo/1,30,static,private,built_in,[
+    put_atom(get_code_no_echo,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Get_Code_No_Echo_1',[0]),
+    proceed]).
+
+
+predicate(get_code_no_echo/2,34,static,private,built_in,[
+    put_atom(get_code_no_echo,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Get_Code_No_Echo_2',[0,1]),
+    proceed]).
+
+
+predicate(get_char/1,43,static,private,built_in,[
+    put_atom(get_char,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Get_Char_1',[0]),
+    proceed]).
+
+
+predicate(get_char/2,47,static,private,built_in,[
+    put_atom(get_char,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Get_Char_2',[0,1]),
+    proceed]).
+
+
+predicate(get_code/1,54,static,private,built_in,[
+    put_atom(get_code,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Get_Code_1',[0]),
+    proceed]).
+
+
+predicate(get_code/2,58,static,private,built_in,[
+    put_atom(get_code,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Get_Code_2',[0,1]),
+    proceed]).
+
+
+predicate(get_byte/1,65,static,private,built_in,[
+    put_atom(get_byte,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Get_Byte_1',[0]),
+    proceed]).
+
+
+predicate(get_byte/2,69,static,private,built_in,[
+    put_atom(get_byte,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Get_Byte_2',[0,1]),
+    proceed]).
+
+
+predicate(unget_char/1,79,static,private,built_in,[
+    put_atom(unget_char,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Unget_Char_1',[0]),
+    proceed]).
+
+
+predicate(unget_char/2,83,static,private,built_in,[
+    put_atom(unget_char,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Unget_Char_2',[0,1]),
+    proceed]).
+
+
+predicate(unget_code/1,90,static,private,built_in,[
+    put_atom(unget_code,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Unget_Code_1',[0]),
+    proceed]).
+
+
+predicate(unget_code/2,94,static,private,built_in,[
+    put_atom(unget_code,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Unget_Code_2',[0,1]),
+    proceed]).
+
+
+predicate(unget_byte/1,101,static,private,built_in,[
+    put_atom(unget_byte,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Unget_Byte_1',[0]),
+    proceed]).
+
+
+predicate(unget_byte/2,105,static,private,built_in,[
+    put_atom(unget_byte,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Unget_Byte_2',[0,1]),
+    proceed]).
+
+
+predicate(peek_char/1,114,static,private,built_in,[
+    put_atom(peek_char,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Peek_Char_1',[0]),
+    proceed]).
+
+
+predicate(peek_char/2,118,static,private,built_in,[
+    put_atom(peek_char,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Peek_Char_2',[0,1]),
+    proceed]).
+
+
+predicate(peek_code/1,125,static,private,built_in,[
+    put_atom(peek_code,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Peek_Code_1',[0]),
+    proceed]).
+
+
+predicate(peek_code/2,129,static,private,built_in,[
+    put_atom(peek_code,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Peek_Code_2',[0,1]),
+    proceed]).
+
+
+predicate(peek_byte/1,136,static,private,built_in,[
+    put_atom(peek_byte,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c_test('Peek_Byte_1',[0]),
+    proceed]).
+
+
+predicate(peek_byte/2,140,static,private,built_in,[
+    put_atom(peek_byte,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c_test('Peek_Byte_2',[0,1]),
+    proceed]).
+
+
+predicate(put_char/1,149,static,private,built_in,[
+    put_atom(put_char,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Put_Char_1',[0]),
+    proceed]).
+
+
+predicate(put_char/2,153,static,private,built_in,[
+    put_atom(put_char,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Put_Char_2',[0,1]),
+    proceed]).
+
+
+predicate(put_code/1,160,static,private,built_in,[
+    put_atom(put_code,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Put_Code_1',[0]),
+    proceed]).
+
+
+predicate(put_code/2,164,static,private,built_in,[
+    put_atom(put_code,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Put_Code_2',[0,1]),
+    proceed]).
+
+
+predicate(put_byte/1,171,static,private,built_in,[
+    put_atom(put_byte,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[1,2]),
+    call_c('Put_Byte_1',[0]),
+    proceed]).
+
+
+predicate(put_byte/2,175,static,private,built_in,[
+    put_atom(put_byte,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[2,3]),
+    call_c('Put_Byte_2',[0,1]),
+    proceed]).

@@ -1,0 +1,61 @@
+% compiler: GNU Prolog 1.1.6 (Apr 13 2000)
+% file    : throw.pl
+% date    : 4 17 2000
+% time    : 2:15:30
+
+
+file_name('C:\\GNU-Prolog\\src\\BipsPl\\throw.pl').
+
+
+predicate('$use_throw'/0,27,static,private,built_in,[
+    proceed]).
+
+
+predicate('$throw'/4,30,static,private,built_in,[
+    call_c('Save_Call_Info_3',[1,2,3]),
+    put_integer(0,1),
+    execute('$throw1'/2)]).
+
+
+predicate('$throw1'/2,35,static,private,built_in,[
+    put_integer(1,2),
+    call_c('Load_Call_Info_Arg_1',[2]),
+    execute('$throw_internal'/2)]).
+
+
+predicate('$throw_internal'/2,40,static,private,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    put_value(y(0),0),
+    call('$$throw_internal/2_$aux1'/2),
+    put_integer(8,0),
+    put_value(y(0),1),
+    call('$sys_var_put'/2),
+    put_value(y(0),0),
+    deallocate,
+    execute('$unwind'/1)]).
+
+
+predicate('$$throw_internal/2_$aux1'/2,40,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    call_c_test('Blt_Var',[0]),
+    cut(x(2)),
+    call_c('Call_Info_Bip_Name_1',[1]),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$unwind'/1,51,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    put_integer(7,0),
+    put_variable(y(1),1),
+    call('$sys_var_read'/2),
+    put_value(y(0),0),
+    put_unsafe_value(y(1),1),
+    call_c('Throw_2',[0,1]),
+    fail]).

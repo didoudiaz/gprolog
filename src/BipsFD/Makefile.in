@@ -1,0 +1,66 @@
+LIB_BIPS_FD = @LIB_BIPS_FD@
+GPLC        = @GPLC@
+CC          = @CC@
+CFLAGS      = @CFLAGS@
+AR_RC       = @AR_RC@
+RANLIB      = @RANLIB@
+
+
+LIBNAME = $(LIB_BIPS_FD)
+OBJLIB  = fd_infos@OBJ_SUFFIX@ fd_infos_c@OBJ_SUFFIX@ \
+          fd_values@OBJ_SUFFIX@ fd_values_c@OBJ_SUFFIX@ fd_values_fd@OBJ_SUFFIX@ \
+          fd_math@OBJ_SUFFIX@ fd_math_c@OBJ_SUFFIX@ fd_math_fd@OBJ_SUFFIX@ \
+          fd_bool@OBJ_SUFFIX@ fd_bool_c@OBJ_SUFFIX@ fd_bool_fd@OBJ_SUFFIX@ \
+          fd_prime@OBJ_SUFFIX@ fd_prime_c@OBJ_SUFFIX@ fd_prime_fd@OBJ_SUFFIX@ \
+          fd_symbolic@OBJ_SUFFIX@ fd_symbolic_c@OBJ_SUFFIX@ fd_symbolic_fd@OBJ_SUFFIX@ \
+          fd_optim@OBJ_SUFFIX@ \
+          math_supp@OBJ_SUFFIX@ \
+          oper_supp@OBJ_SUFFIX@ \
+          all_fd_bips@OBJ_SUFFIX@ 
+
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .c .fd .pl $(SUFFIXES)
+
+
+.pl@OBJ_SUFFIX@:
+	$(GPLC) -c $(GPLCFLAGS) --no-redef-error $*.pl
+
+.fd@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS) $(CLFAGS_UNSIGNED_CHAR)' $*.fd
+
+.c@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS) $(CLFAGS_UNSIGNED_CHAR)' $*.c 
+
+
+$(LIBNAME): $(OBJLIB)
+	rm -f $(LIBNAME) 
+	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
+	$(RANLIB) $(LIBNAME)
+
+
+
+clean:
+	rm -f *@OBJ_SUFFIX@ $(LIBNAME)
+
+
+distclean: clean
+
+
+
+# for test
+
+t_fd.c: t_fd.fd ../Fd2C/fd2c
+	$(GPLC) --fd-to-c t_fd.fd
+
+t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_fd@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EngineFD/libengine_fd.a \
+            ../EngineFD/fd_to_c.h $(LIBNAME)
+	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_fd@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@
+
+
+
+# depending on math_supp.h
+
+math_supp@OBJ_SUFFIX@: math_supp.h
+fd_math_c@OBJ_SUFFIX@: math_supp.h
+
