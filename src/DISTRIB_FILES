@@ -4,6 +4,7 @@ COPYING
 ChangeLog
 NEWS
 PROBLEMS
+VERSION
 
 doc/README
 doc/Makefile
@@ -36,6 +37,7 @@ src/CYGWIN
 src/AUTOCONF-INFO
 src/DEVELOPMENT
 src/PORTING
+src/VERSION
 src/config.guess
 src/config.sub
 src/configure
@@ -103,15 +105,10 @@ src/BipsPl/BYTE_CODE
 src/BipsPl/[a-z]??*.pl
 src/BipsPl/[a-z]??*.wam
 src/BipsPl/[a-z]??*.[ch]
-src/BipsPl/t.pl
-src/BipsPl/t_c.c
 
 src/BipsFD/Makefile.in
 src/BipsFD/[a-z][a-z]?*.pl
 src/BipsFD/[a-z][a-z]?*.fd
 src/BipsFD/[a-z][a-z]?*.[ch]
-src/BipsFD/t.pl
-src/BipsFD/t_c.c
-src/BipsFD/t_fd.fd
 
 
