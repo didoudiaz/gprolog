@@ -28,7 +28,8 @@ form the command-line) and get_cpu_time/1 (user time in msec).
 This makes it possible to run the benchmarks with different systems (defining
 a hook.pl file for each system).
 
-Each sub-directorie (YAP, WAMCC, SICSTUS, CIAO, XSB, SWI) contains 3 files.
+Each sub-directorie (YAP, WAMCC, SICSTUS, CIAO, BINPROLOG, XSB, SWI) contains
+3 files:
 
 	MAKE_PROGS: a shell-script building the benchmarks
 	MAKE_CLEAN: a shell-script removing build benchmarks

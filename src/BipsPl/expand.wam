@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.5 (Dec 1 2000)
+% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
 % file    : expand.pl
-% date    : 1 22 2001
-% time    : 19:6:41
+% date    : 1 23 2001
+% time    : 12:49:53
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/expand.pl').

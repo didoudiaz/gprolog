@@ -58,7 +58,7 @@ entry_exit_modes_list(_, _, Entries) :-			% Done
 	var(Entries).
 entry_exit_modes_list(ProcList, Known, [Entry|Entries]) :-
 	Entry =.. [Functor|Act],		% Get functor/arity & activation
-	length(Act, Arity),			% from entry declaration
+	my_length(Act, Arity),			% from entry declaration
 	proc_exit_mode(ProcList, Known, [], Functor/Arity, Act, _),  % No invoc.
 	entry_exit_modes_list(ProcList, Known, Entries).
 
@@ -83,6 +83,16 @@ proc_exit_mode(_, Known, _, Functor/Arity, Act, Exit) :-
 	write(Activation), nl,
 	all_shared(Act, Exit),     	   % return worst possible - all shared 
 	add_to_list([Functor/Arity, Act, Exit], Known).
+
+my_length(L, N) :-
+        my_length1(L, 0, N).
+
+
+my_length1([], N, N).
+
+my_length1([_|L], M, N) :-
+        M1 is M+1,
+        my_length1(L, M1, N).
 
 % Analyze all clauses for this procedure, instantiate Exits to all exit modes
 clause_exit_modes_list(_, _, _, Clauses, _, []) :-
