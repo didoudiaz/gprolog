@@ -1,3 +1,11 @@
+Mon Nov  6 14:58:07 CEST 2000 <Daniel.Diaz@inria.fr>
+
+	* improve dynamic clause management and fix a bug (memory leak)
+
+Fri Nov  3 09:17:19 CEST 2000 <Daniel.Diaz@inria.fr>
+
+	* fix _ symbol prefix problem for Free BSD
+
 Fri Oct 13 17:46:38 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* no longer use dl_malloc on Linux but prevent MMAP using mallopt

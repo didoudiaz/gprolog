@@ -135,6 +135,7 @@ Hash_Alloc_Table(int tbl_size, int elem_size)
 /*-------------------------------------------------------------------------*
  * HASH_REALLOC_TABLE                                                      *
  *                                                                         *
+ * NB: user information is not moved elsewhere                             *
  *-------------------------------------------------------------------------*/
 char *
 Hash_Realloc_Table(char *tbl, int new_tbl_size)
@@ -159,8 +160,8 @@ Hash_Realloc_Table(char *tbl, int new_tbl_size)
     {
       p = *t;
       while (p)
-	{
-	  prev = Hash_Locate(new_t, new_tbl_size, p->key);	/* here *prev==NULL */
+	{			/* here *prev==NULL */
+	  prev = Hash_Locate(new_t, new_tbl_size, p->key);
 	  p1 = p;
 	  p = p->next;
 	  *prev = p1;

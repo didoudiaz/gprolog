@@ -46,13 +46,27 @@ typedef struct dynpinf *DynPInfP;
 
 typedef struct dyncinf *DynCInfP;
 
+typedef struct			/* Dobly-linked chain header     */
+{				/* ----------------------------- */
+  DynCInfP first;		/* first clause (or NULL)        */
+  DynCInfP last;		/* last  clause (or NULL)        */
+}D2ChHdr;
+
+
+typedef struct			/* Dobly-linked chain cell       */
+{				/* ----------------------------- */
+  DynCInfP next;		/* next     clause (or NULL)     */
+  DynCInfP prev;		/* previous clause (or NULL)     */
+}D2ChCell;
+
+
 typedef struct dyncinf		/* Dynamic clause information     */
 {				/* ------------------------------ */
-  long *seq_chain_f;		/* sequential chain fwd(->nxt ch) */
-  long *seq_chain_b;		/* sequential chain bwd(->nxt ch) */
-  long *ind_chain_f;		/* indexical  chain fwd(->nxt ch) */
-  long *ind_chain_b;		/* indexical  chain bwd(->nxt ch) */
-  DynPInfP dyn;			/* associated dyn inf (redundant) */
+  D2ChCell seq_chain;		/* sequential chain               */
+  D2ChCell ind_chain;		/* indexical  chain               */
+  DynPInfP dyn;			/* back ptr to associated dyn inf */
+  D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
+  char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
   DynStamp erase_stamp;		/* FFF...F if not erased or stamp */
   DynCInfP next_erased_cl;	/* pointer to next erased clause  */
@@ -70,7 +84,7 @@ DynCInf;
 typedef struct			/* Dynamic switch item info       */
 {				/* ------------------------------ */
   long key;			/* key: atm, int, f/n             */
-  long *ind_chain;		/* indexical chain (->1st ch)     */
+  D2ChHdr ind_chain;		/* indexical chain                */
 }
 DSwtInf;
 
@@ -79,17 +93,17 @@ DSwtInf;
 
 typedef struct dynpinf		/* Dynamic predicate information  */
 {				/* ------------------------------ */
-  long *seq_chain;		/* sequential chain    (->1st ch) */
-  long *var_ind_chain;		/* index if 1st arg=VAR(->1st ch) */
-  char *atm_htbl;		/* index if 1st arg=ATM(->htable) */
-  char *int_htbl;		/* index if 1st arg=INT(->htable) */
-  long *lst_ind_chain;		/* index if 1st arg=LST(->1st ch) */
-  char *stc_htbl;		/* index if 1st arg=STC(->htable) */
+  D2ChHdr seq_chain;		/* sequential chain               */
+  D2ChHdr var_ind_chain;	/* index if 1st arg=VAR (chain)   */
+  char *atm_htbl;		/* index if 1st arg=ATM (htable)  */
+  char *int_htbl;		/* index if 1st arg=INT (htable)  */
+  D2ChHdr lst_ind_chain;	/* index if 1st arg=LST (chain)   */
+  char *stc_htbl;		/* index if 1st arg=STC (htable)  */
   int arity;			/* arity (redundant but faster)   */
   int count_a;			/* next clause nb for asserta     */
   int count_z;			/* next clause nb for assertz     */
   DynCInfP first_erased_cl;	/* 1st erased clause NULL if none */
-  DynPInfP next_dyn_with_erase;	/* next dyn with some erased cl.  */
+  DynPInfP next_dyn_with_erase;	/* next dyn with erased clauses   */
 }
 DynPInf;
 

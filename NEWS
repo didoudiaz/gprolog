@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.2.4:
 
+* improve dynamic clause management and fix a bug (memory leak)
+* fix _ symbol prefix problem for Free BSD
 * no longer use dl_malloc on Linux but prevent MMAP using mallopt
 
 Change in GNU Prolog version 1.2.3:

@@ -33,6 +33,9 @@
 #if 0
 #define DEBUG
 #endif
+#if 0
+#define DEBUG1
+#endif
 
 
 
@@ -41,17 +44,10 @@
  * Constants                       *
  *---------------------------------*/
 
-#define Clause_From_Seq_Chain_F(p) ((DynCInf *) ((long **) (p)-0))
-#define Clause_From_Seq_Chain_B(p) ((DynCInf *) ((long **) (p)-1))
-#define Clause_From_Ind_Chain_F(p) ((DynCInf *) ((long **) (p)-2))
-#define Clause_From_Ind_Chain_B(p) ((DynCInf *) ((long **) (p)-3))
-
-
-
 #define DYN_STAMP_NONE             ((DynStamp) -1)
-#define ALL_MUST_BE_ERASED         (DynCInf *) 2	/* NB: bit 0 for mark */
-#define MAX_KBYTES_BEFORE_CLEAN    32
+#define ALL_MUST_BE_ERASED         (DynCInf *) 2 /* bit 0 used for mark */
 
+#define MAX_KBYTES_BEFORE_CLEAN    512
 #define MAX_SIZE_BEFORE_CLEAN      (MAX_KBYTES_BEFORE_CLEAN*1024/sizeof(WamWord))
 
 
@@ -80,9 +76,9 @@ typedef struct			/* Dynamic clause scanning info   */
   DynPInf *dyn;			/* associated dyn info            */
   int stop_cl_no;		/* clause # to reach to stop scan */
   DynStamp erase_stamp;		/* max stamp to perform a retract */
-  Bool xxx_is_seq_chain;	/* scan all clauses ?             */
-  long *xxx_ind_chain;		/* current assoc idx (->*clause)  */
-  long *var_ind_chain;		/* current var   idx (->*clause)  */
+  Bool xxx_is_seq_chain;        /* scan all clauses ?             */
+  DynCInf *xxx_ind_chain;	/* current assoc idx (->clause)   */
+  DynCInf *var_ind_chain;	/* current var   idx (->clause)   */
   DynCInf *clause;		/* current clause                 */
 }
 DynScan;
@@ -108,7 +104,11 @@ static DynPInf *Alloc_Init_Dyn_Info(PredInf *pred, int arity);
 
 static int Index_From_First_Arg(WamWord first_arg_word, long *key);
 
-static void Add_To_List(long **list, long **to_add, Bool asserta);
+static void Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, 
+			  Bool asserta);
+
+static void Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, 
+			       Bool in_seq_chain);
 
 static void Erase_All(DynPInf *dyn);
 
@@ -126,13 +126,13 @@ static DynCInf *Scan_Dynamic_Pred_Next(DynScan *scan);
 
 
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(DEBUG1)
 
 static void Check_Dynamic_Clauses(DynPInf *dyn);
 
-static void Check_Hash(char *t, int index_nb);
+static void Check_Hash(char *t, int index_no);
 
-static void Check_List(long *p, int index_nb);
+static void Check_Chain(D2ChHdr *p, int index_no);
 
 #endif
 
@@ -167,8 +167,9 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
  *   - the corresponding Prolog term of the form [Head|Body] for Head:-Body*
  *                                                                         *
  * For a dynamic predicate the structure DynPInfo has 6 entry-points for   *
- * clause chaining: 1 for the sequential chain, 5 for indexing chains,     *
- * depending on the first argument of the Head:                            *
+ * clause chaining (2-link chains, with next of last = NULL):              *
+ * 1 for the sequential chain, 5 for indexing chains, depending on the     *
+ * first argument of the Head:                                             *
  *                                                                         *
  *   - seq_chain    : a chain to the first clause                          *
  *   - var_ind_chain: a chain to the first clause with a var as 1st arg    *
@@ -198,27 +199,29 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
  * selections and to mark them. All erased clauses of a predicate which is *
  * not marked are physically destroyed (free).                             *
  *-------------------------------------------------------------------------*/
+
 /*-------------------------------------------------------------------------*
  * ADD_DYNAMIC_CLAUSE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     DynCInf *Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
-				 Bool asserta, Bool check_perm)
+DynCInf *
+Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
+		   Bool check_perm)
 {
   WamWord word;
   WamWord *first_arg_adr;
   int func, arity;
   PredInf *pred;
-  int index_nb;
+  int index_no;
   long key;
   DynCInf *clause;
   DynPInf *dyn;
-  char **p_htbl;
+  char **p_ind_htbl;
+  D2ChHdr *p_ind_hdr;
   DSwtInf swt_info;
   DSwtInf *swt;
   int size;
   WamWord lst_h_b;
-
 
   first_arg_adr = Rd_Callable_Check(head_word, &func, &arity);
 
@@ -250,7 +253,7 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
     dyn = Alloc_Init_Dyn_Info(pred, arity);
 
 
-  index_nb = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key)
+  index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key)
     : NO_INDEX;
 
 #ifdef DEBUG
@@ -272,7 +275,7 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
   clause = (DynCInf *)
     Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
 
-  Add_To_List(&dyn->seq_chain, &clause->seq_chain_f, asserta);
+  Add_To_2Chain(&dyn->seq_chain, clause, TRUE, asserta);
 
   clause->dyn = dyn;
   clause->cl_no = (asserta) ? dyn->count_a-- : dyn->count_z++;
@@ -285,42 +288,57 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
   clause->byte_code = byte_code;
   byte_code = NULL;
 
-  if (index_nb == NO_INDEX)
+
+  switch(index_no)
     {
-      clause->ind_chain_f = NULL;
-      clause->ind_chain_b = NULL;
+    case NO_INDEX:
+      clause->ind_chain.next = NULL;
+      clause->ind_chain.prev = NULL;
+      p_ind_hdr = NULL;
+      p_ind_htbl = NULL;
+      break;
 
-#ifdef DEBUG
-      Check_Dynamic_Clauses(dyn);
-#endif
+    case VAR_INDEX:
+      p_ind_hdr = &(dyn->var_ind_chain);
+      p_ind_htbl = NULL;
+      break;
 
-      return clause;
+    case LST_INDEX:
+      p_ind_hdr = &(dyn->lst_ind_chain);
+      p_ind_htbl = NULL;
+      break;
+
+    case ATM_INDEX:
+      p_ind_htbl = &(dyn->atm_htbl);
+      break;
+
+    case INT_INDEX:
+      p_ind_htbl = &(dyn->int_htbl);
+      break;
+
+    case STC_INDEX:
+      p_ind_htbl = &(dyn->stc_htbl);
+      break;
     }
 
-
-  if (index_nb == VAR_INDEX || index_nb == LST_INDEX)
+  clause->p_ind_htbl = p_ind_htbl;
+  if (p_ind_htbl)
     {
-      Add_To_List((long **) dyn + index_nb, &clause->ind_chain_f, asserta);
+      if (*p_ind_htbl == NULL)
+	*p_ind_htbl = Hash_Alloc_Table(START_DYNAMIC_SWT_SIZE, sizeof(DSwtInf));
 
-#ifdef DEBUG
-      Check_Dynamic_Clauses(dyn);
-#endif
+      swt_info.key = key;
+      swt_info.ind_chain.first = swt_info.ind_chain.last = NULL;
 
-      return clause;
+      Extend_Table_If_Needed(p_ind_htbl);
+      swt = (DSwtInf *) Hash_Insert(*p_ind_htbl, (char *) &swt_info, FALSE);
+
+      p_ind_hdr = &(swt->ind_chain);
     }
 
-  p_htbl = (char **) dyn + index_nb;
-
-  if (*p_htbl == NULL)
-    *p_htbl = Hash_Alloc_Table(START_DYNAMIC_SWT_SIZE, sizeof(DSwtInf));
-
-  swt_info.key = key;
-  swt_info.ind_chain = NULL;
-
-  Extend_Table_If_Needed(p_htbl);
-  swt = (DSwtInf *) Hash_Insert(*p_htbl, (char *) &swt_info, FALSE);
-
-  Add_To_List(&(swt->ind_chain), &clause->ind_chain_f, asserta);
+  clause->p_ind_hdr = p_ind_hdr;
+  if (p_ind_hdr)
+    Add_To_2Chain(p_ind_hdr, clause, FALSE, asserta);
 
 #ifdef DEBUG
   Check_Dynamic_Clauses(dyn);
@@ -343,7 +361,9 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
 
   dyn = (DynPInf *) Malloc(sizeof(DynPInf));
 
-  dyn->seq_chain = dyn->var_ind_chain = dyn->lst_ind_chain = NULL;
+  dyn->seq_chain.first = dyn->seq_chain.last = NULL;
+  dyn->var_ind_chain.first = dyn->var_ind_chain.last = NULL;
+  dyn->lst_ind_chain.first = dyn->lst_ind_chain.last = NULL;
   dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
   dyn->arity = arity;
   dyn->count_a = -1;
@@ -367,7 +387,7 @@ static int
 Index_From_First_Arg(WamWord first_arg_word, long *key)
 {
   WamWord word, tag, *adr;
-  int index_nb;
+  int index_no;
 
 
   Deref(first_arg_word, word, tag, adr);
@@ -375,57 +395,111 @@ Index_From_First_Arg(WamWord first_arg_word, long *key)
     {
     case REF:
     case FDV:
-      index_nb = VAR_INDEX;
+      index_no = VAR_INDEX;
       break;
 
     case INT:
-      index_nb = INT_INDEX;
+      index_no = INT_INDEX;
       *key = UnTag_INT(word);
       break;
 
     case ATM:
-      index_nb = ATM_INDEX;
+      index_no = ATM_INDEX;
       *key = (long) UnTag_ATM(word);
       break;
 
     case FLT:
-      index_nb = NO_INDEX;
+      index_no = NO_INDEX;
       break;
 
     case LST:
-      index_nb = LST_INDEX;
+      index_no = LST_INDEX;
       break;
 
     default:			/* tag==STC */
-      index_nb = STC_INDEX;
+      index_no = STC_INDEX;
       *key = (long) Functor_And_Arity(UnTag_STC(word));
       break;
     }
 
-  return index_nb;
+  return index_no;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ADD_TO_LIST                                                             *
+ * ADD_TO_2CHAIN                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Add_To_List(long **list, long **to_add, Bool asserta)
+Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, Bool asserta)
 {
-  if (!asserta)
-    while (*list)
-      list = (long **) *list;
+  D2ChCell *cell = (in_seq_chain) ? &clause->seq_chain : &clause->ind_chain;
 
-  if ((to_add[0] = *list) != NULL)
-    ((long **) (*list))[1] = (long *) to_add;
+  if (hdr->first == NULL)	/* empty chain ? */
+    {
+      hdr->first = hdr->last = clause;
+      cell->next = cell->prev = NULL;
+      return;
+    }
 
-  to_add[1] = (long *) list;
-  *list = (long *) to_add;
+  if (asserta)
+    {
+      cell->next = hdr->first;
+      cell->prev = NULL;
+      hdr->first = clause;
+      if (in_seq_chain)
+	cell->next->seq_chain.prev = clause;
+      else
+	cell->next->ind_chain.prev = clause;
+    }
+  else
+    {
+      if (in_seq_chain)
+	hdr->last->seq_chain.next = clause;
+      else
+	hdr->last->ind_chain.next = clause;
+      cell->next = NULL;
+      cell->prev = hdr->last;
+      hdr->last = clause;
+    }
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * REMOVE_FROM_2CHAIN                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain)
+{
+  D2ChCell *cell = (in_seq_chain) ? &clause->seq_chain : &clause->ind_chain;
+  DynCInf *prev = cell->prev;
+  DynCInf *next = cell->next;
+  
+  if (prev == NULL)		/* first cell ? */
+    hdr->first = next;
+  else
+    {
+      if (in_seq_chain)
+	prev->seq_chain.next = next;
+      else
+	prev->ind_chain.next = next;
+    }
+
+  if (next == NULL)		/* last cell ? */
+    hdr->last = prev;
+  else
+    {
+      if (in_seq_chain)
+	next->seq_chain.prev = prev;
+      else
+	next->ind_chain.prev = prev;
+    }
+}
 
 
 
@@ -475,7 +549,6 @@ Erase_All(DynPInf *dyn)
 {
   Bool first;
   DynCInf *clause;
-  long *seq_chain;
 
   if (dyn == NULL)
     return;
@@ -489,17 +562,15 @@ Erase_All(DynPInf *dyn)
       first_dyn_with_erase = dyn;
     }
 
-  for (seq_chain = dyn->seq_chain; seq_chain;
-       seq_chain = clause->seq_chain_f)
+  for (clause = dyn->seq_chain.first; clause; 
+       clause = clause->seq_chain.next)
     {
-      clause = Clause_From_Seq_Chain_F(seq_chain);
       if (clause->erase_stamp == DYN_STAMP_NONE)
 	size_of_erased += clause->term_size;
     }
 
   Clean_Erased_Clauses();
 }
-
 
 
 
@@ -510,17 +581,16 @@ Erase_All(DynPInf *dyn)
 static void
 Clean_Erased_Clauses(void)
 {
-  WamWord *b;
+  WamWord *b, *base;
   DynScan *scan;
   DynPInf *dyn, *dyn1, **prev;
   DynCInf *clause, *clause1;
-  long *seq_chain;
-
 
   if (size_of_erased <= MAX_SIZE_BEFORE_CLEAN)
     return;
 
-  for (b = B; b > Local_Stack; b = BB(b))
+  base = Local_Stack;
+  for (b = B; b > base; b = BB(b))
     {
       scan = Get_Scan_Choice_Point(b);
       if (scan == NULL)
@@ -550,12 +620,10 @@ Clean_Erased_Clauses(void)
 
       if (dyn->first_erased_cl == ALL_MUST_BE_ERASED)	/* clean all ? */
 	{
-	  seq_chain = dyn->seq_chain;
-	  while (seq_chain)
+	  for (clause = dyn->seq_chain.first; clause; clause = clause1)
 	    {
-	      clause = Clause_From_Seq_Chain_F(seq_chain);
+	      clause1 = clause->seq_chain.next;
 	      size_of_erased -= clause->term_size;
-	      seq_chain = clause->seq_chain_f;
 	      Free_Clause(clause);
 	    }
 
@@ -572,19 +640,17 @@ Clean_Erased_Clauses(void)
 	  continue;
 	}
 
-      clause = dyn->first_erased_cl;
-      while (clause)
+      for (clause = dyn->first_erased_cl; clause; clause = clause1)
 	{
-	  clause1 = clause;
+	  clause1 = clause->next_erased_cl;
 	  size_of_erased -= clause->term_size;
 	  Unlink_Clause(clause);
-	  clause = clause->next_erased_cl;
-	  Free_Clause(clause1);
+	  Free_Clause(clause);
 	}
       dyn->first_erased_cl = NULL;
       dyn->next_dyn_with_erase = NULL;
 
-      if (dyn->seq_chain == NULL)	/* no more clauses */
+      if (dyn->seq_chain.first == NULL)	/* no more clauses */
 	{
 	  if (dyn->atm_htbl)
 	    Hash_Free_Table(dyn->atm_htbl);
@@ -599,6 +665,9 @@ Clean_Erased_Clauses(void)
 	  dyn->count_a = -1;
 	  dyn->count_z = 0;
 	}
+#ifdef DEBUG1
+      Check_Dynamic_Clauses(dyn);
+#endif
     }
 }
 
@@ -612,24 +681,23 @@ Clean_Erased_Clauses(void)
 static void
 Unlink_Clause(DynCInf *clause)
 {
-  DynCInf *clause1;
-  long **seq_chain_back;
-  long **ind_chain_back;
+  DynPInf *dyn = clause->dyn;
+  long *p_key;
+  DSwtInf swt_info;
 
-  seq_chain_back = (long **) clause->seq_chain_b;
-  ind_chain_back = (long **) clause->ind_chain_b;
+  Remove_From_2Chain(&dyn->seq_chain, clause, TRUE);
+  if (clause->p_ind_hdr)
+    Remove_From_2Chain(clause->p_ind_hdr, clause, FALSE);
 
-  if ((*seq_chain_back = clause->seq_chain_f) != NULL)
+  if (clause->p_ind_htbl && clause->ind_chain.prev == NULL &&
+      clause->ind_chain.next == NULL)
     {
-      clause1 = Clause_From_Seq_Chain_F(*seq_chain_back);
-      clause1->seq_chain_b = (long *) seq_chain_back;
-    }
-
-  /* test also if no index */
-  if (ind_chain_back && (*ind_chain_back = clause->ind_chain_f) != NULL)
-    {
-      clause1 = Clause_From_Ind_Chain_F(*ind_chain_back);
-      clause1->ind_chain_b = (long *) ind_chain_back;
+      p_key = (long *) ((char *) clause->p_ind_hdr -
+	((char *) &(swt_info.ind_chain) - (char *) &(swt_info.key)));
+#ifdef DEBUG1
+      DBGPRINTF("Removing last ind key in a hash table  (%ld)\n", *p_key);
+#endif
+      Hash_Delete(*clause->p_ind_htbl, *p_key);
     }
 }
 
@@ -731,9 +799,9 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
 		  ScanFct alt_fct, int alt_fct_type,
 		  int alt_info_size, WamWord *alt_info)
 {
-  int index_nb;
+  int index_no;
   long key;
-  char *htbl;
+  char **p_ind_htbl;
   DSwtInf *swt;
   DynScan scan;
   DynCInf *clause;
@@ -744,7 +812,7 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
   if (owner_func < 0)
     owner_func = Get_Current_Bip(&owner_arity);
 
-  index_nb = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
+  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
     : NO_INDEX;
 
   scan.alt_fct = alt_fct;
@@ -755,31 +823,49 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
   scan.stop_cl_no = dyn->count_z;
   scan.erase_stamp = erase_stamp++;
 
-  switch (index_nb)
+  switch (index_no)
     {
     case NO_INDEX:
     case VAR_INDEX:
       scan.xxx_is_seq_chain = TRUE;
-      scan.xxx_ind_chain = dyn->seq_chain;
-      scan.var_ind_chain = NULL;
+      scan.xxx_ind_chain = dyn->seq_chain.first;
+      p_ind_htbl = NULL;
       break;
 
     case LST_INDEX:
       scan.xxx_is_seq_chain = FALSE;
-      scan.xxx_ind_chain = dyn->lst_ind_chain;
-      scan.var_ind_chain = dyn->var_ind_chain;
+      scan.xxx_ind_chain = dyn->lst_ind_chain.first;
+      p_ind_htbl = NULL;
       break;
 
-    default:
+    case ATM_INDEX:
+      p_ind_htbl = &(dyn->atm_htbl);
+      break;
+
+    case INT_INDEX:
+      p_ind_htbl = &(dyn->int_htbl);
+      break;
+
+    case STC_INDEX:
+      p_ind_htbl = &(dyn->stc_htbl);
+      break;
+ 
+    }
+
+  if (p_ind_htbl)
+    {
       scan.xxx_is_seq_chain = FALSE;
-      htbl = ((char **) dyn)[index_nb];
-      if (htbl && (swt = (DSwtInf *) Hash_Find(htbl, key)) != NULL)
-	scan.xxx_ind_chain = swt->ind_chain;
+      if (*p_ind_htbl && 
+	  (swt = (DSwtInf *) Hash_Find(*p_ind_htbl, key)) != NULL)
+	scan.xxx_ind_chain = swt->ind_chain.first;
       else
 	scan.xxx_ind_chain = NULL;
-
-      scan.var_ind_chain = dyn->var_ind_chain;
     }
+
+  if (scan.xxx_is_seq_chain)
+    scan.var_ind_chain = NULL;
+  else
+    scan.var_ind_chain = dyn->var_ind_chain.first;
 
   clause = Scan_Dynamic_Pred_Next(&scan);
   if (clause == NULL)
@@ -787,10 +873,8 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
 
   if (Scan_Dynamic_Pred_Next(&scan) != NULL)	/* non deterministic case */
     {
-      i =
-	(sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) +
+      i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) +
 	alt_info_size;
-
 
       if (alt_fct_type == DYN_ALT_FCT_FOR_TEST)
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0);
@@ -799,7 +883,6 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
 
       Create_Choice_Point(scan_alt, i);
       adr = &AB(B, i) + 1;
-
 
       i = alt_info_size;
       while (i--)
@@ -821,7 +904,7 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
 static DynCInf *
 Scan_Dynamic_Pred_Next(DynScan *scan)
 {
-  long *xxx_ind_chain, *var_ind_chain;
+  DynCInf *xxx_ind_chain, *var_ind_chain;
   DynCInf *xxx_clause, *var_clause;
   long xxx_nb, var_nb;
   DynCInf *clause;
@@ -838,10 +921,7 @@ start:
   xxx_ind_chain = scan->xxx_ind_chain;
   if (xxx_ind_chain)
     {
-      xxx_clause = (scan->xxx_is_seq_chain)
-	? Clause_From_Seq_Chain_F(xxx_ind_chain)
-	: Clause_From_Ind_Chain_F(xxx_ind_chain);
-
+      xxx_clause = xxx_ind_chain;
       xxx_nb = xxx_clause->cl_no;
     }
   else
@@ -850,7 +930,7 @@ start:
   var_ind_chain = scan->var_ind_chain;
   if (var_ind_chain)
     {
-      var_clause = Clause_From_Ind_Chain_F(var_ind_chain);
+      var_clause = var_ind_chain;
       var_nb = var_clause->cl_no;
     }
   else
@@ -862,12 +942,15 @@ start:
 	return NULL;
 
       clause = xxx_clause;
-      scan->xxx_ind_chain = *(long **) xxx_ind_chain;
+      if (scan->xxx_is_seq_chain)
+	scan->xxx_ind_chain = xxx_ind_chain->seq_chain.next;
+      else
+	scan->xxx_ind_chain = xxx_ind_chain->ind_chain.next;
     }
   else
     {
       clause = var_clause;
-      scan->var_ind_chain = *(long **) var_ind_chain;
+      scan->var_ind_chain = var_ind_chain->ind_chain.next;
     }
 
   if (clause->cl_no >= scan->stop_cl_no)
@@ -875,7 +958,6 @@ start:
 
   if (clause->erase_stamp <= scan->erase_stamp)
     goto start;
-
 
   scan->clause = clause;
 
@@ -961,7 +1043,7 @@ Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 
 
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(DEBUG1)
 
 /*-------------------------------------------------------------------------*
  * CHECK_DYNAMIC_CLAUSES                                                   *
@@ -973,16 +1055,16 @@ Check_Dynamic_Clauses(DynPInf *dyn)
 {
   DBGPRINTF("\nFirst dyn with erase:0x%08lx\n",
 	    (long) first_dyn_with_erase);
-  DBGPRINTF("Dyn:0x%08lx  count_a:%d  count_z:%d  "
-	    "1st erased:0x%08lx  next dyn with erase:0x%08lx\n", (long) dyn,
-	    dyn->count_a, dyn->count_z, (long) (dyn->first_erased_cl),
-	    (long) (dyn->next_dyn_with_erase));
+  DBGPRINTF("Dyn:0x%08lx  arity:%d  count_a:%d  count_z:%d  "
+	    "1st erased:0x%08lx  next dyn with erase:0x%08lx\n",
+	    (long) dyn, dyn->arity, dyn->count_a, dyn->count_z, 
+	    (long) dyn->first_erased_cl, (long) dyn->next_dyn_with_erase);
 
-  Check_List(dyn->seq_chain, NO_INDEX);
-  Check_List(dyn->var_ind_chain, VAR_INDEX);
+  Check_Chain(&dyn->seq_chain, NO_INDEX);
+  Check_Chain(&dyn->var_ind_chain, VAR_INDEX);
   Check_Hash(dyn->atm_htbl, ATM_INDEX);
   Check_Hash(dyn->int_htbl, INT_INDEX);
-  Check_List(dyn->lst_ind_chain, LST_INDEX);
+  Check_Chain(&dyn->lst_ind_chain, LST_INDEX);
   Check_Hash(dyn->stc_htbl, STC_INDEX);
 }
 
@@ -995,15 +1077,15 @@ Check_Dynamic_Clauses(DynPInf *dyn)
  * (debug function)                                                        *
  *-------------------------------------------------------------------------*/
 static void
-Check_Hash(char *t, int index_nb)
+Check_Hash(char *t, int index_no)
 {
-  DSwtInf *buff_ptr;
+  DSwtInf *swt;
   HashScan scan;
 
   if (t == NULL)
     return;
 
-  switch (index_nb)
+  switch (index_no)
     {
     case ATM_INDEX:
       DBGPRINTF("\nAtom\n");
@@ -1018,22 +1100,20 @@ Check_Hash(char *t, int index_nb)
       break;
     }
 
-  for (buff_ptr = (DSwtInf *) Hash_First(t, &scan); buff_ptr;
-       buff_ptr = (DSwtInf *) Hash_Next(&scan))
+  for (swt = (DSwtInf *) Hash_First(t, &scan); swt;
+       swt = (DSwtInf *) Hash_Next(&scan))
     {
-      DBGPRINTF(" val (0x%08lx)", (long) &(buff_ptr->ind_chain));
+      if (index_no == ATM_INDEX)
+	DBGPRINTF("val <%s>\n", atom_tbl[swt->key].name);
 
-      if (index_nb == ATM_INDEX)
-	DBGPRINTF(" <%s>\n", atom_tbl[buff_ptr->key].name);
+      if (index_no == INT_INDEX)
+	DBGPRINTF("val <%ld>\n", swt->key);
 
-      if (index_nb == INT_INDEX)
-	DBGPRINTF(" <%ld>\n", buff_ptr->key);
+      if (index_no == STC_INDEX)
+	DBGPRINTF("val <%s/%d>\n", atom_tbl[Functor_Of(swt->key)].name,
+		  (int) Arity_Of(swt->key));
 
-      if (index_nb == STC_INDEX)
-	DBGPRINTF(" <%s/%d>\n", atom_tbl[Functor_Of(buff_ptr->key)].name,
-		  (int) Arity_Of(buff_ptr->key));
-
-      Check_List(buff_ptr->ind_chain, index_nb);
+      Check_Chain(&swt->ind_chain, index_no);
     }
 }
 
@@ -1046,18 +1126,14 @@ Check_Hash(char *t, int index_nb)
  * (debug function)                                                        *
  *-------------------------------------------------------------------------*/
 static void
-Check_List(long *p, int index_nb)
+Check_Chain(D2ChHdr *hdr, int index_no)
 {
-  DynCInf *clause;
-  long *ind_chain_b;
-  long *ind_chain_f;
-  DynCInf *clause_b;
-  DynCInf *clause_f;
+  DynCInf *clause, *clause_b, *clause_f;
 
-  if (p == NULL)
+  if (hdr->first == NULL)
     return;
 
-  switch (index_nb)
+  switch (index_no)
     {
     case NO_INDEX:
       DBGPRINTF("\nSequential\n");
@@ -1072,28 +1148,18 @@ Check_List(long *p, int index_nb)
       break;
     }
 
-  while (p)
+  for(clause = hdr->first; clause; clause = clause_f)
     {
       clause_f = clause_b = NULL;
-      if (index_nb == NO_INDEX)
+      if (index_no == NO_INDEX)
 	{
-	  clause = Clause_From_Seq_Chain_F(p);
-
-	  if ((ind_chain_b = clause->seq_chain_b) != NULL)
-	    clause_b = Clause_From_Seq_Chain_F(ind_chain_b);
-
-	  if ((ind_chain_f = clause->seq_chain_f) != NULL)
-	    clause_f = Clause_From_Seq_Chain_F(ind_chain_f);
+	  clause_f = clause->seq_chain.next;
+	  clause_b = clause->seq_chain.prev;
 	}
       else
 	{
-	  clause = Clause_From_Ind_Chain_F(p);
-
-	  if ((ind_chain_b = clause->ind_chain_b) != NULL)
-	    clause_b = Clause_From_Ind_Chain_F(ind_chain_b);
-
-	  if ((ind_chain_f = clause->ind_chain_f) != NULL)
-	    clause_f = Clause_From_Ind_Chain_F(ind_chain_f);
+	  clause_f = clause->ind_chain.next;
+	  clause_b = clause->ind_chain.prev;
 	}
 
       DBGPRINTF(" %3d  %3d  0x%08lx  0x%08lx <-> 0x%08lx  ",
@@ -1106,8 +1172,6 @@ Check_List(long *p, int index_nb)
 	DBGPRINTF("  erased at:%ld   next erased: 0x%08lx",
 		  clause->erase_stamp, (long) (clause->next_erased_cl));
       DBGPRINTF("\n");
-
-      p = (long *) (*(long **) p);
     }
 }
 
