@@ -30,8 +30,9 @@ src/.indent.pro
 src/Makefile.in
 src/DISTRIB_FILES
 src/SETVARS
-src/CYGWIN
 src/CSHSETVARS
+src/DOSSETVARS.BAT
+src/CYGWIN
 src/AUTOCONF-INFO
 src/DEVELOPMENT
 src/PORTING
