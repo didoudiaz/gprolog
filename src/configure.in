@@ -32,7 +32,7 @@ AC_CONFIG_FILES(Makefile
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
 PROLOG_VERSION='1.2.18'
-PROLOG_DATE='Jan 16 2004'
+PROLOG_DATE='Jan 29 2004'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2004 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
@@ -688,9 +688,13 @@ if diff version_no.tex ../doc/version_no.tex >/dev/null 2>&1; then
 	rm version_no.tex
 else
 	mv version_no.tex ../doc/version_no.tex
-
 fi
-echo "$PROLOG_COPYRIGHT" >../doc/copyright.tex
+if diff copyright.tex ../doc/copyright.tex >/dev/null 2>&1; then
+	rm copyright.tex
+else
+	mv copyright.tex ../doc/copyright.tex
+fi
+
 
 
 # ********************

@@ -31,6 +31,7 @@ extern "C" {
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 #define HAVE_TERMIOS_H 1
+#define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
 #define NO_USE_EBP 1
@@ -41,7 +42,7 @@ extern "C" {
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
 #define PROLOG_VERSION "1.2.18"
-#define PROLOG_DATE "Jan 16 2004"
+#define PROLOG_DATE "Jan 29 2004"
 #define PROLOG_COPYRIGHT "Copyright (C) 1999-2004 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"

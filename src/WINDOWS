@@ -1,0 +1,133 @@
+			WINDOWS specific instructions
+
+This file describes how to compile GNU Prolog on Windows machines.
+There are actually 2 ports: 
+   - pure Win32   with MS Visual C++ (MSVC++)
+   - using cygwin with gcc.
+
+However, even to generate a pure Win32 version, cygwin must be
+installed. Indeed, cygwin is used by the compilation/install procedure.
+
+
+1) Installing and configuring cygwin
+------------------------------------
+
+Refer to http://www.cygwin.com to properly install CYGWIN. The resulting
+system is installed under something like c:\cygwin.
+
+It is a good idea to create a home/<username> directory under the cygwin
+directory (e.g. c:\cygwin\home) and to define the HOME environment variable
+in the .bat launching cygwin (NB: under Windows XP the last versions of
+cygwin already do this: they create a home directory based the login name and
+set the HOME variable).
+
+You can modify your .bashrc file to set the PATH variable for the tools you
+will use. For instance if you plan to use MSVC++ it is pertinent to set
+MSVC++ environment variables (PATH, INCLUDE, LIB). Note that MSVC++ generates
+a .bat file to define them (e.g. c:\vcvars32.bat). You can execute this .bat
+before launching a cygwin bash (environment variables are inherited).
+
+Similarly if you want to use the Microsoft HTML Help Workshop (see below) you
+can add something like "C:\Program Files\HTML Help Workshop" to your PATH in
+a .bat file (or '/cygdrive/c/Program Files/HTML Help Workshop' in your
+.bashrc file).
+
+Here is an example of .bat file launching bash in a text console:
+	@ECHO OFF
+	SET HOME=c:\cygwin\home\diaz
+	CALL c:\vcvars32.bat
+	CALL c:\hhvars.bat
+	CALL c:\cygwin\cygwin.bat
+
+with hhvars.bat containing:
+	@ECHO OFF
+	ECHO Setting environment for using HTML Help Workshop.
+	PATH=%PATH%;C:\Program Files\HTML Help Workshop
+
+
+You can also use RXVT, which is a graphical environment for bash. Here is an example of .bat file launching rxvt+bash:
+	@ECHO OFF
+	SET HOME=c:\cygwin\home\diaz
+	CALL c:\vcvars32.bat
+	CALL c:\hhvars.bat
+	START rxvt -sl 2500 -fn Courier-12 -e /usr/bin/bash --login
+
+For information here is a possible $HOME/.bashrc file:
+	export PS1='\w> '
+	export TERM=linux
+	stty intr ^c susp ^z start ^q stop ^s quit ^\\ erase ^?
+	alias ll=ls\ -l
+	alias more=less
+	alias ls=ls\ -F\ --color
+
+Finally note that a version of Emacs exists for winXX machines. Refer to
+http://www.gnu.org/software/emacs/windows for more information.  If you use
+it, you should initialize the HOME variable in the autoexec.bat (or similar)
+to be able to use pathnames beginning with ~ (tilde) under Emacs. Also you
+can put a _emacs file in your HOME (similar to .emacs under Unix).
+
+Finally, last versions of cygwin includes a port of X11. Once launched you
+can have xterms, emacs,... in a graphical environment.
+
+
+2) Compiling GNU Prolog using cygwin
+------------------------------------
+
+Simply follow the classical installation procedure (see ../INSTALL file), i.e.:
+
+	./configure
+	make
+	make install
+
+
+3) Compiling GNU Prolog using MSVC++
+------------------------------------
+
+Ensure you have cl.exe (the MSVC++ command-line compiler) in your PATH and
+INCLUDE and LIB variables are well defined. Then use --with-msvc at configure time:
+
+	./configure --with-msvc
+	make
+	make install
+
+By default, under pure Win32 with MSVC++, a GUI console is compiled (sources
+in W32GUICons). You can deactivate this using --no-gui-console at configure
+time. See the ../INSTALL file for further information.
+
+
+4) Using Microsoft HTML Help
+----------------------------
+
+If you compile under native Win32 with the GUI Console (see above), you can
+have a direct access to the GNU Prolog manual (with contextual help, index,
+table of contents, search). For this we use the Microsoft HMLT Help facility.
+which is the standard help system for the Win32 platforms (replacing old
+WinHelp). It is mainly based on HTML files + add-ons (table of contents,
+index, search facilities,...). A SDK is freely available as a "HTML Help
+Workshop". There are 2 parts: a compiler to create a .chm version of the
+documentation (see doc/README) and a library that makes it possible to use
+this file from a C program. You can get the HTML-Help Workshop from
+http://msdn.microsoft.com/library/en-us/htmlhelp/html/vsconHH1Start.asp (file
+HTMLHELP.EXE). In order to access to the compiler you have to hadd
+"C:\Program Files\HTML Help Workshop" to your PATH (see file hhvars.bat
+above).
+
+In order to use the API copy the .h files to the include directory of MSVC++
+and the .lib files to the lib directory of MSVC++:
+
+ 	copy "c:\Program Files\HTML Help Workshop\INCLUDE\*.*" "c:\Program Files\Microsoft Visual Studio\VC98\Include\."
+
+  	copy "c:\Program Files\HTML Help Workshop\LIB\*.*" " c:\Program Files\Microsoft Visual Studio\VC98\Lib\."
+
+The user does not need the entire HTML Help Workshop to view a .chm, only a
+runtime called "Help Viewer" is necessary. It is provided with recent
+versions of windows (e.g Windows XP). Else a viewer can be downloaded (file:
+HHUPD.EXE) from the same URL (also available in C:\Program Files\HTML Help
+Workshop\REDIST).
+
+See file doc/README for more information about HTML Help Formats
+
+
+
+
+
