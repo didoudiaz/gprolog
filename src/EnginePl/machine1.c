@@ -669,6 +669,7 @@ M_Tempnam(char *dir, char *pfx)
      return NULL;
 
   close(fd);
+  unlink(tmpl);
   return strdup(tmpl);
 
 #else
