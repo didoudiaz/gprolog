@@ -190,7 +190,7 @@ $(PKG_NAME).tar.gz:
             fi; \
          done <DISTRIB_FILES; \
 	 ln -s $(ROOT_DIR) $(DST); \
-	 tar hcvf $(PKG_NAME).tar $$files)
+	 tar hcf $(PKG_NAME).tar $$files)
 	gzip -f $(PKG_NAME).tar
 	rm -f $(DST)
 	@echo "distribution file: $(PKG_NAME).tar.gz"
