@@ -1,3 +1,8 @@
+Tue Sep 23 11:10:09 CEST 2003 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to sparc/NetBSD and powerpc/NetBSD - many thanks to:
+	Jason Beegan <jtb@netbsd.org>
+
 Wed Apr 23 13:19:58 CEST 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in =../2 involving FD variables

@@ -125,11 +125,7 @@ void SIGSEGV_Handler(void);
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
 
-#elif defined(M_powerpc_linux)
-
-#    define M_USED_REGS            {"15", "20", 0}
-
-#elif defined(M_powerpc_darwin)
+#elif defined(M_powerpc_linux) || defined(M_powerpc_darwin) || defined(M_powerpc_bsd)
 
 #    define M_USED_REGS            {"15", "20", 0}
 

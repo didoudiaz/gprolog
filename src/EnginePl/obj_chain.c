@@ -207,7 +207,7 @@ Find_Linked_Objects(void)
 #endif
       (*p->fct_init) ();
 
-#if defined(M_powerpc_linux) || defined(M_alpha_linux) || \
+#if defined(M_powerpc_linux) || defined(M_alpha_linux) || defined(M_powerpc_bsd) ||\
     defined(M_mips_irix)
       p = (ObjChain *) ((long *) p + 1);
 #elif 0

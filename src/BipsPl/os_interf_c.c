@@ -217,7 +217,7 @@ Os_Interf_Initializer(void)
   tsig[nb_sig].atom = Create_Atom("SIGIO");
   tsig[nb_sig++].sig = SIGIO;
 #endif
-#if !defined( M_ix86_bsd ) && !defined( M_powerpc_darwin )
+#if !defined( M_ix86_bsd ) && !defined( M_powerpc_darwin ) && !defined( M_powerpc_bsd ) && !defined( M_sparc_bsd )
   tsig[nb_sig].atom = Create_Atom("SIGPOLL");
   tsig[nb_sig++].sig = SIGPOLL;
 #endif

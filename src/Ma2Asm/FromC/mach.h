@@ -13,7 +13,8 @@
 
 #if defined(M_sony_news) || defined(M_ultrix_dec) || defined(M_alpha_osf) ||\
     defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd) ||\
-    defined(M_x86_64_linux)
+    defined(M_x86_64_linux) || \
+    defined(M_powerpc_bsd) || defined(M_sparc_bsd) || defined(__ELF__)
 
 #   define M_Asm_Symbol1(name)     #name
 #   define M_Asm_Symbol(name)      M_Asm_Symbol1(name)
@@ -71,7 +72,7 @@
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
 
-#elif defined(M_powerpc_linux)
+#elif defined(M_powerpc_linux) || defined(M_powerpc_bsd)
 
 #    define M_Direct_Goto(lab)     {asm("b " M_Asm_Symbol(lab)); return;}
 

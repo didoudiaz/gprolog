@@ -480,7 +480,7 @@ SIGSEGV_Handler(int sig, struct sigcontext scp)
 
 static void
 SIGSEGV_Handler(int sig, siginfo_t * si)
-#elif defined(M_ix86_bsd)
+#elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd)
 
 static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)

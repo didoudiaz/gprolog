@@ -102,7 +102,7 @@ Call_Compiled(CodePtr codep)
 
 #endif
 
-#ifdef M_sparc
+#if defined(M_sparc) && !defined(M_sparc_bsd)
   register long *rfl asm("%l2") = base_fl;
   register double *rfd asm("%l3") = base_fd;
 #endif

@@ -685,9 +685,7 @@ void SIGSEGV_Handler(void);
 #else
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
-#elif defined(M_powerpc_linux)
-#    define M_USED_REGS            {"15", "20", 0}
-#elif defined(M_powerpc_darwin)
+#elif defined(M_powerpc_linux) || defined(M_powerpc_darwin) || defined(M_powerpc_bsd)
 #    define M_USED_REGS            {"15", "20", 0}
 #elif defined(M_x86_64_linux)
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}

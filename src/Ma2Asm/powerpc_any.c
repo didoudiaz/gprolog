@@ -42,7 +42,7 @@
 #define MAX_DOUBLES_IN_PRED        2048
 
 
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
 
 #define UN
 #define R(reg)                     #reg
@@ -186,7 +186,7 @@ Code_Start(char *label, int prolog, int global)
 
   Label_Printf("");
   Inst_Printf(".align", "2");
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
   Inst_Printf(".type", "%s,@function", label);
 #endif
 
@@ -431,7 +431,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 
 
 
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
 
 #define STACK_OFFSET(offset)   offset * 4 - 24
 #define DBL_RET_WORDS          0
@@ -462,7 +462,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
 }
 
 
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
 
 #define AFTER_ARG_DBL						\
 }
@@ -649,7 +649,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
   BEFORE_ARG;
 
   Inst_Printf("addis", "%s,0," HI_UN(foreign_double+%d), r,
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
 	      index * 4
 #else
 	      index * 8
@@ -882,7 +882,7 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
   Label_Printf(".section\t.rodata");
 #else
   Label_Printf(".cstring");
@@ -900,7 +900,7 @@ void
 Dico_String(int str_no, char *asciiz)
 {
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
   Inst_Printf(".string", "%s", asciiz);
 #else
   Inst_Printf(".asciz", "%s", asciiz);
@@ -948,7 +948,7 @@ Dico_Long(char *name, int global, VType vtype, long value)
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-#ifdef M_powerpc_linux
+#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
       if (!global)
 	Inst_Printf(".local", UN "%s", name);
       Inst_Printf(".comm", UN "%s,%ld,4", name, value * 4);
