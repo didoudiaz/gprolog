@@ -1,6 +1,6 @@
 Fri Jun  4 15:16:30 CEST 2004 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix bug in term comparison involving negative intergers
+	* fix bug in term comparison involving negative integers
 
 Thu Mar 11 16:58:43 CET 2004 <Daniel.Diaz@univ-paris1.fr>
 
