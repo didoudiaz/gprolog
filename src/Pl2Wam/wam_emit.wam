@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : wam_emit.pl
-% date    : 4 11 2002
-% time    : 20:46:42
+% date    : 4 19 2002
+% time    : 15:19:30
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/wam_emit.pl').
@@ -22,10 +22,10 @@ predicate(emit_code_init/2,89,static,private,user,[
     call('$emit_code_init/2_$aux1'/2),
     put_atom(streamwamfile,0),
     put_value(y(3),1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom(cur_pl_file,0),
     put_atom('',1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_variable(y(4),0),
     call(prolog_name/1),
     put_variable(y(5),0),
@@ -417,7 +417,7 @@ label(1),
     call(format/3),
     put_atom(cur_pl_file,0),
     put_value(y(0),1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     deallocate,
     proceed]).
 

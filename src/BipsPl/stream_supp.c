@@ -205,6 +205,7 @@ Init_Stream_Supp(void)
   atom_eof = Create_Atom("eof");
 
   le_prompt = "";
+  use_le_prompt = TRUE;
 
   istty = (use_gui) || isatty(0);
 
@@ -843,7 +844,9 @@ TTY_Getc(void)
 
 				/* tty_ptr must remain NULL for reentrancy */
       SAVE_FOR_REENTRANCY;
-      tty_buff = LE_FGets(tty_buff, TTY_BUFFER_SIZE, le_prompt, 1);
+      tty_buff = LE_FGets(tty_buff, TTY_BUFFER_SIZE, le_prompt, 
+			  use_le_prompt);
+      use_le_prompt = 0;
       RESTORE_FOR_REENTRANCY;
       tty_linedit_depth--;
 
@@ -907,6 +910,9 @@ TTY_Get_Key(Bool echo, Bool catch_ctrl_c)
   SAVE_FOR_REENTRANCY;
   c = LE_Get_Key(echo, catch_ctrl_c);
   RESTORE_FOR_REENTRANCY;
+
+  if (LE_Interrupted_By_Ctrl_C(c))
+    Execute_A_Continuation((CodePtr) LE_Get_Ctrl_C_Return_Value());
 
   return c;
 }
@@ -1204,7 +1210,10 @@ Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
 {
 #ifndef NO_USE_LINEDIT
   char *save_le_prompt = le_prompt;
+  int save_use_le_prompt = use_le_prompt;
   le_prompt = prompt;
+
+  use_le_prompt = 1;
 
   if (pstm_i->fct_getc != TTY_Getc)
 #endif
@@ -1213,6 +1222,7 @@ Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
   str = Stream_Gets(str, size, pstm_i);
 
 #ifndef NO_USE_LINEDIT
+  use_le_prompt = save_use_le_prompt;
   le_prompt = save_le_prompt;
 #endif
   return str;

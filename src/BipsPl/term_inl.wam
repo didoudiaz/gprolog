@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : term_inl.pl
-% date    : 4 11 2002
-% time    : 17:43:18
+% date    : 4 19 2002
+% time    : 15:19:17
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').

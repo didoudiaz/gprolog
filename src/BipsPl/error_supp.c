@@ -160,6 +160,8 @@ Error_Supp_Initializer(void)
   domain_term_stream_or_alias = Create_Atom("term_stream_or_alias");
 				/* for term_streams */
   domain_g_array_index = Create_Atom("g_array_index");/* for g_vars */
+  domain_g_argument_selector = Create_Atom("g_argument_selector");
+				/* for g_vars */
   domain_stream_seek_method = Create_Atom("stream_seek_method"); /* for seek/4 */
   domain_format_control_sequence = Create_Atom("format_control_sequence");
 				/* for format/2-3 */

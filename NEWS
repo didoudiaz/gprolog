@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.2.12:
 
+* improve global vars (arg. selector, automatic array, new built-ins)
+* fix two bugs with Ctrl+C reentrency under the top-level
 * added priority/1 option to write_term to specify starting priority
 * now under the top-level, _XXX variables are not displayed
 * fix bug in decompose_file_name/4 (tried to modify read-only string)

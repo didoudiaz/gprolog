@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : src_rdr.pl
-% date    : 4 11 2002
-% time    : 17:43:19
+% date    : 4 19 2002
+% time    : 15:19:18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').
@@ -102,7 +102,7 @@ predicate('$get_sr_options'/2,102,static,private,built_in,[
     call('$check_list'/1),
     put_atom('$sr_output_stream',0),
     put_integer(0,1),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     call('$get_sr_options1'/1),
     put_atom('$sr_output_stream',0),
@@ -227,7 +227,7 @@ label(13),
     get_structure(output_stream/1,0),
     unify_variable(x(1)),
     put_atom('$sr_output_stream',0),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
     put_integer(1,0),
     put_integer(1,1),
     execute('$sys_var_write'/2),

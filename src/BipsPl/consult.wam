@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : consult.pl
-% date    : 4 11 2002
-% time    : 17:43:19
+% date    : 4 19 2002
+% time    : 15:19:18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/consult.pl').
@@ -210,7 +210,7 @@ label(3),
     get_structure(file_name/1,0),
     unify_variable(x(1)),
     put_atom('$pl_file',0),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
 label(4),
@@ -260,7 +260,7 @@ label(7),
     call('$bc_start_pred'/7),
     put_atom('$ctr',0),
     put_integer(0,1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     call(repeat/0),
     put_atom('$ctr',1),
     put_variable(x(0),2),
@@ -271,7 +271,7 @@ label(7),
     math_load_value(x(0),1),
     call_c('Fct_Inc',[fast_call,x(2)],[x(1)]),
     put_atom('$ctr',1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_value(y(5),1),
     put_value(y(6),2),
     call('$$load_pred/2_$aux2'/3),

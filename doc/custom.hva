@@ -79,9 +79,10 @@ medium, provided this notice is preserved.
 % To avoid the use of TabularC (\the\tmplg is not ok for HeVeA)
 % and to avoid vertical lines
 
-\newenvironment{PlErrors}%
-   {\Errors\par\begin{tabular}{p{}@{\quad}p{}}\hline}%
+\newenvironment{PlErrorsNoTitle}%
+   {\par\begin{tabular}{p{}@{\quad}p{}}\hline}%
    {\end{tabular}}
+
 
 
 

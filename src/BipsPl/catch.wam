@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : catch.pl
-% date    : 4 11 2002
-% time    : 17:43:18
+% date    : 4 19 2002
+% time    : 15:19:17
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/catch.pl').
@@ -115,7 +115,7 @@ label(1),
     proceed]).
 
 
-predicate('$catch_a_throw'/5,80,static,private,built_in,[
+predicate('$catch_a_throw'/5,79,static,private,built_in,[
     load_cut_level(5),
     try_me_else(1),
     call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
@@ -145,7 +145,7 @@ label(2),
     execute('$unwind'/1)]).
 
 
-predicate('$$catch_a_throw/5_$aux1'/2,80,static,private,built_in,[
+predicate('$$catch_a_throw/5_$aux1'/2,79,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -165,7 +165,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$trail_handler'/1,100,static,private,built_in,[
+predicate('$trail_handler'/1,99,static,private,built_in,[
     try_me_else(1),
     proceed,
 
@@ -178,7 +178,7 @@ label(1),
     fail]).
 
 
-predicate('$catch_sync_for_fail_at'/1,109,static,private,built_in,[
+predicate('$catch_sync_for_fail_at'/1,108,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -190,7 +190,7 @@ predicate('$catch_sync_for_fail_at'/1,109,static,private,built_in,[
     execute('$$catch_sync_for_fail_at/1_$aux1'/2)]).
 
 
-predicate('$$catch_sync_for_fail_at/1_$aux1'/2,109,static,private,built_in,[
+predicate('$$catch_sync_for_fail_at/1_$aux1'/2,108,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -213,7 +213,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$catch_fail_now'/1,119,static,private,built_in,[
+predicate('$catch_fail_now'/1,118,static,private,built_in,[
     allocate(0),
     call('$set_current_B'/1),
     fail]).

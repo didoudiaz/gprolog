@@ -169,9 +169,13 @@
 
 \def\PlErrorsNone{\Errors\par None.}
 
-\newenvironment{PlErrors}%
-   {\Errors\par\begin{TabularC}{2}\hline}%
+\newenvironment{PlErrorsNoTitle}%
+   {\par\begin{TabularC}{2}\hline}%
    {\end{TabularC}}
+
+\newenvironment{PlErrors}%
+   {\Errors\begin{PlErrorsNoTitle}}%
+   {\end{PlErrorsNoTitle}}
 
 \def\ErrCond#1{#1 &}
 \def\ErrTerm#1{\texttt{#1} \\ \hline}

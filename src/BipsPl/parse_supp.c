@@ -159,13 +159,16 @@ Read_Next_Token(Bool comma_is_punct)
  *                                                                         *
  * Returns a Prolog term as a WAM word or NOT_A_WAM_WORD on syntax error.  *
  * parse_end_of_term controls the end of term (see parse_supp.h).          *
- * Uses the value of: FLAG_DOUBLE_QUOTES                                   *
+ * Uses the value of: FLAG_DOUBLE_QUOTES, FLAG_BACK_QUOTES                 *
  *-------------------------------------------------------------------------*/
 WamWord
 Read_Term(StmInf *pstm, int parse_end_of_term)
 {
   int jmp_val;
   WamWord term;
+  int save_use_le_prompt = use_le_prompt;
+
+  use_le_prompt = 1;
 
   parse_nb_var = 0;
   last_read_line = -1;
@@ -221,6 +224,7 @@ Read_Term(StmInf *pstm, int parse_end_of_term)
     }
 
 finish:
+  use_le_prompt = save_use_le_prompt;
   return term;
 }
 

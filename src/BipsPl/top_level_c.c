@@ -109,7 +109,7 @@ start:
   Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
   Stream_Flush(pstm);
 
-  c = Stream_Get_Key(stm_tbl[stm_top_level_input], TRUE, TRUE);
+  c = Stream_Get_Key(stm_tbl[stm_top_level_input], TRUE, FALSE);
   Stream_Putc('\n', pstm);
 
   switch (c)

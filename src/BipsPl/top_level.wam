@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : top_level.pl
-% date    : 4 11 2002
-% time    : 20:30:7
+% date    : 4 19 2002
+% time    : 15:19:18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
@@ -61,7 +61,7 @@ predicate(break/0,45,static,private,built_in,[
     call('$exec_cmd_line_entry_goals'/1),
     put_atom('$cmd_line_entry_goal',0),
     put_nil(1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     call('$top_level1'/0),
     put_integer(10,0),
     call('$sys_var_dec'/1),
@@ -70,7 +70,7 @@ predicate(break/0,45,static,private,built_in,[
     call('$sys_var_write'/2),
     put_atom('$all_solutions',0),
     put_unsafe_value(y(2),1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_unsafe_value(y(0),0),
     deallocate,
     execute('$break/0_$aux2'/1)]).
@@ -137,6 +137,7 @@ predicate('$top_level1'/0,70,static,private,built_in,[
 
 predicate('$top_level_abort'/0,77,static,private,built_in,[
     allocate(1),
+    call('$reinit_after_exception'/0),
     put_integer(11,0),
     put_variable(y(0),1),
     call('$sys_var_read'/2),
@@ -149,8 +150,9 @@ predicate('$top_level_abort'/0,77,static,private,built_in,[
     execute('$catch_sync_for_fail_at'/1)]).
 
 
-predicate('$top_level_stop'/0,85,static,private,built_in,[
+predicate('$top_level_stop'/0,86,static,private,built_in,[
     allocate(1),
+    call('$reinit_after_exception'/0),
     put_integer(11,0),
     put_variable(y(0),1),
     call('$sys_var_read'/2),
@@ -159,10 +161,10 @@ predicate('$top_level_stop'/0,85,static,private,built_in,[
     execute('$catch_sync_for_fail_at'/1)]).
 
 
-predicate('$top_level_exception'/1,92,static,private,built_in,[
+predicate('$top_level_exception'/1,94,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    call('$$top_level_exception/1_$aux1'/0),
+    call('$reinit_after_exception'/0),
     put_atom(top_level_output,0),
     put_atom('~Nuncaught exception: ',1),
     put_nil(2),
@@ -184,7 +186,11 @@ predicate('$top_level_exception'/1,92,static,private,built_in,[
     fail]).
 
 
-predicate('$$top_level_exception/1_$aux1'/0,92,static,private,built_in,[
+predicate('$reinit_after_exception'/0,103,static,private,built_in,[
+    execute('$$reinit_after_exception/0_$aux1'/0)]).
+
+
+predicate('$$reinit_after_exception/0_$aux1'/0,103,static,private,built_in,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -204,7 +210,7 @@ label(1),
     proceed]).
 
 
-predicate('$top_level2'/0,108,static,private,built_in,[
+predicate('$top_level2'/0,115,static,private,built_in,[
     load_cut_level(0),
     allocate(6),
     get_variable(y(0),0),
@@ -235,7 +241,7 @@ predicate('$top_level2'/0,108,static,private,built_in,[
     execute('$$top_level2/0_$aux3'/3)]).
 
 
-predicate('$$top_level2/0_$aux3'/3,108,static,private,built_in,[
+predicate('$$top_level2/0_$aux3'/3,115,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -284,7 +290,7 @@ label(1),
     fail]).
 
 
-predicate('$$top_level2/0_$aux5'/1,108,static,private,built_in,[
+predicate('$$top_level2/0_$aux5'/1,115,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     get_integer(0,0),
@@ -301,7 +307,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$top_level2/0_$aux4'/3,108,static,private,built_in,[
+predicate('$$top_level2/0_$aux4'/3,115,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -320,7 +326,7 @@ label(1),
     proceed]).
 
 
-predicate('$$top_level2/0_$aux2'/1,108,static,private,built_in,[
+predicate('$$top_level2/0_$aux2'/1,115,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -339,7 +345,7 @@ label(1),
     proceed]).
 
 
-predicate('$$top_level2/0_$aux1'/2,108,static,private,built_in,[
+predicate('$$top_level2/0_$aux1'/2,115,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -354,7 +360,7 @@ predicate('$$top_level2/0_$aux1'/2,108,static,private,built_in,[
     call('$get_linedit_prompt'/1),
     put_atom('$user_prompt',0),
     put_value(y(0),1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(1),0),
     deallocate,
     execute('$set_linedit_prompt'/1),
@@ -365,7 +371,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate('$write_indicator'/0,151,static,private,built_in,[
+predicate('$write_indicator'/0,158,static,private,built_in,[
     try_me_else(1),
     allocate(2),
     put_atom('$debug_mode',1),
@@ -386,7 +392,7 @@ label(1),
     proceed]).
 
 
-predicate('$$write_indicator/0_$aux1'/2,151,static,private,built_in,[
+predicate('$$write_indicator/0_$aux1'/2,158,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),1),
@@ -421,7 +427,7 @@ label(2),
     execute(format/3)]).
 
 
-predicate('$$write_indicator/0_$aux2'/2,151,static,private,built_in,[
+predicate('$$write_indicator/0_$aux2'/2,158,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_atom('',0),
@@ -445,7 +451,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$dbg_indicator'/2,172,static,private,built_in,[
+predicate('$dbg_indicator'/2,179,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -476,7 +482,7 @@ label(7),
     proceed]).
 
 
-predicate('$read_query'/2,181,static,private,built_in,[
+predicate('$read_query'/2,188,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(4),
@@ -492,7 +498,7 @@ predicate('$read_query'/2,181,static,private,built_in,[
     unify_variable(x(1)),
     call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
     put_atom('$cmd_line_query_goal',0),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     cut(y(2)),
     put_atom('| ?- ',0),
     call('$$read_query/2_$aux1'/1),
@@ -528,7 +534,7 @@ label(1),
     execute(read_term/3)]).
 
 
-predicate('$$read_query/2_$aux1'/1,181,static,private,built_in,[
+predicate('$$read_query/2_$aux1'/1,188,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -548,18 +554,18 @@ label(1),
     proceed]).
 
 
-predicate('$exec_query'/2,199,static,private,built_in,[
-    allocate(6),
+predicate('$exec_query'/2,206,static,private,built_in,[
+    allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_atom('$debug_mode',0),
     put_variable(x(1),2),
     call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
     put_atom('$debug_next',0),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$all_solutions',0),
     put_atom(f,1),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_variable(y(2),0),
     call('$get_current_B'/1),
     put_value(y(0),0),
@@ -575,29 +581,15 @@ predicate('$exec_query'/2,199,static,private,built_in,[
     call(format/3),
     put_value(y(1),0),
     put_variable(y(4),1),
-    call(name_query_vars/2),
-    put_value(y(4),0),
-    put_variable(y(5),1),
-    call('$remove_underscore_vars'/2),
-    put_value(y(5),0),
-    call(name_singleton_vars/1),
-    put_value(y(5),0),
-    put_structure(exclude/1,2),
-    unify_local_value(y(1)),
-    put_list(1),
-    unify_value(x(2)),
-    unify_list,
-    unify_atom(namevars),
-    unify_nil,
-    call(bind_variables/2),
-    put_unsafe_value(y(5),0),
+    call('$set_query_vars_names'/2),
+    put_unsafe_value(y(4),0),
     put_unsafe_value(y(3),1),
     put_unsafe_value(y(2),2),
     deallocate,
     execute('$$exec_query/2_$aux1'/3)]).
 
 
-predicate('$$exec_query/2_$aux1'/3,199,static,private,built_in,[
+predicate('$$exec_query/2_$aux1'/3,206,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -619,7 +611,7 @@ label(1),
     execute('$$exec_query/2_$aux2'/2)]).
 
 
-predicate('$$exec_query/2_$aux2'/2,199,static,private,built_in,[
+predicate('$$exec_query/2_$aux2'/2,206,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(0),
@@ -644,7 +636,31 @@ label(1),
     proceed]).
 
 
-predicate('$remove_underscore_vars'/2,227,static,private,built_in,[
+predicate('$set_query_vars_names'/2,231,static,private,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    call(name_query_vars/2),
+    put_value(y(1),0),
+    put_variable(y(2),1),
+    call('$remove_underscore_vars'/2),
+    put_value(y(2),0),
+    call(name_singleton_vars/1),
+    put_unsafe_value(y(2),0),
+    put_structure(exclude/1,2),
+    unify_local_value(y(0)),
+    put_list(1),
+    unify_value(x(2)),
+    unify_list,
+    unify_atom(namevars),
+    unify_nil,
+    deallocate,
+    execute(bind_variables/2)]).
+
+
+predicate('$remove_underscore_vars'/2,240,static,private,built_in,[
     load_cut_level(2),
     switch_on_term(2,3,fail,1,fail),
 
@@ -693,7 +709,7 @@ label(7),
     execute('$remove_underscore_vars'/2)]).
 
 
-predicate('$$remove_underscore_vars/2_$aux1'/2,229,static,private,built_in,[
+predicate('$$remove_underscore_vars/2_$aux1'/2,242,static,private,built_in,[
     try_me_else(1),
     put_integer(0,1),
     put_integer(1,2),
@@ -712,7 +728,7 @@ label(1),
     execute(sub_atom/5)]).
 
 
-predicate('$write_solution'/3,242,static,private,built_in,[
+predicate('$write_solution'/3,255,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_nil(0),
@@ -726,7 +742,7 @@ label(1),
     execute('$write_solution1'/1)]).
 
 
-predicate('$$write_solution/3_$aux1'/2,242,static,private,built_in,[
+predicate('$$write_solution/3_$aux1'/2,255,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -746,7 +762,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution1'/1,253,static,private,built_in,[
+predicate('$write_solution1'/1,266,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -790,7 +806,7 @@ label(4),
     execute('$write_solution1'/1)]).
 
 
-predicate('$read_return'/0,263,static,private,built_in,[
+predicate('$read_return'/0,276,static,private,built_in,[
     load_cut_level(0),
     allocate(2),
     get_variable(y(0),0),
@@ -806,7 +822,7 @@ predicate('$read_return'/0,263,static,private,built_in,[
     proceed]).
 
 
-predicate('$read_return'/1,271,static,private,built_in,[
+predicate('$read_return'/1,284,static,private,built_in,[
     load_cut_level(1),
     try_me_else(10),
     switch_on_term(2,fail,1,fail,fail),
@@ -835,7 +851,7 @@ label(7),
     get_integer(97,0),
     put_atom('$all_solutions',0),
     put_atom(t,2),
-    call_c('Blt_G_Assign',[fast_call,boolean],[x(0),x(2)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(2)]),
     cut(x(1)),
     fail,
 
@@ -865,7 +881,7 @@ label(10),
     execute('$read_return'/0)]).
 
 
-predicate('$exec_cmd_line_entry_goals'/1,292,static,private,built_in,[
+predicate('$exec_cmd_line_entry_goals'/1,305,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -883,11 +899,11 @@ label(1),
     proceed]).
 
 
-predicate('$exec_cmd_line_goal'/1,302,static,private,built_in,[
+predicate('$exec_cmd_line_goal'/1,315,static,private,built_in,[
     execute('$$exec_cmd_line_goal/1_$aux1'/1)]).
 
 
-predicate('$$exec_cmd_line_goal/1_$aux1'/1,302,static,private,built_in,[
+predicate('$$exec_cmd_line_goal/1_$aux1'/1,315,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -915,7 +931,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate('$exec_cmd1'/1,308,static,private,built_in,[
+predicate('$exec_cmd1'/1,321,static,private,built_in,[
     allocate(1),
     put_variable(y(0),1),
     put_structure(end_of_term/1,3),
@@ -932,7 +948,7 @@ predicate('$exec_cmd1'/1,308,static,private,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$exec_cmd_err'/2,313,static,private,built_in,[
+predicate('$exec_cmd_err'/2,326,static,private,built_in,[
     get_variable(x(2),1),
     put_list(1),
     unify_local_value(x(0)),

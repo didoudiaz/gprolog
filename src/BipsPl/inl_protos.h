@@ -105,15 +105,40 @@ Bool Blt_Univ(WamWord term_word, WamWord list_word) FC;
 
 	  /* from g_var_inl_c.c */
 
-Bool Blt_G_Assign(WamWord x, WamWord y) FC;
+void Blt_G_Assign(WamWord x, WamWord y) FC;
 
-Bool Blt_G_Assignb(WamWord x, WamWord y) FC;
+void Blt_G_Assignb(WamWord x, WamWord y) FC;
 
-Bool Blt_G_Link(WamWord x, WamWord y) FC;
+void Blt_G_Link(WamWord x, WamWord y) FC;
 
 Bool Blt_G_Read(WamWord x, WamWord y) FC;
 
 Bool Blt_G_Array_Size(WamWord x, WamWord y) FC;
+
+void Blt_G_Inc(WamWord x) FC;
+
+Bool Blt_G_Inco(WamWord x, WamWord y) FC;
+
+Bool Blt_G_Inc_2(WamWord x, WamWord y) FC;
+
+Bool Blt_G_Inc_3(WamWord x, WamWord y, WamWord z) FC;
+
+void Blt_G_Dec(WamWord x) FC;
+
+Bool Blt_G_Deco(WamWord x, WamWord y) FC;
+
+Bool Blt_G_Dec_2(WamWord x, WamWord y) FC;
+
+Bool Blt_G_Dec_3(WamWord x, WamWord y, WamWord z) FC;
+
+void Blt_G_Set_Bit(WamWord x, WamWord y) FC;
+
+void Blt_G_Reset_Bit(WamWord x, WamWord y) FC;
+
+Bool Blt_G_Test_Set_Bit(WamWord x, WamWord y) FC;
+
+Bool Blt_G_Test_Reset_Bit(WamWord x, WamWord y) FC;
+
 
 
 

@@ -67,6 +67,7 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   long save;
   unsigned char *p = NULL;
   int status, c;
+  int save_use_le_prompt;
   char *arg[] = { "pl2wam", "-w", "--compile-msg", "--no-redef-error",
 		  "--pl-state", tmp_file, "-o", tmp_file, pl_file,
 		  singl_warn, NULL };
@@ -93,6 +94,8 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
       return FALSE;
     }
 
+  save_use_le_prompt = use_le_prompt;
+  use_le_prompt = 0;
   for (;;)
     {
 #if 1
@@ -109,7 +112,8 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 	{
 	  if (p == NULL)
 	    {
-	      if ((c = Stream_Getc(pstm_i)) == EOF)
+	      c = Stream_Getc(pstm_i);
+	      if (c == EOF)
 		{
 		eof_reached:
 		  p = "end_of_file.\n";
@@ -130,6 +134,8 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 #endif
       Stream_Putc(c, pstm_o);
     }
+  use_le_prompt = save_use_le_prompt;
+
   if (f_in)
     fclose(f_in);
   fclose(f_out);

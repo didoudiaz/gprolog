@@ -1412,7 +1412,8 @@ start:
   if (catch_ctrl_c && LE_Is_Interrupt_Key(c))
     {
       LE_Close_Terminal();
-      Emit_Ctrl_C();
+      if ((ctrl_c_ret_val = Emit_Ctrl_C()) != 0)
+	return -2;
       goto start;
     }
 

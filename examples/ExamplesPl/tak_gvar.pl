@@ -19,7 +19,7 @@ tak_gvar(ShowResult) :-
 	;   true).
 
 init_tak_array:- 
-	g_assign(tak,g_array(20,g_array(20,g_array(20,nothing)))).
+	g_assign(tak,g_array_auto(20,g_array_auto(20,g_array_auto(20,null)))).
 
 
 

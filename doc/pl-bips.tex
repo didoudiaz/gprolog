@@ -6621,61 +6621,117 @@ These predicates refer to the standard ordering of terms
 GNU Prolog predicates.
 
 \subsection{Global variables}
+
+\subsubsection{Introduction}
 \label{Global-variables}
 
 GNU Prolog provides a simple and powerful way to assign and read global
-variables. There are 3 kinds of objects which can be associated to a global
-variable:
+variables. A global variable is associated to each atom, its initial value is
+the integer 0. A global variable can store 3 kinds of objects:
 
 \begin{itemize}
 
 \item a copy of a term (the assignment can be made backtrackable or not).
 
-\item a link to a term.
+\item a link to a term (the assignment is always backtrackable).
 
-\item an array of objects.
+\item an array of objects (recursively).
 
 \end{itemize}
 
-The initial value of a global variable is the integer 0. A global variable
-is referenced by a name (i.e. name = an atom) possibly indexed if it is an
-array (i.e. name = a compound term). In the following, \Param{GVarName}
-represents such a reference to a global variable and its syntax is as
-follows:
+The space necessary for copies and arrays is dynamically allocated and
+recovered as soon as possible. For instance, when an atom is associated to a
+global variable whose current value is an array, the space for this array is
+recovered (unless the assignment is to be undone when backtracking occurs).
+
+When a link to a term is associated to a global variable, the reference to
+this term is stored and thus the original term is returned when the content
+of the variable is read.
+
+\SPart{Global variable naming convention}: a global variable is referenced 
+by an atom. 
+
+If the variable contains an array, an index (ranging from 0) can be provided
+using a compound term whose principal functor is the correponding atom and
+the argument is the index. In case of a multi-dimensional array, each index
+is given as the arguments of the compound term.
+
+If the variable contains a term (link or copy), it is possible to only
+reference a sub-term by giving its argument number (also called \IdxD{argument
+selector}). Such a sub-term is specified using a compound term whose
+principal functor is \texttt{-/2} and whose first argument is a global
+variable name and the second argument is the argument number (from 1). This
+can be applied recursively to specify a sub-term of any depth. In case of a
+list, a argument number I represents the Ith element of the list.  In the
+rest of this section we use the operator notation since \texttt{-} is a
+predefined infix operator \RefSP{op/3:(Term-input/output)}.
+
+In the following, \Param{GVarName} represents a reference to a global
+variable and its syntax is as follows:
 
 \begin{Indentation}
-\begin{tabular}{@{}lll}
-\Param{GVarName} & ::= & \Param{atom} \\
-                 &     & \Param{atom}\texttt{(}\Param{Index}\texttt{,}\ldots\texttt{,}\Param{Index}\texttt{)} \\
-\Param{Index}    & ::= & \Param{integer} \\
-                 &     & \Param{GVarName}
+\begin{tabular}{@{}llll}
+\Param{GVarName} & ::= & \Param{atom} & whole content of a variable \\
+                 &     & \Param{atom}\texttt{(}\Param{Integer}\texttt{,}\ldots\texttt{,}\Param{Integer}\texttt{)} & element of an array \\
+                 &     & \Param{GVarName}\texttt{-}\Param{Integer} & sub-term selection \\
+\Param{Integer}  & ::= & \Param{integer} & immediate value \\
+                 &     & \Param{GVarName} & indirect value 
 \end{tabular}
 \end{Indentation}
 
-When a \Param{GVarName} is used as an index, the value of this variable
-must be an integer. Indexes range from 0 to \Param{Size}-1 if the array has
-\Param{Size} elements. The space necessary for copies and arrays are
-dynamically allocated and recovered as soon as possible. For instance, when
-an atom is associated to a global variable whose current value is an array,
-the space for this array is recovered (unless the assignment is to be undone
-when backtracking occurs).
+When a \Param{GVarName} is used as an index or an argument number
+(i.e. indirection), the value of this variable must be an integer.
+
+Here are some examples of the naming convention:
+
+\begin{tabular}{ll}
+\texttt{a} & the content of variable associated to \texttt{a} (any kind) \\
+\texttt{t(1)} & the 2nd element of the array associated to \texttt{t} \\
+\texttt{t(k)} & if the value associated to \texttt{k} is I, the Ith element of the array associated to \texttt{t} \\
+\texttt{a-1-2} & if the value associated to \texttt{a} is \texttt{f(g(a,b,c),2)}, the sub-term \texttt{b} \\
+\end{tabular}
+
+Here are the errors associated to global variable names and common to all
+predicates.
+
+\begin{PlErrorsNoTitle}
+
+\ErrCond{\texttt{GVarName} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{GVarName} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, GVarName)}
+
+\ErrCond{\texttt{GVarName} contains an invalid argument number
+(or \texttt{GVarName} is an array)}
+\ErrTerm{domain\_error(g\_argument\_selector, GVarName)}
+
+\ErrCond{\texttt{GVarName} contains an invalid index
+(or \texttt{GVarName} is not an array)}
+\ErrTerm{domain\_error(g\_array\_index, GVarName)}
+
+\ErrCond{\texttt{GVarName} is used as an indirect index or argument selector
+ and is not an integer}
+\ErrTerm{type\_error(integer, GVarName)}
+
+\end{PlErrorsNoTitle}
 
 \SPart{Arrays}: the predicates \texttt{g\_assign/2}, \texttt{g\_assignb/2}
-and \texttt{g\_link/2} \RefSP{g-assign/2} define an array when the
-assigned value is a compound term with principal functor \IdxPGD{g\_array}.
-Then an array is assigned to \Param{GVarName}. There are 3 forms for the
-term \texttt{g\_array}:
+and \texttt{g\_link/2} \RefSP{g-assign/2} can be used to create an
+array. They recognize some terms as values. For instance, a compound term
+with principal functor \IdxPGD{g\_array} is used to define an array of fixed
+size.  There are 3 forms for the term \texttt{g\_array}:
 
 \begin{itemize}
 
-\item \texttt{g\_array(Size)}: if \texttt{Size} is an integer 
-$>$ 0 then defines an array of \texttt{Size} elements which are all
-initialized with the integer \texttt{0}.
+\item \texttt{g\_array(Size)}: if \texttt{Size} is an integer $>$ 0 then 
+defines an array of \texttt{Size} elements which are all initialized with
+the integer \texttt{0}.
 
 \item \texttt{g\_array(Size, Initial)}: as above but the elements are
 initialized with the term \texttt{Initial} instead of 0. \texttt{Initial}
 can contain other array definitions allowing thus for multi-dimensional
-arrays. Some examples are presented later \RefSP{Examples}. 
+arrays.
 
 \item \texttt{g\_array(List)}: as above if \texttt{List} is a list of length
 \texttt{Size} except that the elements of the array are initialized
@@ -6684,13 +6740,43 @@ definitions).
 
 \end{itemize}
 
-The compound term with principal functor \IdxPGD{g\_array\_extend} can be
-used instead of \texttt{g\_array} to modify the structure of a (possibly)
-existing array. In that case, the existing elements of the array are not
-initialized.
+An array can be extended explicitely using a compound term with principal
+functor \IdxPGD{g\_array\_extend} which accept the same 3 forms detailed
+above. In that case, the existing elements of the array are not
+initialized. If \texttt{g\_array\_extend} is used with an object which is not
+an array it is similar to \texttt{g\_array}.
 
-When an array is read, a term of the form \texttt{g\_array([Elem0,...,
-ElemSize-1])} is returned.
+Finally, an array can be \textit{automatically} expanded when needed. The
+programmer does not need to explicitely control the expansion of an automatic
+array. An array is expanded as soon as an index is outside the current size
+of this array. Such an array is defined using a compound term with principal
+functor \IdxPGD{g\_array\_auto}:
+
+\begin{itemize}
+
+\item \texttt{g\_array\_auto(Size)}: if \texttt{Size} is an integer $>$ 0
+then defines an automatic array whose initial size is \texttt{Size}. All
+elements are initialized with the integer \texttt{0}. Elements
+created during implicit expansions will be initialized with \texttt{0}.
+
+\item \texttt{g\_array\_auto(Size, Initial)}: as above but the elements are
+initialized with the term \texttt{Initial} instead of 0. \texttt{Initial} can
+contain other array definitions allowing thus for multi-dimensional
+arrays. Elements created during implicit expansions will be initialized with
+\texttt{Initial}.
+
+\item \texttt{g\_array\_auto(List)}: as above if \texttt{List} is a list of
+length \texttt{Size} except that the elements of the array are initialized
+according to the elements of \texttt{List} (which can contain other array
+definitions). Elements created during implicit expansions will be initialized
+with \texttt{0}.
+
+\end{itemize}
+
+In any case, when an array is read, a term of the form
+\texttt{g\_array([Elem0,..., ElemSize-1])} is returned.
+
+Some examples using global variables are presented later \RefSP{Examples}.
 
 \subsubsection{\texttt{g\_assign/2},
                \texttt{g\_assignb/2},
@@ -6725,19 +6811,21 @@ when backtracking occurs (since the term may no longer exist). If
 handles links to existing terms it does not require extra memory space and
 is not expensive in terms of execution time.
 
-\begin{PlErrors}
+NB: argument selectors can only be used with {g\_assign/2} (i.e. when using
+an argument selector inside an assignment, this one must not be
+backtrackable).
 
-\ErrCond{\texttt{GVarName} is a variable}
-\ErrTerm{instantiation\_error}
+\Errors
 
-\ErrCond{\texttt{GVarName} is neither a variable nor a callable term}
-\ErrTerm{type\_error(callable, GVarName)}
+See common errors detailed in the introduction \RefSP{Global-variables}
 
-\ErrCond{\texttt{GVarName} is a compound term and a sub-argument \texttt{E}
-is not a valid index \RefSP{Global-variables}}
-\ErrTerm{domain\_error(g\_array\_index, E)}
+\begin{PlErrorsNoTitle}
 
-\end{PlErrors}
+\ErrCond{\texttt{GVarName} contains an argument selector and the assignment 
+is backtrackable}
+\ErrTerm{domain\_error(g\_argument\_selector, GVarName)}
+
+\end{PlErrorsNoTitle}
 
 \Portability
 
@@ -6756,19 +6844,9 @@ g\_read(+callable\_term, ?term)
 \texttt{g\_read(GVarName, Value)} unifies \texttt{Value} with the term
 assigned to \texttt{GVarName}.
 
-\begin{PlErrors}
+\Errors
 
-\ErrCond{\texttt{GVarName} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{GVarName} is neither a variable nor a callable term}
-\ErrTerm{type\_error(callable, GVarName)}
-
-\ErrCond{\texttt{GVarName} is a compound term and a sub-argument \texttt{E}
-is not a valid index \RefSP{Global-variables}}
-\ErrTerm{domain\_error(g\_array\_index, E)}
-
-\end{PlErrors}
+See common errors detailed in the introduction \RefSP{Global-variables}
 
 \Portability
 
@@ -6788,45 +6866,170 @@ g\_array\_size(+callable\_term, ?integer)
 dimension (an integer $>$ 0) of the array assigned to \texttt{GVarName}.
 Fails if \texttt{GVarName} is not an array.
 
-\begin{PlErrors}
+\Errors
 
-\ErrCond{\texttt{GVarName} is a variable}
-\ErrTerm{instantiation\_error}
+See common errors detailed in the introduction \RefSP{Global-variables}
 
-\ErrCond{\texttt{GVarName} is neither a variable nor a callable term}
-\ErrTerm{type\_error(callable, GVarName)}
-
-\ErrCond{\texttt{GVarName} is a compound term and a sub-argument \texttt{E}
-is not a valid index \RefSP{Global-variables}}
-\ErrTerm{domain\_error(g\_array\_index, E)}
+\begin{PlErrorsNoTitle}
 
 \ErrCond{\texttt{Size} is neither a variable nor an integer}
 \ErrTerm{type\_error(integer, Size)}
 
-\end{PlErrors}
+\end{PlErrorsNoTitle}
 
 \Portability
 
 GNU Prolog predicate.
 
+\subsubsection{\texttt{g\_inc/3},
+               \texttt{g\_inc/2},
+               \texttt{g\_inco/2},
+               \texttt{g\_inc/1},
+               \texttt{g\_dec/3},
+               \texttt{g\_dec/2},
+               \texttt{g\_deco/2},
+               \texttt{g\_dec/1}}
+
+   \AddPBD{g\_inc/3}
+   \AddPBD{g\_inc/2}
+   \AddPBD{g\_inco/2}
+   \AddPBD{g\_inc/1}
+   \AddPBD{g\_dec/3}
+   \AddPBD{g\_dec/2}
+   \AddPBD{g\_deco/2}
+   \AddPBD{g\_dec/1}
+
+\begin{TemplatesOneCol}
+g\_inc(+callable\_term, ?integer, ?integer) \\
+g\_inc(+callable\_term, ?integer) \\
+g\_inco(+callable\_term, ?integer) \\
+g\_inc(+callable\_term) \\
+g\_dec(+callable\_term, ?integer, ?integer) \\
+g\_dec(+callable\_term, ?integer) \\
+g\_deco(+callable\_term, ?integer) \\
+g\_dec(+callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{g\_inc(GVarName, Old, New)} unifies \texttt{Old} with the
+integer assigned to \texttt{GVarName}, increments \texttt{GVarName} and
+then unifies \texttt{New} with the incremented value.
+
+\texttt{g\_inc(GVarName, New)} is equivalent to 
+\texttt{g\_inc(GVarName, \_, New)}.
+
+\texttt{g\_inco(GVarName, Old)} is equivalent to 
+\texttt{g\_inc(GVarName, Old, \_)}.
+
+\texttt{g\_inc(GVarName)} is equivalent to \texttt{g\_inc(GVarName, \_, \_)}.
+
+Predicates \texttt{g\_dec} are similar but decrement the content of
+\texttt{GVarName} instead.
+
+\Errors
+
+See common errors detailed in the introduction \RefSP{Global-variables}
+
+\begin{PlErrorsNoTitle}
+
+\ErrCond{\texttt{Old} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Old)}
+
+\ErrCond{\texttt{New} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, New)}
+
+\ErrCond{\texttt{GVarName} stores an array}
+\ErrTerm{type\_error(integer, g\_array)}
+
+\ErrCond{\texttt{GVarName} stores a term \texttt{T} which is not an integer}
+\ErrTerm{type\_error(integer, T)}
+
+\end{PlErrorsNoTitle}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsubsection{\texttt{g\_set\_bit/2},
+               \texttt{g\_reset\_bit/2},
+               \texttt{g\_test\_set\_bit/2},
+               \texttt{g\_test\_reset\_bit/2}}
+
+   \AddPBD{g\_set\_bit/2}
+   \AddPBD{g\_reset\_bit/2}
+   \AddPBD{g\_test\_set\_bit/2}
+   \AddPBD{g\_test\_reset\_bit/2}
+
+\begin{TemplatesOneCol}
+g\_set\_bit(+callable\_term, +integer) \\
+g\_reset\_bit(+callable\_term, +integer) \\
+g\_test\_set\_bit(+callable\_term, +integer) \\
+g\_test\_reset\_bit(+callable\_term, +integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{g\_set\_bit(GVarName, Bit)} sets to 1 the bit number specified by 
+\texttt{Bit} of the integer assigned to \texttt{GVarName} to 1. Bit numbers
+range from 0 to the maximum number allowed for integers (this is architecture dependent). If \texttt{Bit} is greater than this limit, 
+the modulo with this limit is taken.
+
+\texttt{g\_reset\_bit(GVarName, Bit)} is similar to \texttt{g\_set\_bit/2} but
+sets the specified bit to 0.
+
+\texttt{g\_test\_set\_bit/2} succeeds if the specified bit is set to 1.
+
+\texttt{g\_test\_reset\_bit/2} succeeds if the specified bit is set to 0.
+
+\Errors
+
+See common errors detailed in the introduction \RefSP{Global-variables}
+
+\begin{PlErrorsNoTitle}
+
+\ErrCond{\texttt{Bit} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Bit} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Bit)}
+
+\ErrCond{\texttt{Bit} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Bit)}
+
+\ErrCond{\texttt{GVarName} stores an array}
+\ErrTerm{type\_error(integer, g\_array)}
+
+\ErrCond{\texttt{GVarName} stores a term \texttt{T} which is not an integer}
+\ErrTerm{type\_error(integer, T)}
+
+\end{PlErrorsNoTitle}
+
+\Portability
+
+GNU Prolog predicates.
+
 \subsubsection{Examples}
 \label{Examples}
 
-\SPart{A simple counter}: the following predicate defines a counter using a
+\SPart{Simulating \texttt{g\_inc/3}}: this predicate behaves like:
 global variable:
 
 \begin{Indentation}
 \begin{verbatim}
-inc(Var, Value) :-
-        g_read(Var, Value),
-        X is Value+1,
-        g_assign(Var, X).
+my_g_inc(Var, Old, New) :-
+        g_read(Var, Old),
+        N is Value + 1,
+        g_assign(Var, X),
+	New = N.
 \end{verbatim}
 \end{Indentation}
 
-The query: \texttt{inc(c, X)} will succeed unifying \texttt{X} with
-\texttt{0}, another call to \texttt{inc(a, Y)} will then unify \texttt{Y}
-with \texttt{1}, and so on.
+The query: \texttt{my\_g\_inc(c, X, \_)} will succeed unifying \texttt{X} with
+\texttt{0}, another call to \texttt{my\_g\_inc(a, Y, \_)} will then unify
+\texttt{Y} with \texttt{1}, and so on.
 
 \SPart{Difference between \texttt{g\_assign/2} and \texttt{g\_assignb/2}}:
 \texttt{g\_assign/2} does not undo its assignment when backtracking occurs
@@ -6858,10 +7061,10 @@ predicates.
 
 \begin{Code}
 \begin{tabular}{@{}p{6cm}@{\quad}l@{}}
-test(B) :-                  & test(B) :-                \\
+test(B) :-                           & test(B) :-                \\
 ~~~~~~~~\textit{g\_assign}(b, f(X)), & ~~~~~~~~\textit{g\_link}(b, f(X)), \\ 
-~~~~~~~~X=12,               & ~~~~~~~~X=12,             \\
-~~~~~~~~g\_read(b, B).      & ~~~~~~~~g\_read(b, B).    \\
+~~~~~~~~X = 12,                      & ~~~~~~~~X = 12,           \\
+~~~~~~~~g\_read(b, B).               & ~~~~~~~~g\_read(b, B).    \\
 \end{tabular}
 \end{Code}
 
@@ -6936,8 +7139,7 @@ Y = b
 Z = z
 
 | ?- g_read(w(1,2),X).
-
-{exception: error(domain_error(g_array_index,w(1,2)),g_read/2)}
+uncaught exception: error(domain_error(g_array_index,w(1,2)),g_read/2)
 \end{verbatim}
 \end{Indentation}
 
@@ -6960,6 +7162,49 @@ X = g_array([10,20,30])
 | ?- g_assign(a, g_array_extend([1,2,3,4,5,6])), g_read(a, X).
 
 X = g_array([10,20,30,4,5,6])
+\end{verbatim}
+\end{Indentation}
+
+\SPart{Automatic array}:
+
+\begin{Indentation}
+\begin{verbatim}
+| ?- g_assign(t, g_array_auto(3)), g_assign(t(1), foo), g_read(t,X).
+
+X = g_array([0,foo,0])
+
+| ?- g_assign(t(5), bar), g_read(t,X).                              
+
+X = g_array([0,foo,0,0,0,bar,0,0])
+
+| ?- g_assign(t, g_array_auto(2, g_array(2))), g_assign(t(1,1), foo), 
+     g_read(t,X).
+
+X = g_array([g_array([0,0]),g_array([0,foo])])
+
+| ?- g_assign(t(3,0), bar), g_read(t,X).
+
+X = g_array([g_array([0,0]),g_array([0,foo]),g_array([0,0]),g_array([bar,0])])
+
+| ?- g_assign(t(3,4), bar), g_read(t,X).
+uncaught exception: error(domain_error(g_array_index,t(3,4)),g_assign/2)
+
+| ?- g_assign(t, g_array_auto(2, g_array_auto(2))), g_assign(t(1,1), foo), 
+     g_read(t,X).
+
+X = g_array([g_array([0,0]),g_array([0,foo])])
+
+| ?- g_assign(t(3,3), bar), g_read(t,X).
+
+X = g_array([g_array([0,0]),g_array([0,foo]),g_array([0,0]),
+    g_array([0,0,0,bar])])
+
+| ?- g_assign(t, g_array_auto(2, g_array_auto(2, null))), g_read(t(2,3), U),
+     g_read(t, X).
+
+U = null
+X = g_array([g_array([null,null]),g_array([null,null]),
+             g_array([null,null,null,null]),g_array([null,null])])
 \end{verbatim}
 \end{Indentation}
 

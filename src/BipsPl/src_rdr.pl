@@ -101,7 +101,7 @@ sr_open(FileOrStream, D, Options) :-
 
 '$get_sr_options'(Options, OutSorA) :-
         '$check_list'(Options),
-	g_link('$sr_output_stream', 0),
+	g_assign('$sr_output_stream', 0),
         '$get_sr_options1'(Options),
 	g_read('$sr_output_stream', OutSorA).
 

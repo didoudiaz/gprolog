@@ -190,6 +190,7 @@ int stm_debugger_input;
 int stm_debugger_output;
 
 char *le_prompt;
+int use_le_prompt;
 
 int atom_stream;
 
@@ -253,6 +254,7 @@ extern int stm_debugger_input;
 extern int stm_debugger_output;
 
 extern char *le_prompt;
+extern int use_le_prompt;
 
 extern int atom_stream;
 

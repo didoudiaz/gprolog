@@ -55,7 +55,7 @@ extern "C" {
 #define CC "gcc"
 #define CFLAGS_PREFIX_REG "-ffixed-%s"
 #define CFLAGS "-g -Wall"
-#define CFLAGS_MACHINE "-march=pentiumpro"
+#define CFLAGS_MACHINE "-mcpu=pentiumpro"
 #define LDFLAGS ""
 #define LDLIBS "-lm"
 #define AS "as"
@@ -1040,7 +1040,6 @@ void Fd_Reset_Solver(void);
 #define Fd_Variable_Size(f)         ((*fd_variable_size)(f))
 #define Fd_Copy_Variable(dst_adr, f)((*fd_copy_variable)(dst_adr, f))
 #define Fd_Variable_To_String(f)    ((*fd_variable_to_string)(f))
-#define MAX_STREAM                 256
 #define MAX_VAR_NAME_LENGTH        256
 #define MAX_VAR_IN_TERM            2048
 #define MAX_SYS_VARS               256
@@ -1071,11 +1070,23 @@ Bool Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word) FC;
 Bool Blt_Functor(WamWord term_word, WamWord functor_word,
 		 WamWord arity_word) FC;
 Bool Blt_Univ(WamWord term_word, WamWord list_word) FC;
-Bool Blt_G_Assign(WamWord x, WamWord y) FC;
-Bool Blt_G_Assignb(WamWord x, WamWord y) FC;
-Bool Blt_G_Link(WamWord x, WamWord y) FC;
+void Blt_G_Assign(WamWord x, WamWord y) FC;
+void Blt_G_Assignb(WamWord x, WamWord y) FC;
+void Blt_G_Link(WamWord x, WamWord y) FC;
 Bool Blt_G_Read(WamWord x, WamWord y) FC;
 Bool Blt_G_Array_Size(WamWord x, WamWord y) FC;
+void Blt_G_Inc(WamWord x) FC;
+Bool Blt_G_Inco(WamWord x, WamWord y) FC;
+Bool Blt_G_Inc_2(WamWord x, WamWord y) FC;
+Bool Blt_G_Inc_3(WamWord x, WamWord y, WamWord z) FC;
+void Blt_G_Dec(WamWord x) FC;
+Bool Blt_G_Deco(WamWord x, WamWord y) FC;
+Bool Blt_G_Dec_2(WamWord x, WamWord y) FC;
+Bool Blt_G_Dec_3(WamWord x, WamWord y, WamWord z) FC;
+void Blt_G_Set_Bit(WamWord x, WamWord y) FC;
+void Blt_G_Reset_Bit(WamWord x, WamWord y) FC;
+Bool Blt_G_Test_Set_Bit(WamWord x, WamWord y) FC;
+Bool Blt_G_Test_Reset_Bit(WamWord x, WamWord y) FC;
 void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 void Math_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 WamWord Fct_Fast_Neg(WamWord x) FC;
@@ -1441,6 +1452,7 @@ int stm_top_level_output;
 int stm_debugger_input;
 int stm_debugger_output;
 char *le_prompt;
+int use_le_prompt;
 int atom_stream;
 int atom_user_input;
 int atom_user_output;
@@ -1483,6 +1495,7 @@ extern int stm_top_level_output;
 extern int stm_debugger_input;
 extern int stm_debugger_output;
 extern char *le_prompt;
+extern int use_le_prompt;
 extern int atom_stream;
 extern int atom_user_input;
 extern int atom_user_output;
@@ -1623,6 +1636,7 @@ int domain_stream_property;
 int domain_write_option;
 int domain_term_stream_or_alias;	/* for term_streams */
 int domain_g_array_index;	/* for g_vars */
+int domain_g_argument_selector;	/* for g_vars */
 int domain_stream_seek_method;	/* for seek/4 */
 int domain_format_control_sequence;	/* for format/2-3 */
 int domain_os_path;		/* for absolute_file_name/2 */
@@ -1666,7 +1680,6 @@ int evluation_int_overflow;
 int evluation_undefined;
 int evluation_underflow;
 int evluation_zero_divisor;
-int resource_too_many_open_streams; /* for streams */
 int resource_print_object_not_linked; /* for print and format */
 int resource_too_big_fd_constraint; /* for FD */
 #else
@@ -1708,6 +1721,7 @@ extern int domain_stream_property;
 extern int domain_write_option;
 extern int domain_term_stream_or_alias;	/* for term_streams */
 extern int domain_g_array_index;	/* for g_vars */
+extern int domain_g_argument_selector;	/* for g_vars */
 extern int domain_stream_seek_method;	/* for seek/4 */
 extern int domain_format_control_sequence;	/* for format/2-3 */
 extern int domain_os_path;	/* for absolute_file_name/2 */
@@ -1871,7 +1885,6 @@ enum
   FLAG_SYNTAX_ERROR,
   FLAG_OS_ERROR,
   FLAG_MAX_ATOM,
-  FLAG_MAX_STREAM,
   FLAG_MAX_UNGET,
   FLAG_SINGLETON_WARNING,
   FLAG_STRICT_ISO,
@@ -1895,6 +1908,7 @@ enum
 #define SYS_VAR_OPTION_MASK         (sys_var[0])
 #define SYS_VAR_WRITE_DEPTH         (sys_var[1])
 #define SYS_VAR_SYNTAX_ERROR_ACTON  (sys_var[1])
+#define SYS_VAR_WRITE_PREC          (sys_var[2])
 #define SYS_VAR_FD_BCKTS            (sys_var[3])
 #define SYS_VAR_TOP_LEVEL           (sys_var[10])
 #define SYS_VAR_LINEDIT             (sys_var[12])

@@ -103,9 +103,9 @@ bind_variables(Term, Options) :-
 
 '$get_bind_variables_options'(Options, Exclude, From, Next) :-
 	'$check_list'(Options),
-	g_link('$bind_exclude', []),
-	g_link('$bind_from', 0),
-	g_link('$bind_next', _),
+	g_assign('$bind_exclude', []),
+	g_assign('$bind_from', 0),
+	g_assign('$bind_next', _),
 	'$get_bind_variables_options1'(Options),
 	g_read('$bind_exclude', Exclude),
 	g_read('$bind_from', From),

@@ -55,3 +55,64 @@ g_read(Var, Value) :-
 
 g_array_size(Var, Type) :-
 	g_array_size(Var, Type).
+
+
+
+g_inc(X) :-
+	g_inc(X).
+
+
+g_inco(X, Y) :-
+	g_inco(X, Y).
+
+
+g_inc(X, Y) :-
+	g_inc(X, Y).
+
+
+g_inc(X, Y, Z) :-
+	g_inc(X, Y, Z).
+
+
+
+
+g_dec(X) :-
+	g_dec(X).
+
+
+g_deco(X, Y) :-
+	g_deco(X, Y).
+
+
+g_dec(X, Y) :-
+	g_dec(X, Y).
+
+
+g_dec(X, Y, Z) :-
+	g_dec(X, Y, Z).
+
+
+
+
+g_set_bit(X, Y) :-
+	g_set_bit(X, Y).
+
+
+
+
+g_reset_bit(X, Y) :-
+	g_reset_bit(X, Y).
+
+
+
+
+g_test_set_bit(X, Y) :-
+	g_test_set_bit(X, Y).
+
+
+
+
+g_test_reset_bit(X, Y) :-
+	g_test_reset_bit(X, Y).
+
+

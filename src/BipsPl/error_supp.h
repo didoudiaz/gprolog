@@ -78,6 +78,7 @@ int domain_stream_property;
 int domain_write_option;
 int domain_term_stream_or_alias;	/* for term_streams */
 int domain_g_array_index;	/* for g_vars */
+int domain_g_argument_selector;	/* for g_vars */
 int domain_stream_seek_method;	/* for seek/4 */
 int domain_format_control_sequence;	/* for format/2-3 */
 int domain_os_path;		/* for absolute_file_name/2 */
@@ -178,6 +179,7 @@ extern int domain_stream_property;
 extern int domain_write_option;
 extern int domain_term_stream_or_alias;	/* for term_streams */
 extern int domain_g_array_index;	/* for g_vars */
+extern int domain_g_argument_selector;	/* for g_vars */
 extern int domain_stream_seek_method;	/* for seek/4 */
 extern int domain_format_control_sequence;	/* for format/2-3 */
 extern int domain_os_path;	/* for absolute_file_name/2 */

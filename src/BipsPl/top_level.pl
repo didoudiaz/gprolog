@@ -75,6 +75,7 @@ break :-
 
 
 '$top_level_abort' :-
+	'$reinit_after_exception',
 	'$sys_var_read'(11, B),
 	format(top_level_output, 'execution aborted~n', []),
 	'$catch_sync_for_fail_at'(B).
@@ -83,6 +84,7 @@ break :-
 
 
 '$top_level_stop' :-
+	'$reinit_after_exception',
 	'$sys_var_read'(11, B),
 	'$catch_sync_for_fail_at'(B).
 
@@ -90,17 +92,22 @@ break :-
 
 
 '$top_level_exception'(X) :-
-	(   '$sys_var_read'(12, 1) ->
-	    g_read('$user_prompt', UserPrompt),
-	    '$set_linedit_prompt'(UserPrompt)
-	;   true
-	),
-% g_read('$char_conv',CharConv),
-% set_prolog_flag(char_conversion,CharConv),
+	'$reinit_after_exception',
 	format(top_level_output, '~Nuncaught exception: ', []),
 	write_term(top_level_output, X, [quoted(true), numbervars(false)]),
 	nl(top_level_output),
 	fail.
+
+
+
+'$reinit_after_exception' :-
+% g_read('$char_conv', CharConv),
+% set_prolog_flag(char_conversion, CharConv),
+	(   '$sys_var_read'(12, 1) ->
+	    g_read('$user_prompt', UserPrompt),
+	    '$set_linedit_prompt'(UserPrompt)
+	;   true
+	).
 
 
 
@@ -110,9 +117,9 @@ break :-
 	'$get_current_B'(B),
 	'$sys_var_write'(11, B),
 	'$write_indicator',
-% current_prolog_flag(char_conversion,CharConv),
-% g_assign('$char_conv',CharConv),
-% set_prolog_flag(char_conversion,off),
+% current_prolog_flag(char_conversion, CharConv),
+% g_assign('$char_conv', CharConv),
+% set_prolog_flag(char_conversion, off),
 	Prompt = '| ?- ',
 	(   '$sys_var_read'(12, 1) ->
 	    '$get_linedit_prompt'(UserPrompt),
@@ -126,7 +133,7 @@ break :-
 	    '$set_linedit_prompt'(UserPrompt)
 	;   true
 	),
-% set_prolog_flag(char_conversion,CharConv),
+% set_prolog_flag(char_conversion, CharConv),
 	sort(QueryVars, QueryVars1),
 	(   X == end_of_file ->
 	    nl(top_level_output), !
@@ -204,10 +211,7 @@ break :-
 	'$call'(X, top_level, 0, true),
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
-	name_query_vars(QueryVars, ToDispVars),
-	'$remove_underscore_vars'(ToDispVars, ToDispVars1),
-	name_singleton_vars(ToDispVars1),
-	bind_variables(ToDispVars1, [exclude(QueryVars), namevars]),
+	'$set_query_vars_names'(QueryVars, ToDispVars1),
 	(   fail,                             % do not activate 'alt if vars'
 	    ToDispVars1 = [] ->
 	    true                              % no alt if only anonymous vars
@@ -220,6 +224,15 @@ break :-
 	    ;   true
 	    )
 	).
+
+
+
+
+'$set_query_vars_names'(QueryVars, ToDispVars) :-
+	name_query_vars(QueryVars, ToDispVars),
+	'$remove_underscore_vars'(ToDispVars, ToDispVars1),
+	name_singleton_vars(ToDispVars1),
+	bind_variables(ToDispVars1, [exclude(QueryVars), namevars]).
 
 
 

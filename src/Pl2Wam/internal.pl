@@ -322,3 +322,28 @@ inline_predicate(g_link, 2, t).
 inline_predicate(g_read, 2, t).
 
 inline_predicate(g_array_size, 2, t).
+
+inline_predicate(g_inc, 1, t).
+
+inline_predicate(g_inco, 2, t).
+
+inline_predicate(g_inc, 2, t).
+
+inline_predicate(g_inc, 3, t).
+
+inline_predicate(g_dec, 1, t).
+
+inline_predicate(g_deco, 2, t).
+
+inline_predicate(g_dec, 2, t).
+
+inline_predicate(g_dec, 3, t).
+
+inline_predicate(g_set_bit, 2, t).
+
+inline_predicate(g_reset_bit, 2, t).
+
+inline_predicate(g_test_set_bit, 2, t).
+
+inline_predicate(g_test_reset_bit, 2, t).
+

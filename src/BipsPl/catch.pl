@@ -51,7 +51,7 @@
 	'$get_current_B'(B),
 	'$sys_var_write'(7, B),
 % for debug
-% format('~N*** ~d for catch(~w,~w,~w)~n',[B,Goal,_Catch,_Recovery]),
+% format('~N*** ~d for catch(~w,~w,~w)~n', [B, Goal, _Catch, _Recovery]),
 	'$call_internal'(Goal, CallInfo),
 	'$get_current_B'(B1),
 	(   B1 > B ->
@@ -61,15 +61,14 @@
 	'$sys_var_write'(7, Handler).
 
 % for debug
-%'$catch_internal1'(_,_,_,_,_):-
+%'$catch_internal1'(_, _, _, _, _):-
 %        '$get_current_B'(B),
 %        '$sys_var_get'(8,Ball),
-%	format('~N*** ~d catching throw(~w)~n',[B,Ball]),
+%	format('~N*** ~d catching throw(~w)~n', [B, Ball]),
 %        fail.
 
 '$catch_internal1'(_, Catch, Recovery, CallInfo, Handler) :-
-                                                        % after throw or fail
-	'$sys_var_write'(7, Handler),
+	'$sys_var_write'(7, Handler), % after throw or fail
 	'$sys_var_get'(8, Ball),
 	Ball \== '$no_ball$',
 	'$catch_a_throw'(Ball, Catch, Recovery, CallInfo, Handler).

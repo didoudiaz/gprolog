@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : dec10io.pl
-% date    : 4 11 2002
-% time    : 17:43:19
+% date    : 4 19 2002
+% time    : 15:19:18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/dec10io.pl').

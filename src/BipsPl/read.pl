@@ -89,9 +89,9 @@ read_term(SorA, Term, Options) :-
 
 '$get_read_options'(Options, Vars, VarNames, SinglNames) :-
 	'$check_list'(Options),
-	g_link('$read_variables', []),
-	g_link('$read_variable_names', []),
-	g_link('$read_singletons', []),
+	g_assign('$read_variables', []),
+	g_assign('$read_variable_names', []),
+	g_assign('$read_singletons', []),
 	'$get_read_options1'(Options),
 	g_read('$read_variables', Vars),
 	g_read('$read_variable_names', VarNames),

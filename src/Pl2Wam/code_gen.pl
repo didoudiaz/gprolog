@@ -698,46 +698,61 @@ load_by_value_arg(Arg, x(Reg), WamArg, WamNext) :-
           % Other inlines
 
 gen_inline_pred(F, N, LArg, WamNext, WamCallC) :-
-	c_fct_name(F, N, Name),
-	LCOpt = [fast_call, boolean],
+	c_fct_name(F, N, Name, RetType),
+	(   RetType = bool ->
+	    LCOpt = [fast_call, boolean]
+	;   LCOpt = [fast_call]
+	),
 	load_c_call_args(LCOpt, LArg, LValue, WamInst, WamCallC),
 	WamInst = [call_c(Name, LCOpt, LValue)|WamNext].
 
 
 
-c_fct_name(var, 1, 'Blt_Var').
-c_fct_name(nonvar, 1, 'Blt_Non_Var').
-c_fct_name(atom, 1, 'Blt_Atom').
-c_fct_name(integer, 1, 'Blt_Integer').
-c_fct_name(float, 1, 'Blt_Float').
-c_fct_name(number, 1, 'Blt_Number').
-c_fct_name(atomic, 1, 'Blt_Atomic').
-c_fct_name(compound, 1, 'Blt_Compound').
-c_fct_name(callable, 1, 'Blt_Callable').
-c_fct_name(list, 1, 'Blt_List').
-c_fct_name(partial_list, 1, 'Blt_Partial_List').
-c_fct_name(list_or_partial_list, 1, 'Blt_List_Or_Partial_List').
+c_fct_name(var, 1, 'Blt_Var', bool).
+c_fct_name(nonvar, 1, 'Blt_Non_Var', bool).
+c_fct_name(atom, 1, 'Blt_Atom', bool).
+c_fct_name(integer, 1, 'Blt_Integer', bool).
+c_fct_name(float, 1, 'Blt_Float', bool).
+c_fct_name(number, 1, 'Blt_Number', bool).
+c_fct_name(atomic, 1, 'Blt_Atomic', bool).
+c_fct_name(compound, 1, 'Blt_Compound', bool).
+c_fct_name(callable, 1, 'Blt_Callable', bool).
+c_fct_name(list, 1, 'Blt_List', bool).
+c_fct_name(partial_list, 1, 'Blt_Partial_List', bool).
+c_fct_name(list_or_partial_list, 1, 'Blt_List_Or_Partial_List', bool).
 
-c_fct_name(fd_var, 1, 'Blt_Fd_Var').
-c_fct_name(non_fd_var, 1, 'Blt_Non_Fd_Var').
-c_fct_name(generic_var, 1, 'Blt_Generic_Var').
-c_fct_name(non_generic_var, 1, 'Blt_Non_Generic_Var').
+c_fct_name(fd_var, 1, 'Blt_Fd_Var', bool).
+c_fct_name(non_fd_var, 1, 'Blt_Non_Fd_Var', bool).
+c_fct_name(generic_var, 1, 'Blt_Generic_Var', bool).
+c_fct_name(non_generic_var, 1, 'Blt_Non_Generic_Var', bool).
 
 
-c_fct_name(arg, 3, 'Blt_Arg').
-c_fct_name(functor, 3, 'Blt_Functor').
-c_fct_name(compare, 3, 'Blt_Compare').
-c_fct_name(=.., 2, 'Blt_Univ').
+c_fct_name(arg, 3, 'Blt_Arg', bool).
+c_fct_name(functor, 3, 'Blt_Functor', bool).
+c_fct_name(compare, 3, 'Blt_Compare', bool).
+c_fct_name(=.., 2, 'Blt_Univ', bool).
 
-c_fct_name(==, 2, 'Blt_Term_Eq').
-c_fct_name(\==, 2, 'Blt_Term_Neq').
-c_fct_name(@<, 2, 'Blt_Term_Lt').
-c_fct_name(@=<, 2, 'Blt_Term_Lte').
-c_fct_name(@>, 2, 'Blt_Term_Gt').
-c_fct_name(@>=, 2, 'Blt_Term_Gte').
+c_fct_name(==, 2, 'Blt_Term_Eq', bool).
+c_fct_name(\==, 2, 'Blt_Term_Neq', bool).
+c_fct_name(@<, 2, 'Blt_Term_Lt', bool).
+c_fct_name(@=<, 2, 'Blt_Term_Lte', bool).
+c_fct_name(@>, 2, 'Blt_Term_Gt', bool).
+c_fct_name(@>=, 2, 'Blt_Term_Gte', bool).
 
-c_fct_name(g_assign, 2, 'Blt_G_Assign').
-c_fct_name(g_assignb, 2, 'Blt_G_Assignb').
-c_fct_name(g_link, 2, 'Blt_G_Link').
-c_fct_name(g_read, 2, 'Blt_G_Read').
-c_fct_name(g_array_size, 2, 'Blt_G_Array_Size').
+c_fct_name(g_assign, 2, 'Blt_G_Assign', void).
+c_fct_name(g_assignb, 2, 'Blt_G_Assignb', void).
+c_fct_name(g_link, 2, 'Blt_G_Link', void).
+c_fct_name(g_read, 2, 'Blt_G_Read', bool).
+c_fct_name(g_array_size, 2, 'Blt_G_Array_Size', bool).
+c_fct_name(g_inc, 1, 'Blt_G_Inc', void).
+c_fct_name(g_inco, 2, 'Blt_G_Inco', bool).
+c_fct_name(g_inc, 2, 'Blt_G_Inc_2', bool).
+c_fct_name(g_inc, 3, 'Blt_G_Inc_3', bool).
+c_fct_name(g_dec, 1, 'Blt_G_Dec', void).
+c_fct_name(g_deco, 2, 'Blt_G_Deco', bool).
+c_fct_name(g_dec, 2, 'Blt_G_Dec_2', bool).
+c_fct_name(g_dec, 3, 'Blt_G_Dec_3', bool).
+c_fct_name(g_set_bit, 2, 'Blt_G_Set_Bit', void).
+c_fct_name(g_reset_bit, 2, 'Blt_G_Reset_Bit', void).
+c_fct_name(g_test_set_bit, 2, 'Blt_G_Test_Set_Bit', bool).
+c_fct_name(g_test_reset_bit, 2, 'Blt_G_Test_Reset_Bit', bool).

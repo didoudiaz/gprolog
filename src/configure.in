@@ -582,6 +582,7 @@ echo "--> Examples:           $EXAMPLES_DIR"
 # * sub-components *
 # ******************
 
+
 TXT_FILES='COPYING VERSION NEWS ChangeLog'
 
 BIN_FILES=

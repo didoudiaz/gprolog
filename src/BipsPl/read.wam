@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : read.pl
-% date    : 4 11 2002
-% time    : 17:43:17
+% date    : 4 19 2002
+% time    : 15:19:16
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/read.pl').
@@ -110,13 +110,13 @@ predicate('$get_read_options'/4,90,static,private,built_in,[
     call('$check_list'/1),
     put_atom('$read_variables',0),
     put_nil(1),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$read_variable_names',0),
     put_nil(1),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$read_singletons',0),
     put_nil(1),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     call('$get_read_options1'/1),
     put_atom('$read_variables',0),
@@ -178,7 +178,7 @@ label(4),
     get_structure(variables/1,0),
     unify_variable(x(1)),
     put_atom('$read_variables',0),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     execute('$sys_var_set_bit'/2),
@@ -190,7 +190,7 @@ label(6),
     get_structure(variable_names/1,0),
     unify_variable(x(1)),
     put_atom('$read_variable_names',0),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(1,1),
     execute('$sys_var_set_bit'/2),
@@ -202,7 +202,7 @@ label(8),
     get_structure(singletons/1,0),
     unify_variable(x(1)),
     put_atom('$read_singletons',0),
-    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(2,1),
     execute('$sys_var_set_bit'/2),

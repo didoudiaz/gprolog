@@ -1,3 +1,11 @@
+Fri Apr 19 15:20:51 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* improve global vars (arg. selector, automatic array, new built-ins)
+
+Sun Apr 14 16:35:10 CEST 2002 <Daniel.Diaz@inria.fr>
+
+	* fix two bugs with Ctrl+C reentrency under the top-level
+
 Thu Apr 11 20:30:16 CEST 2002 <Daniel.Diaz@inria.fr>
 
 	* added priority/1 option to write_term to specify starting priority

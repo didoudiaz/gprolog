@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : first_arg.pl
-% date    : 4 11 2002
-% time    : 20:46:42
+% date    : 4 19 2002
+% time    : 15:19:30
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/first_arg.pl').
