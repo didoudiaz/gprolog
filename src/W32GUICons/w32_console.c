@@ -56,7 +56,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define EDIT_FIELD_SIZE            60000  /* must be < 64 Kb */
+#define EDIT_FIELD_SIZE            32000  /* 64 Kb for XP, 32 Kb for Win98 ? */
 
 #define ABOUT_TEXT \
     PROLOG_NAME " version " PROLOG_VERSION "\n" \
