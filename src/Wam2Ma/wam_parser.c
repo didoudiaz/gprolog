@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <setjmp.h>
+#include <locale.h>
 
 
 #include "wam_parser.h"

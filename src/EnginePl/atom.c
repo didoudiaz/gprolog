@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include <ctype.h>
 
 #define ATOM_FILE
@@ -131,7 +132,7 @@ static char *Gen_Sym(unsigned char *prefix, int gen_sym_hash);
 void
 Init_Atom(void)
 {
-  int i;
+  int i, c;
 
   for (i = 0; i < 256; i++)
     hash_weight_tbl[i] = i % RADIX;
@@ -175,10 +176,17 @@ Init_Atom(void)
   hash_weight_tbl['@'] = i;
   hash_inv_tbl[i] = '@';
 
-
-
-  for (i = 128; i < 256; i++)
-    char_type[i] = EX;		/* extended char set */
+  for (c = 128; c < 256; c++) {
+    if (isalpha (c)) {
+      i++;
+      char_type[c] = islower(c)? SL: CL;
+      hash_weight_tbl[c] = i;
+      hash_inv_tbl[i] = c;
+    }
+    else {
+      char_type[c] = EX;	/* extended char set */
+    }
+  }
 
   for (i = 0; i < 256; i++)	/* initial conv mapping = identity */
     char_conv[i] = i;

@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <locale.h>
 
 #include "wam_parser.h"
 #include "../EnginePl/gp_config.h"
@@ -346,6 +347,7 @@ main(int argc, char *argv[])
 {
   Parse_Arguments(argc, argv);
 
+  setlocale (LC_ALL, "");	/* Inherit locale from environment */
   if (file_name_out == NULL)
     file_out = stdout;
   else if ((file_out = fopen(file_name_out, "wt")) == NULL)

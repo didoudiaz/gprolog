@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <locale.h>
 
 #include "engine_pl.h"
 
@@ -58,6 +59,8 @@ main(int argc, char *argv[])
 {
   int nb_user_directive;
   Bool top_level;
+
+  setlocale (LC_ALL, "");	/* Inherit locale from environment */
 
   nb_user_directive = Start_Prolog(argc, argv);
 
