@@ -54,7 +54,7 @@ extern "C" {
 #define M_OS "linux-gnu"
 #define CC "gcc"
 #define CFLAGS_PREFIX_REG "-ffixed-%s"
-#define CFLAGS "-g -Wall"
+#define CFLAGS "-O -g"
 #define CFLAGS_MACHINE "-march=pentiumpro"
 #define LDFLAGS ""
 #define LDLIBS "-lm"

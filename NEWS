@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.18:
 
+* fix problem when compiling with gcc 3.4.0
 * fix bug in term comparison involving negative integers
 * add consult, ... and fix minor bugs in the Win32 GUI console menu
 * fix the stack overflow detection under cygwin
