@@ -66,8 +66,8 @@
  *                                                                         * 
  * where true_formula is the formula when X is true and not_false_formula  * 
  * is the negation of the formula when X is false. To find when a variable * 
- * is true (resp. false) look at the truth table of THAT VARIABLE(the table* 
- * determinig that variable from all combinations of the other variables). * 
+ * is true (resp. false) look at the truth table of THAT VARIABLE (the one * 
+ * determining that variable from all combinations of the other variables).* 
  * Combinations when the variable can be 0 or 1 (undefined) are ignored.   * 
  *                                                                         * 
  * NB: for functions, true_formula = not_false_formula but it is not the   * 
