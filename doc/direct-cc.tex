@@ -22,6 +22,7 @@ changeable Prolog flags).
 
 \subsubsection{\texttt{dynamic/1}}
 \label{dynamic/1}
+   \AddDiD{dynamic/1}
 
 \begin{TemplatesOneCol}
 dynamic(+predicate\_indicator)\\
@@ -32,7 +33,7 @@ dynamic(+predicate\_indicator\_sequence)
 
 \Description
 
-\IdxDiD[dynamic/1]{dynamic(Pred)} specifies that the procedure whose
+\texttt{dynamic(Pred)} specifies that the procedure whose
 predicate indicator is \texttt{Pred} is a dynamic procedure. This directive
 makes it possible to alter the definition of \texttt{Pred} by adding or
 removing clauses. For more information refer to the section about dynamic
@@ -55,6 +56,7 @@ ISO directive.
 
 \subsubsection{\texttt{public/1}}
 \label{public/1}
+   \AddDiD{public/1}
 
 \begin{TemplatesOneCol}
 public(+predicate\_indicator)\\
@@ -65,7 +67,7 @@ public(+predicate\_indicator\_sequence)
 
 \Description
 
-\IdxDiD[public/1]{public(Pred)} specifies that the procedure whose predicate indicator
+\texttt{public(Pred)} specifies that the procedure whose predicate indicator
 is \texttt{Pred} is a public procedure. This directive makes it possible to
 inspect the clauses of \texttt{Pred}. For more information refer to the
 section about dynamic clause management \RefSP{Introduction:(Dynamic-clause-management)}.
@@ -90,6 +92,7 @@ itself). When a module system is incorporated in GNU Prolog a more general
 visibility declaration shall be provided conforming to the ISO reference.
 
 \subsubsection{\texttt{multifile/1}}
+   \AddDiD{multifile/1}
 
 \begin{TemplatesOneCol}
 multifile(+predicate\_indicator)\\
@@ -100,7 +103,7 @@ multifile(+predicate\_indicator\_sequence)
 
 \Description
 
-\IdxDiD[multifile/1]{multifile(Pred)} is not supported by GNU Prolog.
+\texttt{multifile(Pred)} is not supported by GNU Prolog.
 When such a directive is encountered it is simply ignored. All clauses for a
 given predicate must reside in a single file.
 
@@ -109,6 +112,7 @@ given predicate must reside in a single file.
 ISO directive. Not supported.
 
 \subsubsection{\texttt{discontiguous/1}}
+   \AddDiD{discontiguous/1}
 
 \begin{TemplatesOneCol}
 discontiguous(+predicate\_indicator)\\
@@ -119,7 +123,7 @@ discontiguous(+predicate\_indicator\_sequence)
 
 \Description
 
-\IdxDiD[discontiguous/1]{discontiguous(Pred)} specifies that the procedure whose predicate
+\texttt{discontiguous(Pred)} specifies that the procedure whose predicate
 indicator is \texttt{Pred} is a discontiguous procedure. Namely, the clauses
 defining \texttt{Pred} are not restricted to be consecutive but can appear
 anywhere in the source file.
@@ -139,6 +143,7 @@ empty predicate (i.e. \texttt{current\_predicate(Pred)} will succeed). This
 is not the case for GNU Prolog.
 
 \subsubsection{\texttt{ensure\_linked/1}}
+   \AddDiD{ensure\_linked/1}
 
 \begin{TemplatesOneCol}
 ensure\_linked(+predicate\_indicator)\\
@@ -149,7 +154,7 @@ ensure\_linked(+predicate\_indicator\_sequence)
 
 \Description
 
-\IdxDiD[ensure\_linked/1]{ensure\_linked(Pred)} specifies that the procedure
+\texttt{ensure\_linked(Pred)} specifies that the procedure
 whose predicate indicator is \texttt{Pred} must be included by the linker.
 This directive is useful when compiling to native code to force the linker to
 include the code of a given predicate. Indeed, if the \texttt{gplc} is
@@ -168,9 +173,13 @@ predicate indicators or a sequence of predicate indicators using
 GNU Prolog directive.
 
 \subsubsection{\texttt{built\_in/0},
-\texttt{built\_in/1},
-\texttt{built\_in\_fd/0},
-\texttt{built\_in\_fd/1}}
+               \texttt{built\_in/1},
+               \texttt{built\_in\_fd/0},
+               \texttt{built\_in\_fd/1}}
+   \AddDiD{built\_in/0}
+   \AddDiD{built\_in/1}
+   \AddDiD{built\_in\_fd/0}
+   \AddDiD{built\_in\_fd/1}
 
 \begin{TemplatesOneCol}
 built\_in\\
@@ -186,10 +195,10 @@ built\_in\_fd(+predicate\_indicator\_sequence)
 
 \Description
 
-\IdxDiD[built\_in/0]{built\_in} specifies that the procedures defined from
+\texttt{built\_in} specifies that the procedures defined from
 now have the \IdxPP{built\_in} property \RefSP{predicate-property/2}.
 
-\IdxDiD[built\_in/1]{built\_in(Pred)} is similar to \texttt{built\_in/0} but
+\texttt{built\_in(Pred)} is similar to \texttt{built\_in/0} but
 only affects the procedure whose predicate indicator is \texttt{Pred}.
 
 This directive shall precede the definition of \texttt{Pred} in the source
@@ -199,8 +208,8 @@ In order to allow multiple definitions, \texttt{Pred} can also be a list of
 predicate indicators or a sequence of predicate indicators using
 \texttt{','/2} as separator.
 
-\IdxDiD[built\_in\_fd/0]{built\_in\_fd} (resp.
-\IdxDiD[built\_in\_fd/1]{built\_in\_fd(Pred)}) is similar to
+\texttt{built\_in\_fd} (resp.
+\texttt{built\_in\_fd(Pred)}) is similar to
 \texttt{built\_in} (resp. \texttt{built\_in(Pred)}) but sets the
 \IdxPP{built\_in\_fd} predicate property \RefSP{predicate-property/2}.
 
@@ -209,6 +218,7 @@ predicate indicators or a sequence of predicate indicators using
 GNU Prolog directives.
 
 \subsubsection{\texttt{include/1}}
+   \AddDiD{include/1}
 
 \begin{TemplatesOneCol}
 include(+atom)
@@ -217,7 +227,7 @@ include(+atom)
 
 \Description
 
-\IdxDiD[include/1]{include(File)} specifies that the content of the Prolog source
+\texttt{include(File)} specifies that the content of the Prolog source
 \texttt{File} shall be inserted. The resulting Prolog text is identical to
 the Prolog text obtained by replacing the directive by the content of the
 Prolog source \texttt{File}.
@@ -230,6 +240,7 @@ See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 ISO directive.
 
 \subsubsection{\texttt{ensure\_loaded/1}}
+   \AddDiD{ensure\_loaded/1}
 
 \begin{TemplatesOneCol}
 ensure\_loaded(+atom)
@@ -238,7 +249,7 @@ ensure\_loaded(+atom)
 
 \Description
 
-\IdxDiD[ensure\_loaded/1]{ensure\_loaded(File)} is not supported by GNU Prolog. When such a
+\texttt{ensure\_loaded(File)} is not supported by GNU Prolog. When such a
 directive is encountered it is simply ignored.
 
 \Portability
@@ -247,6 +258,7 @@ ISO directive. Not supported.
 
 \subsubsection{\texttt{op/3}}
 \label{op/3}
+   \AddDiD{op/3}
 
 \begin{TemplatesOneCol}
 op(+integer, +operator\_specifier, +atom\_or\_atom\_list)
@@ -255,7 +267,7 @@ op(+integer, +operator\_specifier, +atom\_or\_atom\_list)
 
 \Description
 
-\IdxDiD[op/3]{op(Priority, OpSpecifier, Operator)} alters the operator table. This
+\texttt{op(Priority, OpSpecifier, Operator)} alters the operator table. This
 directive is executed as soon as it is encountered by calling the built-in
 predicate \IdxPB{op/3} \RefSP{op/3:(Term-input/output)}. A system
 directive is also generated to reflect the effect of this directive at
@@ -266,6 +278,7 @@ run-time \RefSP{Running-an-executable}.
 ISO directive.
 
 \subsubsection{\texttt{char\_conversion/2}}
+   \AddDiD{char\_conversion/2}
 
 \begin{TemplatesOneCol}
 char\_conversion(+character, +character)
@@ -274,7 +287,7 @@ char\_conversion(+character, +character)
 
 \Description
 
-\IdxDiD[char\_conversion/2]{char\_conversion(InChar, OutChar)} alters the character-conversion
+\texttt{char\_conversion(InChar, OutChar)} alters the character-conversion
 mapping. This directive is executed as soon as it is encountered by a call
 to the built-in predicate \IdxPB{char\_conversion/2}
 \RefSP{char-conversion/2}. A system directive is also generated to reflect
@@ -285,6 +298,7 @@ the effect of this directive at run-time \RefSP{Running-an-executable}.
 ISO directive.
 
 \subsubsection{\texttt{set\_prolog\_flag/2}}
+   \AddDiD{set\_prolog\_flag/2}
 
 \begin{TemplatesOneCol}
 set\_prolog\_flag(+flag, +term)
@@ -293,7 +307,7 @@ set\_prolog\_flag(+flag, +term)
 
 \Description
 
-\IdxDiD[set\_prolog\_flag/2]{set\_prolog\_flag(Flag, Value)} sets the value of the
+\texttt{set\_prolog\_flag(Flag, Value)} sets the value of the
 \Idx{Prolog flag} \texttt{Flag} to \texttt{Value}. This directive is
 executed as soon as it is encountered by a call to the built-in predicate
 \IdxPB{set\_prolog\_flag/2} \RefSP{set-prolog-flag/2}. A system directive
@@ -306,6 +320,7 @@ ISO directive.
 
 \subsubsection{\texttt{initialization/1}}
 \label{initialization/1}
+   \AddDiD{initialization/1}
 
 \begin{TemplatesOneCol}
 initialization(+callable\_term)
@@ -314,7 +329,7 @@ initialization(+callable\_term)
 
 \Description
 
-\IdxDiD[initialization/1]{initialization(Goal)} adds \texttt{Goal} to the set of goal which
+\texttt{initialization(Goal)} adds \texttt{Goal} to the set of goal which
 shall be executed at run-time. A user directive is generated to execute
 \texttt{Goal} at run-time. If several initialization directives appear in
 the same file they are executed in the order of apparition \RefSP{Running-an-executable}.
@@ -324,8 +339,10 @@ the same file they are executed in the order of apparition \RefSP{Running-an-exe
 ISO directive.
 
 \subsubsection{\texttt{foreign/2},
-\texttt{foreign/1}}
+               \texttt{foreign/1}}
 \label{foreign/2}
+   \AddDiD{foreign/2}
+   \AddDiD{foreign/1}
 
 \begin{TemplatesOneCol}
 foreign(+callable\_term, +foreign\_option\_list)\\
@@ -335,12 +352,12 @@ foreign(+callable\_term)
 
 \Description
 
-\IdxDiD[foreign/2]{foreign(Template, Options)} defines an interface predicate whose
+\texttt{foreign(Template, Options)} defines an interface predicate whose
 prototype is \texttt{Template} according to the options given by
 \texttt{Options}. Refer to the foreign code interface for more information
 \RefSP{Calling-C-from-Prolog}.
 
-\IdxDiD[foreign/1]{foreign(Template)} is equivalent to \texttt{foreign(Template, [])}.
+\texttt{foreign(Template)} is equivalent to \texttt{foreign(Template, [])}.
 
 \Portability
 
@@ -349,9 +366,12 @@ GNU Prolog directive.
 \subsection{Prolog control constructs}
 
 \subsubsection{\texttt{true/0},
-\texttt{fail/0},
-\texttt{!/0}}
+               \texttt{fail/0},
+               \texttt{!/0}}
 \label{true/0}
+   \AddCCD{true/0}
+   \AddCCD{fail/0}
+   \AddCCD{"!/0}
 
 \begin{TemplatesOneCol}
 true\\
@@ -362,11 +382,11 @@ fail\\
 
 \Description
 
-\IdxCCD[true/0]{true} always succeeds.
+\texttt{true} always succeeds.
 
-\IdxCCD[fail/0]{fail} always fails (enforces backtracking).
+\texttt{fail} always fails (enforces backtracking).
 
-\IdxCCD["!/0]{!} always succeeds and the for side-effect of removing all
+\texttt{!} always succeeds and the for side-effect of removing all
 choice-points created since the invocation of the predicate activating it.
 
 \PlErrorsNone
@@ -376,8 +396,11 @@ choice-points created since the invocation of the predicate activating it.
 ISO control constructs.
 
 \subsubsection{\texttt{(',')/2} - conjunction,
-\texttt{(;)/2} - disjunction,
-\texttt{(-{\gt})/2} - if-then}
+               \texttt{(;)/2} - disjunction,
+               \texttt{(-{\gt})/2} - if-then}
+   \AddCCD{(',')/2}
+   \AddCCD{(;)/2}
+   \AddCCD{(-{\gt})/2}
 
 \begin{TemplatesOneCol}
 ','(+callable\_term, +callable\_term)\\
@@ -388,13 +411,13 @@ ISO control constructs.
 
 \Description
 
-\IdxCCD[(',')/2]{Goal1 , Goal2} executes \texttt{Goal1} and, in case of
+\texttt{Goal1 , Goal2} executes \texttt{Goal1} and, in case of
 success, executes \texttt{Goal2}.
 
-\IdxCCD[(;)/2]{Goal1 ; Goal2} first creates a choice-point and executes
+\texttt{Goal1 ; Goal2} first creates a choice-point and executes
 \texttt{Goal1}. On backtracking \texttt{Goal2} is executed.
 
-\IdxCCD[(-{\gt})/2]{Goal1 -{\gt} Goal2} first executes \texttt{Goal1} and,
+\texttt{Goal1 -{\gt} Goal2} first executes \texttt{Goal1} and,
 in case of success, removes all choice-points created by \texttt{Goal1} and
 executes \texttt{Goal2}. This control construct acts like an if-then
 (\texttt{Goal1} is the test part and \texttt{Goal2} the then part). Note that
@@ -436,6 +459,7 @@ ISO control constructs.
 
 \subsubsection{\texttt{call/1}}
 \label{call/1}
+   \AddCCD{call/1}
 
 \begin{TemplatesOneCol}
 call(+callable\_term)
@@ -444,7 +468,7 @@ call(+callable\_term)
 
 \Description
 
-\IdxCCD[call/1]{call(Goal)} executes \texttt{Goal}. \texttt{call/1} succeeds if
+\texttt{call(Goal)} executes \texttt{Goal}. \texttt{call/1} succeeds if
 \texttt{Goal} represents a goal which is true. When \texttt{Goal} contains a
 cut symbol \IdxCC["!/0]{!} \RefSP{true/0} as a subgoal, the effect of
 \texttt{!} does not extend outside \texttt{Goal}. 
@@ -469,8 +493,10 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 ISO control construct.
 
 \subsubsection{\texttt{catch/3},
-\texttt{throw/1}}
+               \texttt{throw/1}}
 \label{catch/3}
+   \AddCCD{catch/3}
+   \AddCCD{throw/1}
 
 \begin{TemplatesOneCol}
 catch(?callable\_term, ?term, ?term)\\
@@ -480,7 +506,7 @@ throw(+nonvar)
 
 \Description
 
-\IdxCCD[catch/3]{catch(Goal, Catcher, Recovery)} is similar to \texttt{call(Goal)}
+\texttt{catch(Goal, Catcher, Recovery)} is similar to \texttt{call(Goal)}
 \RefSP{call/1}. If this succeeds or fails, so does the call to
 \texttt{catch/3}. If however, during the execution of \texttt{Goal}, there
 is a call to \texttt{throw(Ball)}, the current flow of control is
@@ -498,7 +524,7 @@ take an alternative action.
 
 \end{itemize}
 
-\IdxCCD[throw/1]{throw(Ball)} causes the normal flow of control to be transferred
+\texttt{throw(Ball)} causes the normal flow of control to be transferred
 back to an existing call of \texttt{catch/3}. When a call to
 \texttt{throw(Ball)} happens, \texttt{Ball} is copied and the stack is
 unwound back to the call to \texttt{catch/3}, whereupon the copy of

@@ -10,6 +10,8 @@ PSNAME=$(PREFIX).ps
 
 HTMLNAME=$(PREFIX).html
 
+CHMNAME=$(PREFIX).chm
+
 TEX_SRC=packages.tex macros.tex body.tex \
         cover.tex acknow.tex intro.tex use.tex debugger.tex \
         format-defs.tex direct-cc.tex pl-bips.tex fd-cstr.tex \
@@ -30,11 +32,12 @@ help:
 	@echo
 	@echo '*** Please read the README file ***'
 	@echo
-	@echo 'make all       make DVI, PostScript, PDF and HTML versions'
+	@echo 'make all       make DVI, PDF, PostScript, HTML and CHM versions'
 	@echo 'make dvi       make DVI version        (needs LaTeX2e)'
 	@echo 'make pdf       make PDF version        (needs pdflatex)'
 	@echo 'make ps        make PostScript version (needs dvips)'
 	@echo 'make html      make HTML version       (needs HeVeA)'
+	@echo 'make chm       make HTMLHelp version   (needs hhc - Win32 only)'
 	@echo
 	@echo 'make clean     remove all temporary files'
 	@echo 'make distclean same as clean'
@@ -44,7 +47,7 @@ help:
 	@echo
 
 
-all: dvi pdf ps html
+all: dvi pdf ps html chm
 
 
 
@@ -84,33 +87,38 @@ $(PSNAME): $(DVINAME)
 html: Html/index.html
 
 $(HTMLNAME): custom.hva $(TEX_SRC)
-	hevea -s -exec xxdate.exe -fix custom.hva $(DVIROOT).tex -o $(HTMLNAME)
+	hevea -O -nosymb -s -exec xxdate.exe -fix custom.hva $(DVIROOT).tex -o $(HTMLNAME)
 
 Html/index.html: $(HTMLNAME)
 	rm -f Html/index.html Html/$(PREFIX)*.html
-	(cd Html ; cp ../$(HTMLNAME) .; hacha $(HTMLNAME) ; rm $(HTMLNAME))
+	(cd Html && hacha -hrf -tocbis ../$(HTMLNAME) && hh_do_hhc_hhk $(PREFIX))
+
+chm: $(CHMNAME)
+
+$(CHMNAME): $(HTMLNAME) Html/index.html
+	-(cd Html; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) .. 2>/dev/null)
 
 clean:
-	rm -f $(DVIROOT).aux $(DVIROOT).toc $(DVIROOT).idx $(DVIROOT).*.fp
-	rm -f $(PDFROOT).aux $(PDFROOT).toc $(PDFROOT).idx $(PDFROOT).*.fp
+	rm -f $(PREFIX).aux $(PREFIX).toc $(PREFIX).idx $(PREFIX).*.fp
+	rm -rf $(PREFIX)*.htoc $(PREFIX)*.haux $(PREFIX)*.hind $(PREFIX)*.hrf
 
 
 distclean: clean
 
 
 clean-all: distclean
-	rm -f $(DVINAME) $(PDFNAME) $(PSNAME)
+	rm -f $(DVINAME) $(PDFNAME) $(PSNAME) $(CHMNAME)
 	rm -f $(HTMLNAME) Html/$(PREFIX)*.html Html/index.html
 
 clean-aux:
-	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.hidx *.hind *.out *.ilg
+	rm -rf *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf
 
 clean-full: clean-all clean-aux
 
 clean-test:
 	rm -f ?.dvi ?.pdf ?.html ?.ps ?.info ?.txt
 	rm -f ?.aux ?.toc ?.idx ?.ind ?.log
-	rm -f ?.haux ?.hidx ?.hind ?.out ?.ilg
+	rm -f ?.haux ?.htoc ?.hidx ?.hind ?.out ?.ilg ?.hrf
 
 
 # distributions (DVI and HTML)

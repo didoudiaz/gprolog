@@ -156,6 +156,7 @@ large to encode any vector.
 
 \subsubsection{\texttt{fd\_max\_integer/1}}
 \label{fd-max-integer/1}
+   \AddFBD{fd\_max\_integer/1}
 
 \begin{TemplatesOneCol}
 fd\_max\_integer(?integer)
@@ -164,7 +165,7 @@ fd\_max\_integer(?integer)
 
 \Description
 
-\IdxFBD[fd\_max\_integer/1]{fd\_max\_integer(N)} succeeds if \texttt{N} is the current value of
+\texttt{fd\_max\_integer(N)} succeeds if \texttt{N} is the current value of
 \IdxFK{fd\_max\_integer} \RefSP{Intro-FD}.
 
 \begin{PlErrors}
@@ -179,6 +180,7 @@ fd\_max\_integer(?integer)
 GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_vector\_max/1}}
+   \AddFBD{fd\_vector\_max/1}
 
 \begin{TemplatesOneCol}
 fd\_vector\_max(?integer)
@@ -187,7 +189,7 @@ fd\_vector\_max(?integer)
 
 \Description
 
-\IdxFBD[fd\_vector\_max/1]{fd\_vector\_max(N)} succeeds if \texttt{N} is the current value of
+\texttt{fd\_vector\_max(N)} succeeds if \texttt{N} is the current value of
 \IdxFK{vector\_max} \RefSP{Intro-FD}.
 
 \begin{PlErrors}
@@ -203,6 +205,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_set\_vector\_max/1}}
 \label{fd-set-vector-max/1}
+   \AddFBD{fd\_set\_vector\_max/1}
 
 \begin{TemplatesOneCol}
 fd\_set\_vector\_max(+integer)
@@ -211,7 +214,7 @@ fd\_set\_vector\_max(+integer)
 
 \Description
 
-\IdxFBD[fd\_set\_vector\_max/1]{fd\_set\_vector\_max(N)} initializes \IdxFK{vector\_max} based on
+\texttt{fd\_set\_vector\_max(N)} initializes \IdxFK{vector\_max} based on
 the value \texttt{N} \RefSP{Intro-FD}. More precisely, on 32 bit
 machines, \texttt{vector\_max} is set to the smallest value of
 \texttt{(32*k)-}1 which is $\geq$ \texttt{N}.
@@ -236,7 +239,9 @@ GNU Prolog predicate.
 \subsection{Initial value constraints}
 
 \subsubsection{\texttt{fd\_domain/3},
-\texttt{fd\_domain\_bool/1}}
+               \texttt{fd\_domain\_bool/1}}
+   \AddFBD{fd\_domain/3}
+   \AddFBD{fd\_domain\_bool/1}
 
 \begin{TemplatesOneCol}
 fd\_domain(+fd\_variable\_list\_or\_fd\_variable, +integer,
@@ -249,13 +254,13 @@ fd\_domain\_bool(?fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_domain/3]{fd\_domain(Vars, Lower, Upper)} constraints each element \texttt{X}
+\texttt{fd\_domain(Vars, Lower, Upper)} constraints each element \texttt{X}
 of \texttt{Vars} to take a value in \texttt{Lower..Upper}. This
 predicate is generally used to set the initial domain of variables to an
 interval. \texttt{Vars} can be also a single FD variable (or a single Prolog
 variable).
 
-\IdxFBD[fd\_domain\_bool/1]{fd\_domain\_bool(Vars)} is equivalent to \texttt{fd\_domain(Vars, 0,
+\texttt{fd\_domain\_bool(Vars)} is equivalent to \texttt{fd\_domain(Vars, 0,
 1)} and is used to declare boolean FD variables.
 
 \begin{PlErrors}
@@ -290,6 +295,7 @@ variable nor an FD variable nor an integer}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_domain/2}}
+   \AddFBD{fd\_domain/2}
 
 \begin{TemplatesOneCol}
 fd\_domain(+fd\_variable\_list, +integer\_list)\\
@@ -299,7 +305,7 @@ fd\_domain(?fd\_variable, +integer\_list)
 
 \Description
 
-\IdxFBD[fd\_domain/2]{fd\_domain(Vars, Values)} constraints each element \texttt{X} of the
+\texttt{fd\_domain(Vars, Values)} constraints each element \texttt{X} of the
 list \texttt{Vars} to take a value in the list \texttt{Values}. This
 predicate is generally used to set the initial domain of variables to a set
 of values. The domain of each variable of \texttt{Vars} uses a sparse
@@ -339,8 +345,12 @@ GNU Prolog predicate.
 \subsection{Type testing}
 
 \subsubsection{\texttt{fd\_var/1}, \texttt{non\_fd\_var/1}, 
-\texttt{generic\_var/1},
-\texttt{non\_generic\_var/1}}
+               \texttt{generic\_var/1},
+               \texttt{non\_generic\_var/1}}
+   \AddFBD{fd\_var/1}
+   \AddFBD{non\_fd\_var/1}
+   \AddFBD{generic\_var/1}
+   \AddFBD{non\_generic\_var/1}
 
 \begin{TemplatesTwoCols}
 fd\_var(?term)\\
@@ -352,16 +362,16 @@ non\_generic\_var(?term)
 
 \Description
 
-\IdxFBD[fd\_var/1]{fd\_var(Term)} succeeds if \texttt{Term} is currently an
+\texttt{fd\_var(Term)} succeeds if \texttt{Term} is currently an
 FD variable.
 
-\IdxFBD[non\_fd\_var/1]{non\_fd\_var(Term)} succeeds if \texttt{Term} is
+\texttt{non\_fd\_var(Term)} succeeds if \texttt{Term} is
 currently not an FD variable (opposite of \texttt{fd\_var/1}).
 
-\IdxFBD[generic\_var/1]{generic\_var(Term)} succeeds if \texttt{Term} is
+\texttt{generic\_var(Term)} succeeds if \texttt{Term} is
 either a Prolog variable or an FD variable.
 
-\IdxFBD[non\_generic\_var/1]{non\_generic\_var(Term)} succeeds if
+\texttt{non\_generic\_var(Term)} succeeds if
 \texttt{Term} is neither a Prolog variable nor an FD variable
 (opposite of \texttt{generic\_var/1}).
 
@@ -376,9 +386,13 @@ These predicate allow the user to get some information about FD variables.
 They are not constraints, they only return the current state of a variable.
 
 \subsubsection{\texttt{fd\_min/2},
-\texttt{fd\_max/2},
-\texttt{fd\_size/2},
-\texttt{fd\_dom/2}}
+               \texttt{fd\_max/2},
+               \texttt{fd\_size/2},
+               \texttt{fd\_dom/2}}
+   \AddFBD{fd\_min/2}
+   \AddFBD{fd\_max/2}
+   \AddFBD{fd\_size/2}
+   \AddFBD{fd\_dom/2}
 
 \begin{TemplatesOneCol}
 fd\_min(+fd\_variable, ?integer)\\
@@ -390,16 +404,16 @@ fd\_dom(+fd\_variable, ?integer\_list)
 
 \Description
 
-\IdxFBD[fd\_min/2]{fd\_min(X, N)} succeeds if \texttt{N} is the minimal value of the
+\texttt{fd\_min(X, N)} succeeds if \texttt{N} is the minimal value of the
 current domain of \texttt{X}.
 
-\IdxFBD[fd\_max/2]{fd\_max(X, N)} succeeds if \texttt{N} is the maximal value of the
+\texttt{fd\_max(X, N)} succeeds if \texttt{N} is the maximal value of the
 current domain of \texttt{X}.
 
-\IdxFBD[fd\_size/2]{fd\_size(X, N)} succeeds if \texttt{N} is the number of elements of
+\texttt{fd\_size(X, N)} succeeds if \texttt{N} is the number of elements of
 the current domain of \texttt{X}.
 
-\IdxFBD[fd\_dom/2]{fd\_dom(X, Values)} succeeds if \texttt{Values} is the list of
+\texttt{fd\_dom(X, Values)} succeeds if \texttt{Values} is the list of
 values of the current domain of \texttt{X}.
 
 \begin{PlErrors}
@@ -427,8 +441,11 @@ variable nor an FD variable nor an integer}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_has\_extra\_cstr/1},
-\texttt{fd\_has\_vector/1},
-\texttt{fd\_use\_vector/1}}
+               \texttt{fd\_has\_vector/1},
+               \texttt{fd\_use\_vector/1}}
+   \AddFBD{fd\_has\_extra\_cstr/1}
+   \AddFBD{fd\_has\_vector/1}
+   \AddFBD{fd\_use\_vector/1}
 
 \begin{TemplatesOneCol}
 fd\_has\_extra\_cstr(+fd\_variable)\\
@@ -439,13 +456,13 @@ fd\_use\_vector(+fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_has\_extra\_cstr/1]{fd\_has\_extra\_cstr(X)} succeeds if the \IdxFK{extra\_cstr}
+\texttt{fd\_has\_extra\_cstr(X)} succeeds if the \IdxFK{extra\_cstr}
 of \texttt{X} is currently on \RefSP{Intro-FD}.
 
-\IdxFBD[fd\_has\_vector/1]{fd\_has\_vector(X)} succeeds if the current domain of \texttt{X}
+\texttt{fd\_has\_vector(X)} succeeds if the current domain of \texttt{X}
 uses a sparse representation \RefSP{Intro-FD}.
 
-\IdxFBD[fd\_use\_vector/1]{fd\_use\_vector(X)} enforces a sparse representation for the domain
+\texttt{fd\_use\_vector(X)} enforces a sparse representation for the domain
 of \texttt{X} \RefSP{Intro-FD}.
 
 \begin{PlErrors}
@@ -545,10 +562,9 @@ succeeds if the remainder is 0) \\
 
 \texttt{quot\_rem(E1,E2,R)} & quotient of the integer division of
 \texttt{E1} by \texttt{E2}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
-(\texttt{R} is the remainder of the integer division of \texttt{E1} by
-\texttt{E2}) \\
+  \linebreak
+   (\texttt{R} is the remainder of the integer division of \texttt{E1} by
+   \texttt{E2}) \\
 
 \hline
 \end{tabular}
@@ -577,12 +593,18 @@ nor an FD arithmetic functor}
 \end{PlErrors}
 
 \subsubsection{Partial AC: \texttt{(\#=)/2} - constraint equal,
-\texttt{(\#{\bs}=)/2} - constraint not equal, \\
-\texttt{(\#{\lt})/2} - constraint less than,
-\texttt{(\#={\lt})/2} - constraint less than or equal, \\
-\texttt{(\#{\gt})/2} - constraint greater than,
-\texttt{(\#{\gt}=)/2} - constraint greater than or equal}
+               \texttt{(\#{\bs}=)/2} - constraint not equal, \\
+               \texttt{(\#{\lt})/2} - constraint less than,
+               \texttt{(\#={\lt})/2} - constraint less than or equal, \\
+               \texttt{(\#{\gt})/2} - constraint greater than,
+               \texttt{(\#{\gt}=)/2} - constraint greater than or equal}
 \label{Partial-AC:-(:=)/2}
+   \AddFBD{(\#=)/2}
+   \AddFBD{(\#{\bs}=)/2}
+   \AddFBD{(\#{\lt})/2}
+   \AddFBD{(\#={\lt})/2}
+   \AddFBD{(\#{\gt})/2}
+   \AddFBD{(\#{\gt}=)/2}
 
 \begin{TemplatesOneCol}
 \#=(?fd\_evaluable, ?fd\_evaluable)\\
@@ -596,22 +618,22 @@ nor an FD arithmetic functor}
 
 \Description
 
-\IdxFBD[(\#=)/2]{FdExpr1 \#= FdExpr2} constrains \texttt{FdExpr1} to be
+\texttt{FdExpr1 \#= FdExpr2} constrains \texttt{FdExpr1} to be
 equal to \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\bs}=)/2]{FdExpr1 \#{\bs}= FdExpr2} constrains \texttt{FdExpr1}
+\texttt{FdExpr1 \#{\bs}= FdExpr2} constrains \texttt{FdExpr1}
 to be different from \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\lt})/2]{FdExpr1 \#{\lt} FdExpr2} constrains \texttt{FdExpr1} to
+\texttt{FdExpr1 \#{\lt} FdExpr2} constrains \texttt{FdExpr1} to
 be less than \texttt{FdExpr2}.
 
-\IdxFBD[(\#={\lt})/2]{FdExpr1 \#={\lt} FdExpr2} constrains \texttt{FdExpr1}
+\texttt{FdExpr1 \#={\lt} FdExpr2} constrains \texttt{FdExpr1}
 to be less than or equal to \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\gt})/2]{FdExpr1 \#{\gt} FdExpr2} constrains \texttt{FdExpr1} to
+\texttt{FdExpr1 \#{\gt} FdExpr2} constrains \texttt{FdExpr1} to
 be greater than \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\gt}=)/2]{FdExpr1 \#{\gt}= FdExpr2} constrains \texttt{FdExpr1}
+\texttt{FdExpr1 \#{\gt}= FdExpr2} constrains \texttt{FdExpr1}
 to be greater than or equal to \texttt{FdExpr2}.
 
 \texttt{FdExpr1} and \texttt{FdExpr2} are arithmetic FD expressions
@@ -638,12 +660,18 @@ Refer to the syntax of arithmetic FD expressions for possible errors
 GNU Prolog predicates.
 
 \subsubsection{Full AC: \texttt{(\#=\#)/2} - constraint equal,
-\texttt{(\#{\bs}=\#)/2} - constraint not equal, \\
-\texttt{(\#{\lt}\#)/2} - constraint less than,
-\texttt{(\#={\lt}\#)/2} - constraint less than or equal, \\
-\texttt{(\#{\gt}\#)/2} - constraint greater than,
-\texttt{(\#{\gt}=\#)/2} - constraint greater than or equal}
+               \texttt{(\#{\bs}=\#)/2} - constraint not equal, \\
+               \texttt{(\#{\lt}\#)/2} - constraint less than,
+               \texttt{(\#={\lt}\#)/2} - constraint less than or equal, \\
+               \texttt{(\#{\gt}\#)/2} - constraint greater than,
+               \texttt{(\#{\gt}=\#)/2} - constraint greater than or equal}
 \label{Full-AC:-(:=:)/2}
+   \AddFBD{(\#=\#)/2}
+   \AddFBD{(\#{\bs}=\#)/2}
+   \AddFBD{(\#{\lt}\#)/2}
+   \AddFBD{(\#={\lt}\#)/2}
+   \AddFBD{(\#{\gt}\#)/2}
+   \AddFBD{(\#{\gt}=\#)/2}
 
 \begin{TemplatesOneCol}
 \#=\#(?fd\_evaluable, ?fd\_evaluable)\\
@@ -657,22 +685,22 @@ GNU Prolog predicates.
 
 \Description
 
-\IdxFBD[(\#=\#)/2]{FdExpr1 \#=\# FdExpr2} constrains \texttt{FdExpr1} to
+\texttt{FdExpr1 \#=\# FdExpr2} constrains \texttt{FdExpr1} to
 be equal to \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\bs}=\#)/2]{FdExpr1 \#{\bs}=\# FdExpr2} constrains \texttt{FdExpr1} to be
+\texttt{FdExpr1 \#{\bs}=\# FdExpr2} constrains \texttt{FdExpr1} to be
 different from \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\lt}\#)/2]{FdExpr1 \#{\lt}\# FdExpr2} constrains \texttt{FdExpr1}
+\texttt{FdExpr1 \#{\lt}\# FdExpr2} constrains \texttt{FdExpr1}
 to be less than \texttt{FdExpr2}.
 
-\IdxFBD[(\#={\lt}\#)/2]{FdExpr1 \#={\lt}\# FdExpr2} constrains \texttt{FdExpr1} to be
+\texttt{FdExpr1 \#={\lt}\# FdExpr2} constrains \texttt{FdExpr1} to be
 less than or equal to \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\gt}\#)/2]{FdExpr1 \#{\gt}\# FdExpr2} constrains \texttt{FdExpr1}
+\texttt{FdExpr1 \#{\gt}\# FdExpr2} constrains \texttt{FdExpr1}
 to be greater than \texttt{FdExpr2}.
 
-\IdxFBD[(\#{\gt}=\#)/2]{FdExpr1 \#{\gt}=\# FdExpr2} constrains \texttt{FdExpr1} to be
+\texttt{FdExpr1 \#{\gt}=\# FdExpr2} constrains \texttt{FdExpr1} to be
 greater than or equal to \texttt{FdExpr2}.
 
 \texttt{FdExpr1} and \texttt{FdExpr2} are arithmetic FD expressions
@@ -698,7 +726,9 @@ Refer to the syntax of arithmetic FD expressions for possible errors
 GNU Prolog predicates.
 
 \subsubsection{\texttt{fd\_prime/1},
-\texttt{fd\_not\_prime/1}}
+               \texttt{fd\_not\_prime/1}}
+   \AddFBD{fd\_prime/1}
+   \AddFBD{fd\_not\_prime/1}
 
 \begin{TemplatesOneCol}
 fd\_prime(?fd\_variable)\\
@@ -708,12 +738,12 @@ fd\_not\_prime(?fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_prime/1]{fd\_prime(X)} constraints \texttt{X} to be a prime number between
+\texttt{fd\_prime(X)} constraints \texttt{X} to be a prime number between
 \texttt{0..\IdxFK{vector\_max}}.
 This constraint enforces a sparse representation
 for the domain of \texttt{X} \RefSP{Intro-FD}.
 
-\IdxFBD[fd\_not\_prime/1]{fd\_not\_prime(X)} constraints \texttt{X} to be a non prime number
+\texttt{fd\_not\_prime(X)} constraints \texttt{X} to be a non prime number
 between \texttt{0..vector\_max}. This constraint enforces a sparse
 representation for the domain of \texttt{X} \RefSP{Intro-FD}.
 
@@ -834,15 +864,25 @@ or 1) nor an FD boolean functor nor reified constraint}
 \end{PlErrors}
 
 \subsubsection{\texttt{(\#{\bs})/1} - constraint NOT,
-\texttt{(\#{\lt}={\gt})/2} - constraint equivalent, \\
-\texttt{(\#{\bs}{\lt}={\gt})/2} - constraint different,
-\texttt{(\#\#)/2} - constraint XOR, \\
-\texttt{(\#=={\gt})/2} - constraint imply,
-\texttt{(\#{\bs}=={\gt})/2} - constraint not imply, \\
-\texttt{(\#/{\bs})/2} - constraint AND,
-\texttt{(\#{\bs}/{\bs})/2} - constraint NAND, \\
-\texttt{(\#{\bs}/)/2} - constraint OR,
-\texttt{(\#{\bs}{\bs}/)/2} - constraint NOR}
+               \texttt{(\#{\lt}={\gt})/2} - constraint equivalent, \\
+               \texttt{(\#{\bs}{\lt}={\gt})/2} - constraint different,
+               \texttt{(\#\#)/2} - constraint XOR, \\
+               \texttt{(\#=={\gt})/2} - constraint imply,
+               \texttt{(\#{\bs}=={\gt})/2} - constraint not imply, \\
+               \texttt{(\#/{\bs})/2} - constraint AND,
+               \texttt{(\#{\bs}/{\bs})/2} - constraint NAND, \\
+               \texttt{(\#{\bs}/)/2} - constraint OR,
+               \texttt{(\#{\bs}{\bs}/)/2} - constraint NOR}
+   \AddFBD{(\#{\bs})/1}
+   \AddFBD{(\#{\lt}={\gt})/2}
+   \AddFBD{(\#{\bs}{\lt}={\gt})/2}
+   \AddFBD{(\#\#)/2}
+   \AddFBD{(\#=={\gt})/2}
+   \AddFBD{(\#{\bs}=={\gt})/2}
+   \AddFBD{(\#/{\bs})/2}
+   \AddFBD{(\#{\bs}/{\bs})/2}
+   \AddFBD{(\#{\bs}/)/2}
+   \AddFBD{(\#{\bs}{\bs}/)/2}
 
 \begin{TemplatesOneCol}
 \#{\bs}(?fd\_bool\_evaluable)\\
@@ -860,34 +900,34 @@ or 1) nor an FD boolean functor nor reified constraint}
 
 \Description
 
-\IdxFBD[(\#{\bs})/1]{\#{\bs}= FdBoolExpr1} constraints \texttt{FdBoolExpr1} to be
+\texttt{\#{\bs}= FdBoolExpr1} constraints \texttt{FdBoolExpr1} to be
 false.
 
-\IdxFBD[(\#{\lt}={\gt})/2]{FdBoolExpr1 \#{\lt}={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1 \#{\lt}={\gt} FdBoolExpr2} constrains
 \texttt{FdBoolExpr1} to be equivalent to \texttt{FdBoolExpr2}.
 
-\IdxFBD[(\#{\bs}{\lt}={\gt})/2]{FdBoolExpr1 \#{\bs}{\lt}={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1 \#{\bs}{\lt}={\gt} FdBoolExpr2} constrains
 \texttt{FdBoolExpr1} to be equivalent to not \texttt{FdBoolExpr2}.
 
-\IdxFBD[(\#\#)/2]{FdBoolExpr1 \#\# FdBoolExpr2} constrains \texttt{FdBoolExpr1} XOR
+\texttt{FdBoolExpr1 \#\# FdBoolExpr2} constrains \texttt{FdBoolExpr1} XOR
 \texttt{FdBoolExpr2} to be true
 
-\IdxFBD[(\#=={\gt})/2]{FdBoolExpr1 \#=={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1 \#=={\gt} FdBoolExpr2} constrains
 \texttt{FdBoolExpr1} to imply \texttt{FdBoolExpr2}.
 
-\IdxFBD[(\#{\bs}=={\gt})/2]{FdBoolExpr1 \#{\bs}=={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1 \#{\bs}=={\gt} FdBoolExpr2} constrains
 \texttt{FdBoolExpr1} to not imply \texttt{FdBoolExpr2}.
 
-\IdxFBD[(\#/{\bs})/2]{FdBoolExpr1 \#/{\bs} FdBoolExpr2} constrains \texttt{FdBoolExpr1}
+\texttt{FdBoolExpr1 \#/{\bs} FdBoolExpr2} constrains \texttt{FdBoolExpr1}
 AND \texttt{FdBoolExpr2} to be true.
 
-\IdxFBD[(\#{\bs}/{\bs})/2]{FdBoolExpr1 \#{\bs}/{\bs} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1 \#{\bs}/{\bs} FdBoolExpr2} constrains
 \texttt{FdBoolExpr1} AND \texttt{FdBoolExpr2} to be false.
 
-\IdxFBD[(\#{\bs}/)/2]{FdBoolExpr1 \#{\bs}/ FdBoolExpr2} constrains \texttt{FdBoolExpr1}
+\texttt{FdBoolExpr1 \#{\bs}/ FdBoolExpr2} constrains \texttt{FdBoolExpr1}
 OR \texttt{FdBoolExpr2} to be true.
 
-\IdxFBD[(\#{\bs}{\bs}/)/2]{FdBoolExpr1 \#{\bs}{\bs}/ FdBoolExpr2} constrains
+\texttt{FdBoolExpr1 \#{\bs}{\bs}/ FdBoolExpr2} constrains
 \texttt{FdBoolExpr1} OR \texttt{FdBoolExpr2} to be false.
 
 \texttt{FdBoolExpr1} and \texttt{FdBoolExpr2} are boolean FD expressions
@@ -918,11 +958,16 @@ Refer to the syntax of boolean FD expressions for possible errors
 GNU Prolog predicates.
 
 \subsubsection{\texttt{fd\_cardinality/2},
-\texttt{fd\_cardinality/3},
-\texttt{fd\_at\_least\_one/1},
-\texttt{fd\_at\_most\_one/1}, \\
-\texttt{fd\_only\_one/1}}
+               \texttt{fd\_cardinality/3},
+               \texttt{fd\_at\_least\_one/1},
+               \texttt{fd\_at\_most\_one/1}, \\
+               \texttt{fd\_only\_one/1}}
 \label{fd-cardinality/2}
+   \AddFBD{fd\_cardinality/2}
+   \AddFBD{fd\_cardinality/3}
+   \AddFBD{fd\_at\_least\_one/1}
+   \AddFBD{fd\_at\_most\_one/1}
+   \AddFBD{fd\_only\_one/1}
 
 \begin{TemplatesOneCol}
 fd\_cardinality(+fd\_bool\_evaluable\_list, ?fd\_variable)\\
@@ -935,7 +980,7 @@ fd\_only\_one(+fd\_bool\_evaluable\_list)
 
 \Description
 
-\IdxFBD[fd\_cardinality/2]{fd\_cardinality(List, Count)} unifies \texttt{Count} with the number
+\texttt{fd\_cardinality(List, Count)} unifies \texttt{Count} with the number
 of constraints that are true in \texttt{List}. This is equivalent to post
 the constraint \texttt{B$_{1}$ + B$_{2}$ + \ldots + B$_{n}$ \#= Count}
 where each variable \texttt{Bi} is a new variable defined by the constraint
@@ -943,17 +988,17 @@ where each variable \texttt{Bi} is a new variable defined by the constraint
 \texttt{i}\emph{th} constraint of \texttt{List}. Each \texttt{C$_{i}$}
 must be a boolean FD expression \RefSP{Boolean-FD-expressions}.
 
-\IdxFBD[fd\_cardinality/3]{fd\_cardinality(Lower, List, Upper)} is equivalent to
+\texttt{fd\_cardinality(Lower, List, Upper)} is equivalent to
 \texttt{fd\_cardinality(List, Count), Lower \#={\lt} Count, Count \#={\lt}
 Upper}
 
-\IdxFBD[fd\_at\_least\_one/1]{fd\_at\_least\_one(List)} is equivalent to
+\texttt{fd\_at\_least\_one(List)} is equivalent to
 \texttt{fd\_cardinality(List, Count), Count \#{\gt}= 1}.
 
-\IdxFBD[fd\_at\_most\_one/1]{fd\_at\_most\_one(List)} is equivalent to
+\texttt{fd\_at\_most\_one(List)} is equivalent to
 \texttt{fd\_cardinality(List, Count), Count \#={\lt} 1}.
 
-\IdxFBD[fd\_only\_one/1]{fd\_only\_one(List)} is equivalent to \texttt{fd\_cardinality(List,
+\texttt{fd\_only\_one(List)} is equivalent to \texttt{fd\_cardinality(List,
 1)}.
 
 \begin{PlErrors}
@@ -992,6 +1037,7 @@ GNU Prolog predicates.
 \subsection{Symbolic constraints}
 
 \subsubsection{\texttt{fd\_all\_different/1}}
+   \AddFBD{fd\_all\_different/1}
 
 \begin{TemplatesOneCol}
 fd\_all\_different(+fd\_variable\_list)
@@ -1000,7 +1046,7 @@ fd\_all\_different(+fd\_variable\_list)
 
 \Description
 
-\IdxFBD[fd\_all\_different/1]{fd\_all\_different(List)} constrains all variables in \texttt{List}
+\texttt{fd\_all\_different(List)} constrains all variables in \texttt{List}
 to take distinct values. This is equivalent to posting an inequality
 constraint for each pair of variables. This constraint is triggered when a
 variable becomes ground, removing its value from the domain of the other
@@ -1026,6 +1072,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_element/3}}
 \label{fd-element/3}
+   \AddFBD{fd\_element/3}
 
 \begin{TemplatesOneCol}
 fd\_element(?fd\_variable, +integer\_list, ?fd\_variable)
@@ -1034,7 +1081,7 @@ fd\_element(?fd\_variable, +integer\_list, ?fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_element/3]{fd\_element(I, List, X)} constraints \texttt{X} to be equal to the
+\texttt{fd\_element(I, List, X)} constraints \texttt{X} to be equal to the
 \texttt{I}\emph{th} integer (from 1) of \texttt{List}.
 
 \begin{PlErrors}
@@ -1063,6 +1110,7 @@ variable nor an integer}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_element\_var/3}}
+   \AddFBD{fd\_element\_var/3}
 
 \begin{TemplatesOneCol}
 fd\_element\_var(?fd\_variable, +fd\_variable\_list, ?fd\_variable)
@@ -1071,7 +1119,7 @@ fd\_element\_var(?fd\_variable, +fd\_variable\_list, ?fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_element\_var/3]{fd\_element\_var(I, List, X)} constraints \texttt{X} to be equal to
+\texttt{fd\_element\_var(I, List, X)} constraints \texttt{X} to be equal to
 the \texttt{I}\emph{th} variable (from 1) of \texttt{List}. This
 constraint is similar to \texttt{fd\_element/3} \RefSP{fd-element/3} but
 \texttt{List} can also contain FD variables (rather than just integers).
@@ -1101,8 +1149,11 @@ variable nor an integer nor an FD variable}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{fd\_atmost/3},
-\texttt{fd\_atleast/3},
-\texttt{fd\_exactly/3}}
+               \texttt{fd\_atleast/3},
+               \texttt{fd\_exactly/3}}
+   \AddFBD{fd\_atmost/3}
+   \AddFBD{fd\_atleast/3}
+   \AddFBD{fd\_exactly/3}
 
 \begin{TemplatesOneCol}
 fd\_atmost(+integer, +fd\_variable\_list, +integer)\\
@@ -1113,13 +1164,13 @@ fd\_exactly(+integer, +fd\_variable\_list, +integer)
 
 \Description
 
-\IdxFBD[fd\_atmost/3]{fd\_atmost(N, List, V)} posts the constraint that at most \texttt{N}
+\texttt{fd\_atmost(N, List, V)} posts the constraint that at most \texttt{N}
 variables of \texttt{List} are equal to the value \texttt{V}.
 
-\IdxFBD[fd\_atleast/3]{fd\_atleast(N, List, V)} posts the constraint that at least
+\texttt{fd\_atleast(N, List, V)} posts the constraint that at least
 \texttt{N} variables of \texttt{List} are equal to the value \texttt{V}.
 
-\IdxFBD[fd\_exactly/3]{fd\_exactly(N, List, V)} posts the constraint that at exactly
+\texttt{fd\_exactly(N, List, V)} posts the constraint that at exactly
 \texttt{N} variables of \texttt{List} are equal to the value \texttt{V}.
 
 These constraints are special cases of \IdxFB{fd\_cardinality/2}
@@ -1156,7 +1207,9 @@ variable nor an FD variable nor an integer}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{fd\_relation/2},
-\texttt{fd\_relationc/2}}
+               \texttt{fd\_relationc/2}}
+   \AddFBD{fd\_relation/2}
+   \AddFBD{fd\_relationc/2}
 
 \begin{TemplatesOneCol}
 fd\_relation(+integer\_list\_list, ?fd\_variable\_list)\\
@@ -1166,7 +1219,7 @@ fd\_relationc(+integer\_list\_list, ?fd\_variable\_list)
 
 \Description
 
-\IdxFBD[fd\_relation/2]{fd\_relation(Relation, Vars)} constraints the tuple of variables
+\texttt{fd\_relation(Relation, Vars)} constraints the tuple of variables
 \texttt{Vars} to be equal to one tuple of the list \texttt{Relation}. A
 tuple is represented by a list.
 
@@ -1180,7 +1233,7 @@ and(X,Y,Z):-
 \end{verbatim}
 \end{Indentation}
 
-\IdxFBD[fd\_relationc/2]{fd\_relationc(Columns, Vars)} is similar to \texttt{fd\_relation/2}
+\texttt{fd\_relationc(Columns, Vars)} is similar to \texttt{fd\_relation/2}
 except that the relation is not given as the list of tuples but as the list
 of the columns of the relation. A column is represented by a list.
 
@@ -1225,9 +1278,12 @@ GNU Prolog predicates.
 \subsection{Labeling constraints}
 
 \subsubsection{\texttt{fd\_labeling/2},
-\texttt{fd\_labeling/1},
-\texttt{fd\_labelingff/1}}
+               \texttt{fd\_labeling/1},
+               \texttt{fd\_labelingff/1}}
 \label{fd-labeling/2}
+   \AddFBD{fd\_labeling/2}
+   \AddFBD{fd\_labeling/1}
+   \AddFBD{fd\_labelingff/1}
 
 \begin{TemplatesOneCol}
 fd\_labeling(+fd\_variable\_list, +fd\_labeling\_option\_list)\\
@@ -1241,7 +1297,7 @@ fd\_labelingff(+fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_labeling/2]{fd\_labeling(Vars, Options)} assigns a value to each variable
+\texttt{fd\_labeling(Vars, Options)} assigns a value to each variable
 \texttt{X} of the list \texttt{Vars} according to the list of labeling
 options given by \texttt{Options}. \texttt{Vars} can be also a single FD
 variable. This predicate is re-executable on backtracking.
@@ -1319,10 +1375,10 @@ number of backtracks during the enumeration.
 
 \end{itemize}
 
-\IdxFBD[fd\_labeling/1]{fd\_labeling(Vars)} is equivalent to \texttt{fd\_labeling(Vars,
+\texttt{fd\_labeling(Vars)} is equivalent to \texttt{fd\_labeling(Vars,
 [])}.
 
-\IdxFBD[fd\_labelingff/1]{fd\_labelingff(Vars)} is equivalent to \texttt{fd\_labeling(Vars,
+\texttt{fd\_labelingff(Vars)} is equivalent to \texttt{fd\_labeling(Vars,
 [variable\_method(ff)])}.
 
 \begin{PlErrors}
@@ -1358,7 +1414,9 @@ GNU Prolog predicates.
 \subsection{Optimization constraints}
 
 \subsubsection{\texttt{fd\_minimize/2},
-\texttt{fd\_maximize/2}}
+               \texttt{fd\_maximize/2}}
+   \AddFBD{fd\_minimize/2}
+   \AddFBD{fd\_maximize/2}
 
 \begin{TemplatesOneCol}
 fd\_minimize(+callable\_term, ?fd\_variable)\\
@@ -1368,7 +1426,7 @@ fd\_maximize(+callable\_term, ?fd\_variable)
 
 \Description
 
-\IdxFBD[fd\_minimize/2]{fd\_minimize(Goal, X)} repeatedly calls \texttt{Goal} to find a
+\texttt{fd\_minimize(Goal, X)} repeatedly calls \texttt{Goal} to find a
 value that minimizes the variable \texttt{X}. \texttt{Goal} is a Prolog goal
 that should instantiate \texttt{X}, a common case being the use of
 \IdxFB{fd\_labeling/2} \RefSP{fd-labeling/2}. This predicate uses a
@@ -1380,7 +1438,7 @@ choice-points for \texttt{Goal} or because the added constraint is
 inconsistent with the rest of the store) the last solution is recomputed
 since it is optimal.
 
-\IdxFBD[fd\_maximize/2]{fd\_maximize(Goal, X)} is similar to \texttt{fd\_minimize/2} but
+\texttt{fd\_maximize(Goal, X)} is similar to \texttt{fd\_minimize/2} but
 \texttt{X} is maximized\texttt{.}
 
 \begin{PlErrors}

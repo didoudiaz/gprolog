@@ -33,8 +33,10 @@ non-deterministic C code.
 
 \subsubsection{\texttt{foreign/2} directive}
 \label{foreign/2-directive}
-The \IdxDiD{foreign/2} directive \RefSP{foreign/2} directive is provided
-to declare a C function interface. The general form is
+   \AddDiD{foreign/2}
+   \AddDiD{foreign/1}
+
+\texttt{foreign/2} directive \RefSP{foreign/2} declares a C function interface. The general form is
 \texttt{foreign(Template, Options)} which defines an interface predicate
 whose prototype is \texttt{Template} according to the options given by
 \texttt{Options}. \texttt{Template} is a callable term specifying the
@@ -86,7 +88,7 @@ foreign function is deterministic.
 
 \end{itemize}
 
-\IdxDiD[foreign/1]{foreign(Template)} is equivalent to
+\texttt{foreign(Template)} is equivalent to
 \texttt{foreign(Template, [])}.
 
 \SPart{Foreign modes and types}: each argument of \texttt{Template}

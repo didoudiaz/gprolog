@@ -47,10 +47,17 @@ identifier (i.e. the invocation number).
 
 \subsubsection{Running and stopping the debugger}
 \label{Running-and-stopping-the-debugger}
-\IdxDBD{trace/0} activates the debugger. The next invocation of a predicate
+   \AddDBD{trace/0}
+   \AddDBD{debug/0}
+   \AddDBD{debugging/0}
+   \AddDBD{notrace/0}
+   \AddDBD{nodebug/0}
+   \AddDBD{wam\_debug/0}
+
+\texttt{trace/0} activates the debugger. The next invocation of a predicate
 will be traced.
 
-\IdxDBD{debug/0} activates the debugger. The next invocation of a predicate
+\texttt{debug/0} activates the debugger. The next invocation of a predicate
 on which a spy-point has been set will be traced.
 
 It is important to understand that the information associated to the control
@@ -62,19 +69,21 @@ program or after the interrupt key sequence (\texttt{Ctl-C}) by choosing
 \texttt{trace} or \texttt{debug}), information prior to this point is not
 available.
 
-\IdxDBD{debugging/0}: prints onto the terminal information about the current
+\texttt{debugging/0}: prints onto the terminal information about the current
 debugging state (whether the debugger is switched on, what are the leashed
 ports, spy-points defined,\ldots).
 
-\IdxDBD{notrace/0} or \IdxDBD{nodebug/0} switches the debugger off.
+\texttt{notrace/0} or \texttt{nodebug/0} switches the debugger off.
 
-\IdxDBD{wam\_debug/0} invokes the sub-debugger devoted to the WAM data
+\texttt{wam\_debug/0} invokes the sub-debugger devoted to the WAM data
 structures \RefSP{The-WAM-debugger}. It can be also invoked using the
 \texttt{W} debugger command \RefSP{Debugger-commands}.
 
 \subsubsection{Leashing ports}
 \label{Leashing-ports}
-\IdxDBD[leash/1]{leash(Ports)} requests the debugger to prompt the user, as
+   \AddDBD{leash/1}
+
+\texttt{leash(Ports)} requests the debugger to prompt the user, as
 he creeps through the program, for every port defined in the \texttt{Ports}
 list. Each element of \texttt{Ports} is an atom in \texttt{call},
 \texttt{exit}, \texttt{redo}, \texttt{fail}, \texttt{exception}.
@@ -101,6 +110,11 @@ associated goal but does not stop the execution to prompt the user.
 
 \subsubsection{Spy-points}
 \label{Spy-points}
+   \AddDBD{spy/1}
+   \AddDBD{nospy/1}
+   \AddDBD{nospyall/0}
+   \AddDBD{spypoint\_condition/3}
+
 When dealing with big sources it is not very practical to creep through the
 entire program. It is preferable to define a set of spy-points on
 interesting predicates to be prompted when the debugger reaches one of these
@@ -111,7 +125,7 @@ using the \texttt{+} (or \texttt{*}) debugger command
 affect spy-points in the sense that user interaction is requested on
 every port.
 
-\IdxDBD[spy/1]{spy(PredSpec)} sets a spy-point on all the predicates given by
+\texttt{spy(PredSpec)} sets a spy-point on all the predicates given by
 \texttt{PredSpec}. \texttt{PredSpec} defines one or several predicates and
 has one of the following forms:
 
@@ -135,14 +149,14 @@ It is not possible to set a spy-point on an undefined predicate.
 
 The following predicate is used to remove one or several spy-points:
 
-\IdxDBD[nospy/1]{nospy(PredSpec)} removes the spy-points from the specified
+\texttt{nospy(PredSpec)} removes the spy-points from the specified
 predicates.
 
-\IdxDBD{nospyall/0} removes all spy-points:
+\texttt{nospyall/0} removes all spy-points:
 
 It is also possible to define conditional spy-points. 
 
-\IdxDBD[spypoint\_condition/3]{spypoint\_condition(Goal, Port, Test)} sets a
+\texttt{spypoint\_condition(Goal, Port, Test)} sets a
 conditional spy-point on the predicate for \texttt{Goal}. When the debugger
 reaches a conditional spy-point it only shows the associated goal if the 
 following conditions are verified:
@@ -364,8 +378,8 @@ starting at the address \Param{A} \\
 
 \hline
 
-\texttt{where} \Param{SA} & display the real address corresponding to
-\Param{SA} \\
+\texttt{where} \Param{A} & display the real address corresponding to
+\Param{A} \\
 
 \hline
 
@@ -423,6 +437,8 @@ is either:
 \item \texttt{x}: WAM X register (temporary variables, i.e. arguments).
 
 \item \texttt{y}: WAM Y register (permanent variables).
+
+\item \texttt{ab}: WAM X register saved in the current choice-point.
 
 \item \Param{STACK\_NAME}: WAM stack
 (\Param{STACK\_NAME} in \texttt{local}, \texttt{global}, \texttt{trail},

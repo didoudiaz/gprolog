@@ -4,18 +4,30 @@
 \subsection{Type testing}
 
 \subsubsection{\texttt{var/1},
-\texttt{nonvar/1},
-\texttt{atom/1},
-\texttt{integer/1},
-\texttt{float/1},
-\texttt{number/1},
-\texttt{atomic/1}, \\
-\texttt{compound/1},
-\texttt{callable/1},
-\texttt{list/1},
-\texttt{partial\_list/1},
-\texttt{list\_or\_partial\_list/1}}
+               \texttt{nonvar/1},
+               \texttt{atom/1},
+               \texttt{integer/1},
+               \texttt{float/1},
+               \texttt{number/1},
+               \texttt{atomic/1}, \\
+               \texttt{compound/1},
+               \texttt{callable/1},
+               \texttt{list/1},
+               \texttt{partial\_list/1},
+               \texttt{list\_or\_partial\_list/1}}
 \label{var/1}
+   \AddPBD{var/1}
+   \AddPBD{nonvar/1}
+   \AddPBD{atom/1}
+   \AddPBD{integer/1}
+   \AddPBD{float/1}
+   \AddPBD{number/1}
+   \AddPBD{atomic/1}
+   \AddPBD{compound/1}
+   \AddPBD{callable/1}
+   \AddPBD{list/1}
+   \AddPBD{partial\_list/1}
+   \AddPBD{list\_or\_partial\_list/1}
 
 \begin{TemplatesTwoCols}
 var(?term)\\
@@ -35,45 +47,45 @@ list\_or\_partial\_list(?term)
 
 \Description
 
-\IdxPBD[var/1]{var(Term)} succeeds if \texttt{Term} is currently
+\texttt{var(Term)} succeeds if \texttt{Term} is currently
 uninstantiated (which therefore has not been bound to anything, except
 possibly another uninstantiated variable).
 
-\IdxPBD[nonvar/1]{nonvar(Term)} succeeds if \texttt{Term} is currently instantiated
+\texttt{nonvar(Term)} succeeds if \texttt{Term} is currently instantiated
 (opposite of \texttt{var/1}).
 
-\IdxPBD[atom/1]{atom(Term)} succeeds if \texttt{Term} is currently instantiated
+\texttt{atom(Term)} succeeds if \texttt{Term} is currently instantiated
 to an atom.
 
-\IdxPBD[integer/1]{integer(Term)} succeeds if \texttt{Term} is currently
+\texttt{integer(Term)} succeeds if \texttt{Term} is currently
 instantiated to an integer.
 
-\IdxPBD[float/1]{float(Term)} succeeds if \texttt{Term} is currently instantiated
+\texttt{float(Term)} succeeds if \texttt{Term} is currently instantiated
 to a floating point number.
 
-\IdxPBD[number/1]{number(Term)} succeeds if \texttt{Term} is currently instantiated
+\texttt{number(Term)} succeeds if \texttt{Term} is currently instantiated
 to an integer or a floating point number.
 
-\IdxPBD[atomic/1]{atomic(Term)} succeeds if \texttt{Term} is currently instantiated
+\texttt{atomic(Term)} succeeds if \texttt{Term} is currently instantiated
 to an atom, an integer or a floating point number.
 
-\IdxPBD[compound/1]{compound(Term)} succeeds if \texttt{Term} is currently
+\texttt{compound(Term)} succeeds if \texttt{Term} is currently
 instantiated to a compound term, i.e. a term of arity $>$ 0 (a list or a
 structure).
 
-\IdxPBD[callable/1]{callable(Term)} succeeds if \texttt{Term} is currently
+\texttt{callable(Term)} succeeds if \texttt{Term} is currently
 instantiated to a callable term, i.e. an atom or a compound term.
 
-\IdxPBD[list/1]{list(Term)} succeeds if \texttt{Term} is currently instantiated
+\texttt{list(Term)} succeeds if \texttt{Term} is currently instantiated
 to a list, i.e. the atom \texttt{[]} (empty list) or a term with principal
 functor \texttt{'.'/2} and with second argument (the tail) a list.
 
-\IdxPBD[partial\_list/1]{partial\_list(Term)} succeeds if \texttt{Term} is currently
+\texttt{partial\_list(Term)} succeeds if \texttt{Term} is currently
 instantiated to a partial list, i.e. a variable or a term whose the main
 functor is \texttt{'.'/2} and the second argument (the tail) is a partial
 list.
 
-\IdxPBD[list\_or\_partial\_list/1]{list\_or\_partial\_list(Term)} succeeds if \texttt{Term} is
+\texttt{list\_or\_partial\_list(Term)} succeeds if \texttt{Term} is
 currently instantiated to a list or a partial list.
 
 \PlErrorsNone
@@ -90,6 +102,7 @@ and \texttt{callable/1} are ISO predicates.
 \subsection{Term unification}
 
 \subsubsection{\texttt{(=)/2} - Prolog unification}
+   \AddPBD{(=)/2}
 
 \begin{TemplatesOneCol}
 =(?term, ?term)
@@ -98,7 +111,7 @@ and \texttt{callable/1} are ISO predicates.
 
 \Description
 
-\IdxPBD[(=)/2]{Term1 = Term2} unifies \texttt{Term1} and \texttt{Term2}. No occurs
+\texttt{Term1 = Term2} unifies \texttt{Term1} and \texttt{Term2}. No occurs
 check is done, i.e. this predicate does not check if a variable is unified
 with a compound term containing this variable (this can lead to an infinite
 loop).
@@ -112,6 +125,7 @@ loop).
 ISO predicate.
 
 \subsubsection{\texttt{unify\_with\_occurs\_check/2}}
+   \AddPBD{unify\_with\_occurs\_check/2}
 
 \begin{TemplatesOneCol}
 unify\_with\_occurs\_check(?term, ?term)
@@ -119,7 +133,7 @@ unify\_with\_occurs\_check(?term, ?term)
 
 \Description
 
-\IdxPBD[unify\_with\_occurs\_check/2]{unify\_with\_occurs\_check(Term1, Term2)} unifies \texttt{Term1} and
+\texttt{unify\_with\_occurs\_check(Term1, Term2)} unifies \texttt{Term1} and
 \texttt{Term2}. The occurs check test is done (i.e. the unification fails if
 a variable is unified with a compound term containing this variable).
 
@@ -130,6 +144,7 @@ a variable is unified with a compound term containing this variable).
 ISO predicate.
 
 \subsubsection{\texttt{({\bs}=)/2} - not Prolog unifiable}
+   \AddPBD{({\bs}=)/2}
 
 \begin{TemplatesOneCol}
 {\bs}=(?term, ?term)
@@ -137,7 +152,7 @@ ISO predicate.
 
 \Description
 
-\IdxPBD[({\bs}=)/2]{Term1 {\bs}= Term2} succeeds if \texttt{Term1} and \texttt{Term2}
+\texttt{Term1 {\bs}= Term2} succeeds if \texttt{Term1} and \texttt{Term2}
 are not unifiable (no occurs check is done). 
 
 \texttt{{\bs}=} is a predefined infix operator \RefSP{op/3:(Term-input/output)}.
@@ -182,12 +197,18 @@ The portability of the order of variables is not guaranteed (in the ISO
 reference the oder of variables is system dependent).
 
 \subsubsection{\texttt{(==)/2} - term identical,
-\texttt{({\bs}==)/2} - term not identical, \\
-\texttt{(@{\lt})/2} - term less than,
-\texttt{(@={\lt})/2} - term less than or equal to, \\
-\texttt{(@{\gt})/2} - term greater than,
-\texttt{(@{\gt}=)/2} - term greater than or equal to}
+               \texttt{({\bs}==)/2} - term not identical, \\
+               \texttt{(@{\lt})/2} - term less than,
+               \texttt{(@={\lt})/2} - term less than or equal to, \\
+               \texttt{(@{\gt})/2} - term greater than,
+               \texttt{(@{\gt}=)/2} - term greater than or equal to}
 \label{(==)/2} 
+   \AddPBD{(==)/2}
+   \AddPBD{({\bs}==)/2}
+   \AddPBD{("@{\lt})/2}
+   \AddPBD{("@={\lt})/2}
+   \AddPBD{("@{\gt})/2}
+   \AddPBD{("@{\gt}=)/2}
 
 \begin{TemplatesTwoCols}
 ==(?term, ?term)\\
@@ -204,22 +225,22 @@ reference the oder of variables is system dependent).
 These predicates compare two terms according to the standard total ordering
 of terms \RefSP{Standard-total-ordering-of-terms}.
 
-\IdxPBD[(==)/2]{Term1 == Term2} succeeds if \texttt{Term1} and \texttt{Term2} are
+\texttt{Term1 == Term2} succeeds if \texttt{Term1} and \texttt{Term2} are
 equal. 
 
-\IdxPBD[({\bs}==)/2]{Term1 {\bs}== Term2} succeeds if \texttt{Term1} and
+\texttt{Term1 {\bs}== Term2} succeeds if \texttt{Term1} and
 \texttt{Term2} are different.
 
-\IdxPBD[("@{\lt})/2]{Term1 @{\lt} Term2} succeeds if \texttt{Term1} is less than
+\texttt{Term1 @{\lt} Term2} succeeds if \texttt{Term1} is less than
 \texttt{Term2}.
 
-\IdxPBD[("@={\lt})/2]{Term1 @={\lt} Term2} succeeds if \texttt{Term1} is less than or
+\texttt{Term1 @={\lt} Term2} succeeds if \texttt{Term1} is less than or
 equal to \texttt{Term2}.
 
-\IdxPBD[("@{\gt})/2]{Term1 @{\gt} Term2} succeeds if \texttt{Term1} is greater than
+\texttt{Term1 @{\gt} Term2} succeeds if \texttt{Term1} is greater than
 \texttt{Term2}.
 
-\IdxPBD[("@{\gt}=)/2]{Term1 @{\gt}= Term2} succeeds if \texttt{Term1} is greater than
+\texttt{Term1 @{\gt}= Term2} succeeds if \texttt{Term1} is greater than
 or equal to \texttt{Term2}.
 
 \texttt{==}, \texttt{{\bs}==}, \texttt{@{\lt}}, \texttt{@={\lt}},
@@ -232,6 +253,7 @@ or equal to \texttt{Term2}.
 ISO predicates.
 
 \subsubsection{\texttt{compare/3}}
+   \AddPBD{compare/3}
 
 \begin{TemplatesOneCol}
 compare(?atom, +term, +term)
@@ -240,7 +262,7 @@ compare(?atom, +term, +term)
 
 \Description
 
-\IdxPBD[compare/3]{compare(Result, Term1, Term2)} compares \texttt{Term1} and
+\texttt{compare(Result, Term1, Term2)} compares \texttt{Term1} and
 \texttt{Term2} according to the standard \RefSP{Standard-total-ordering-of-terms} and unifies \texttt{Result} with:
 
 \begin{itemize}
@@ -268,6 +290,7 @@ GNU Prolog predicate.
 \subsection{Term processing}
 
 \subsubsection{\texttt{functor/3}}
+   \AddPBD{functor/3}
 
 \begin{TemplatesOneCol}
 functor(+nonvar, ?atomic, ?integer)\\
@@ -277,7 +300,7 @@ functor(-nonvar, +atomic, +integer)
 
 \Description
 
-\IdxPBD[functor/3]{functor(Term, Name, Arity)} succeeds if the principal functor of
+\texttt{functor(Term, Name, Arity)} succeeds if the principal functor of
 \texttt{Term} is \texttt{Name} and its arity is \texttt{Arity}. This
 predicate can be used in two ways:
 
@@ -327,6 +350,7 @@ atom and \texttt{Arity} is an integer $>$ 0}
 ISO predicate.
 
 \subsubsection{\texttt{arg/3}}
+   \AddPBD{arg/3}
 
 \begin{TemplatesOneCol}
 arg(+integer, +compound\_term, ?term)
@@ -335,7 +359,7 @@ arg(+integer, +compound\_term, ?term)
 
 \Description
 
-\IdxPBD[arg/3]{arg(N, Term, Arg)} succeeds if the \texttt{N}\emph{th} argument of
+\texttt{arg(N, Term, Arg)} succeeds if the \texttt{N}\emph{th} argument of
 \texttt{Term} is \texttt{Arg}.
 
 \begin{PlErrors}
@@ -362,6 +386,7 @@ arg(+integer, +compound\_term, ?term)
 ISO predicate.
 
 \subsubsection{\texttt{(=..)/2} - univ}
+   \AddPBD{(=..)/2}
 
 \begin{TemplatesOneCol}
 =..(+nonvar, ?list)\\
@@ -371,7 +396,7 @@ ISO predicate.
 
 \Description
 
-\IdxPBD[(=..)/2]{Term =.. List} succeeds if \texttt{List} is a list whose head is the
+\texttt{Term =.. List} succeeds if \texttt{List} is a list whose head is the
 atom corresponding to the principal functor of \texttt{Term} and whose tail
 is a list of the arguments of \texttt{Term}.
 
@@ -411,6 +436,7 @@ length $>$ \texttt{max\_arity} flag \RefSP{set-prolog-flag/2}}
 ISO predicate.
 
 \subsubsection{\texttt{copy\_term/2}}
+   \AddPBD{copy\_term/2}
 
 \begin{TemplatesOneCol}
 copy\_term(?term, ?term)
@@ -419,7 +445,7 @@ copy\_term(?term, ?term)
 
 \Description
 
-\IdxPBD[copy\_term/2]{copy\_term(Term1, Term2)} succeeds if \texttt{Term2} unifies with a
+\texttt{copy\_term(Term1, Term2)} succeeds if \texttt{Term2} unifies with a
 term \texttt{T} which is a renamed copy of \texttt{Term1}.
 
 \PlErrorsNone
@@ -429,7 +455,9 @@ term \texttt{T} which is a renamed copy of \texttt{Term1}.
 ISO predicate.
 
 \subsubsection{\texttt{setarg/4},
-\texttt{setarg/3}}
+               \texttt{setarg/3}}
+   \AddPBD{setarg/4}
+   \AddPBD{setarg/3}
 
 \begin{TemplatesOneCol}
 setarg(+integer, +compound\_term, +term, +boolean)\\
@@ -439,14 +467,14 @@ setarg(+integer, +compound\_term, +term)
 
 \Description
 
-\IdxPBD[setarg/4]{setarg(N, Term, NewValue, Undo)} replaces destructively the
+\texttt{setarg(N, Term, NewValue, Undo)} replaces destructively the
 \texttt{N}\emph{th} argument of \texttt{Term} with \texttt{NewValue}. This
 assignment is undone on backtracking if \texttt{Undo} = \texttt{true}. This
 should only used if there is no further use of the old value of the replaced
 argument. If \texttt{Undo} = \texttt{false} then \texttt{NewValue} must be
 either an atom or an integer.
 
-\IdxPBD[setarg/3]{setarg(N, Term, NewValue)} is equivalent to \texttt{setarg(N, Term,
+\texttt{setarg(N, Term, NewValue)} is equivalent to \texttt{setarg(N, Term,
 NewValue, true)}.
 
 \begin{PlErrors}
@@ -487,6 +515,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{name\_singleton\_vars/1}}
 \label{name-singleton-vars/1}
+   \AddPBD{name\_singleton\_vars/1}
 
 \begin{TemplatesOneCol}
 name\_singleton\_vars(?term)
@@ -495,7 +524,7 @@ name\_singleton\_vars(?term)
 
 \Description
 
-\IdxPBD[name\_singleton\_vars/1]{name\_singleton\_vars(Term)} binds each singleton variable appearing
+\texttt{name\_singleton\_vars(Term)} binds each singleton variable appearing
 in \texttt{Term} with a term of the form \texttt{'\$VARNAME'('\_')}. Such a
 term can be output by \texttt{write\_term/3} as a variable name
 \RefSP{write-term/3}.
@@ -508,6 +537,7 @@ GNU Prolog predicates.
 
 \subsubsection{\texttt{name\_query\_vars/2}}
 \label{name-query-vars/2}
+   \AddPBD{name\_query\_vars/2}
 
 \begin{TemplatesOneCol}
 name\_query\_vars(+list, ?list)
@@ -516,7 +546,7 @@ name\_query\_vars(+list, ?list)
 
 \Description
 
-\IdxPBD[name\_query\_vars/2]{name\_query\_vars(List, Rest)} for each element of \texttt{List} of
+\texttt{name\_query\_vars(List, Rest)} for each element of \texttt{List} of
 the form \texttt{Name = Var} where \texttt{Name} is an atom and \texttt{Var}
 a variable, binds \texttt{Var} with the term \texttt{'\$VARNAME'(Name)}.
 Such a term can be output by \texttt{write\_term/3} as a variable name
@@ -544,9 +574,12 @@ provided as a way to name the variable lists obtained returned by
 GNU Prolog predicate.
 
 \subsubsection{\texttt{bind\_variables/2},
-\texttt{numbervars/3},
-\texttt{numbervars/1}}
+               \texttt{numbervars/3},
+               \texttt{numbervars/1}}
 \label{bind-variables/2}
+   \AddPBD{bind\_variables/2}
+   \AddPBD{numbervars/3}
+   \AddPBD{numbervars/1}
 
 \begin{TemplatesOneCol}
 bind\_variables(?term, +var\_binding\_option\_list)\\
@@ -557,7 +590,7 @@ numbervars(?term)
 
 \Description
 
-\IdxPBD[bind\_variables/2]{bind\_variables(Term, Options)} binds each variable appearing in
+\texttt{bind\_variables(Term, Options)} binds each variable appearing in
 \texttt{Term} according to the options given by \texttt{Options}. 
 
 \SPart{Variable binding options}: \texttt{Options} is a list of variable
@@ -612,13 +645,13 @@ returned by \texttt{read\_term/3}
 
 \end{itemize}
 
-\IdxPBD[numbervars/3]{numbervars(Term, From, Next)} is equivalent to
+\texttt{numbervars(Term, From, Next)} is equivalent to
 \texttt{bind\_variables(Term, [from(From), next(Next)]}, i.e. each variable
 of \texttt{Term} is bound to \texttt{'\$VAR'(N)} where \texttt{From $\leq$}
 \texttt{N} $<$ \texttt{Next}.
 
 
-\IdxPBD[numbervars/1]{numbervars(Term)} is equivalent to \texttt{numbervars(Term, 0, \_)}.
+\texttt{numbervars(Term)} is equivalent to \texttt{numbervars(Term, 0, \_)}.
 
 \begin{PlErrors}
 
@@ -655,6 +688,7 @@ variable nor a variable binding option}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{term\_ref/2}}
+   \AddPBD{term\_ref/2}
 
 \begin{TemplatesOneCol}
 term\_ref(+term, ?integer)\\
@@ -664,7 +698,7 @@ term\_ref(?term, +integer)
 
 \Description
 
-\IdxPBD[term\_ref/2]{term\_ref(Term, Ref}) succeeds if the internal reference of
+\texttt{term\_ref(Term, Ref}) succeeds if the internal reference of
 \texttt{Term} is \texttt{Ref}. This predicate can be used either to obtain
 the internal reference of a term or to obtain the term associated to a given
 reference. Note that two identical terms can have different internal
@@ -709,8 +743,7 @@ Expression & Result = \textit{eval}(Expression) & Signature & ISO \\
 \hline\hline
 
 Variable & must be bound to a non-variable expression \texttt{E}. 
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
            The result is \textit{eval}(\texttt{E})
          & IF $\rightarrow$ IF & Y \\
          
@@ -989,6 +1022,7 @@ Prolog does not detect the following ISO arithmetic errors:
 \texttt{int\_overflow, int\_underflow}, and \texttt{undefined}.
 
 \subsubsection{\texttt{(is)/2} - evaluate expression}
+   \AddPBD{(is)/2}
 
 \begin{TemplatesOneCol}
 is(?nonvar, +evaluable)
@@ -997,7 +1031,7 @@ is(?nonvar, +evaluable)
 
 \Description
 
-\IdxPBD[(is)/2]{Result is Expression} succeeds if \texttt{Result} can be
+\texttt{Result is Expression} succeeds if \texttt{Result} can be
 unified with \textit{eval}(\texttt{Expression}). Refer to the
 evaluation of an arithmetic expression for the definition of the
 \textit{eval} function
@@ -1015,12 +1049,18 @@ Refer to the evaluation of an arithmetic expression for possible errors
 ISO predicate.
 
 \subsubsection{\texttt{(=:=)/2} - arithmetic equal,
-\texttt{(={\bs}=)/2} - arithmetic not equal, \\
-\texttt{({\lt})/2} - arithmetic less than,
-\texttt{(={\lt})/2} - arithmetic less than or equal to, \\
-\texttt{({\gt})/2} - arithmetic greater than,
-\texttt{({\gt}=)/2} - arithmetic greater than or equal to}
+               \texttt{(={\bs}=)/2} - arithmetic not equal, \\
+               \texttt{({\lt})/2} - arithmetic less than,
+               \texttt{(={\lt})/2} - arithmetic less than or equal to, \\
+               \texttt{({\gt})/2} - arithmetic greater than,
+               \texttt{({\gt}=)/2} - arithmetic greater than or equal to}
 \label{(=:=)/2} 
+   \AddPBD{(=:=)/2}
+   \AddPBD{(={\bs}=)/2}
+   \AddPBD{({\lt})/2}
+   \AddPBD{(={\lt})/2}
+   \AddPBD{({\gt})/2}
+   \AddPBD{({\gt}=)/2}
 
 \begin{TemplatesTwoCols}
 =:=(+evaluable, +evaluable)\\
@@ -1034,22 +1074,22 @@ ISO predicate.
 
 \Description
 
-\IdxPBD[(=:=)/2]{Expr1 =:= Expr2} succeeds if \textit{eval}(\texttt{Expr1}) =
+\texttt{Expr1 =:= Expr2} succeeds if \textit{eval}(\texttt{Expr1}) =
 \textit{eval}(\texttt{Expr2}).
 
-\IdxPBD[(={\bs}=)/2]{Expr1 ={\bs}= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
+\texttt{Expr1 ={\bs}= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
 $\neq$ \textit{eval}(\texttt{Expr2}).
 
-\IdxPBD[({\lt})/2]{Expr1 {\lt} Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $<$
+\texttt{Expr1 {\lt} Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $<$
 \textit{eval}(\texttt{Expr2}).
 
-\IdxPBD[(={\lt})/2]{Expr1 ={\lt} Expr2} succeeds if \textit{eval}(\texttt{Expr1})
+\texttt{Expr1 ={\lt} Expr2} succeeds if \textit{eval}(\texttt{Expr1})
 $\leq$ \textit{eval}(\texttt{Expr2}).
 
-\IdxPBD[({\gt})/2]{Expr1 {\gt} Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $>$
+\texttt{Expr1 {\gt} Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $>$
 \textit{eval}(\texttt{Expr2}).
 
-\IdxPBD[({\gt}=)/2]{Expr1 {\gt}= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
+\texttt{Expr1 {\gt}= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
 $\geq$ \textit{eval}(\texttt{Expr2}).
 
 Refer to the evaluation of an arithmetic expression for the definition of
@@ -1098,7 +1138,9 @@ and the list of clauses defining a predication is fixed at the moment of its
 execution.
 
 \subsubsection{\texttt{asserta/1},
-\texttt{assertz/1}}
+               \texttt{assertz/1}}
+   \AddPBD{asserta/1}
+   \AddPBD{assertz/1}
 
 \begin{TemplatesOneCol}
 asserta(+clause)\\
@@ -1108,14 +1150,14 @@ assertz(+clause)
 
 \Description
 
-\IdxPBD[asserta/1]{asserta(Clause)} first converts the term \texttt{Clause} to a clause
+\texttt{asserta(Clause)} first converts the term \texttt{Clause} to a clause
 and then adds it to the current internal database. The predicate concerned
 must be dynamic \RefSP{Introduction:(Dynamic-clause-management)} or
 undefined and the clause is inserted before the first clause of the
 predicate. If the predicated is undefined it is created as a dynamic
 procedure.
 
-\IdxPBD[assertz/1]{assertz(Clause)} acts like \texttt{asserta/1} except that the clause
+\texttt{assertz(Clause)} acts like \texttt{asserta/1} except that the clause
 is added at the end of all existing clauses of the concerned predicate.
 
 \SPart{Converting a term \texttt{Clause} to a clause \texttt{Clause1}:} 
@@ -1174,6 +1216,7 @@ static procedure}
 ISO predicates.
 
 \subsubsection{\texttt{retract/1}}
+   \AddPBD{retract/1}
 
 \begin{TemplatesOneCol}
 retract(+clause)
@@ -1182,7 +1225,7 @@ retract(+clause)
 
 \Description
 
-\IdxPBD[retract/1]{retract(Clause)} erases the first clause of the database
+\texttt{retract(Clause)} erases the first clause of the database
 that unifies with \texttt{Clause}. The concerned predicate must be a
 dynamic procedure
 \RefSP{Introduction:(Dynamic-clause-management)}. Removing all clauses
@@ -1213,6 +1256,7 @@ GNU Prolog. This seems to be an error of the ISO reference since for
 operation is also \texttt{modify}.
 
 \subsubsection{\texttt{retractall/1}}
+   \AddPBD{retractall/1}
 
 \begin{TemplatesOneCol}
 retractall(+head)
@@ -1221,7 +1265,7 @@ retractall(+head)
 
 \Description
 
-\IdxPBD[retractall/1]{retractall(Head)} erases all clauses whose head unifies with
+\texttt{retractall(Head)} erases all clauses whose head unifies with
 \texttt{Head}. The concerned predicate must be a dynamic procedure
 \RefSP{Introduction:(Dynamic-clause-management)}. The procedure definition
 is not removed so that it is found by \IdxPB{current\_predicate/1}
@@ -1247,6 +1291,7 @@ static procedure}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{clause/2}}
+   \AddPBD{clause/2}
 
 \begin{TemplatesOneCol}
 clause(+head, ?callable\_term)
@@ -1255,7 +1300,7 @@ clause(+head, ?callable\_term)
 
 \Description
 
-\IdxPBD[clause/2]{clause(Head, Body)} succeeds if there exists a clause in the
+\texttt{clause(Head, Body)} succeeds if there exists a clause in the
 database that unifies with \texttt{Head :- Body}. The predicate in question
 must be a public procedure \RefSP{Introduction:(Dynamic-clause-management)}. Clauses are delivered from the first to the last. This
 predicate is re-executable on backtracking. 
@@ -1283,6 +1328,7 @@ ISO predicate.
 
 \subsubsection{\texttt{abolish/1}}
 \label{abolish/1}
+   \AddPBD{abolish/1}
 
 \begin{TemplatesOneCol}
 abolish(+predicate\_indicator)
@@ -1291,7 +1337,7 @@ abolish(+predicate\_indicator)
 
 \Description
 
-\IdxPBD[abolish/1]{abolish(Pred)} removes from the database the procedure whose
+\texttt{abolish(Pred)} removes from the database the procedure whose
 predicate indicator is \texttt{Pred}. The concerned predicate must be a
 dynamic procedure \RefSP{Introduction:(Dynamic-clause-management)}.
 
@@ -1337,6 +1383,7 @@ ISO predicate.
 
 \subsubsection{\texttt{current\_predicate/1}}
 \label{current-predicate/1}
+   \AddPBD{current\_predicate/1}
 
 \begin{TemplatesOneCol}
 current\_predicate(?predicate\_indicator)
@@ -1345,7 +1392,7 @@ current\_predicate(?predicate\_indicator)
 
 \Description
 
-\IdxPBD[current\_predicate/1]{current\_predicate(Pred)} succeeds if there
+\texttt{current\_predicate(Pred)} succeeds if there
 exists a predicate indicator of a defined procedure that unifies with
 \texttt{Pred}. All user defined procedures are found, whether static or
 dynamic. Internal system procedures whose name begins
@@ -1384,6 +1431,7 @@ ISO predicate.
 
 \subsubsection{\texttt{predicate\_property/2}}
 \label{predicate-property/2}
+   \AddPBD{predicate\_property/2}
 
 \begin{TemplatesOneCol}
 predicate\_property(?predicate\_indicator, ?predicate\_property)
@@ -1392,7 +1440,7 @@ predicate\_property(?predicate\_indicator, ?predicate\_property)
 
 \Description
 
-\IdxPBD[predicate\_property/2]{predicate\_property(Pred, Property)} succeeds if
+\texttt{predicate\_property(Pred, Property)} succeeds if
 \texttt{current\_predicate(Pred)} succeeds \RefSP{current-predicate/1} and
 if \texttt{Property} unifies with one of the properties of the procedure.
 This predicate is re-executable on backtracking.
@@ -1478,6 +1526,7 @@ and \texttt{Goal} is complex it is better to define an auxiliary predicate
 which can then be compiled, and have \texttt{Goal} call this predicate.
 
 \subsubsection{\texttt{findall/3}}
+   \AddPBD{findall/3}
 
 \begin{TemplatesOneCol}
 findall(?term, +callable\_term, ?list)
@@ -1486,7 +1535,7 @@ findall(?term, +callable\_term, ?list)
 
 \Description
 
-\IdxPBD[findall/3]{findall(Template, Goal, Instances)} succeeds if \texttt{Instances}
+\texttt{findall(Template, Goal, Instances)} succeeds if \texttt{Instances}
 unifies with the list of values to which a variable \texttt{X} not occurring
 in \texttt{Template} or \texttt{Goal} would be instantiated by successive
 re-executions of \texttt{call(Goal), X = Template} after systematic
@@ -1517,7 +1566,9 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 ISO predicate.
 
 \subsubsection{\texttt{bagof/3},
-\texttt{setof/3}}
+               \texttt{setof/3}}
+   \AddPBD{bagof/3}
+   \AddPBD{setof/3}
 
 \begin{TemplatesOneCol}
 bagof(?term, +callable\_term, ?list)\\
@@ -1527,7 +1578,7 @@ setof(?term, +callable\_term, ?list)
 
 \Description
 
-\IdxPBD[bagof/3]{bagof(Template, Goal, Instances)} assembles as a list the
+\texttt{bagof(Template, Goal, Instances)} assembles as a list the
 set of solutions of \texttt{Goal} for each different instantiation of the
 free variables in \texttt{Goal}. The elements of each list are in order of
 solution, but the order in which each list is found is undefined.
@@ -1547,7 +1598,7 @@ use of this existential qualifier is superfluous outside \texttt{bagof/3}
 
 \texttt{(\^{})/2} is a predefined infix operator \RefSP{op/3:(Term-input/output)}.
 
-\IdxPBD[setof/3]{setof(Template, Goal, Instances)} is equivalent to
+\texttt{setof(Template, Goal, Instances)} is equivalent to
 \texttt{bagof(Template,Goal,I), sort(I,Instances)}. Each list is then a
 sorted list (duplicate elements are removed).
 
@@ -1679,6 +1730,7 @@ can be useful for communication purposes (e.g. sockets) or when a precise
 control is needed, e.g. \IdxPB{select/5} \RefSP{wait/2}.
 
 \subsubsection{\texttt{current\_input/1}}
+   \AddPBD{current\_input/1}
 
 \begin{TemplatesOneCol}
 current\_input(?stream)
@@ -1687,7 +1739,7 @@ current\_input(?stream)
 
 \Description
 
-\IdxPBD[current\_input/1]{current\_input(Stream)} unifies \texttt{Stream} with the stream-term
+\texttt{current\_input(Stream)} unifies \texttt{Stream} with the stream-term
 identifying the current input stream.
 
 \begin{PlErrors}
@@ -1702,6 +1754,7 @@ identifying the current input stream.
 ISO predicate.
 
 \subsubsection{\texttt{current\_output/1}}
+   \AddPBD{current\_output/1}
 
 \begin{TemplatesOneCol}
 current\_output(?stream)
@@ -1710,7 +1763,7 @@ current\_output(?stream)
 
 \Description
 
-\IdxPBD[current\_output/1]{current\_output(Stream)} unifies \texttt{Stream} with the
+\texttt{current\_output(Stream)} unifies \texttt{Stream} with the
 stream-term identifying the current output stream.
 
 \begin{PlErrors}
@@ -1726,6 +1779,7 @@ ISO predicate.
 
 \subsubsection{\texttt{set\_input/1}}
 \label{set-input/1}
+   \AddPBD{set\_input/1}
 
 \begin{TemplatesOneCol}
 set\_input(+stream\_or\_alias)
@@ -1734,7 +1788,7 @@ set\_input(+stream\_or\_alias)
 
 \Description
 
-\IdxPBD[set\_input/1]{set\_input(SorA)} sets the current input stream to be the stream
+\texttt{set\_input(SorA)} sets the current input stream to be the stream
 associated with the stream-term or alias \texttt{SorA}.
 
 \begin{PlErrors}
@@ -1759,6 +1813,7 @@ ISO predicate.
 
 \subsubsection{\texttt{set\_output/1}}
 \label{set-output/1}
+   \AddPBD{set\_output/1}
 
 \begin{TemplatesOneCol}
 set\_output(+stream\_or\_alias)
@@ -1767,7 +1822,7 @@ set\_output(+stream\_or\_alias)
 
 \Description
 
-\IdxPBD[set\_output/1]{set\_output(SorA)} sets the current output stream to be the stream
+\texttt{set\_output(SorA)} sets the current output stream to be the stream
 associated with the stream-term or alias \texttt{SorA}.
 
 \begin{PlErrors}
@@ -1791,8 +1846,10 @@ associated with the stream-term or alias \texttt{SorA}.
 ISO predicate.
 
 \subsubsection{\texttt{open/4},
-\texttt{open/3}}
+               \texttt{open/3}}
 \label{open/4}
+   \AddPBD{open/4}
+   \AddPBD{open/3}
 
 \begin{TemplatesOneCol}
 open(+source\_sink, +io\_mode, -stream, +stream\_option\_list)\\
@@ -1802,7 +1859,7 @@ open(+source\_sink, +io\_mode, -stream)
 
 \Description
 
-\IdxPBD[open/4]{open(SourceSink, Mode, Stream, Options)} opens the source/sink
+\texttt{open(SourceSink, Mode, Stream, Options)} opens the source/sink
 \texttt{SourceSink} for input or output as indicated by \texttt{Mode} and
 the list of stream-options \texttt{Options} and unifies \texttt{Stream} with
 the stream-term which is associated to this stream. See
@@ -1833,7 +1890,7 @@ which applies. Possible options are:
 
 \begin{itemize}
 
-\item \IdxPOD[type]{type(text}/\texttt{binary)}: specifies whether the
+\item \IdxPOD[type]{type(}\IdxPOD{text}/\IdxPOD{binary}\texttt{)}: specifies whether the
 stream is a text stream or a binary stream. The default value is
 \texttt{text}.
 
@@ -1841,8 +1898,7 @@ stream is a text stream or a binary stream. The default value is
 whether it is possible to reposition the stream. The default value is
 \texttt{true} except if the stream cannot be repositioned (e.g. a terminal).
 
-\item \IdxPOD[eof\_action]
-{eof\_action(error}/\texttt{eof\_code}/\texttt{reset)}:
+\item \IdxPOD[eof\_action]{eof\_action(error}/\texttt{eof\_code}/\texttt{reset)}:
 specifies the effect of attempting to input from a stream whose stream
 position is past-end-of-stream:
 
@@ -1887,7 +1943,7 @@ otherwise.
 
 \end{itemize}
 
-\IdxPBD[open/3]{open(SourceSink, Mode, Stream, Options)} is equivalent to
+\texttt{open(SourceSink, Mode, Stream, Options)} is equivalent to
 \texttt{open(SourceSink, Mode, Stream, [])}.
 
 \begin{PlErrors}
@@ -1943,8 +1999,10 @@ ISO predicates. The \texttt{buffering/1} stream option is a GNU Prolog
 extension.
 
 \subsubsection{\texttt{close/2},
-\texttt{close/1}}
+               \texttt{close/1}}
 \label{close/2}
+   \AddPBD{close/2}
+   \AddPBD{close/1}
 
 \begin{TemplatesOneCol}
 close(+stream\_or\_alias, +close\_option\_list)\\
@@ -1954,7 +2012,7 @@ close(+stream\_or\_alias)
 
 \Description
 
-\IdxPBD[close/2]{close(SorA, Options)} closes the stream associated with the stream-term
+\texttt{close(SorA, Options)} closes the stream associated with the stream-term
 or alias \texttt{SorA}. If \texttt{SorA} is the standard input stream or the
 standard output stream \texttt{close/2} simply succeeds else the associated
 source/sink is physically closed. If \texttt{SorA} is the current input
@@ -1978,7 +2036,7 @@ to reclaim resources. The default value is \texttt{false}.
 
 \end{itemize}
 
-\IdxPBD[close/1]{close(SorA)} is equivalent to \texttt{close(SorA, [])}.
+\texttt{close(SorA)} is equivalent to \texttt{close(SorA, [])}.
 
 \begin{PlErrors}
 
@@ -2013,8 +2071,10 @@ ISO predicates. The \texttt{system\_error(needs\_special\_close)} is a
 GNU Prolog extension.
 
 \subsubsection{\texttt{flush\_output/1},
-\texttt{flush\_output/0}}
+               \texttt{flush\_output/0}}
 \label{flush-output/1}
+   \AddPBD{flush\_output/1}
+   \AddPBD{flush\_output/0}
 
 \begin{TemplatesOneCol}
 flush\_output(+stream\_or\_alias)\\
@@ -2024,10 +2084,10 @@ flush\_output
 
 \Description
 
-\IdxPBD[flush\_output/1]{flush\_output(SorA)} sends any buffered output characters/bytes to
+\texttt{flush\_output(SorA)} sends any buffered output characters/bytes to
 the stream.
 
-\IdxPBD[flush\_output/0]{flush\_output/0} applies to the current output stream.
+\texttt{flush\_output/0} applies to the current output stream.
 
 \begin{PlErrors}
 
@@ -2051,6 +2111,7 @@ ISO predicates.
 
 \subsubsection{\texttt{current\_stream/1}}
 \label{current-stream/1}
+   \AddPBD{current\_stream/1}
 
 \begin{TemplatesOneCol}
 current\_stream(?stream)
@@ -2059,7 +2120,7 @@ current\_stream(?stream)
 
 \Description
 
-\IdxPBD[current\_stream/1]{current\_stream(Stream)} succeeds if there exists
+\texttt{current\_stream(Stream)} succeeds if there exists
 a stream-term that unifies with \texttt{Stream}. This predicate is
 re-executable on backtracking.
 
@@ -2076,6 +2137,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{stream\_property/2}}
 \label{stream-property/2}
+   \AddPBD{stream\_property/2}
 
 
 \begin{TemplatesOneCol}
@@ -2085,7 +2147,7 @@ stream\_property(?stream, ?stream\_property)
 
 \Description
 
-\IdxPBD[stream\_property/2]{stream\_property(Stream, Property)} succeeds if
+\texttt{stream\_property(Stream, Property)} succeeds if
 \texttt{current\_stream(Stream)} succeeds \RefSP{current-stream/1} and if
 \texttt{Property} unifies with one of the properties of the stream. This
 predicate is re-executable on backtracking.
@@ -2153,7 +2215,9 @@ term associated to the current position.
 ISO predicate. The \texttt{buffering/1} property is a GNU Prolog extension.
 
 \subsubsection{\texttt{at\_end\_of\_stream/1},
-\texttt{at\_end\_of\_stream/0}}
+               \texttt{at\_end\_of\_stream/0}}
+   \AddPBD{at\_end\_of\_stream/1}
+   \AddPBD{at\_end\_of\_stream/0}
 
 
 \begin{TemplatesOneCol}
@@ -2164,12 +2228,12 @@ at\_end\_of\_stream
 
 \Description
 
-\IdxPBD[at\_end\_of\_stream/1]{at\_end\_of\_stream(SorA)} succeeds if the stream associated with
+\texttt{at\_end\_of\_stream(SorA)} succeeds if the stream associated with
 stream-term or alias \texttt{SorA} has a stream position end-of-stream or
 past-end-of-stream. This predicate can be defined using
 \IdxPB{stream\_property/2} \RefSP{stream-property/2}.
 
-\IdxPBD[at\_end\_of\_stream/0]{at\_end\_of\_stream/0} applies to the current input stream.
+\texttt{at\_end\_of\_stream/0} applies to the current input stream.
 
 \begin{PlErrors}
 
@@ -2194,6 +2258,7 @@ GNU Prolog extension.
 
 \subsubsection{\texttt{stream\_position/2}}
 \label{stream-position/2}
+   \AddPBD{stream\_position/2}
 
 \begin{TemplatesOneCol}
 stream\_position(+stream\_or\_alias, ?stream\_position)
@@ -2202,7 +2267,7 @@ stream\_position(+stream\_or\_alias, ?stream\_position)
 
 \Description
 
-\IdxPBD[stream\_position/2]{stream\_position(SorA, Position)} succeeds unifying
+\texttt{stream\_position(SorA, Position)} succeeds unifying
 \texttt{Position} with the stream-position term associated to the current
 position of the stream-term or alias \texttt{SorA}. This predicate can be
 defined using \IdxPB{stream\_property/2} \RefSP{stream-property/2}.
@@ -2229,6 +2294,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{set\_stream\_position/2}}
 \label{set-stream-position/2}
+   \AddPBD{set\_stream\_position/2}
 
 \begin{TemplatesOneCol}
 set\_stream\_position(+stream\_or\_alias, +stream\_position)
@@ -2237,7 +2303,7 @@ set\_stream\_position(+stream\_or\_alias, +stream\_position)
 
 \Description
 
-\IdxPBD[set\_stream\_position/2]{set\_stream\_position(SorA, Position)} sets the position of
+\texttt{set\_stream\_position(SorA, Position)} sets the position of
 the stream associated with the stream-term or alias \texttt{SorA} to
 \texttt{Position}. \texttt{Position} should have previously been returned by
 \IdxPB{stream\_property/2} \RefSP{stream-property/2} or by
@@ -2270,6 +2336,7 @@ the stream associated with the stream-term or alias \texttt{SorA} to
 ISO predicate.
 
 \subsubsection{\texttt{seek/4}}
+   \AddPBD{seek/4}
 
 \begin{TemplatesOneCol}
 seek(+stream\_or\_alias, +stream\_seek\_method, +integer, ?integer)
@@ -2278,7 +2345,7 @@ seek(+stream\_or\_alias, +stream\_seek\_method, +integer, ?integer)
 
 \Description
 
-\IdxPBD[seek/4]{seek(SorA, Whence, Offset, NewOffset)} sets the position of
+\texttt{seek(SorA, Whence, Offset, NewOffset)} sets the position of
 the stream associated with the stream-term or alias \texttt{SorA} to
 \texttt{Offset} according to \texttt{Whence} and unifies \texttt{NewOffset}
 with the new offset from the beginning of the file. \texttt{seek/4} can only
@@ -2341,6 +2408,7 @@ This predicate is an interface to the C Unix function \texttt{lseek(2)}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{character\_count/2}}
+   \AddPBD{character\_count/2}
 
 \begin{TemplatesOneCol}
 character\_count(+stream\_or\_alias, ?integer)
@@ -2349,7 +2417,7 @@ character\_count(+stream\_or\_alias, ?integer)
 
 \Description
 
-\IdxPBD[character\_count/2]{character\_count(SorA, Count)} unifies \texttt{Count} with the
+\texttt{character\_count(SorA, Count)} unifies \texttt{Count} with the
 number of characters/bytes read/written on the stream associated with
 stream-term or alias \texttt{SorA}.
 
@@ -2375,6 +2443,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{line\_count/2}}
 \label{line-count/2}
+   \AddPBD{line\_count/2}
 
 \begin{TemplatesOneCol}
 line\_count(+stream\_or\_alias, ?integer)
@@ -2383,7 +2452,7 @@ line\_count(+stream\_or\_alias, ?integer)
 
 \Description
 
-\IdxPBD[line\_count/2]{line\_count(SorA, Count)} unifies \texttt{Count} with the number of
+\texttt{line\_count(SorA, Count)} unifies \texttt{Count} with the number of
 lines read/written on the stream associated with the stream-term or alias
 \texttt{SorA}. This predicate can only be used on text streams.
 
@@ -2412,6 +2481,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{line\_position/2}}
 \label{line-position/2}
+   \AddPBD{line\_position/2}
 
 \begin{TemplatesOneCol}
 line\_position(+stream\_or\_alias, ?integer)
@@ -2420,7 +2490,7 @@ line\_position(+stream\_or\_alias, ?integer)
 
 \Description
 
-\IdxPBD[line\_position/2]{line\_position(SorA, Count)} unifies
+\texttt{line\_position(SorA, Count)} unifies
 \texttt{Count} with the number of characters read/written on the current
 line of the stream associated with the stream-term or alias
 \texttt{SorA}. This predicate can only be used on text streams.
@@ -2449,6 +2519,7 @@ line of the stream associated with the stream-term or alias
 GNU Prolog predicate.
 
 \subsubsection{\texttt{stream\_line\_column/3}}
+   \AddPBD{stream\_line\_column/3}
 
 \begin{TemplatesOneCol}
 stream\_line\_column(+stream\_or\_alias, ?integer, ?integer)
@@ -2457,7 +2528,7 @@ stream\_line\_column(+stream\_or\_alias, ?integer, ?integer)
 
 \Description
 
-\IdxPBD[stream\_line\_column/3]{stream\_line\_column(SorA, Line, Column)} unifies \texttt{Line}
+\texttt{stream\_line\_column(SorA, Line, Column)} unifies \texttt{Line}
 (resp. \texttt{Column}) with the current line number (resp. column number)
 of the stream associated with the stream-term or alias \texttt{SorA}. This
 predicate can only be used on text streams. Note that \texttt{Line}
@@ -2492,6 +2563,7 @@ by \texttt{line\_position/2} + 1 \RefSP{line-position/2}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{set\_stream\_line\_column/3}}
+   \AddPBD{set\_stream\_line\_column/3}
 
 \begin{TemplatesOneCol}
 set\_stream\_line\_column(+stream\_or\_alias, +integer, +integer)
@@ -2500,7 +2572,7 @@ set\_stream\_line\_column(+stream\_or\_alias, +integer, +integer)
 
 \Description
 
-\IdxPBD[set\_stream\_line\_column/3]{set\_stream\_line\_column(SorA, Line, Column)} sets the stream
+\texttt{set\_stream\_line\_column(SorA, Line, Column)} sets the stream
 position of the stream associated with the stream-term or alias \texttt{SorA}
 according to the line number \texttt{Line} and the column number
 \texttt{Column}. This predicate can only be used on text streams. It first
@@ -2543,6 +2615,7 @@ by character until the required position is reached.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{add\_stream\_alias/2}}
+   \AddPBD{add\_stream\_alias/2}
 
 \begin{TemplatesOneCol}
 add\_stream\_alias(+stream\_or\_alias, +atom)
@@ -2551,7 +2624,7 @@ add\_stream\_alias(+stream\_or\_alias, +atom)
 
 \Description
 
-\IdxPBD[add\_stream\_alias/2]{add\_stream\_alias(SorA, Alias)} adds \texttt{Alias} as a new alias
+\texttt{add\_stream\_alias(SorA, Alias)} adds \texttt{Alias} as a new alias
 to the stream associated with the stream-term or alias \texttt{SorA}.
 
 \begin{PlErrors}
@@ -2581,6 +2654,7 @@ to the stream associated with the stream-term or alias \texttt{SorA}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{current\_alias/2}}
+   \AddPBD{current\_alias/2}
 
 \begin{TemplatesOneCol}
 current\_alias(?stream, ?atom)
@@ -2589,7 +2663,7 @@ current\_alias(?stream, ?atom)
 
 \Description
 
-\IdxPBD[current\_alias/2]{current\_alias(Stream, Alias)} succeeds if
+\texttt{current\_alias(Stream, Alias)} succeeds if
 \texttt{current\_stream(Stream)} succeeds \RefSP{current-stream/1} and if
 \texttt{Alias} unifies with one of the aliases of the stream. It can be
 defined using \IdxPB{stream\_property/2} \RefSP{stream-property/2}. This
@@ -2611,6 +2685,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{set\_stream\_type/2}}
 \label{set-stream-type/2}
+   \AddPBD{set\_stream\_type/2}
 
 \begin{TemplatesOneCol}
 set\_stream\_type(+stream\_or\_alias, +atom)
@@ -2619,7 +2694,7 @@ set\_stream\_type(+stream\_or\_alias, +atom)
 
 \Description
 
-\IdxPBD[set\_stream\_type/2]{set\_stream\_type(SorA, Type)} updates the type associated with
+\texttt{set\_stream\_type(SorA, Type)} updates the type associated with
 stream-term or alias \texttt{SorA}. The value of \texttt{Type} is an atom in
 \IdxPO{text} or \IdxPO{binary} as for \IdxPB{open/4} \RefSP{open/4}.
 The type of a stream can only be changed before any input/output operation
@@ -2652,6 +2727,7 @@ is executed.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{set\_stream\_eof\_action/2}}
+   \AddPBD{set\_stream\_eof\_action/2}
 
 \begin{TemplatesOneCol}
 set\_stream\_eof\_action(+stream\_or\_alias, +atom)
@@ -2660,7 +2736,7 @@ set\_stream\_eof\_action(+stream\_or\_alias, +atom)
 
 \Description
 
-\IdxPBD[set\_stream\_eof\_action/2]{set\_stream\_eof\_action(SorA, Action)}
+\texttt{set\_stream\_eof\_action(SorA, Action)}
 updates the \texttt{eof\_action} option associated with the stream-term or
 alias \texttt{SorA}. The value of \texttt{Action} is one of the atoms
 \IdxPO{error}, \IdxPO{eof\_code}, \IdxPO{reset} as for \IdxPB{open/4} \RefSP{open/4}.
@@ -2693,6 +2769,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{set\_stream\_buffering/2}}
 \label{set-stream-buffering/2}
+   \AddPBD{set\_stream\_buffering/2}
 
 \begin{TemplatesOneCol}
 set\_stream\_buffering(+stream\_or\_alias, +atom)
@@ -2701,7 +2778,7 @@ set\_stream\_buffering(+stream\_or\_alias, +atom)
 
 \Description
 
-\IdxPBD[set\_stream\_buffering/2]{set\_stream\_buffering(SorA, Buffering)}
+\texttt{set\_stream\_buffering(SorA, Buffering)}
 updates the buffering mode associated with the stream-term or alias
 \texttt{SorA}. The value of \texttt{Buffering} is one of the atoms
 \IdxPO{none}, \IdxPO{line} or \IdxPO{block} as for \IdxPB{open/4}
@@ -2750,8 +2827,11 @@ built-in predicates to perform single input/output from/to constant terms
 \RefSP{Input/output-from/to-constant-terms}.
 
 \subsubsection{\texttt{open\_input\_atom\_stream/2},
-\texttt{open\_input\_chars\_stream/2}, \\
-\texttt{open\_input\_codes\_stream/2}}
+               \texttt{open\_input\_chars\_stream/2}, \\
+               \texttt{open\_input\_codes\_stream/2}}
+   \AddPBD{open\_input\_atom\_stream/2}
+   \AddPBD{open\_input\_chars\_stream/2}
+   \AddPBD{open\_input\_codes\_stream/2}
 
 \begin{TemplatesOneCol}
 open\_input\_atom\_stream(+atom, -stream)\\
@@ -2762,15 +2842,15 @@ open\_input\_codes\_stream(+character\_code\_list, -stream)
 
 \Description
 
-\IdxPBD[open\_input\_atom\_stream/2]{open\_input\_atom\_stream(Atom, Stream)} unifies \texttt{Stream}
+\texttt{open\_input\_atom\_stream(Atom, Stream)} unifies \texttt{Stream}
 with the stream-term which is associated to a new input text-stream whose
 data are the characters of \texttt{Atom}.
 
-\IdxPBD[open\_input\_chars\_stream/2]{open\_input\_chars\_stream(Chars, Stream)} is similar to
+\texttt{open\_input\_chars\_stream(Chars, Stream)} is similar to
 \texttt{open\_input\_atom\_stream/2} except that data are the content of the
 character list \texttt{Chars}.
 
-\IdxPBD[open\_input\_codes\_stream/2]{open\_input\_codes\_stream(Codes, Stream)} is similar to
+\texttt{open\_input\_codes\_stream(Codes, Stream)} is similar to
 \texttt{open\_input\_atom\_stream/2} except that data are the content of the
 character code list \texttt{Codes}.
 
@@ -2818,8 +2898,11 @@ not a character code}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{close\_input\_atom\_stream/1},
-\texttt{close\_input\_chars\_stream/1}, \\ 
-\texttt{close\_input\_codes\_stream/1}}
+               \texttt{close\_input\_chars\_stream/1}, \\ 
+               \texttt{close\_input\_codes\_stream/1}}
+   \AddPBD{close\_input\_atom\_stream/1}
+   \AddPBD{close\_input\_chars\_stream/1}
+   \AddPBD{close\_input\_codes\_stream/1}
 
 \begin{TemplatesOneCol}
 close\_input\_atom\_stream(+stream\_or\_alias)\\
@@ -2830,15 +2913,15 @@ close\_input\_codes\_stream(+stream\_or\_alias)
 
 \Description
 
-\IdxPBD[close\_input\_atom\_stream/1]{close\_input\_atom\_stream(SorA)} closes the constant term stream
+\texttt{close\_input\_atom\_stream(SorA)} closes the constant term stream
 associated with the stream-term or alias \texttt{SorA}. \texttt{SorA} must a
 stream open with \texttt{open\_input\_atom\_stream/2}
 \RefSP{Introduction:(Constant-term-streams)}.
 
-\IdxPBD[close\_input\_chars\_stream/1]{close\_input\_chars\_stream(SorA)} acts similarly for a character
+\texttt{close\_input\_chars\_stream(SorA)} acts similarly for a character
 list stream.
 
-\IdxPBD[close\_input\_codes\_stream/1]{close\_input\_codes\_stream(SorA)} acts similarly for a character
+\texttt{close\_input\_codes\_stream(SorA)} acts similarly for a character
 code list stream.
 
 \begin{PlErrors}
@@ -2866,9 +2949,12 @@ constant term stream.}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{open\_output\_atom\_stream/1}, 
-\texttt{open\_output\_chars\_stream/1}, \\ 
-\texttt{open\_output\_codes\_stream/1}}
+               \texttt{open\_output\_chars\_stream/1}, \\ 
+               \texttt{open\_output\_codes\_stream/1}}
 \label{open-output-atom-stream/1}
+   \AddPBD{open\_output\_atom\_stream/1}
+   \AddPBD{open\_output\_chars\_stream/1}
+   \AddPBD{open\_output\_codes\_stream/1}
 
 \begin{TemplatesOneCol}
 open\_output\_atom\_stream(-stream)\\
@@ -2879,17 +2965,17 @@ open\_output\_codes\_stream(-stream)
 
 \Description
 
-\IdxPBD[open\_output\_atom\_stream/1]{open\_output\_atom\_stream(Stream)} unifies \texttt{Stream} with the
+\texttt{open\_output\_atom\_stream(Stream)} unifies \texttt{Stream} with the
 stream-term which is associated to a new output text-stream. All characters
 written to this stream are collected and will be returned as an atom when
 the stream is closed by \texttt{close\_ouput\_atom\_stream/2}
 \RefSP{close-output-atom-stream/2}.
 
-\IdxPBD[open\_output\_chars\_stream/1]{open\_output\_chars\_stream(Stream)} is similar to
+\texttt{open\_output\_chars\_stream(Stream)} is similar to
 \texttt{open\_output\_atom\_stream/1} except that the result will be a
 character list.
 
-\IdxPBD[open\_output\_codes\_stream/1]{open\_output\_codes\_stream(Stream)} is similar to
+\texttt{open\_output\_codes\_stream(Stream)} is similar to
 \texttt{open\_output\_atom\_stream/1} except that the result will be a
 character code list.
 
@@ -2905,9 +2991,12 @@ character code list.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{close\_output\_atom\_stream/2},
-\texttt{close\_output\_chars\_stream/2}, \\
-\texttt{close\_output\_codes\_stream/2}}
+               \texttt{close\_output\_chars\_stream/2}, \\
+               \texttt{close\_output\_codes\_stream/2}}
 \label{close-output-atom-stream/2}
+   \AddPBD{close\_output\_atom\_stream/2}
+   \AddPBD{close\_output\_chars\_stream/2}
+   \AddPBD{close\_output\_codes\_stream/2}
 
 \begin{TemplatesOneCol}
 close\_output\_atom\_stream(+stream\_or\_alias, ?atom)\\
@@ -2918,16 +3007,16 @@ close\_output\_codes\_stream(+stream\_or\_alias, ?character\_code\_list)
 
 \Description
 
-\IdxPBD[close\_output\_atom\_stream/2]{close\_output\_atom\_stream(SorA, Atom)} closes the constant term
+\texttt{close\_output\_atom\_stream(SorA, Atom)} closes the constant term
 stream associated with the stream-term or alias \texttt{SorA}. \texttt{SorA} must
 be associated to a stream open with \texttt{open\_output\_atom\_stream/1}
 \RefSP{open-output-atom-stream/1}.  \texttt{Atom} is unified with an atom
 formed with all characters written on the stream.
 
-\IdxPBD[close\_output\_chars\_stream/2]{close\_output\_chars\_stream(SorA, Chars)} acts similarly for a
+\texttt{close\_output\_chars\_stream(SorA, Chars)} acts similarly for a
 character list stream.
 
-\IdxPBD[close\_output\_codes\_stream/2]{close\_output\_codes\_stream(SorA, Codes)} acts similarly for a
+\texttt{close\_output\_codes\_stream(SorA, Codes)} acts similarly for a
 character code list stream.
 
 \begin{PlErrors}
@@ -2970,10 +3059,14 @@ returned as character to indicate the end-of-file. \texttt{-1} is returned
 as character code to indicate the end-of-file.
 
 \subsubsection{\texttt{get\_char/2},
-\texttt{get\_char/1}, 
-\texttt{get\_code/1},
-\texttt{get\_code/2}}
+               \texttt{get\_char/1}, 
+               \texttt{get\_code/1},
+               \texttt{get\_code/2}}
 \label{get-char/2}
+   \AddPBD{get\_char/2}
+   \AddPBD{get\_code/2}
+   \AddPBD{get\_char/1}
+   \AddPBD{get\_code/1}
 
 \begin{TemplatesOneCol}
 get\_char(+stream\_or\_alias, ?in\_character)\\
@@ -2985,14 +3078,14 @@ get\_code(?in\_character\_code)
 
 \Description
 
-\IdxPBD[get\_char/2]{get\_char(SorA, Char)} succeeds if \texttt{Char} unifies with the
+\texttt{get\_char(SorA, Char)} succeeds if \texttt{Char} unifies with the
 next character read from the stream associated with the stream-term or alias
 \texttt{SorA}.
 
-\IdxPBD{get\_code/2} is similar to \texttt{get\_char/2} but deals with
+\texttt{get\_code/2} is similar to \texttt{get\_char/2} but deals with
 character codes.
 
-\IdxPBD{get\_char/1} and \IdxPBD{get\_code/1} apply to the current input
+\texttt{get\_char/1} and \texttt{get\_code/1} apply to the current input
 stream.
 
 \begin{PlErrors}
@@ -3034,26 +3127,46 @@ and \texttt{eof\_action(error)}}
 
 ISO predicates.
 
-\subsubsection{\texttt{get\_code\_no\_echo/2},
-\texttt{get\_code\_no\_echo/1}}
+\subsubsection{\texttt{get\_key/2},
+               \texttt{get\_key/1}
+	       \texttt{get\_key\_no\_echo/2},
+               \texttt{get\_key\_no\_echo/1}}
+   \AddPBD{get\_key/2}
+   \AddPBD{get\_key/1}
+   \AddPBD{get\_key\_no\_echo/2}
+   \AddPBD{get\_key\_no\_echo/1}
 
 \begin{TemplatesOneCol}
-get\_code\_no\_echo(+stream\_or\_alias, ?integer)\\
-get\_code\_no\_echo(?integer)
+get\_key(+stream\_or\_alias, ?integer)\\
+get\_key(?integer)\\
+get\_key\_no\_echo(+stream\_or\_alias, ?integer)\\
+get\_key\_no\_echo(?integer)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\IdxPBD[get\_code\_no\_echo/2]{get\_code\_no\_echo/2} is similar to \IdxPB{get\_code/2}
-\RefSP{get-char/2} except that if the associated source is a terminal the
-input is not echoed. This is possible only if the \IdxK{linedit} facility
-has been installed \RefSP{The-line-editor} otherwise
-\IdxPBD[get\_code\_no\_echo/1]{get\_code\_no\_echo/2} is similar to
-\texttt{get\_code/2}. Any integer can be returned (not only an in-character
-code) to allow for function key reading.
+\texttt{get\_key(Code, SorA)} succeeds if \texttt{Code} unifies with the
+character code of the next key read from the stream associated with the
+stream-term or alias \texttt{SorA}. It is intended to read a single key from
+the keyboard (thus \texttt{SorA} should refer to current input stream). No
+buffering is performed (a character is read as soon as available) and
+function keys can also be read (in that case, \texttt{Code} is an integer $>$
+255). The read character is echoed if it is printable. 
 
-\texttt{get\_code\_no\_echo/1} applies to the current input stream.
+This facility is only possible if the \IdxK{linedit} facility has been
+installed \RefSP{The-line-editor} otherwise \texttt{get\_key/2} behaves
+similarly to \IdxPB{get\_code/2} \RefSP{get-char/2} (the code of the first
+character is returned) but also pumps remaining characters until a character
+$<$ space (0x20) is read (in particular RETURN). The same behavior 
+occurs if \texttt{SorA} does not refer to the current input stream or if
+this stream is not attached to a terminal.
+
+\texttt{get\_key\_no\_echo/2} behaves similarly to \texttt{get\_key/2}
+except that the read character is not echoed.
+
+\texttt{get\_key/1} and \texttt{get\_key\_no\_echo/1} apply to the current
+input stream.
 
 \begin{PlErrors}
 
@@ -3086,9 +3199,13 @@ and \texttt{eof\_action(error)}}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{peek\_char/2},
-\texttt{peek\_char/1},
-\texttt{peek\_code/1},
-\texttt{peek\_code/2}}
+               \texttt{peek\_char/1},
+               \texttt{peek\_code/1},
+               \texttt{peek\_code/2}}
+   \AddPBD{peek\_char/2}
+   \AddPBD{peek\_code/2}
+   \AddPBD{peek\_char/1}
+   \AddPBD{peek\_code/1}
 
 \begin{TemplatesOneCol}
 peek\_char(+stream\_or\_alias, ?in\_character)\\
@@ -3100,14 +3217,14 @@ peek\_code(?in\_character\_code)
 
 \Description
 
-\IdxPBD[peek\_char/2]{peek\_char(SorA, Char)} succeeds if \texttt{Char} unifies with the
+\texttt{peek\_char(SorA, Char)} succeeds if \texttt{Char} unifies with the
 next character that will be read from the stream associated with the stream-term
 or alias \texttt{SorA}. The character is not read.
 
-\IdxPBD{peek\_code/2} is similar to \texttt{peek\_char/2} but deals with
+\texttt{peek\_code/2} is similar to \texttt{peek\_char/2} but deals with
 character codes.
 
-\IdxPBD{peek\_char/1} and \IdxPBD{peek\_code/1} apply to the current input
+\texttt{peek\_char/1} and \texttt{peek\_code/1} apply to the current input
 stream.
 
 \begin{PlErrors}
@@ -3150,9 +3267,13 @@ and \texttt{eof\_action(error)}}
 ISO predicates.
 
 \subsubsection{\texttt{unget\_char/2},
-\texttt{unget\_char/1},
-\texttt{unget\_code/2},
-\texttt{unget\_code/1}}
+               \texttt{unget\_char/1},
+               \texttt{unget\_code/2},
+               \texttt{unget\_code/1}}
+   \AddPBD{unget\_char/2}
+   \AddPBD{unget\_code/2}
+   \AddPBD{unget\_char/1}
+   \AddPBD{unget\_code/1}
 
 \begin{TemplatesOneCol}
 unget\_char(+stream\_or\_alias, +character)\\
@@ -3164,16 +3285,16 @@ unget\_code(+character\_code)
 
 \Description
 
-\IdxPBD[unget\_char/2]{unget\_char(SorA, Char)} pushes back \texttt{Char}
+\texttt{unget\_char(SorA, Char)} pushes back \texttt{Char}
 onto the stream associated with the stream-term or alias \texttt{SorA}.
 \texttt{Char} will be the next character read by \texttt{get\_char/2}. The
 maximum number of characters that can be cumulatively pushed back is given by
 the \IdxPF{max\_unget} \Idx{Prolog flag} \RefSP{set-prolog-flag/2}.
 
-\IdxPBD{unget\_code/2} is similar to \texttt{unget\_char/2} but deals with
+\texttt{unget\_code/2} is similar to \texttt{unget\_char/2} but deals with
 character codes.
 
-\IdxPBD{unget\_char/1} and \IdxPBD{unget\_code/1} apply to the current input
+\texttt{unget\_char/1} and \texttt{unget\_code/1} apply to the current input
 stream.
 
 \begin{PlErrors}
@@ -3215,12 +3336,18 @@ stream.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{put\_char/2},
-\texttt{put\_char/1},
-\texttt{put\_code/1},
-\texttt{put\_code/2},
-\texttt{nl/1},
-\texttt{nl/0}}
+               \texttt{put\_char/1},
+               \texttt{put\_code/1},
+               \texttt{put\_code/2},
+               \texttt{nl/1},
+               \texttt{nl/0}}
 \label{put-char/2}
+   \AddPBD{put\_char/2}
+   \AddPBD{put\_code/2}
+   \AddPBD{nl/1}
+   \AddPBD{put\_char/1}
+   \AddPBD{put\_code/1}
+   \AddPBD{nl/0}
 
 \begin{TemplatesOneCol}
 put\_char(+stream\_or\_alias, +character)\\
@@ -3234,17 +3361,17 @@ nl
 
 \Description
 
-\IdxPBD[put\_char/2]{put\_char(SorA, Char)} writes \texttt{Char} onto the
+\texttt{put\_char(SorA, Char)} writes \texttt{Char} onto the
 stream associated with the stream-term or alias \texttt{SorA}.
 
-\IdxPBD{put\_code/2} is similar to \texttt{put\_char/2} but deals with
+\texttt{put\_code/2} is similar to \texttt{put\_char/2} but deals with
 character codes.
 
-\IdxPBD[nl/1]{nl(SorA)} writes a new-line character onto the stream
+\texttt{nl(SorA)} writes a new-line character onto the stream
 associated with the stream-term or alias \texttt{SorA}. This is equivalent to
 \texttt{put\_char(SorA, '{\bs}n')}.
 
-\IdxPBD{put\_char/1}, \IdxPBD{put\_code/1} and \IdxPBD{nl/0} apply to the
+\texttt{put\_char/1}, \texttt{put\_code/1} and \texttt{nl/0} apply to the
 current output stream.
 
 \begin{PlErrors}
@@ -3292,7 +3419,9 @@ These built-in predicates enable a single byte to be input from and output
 to a binary stream. \texttt{-1} is returned to indicate the end-of-file.
 
 \subsubsection{\texttt{get\_byte/2},
-\texttt{get\_byte/1}}
+               \texttt{get\_byte/1}}
+   \AddPBD{get\_byte/2}
+   \AddPBD{get\_byte/1}
 
 \begin{TemplatesOneCol}
 get\_byte(+stream\_or\_alias, ?in\_byte)\\
@@ -3302,11 +3431,11 @@ get\_byte(?in\_byte)
 
 \Description
 
-\IdxPBD[get\_byte/2]{get\_byte(SorA, Byte)} succeeds if \texttt{Byte} unifies with the
+\texttt{get\_byte(SorA, Byte)} succeeds if \texttt{Byte} unifies with the
 next byte read from the stream associated with the stream-term or alias
 \texttt{SorA}.
 
-\IdxPBD[get\_byte/1]{get\_byte/1} applies to the current input stream.
+\texttt{get\_byte/1} applies to the current input stream.
 
 \begin{PlErrors}
 
@@ -3339,7 +3468,9 @@ and \texttt{eof\_action(error)}}
 ISO predicates.
 
 \subsubsection{\texttt{peek\_byte/2},
-\texttt{peek\_byte/1}}
+               \texttt{peek\_byte/1}}
+   \AddPBD{peek\_byte/2}
+   \AddPBD{peek\_byte/1}
 
 \begin{TemplatesOneCol}
 peek\_byte(+stream\_or\_alias, ?in\_byte)\\
@@ -3349,11 +3480,11 @@ peek\_byte(?in\_byte)
 
 \Description
 
-\IdxPBD[peek\_byte/2]{peek\_byte(SorA, Byte)} succeeds if \texttt{Byte} unifies with the
+\texttt{peek\_byte(SorA, Byte)} succeeds if \texttt{Byte} unifies with the
 next byte that will be read from the stream associated with the stream-term or
 alias \texttt{SorA}. The byte is not read.
 
-\IdxPBD[peek\_byte/1]{peek\_byte/1} applies to the current input stream.
+\texttt{peek\_byte/1} applies to the current input stream.
 
 \begin{PlErrors}
 
@@ -3386,7 +3517,9 @@ and \texttt{eof\_action(error)}}
 ISO predicates.
 
 \subsubsection{\texttt{unget\_byte/2},
-\texttt{unget\_byte/1}}
+               \texttt{unget\_byte/1}}
+   \AddPBD{unget\_byte/2}
+   \AddPBD{unget\_byte/1}
 
 \begin{TemplatesOneCol}
 unget\_byte(+stream\_or\_alias, +byte)\\
@@ -3396,13 +3529,13 @@ unget\_byte(+byte)
 
 \Description
 
-\IdxPBD[unget\_byte/2]{unget\_byte(SorA, Byte)} pushes back \texttt{Byte} onto the stream
+\texttt{unget\_byte(SorA, Byte)} pushes back \texttt{Byte} onto the stream
 associated with the stream-term or alias \texttt{SorA}. \texttt{Byte} will be
 the next byte read by \texttt{get\_byte/2}. The maximum number of bytes that
 can be successively pushed back is given by the \IdxPF{max\_unget}
 \Idx{Prolog flag} \RefSP{set-prolog-flag/2}.
 
-\IdxPBD[unget\_byte/1]{unget\_byte/1} applies to the current input stream.
+\texttt{unget\_byte/1} applies to the current input stream.
 
 \begin{PlErrors}
 
@@ -3434,7 +3567,9 @@ can be successively pushed back is given by the \IdxPF{max\_unget}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{put\_byte/2},
-\texttt{put\_byte/1}}
+               \texttt{put\_byte/1}}
+   \AddPBD{put\_byte/2}
+   \AddPBD{put\_byte/1}
 
 \begin{TemplatesOneCol}
 put\_byte(+stream\_or\_alias, +byte)\\
@@ -3444,10 +3579,10 @@ put\_byte(+byte)
 
 \Description
 
-\IdxPBD[put\_byte/2]{put\_byte(SorA, Byte)} writes \texttt{Byte} onto the stream
+\texttt{put\_byte(SorA, Byte)} writes \texttt{Byte} onto the stream
 associated with the stream-term or alias \texttt{SorA}. 
 
-\IdxPBD[put\_byte/1]{put\_byte/1} applies to the current output stream.
+\texttt{put\_byte/1} applies to the current output stream.
 
 \begin{PlErrors}
 
@@ -3488,13 +3623,18 @@ characters equivalent to others \RefSP{char-conversion/2} if the
 \IdxPF{char\_conversion} \Idx{Prolog flag} is \texttt{on}
 \RefSP{set-prolog-flag/2}. Double quoted tokens will be returned as an atom
 or a character list or a character code list depending on the value of the
-\IdxPF{double\_quotes} Prolog flag \RefSP{set-prolog-flag/2}.
+\IdxPF{double\_quotes} Prolog flag \RefSP{set-prolog-flag/2}. Similarly, back quoted tokens are returned depending on the value of the
+\IdxPF{back\_quotes} Prolog flag.
 
 \subsubsection{\texttt{read\_term/3},
-\texttt{read\_term/2},
-\texttt{read/2},
-\texttt{read/1}}
+               \texttt{read\_term/2},
+               \texttt{read/2},
+               \texttt{read/1}}
 \label{read-term/3}
+   \AddPBD{read\_term/3}
+   \AddPBD{read/2}
+   \AddPBD{read\_term/2}
+   \AddPBD{read/1}
 
 \begin{TemplatesOneCol}
 read\_term(+stream\_or\_alias, ?term, +read\_option\_list)\\
@@ -3506,7 +3646,7 @@ read(?term)
 
 \Description
 
-\IdxPBD[read\_term/3]{read\_term(SorA, Term, Options)} is true if
+\texttt{read\_term(SorA, Term, Options)} is true if
 \texttt{Term} unifies with the next term read from the stream associated
 with the stream-term or alias \texttt{SorA} according to the options given by
 \texttt{Options}.
@@ -3533,9 +3673,8 @@ which occurs only once in the term and \texttt{Name} is the atom associated
 to the name of \texttt{Var}. Anonymous variables are not included in the list
 \texttt{SL}.
 
-\item \IdxPOD[syntax\_error]
-{syntax\_error(error}/\texttt{warning}/\texttt{fail)}: specifies the effect
-of a syntax error:
+\item \IdxPOD[syntax\_error]{syntax\_error(error}/\texttt{warning}/\texttt{fail)}:
+specifies the effect of a syntax error:
 
 \begin{itemize}
 
@@ -3555,15 +3694,15 @@ The default value is the value of the \IdxPF{syntax\_error}
 end-of-term delimiter: \texttt{dot} is the classical full-stop delimiter (a
 dot followed with a layout character), \texttt{eof} is the end-of-file
 delimiter. This option is useful for predicates like
-\IdxPB{read\_from\_atom/2} \RefSP{read-term-from-atom/3} to avoid to add a
+\IdxPB{read\_term\_from\_atom/3} \RefSP{read-term-from-atom/3} to avoid to add a
 terminal dot at the end of the atom. The default value is \texttt{dot}.
 
 \end{itemize}
 
-\IdxPBD[read/2]{read(SorA, Term)} is equivalent to
+\texttt{read(SorA, Term)} is equivalent to
 \texttt{read\_term(SorA, Term, [])}.
 
-\IdxPBD{read\_term/2} and \IdxPBD{read/1} apply to the current input stream.
+\texttt{read\_term/2} and \texttt{read/1} apply to the current input stream.
 
 \begin{PlErrors}
 
@@ -3615,12 +3754,18 @@ as a syntax error. The read options \texttt{syntax\_error/1} and
 \texttt{end\_of\_term/1} are GNU Prolog extensions.
 
 \subsubsection{\texttt{read\_atom/2},
-\texttt{read\_atom/1}, 
-\texttt{read\_integer/2},
-\texttt{read\_integer/1}, \\ 
-\texttt{read\_number/2},
-\texttt{read\_number/1}}
+               \texttt{read\_atom/1}, 
+               \texttt{read\_integer/2},
+               \texttt{read\_integer/1}, \\ 
+               \texttt{read\_number/2},
+               \texttt{read\_number/1}}
 \label{read-atom/2}
+   \AddPBD{read\_atom/2}
+   \AddPBD{read\_integer/2}
+   \AddPBD{read\_number/2}
+   \AddPBD{read\_atom/1}
+   \AddPBD{read\_integer/1}
+   \AddPBD{read\_number/1}
 
 \begin{TemplatesOneCol}
 read\_atom(+stream\_or\_alias, ?atom)\\
@@ -3634,20 +3779,20 @@ read\_number(?number)
 
 \Description
 
-\IdxPBD[read\_atom/2]{read\_atom(SorA, Atom)} succeeds if \texttt{Atom}
+\texttt{read\_atom(SorA, Atom)} succeeds if \texttt{Atom}
 unifies with the next atom read from the stream associated with the
 stream-term or alias \texttt{SorA}.
 
-\IdxPBD[read\_integer/2]{read\_integer(SorA, Integer)} succeeds if
+\texttt{read\_integer(SorA, Integer)} succeeds if
 \texttt{Integer} unifies with the next integer read from the stream
 associated with the stream-term or alias \texttt{SorA}.
 
-\IdxPBD[read\_number/2]{read\_number(SorA, Number)} succeeds if
+\texttt{read\_number(SorA, Number)} succeeds if
 \texttt{Number} unifies with the next number (integer or floating point
 number) read from the stream associated with the stream-term or alias
 \texttt{SorA}.
 
-\IdxPBD{read\_atom/1}, \IdxPBD{read\_integer/1} and \IdxPBD{read\_number/1}
+\texttt{read\_atom/1}, \texttt{read\_integer/1} and \texttt{read\_number/1}
 apply to the current input stream.
 
 \begin{PlErrors}
@@ -3691,8 +3836,10 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{read\_token/2},
-\texttt{read\_token/1}}
+               \texttt{read\_token/1}}
 \label{read-token/2}
+   \AddPBD{read\_token/2}
+   \AddPBD{read\_token/1}
 
 \begin{TemplatesOneCol}
 read\_token(+stream\_or\_alias, ?nonvar)\\
@@ -3702,7 +3849,7 @@ read\_token(?nonvar)
 
 \Description
 
-\IdxPBD[read\_token/2]{read\_token(SorA, Token)} succeeds if \texttt{Token} unifies with
+\texttt{read\_token(SorA, Token)} succeeds if \texttt{Token} unifies with
 the encoding of the next Prolog token read from the stream associated with
 stream-term or alias \texttt{SorA}.
 
@@ -3738,7 +3885,7 @@ atom) is read.
 As for \texttt{read\_term/3}, the behavior of \texttt{read\_token/2} can be
 affected by some \Idx[Prolog flag]{Prolog flags} \RefSP{Term-input/output}.
 
-\IdxPBD[read\_token/1]{read\_token/1} applies to the current input stream.
+\texttt{read\_token/1} applies to the current input stream.
 
 \begin{PlErrors}
 
@@ -3773,6 +3920,7 @@ GNU Prolog predicates.
 
 \subsubsection{\texttt{syntax\_error\_info/4}}
 \label{syntax-error-info/4}
+   \AddPBD{syntax\_error\_info/4}
 
 \begin{TemplatesOneCol}
 syntax\_error\_info(?atom, ?integer, ?integer, ?atom)
@@ -3781,7 +3929,7 @@ syntax\_error\_info(?atom, ?integer, ?integer, ?atom)
 
 \Description
 
-\IdxPBD[syntax\_error\_info/4]{syntax\_error\_info(FileName, Line, Column, Error)} returns the
+\texttt{syntax\_error\_info(FileName, Line, Column, Error)} returns the
 information associated to the last syntax error. \texttt{Line} is the line
 number of the error, \texttt{Column} is the column number of the error and
 \texttt{Error} is an atom explaining the error.
@@ -3807,6 +3955,7 @@ number of the error, \texttt{Column} is the column number of the error and
 GNU Prolog predicate.
 
 \subsubsection{\texttt{last\_read\_start\_line\_column/2}}
+   \AddPBD{last\_read\_start\_line\_column/2}
 
 \begin{TemplatesOneCol}
 last\_read\_start\_line\_column(?integer, ?integer)
@@ -3815,7 +3964,7 @@ last\_read\_start\_line\_column(?integer, ?integer)
 
 \Description
 
-\IdxPBD[last\_read\_start\_line\_column/2]{last\_read\_start\_line\_column(Line, Column)} unifies \texttt{Line}
+\texttt{last\_read\_start\_line\_column(Line, Column)} unifies \texttt{Line}
 and \texttt{Column} with the line number and the column number associated to
 the start of the last read predicate. This predicate can be used after
 calling one of the following predicates: \IdxPB{read\_term/3},
@@ -3840,18 +3989,31 @@ calling one of the following predicates: \IdxPB{read\_term/3},
 GNU Prolog predicate.
 
 \subsubsection{\texttt{write\_term/3},
-\texttt{write\_term/2},
-\texttt{write/2},
-\texttt{write/1},
-\texttt{writeq/2},
-\texttt{writeq/1}, \\
-\texttt{write\_canonical/2},
-\texttt{write\_canonical/1},
-\texttt{display/2},
-\texttt{display/1},
-\texttt{print/2}, \\
-\texttt{print/1}}
+               \texttt{write\_term/2},
+               \texttt{write/2},
+               \texttt{write/1},
+               \texttt{writeq/2},
+               \texttt{writeq/1}, \\
+               \texttt{write\_canonical/2},
+               \texttt{write\_canonical/1},
+               \texttt{display/2},
+               \texttt{display/1},
+               \texttt{print/2}, \\
+               \texttt{print/1}}
 \label{write-term/3}
+   \AddPBD{write\_term/3}
+   \AddPBD{portray/1}
+   \AddPBD{write/2}
+   \AddPBD{writeq/2}
+   \AddPBD{write\_canonical/2}
+   \AddPBD{display/2}
+   \AddPBD{print/2}
+   \AddPBD{write\_term/2}
+   \AddPBD{write/1}
+   \AddPBD{writeq/1}
+   \AddPBD{write\_canonical/1}
+   \AddPBD{display/1}
+   \AddPBD{print/1}
 
 \begin{TemplatesOneCol}
 write\_term(+stream\_or\_alias, ?term, +write\_option\_list)\\
@@ -3871,7 +4033,7 @@ print(?term)
 
 \Description
 
-\IdxPBD[write\_term/3]{write\_term(SorA, Term, Options)} writes
+\texttt{write\_term(SorA, Term, Options)} writes
 \texttt{Term} to the stream associated with the stream-term or alias
 \texttt{SorA} according to the options given by \texttt{Options}.
 
@@ -3913,7 +4075,7 @@ list. If \texttt{false} no extra space is emitted. The default value is
 \item \IdxPOD[portrayed]{portrayed(true}/\texttt{false}): if \texttt{true}
 and if there exists a predicate \texttt{portray/1}, \texttt{write\_term/3}
 acts as follows: if \texttt{Term} is a variable it is simply written. If
-\texttt{Term} is non-variable then it is passed to \IdxPBD{portray/1}. If
+\texttt{Term} is non-variable then it is passed to \texttt{portray/1}. If
 this succeeds then it is assumed that \texttt{Term} has been output.
 Otherwise \texttt{write\_term/3} outputs the principal functor of
 \texttt{Term} (\texttt{Term} itself if it is atomic) according to other
@@ -3954,26 +4116,26 @@ the characters \texttt{Name}. For example: \texttt{'\$VARNAME'('A')} is
 written as \texttt{A} (even in the presence of the \texttt{quoted(true)}
 option).
 
-\IdxPBD[write/2]{write(SorA, Term)} is equivalent to
+\texttt{write(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [])}.
 
-\IdxPBD[writeq/2]{writeq(SorA, Term)} is equivalent to
+\texttt{writeq(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [quoted(true)])}.
 
-\IdxPBD[write\_canonical/2]{write\_canonical(SorA, Term)} is equivalent to
-\IdxPBD[write\_term/2]{write\_term(SorA, Term, [quoted(true), \\
+\texttt{write\_canonical(SorA, Term)} is equivalent to
+\texttt{write\_term(SorA, Term, [quoted(true), \\
 ignore\_ops(true), numbervars(false)])}.
 
-\IdxPBD[display/2]{display(SorA, Term)} is equivalent to
+\texttt{display(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [ignore\_ops(true), \\
 numbervars(false)])}.
 
-\IdxPBD[print/2]{print(SorA, Term)} is equivalent to
+\texttt{print(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [numbervars(false), \\
 portrayed(true)])}.
 
-\IdxPBD{write\_term/2}, \IdxPBD{write/1}, \IdxPBD{writeq/1},
-\IdxPBD{write\_canonical/1}, \IdxPBD{display/1} and \IdxPBD{print/1} apply
+\texttt{write\_term/2}, \texttt{write/1}, \texttt{writeq/1},
+\texttt{write\_canonical/1}, \texttt{display/1} and \texttt{print/1} apply
 to the current output stream.
 
 \begin{PlErrors}
@@ -4014,8 +4176,10 @@ are GNU Prolog predicates. \texttt{namevars/1}, \texttt{space\_args/1},
 extensions.
 
 \subsubsection{\texttt{format/3},
-\texttt{format/2}}
+               \texttt{format/2}}
 \label{format/3}
+   \AddPBD{format/3}
+   \AddPBD{format/2}
 
 \begin{TemplatesOneCol}
 format(+stream\_or\_alias, +character\_code\_list\_or\_atom,
@@ -4026,7 +4190,7 @@ format(+character\_code\_list\_or\_atom, +list)
 
 \Description
 
-\IdxPBD[format/3]{format(SorA, Format, Arguments)} writes the \texttt{Format} string
+\texttt{format(SorA, Format, Arguments)} writes the \texttt{Format} string
 replacing each format control sequence \texttt{F} by the corresponding
 element of \texttt{Arguments} (formatted according to \texttt{F}) to the
 stream associated with the stream-term or alias \texttt{SorA}.
@@ -4058,19 +4222,16 @@ code. \texttt{N} is the number of times to print the character (default: 1)\\
 \hline
 
 \texttt{ \~{}Nf}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
 \texttt{\~{}Ne \~{}NE \~{}Ng \~{}NG}
                &  float expression & pass the argument \texttt{Arg} and 
                                      \texttt{N} to the C \texttt{printf()}
                                      function as: 
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
                                if \texttt{N} is not specified 
                                \texttt{printf("\%f",Arg)} else
                                \texttt{printf("\%.Nf",Arg)}.
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
 Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE}, \texttt{\~{}Ng} and \texttt{\~{}NG} \\ 
 
 \hline
@@ -4156,7 +4317,7 @@ floating point numbers. \texttt{*} are also allowed. \\
 \hline
 \end{tabular}
 
-\IdxPBD[format/2]{format/2} applies to the current output stream.
+\texttt{format/2} applies to the current output stream.
 
 \begin{PlErrors}
 
@@ -4223,8 +4384,10 @@ variable nor character code while a character code was expected}
 GNU Prolog predicates. 
 
 \subsubsection{\texttt{portray\_clause/2},
-\texttt{portray\_clause/1}}
+               \texttt{portray\_clause/1}}
 \label{portray-clause/2}
+   \AddPBD{portray\_clause/2}
+   \AddPBD{portray\_clause/1}
 
 \begin{TemplatesOneCol}
 portray\_clause(+stream\_or\_alias, +clause)\\
@@ -4234,7 +4397,7 @@ portray\_clause(+clause)
 
 \Description
 
-\IdxPBD[portray\_clause/2]{portray\_clause(SorA, Clause)} pretty prints
+\texttt{portray\_clause(SorA, Clause)} pretty prints
 \texttt{Clause} to the stream associated with the stream-term or alias
 \texttt{SorA}.
 \texttt{portray\_clause/2} uses the variable binding predicates
@@ -4242,7 +4405,7 @@ portray\_clause(+clause)
 \IdxPB{numbervars/1} \RefSP{bind-variables/2}. This predicate is
 used by \IdxPB{listing/1} \RefSP{listing/1}.
 
-\IdxPBD[portray\_clause/1]{portray\_clause/1} applies to the current output stream.
+\texttt{portray\_clause/1} applies to the current output stream.
 
 \begin{PlErrors}
 
@@ -4274,6 +4437,7 @@ used by \IdxPB{listing/1} \RefSP{listing/1}.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{get\_print\_stream/1}}
+   \AddPBD{get\_print\_stream/1}
 
 \begin{TemplatesOneCol}
 get\_print\_stream(-stream)
@@ -4282,7 +4446,7 @@ get\_print\_stream(-stream)
 
 \Description
 
-\IdxPBD[get\_print\_stream/1]{get\_print\_stream(Stream)} unifies \texttt{Stream} with the
+\texttt{get\_print\_stream(Stream)} unifies \texttt{Stream} with the
 stream-term associated to the output stream used by \IdxPB{print/2}
 \RefSP{write-term/3}. The purpose of this predicate is to allow a
 user-defined \IdxPB{portray/1} predicate to identify the output stream in
@@ -4301,6 +4465,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{op/3}}
 \label{op/3:(Term-input/output)}
+   \AddPBD{op/3}
 
 \begin{TemplatesOneCol}
 op(+integer, +operator\_specifier, +atom\_or\_atom\_list)
@@ -4309,7 +4474,7 @@ op(+integer, +operator\_specifier, +atom\_or\_atom\_list)
 
 \Description
 
-\IdxPBD[op/3]{op(Priority, OpSpecifier, Operator)} alters the operator table.
+\texttt{op(Priority, OpSpecifier, Operator)} alters the operator table.
 \texttt{Operator} is declared as an operator with properties defined by
 specifier \texttt{OpSpecifier} and \texttt{Priority}. \texttt{Priority} must
 be an integer $\geq$ 0 and $\leq$ 1200. If \texttt{Priority} is 0 then the
@@ -4521,6 +4686,7 @@ to affect that \texttt{current\_op/3} goal.  This is not guaranteed by
 GNU Prolog.
 
 \subsubsection{\texttt{current\_op/3}}
+   \AddPBD{current\_op/3}
 
 \begin{TemplatesOneCol}
 current\_op(?integer, ?operator\_specifier, ?atom)
@@ -4529,7 +4695,7 @@ current\_op(?integer, ?operator\_specifier, ?atom)
 
 \Description
 
-\IdxPBD[current\_op/3]{current\_op(Priority, OpSpecifier, Operator)} succeeds if
+\texttt{current\_op(Priority, OpSpecifier, Operator)} succeeds if
 \texttt{Operator} is an operator with properties defined by specifier
 \texttt{OpSpecifier} and \texttt{Priority}. This predicate is re-executable
 on backtracking.
@@ -4554,6 +4720,7 @@ ISO predicate.
 
 \subsubsection{\texttt{char\_conversion/2}}
 \label{char-conversion/2}
+   \AddPBD{char\_conversion/2}
 
 \begin{TemplatesOneCol}
 char\_conversion(+character, +character)
@@ -4562,7 +4729,7 @@ char\_conversion(+character, +character)
 
 \Description
 
-\IdxPBD[char\_conversion/2]{char\_conversion(InChar, OutChar)} alters the character-conversion
+\texttt{char\_conversion(InChar, OutChar)} alters the character-conversion
 mapping. This mapping is used by the following read predicates:
 \IdxPB{read\_term/3} \RefSP{read-term/3}, \IdxPB{read\_atom/2},
 \IdxPB{read\_integer/2}, \IdxPB{read\_number/2} \RefSP{read-atom/2} and
@@ -4612,6 +4779,7 @@ by GNU Prolog.
 
 \subsubsection{\texttt{current\_char\_conversion/2}}
 \label{current-char-conversion/2}
+   \AddPBD{current\_char\_conversion/2}
 
 \begin{TemplatesOneCol}
 current\_char\_conversion(?character, ?character)
@@ -4620,7 +4788,7 @@ current\_char\_conversion(?character, ?character)
 
 \Description
 
-\IdxPBD[current\_char\_conversion/2]{current\_char\_conversion(InChar, OutChar)} succeeds if the
+\texttt{current\_char\_conversion(InChar, OutChar)} succeeds if the
 conversion of \texttt{InChar} is \texttt{OutChar} according to the
 character-conversion mapping. In that case, \texttt{InChar} and
 \texttt{OutChar} are different. This predicate is re-executable on
@@ -4649,9 +4817,12 @@ these predicates can be defined using constant term streams
 \RefSP{Constant-term-streams}. They are however simpler to use.
 
 \subsubsection{\texttt{read\_term\_from\_atom/3},
-\texttt{read\_from\_atom/2},
-\texttt{read\_token\_from\_atom/2}}
+               \texttt{read\_from\_atom/2},
+               \texttt{read\_token\_from\_atom/2}}
 \label{read-term-from-atom/3}
+   \AddPBD{read\_term\_from\_atom/3}
+   \AddPBD{read\_from\_atom/2}
+   \AddPBD{read\_token\_from\_atom/2}
 
 \begin{TemplatesOneCol}
 read\_term\_from\_atom(+atom ?term, +read\_option\_list)\\
@@ -4662,9 +4833,9 @@ read\_token\_from\_atom(+atom, ?nonvar)
 
 \Description
 
-\IdxPBD[read\_term\_from\_atom/3]{}%
-\IdxPBD[read\_from\_atom/2]{}%
-\IdxPBD[read\_token\_from\_atom/2]{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
 Like \IdxPB{read\_term/3}, \IdxPB{read/2} \RefSP{read-term/3} and
 \IdxPB{read\_token/2} \RefSP{read-token/2} except that characters are not
 read from a text-stream but from \texttt{Atom}; the atom given as first
@@ -4688,8 +4859,11 @@ argument.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{read\_term\_from\_chars/3},
-\texttt{read\_from\_chars/2},
-\texttt{read\_token\_from\_chars/2}}
+               \texttt{read\_from\_chars/2},
+               \texttt{read\_token\_from\_chars/2}}
+   \AddPBD{read\_term\_from\_chars/3}
+   \AddPBD{read\_from\_chars/2}
+   \AddPBD{read\_token\_from\_chars/2}
 
 \begin{TemplatesOneCol}
 read\_term\_from\_chars(+character\_list ?term,
@@ -4701,9 +4875,9 @@ read\_token\_from\_chars(+character\_list, ?nonvar)
 
 \Description
 
-\IdxPBD[read\_term\_from\_chars/3]{}%
-\IdxPBD[read\_from\_chars/2]{}%
-\IdxPBD[read\_token\_from\_chars/2]{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
 Like \IdxPB{read\_term/3}, \IdxPB{read/2} \RefSP{read-term/3} and
 \IdxPB{read\_token/2} \RefSP{read-token/2} except that characters are not
 read from a text-stream but from \texttt{Chars}; the character list given as
@@ -4732,8 +4906,11 @@ variable nor a character}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{read\_term\_from\_codes/3},
-\texttt{read\_from\_codes/2},
-\texttt{read\_token\_from\_codes/2}}
+               \texttt{read\_from\_codes/2},
+               \texttt{read\_token\_from\_codes/2}}
+   \AddPBD{read\_term\_from\_codes/3}
+   \AddPBD{read\_from\_codes/2}
+   \AddPBD{read\_token\_from\_codes/2}
 
 \begin{TemplatesOneCol}
 read\_term\_from\_codes(+character\_code\_list ?term,
@@ -4745,9 +4922,9 @@ read\_token\_from\_codes(+character\_code\_list, ?nonvar)
 
 \Description
 
-\IdxPBD[read\_term\_from\_codes/3]{}%
-\IdxPBD[read\_from\_codes/2]{}%
-\IdxPBD[read\_token\_from\_codes/2]{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
 Like \IdxPB{read\_term/3}, \IdxPB{read/2} \RefSP{read-term/3} and
 \IdxPB{read\_token/2} \RefSP{read-token/2} except that characters are not
 read from a text-stream but from \texttt{Codes}; the character code list
@@ -4780,12 +4957,19 @@ not a character code}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{write\_term\_to\_atom/3},
-\texttt{write\_to\_atom/2},
-\texttt{writeq\_to\_atom/2}, \\
-\texttt{write\_canonical\_to\_atom/2},
-\texttt{display\_to\_atom/2}, 
-\texttt{print\_to\_atom/2}, \\
-\texttt{format\_to\_atom/3}} 
+               \texttt{write\_to\_atom/2},
+               \texttt{writeq\_to\_atom/2}, \\
+               \texttt{write\_canonical\_to\_atom/2},
+               \texttt{display\_to\_atom/2}, 
+               \texttt{print\_to\_atom/2}, \\
+               \texttt{format\_to\_atom/3}} 
+   \AddPBD{write\_term\_to\_atom/3}
+   \AddPBD{write\_to\_atom/2}
+   \AddPBD{writeq\_to\_atom/2}
+   \AddPBD{write\_canonical\_to\_atom/2}
+   \AddPBD{display\_to\_atom/2}
+   \AddPBD{print\_to\_atom/2}
+   \AddPBD{format\_to\_atom/3}
 
 \begin{TemplatesOneCol}
 write\_term\_to\_atom(?atom, ?term, +write\_option\_list)\\
@@ -4800,13 +4984,13 @@ format\_to\_atom(?atom, +character\_code\_list\_or\_atom, +list)
 
 \Description
 
-\IdxPBD[write\_term\_to\_atom/3]{}%
-\IdxPBD[write\_to\_atom/2]{}%
-\IdxPBD[writeq\_to\_atom/2]{}%
-\IdxPBD[write\_canonical\_to\_atom/2]{}%
-\IdxPBD[display\_to\_atom/2]{}%
-\IdxPBD[print\_to\_atom/2]{}%
-\IdxPBD[format\_to\_atom/3]{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
 Similar to \IdxPB{write\_term/3}, \IdxPB{write/2}, \IdxPB{writeq/2},
 \IdxPB{write\_canonical/2}, \IdxPB{display/2}, \IdxPB{print/2}
 \RefSP{write-term/3} and \IdxPB{format/3} \RefSP{format/3} except that
@@ -4828,12 +5012,19 @@ which is then unified with the first argument \texttt{Atom}.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{write\_term\_to\_chars/3},
-\texttt{write\_to\_chars/2},
-\texttt{writeq\_to\_chars/2}, \\
-\texttt{write\_canonical\_to\_chars/2}, 
-\texttt{display\_to\_chars/2},
-\texttt{print\_to\_chars/2}, \\
-\texttt{format\_to\_chars/3}} 
+               \texttt{write\_to\_chars/2},
+               \texttt{writeq\_to\_chars/2}, \\
+               \texttt{write\_canonical\_to\_chars/2}, 
+               \texttt{display\_to\_chars/2},
+               \texttt{print\_to\_chars/2}, \\
+               \texttt{format\_to\_chars/3}} 
+   \AddPBD{write\_term\_to\_chars/3}
+   \AddPBD{write\_to\_chars/2}
+   \AddPBD{writeq\_to\_chars/2}
+   \AddPBD{write\_canonical\_to\_chars/2}
+   \AddPBD{display\_to\_chars/2}
+   \AddPBD{print\_to\_chars/2}
+   \AddPBD{format\_to\_chars/3}
 
 \begin{TemplatesOneCol}
 write\_term\_to\_chars(?character\_list, ?term, +write\_option\_list)\\
@@ -4848,13 +5039,13 @@ format\_to\_chars(?character\_list, +character\_code\_list\_or\_atom, +list)
 
 \Description
 
-\IdxPBD[write\_term\_to\_chars/3]{}%
-\IdxPBD[write\_to\_chars/2]{}%
-\IdxPBD[writeq\_to\_chars/2]{}%
-\IdxPBD[write\_canonical\_to\_chars/2]{}%
-\IdxPBD[display\_to\_chars/2]{}%
-\IdxPBD[print\_to\_chars/2]{}%
-\IdxPBD[format\_to\_chars/3]{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
 Similar to \IdxPB{write\_term/3}, \IdxPB{write/2}, \IdxPB{writeq/2},
 \IdxPB{write\_canonical/2}, \IdxPB{display/2}, \IdxPB{print/2}
 \RefSP{write-term/3} and \IdxPB{format/3} \RefSP{format/3} except that
@@ -4876,12 +5067,19 @@ character list which is then unified with the first argument \texttt{Chars}.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{write\_term\_to\_codes/3},
-\texttt{write\_to\_codes/2},
-\texttt{writeq\_to\_codes/2}, \\
-\texttt{write\_canonical\_to\_codes/2},
-\texttt{display\_to\_codes/2},
-\texttt{print\_to\_codes/2}, \\
-\texttt{format\_to\_codes/3}}
+               \texttt{write\_to\_codes/2},
+               \texttt{writeq\_to\_codes/2}, \\
+               \texttt{write\_canonical\_to\_codes/2},
+               \texttt{display\_to\_codes/2},
+               \texttt{print\_to\_codes/2}, \\
+               \texttt{format\_to\_codes/3}}
+   \AddPBD{write\_term\_to\_codes/3}
+   \AddPBD{write\_to\_codes/2}
+   \AddPBD{writeq\_to\_codes/2}
+   \AddPBD{write\_canonical\_to\_codes/2}
+   \AddPBD{display\_to\_codes/2}
+   \AddPBD{print\_to\_codes/2}
+   \AddPBD{format\_to\_codes/3}
 
 \begin{TemplatesOneCol}
 write\_term\_to\_codes(?character\_code\_list, ?term, +write\_option\_list)\\
@@ -4897,13 +5095,13 @@ format\_to\_codes(?character\_code\_list, +character\_code\_list\_or\_atom,
 
 \Description
 
-\IdxPBD[write\_term\_to\_codes/3]{}%
-\IdxPBD[write\_to\_codes/2]{}%
-\IdxPBD[writeq\_to\_codes/2]{}%
-\IdxPBD[write\_canonical\_to\_codes/2]{}%
-\IdxPBD[display\_to\_codes/2]{}%
-\IdxPBD[print\_to\_codes/2]{}%
-\IdxPBD[format\_to\_codes/3]{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
+\texttt{}%
 Similar to \IdxPB{write\_term/3}, \IdxPB{write/2}, \IdxPB{writeq/2},
 \IdxPB{write\_canonical/2}, \IdxPB{display/2}, \IdxPB{print/2}
 \RefSP{write-term/3} and \IdxPB{format/3} \RefSP{format/3} except that
@@ -4948,8 +5146,11 @@ their use is discouraged. The predicates for explicit stream manipulation
 should be used instead \RefSP{Streams}.
 
 \subsubsection{\texttt{see/1},
-\texttt{tell/1},
-\texttt{append/1}}
+               \texttt{tell/1},
+               \texttt{append/1}}
+   \AddPBD{see/1}
+   \AddPBD{tell/1}
+   \AddPBD{append/1}
 
 \begin{TemplatesOneCol}
 see(+source\_sink)\\
@@ -4963,19 +5164,19 @@ append(+stream)
 
 \Description
 
-\IdxPBD[see/1]{see(FileName)} sets the current input stream to \texttt{FileName}.
+\texttt{see(FileName)} sets the current input stream to \texttt{FileName}.
 If there is a stream opened by \texttt{see/1} associated with the same
 \texttt{FileName} already, then it becomes the current input stream.
 Otherwise, \texttt{FileName} is opened for reading and becomes the current
 input stream.
 
-\IdxPBD[tell/1]{tell(FileName)} sets the current output stream to \texttt{FileName}.
+\texttt{tell(FileName)} sets the current output stream to \texttt{FileName}.
 If there is a stream opened by \texttt{tell/1} associated with the same
 \texttt{FileName} already, then it becomes the current output stream.
 Otherwise, \texttt{FileName} is opened for writing and becomes the current
 output stream.
 
-\IdxPBD[append/1]{append(FileName)} like \texttt{tell/1} but
+\texttt{append(FileName)} like \texttt{tell/1} but
 \texttt{FileName} is opened for writing + append.
 
 A stream-term (obtained with any other built-in predicate) can also be
@@ -4990,7 +5191,9 @@ See errors associated to \texttt{open/4} \RefSP{open/4}.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{seeing/1},
-\texttt{telling/1}}
+               \texttt{telling/1}}
+   \AddPBD{seeing/1}
+   \AddPBD{telling/1}
 
 \begin{TemplatesOneCol}
 seeing(?source\_sink)\\
@@ -5000,13 +5203,13 @@ telling(?source\_sink)
 
 \Description
 
-\IdxPBD[seeing/1]{seeing(FileName)} succeeds if \texttt{FileName} unifies
+\texttt{seeing(FileName)} succeeds if \texttt{FileName} unifies
 with the name of the current input file, if it was opened by
 \texttt{see/1}; else with the current input stream-term, if this is not
 \IdxPK{user\_input}, otherwise with
 \IdxPK{user}. 
 
-\IdxPBD[telling/1]{telling(FileName)} succeeds if \texttt{FileName} unifies with the
+\texttt{telling(FileName)} succeeds if \texttt{FileName} unifies with the
 name of the current output file, if it was opened by \texttt{tell/1} or
 \texttt{append/1}; else with the current output stream-term, if this is not
 \IdxPK{user\_output}, otherwise with \IdxPK{user}. 
@@ -5018,7 +5221,9 @@ name of the current output file, if it was opened by \texttt{tell/1} or
 GNU Prolog predicates.
 
 \subsubsection{\texttt{seen/0},
-\texttt{told/0}}
+               \texttt{told/0}}
+   \AddPBD{seen/0}
+   \AddPBD{told/0}
 
 \begin{TemplatesOneCol}
 seen\\
@@ -5028,10 +5233,10 @@ told
 
 \Description
 
-\IdxPBD[seen/0]{seen} closes the current input, and resets it to
+\texttt{seen} closes the current input, and resets it to
 \IdxPK{user\_input}.
 
-\IdxPBD[told/0]{told} closes the current output, and resets it to
+\texttt{told} closes the current output, and resets it to
 \IdxPK{user\_output}.
 
 \PlErrorsNone
@@ -5041,8 +5246,11 @@ told
 GNU Prolog predicates.
 
 \subsubsection{\texttt{get0/1},
-\texttt{get/1},
-\texttt{skip/1}}
+               \texttt{get/1},
+               \texttt{skip/1}}
+   \AddPBD{get0/1}
+   \AddPBD{get/1}
+   \AddPBD{skip/1}
 
 \begin{TemplatesOneCol}
 get0(?in\_character\_code)\\
@@ -5053,14 +5261,14 @@ skip(+character\_code)
 
 \Description
 
-\IdxPBD[get0/1]{get0(Code)} succeeds if \texttt{Code} unifies with the next
+\texttt{get0(Code)} succeeds if \texttt{Code} unifies with the next
 character code read from the current input stream. Thus it is equivalent to
-\IdxPBD[get/1]{get\_code(Code)} \RefSP{get-char/2}.
+\texttt{get\_code(Code)} \RefSP{get-char/2}.
 
 \texttt{get(Code)} succeeds if \texttt{Code} unifies with the next character
 code read from the current input stream that is not a layout character.
 
-\IdxPBD[skip/1]{skip(Code)} skips just past the next character code \texttt{Code}
+\texttt{skip(Code)} skips just past the next character code \texttt{Code}
 from the current input stream.
 
 \Errors
@@ -5072,7 +5280,9 @@ See errors for \texttt{get\_code/2} \RefSP{get-char/2}.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{put/1},
-\texttt{tab/1}}
+               \texttt{tab/1}}
+   \AddPBD{put/1}
+   \AddPBD{tab/1}
 
 \begin{TemplatesOneCol}
 put(+character\_code)\\
@@ -5082,11 +5292,11 @@ tab(+evaluable)
 
 \Description
 
-\IdxPBD[put/1]{put(Code)} writes the character whose code is \texttt{Code} onto the
+\texttt{put(Code)} writes the character whose code is \texttt{Code} onto the
 current output stream. It is equivalent to \texttt{put\_code(Code)}
 \RefSP{put-char/2}.
 
-\IdxPBD[tab/1]{tab(N)} writes \texttt{N} spaces onto the current output
+\texttt{tab(N)} writes \texttt{N} spaces onto the current output
 stream. \texttt{N} may be an arithmetic expression.
 
 \Errors
@@ -5218,7 +5428,8 @@ Cut, disjunction and if-then(-else) are translated literally (and do not need
 to be enclosed in curly brackets).
 
 \subsubsection{\texttt{expand\_term/2},
-\texttt{term\_expansion/2}}
+               \texttt{term\_expansion/2}}
+   \AddPBD{expand\_term/2}
 
 \begin{TemplatesOneCol}
 expand\_term(?term, ?term)\\
@@ -5228,7 +5439,7 @@ term\_expansion(?term, ?term)
 
 \Description
 
-\IdxPBD[expand\_term/2]{expand\_term(Term1, Term2)} succeeds if
+\texttt{expand\_term(Term1, Term2)} succeeds if
 \texttt{Term2} is a transformation of \texttt{Term1}. The transformation
 steps are as follows:
 
@@ -5263,7 +5474,9 @@ explicitly.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{phrase/3},
-\texttt{phrase/2}}
+               \texttt{phrase/2}}
+   \AddPBD{phrase/3}
+   \AddPBD{phrase/2}
 
 \begin{TemplatesOneCol}
 phrase(?term, ?list, ?list)\\
@@ -5273,12 +5486,12 @@ phrase(?term, ?list)
 
 \Description
 
-\IdxPBD[phrase/3]{phrase(Phrase, List, Remainder)} succeeds if the list
+\texttt{phrase(Phrase, List, Remainder)} succeeds if the list
 \texttt{List} is in the language defined by the grammar rule body
 \texttt{Phrase}. \texttt{Remainder} is what remains of the list after a
 phrase has been found. 
 
-\IdxPBD[phrase/2]{phrase(Phrase, List)} is equivalent to
+\texttt{phrase(Phrase, List)} is equivalent to
 \texttt{phrase(Phrase, List, [])}.
 
 \begin{PlErrors}
@@ -5298,12 +5511,18 @@ GNU Prolog predicates.
 \subsection{Logic, control and exceptions}
 
 \subsubsection{\texttt{abort/0},
-\texttt{stop/0},
-\texttt{top\_level/0},
-\texttt{break/0},
-\texttt{halt/1},
-\texttt{halt/0}}
+               \texttt{stop/0},
+               \texttt{top\_level/0},
+               \texttt{break/0},
+               \texttt{halt/1},
+               \texttt{halt/0}}
 \label{abort/0}
+   \AddPBD{abort/0}
+   \AddPBD{stop/0}
+   \AddPBD{top\_level/0}
+   \AddPBD{break/0}
+   \AddPBD{halt/1}
+   \AddPBD{halt/0}
 
 \begin{TemplatesOneCol}
 abort\\
@@ -5317,31 +5536,31 @@ halt
 
 \Description
 
-\IdxPBD[abort/0]{abort} aborts the current execution. If this execution was initiated
+\texttt{abort} aborts the current execution. If this execution was initiated
 under a \Idx{top-level} the control is given back to the top-level and the
 message \texttt{{\lb}execution aborted{\rb}} is displayed. Otherwise,
 e.g. execution started by a \texttt{initialization/1} directive
 \RefSP{initialization/1}, \texttt{abort/0} is equivalent to
 \texttt{halt(1)} (see below).
 
-\IdxPBD[stop/0]{stop} stops the current execution. If this execution was initiated
+\texttt{stop} stops the current execution. If this execution was initiated
 under a \Idx{top-level} the control is given back to the
 top-level. Otherwise, \texttt{stop/0} is equivalent to \texttt{halt(0)}
 (see below).
 
-\IdxPBD[top\_level/0]{top\_level} starts a new recursive \Idx{top-level} (including the
+\texttt{top\_level} starts a new recursive \Idx{top-level} (including the
 banner display). To end this new \Idx{top-level} simply type the end-of-file
 key sequence (\texttt{Ctl-D}) or its term representation:
 \texttt{end\_of\_file.}
 
-\IdxPBD[break/0]{break} invokes a recursive top-level (no banner is displayed). To
+\texttt{break} invokes a recursive top-level (no banner is displayed). To
 end this new level simply type the end-of-file key sequence (\texttt{Ctl-D})
 or its term representation: \texttt{end\_of\_file.}
 
-\IdxPBD[halt/1]{halt(Status)} causes the GNU Prolog process to immediately exit back to
+\texttt{halt(Status)} causes the GNU Prolog process to immediately exit back to
 the shell with the return code \texttt{Status}.
 
-\IdxPBD[halt/0]{halt} is equivalent to \texttt{halt(0)}.
+\texttt{halt} is equivalent to \texttt{halt(0)}.
 
 \begin{PlErrors}
 
@@ -5360,7 +5579,11 @@ the shell with the return code \texttt{Status}.
 predicates.
 
 \subsubsection{\texttt{once/1}, \texttt{({\bs}+)/1} - not provable,
-\texttt{call\_with\_args/1-11}, \texttt{call/2}}
+               \texttt{call\_with\_args/1-11}, \texttt{call/2}}
+   \AddPBD{once/1}
+   \AddPBD{({\bs}+)/1}
+   \AddPBD{call\_with\_args/1-11}
+   \AddPBD{call/2}
 
 \begin{TemplatesOneCol}
 once(+callable\_term)\\
@@ -5372,17 +5595,17 @@ call(+callable\_term, ?boolean)
 
 \Description
 
-\IdxPBD[once/1]{once(Goal)} succeeds if \texttt{call(Goal)} succeeds. However
+\texttt{once(Goal)} succeeds if \texttt{call(Goal)} succeeds. However
 \texttt{once/1} is not re-executable on backtracking since all alternatives
 of \texttt{Goal} are cut. \texttt{once(Goal)} is equivalent to
 \texttt{call(Goal), !}.
 
-\IdxPBD[({\bs}+)/1]{{\bs}+ Goal} succeeds if \texttt{call(Goal)} fails and fails
+\texttt{{\bs}+ Goal} succeeds if \texttt{call(Goal)} fails and fails
 otherwise. This built-in predicate gives negation by failure.
 
-\IdxPBD[call\_with\_args/1-11]{call\_with\_args(Functor, Arg1,\ldots, ArgN)} calls the goal whose functor is \texttt{Functor} and whose arguments are \texttt{Arg1},\ldots, \texttt{ArgN} ($0 \leq \texttt{N} \leq 10$).
+\texttt{call\_with\_args(Functor, Arg1,\ldots, ArgN)} calls the goal whose functor is \texttt{Functor} and whose arguments are \texttt{Arg1},\ldots, \texttt{ArgN} ($0 \leq \texttt{N} \leq 10$).
 
-\IdxPBD[call/2]{call(Goal, Deterministic)} succeeds if \texttt{call(Goal)}
+\texttt{call(Goal, Deterministic)} succeeds if \texttt{call(Goal)}
 succeeds and unifies \texttt{Deterministic} with \texttt{true} if
 \texttt{Goal} has not created any choice-points, with \texttt{false}
 otherwise.
@@ -5418,6 +5641,7 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 \texttt{once/1} and \texttt{({\bs}+)/1} are ISO predicates, \texttt{call\_with\_args/1-11} and \texttt{call/2} are GNU Prolog predicates.
 
 \subsubsection{\texttt{repeat/0}}
+   \AddPBD{repeat/0}
 
 \begin{TemplatesOneCol}
 repeat
@@ -5426,7 +5650,7 @@ repeat
 
 \Description
 
-\IdxPBD[repeat/0]{repeat} generates an infinite sequence of backtracking choices. The
+\texttt{repeat} generates an infinite sequence of backtracking choices. The
 purpose is to repeatedly perform some action on elements which are somehow
 generated, e.g. by reading them from a stream, until some test becomes true.
 Repeat loops cannot contribute to the logic of the program. They are only
@@ -5442,6 +5666,7 @@ any working storage consumed since the call to \texttt{repeat/0}.
 ISO predicate. 
 
 \subsubsection{\texttt{for/3}}
+   \AddPBD{for/3}
 
 \begin{TemplatesOneCol}
 for(?integer, +integer, +integer)
@@ -5450,7 +5675,7 @@ for(?integer, +integer, +integer)
 
 \Description
 
-\IdxPBD[for/3]{for(Counter, Lower, Upper)} generates an sequence of backtracking
+\texttt{for(Counter, Lower, Upper)} generates an sequence of backtracking
 choices instantiating \texttt{Counter} to the values \texttt{Lower},
 \texttt{Lower+1},\ldots, \texttt{Upper}. 
 
@@ -5485,6 +5710,7 @@ and to convert a number to and from a list of characters and character
 codes.
 
 \subsubsection{\texttt{atom\_length/2}}
+   \AddPBD{atom\_length/2}
 
 \begin{TemplatesOneCol}
 atom\_length(+atom, ?integer)
@@ -5493,7 +5719,7 @@ atom\_length(+atom, ?integer)
 
 \Description
 
-\IdxPBD[atom\_length/2]{atom\_length(Atom, Length)} succeeds if \texttt{Length} unifies with
+\texttt{atom\_length(Atom, Length)} succeeds if \texttt{Length} unifies with
 the number of characters of the name of \texttt{Atom}.
 
 \begin{PlErrors}
@@ -5517,6 +5743,7 @@ the number of characters of the name of \texttt{Atom}.
 ISO predicate.
 
 \subsubsection{\texttt{atom\_concat/3}}
+   \AddPBD{atom\_concat/3}
 
 \begin{TemplatesOneCol}
 atom\_concat(+atom, +atom, ?atom)\\
@@ -5526,7 +5753,7 @@ atom\_concat(?atom, ?atom, +atom)
 
 \Description
 
-\IdxPBD[atom\_concat/3]{atom\_concat(Atom1, Atom2, Atom12)} succeeds if the name of
+\texttt{atom\_concat(Atom1, Atom2, Atom12)} succeeds if the name of
 \texttt{Atom12} is the concatenation of the name of \texttt{Atom1} with the
 name of \texttt{Atom1}. This predicate is re-executable on backtracking
 (e.g. if \texttt{Atom12} is instantiated and both \texttt{Atom1} and
@@ -5556,6 +5783,7 @@ name of \texttt{Atom1}. This predicate is re-executable on backtracking
 ISO predicate.
 
 \subsubsection{\texttt{sub\_atom/5}}
+   \AddPBD{sub\_atom/5}
 
 \begin{TemplatesOneCol}
 sub\_atom(+atom, ?integer, ?integer, ?integer, ?atom)
@@ -5564,7 +5792,7 @@ sub\_atom(+atom, ?integer, ?integer, ?integer, ?atom)
 
 \Description
 
-\IdxPBD[sub\_atom/5]{sub\_atom(Atom, Before, Length, After, SubAtom)} succeeds if atom
+\texttt{sub\_atom(Atom, Before, Length, After, SubAtom)} succeeds if atom
 \texttt{Atom} can be split into three atoms, \texttt{AtomL},
 \texttt{SubAtom} and \texttt{AtomR} such that \texttt{Before} is the number
 of characters of the name of \texttt{AtomL}, \texttt{Length} is the number
@@ -5609,6 +5837,7 @@ ISO predicate.
 
 \subsubsection{\texttt{char\_code/2}}
 \label{char-code/2}
+   \AddPBD{char\_code/2}
 
 \begin{TemplatesOneCol}
 char\_code(+character, ?character\_code)\\
@@ -5618,7 +5847,7 @@ char\_code(-character, +character\_code)
 
 \Description
 
-\IdxPBD[char\_code/2]{char\_code(Char, Code)} succeeds if the character code for the
+\texttt{char\_code(Char, Code)} succeeds if the character code for the
 one-char atom \texttt{Char} is \texttt{Code}.
 
 \begin{PlErrors}
@@ -5642,6 +5871,7 @@ one-char atom \texttt{Char} is \texttt{Code}.
 ISO predicate.
 
 \subsubsection{\texttt{lower\_upper/2}}
+   \AddPBD{lower\_upper/2}
 
 \begin{TemplatesOneCol}
 lower\_upper(+character, ?character)\\
@@ -5651,7 +5881,7 @@ lower\_upper(-character, +character)
 
 \Description
 
-\IdxPBD[lower\_upper/2]{lower\_upper(Char1, Char2)} succeeds if \texttt{Char1} and
+\texttt{lower\_upper(Char1, Char2)} succeeds if \texttt{Char1} and
 \texttt{Char2} are one-char atoms and if \texttt{Char2} is the upper
 conversion of \texttt{Char1}. If \texttt{Char1} (resp. \texttt{Char2}) is a
 character that is not a lower (resp. upper) letter then \texttt{Char2} is
@@ -5675,8 +5905,10 @@ equal to \texttt{Char1}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{atom\_chars/2},
-\texttt{atom\_codes/2}}
+               \texttt{atom\_codes/2}}
 \label{atom-chars/2}
+   \AddPBD{atom\_chars/2}
+   \AddPBD{atom\_codes/2}
 
 \begin{TemplatesOneCol}
 atom\_chars(+atom, ?character\_list)\\
@@ -5688,11 +5920,11 @@ atom\_codes(-atom, +character\_code\_list)
 
 \Description
 
-\IdxPBD[atom\_chars/2]{atom\_chars(Atom, Chars)} succeeds if \texttt{Chars}
+\texttt{atom\_chars(Atom, Chars)} succeeds if \texttt{Chars}
 is the list of one-char atoms whose names are the successive characters of
 the name of \texttt{Atom}.
 
-\IdxPBD[atom\_codes/2]{atom\_codes(Atom, Codes)} is similar to
+\texttt{atom\_codes(Atom, Codes)} is similar to
 \texttt{atom\_chars/2} but deals with a list of character codes.
 
 \begin{PlErrors}
@@ -5736,9 +5968,12 @@ error is detected for many other built-in predicates accepting a character
 code (e.g. \texttt{char\_code/2}, \texttt{put\_code/2}).
 
 \subsubsection{\texttt{number\_atom/2},
-\texttt{number\_chars/2},
-\texttt{number\_codes/2}}
+               \texttt{number\_chars/2},
+               \texttt{number\_codes/2}}
 \label{number-atom/2}
+   \AddPBD{number\_atom/2}
+   \AddPBD{number\_chars/2}
+   \AddPBD{number\_codes/2}
 
 \begin{TemplatesOneCol}
 number\_atom(+number, ?atom)\\
@@ -5752,14 +5987,14 @@ number\_codes(-number, +character\_code\_list)
 
 \Description
 
-\IdxPBD[number\_atom/2]{number\_atom(Number, Atom)} succeeds if
+\texttt{number\_atom(Number, Atom)} succeeds if
 \texttt{Atom} is an atom whose name corresponds to the characters of
 \texttt{Number}.
 
-\IdxPBD[number\_chars/2]{number\_chars(Number, Chars)} is similar to
+\texttt{number\_chars(Number, Chars)} is similar to
 \texttt{number\_atom/2} but deals with a list of character codes.
 
-\IdxPBD[number\_codes/2]{number\_codes(Number, Codes)} is similar to
+\texttt{number\_codes(Number, Codes)} is similar to
 \texttt{number\_atom/2} but deals with a list of characters.
 
 \begin{PlErrors}
@@ -5823,6 +6058,7 @@ built-in predicates accepting a character code (e.g. \texttt{char\_code/2},
 \texttt{put\_code/2}).
 
 \subsubsection{\texttt{name/2}}
+   \AddPBD{name/2}
 
 \begin{TemplatesOneCol}
 name(+atomic, ?character\_code\_list)\\
@@ -5832,7 +6068,7 @@ name(-atomic, +character\_code\_list)
 
 \Description
 
-\IdxPBD[name/2]{name(Constant, Codes)} succeeds if \texttt{Codes} is a list whose
+\texttt{name(Constant, Codes)} succeeds if \texttt{Codes} is a list whose
 elements are the character codes corresponding to the successive characters
 of \texttt{Constant} (a number or an atom). However, there atoms are for
 which \texttt{name(Constant, Codes)} is true, but which will not be
@@ -5871,6 +6107,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{atom\_hash/2}}
 \label{atom-hash/2}
+   \AddPBD{atom\_hash/2}
 
 \begin{TemplatesOneCol}
 atom\_hash(+atom, ?integer)\\
@@ -5880,7 +6117,7 @@ atom\_hash(?atom, +integer)
 
 \Description
 
-\IdxPBD[atom\_hash/2]{atom\_hash(Atom, Hash)} succeeds if \texttt{Hash} is the internal
+\texttt{atom\_hash(Atom, Hash)} succeeds if \texttt{Hash} is the internal
 key associated to \texttt{Atom} (an existing atom). The internal key of an
 atom is a unique integer $\geq$ 0 and $<$ to the \IdxPF{max\_atom}
 \Idx{Prolog flag} \RefSP{set-prolog-flag/2}.
@@ -5906,8 +6143,11 @@ atom is a unique integer $\geq$ 0 and $<$ to the \IdxPF{max\_atom}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{new\_atom/3},
-\texttt{new\_atom/2},
-\texttt{new\_atom/1}}
+               \texttt{new\_atom/2},
+               \texttt{new\_atom/1}}
+   \AddPBD{new\_atom/3}
+   \AddPBD{new\_atom/2}
+   \AddPBD{new\_atom/1}
 
 \begin{TemplatesOneCol}
 new\_atom(+atom, +integer, -atom)\\
@@ -5918,7 +6158,7 @@ new\_atom(-atom)
 
 \Description
 
-\IdxPBD[new\_atom/3]{new\_atom(Prefix, Hash, Atom)} unifies \texttt{Atom} with a new atom
+\texttt{new\_atom(Prefix, Hash, Atom)} unifies \texttt{Atom} with a new atom
 whose name begins with the characters of the name of \texttt{Prefix} and
 whose internal key is \texttt{Hash} \RefSP{atom-hash/2}. This predicate is
 then a symbol generator. It is guaranteed that \texttt{Atom} does not exist
@@ -5927,10 +6167,10 @@ before the invocation of \texttt{new\_atom/3}. The characters appended to
 letter), \texttt{a}-\texttt{z} (small letter), \texttt{0}-\texttt{9}
 (digit), \texttt{\#}, \texttt{\$}, \texttt{\&}, \texttt{\_}, \texttt{@}.
 
-\IdxPBD[new\_atom/2]{new\_atom/2} is similar to \texttt{new\_atom/3}, but the atom
+\texttt{new\_atom/2} is similar to \texttt{new\_atom/3}, but the atom
 generated can have any (free) internal key.
 
-\IdxPBD[new\_atom/1]{new\_atom/1} is similar to \texttt{new\_atom(atom\_, Atom)}, i.e.
+\texttt{new\_atom/1} is similar to \texttt{new\_atom(atom\_, Atom)}, i.e.
 the generated atom begins with \texttt{atom\_}.
 
 \begin{PlErrors}
@@ -5961,6 +6201,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{current\_atom/1}}
 \label{current-atom/2}
+   \AddPBD{current\_atom/1}
 
 \begin{TemplatesOneCol}
 current\_atom(?atom)
@@ -5969,7 +6210,7 @@ current\_atom(?atom)
 
 \Description
 
-\IdxPBD[current\_atom/1]{current\_atom(Atom)} succeeds if there exists an atom that unifies
+\texttt{current\_atom(Atom)} succeeds if there exists an atom that unifies
 with \texttt{Atom}. All atoms are found except those beginning with a
 \texttt{'\$'} (system atoms). This predicate is re-executable on
 backtracking.
@@ -5987,6 +6228,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{atom\_property/2}}
 \label{atom-property/2}
+   \AddPBD{atom\_property/2}
 
 \begin{TemplatesOneCol}
 atom\_property(?atom, ?atom\_property)
@@ -5995,7 +6237,7 @@ atom\_property(?atom, ?atom\_property)
 
 \Description
 
-\IdxPBD[atom\_property/2]{atom\_property(Atom, Property)} succeeds if
+\texttt{atom\_property(Atom, Property)} succeeds if
 \texttt{current\_atom(Atom)} succeeds \RefSP{current-atom/2} and if
 \texttt{Property} unifies with one of the properties of the atom. This
 predicate is re-executable on backtracking.
@@ -6023,7 +6265,7 @@ with this name.
 
 \item \IdxPPD{needs\_scan}: if the atom must be scanned when output to be
 read later (e.g. contains special characters that must be output with a
-\texttt{{\bs}} escape sequence).
+\texttt{{\bs}} \Idx{escape sequence}).
 
 \end{itemize}
 
@@ -6053,6 +6295,7 @@ since they are written in Prolog using other built-in predicates, some
 errors can occur due to those built-in predicates.
 
 \subsubsection{\texttt{append/3}}
+   \AddPBD{append/3}
 
 \begin{TemplatesOneCol}
 append(?list, ?list, ?list)
@@ -6061,7 +6304,7 @@ append(?list, ?list, ?list)
 
 \Description
 
-\IdxPBD[append/3]{append(List1, List2, List12)} succeeds if the concatenation of the
+\texttt{append(List1, List2, List12)} succeeds if the concatenation of the
 list \texttt{List1} and the list \texttt{List2} is the list \texttt{List12}.
 This predicate is re-executable on backtracking (e.g. if \texttt{List12} is
 instantiated and both \texttt{List1} and \texttt{List2} are variable).
@@ -6073,7 +6316,9 @@ instantiated and both \texttt{List1} and \texttt{List2} are variable).
 GNU Prolog predicate.
 
 \subsubsection{\texttt{member/2},
-\texttt{memberchk/2}}
+               \texttt{memberchk/2}}
+   \AddPBD{member/2}
+   \AddPBD{memberchk/2}
 
 \begin{TemplatesOneCol}
 member(?term, ?list)\\
@@ -6083,11 +6328,11 @@ memberchk(?term, ?list)
 
 \Description
 
-\IdxPBD[member/2]{member(Element, List)} succeeds if \texttt{Element} belongs to the
+\texttt{member(Element, List)} succeeds if \texttt{Element} belongs to the
 \texttt{List}. This predicate is re-executable on backtracking and can be
 thus used to enumerate the elements of \texttt{List}.
 
-\IdxPBD[memberchk/2]{memberchk/2} is similar to \texttt{member/2} but only succeeds once.
+\texttt{memberchk/2} is similar to \texttt{member/2} but only succeeds once.
 
 \PlErrorsNone
 
@@ -6096,6 +6341,7 @@ thus used to enumerate the elements of \texttt{List}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{reverse/2}}
+   \AddPBD{reverse/2}
 
 \begin{TemplatesOneCol}
 reverse(?list, ?list)
@@ -6104,7 +6350,7 @@ reverse(?list, ?list)
 
 \Description
 
-\IdxPBD[reverse/2]{reverse(List1, List2)} succeeds if \texttt{List2} unifies with the
+\texttt{reverse(List1, List2)} succeeds if \texttt{List2} unifies with the
 list \texttt{List1} in reverse order.
 
 \PlErrorsNone
@@ -6114,7 +6360,9 @@ list \texttt{List1} in reverse order.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{delete/3},
-\texttt{select/3}}
+               \texttt{select/3}}
+   \AddPBD{delete/3}
+   \AddPBD{select/3}
 
 \begin{TemplatesOneCol}
 delete(?list, ?term, ?list)\\
@@ -6124,11 +6372,11 @@ select(?term, ?list, ?list)
 
 \Description
 
-\IdxPBD[delete/3]{delete(List1, Element, List2)} removes all occurrences of
+\texttt{delete(List1, Element, List2)} removes all occurrences of
 \texttt{Element} in \texttt{List1} to provide \texttt{List2}. A strict term
 equality is required, cf. \IdxPB{(==)/2} \RefSP{(==)/2}.
 
-\IdxPBD[select/3]{select(Element, List1, List2)} removes one occurrence of
+\texttt{select(Element, List1, List2)} removes one occurrence of
 \texttt{Element} in \texttt{List1} to provide \texttt{List2}. This predicate
 is re-executable on backtracking.
 
@@ -6139,6 +6387,7 @@ is re-executable on backtracking.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{permutation/2}}
+   \AddPBD{permutation/2}
 
 \begin{TemplatesOneCol}
 permutation(?list, ?list)
@@ -6147,7 +6396,7 @@ permutation(?list, ?list)
 
 \Description
 
-\IdxPBD[permutation/2]{permutation(List1, List2)} succeeds if \texttt{List2}
+\texttt{permutation(List1, List2)} succeeds if \texttt{List2}
 is a permutation of the elements of \texttt{List1}. This predicate is
 re-executable on backtracking.
 
@@ -6158,7 +6407,9 @@ re-executable on backtracking.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{prefix/2},
-\texttt{suffix/2}}
+               \texttt{suffix/2}}
+   \AddPBD{prefix/2}
+   \AddPBD{suffix/2}
 
 \begin{TemplatesOneCol}
 prefix(?list, ?list)\\
@@ -6168,10 +6419,10 @@ suffix(?list, ?list)
 
 \Description
 
-\IdxPBD[prefix/2]{prefix(Prefix, List)} succeeds if \texttt{Prefix} is a prefix of
+\texttt{prefix(Prefix, List)} succeeds if \texttt{Prefix} is a prefix of
 \texttt{List}. This predicate is re-executable on backtracking.
 
-\IdxPBD[suffix/2]{suffix(Suffix, List)} succeeds if \texttt{Suffix} is a suffix of
+\texttt{suffix(Suffix, List)} succeeds if \texttt{Suffix} is a suffix of
 \texttt{List}. This predicate is re-executable on backtracking.
 
 \PlErrorsNone
@@ -6181,6 +6432,7 @@ suffix(?list, ?list)
 GNU Prolog predicate.
 
 \subsubsection{\texttt{sublist/2}}
+   \AddPBD{sublist/2}
 
 \begin{TemplatesOneCol}
 sublist(?list, ?list)
@@ -6189,7 +6441,7 @@ sublist(?list, ?list)
 
 \Description
 
-\IdxPBD[sublist/2]{sublist(List1, List2)} succeeds if \texttt{List2} is a sub-list of
+\texttt{sublist(List1, List2)} succeeds if \texttt{List2} is a sub-list of
 \texttt{List1}. This predicate is re-executable on backtracking.
 
 \PlErrorsNone
@@ -6199,6 +6451,7 @@ sublist(?list, ?list)
 GNU Prolog predicate.
 
 \subsubsection{\texttt{last/2}}
+   \AddPBD{last/2}
 
 \begin{TemplatesOneCol}
 last(?list, ?term)
@@ -6207,7 +6460,7 @@ last(?list, ?term)
 
 \Description
 
-\IdxPBD[last/2]{last(List, Element)} succeeds if \texttt{Element} is the last element
+\texttt{last(List, Element)} succeeds if \texttt{Element} is the last element
 of \texttt{List}.
 
 \PlErrorsNone
@@ -6217,6 +6470,7 @@ of \texttt{List}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{length/2}}
+   \AddPBD{length/2}
 
 \begin{TemplatesOneCol}
 length(?list, ?integer)
@@ -6225,7 +6479,7 @@ length(?list, ?integer)
 
 \Description
 
-\IdxPBD[length/2]{length(List, Length)} succeeds if \texttt{Length} is the length of
+\texttt{length(List, Length)} succeeds if \texttt{Length} is the length of
 \texttt{List}.
 
 \PlErrorsNone
@@ -6235,6 +6489,7 @@ length(?list, ?integer)
 GNU Prolog predicate.
 
 \subsubsection{\texttt{nth/3}}
+   \AddPBD{nth/3}
 
 \begin{TemplatesOneCol}
 nth(?integer, ?list, ?term)
@@ -6243,7 +6498,7 @@ nth(?integer, ?list, ?term)
 
 \Description
 
-\IdxPBD[nth/3]{nth(N, List, Element)} succeeds if the \texttt{N}\emph{th}
+\texttt{nth(N, List, Element)} succeeds if the \texttt{N}\emph{th}
 argument of \texttt{List} is \texttt{Element}.
 
 \PlErrorsNone
@@ -6253,8 +6508,11 @@ argument of \texttt{List} is \texttt{Element}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{max\_list/2},
-\texttt{min\_list/2},
-\texttt{sum\_list/2}}
+               \texttt{min\_list/2},
+               \texttt{sum\_list/2}}
+   \AddPBD{min\_list/2}
+   \AddPBD{max\_list/2}
+   \AddPBD{sum\_list/2}
 
 \begin{TemplatesOneCol}
 min\_list(+list, ?number)\\
@@ -6265,13 +6523,13 @@ sum\_list(+list, ?number)
 
 \Description
 
-\IdxPBD[min\_list/2]{min\_list(List, Min)} succeeds if \texttt{Min} is the
+\texttt{min\_list(List, Min)} succeeds if \texttt{Min} is the
 smallest number in \texttt{List}.
 
-\IdxPBD[max\_list/2]{max\_list(List, Max)} succeeds if \texttt{Max} is the
+\texttt{max\_list(List, Max)} succeeds if \texttt{Max} is the
 largest number in \texttt{List}.
 
-\IdxPBD[sum\_list/2]{sum\_list(List, Sum)} succeeds if \texttt{Sum} is the
+\texttt{sum\_list(List, Sum)} succeeds if \texttt{Sum} is the
 sum of all the elements in \texttt{List}.
 
 \texttt{List} must be a list of arithmetic evaluable terms
@@ -6284,12 +6542,18 @@ sum of all the elements in \texttt{List}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{sort/2},
-\texttt{sort0/2},
-\texttt{keysort/2}
-\texttt{sort/1},
-\texttt{sort0/1},
-\texttt{keysort/1}}
+               \texttt{sort0/2},
+               \texttt{keysort/2}
+               \texttt{sort/1},
+               \texttt{sort0/1},
+               \texttt{keysort/1}}
 \label{sort/2}
+   \AddPBD{sort/2}
+   \AddPBD{sort0/2}
+   \AddPBD{keysort/2}
+   \AddPBD{sort/1}
+   \AddPBD{sort0/1}
+   \AddPBD{keysort/1}
 
 \begin{TemplatesOneCol}
 sort(+list, ?list)\\
@@ -6303,14 +6567,14 @@ keysort(+list)
 
 \Description
 
-\IdxPBD[sort/2]{sort(List1, List2)} succeeds if \texttt{List2} is the
+\texttt{sort(List1, List2)} succeeds if \texttt{List2} is the
 sorted list corresponding to \texttt{List1} where duplicate elements are
 merged.
 
-\IdxPBD{sort0/2} is similar to \texttt{sort/2} except that duplicate elements
+\texttt{sort0/2} is similar to \texttt{sort/2} except that duplicate elements
 are not merged.
 
-\IdxPBD[keysort/2]{keysort(List1, List2)} succeeds if \texttt{List2} is the
+\texttt{keysort(List1, List2)} succeeds if \texttt{List2} is the
 sorted list of \texttt{List1} according to the keys. The list \texttt{List1}
 consists of items of the form \texttt{Key-Value}. These items are sorted
 according to the value of \texttt{Key} yielding the \texttt{List2}. Duplicate
@@ -6318,7 +6582,7 @@ keys are not merged. This predicate is stable, i.e. if \texttt{K-A} occurs
 before \texttt{K-B} in the input, then \texttt{K-A} will occur before
 \texttt{K-B} in the output.
 
-\IdxPBD{sort/1}, \IdxPBD{sort0/1} and \IdxPBD{keysort/1} are similar to
+\texttt{sort/1}, \texttt{sort0/1} and \texttt{keysort/1} are similar to
 \texttt{sort/2}, \texttt{sort0/2} and \texttt{keysort/2} but achieve a sort
 in-place destructing the original \texttt{List1} (this in-place assignment is
 not undone at backtracking). The sorted list occupies the same memory space
@@ -6420,9 +6684,12 @@ When an array is read, a term of the form \texttt{g\_array([Elem0,...,
 ElemSize-1])} is returned.
 
 \subsubsection{\texttt{g\_assign/2},
-\texttt{g\_assignb/2},
-\texttt{g\_link/2}}
+               \texttt{g\_assignb/2},
+               \texttt{g\_link/2}}
 \label{g-assign/2}
+   \AddPBD{g\_assign/2}
+   \AddPBD{g\_assignb/2}
+   \AddPBD{g\_link/2}
 
 \begin{TemplatesOneCol}
 g\_assign(+callable\_term, ?term)\\
@@ -6433,14 +6700,14 @@ g\_link(+callable\_term, ?term)
 
 \Description
 
-\IdxPBD[g\_assign/2]{g\_assign(GVarName, Value)} assigns a copy of the term
+\texttt{g\_assign(GVarName, Value)} assigns a copy of the term
 \texttt{Value} to \texttt{GVarName}. This assignment is not undone when
 backtracking occurs.
 
-\IdxPBD[g\_assignb/2]{g\_assignb/2} is similar to \texttt{g\_assign/2} but the assignment
+\texttt{g\_assignb/2} is similar to \texttt{g\_assign/2} but the assignment
 is undone at backtracking.
 
-\IdxPBD[g\_link/2]{g\_link(GVarName, Value)} makes a link between \texttt{GVarName} to
+\texttt{g\_link(GVarName, Value)} makes a link between \texttt{GVarName} to
 the term \texttt{Value}. This allows the user to give a name to any Prolog
 term (in particular non-ground terms). Such an assignment is always undone
 when backtracking occurs (since the term may no longer exist). If
@@ -6468,6 +6735,7 @@ is not a valid index \RefSP{Global-variables}}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{g\_read/2}}
+   \AddPBD{g\_read/2}
 
 \begin{TemplatesOneCol}
 g\_read(+callable\_term, ?term)
@@ -6476,7 +6744,7 @@ g\_read(+callable\_term, ?term)
 
 \Description
 
-\IdxPBD[g\_read/2]{g\_read(GVarName, Value)} unifies \texttt{Value} with the term
+\texttt{g\_read(GVarName, Value)} unifies \texttt{Value} with the term
 assigned to \texttt{GVarName}.
 
 \begin{PlErrors}
@@ -6498,6 +6766,7 @@ is not a valid index \RefSP{Global-variables}}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{g\_array\_size/2}}
+   \AddPBD{g\_array\_size/2}
 
 \begin{TemplatesOneCol}
 g\_array\_size(+callable\_term, ?integer)
@@ -6506,7 +6775,7 @@ g\_array\_size(+callable\_term, ?integer)
 
 \Description
 
-\IdxPBD[g\_array\_size/2]{g\_array\_size(GVarName, Value)} unifies \texttt{Size} with the
+\texttt{g\_array\_size(GVarName, Value)} unifies \texttt{Size} with the
 dimension (an integer $>$ 0) of the array assigned to \texttt{GVarName}.
 Fails if \texttt{GVarName} is not an array.
 
@@ -6689,6 +6958,7 @@ X = g_array([10,20,30,4,5,6])
 
 \subsubsection{\texttt{set\_prolog\_flag/2}}
 \label{set-prolog-flag/2}
+   \AddPBD{set\_prolog\_flag/2}
 
 \begin{TemplatesOneCol}
 set\_prolog\_flag(+flag, +term)
@@ -6697,7 +6967,7 @@ set\_prolog\_flag(+flag, +term)
 
 \Description
 
-\IdxPBD[set\_prolog\_flag/2]{set\_prolog\_flag(Flag, Value)} sets the value
+\texttt{set\_prolog\_flag(Flag, Value)} sets the value
 of the \IdxD{Prolog flag} \texttt{Flag} to \texttt{Value}.
 
 \index{flag|see {Prolog flag}}
@@ -6734,14 +7004,12 @@ bounded ? & Y \\
 \hline
 
 \IdxPFD{integer\_rounding\_function} & \texttt{toward\_zero}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
-\texttt{down} & 
-\texttt{\textit{rnd}(X)} = integer part of \texttt{X}
-
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-\texttt{\textit{rnd}(X)} = $\lfloor$\texttt{X$\rfloor$}
-\RefSP{Evaluation-of-an-arithmetic-expression} & Y \\
+\linebreak
+                                       \texttt{down} & 
+   \texttt{\textit{rnd}(X)} = integer part of \texttt{X}
+   \linebreak
+   \texttt{\textit{rnd}(X)} = $\lfloor$\texttt{X$\rfloor$}
+   \RefSP{Evaluation-of-an-arithmetic-expression} & Y \\
 
 \hline
 
@@ -6784,7 +7052,7 @@ system & N \\
 
 \SPart{Changeable flags}:
 
-\begin{tabular}{|L{4.5cm}|C{2.2cm}|L{6.5cm}|C{0,6cm}|}
+\begin{tabular}{|L{4.5cm}|C{2.8cm}|L{6.2cm}|C{0,6cm}|}
 \hline
 
 Flag & Values & Description & ISO \\
@@ -6812,125 +7080,147 @@ behavior ? & N \\
 \hline
 
 ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
 \IdxPFD{double\_quotes} &
   ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{atom}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{chars}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
-  \texttt{\underline{codes}} &
+\linebreak
+  \texttt{\underline{codes}}
+\linebreak
+  \texttt{atom\_no\_escape}
+\linebreak
+  \texttt{chars\_no\_escape}
+\linebreak
+  \texttt{codes\_no\_escape} &
     a double quoted constant is returned as:
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     an atom
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     a list of characters
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
-    a list of character codes &
+\linebreak
+    a list of character codes
+\linebreak
+    as \texttt{atom} but ignore \IdxD{escape sequence}s
+\linebreak
+    as \texttt{chars} but ignore escape sequences
+\linebreak
+    as \texttt{code} but ignore escape sequences &
       ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
-      Y \\
+\linebreak
+      Y
+\linebreak
+    ~
+\linebreak
+    ~
+\linebreak
+      N
+ \\
 
 \hline
 
 ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
+\linebreak
+\IdxPFD{back\_quotes} &
+  ~
+\linebreak
+  \texttt{atom}
+\linebreak
+  \texttt{chars}
+\linebreak
+  \texttt{codes}
+\linebreak
+  \texttt{\underline{atom\_no\_escape}}
+\linebreak
+  \texttt{chars\_no\_escape}
+\linebreak
+  \texttt{codes\_no\_escape} &
+    a back quoted constant is returned as:
+\linebreak
+    an atom
+\linebreak
+    a list of characters
+\linebreak
+    a list of character codes
+\linebreak
+    as \texttt{atom} but ignore escape sequences
+\linebreak
+    as \texttt{chars} but ignore escape sequences
+\linebreak
+    as \texttt{code} but ignore escape sequences &
+      ~
+\linebreak
+      N
+ \\
+\hline
 
+~
+\linebreak
 \IdxPFD{unknown} &
   ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{\underline{error}}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{warning}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{fail} &
     a predicate calls an unknown procedure:
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     an \texttt{existence\_error} is raised
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     a message is displayed then fails
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     quietly fails &
       ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
       Y \\
 
 \hline
 
 ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
 \IdxPFD{syntax\_error} &
   ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{\underline{error}}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{warning}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{fail} &
     a predicate causes a syntax error:
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     a \texttt{syntax\_error} is raised
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     a message is displayed then fails
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     quietly fails &
       ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
       N \\
 
 \hline
 
 ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
 \IdxPFD{os\_error} &
   ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{\underline{error}}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{warning}
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
   \texttt{fail} &
     a predicate causes an O.S. error:
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     a \texttt{system\_error} is raised
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     a message is displayed then fails
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
     quietly fails &
       ~
-%%%%%%%% line break: a blank line works for both HEVEA and LaTeX %%%%%%%
-
+\linebreak
       N \\
 
 \hline
@@ -6976,6 +7266,7 @@ other Prolog systems. When turned off the following relaxations apply:
 ISO predicate. All ISO flags are implemented.
 
 \subsubsection{\texttt{current\_prolog\_flag/2}}
+   \AddPBD{current\_prolog\_flag/2}
 
 \begin{TemplatesOneCol}
 current\_prolog\_flag(?flag, ?term)
@@ -6984,7 +7275,7 @@ current\_prolog\_flag(?flag, ?term)
 
 \Description
 
-\IdxPBD[current\_prolog\_flag/2]{current\_prolog\_flag(Flag, Value)}
+\texttt{current\_prolog\_flag(Flag, Value)}
 succeeds if there exists a \Idx{Prolog flag} that unifies with
 \texttt{Flag} and whose value unifies with \texttt{Value}. This predicate
 is re-executable on backtracking.
@@ -7005,6 +7296,7 @@ ISO predicate.
 
 \subsubsection{\texttt{set\_bip\_name/2}}
 \label{set-bip-name/2}
+   \AddPBD{set\_bip\_name/2}
 
 \begin{TemplatesOneCol}
 set\_bip\_name(+atom, +arity)
@@ -7013,7 +7305,7 @@ set\_bip\_name(+atom, +arity)
 
 \Description
 
-\IdxPBD[set\_bip\_name/2]{set\_bip\_name(Functor, Arity)} initializes the context of the error
+\texttt{set\_bip\_name(Functor, Arity)} initializes the context of the error
 \RefSP{General-format-and-error-context} with \texttt{Functor} and
 \texttt{Arity} (if \texttt{Arity} $<$ 0 only \texttt{Functor} is
 significant).
@@ -7040,6 +7332,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{current\_bip\_name/2}}
 \label{current-bip-name/2}
+   \AddPBD{current\_bip\_name/2}
 
 \begin{TemplatesOneCol}
 current\_bip\_name(?atom, ?arity)
@@ -7048,7 +7341,7 @@ current\_bip\_name(?atom, ?arity)
 
 \Description
 
-\IdxPBD[current\_bip\_name/2]{current\_bip\_name(Functor, Arity)} succeeds if \texttt{Functor} and
+\texttt{current\_bip\_name(Functor, Arity)} succeeds if \texttt{Functor} and
 \texttt{Arity} correspond to the context of the error \RefSP{General-format-and-error-context} (if \texttt{Arity} $<$ 0 only \texttt{Functor} is
 significant).
 
@@ -7067,8 +7360,10 @@ significant).
 GNU Prolog predicate.
 
 \subsubsection{\texttt{write\_pl\_state\_file/1},
-\texttt{read\_pl\_state\_file/1}}
+               \texttt{read\_pl\_state\_file/1}}
 \label{write-pl-state-file/1}
+   \AddPBD{write\_pl\_state\_file/1}
+   \AddPBD{read\_pl\_state\_file/1}
 
 \begin{TemplatesOneCol}
 write\_pl\_state\_file(+source\_sink)\\
@@ -7078,7 +7373,7 @@ read\_pl\_state\_file(+source\_sink)
 
 \Description
 
-\IdxPBD[write\_pl\_state\_file/1]{write\_pl\_state\_file(FileName)} writes onto \texttt{FileName} all
+\texttt{write\_pl\_state\_file(FileName)} writes onto \texttt{FileName} all
 information that influences the parsing of a term \RefSP{Term-input/output}. This allows a sub-process written in Prolog to read this
 file and then process any Prolog term as done by the parent process. This
 file can also be passed as argument of the \IdxK{--pl-state} option when
@@ -7091,13 +7386,12 @@ following elements are saved:
 
 \item the character conversion table \RefSP{char-conversion/2}.
 
-\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes} and
-\IdxPF{singleton\_warning} \Idx[Prolog flag]{Prolog flags}
+\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes}, \IdxPF{back\_quotes} and \IdxPF{singleton\_warning} \Idx{Prolog flag}s
 \RefSP{set-prolog-flag/2}.
 
 \end{itemize}
 
-\IdxPBD[read\_pl\_state\_file/1]{read\_pl\_state\_file(FileName)} reads (restores) from
+\texttt{read\_pl\_state\_file(FileName)} reads (restores) from
 \texttt{FileName} all information previously saved by
 \texttt{write\_pl\_state\_file/1.}
 
@@ -7123,8 +7417,10 @@ GNU Prolog predicate.
 \subsection{Program state}
 
 \subsubsection{\texttt{consult/1},
-\texttt{'.'/2} - program consult}
+               \texttt{'.'/2} - program consult}
 \label{consult/1}
+   \AddPBD{consult/1}
+   \AddPBD{'.'/2}
 
 \begin{TemplatesOneCol}
 consult(+atom\_or\_atom\_list)\\
@@ -7134,7 +7430,7 @@ consult(+atom\_or\_atom\_list)\\
 
 \Description
 
-\IdxPBD[consult/1]{consult(Files)} compiles and loads into memory each file
+\texttt{consult(Files)} compiles and loads into memory each file
 of the list \texttt{Files}. Each file is compiled for byte-code using the
 GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} then loaded using
 \texttt{load/1} \RefSP{load/1}. It is possible to specify \IdxPK{user} as a
@@ -7147,7 +7443,7 @@ The final file name of a file is computed using the predicates
 \IdxPB{prolog\_file\_name/2} \RefSP{prolog-file-name/2} and
 \IdxPB{absolute\_file\_name/2} \RefSP{absolute-file-name/2}.
 
-\texttt{[ File | Files ]}, i.e. \IdxPBD['.'/2]{'.'(File, Files)} is
+\texttt{[ File | Files ]}, i.e. \texttt{'.'(File, Files)} is
 equivalent to \texttt{consult([ File | Files ])}.
 
 \begin{PlErrors}
@@ -7182,6 +7478,7 @@ GNU Prolog predicates.
 
 \subsubsection{\texttt{load/1}}
 \label{load/1}
+   \AddPBD{load/1}
 
 \begin{TemplatesOneCol}
 load(+atom\_or\_atom\_list)
@@ -7190,7 +7487,7 @@ load(+atom\_or\_atom\_list)
 
 \Description
 
-\IdxPBD[load/1]{load(Files)} loads into memory each file of the list
+\texttt{load(Files)} loads into memory each file of the list
 \texttt{Files}. Each file must have been previously compiled for byte-code
 using the GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler}.
 \texttt{Files} can be also a single file name (i.e. an atom).
@@ -7230,8 +7527,10 @@ pathname but does not correspond to an existing source}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{listing/1},
-\texttt{listing/0}}
+               \texttt{listing/0}}
 \label{listing/1}
+   \AddPBD{listing/1}
+   \AddPBD{listing/0}
 
 \begin{TemplatesOneCol}
 listing(+predicate\_indicator)\\
@@ -7242,13 +7541,13 @@ listing
 
 \Description
 
-\IdxPBD[listing/1]{listing(Pred)} lists the clauses of the consulted predicate whose
+\texttt{listing(Pred)} lists the clauses of the consulted predicate whose
 predicate indicator is \texttt{Pred}. \texttt{Pred} can also be a single
 atom in which case all predicates whose name is \texttt{Pred} are listed (of
 any arity). This predicate uses \IdxPB{portray\_clause/2}
 \RefSP{portray-clause/2} to output the clauses. 
 
-\IdxPBD[listing/0]{listing} lists all clauses of all consulted predicates.
+\texttt{listing} lists all clauses of all consulted predicates.
 
 \begin{PlErrors}
 
@@ -7268,7 +7567,9 @@ GNU Prolog predicate.
 \subsection{System statistics}
 
 \subsubsection{\texttt{statistics/0},
-\texttt{statistics/2}}
+               \texttt{statistics/2}}
+   \AddPBD{statistics/0}
+   \AddPBD{statistics/2}
 
 \begin{TemplatesOneCol}
 statistics\\
@@ -7278,9 +7579,9 @@ statistics(?atom, ?list)
 
 \Description
 
-\IdxPBD[statistics/0]{statistics} displays statistics about memory usage and run times.
+\texttt{statistics} displays statistics about memory usage and run times.
 
-\IdxPBD[statistics/2]{statistics(Key, Value)} unifies \texttt{Value} with the current
+\texttt{statistics(Key, Value)} unifies \texttt{Value} with the current
 value of the statistics key \texttt{Key}. \texttt{Value} a list of two
 elements. Times are in milliseconds, sizes of areas in bytes.
 
@@ -7352,10 +7653,14 @@ is neither a variable nor an integer}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{user\_time/1},
-\texttt{system\_time/1},
-\texttt{cpu\_time/1},
-\texttt{real\_time/1}}
+               \texttt{system\_time/1},
+               \texttt{cpu\_time/1},
+               \texttt{real\_time/1}}
 \label{user-time/1}
+   \AddPBD{user\_time/1}
+   \AddPBD{system\_time/1}
+   \AddPBD{cpu\_time/1}
+   \AddPBD{real\_time/1}
 
 \begin{TemplatesOneCol}
 user\_time(?integer)\\
@@ -7367,16 +7672,16 @@ real\_time(?integer)
 
 \Description
 
-\IdxPBD[user\_time/1]{user\_time(Time)} unifies \texttt{Time} with the user
+\texttt{user\_time(Time)} unifies \texttt{Time} with the user
 CPU time elapsed since the start of Prolog.
 
-\IdxPBD[system\_time/1]{system\_time(Time)} unifies \texttt{Time} with the
+\texttt{system\_time(Time)} unifies \texttt{Time} with the
 system CPU time elapsed since the start of Prolog.
 
-\IdxPBD[cpu\_time/1]{cpu\_time(Time)} unifies \texttt{Time} with the CPU
+\texttt{cpu\_time(Time)} unifies \texttt{Time} with the CPU
 time (user + system) elapsed since the start of Prolog.
 
-\IdxPBD[real\_time/1]{real\_time(Time)} unifies \texttt{Time} with the
+\texttt{real\_time(Time)} unifies \texttt{Time} with the
 absolute time elapsed since the start of Prolog.
 
 \begin{PlErrors}
@@ -7393,7 +7698,9 @@ GNU Prolog predicates.
 \subsection{Random number generator}
 
 \subsubsection{\texttt{set\_seed/1},
-\texttt{randomize/0}}
+               \texttt{randomize/0}}
+   \AddPBD{set\_seed/1}
+   \AddPBD{randomize/0}
 
 \begin{TemplatesOneCol}
 set\_seed(+integer)\\
@@ -7403,10 +7710,10 @@ randomize
 
 \Description
 
-\IdxPBD[set\_seed/1]{set\_seed(Seed)} reinitializes the random number generator seed with
+\texttt{set\_seed(Seed)} reinitializes the random number generator seed with
 \texttt{Seed}.
 
-\IdxPBD[randomize/0]{randomize} reinitializes the random number generator. This
+\texttt{randomize} reinitializes the random number generator. This
 predicates calls \texttt{set\_seed/1} with a random value depending on the
 absolute time.
 
@@ -7428,6 +7735,7 @@ absolute time.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{get\_seed/1}}
+   \AddPBD{get\_seed/1}
 
 \begin{TemplatesOneCol}
 get\_seed(?integer)
@@ -7436,7 +7744,7 @@ get\_seed(?integer)
 
 \Description
 
-\IdxPBD[get\_seed/1]{get\_seed(Seed)} unifies \texttt{Seed} with the current random
+\texttt{get\_seed(Seed)} unifies \texttt{Seed} with the current random
 number generator seed.
 
 \begin{PlErrors}
@@ -7454,6 +7762,7 @@ number generator seed.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{random/1}}
+   \AddPBD{random/1}
 
 \begin{TemplatesOneCol}
 random(-float)
@@ -7462,7 +7771,7 @@ random(-float)
 
 \Description
 
-\IdxPBD[random/1]{random(Number)} unifies \texttt{Number} with a random floating point
+\texttt{random(Number)} unifies \texttt{Number} with a random floating point
 number such that 0.0 $\leq$ \texttt{Number} $<$ 1.0.
 
 \begin{PlErrors}
@@ -7477,6 +7786,7 @@ number such that 0.0 $\leq$ \texttt{Number} $<$ 1.0.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{random/3}}
+   \AddPBD{random/3}
 
 \begin{TemplatesOneCol}
 random(+number, +number, -number)
@@ -7485,7 +7795,7 @@ random(+number, +number, -number)
 
 \Description
 
-\IdxPBD[random/3]{random(Base, Max, Number)} unifies \texttt{Number} with a random
+\texttt{random(Base, Max, Number)} unifies \texttt{Number} with a random
 number such that \texttt{Base} $\leq$ \texttt{Number} $<$ \texttt{Max}. If
 both \texttt{Base} and \texttt{Max} are integers \texttt{Number} will be an
 integer, otherwise \texttt{Number} will be a floating point number.
@@ -7517,6 +7827,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{absolute\_file\_name/2}}
 \label{absolute-file-name/2}
+   \AddPBD{absolute\_file\_name/2}
 
 \begin{TemplatesOneCol}
 absolute\_file\_name(+atom, atom)
@@ -7525,7 +7836,7 @@ absolute\_file\_name(+atom, atom)
 
 \Description
 
-\IdxPBD[absolute\_file\_name/2]{absolute\_file\_name(File1, File2)} succeeds if \texttt{File2} is
+\texttt{absolute\_file\_name(File1, File2)} succeeds if \texttt{File2} is
 the absolute pathname associated to the relative file name \texttt{File1}.
 \texttt{File1} can contain \texttt{\$\Param{VAR\_NAME}} sub-strings. When
 such a sub-string is encountered, it is expanded with the value of the
@@ -7571,6 +7882,7 @@ the desired file, e.g. \texttt{open/4}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{decompose\_file\_name/4}}
+   \AddPBD{decompose\_file\_name/4}
 
 \begin{TemplatesOneCol}
 decompose\_file\_name(+atom, ?atom, ?atom, ?atom)
@@ -7579,7 +7891,7 @@ decompose\_file\_name(+atom, ?atom, ?atom, ?atom)
 
 \Description
 
-\IdxPBD[decompose\_file\_name/4]{decompose\_file\_name(File, Directory, Prefix, Suffix)} decomposes
+\texttt{decompose\_file\_name(File, Directory, Prefix, Suffix)} decomposes
 the pathname \texttt{File} and extracts the \texttt{Directory} part
 (characters before the last \texttt{/}), the \texttt{Prefix} part
 (characters after the last \texttt{/} and before the last \texttt{.} or
@@ -7611,6 +7923,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{prolog\_file\_name/2}}
 \label{prolog-file-name/2}
+   \AddPBD{prolog\_file\_name/2}
 
 \begin{TemplatesOneCol}
 prolog\_file\_name(+atom, ?atom)
@@ -7619,7 +7932,7 @@ prolog\_file\_name(+atom, ?atom)
 
 \Description
 
-\IdxPBD[prolog\_file\_name/2]{prolog\_file\_name(File1, File2)} unifies \texttt{File2} with the
+\texttt{prolog\_file\_name(File1, File2)} unifies \texttt{File2} with the
 Prolog file name associated to \texttt{File1}. More precisely \texttt{File2}
 is computed as follows:
 
@@ -7666,6 +7979,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{argument\_counter/1}}
 \label{argument-counter/1}
+   \AddPBD{argument\_counter/1}
 
 \begin{TemplatesOneCol}
 argument\_counter(?integer)
@@ -7674,9 +7988,12 @@ argument\_counter(?integer)
 
 \Description
 
-\IdxPBD[argument\_counter/1]{argument\_counter(Counter)} succeeds if \texttt{Counter} is the
+\texttt{argument\_counter(Counter)} succeeds if \texttt{Counter} is the
 number of arguments of the command-line. Since the first argument is always
-the name of the running program, \texttt{Counter} is always $\geq$ 1.
+the name of the running program, \texttt{Counter} is always $\geq$ 1. See
+\RefSP{The-GNU-Prolog-interactive-interpreter} for more information about
+command-line arguments retrieved under the top\_level.
+
 
 \begin{PlErrors}
 
@@ -7691,6 +8008,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{argument\_value/2}}
 \label{argument-value/2}
+   \AddPBD{argument\_value/2}
 
 \begin{TemplatesOneCol}
 argument\_value(+integer, ?atom)
@@ -7699,7 +8017,7 @@ argument\_value(+integer, ?atom)
 
 \Description
 
-\IdxPBD[argument\_value/2]{argument\_value(N, Arg)} succeeds if the \texttt{N}\emph{th}
+\texttt{argument\_value(N, Arg)} succeeds if the \texttt{N}\emph{th}
 argument on the command-line unifies with \texttt{Arg}. The first argument
 is always the name of the running program and its number is 0. The number of
 arguments on the command-line can be obtained using
@@ -7727,6 +8045,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{argument\_list/1}}
 \label{argument-list/1}
+   \AddPBD{argument\_list/1}
 
 \begin{TemplatesOneCol}
 argument\_list(?list)
@@ -7735,7 +8054,7 @@ argument\_list(?list)
 
 \Description
 
-\IdxPBD[argument\_list/1]{argument\_list(Args)} succeeds if \texttt{Args} unifies with the
+\texttt{argument\_list(Args)} succeeds if \texttt{Args} unifies with the
 list of atoms associated to each argument on the command-line other than the
 first argument (the name of the running program).
 
@@ -7751,6 +8070,7 @@ first argument (the name of the running program).
 GNU Prolog predicate.
 
 \subsubsection{\texttt{environ/2}}
+   \AddPBD{environ/2}
 
 \begin{TemplatesOneCol}
 environ(?atom, ?atom)
@@ -7759,7 +8079,7 @@ environ(?atom, ?atom)
 
 \Description
 
-\IdxPBD[environ/2]{environ(Name, Value)} succeeds if \texttt{Name} is the name of an
+\texttt{environ(Name, Value)} succeeds if \texttt{Name} is the name of an
 environment variable whose value is \texttt{Value}. This predicate is
 re-executable on backtracking.
 
@@ -7778,8 +8098,11 @@ re-executable on backtracking.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{make\_directory/1},
-\texttt{delete\_directory/1},
-\texttt{change\_directory/1}}
+               \texttt{delete\_directory/1},
+               \texttt{change\_directory/1}}
+   \AddPBD{make\_directory/1}
+   \AddPBD{delete\_directory/1}
+   \AddPBD{change\_directory/1}
 
 \begin{TemplatesOneCol}
 make\_directory(+atom)\\
@@ -7790,13 +8113,13 @@ change\_directory(+atom)
 
 \Description
 
-\IdxPBD[make\_directory/1]{make\_directory(PathName)} creates the directory whose pathname is
+\texttt{make\_directory(PathName)} creates the directory whose pathname is
 \texttt{PathName}. 
 
-\IdxPBD[delete\_directory/1]{delete\_directory(PathName)} removes the directory whose pathname is
+\texttt{delete\_directory(PathName)} removes the directory whose pathname is
 \texttt{PathName}.
 
-\IdxPBD[change\_directory/1]{change\_directory(PathName)} sets the current directory to the
+\texttt{change\_directory(PathName)} sets the current directory to the
 directory whose pathname is \texttt{PathName}.
 
 See \IdxPB{absolute\_file\_name/2} for information about the syntax of
@@ -7825,6 +8148,7 @@ See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 GNU Prolog predicates.
 
 \subsubsection{\texttt{working\_directory/1}}
+   \AddPBD{working\_directory/1}
 
 \begin{TemplatesOneCol}
 working\_directory(?atom)
@@ -7833,7 +8157,7 @@ working\_directory(?atom)
 
 \Description
 
-\IdxPBD[working\_directory/1]{working\_directory(PathName)} succeeds if \texttt{PathName} is the
+\texttt{working\_directory(PathName)} succeeds if \texttt{PathName} is the
 pathname of the current directory. 
 
 \begin{PlErrors}
@@ -7848,6 +8172,7 @@ pathname of the current directory.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{directory\_files/2}}
+   \AddPBD{directory\_files/2}
 
 \begin{TemplatesOneCol}
 directory\_files(+atom, ?list)
@@ -7856,7 +8181,7 @@ directory\_files(+atom, ?list)
 
 \Description
 
-\IdxPBD[directory\_files/2]{directory\_files(PathName, Files)} succeeds if \texttt{Files} is the
+\texttt{directory\_files(PathName, Files)} succeeds if \texttt{Files} is the
 list of all entries (files, sub-directories,\ldots) in the directory whose
 pathname is \texttt{PathName}. See \IdxPB{absolute\_file\_name/2} for
 information about the syntax of \texttt{PathName}
@@ -7888,6 +8213,7 @@ information about the syntax of \texttt{PathName}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{rename\_file/2}}
+   \AddPBD{rename\_file/2}
 
 \begin{TemplatesOneCol}
 rename\_file(+atom, +atom)
@@ -7896,7 +8222,7 @@ rename\_file(+atom, +atom)
 
 \Description
 
-\IdxPBD[rename\_file/2]{rename\_file(PathName1, PathName2)} renames the file or directory
+\texttt{rename\_file(PathName1, PathName2)} renames the file or directory
 whose pathname is \texttt{PathName1} to \texttt{PathName2}. See
 \IdxPB{absolute\_file\_name/2} for information about the syntax of
 \texttt{PathName1} and \texttt{PathName2} \RefSP{absolute-file-name/2}.
@@ -7933,7 +8259,9 @@ whose pathname is \texttt{PathName1} to \texttt{PathName2}. See
 GNU Prolog predicate.
 
 \subsubsection{\texttt{delete\_file/1},
-\texttt{unlink/1}}
+               \texttt{unlink/1}}
+   \AddPBD{delete\_file/1}
+   \AddPBD{unlink/1}
 
 \begin{TemplatesOneCol}
 delete\_file(PathName)\\
@@ -7943,10 +8271,10 @@ unlink(PathName)
 
 \Description
 
-\IdxPBD[delete\_file/1]{delete\_file(PathName)} removes the existing file whose pathname is
+\texttt{delete\_file(PathName)} removes the existing file whose pathname is
 \texttt{PathName}.
 
-\IdxPBD[unlink/1]{unlink/1} is similar to \texttt{delete\_file/1} except that it never
+\texttt{unlink/1} is similar to \texttt{delete\_file/1} except that it never
 causes a \texttt{system\_error} (e.g. if \texttt{PathName} does not refer to
 an existing file).
 
@@ -7976,8 +8304,10 @@ See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 GNU Prolog predicates.
 
 \subsubsection{\texttt{file\_permission/2},
-\texttt{file\_exists/1}}
+               \texttt{file\_exists/1}}
 \label{file-permission/2}
+   \AddPBD{file\_permission/2}
+   \AddPBD{file\_exists/1}
 
 \begin{TemplatesOneCol}
 file\_permission(+atom, +atom)\\
@@ -7988,7 +8318,7 @@ file\_exists(+atom)
 
 \Description
 
-\IdxPBD[file\_permission/2]{file\_permission(PathName, Permission)} succeeds if
+\texttt{file\_permission(PathName, Permission)} succeeds if
 \texttt{PathName} is the pathname of an existing file (or directory) whose
 permissions include \texttt{Permission}.
 
@@ -8010,7 +8340,7 @@ a list of permissions. A permission is an atom among:
 If \texttt{PathName} does not exists or if it its permissions do not include
 \texttt{Permission} this predicate fails.
 
-\IdxPBD[file\_exists/1]{file\_exists(PathName)} is equivalent to
+\texttt{file\_exists(PathName)} is equivalent to
 \texttt{file\_permission(PathName, [])}, i.e. it succeeds if
 \texttt{PathName} is the pathname of an existing file (or directory).
 
@@ -8056,6 +8386,7 @@ GNU Prolog predicates.
 
 \subsubsection{\texttt{file\_property/2}}
 \label{file-property/2}
+   \AddPBD{file\_property/2}
 
 \begin{TemplatesOneCol}
 file\_property(+atom, ?os\_file\_property)
@@ -8064,7 +8395,7 @@ file\_property(+atom, ?os\_file\_property)
 
 \Description
 
-\IdxPBD[file\_property/2]{file\_property(PathName, Property)} succeeds if \texttt{PathName} is
+\texttt{file\_property(PathName, Property)} succeeds if \texttt{PathName} is
 the pathname of an existing file (or directory) and if \texttt{Property}
 unifies with one of the properties of the file. This predicate is
 re-executable on backtracking.
@@ -8144,6 +8475,7 @@ integer}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{temporary\_name/2}}
+   \AddPBD{temporary\_name/2}
 
 \begin{TemplatesOneCol}
 temporary\_name(+atom, ?atom)
@@ -8152,7 +8484,7 @@ temporary\_name(+atom, ?atom)
 
 \Description
 
-\IdxPBD[temporary\_name/2]{temporary\_name(Template, PathName)} creates a unique file name
+\texttt{temporary\_name(Template, PathName)} creates a unique file name
 \texttt{PathName} whose pathname begins by \texttt{Template}.
 \texttt{Template} should contain a pathname with six trailing
 \texttt{X}\emph{s}. \texttt{PathName} is \texttt{Template} with the six
@@ -8188,6 +8520,7 @@ See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 GNU Prolog predicate.
 
 \subsubsection{\texttt{temporary\_file/3}}
+   \AddPBD{temporary\_file/3}
 
 \begin{TemplatesOneCol}
 temporary\_file(+atom, +atom, ?atom)
@@ -8196,7 +8529,7 @@ temporary\_file(+atom, +atom, ?atom)
 
 \Description
 
-\IdxPBD[temporary\_file/3]{temporary\_file(Directory, Prefix, PathName)} creates a unique file
+\texttt{temporary\_file(Directory, Prefix, PathName)} creates a unique file
 name \texttt{PathName} whose pathname begins by \texttt{Directory/Prefix}.
 If \texttt{Directory} is the empty atom \texttt{''} a standard temporary
 directory will be used (e.g. \texttt{/tmp}). \texttt{Prefix} can be the
@@ -8239,6 +8572,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{date\_time/1}}
 \label{date-time/1}
+   \AddPBD{date\_time/1}
 
 \begin{TemplatesOneCol}
 date\_time(?compound)
@@ -8247,7 +8581,7 @@ date\_time(?compound)
 
 \Description
 
-\IdxPBD[date\_time/1]{date\_time(DateTime)} unifies \texttt{DateTime} with a compound term
+\texttt{date\_time(DateTime)} unifies \texttt{DateTime} with a compound term
 containing the current date and time. \texttt{DateTime} is a structure
 \texttt{dt(Year, Month, Day, Hour, Minute, Second)}. Each sub-argument of
 the term \texttt{dt/6} is an integer.
@@ -8272,6 +8606,7 @@ the term \texttt{dt/6} is an integer.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{host\_name/1}}
+   \AddPBD{host\_name/1}
 
 \begin{TemplatesOneCol}
 host\_name(?atom)
@@ -8280,7 +8615,7 @@ host\_name(?atom)
 
 \Description
 
-\IdxPBD[host\_name/1]{host\_name(HostName)} unifies \texttt{HostName} with the name of the
+\texttt{host\_name(HostName)} unifies \texttt{HostName} with the name of the
 host machine executing the current GNU Prolog process. If the sockets are
 available \RefSP{Introduction:(Sockets-input/output)}, the name returned
 will be fully qualified. In that case, \texttt{host\_name/1} will also
@@ -8304,6 +8639,7 @@ alias) of the machine.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{os\_version/1}}
+   \AddPBD{os\_version/1}
 
 \begin{TemplatesOneCol}
 os\_version(?atom)
@@ -8312,7 +8648,7 @@ os\_version(?atom)
 
 \Description
 
-\IdxPBD[os\_version/1]{os\_version(OSVersion)} unifies \texttt{OSVersion} with the
+\texttt{os\_version(OSVersion)} unifies \texttt{OSVersion} with the
 operating system version of the machine executing the current GNU Prolog
 process.
 
@@ -8333,6 +8669,7 @@ process.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{architecture/1}}
+   \AddPBD{architecture/1}
 
 \begin{TemplatesOneCol}
 architecture(?atom)
@@ -8341,7 +8678,7 @@ architecture(?atom)
 
 \Description
 
-\IdxPBD[architecture/1]{architecture(Architecture)} unifies \texttt{Architecture} with the
+\texttt{architecture(Architecture)} unifies \texttt{Architecture} with the
 name of the machine executing the current GNU Prolog process.
 
 \begin{PlErrors}
@@ -8361,8 +8698,11 @@ name of the machine executing the current GNU Prolog process.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{shell/2},
-\texttt{shell/1},
-\texttt{shell/0}}
+               \texttt{shell/1},
+               \texttt{shell/0}}
+   \AddPBD{shell/2}
+   \AddPBD{shell/1}
+   \AddPBD{shell/0}
 
 \begin{TemplatesOneCol}
 shell(+atom, ?integer)\\
@@ -8373,16 +8713,16 @@ shell
 
 \Description
 
-\IdxPBD[shell/2]{shell(Command, Status)} invokes a new shell (named by the
+\texttt{shell(Command, Status)} invokes a new shell (named by the
 \texttt{SHELL} environment variable) passing \texttt{Command} for execution
 and unifies \texttt{Status} with the result of the execution. If
 \texttt{Command} is the empty atom \texttt{''} a new interactive shell is
 executed. The control is returned to Prolog upon termination of the called
 process.
 
-\IdxPBD[shell/1]{shell(Command)} is equivalent to \texttt{shell(Command, 0)}.
+\texttt{shell(Command)} is equivalent to \texttt{shell(Command, 0)}.
 
-\IdxPBD[shell/0]{shell} is equivalent to \texttt{shell('', 0)}.
+\texttt{shell} is equivalent to \texttt{shell('', 0)}.
 
 \begin{PlErrors}
 
@@ -8402,7 +8742,9 @@ process.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{system/2},
-\texttt{system/1}}
+               \texttt{system/1}}
+   \AddPBD{system/2}
+   \AddPBD{system/1}
 
 \begin{TemplatesOneCol}
 system(+atom, ?integer)\\
@@ -8412,11 +8754,11 @@ system(+atom)
 
 \Description
 
-\IdxPBD[system/2]{system(Command, Status)} invokes a new default shell passing
+\texttt{system(Command, Status)} invokes a new default shell passing
 \texttt{Command} for execution and unifies \texttt{Status} with the result
 of the execution. The control is returned to Prolog upon termination of the
 shell process. This predicate is an interface to the C Unix function
-\IdxPBD[system/1]{system(3)}.
+\texttt{system(3)}.
 
 \texttt{system(Command)} is equivalent to \texttt{system(Command, 0)}.
 
@@ -8438,7 +8780,9 @@ shell process. This predicate is an interface to the C Unix function
 GNU Prolog predicates.
 
 \subsubsection{\texttt{spawn/3},
-\texttt{spawn/2}}
+               \texttt{spawn/2}}
+   \AddPBD{spawn/3}
+   \AddPBD{spawn/2}
 
 \begin{TemplatesOneCol}
 spawn(+atom, +atom\_list, ?integer)\\
@@ -8448,12 +8792,12 @@ spawn(+atom, +atom\_list)
 
 \Description
 
-\IdxPBD[spawn/3]{spawn(Command, Arguments, Status)} executes \texttt{Command} passing
+\texttt{spawn(Command, Arguments, Status)} executes \texttt{Command} passing
 as arguments of the command-line each element of the list \texttt{Arguments}
 and unifies \texttt{Status} with the result of the execution. The control is
 returned to Prolog upon termination of the command.
 
-\IdxPBD[spawn/2]{spawn(Command, Arguments)} is equivalent to \texttt{spawn(Command,
+\texttt{spawn(Command, Arguments)} is equivalent to \texttt{spawn(Command,
 Arguments, 0)}.
 
 \begin{PlErrors}
@@ -8491,6 +8835,7 @@ GNU Prolog predicates.
 
 \subsubsection{\texttt{popen/3}}
 \label{popen/3}
+   \AddPBD{popen/3}
 
 \begin{TemplatesOneCol}
 popen(+atom, +io\_mode, -stream)
@@ -8499,7 +8844,7 @@ popen(+atom, +io\_mode, -stream)
 
 \Description
 
-\IdxPBD[popen/3]{popen(Command, Mode, Stream)} invokes a new default shell (by
+\texttt{popen(Command, Mode, Stream)} invokes a new default shell (by
 creating a pipe) passing \texttt{Command} for execution and associates a
 stream either to the standard input or the standard output of the created
 process. if \texttt{Mode} is \texttt{read} (resp. \texttt{write}) an input
@@ -8542,7 +8887,9 @@ This predicate is an interface to the C Unix function \texttt{popen(3)}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{exec/5},
-\texttt{exec/4}}
+               \texttt{exec/4}}
+   \AddPBD{exec/5}
+   \AddPBD{exec/4}
 
 \begin{TemplatesOneCol}
 exec(+atom, -stream, -stream, -stream, -integer)\\
@@ -8552,7 +8899,7 @@ exec(+atom, -stream, -stream, -stream)
 
 \Description
 
-\IdxPBD[exec/5]{exec(Command, StreamIn, StreamOut, StreamErr, Pid)} invokes a new
+\texttt{exec(Command, StreamIn, StreamOut, StreamErr, Pid)} invokes a new
 default shell passing \texttt{Command} for execution and associates streams
 to standard streams of the created process. \texttt{StreamIn} is unified
 with the stream-term associated to the standard input stream of
@@ -8567,7 +8914,7 @@ Until a call to \texttt{wait/2} is done the process remains in the system
 processes table (as a zombie process if terminated). For this reason, if the
 status is not needed it is preferable to use \texttt{exec/4}.
 
-\IdxPBD[exec/4]{exec/4} is similar to \texttt{exec/5} but the process is removed
+\texttt{exec/4} is similar to \texttt{exec/5} but the process is removed
 from system processes as soon as it is terminated.
 
 \begin{PlErrors}
@@ -8603,6 +8950,7 @@ GNU Prolog predicates.
 
 \subsubsection{\texttt{wait/2}}
 \label{wait/2}
+   \AddPBD{wait/2}
 
 \begin{TemplatesOneCol}
 wait(+integer, ?integer)
@@ -8611,7 +8959,7 @@ wait(+integer, ?integer)
 
 \Description
 
-\IdxPBD[wait/2]{wait(Pid, Status)} waits for the child process whose identifier is
+\texttt{wait(Pid, Status)} waits for the child process whose identifier is
 \texttt{Pid} to terminate. \texttt{Status} is then unified with the exit
 status. This predicate is an interface to the C Unix function
 \texttt{waitpid(2)}.
@@ -8639,6 +8987,7 @@ status. This predicate is an interface to the C Unix function
 GNU Prolog predicate.
 
 \subsubsection{\texttt{prolog\_pid/1}}
+   \AddPBD{prolog\_pid/1}
 
 \begin{TemplatesOneCol}
 prolog\_pid(?integer)
@@ -8647,7 +8996,7 @@ prolog\_pid(?integer)
 
 \Description
 
-\IdxPBD[prolog\_pid/1]{prolog\_pid(Pid)} unifies \texttt{Pid} with the process identifier
+\texttt{prolog\_pid(Pid)} unifies \texttt{Pid} with the process identifier
 of the current GNU Prolog process.
 
 \begin{PlErrors}
@@ -8662,6 +9011,7 @@ of the current GNU Prolog process.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{send\_signal/2}}
+   \AddPBD{send\_signal/2}
 
 \begin{TemplatesOneCol}
 send\_signal(+integer, +integer)\\
@@ -8671,7 +9021,7 @@ send\_signal(+integer, +atom)
 
 \Description
 
-\IdxPBD[send\_signal/2]{send\_signal(Pid, Signal)} sends \texttt{Signal} to the process whose
+\texttt{send\_signal(Pid, Signal)} sends \texttt{Signal} to the process whose
 identifier is \texttt{Pid.} \texttt{Signal} can be specified directly as an
 integer or symbolically as an atom. Allowed atoms depend on the machine (e.g.
 \texttt{'SIGINT'}, \texttt{'SIGQUIT'}, \texttt{'SIGKILL'},
@@ -8704,6 +9054,7 @@ predicate is an interface to the C Unix function \texttt{kill(2)}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{sleep/1}}
+   \AddPBD{sleep/1}
 
 \begin{TemplatesOneCol}
 sleep(+number)
@@ -8712,7 +9063,7 @@ sleep(+number)
 
 \Description
 
-\IdxPBD[sleep/1]{sleep(Seconds)} puts the GNU Prolog process to sleep for
+\texttt{sleep(Seconds)} puts the GNU Prolog process to sleep for
 \texttt{Second}s seconds. \texttt{Seconds} can be an integer or a floating
 point number (in which case it can be $<$ 1). This predicate is an interface
 to the C Unix function \texttt{usleep(3)}.
@@ -8736,6 +9087,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{select/5}}
 \label{select/5}
+   \AddPBD{select/5}
 
 \begin{TemplatesOneCol}
 select(+list, ?list, +list, ?list, +number)
@@ -8744,7 +9096,7 @@ select(+list, ?list, +list, ?list, +number)
 
 \Description
 
-\IdxPBD[select/5]{select(Reads, ReadyReads, Writes, ReadyWrites, TimeOut)} waits for a
+\texttt{select(Reads, ReadyReads, Writes, ReadyWrites, TimeOut)} waits for a
 number of streams (or file descriptors) to change status.
 \texttt{ReadyReads} is unified with the list of elements listed in
 \texttt{Reads} that have characters available for reading. Similarly
@@ -8846,6 +9198,7 @@ can be used to change this mode. They are also text streams by default. Use
 if binary streams are needed.
 
 \subsubsection{\texttt{socket/2}}
+   \AddPBD{socket/2}
 
 \begin{TemplatesOneCol}
 socket(+socket\_domain, -integer)
@@ -8854,7 +9207,7 @@ socket(+socket\_domain, -integer)
 
 \Description
 
-\IdxPBD[socket/2]{socket(Domain, Socket)} creates a socket whose domain is
+\texttt{socket(Domain, Socket)} creates a socket whose domain is
 \texttt{Domain} \RefSP{Sockets-input/output} and unifies \texttt{Socket}
 with the descriptor identifying the socket. This predicate is an interface
 to the C Unix function \texttt{socket(2)}.
@@ -8885,6 +9238,7 @@ to the C Unix function \texttt{socket(2)}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{socket\_close/1}}
+   \AddPBD{socket\_close/1}
 
 \begin{TemplatesOneCol}
 socket\_close(+integer)
@@ -8893,9 +9247,9 @@ socket\_close(+integer)
 
 \Description
 
-\IdxPBD[socket\_close/1]{socket\_close(Socket)} closes the socket whose descriptor is
+\texttt{socket\_close(Socket)} closes the socket whose descriptor is
 \texttt{Socket}. This predicate should not be used if \texttt{Socket} has
-given rise to a stream, e.g. by \IdxPB{socket\_connect/2}
+given rise to a stream, e.g. by \IdxPB{socket\_connect/4}
 \RefSP{socket-connect/4}.  In that case simply use \IdxPB{close/2}
 \RefSP{close/2} on the associated stream.
 
@@ -8919,6 +9273,7 @@ given rise to a stream, e.g. by \IdxPB{socket\_connect/2}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{socket\_bind/2}}
+   \AddPBD{socket\_bind/2}
 
 \begin{TemplatesOneCol}
 socket\_bind(+integer, +socket\_address)
@@ -8927,7 +9282,7 @@ socket\_bind(+integer, +socket\_address)
 
 \Description
 
-\IdxPBD[socket\_bind/2]{socket\_bind(Socket, Address)} binds the socket whose descriptor is
+\texttt{socket\_bind(Socket, Address)} binds the socket whose descriptor is
 \texttt{Socket} to the address specified by \texttt{Address}
 \RefSP{Sockets-input/output}. If \texttt{Address} if of the form
 \texttt{'AF\_INET'(HostName, Port)} and if \texttt{HostName} is
@@ -8979,6 +9334,7 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{socket\_connect/4}}
 \label{socket-connect/4}
+   \AddPBD{socket\_connect/4}
 
 \begin{TemplatesOneCol}
 socket\_connect(+integer, +socket\_address, -stream, -stream)
@@ -8987,7 +9343,7 @@ socket\_connect(+integer, +socket\_address, -stream, -stream)
 
 \Description
 
-\IdxPBD[socket\_connect/4]{socket\_connect(Socket, Address, StreamIn, StreamOut)} connects the
+\texttt{socket\_connect(Socket, Address, StreamIn, StreamOut)} connects the
 socket whose descriptor is \texttt{Socket} to the address specified by
 \texttt{Address} \RefSP{Sockets-input/output}. \texttt{StreamIn} is
 unified with a stream-term associated to the input of the connection (it is
@@ -9047,6 +9403,7 @@ neither a variable nor an integer}
 GNU Prolog predicate.
 
 \subsubsection{\texttt{socket\_listen/2}}
+   \AddPBD{socket\_listen/2}
 
 \begin{TemplatesOneCol}
 socket\_listen(+integer, +integer)
@@ -9055,7 +9412,7 @@ socket\_listen(+integer, +integer)
 
 \Description
 
-\IdxPBD[socket\_listen/2]{socket\_listen(Socket, Length)} defines the socket whose descriptor
+\texttt{socket\_listen(Socket, Length)} defines the socket whose descriptor
 is \texttt{Socket} to have a maximum backlog queue of \texttt{Length}
 pending connections. This predicate is an interface to the C Unix function
 \texttt{listen(2)}.
@@ -9086,7 +9443,9 @@ pending connections. This predicate is an interface to the C Unix function
 GNU Prolog predicate.
 
 \subsubsection{\texttt{socket\_accept/4},
-\texttt{socket\_accept/3}}
+               \texttt{socket\_accept/3}}
+   \AddPBD{socket\_accept/4}
+   \AddPBD{socket\_accept/3}
 
 \begin{TemplatesOneCol}
 socket\_accept(+integer, -atom, -stream, -stream)\\
@@ -9096,7 +9455,7 @@ socket\_accept(+integer, -stream, -stream)
 
 \Description
 
-\IdxPBD[socket\_accept/4]{socket\_accept(Socket, Client, StreamIn, StreamOut)} extracts the
+\texttt{socket\_accept(Socket, Client, StreamIn, StreamOut)} extracts the
 first connection to the socket whose descriptor is \texttt{Socket}. If the
 domain is \texttt{'AF\_INET'}, \texttt{Client} is unified with an atom whose
 name is the Internet host address in numbers-and-dots notation of the
@@ -9108,7 +9467,7 @@ output stream). Writing to this stream sends data to the socket. The use of
 \IdxPB{select/5} can be useful \RefSP{select/5}. This predicate is an
 interface to the C Unix function \texttt{accept(2)}.
 
-\IdxPBD[socket\_accept/3]{socket\_accept(Socket, StreamIn, StreamOut)} is equivalent to
+\texttt{socket\_accept(Socket, StreamIn, StreamOut)} is equivalent to
 \texttt{socket\_accept(Socket, \_,\\
  StreamIn, StreamOut)}.
 
@@ -9141,6 +9500,7 @@ interface to the C Unix function \texttt{accept(2)}.
 GNU Prolog predicates.
 
 \subsubsection{\texttt{hostname\_address/2}}
+   \AddPBD{hostname\_address/2}
 
 \begin{TemplatesOneCol}
 hostname\_address(+atom, ?atom)\\
@@ -9150,7 +9510,7 @@ hostname\_address(?atom, +atom)
 
 \Description
 
-\IdxPBD[hostname\_address/2]{hostname\_address(HostName, HostAddress)} succeeds if the Internet
+\texttt{hostname\_address(HostName, HostAddress)} succeeds if the Internet
 host address in numbers-and-dots notation of \texttt{HostName} is
 \texttt{HostAddress}. \texttt{Hostname} can be given as a fully qualified
 name, or an unqualified name or an alias of the machine. The predicate will
@@ -9181,6 +9541,7 @@ The following predicates are only available if the \IdxK{linedit} part of
 GNU Prolog has been installed.
 
 \subsubsection{\texttt{get\_linedit\_prompt/1}}
+   \AddPBD{get\_linedit\_prompt/1}
 
 \begin{TemplatesOneCol}
 get\_linedit\_prompt(?atom)
@@ -9189,7 +9550,7 @@ get\_linedit\_prompt(?atom)
 
 \Description
 
-\IdxPBD[get\_linedit\_prompt/1]{get\_linedit\_prompt(Prompt)} succeeds if \texttt{Prompt} is the
+\texttt{get\_linedit\_prompt(Prompt)} succeeds if \texttt{Prompt} is the
 current \IdxK{linedit} prompt, e.g. the \Idx{top-level} prompt is
 \texttt{'| ?-'}. By default all other reads have an empty prompt.
 
@@ -9205,6 +9566,7 @@ current \IdxK{linedit} prompt, e.g. the \Idx{top-level} prompt is
 GNU Prolog predicate.
 
 \subsubsection{\texttt{set\_linedit\_prompt/1}}
+   \AddPBD{set\_linedit\_prompt/1}
 
 \begin{TemplatesOneCol}
 set\_linedit\_prompt(+atom)
@@ -9213,7 +9575,7 @@ set\_linedit\_prompt(+atom)
 
 \Description
 
-\IdxPBD[set\_linedit\_prompt/1]{set\_linedit\_prompt(Prompt)} sets the current \IdxK{linedit}
+\texttt{set\_linedit\_prompt(Prompt)} sets the current \IdxK{linedit}
 prompt to \texttt{Prompt}. This prompt will be displayed for reads from a
 terminal (except for \Idx{top-level} reads).
 
@@ -9232,6 +9594,7 @@ terminal (except for \Idx{top-level} reads).
 GNU Prolog predicate.
 
 \subsubsection{\texttt{add\_linedit\_completion/1}}
+   \AddPBD{add\_linedit\_completion/1}
 
 \begin{TemplatesOneCol}
 add\_linedit\_completion(+atom)
@@ -9240,7 +9603,7 @@ add\_linedit\_completion(+atom)
 
 \Description
 
-\IdxPBD[add\_linedit\_completion/1]{add\_linedit\_completion(Word)} adds \texttt{Word} in the list of
+\texttt{add\_linedit\_completion(Word)} adds \texttt{Word} in the list of
 \Idx{completion} words maintained by \IdxK{linedit}
 \RefSP{The-line-editor}. Only words containing letters, digits and
 the underscore character are added (if \texttt{Word} does not respect
@@ -9261,6 +9624,7 @@ this restriction the predicate fails).
 GNU Prolog predicate.
 
 \subsubsection{\texttt{find\_linedit\_completion/2}}
+   \AddPBD{find\_linedit\_completion/2}
 
 \begin{TemplatesOneCol}
 find\_linedit\_completion(+atom, ?atom)
@@ -9269,7 +9633,7 @@ find\_linedit\_completion(+atom, ?atom)
 
 \Description
 
-\IdxPBD[find\_linedit\_completion/2]{find\_linedit\_completion(Prefix, Word)} succeeds if \texttt{Word}
+\texttt{find\_linedit\_completion(Prefix, Word)} succeeds if \texttt{Word}
 is a word beginning by \texttt{Prefix} and belongs to the list of
 \Idx{completion} words maintained by \IdxK{linedit}
 \RefSP{The-line-editor}. This predicate is re-executable on backtracking.

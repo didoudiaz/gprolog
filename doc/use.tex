@@ -41,18 +41,119 @@ GNU Prolog offers a classical Prolog interactive interpreter also called
 programs, to list them, to execute them and to debug them. The
 \IdxD{top-level} can be invoked using the following command:
 
-\OneLineTwoCols{\% gprolog}{(the \texttt{\%} symbol is the operating system
-shell prompt)}
 
-The top-level invocation does not need any supplemental line-command option.
-When present these options can be retrieved using \IdxPB{argument\_value/2}
-\RefSP{argument-value/2} or \IdxPB{argument\_list/1} \RefSP{argument-list/1}.
-However, the \texttt{--verbose} and \texttt{--help} options are recognized
-for compatibility purpose with other GNU programs.
+\OneLineTwoCols[5.5cm]{\% gprolog \textrm{[}\Param{OPTION}\textrm{]\ldots}}{(the \texttt{\%} symbol is the operating system shell prompt)}
+
+\SPart{Options}:
+
+\begin{CmdOptions}
+\IdxKD{--init-goal}  \Param{GOAL} & execute \Param{GOAL} before top\_level/0 \\
+\IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside top\_level/0 \\
+\IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for top\_level/0 \\
+ 
+\IdxKD{--help} & print a help and exit \\
+
+\IdxKD{--version} & print version number and exit \\
+
+\IdxKD{--} & do not parse the rest of the command-line \\
+
+\end{CmdOptions}
+
+The main role of the \texttt{gprolog} command is to execute the top-level
+itself, i.e. to execute the built-in predicate
+\IdxPB{top\_level/0} \RefSP{abort/0} which will produce something like:
+
+\begin{Code}
+\begin{verbatim}
+GNU Prolog 1.2.9
+By Daniel Diaz
+Copyright (C) 1999-2001 Daniel Diaz
+| ?-
+\end{verbatim}
+\end{Code}
+
+The top-level is ready to execute your queries as explained in the next
+section.
 
 To quit the top-level type the end-of-file key sequence (\texttt{Ctl-D}) or
 its term representation: \texttt{end\_of\_file.} It is also possible to use
 the built-in predicate \IdxPB{halt/0} \RefSP{abort/0}.
+
+However, before entering the top-level itself, the command-line is processed
+to treat all known options (those listed above). All unrecognized arguments
+are collected together to form the argument list which will be available
+using
+\IdxPB{argument\_value/2} \RefSP{argument-value/2} or
+\IdxPB{argument\_list/1} \RefSP{argument-list/1}.
+The \texttt{--} option stops the parsing of the command-line, all remainding
+options are collected into the argument list.
+
+Several options are provided to execute a goal before entering the
+interaction with the user:
+
+\begin{itemize}
+
+\item The \texttt{--init-goal} option executes the \Param{GOAL} as soon as
+it is encountered (while the commnad-line is processed). \Param{GOAL} is thus
+executed before entering \texttt{top\_level/0}.
+
+\item The \texttt{--entry-goal} option executes the \Param{GOAL} at the
+entry of \texttt{top\_level/0} just after the banner is displayed.
+
+\item The \texttt{--query-goal} option executes the \Param{GOAL} as if the 
+user has typed in.
+
+\end{itemize}
+
+The above order is thus the order in which each kind of goal (init, entry,
+query) is executed.  If there are several goals of a same kind they are
+executed in the oder of apparition. Thus, all init goals are executed (in the
+order of apparition) before all entry goals and all entry goals are executed
+before all query goals.
+
+Each \Param{GOAL} is passed as a shell argument (i.e. one shell string) and
+should not contain a terminal dot. Example:
+\texttt{--init-goal 'write(hello), nl'} under a sh-like.
+To be executed, a \Param{GOAL} is transformed into a term using
+\IdxPB[read\_term\_from\_atom/3]
+{read\_term\_from\_atom(Goal, Term, [end\_of\_term(eof)])}. Respecting both
+the syntax of shell strings and of Prolog can be heavy. For
+instance, passing a backslash character \texttt{{\bs}} can be difficult
+since it introduces an \Idx{escape sequence} both in sh and inside Prolog
+quoted atoms. The use of back quotes can then be useful since, by default, no
+escape sequence is processed inside back quotes (this behavior can be
+controlled using the \IdxPF{back\_quotes} \Idx{Prolog flag} \RefSP{set-prolog-flag/2}).
+
+
+Since the Prolog argument list is created when the whole command-line is
+parsed, if a \texttt{--init-goal} option uses \texttt{argument\_value/2} or
+\texttt{argument\_list/1} it will obtained the original command-line
+arguments (i.e. including all recognized arguments). 
+
+Here is an example of using execution goal options:
+
+\begin{Code}
+\% gprolog --init-goal 'write(before), nl' --entry-goal 'write(inside), nl'\\
+--query-goal 'append([a,b],[c,d],X)'
+\end{Code}
+
+will produce the following:
+
+\begin{Code}
+\begin{verbatim}
+before
+GNU Prolog 1.2.9
+By Daniel Diaz
+Copyright (C) 1999-2001 Daniel Diaz
+inside
+| ?- append([a,b],[c,d],X).
+
+X = [a,b,c,d]
+
+yes
+| ?-
+\end{verbatim}
+\end{Code}
 
 \subsubsection{The interactive interpreter read-execute-write loop}
 The GNU Prolog top-level is built on a classical read-execute-write loop that
@@ -84,11 +185,11 @@ Here is an example of execution of a query (``find the lists \texttt{X} and
 \One{| ?- append(X,Y,[a,b,c]).}
 \SkipLine
 \One{X = []} 
-\Two{Y = [a,b,c] ?}{(here the user presses \texttt{;} to compute another
+\Two{Y = [a,b,c] ? ;}{(here the user presses \texttt{;} to compute another
 solution)}
 \SkipLine
 \One{X = [a]}
-\Two{Y = [b,c] ?}{(here the user presses \texttt{a} to compute all remaining
+\Two{Y = [b,c] ? a}{(here the user presses \texttt{a} to compute all remaining
 solutions)}
 \SkipLine
 \One{X = [a,b]}
@@ -109,7 +210,7 @@ one (no more alternatives remaining). In such a case it does not display the
 \begin{CodeTwoCols}
 \One{| ?- (X=1 ; X=2).}
 \SkipLine
-\Two{X = 1 ?}{(here the user presses \texttt{;} to compute another solution)}
+\Two{X = 1 ? ;}{(here the user presses \texttt{;} to compute another solution)}
 \SkipLine
 \Two{X = 2}  {(here the user is not prompted since there are no more
 alternatives)}
@@ -200,9 +301,9 @@ by a query and displays it when it is significant. Example:
 \One{| ?- retractall(p(\_)), assertz(p(0)),}
 \One{~~~~~repeat,}
 \One{~~~~~~~~retract(p(X)),}
-\One{~~~~~~~~Y is X+1,}
+\One{~~~~~~~~Y is X + 1,}
 \One{~~~~~~~~assertz(p(Y)),}
-\One{~~~~~~~~X=1000, !.}
+\One{~~~~~~~~X = 1000, !.}
 \SkipLine
 \One{X = 1000}
 \One{Y = 1001}
@@ -239,9 +340,9 @@ by the end-of-file key sequence (\texttt{Ctl-D}) or its term representation:
 \SkipLine
 \One{| ?- even(X).}
 \SkipLine
-\Two{X = 0 ?}{(here the user presses \texttt{;} to compute another solution)}
+\Two{X = 0 ? ;}{(here the user presses \texttt{;} to compute another solution)}
 \SkipLine
-\Two{X = s(s(0)) ?}{(here the user presses \texttt{;} to compute another
+\Two{X = s(s(0)) ? ;}{(here the user presses \texttt{;} to compute another
 solution)}
 \SkipLine
 \Two{X = s(s(s(s(0)))) ?}{(here the user presses \texttt{RETURN} to stop the
@@ -554,22 +655,22 @@ name  & size (Kb) & variable    & \\
 
 \hline\hline
 
-\texttt{local} & 2048 & \texttt{LOCALSZ} & control stack (environments
+\texttt{local} & 4096 & \texttt{LOCALSZ} & control stack (environments
 and choice-points) \\
 
 \hline
 
-\texttt{global} & 4096 & \texttt{GLOBALSZ} & heap (compound terms)
+\texttt{global} & 8192 & \texttt{GLOBALSZ} & heap (compound terms)
 \\
 
 \hline
 
-\texttt{trail} & 2048 & \texttt{TRAILSZ} & conditional bindings (bindings
+\texttt{trail} & 3072 & \texttt{TRAILSZ} & conditional bindings (bindings
 to undo at backtracking) \\
 
 \hline
 
-\texttt{cstr} & 2048 & \texttt{CSTRSZ} & finite domain constraint stack
+\texttt{cstr} & 3072 & \texttt{CSTRSZ} & finite domain constraint stack
 (FD variables and constraints) \\
 
 \hline
@@ -585,11 +686,11 @@ where \Param{S} is the name of the stack, \Param{N} is
 the current stack size in Kb and \Param{E} the name of the
 associated environment variable. When such a message occurs it is possible
 to (re)define the variable \Param{E} with the new size. For
-instance to allocate 4096 Kb to the local stack under a Unix shell use:
+instance to allocate 8192 Kb to the local stack under a Unix shell use:
 
 \begin{CodeTwoCols}[6cm]
-\Two{LOCALSZ=4096; export LOCALS}{(under \texttt{sh} or \texttt{bash})}
-\Two{setenv LOCALSZ 4096}{(under \texttt{csh} or \texttt{tcsh})}
+\Two{LOCALSZ=8192; export LOCALS}{(under \texttt{sh} or \texttt{bash})}
+\Two{setenv LOCALSZ 8192}{(under \texttt{csh} or \texttt{tcsh})}
 \end{CodeTwoCols}
 
 This method allows the user to adjust the size of Prolog stacks. However, in
@@ -659,8 +760,8 @@ interested reader can refer to
 translated to a machine-independent language specifically designed for GNU
 Prolog. This language is close to a (universal) assembly language and is
 based on a very reduced instruction set. For this reason this language is
-called \Idx{mini-assembly} (\Idx{MA}). The mini-assembly file is then mapped
-to the assembly language of the target machine. This assembly file is
+called \IdxD{mini-assembly} (\IdxD{MA}). The mini-assembly file is then
+mapped to the assembly language of the target machine. This assembly file is
 assembled to give rise to an object file which is then linked with the GNU
 Prolog libraries to provide an executable.  The compiler also takes into
 account Finite Domain constraint definition files. It translates them to C
@@ -844,7 +945,7 @@ arithmetics) \\
 \SPart{Mini-assembly to assembly translator options}:
 
 \begin{CmdOptions}
-\IdxKD{--comment} & include comments in the output file \\
+\IdxK{--comment} & include comments in the output file \\
 
 \end{CmdOptions}
 
@@ -883,7 +984,7 @@ arithmetics) \\
 (use default sizes) \\
 
 \IdxKD{--no-top-level} & do not link the \Idx{top-level} (force
-\IdxKD{--no-debugger}) \\
+\IdxK{--no-debugger}) \\
 
 \IdxKD{--no-debugger} & do not link the Prolog/WAM debugger \\
 

@@ -179,7 +179,10 @@
 
 % Index
 
-   % new environnement to use \pagestyle{fancy} and \addcontentsline
+   % new environnement to use \pagestyle{fancy} and \section{}
+   % copied from article.cls with the following changes:
+   % remove \thispagestyle{plain}
+   % add \addcontentsline{toc}{section}{\numberline{}\indexname}}
 
 %BEGIN LATEX
 \makeatletter
@@ -196,123 +199,243 @@
                         {\MakeUppercase\indexname}%
                 \parindent\z@
                 \parskip\z@ \@plus .3\p@\relax
-                \let\item\@idxitem%
-                \addcontentsline{toc}{section}{\numberline{}\indexname}}
+		\addcontentsline{toc}{section}{\numberline{}\indexname}
+                \let\item\@idxitem}
                {\if@restonecol\onecolumn\else\clearpage\fi}
 \makeatother
 %END LATEX
 
+
 \def\OneUrl#1{\ahrefurl{\texttt{#1}}}
 
-   % One index entry
-   % 1=term  2=alphabetic position  3=index term
-   % 4=t/d/td (t=texttt, d=def(page nb in textbf))
-
-\newcommand{\IdEntry}[4]%
-   {\ifthenelse{\equal{#4}{t}}%
-        {\texttt{#1}\index{#2@\texttt{#3}}}%
-        {\ifthenelse{\equal{#4}{td}}%
-             {\texttt{#1}\index{#2@\texttt{#3}|textbf}}%
-             {\ifthenelse{\equal{#4}{d}}%
-                  {#1\index{#2@#3|textbf}}%
-                  {#1\index{#2@#3}}}}}
 
 
-   % Generic index entry
-   % 1=term  2=index term  3=prefix index term  4=suffix index term
-   % 5=t/d/td
+% Define a section without no and include it in the TOC
+% 1= a label (name) for HeVeA (useless for LaTeX)
+% 2= The text of the section
 
-\newcommand{\IdxGen}[5]%
+\newcommand{\SectionWithoutNo}[2]
+{\section*{#2}%
+\addcontentsline{toc}{section}{\numberline{}#2}}
+
+
+
+% Index management:
+% in the following, suffix T/TD/D/void means:
+% T: texttt, D: definition, TD: both, void: simple
+
+
+   % Add an index entry
+   % 1=alphabetic position  2=index term
+
+\newcommand{\IndT} [2]{\index{#1@\texttt{#2}}}
+\newcommand{\IndTD}[2]{\index{#1@\texttt{#2}|textbf}}
+\newcommand{\IndD} [2]{\index{#1@#2|textbf}}
+\newcommand{\Ind}  [2]{\index{#1@#2}}
+
+
+   % Add an index entry
+   % 1=index term
+   % 2=text to add at the end of the index term (suffix)
+
+\newcommand{\AddIndT} [2]{\IndT {#1}{#1#2}}
+\newcommand{\AddIndTD}[2]{\IndTD{#1}{#1#2}}
+\newcommand{\AddIndD} [2]{\IndD {#1}{#1#2}}
+\newcommand{\AddInd}  [2]{\Ind  {#1}{#1#2}}
+
+
+
+   % Add text and an index entry
+   % 1=text term  2=alphabetic position  3=complete index term
+
+\newcommand{\TxtIndZT} [3]{\texttt{#1}\IndT{#2}{#3}}
+\newcommand{\TxtIndZTD}[3]{\texttt{#1}\IndTD{#2}{#3}}
+\newcommand{\TxtIndZD} [3]{#1\IndD{#2}{#3}}
+\newcommand{\TxtIndZ}  [3]{#1\Ind{#2}{#3}}
+
+
+   % Add text and an index entry
+   % 1=text term  2=index term (default = #1)
+   % 3=text to add at the end of the index term (suffix)
+
+\newcommand{\TxtIndT}[3]%
+   {\ifthenelse{\equal{#2}{!*!}}% 
+       {\TxtIndZT{#1}{#1}{#1#3}}%
+       {\TxtIndZT{#1}{#2}{#2#3}}}
+
+\newcommand{\TxtIndTD}[3]%
    {\ifthenelse{\equal{#2}{!*!}}%
-       {\IdEntry{#1}{#1}{#3#1#4}{#5}}%
-       {\IdEntry{#1}{#2}{#3#2#4}{#5}}}
+       {\TxtIndZTD{#1}{#1}{#1#3}}%
+       {\TxtIndZTD{#1}{#2}{#2#3}}}
 
+\newcommand{\TxtIndD}[3]%
+   {\ifthenelse{\equal{#2}{!*!}}%
+       {\TxtIndZD{#1}{#1}{#1#3}}%
+       {\TxtIndZD{#1}{#2}{#2#3}}}%
+
+\newcommand{\TxtInd}[3]%
+   {\ifthenelse{\equal{#2}{!*!}} 
+       {\TxtIndZ{#1}{#1}{#1#3}}%
+       {\TxtIndZ{#1}{#2}{#2#3}}}
+
+
+   % Add... macros insert something in the index ONLY
+   % Idx... macros insert something in the index AND in the text
 
    % Any word (roman font)
 
-\newcommand{\IdxD}  [2][!*!] {\IdxGen{#2}{#1}{}{}{d}}
-\newcommand{\Idx}   [2][!*!] {\IdxGen{#2}{#1}{}{}{}}
 
-   % Keyword
+\newcommand{\AddD}  [1]      {\AddIndD     {#1}{}}
+\newcommand{\Add}   [1]      {\AddInd      {#1}{}}
+\newcommand{\IdxD}  [2][!*!] {\TxtIndD {#2}{#1}{}}
+\newcommand{\Idx}   [2][!*!] {\TxtInd  {#2}{#1}{}}
 
-\newcommand{\IdxKD} [2][!*!] {\IdxGen{#2}{#1}{}{}{td}}
-\newcommand{\IdxK}  [2][!*!] {\IdxGen{#2}{#1}{}{}{t}}
+
+   % Keyword (tt font)
+
+
+\newcommand{\AddKD} [1]      {\AddIndTD    {#1}{}}
+\newcommand{\AddK}  [1]      {\AddIndT     {#1}{}}
+\newcommand{\IdxKD} [2][!*!] {\TxtIndTD{#2}{#1}{}}
+\newcommand{\IdxK}  [2][!*!] {\TxtIndT {#2}{#1}{}}
+
 
    % Directive
 
-\newcommand{\IdxDiD}[2][!*!] {\IdxGen{#2}{#1}{:- }{}{td}}
-\newcommand{\IdxDi} [2][!*!] {\IdxGen{#2}{#1}{:- }{}{t}}
+
+\newcommand{\AddDiD}[1]      {\AddIndTD    {#1}{ \textrm{(directive)}}}
+\newcommand{\AddDi} [1]      {\AddIndT     {#1}{ \textrm{(directive)}}}
+\newcommand{\IdxDiD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(directive)}}}
+\newcommand{\IdxDi} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(directive)}}}
+
 
    % Control Construct
 
-\newcommand{\IdxCCD}[2][!*!] {\IdxGen{#2}{#1}{}{}{td}}
-\newcommand{\IdxCC} [2][!*!] {\IdxGen{#2}{#1}{}{}{t}}
+
+\newcommand{\AddCCD}[1]      {\AddIndTD    {#1}{}}
+\newcommand{\AddCC} [1]      {\AddIndT     {#1}{}}
+\newcommand{\IdxCCD}[2][!*!] {\TxtIndTD{#2}{#1}{}}
+\newcommand{\IdxCC} [2][!*!] {\TxtIndT {#2}{#1}{}}
+
 
    % Prolog Keyword
 
-\newcommand{\IdxPKD}[2][!*!] {\IdxGen{#2}{#1}{}{}{td}}
-\newcommand{\IdxPK} [2][!*!] {\IdxGen{#2}{#1}{}{}{t}}
+
+\newcommand{\AddPKD}[1]      {\AddIndTD    {#1}{}}
+\newcommand{\AddPK} [1]      {\AddIndT     {#1}{}}
+\newcommand{\IdxPKD}[2][!*!] {\TxtIndTD{#2}{#1}{}}
+\newcommand{\IdxPK} [2][!*!] {\TxtIndT {#2}{#1}{}}
+
 
    % Prolog Built-in
 
-\newcommand{\IdxPBD}[2][!*!] {\IdxGen{#2}{#1}{}{}{td}}
-\newcommand{\IdxPB} [2][!*!] {\IdxGen{#2}{#1}{}{}{t}}
+
+\newcommand{\AddPBD}[1]      {\AddIndTD    {#1}{}}
+\newcommand{\AddPB} [1]      {\AddIndT     {#1}{}}
+\newcommand{\IdxPBD}[2][!*!] {\TxtIndTD{#2}{#1}{}}
+\newcommand{\IdxPB} [2][!*!] {\TxtIndT {#2}{#1}{}}
+
 
    % Prolog Property
 
-\newcommand{\IdxPPD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(property)}}{td}}
-\newcommand{\IdxPP} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(property)}}{t}}
+
+\newcommand{\AddPPD}[1]      {\AddIndTD    {#1}{ \textrm{(property)}}}
+\newcommand{\AddPP} [1]      {\AddIndT     {#1}{ \textrm{(property)}}}
+\newcommand{\IdxPPD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(property)}}}
+\newcommand{\IdxPP} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(property)}}}
+
 
    % Prolog Global Variable
 
-\newcommand{\IdxPGD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(global var.)}}{td}}
+
+\newcommand{\AddPGD}[1]      {\AddIndTD    {#1}{ \textrm{(global var.)}}}
+\newcommand{\IdxPGD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(global var.)}}}
+
 
    % Prolog Option
 
-\newcommand{\IdxPOD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(option)}}{td}}
-\newcommand{\IdxPO} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(option)}}{t}}
+
+\newcommand{\AddPOD}[1]      {\AddIndTD    {#1}{ \textrm{(option)}}}
+\newcommand{\AddPO} [1]      {\AddIndT     {#1}{ \textrm{(option)}}}
+\newcommand{\IdxPOD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(option)}}}
+\newcommand{\IdxPO} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(option)}}}
+
 
    % Prolog Mode
 
-\newcommand{\IdxPMD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(mode)}}{td}}
+
+\newcommand{\AddPMD}[1]      {\AddIndTD    {#1}{ \textrm{(mode)}}}
+\newcommand{\IdxPMD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(mode)}}}
+
 
    % Prolog Whence
 
-\newcommand{\IdxPWD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(whence)}}{td}}
+
+\newcommand{\AddPWD}[1]      {\AddIndTD    {#1}{ \textrm{(whence)}}}
+\newcommand{\IdxPWD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(whence)}}}
+
 
    % Prolog File Permission
 
-\newcommand{\IdxPXD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(permission)}}{td}}
+
+\newcommand{\AddPXD}[1]      {\AddIndTD    {#1}{ \textrm{(permission)}}}
+\newcommand{\IdxPXD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(permission)}}}
+
 
    % Prolog Token
 
-\newcommand{\IdxPTD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(token)}}{td}}
+
+\newcommand{\AddPTD}[1]      {\AddIndTD    {#1}{ \textrm{(token)}}}
+\newcommand{\IdxPTD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(token)}}}
+
 
    % Prolog Flag
 
-\newcommand{\IdxPFD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(flag)}}{td}}
-\newcommand{\IdxPF} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(flag)}}{t}}
+
+\newcommand{\AddPFD}[1]      {\AddIndTD    {#1}{ \textrm{(flag)}}}
+\newcommand{\AddPF} [1]      {\AddIndT     {#1}{ \textrm{(flag)}}}
+\newcommand{\IdxPFD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(flag)}}}
+\newcommand{\IdxPF} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(flag)}}}
+
 
    % Debugger Keyword
 
-\newcommand{\IdxDKD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(debug)}}{td}}
-\newcommand{\IdxDK} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(debug)}}{t}}
+
+\newcommand{\AddDKD}[1]      {\AddIndTD    {#1}{ \textrm{(debug)}}}
+\newcommand{\AddDK} [1]      {\AddIndT     {#1}{ \textrm{(debug)}}}
+\newcommand{\IdxDKD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(debug)}}}
+\newcommand{\IdxDK} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(debug)}}}
+
 
    % Debugger Built-in
 
-\newcommand{\IdxDBD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(debug)}}{td}}
-\newcommand{\IdxDB} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(debug)}}{t}}
+
+\newcommand{\AddDBD}[1]      {\AddIndTD    {#1}{ \textrm{(debug)}}}
+\newcommand{\AddDB} [1]      {\AddIndT     {#1}{ \textrm{(debug)}}}
+\newcommand{\IdxDBD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(debug)}}}
+\newcommand{\IdxDB} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(debug)}}}
+
 
    % FD Built-in
 
-\newcommand{\IdxFBD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(FD)}}{td}}
-\newcommand{\IdxFB} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(FD)}}{t}}
+
+\newcommand{\AddFBD}[1]      {\AddIndTD    {#1}{ \textrm{(FD)}}}
+\newcommand{\AddFB} [1]      {\AddIndT     {#1}{ \textrm{(FD)}}}
+\newcommand{\IdxFBD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(FD)}}}
+\newcommand{\IdxFB} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(FD)}}}
+
 
    % FD Option
 
-\newcommand{\IdxFOD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(FD option)}}{td}}
+
+\newcommand{\AddFOD}[1]      {\AddIndTD    {#1}{ \textrm{(FD option)}}}
+\newcommand{\IdxFOD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(FD option)}}}
+
 
    % FD Keyword
 
-\newcommand{\IdxFKD}[2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(FD)}}{td}}
-\newcommand{\IdxFK} [2][!*!] {\IdxGen{#2}{#1}{}{ \textrm{(FD)}}{t}}
+
+\newcommand{\AddFKD}[1]      {\AddIndTD    {#1}{ \textrm{(FD)}}}
+\newcommand{\AddFK} [1]      {\AddIndT     {#1}{ \textrm{(FD)}}}
+\newcommand{\IdxFKD}[2][!*!] {\TxtIndTD{#2}{#1}{ \textrm{(FD)}}}
+\newcommand{\IdxFK} [2][!*!] {\TxtIndT {#2}{#1}{ \textrm{(FD)}}}
