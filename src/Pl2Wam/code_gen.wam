@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.11 (Mar 19 2002)
+% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : code_gen.pl
-% date    : 3 25 2002
-% time    : 13:31:54
+% date    : 3 27 2002
+% time    : 10:2:48
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/code_gen.pl').

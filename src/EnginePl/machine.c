@@ -274,14 +274,13 @@ M_Allocate_Stacks(void)
 
 #if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
   i = 0;
-try_mmap:
+ try_mmap:
 #endif
 #ifdef DEBUG
   DBGPRINTF("trying at high addr:%lx\n", (long) addr);
 #endif
   addr = (WamWord *) Round_Down((long) addr, getpagesize());
   addr -= len;
-
 #ifdef M_ix86_win32
   addr = (WamWord *) VirtualAlloc(addr, len,
 				  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -308,7 +307,7 @@ try_mmap:
   if (addr == NULL)
 #else
   if ((long) addr == -1
-      || ((long) addr & (((1L << TAG_SIZE) - 1) << VALUE_SIZE)) != 0)
+      || ((unsigned long) addr >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
 #endif
     {
 #if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
