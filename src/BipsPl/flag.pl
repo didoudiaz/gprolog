@@ -74,6 +74,9 @@ current_prolog_flag(Flag, Value) :-
 '$sys_var_reset_bit'(Var, Bit) :-
 	'$call_c'('Sys_Var_Reset_Bit_2'(Var, Bit)).
 
+'$sys_var_get_bit'(Var, Bit, Value) :-
+	'$call_c_test'('Sys_Var_Get_Bit_3'(Var, Bit, Value)).
+
 
 
 

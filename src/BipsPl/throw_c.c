@@ -78,7 +78,7 @@ Throw_2(WamWord ball_word, WamWord b_word)
 
   if (b == LSSA)
     {
-      pstm = stm_tbl + stm_top_level_output;
+      pstm = stm_tbl[stm_top_level_output];
 
       Stream_Printf(pstm, "\nsystem_error(cannot_catch_throw(");
       Write_Term(pstm, -1, MAX_PREC,

@@ -59,8 +59,8 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   char *pl_file = Rd_String_Check(pl_file_word);
   char *singl_warn = (Flag_Value(FLAG_SINGLETON_WARNING)) ? NULL
     : "--no-singl-warn";
-  StmInf *pstm_o = stm_tbl + stm_top_level_output;
-  StmInf *pstm_i = stm_tbl + stm_top_level_input;
+  StmInf *pstm_o = stm_tbl[stm_top_level_output];
+  StmInf *pstm_i = stm_tbl[stm_top_level_input];
   int pid;
   FILE *f_out, *f_in;
   FILE **pf_in;

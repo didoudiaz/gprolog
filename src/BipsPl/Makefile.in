@@ -68,6 +68,7 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
           random@OBJ_SUFFIX@ random_c@OBJ_SUFFIX@ \
           top_level@OBJ_SUFFIX@ top_level_c@OBJ_SUFFIX@ \
           debugger@OBJ_SUFFIX@ debugger_c@OBJ_SUFFIX@ \
+          src_rdr@OBJ_SUFFIX@ src_rdr_c@OBJ_SUFFIX@ \
           all_pl_bips@OBJ_SUFFIX@ \
           $(MAKE_SOCKETS_OBJS) \
 	  $(MAKE_LE_INTERF_OBJS)
@@ -170,6 +171,7 @@ type_inl.wam:    type_inl.pl
 unify.wam:       unify.pl
 utils.wam:       utils.pl
 write.wam:       write.pl
+src_rdr.wam:   	 src_rdr.pl
 
 
 # test: read alone

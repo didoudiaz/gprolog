@@ -66,7 +66,7 @@ static void Stack_Size(int stack_nb, int *used, int *free);
 void
 Statistics_0(void)
 {
-  StmInf *pstm = stm_tbl + stm_stdout;
+  StmInf *pstm = stm_tbl[stm_stdout];
   int used, free;
   long t[4], l[4];
   static char *n[4] = { "user", "system", "cpu", "real" };

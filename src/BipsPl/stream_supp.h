@@ -57,7 +57,7 @@
 
 
 
-					 /* values for Get_Stream_Or_Alias */
+					/* values for Get_Stream_Or_Alias */
 #define STREAM_CHECK_VALID         0	/* simply a valid stream */
 #define STREAM_CHECK_EXIST         1	/* valid and exist */
 #define STREAM_CHECK_INPUT         2	/* valid, exist and mode=input  */
@@ -66,7 +66,15 @@
 
 
 
-#define STREAM_FCT_UNDEFINED       ((StmFct) (-1))	/* for optional fct */
+#define STREAM_FCT_UNDEFINED       ((StmFct) (-1)) /* for optional fct */
+
+
+
+
+				     /* Constant term streams (prop.other) */
+#define TERM_STREAM_ATOM           1 /* values also used in stream.pl */
+#define TERM_STREAM_CHARS          2
+#define TERM_STREAM_CODES          3
 
 
 
@@ -161,8 +169,9 @@ StrSInf;
 
 #ifdef STREAM_SUPP_FILE
 
-StmInf stm_tbl[MAX_STREAM + 1];	/* +1 for global term stream */
-int stm_last_used = -1;
+StmInf **stm_tbl;
+int stm_tbl_size;
+int stm_last_used;
 
 char *alias_tbl;
 
@@ -182,7 +191,7 @@ int stm_debugger_output;
 
 char *le_prompt;
 
-int atom_glob_stream_alias;
+int atom_stream;
 
 int atom_user_input;
 int atom_user_output;
@@ -222,7 +231,8 @@ int atom_eof;
 
 #else
 
-extern StmInf stm_tbl[];
+extern StmInf **stm_tbl;
+extern int stm_tbl_size;
 extern int stm_last_used;
 
 extern char *alias_tbl;
@@ -244,7 +254,7 @@ extern int stm_debugger_output;
 
 extern char *le_prompt;
 
-extern int atom_glob_stream_alias;
+extern int atom_stream;
 
 extern int atom_user_input;
 extern int atom_user_output;
@@ -308,6 +318,8 @@ void Reassign_Alias(int atom_alias, int stm);
 
 void Del_Aliases_Of_Stream(int stm);
 
+int Find_Stream_From_PStm(StmInf *pstm);
+
 void Flush_All_Streams(void);
 
 void Set_Stream_Buffering(int stm);
@@ -316,9 +328,11 @@ int Get_Stream_Or_Alias(WamWord sora_word, int test_mask);
 
 void Check_Stream_Type(int stm, Bool check_text, Bool for_input);
 
-FILE *File_Star_Of_Stream(int stm);
+WamWord Make_Stream_Tagged_Word(int stm);
 
 int File_Number_Of_Stream(int stm);
+
+FILE *File_Star_Of_Stream(int stm);
 
 
 
@@ -359,12 +373,14 @@ int Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos);
 
 
 
-int Add_Str_Stream(Bool use_global, char *buff);
+int Add_Str_Stream(char *buff, int prop_other);
 
 void Delete_Str_Stream(int stm);
 
 char *Term_Write_Str_Stream(int stm);
 
+
+void Close_Stm(int stm, Bool force); /* from close_c.c */
 
 
 #define PB_Init(pb)          pb.ptr = pb.buff, pb.nb_elems = 0;

@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.10 (Dec 20 2001)
+% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : all_pl_bips.pl
-% date    : 3 19 2002
-% time    : 19:38:52
+% date    : 4 8 2002
+% time    : 19:47:55
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_pl_bips.pl').
@@ -42,5 +42,6 @@ predicate('$use_all_pl_bips'/0,27,static,private,user,[
     call('$use_expand'/0),
     call('$use_pretty'/0),
     call('$use_random'/0),
+    call('$use_sockets'/0),
     deallocate,
-    execute('$use_sockets'/0)]).
+    execute('$use_src_rdr'/0)]).

@@ -58,4 +58,6 @@
 	'$use_expand',
 	'$use_pretty',
 	'$use_random',
-	'$use_sockets'.
+	'$use_sockets',
+ 	'$use_src_rdr'.
+

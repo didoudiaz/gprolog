@@ -93,13 +93,15 @@ extern void clearerr(FILE *stream);
 static void Init_Stream_Supp();
 void (*init_stream_supp)() = Init_Stream_Supp; /* overwrite var of engine.c */
 
-static int atom_stream;
+static int atom_constant_term_stream;
+
 static WamWord stream_1;
 
 static WamWord word_current_input_stream;
 static WamWord word_current_output_stream;
 
-static StrSInf glob_str_stream = { NULL, NULL, 0 };
+static StrSInf static_str_stream_rd = { NULL, NULL, 0 }; /* input */
+static StrSInf static_str_stream_wr = { NULL, NULL, 0 }; /* output */
 
 
 #ifndef NO_USE_LINEDIT
@@ -152,15 +154,19 @@ Init_Stream_Supp(void)
   StmFct fct_putc = NULL;
   StmFct fct_flush = NULL;
 
+  stm_tbl_size = 32;
+  stm_tbl = (StmInf **) Calloc(stm_tbl_size, sizeof(StmInf *));
+  stm_last_used = -1;
+
   alias_tbl = Hash_Alloc_Table(START_ALIAS_TBL_SIZE, sizeof(AliasInf));
 
   atom_stream = Create_Atom("$stream");
   stream_1 = Functor_Arity(atom_stream, 1);
 
+  atom_constant_term_stream = Create_Atom("constant term stream");
+
   word_current_input_stream = Tag_ATM(Create_Atom("current_input_stream"));
   word_current_output_stream = Tag_ATM(Create_Atom("current_output_stream"));
-
-  atom_glob_stream_alias = Create_Atom("$glob_stream_alias");
 
   atom_user_input = Create_Atom("user_input");
   atom_user_output = Create_Atom("user_output");
@@ -378,7 +384,7 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
     Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
 
 
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
   Init_Stream_Struct(atom_file_name, file, prop, fct_getc, fct_putc,
 		     fct_flush, fct_close, fct_tell, fct_seek, fct_clearerr,
 		     pstm);
@@ -400,9 +406,10 @@ Delete_Stream(int stm)
 {
   Del_Aliases_Of_Stream(stm);
 
-  stm_tbl[stm].file = 0;
+  Free(stm_tbl[stm]);
+  stm_tbl[stm] = NULL;
 
-  while(stm_tbl[stm_last_used].file == 0)
+  while(stm_tbl[stm_last_used] == NULL)
     stm_last_used--;
 }
 
@@ -418,14 +425,14 @@ Find_Free_Stream(void)
 {
   int stm;
 
-  for (stm = 0; stm < MAX_STREAM; stm++)
-    if (stm_tbl[stm].file == 0)
+  for (stm = 0; stm < stm_tbl_size; stm++)
+    if (stm_tbl[stm] == NULL)
       break;
 
-#ifndef FOR_EXTERNAL_USE
-  if (stm >= MAX_STREAM)
-    Pl_Err_Resource(resource_too_many_open_streams);
-#endif /* !FOR_EXTERNAL_USE */
+  if (stm == stm_tbl_size)
+    Extend_Array((char **) &stm_tbl, &stm_tbl_size, sizeof(StmInf *), TRUE);
+
+  stm_tbl[stm] = (StmInf *) Malloc(sizeof(StmInf));
 
   if (stm > stm_last_used)
     stm_last_used = stm;
@@ -518,6 +525,25 @@ Del_Aliases_Of_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
+ * FIND_STREAM_FROM_PSTM                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Find_Stream_From_PStm(StmInf *pstm)
+{
+  int stm;
+
+  for (stm = 0; stm <= stm_last_used; stm++)
+    if (stm_tbl[stm] == pstm)
+      return stm;
+
+  return -1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * FLUSH_ALL_STREAMS                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -526,9 +552,9 @@ Flush_All_Streams(void)
 {
   int stm;
 
-  for (stm = 0; stm < MAX_STREAM; stm++)
-    if (stm_tbl[stm].file != 0)
-      Stream_Flush(stm_tbl + stm);
+  for (stm = 0; stm <= stm_last_used ; stm++)
+    if (stm_tbl[stm])
+      Stream_Flush(stm_tbl[stm]);
 }
 
 
@@ -541,7 +567,7 @@ Flush_All_Streams(void)
 void
 Set_Stream_Buffering(int stm)
 {
-  StmInf *pstm = stm_tbl + stm;
+  StmInf *pstm = stm_tbl[stm];
   int buff_flag;
   FILE *f;
 
@@ -608,8 +634,7 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
   if (tag_mask == TAG_ATM_MASK)	/* alias ? */
     {
       atom = UnTag_ATM(word);
-      stm = (atom == atom_glob_stream_alias) ? MAX_STREAM
-	: Find_Stream_By_Alias(atom);
+      stm = Find_Stream_By_Alias(atom);
       goto next_test;
     }
 
@@ -619,7 +644,8 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
       DEREF(Arg(stc_adr, 0), word, tag_mask1);
       stm = UnTag_INT(word);
 
-      if (Functor_And_Arity(stc_adr) == stream_1 && tag_mask1 == TAG_INT_MASK)
+      if (Functor_And_Arity(stc_adr) == stream_1 && 
+	  tag_mask1 == TAG_INT_MASK)
 	goto next_test;
     }
 
@@ -628,11 +654,9 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
 
   Pl_Err_Domain(domain_stream_or_alias, sora_word);
 
-
  next_test:
 
-  if (stm < 0 || stm > MAX_STREAM || stm_tbl[stm].file == 0 ||
-      (stm == MAX_STREAM && glob_str_stream.ptr == NULL))	/* global not in use */
+  if ((unsigned) stm > stm_last_used || stm_tbl[stm] == NULL)
     {
       if (test == STREAM_CHECK_VALID)
 	return -1;
@@ -645,14 +669,14 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
 
   if (test == STREAM_CHECK_INPUT)
     {
-      if (stm_tbl[stm].prop.input)
+      if (stm_tbl[stm]->prop.input)
 	goto ok;
 
       perm_oper = permission_operation_input;
     }
   else				/* test == STREAM_CHECK_OUTPUT */
     {
-      if (stm_tbl[stm].prop.output)
+      if (stm_tbl[stm]->prop.output)
 	goto ok;
 
       perm_oper = permission_operation_output;
@@ -681,14 +705,14 @@ Check_Stream_Type(int stm, Bool check_text, Bool for_input)
 
   if (check_text)
     {
-      if (stm_tbl[stm].prop.text)
+      if (stm_tbl[stm]->prop.text)
 	return;
 
       perm_type = permission_type_binary_stream;
     }
   else				/* check binary */
     {
-      if (!stm_tbl[stm].prop.text)
+      if (!stm_tbl[stm]->prop.text)
 	return;
 
       perm_type = permission_type_text_stream;
@@ -712,6 +736,24 @@ Check_Stream_Type(int stm, Bool check_text, Bool for_input)
 }
 
 #endif /* !FOR_EXTERNAL_USE */
+
+
+/*-------------------------------------------------------------------------*
+ * MAKE_STREAM_TAGGED_WORD                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Make_Stream_Tagged_Word(int stm)
+{
+  static WamWord h[2];
+
+  h[0] = stream_1;
+  h[1] = Tag_INT(stm);
+
+  return Tag_STC(h);
+}
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -742,7 +784,7 @@ File_Number_Of_Stream(int stm)
 FILE *
 File_Star_Of_Stream(int stm)
 {
-  StmInf *pstm = stm_tbl + stm;
+  StmInf *pstm = stm_tbl[stm];
 
   if (stm == stm_stdin)		/* works also for stdin with linedit */
     return stdin;
@@ -817,7 +859,7 @@ TTY_Getc(void)
 
       tty_ptr = tty_buff;
     				/* simulate the echo (+ '\n') on output */
-      pstm = stm_tbl + stm_stdout;
+      pstm = stm_tbl[stm_stdout];
       pstm->char_count += strlen(tty_buff);
       pstm->line_count++;
       pstm->line_pos = 0;
@@ -973,7 +1015,7 @@ Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
   Bool simulate;
 
 #ifndef NO_USE_LINEDIT
-  if (pstm - stm_tbl == stm_stdin) /* the stdin stream used with linedit */
+  if (pstm == stm_tbl[stm_stdin]) /* the stdin stream used with linedit */
     simulate = FALSE;
   else
 #endif
@@ -1003,7 +1045,7 @@ Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
       while (Basic_Call_Fct_Getc(pstm) >= ' ')
 	;
 
-      Update_Counters((stm_tbl + stm_stdout), '\n'); /* reflect \n */
+      Update_Counters(stm_tbl[stm_stdout], '\n'); /* reflect \n */
     }
 
   if (c == EOF)
@@ -1477,38 +1519,38 @@ err:
 
 /*-------------------------------------------------------------------------*
  * The following functions allows the user to handle streams on C strings  *
- * Any stream can be a string stream. There is a global string stream used *
- * by predicates like write_to_atom/2,...                                  *
+ * Any stream can be a string stream. To avoid unnecessary malloc/free, we *
+ * use as long as possible 2 str stream statically allocated (1 for input, *
+ * 1 for output). This optimizes the use of preds like write_to_atom/2,... *
+ * NB: The buff of the output static str stream is reused (no free on it). *
+ * A dynamic str stream is allocated when it is not possible to use static *
+ * ones. Such a str stream is freed at the close.                          *
  *-------------------------------------------------------------------------*/
 
 
 /*-------------------------------------------------------------------------*
  * ADD_STR_STREAM                                                          *
  *                                                                         *
- * buff==NULL <=> write mode <=> str_stream->buff_alloc_size!=0            *
+ * buff == NULL means output stream mode (str_stream->buff_alloc_size != 0)*
  *-------------------------------------------------------------------------*/
 int
-Add_Str_Stream(Bool use_global, char *buff)
+Add_Str_Stream(char *buff, int prop_other)
 {
   int stm;
   StmInf *pstm;
   StmProp prop;
   StrSInf *str_stream;
 
-  if (use_global)
+  str_stream = (buff) ? &static_str_stream_rd : &static_str_stream_wr;
+  if (str_stream->ptr != NULL)	/* in use ? */
     {
-      str_stream = &glob_str_stream;
-      if (buff && str_stream->buff_alloc_size != 0)
-	Free(str_stream->buff);
+      str_stream = (StrSInf *) Malloc(sizeof(StrSInf));
+      str_stream->buff_alloc_size = 0;
     }
-  else
-    str_stream = (StrSInf *) Malloc(sizeof(StrSInf));
 
   if (buff)
     {
       str_stream->buff = buff;
-      str_stream->ptr = buff;
-      str_stream->buff_alloc_size = 0;
 
       prop.mode = STREAM_MODE_READ;
       prop.input = TRUE;
@@ -1516,28 +1558,30 @@ Add_Str_Stream(Bool use_global, char *buff)
     }
   else
     {
-      if (!use_global || str_stream->buff_alloc_size == 0)
-	str_stream->buff = (char *) Malloc(STR_STREAM_WRITE_BLOCK);
-
-      str_stream->ptr = str_stream->buff;
-      str_stream->buff_alloc_size = STR_STREAM_WRITE_BLOCK;
+      if (str_stream->buff_alloc_size == 0)
+	{
+	  str_stream->buff = (char *) Malloc(STR_STREAM_WRITE_BLOCK);
+	  str_stream->buff_alloc_size = STR_STREAM_WRITE_BLOCK;
+	}
 
       prop.mode = STREAM_MODE_WRITE;
       prop.input = FALSE;
       prop.output = TRUE;
     }
 
+  str_stream->ptr = str_stream->buff; /* ptr != NULL <=> in use for global */
+
   prop.text = 1;
   prop.reposition = FALSE;
   prop.buffering = STREAM_BUFFERING_NONE;
   prop.eof_action = STREAM_EOF_ACTION_EOF_CODE;
   prop.special_close = TRUE;
-  prop.other = 0;
+  prop.other = prop_other;
 
-  stm = (use_global) ? MAX_STREAM : Find_Free_Stream();
-  pstm = stm_tbl + stm;
+  stm = Find_Free_Stream();
+  pstm = stm_tbl[stm];
 
-  pstm->atom_file_name = atom_void;
+  pstm->atom_file_name = atom_constant_term_stream;
 
   pstm->file = (long) str_stream;
   pstm->prop = prop;
@@ -1572,18 +1616,19 @@ Add_Str_Stream(Bool use_global, char *buff)
 void
 Delete_Str_Stream(int stm)
 {
-  StrSInf *str_stream;
+  StrSInf *str_stream = (StrSInf *) (stm_tbl[stm]->file);
 
-  if (stm == MAX_STREAM)	/* the global str stream */
+  if (str_stream == &static_str_stream_rd ||
+      str_stream == &static_str_stream_wr)
     {
-      glob_str_stream.ptr = NULL;	/* ie. global stream not in use */
-      return;
+      str_stream->ptr = NULL;	/* not in use */
     }
-
-  str_stream = (StrSInf *) (stm_tbl[stm].file);
-  if (str_stream->buff_alloc_size)
-    Free(str_stream->buff);
-  Free(str_stream);
+  else
+    {
+      if (str_stream->buff_alloc_size)
+	Free(str_stream->buff);
+      Free(str_stream);
+    }
 
   Delete_Stream(stm);
 }
@@ -1601,7 +1646,7 @@ Term_Write_Str_Stream(int stm)
 {
   StrSInf *str_stream;
 
-  str_stream = (StrSInf *) (stm_tbl[stm].file);
+  str_stream = (StrSInf *) (stm_tbl[stm]->file);
   *(str_stream->ptr) = '\0';
 
   return str_stream->buff;
@@ -1654,4 +1699,3 @@ Str_Stream_Putc(int c, StrSInf *str_stream)
 
   *(str_stream->ptr)++ = c;
 }
-

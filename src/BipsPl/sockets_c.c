@@ -112,7 +112,7 @@ Socket_Initializer(void)
   if ((err = WSAStartup(versReqstd, &wsaData)) != 0 ||
       wsaData.wVersion != versReqstd)
     {
-      Stream_Printf(stm_tbl + stm_top_level_output,
+      Stream_Printf(stm_tbl[stm_top_level_output],
 		    "warning: cannot find a usable WinSock DLL\n");
       if (err == 0)
 	WSACleanup();

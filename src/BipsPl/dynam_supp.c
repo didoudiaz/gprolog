@@ -237,7 +237,7 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 
   if ((pred = Lookup_Pred(func, arity)) == NULL)
     pred = Create_Pred(func, arity, atom_user_input,
-		       stm_tbl[stm_stdin].line_count,
+		       stm_tbl[stm_stdin]->line_count,
 		       MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {

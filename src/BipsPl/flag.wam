@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.10 (Dec 20 2001)
+% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : flag.pl
-% date    : 3 19 2002
-% time    : 19:38:49
+% date    : 4 5 2002
+% time    : 9:46:30
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/flag.pl').
@@ -62,27 +62,32 @@ predicate('$sys_var_reset_bit'/2,74,static,private,built_in,[
     proceed]).
 
 
-predicate('$sys_var_put'/2,80,static,private,built_in,[
+predicate('$sys_var_get_bit'/3,77,static,private,built_in,[
+    call_c('Sys_Var_Get_Bit_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate('$sys_var_put'/2,83,static,private,built_in,[
     call_c('Sys_Var_Put_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$sys_var_get'/2,83,static,private,built_in,[
+predicate('$sys_var_get'/2,86,static,private,built_in,[
     call_c('Sys_Var_Get_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$get_current_B'/1,89,static,private,built_in,[
+predicate('$get_current_B'/1,92,static,private,built_in,[
     call_c('Get_Current_B_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$set_current_B'/1,92,static,private,built_in,[
+predicate('$set_current_B'/1,95,static,private,built_in,[
     call_c('Set_Current_B_1',[],[x(0)]),
     proceed]).
 
 
-predicate(write_pl_state_file/1,98,static,private,built_in,[
+predicate(write_pl_state_file/1,101,static,private,built_in,[
     put_atom(write_pl_state_file,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -90,7 +95,7 @@ predicate(write_pl_state_file/1,98,static,private,built_in,[
     proceed]).
 
 
-predicate(read_pl_state_file/1,105,static,private,built_in,[
+predicate(read_pl_state_file/1,108,static,private,built_in,[
     put_atom(read_pl_state_file,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -98,7 +103,7 @@ predicate(read_pl_state_file/1,105,static,private,built_in,[
     proceed]).
 
 
-predicate(argument_counter/1,112,static,private,built_in,[
+predicate(argument_counter/1,115,static,private,built_in,[
     put_atom(argument_counter,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -106,7 +111,7 @@ predicate(argument_counter/1,112,static,private,built_in,[
     proceed]).
 
 
-predicate(argument_value/2,119,static,private,built_in,[
+predicate(argument_value/2,122,static,private,built_in,[
     put_atom(argument_value,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
@@ -114,7 +119,7 @@ predicate(argument_value/2,119,static,private,built_in,[
     proceed]).
 
 
-predicate(argument_list/1,126,static,private,built_in,[
+predicate(argument_list/1,129,static,private,built_in,[
     put_atom(argument_list,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
@@ -122,7 +127,7 @@ predicate(argument_list/1,126,static,private,built_in,[
     proceed]).
 
 
-predicate(environ/2,131,static,private,built_in,[
+predicate(environ/2,134,static,private,built_in,[
     put_atom(environ,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
@@ -130,6 +135,6 @@ predicate(environ/2,131,static,private,built_in,[
     proceed]).
 
 
-predicate('$environ_alt'/0,136,static,private,built_in,[
+predicate('$environ_alt'/0,139,static,private,built_in,[
     call_c('Environ_Alt_0',[boolean],[]),
     proceed]).

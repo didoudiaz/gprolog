@@ -98,7 +98,7 @@ Set_Ctrl_C_Handler_0(void)
 static long
 Ctrl_C_Manager(int from_callback)
 {
-  StmInf *pstm = stm_tbl + stm_top_level_output;
+  StmInf *pstm = stm_tbl[stm_top_level_output];
   PredInf *pred;
   int c;
   CodePtr to_execute;
@@ -109,7 +109,7 @@ start:
   Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
   Stream_Flush(pstm);
 
-  c = Stream_Get_Key(stm_tbl + stm_top_level_input, TRUE, TRUE);
+  c = Stream_Get_Key(stm_tbl[stm_top_level_input], TRUE, TRUE);
   Stream_Putc('\n', pstm);
 
   switch (c)

@@ -1,5 +1,13 @@
 Change in GNU Prolog version 1.2.12:
 
+* add source reader facility (built-in) - not yet documented
+* fix current_predicate bug, now current_predicate(nl/0) fails
+* fix linedit bug in tab pasting and add Esc-Tab function
+* now linedit goes to EOL at finish to fix bug with multi-line inputs
+* now linedit avoids to put in history 2 same consecutive lines
+* remove max_stream limitation (the Prolog flag no longer exists)
+* the template of get_print_stream/1 is now ?stream
+* patch to allow more than 64Mb for the stacks under ix86/linux
 * fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
 
 Change in GNU Prolog version 1.2.11:

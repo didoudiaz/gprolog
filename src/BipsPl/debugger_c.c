@@ -340,8 +340,8 @@ Debug_Wam(void)
   char *prompt = "(wam debug) ";
   int ret;
 
-  pstm_i = stm_tbl + stm_debugger_input;
-  pstm_o = stm_tbl + stm_debugger_output;
+  pstm_i = stm_tbl[stm_debugger_input];
+  pstm_o = stm_tbl[stm_debugger_output];
 
   Stream_Printf(pstm_o, "Welcome to the WAM debugger - experts only\n");
 

@@ -134,7 +134,6 @@ Flag_Initializer(void)
   atom_flag_tbl[FLAG_SYNTAX_ERROR] = Create_Atom("syntax_error");
   atom_flag_tbl[FLAG_OS_ERROR] = Create_Atom("os_error");
   atom_flag_tbl[FLAG_MAX_ATOM] = Create_Atom("max_atom");
-  atom_flag_tbl[FLAG_MAX_STREAM] = Create_Atom("max_stream");
   atom_flag_tbl[FLAG_MAX_UNGET] = Create_Atom("max_unget");
   atom_flag_tbl[FLAG_SINGLETON_WARNING] = Create_Atom("singleton_warning");
   atom_flag_tbl[FLAG_STRICT_ISO] = Create_Atom("strict_iso");
@@ -223,7 +222,6 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_MIN_INTEGER:
     case FLAG_MAX_ARITY:
     case FLAG_MAX_ATOM:
-    case FLAG_MAX_STREAM:
     case FLAG_MAX_UNGET:
       if (tag_mask != TAG_INT_MASK)
 	goto err_value;
@@ -507,10 +505,6 @@ Unif_Flag(int i, WamWord value_word)
       n = MAX_ATOM;
       break;
 
-    case FLAG_MAX_STREAM:
-      n = MAX_STREAM;
-      break;
-
     case FLAG_MAX_UNGET:
       n = STREAM_PB_SIZE;
       break;
@@ -599,6 +593,22 @@ void
 Sys_Var_Reset_Bit_2(WamWord var_word, WamWord bit_word)
 {
   sys_var[Rd_Integer(var_word)] &= ~(1 << Rd_Integer(bit_word));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SYS_VAR_SET_BIT_2                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Sys_Var_Get_Bit_3(WamWord var_word, WamWord bit_word, WamWord value_word)
+{
+  unsigned x;
+
+  x = (sys_var[Rd_Integer(var_word)] >> Rd_Integer(bit_word))  & 1;
+  return Un_Integer(x, value_word);
 }
 
 

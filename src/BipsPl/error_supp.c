@@ -124,8 +124,8 @@ Error_Supp_Initializer(void)
   type_character = Create_Atom("character");
   type_compound = Create_Atom("compound");
   type_evaluable = Create_Atom("evaluable");
-  type_float = Create_Atom("float");	/* for arithmetic */
-  type_boolean = Create_Atom("boolean");	/* for setarg/4 */
+  type_float = Create_Atom("float"); /* for arithmetic */
+  type_boolean = Create_Atom("boolean"); /* for setarg/4 */
   type_in_byte = Create_Atom("in_byte");
   type_in_character = Create_Atom("in_character");
   type_integer = Create_Atom("integer");
@@ -135,9 +135,9 @@ Error_Supp_Initializer(void)
   type_variable = Create_Atom("variable");
   if (fd_init_solver)		/* FD solver linked */
     {
-      type_fd_variable = Create_Atom("fd_variable");	/* for FD */
-      type_fd_evaluable = Create_Atom("fd_evaluable");	/* for FD */
-      type_fd_bool_evaluable = Create_Atom("fd_bool_evaluable");	/* for FD */
+      type_fd_variable = Create_Atom("fd_variable"); /* for FD */
+      type_fd_evaluable = Create_Atom("fd_evaluable"); /* for FD */
+      type_fd_bool_evaluable = Create_Atom("fd_bool_evaluable"); /* for FD */
     }
 
   domain_character_code_list = Create_Atom("character_code_list");
@@ -158,25 +158,27 @@ Error_Supp_Initializer(void)
   domain_stream_property = Create_Atom("stream_property");
   domain_write_option = Create_Atom("write_option");
   domain_term_stream_or_alias = Create_Atom("term_stream_or_alias");
-  /* for term_streams */
-  domain_g_array_index = Create_Atom("g_array_index");	/* for g_vars */
-  domain_stream_seek_method = Create_Atom("stream_seek_method");	/* for seek/4 */
+				/* for term_streams */
+  domain_g_array_index = Create_Atom("g_array_index");/* for g_vars */
+  domain_stream_seek_method = Create_Atom("stream_seek_method"); /* for seek/4 */
   domain_format_control_sequence = Create_Atom("format_control_sequence");
-  /* for format/2-3 */
-  domain_os_path = Create_Atom("os_path");	/* for absolute_file_name/2 */
+				/* for format/2-3 */
+  domain_os_path = Create_Atom("os_path");/* for absolute_file_name/2 */
   domain_os_file_permission = Create_Atom("os_file_permission");
-  /* for file_permission/2 */
-  domain_date_time = Create_Atom("date_time");	/* for os_interf */
+				/* for file_permission/2 */
+  domain_date_time = Create_Atom("date_time");/* for os_interf */
   domain_selectable_item = Create_Atom("selectable_item");
-  /* for select_read/3 */
+				/* for select_read/3 */
 #ifndef NO_USE_SOCKETS
-  domain_socket_domain = Create_Atom("socket_domain");	/* for sockets */
-  domain_socket_address = Create_Atom("socket_address");	/* for sockets */
+  domain_socket_domain = Create_Atom("socket_domain"); /* for sockets */
+  domain_socket_address = Create_Atom("socket_address"); /* for sockets */
 #endif
 
   existence_procedure = Create_Atom("procedure");
   existence_source_sink = Create_Atom("source_sink");
   existence_stream = Create_Atom("stream");
+  existence_sr_descriptor = Create_Atom("sr_descriptor");
+				/* for source reader */
 
 
   permission_operation_access = Create_Atom("access");
@@ -207,7 +209,7 @@ Error_Supp_Initializer(void)
   representation_max_integer = Create_Atom("max_integer");
   representation_min_integer = Create_Atom("min_integer");
   representation_too_many_variables = Create_Atom("too_many_variables");
-  /* for Copy_Term(),... */
+				/* for Copy_Term(),... */
 
   evluation_float_overflow = Create_Atom("float_overflow");
   evluation_int_overflow = Create_Atom("int_overflow");
@@ -216,14 +218,12 @@ Error_Supp_Initializer(void)
   evluation_zero_divisor = Create_Atom("zero_divisor");
 
 
-  resource_too_many_open_streams = Create_Atom("too_many_open_streams");
-  /* for streams */
   resource_print_object_not_linked = Create_Atom("print_object_not_linked");
-  /* for print and format */
+				/* for print and format */
   if (fd_init_solver)		/* FD solver linked */
     {
       resource_too_big_fd_constraint = Create_Atom("too_big_fd_constraint");
-      /* for FD */
+				/* for FD */
     }
 }
 
@@ -432,7 +432,7 @@ Syntax_Error(int flag_value)
 
   Update_Cur_From_C_Bip();
   if (flag_value == FLAG_VALUE_WARNING)
-    Stream_Printf(stm_tbl + stm_top_level_output,
+    Stream_Printf(stm_tbl[stm_top_level_output],
 		  "warning: syntax error: %s (from %s)\n",
 		  str, Context_Error_String());
 }
@@ -459,7 +459,7 @@ Unknown_Pred_Error(int func, int arity)
 
   Update_Cur_From_C_Bip();
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_WARNING)
-    Stream_Printf(stm_tbl + stm_top_level_output,
+    Stream_Printf(stm_tbl[stm_top_level_output],
 		  "warning: unknown procedure %s/%d (from %s)\n",
 		  atom_tbl[func].name, arity, Context_Error_String());
 }
@@ -481,7 +481,7 @@ Os_Error(void)
 
   Update_Cur_From_C_Bip();
   if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_WARNING)
-    Stream_Printf(stm_tbl + stm_top_level_output,
+    Stream_Printf(stm_tbl[stm_top_level_output],
 		  "warning: OS error: %s (from %s)\n",
 		  err_str, Context_Error_String());
 }

@@ -147,6 +147,29 @@ Extend_Table_If_Needed(char **hash_tbl)
 
 
 /*-------------------------------------------------------------------------*
+ * EXTEND_ARRAY                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero)
+{
+  int old_nb_elem = *nb_elem;
+  int new_nb_elem = old_nb_elem * 2;
+  char *new_tbl;
+
+  new_tbl = Realloc(*ptbl, new_nb_elem * elem_size);
+  if (bzero)
+    memset(new_tbl + (old_nb_elem * elem_size), 0,
+	   (new_nb_elem - old_nb_elem) * elem_size);
+
+  *ptbl = new_tbl;
+  *nb_elem = new_nb_elem;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * EXIT_WITH_VALUE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/

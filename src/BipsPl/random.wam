@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.10 (Dec 20 2001)
+% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : random.pl
-% date    : 3 19 2002
-% time    : 19:38:52
+% date    : 4 5 2002
+% time    : 9:46:31
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/random.pl').

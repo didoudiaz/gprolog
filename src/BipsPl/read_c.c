@@ -92,7 +92,7 @@ Read_Term_5(WamWord sora_word, WamWord term_word,
   int parse_end_of_term = (SYS_VAR_OPTION_MASK >> 3) & 1;
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Read_Term(stm_tbl + stm, parse_end_of_term);
+  word = Read_Term(stm_tbl[stm], parse_end_of_term);
   CHECK_RESULT_AND_UNIFY(word, term_word);
 
   /* list of variables (i.e. [Var,...]) */
@@ -225,7 +225,7 @@ Read_Atom_2(WamWord sora_word, WamWord atom_word)
   Check_For_Un_Atom(atom_word);
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Read_Atom(stm_tbl + stm);
+  word = Read_Atom(stm_tbl[stm]);
   CHECK_RESULT_AND_UNIFY(word, atom_word);
 
   return TRUE;
@@ -259,7 +259,7 @@ Read_Integer_2(WamWord sora_word, WamWord integer_word)
   Check_For_Un_Integer(integer_word);
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Read_Integer(stm_tbl + stm);
+  word = Read_Integer(stm_tbl[stm]);
   CHECK_RESULT_AND_UNIFY(word, integer_word);
 
   return TRUE;
@@ -294,7 +294,7 @@ Read_Number_2(WamWord sora_word, WamWord number_word)
   Check_For_Un_Number(number_word);
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Read_Number(stm_tbl + stm);
+  word = Read_Number(stm_tbl[stm]);
   CHECK_RESULT_AND_UNIFY(word, number_word);
 
   return TRUE;
@@ -327,7 +327,7 @@ Read_Token_2(WamWord sora_word, WamWord token_word)
   int stm;
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Read_Token(stm_tbl + stm);
+  word = Read_Token(stm_tbl[stm]);
   CHECK_RESULT_AND_UNIFY(word, token_word);
 
   return TRUE;

@@ -146,6 +146,7 @@ main(int argc, char *argv[])
   char *p;
   char sep[100];
   int ret_val;
+  int tempo = 0;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   setbuf(stdout, NULL);
@@ -158,6 +159,9 @@ main(int argc, char *argv[])
 
   Set_Test_Locale();
 
+  if (argc > 1)
+    tempo = atoi(argv[1]);
+
   sep[0] = '\n';
   strcpy(sep + 1, LE_Get_Separators());
 
@@ -165,11 +169,11 @@ main(int argc, char *argv[])
 
   for (;;)
     {
-#if 0
-      printf("tempo to allow you to buffer some chars before the read\n");
-      sleep(2);
-#endif
-
+      if (tempo)
+	{
+	  printf("tempo %d secs to allow you to buffer some chars:\n");
+	  sleep(tempo);
+	}
 #if 0
       printf("enter a line:");
       if (LE_Gets(line) == NULL)

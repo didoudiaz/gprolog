@@ -140,7 +140,7 @@ Portray_Clause_2(WamWord sora_word, WamWord term_word)
 
   stm = (sora_word == NOT_A_WAM_WORD)
     ? stm_output : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   last_output_sora = sora_word;
   Check_Stream_Type(stm, TRUE, FALSE);

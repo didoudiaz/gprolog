@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.10 (Dec 20 2001)
+% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
 % file    : stream.pl
-% date    : 3 19 2002
-% time    : 19:38:50
+% date    : 4 5 2002
+% time    : 9:46:30
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/stream.pl').
@@ -1251,7 +1251,7 @@ predicate(open_input_atom_stream/2,553,static,private,built_in,[
     put_variable(y(1),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
-    put_integer(0,1),
+    put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
@@ -1270,7 +1270,7 @@ predicate(open_input_chars_stream/2,562,static,private,built_in,[
     put_variable(y(1),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
-    put_integer(1,1),
+    put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
@@ -1289,7 +1289,7 @@ predicate(open_input_codes_stream/2,571,static,private,built_in,[
     put_variable(y(1),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
-    put_integer(2,1),
+    put_integer(3,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
@@ -1305,7 +1305,7 @@ predicate(close_input_atom_stream/1,580,static,private,built_in,[
     put_integer(1,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
-    put_integer(0,1),
+    put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     deallocate,
@@ -1320,7 +1320,7 @@ predicate(close_input_chars_stream/1,588,static,private,built_in,[
     put_integer(1,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
-    put_integer(1,1),
+    put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     deallocate,
@@ -1335,7 +1335,7 @@ predicate(close_input_codes_stream/1,596,static,private,built_in,[
     put_integer(1,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
-    put_integer(2,1),
+    put_integer(3,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     deallocate,
@@ -1351,7 +1351,7 @@ predicate(open_output_atom_stream/1,604,static,private,built_in,[
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
-    put_integer(0,1),
+    put_integer(1,1),
     call('$sys_var_write'/2),
     put_unsafe_value(y(0),0),
     deallocate,
@@ -1367,7 +1367,7 @@ predicate(open_output_chars_stream/1,613,static,private,built_in,[
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
-    put_integer(1,1),
+    put_integer(2,1),
     call('$sys_var_write'/2),
     put_unsafe_value(y(0),0),
     deallocate,
@@ -1383,7 +1383,7 @@ predicate(open_output_codes_stream/1,622,static,private,built_in,[
     put_variable(y(0),1),
     call('$get_open_stm'/2),
     put_integer(0,0),
-    put_integer(2,1),
+    put_integer(3,1),
     call('$sys_var_write'/2),
     put_unsafe_value(y(0),0),
     deallocate,
@@ -1399,7 +1399,7 @@ predicate(close_output_atom_stream/2,631,static,private,built_in,[
     put_integer(2,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
-    put_integer(0,1),
+    put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -1416,7 +1416,7 @@ predicate(close_output_chars_stream/2,639,static,private,built_in,[
     put_integer(2,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
-    put_integer(1,1),
+    put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -1433,7 +1433,7 @@ predicate(close_output_codes_stream/2,647,static,private,built_in,[
     put_integer(2,1),
     call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
-    put_integer(2,1),
+    put_integer(3,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),

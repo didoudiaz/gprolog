@@ -83,7 +83,11 @@ Current_Predicate_2(WamWord pred_indic_word, WamWord hide_word)
 	return FALSE;
 
       if (arity >= 0)
-	return Lookup_Pred(func, arity) != NULL;
+	{
+	  pred = Lookup_Pred(func, arity);
+	  return pred && (!Flag_Value(FLAG_STRICT_ISO) ||
+			  !(pred->prop & MASK_PRED_ANY_BUILTIN));
+	}
     }
 
   all = (arity == -1);

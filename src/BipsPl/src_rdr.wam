@@ -1,0 +1,1337 @@
+% compiler: GNU Prolog 1.2.12 (Mar 27 2002)
+% file    : src_rdr.pl
+% date    : 4 8 2002
+% time    : 19:47:55
+
+
+file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').
+
+
+predicate('$use_src_rdr'/0,29,static,private,built_in,[
+    proceed]).
+
+
+predicate(sr_open/3,54,static,private,built_in,[
+    load_cut_level(3),
+    allocate(6),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    put_atom(sr_open,0),
+    put_integer(3,1),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call('$set_sr_defaults'/0),
+    put_value(y(2),0),
+    put_variable(y(4),1),
+    call('$get_sr_options'/2),
+    put_value(y(1),0),
+    call('$sr_open/3_$aux1'/1),
+    put_value(y(1),0),
+    put_value(y(4),1),
+    call_c('SR_Init_Open_2',[],[x(0),x(1)]),
+    put_value(y(0),0),
+    put_value(y(3),1),
+    put_variable(y(5),2),
+    call('$sr_open/3_$aux2'/3),
+    put_unsafe_value(y(5),0),
+    deallocate,
+    call_c('SR_Finish_Open_1',[],[x(0)]),
+    proceed]).
+
+
+predicate('$sr_open/3_$aux2'/3,54,static,private,built_in,[
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    get_structure('$stream'/1,0),
+    unify_variable(x(1)),
+    call('$sr_from_stream'/2),
+    cut(y(0)),
+    put_value(y(1),0),
+    get_atom(false,0),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    allocate(1),
+    get_variable(y(0),2),
+    call('$sr_open_new_prolog_file'/1),
+    put_value(y(0),0),
+    get_atom(true,0),
+    deallocate,
+    proceed]).
+
+
+predicate('$sr_open/3_$aux1'/1,54,static,private,built_in,[
+    load_cut_level(1),
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(variable,0),
+    execute('$pl_err_type'/2)]).
+
+
+predicate('$set_sr_defaults'/0,93,static,private,built_in,[
+    allocate(0),
+    put_integer(0,0),
+    put_integer(1022,1),
+    call('$sys_var_write'/2),
+    put_integer(0,0),
+    put_integer(20,1),
+    call('$sys_var_set_bit'/2),
+    put_integer(1,0),
+    put_integer(0,1),
+    deallocate,
+    execute('$sys_var_write'/2)]).
+
+
+predicate('$get_sr_options'/2,99,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(0),0),
+    call('$check_list'/1),
+    put_atom('$sr_output_stream',0),
+    put_integer(0,1),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    put_value(y(0),0),
+    call('$get_sr_options1'/1),
+    put_atom('$sr_output_stream',0),
+    put_value(y(1),1),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    deallocate,
+    proceed]).
+
+
+predicate('$get_sr_options1'/1,106,static,private,built_in,[
+    load_cut_level(1),
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(2),
+    get_list(0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    get_variable(y(1),1),
+    call('$get_sr_options2'/1),
+    cut(y(1)),
+    put_value(y(0),0),
+    deallocate,
+    execute('$get_sr_options1'/1)]).
+
+
+predicate('$get_sr_options2'/1,113,static,private,built_in,[
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    retry_me_else(2),
+    allocate(2),
+    get_variable(x(2),0),
+    put_variable(x(0),1),
+    put_integer(1,3),
+    call_c('Blt_Functor',[fast_call,boolean],[x(2),x(1),x(3)]),
+    put_integer(1,1),
+    put_variable(y(0),3),
+    call_c('Blt_Arg',[fast_call,boolean],[x(1),x(2),x(3)]),
+    put_value(y(0),1),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(1)]),
+    put_void(1),
+    put_variable(y(1),2),
+    call('$sr_treat_pass_no'/3),
+    put_atom(is,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    math_load_value(y(1),0),
+    put_integer(2,1),
+    call_c('Fct_Mul',[fast_call,x(1)],[x(0),x(1)]),
+    put_atom(is,0),
+    put_integer(2,2),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    math_load_value(x(1),0),
+    call_c('Fct_Inc',[fast_call,x(2)],[x(0)]),
+    put_atom(sr_open,0),
+    put_integer(3,3),
+    call_c('Set_Bip_Name_2',[],[x(0),x(3)]),
+    put_unsafe_value(y(0),0),
+    deallocate,
+    execute('$sr_set_treat_pass_bits'/3),
+
+label(2),
+    retry_me_else(19),
+    switch_on_term(5,fail,fail,fail,3),
+
+label(3),
+    switch_on_structure([(keep_files_open/1,6),(reflect_eof/1,8),(undo_directives/1,10),(short_write/1,12),(write_error/1,4),(output_stream/1,18)]),
+
+label(4),
+    try(14),
+    trust(16),
+
+label(5),
+    try_me_else(7),
+
+label(6),
+    get_structure(keep_files_open/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    execute('$$get_sr_options2/1_$aux1'/1),
+
+label(7),
+    retry_me_else(9),
+
+label(8),
+    get_structure(reflect_eof/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    execute('$$get_sr_options2/1_$aux2'/1),
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    get_structure(undo_directives/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    execute('$$get_sr_options2/1_$aux3'/1),
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    get_structure(short_write/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    execute('$$get_sr_options2/1_$aux4'/1),
+
+label(13),
+    retry_me_else(15),
+
+label(14),
+    get_structure(write_error/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    execute('$$get_sr_options2/1_$aux5'/1),
+
+label(15),
+    retry_me_else(17),
+
+label(16),
+    get_structure(write_error/1,0),
+    unify_variable(x(0)),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    execute('$$get_sr_options2/1_$aux6'/1),
+
+label(17),
+    trust_me_else_fail,
+
+label(18),
+    get_structure(output_stream/1,0),
+    unify_variable(x(1)),
+    put_atom('$sr_output_stream',0),
+    call_c('Blt_G_Link',[fast_call,boolean],[x(0),x(1)]),
+    put_integer(1,0),
+    put_integer(1,1),
+    execute('$sys_var_write'/2),
+
+label(19),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(sr_option,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$$get_sr_options2/1_$aux6'/1,167,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(false,3),(true,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(false,0),
+    put_integer(0,0),
+    put_integer(20,1),
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(true,0),
+    put_integer(0,0),
+    put_integer(20,1),
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$$get_sr_options2/1_$aux5'/1,159,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(false,3),(true,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(false,0),
+    put_integer(0,0),
+    put_integer(20,1),
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(true,0),
+    put_integer(0,0),
+    put_integer(20,1),
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$$get_sr_options2/1_$aux4'/1,151,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(false,3),(true,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(false,0),
+    put_integer(0,0),
+    put_integer(19,1),
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(true,0),
+    put_integer(0,0),
+    put_integer(19,1),
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$$get_sr_options2/1_$aux3'/1,143,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(false,3),(true,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(false,0),
+    put_integer(0,0),
+    put_integer(18,1),
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(true,0),
+    put_integer(0,0),
+    put_integer(18,1),
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$$get_sr_options2/1_$aux2'/1,135,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(false,3),(true,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(false,0),
+    put_integer(0,0),
+    put_integer(17,1),
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(true,0),
+    put_integer(0,0),
+    put_integer(17,1),
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$$get_sr_options2/1_$aux1'/1,127,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(false,3),(true,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(false,0),
+    put_integer(0,0),
+    put_integer(16,1),
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_atom(true,0),
+    put_integer(0,0),
+    put_integer(16,1),
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$sr_treat_pass_no'/3,187,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(include,3),(op,5),(set_prolog_flag,7),(char_conversion,9),(module,11),(end_module,13),(body,15),(end_body,17)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(include,0),
+    get_integer(1,1),
+    get_integer(0,2),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_atom(op,0),
+    get_integer(3,1),
+    get_integer(1,2),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_atom(set_prolog_flag,0),
+    get_integer(2,1),
+    get_integer(2,2),
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    get_atom(char_conversion,0),
+    get_integer(2,1),
+    get_integer(3,2),
+    proceed,
+
+label(10),
+    retry_me_else(12),
+
+label(11),
+    get_atom(module,0),
+    get_integer(1,1),
+    get_integer(4,2),
+    proceed,
+
+label(12),
+    retry_me_else(14),
+
+label(13),
+    get_atom(end_module,0),
+    get_integer(1,1),
+    get_integer(4,2),
+    proceed,
+
+label(14),
+    retry_me_else(16),
+
+label(15),
+    get_atom(body,0),
+    get_integer(1,1),
+    get_integer(4,2),
+    proceed,
+
+label(16),
+    trust_me_else_fail,
+
+label(17),
+    get_atom(end_body,0),
+    get_integer(1,1),
+    get_integer(4,2),
+    proceed]).
+
+
+predicate('$sr_set_treat_pass_bits'/3,199,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(kill,3),(ignore,5),(hide,7),(reflect,9)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    allocate(1),
+    get_atom(kill,0),
+    get_variable(y(0),2),
+    put_integer(0,0),
+    call('$sys_var_reset_bit'/2),
+    put_integer(0,0),
+    put_value(y(0),1),
+    deallocate,
+    execute('$sys_var_reset_bit'/2),
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    allocate(1),
+    get_atom(ignore,0),
+    get_variable(y(0),2),
+    put_integer(0,0),
+    call('$sys_var_set_bit'/2),
+    put_integer(0,0),
+    put_value(y(0),1),
+    deallocate,
+    execute('$sys_var_reset_bit'/2),
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    allocate(1),
+    get_atom(hide,0),
+    get_variable(y(0),2),
+    put_integer(0,0),
+    call('$sys_var_reset_bit'/2),
+    put_integer(0,0),
+    put_value(y(0),1),
+    deallocate,
+    execute('$sys_var_set_bit'/2),
+
+label(8),
+    trust_me_else_fail,
+
+label(9),
+    allocate(1),
+    get_atom(reflect,0),
+    get_variable(y(0),2),
+    put_integer(0,0),
+    call('$sys_var_set_bit'/2),
+    put_integer(0,0),
+    put_value(y(0),1),
+    deallocate,
+    execute('$sys_var_set_bit'/2)]).
+
+
+predicate('$sr_open_new_prolog_file'/1,218,static,private,built_in,[
+    allocate(2),
+    put_variable(y(0),1),
+    call_c('Prolog_File_Name_2',[],[x(0),x(1)]),
+    put_value(y(0),0),
+    put_variable(y(1),1),
+    call('$$sr_open_new_prolog_file/1_$aux1'/2),
+    put_unsafe_value(y(1),0),
+    get_structure('$stream'/1,0),
+    unify_variable(x(1)),
+    put_unsafe_value(y(0),0),
+    deallocate,
+    call_c('SR_Open_File_2',[],[x(0),x(1)]),
+    proceed]).
+
+
+predicate('$$sr_open_new_prolog_file/1_$aux1'/2,218,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    get_atom(user,0),
+    cut(x(2)),
+    put_value(x(1),0),
+    execute(current_input/1),
+
+label(1),
+    trust_me_else_fail,
+    put_value(x(1),2),
+    put_atom(read,1),
+    put_nil(3),
+    execute('$open'/4)]).
+
+
+predicate('$sr_from_stream'/2,230,static,private,built_in,[
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(1)]),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    retry_me_else(2),
+    allocate(1),
+    get_variable(y(0),1),
+    put_value(y(0),1),
+    call_c('Blt_Integer',[fast_call,boolean],[x(1)]),
+    put_value(x(0),1),
+    put_value(y(0),0),
+    call('$$sr_from_stream/2_$aux1'/2),
+    put_variable(x(0),1),
+    put_value(y(0),2),
+    call_c('Stream_Prop_File_Name_2',[boolean],[x(1),x(2)]),
+    put_value(y(0),1),
+    deallocate,
+    call_c('SR_Open_File_2',[],[x(0),x(1)]),
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(sr_source,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$$sr_from_stream/2_$aux1'/2,234,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(0),0),
+    call('$current_stream'/1),
+    cut(y(2)),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$$sr_from_stream/2_$aux2'/2),
+
+label(1),
+    trust_me_else_fail,
+    put_atom(stream,0),
+    execute('$pl_err_existence'/2)]).
+
+
+predicate('$$sr_from_stream/2_$aux2'/2,234,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    call_c('Stream_Prop_Input_1',[boolean],[x(0)]),
+    cut(x(2)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    put_value(x(1),2),
+    put_atom(input,0),
+    put_atom(stream,1),
+    execute('$pl_err_permission'/3)]).
+
+
+predicate(sr_change_options/2,252,static,private,built_in,[
+    allocate(0),
+    put_atom(sr_change_options,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('SR_Check_Descriptor_1',[],[x(0)]),
+    put_value(x(1),0),
+    call('$get_sr_options1'/1),
+    deallocate,
+    call_c('SR_Change_Options_0',[],[]),
+    proceed]).
+
+
+predicate(sr_close/1,261,static,private,built_in,[
+    put_atom(sr_close,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('SR_Close_1',[],[x(0)]),
+    proceed]).
+
+
+predicate(sr_read_term/4,268,static,private,built_in,[
+    load_cut_level(4),
+    allocate(6),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    get_variable(y(4),4),
+    put_value(y(0),0),
+    call_c('SR_Check_Descriptor_1',[],[x(0)]),
+    call(repeat/0),
+    put_variable(x(0),1),
+    call_c('SR_Get_Stm_For_Read_Term_1',[],[x(1)]),
+    put_structure('$stream'/1,1),
+    unify_value(x(0)),
+    put_atom(sr_read_term,0),
+    put_integer(3,2),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    put_structure('$read_term'/3,0),
+    unify_value(x(1)),
+    unify_local_value(y(1)),
+    unify_local_value(y(2)),
+    put_variable(y(5),1),
+    put_atom(true,2),
+    put_atom(sr_read_term,3),
+    put_integer(3,4),
+    put_atom(false,5),
+    call('$catch'/6),
+    call_c('SR_Update_Position_0',[],[]),
+    put_value(y(5),0),
+    put_value(y(1),1),
+    put_value(y(3),2),
+    call('$sr_read_term/4_$aux1'/3),
+    put_value(y(3),0),
+    put_value(y(0),1),
+    call('$sr_read_term/4_$aux2'/2),
+    cut(y(4)),
+    deallocate,
+    proceed]).
+
+
+predicate('$sr_read_term/4_$aux2'/2,268,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    get_variable(x(3),1),
+    get_structure(sr_error/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    put_integer(20,4),
+    call_c('SR_Is_Bit_Set_1',[boolean],[x(4)]),
+    cut(x(2)),
+    put_value(x(3),2),
+    execute('$sr_write_error'/3),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$sr_read_term/4_$aux1'/3,268,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(3)),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    execute('$sr_treat_term'/2),
+
+label(1),
+    trust_me_else_fail,
+    get_atom('$sr_read_term_error',1),
+    put_value(x(2),1),
+    execute('$sr_mk_error_from_exception'/2)]).
+
+
+predicate('$sr_treat_term'/2,295,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    put_atom(end_of_file,3),
+    call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(3)]),
+    cut(x(2)),
+    put_variable(x(0),2),
+    call_c('SR_EOF_Reached_1',[boolean],[x(2)]),
+    execute('$$sr_treat_term/2_$aux1'/2),
+
+label(1),
+    retry_me_else(2),
+    allocate(5),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    get_structure((:-)/1,0),
+    unify_variable(y(2)),
+    put_value(y(2),0),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    put_value(y(2),2),
+    put_variable(x(0),3),
+    put_variable(x(1),4),
+    call_c('Blt_Functor',[fast_call,boolean],[x(2),x(3),x(4)]),
+    put_variable(y(3),2),
+    call('$sr_treat_pass_no'/3),
+    cut(y(1)),
+    put_atom(is,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    math_load_value(y(3),0),
+    put_integer(2,1),
+    call_c('Fct_Mul',[fast_call,x(0)],[x(0),x(1)]),
+    get_variable(y(4),0),
+    put_atom(is,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    math_load_value(y(4),0),
+    call_c('Fct_Inc',[fast_call,x(0)],[x(0)]),
+    put_value(y(2),1),
+    put_value(y(0),2),
+    call('$$sr_treat_term/2_$aux2'/3),
+    put_value(y(4),0),
+    deallocate,
+    call_c('SR_Is_Bit_Set_1',[boolean],[x(0)]),
+    proceed,
+
+label(2),
+    trust_me_else_fail,
+    get_atom(sr_ok,1),
+    proceed]).
+
+
+predicate('$$sr_treat_term/2_$aux2'/3,303,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    get_variable(x(4),2),
+    call_c('SR_Is_Bit_Set_1',[boolean],[x(0)]),
+    cut(x(3)),
+    put_structure('$sr_exec_directive'/2,0),
+    unify_local_value(x(1)),
+    unify_local_value(x(4)),
+    put_structure('$sr_mk_error_from_exception'/2,2),
+    unify_variable(x(1)),
+    unify_local_value(x(4)),
+    put_atom(any,3),
+    put_integer(0,4),
+    put_atom(false,5),
+    execute('$catch'/6),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$$sr_treat_term/2_$aux1'/2,295,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(2)),
+    get_atom(sr_ok,1),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_structure(sr_error/2,1),
+    unify_atom(warning),
+    unify_local_value(x(0)),
+    proceed]).
+
+
+predicate('$sr_exec_directive'/2,326,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),2),
+    call('$sr_directive1'/2),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_structure(sr_error/2,1),
+    unify_atom(warning),
+    unify_atom('directive failed'),
+    proceed]).
+
+
+predicate('$sr_directive1'/2,336,static,private,built_in,[
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([(include/1,3),(op/3,5),(set_prolog_flag/2,7),(char_conversion/2,9),(module/1,11),(body/1,13),(end_module/1,15),(end_body/1,17)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(sr_ok,1),
+    get_structure(include/1,0),
+    unify_variable(x(0)),
+    execute('$sr_open_new_prolog_file'/1),
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    allocate(5),
+    get_structure(op/3,0),
+    unify_variable(y(0)),
+    unify_variable(y(1)),
+    unify_variable(y(2)),
+    get_atom(sr_ok,1),
+    put_value(y(1),0),
+    put_value(y(2),1),
+    put_variable(y(3),2),
+    put_variable(y(4),3),
+    call('$$sr_directive1/2_$aux1'/4),
+    put_integer(0,0),
+    put_value(y(0),1),
+    put_value(y(1),2),
+    put_value(y(2),3),
+    put_unsafe_value(y(3),4),
+    put_unsafe_value(y(4),5),
+    put_value(y(2),6),
+    deallocate,
+    call_c('SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    allocate(3),
+    get_structure(set_prolog_flag/2,0),
+    unify_variable(y(0)),
+    unify_variable(y(1)),
+    get_atom(sr_ok,1),
+    put_value(y(0),0),
+    put_variable(y(2),1),
+    call('$$sr_directive1/2_$aux2'/2),
+    put_integer(1,0),
+    put_value(y(0),1),
+    put_value(y(1),2),
+    put_integer(0,3),
+    put_value(y(0),4),
+    put_unsafe_value(y(2),5),
+    put_integer(0,6),
+    deallocate,
+    call_c('SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    allocate(3),
+    get_structure(char_conversion/2,0),
+    unify_variable(y(0)),
+    unify_variable(y(1)),
+    get_atom(sr_ok,1),
+    put_value(y(0),0),
+    put_variable(y(2),1),
+    call('$$sr_directive1/2_$aux3'/2),
+    put_integer(2,0),
+    put_value(y(0),1),
+    put_value(y(1),2),
+    put_integer(0,3),
+    put_value(y(0),4),
+    put_unsafe_value(y(2),5),
+    put_integer(0,6),
+    deallocate,
+    call_c('SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
+    proceed,
+
+label(10),
+    retry_me_else(12),
+
+label(11),
+    get_structure(module/1,0),
+    unify_variable(x(0)),
+    put_value(x(1),2),
+    put_atom(true,1),
+    execute('$sr_start_module'/3),
+
+label(12),
+    retry_me_else(14),
+
+label(13),
+    get_structure(body/1,0),
+    unify_variable(x(0)),
+    put_value(x(1),2),
+    put_atom(false,1),
+    execute('$sr_start_module'/3),
+
+label(14),
+    retry_me_else(16),
+
+label(15),
+    get_structure(end_module/1,0),
+    unify_variable(x(0)),
+    put_value(x(1),2),
+    put_atom(true,1),
+    execute('$sr_stop_module'/3),
+
+label(16),
+    trust_me_else_fail,
+
+label(17),
+    get_structure(end_body/1,0),
+    unify_variable(x(0)),
+    put_value(x(1),2),
+    put_atom(false,1),
+    execute('$sr_stop_module'/3)]).
+
+
+predicate('$$sr_directive1/2_$aux3'/2,362,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),2),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call(current_char_conversion/2),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_value(x(0),1),
+    proceed]).
+
+
+predicate('$$sr_directive1/2_$aux2'/2,353,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),2),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call(current_prolog_flag/2),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$$sr_directive1/2_$aux1'/4,339,static,private,built_in,[
+    load_cut_level(4),
+    try_me_else(1),
+    allocate(5),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    get_variable(y(2),3),
+    get_variable(y(3),4),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    put_value(y(0),1),
+    call_c('Blt_Non_Var',[fast_call,boolean],[x(1)]),
+    put_variable(y(4),1),
+    call('$sr_op_type'/2),
+    put_value(y(1),0),
+    put_value(y(2),1),
+    put_value(y(0),2),
+    call(current_op/3),
+    put_value(y(2),0),
+    put_value(y(4),1),
+    call('$sr_op_type'/2),
+    cut(y(3)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_integer(0,2),
+    get_value(x(0),3),
+    proceed]).
+
+
+predicate('$sr_op_type'/2,386,static,private,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([(fx,3),(fy,5),(xfx,7),(yfx,9),(xfy,11),(xf,13),(yf,15)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(fx,0),
+    get_atom(prefix,1),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_atom(fy,0),
+    get_atom(prefix,1),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_atom(xfx,0),
+    get_atom(infix,1),
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    get_atom(yfx,0),
+    get_atom(infix,1),
+    proceed,
+
+label(10),
+    retry_me_else(12),
+
+label(11),
+    get_atom(xfy,0),
+    get_atom(infix,1),
+    proceed,
+
+label(12),
+    retry_me_else(14),
+
+label(13),
+    get_atom(xf,0),
+    get_atom(postfix,1),
+    proceed,
+
+label(14),
+    trust_me_else_fail,
+
+label(15),
+    get_atom(yf,0),
+    get_atom(postfix,1),
+    proceed]).
+
+
+predicate('$sr_start_module'/3,397,static,private,built_in,[
+    get_variable(x(3),0),
+    put_variable(x(0),4),
+    call_c('SR_Start_Module_3',[],[x(3),x(1),x(4)]),
+    put_value(x(2),1),
+    execute('$$sr_start_module/3_$aux1'/2)]).
+
+
+predicate('$$sr_start_module/3_$aux1'/2,397,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(2)),
+    get_atom(sr_ok,1),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_structure(sr_error/2,1),
+    unify_atom(warning),
+    unify_local_value(x(0)),
+    proceed]).
+
+
+predicate('$sr_stop_module'/3,406,static,private,built_in,[
+    get_variable(x(3),0),
+    put_variable(x(0),4),
+    call_c('SR_Stop_Module_3',[],[x(3),x(1),x(4)]),
+    put_value(x(2),1),
+    execute('$$sr_stop_module/3_$aux1'/2)]).
+
+
+predicate('$$sr_stop_module/3_$aux1'/2,406,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(2)),
+    get_atom(sr_ok,1),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_structure(sr_error/2,1),
+    unify_atom(warning),
+    unify_local_value(x(0)),
+    proceed]).
+
+
+predicate(sr_current_descriptor/1,415,static,private,built_in,[
+    put_atom(sr_current_descriptor,1),
+    put_integer(1,2),
+    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('SR_Current_Descriptor_1',[boolean],[x(0)]),
+    proceed]).
+
+
+predicate('$sr_current_descriptor_alt'/0,422,static,private,built_in,[
+    call_c('SR_Current_Descriptor_Alt_0',[boolean],[]),
+    proceed]).
+
+
+predicate(sr_get_stream/2,428,static,private,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    put_atom(sr_get_stream,0),
+    put_integer(2,2),
+    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    put_value(x(1),0),
+    put_variable(y(1),1),
+    call('$check_stream_or_var'/2),
+    put_value(y(0),0),
+    put_unsafe_value(y(1),1),
+    deallocate,
+    call_c('SR_Get_Stm_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(sr_get_module/3,436,static,private,built_in,[
+    put_atom(sr_get_module,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('SR_Get_Module_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(sr_get_file_name/2,443,static,private,built_in,[
+    put_atom(sr_get_file_name,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('SR_Get_File_Name_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(sr_get_position/3,450,static,private,built_in,[
+    put_atom(sr_get_position,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('SR_Get_Position_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(sr_get_include_list/2,457,static,private,built_in,[
+    put_atom(sr_get_include_list,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('SR_Get_Include_List_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(sr_get_include_stream_list/2,464,static,private,built_in,[
+    put_atom(sr_get_include_stream_list,2),
+    put_integer(2,3),
+    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('SR_Get_Include_Stream_List_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(sr_get_size_counters/3,471,static,private,built_in,[
+    put_atom(sr_get_size_counters,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('SR_Get_Size_Counters_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(sr_get_error_counters/3,478,static,private,built_in,[
+    put_atom(sr_get_error_counters,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('SR_Get_Error_Counters_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(sr_set_error_counters/3,485,static,private,built_in,[
+    put_atom(sr_set_error_counters,3),
+    put_integer(3,4),
+    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('SR_Set_Error_Counters_3',[],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(sr_write_message/4,492,static,private,built_in,[
+    put_atom(sr_write_message,4),
+    put_integer(4,5),
+    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('SR_Write_Message_4',[],[x(0),x(1),x(2),x(3)]),
+    proceed]).
+
+
+predicate(sr_write_message/6,499,static,private,built_in,[
+    put_atom(sr_write_message,6),
+    put_integer(6,7),
+    call_c('Set_Bip_Name_2',[],[x(6),x(7)]),
+    call_c('SR_Write_Message_6',[],[x(0),x(1),x(2),x(3),x(4),x(5)]),
+    proceed]).
+
+
+predicate(sr_write_message/8,506,static,private,built_in,[
+    put_atom(sr_write_message,8),
+    put_integer(8,9),
+    call_c('Set_Bip_Name_2',[],[x(8),x(9)]),
+    call_c('SR_Write_Message_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
+    proceed]).
+
+
+predicate('$sr_mk_error_from_exception'/2,514,static,private,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    get_structure(error/2,0),
+    unify_variable(x(0)),
+    unify_void(1),
+    get_structure(sr_error/2,1),
+    unify_atom(error),
+    unify_value(x(0)),
+    cut(x(2)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_structure(sr_error/2,1),
+    unify_atom(exception),
+    unify_local_value(x(0)),
+    proceed]).
+
+
+predicate('$sr_write_error'/3,522,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    allocate(4),
+    get_atom(error,0),
+    get_structure(syntax_error/1,1),
+    unify_void(1),
+    get_variable(y(0),2),
+    cut(x(3)),
+    put_void(0),
+    put_variable(y(1),1),
+    put_variable(y(2),2),
+    put_variable(y(3),3),
+    call(syntax_error_info/4),
+    put_atom(is,0),
+    put_integer(2,1),
+    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    math_load_value(y(2),0),
+    call_c('Fct_Neg',[fast_call,x(2)],[x(0)]),
+    put_value(y(0),0),
+    put_unsafe_value(y(1),1),
+    put_atom(error,3),
+    put_atom('~a~n',4),
+    put_list(5),
+    unify_local_value(y(3)),
+    unify_nil,
+    deallocate,
+    execute(sr_write_message/6),
+
+label(1),
+    trust_me_else_fail,
+    get_variable(x(4),1),
+    get_variable(x(1),0),
+    cut(x(3)),
+    put_list(3),
+    unify_local_value(x(4)),
+    unify_nil,
+    put_value(x(2),0),
+    put_atom('~w~n',2),
+    execute(sr_write_message/4)]).

@@ -1,8 +1,20 @@
+The environment variable LINEDIT can be set to control the behavior of
+linedit. The value can contain as substring (no spaces are allowed around =):
+
+   gui=no	do not lauch the GUI console (Win32 specific)
+   ansi=no	do not use ANSI ESC sequences (to move cursor, ...)
+   out=FD	write output chars to the FD file descriptor (for echo, ...)
+   out=FILE     write output to the file FILE (for echo, ...)
+
+e.g.
+export LINEDIT='out=/dev/..., ansi=no'
+
 NB: to run test_linedit, the PATH should contain ../W32GUICons since
 the dll is there, (use ../SETVARS)
 
-VCTestLinedit contains a MSVC project to compile both test_linedit and the dll
+VCTestLinedit contains a MSVC project to compile both test_linedit and 
+the dll
 
 LccTestLinedit contains a LCC project to compile test_linedit under wedit
-cd ../W32GUICons for more
+
 

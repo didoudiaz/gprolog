@@ -51,13 +51,30 @@
 #endif
 
 
+#if 1
+#define TREAT_BUFFERED_CHARS	/* treat buffered chars at start (X paste) */
+#endif
+
+#if 1
+#define NO_DUP_IN_HISTORY	/* do not put in history line == the last */
+#endif
+
+#if 1
+#define IGNORE_QUOTED_PART	/* ingore quoted item in bracket matching */
+#endif
+
+#if 0
+#define NO_USE_SELECT		/* no use select(2) for temporisation */
+#endif
+
+
 
 
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
 
-#define LINEDIT_VERSION            "2.4"
+#define LINEDIT_VERSION            "2.5"
 
 #define MAX_HISTORY_LINES          64
 #define MAX_SEPARATORS             256
@@ -68,13 +85,14 @@
 
 #define NB_MATCH_LINES_BEFORE_ASK  20
 
+#define OPEN_BRACKET               "([{"
+#define CLOSE_BRACKET              ")]}"
+
 #ifdef NO_USE_SELECT
 #define BRACKET_TIMMING            300000	/* in microseconds */
 #else
 #define BRACKET_TIMMING            900000	/* in microseconds */
 #endif
-
-#define IGNORE_QUOTED_PART
 
 
 
@@ -147,6 +165,8 @@ static int New_Char(int c, char *str, int size, char **p_pos, char **p_end);
 static char *Skip(char *from, char *limit, int res_sep_cmp, int direction);
 
 static int Is_A_Separator(char c);
+
+static int Tab_To_Spaces(int p);
 
 
 
@@ -226,8 +246,7 @@ LE_Gets(char *str)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_FGets(char *str, int size, char *prompt,
-	 int display_prompt)
+LE_FGets(char *str, int size, char *prompt, int display_prompt)
 {
   char *pos = str;
   char *end = str;
@@ -239,8 +258,6 @@ LE_FGets(char *str, int size, char *prompt,
   int h_no = Hist_End_Entry();
   int rest_length;
   int tab_count = 0;
-  char *open_bracket = "([{";
-  char *close_bracket = ")]}";
   int count_bracket[3];
 
   LE_Initialize();
@@ -252,7 +269,7 @@ LE_FGets(char *str, int size, char *prompt,
   LE_Open_Terminal();
   global_str = str;
 
-#if 1				/* treat buffered lines (for paste) */
+#ifdef TREAT_BUFFERED_CHARS	/* treat buffered lines (for paste) */
   while (KBD_IS_NOT_EMPTY)
     {
       if (end - str >= size || ((c = LE_Get_Char()) == '\n') ||
@@ -262,7 +279,7 @@ LE_FGets(char *str, int size, char *prompt,
 	  goto return_is_read;
 	}
       if (c == '\t')		/* '\t' on output would cause trouble */
-	for (n = 0; n < 8; n++)
+	for(n = Tab_To_Spaces(end - str); n; n--)
 	  *end++ = ' ';
       else
 	*end++ = c;
@@ -291,6 +308,8 @@ LE_FGets(char *str, int size, char *prompt,
 	{			/* save global vars for reentrancy */
 	  int save_prompt_length = prompt_length;
 
+	  FORWD(end - pos, pos); /* go to EOL to avoid multi-line */
+				/* truncation on the output */
 	  LE_Close_Terminal();
 	  c = *end;
 	  *end = '\0';		/* to allow the handler to use/test str */
@@ -471,7 +490,7 @@ LE_FGets(char *str, int size, char *prompt,
 
 	case KEY_ESC('B'):	/* go to previous word */
 	case KEY_CTRL_EXT_LEFT:
-	  p = (pos == str) ? pos : pos - 1;	/* to avoid start of a word */
+	  p = (pos == str) ? pos : pos - 1; /* to avoid start of a word */
 	  p = Skip(p, str, 1, -1);	/* skip separators */
 	  p = Skip(p, str, 0, -1);	/* skip non separators */
 	  p = Skip(p, end, 1, +1);	/* skip separators */
@@ -532,7 +551,7 @@ LE_FGets(char *str, int size, char *prompt,
 		}
 	      goto error;
 	    }
-	  p = (pos == str) ? pos : pos - 1;	/* to avoid start of a word */
+	  p = (pos == str) ? pos : pos - 1; /* to avoid start of a word */
 	  p = Skip(p, str, 0, -1);	/* skip non separators */
 	  p = Skip(p, end, 1, +1);	/* skip separators */
 	  w = *pos;		/* prefix from p to pos */
@@ -552,6 +571,13 @@ LE_FGets(char *str, int size, char *prompt,
 	      goto error;	/* for the beep */
 	    }
 	  tab_count = 0;
+	  continue;
+
+
+	case KEY_ESC('\t'):	/* transform a tab to spaces */
+	  for (n = Tab_To_Spaces(pos - str); n; n--)
+	    if (!New_Char(' ', str, size, &pos, &end))
+	      goto error;
 	  continue;
 
 
@@ -576,6 +602,8 @@ LE_FGets(char *str, int size, char *prompt,
 	case '\n':
 	case '\r':
 	return_is_read:
+  	  FORWD(end - pos, pos); /* go to EOL to avoid multi-line */
+				/* truncation on the output */
 	  *end = '\0';
 	  History_Add_Line(str, end - str);
 	  if (end - str < size)	/* '\n' can be added */
@@ -691,10 +719,10 @@ LE_FGets(char *str, int size, char *prompt,
 	    goto error;
 	  /* brackets ([{ }]): matching */
 	  if (KBD_IS_NOT_EMPTY ||
-	      (q = strchr(close_bracket, c)) == NULL)
+	      (q = strchr(CLOSE_BRACKET, c)) == NULL)
 	    continue;
 
-	  n = q - close_bracket;
+	  n = q - CLOSE_BRACKET;
 
 	  count_bracket[0] = count_bracket[1] = count_bracket[2] = 0;
 	  count_bracket[n]--;
@@ -706,14 +734,14 @@ LE_FGets(char *str, int size, char *prompt,
 		goto bracket_exit;
 
 	      c = *p;
-	      if ((q = strchr(close_bracket, c)) != NULL)
+	      if ((q = strchr(CLOSE_BRACKET, c)) != NULL)
 		{
-		  count_bracket[q - close_bracket]--;
+		  count_bracket[q - CLOSE_BRACKET]--;
 		  continue;
 		}
 
-	      if ((q = strchr(open_bracket, c)) != NULL)
-		if (++count_bracket[q - open_bracket] > 0)
+	      if ((q = strchr(OPEN_BRACKET, c)) != NULL)
+		if (++count_bracket[q - OPEN_BRACKET] > 0)
 		  goto bracket_exit;
 
 #ifdef IGNORE_QUOTED_PART
@@ -954,6 +982,21 @@ Is_A_Separator(char c)
 
 
 /*-------------------------------------------------------------------------*
+ * TAB_TO_SPACES                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Tab_To_Spaces(int p)
+{
+  p += prompt_length;
+  p = 8 - (p % 8);
+  return p;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * HISTORY_ADD_LINE                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -966,6 +1009,11 @@ History_Add_Line(char *line, int length)
     p++;
   if (*p == '\0')		/* do not add an empty line */
     return;
+
+#ifdef NO_DUP_IN_HISTORY
+  if (hist_end > 0 && strcmp(line, hist_tbl[hist_end - 1].line) == 0)
+    return;
+#endif
 
   History_Update_Line(line, length, hist_end);
 
@@ -1335,8 +1383,8 @@ Display_Help(void)
   L("   Esc-W   copy selection            Ctl-Y   past selection");
   L("");
   L("                           Miscellaneous");
-  L("   Ctl-V   insert mode switch        Ctl-I   completion (twice=all)");
-  L("   Esc-?   display this help");
+  L("   Ctl-V   insert mode switch        Ctl-I   completion (twice = all)");
+  L("   Esc-?   display this help       Esc-Ctl-I insert spaces for tab");
   L("");
 }
 

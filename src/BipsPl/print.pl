@@ -55,5 +55,5 @@ print(SorA, Term) :-
 
 get_print_stream(Stream) :-
 	set_bip_name(get_print_stream, 1),
-	'$get_open_stm'(Stream, Stm),
-	'$sys_var_read'(6, Stm).
+	'$check_stream_or_var'(Stream, Stm),
+	'$call_c'('Get_Print_Stm_1'(Stm)).

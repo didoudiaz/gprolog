@@ -88,7 +88,7 @@ set_output(SorA) :-
           %   0/1   0/1/2     0/1   0/1/2         0/1 0/1         0/1
           %   buffering       eof_action         reposition      text
           %   b8=specified    b5=specified       b2=specified    0=text
-          %   b7/6=if specif  b4/3=if specif     b1=if secif     1=binary
+          %   b7/6=if specif  b4/3=if specif     b1=if specified 1=binary
           %     buffering       eof action         reposition
           %     0=none          0=error            0=false
           %     1=line          1=eof_code         1=true
@@ -548,12 +548,12 @@ set_stream_line_column(SorA, Line, Col) :-
 
 
           % term type (open_[input/output]_xxxx_stream/2) in sys_var[0]:
-          % 0=atom, 1=chars, 2=codes, 
+          % 1=atom, 2=chars, 3=codes
 
 open_input_atom_stream(SinkAtom, Stream) :-
 	set_bip_name(open_input_atom_stream, 2),
 	'$get_open_stm'(Stream, Stm),
-	'$sys_var_write'(0, 0),
+	'$sys_var_write'(0, 1),
 	'$call_c'('Open_Input_Term_Stream_2'(SinkAtom, Stm)).
 
 
@@ -562,7 +562,7 @@ open_input_atom_stream(SinkAtom, Stream) :-
 open_input_chars_stream(SinkChars, Stream) :-
 	set_bip_name(open_input_chars_stream, 2),
 	'$get_open_stm'(Stream, Stm),
-	'$sys_var_write'(0, 1),
+	'$sys_var_write'(0, 2),
 	'$call_c'('Open_Input_Term_Stream_2'(SinkChars, Stm)).
 
 
@@ -571,7 +571,7 @@ open_input_chars_stream(SinkChars, Stream) :-
 open_input_codes_stream(SinkCodes, Stream) :-
 	set_bip_name(open_input_codes_stream, 2),
 	'$get_open_stm'(Stream, Stm),
-	'$sys_var_write'(0, 2),
+	'$sys_var_write'(0, 3),
 	'$call_c'('Open_Input_Term_Stream_2'(SinkCodes, Stm)).
 
 
@@ -579,7 +579,7 @@ open_input_codes_stream(SinkCodes, Stream) :-
 
 close_input_atom_stream(SorA) :-
 	set_bip_name(close_input_atom_stream, 1),
-	'$sys_var_write'(0, 0),
+	'$sys_var_write'(0, 1),
 	'$call_c'('Close_Input_Term_Stream_1'(SorA)).
 
 
@@ -587,7 +587,7 @@ close_input_atom_stream(SorA) :-
 
 close_input_chars_stream(SorA) :-
 	set_bip_name(close_input_chars_stream, 1),
-	'$sys_var_write'(0, 1),
+	'$sys_var_write'(0, 2),
 	'$call_c'('Close_Input_Term_Stream_1'(SorA)).
 
 
@@ -595,7 +595,7 @@ close_input_chars_stream(SorA) :-
 
 close_input_codes_stream(SorA) :-
 	set_bip_name(close_input_codes_stream, 1),
-	'$sys_var_write'(0, 2),
+	'$sys_var_write'(0, 3),
 	'$call_c'('Close_Input_Term_Stream_1'(SorA)).
 
 
@@ -604,7 +604,7 @@ close_input_codes_stream(SorA) :-
 open_output_atom_stream(Stream) :-
 	set_bip_name(open_output_atom_stream, 1),
 	'$get_open_stm'(Stream, Stm),
-	'$sys_var_write'(0, 0),
+	'$sys_var_write'(0, 1),
 	'$call_c'('Open_Output_Term_Stream_1'(Stm)).
 
 
@@ -613,7 +613,7 @@ open_output_atom_stream(Stream) :-
 open_output_chars_stream(Stream) :-
 	set_bip_name(open_output_chars_stream, 1),
 	'$get_open_stm'(Stream, Stm),
-	'$sys_var_write'(0, 1),
+	'$sys_var_write'(0, 2),
 	'$call_c'('Open_Output_Term_Stream_1'(Stm)).
 
 
@@ -622,7 +622,7 @@ open_output_chars_stream(Stream) :-
 open_output_codes_stream(Stream) :-
 	set_bip_name(open_output_codes_stream, 1),
 	'$get_open_stm'(Stream, Stm),
-	'$sys_var_write'(0, 2),
+	'$sys_var_write'(0, 3),
 	'$call_c'('Open_Output_Term_Stream_1'(Stm)).
 
 
@@ -630,7 +630,7 @@ open_output_codes_stream(Stream) :-
 
 close_output_atom_stream(SorA, SinkAtom) :-
 	set_bip_name(close_output_atom_stream, 2),
-	'$sys_var_write'(0, 0),
+	'$sys_var_write'(0, 1),
 	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkAtom)).
 
 
@@ -638,7 +638,7 @@ close_output_atom_stream(SorA, SinkAtom) :-
 
 close_output_chars_stream(SorA, SinkChars) :-
 	set_bip_name(close_output_chars_stream, 2),
-	'$sys_var_write'(0, 1),
+	'$sys_var_write'(0, 2),
 	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkChars)).
 
 
@@ -646,5 +646,5 @@ close_output_chars_stream(SorA, SinkChars) :-
 
 close_output_codes_stream(SorA, SinkCodes) :-
 	set_bip_name(close_output_codes_stream, 2),
-	'$sys_var_write'(0, 2),
+	'$sys_var_write'(0, 3),
 	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkCodes)).

@@ -84,7 +84,6 @@ int domain_os_path;		/* for absolute_file_name/2 */
 int domain_os_file_permission;	/* for file_permission/2 */
 int domain_selectable_item;	/* for select_read/3 */
 int domain_date_time;		/* for os_interf */
-
 #ifndef NO_USE_SOCKETS
 int domain_socket_domain;	/* for sockets */
 int domain_socket_address;	/* for sockets */
@@ -93,7 +92,7 @@ int domain_socket_address;	/* for sockets */
 int existence_procedure;
 int existence_source_sink;
 int existence_stream;
-
+int existence_sr_descriptor;	/* for source reader */
 
 int permission_operation_access;
 int permission_operation_close;
@@ -123,8 +122,7 @@ int representation_max_arity;
 int representation_max_integer;
 int representation_min_integer;
 int representation_too_many_variables;
-
-						    /* for Copy_Term(),... */
+				/* for Copy_Term(),... */
 
 int evluation_float_overflow;
 int evluation_int_overflow;
@@ -133,9 +131,8 @@ int evluation_underflow;
 int evluation_zero_divisor;
 
 
-int resource_too_many_open_streams;	/* for streams */
-int resource_print_object_not_linked;	/* for print and format */
-int resource_too_big_fd_constraint;	/* for FD */
+int resource_print_object_not_linked; /* for print and format */
+int resource_too_big_fd_constraint; /* for FD */
 
 
 #else
@@ -184,19 +181,19 @@ extern int domain_g_array_index;	/* for g_vars */
 extern int domain_stream_seek_method;	/* for seek/4 */
 extern int domain_format_control_sequence;	/* for format/2-3 */
 extern int domain_os_path;	/* for absolute_file_name/2 */
-extern int domain_os_file_permission;	/* for file_permission/2 */
-extern int domain_selectable_item;	/* for select_read/3 */
+extern int domain_os_file_permission; /* for file_permission/2 */
+extern int domain_selectable_item; /* for select_read/3 */
 extern int domain_date_time;	/* for os_interf */
-
 #ifndef NO_USE_SOCKETS
-extern int domain_socket_domain;	/* for sockets */
-extern int domain_socket_address;	/* for sockets */
+extern int domain_socket_domain; /* for sockets */
+extern int domain_socket_address; /* for sockets */
 #endif
 
 
 extern int existence_procedure;
 extern int existence_source_sink;
 extern int existence_stream;
+extern int existence_sr_descriptor; /* for source reader */
 
 
 extern int permission_operation_access;
@@ -227,8 +224,7 @@ extern int representation_max_arity;
 extern int representation_max_integer;
 extern int representation_min_integer;
 extern int representation_too_many_variables;
-
-						    /* for Copy_Term(),... */
+				/* for Copy_Term(),... */
 
 
 extern int evluation_float_overflow;
@@ -238,9 +234,9 @@ extern int evluation_underflow;
 extern int evluation_zero_divisor;
 
 
-extern int resource_too_many_open_streams;	/* for streams */
-extern int resource_print_object_not_linked;	/* for print and format */
-extern int resource_too_big_fd_constraint;	/* for FD */
+extern int resource_too_many_open_streams; /* for streams */
+extern int resource_print_object_not_linked; /* for print and format */
+extern int resource_too_big_fd_constraint; /* for FD */
 
 #endif
 

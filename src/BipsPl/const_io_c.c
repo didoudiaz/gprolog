@@ -78,10 +78,6 @@ Bool Read_Token_2(WamWord sora_word, WamWord token_word);
 
 
 
-#define GLOBAL_STREAM_ALIAS_WORD Tag_ATM(atom_glob_stream_alias)
-
-
-
 
 /*-------------------------------------------------------------------------*
  * WRITE_TO_ATOM_2                                                         *
@@ -93,9 +89,9 @@ Write_To_Atom_2(WamWord atom_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Write_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -116,9 +112,9 @@ Write_To_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Write_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -139,9 +135,9 @@ Write_To_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Write_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -162,9 +158,9 @@ Writeq_To_Atom_2(WamWord atom_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Writeq_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Writeq_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -185,9 +181,9 @@ Writeq_To_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Writeq_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Writeq_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -208,9 +204,9 @@ Writeq_To_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Writeq_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Writeq_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -231,9 +227,9 @@ Write_Canonical_To_Atom_2(WamWord atom_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Write_Canonical_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_Canonical_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -254,9 +250,9 @@ Write_Canonical_To_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Write_Canonical_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_Canonical_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -277,9 +273,9 @@ Write_Canonical_To_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Write_Canonical_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_Canonical_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -300,9 +296,9 @@ Display_To_Atom_2(WamWord atom_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Display_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Display_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -323,9 +319,9 @@ Display_To_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Display_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Display_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -346,9 +342,9 @@ Display_To_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Display_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Display_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -369,9 +365,9 @@ Print_To_Atom_2(WamWord atom_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Print_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Print_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -392,9 +388,9 @@ Print_To_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Print_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Print_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -415,9 +411,9 @@ Print_To_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Print_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Print_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -438,9 +434,9 @@ Write_Term_To_Atom_2(WamWord atom_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Write_Term_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_Term_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -461,9 +457,9 @@ Write_Term_To_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Write_Term_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_Term_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -484,9 +480,9 @@ Write_Term_To_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Write_Term_2(GLOBAL_STREAM_ALIAS_WORD, term_word);
+  Write_Term_2(Make_Stream_Tagged_Word(stm), term_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -507,9 +503,9 @@ Format_To_Atom_3(WamWord atom_word, WamWord format_word, WamWord args_word)
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_ATOM);
 
-  Format_3(GLOBAL_STREAM_ALIAS_WORD, format_word, args_word);
+  Format_3(Make_Stream_Tagged_Word(stm), format_word, args_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -531,9 +527,9 @@ Format_To_Chars_3(WamWord chars_word, WamWord format_word,
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CHARS);
 
-  Format_3(GLOBAL_STREAM_ALIAS_WORD, format_word, args_word);
+  Format_3(Make_Stream_Tagged_Word(stm), format_word, args_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -555,9 +551,9 @@ Format_To_Codes_3(WamWord codes_word, WamWord format_word,
   int stm;
   char *str;
 
-  stm = Add_Str_Stream(TRUE, NULL);
+  stm = Add_Str_Stream(NULL, TERM_STREAM_CODES);
 
-  Format_3(GLOBAL_STREAM_ALIAS_WORD, format_word, args_word);
+  Format_3(Make_Stream_Tagged_Word(stm), format_word, args_word);
 
   str = Term_Write_Str_Stream(stm);
   Delete_Str_Stream(stm);
@@ -581,9 +577,9 @@ Read_From_Atom_2(WamWord atom_word, WamWord term_word)
 
   str = atom_tbl[Rd_Atom_Check(atom_word)].name;
 
-  stm = Add_Str_Stream(TRUE, str);
+  stm = Add_Str_Stream(str, TERM_STREAM_ATOM);
 
-  ret = Read_Term_5(GLOBAL_STREAM_ALIAS_WORD, term_word, 0, 0, 0);
+  ret = Read_Term_5(Make_Stream_Tagged_Word(stm), term_word, 0, 0, 0);
 
   Delete_Str_Stream(stm);
 
@@ -603,9 +599,9 @@ Read_From_Chars_2(WamWord chars_word, WamWord term_word)
   int stm;
   Bool ret;
 
-  stm = Add_Str_Stream(TRUE, Rd_Chars_Check(chars_word));
+  stm = Add_Str_Stream(Rd_Chars_Check(chars_word), TERM_STREAM_CHARS);
 
-  ret = Read_Term_5(GLOBAL_STREAM_ALIAS_WORD, term_word, 0, 0, 0);
+  ret = Read_Term_5(Make_Stream_Tagged_Word(stm), term_word, 0, 0, 0);
 
   Delete_Str_Stream(stm);
 
@@ -625,9 +621,9 @@ Read_From_Codes_2(WamWord codes_word, WamWord term_word)
   int stm;
   Bool ret;
 
-  stm = Add_Str_Stream(TRUE, Rd_Codes_Check(codes_word));
+  stm = Add_Str_Stream(Rd_Codes_Check(codes_word), TERM_STREAM_CODES);
 
-  ret = Read_Term_5(GLOBAL_STREAM_ALIAS_WORD, term_word, 0, 0, 0);
+  ret = Read_Term_5(Make_Stream_Tagged_Word(stm), term_word, 0, 0, 0);
 
   Delete_Str_Stream(stm);
 
@@ -652,9 +648,9 @@ Read_Term_From_Atom_5(WamWord atom_word, WamWord term_word,
 
   str = atom_tbl[Rd_Atom_Check(atom_word)].name;
 
-  stm = Add_Str_Stream(TRUE, str);
+  stm = Add_Str_Stream(str, TERM_STREAM_ATOM);
 
-  ret = Read_Term_5(GLOBAL_STREAM_ALIAS_WORD, term_word,
+  ret = Read_Term_5(Make_Stream_Tagged_Word(stm), term_word,
 		    vars_word, var_names_word, sing_names_word);
 
   Delete_Str_Stream(stm);
@@ -677,9 +673,9 @@ Read_Term_From_Chars_5(WamWord chars_word, WamWord term_word,
   int stm;
   Bool ret;
 
-  stm = Add_Str_Stream(TRUE, Rd_Chars_Check(chars_word));
+  stm = Add_Str_Stream(Rd_Chars_Check(chars_word), TERM_STREAM_CHARS);
 
-  ret = Read_Term_5(GLOBAL_STREAM_ALIAS_WORD, term_word,
+  ret = Read_Term_5(Make_Stream_Tagged_Word(stm), term_word,
 		    vars_word, var_names_word, sing_names_word);
 
   Delete_Str_Stream(stm);
@@ -703,9 +699,9 @@ Read_Term_From_Codes_5(WamWord codes_word, WamWord term_word,
   int stm;
   Bool ret;
 
-  stm = Add_Str_Stream(TRUE, Rd_Codes_Check(codes_word));
+  stm = Add_Str_Stream(Rd_Codes_Check(codes_word), TERM_STREAM_CODES);
 
-  ret = Read_Term_5(GLOBAL_STREAM_ALIAS_WORD, term_word,
+  ret = Read_Term_5(Make_Stream_Tagged_Word(stm), term_word,
 		    vars_word, var_names_word, sing_names_word);
 
   Delete_Str_Stream(stm);
@@ -729,9 +725,9 @@ Read_Token_From_Atom_2(WamWord atom_word, WamWord token_word)
 
   str = atom_tbl[Rd_Atom_Check(atom_word)].name;
 
-  stm = Add_Str_Stream(TRUE, str);
+  stm = Add_Str_Stream(str, TERM_STREAM_ATOM);
 
-  ret = Read_Token_2(GLOBAL_STREAM_ALIAS_WORD, token_word);
+  ret = Read_Token_2(Make_Stream_Tagged_Word(stm), token_word);
 
   Delete_Str_Stream(stm);
 
@@ -751,9 +747,9 @@ Read_Token_From_Chars_2(WamWord chars_word, WamWord token_word)
   int stm;
   Bool ret;
 
-  stm = Add_Str_Stream(TRUE, Rd_Chars_Check(chars_word));
+  stm = Add_Str_Stream(Rd_Chars_Check(chars_word), TERM_STREAM_CHARS);
 
-  ret = Read_Token_2(GLOBAL_STREAM_ALIAS_WORD, token_word);
+  ret = Read_Token_2(Make_Stream_Tagged_Word(stm), token_word);
 
   Delete_Str_Stream(stm);
 
@@ -773,9 +769,9 @@ Read_Token_From_Codes_2(WamWord codes_word, WamWord token_word)
   int stm;
   Bool ret;
 
-  stm = Add_Str_Stream(TRUE, Rd_Codes_Check(codes_word));
+  stm = Add_Str_Stream(Rd_Codes_Check(codes_word), TERM_STREAM_CODES);
 
-  ret = Read_Token_2(GLOBAL_STREAM_ALIAS_WORD, token_word);
+  ret = Read_Token_2(Make_Stream_Tagged_Word(stm), token_word);
 
   Delete_Str_Stream(stm);
 

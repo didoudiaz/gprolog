@@ -1245,7 +1245,7 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       else
 	{
 	  stm = Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
-	  fd = File_Number_Of_Stream(stm);
+	  fd = (stm < 0) ? -1 : File_Number_Of_Stream(stm);
 	}
 
       if (FD_ISSET(fd, set))

@@ -184,7 +184,7 @@ Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
 void
 Write_Simple(WamWord term_word)
 {
-  StmInf *pstm = stm_tbl + stm_output;
+  StmInf *pstm = stm_tbl[stm_output];
 
   Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
 	     term_word);
@@ -955,8 +955,6 @@ Try_Portray(WamWord word)
       try_portray_code = (CodePtr) (pred->codep);
     }
 
-  SYS_VAR_PRINT_STM = pstm_o - stm_tbl;	/* for get_print_stream/1 */
-
   print_pstm_o = pstm_o;
   print_quoted = quoted;
   print_ignore_op = ignore_op;
@@ -979,3 +977,22 @@ Try_Portray(WamWord word)
   return print_ok;
 #endif
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_PRINT_STM_1                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Get_Print_Stm_1(WamWord stm_word)
+{
+  int stm = Find_Stream_From_PStm(pstm_o);
+
+  if (stm < 0)
+    stm = stm_output;
+
+  return Get_Integer(stm, stm_word);
+}
+

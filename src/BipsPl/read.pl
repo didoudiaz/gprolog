@@ -70,6 +70,9 @@ read_term(Term, Options) :-
 
 read_term(SorA, Term, Options) :-
 	set_bip_name(read_term, 3),
+	'$read_term'(SorA, Term, Options).
+	
+'$read_term'(SorA, Term, Options) :-
 	'$set_read_defaults',
 	'$get_read_options'(Options, Vars, VarNames, SinglNames),
 	'$call_c_test'('Read_Term_5'(SorA, Term, Vars, VarNames, SinglNames)).

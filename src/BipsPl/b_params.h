@@ -24,8 +24,6 @@
 
 /* $Id$ */
 
-#define MAX_STREAM                 256
-
 #define MAX_VAR_NAME_LENGTH        256
 
 #define MAX_VAR_IN_TERM            2048

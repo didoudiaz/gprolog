@@ -590,6 +590,7 @@ char *Strdup_Check(char *str, char *src_file, int src_line);
 #define Free(ptr)          free(ptr)
 #define Strdup(str)        Strdup_Check(str, __FILE__, __LINE__)
 void Extend_Table_If_Needed(char **hash_tbl);
+void Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);
 void Exit_With_Value(int ret_val);
 void Fatal_Error(char *format, ...);
 #define MAX_PREC                   1200
@@ -1366,7 +1367,10 @@ int Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 #define STREAM_CHECK_EXIST         1	/* valid and exist */
 #define STREAM_CHECK_INPUT         2	/* valid, exist and mode=input  */
 #define STREAM_CHECK_OUTPUT        3	/* valid, exist and mode=output */
-#define STREAM_FCT_UNDEFINED       ((StmFct) (-1))	/* for optional fct */
+#define STREAM_FCT_UNDEFINED       ((StmFct) (-1)) /* for optional fct */
+#define TERM_STREAM_ATOM           1 /* values also used in stream.pl */
+#define TERM_STREAM_CHARS          2
+#define TERM_STREAM_CODES          3
 typedef struct			/* Stream properties              */
 {				/* ------------------------------ */
   unsigned mode:2;		/* see STREAM_MODE_xxx defs       */
@@ -1422,8 +1426,9 @@ typedef struct			/* String Stream information      */
 }
 StrSInf;
 #ifdef STREAM_SUPP_FILE
-StmInf stm_tbl[MAX_STREAM + 1];	/* +1 for global term stream */
-int stm_last_used = -1;
+StmInf **stm_tbl;
+int stm_tbl_size;
+int stm_last_used;
 char *alias_tbl;
 WamWord last_input_sora;
 WamWord last_output_sora;
@@ -1436,7 +1441,7 @@ int stm_top_level_output;
 int stm_debugger_input;
 int stm_debugger_output;
 char *le_prompt;
-int atom_glob_stream_alias;
+int atom_stream;
 int atom_user_input;
 int atom_user_output;
 int atom_top_level_input;
@@ -1463,7 +1468,8 @@ int atom_bof;
 int atom_current;
 int atom_eof;
 #else
-extern StmInf stm_tbl[];
+extern StmInf **stm_tbl;
+extern int stm_tbl_size;
 extern int stm_last_used;
 extern char *alias_tbl;
 extern WamWord last_input_sora;
@@ -1477,7 +1483,7 @@ extern int stm_top_level_output;
 extern int stm_debugger_input;
 extern int stm_debugger_output;
 extern char *le_prompt;
-extern int atom_glob_stream_alias;
+extern int atom_stream;
 extern int atom_user_input;
 extern int atom_user_output;
 extern int atom_top_level_input;
@@ -1514,12 +1520,14 @@ int Find_Stream_By_Alias(int atom_alias);
 Bool Add_Alias_To_Stream(int atom_alias, int stm);
 void Reassign_Alias(int atom_alias, int stm);
 void Del_Aliases_Of_Stream(int stm);
+int Find_Stream_From_PStm(StmInf *pstm);
 void Flush_All_Streams(void);
 void Set_Stream_Buffering(int stm);
 int Get_Stream_Or_Alias(WamWord sora_word, int test_mask);
 void Check_Stream_Type(int stm, Bool check_text, Bool for_input);
-FILE *File_Star_Of_Stream(int stm);
+WamWord Make_Stream_Tagged_Word(int stm);
 int File_Number_Of_Stream(int stm);
+FILE *File_Star_Of_Stream(int stm);
 int Stream_Getc(StmInf *pstm);
 int Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
 void Stream_Ungetc(int c, StmInf *pstm);
@@ -1538,9 +1546,10 @@ void Stream_Get_Position(StmInf *pstm, int *offset,
 int Stream_Set_Position(StmInf *pstm, int whence, int offset,
 			int char_count, int line_count, int line_pos);
 int Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos);
-int Add_Str_Stream(Bool use_global, char *buff);
+int Add_Str_Stream(char *buff, int prop_other);
 void Delete_Str_Stream(int stm);
 char *Term_Write_Str_Stream(int stm);
+void Close_Stm(int stm, Bool force); /* from close_c.c */
 #define PB_Init(pb)          pb.ptr = pb.buff, pb.nb_elems = 0;
 #define PB_Is_Empty(pb)      (pb.nb_elems == 0)
 #define PB_Push(pb, elem)                  		\
@@ -1627,6 +1636,7 @@ int domain_socket_address;	/* for sockets */
 int existence_procedure;
 int existence_source_sink;
 int existence_stream;
+int existence_sr_descriptor;	/* for source reader */
 int permission_operation_access;
 int permission_operation_close;
 int permission_operation_create;
@@ -1656,9 +1666,9 @@ int evluation_int_overflow;
 int evluation_undefined;
 int evluation_underflow;
 int evluation_zero_divisor;
-int resource_too_many_open_streams;	/* for streams */
-int resource_print_object_not_linked;	/* for print and format */
-int resource_too_big_fd_constraint;	/* for FD */
+int resource_too_many_open_streams; /* for streams */
+int resource_print_object_not_linked; /* for print and format */
+int resource_too_big_fd_constraint; /* for FD */
 #else
 extern int type_atom;
 extern int type_atomic;
@@ -1701,16 +1711,17 @@ extern int domain_g_array_index;	/* for g_vars */
 extern int domain_stream_seek_method;	/* for seek/4 */
 extern int domain_format_control_sequence;	/* for format/2-3 */
 extern int domain_os_path;	/* for absolute_file_name/2 */
-extern int domain_os_file_permission;	/* for file_permission/2 */
-extern int domain_selectable_item;	/* for select_read/3 */
+extern int domain_os_file_permission; /* for file_permission/2 */
+extern int domain_selectable_item; /* for select_read/3 */
 extern int domain_date_time;	/* for os_interf */
 #ifndef NO_USE_SOCKETS
-extern int domain_socket_domain;	/* for sockets */
-extern int domain_socket_address;	/* for sockets */
+extern int domain_socket_domain; /* for sockets */
+extern int domain_socket_address; /* for sockets */
 #endif
 extern int existence_procedure;
 extern int existence_source_sink;
 extern int existence_stream;
+extern int existence_sr_descriptor; /* for source reader */
 extern int permission_operation_access;
 extern int permission_operation_close;
 extern int permission_operation_create;
@@ -1740,9 +1751,9 @@ extern int evluation_int_overflow;
 extern int evluation_undefined;
 extern int evluation_underflow;
 extern int evluation_zero_divisor;
-extern int resource_too_many_open_streams;	/* for streams */
-extern int resource_print_object_not_linked;	/* for print and format */
-extern int resource_too_big_fd_constraint;	/* for FD */
+extern int resource_too_many_open_streams; /* for streams */
+extern int resource_print_object_not_linked; /* for print and format */
+extern int resource_too_big_fd_constraint; /* for FD */
 #endif
 void Set_Bip_Name_2(WamWord func_word, WamWord arity_word);
 void Set_C_Bip_Name(char *func_str, int arity) FC;
@@ -1844,6 +1855,7 @@ void Write_Term(StmInf *pstm, int depth, int prec, int mask,
 void Write_Simple(WamWord term_word);
 void Write_A_Char(StmInf *pstm, int c);
 char *Float_To_String(double d);
+int Get_Print_Stm(void);
 enum
 {
   FLAG_BOUNDED,
@@ -1884,7 +1896,6 @@ enum
 #define SYS_VAR_WRITE_DEPTH         (sys_var[1])
 #define SYS_VAR_SYNTAX_ERROR_ACTON  (sys_var[1])
 #define SYS_VAR_FD_BCKTS            (sys_var[3])
-#define SYS_VAR_PRINT_STM           (sys_var[6])
 #define SYS_VAR_TOP_LEVEL           (sys_var[10])
 #define SYS_VAR_LINEDIT             (sys_var[12])
 #define SYS_VAR_DEBUGGER            (sys_var[13])

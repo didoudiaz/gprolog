@@ -70,7 +70,7 @@ Get_Key_2(WamWord sora_word, WamWord code_word)
 
   Check_For_Un_Integer(code_word);
 
-  c = Stream_Get_Key(stm_tbl + stm, TRUE, TRUE);
+  c = Stream_Get_Key(stm_tbl[stm], TRUE, TRUE);
 
   if (c == EOF)
     c = -1;
@@ -112,7 +112,7 @@ Get_Key_No_Echo_2(WamWord sora_word, WamWord code_word)
 
   Check_For_Un_Integer(code_word);
 
-  c = Stream_Get_Key(stm_tbl + stm, FALSE, TRUE);
+  c = Stream_Get_Key(stm_tbl[stm], FALSE, TRUE);
 
   if (c == EOF)
     c = -1;
@@ -154,7 +154,7 @@ Get_Char_2(WamWord sora_word, WamWord char_word)
 
   Check_For_Un_In_Char(char_word);
 
-  c = Stream_Getc(stm_tbl + stm);
+  c = Stream_Getc(stm_tbl[stm]);
   if (c != EOF && !Is_Valid_Code(c))
     Pl_Err_Representation(representation_character);
 
@@ -195,7 +195,7 @@ Get_Code_2(WamWord sora_word, WamWord code_word)
 
   Check_For_Un_In_Code(code_word);
 
-  c = Stream_Getc(stm_tbl + stm);
+  c = Stream_Getc(stm_tbl[stm]);
   if (c != EOF && !Is_Valid_Code(c))
     Pl_Err_Representation(representation_character);
 
@@ -240,7 +240,7 @@ Get_Byte_2(WamWord sora_word, WamWord byte_word)
 
   Check_For_Un_In_Byte(byte_word);
 
-  c = Stream_Getc(stm_tbl + stm);
+  c = Stream_Getc(stm_tbl[stm]);
   if (c == EOF)
     c = -1;
 
@@ -280,7 +280,7 @@ Unget_Char_2(WamWord sora_word, WamWord char_word)
   last_input_sora = sora_word;
   Check_Stream_Type(stm, TRUE, TRUE);
 
-  Stream_Ungetc(Rd_Char_Check(char_word), stm_tbl + stm);
+  Stream_Ungetc(Rd_Char_Check(char_word), stm_tbl[stm]);
 }
 
 
@@ -314,7 +314,7 @@ Unget_Code_2(WamWord sora_word, WamWord code_word)
   last_input_sora = sora_word;
   Check_Stream_Type(stm, TRUE, TRUE);
 
-  Stream_Ungetc(Rd_Code_Check(code_word), stm_tbl + stm);
+  Stream_Ungetc(Rd_Code_Check(code_word), stm_tbl[stm]);
 }
 
 
@@ -349,7 +349,7 @@ Unget_Byte_2(WamWord sora_word, WamWord byte_word)
   last_input_sora = sora_word;
   Check_Stream_Type(stm, FALSE, TRUE);
 
-  Stream_Ungetc(Rd_Byte_Check(byte_word), stm_tbl + stm);
+  Stream_Ungetc(Rd_Byte_Check(byte_word), stm_tbl[stm]);
 }
 
 
@@ -386,7 +386,7 @@ Peek_Char_2(WamWord sora_word, WamWord char_word)
 
   Check_For_Un_In_Char(char_word);
 
-  c = Stream_Peekc(stm_tbl + stm);
+  c = Stream_Peekc(stm_tbl[stm]);
   if (c != EOF && !Is_Valid_Code(c))
     Pl_Err_Representation(representation_character);
 
@@ -427,7 +427,7 @@ Peek_Code_2(WamWord sora_word, WamWord code_word)
 
   Check_For_Un_In_Code(code_word);
 
-  c = Stream_Peekc(stm_tbl + stm);
+  c = Stream_Peekc(stm_tbl[stm]);
   if (c != EOF && !Is_Valid_Code(c))
     Pl_Err_Representation(representation_character);
 
@@ -471,7 +471,7 @@ Peek_Byte_2(WamWord sora_word, WamWord byte_word)
 
   Check_For_Un_In_Byte(byte_word);
 
-  c = Stream_Peekc(stm_tbl + stm);
+  c = Stream_Peekc(stm_tbl[stm]);
   if (c == EOF)
     c = -1;
 
@@ -509,7 +509,7 @@ Put_Char_2(WamWord sora_word, WamWord char_word)
   last_output_sora = sora_word;
   Check_Stream_Type(stm, TRUE, FALSE);
 
-  Stream_Putc(Rd_Char_Check(char_word), stm_tbl + stm);
+  Stream_Putc(Rd_Char_Check(char_word), stm_tbl[stm]);
 }
 
 
@@ -543,7 +543,7 @@ Put_Code_2(WamWord sora_word, WamWord code_word)
   last_output_sora = sora_word;
   Check_Stream_Type(stm, TRUE, FALSE);
 
-  Stream_Putc(Rd_Code_Check(code_word), stm_tbl + stm);
+  Stream_Putc(Rd_Code_Check(code_word), stm_tbl[stm]);
 }
 
 
@@ -578,7 +578,7 @@ Put_Byte_2(WamWord sora_word, WamWord byte_word)
   last_output_sora = sora_word;
   Check_Stream_Type(stm, FALSE, FALSE);
 
-  Stream_Putc(Rd_Byte_Check(byte_word), stm_tbl + stm);
+  Stream_Putc(Rd_Byte_Check(byte_word), stm_tbl[stm]);
 }
 
 

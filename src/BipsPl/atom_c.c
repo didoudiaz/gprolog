@@ -832,8 +832,8 @@ String_To_Number(char *str, WamWord number_word)
     }
 #endif
 
-  stm = Add_Str_Stream(TRUE, str);
-  pstm = stm_tbl + stm;
+  stm = Add_Str_Stream(str, TERM_STREAM_ATOM);
+  pstm = stm_tbl[stm];
 
   word = Read_Number(pstm);
   eof = (Stream_Peekc(pstm) == EOF);

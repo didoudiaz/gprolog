@@ -55,10 +55,6 @@
 
 #define TERM_STREAM_WRITE_BLOCK    1024
 
-#define TERM_STREAM_ATOM           0
-#define TERM_STREAM_CHARS          1
-#define TERM_STREAM_CODES          2
-
 
 
 
@@ -348,7 +344,7 @@ Set_Stream_Type_2(WamWord sora_word, WamWord is_text_word)
   int text;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   text = Rd_Integer_Check(is_text_word);
   if ((unsigned) text == pstm->prop.text)
@@ -386,7 +382,7 @@ Set_Stream_Eof_Action_2(WamWord sora_word, WamWord action_word)
   StmInf *pstm;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (pstm->prop.output)
     Pl_Err_Permission(permission_operation_modify,
@@ -409,7 +405,7 @@ Set_Stream_Buffering_2(WamWord sora_word, WamWord buff_mode_word)
   StmInf *pstm;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   pstm->prop.buffering = Rd_Integer_Check(buff_mode_word);
   Set_Stream_Buffering(stm);
@@ -425,17 +421,20 @@ Set_Stream_Buffering_2(WamWord sora_word, WamWord buff_mode_word)
 void
 Close_1(WamWord sora_word)
 {
-  int stm;
-  StmInf *pstm;
-  StmProp prop;
-  int mask = SYS_VAR_OPTION_MASK;
+  int stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
+  Close_Stm(stm, SYS_VAR_OPTION_MASK & 1);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * CLOSE_STM                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Close_Stm(int stm, Bool force)
+{
+  StmInf *pstm = stm_tbl[stm];
   int fd = 0;
-
-
-  stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-
-  pstm = stm_tbl + stm;
-  prop = pstm->prop;
 
   Stream_Flush(pstm);
 
@@ -461,7 +460,7 @@ Close_1(WamWord sora_word)
 
   if (Stream_Close(pstm) != 0)
     {
-      if ((mask & 1) == 0)
+      if (force == 0)
 	Pl_Err_System(Create_Atom(ERR_CANNOT_CLOSE_STREAM));
 
       /* else force close */
@@ -490,7 +489,7 @@ Flush_Output_1(WamWord sora_word)
 
   last_output_sora = sora_word;
 
-  Stream_Flush(stm_tbl + stm);
+  Stream_Flush(stm_tbl[stm]);
 }
 
 
@@ -517,33 +516,34 @@ Bool
 Current_Stream_1(WamWord stm_word)
 {
   WamWord word, tag_mask;
-  int i = 0;
+  int stm = 0;
 
 
   DEREF(stm_word, word, tag_mask);	/* either an INT or a REF */
   if (tag_mask == TAG_INT_MASK)
-    return stm_tbl[UnTag_INT(word)].file != 0;
+    {
+      stm = UnTag_INT(word);
+      return (stm >= 0 && stm <= stm_last_used && stm_tbl[stm] != NULL);
+    }
 
-
-  for (; i <= stm_last_used; i++)
-    if (stm_tbl[i].file != 0)
+  for (; stm <= stm_last_used; stm++)
+    if (stm_tbl[stm])
       break;
 
-  if (i >= stm_last_used)
+  if (stm >= stm_last_used)
     {
-      if (i > stm_last_used)
+      if (stm > stm_last_used)
 	return FALSE;
     }
   else				/* non deterministic case */
     {
       A(0) = stm_word;
-      A(1) = i + 1;
+      A(1) = stm + 1;
       Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_STREAM_ALT, 0),
 			  2);
     }
 
-  Get_Integer(i, stm_word);
-  return TRUE;
+  return Get_Integer(stm, stm_word);
 }
 
 
@@ -557,23 +557,21 @@ Bool
 Current_Stream_Alt_0(void)
 {
   WamWord stm_word;
-  int i;
+  int stm;
 
   Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_STREAM_ALT, 0), 0);
 
   stm_word = AB(B, 0);
-  i = AB(B, 1);
+  stm = AB(B, 1);
 
-
-
-  for (; i <= stm_last_used; i++)
-    if (stm_tbl[i].file != 0)
+  for (; stm <= stm_last_used; stm++)
+    if (stm_tbl[stm])
       break;
 
-  if (i >= stm_last_used)
+  if (stm >= stm_last_used)
     {
       Delete_Last_Choice_Point();
-      if (i > stm_last_used)
+      if (stm > stm_last_used)
 	return FALSE;
     }
   else				/* non deterministic case */
@@ -581,11 +579,10 @@ Current_Stream_Alt_0(void)
 #if 0 /* the following data is unchanged */
       AB(B, 0) = stm_word;
 #endif
-      AB(B, 1) = i + 1;
+      AB(B, 1) = stm + 1;
     }
 
-  Get_Integer(i, stm_word);
-  return TRUE;
+  return Get_Integer(stm, stm_word);
 }
 
 
@@ -602,7 +599,7 @@ Stream_Prop_File_Name_2(WamWord file_name_word, WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  return Un_Atom_Check(stm_tbl[stm].atom_file_name, file_name_word);
+  return Un_Atom_Check(stm_tbl[stm]->atom_file_name, file_name_word);
 }
 
 
@@ -620,7 +617,7 @@ Stream_Prop_Mode_2(WamWord mode_word, WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  switch (stm_tbl[stm].prop.mode)
+  switch (stm_tbl[stm]->prop.mode)
     {
     case STREAM_MODE_READ:
       atom = atom_read;
@@ -652,7 +649,7 @@ Stream_Prop_Input_1(WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  return stm_tbl[stm].prop.input;
+  return stm_tbl[stm]->prop.input;
 }
 
 
@@ -669,7 +666,7 @@ Stream_Prop_Output_1(WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  return stm_tbl[stm].prop.output;
+  return stm_tbl[stm]->prop.output;
 }
 
 
@@ -687,7 +684,7 @@ Stream_Prop_Type_2(WamWord type_word, WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  atom = (stm_tbl[stm].prop.text) ? atom_text : atom_binary;
+  atom = (stm_tbl[stm]->prop.text) ? atom_text : atom_binary;
 
   return Un_Atom_Check(atom, type_word);
 }
@@ -707,7 +704,7 @@ Stream_Prop_Reposition_2(WamWord reposition_word, WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  atom = (stm_tbl[stm].prop.reposition) ? atom_true : atom_false;
+  atom = (stm_tbl[stm]->prop.reposition) ? atom_true : atom_false;
 
   return Un_Atom_Check(atom, reposition_word);
 }
@@ -727,7 +724,7 @@ Stream_Prop_Eof_Action_2(WamWord eof_action_word, WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  switch (stm_tbl[stm].prop.eof_action)
+  switch (stm_tbl[stm]->prop.eof_action)
     {
     case STREAM_EOF_ACTION_ERROR:
       atom = atom_error;
@@ -761,16 +758,16 @@ Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
 #ifndef NO_USE_LINEDIT		/* if use_gui == 1 */
-  if (stm_tbl[stm].file == (long) stdout && le_hook_get_line_buffering)
+  if (stm_tbl[stm]->file == (long) stdout && le_hook_get_line_buffering)
     {
       if ((*le_hook_get_line_buffering)())
-	stm_tbl[stm].prop.buffering = STREAM_BUFFERING_LINE;
+	stm_tbl[stm]->prop.buffering = STREAM_BUFFERING_LINE;
       else
-	stm_tbl[stm].prop.buffering = STREAM_BUFFERING_NONE;
+	stm_tbl[stm]->prop.buffering = STREAM_BUFFERING_NONE;
     }
 #endif
 
-  switch (stm_tbl[stm].prop.buffering)
+  switch (stm_tbl[stm]->prop.buffering)
     {
     case STREAM_BUFFERING_NONE:
       atom = atom_none;
@@ -803,7 +800,7 @@ Stream_Prop_End_Of_Stream_2(WamWord end_of_stream_word, WamWord stm_word)
 
   stm = Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  switch (Stream_End_Of_Stream(stm_tbl + stm))
+  switch (Stream_End_Of_Stream(stm_tbl[stm]))
     {
     case STREAM_EOF_NOT:
       atom = atom_not;
@@ -836,7 +833,7 @@ At_End_Of_Stream_1(WamWord sora_word)
   stm = (sora_word == NOT_A_WAM_WORD)
     ? stm_input : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
-  return Stream_End_Of_Stream(stm_tbl + stm) != STREAM_EOF_NOT;
+  return Stream_End_Of_Stream(stm_tbl[stm]) != STREAM_EOF_NOT;
 }
 
 
@@ -982,7 +979,7 @@ Stream_Position_2(WamWord sora_word, WamWord position_word)
 
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   Stream_Get_Position(pstm, p, p + 1, p + 2, p + 3);
 
@@ -1025,7 +1022,7 @@ Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
 
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (!pstm->prop.reposition)
     Pl_Err_Permission(permission_operation_reposition,
@@ -1076,7 +1073,7 @@ Seek_4(WamWord sora_word, WamWord whence_word, WamWord offset_word,
 
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (!pstm->prop.reposition)
     Pl_Err_Permission(permission_operation_reposition,
@@ -1123,7 +1120,7 @@ Character_Count_2(WamWord sora_word, WamWord count_word)
   int offset, char_count, line_count, line_pos;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   Stream_Get_Position(pstm, &offset, &char_count, &line_count, &line_pos);
 
@@ -1145,7 +1142,7 @@ Line_Count_2(WamWord sora_word, WamWord count_word)
   int offset, char_count, line_count, line_pos;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (!pstm->prop.text)
     Pl_Err_Permission(permission_operation_access,
@@ -1171,7 +1168,7 @@ Line_Position_2(WamWord sora_word, WamWord count_word)
   int offset, char_count, line_count, line_pos;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (!pstm->prop.text)
     Pl_Err_Permission(permission_operation_access,
@@ -1197,7 +1194,7 @@ Stream_Line_Column_3(WamWord sora_word, WamWord line_word, WamWord col_word)
   int offset, char_count, line_count, line_pos;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (!pstm->prop.text)
     Pl_Err_Permission(permission_operation_access,
@@ -1226,7 +1223,7 @@ Set_Stream_Line_Column_3(WamWord sora_word, WamWord line_word,
 
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
   if (!pstm->prop.reposition)
     Pl_Err_Permission(permission_operation_reposition,
@@ -1281,8 +1278,7 @@ Open_Input_Term_Stream_2(WamWord sink_term_word, WamWord stm_word)
 	Rd_Codes_Str_Check(sink_term_word, str);
     }
 
-  stm = Add_Str_Stream(FALSE, str);
-  stm_tbl[stm].prop.other = SYS_VAR_OPTION_MASK + 1;
+  stm = Add_Str_Stream(str, SYS_VAR_OPTION_MASK);
 
   Get_Integer(stm, stm_word);
 }
@@ -1303,11 +1299,11 @@ Close_Input_Term_Stream_1(WamWord sora_word)
   int type;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
-  type = pstm->prop.other - 1;
+  type = pstm->prop.other;
 
-  if (type < 0 || type > 2)
+  if (type < 1 || type > 3)
     Pl_Err_Domain(domain_term_stream_or_alias, sora_word);
 
   if (pstm->prop.output)
@@ -1335,8 +1331,7 @@ Open_Output_Term_Stream_1(WamWord stm_word)
 {
   int stm;
 
-  stm = Add_Str_Stream(FALSE, NULL);
-  stm_tbl[stm].prop.other = SYS_VAR_OPTION_MASK + 1;
+  stm = Add_Str_Stream(NULL, SYS_VAR_OPTION_MASK);
 
   Get_Integer(stm, stm_word);
 }
@@ -1357,11 +1352,11 @@ Close_Output_Term_Stream_2(WamWord sora_word, WamWord sink_term_word)
   char *str;
 
   stm = Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
-  pstm = stm_tbl + stm;
+  pstm = stm_tbl[stm];
 
-  type = pstm->prop.other - 1;
+  type = pstm->prop.other;
 
-  if (type < 0 || type > 2)
+  if (type < 1 || type > 3)
     Pl_Err_Domain(domain_term_stream_or_alias, sora_word);
 
   if (pstm->prop.input)

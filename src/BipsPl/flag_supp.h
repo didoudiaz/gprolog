@@ -45,7 +45,6 @@ enum
   FLAG_SYNTAX_ERROR,
   FLAG_OS_ERROR,
   FLAG_MAX_ATOM,
-  FLAG_MAX_STREAM,
   FLAG_MAX_UNGET,
   FLAG_SINGLETON_WARNING,
   FLAG_STRICT_ISO,
@@ -85,8 +84,6 @@ enum
 #define SYS_VAR_SYNTAX_ERROR_ACTON  (sys_var[1])
 
 #define SYS_VAR_FD_BCKTS            (sys_var[3])
-
-#define SYS_VAR_PRINT_STM           (sys_var[6])
 
 #define SYS_VAR_TOP_LEVEL           (sys_var[10])
 #define SYS_VAR_LINEDIT             (sys_var[12])
@@ -138,8 +135,6 @@ Bool Write_Pl_State_File(WamWord file_word);
  *   1: temporary (e.g. depth in write).                                   *
  *   2: temporary (e.g. reorder in FD labeling).                           *
  *   3: temporary (e.g. backtracks counter in FD labeling).                *
- *                                                                         *
- *   6: pseudo-permanent current print stream (for get_print_stream/1)     *
  *                                                                         *
  *   7: permanent catch handler.                                           *
  *   8: permanent catch ball.                                              *
