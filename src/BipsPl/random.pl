@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_random'.
@@ -58,4 +60,3 @@ random(N) :-
 random(L, U, N) :-
 	set_bip_name(random, 3),
 	'$call_c_test'('Random_3'(L, U, N)).
-

@@ -47,7 +47,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <sys/utsname.h>
+#include <sys/param.h>
 #else
 #include <windows.h>
 #include <process.h>
@@ -567,6 +569,114 @@ M_Get_Status(int pid)
   return status;
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * M_MKTEMP                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+M_Mktemp(char *template)
+{
+#ifdef HAVE_MKSTEMP
+
+  int fd = mkstemp(template);
+  if (fd == -1)
+    return NULL;
+
+  close(fd);
+  return template;
+
+#else
+
+  errno = 0;
+  return mktemp(template);
+
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * M_TEMPNAM                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+M_Tempnam(char *dir, char *pfx)
+{
+#ifdef HAVE_MKSTEMP
+  char tmpl[MAXPATHLEN];
+  char *d;
+  int dlen, plen;
+  int fd;
+  struct stat buf;
+
+#define Dir_Exists(dir) (stat(dir, &buf) == 0 && S_ISDIR (buf.st_mode))
+
+
+				/* this code comes from glibc */
+  if (!pfx || !pfx[0])
+    {
+      pfx = "file";
+      plen = 4;
+    }
+  else
+    {
+      plen = strlen(pfx);
+      if (plen > 5)
+        plen = 5;
+    }
+ 
+  d = getenv("TMPDIR");
+  if (d != NULL && Dir_Exists(d))
+    dir = d;
+  else if (dir != NULL && Dir_Exists(dir))
+    /* nothing */ ;
+  else
+    dir = NULL;
+
+  if (dir == NULL)
+    {
+      if (Dir_Exists(P_tmpdir))
+        dir = P_tmpdir;
+      else if (strcmp(P_tmpdir, "/tmp") != 0 && Dir_Exists("/tmp"))
+        dir = "/tmp";
+      else
+        {
+          errno = ENOENT;
+          return NULL;
+        }
+    }
+ 
+  dlen = strlen(dir);
+  while (dlen > 1 && dir[dlen - 1] == '/')
+    dlen--;                     /* remove trailing slashes */
+ 
+  /* check we have room for "${dir}/${pfx}XXXXXX\0" */
+  if (MAXPATHLEN < dlen + 1 + plen + 6 + 1)
+    {
+      errno = EINVAL;
+      return NULL;
+    }
+
+  sprintf(tmpl, "%.*s/%.*sXXXXXX", dlen, dir, plen, pfx);
+
+  fd = mkstemp(tmpl);
+  if (fd == -1)
+     return NULL;
+
+  close(fd);
+  return strdup(tmpl);
+
+#else
+
+  errno = 0;
+  return tempnam(dir, pfx);
+
+#endif
+}
 
 
 

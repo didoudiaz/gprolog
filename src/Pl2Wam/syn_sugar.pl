@@ -34,9 +34,9 @@ syntactic_sugar_init_pred(_, _) :-
 
 
 syntactic_sugar(SrcCl, Head, Body2) :-
-	(   SrcCl=(Head:-Body)
-	;   SrcCl=Head,
-	    Body=true
+	(   SrcCl = (Head :- Body)
+	;   SrcCl = Head,
+	    Body = true
 	), !,
 	normalize_cuts(Body, Body1),
 	normalize_alts(Body1, Head, Body2).
@@ -47,8 +47,8 @@ normalize_cuts(Body, Body2) :-
 	g_assign(has_cut, f),
 	normalize_cuts1(Body, CutVar, Body1), !,
 	(   g_read(has_cut, t) ->
-	    Body2=('$get_cut_level'(CutVar),Body1)
-	;   Body2=Body1
+	    Body2 = ('$get_cut_level'(CutVar),Body1)
+	;   Body2 = Body1
 	).
 
 
@@ -56,15 +56,15 @@ normalize_cuts1(X, VarCut, P) :-
 	var(X),
 	normalize_cuts1(call(X), VarCut, P).
 
-normalize_cuts1((If;R), CutVar, Body) :-
+normalize_cuts1((If ; R), CutVar, Body) :-
 	nonvar(If),
-	If=(P->Q),
-	Body=('$get_cut_level'(CutVar1),P,'$cut'(CutVar1),Q1;R1),
+	If = (P -> Q),
+	Body = ('$get_cut_level'(CutVar1),P,'$cut'(CutVar1),Q1 ; R1),
 	normalize_cuts1(Q, CutVar, Q1),
 	normalize_cuts1(R, CutVar, R1).
 
-normalize_cuts1((P->Q), CutVar, Body) :-
-	Body=('$get_cut_level'(CutVar1),P,'$cut'(CutVar1),Q1;fail),
+normalize_cuts1((P -> Q), CutVar, Body) :-
+	Body = ('$get_cut_level'(CutVar1),P,'$cut'(CutVar1),Q1 ; fail),
 	normalize_cuts1(Q, CutVar, Q1).
 
 normalize_cuts1(!, CutVar, '$cut'(CutVar)) :-
@@ -74,7 +74,7 @@ normalize_cuts1((P,Q), CutVar, (P1,Q1)) :-
 	normalize_cuts1(P, CutVar, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
-normalize_cuts1((P;Q), CutVar, (P1;Q1)) :-
+normalize_cuts1((P ; Q), CutVar, (P1 ; Q1)) :-
 	normalize_cuts1(P, CutVar, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
@@ -111,17 +111,17 @@ normalize_alts1((P,Q), RestC, (P1,Q1)) :-
 	normalize_alts1(P, (RestC,Q), P1),
 	normalize_alts1(Q, (RestC,P), Q1).
 
-normalize_alts1((P;Q), RestC, AuxPred) :-
+normalize_alts1((P ; Q), RestC, AuxPred) :-
 	lst_var(RestC, [], VarRestC),
-	lst_var((P;Q), [], VarAlt),
+	lst_var((P ; Q), [], VarAlt),
 	set_inter(VarAlt, VarRestC, V),
 	length(V, N1),
 	g_read(head_functor, Pred),
 	g_read(head_arity, N),
 	init_aux_pred_name(Pred, N, AuxName, N1),
-	AuxPred=..[AuxName|V],
+	AuxPred =.. [AuxName|V],
 	g_read(where, Where),
-	linearize((P;Q), AuxPred, Where, LAuxSrcCl),
+	linearize((P ; Q), AuxPred, Where, LAuxSrcCl),
 	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
 
 normalize_alts1(P, _, P).
@@ -131,7 +131,7 @@ normalize_alts1(P, _, P).
 
 init_aux_pred_name(Pred, N, AuxName, N1) :-
 	g_read(aux, Aux),
-	Aux1 is Aux+1,
+	Aux1 is Aux + 1,
 	g_assign(aux, Aux1),
 	'$make_aux_name'(Pred, N, Aux, AuxName),
 	(   test_pred_info(bpl, Pred, N),
@@ -145,7 +145,7 @@ init_aux_pred_name(Pred, N, AuxName, N1) :-
 
 
 linearize(Body, AuxPred, Where, LAuxSrcCl) :-
-	(   Body=(P;Q) ->
+	(   Body = (P ; Q) ->
 	    linearize(Q, AuxPred, Where, LAuxSrcCl1),
 	    linearize1(P, AuxPred, Where, LAuxSrcCl2),
 	    append(LAuxSrcCl2, LAuxSrcCl1, LAuxSrcCl)
@@ -156,8 +156,8 @@ linearize(Body, AuxPred, Where, LAuxSrcCl) :-
 linearize1(fail, _, _, []) :-
 	!.
 
-linearize1(P, AuxPred, Where, [Where+AltP]) :-
-	copy_term((AuxPred:-P), AltP).
+linearize1(P, AuxPred, Where, [Where + AltP]) :-
+	copy_term((AuxPred :- P), AltP).
 
 
 
@@ -173,12 +173,12 @@ lst_var(P, V, V1) :-
 
 
 lst_var_args(I, N, P, V, V2) :-
-	(   I=<N ->
+	(   I =< N ->
 	    arg(I, P, ArgP),
 	    lst_var(ArgP, V, V1),
-	    I1 is I+1,
+	    I1 is I + 1,
 	    lst_var_args(I1, N, P, V1, V2)
-	;   V2=V
+	;   V2 = V
 	).
 
 
@@ -186,11 +186,11 @@ lst_var_args(I, N, P, V, V2) :-
 
         /* Other predicate rewriting */
 
-pred_rewriting(fd_tell(X), '$call_c_test'(X)) :- % FD transformation
-	test_call_c_allowed(fd_tell/1), !.
+pred_rewriting(fd_tell(X), '$call_c_test'(X)) :-          % FD transformation
+	test_call_c_allowed(fd_tell / 1), !.
 
 pred_rewriting(set_bip_name(Name, Arity), Pred1) :-
-	g_read(inline, t),                       % also if -wbc since implies -no-inline
+	g_read(inline, t),            % also if -wbc since implies -no-inline
 	nonvar(Name),
 	nonvar(Arity), !,
 	(   atom(Name)
@@ -199,17 +199,17 @@ pred_rewriting(set_bip_name(Name, Arity), Pred1) :-
 	(   integer(Arity)
 	;   error('set_bip_name/2 inline: integer expected instead of ~q', [Arity])
 	), !,
-	Pred1='$call_c'('Set_Bip_Name_2'(Name, Arity)).
+	Pred1 = '$call_c'('Set_Bip_Name_2'(Name, Arity)).
 
-pred_rewriting(Pred, Pred1) :-                   % math define current bip
+pred_rewriting(Pred, Pred1) :-                      % math define current bip
 	g_read(inline, t),
 	g_read(fast_math, f),
 	functor(Pred, F, 2),
-	(   F=(is)
+	(   F = (is)
 	;   math_cmp_functor_name(F, _)
-	),                                       % see code_gen.pl
+	),                                                  % see code_gen.pl
 	   !,
-	Pred1=('$call_c'('Set_Bip_Name_2'(F, 2)),Pred).
+	Pred1 = ('$call_c'('Set_Bip_Name_2'(F, 2)),Pred).
 
 pred_rewriting(P, P).
 
@@ -225,16 +225,16 @@ test_call_c_allowed(X) :-
 
 
 
-add_wrapper_to_dyn_clause(Pred, N, Where+Cl, AuxName) :-
+add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName) :-
 	init_aux_pred_name(Pred, N, AuxName, N),
-	(   Cl=(Head:-Body) ->
+	(   Cl = (Head :- Body) ->
 	    head_wrapper(Head, AuxName, Head1),
-	    Cl1=(Head1:-Body)
+	    Cl1 = (Head1 :- Body)
 	;   head_wrapper(Cl, AuxName, Cl1)
 	),
-	assertz(buff_aux_pred(AuxName, N, [Where+Cl1])).
+	assertz(buff_aux_pred(AuxName, N, [Where + Cl1])).
 
 
 head_wrapper(Head, AuxName, Head1) :-
-	Head=..[_|LArgs],
-	Head1=..[AuxName|LArgs].
+	Head =.. [_|LArgs],
+	Head1 =.. [AuxName|LArgs].

@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_stat'.
@@ -35,7 +37,7 @@ statistics :-
 statistics(Key, Values) :-
 	set_bip_name(statistics, 2),
 	'$check_stat_key'(Key), !,
-	(   Values=[Val1, Val2] ->
+	(   Values = [Val1, Val2] ->
 	    true
 	;   '$pl_err_domain'(statistics_value, Values)
 	),
@@ -72,10 +74,10 @@ statistics(Key, Values) :-
 
 '$stat'(X, SinceStart, SinceLast) :-
 	(   atom(X) ->
-	    (   X=user_time
-	    ;   X=runtime
+	    (   X = user_time
+	    ;   X = runtime
 	    ), !
-	;   X=user_time
+	;   X = user_time
 	),
 	'$call_c_test'('Statistics_User_Time_2'(SinceStart, SinceLast)).
 

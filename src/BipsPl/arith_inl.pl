@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_arith_inl'.
@@ -30,23 +32,23 @@
 X is Y :-
 	X is Y.
 
-X=:=Y :-
-	X=:=Y.
+X =:= Y :-
+	X =:= Y.
 
-X=\=Y :-
-	X=\=Y.
+X =\= Y :-
+	X =\= Y.
 
-X<Y :-
-	X<Y.
+X < Y :-
+	X < Y.
 
-X=<Y :-
-	X=<Y.
+X =< Y :-
+	X =< Y.
 
-X>Y :-
-	X>Y.
+X > Y :-
+	X > Y.
 
-X>=Y :-
-	X>=Y.
+X >= Y :-
+	X >= Y.
 
 
 '$arith_eval'(X, Y) :-

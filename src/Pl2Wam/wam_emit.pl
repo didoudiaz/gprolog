@@ -84,7 +84,7 @@
 emit_code_init(WamFile0, PlFile0) :-
 	prolog_file_name(PlFile0, PlFile),
 	emit_code_files(WamFile0, PlFile, WamFile),
-	(   WamFile=user ->
+	(   WamFile = user ->
 	    current_output(Stream)
 	;   open(WamFile, write, Stream)
 	),
@@ -109,10 +109,10 @@ emit_code_files('', PlFile, WamFile) :-
 	!,
 	decompose_file_name(PlFile, _, Prefix, Suffix),
 	(   g_read(native_code, t) ->
-	    WamSuffix='.wam'
-	;   WamSuffix='.wbc'
+	    WamSuffix = '.wam'
+	;   WamSuffix = '.wbc'
 	),
-	(   Suffix='.pl' ->
+	(   Suffix = '.pl' ->
 	    atom_concat(Prefix, WamSuffix, WamFile)
 	;   atom_concat(Prefix, Suffix, WF),
 	    atom_concat(WF, WamSuffix, WamFile)
@@ -143,10 +143,10 @@ emit_code(Pred, N, PlFile, PlLine, WamCode) :-
 
 
 emit_pred_start(Pred, 0, PlFile, PlLine, Stream, Type) :-
-	(   Pred='$exe_user',
-	    Type=user
-	;   Pred='$exe_system',
-	    Type=system
+	(   Pred = '$exe_user',
+	    Type = user
+	;   Pred = '$exe_system',
+	    Type = system
 	), !,
 	emit_file_name_if_needed(PlFile, Stream),
 	format(Stream, '~n~ndirective(~d,~a,', [PlLine, Type]).
@@ -154,20 +154,20 @@ emit_pred_start(Pred, 0, PlFile, PlLine, Stream, Type) :-
 emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	emit_file_name_if_needed(PlFile, Stream),
 	(   test_pred_info(dyn, Pred, N) ->
-	    StaDyn=dynamic
-	;   StaDyn=static
+	    StaDyn = dynamic
+	;   StaDyn = static
 	),
 	(   test_pred_info(pub, Pred, N) ->
-	    PubPriv=public
-	;   PubPriv=private
+	    PubPriv = public
+	;   PubPriv = private
 	),
 	(   test_pred_info(bpl, Pred, N) ->
-	    UsBplBfd=built_in
+	    UsBplBfd = built_in
 	;   test_pred_info(bfd, Pred, N) ->
-	    UsBplBfd=built_in_fd
-	;   UsBplBfd=user
+	    UsBplBfd = built_in_fd
+	;   UsBplBfd = user
 	),
-	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,', [Pred/N, PlLine, StaDyn, PubPriv, UsBplBfd]).
+	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,', [Pred / N, PlLine, StaDyn, PubPriv, UsBplBfd]).
 
 
 
@@ -185,7 +185,7 @@ emit_file_name_if_needed(PlFile, Stream) :-
 emit_wam_code([], _, _).
 
 emit_wam_code([WamInst|WamCode], First, Stream) :-
-	emit_wam_code(WamInst, First, Stream),   % for nested code
+	emit_wam_code(WamInst, First, Stream),              % for nested code
 	emit_wam_code(WamCode, First, Stream), !.
 
 emit_wam_code(WamInst, First, Stream) :-
@@ -197,20 +197,20 @@ emit_wam_code(WamInst, _, _) :-
 	dummy_instruction(WamInst), !.
 
 emit_wam_code(WamInst, First, Stream) :-
-	WamInst=label(_), !,
+	WamInst = label(_), !,
 	(   var(First) ->
-	    Car='[',
-	    First=f
-	;   Car=(',')
+	    Car = '[',
+	    First = f
+	;   Car = (',')
 	),
 	format(Stream, '~a~n~n', [Car]),
 	emit_one_inst(WamInst, Stream).
 
 emit_wam_code(WamInst, First, Stream) :-
 	(   var(First) ->
-	    Car='[',
-	    First=f
-	;   Car=(',')
+	    Car = '[',
+	    First = f
+	;   Car = (',')
 	),
 	format(Stream, '~a~n    ', [Car]),
 	emit_one_inst(WamInst, Stream).
@@ -232,10 +232,10 @@ emit_args(N, N, _, _) :-
 	!.
 
 emit_args(I, N, WamInst, Stream) :-
-	I1 is I+1,
-	(   I1=1 ->
-	    Car='('
-	;   Car=(',')
+	I1 is I + 1,
+	(   I1 = 1 ->
+	    Car = '('
+	;   Car = (',')
 	),
 	arg(I1, WamInst, A),
 	format(Stream, '~a~q', [Car, A]),
@@ -247,9 +247,9 @@ emit_args(I, N, WamInst, Stream) :-
 emit_ensure_linked :-
 	g_read(streamwamfile, Stream),
 	retract(ensure_linked(Name, Arity)), !,
-	format(Stream, '~n~nensure_linked([~q', [Name/Arity]),
+	format(Stream, '~n~nensure_linked([~q', [Name / Arity]),
 	(   clause(ensure_linked(Name1, Arity1), _),
-	    format(Stream, ',~q', [Name1/Arity1]),
+	    format(Stream, ',~q', [Name1 / Arity1]),
 	    fail
 	;   true
 	),
@@ -265,15 +265,15 @@ bc_emit_code(Pred, N, PlFile, PlLine, LCompCl) :-
 	g_read(streamwamfile, Stream),
 	emit_pred_start(Pred, N, PlFile, PlLine, Stream, Type),
 	(   nonvar(Type) ->
-	    LCompCl=[bc((_:-Body), _)],
+	    LCompCl = [bc((_ :- Body), _)],
 	    bc_emit_prolog_term(Stream, Body),
 	    format(Stream, ').~n', [])
 	;   length(LCompCl, NbCl),
-	    (   LCompCl=[bc('$$empty$$predicate$$clause$$', [proceed])] ->
-	        NbCl1=0,
-	        LCompCl1=[]
-	    ;   NbCl1=NbCl,
-	        LCompCl1=LCompCl
+	    (   LCompCl = [bc('$$empty$$predicate$$clause$$', [proceed])] ->
+	        NbCl1 = 0,
+	        LCompCl1 = []
+	    ;   NbCl1 = NbCl,
+	        LCompCl1 = LCompCl
 	    ),
 	    format(Stream, '~d).~n', [NbCl1]),
 	    bc_emit_lst_clause(LCompCl1, Stream)

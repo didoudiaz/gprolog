@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_pred'.
@@ -40,7 +42,7 @@ current_predicate(PI) :-
 	'$call_c_test'('Current_Predicate_2'(PI, 0)).
 
 
-'$current_predicate_alt' :-                      % used by C code to create a choice-point
+'$current_predicate_alt' :-         % used by C code to create a choice-point
 	'$call_c_test'('Current_Predicate_Alt_0').
 
 
@@ -160,5 +162,3 @@ predicate_property(PI, Property) :-
 
 '$make_aux_name'(Name, Arity, AuxNb, AuxName) :-
 	'$call_c_test'('Make_Aux_Name_4'(Name, Arity, AuxNb, AuxName)).
-
-

@@ -1,36 +1,36 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : g_var_inl.pl
-% date    : 1 23 2001
-% time    : 12:49:49
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/g_var_inl.pl').
 
 
-predicate('$use_g_var_inl'/0,27,static,private,built_in,[
+predicate('$use_g_var_inl'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(g_assign/2,30,static,private,built_in,[
+predicate(g_assign/2,32,static,private,built_in,[
     call_c_test('Blt_G_Assign',[0,1]),
     proceed]).
 
 
-predicate(g_assignb/2,36,static,private,built_in,[
+predicate(g_assignb/2,38,static,private,built_in,[
     call_c_test('Blt_G_Assignb',[0,1]),
     proceed]).
 
 
-predicate(g_link/2,42,static,private,built_in,[
+predicate(g_link/2,44,static,private,built_in,[
     call_c_test('Blt_G_Link',[0,1]),
     proceed]).
 
 
-predicate(g_read/2,48,static,private,built_in,[
+predicate(g_read/2,50,static,private,built_in,[
     call_c_test('Blt_G_Read',[0,1]),
     proceed]).
 
 
-predicate(g_array_size/2,54,static,private,built_in,[
+predicate(g_array_size/2,56,static,private,built_in,[
     call_c_test('Blt_G_Array_Size',[0,1]),
     proceed]).

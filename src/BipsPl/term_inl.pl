@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_term_inl'.
@@ -31,23 +33,23 @@ compare(C, T1, T2) :-
 	compare(C, T1, T2).
 
 
-X==Y :-
-	X==Y.
+X == Y :-
+	X == Y.
 
-X\==Y :-
-	X\==Y.
+X \== Y :-
+	X \== Y.
 
-X@<Y :-
-	X@<Y.
+X @< Y :-
+	X @< Y.
 
-X@=<Y :-
-	X@=<Y.
+X @=< Y :-
+	X @=< Y.
 
-X@>Y :-
-	X@>Y.
+X @> Y :-
+	X @> Y.
 
-X@>=Y :-
-	X@>=Y.
+X @>= Y :-
+	X @>= Y.
 
 
 
@@ -64,8 +66,8 @@ functor(T, F, N) :-
 
 
 
-Term=..List :-
-	Term=..List.
+Term =.. List :-
+	Term =.. List.
 
 
 
@@ -92,4 +94,3 @@ setarg(ArgNo, Term, NewValue, Undo) :-
 term_ref(Term, Ref) :-
 	set_bip_name(term_ref, 2),
 	'$call_c_test'('Term_Ref_2'(Term, Ref)).
-

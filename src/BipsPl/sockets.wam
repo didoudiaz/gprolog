@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : sockets.pl
-% date    : 1 23 2001
-% time    : 12:49:56
+% date    : 9 16 2001
+% time    : 18:16:6
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/sockets.pl').
 
 
-predicate('$use_sockets'/0,27,static,private,built_in,[
+predicate('$use_sockets'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(socket/2,30,static,private,built_in,[
+predicate(socket/2,32,static,private,built_in,[
     put_atom(socket,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -19,7 +19,7 @@ predicate(socket/2,30,static,private,built_in,[
     proceed]).
 
 
-predicate(socket_close/1,37,static,private,built_in,[
+predicate(socket_close/1,39,static,private,built_in,[
     put_atom(socket_close,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -27,7 +27,7 @@ predicate(socket_close/1,37,static,private,built_in,[
     proceed]).
 
 
-predicate(socket_bind/2,44,static,private,built_in,[
+predicate(socket_bind/2,46,static,private,built_in,[
     put_atom(socket_bind,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -35,7 +35,7 @@ predicate(socket_bind/2,44,static,private,built_in,[
     proceed]).
 
 
-predicate(socket_connect/4,51,static,private,built_in,[
+predicate(socket_connect/4,53,static,private,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -58,7 +58,7 @@ predicate(socket_connect/4,51,static,private,built_in,[
     proceed]).
 
 
-predicate(socket_listen/2,60,static,private,built_in,[
+predicate(socket_listen/2,62,static,private,built_in,[
     put_atom(socket_listen,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -66,7 +66,7 @@ predicate(socket_listen/2,60,static,private,built_in,[
     proceed]).
 
 
-predicate(socket_accept/3,67,static,private,built_in,[
+predicate(socket_accept/3,69,static,private,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -88,7 +88,7 @@ predicate(socket_accept/3,67,static,private,built_in,[
     proceed]).
 
 
-predicate(socket_accept/4,74,static,private,built_in,[
+predicate(socket_accept/4,76,static,private,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -114,7 +114,7 @@ predicate(socket_accept/4,74,static,private,built_in,[
     proceed]).
 
 
-predicate('$socket_accept/4_$aux1'/1,74,static,private,built_in,[
+predicate('$socket_accept/4_$aux1'/1,76,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -128,7 +128,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$assoc_socket_streams'/3,87,static,private,built_in,[
+predicate('$assoc_socket_streams'/3,89,static,private,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -149,7 +149,7 @@ predicate('$assoc_socket_streams'/3,87,static,private,built_in,[
     proceed]).
 
 
-predicate(hostname_address/2,96,static,private,built_in,[
+predicate(hostname_address/2,98,static,private,built_in,[
     put_atom(hostname_address,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),

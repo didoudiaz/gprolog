@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : write.pl
-% date    : 1 23 2001
-% time    : 12:49:45
+% date    : 9 16 2001
+% time    : 18:16:2
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/write.pl').
 
 
-predicate('$use_write'/0,27,static,private,built_in,[
+predicate('$use_write'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(write/1,35,static,private,built_in,[
+predicate(write/1,37,static,private,built_in,[
     put_atom(write,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -19,7 +19,7 @@ predicate(write/1,35,static,private,built_in,[
     proceed]).
 
 
-predicate(write/2,39,static,private,built_in,[
+predicate(write/2,41,static,private,built_in,[
     put_atom(write,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -27,7 +27,7 @@ predicate(write/2,39,static,private,built_in,[
     proceed]).
 
 
-predicate(writeq/1,46,static,private,built_in,[
+predicate(writeq/1,48,static,private,built_in,[
     put_atom(writeq,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -35,7 +35,7 @@ predicate(writeq/1,46,static,private,built_in,[
     proceed]).
 
 
-predicate(writeq/2,50,static,private,built_in,[
+predicate(writeq/2,52,static,private,built_in,[
     put_atom(writeq,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -43,7 +43,7 @@ predicate(writeq/2,50,static,private,built_in,[
     proceed]).
 
 
-predicate(write_canonical/1,57,static,private,built_in,[
+predicate(write_canonical/1,59,static,private,built_in,[
     put_atom(write_canonical,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -51,7 +51,7 @@ predicate(write_canonical/1,57,static,private,built_in,[
     proceed]).
 
 
-predicate(write_canonical/2,61,static,private,built_in,[
+predicate(write_canonical/2,63,static,private,built_in,[
     put_atom(write_canonical,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -59,7 +59,7 @@ predicate(write_canonical/2,61,static,private,built_in,[
     proceed]).
 
 
-predicate(display/1,68,static,private,built_in,[
+predicate(display/1,70,static,private,built_in,[
     put_atom(display,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -67,7 +67,7 @@ predicate(display/1,68,static,private,built_in,[
     proceed]).
 
 
-predicate(display/2,72,static,private,built_in,[
+predicate(display/2,74,static,private,built_in,[
     put_atom(display,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -75,7 +75,7 @@ predicate(display/2,72,static,private,built_in,[
     proceed]).
 
 
-predicate(write_term/2,96,static,private,built_in,[
+predicate(write_term/2,98,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -91,7 +91,7 @@ predicate(write_term/2,96,static,private,built_in,[
     proceed]).
 
 
-predicate(write_term/3,103,static,private,built_in,[
+predicate(write_term/3,105,static,private,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -109,7 +109,7 @@ predicate(write_term/3,103,static,private,built_in,[
     proceed]).
 
 
-predicate('$set_write_defaults'/0,112,static,private,built_in,[
+predicate('$set_write_defaults'/0,114,static,private,built_in,[
     allocate(0),
     put_integer(0,0),
     put_integer(12,1),
@@ -120,7 +120,7 @@ predicate('$set_write_defaults'/0,112,static,private,built_in,[
     execute('$sys_var_write'/2)]).
 
 
-predicate('$get_write_options'/1,119,static,private,built_in,[
+predicate('$get_write_options'/1,121,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -130,7 +130,7 @@ predicate('$get_write_options'/1,119,static,private,built_in,[
     execute('$get_write_options1'/1)]).
 
 
-predicate('$get_write_options1'/1,124,static,private,built_in,[
+predicate('$get_write_options1'/1,126,static,private,built_in,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -157,7 +157,7 @@ label(4),
     execute('$get_write_options1'/1)]).
 
 
-predicate('$get_write_options2'/1,131,static,private,built_in,[
+predicate('$get_write_options2'/1,133,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     execute('$pl_err_instantiation'/0),
@@ -240,7 +240,7 @@ label(17),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux6'/1,175,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux6'/1,177,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -265,7 +265,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux5'/1,167,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux5'/1,169,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -290,7 +290,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux4'/1,159,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux4'/1,161,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -315,7 +315,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux3'/1,151,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux3'/1,153,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -340,7 +340,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux2'/1,143,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux2'/1,145,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -365,7 +365,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux1'/1,135,static,private,built_in,[
+predicate('$$get_write_options2/1_$aux1'/1,137,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -390,7 +390,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(nl/0,193,static,private,built_in,[
+predicate(nl/0,195,static,private,built_in,[
     put_atom(nl,0),
     put_integer(0,1),
     call_c('Set_Bip_Name_2',[0,1]),
@@ -398,7 +398,7 @@ predicate(nl/0,193,static,private,built_in,[
     proceed]).
 
 
-predicate(nl/1,197,static,private,built_in,[
+predicate(nl/1,199,static,private,built_in,[
     put_atom(nl,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),

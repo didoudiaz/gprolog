@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in_fd.
 
 '$use_fd_bool'.
@@ -33,43 +35,43 @@
 
 
 
-#\LE :-
+#\ LE :-
 	set_bip_name(#\, 1),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, 0, 0)).
 
-LE#<=>RE :-
+LE #<=> RE :-
 	set_bip_name(#<=>, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 1)).
 
-LE#\<=>RE :-
+LE #\<=> RE :-
 	set_bip_name(#\<=>, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 2)).
 
-LE##RE :-
+LE ## RE :-
 	set_bip_name(#, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 2)).
 
-LE#==>RE :-
+LE #==> RE :-
 	set_bip_name(#==>, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 3)).
 
-LE#\==>RE :-
+LE #\==> RE :-
 	set_bip_name(#\==>, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 4)).
 
-LE#/\RE :-
+LE #/\ RE :-
 	set_bip_name(#/\, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 5)).
 
-LE#\/\RE :-
+LE #\/\ RE :-
 	set_bip_name(#\/\, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 6)).
 
-LE#\/RE :-
+LE #\/ RE :-
 	set_bip_name(#\/, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 7)).
 
-LE#\\/RE :-
+LE #\\/ RE :-
 	set_bip_name(#\\/, 2),
 	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 8)).
 
@@ -82,7 +84,7 @@ LE#\\/RE :-
 fd_cardinality(List, Count) :-
 	fd_max_integer(Inf),
 	set_bip_name(fd_cardinality, 2),
-	'$fd_domain'(Count, 0, Inf),             % to check type of Count
+	'$fd_domain'(Count, 0, Inf),                 % to check type of Count
 	'$fd_cardinality'(List, Count).
 
 '$fd_cardinality'(List, Count) :-
@@ -95,7 +97,7 @@ fd_cardinality(List, Count) :-
 '$fd_cardinality1'([C|List], Count1) :-
 	'$fd_cardinality1'(List, Count),
 	'$truth_of'(C, B),
-	Count1#=Count+B.
+	Count1 #= Count + B.
 
 
 
@@ -109,7 +111,7 @@ fd_cardinality(L, List, U) :-
 fd_at_least_one(List) :-
 	set_bip_name(fd_at_least_one, 1),
 	'$fd_cardinality'(List, Count),
-	Count#>=1 .
+	Count #>= 1 .
 
 
 
@@ -117,7 +119,7 @@ fd_at_least_one(List) :-
 fd_at_most_one(List) :-
 	set_bip_name(fd_at_most_one, 1),
 	'$fd_cardinality'(List, Count),
-	Count#=<1 .
+	Count #=< 1 .
 
 
 

@@ -113,7 +113,7 @@ typedef struct			/* Stream information             */
   int atom_file_name;		/* atom associated to filename    */
   long file;			/* accessor (FILE *,TTYInf *)!=0  */
   StmProp prop;			/* assoctiated properties         */
-  /* ----- Basic I/O functions ---- */
+				/* ----- Basic I/O functions ---- */
   StmFct fct_getc;		/* get char function (mandatory)  */
   StmFct fct_putc;		/* put char function (mandatory)  */
   StmFct fct_flush;		/* flush    function (optional)   */
@@ -121,10 +121,10 @@ typedef struct			/* Stream information             */
   StmFct fct_tell;		/* tell     function (optional)   */
   StmFct fct_seek;		/* seek     function (optional)   */
   StmFct fct_clearerr;		/* clearerr function (optional)   */
-  /* ------ Read information  ----- */
+				/* ------ Read information  ----- */
   Bool eof_reached;		/* eof char has been read ?       */
   PbStk pb_char;		/* character push back stack      */
-  /* ---- Position information  --- */
+				/* ---- Position information  --- */
   int char_count;		/* character read count           */
   int line_count;		/* line read count                */
   int line_pos;			/* line position                  */

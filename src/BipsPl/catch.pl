@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_catch'.
@@ -35,7 +37,7 @@
 	'$catch1'(Goal, Catch, Recovery, 0).
 	
 '$catch1'(Goal, Catch, Recovery, CallInfo) :-
-	'$call_c'('Load_Call_Info_Arg_1'(3)),    % to ensure CallInfo is deref
+	'$call_c'('Load_Call_Info_Arg_1'(3)),   % to ensure CallInfo is deref
 	'$catch_internal'(Goal, Catch, Recovery, CallInfo).
 
 
@@ -52,7 +54,7 @@
 % format('~N*** ~d for catch(~w,~w,~w)~n',[B,Goal,_Catch,_Recovery]),
 	'$call_internal'(Goal, CallInfo),
 	'$get_current_B'(B1),
-	(   B1>B ->
+	(   B1 > B ->
 	    '$trail_handler'(B)
 	;   !
 	),
@@ -66,30 +68,30 @@
 %        fail.
 
 '$catch_internal1'(_, Catch, Recovery, CallInfo, Handler) :-
-                                                 % after throw or fail
+                                                        % after throw or fail
 	'$sys_var_write'(7, Handler),
 	'$sys_var_get'(8, Ball),
-	Ball\=='$no_ball$',
+	Ball \== '$no_ball$',
 	'$catch_a_throw'(Ball, Catch, Recovery, CallInfo, Handler).
 
 
 
 
-'$catch_a_throw'(Ball, _, _, _, Handler) :-      % for abort
+'$catch_a_throw'(Ball, _, _, _, Handler) :-                       % for abort
 	nonvar(Ball),
-	Ball='$catch_sync'(B), !,
-	(   Handler>B ->
+	Ball = '$catch_sync'(B), !,
+	(   Handler > B ->
 	    '$unwind'('$catch_sync'(B))
 	;   '$catch_fail_now'(B)
 	).
 
 '$catch_a_throw'(Ball, Ball, Recovery, CallInfo, _) :-
-                                                 % normal throw - unifies
+                                                     % normal throw - unifies
 	!,
 	'$sys_var_put'(8, '$no_ball$'),
 	'$call_internal'(Recovery, CallInfo).
 
-'$catch_a_throw'(Ball, _, _, _, _) :-            % normal throw - does not unify
+'$catch_a_throw'(Ball, _, _, _, _) :-         % normal throw - does not unify
 	'$unwind'(Ball).
 
 
@@ -106,7 +108,7 @@
 
 '$catch_sync_for_fail_at'(B) :-
 	'$sys_var_read'(7, Handler),
-	(   Handler>B ->
+	(   Handler > B ->
 	    throw('$catch_sync'(B))
 	;   '$catch_fail_now'(B)
 	).
@@ -117,4 +119,3 @@
 '$catch_fail_now'(B) :-
 	'$set_current_B'(B),
 	fail.
-

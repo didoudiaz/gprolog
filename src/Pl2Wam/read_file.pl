@@ -143,25 +143,25 @@ read_file_error_nb(SynErrNb) :-
 
 open_new_prolog_file(PlFile0) :-
 	prolog_file_name(PlFile0, PlFile),
-	(   PlFile=user ->
+	(   PlFile = user ->
 	    current_input(Stream)
 	;   open(PlFile, read, Stream)
 	),
 	g_read(open_file_stack, OpenFileStack),
-	g_assign(open_file_stack, [PlFile*Stream|OpenFileStack]).
+	g_assign(open_file_stack, [PlFile * Stream|OpenFileStack]).
 
 
 
 
 close_last_prolog_file :-
-	g_read(open_file_stack, [_*Stream|OpenFileStack]),
+	g_read(open_file_stack, [_ * Stream|OpenFileStack]),
 	g_assign(open_file_stack, OpenFileStack),
 	g_read(in_bytes, Bytes1),
 	g_read(in_lines, Lines1),
 	character_count(Stream, Bytes2),
 	line_count(Stream, Lines2),
-	Bytes is Bytes1+Bytes2,
-	Lines is Lines1+Lines2,
+	Bytes is Bytes1 + Bytes2,
+	Lines is Lines1 + Lines2,
 	g_assign(in_bytes, Bytes),
 	g_assign(in_lines, Lines),
 	close(Stream).
@@ -175,7 +175,7 @@ close_last_prolog_file :-
 
 read_predicate(Pred, N, LSrcCl) :-
 	repeat,
-	read_predicate1(Pred, N, LSrcCl),        /* standard predicate */
+	read_predicate1(Pred, N, LSrcCl),                % standard predicate
 % !,
 	(   g_read(reading_dyn_pred, f),
 	    g_read(native_code, t) ->
@@ -188,10 +188,10 @@ read_predicate(Pred, N, LSrcCl) :-
 
 read_predicate_next(Pred, N, LSrcCl) :-
 	test_pred_info(dyn, Pred, N), !,
-	LSrcCl=[Where+_|_],
+	LSrcCl = [Where + _|_],
 	add_dyn_interf_clause(Pred, N, Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N),
-	fail.                                    /* backtrack to repeat of main loop */
+	fail.                              % backtrack to repeat of main loop
 
 read_predicate_next(Pred, N, LSrcCl) :-
 	test_pred_info(pub, Pred, N), !,
@@ -203,82 +203,80 @@ read_predicate_next(_, _, _).
 
 
 read_predicate1(Pred, N, LSrcCl) :-
-	retract(buff_aux_pred(Pred, N, LSrcCl)), /* aux. pred (cf syn_sugar) */
-	                                         !.
+	retract(buff_aux_pred(Pred, N, LSrcCl)), !. 
+                                                   % aux. pred (cf syn_sugar)
 
 read_predicate1(Pred, N, LSrcCl) :-
 	g_read(eof_reached, f), !,
 	repeat,
 	get_next_clause(Pred, N, SrcCl),
-	SrcCl=_+Cl,
+	SrcCl = _ + Cl,
 	retractall(empty_dyn_pred(Pred, N, _)),
 	(   test_pred_info(discontig, Pred, N) ->
 	    assertz(buff_discontig_clause(Pred, N, SrcCl)),
 	    define_predicate(Pred, N),
-	    fail                                 /* backtrack to read_predicate1 */
+	    fail                               % backtrack to read_predicate1
 	;   true
 	),
 	(   test_pred_info(def, Pred, N) ->
-	    warn('discontiguous predicate ~q - clause ignored', [Pred/N]),
-	    fail                                 /* backtrack to read_predicate1 */
+	    warn('discontiguous predicate ~q - clause ignored', [Pred / N]),
+	    fail                               % backtrack to read_predicate1
 	;   true
 	), !,
-	Cl\==end_of_file,                        /* if end_of_file is read, fail */
-                                                 /* and backtrack to read_predicate */
+	Cl \== end_of_file,                    % if end_of_file is read, fail
+                                            % and backtrack to read_predicate
 	define_predicate(Pred, N),
 	group_clauses_by_pred(Pred, N, SrcCl, LSrcCl).
 
 read_predicate1(Pred, N, [SrcCl|LSrcCl]) :-
-	retract(buff_discontig_clause(Pred, N, SrcCl)),
-                                                 /* discontiguous pred */
+	retract(buff_discontig_clause(Pred, N, SrcCl)),  % discontiguous pred
 	                                                !,
 	recover_discontig_clauses(Pred, N, LSrcCl).
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
-	retract(buff_dyn_interf_clause(Pred, N, SrcCl)),
-                                                 /* dyn predicate */
+	retract(buff_dyn_interf_clause(Pred, N, SrcCl)),      % dyn predicate
 	                                                 !.
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
-	retract(empty_dyn_pred(Pred, N, Where)), /* empty dyn predicate */
+	retract(empty_dyn_pred(Pred, N, Where)),        % empty dyn predicate
 	define_predicate(Pred, N),
 	(   g_read(native_code, t) ->
 	    create_dyn_interf_clause(Pred, N, Where, SrcCl)
-	;   SrcCl=Where+'$$empty$$predicate$$clause$$'
+	;   SrcCl = Where + '$$empty$$predicate$$clause$$'
 	), !.
 
 read_predicate1(Pred, N, LSrcCl) :-
 	g_assign(reading_dyn_pred, f),
-	retract(buff_exe_system(Where+Body)),    /* system exe directives */
-	Pred='$exe_system',
-	N=0,
-	LSrcCl=[Where+(Pred:-Body)], !.
+	retract(buff_exe_system(Where + Body)),       % system exe directives
+	Pred = '$exe_system',
+	N = 0,
+	LSrcCl = [Where + (Pred :- Body)], !.
 
 read_predicate1(Pred, N, LSrcCl) :-
-	retract(buff_exe_user(Where+Body)),      /* user exe directives */
-	Pred='$exe_user',
-	N=0,
-	LSrcCl=[Where+(Pred:-Body)], !.
+	retract(buff_exe_user(Where + Body)),           % user exe directives
+	Pred = '$exe_user',
+	N = 0,
+	LSrcCl = [Where + (Pred :- Body)], !.
 
 read_predicate1(Pred, N, LSrcCl) :-
-	Pred=end_of_file,
-	N=0,
-	LSrcCl=[],                               /* end of file */
-	           !.
+	Pred = end_of_file,
+	N = 0,
+	LSrcCl = [],                                            % end of file
+	             !.
 
 
 
 
 group_clauses_by_pred(Pred, N, SrcCl, [SrcCl|LSrcCl1]) :-
 	get_next_clause(Pred1, N1, SrcCl1),
-	(   Pred=Pred1,
-	    N=N1 ->
+	(   Pred = Pred1,
+	    N = N1 ->
 	    group_clauses_by_pred(Pred1, N1, SrcCl1, LSrcCl1)
-	;   LSrcCl1=[],
-	    (   Pred1=end_of_file,
-	        N1=0 ->
+	;   LSrcCl1 = [],
+	    (   Pred1 = end_of_file,
+	        N1 = 0 ->
 	        true
 	    ;   asserta(buff_clause(Pred1, N1, SrcCl1))
 	    )
@@ -288,8 +286,7 @@ group_clauses_by_pred(Pred, N, SrcCl, [SrcCl|LSrcCl1]) :-
 
 
 add_dyn_interf_clause(Pred, N, _) :-
-	clause(buff_dyn_interf_clause(Pred, N, _), true),
-                                                 /* already asserted */
+	clause(buff_dyn_interf_clause(Pred, N, _), true),  % already asserted
 	                                                  !.
 
 add_dyn_interf_clause(Pred, N, Where) :-
@@ -301,8 +298,8 @@ add_dyn_interf_clause(Pred, N, Where) :-
 
 create_dyn_interf_clause(Pred, N, Where, SrcCl) :-
 	length(LArgs, N),
-	Head=..[Pred|LArgs],
-	SrcCl=Where+(Head:-call(Head)).
+	Head =.. [Pred|LArgs],
+	SrcCl = Where + (Head :- call(Head)).
 
 
 
@@ -319,9 +316,9 @@ recover_discontig_clauses(_, _, []).
 create_exe_clauses_for_dyn_pred([], _, _).
 
 create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
-	SrcCl=Where+Cl,
-	add_wrapper_to_dyn_clause(Pred, N, Where+Cl, AuxName),
-	handle_initialization(system, '$add_clause_term_and_bc'(Cl, [execute(AuxName/N)]), Where),
+	SrcCl = Where + Cl,
+	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
+	handle_initialization(system, '$add_clause_term_and_bc'(Cl, [execute(AuxName / N)]), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
 
@@ -329,7 +326,7 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 
 create_exe_clauses_for_pub_pred([]).
 
-create_exe_clauses_for_pub_pred([Where+Cl|LSrcCl]) :-
+create_exe_clauses_for_pub_pred([Where + Cl|LSrcCl]) :-
 	handle_initialization(system, '$add_clause_term'(Cl), Where),
 	create_exe_clauses_for_pub_pred(LSrcCl).
 
@@ -338,22 +335,22 @@ create_exe_clauses_for_pub_pred([Where+Cl|LSrcCl]) :-
 
 get_next_clause(Pred, N, SrcCl) :-
 	retract(buff_clause(Pred, N, SrcCl)),
-	SrcCl=Where+_,
+	SrcCl = Where + _,
 	g_assign(where, Where), !.
 
 get_next_clause(Pred, N, SrcCl) :-
 	g_read(open_file_stack, OpenFileStack),
-	OpenFileStack=[_*Stream|_],
+	OpenFileStack = [_ * Stream|_],
 	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, any, 0, false),
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
 	    '$catch'(expand_term(Cl, Cl1), error(Err, _), dcg_error(Err), any, 0, false),
 	    stream_line_column(Stream, Line, Col),
-	    (   Col=1 ->
-	        L2 is Line-1
-	    ;   L2=Line
+	    (   Col = 1 ->
+	        L2 is Line - 1
+	    ;   L2 = Line
 	    ),
-	    Where=OpenFileStack+(L1-L2),
+	    Where = OpenFileStack + (L1 - L2),
 	    g_assign(where, Where),
 	    get_next_clause1(Cl1, Where, SingNames, Pred, N, SrcCl)
 	;   get_next_clause(Pred, N, SrcCl)
@@ -362,24 +359,28 @@ get_next_clause(Pred, N, SrcCl) :-
 get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 	close_last_prolog_file,
 	g_read(open_file_stack, OpenFileStack),
-	(   OpenFileStack=[] ->
-	    Pred=end_of_file,
-	    N=0,
-	    SrcCl=_+end_of_file,
+	(   OpenFileStack = [] ->
+	    Pred = end_of_file,
+	    N = 0,
+	    SrcCl = _ + end_of_file,
 	    g_assign(eof_reached, t)
 	;   get_next_clause(Pred, N, SrcCl)
 	).
 
-get_next_clause1((:-D), Where, SingNames, Pred, N, SrcCl) :-
+get_next_clause1((:- D), Where, SingNames, Pred, N, SrcCl) :-
 	display_singletons(SingNames, directive),
+	(   g_read(foreign_only, f)
+	;   functor(D, foreign, _)
+	),
 	(   handle_directive(D, Where)
 	;   error('invalid directive ~q', [D])
 	), !,
 	get_next_clause(Pred, N, SrcCl).
 
-get_next_clause1(Cl, Where, SingNames, Pred, N, Where+Cl) :-
-	(   Cl=(Head:-_)
-	;   Cl=Head
+get_next_clause1(Cl, Where, SingNames, Pred, N, Where + Cl) :-
+	g_read(foreign_only, f), !,
+	(   Cl = (Head :- _)
+	;   Cl = Head
 	),
 	(   nonvar(Head) ->
 	    true
@@ -391,18 +392,22 @@ get_next_clause1(Cl, Where, SingNames, Pred, N, Where+Cl) :-
 	),
 	functor(Head, Pred, N),
 	check_predicate(Pred, N),
-	display_singletons(SingNames, Pred/N).
+	display_singletons(SingNames, Pred / N).
+
+get_next_clause1(_, _, _, Pred, N, SrcCl) :-
+                                          % ignore clause with --foreign-only
+	get_next_clause(Pred, N, SrcCl).
 
 
 
 
 after_syn_error :-
 	g_read(syn_error_nb, SynErrNb),
-	SynErrNb1 is SynErrNb+1,
+	SynErrNb1 is SynErrNb + 1,
 	g_assign(syn_error_nb, SynErrNb1),
 	syntax_error_info(_, Line, Char, Msg),
 	g_read(open_file_stack, OpenFileStack),
-	g_assign(where, OpenFileStack+(Line-Line)),
+	g_assign(where, OpenFileStack + (Line - Line)),
 	disp_msg('syntax error: ~a (char:~d)', [Msg, Char], error).
 
 
@@ -411,7 +416,7 @@ after_syn_error :-
 dcg_error(Err) :-
 	last_read_start_line_column(Line, _),
 	g_read(open_file_stack, OpenFileStack),
-	g_assign(where, OpenFileStack+(Line-Line)),
+	g_assign(where, OpenFileStack + (Line - Line)),
 	error('DCG error raised: ~w', [Err]).
 
 
@@ -420,7 +425,7 @@ dcg_error(Err) :-
 display_singletons(SingNames, PI) :-
 	g_read(singl_warn, t), !,
 	get_singletons(SingNames, Sing),
-	(   Sing=[] ->
+	(   Sing = [] ->
 	    true
 	;   warn('singleton variables ~w for ~q', [Sing, PI])
 	).
@@ -432,61 +437,61 @@ display_singletons(_, _).
 
 get_singletons([], []).
 
-get_singletons([X=_|SingNames], Sing1) :-
+get_singletons([X = _|SingNames], Sing1) :-
 	(   sub_atom(X, 0, 1, _, '_') ->
-	    Sing1=Sing
-	;   Sing1=[X|Sing]
+	    Sing1 = Sing
+	;   Sing1 = [X|Sing]
 	),
 	get_singletons(SingNames, Sing).
 
 
 
 
-:-	discontiguous(handle_directive/3).
+:-	discontiguous(handle_directive / 3).
 
 handle_directive(D, Where) :-
-	D=..[DName|DLst],
+	D =.. [DName|DLst],
 	handle_directive(DName, DLst, Where).
 
 
 handle_directive(public, DLst, _) :-
 	!,
-	DLst\==[],
+	DLst \== [],
 	set_flag_for_preds(DLst, pub).
 
 handle_directive(dynamic, DLst, Where) :-
 	!,
-	DLst\==[],
+	DLst \== [],
 	set_flag_for_preds(DLst, dyn),
 	set_flag_for_preds(DLst, pub),
 	add_empty_dyn(DLst, Where).
 
 handle_directive(discontiguous, DLst, _) :-
 	!,
-	DLst\==[],
+	DLst \== [],
 	set_flag_for_preds(DLst, discontig).
 
 handle_directive(built_in, DLst, _) :-
 	!,
-	(   DLst==[],
+	(   DLst == [],
 	    g_assign(default_kind, built_in)
-	;   DLst\==[],
+	;   DLst \== [],
 	    set_flag_for_preds(DLst, bpl)
 	), !.
 
 handle_directive(built_in_fd, DLst, _) :-
 	!,
-	(   DLst==[],
+	(   DLst == [],
 	    g_assign(default_kind, built_in_fd)
-	;   DLst\==[],
+	;   DLst \== [],
 	    set_flag_for_preds(DLst, bfd)
 	).
 
 handle_directive(ensure_linked, DLst, _) :-
 	!,
 	(   g_read(native_code, f) ->
-	    warn('ensure_linked ignored in byte-code compilation mode', [])
-	;   DLst\==[],
+	    warn('ensure_linked directive ignored in byte-code compilation mode', [])
+	;   DLst \== [],
 	    add_ensure_linked(DLst)
 	).
 
@@ -530,6 +535,10 @@ handle_directive(foreign, [Template], Where) :-
 	!,
 	handle_directive(foreign, [Template, []], Where).
 
+handle_directive(foreign, _, _) :-
+	g_read(call_c, f), !,
+	warn('foreign directive ignored in byte-code compilation mode', []).
+
 handle_directive(foreign, [Template, Options], Where) :-
 	!,
 	callable(Template),
@@ -542,16 +551,15 @@ handle_directive(foreign, [Template, Options], Where) :-
 	g_assign(foreign_choice_size, -1),
 	foreign_get_options(Options),
 	foreign_check_types(0, N, Template, LArgType),
-	test_call_c_allowed(foreign/2),
 	g_read(foreign_fct_name, FctName),
 	g_read(foreign_return, Return),
 	g_read(foreign_bip_name, BipName),
 	g_read(foreign_bip_arity, BipArity),
 	g_read(foreign_choice_size, ChcSize),
 	functor(Head, Pred, N),
-	SrcCl=Where+(Head:-'$foreign_call_c'(Head, LArgType, FctName, Return, BipName, BipArity, ChcSize)),
+	SrcCl = Where + (Head :- '$foreign_call_c'(Head, LArgType, FctName, Return, BipName, BipArity, ChcSize)),
 	assertz(buff_discontig_clause(Pred, N, SrcCl)),
-	add_ensure_linked('$force_foreign_link'/0).
+	add_ensure_linked('$force_foreign_link' / 0).
                      % to force the link of foreign.o and then foreign_supp.o
 
 
@@ -570,15 +578,15 @@ foreign_get_options1(fct_name(FctName)) :-
 
 foreign_get_options1(return(Return)) :-
 	atom(Return),
-	(   Return=none
-	;   Return=boolean
-	;   Return=jump
+	(   Return = none
+	;   Return = boolean
+	;   Return = jump
 	),
 	g_assign(foreign_return, Return).
 
 foreign_get_options1(bip_name(X)) :-
 	nonvar(X),
-	X=none,
+	X = none,
 	g_assign(foreign_bip_name, ''),
 	g_assign(foreign_bip_arity, -2).
 
@@ -599,19 +607,19 @@ foreign_check_types(N, N, _, []) :-
 	!.
 
 foreign_check_types(I, N, Template, [(A,Mode)|LArgType]) :-
-	I1 is I+1,
+	I1 is I + 1,
 	arg(I1, Template, Arg),
 	nonvar(Arg),
-	(   Arg= +A,
-	    Mode=0
-	;   Arg= -A,
-	    Mode=1
-	;   Arg= ?A,
-	    Mode=2
-	;   Arg=term,
-	    A=term,
-	    Mode=0
-	),                                       % term = +term
+	(   Arg = + A,
+	    Mode = 0
+	;   Arg = - A,
+	    Mode = 1
+	;   Arg = ? A,
+	    Mode = 2
+	;   Arg = term,
+	    A = term,
+	    Mode = 0
+	),                                                     % term = +term
 	nonvar(A),
 	foreign_check_arg(A),
 	foreign_check_types(I1, N, Template, LArgType).
@@ -638,16 +646,16 @@ foreign_check_arg(term).
 
 handle_directive(DName, LArgs, _) :-
 	length(LArgs, N),
-	warn('unknown directive ~q - maybe use initialization/1 - directive ignored', [DName/N]).
+	warn('unknown directive ~q - maybe use initialization/1 - directive ignored', [DName / N]).
 
 
 
 
 handle_initialization(system, Body, Where) :-
-	assertz(buff_exe_system(Where+Body)).
+	assertz(buff_exe_system(Where + Body)).
 
 handle_initialization(user, Body, Where) :-
-	assertz(buff_exe_user(Where+Body)).
+	assertz(buff_exe_user(Where + Body)).
 
 
 
@@ -663,7 +671,7 @@ exec_directive_exception(Goal, Err) :-
 
 
 
-used_bips_via_call :-                            % to enforce the link of these bips
+used_bips_via_call :-                     % to enforce the link of these bips
 	op(_, _, _),
 	char_conversion(_, _),
 	set_prolog_flag(_, _),
@@ -685,7 +693,7 @@ add_empty_dyn((P1,P2), Where) :-
 	add_empty_dyn(P1, Where),
 	add_empty_dyn(P2, Where).
 
-add_empty_dyn(Pred/N, Where) :-
+add_empty_dyn(Pred / N, Where) :-
 	assertz(empty_dyn_pred(Pred, N, Where)).
 
 
@@ -704,10 +712,10 @@ add_ensure_linked((P1,P2)) :-
 	add_ensure_linked(P1),
 	add_ensure_linked(P2).
 
-add_ensure_linked(Pred/N) :-
+add_ensure_linked(Pred / N) :-
 	clause(ensure_linked(Pred, N), true), !.
 
-add_ensure_linked(Pred/N) :-
+add_ensure_linked(Pred / N) :-
 	assertz(ensure_linked(Pred, N)).
 
 
@@ -726,14 +734,14 @@ set_flag_for_preds((P1,P2), Flag) :-
 	set_flag_for_preds(P1, Flag),
 	set_flag_for_preds(P2, Flag).
 
-set_flag_for_preds(Pred/N, Flag) :-
+set_flag_for_preds(Pred / N, Flag) :-
 	atom(Pred),
 	integer(N),
 	(   test_pred_info(def, Pred, N) ->
-	    warn('directive occurs after definition of ~q - directive ignored', [Pred/N])
-	;   (   Flag=bpl,
+	    warn('directive occurs after definition of ~q - directive ignored', [Pred / N])
+	;   (   Flag = bpl,
 	        unset_pred_info(bfd, Pred, N)
-	    ;   Flag=bfd,
+	    ;   Flag = bfd,
 	        unset_pred_info(bpl, Pred, N)
 	    ;   true
 	    ), !,
@@ -777,9 +785,9 @@ flag_bit(cut, 6).
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	(   retract(pred_info(F, N, X))
-	;   X=0
+	;   X = 0
 	), !,
-	X1 is X\/1<<Bit,
+	X1 is X \/ 1 << Bit,
 	assertz(pred_info(F, N, X1)).
 
 
@@ -788,7 +796,7 @@ set_pred_info(Flag, F, N) :-
 unset_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	retract(pred_info(F, N, X)), !,
-	X1 is X /\ (\ (1<<Bit)),
+	X1 is X /\ \ (1 << Bit),
 	assertz(pred_info(F, N, X1)).
 
 unset_pred_info(_, _, _).
@@ -799,7 +807,7 @@ unset_pred_info(_, _, _).
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	clause(pred_info(F, N, X), _),
-	X/\1<<Bit>0 .
+	X /\ 1 << Bit > 0 .
 
 
 
@@ -807,21 +815,21 @@ test_pred_info(Flag, F, N) :-
 check_predicate(Pred, N) :-
 	g_read(redef_error, t),
 	bip(Pred, N), !,
-	error('redefining built-in predicate ~q', [Pred/N]).
+	error('redefining built-in predicate ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	g_read(redef_error, t),
 	control_construct(Pred, N), !,
-	error('redefining control construct ~q', [Pred/N]).
+	error('redefining control construct ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	g_read(susp_warn, t),
 	suspicious_predicate(Pred, N), !,
-	warn('suspicious predicate ~q', [Pred/N]).
+	warn('suspicious predicate ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	'$aux_name'(Pred), !,
-	warn('using system auxiliary predicate ~q', [Pred/N]).
+	warn('using system auxiliary predicate ~q', [Pred / N]).
 
 check_predicate(_, _).
 
@@ -846,7 +854,7 @@ suspicious_predicate(:-, 1).
 suspicious_predicate(:-, 2).
 suspicious_predicate(-->, 2).
 suspicious_predicate({}, X) :-
-	X<2 .
+	X < 2 .
 suspicious_predicate(+, 2).
 suspicious_predicate(-, 2).
 suspicious_predicate(*, 2).
@@ -864,7 +872,7 @@ warn(Msg, LArg) :-
 
 error(Msg, LArg) :-
 	disp_msg(Msg, LArg, 'fatal error'),
-	repeat,                                  /* close all opened files */
+	repeat,                                      % close all opened files
 	(   close_last_prolog_file ->
 	    fail
 	;   !
@@ -877,8 +885,8 @@ error(Msg, LArg) :-
 disp_msg(Msg, LArg, MsgType) :-
 	numbervars(LArg),
 	g_read(where, Where),
-	(   Where=OpenFileStack+L12,
-	    L12=_-_ ->
+	(   Where = OpenFileStack + L12,
+	    L12 = _ - _ ->
 	    disp_file_name(OpenFileStack, _),
 	    disp_lines(L12)
 	;   true
@@ -893,18 +901,18 @@ disp_msg(Msg, LArg, MsgType) :-
 disp_file_name([], '') :-
 	!.
 
-disp_file_name([FileName*_|OpenFileStack], ' including ') :-
+disp_file_name([FileName * _|OpenFileStack], ' including ') :-
 	disp_file_name(OpenFileStack, Before),
 	format('~a~a', [Before, FileName]).
 
 
 
 
-disp_lines(L-L) :-
+disp_lines(L - L) :-
 	!,
 	format(':~d ', [L]).
 
-disp_lines(L1-L2) :-
+disp_lines(L1 - L2) :-
 	format(':~d--~d ', [L1, L2]).
 
 
@@ -916,7 +924,7 @@ exception(error(syntax_error(_), _)) :-
 	!,
 	syntax_error_info(_, Line, Char, Msg),
 	g_read(open_file_stack, OpenFileStack),
-	g_assign(where, OpenFileStack+(Line-Line)),
+	g_assign(where, OpenFileStack + (Line - Line)),
 	error('syntax error: ~a (char:~d)', [Msg, Char]).
 
 exception(error(existence_error(source_sink, File), _)) :-
@@ -929,4 +937,3 @@ exception(error(permission_error(open, source_sink, File), _)) :-
 
 exception(Err) :-
 	error('exception raised: ~q', [Err]).
-

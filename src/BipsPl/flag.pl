@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_flag'.
@@ -41,7 +43,7 @@ current_prolog_flag(Flag, Value) :-
 
 
 
-'$current_prolog_flag_alt' :-                    % used by C code to create a choice-point
+'$current_prolog_flag_alt' :-       % used by C code to create a choice-point
 	'$call_c_test'('Current_Prolog_Flag_Alt_0').
 
 
@@ -131,9 +133,5 @@ environ(VarName, Value) :-
 	'$call_c_test'('Environ_2'(VarName, Value)).
 
 
-'$environ_alt' :-                                % used by C code to create a choice-point
+'$environ_alt' :-                   % used by C code to create a choice-point
 	'$call_c_test'('Environ_Alt_0').
-
-
-
-

@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : char_io.pl
-% date    : 1 23 2001
-% time    : 12:49:52
+% date    : 9 16 2001
+% time    : 18:16:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/char_io.pl').
 
 
-predicate('$use_char_io'/0,27,static,private,built_in,[
+predicate('$use_char_io'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(get_code_no_echo/1,30,static,private,built_in,[
+predicate(get_code_no_echo/1,32,static,private,built_in,[
     put_atom(get_code_no_echo,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -19,7 +19,7 @@ predicate(get_code_no_echo/1,30,static,private,built_in,[
     proceed]).
 
 
-predicate(get_code_no_echo/2,34,static,private,built_in,[
+predicate(get_code_no_echo/2,36,static,private,built_in,[
     put_atom(get_code_no_echo,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -27,7 +27,7 @@ predicate(get_code_no_echo/2,34,static,private,built_in,[
     proceed]).
 
 
-predicate(get_char/1,43,static,private,built_in,[
+predicate(get_char/1,45,static,private,built_in,[
     put_atom(get_char,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -35,7 +35,7 @@ predicate(get_char/1,43,static,private,built_in,[
     proceed]).
 
 
-predicate(get_char/2,47,static,private,built_in,[
+predicate(get_char/2,49,static,private,built_in,[
     put_atom(get_char,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -43,7 +43,7 @@ predicate(get_char/2,47,static,private,built_in,[
     proceed]).
 
 
-predicate(get_code/1,54,static,private,built_in,[
+predicate(get_code/1,56,static,private,built_in,[
     put_atom(get_code,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -51,7 +51,7 @@ predicate(get_code/1,54,static,private,built_in,[
     proceed]).
 
 
-predicate(get_code/2,58,static,private,built_in,[
+predicate(get_code/2,60,static,private,built_in,[
     put_atom(get_code,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -59,7 +59,7 @@ predicate(get_code/2,58,static,private,built_in,[
     proceed]).
 
 
-predicate(get_byte/1,65,static,private,built_in,[
+predicate(get_byte/1,67,static,private,built_in,[
     put_atom(get_byte,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -67,7 +67,7 @@ predicate(get_byte/1,65,static,private,built_in,[
     proceed]).
 
 
-predicate(get_byte/2,69,static,private,built_in,[
+predicate(get_byte/2,71,static,private,built_in,[
     put_atom(get_byte,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -75,7 +75,7 @@ predicate(get_byte/2,69,static,private,built_in,[
     proceed]).
 
 
-predicate(unget_char/1,79,static,private,built_in,[
+predicate(unget_char/1,81,static,private,built_in,[
     put_atom(unget_char,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -83,7 +83,7 @@ predicate(unget_char/1,79,static,private,built_in,[
     proceed]).
 
 
-predicate(unget_char/2,83,static,private,built_in,[
+predicate(unget_char/2,85,static,private,built_in,[
     put_atom(unget_char,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -91,7 +91,7 @@ predicate(unget_char/2,83,static,private,built_in,[
     proceed]).
 
 
-predicate(unget_code/1,90,static,private,built_in,[
+predicate(unget_code/1,92,static,private,built_in,[
     put_atom(unget_code,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -99,7 +99,7 @@ predicate(unget_code/1,90,static,private,built_in,[
     proceed]).
 
 
-predicate(unget_code/2,94,static,private,built_in,[
+predicate(unget_code/2,96,static,private,built_in,[
     put_atom(unget_code,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -107,7 +107,7 @@ predicate(unget_code/2,94,static,private,built_in,[
     proceed]).
 
 
-predicate(unget_byte/1,101,static,private,built_in,[
+predicate(unget_byte/1,103,static,private,built_in,[
     put_atom(unget_byte,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -115,7 +115,7 @@ predicate(unget_byte/1,101,static,private,built_in,[
     proceed]).
 
 
-predicate(unget_byte/2,105,static,private,built_in,[
+predicate(unget_byte/2,107,static,private,built_in,[
     put_atom(unget_byte,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -123,7 +123,7 @@ predicate(unget_byte/2,105,static,private,built_in,[
     proceed]).
 
 
-predicate(peek_char/1,114,static,private,built_in,[
+predicate(peek_char/1,116,static,private,built_in,[
     put_atom(peek_char,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -131,7 +131,7 @@ predicate(peek_char/1,114,static,private,built_in,[
     proceed]).
 
 
-predicate(peek_char/2,118,static,private,built_in,[
+predicate(peek_char/2,120,static,private,built_in,[
     put_atom(peek_char,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -139,7 +139,7 @@ predicate(peek_char/2,118,static,private,built_in,[
     proceed]).
 
 
-predicate(peek_code/1,125,static,private,built_in,[
+predicate(peek_code/1,127,static,private,built_in,[
     put_atom(peek_code,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -147,7 +147,7 @@ predicate(peek_code/1,125,static,private,built_in,[
     proceed]).
 
 
-predicate(peek_code/2,129,static,private,built_in,[
+predicate(peek_code/2,131,static,private,built_in,[
     put_atom(peek_code,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -155,7 +155,7 @@ predicate(peek_code/2,129,static,private,built_in,[
     proceed]).
 
 
-predicate(peek_byte/1,136,static,private,built_in,[
+predicate(peek_byte/1,138,static,private,built_in,[
     put_atom(peek_byte,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -163,7 +163,7 @@ predicate(peek_byte/1,136,static,private,built_in,[
     proceed]).
 
 
-predicate(peek_byte/2,140,static,private,built_in,[
+predicate(peek_byte/2,142,static,private,built_in,[
     put_atom(peek_byte,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -171,7 +171,7 @@ predicate(peek_byte/2,140,static,private,built_in,[
     proceed]).
 
 
-predicate(put_char/1,149,static,private,built_in,[
+predicate(put_char/1,151,static,private,built_in,[
     put_atom(put_char,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -179,7 +179,7 @@ predicate(put_char/1,149,static,private,built_in,[
     proceed]).
 
 
-predicate(put_char/2,153,static,private,built_in,[
+predicate(put_char/2,155,static,private,built_in,[
     put_atom(put_char,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -187,7 +187,7 @@ predicate(put_char/2,153,static,private,built_in,[
     proceed]).
 
 
-predicate(put_code/1,160,static,private,built_in,[
+predicate(put_code/1,162,static,private,built_in,[
     put_atom(put_code,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -195,7 +195,7 @@ predicate(put_code/1,160,static,private,built_in,[
     proceed]).
 
 
-predicate(put_code/2,164,static,private,built_in,[
+predicate(put_code/2,166,static,private,built_in,[
     put_atom(put_code,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -203,7 +203,7 @@ predicate(put_code/2,164,static,private,built_in,[
     proceed]).
 
 
-predicate(put_byte/1,171,static,private,built_in,[
+predicate(put_byte/1,173,static,private,built_in,[
     put_atom(put_byte,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -211,7 +211,7 @@ predicate(put_byte/1,171,static,private,built_in,[
     proceed]).
 
 
-predicate(put_byte/2,175,static,private,built_in,[
+predicate(put_byte/2,177,static,private,built_in,[
     put_atom(put_byte,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),

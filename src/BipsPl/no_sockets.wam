@@ -1,11 +1,11 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : no_sockets.pl
-% date    : 1 23 2001
-% time    : 12:49:56
+% date    : 9 16 2001
+% time    : 18:16:6
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/no_sockets.pl').
 
 
-predicate('$use_sockets'/0,27,static,private,built_in,[
+predicate('$use_sockets'/0,29,static,private,built_in,[
     proceed]).

@@ -727,18 +727,12 @@ Temporary_Name_2(WamWord template_word, WamWord path_name_word)
 {
   char *template;
   char *path_name;
-
+ 
   template = Get_Path_Name(template_word);
-  path_name = strdup (template);
-
-  errno = -1;
-  {
-    int fd;
-    fd = mkstemp (path_name);
-    Os_Test_Error (fd == -1);
-    close (fd);
-  }
-
+ 
+  path_name = M_Mktemp(template);
+  Os_Test_Error(path_name == NULL);
+ 
   return path_name && Un_String_Check(path_name, path_name_word);
 }
 
@@ -756,31 +750,21 @@ Temporary_File_3(WamWord dir_word, WamWord prefix_word,
   char *dir;
   char *prefix;
   char *path_name;
-
+ 
   dir = Rd_String_Check(dir_word);
   if (*dir == '\0')
     dir = NULL;
   else
     dir = Get_Path_Name(dir_word);
-
+ 
   prefix = Rd_String_Check(prefix_word);
   if (*prefix == '\0')
     prefix = NULL;
-
-  errno = -1;
-  {
-    int fd;
-    char path_store[PATH_MAX];
-
-    path_store[0] = 0;
-    sprintf (path_store, "%s%sXXXXXX", (dir?dir:""), (prefix?prefix:""));
-    fd = mkstemp (path_store);
-    path_name = strdup (path_store);
-    Os_Test_Error (fd == -1);
-    close (fd);
-  }
-
-  return path_name[0] && Un_String_Check(path_name, path_name_word);
+ 
+  path_name = M_Tempnam(dir, prefix);
+  Os_Test_Error(path_name == NULL);
+ 
+  return path_name && Un_String_Check(path_name, path_name_word);
 }
 
 
@@ -1341,7 +1325,7 @@ Send_Signal_2(WamWord pid_word, WamWord signal_word)
       }
     else
       {
-	errno = -1;
+	errno = 0;
 	ret = raise(sig);
       }
 

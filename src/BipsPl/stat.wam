@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : stat.pl
-% date    : 1 23 2001
-% time    : 12:49:50
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/stat.pl').
 
 
-predicate('$use_stat'/0,27,static,private,built_in,[
+predicate('$use_stat'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(statistics/0,30,static,private,built_in,[
+predicate(statistics/0,32,static,private,built_in,[
     put_atom(statistics,0),
     put_integer(0,1),
     call_c('Set_Bip_Name_2',[0,1]),
@@ -19,7 +19,7 @@ predicate(statistics/0,30,static,private,built_in,[
     proceed]).
 
 
-predicate(statistics/2,35,static,private,built_in,[
+predicate(statistics/2,37,static,private,built_in,[
     load_cut_level(2),
     allocate(5),
     get_variable(y(0),0),
@@ -42,7 +42,7 @@ predicate(statistics/2,35,static,private,built_in,[
     execute('$stat'/3)]).
 
 
-predicate('$statistics/2_$aux1'/3,35,static,private,built_in,[
+predicate('$statistics/2_$aux1'/3,37,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_list(0),
@@ -60,7 +60,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$check_stat_key'/1,47,static,private,built_in,[
+predicate('$check_stat_key'/1,49,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     proceed,
@@ -142,7 +142,7 @@ label(21),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$stat'/3,73,static,private,built_in,[
+predicate('$stat'/3,75,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -220,7 +220,7 @@ label(16),
     proceed]).
 
 
-predicate('$$stat/3_$aux1'/2,73,static,private,built_in,[
+predicate('$$stat/3_$aux1'/2,75,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -238,7 +238,7 @@ label(1),
     proceed]).
 
 
-predicate('$$stat/3_$aux2'/1,73,static,private,built_in,[
+predicate('$$stat/3_$aux2'/1,75,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -259,7 +259,7 @@ label(5),
     proceed]).
 
 
-predicate(user_time/1,106,static,private,built_in,[
+predicate(user_time/1,108,static,private,built_in,[
     put_atom(user_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -267,7 +267,7 @@ predicate(user_time/1,106,static,private,built_in,[
     proceed]).
 
 
-predicate(system_time/1,113,static,private,built_in,[
+predicate(system_time/1,115,static,private,built_in,[
     put_atom(system_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -275,7 +275,7 @@ predicate(system_time/1,113,static,private,built_in,[
     proceed]).
 
 
-predicate(cpu_time/1,120,static,private,built_in,[
+predicate(cpu_time/1,122,static,private,built_in,[
     put_atom(cpu_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -283,7 +283,7 @@ predicate(cpu_time/1,120,static,private,built_in,[
     proceed]).
 
 
-predicate(real_time/1,127,static,private,built_in,[
+predicate(real_time/1,129,static,private,built_in,[
     put_atom(real_time,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),

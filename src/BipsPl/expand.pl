@@ -22,29 +22,31 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_expand'.
 
 
-expand_term(T1, T3) :-                           % must be steadfast
+expand_term(T1, T3) :-                                    % must be steadfast
 	'$expand_term1'(T1, T2),
-	T2=T3.
+	T2 = T3.
 
 '$expand_term1'(T1, T2) :-
 	(   var(T1),
-	    T2=T1
+	    T2 = T1
 	;   '$call_term_expansion'(T1, T2)
 	;   set_bip_name(expand_term, 2),
 	    '$dcg_trans_rule'(T1, T2)
-	;   T2=T1
+	;   T2 = T1
 	), !.
 
 
 
 
 '$call_term_expansion'(T1, T2) :-
-	current_predicate(term_expansion/2),
+	current_predicate(term_expansion / 2),
 	call(term_expansion(T1, T2)).
 
 
@@ -80,4 +82,3 @@ phrase(DcgBody, In, Out) :-
 
 '$dcg_trans_body'(DcgBody, In, Out, Body) :-
 	'$call_c_test'('Dcg_Trans_Body_4'(DcgBody, In, Out, Body)).
-

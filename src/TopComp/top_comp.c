@@ -714,11 +714,12 @@ New_Work_File(FileInf *f, int stage, int stop_after)
 
   if (stage < stop_after)	/* intermediate stage */
     {
-      p = tempnam(temp_dir, TEMP_FILE_PREFIX);
+      p = M_Tempnam(temp_dir, TEMP_FILE_PREFIX);
       sprintf(buff, "%s%s", p, suffixes[stage + 1]);
       free(p);
     }
-  else /* final stage */ if (file_name_out)	/* specified output filename */
+  else				/* final stage */
+    if (file_name_out)		/* specified output filename */
     strcpy(buff, file_name_out);
   else
     {
@@ -1238,18 +1239,20 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--no-inline") ||
+	  if (Check_Arg(i, "--no-susp-warn") ||
+	      Check_Arg(i, "--no-singl-warn") ||
+	      Check_Arg(i, "--no-redef-error") ||
+	      Check_Arg(i, "--foreign-only") ||
+              Check_Arg(i, "--no-call-c") ||
+	      Check_Arg(i, "--no-inline") ||
 	      Check_Arg(i, "--no-reorder") ||
 	      Check_Arg(i, "--no-reg-opt") ||
 	      Check_Arg(i, "--min-reg-opt") ||
 	      Check_Arg(i, "--no-opt-last-subterm") ||
 	      Check_Arg(i, "--fast-math") ||
 	      Check_Arg(i, "--keep-void-inst") ||
-	      Check_Arg(i, "--no-susp-warn") ||
-	      Check_Arg(i, "--no-singl-warn") ||
-	      Check_Arg(i, "--no-redef-error") ||
-	      Check_Arg(i, "--no-call-c") ||
-	      Check_Arg(i, "--compile-msg") || Check_Arg(i, "--statistics"))
+	      Check_Arg(i, "--compile-msg") ||
+	      Check_Arg(i, "--statistics"))
 	    {
 	      Add_Last_Option(cmd_pl2wam.opt);
 	      continue;
@@ -1503,44 +1506,32 @@ Display_Help(void)
   L("General options:");
   L("  -o FILE, --output FILE      set output file name");
   L("  -W, --wam-for-native        stop after producing WAM file(s)");
-  L
-    ("  -w, --wam-for-byte-code     stop after producing WAM for byte-code file(s) (force --no-call-c)");
-  L
-    ("  -M, --mini-assembly         stop after producing mini-assembly file(s)");
+  L("  -w, --wam-for-byte-code     stop after producing WAM for byte-code file(s) (force --no-call-c)");
+  L("  -M, --mini-assembly         stop after producing mini-assembly file(s)");
   L("  -S, --assembly              stop after producing assembly file(s)");
-  L
-    ("  -F, --fd-to-c               stop after producing C file(s) from FD file(s)");
+  L("  -F, --fd-to-c               stop after producing C file(s) from FD file(s)");
   L("  -c, --object                stop after producing object file(s)");
-  L
-    ("  --temp-dir PATH             use PATH as directory for temporary files");
-  L("  --no-del-temp               do not delete temporary files");
-  L
-    ("  --no-decode-hexa            do not decode hexadecimal predicate names");
+  L("  --temp-dir PATH             use PATH as directory for temporary files");
+  L("  --no-del-temp-files          do not delete temporary files");
+  L("  --no-decode-hexa            do not decode hexadecimal predicate names");
   L("  -v, --verbose               print executed commands");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L(" ");
   L("Prolog to WAM compiler options:");
-  L
-    ("  --pl-state FILE             read FILE to set the initial Prolog state");
+  L("  --pl-state FILE             read FILE to set the initial Prolog state");
+  L("  --no-susp-warn              do not show warnings for suspicious predicates");
+  L("  --no-singl-warn             do not show warnings for named singleton variables");
+  L("  --no-redef-error            do not show errors for built-in redefinitions");
+  L("  --foreign-only              only compile foreign/1-2 directives");
+  L("  --no-call-c                 do not allow the use of fd_tell, '$call_c',...");
   L("  --no-inline                 do not inline predicates");
   L("  --no-reorder                do not reorder predicate arguments");
   L("  --no-reg-opt                do not optimize registers");
   L("  --min-reg-opt               minimally optimize registers");
-  L
-    ("  --no-opt-last-subterm       do not optimize last subterm compilation");
-  L
-    ("  --fast-math                 fast mathematical mode (assume integer arithmetic)");
-  L
-    ("  --keep-void-inst            keep void instructions in the output file");
-  L
-    ("  --no-susp-warn              do not show warnings for suspicious predicates");
-  L
-    ("  --no-singl-warn             do not show warnings for named singleton variables");
-  L
-    ("  --no-redef-error            do not show errors for built-in redefinitions");
-  L
-    ("  --no-call-c                 do not allow the use of fd_tell, '$call_c',...");
+  L("  --no-opt-last-subterm       do not optimize last subterm compilation");
+  L("  --fast-math                 fast mathematical mode (assume integer arithmetics)");
+  L("  --keep-void-inst            keep void instructions in the output file");
   L("  --compile-msg               print a compile message");
   L("  --statistics                print statistics information");
   L(" ");
@@ -1564,18 +1555,13 @@ Display_Help(void)
   L("  --global-size N             set default global stack size to N Kb");
   L("  --trail-size N              set default trail  stack size to N Kb");
   L("  --cstr-size N               set default cstr   stack size to N Kb");
-  L
-    ("  --fixed-sizes               do not consult environment variables at run-time");
+  L("  --fixed-sizes               do not consult environment variables at run-time");
   L("  --gui-console               link the Win32 GUI console");
-  L
-    ("  --no-top-level              do not link the top-level (force --no-debugger)");
+  L("  --no-top-level              do not link the top-level (force --no-debugger)");
   L("  --no-debugger               do not link the Prolog/WAM debugger");
-  L
-    ("  --min-pl-bips               link only used Prolog built-in predicates");
-  L
-    ("  --min-fd-bips               link only used FD solver built-in predicates");
-  L
-    ("  --min-bips                  same as: --no-top-level --min-pl-bips --min-fd-bips");
+  L("  --min-pl-bips               link only used Prolog built-in predicates");
+  L("  --min-fd-bips               link only used FD solver built-in predicates");
+  L("  --min-bips                  same as: --no-top-level --min-pl-bips --min-fd-bips");
   L("  --min-size                  same as: --min-bips --strip");
   L("  --no-pl-lib                 do not look for the Prolog and FD libraries (maintenance only)");
   L("  --no-fd-lib                 do not look for the FD library (maintenance only)");

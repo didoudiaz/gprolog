@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : file.pl
-% date    : 1 23 2001
-% time    : 12:49:51
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/file.pl').
 
 
-predicate('$use_file'/0,27,static,private,built_in,[
+predicate('$use_file'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(absolute_file_name/2,30,static,private,built_in,[
+predicate(absolute_file_name/2,32,static,private,built_in,[
     put_atom(absolute_file_name,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -19,7 +19,7 @@ predicate(absolute_file_name/2,30,static,private,built_in,[
     proceed]).
 
 
-predicate(decompose_file_name/4,37,static,private,built_in,[
+predicate(decompose_file_name/4,39,static,private,built_in,[
     put_atom(decompose_file_name,4),
     put_integer(4,5),
     call_c('Set_Bip_Name_2',[4,5]),
@@ -27,7 +27,7 @@ predicate(decompose_file_name/4,37,static,private,built_in,[
     proceed]).
 
 
-predicate(prolog_file_name/2,44,static,private,built_in,[
+predicate(prolog_file_name/2,46,static,private,built_in,[
     put_atom(prolog_file_name,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),

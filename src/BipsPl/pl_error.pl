@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 
@@ -78,11 +80,3 @@ current_bip_name(Name, Arity) :-
 syntax_error_info(FileName, Line, Char, Msg) :-
 	set_bip_name(syntax_error_info, 4),
 	'$call_c_test'('Syntax_Error_Info_4'(FileName, Line, Char, Msg)).
-
-
-
-
-
-
-
-

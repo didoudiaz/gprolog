@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : dec10io.pl
-% date    : 1 23 2001
-% time    : 12:49:52
+% date    : 9 16 2001
+% time    : 18:16:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/dec10io.pl').
 
 
-predicate('$use_dec10io'/0,27,static,private,built_in,[
+predicate('$use_dec10io'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate('$find_existing_stream'/3,31,static,private,built_in,[
+predicate('$find_existing_stream'/3,33,static,private,built_in,[
     load_cut_level(3),
     try_me_else(11),
     switch_on_term(3,1,fail,fail,fail),
@@ -101,7 +101,7 @@ label(12),
     execute(stream_property/2)]).
 
 
-predicate('$$find_existing_stream/3_$aux1'/3,39,static,private,built_in,[
+predicate('$$find_existing_stream/3_$aux1'/3,41,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(4),

@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : indexing.pl
-% date    : 1 23 2001
-% time    : 12:50:29
+% date    : 9 16 2001
+% time    : 18:21:1
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/indexing.pl').
@@ -489,7 +489,7 @@ label(1),
     proceed]).
 
 
-predicate(split/5,212,static,private,user,[
+predicate(split/5,214,static,private,user,[
     allocate(6),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -520,7 +520,7 @@ predicate(split/5,212,static,private,user,[
     execute(terminate_list/2)]).
 
 
-predicate(split1/9,219,static,private,user,[
+predicate(split1/9,221,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -572,7 +572,7 @@ label(4),
     execute(split1/9)]).
 
 
-predicate(split2/10,226,static,private,user,[
+predicate(split2/10,228,static,private,user,[
     switch_on_term(2,7,fail,fail,1),
 
 label(1),
@@ -645,7 +645,7 @@ label(9),
     execute(add_to_list/4)]).
 
 
-predicate(add_to_list/4,240,static,private,user,[
+predicate(add_to_list/4,242,static,private,user,[
     load_cut_level(4),
     switch_on_term(2,3,fail,1,fail),
 
@@ -706,7 +706,7 @@ label(7),
     execute(add_to_list/4)]).
 
 
-predicate(terminate_list/2,251,static,private,user,[
+predicate(terminate_list/2,253,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -737,7 +737,7 @@ label(4),
     execute(terminate_list/2)]).
 
 
-predicate(gen_switch/5,259,static,private,user,[
+predicate(gen_switch/5,261,static,private,user,[
     load_cut_level(5),
     try_me_else(5),
     switch_on_term(1,2,fail,4,fail),
@@ -794,7 +794,7 @@ label(5),
     proceed]).
 
 
-predicate(create_switch_list/4,280,static,private,user,[
+predicate(create_switch_list/4,282,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -834,7 +834,7 @@ label(4),
     execute(create_switch_list/4)]).
 
 
-predicate(gen_list/4,289,static,private,user,[
+predicate(gen_list/4,291,static,private,user,[
     load_cut_level(4),
     switch_on_term(2,3,fail,1,fail),
 
@@ -883,7 +883,7 @@ label(7),
     execute(gen_list1/3)]).
 
 
-predicate(gen_list1/3,299,static,private,user,[
+predicate(gen_list1/3,301,static,private,user,[
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -919,7 +919,7 @@ label(5),
     execute(gen_list1/3)]).
 
 
-predicate(gen_insts/3,308,static,private,user,[
+predicate(gen_insts/3,310,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,fail,fail,1,fail),
 

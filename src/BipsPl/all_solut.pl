@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_all_solut'.
@@ -53,10 +55,10 @@ bagof(Template, Generator, Instances) :-
 
 '$bagof'(Template, Generator, Instances, Func) :-
 	'$call_c_test'('Free_Variables_4'(Template, Generator, Generator1, Key)), !,
-	'$store_solutions'(Key-Template, Generator1, Stop, Func),
-	set_bip_name(Func, 3),                   % for error too_many_variables in C function
+	'$store_solutions'(Key - Template, Generator1, Stop, Func),
+	set_bip_name(Func, 3),   % for error too_many_variables in C function
 	'$call_c_test'('Recover_Solutions_2'(Stop, 1, AllInstances)),
-	(   Func=bagof ->
+	(   Func = bagof ->
 	    keysort(AllInstances)
 	;   sort(AllInstances)
 	),
@@ -65,8 +67,8 @@ bagof(Template, Generator, Instances) :-
 '$bagof'(Template, _, Instances, Func) :-
 	'$call_c'('Recover_Generator_1'(Generator)),
 	'$findall'(Template, Generator, Instances, Func),
-	Instances\==[],
-	(   Func=bagof ->
+	Instances \== [],
+	(   Func = bagof ->
 	    true
 	;   sort(Instances)
 	).
@@ -88,7 +90,7 @@ bagof(Template, Generator, Instances) :-
 '$group_solutions'(AllInstances1, Key, Instances) :-
 	'$call_c_test'('Group_Solutions_3'(AllInstances1, Key, Instances)).
 
-'$group_solutions_alt' :-                        % used by C code to create a choice-point
+'$group_solutions_alt' :-           % used by C code to create a choice-point
 	'$call_c_test'('Group_Solutions_Alt_0').
 
 
@@ -99,4 +101,3 @@ bagof(Template, Generator, Instances) :-
 '$check_list_arg'(List, Func) :-
 	set_bip_name(Func, 3),
 	'$check_list_or_partial_list'(List).
-

@@ -1,67 +1,67 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : term_inl.pl
-% date    : 1 23 2001
-% time    : 12:49:49
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
 
 
-predicate('$use_term_inl'/0,27,static,private,built_in,[
+predicate('$use_term_inl'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(compare/3,30,static,private,built_in,[
+predicate(compare/3,32,static,private,built_in,[
     call_c_test('Blt_Compare',[0,1,2]),
     proceed]).
 
 
-predicate((==)/2,34,static,private,built_in,[
+predicate((==)/2,36,static,private,built_in,[
     call_c_test('Blt_Term_Eq',[0,1]),
     proceed]).
 
 
-predicate((\==)/2,37,static,private,built_in,[
+predicate((\==)/2,39,static,private,built_in,[
     call_c_test('Blt_Term_Neq',[0,1]),
     proceed]).
 
 
-predicate((@<)/2,40,static,private,built_in,[
+predicate((@<)/2,42,static,private,built_in,[
     call_c_test('Blt_Term_Lt',[0,1]),
     proceed]).
 
 
-predicate((@=<)/2,43,static,private,built_in,[
+predicate((@=<)/2,45,static,private,built_in,[
     call_c_test('Blt_Term_Lte',[0,1]),
     proceed]).
 
 
-predicate((@>)/2,46,static,private,built_in,[
+predicate((@>)/2,48,static,private,built_in,[
     call_c_test('Blt_Term_Gt',[0,1]),
     proceed]).
 
 
-predicate((@>=)/2,49,static,private,built_in,[
+predicate((@>=)/2,51,static,private,built_in,[
     call_c_test('Blt_Term_Gte',[0,1]),
     proceed]).
 
 
-predicate(arg/3,55,static,private,built_in,[
+predicate(arg/3,57,static,private,built_in,[
     call_c_test('Blt_Arg',[0,1,2]),
     proceed]).
 
 
-predicate(functor/3,61,static,private,built_in,[
+predicate(functor/3,63,static,private,built_in,[
     call_c_test('Blt_Functor',[0,1,2]),
     proceed]).
 
 
-predicate((=..)/2,67,static,private,built_in,[
+predicate((=..)/2,69,static,private,built_in,[
     call_c_test('Blt_Univ',[0,1]),
     proceed]).
 
 
-predicate(copy_term/2,73,static,private,built_in,[
+predicate(copy_term/2,75,static,private,built_in,[
     put_atom(copy_term,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -69,7 +69,7 @@ predicate(copy_term/2,73,static,private,built_in,[
     proceed]).
 
 
-predicate(setarg/3,80,static,private,built_in,[
+predicate(setarg/3,82,static,private,built_in,[
     put_atom(setarg,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[3,4]),
@@ -78,7 +78,7 @@ predicate(setarg/3,80,static,private,built_in,[
     proceed]).
 
 
-predicate(setarg/4,85,static,private,built_in,[
+predicate(setarg/4,87,static,private,built_in,[
     put_atom(setarg,4),
     put_integer(4,5),
     call_c('Set_Bip_Name_2',[4,5]),
@@ -86,7 +86,7 @@ predicate(setarg/4,85,static,private,built_in,[
     proceed]).
 
 
-predicate(term_ref/2,92,static,private,built_in,[
+predicate(term_ref/2,94,static,private,built_in,[
     put_atom(term_ref,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),

@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : pretty.pl
-% date    : 1 23 2001
-% time    : 12:49:54
+% date    : 9 16 2001
+% time    : 18:16:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pretty.pl').
 
 
-predicate('$use_pretty'/0,27,static,private,built_in,[
+predicate('$use_pretty'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(portray_clause/1,30,static,private,built_in,[
+predicate(portray_clause/1,32,static,private,built_in,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
@@ -27,7 +27,7 @@ label(1),
     proceed]).
 
 
-predicate(portray_clause/2,40,static,private,built_in,[
+predicate(portray_clause/2,42,static,private,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -45,7 +45,7 @@ label(1),
     proceed]).
 
 
-predicate('$portray_clause'/2,50,static,private,built_in,[
+predicate('$portray_clause'/2,52,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -66,7 +66,7 @@ predicate('$portray_clause'/2,50,static,private,built_in,[
     execute(set_bip_name/2)]).
 
 
-predicate('$$portray_clause/2_$aux2'/1,50,static,private,built_in,[
+predicate('$$portray_clause/2_$aux2'/1,52,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Callable',[0]),
@@ -80,7 +80,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$$portray_clause/2_$aux1'/1,50,static,private,built_in,[
+predicate('$$portray_clause/2_$aux1'/1,52,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -92,7 +92,7 @@ label(1),
     proceed]).
 
 
-predicate(name_singleton_vars/1,67,static,private,built_in,[
+predicate(name_singleton_vars/1,69,static,private,built_in,[
     put_atom(name_singleton_vars,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -100,7 +100,7 @@ predicate(name_singleton_vars/1,67,static,private,built_in,[
     proceed]).
 
 
-predicate(name_query_vars/2,74,static,private,built_in,[
+predicate(name_query_vars/2,76,static,private,built_in,[
     put_atom(name_query_vars,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -108,7 +108,7 @@ predicate(name_query_vars/2,74,static,private,built_in,[
     proceed]).
 
 
-predicate(bind_variables/2,83,static,private,built_in,[
+predicate(bind_variables/2,85,static,private,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -129,18 +129,18 @@ predicate(bind_variables/2,83,static,private,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate('$bind_variables'/4,90,static,private,built_in,[
+predicate('$bind_variables'/4,92,static,private,built_in,[
     call_c_test('Bind_Variables_4',[0,1,2,3]),
     proceed]).
 
 
-predicate('$set_bind_variables_defaults'/0,96,static,private,built_in,[
+predicate('$set_bind_variables_defaults'/0,98,static,private,built_in,[
     put_integer(0,0),
     put_integer(0,1),
     execute('$sys_var_write'/2)]).
 
 
-predicate('$get_bind_variables_options'/4,102,static,private,built_in,[
+predicate('$get_bind_variables_options'/4,104,static,private,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -172,7 +172,7 @@ predicate('$get_bind_variables_options'/4,102,static,private,built_in,[
     proceed]).
 
 
-predicate('$get_bind_variables_options1'/1,113,static,private,built_in,[
+predicate('$get_bind_variables_options1'/1,115,static,private,built_in,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -199,7 +199,7 @@ label(4),
     execute('$get_bind_variables_options1'/1)]).
 
 
-predicate('$get_bind_variables_options2'/1,120,static,private,built_in,[
+predicate('$get_bind_variables_options2'/1,122,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     execute('$pl_err_instantiation'/0),
@@ -269,7 +269,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(numbervars/1,145,static,private,built_in,[
+predicate(numbervars/1,147,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(numbervars,0),
@@ -284,7 +284,7 @@ predicate(numbervars/1,145,static,private,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate(numbervars/3,151,static,private,built_in,[
+predicate(numbervars/3,153,static,private,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),

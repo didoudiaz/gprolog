@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 
@@ -29,7 +31,7 @@
 	g_assign('$call_call_info', CallInfo),
 	g_assign('$new_term', f),
 	'$term_to_goal1'(P, P1),
-	g_read('$new_term', t),                  % GC: case P=P1
+	g_read('$new_term', t),                               % GC: case P=P1
 	                        !.
 
 '$term_to_goal'(P, _, P).
@@ -46,12 +48,12 @@
 	var(P), !,
 	g_read('$call_call_info', CallInfo),
 	g_assign('$new_term', t),
-	(   CallInfo=none ->
-	    P1=call(P)
-	;   P1='$call_internal'(P, CallInfo)
+	(   CallInfo = none ->
+	    P1 = call(P)
+	;   P1 = '$call_internal'(P, CallInfo)
 	).
 
-'$term_to_goal2'((P->Q), (P1->Q1)) :-
+'$term_to_goal2'((P -> Q), (P1 -> Q1)) :-
 	!,
 	'$term_to_goal2'(P, P1),
 	'$term_to_goal2'(Q, Q1).
@@ -61,7 +63,7 @@
 	'$term_to_goal2'(P, P1),
 	'$term_to_goal2'(Q, Q1).
 
-'$term_to_goal2'((P;Q), (P1;Q1)) :-
+'$term_to_goal2'((P ; Q), (P1 ; Q1)) :-
 	!,
 	'$term_to_goal2'(P, P1),
 	'$term_to_goal2'(Q, Q1).
@@ -132,7 +134,7 @@
 
 
 
-'$get_head_and_body'((H:-B), H, B) :-
+'$get_head_and_body'((H :- B), H, B) :-
 	!,
 	'$check_head'(H).
 

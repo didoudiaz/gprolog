@@ -1,66 +1,66 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : call_args.pl
-% date    : 1 23 2001
-% time    : 12:49:47
+% date    : 9 16 2001
+% time    : 18:16:3
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call_args.pl').
 
 
-predicate('$use_call_args'/0,27,static,private,built_in,[
+predicate('$use_call_args'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(call_with_args/1,32,static,private,built_in,[
+predicate(call_with_args/1,34,static,private,built_in,[
     call_c_jump('Call_With_Args_1',[]),
     proceed]).
 
 
-predicate(call_with_args/2,35,static,private,built_in,[
+predicate(call_with_args/2,37,static,private,built_in,[
     call_c_jump('Call_With_Args_2',[]),
     proceed]).
 
 
-predicate(call_with_args/3,38,static,private,built_in,[
+predicate(call_with_args/3,40,static,private,built_in,[
     call_c_jump('Call_With_Args_3',[]),
     proceed]).
 
 
-predicate(call_with_args/4,41,static,private,built_in,[
+predicate(call_with_args/4,43,static,private,built_in,[
     call_c_jump('Call_With_Args_4',[]),
     proceed]).
 
 
-predicate(call_with_args/5,44,static,private,built_in,[
+predicate(call_with_args/5,46,static,private,built_in,[
     call_c_jump('Call_With_Args_5',[]),
     proceed]).
 
 
-predicate(call_with_args/6,47,static,private,built_in,[
+predicate(call_with_args/6,49,static,private,built_in,[
     call_c_jump('Call_With_Args_6',[]),
     proceed]).
 
 
-predicate(call_with_args/7,50,static,private,built_in,[
+predicate(call_with_args/7,52,static,private,built_in,[
     call_c_jump('Call_With_Args_7',[]),
     proceed]).
 
 
-predicate(call_with_args/8,53,static,private,built_in,[
+predicate(call_with_args/8,55,static,private,built_in,[
     call_c_jump('Call_With_Args_8',[]),
     proceed]).
 
 
-predicate(call_with_args/9,56,static,private,built_in,[
+predicate(call_with_args/9,58,static,private,built_in,[
     call_c_jump('Call_With_Args_9',[]),
     proceed]).
 
 
-predicate(call_with_args/10,59,static,private,built_in,[
+predicate(call_with_args/10,61,static,private,built_in,[
     call_c_jump('Call_With_Args_10',[]),
     proceed]).
 
 
-predicate(call_with_args/11,62,static,private,built_in,[
+predicate(call_with_args/11,64,static,private,built_in,[
     call_c_jump('Call_With_Args_11',[]),
     proceed]).

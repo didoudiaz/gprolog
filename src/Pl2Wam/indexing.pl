@@ -123,8 +123,8 @@ indexing(LCC, WamCode1) :-
 	indexing1(LCC, f, _, [_|WamCode]),       % ignore the unused label(0)
 	cur_pred(Pred, N),
 	(   test_pred_info(cut, Pred, N) ->
-	    WamCode1=[load_cut_level(N)|WamCode]
-	;   WamCode1=WamCode
+	    WamCode1 = [load_cut_level(N)|WamCode]
+	;   WamCode1 = WamCode
 	),
 	allocate_labels(WamCode1, 1, _).
 
@@ -142,63 +142,65 @@ look_for_var([], 2, [], _, []).
 
 look_for_var([cl(Ad, var, WamCl)|LCC], Case, [], cl(Ad, var, WamCl), LCC) :-
 	!,
-	(   LCC=[] ->
-	    Case=14
-	;   Case=13
+	(   LCC = [] ->
+	    Case = 14
+	;   Case = 13
 	).
 
 look_for_var([CC|LCC], Case1, [CC|LCCBefore], CCVar, LCCAfter) :-
 	look_for_var(LCC, Case, LCCBefore, CCVar, LCCAfter),
-	(   Case=13 ->
-	    Case1=11
-	;   Case=14 ->
-	    Case1=12
-	;   Case1=Case
+	(   Case = 13 ->
+	    Case1 = 11
+	;   Case = 14 ->
+	    Case1 = 12
+	;   Case1 = Case
 	).
 
 
 
 
 mk_indexing(11, LCCBefore, cl(_, _, WamCl), LCCAfter, Lev1, WamCode) :-
-	(   Lev1=f ->
-	    TmRmTm=try_me_else(Lab)
-	;   TmRmTm=retry_me_else(Lab)
+	(   Lev1 = f ->
+	    TmRmTm = try_me_else(Lab)
+	;   TmRmTm = retry_me_else(Lab)
 	),
 	mk_indexing(2, LCCBefore, _, _, f, WamBefore),
 	indexing1(LCCAfter, t, Lab1, WamAfter),
-	WamCode=[TmRmTm, WamBefore, label(Lab), retry_me_else(Lab1), WamCl|WamAfter].
+	WamCode = [TmRmTm, WamBefore, label(Lab), retry_me_else(Lab1), WamCl|WamAfter].
 
 mk_indexing(12, LCCBefore, cl(_, _, WamCl), _, Lev1, WamCode) :-
-	(   Lev1=f ->
-	    TmRmTm=try_me_else(Lab)
-	;   TmRmTm=retry_me_else(Lab)
+	(   Lev1 = f ->
+	    TmRmTm = try_me_else(Lab)
+	;   TmRmTm = retry_me_else(Lab)
 	),
 	mk_indexing(2, LCCBefore, _, _, f, WamBefore),
-	WamCode=[TmRmTm, WamBefore, label(Lab), trust_me_else_fail|WamCl].
+	WamCode = [TmRmTm, WamBefore, label(Lab), trust_me_else_fail|WamCl].
 
 mk_indexing(13, _, cl(_, _, WamCl), LCCAfter, Lev1, WamCode) :-
-	(   Lev1=f ->
-	    TmRmTm=try_me_else(Lab)
-	;   TmRmTm=retry_me_else(Lab)
+	(   Lev1 = f ->
+	    TmRmTm = try_me_else(Lab)
+	;   TmRmTm = retry_me_else(Lab)
 	),
 	indexing1(LCCAfter, t, Lab, WamAfter),
-	WamCode=[TmRmTm, WamCl|WamAfter].
+	WamCode = [TmRmTm, WamCl|WamAfter].
 
 mk_indexing(14, _, cl(_, _, WamCl), _, Lev1, WamCode) :-
-	(   Lev1=f ->
-	    WamCode=WamCl
-	;   WamCode=[trust_me_else_fail|WamCl]
+	(   Lev1 = f ->
+	    WamCode = WamCl
+	;   WamCode = [trust_me_else_fail|WamCl]
 	).
 
 mk_indexing(2, LCC, _, _, Lev1, WamCode) :-
-	(   Lev1=f ->
-	    WamCode=WamCode1
-	;   WamCode=[trust_me_else_fail|WamCode1]),
+	(   Lev1 = f ->
+	    WamCode = WamCode1
+	;   WamCode = [trust_me_else_fail|WamCode1]
+	),
 	(   LCC = [_] ->              % no switch_on_term for only one clause
-	    WamCode2 = [_|WamCode2Rest], % remove useless label
-            WamCode1 = WamCode2Rest
-	;   WamCode1 = [switch_on_term(LabVar, LabAtm, LabInt, LabLst, LabStc)|WamCode2]),
-	WamCode2=WamSwtAtm,
+	    WamCode2 = [_|WamCode2Rest],               % remove useless label
+	    WamCode1 = WamCode2Rest
+	;   WamCode1 = [switch_on_term(LabVar, LabAtm, LabInt, LabLst, LabStc)|WamCode2]
+	),
+	WamCode2 = WamSwtAtm,
 	split(LCC, Atm, Int, Lst, Stc), !,
 	gen_switch(Atm, switch_on_atom, LabAtm, WamSwtInt, WamSwtAtm),
 	gen_switch(Int, switch_on_integer, LabInt, WamLst, WamSwtInt),
@@ -232,7 +234,7 @@ split2(int(N), Ad, Atm, Int, Lst, Stc, Atm, Int1, Lst, Stc) :-
 split2(lst, Ad, Atm, Int, a([Ad|End], LAd), Stc, Atm, Int, a(End, LAd), Stc).
 
 split2(stc(F, N), Ad, Atm, Int, Lst, Stc, Atm, Int, Lst, Stc1) :-
-	add_to_list(Stc, F/N, Ad, Stc1).
+	add_to_list(Stc, F / N, Ad, Stc1).
 
 
 
@@ -272,7 +274,7 @@ gen_switch([a(_, LAd)], _, Lab, LNext, WamTRT) :-
 */
 gen_switch(List, Ins, Lab, LNext, [label(Lab), SwtW|WamTRT]) :-
 	create_switch_list(List, LSwt, LNext, WamTRT),
-	SwtW=..[Ins, LSwt].
+	SwtW =.. [Ins, LSwt].
 
 
 
@@ -288,31 +290,29 @@ create_switch_list([a(F, LAd)|List], [(F,Lab)|LSwt], LNext, WamTRT) :-
 
 gen_list([], fail, LNext, LNext).
 
-gen_list([Ad], Ad, LNext, LNext) :-              % only 1 Atmj, Lst or Stcj
+gen_list([Ad], Ad, LNext, LNext) :-                % only 1 Atmj, Lst or Stcj
 	!.
 
-gen_list([Ad|LAd], Lab, LNext, WamRT1) :-        % 2..n
-	WamRT1=[label(Lab), try(Ad)|WamRT],
+gen_list([Ad|LAd], Lab, LNext, WamRT1) :-                              % 2..n
+	WamRT1 = [label(Lab), try(Ad)|WamRT],
 	gen_list1(LAd, LNext, WamRT).
 
 
 gen_list1([Ad], LNext, [trust(Ad)|LNext]).
 
 gen_list1([Ad|LAd], LNext, WamRT1) :-
-	WamRT1=[retry(Ad)|WamRT],
+	WamRT1 = [retry(Ad)|WamRT],
 	gen_list1(LAd, LNext, WamRT).
 
 
 
 
-gen_insts([cl(Ad, _, WamCl)], Ad, [label(Ad)|WamCl]) :-
-                                                 % only 1 clause
+gen_insts([cl(Ad, _, WamCl)], Ad, [label(Ad)|WamCl]) :-       % only 1 clause
 	!.
 
-gen_insts([cl(Ad, _, WamCl)|LCC], Lab, WamCode2) :-
-                                                 % 2..n
+gen_insts([cl(Ad, _, WamCl)|LCC], Lab, WamCode2) :-                    % 2..n
 	gen_insts1(LCC, Lab1, WamCode),
-	WamCode2=[label(Lab), try_me_else(Lab1), label(Ad), WamCl|WamCode].
+	WamCode2 = [label(Lab), try_me_else(Lab1), label(Ad), WamCl|WamCode].
 
 
 
@@ -321,7 +321,7 @@ gen_insts1([cl(Ad, _, WamCl)], Lab, [label(Lab), trust_me_else_fail, label(Ad)|W
 
 gen_insts1([cl(Ad, _, WamCl)|LCC], Lab, WamCode2) :-
 	gen_insts1(LCC, Lab1, WamCode),
-	WamCode2=[label(Lab), retry_me_else(Lab1), label(Ad), WamCl|WamCode].
+	WamCode2 = [label(Lab), retry_me_else(Lab1), label(Ad), WamCl|WamCode].
 
 
 
@@ -331,11 +331,11 @@ allocate_labels([], N, N) :-
 
 allocate_labels([WamInst1|WamInst2], N, N2) :-
 	!,
-	allocate_labels(WamInst1, N, N1),        % for nested lists
+	allocate_labels(WamInst1, N, N1),                  % for nested lists
 	allocate_labels(WamInst2, N1, N2).
 
 allocate_labels(label(N), N, N1) :-
 	!,
-	N1 is N+1 .
+	N1 is N + 1 .
 
 allocate_labels(_, N, N).

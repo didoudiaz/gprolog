@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : stream.pl
-% date    : 1 23 2001
-% time    : 12:49:51
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/stream.pl').
 
 
-predicate('$use_stream'/0,27,static,private,built_in,[
+predicate('$use_stream'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(current_input/1,30,static,private,built_in,[
+predicate(current_input/1,32,static,private,built_in,[
     allocate(1),
     put_atom(current_input,1),
     put_integer(1,2),
@@ -24,7 +24,7 @@ predicate(current_input/1,30,static,private,built_in,[
     proceed]).
 
 
-predicate(current_output/1,38,static,private,built_in,[
+predicate(current_output/1,40,static,private,built_in,[
     allocate(1),
     put_atom(current_output,1),
     put_integer(1,2),
@@ -37,7 +37,7 @@ predicate(current_output/1,38,static,private,built_in,[
     proceed]).
 
 
-predicate('$check_stream_or_var'/2,46,static,private,built_in,[
+predicate('$check_stream_or_var'/2,48,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -57,7 +57,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$check_stream_or_var/2_$aux1'/1,46,static,private,built_in,[
+predicate('$$check_stream_or_var/2_$aux1'/1,48,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     proceed,
@@ -68,7 +68,7 @@ label(1),
     proceed]).
 
 
-predicate(set_input/1,57,static,private,built_in,[
+predicate(set_input/1,59,static,private,built_in,[
     put_atom(set_input,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -76,7 +76,7 @@ predicate(set_input/1,57,static,private,built_in,[
     proceed]).
 
 
-predicate(set_output/1,64,static,private,built_in,[
+predicate(set_output/1,66,static,private,built_in,[
     put_atom(set_output,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -84,17 +84,17 @@ predicate(set_output/1,64,static,private,built_in,[
     proceed]).
 
 
-predicate('$set_top_level_streams'/2,71,static,private,built_in,[
+predicate('$set_top_level_streams'/2,73,static,private,built_in,[
     call_c('Set_Top_Level_Streams_2',[0,1]),
     proceed]).
 
 
-predicate('$set_debugger_streams'/2,77,static,private,built_in,[
+predicate('$set_debugger_streams'/2,79,static,private,built_in,[
     call_c('Set_Debugger_Streams_2',[0,1]),
     proceed]).
 
 
-predicate(open/3,96,static,private,built_in,[
+predicate(open/3,98,static,private,built_in,[
     put_atom(open,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[3,4]),
@@ -102,14 +102,14 @@ predicate(open/3,96,static,private,built_in,[
     execute('$open'/4)]).
 
 
-predicate(open/4,101,static,private,built_in,[
+predicate(open/4,103,static,private,built_in,[
     put_atom(open,4),
     put_integer(4,5),
     call_c('Set_Bip_Name_2',[4,5]),
     execute('$open'/4)]).
 
 
-predicate('$open'/4,106,static,private,built_in,[
+predicate('$open'/4,108,static,private,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -132,17 +132,17 @@ predicate('$open'/4,106,static,private,built_in,[
     execute('$add_alias_to_stream'/2)]).
 
 
-predicate('$set_open_defaults'/0,116,static,private,built_in,[
+predicate('$set_open_defaults'/0,118,static,private,built_in,[
     put_integer(0,0),
     put_integer(1,1),
     execute('$sys_var_write'/2)]).
 
 
-predicate('$get_open_stm'/2,122,static,private,built_in,[
+predicate('$get_open_stm'/2,124,static,private,built_in,[
     execute('$$get_open_stm/2_$aux1'/2)]).
 
 
-predicate('$$get_open_stm/2_$aux1'/2,122,static,private,built_in,[
+predicate('$$get_open_stm/2_$aux1'/2,124,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c_test('Blt_Non_Var',[0]),
@@ -158,7 +158,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_open_options'/2,131,static,private,built_in,[
+predicate('$get_open_options'/2,133,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -171,7 +171,7 @@ predicate('$get_open_options'/2,131,static,private,built_in,[
     execute('$get_open_options1'/3)]).
 
 
-predicate('$get_open_options1'/3,136,static,private,built_in,[
+predicate('$get_open_options1'/3,138,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(1,2,fail,4,fail),
 
@@ -203,7 +203,7 @@ label(4),
     execute('$get_open_options1'/3)]).
 
 
-predicate('$get_open_options2'/3,143,static,private,built_in,[
+predicate('$get_open_options2'/3,145,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -291,7 +291,7 @@ label(13),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_open_options2/3_$aux5'/1,192,static,private,built_in,[
+predicate('$$get_open_options2/3_$aux5'/1,194,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Test_Alias_Not_Assigned_1',[0]),
@@ -307,7 +307,7 @@ label(1),
     execute('$pl_err_permission'/3)]).
 
 
-predicate('$$get_open_options2/3_$aux4'/1,178,static,private,built_in,[
+predicate('$$get_open_options2/3_$aux4'/1,180,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -356,7 +356,7 @@ label(7),
     execute('$sys_var_reset_bit'/2)]).
 
 
-predicate('$$get_open_options2/3_$aux3'/1,164,static,private,built_in,[
+predicate('$$get_open_options2/3_$aux3'/1,166,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -405,7 +405,7 @@ label(7),
     execute('$sys_var_reset_bit'/2)]).
 
 
-predicate('$$get_open_options2/3_$aux2'/1,155,static,private,built_in,[
+predicate('$$get_open_options2/3_$aux2'/1,157,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -430,7 +430,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_open_options2/3_$aux1'/1,147,static,private,built_in,[
+predicate('$$get_open_options2/3_$aux1'/1,149,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -455,7 +455,7 @@ label(5),
     execute('$sys_var_reset_bit'/2)]).
 
 
-predicate('$add_alias_to_stream'/2,205,static,private,built_in,[
+predicate('$add_alias_to_stream'/2,207,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -476,7 +476,7 @@ label(4),
     execute('$add_alias_to_stream'/2)]).
 
 
-predicate(close/1,223,static,private,built_in,[
+predicate(close/1,225,static,private,built_in,[
     put_atom(close,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -484,14 +484,14 @@ predicate(close/1,223,static,private,built_in,[
     execute('$close'/2)]).
 
 
-predicate(close/2,227,static,private,built_in,[
+predicate(close/2,229,static,private,built_in,[
     put_atom(close,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
     execute('$close'/2)]).
 
 
-predicate('$close'/2,232,static,private,built_in,[
+predicate('$close'/2,234,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -506,7 +506,7 @@ predicate('$close'/2,232,static,private,built_in,[
     proceed]).
 
 
-predicate('$get_close_options'/1,240,static,private,built_in,[
+predicate('$get_close_options'/1,242,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -516,7 +516,7 @@ predicate('$get_close_options'/1,240,static,private,built_in,[
     execute('$get_close_options1'/1)]).
 
 
-predicate('$get_close_options1'/1,245,static,private,built_in,[
+predicate('$get_close_options1'/1,247,static,private,built_in,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -543,7 +543,7 @@ label(4),
     execute('$get_close_options1'/1)]).
 
 
-predicate('$get_close_options2'/1,252,static,private,built_in,[
+predicate('$get_close_options2'/1,254,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     execute('$pl_err_instantiation'/0),
@@ -562,7 +562,7 @@ label(2),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_close_options2/1_$aux1'/1,256,static,private,built_in,[
+predicate('$$get_close_options2/1_$aux1'/1,258,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -587,7 +587,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(add_stream_alias/2,270,static,private,built_in,[
+predicate(add_stream_alias/2,272,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(add_stream_alias,3),
@@ -606,7 +606,7 @@ label(1),
     execute('$pl_err_permission'/3)]).
 
 
-predicate(set_stream_type/2,280,static,private,built_in,[
+predicate(set_stream_type/2,282,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(4),
@@ -634,7 +634,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$set_stream_type/2_$aux2'/2,280,static,private,built_in,[
+predicate('$set_stream_type/2_$aux2'/2,282,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -657,7 +657,7 @@ label(5),
     proceed]).
 
 
-predicate('$set_stream_type/2_$aux1'/1,280,static,private,built_in,[
+predicate('$set_stream_type/2_$aux1'/1,282,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -669,7 +669,7 @@ label(1),
     proceed]).
 
 
-predicate(set_stream_eof_action/2,299,static,private,built_in,[
+predicate(set_stream_eof_action/2,301,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(4),
@@ -697,7 +697,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$set_stream_eof_action/2_$aux2'/2,299,static,private,built_in,[
+predicate('$set_stream_eof_action/2_$aux2'/2,301,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -728,7 +728,7 @@ label(7),
     proceed]).
 
 
-predicate('$set_stream_eof_action/2_$aux1'/1,299,static,private,built_in,[
+predicate('$set_stream_eof_action/2_$aux1'/1,301,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -740,7 +740,7 @@ label(1),
     proceed]).
 
 
-predicate(set_stream_buffering/2,320,static,private,built_in,[
+predicate(set_stream_buffering/2,322,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(4),
@@ -768,7 +768,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$set_stream_buffering/2_$aux2'/2,320,static,private,built_in,[
+predicate('$set_stream_buffering/2_$aux2'/2,322,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -799,7 +799,7 @@ label(7),
     proceed]).
 
 
-predicate('$set_stream_buffering/2_$aux1'/1,320,static,private,built_in,[
+predicate('$set_stream_buffering/2_$aux1'/1,322,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -811,7 +811,7 @@ label(1),
     proceed]).
 
 
-predicate(flush_output/0,341,static,private,built_in,[
+predicate(flush_output/0,343,static,private,built_in,[
     put_atom(flush_output,0),
     put_integer(0,1),
     call_c('Set_Bip_Name_2',[0,1]),
@@ -819,7 +819,7 @@ predicate(flush_output/0,341,static,private,built_in,[
     proceed]).
 
 
-predicate(flush_output/1,345,static,private,built_in,[
+predicate(flush_output/1,347,static,private,built_in,[
     put_atom(flush_output,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -827,7 +827,7 @@ predicate(flush_output/1,345,static,private,built_in,[
     proceed]).
 
 
-predicate(current_stream/1,352,static,private,built_in,[
+predicate(current_stream/1,354,static,private,built_in,[
     allocate(1),
     put_atom(current_stream,1),
     put_integer(1,2),
@@ -839,17 +839,17 @@ predicate(current_stream/1,352,static,private,built_in,[
     execute('$current_stream'/1)]).
 
 
-predicate('$current_stream'/1,360,static,private,built_in,[
+predicate('$current_stream'/1,362,static,private,built_in,[
     call_c_test('Current_Stream_1',[0]),
     proceed]).
 
 
-predicate('$current_stream_alt'/0,364,static,private,built_in,[
+predicate('$current_stream_alt'/0,366,static,private,built_in,[
     call_c_test('Current_Stream_Alt_0',[]),
     proceed]).
 
 
-predicate(stream_property/2,370,static,private,built_in,[
+predicate(stream_property/2,372,static,private,built_in,[
     load_cut_level(2),
     allocate(3),
     get_variable(y(0),1),
@@ -866,7 +866,7 @@ predicate(stream_property/2,370,static,private,built_in,[
     execute('$stream_property/2_$aux1'/3)]).
 
 
-predicate('$stream_property/2_$aux1'/3,370,static,private,built_in,[
+predicate('$stream_property/2_$aux1'/3,372,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     call_c_test('Blt_Non_Var',[0]),
@@ -894,7 +894,7 @@ label(1),
     execute('$stream_property1'/2)]).
 
 
-predicate('$check_stream_prop'/1,385,static,private,built_in,[
+predicate('$check_stream_prop'/1,387,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     proceed,
@@ -1002,7 +1002,7 @@ label(26),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$stream_property1'/2,416,static,private,built_in,[
+predicate('$stream_property1'/2,418,static,private,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -1112,7 +1112,7 @@ label(24),
     proceed]).
 
 
-predicate(at_end_of_stream/0,453,static,private,built_in,[
+predicate(at_end_of_stream/0,455,static,private,built_in,[
     put_atom(at_end_of_stream,0),
     put_integer(0,1),
     call_c('Set_Bip_Name_2',[0,1]),
@@ -1120,7 +1120,7 @@ predicate(at_end_of_stream/0,453,static,private,built_in,[
     proceed]).
 
 
-predicate(at_end_of_stream/1,457,static,private,built_in,[
+predicate(at_end_of_stream/1,459,static,private,built_in,[
     put_atom(at_end_of_stream,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -1128,7 +1128,7 @@ predicate(at_end_of_stream/1,457,static,private,built_in,[
     proceed]).
 
 
-predicate(current_alias/2,464,static,private,built_in,[
+predicate(current_alias/2,466,static,private,built_in,[
     allocate(2),
     get_variable(y(0),1),
     put_atom(current_alias,1),
@@ -1142,7 +1142,7 @@ predicate(current_alias/2,464,static,private,built_in,[
     execute('$current_alias/2_$aux1'/2)]).
 
 
-predicate('$current_alias/2_$aux1'/2,464,static,private,built_in,[
+predicate('$current_alias/2_$aux1'/2,466,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c_test('Blt_Atom',[0]),
@@ -1163,29 +1163,29 @@ label(1),
     execute('$current_alias'/2)]).
 
 
-predicate('$current_alias'/2,476,static,private,built_in,[
+predicate('$current_alias'/2,478,static,private,built_in,[
     call_c_test('Current_Alias_2',[0,1]),
     proceed]).
 
 
-predicate('$current_alias_alt'/0,479,static,private,built_in,[
+predicate('$current_alias_alt'/0,481,static,private,built_in,[
     call_c_test('Current_Alias_Alt_0',[]),
     proceed]).
 
 
-predicate(stream_position/2,485,static,private,built_in,[
+predicate(stream_position/2,487,static,private,built_in,[
     put_atom(stream_position,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
     execute('$stream_position'/2)]).
 
 
-predicate('$stream_position'/2,490,static,private,built_in,[
+predicate('$stream_position'/2,492,static,private,built_in,[
     call_c_test('Stream_Position_2',[0,1]),
     proceed]).
 
 
-predicate(set_stream_position/2,496,static,private,built_in,[
+predicate(set_stream_position/2,498,static,private,built_in,[
     put_atom(set_stream_position,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -1193,7 +1193,7 @@ predicate(set_stream_position/2,496,static,private,built_in,[
     proceed]).
 
 
-predicate(seek/4,503,static,private,built_in,[
+predicate(seek/4,505,static,private,built_in,[
     put_atom(seek,4),
     put_integer(4,5),
     call_c('Set_Bip_Name_2',[4,5]),
@@ -1201,7 +1201,7 @@ predicate(seek/4,503,static,private,built_in,[
     proceed]).
 
 
-predicate(character_count/2,510,static,private,built_in,[
+predicate(character_count/2,512,static,private,built_in,[
     put_atom(character_count,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -1209,7 +1209,7 @@ predicate(character_count/2,510,static,private,built_in,[
     proceed]).
 
 
-predicate(line_count/2,517,static,private,built_in,[
+predicate(line_count/2,519,static,private,built_in,[
     put_atom(line_count,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -1217,7 +1217,7 @@ predicate(line_count/2,517,static,private,built_in,[
     proceed]).
 
 
-predicate(line_position/2,524,static,private,built_in,[
+predicate(line_position/2,526,static,private,built_in,[
     put_atom(line_position,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -1225,7 +1225,7 @@ predicate(line_position/2,524,static,private,built_in,[
     proceed]).
 
 
-predicate(stream_line_column/3,531,static,private,built_in,[
+predicate(stream_line_column/3,533,static,private,built_in,[
     put_atom(stream_line_column,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[3,4]),
@@ -1233,7 +1233,7 @@ predicate(stream_line_column/3,531,static,private,built_in,[
     proceed]).
 
 
-predicate(set_stream_line_column/3,538,static,private,built_in,[
+predicate(set_stream_line_column/3,540,static,private,built_in,[
     put_atom(set_stream_line_column,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[3,4]),
@@ -1241,7 +1241,7 @@ predicate(set_stream_line_column/3,538,static,private,built_in,[
     proceed]).
 
 
-predicate(open_input_atom_stream/2,554,static,private,built_in,[
+predicate(open_input_atom_stream/2,556,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(open_input_atom_stream,0),
@@ -1260,7 +1260,7 @@ predicate(open_input_atom_stream/2,554,static,private,built_in,[
     proceed]).
 
 
-predicate(open_input_chars_stream/2,563,static,private,built_in,[
+predicate(open_input_chars_stream/2,565,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(open_input_chars_stream,0),
@@ -1279,7 +1279,7 @@ predicate(open_input_chars_stream/2,563,static,private,built_in,[
     proceed]).
 
 
-predicate(open_input_codes_stream/2,572,static,private,built_in,[
+predicate(open_input_codes_stream/2,574,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(open_input_codes_stream,0),
@@ -1298,7 +1298,7 @@ predicate(open_input_codes_stream/2,572,static,private,built_in,[
     proceed]).
 
 
-predicate(close_input_atom_stream/1,581,static,private,built_in,[
+predicate(close_input_atom_stream/1,583,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(close_input_atom_stream,0),
@@ -1313,7 +1313,7 @@ predicate(close_input_atom_stream/1,581,static,private,built_in,[
     proceed]).
 
 
-predicate(close_input_chars_stream/1,589,static,private,built_in,[
+predicate(close_input_chars_stream/1,591,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(close_input_chars_stream,0),
@@ -1328,7 +1328,7 @@ predicate(close_input_chars_stream/1,589,static,private,built_in,[
     proceed]).
 
 
-predicate(close_input_codes_stream/1,597,static,private,built_in,[
+predicate(close_input_codes_stream/1,599,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(close_input_codes_stream,0),
@@ -1343,7 +1343,7 @@ predicate(close_input_codes_stream/1,597,static,private,built_in,[
     proceed]).
 
 
-predicate(open_output_atom_stream/1,605,static,private,built_in,[
+predicate(open_output_atom_stream/1,607,static,private,built_in,[
     allocate(1),
     put_atom(open_output_atom_stream,1),
     put_integer(1,2),
@@ -1359,7 +1359,7 @@ predicate(open_output_atom_stream/1,605,static,private,built_in,[
     proceed]).
 
 
-predicate(open_output_chars_stream/1,614,static,private,built_in,[
+predicate(open_output_chars_stream/1,616,static,private,built_in,[
     allocate(1),
     put_atom(open_output_chars_stream,1),
     put_integer(1,2),
@@ -1375,7 +1375,7 @@ predicate(open_output_chars_stream/1,614,static,private,built_in,[
     proceed]).
 
 
-predicate(open_output_codes_stream/1,623,static,private,built_in,[
+predicate(open_output_codes_stream/1,625,static,private,built_in,[
     allocate(1),
     put_atom(open_output_codes_stream,1),
     put_integer(1,2),
@@ -1391,7 +1391,7 @@ predicate(open_output_codes_stream/1,623,static,private,built_in,[
     proceed]).
 
 
-predicate(close_output_atom_stream/2,632,static,private,built_in,[
+predicate(close_output_atom_stream/2,634,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1408,7 +1408,7 @@ predicate(close_output_atom_stream/2,632,static,private,built_in,[
     proceed]).
 
 
-predicate(close_output_chars_stream/2,640,static,private,built_in,[
+predicate(close_output_chars_stream/2,642,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1425,7 +1425,7 @@ predicate(close_output_chars_stream/2,640,static,private,built_in,[
     proceed]).
 
 
-predicate(close_output_codes_stream/2,648,static,private,built_in,[
+predicate(close_output_codes_stream/2,650,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),

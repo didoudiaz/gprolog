@@ -22,123 +22,131 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
 
-file_to_token_lst(LToken):-
-	get_code(stream_fd,C),
-	file_to_token_lst1(C,LToken).
+file_to_token_lst(LToken) :-
+	get_code(stream_fd, C),
+	file_to_token_lst1(C, LToken).
 
 
-file_to_token_lst1(-1,[]):-
+file_to_token_lst1(-1, []) :-
 	!.
 
-file_to_token_lst1(C,LToken):-
-	C =< 0' ,
-	!,
-	get_code(stream_fd,C1),
-	file_to_token_lst1(C1,LToken).
+file_to_token_lst1(C, LToken) :-
+	C =< 32, !,
+	get_code(stream_fd, C1),
+	file_to_token_lst1(C1, LToken).
 
-file_to_token_lst1(0'/,LToken):-
-	peek_code(stream_fd,0'*),
-	!,
-	get_code(stream_fd,_),
-	skip_until(0'*,0'/,f),
-	get_code(stream_fd,C1),
-	file_to_token_lst1(C1,LToken).
+file_to_token_lst1(47, LToken) :-
+	peek_code(stream_fd, 42), !,
+	get_code(stream_fd, _),
+	skip_until(42, 47, f),
+	get_code(stream_fd, C1),
+	file_to_token_lst1(C1, LToken).
 
-file_to_token_lst1(0'%,LToken):-
-	peek_code(stream_fd,0'{),
-	!,
-	get_code(stream_fd,_),
-	stream_line_column(stream_fd,Line1,_),
-	format(stream_c,'~n/* line:~d begin included code */~n',[Line1]),
-	skip_until(0'%,0'},t),
-	stream_line_column(stream_fd,Line2,_),
-	format(stream_c,'~n/* line:~d end   included code */~n',[Line2]),
-	get_code(stream_fd,C1),
-	file_to_token_lst1(C1,LToken).
+file_to_token_lst1(37, LToken) :-
+	peek_code(stream_fd, 123), !,
+	get_code(stream_fd, _),
+	stream_line_column(stream_fd, Line1, _),
+	format(stream_c, '~n/* line:~d begin included code */~n', [Line1]),
+	skip_until(37, 125, t),
+	stream_line_column(stream_fd, Line2, _),
+	format(stream_c, '~n/* line:~d end   included code */~n', [Line2]),
+	get_code(stream_fd, C1),
+	file_to_token_lst1(C1, LToken).
 
-file_to_token_lst1(C,[t(Token,Line,Col1)|LToken]):-
-	stream_line_column(stream_fd,Line,Col),
-	Col1 is Col-1,
-	one_token(C,Token,C1),
-	file_to_token_lst1(C1,LToken).
+file_to_token_lst1(C, [t(Token, Line, Col1)|LToken]) :-
+	stream_line_column(stream_fd, Line, Col),
+	Col1 is Col - 1,
+	one_token(C, Token, C1),
+	file_to_token_lst1(C1, LToken).
 
 
 
-skip_until(C1,C2,Echo):-
-	g_assign(next,C1),
+skip_until(C1, C2, Echo) :-
+	g_assign(next, C1),
 	repeat,
-	g_read(next,Next),
-	get_code(stream_fd,C),
-	skip1(C,Next,C1,C2,Echo),
-        !.
+	g_read(next, Next),
+	get_code(stream_fd, C),
+	skip1(C, Next, C1, C2, Echo), !.
 
 
 
 
-skip1(-1,_,C1,C2,_):-
-	error('EOF reached before ~c~c found',[C1,C2]).
+skip1(-1, _, C1, C2, _) :-
+	error('EOF reached before ~c~c found', [C1, C2]).
 
-skip1(Next,Next,_,Next,_):-
+skip1(Next, Next, _, Next, _) :-
 	!.
 
-skip1(Next,Next,Next,C2,_):-
+skip1(Next, Next, Next, C2, _) :-
 	!,
-	g_assign(next,C2),
+	g_assign(next, C2),
 	fail.
 
-skip1(C,Next,C1,Next,Echo):-
+skip1(C, Next, C1, Next, Echo) :-
 	!,
-	(Echo=t -> put_code(stream_c,C1), put_code(stream_c,C)
-                ;  true),
-	g_assign(next,C1),
+	(   Echo = t ->
+	    put_code(stream_c, C1),
+	    put_code(stream_c, C)
+	;   true
+	),
+	g_assign(next, C1),
 	fail.
 
-skip1(C,_,_,_,Echo):-
-	(Echo=t -> put_code(stream_c,C)
-                ;  true),
+skip1(C, _, _, _, Echo) :-
+	(   Echo = t ->
+	    put_code(stream_c, C)
+	;   true
+	),
 	fail.
 
 
 
 
-one_token(C,Token,C2):-
-	(C >= 0'a, C =< 0'z, C1=C 
-                   ; 
-         C >= 0'A, C =< 0'Z, C1 is C+0'a-0'A
-                   ;
-         C = 0'\', C1=C),
-	!,
-	unget_code(stream_fd,C1),
-	read_atom(stream_fd,Token1),
-	(C >= 0'A, C =< 0'Z 
-                -> sub_atom(Token1,1,_,0,A), char_code(AC,C),
-                   atom_concat(AC,A,Token2)
-                ;
-                   Token2=Token1),
-	(keyword(Token2) -> Token=Token2
-                         ;  Token=ident(Token2)),
-	get_code(stream_fd,C2).
+one_token(C, Token, C2) :-
+	(   C >= 97,
+	    C =< 122,
+	    C1 = C
+	;   C >= 65,
+	    C =< 90,
+	    C1 is C + 97 - 65
+	;   C = 39,
+	    C1 = C
+	), !,
+	unget_code(stream_fd, C1),
+	read_atom(stream_fd, Token1),
+	(   C >= 65,
+	    C =< 90 ->
+	    sub_atom(Token1, 1, _, 0, A),
+	    char_code(AC, C),
+	    atom_concat(AC, A, Token2)
+	;   Token2 = Token1
+	),
+	(   keyword(Token2) ->
+	    Token = Token2
+	;   Token = ident(Token2)
+	),
+	get_code(stream_fd, C2).
 
-one_token(C,Token,C1):-
-	C >= 0'0, C =< 0'9,
-	!,
-	unget_code(stream_fd,C),
-	read_integer(stream_fd,Token),
-	get_code(stream_fd,C1).
+one_token(C, Token, C1) :-
+	C >= 48,
+	C =< 57, !,
+	unget_code(stream_fd, C),
+	read_integer(stream_fd, Token),
+	get_code(stream_fd, C1).
 
-one_token(C,Token,C2):-
-	get_code(stream_fd,C1),
-	char_code(A1,C),
-	char_code(A2,C1),
-	atom_concat(A1,A2,A),
-	(member(A,[/<,/>,==,'!=',<=,>=,&&,'||',..,
-                   ++,--,**,//,'%%','|<','|>'])
-             -> get_code(stream_fd,C2),
-                Token=A
-             ;
-                Token=A1,
-                C2=C1).
+one_token(C, Token, C2) :-
+	get_code(stream_fd, C1),
+	char_code(A1, C),
+	char_code(A2, C1),
+	atom_concat(A1, A2, A),
+	(   member(A, [/<, />, ==, '!=', <=, >=, &&, '||', .., ++, --, **, //, '%%', '|<', '|>']) ->
+	    get_code(stream_fd, C2),
+	    Token = A
+	;   Token = A1,
+	    C2 = C1
+	).
 
 
 keyword(min).
@@ -174,4 +182,3 @@ keyword(do).
 
 keyword(in).
 keyword(max_integer).
-

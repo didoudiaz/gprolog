@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_assert'.
@@ -58,7 +60,7 @@ retract(C) :-
 	'$retract'(H, B).
 
 
-'$retract'(H, B) :-       % call_c must be alone (inline) CP cannot be changed
+'$retract'(H, B) :-      % call_c must be alone (inline) CP cannot be changed
 	'$call_c_test'('Retract_2'(H, B)).
 
 
@@ -68,7 +70,7 @@ retractall(H) :-
 	set_bip_name(retractall, 1),
 	'$call_c_test'('Retractall_If_Empty_Head_1'(H)), !.
 
-retractall(H) :-         % here only if Retractall_If_Empty_Head_1 fails
+retractall(H) :-              % here only if Retractall_If_Empty_Head_1 fails
 	'$retract'(H, _),
 	fail.
 
@@ -88,7 +90,8 @@ clause(H, B) :-
 	'$clause'(H, B, 0).
 
 
-'$clause'(H, B, ForWhat) :- % call_c must be alone (inline) CP cannot be changed
+'$clause'(H, B, ForWhat) :-
+                         % call_c must be alone (inline) CP cannot be changed
 	'$call_c_test'('Clause_3'(H, B, ForWhat)).
 
 
@@ -114,8 +117,8 @@ abolish(PI) :-
 
 
 
-'$scan_dyn_test_alt' :-                          % used by C code to create a choice-point
+'$scan_dyn_test_alt' :-             % used by C code to create a choice-point
 	'$call_c_test'('Scan_Dynamic_Pred_Alt_0').
 
-'$scan_dyn_jump_alt' :-                          % used by C code to create a choice-point
+'$scan_dyn_jump_alt' :-             % used by C code to create a choice-point
 	'$call_c_jump'('Scan_Dynamic_Pred_Alt_0').

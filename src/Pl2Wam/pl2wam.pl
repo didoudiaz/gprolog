@@ -24,14 +24,14 @@
 
 /* $Id$ */
 
-pl2wam(Args) :-
-	catch(pl2wam1(Args), Err, exception(Err)).
+pl2wam(LArg) :-
+	catch(pl2wam1(LArg), Err, exception(Err)).
 
 
 
 
-pl2wam1(Args) :-
-	cmd_line_args(Args, PlFile, WamFile),
+pl2wam1(LArg) :-
+	cmd_line_args(LArg, PlFile, WamFile),
 	prolog_file_name(PlFile, PlFile1),
 	read_file_init(PlFile),
 	emit_code_init(WamFile, PlFile),
@@ -41,8 +41,8 @@ pl2wam1(Args) :-
 	repeat,
 	read_predicate(Pred, N, LSrcCl),
 	add_counter(user_read_file, real_read_file),
-	(   LSrcCl=[]                            /* [] at end of file */
-	              ->
+	(   LSrcCl = []                                   % [] at end of file
+	                ->
 	    !
 	;   read_file_error_nb(0),
 	    compile_and_emit_pred(NativeCode, Pred, N, LSrcCl),
@@ -52,7 +52,7 @@ pl2wam1(Args) :-
 	read_file_term(InBytes, InLines),
 	emit_code_term(OutBytes, OutLines),
 	read_file_error_nb(ErrNb),
-	(   ErrNb=0 ->
+	(   ErrNb = 0 ->
 	    display_counters,
 	    compile_msg_end(PlFile1, InBytes, InLines, OutBytes, OutLines)
 	;   format('~N\t~d error(s)~n', [ErrNb]),
@@ -83,7 +83,7 @@ compile_emit_inits(Pred, N, LSrcCl, PlFile1, PlLine) :-
 	g_assign(cur_func, Pred),
 	g_assign(cur_arity, N),
 	syntactic_sugar_init_pred(Pred, N),
-	LSrcCl=[[PlFile*_|_]+(PlLine-_)+_|_],
+	LSrcCl = [[PlFile * _|_] + (PlLine - _) + _|_],
 	absolute_file_name(PlFile, PlFile1).
 
 
@@ -98,7 +98,7 @@ compile_lst_clause([SrcCl|LSrcCl], [cl(_, FirstArg, WamCl)|LCC]) :-
 
 
 
-compile_clause(Where+Cl, FirstArg, WamCl) :-
+compile_clause(Where + Cl, FirstArg, WamCl) :-
 	g_assign(where, Where),
 	syntactic_sugar(Cl, Head, Body),
 	add_counter(user_syn_sugar, real_syn_sugar),
@@ -117,7 +117,7 @@ compile_clause(Where+Cl, FirstArg, WamCl) :-
 bc_compile_lst_clause([], []).
 
 bc_compile_lst_clause([SrcCl|LSrcCl], [bc(Cl, WamCl)|LCC]) :-
-	SrcCl=_+Cl,
+	SrcCl = _ + Cl,
 	compile_clause(SrcCl, _FirstArg, WamCl),
 	bc_compile_lst_clause(LSrcCl, LCC).
 
@@ -127,9 +127,9 @@ compile_msg_start(_, _) :-
 	g_read(compile_msg, f), !.
 
 compile_msg_start(PlFile, NativeCode) :-
-	(   NativeCode=t ->
-	    Type='native code'
-	;   Type='byte code'
+	(   NativeCode = t ->
+	    Type = 'native code'
+	;   Type = 'byte code'
 	),
 	format('compiling ~a for ~a...~n', [PlFile, Type]).
 
@@ -190,8 +190,8 @@ add_counter(UserCounter, RealCounter) :-
 	last_times(User1, Real1),
 	g_read(UserCounter, User2),
 	g_read(RealCounter, Real2),
-	User is User1+User2,
-	Real is Real1+Real2,
+	User is User1 + User2,
+	Real is Real1 + Real2,
 	g_assign(UserCounter, User),
 	g_assign(RealCounter, Real).
 
@@ -225,12 +225,12 @@ display_counters :-
 	g_read(real_first_arg, RFirstArg),
 	g_read(user_wam_emit, UWamEmit),
 	g_read(real_wam_emit, RWamEmit),
-	U is UReadFile+USynSugar+UInternal+UCodeGen+URegAlloc+UIndexing+UIndexing+UWamEmit,
-	R is RReadFile+RSynSugar+RInternal+RCodeGen+RRegAlloc+RIndexing+RIndexing+RWamEmit,
+	U is UReadFile + USynSugar + UInternal + UCodeGen + URegAlloc + UIndexing + UIndexing + UWamEmit,
+	R is RReadFile + RSynSugar + RInternal + RCodeGen + RRegAlloc + RIndexing + RIndexing + RWamEmit,
 	user_time(UTotal),
 	real_time(RTotal),
-	UMisc is UTotal-U,
-	RMisc is RTotal-R,
+	UMisc is UTotal - U,
+	RMisc is RTotal - R,
 	format('   Statistics (in ms)     user     real~n', []),
 	format('   source reading     : %6d   %6d~n', [UReadFile, RReadFile]),
 	format('   syntactic sugar    : %6d   %6d~n', [USynSugar, RSynSugar]),
@@ -248,25 +248,26 @@ display_counters :-
 
           /*--- command-line options reading ---*/
 
-cmd_line_args(Args, PlFile, WamFile) :-
+cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(plfile, ''),
 	g_assign(wamfile, ''),
+	g_assign(native_code, t),
+	g_assign(susp_warn, t),
+	g_assign(singl_warn, t),
+	g_assign(redef_error, t),
+	g_assign(foreign_only, f),
+	g_assign(call_c, t),
 	g_assign(inline, t),
 	g_assign(reorder, t),
 	g_assign(reg_opt, 2),
 	g_assign(opt_last_subterm, t),
 	g_assign(keep_void_inst, f),
-	g_assign(susp_warn, t),
-	g_assign(singl_warn, t),
-	g_assign(redef_error, t),
 	g_assign(fast_math, f),
-	g_assign(native_code, t),
-	g_assign(call_c, t),
 	g_assign(statistics, f),
 	g_assign(compile_msg, f),
-	cmd_line_args(Args),
+	cmd_line_args(LArg),
 	g_read(plfile, PlFile),
-	(   PlFile='' ->
+	(   PlFile = '' ->
 	    format('no input file~n', []),
 	    abort
 	;   true
@@ -287,14 +288,14 @@ cmd_line_arg1('-o', LArg, LArg1) :-
 	cmd_line_arg1('--output', LArg, LArg1).
 
 cmd_line_arg1('--output', LArg, LArg1) :-
-	(   LArg=[WamFile|LArg1],
+	(   LArg = [WamFile|LArg1],
 	    sub_atom(WamFile, 0, 1, _, Prefix),
-	    Prefix\==(-)
+	    Prefix \== (-)
 	;   format('FILE missing after --output option~n', []),
 	    abort
 	),
 	g_read(wamfile, WamFile0),
-	(   WamFile0='' ->
+	(   WamFile0 = '' ->
 	    true
 	;   format('output file already specified (~a)~n', [WamFile0]),
 	    abort
@@ -307,6 +308,35 @@ cmd_line_arg1('--pl-state', [File|LArg], LArg) :-
 	    g_assign(singl_warn, f)
 	;   true
 	).
+
+cmd_line_arg1('-W', LArg, LArg1) :-
+	cmd_line_arg1('--wam-for-native', LArg, LArg1).
+
+cmd_line_arg1('--wam-for-native', LArg, LArg) :-
+	g_assign(native_code, t).
+
+cmd_line_arg1('-w', LArg, LArg1) :-
+	cmd_line_arg1('--wam-for-byte-code', LArg, LArg1).
+
+cmd_line_arg1('--wam-for-byte-code', LArg, LArg) :-
+	g_assign(native_code, f),
+	g_assign(inline, f),                              % force --no-inline
+	g_assign(call_c, f).                              % force --no-call-c
+
+cmd_line_arg1('--no-susp-warn', LArg, LArg) :-
+	g_assign(susp_warn, f).
+
+cmd_line_arg1('--no-singl-warn', LArg, LArg) :-
+	g_assign(singl_warn, f).
+
+cmd_line_arg1('--no-redef-error', LArg, LArg) :-
+	g_assign(redef_error, f).
+
+cmd_line_arg1('--foreign-only', LArg, LArg) :-
+	g_assign(foreign_only, t).
+
+cmd_line_arg1('--no-call-c', LArg, LArg) :-
+	g_assign(call_c, f).
 
 cmd_line_arg1('--no-inline', LArg, LArg) :-
 	g_assign(inline, f).
@@ -328,32 +358,6 @@ cmd_line_arg1('--fast-math', LArg, LArg) :-
 
 cmd_line_arg1('--keep-void-inst', LArg, LArg) :-
 	g_assign(keep_void_inst, t).
-
-cmd_line_arg1('--no-susp-warn', LArg, LArg) :-
-	g_assign(susp_warn, f).
-
-cmd_line_arg1('--no-singl-warn', LArg, LArg) :-
-	g_assign(singl_warn, f).
-
-cmd_line_arg1('--no-redef-error', LArg, LArg) :-
-	g_assign(redef_error, f).
-
-cmd_line_arg1('-W', LArg, LArg1) :-
-	cmd_line_arg1('--wam-for-native', LArg, LArg1).
-
-cmd_line_arg1('--wam-for-native', LArg, LArg) :-
-	g_assign(native_code, t).
-
-cmd_line_arg1('-w', LArg, LArg1) :-
-	cmd_line_arg1('--wam-for-byte-code', LArg, LArg1).
-
-cmd_line_arg1('--wam-for-byte-code', LArg, LArg) :-
-	g_assign(native_code, f),
-	g_assign(inline, f),                     % force -no-inline
-	g_assign(call_c, f).
-
-cmd_line_arg1('--no-call-c', LArg, LArg) :-
-	g_assign(call_c, f).
 
 cmd_line_arg1('--statistics', LArg, LArg) :-
 	g_assign(statistics, t).
@@ -386,7 +390,7 @@ cmd_line_arg1(Arg, _, _) :-
 
 cmd_line_arg1(PlFile, LArg, LArg) :-
 	g_read(plfile, PlFile0),
-	(   PlFile0='' ->
+	(   PlFile0 = '' ->
 	    true
 	;   format('input file already specified (~a)~n', [PlFile0]),
 	    abort
@@ -438,17 +442,18 @@ h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
 h('  --pl-state FILE             read FILE to set the initial Prolog state').
+h('  --no-susp-warn              do not show warnings for suspicious predicates').
+h('  --no-singl-warn             do not show warnings for named singleton variables').
+h('  --no-redef-error            do not show errors for built-in redefinitions').
+h('  --foreign-only              only compile foreign/1-2 directives').
+h('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...').
 h('  --no-inline                 do not inline predicates').
 h('  --no-reorder                do not reorder predicate arguments').
 h('  --no-reg-opt                do not optimize registers').
 h('  --min-reg-opt               minimally optimize registers').
 h('  --no-opt-last-subterm       do not optimize last subterm compilation').
-h('  --fast-math                 fast mathematical mode (assume integer arithmetic)').
+h('  --fast-math                 fast mathematical mode (assume integer arithmetics)').
 h('  --keep-void-inst            keep void instructions in the output file').
-h('  --no-susp-warn              do not show warnings for suspicious predicates').
-h('  --no-singl-warn             do not show warnings for named singleton variables').
-h('  --no-redef-error            do not show errors for built-in redefinitions').
-h('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...').
 h('  --compile-msg               print a compile message').
 h('  --statistics                print statistics information').
 h('  --help                      print this help and exit').
@@ -462,7 +467,7 @@ h('''user'' can be given as FILE for the standard input/output').
           /*--- starting directive ---*/
 
 go :-
-	argument_list(L),
-	pl2wam(L).
+	argument_list(LArg),
+	pl2wam(LArg).
 
 :-	initialization(go).

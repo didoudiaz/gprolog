@@ -32,17 +32,17 @@ code_generation(Head, Body, NbChunk, NbY, WamHead) :-
 
 
 
-generate_head(p(_, _/N, LArg), NbChunk, NbY, WamNext, WamHead) :-
+generate_head(p(_, _ / N, LArg), NbChunk, NbY, WamNext, WamHead) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_head_arg_lst(LArg, LReg, LArg1, LReg1)
-	;   LArg1=LArg,
-	    LReg1=LReg
+	;   LArg1 = LArg,
+	    LReg1 = LReg
 	),
 	gen_unif_arg_lst(LArg1, LReg1, WamNext, WamLArg),
-	(   NbChunk>1 ->
-	    WamHead=[allocate(NbY)|WamLArg]
-	;   WamHead=WamLArg
+	(   NbChunk > 1 ->
+	    WamHead = [allocate(NbY)|WamLArg]
+	;   WamHead = WamLArg
 	).
 
 
@@ -62,8 +62,8 @@ reorder_head_arg_lst(LArg, LReg, LArg1, LReg1) :-
 
 generate_body([], _, [proceed]).
 
-generate_body([p(NoPred, Pred/N, LArg)|Body], NbChunk, WamPred) :-
-	(   NoPred=NbChunk ->
+generate_body([p(NoPred, Pred / N, LArg)|Body], NbChunk, WamPred) :-
+	(   NoPred = NbChunk ->
 	    g_assign(last_pred, t)
 	;   true
 	),
@@ -76,10 +76,10 @@ generate_body1(fail, 0, _, _, _, _, [fail]) :-
 generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
 	inline_predicate(Pred, N),
 	gen_inline_pred(Pred, N, LArg, WamBody, WamPred), !,
-	(   Body=[] ->
-	    (   NoPred>1 ->
-	        WamBody=[deallocate, proceed]
-	    ;   WamBody=[proceed]
+	(   Body = [] ->
+	    (   NoPred > 1 ->
+	        WamBody = [deallocate, proceed]
+	    ;   WamBody = [proceed]
 	    )
 	;   generate_body(Body, NbChunk, WamBody)
 	).
@@ -88,16 +88,16 @@ generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamLArg) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_body_arg_lst(LArg, LReg, LArg1, LReg1)
-	;   LArg1=LArg,
-	    LReg1=LReg
+	;   LArg1 = LArg,
+	    LReg1 = LReg
 	),
 	gen_load_arg_lst(LArg1, LReg1, WamCallExecute, WamLArg),
-	(   Body=[] ->
-	    (   NoPred>1 ->
-	        WamCallExecute=[deallocate, execute(Pred/N)]
-	    ;   WamCallExecute=[execute(Pred/N)]
+	(   Body = [] ->
+	    (   NoPred > 1 ->
+	        WamCallExecute = [deallocate, execute(Pred / N)]
+	    ;   WamCallExecute = [execute(Pred / N)]
 	    )
-	;   WamCallExecute=[call(Pred/N)|WamBody],
+	;   WamCallExecute = [call(Pred / N)|WamBody],
 	    generate_body(Body, NbChunk, WamBody)
 	).
 
@@ -122,28 +122,28 @@ reorder_body_arg_lst(LArg, LReg, LArg1, LReg1) :-
 split_arg_lst([], [], [], [], [], [], [], []).
 
 split_arg_lst([Arg|LArg], [Reg|LReg], LArgK, LRegK, LArgS, LRegS, LArgT, LRegT) :-
-	(   Arg=var(x(No), _),
-	    No\==void,
-	    LArgK=LArgK1,
-	    LRegK=LRegK1,
-	    LArgS=LArgS1,
-	    LRegS=LRegS1,
-	    LArgT=[Arg|LArgT1],
-	    LRegT=[Reg|LRegT1]
-	;   Arg=stc(_, _, LStcArg),
+	(   Arg = var(x(No), _),
+	    No \== void,
+	    LArgK = LArgK1,
+	    LRegK = LRegK1,
+	    LArgS = LArgS1,
+	    LRegS = LRegS1,
+	    LArgT = [Arg|LArgT1],
+	    LRegT = [Reg|LRegT1]
+	;   Arg = stc(_, _, LStcArg),
 	    has_temporaries(LStcArg),
-	    LArgK=LArgK1,
-	    LRegK=LRegK1,
-	    LArgS=[Arg|LArgS1],
-	    LRegS=[Reg|LRegS1],
-	    LArgT=LArgT1,
-	    LRegT=LRegT1
-	;   LArgK=[Arg|LArgK1],
-	    LRegK=[Reg|LRegK1],
-	    LArgS=LArgS1,
-	    LRegS=LRegS1,
-	    LArgT=LArgT1,
-	    LRegT=LRegT1
+	    LArgK = LArgK1,
+	    LRegK = LRegK1,
+	    LArgS = [Arg|LArgS1],
+	    LRegS = [Reg|LRegS1],
+	    LArgT = LArgT1,
+	    LRegT = LRegT1
+	;   LArgK = [Arg|LArgK1],
+	    LRegK = [Reg|LRegK1],
+	    LArgS = LArgS1,
+	    LRegS = LRegS1,
+	    LArgT = LArgT1,
+	    LRegT = LRegT1
 	), !,
 	split_arg_lst(LArg, LReg, LArgK1, LRegK1, LArgS1, LRegS1, LArgT1, LRegT1).
 
@@ -151,9 +151,9 @@ split_arg_lst([Arg|LArg], [Reg|LReg], LArgK, LRegK, LArgS, LRegS, LArgT, LRegT) 
 
 
 has_temporaries([Arg|LArg]) :-
-	(   Arg=var(x(No), _),
-	    No\==void
-	;   Arg=stc(_, _, LStcArg),
+	(   Arg = var(x(No), _),
+	    No \== void
+	;   Arg = stc(_, _, LStcArg),
 	    has_temporaries(LStcArg)
 	;   has_temporaries(LArg)
 	), !.
@@ -176,12 +176,12 @@ gen_unif_arg_lst([Arg|LArg], [Reg|LReg], WamNext, WamArg) :-
 
 gen_unif_arg(var(VarName, Info), Reg, WamNext, WamArg) :-
 	(   var(Info) ->
-	    (   VarName==x(void) ->
-	        WamArg=WamNext
-	    ;   Info=not_in_cur_env,
-	        WamArg=[get_variable(VarName, Reg)|WamNext]
+	    (   VarName == x(void) ->
+	        WamArg = WamNext
+	    ;   Info = not_in_cur_env,
+	        WamArg = [get_variable(VarName, Reg)|WamNext]
 	    )
-	;   WamArg=[get_value(VarName, Reg)|WamNext]
+	;   WamArg = [get_value(VarName, Reg)|WamNext]
 	).
 
 gen_unif_arg(atm(A), Reg, WamNext, [get_atom(A, Reg)|WamNext]).
@@ -193,10 +193,10 @@ gen_unif_arg(flt(N), Reg, WamNext, [get_float(N, Reg)|WamNext]).
 gen_unif_arg(nil, Reg, WamNext, [get_nil(Reg)|WamNext]).
 
 gen_unif_arg(stc(F, N, LStcArg), Reg, WamNext, [WamInst|WamStcArg]) :-
-	(   F='.',
-	    N=2 ->
-	    WamInst=get_list(Reg)
-	;   WamInst=get_structure(F/N, Reg)
+	(   F = '.',
+	    N = 2 ->
+	    WamInst = get_list(Reg)
+	;   WamInst = get_structure(F / N, Reg)
 	),
 	flat_stc_arg_lst(LStcArg, head, LStcArg1, LArgAux, LRegAux),
 	gen_subterm_arg_lst(LStcArg1, WamArgAux, WamStcArg),
@@ -220,18 +220,18 @@ gen_load_arg_lst([Arg|LArg], [Reg|LReg], WamNext, WamArg) :-
 
 gen_load_arg(var(VarName, Info), Reg, WamNext, [WamInst|WamNext]) :-
 	(   var(Info) ->
-	    (   VarName==x(void) ->
-	        WamInst=put_void(Reg)
-	    ;   (   VarName=x(_) ->
-	            Info=in_heap
-	        ;   Info=unsafe
+	    (   VarName == x(void) ->
+	        WamInst = put_void(Reg)
+	    ;   (   VarName = x(_) ->
+	            Info = in_heap
+	        ;   Info = unsafe
 	        ),
-	        WamInst=put_variable(VarName, Reg)
+	        WamInst = put_variable(VarName, Reg)
 	    )
-	;   Info=unsafe,
+	;   Info = unsafe,
 	    g_read(last_pred, t) ->
-	    WamInst=put_unsafe_value(VarName, Reg)
-	;   WamInst=put_value(VarName, Reg)
+	    WamInst = put_unsafe_value(VarName, Reg)
+	;   WamInst = put_value(VarName, Reg)
 	).
 
 gen_load_arg(atm(A), Reg, WamNext, [put_atom(A, Reg)|WamNext]).
@@ -243,10 +243,10 @@ gen_load_arg(flt(N), Reg, WamNext, [put_float(N, Reg)|WamNext]).
 gen_load_arg(nil, Reg, WamNext, [put_nil(Reg)|WamNext]).
 
 gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
-	(   F='.',
-	    N=2 ->
-	    WamInst=put_list(Reg)
-	;   WamInst=put_structure(F/N, Reg)
+	(   F = '.',
+	    N = 2 ->
+	    WamInst = put_list(Reg)
+	;   WamInst = put_structure(F / N, Reg)
 	),
 	flat_stc_arg_lst(LStcArg, body, LStcArg1, LArgAux, LRegAux),
 	gen_load_arg_lst(LArgAux, LRegAux, [WamInst|WamStcArg], WamArgAux),
@@ -264,14 +264,14 @@ flat_stc_arg_lst([StcArg|LStcArg], HB, [StcArg|LStcArg1], LArgAux, LRegAux) :-
 	flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux).
 
 flat_stc_arg_lst([StcArg], HB, [stc(F, N, LStcArg1)], LArgAux, LRegAux) :-
-	g_read(opt_last_subterm, t),             % last subterm unif stc optimization
-	StcArg=stc(F, N, LStcArg), !,
+	g_read(opt_last_subterm, t),     % last subterm unif stc optimization
+	StcArg = stc(F, N, LStcArg), !,
 	flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux).
 
 flat_stc_arg_lst([StcArg|LStcArg], HB, [V|LStcArg1], [StcArg|LArgAux], [X|LRegAux]) :-
-	(   HB=head ->
-	    V=var(x(X), _)
-	;   V=var(x(X), in_heap)
+	(   HB = head ->
+	    V = var(x(X), _)
+	;   V = var(x(X), in_heap)
 	),
 	flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux).
 
@@ -294,10 +294,10 @@ gen_subterm_arg_lst([], WamNext, WamNext).
 
 gen_subterm_arg_lst([Arg|LArg], WamNext, WamArg) :-
 	gen_compte_void([Arg|LArg], 0, N, LArg1),
-	(   N=0 ->
+	(   N = 0 ->
 	    gen_subterm_arg(Arg, WamLArg, WamArg),
 	    gen_subterm_arg_lst(LArg, WamNext, WamLArg)
-	;   WamArg=[unify_void(N)|WamLArg1],
+	;   WamArg = [unify_void(N)|WamLArg1],
 	    gen_subterm_arg_lst(LArg1, WamNext, WamLArg1)
 	).
 
@@ -305,8 +305,8 @@ gen_subterm_arg_lst([Arg|LArg], WamNext, WamArg) :-
 
 
 gen_compte_void([var(x(No), _)|LArg], N, N2, LArg1) :-
-	No==void, !,
-	N1 is N+1,
+	No == void, !,
+	N1 is N + 1,
 	gen_compte_void(LArg, N1, N2, LArg1).
 
 gen_compte_void(LArg, N, N, LArg).
@@ -316,11 +316,11 @@ gen_compte_void(LArg, N, N, LArg).
 
 gen_subterm_arg(var(VarName, Info), WamNext, [WamInst|WamNext]) :-
 	(   var(Info) ->
-	    Info=in_heap,
-	    WamInst=unify_variable(VarName)
-	;   Info=in_heap ->
-	    WamInst=unify_value(VarName)
-	;   WamInst=unify_local_value(VarName)
+	    Info = in_heap,
+	    WamInst = unify_variable(VarName)
+	;   Info = in_heap ->
+	    WamInst = unify_value(VarName)
+	;   WamInst = unify_local_value(VarName)
 	).
 
 gen_subterm_arg(atm(A), WamNext, [unify_atom(A)|WamNext]).
@@ -330,10 +330,10 @@ gen_subterm_arg(int(N), WamNext, [unify_integer(N)|WamNext]).
 gen_subterm_arg(nil, WamNext, [unify_nil|WamNext]).
 
 gen_subterm_arg(stc(F, N, LStcArg), WamNext, [WamInst|WamLStcArg]) :-
-	(   F='.',
-	    N=2 ->
-	    WamInst=unify_list
-	;   WamInst=unify_structure(F/N)
+	(   F = '.',
+	    N = 2 ->
+	    WamInst = unify_list
+	;   WamInst = unify_structure(F / N)
 	),
 	gen_subterm_arg_lst(LStcArg, WamNext, WamLStcArg).
 
@@ -341,11 +341,11 @@ gen_subterm_arg(stc(F, N, LStcArg), WamNext, [WamInst|WamLStcArg]) :-
 
 
 gen_list_integers(I, N, L) :-
-	(   I<N ->
-	    L=[I|L1],
-	    I1 is I+1,
+	(   I < N ->
+	    L = [I|L1],
+	    I1 is I + 1,
 	    gen_list_integers(I1, N, L1)
-	;   L=[]
+	;   L = []
 	).
 
 
@@ -370,7 +370,7 @@ dummy_instruction(put_value(x(X), X)).
 	% the predicates defined here must have a corresponding clause
 	% inline_predicate/2 (in pass 2).
 
-:-	discontiguous(gen_inline_pred/5).
+:-	discontiguous(gen_inline_pred / 5).
 
 
 	/* Cut inline ('$get_cut_level'/1,'$cut'/1) */
@@ -381,7 +381,7 @@ gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	gen_unif_arg(Arg, N, WamNext, WamArg).
 
 gen_inline_pred('$cut', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
-	WamInst=cut(VarName).
+	WamInst = cut(VarName).
 
 
 
@@ -395,15 +395,15 @@ gen_inline_pred(=, 2, [Arg1, Arg2], WamNext, WamEqual) :-
 
 
 equal(Arg1, Arg2, WamNext, WamNext) :-
-	Arg1==Arg2.
+	Arg1 == Arg2.
 
 equal(var(VarName, Info), var(VarName, Info), WamNext, WamNext) :-
 	var(Info).
 
 equal(var(VarName1, Info1), Arg2, WamNext, WamEqual) :-
-	(   VarName1=x(Reg1) ->
-	    (   Reg1==void ->
-	        WamNext=WamEqual
+	(   VarName1 = x(Reg1) ->
+	    (   Reg1 == void ->
+	        WamNext = WamEqual
 	    ;   inline_unif_reg_term(Info1, Reg1, Arg2, WamNext, WamEqual)
 	    )
 	;   gen_load_arg(var(VarName1, Info1), IReg, WamEqual1, WamEqual),
@@ -411,9 +411,9 @@ equal(var(VarName1, Info1), Arg2, WamNext, WamEqual) :-
 	).
 
 equal(Arg1, var(VarName2, Info2), WamNext, WamEqual) :-
-	(   VarName2=x(Reg2) ->
-	    (   Reg2==void ->
-	        WamNext=WamEqual
+	(   VarName2 = x(Reg2) ->
+	    (   Reg2 == void ->
+	        WamNext = WamEqual
 	    ;   inline_unif_reg_term(Info2, Reg2, Arg1, WamNext, WamEqual)
 	    )
 	;   gen_load_arg(var(VarName2, Info2), IReg, WamEqual1, WamEqual),
@@ -443,7 +443,7 @@ equal_lst([Arg1|LArg1], [Arg2|LArg2], WamNext, WamEqual) :-
 
 inline_unif_reg_term(Info, Reg, Arg, WamNext, WamUnif) :-
 	(   var(Info) ->
-	    Info=in_heap,
+	    Info = in_heap,
 	    gen_load_arg(Arg, Reg, WamNext, WamUnif)
 	;   gen_unif_arg(Arg, Reg, WamNext, WamUnif)
 	).
@@ -465,8 +465,8 @@ load_math_expr(var(VarName, Info), Reg, WamNext, WamMath) :-
 	;   true
 	),
 	(   g_read(fast_math, t) ->
-	    WamMath=[math_fast_load_value(VarName, Reg)|WamNext]
-	;   WamMath=[math_load_value(VarName, Reg)|WamNext]
+	    WamMath = [math_fast_load_value(VarName, Reg)|WamNext]
+	;   WamMath = [math_load_value(VarName, Reg)|WamNext]
 	).
 
 load_math_expr(int(N), Reg, WamNext, WamMath) :-
@@ -500,7 +500,7 @@ load_math_expr1(F, 1, [Arg], Reg, WamNext, WamMath) :-
 	;   math_exp_functor_name(F, 1, Name)
 	),
 	load_math_expr(Arg, Reg1, WamInst, WamMath),
-	WamInst=[function(Name, Reg, [Reg1])|WamNext].
+	WamInst = [function(Name, Reg, [Reg1])|WamNext].
 
 load_math_expr1(F, N, LArg, Reg, WamNext, WamMath) :-
 	(   g_read(fast_math, t) ->
@@ -508,14 +508,14 @@ load_math_expr1(F, N, LArg, Reg, WamNext, WamMath) :-
 	;   math_exp_functor_name(F, N, Name)
 	),
 	load_math_arg_lst(LArg, LReg, WamInst, WamMath),
-	WamInst=[function(Name, Reg, LReg)|WamNext].
+	WamInst = [function(Name, Reg, LReg)|WamNext].
 
 load_math_expr1(F, N, _, _, _, _) :-
 	math_exp_functor_name(F, N, _),
-	error('arithmetic operation not allowed in fast math (~q)', [F/N]).
+	error('arithmetic operation not allowed in fast math (~q)', [F / N]).
 
 load_math_expr1(F, N, _, _, _, _) :-
-	error('unknown operation in arithmetic expression (~q)', [F/N]).
+	error('unknown operation in arithmetic expression (~q)', [F / N]).
 
 
 
@@ -595,7 +595,7 @@ gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-
 	;   math_cmp_functor_name(F, Name)
 	),
 	load_math_arg_lst(LArg, LReg, WamInst, WamMath),
-	WamInst=[call_c_test(Name, LReg)|WamNext].
+	WamInst = [call_c_test(Name, LReg)|WamNext].
 
 
 
@@ -620,16 +620,16 @@ math_cmp_functor_name(>=, 'Blt_Gte').
 	/* Low level C interface ('$call_c'/1) */
 
 gen_inline_pred(CallC, 1, [Arg], WamNext, WamCallC) :-
-	(   CallC='$call_c',
-	    CallCType=simple
-	;   CallC='$call_c_test',
-	    CallCType=test
-	;   CallC='$call_c_jump',
-	    CallCType=jump
+	(   CallC = '$call_c',
+	    CallCType = simple
+	;   CallC = '$call_c_test',
+	    CallCType = test
+	;   CallC = '$call_c_jump',
+	    CallCType = jump
 	), !,
-	(   Arg=atm(Name),
-	    LStcArg=[]
-	;   Arg=stc(Name, _, LStcArg)
+	(   Arg = atm(Name),
+	    LStcArg = []
+	;   Arg = stc(Name, _, LStcArg)
 	),
 	gen_call_c(Name, LStcArg, CallCType, WamNext, WamCallC).
 
@@ -639,13 +639,13 @@ gen_inline_pred(CallC, 1, [Arg], WamNext, WamCallC) :-
 	/* foreign C call */
 
 gen_inline_pred('$foreign_call_c', 7, [X, Types, atm(FctName), atm(Return), atm(BipName), int(BipArity), int(ChcSize)], WamNext, WamCallC) :-
-	(   X=stc(_, _, LArg)
-	;   X=atm(_),
-	    LArg=[]
+	(   X = stc(_, _, LArg)
+	;   X = atm(_),
+	    LArg = []
 	), !,
 	gen_load_arg_lst(LArg, LReg, WamInst, WamCallC),
 	gen_foreign_types(Types, LType),
-	WamInst=[foreign_call_c(FctName, Return, BipName, BipArity, ChcSize, LType, LReg)|WamNext].
+	WamInst = [foreign_call_c(FctName, Return, BipName, BipArity, ChcSize, LType, LReg)|WamNext].
 
 
 gen_foreign_types(nil, []).
@@ -668,12 +668,12 @@ gen_inline_pred(F, N, LArg, WamNext, WamCallC) :-
 
 gen_call_c(Name, LArg, CallCType, WamNext, WamCallC) :-
 	gen_load_arg_lst(LArg, LReg, WamInst, WamCallC),
-	WamInst=[WamCallCInst|WamNext],
-	(   CallCType=simple ->
-	    WamCallCInst=call_c(Name, LReg)
-	;   CallCType=test ->
-	    WamCallCInst=call_c_test(Name, LReg)
-	;   WamCallCInst=call_c_jump(Name, LReg)
+	WamInst = [WamCallCInst|WamNext],
+	(   CallCType = simple ->
+	    WamCallCInst = call_c(Name, LReg)
+	;   CallCType = test ->
+	    WamCallCInst = call_c_test(Name, LReg)
+	;   WamCallCInst = call_c_jump(Name, LReg)
 	).
 
 
@@ -715,6 +715,3 @@ c_fct_name(g_assignb, 2, test, 'Blt_G_Assignb').
 c_fct_name(g_link, 2, test, 'Blt_G_Link').
 c_fct_name(g_read, 2, test, 'Blt_G_Read').
 c_fct_name(g_array_size, 2, test, 'Blt_G_Array_Size').
-
-
-

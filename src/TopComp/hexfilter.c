@@ -326,16 +326,11 @@ Display_Help(void)
   L(" ");
   L("Options:");
   L("  --encode                    encoding mode (default is decoding)");
-  L
-    ("  --relax                     decode also predicate names (not only predicate indicators)");
-  L
-    ("  --printf FORMAT             pass encoded/decoded string to printf with FORMAT");
-  L
-    ("  --aux-father                decode auxiliary predicate as its father");
-  L
-    ("  --aux-father2               decode auxiliary predicate as its father + auxiliary number");
-  L
-    ("  --cmd-line                  command-line mode: encode/decode each argument of the command-line");
+  L("  --relax                     decode also predicate names (not only predicate indicators)");
+  L("  --printf FORMAT             pass encoded/decoded string to printf with FORMAT");
+  L("  --aux-father                decode auxiliary predicate as its father");
+  L("  --aux-father2               decode auxiliary predicate as its father + auxiliary number");
+  L("  --cmd-line                  command-line mode: encode/decode each argument of the command-line");
   L("  -H                          shortcut for --cmd-line --encode");
   L("  -P                          shortcut for --cmd-line --relax");
   L("  -h, --help                  print this help and exit");

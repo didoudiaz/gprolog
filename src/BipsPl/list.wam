@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : list.pl
-% date    : 1 23 2001
-% time    : 12:49:50
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/list.pl').
 
 
-predicate('$use_list'/0,27,static,private,built_in,[
+predicate('$use_list'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(append/3,30,static,private,built_in,[
+predicate(append/3,32,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -35,14 +35,14 @@ label(4),
     execute(append/3)]).
 
 
-predicate(member/2,38,static,private,built_in,[
+predicate(member/2,40,static,private,built_in,[
     get_list(1),
     unify_variable(x(1)),
     unify_variable(x(2)),
     execute('$member/2_$aux1'/3)]).
 
 
-predicate('$member/2_$aux1'/3,38,static,private,built_in,[
+predicate('$member/2_$aux1'/3,40,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     proceed,
@@ -53,7 +53,7 @@ label(1),
     execute(member/2)]).
 
 
-predicate(memberchk/2,44,static,private,built_in,[
+predicate(memberchk/2,46,static,private,built_in,[
     load_cut_level(2),
     get_list(1),
     unify_variable(x(1)),
@@ -61,7 +61,7 @@ predicate(memberchk/2,44,static,private,built_in,[
     execute('$memberchk/2_$aux1'/4)]).
 
 
-predicate('$memberchk/2_$aux1'/4,44,static,private,built_in,[
+predicate('$memberchk/2_$aux1'/4,46,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     cut(x(2)),
@@ -73,7 +73,7 @@ label(1),
     execute(memberchk/2)]).
 
 
-predicate(reverse/2,52,static,private,built_in,[
+predicate(reverse/2,54,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -97,7 +97,7 @@ label(4),
     execute('$reverse1'/3)]).
 
 
-predicate('$reverse1'/3,58,static,private,built_in,[
+predicate('$reverse1'/3,60,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -122,7 +122,7 @@ label(4),
     execute('$reverse1'/3)]).
 
 
-predicate(delete/3,66,static,private,built_in,[
+predicate(delete/3,68,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -162,7 +162,7 @@ label(7),
     execute(delete/3)]).
 
 
-predicate(select/3,79,static,private,built_in,[
+predicate(select/3,81,static,private,built_in,[
     try_me_else(1),
     get_list(1),
     unify_local_value(x(0)),
@@ -180,7 +180,7 @@ label(1),
     execute(select/3)]).
 
 
-predicate(permutation/2,88,static,private,built_in,[
+predicate(permutation/2,90,static,private,built_in,[
     try_me_else(1),
     get_nil(0),
     get_nil(1),
@@ -202,7 +202,7 @@ label(1),
     execute(permutation/2)]).
 
 
-predicate(prefix/2,98,static,private,built_in,[
+predicate(prefix/2,100,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -225,7 +225,7 @@ label(4),
     execute(prefix/2)]).
 
 
-predicate(suffix/2,106,static,private,built_in,[
+predicate(suffix/2,108,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     proceed,
@@ -238,7 +238,7 @@ label(1),
     execute(suffix/2)]).
 
 
-predicate(sublist/2,114,static,private,built_in,[
+predicate(sublist/2,116,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     proceed,
@@ -252,7 +252,7 @@ label(1),
     execute('$sublist1'/3)]).
 
 
-predicate('$sublist1'/3,120,static,private,built_in,[
+predicate('$sublist1'/3,122,static,private,built_in,[
     try_me_else(1),
     get_value(x(2),0),
     proceed,
@@ -288,7 +288,7 @@ label(6),
     execute('$sublist1'/3)]).
 
 
-predicate(last/2,131,static,private,built_in,[
+predicate(last/2,133,static,private,built_in,[
     get_variable(x(2),1),
     get_list(0),
     unify_variable(x(1)),
@@ -296,7 +296,7 @@ predicate(last/2,131,static,private,built_in,[
     execute('$last1'/3)]).
 
 
-predicate('$last1'/3,134,static,private,built_in,[
+predicate('$last1'/3,136,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -317,7 +317,7 @@ label(4),
     execute('$last1'/3)]).
 
 
-predicate(length/2,143,static,private,built_in,[
+predicate(length/2,145,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),1),
@@ -340,7 +340,7 @@ label(1),
     execute('$length'/3)]).
 
 
-predicate('$length'/3,152,static,private,built_in,[
+predicate('$length'/3,154,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -366,7 +366,7 @@ label(4),
     execute('$length'/3)]).
 
 
-predicate('$make_list'/2,161,static,private,built_in,[
+predicate('$make_list'/2,163,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_integer(0,0),
@@ -387,7 +387,7 @@ label(1),
     execute('$make_list'/2)]).
 
 
-predicate(nth/3,171,static,private,built_in,[
+predicate(nth/3,173,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     call_c_test('Blt_Integer',[0]),
@@ -410,7 +410,7 @@ label(1),
     execute('$nth2'/4)]).
 
 
-predicate('$nth1'/3,181,static,private,built_in,[
+predicate('$nth1'/3,183,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_integer(1,0),
@@ -433,7 +433,7 @@ label(1),
     execute('$nth1'/3)]).
 
 
-predicate('$nth2'/4,189,static,private,built_in,[
+predicate('$nth2'/4,191,static,private,built_in,[
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -465,7 +465,7 @@ label(5),
     execute('$nth2'/4)]).
 
 
-predicate(max_list/2,198,static,private,built_in,[
+predicate(max_list/2,200,static,private,built_in,[
     get_variable(x(2),1),
     get_list(0),
     unify_variable(x(1)),
@@ -473,7 +473,7 @@ predicate(max_list/2,198,static,private,built_in,[
     execute('$max_list1'/3)]).
 
 
-predicate('$max_list1'/3,201,static,private,built_in,[
+predicate('$max_list1'/3,203,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -515,7 +515,7 @@ label(7),
     execute('$max_list1'/3)]).
 
 
-predicate(min_list/2,213,static,private,built_in,[
+predicate(min_list/2,215,static,private,built_in,[
     get_variable(x(2),1),
     get_list(0),
     unify_variable(x(1)),
@@ -523,7 +523,7 @@ predicate(min_list/2,213,static,private,built_in,[
     execute('$min_list1'/3)]).
 
 
-predicate('$min_list1'/3,216,static,private,built_in,[
+predicate('$min_list1'/3,218,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -565,13 +565,13 @@ label(7),
     execute('$min_list1'/3)]).
 
 
-predicate(sum_list/2,229,static,private,built_in,[
+predicate(sum_list/2,231,static,private,built_in,[
     put_value(x(1),2),
     put_integer(0,1),
     execute('$sum_list1'/3)]).
 
 
-predicate('$sum_list1'/3,232,static,private,built_in,[
+predicate('$sum_list1'/3,234,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),

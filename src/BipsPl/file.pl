@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_file'.
@@ -44,4 +46,3 @@ decompose_file_name(Path, Dir, Prefix, Suffix) :-
 prolog_file_name(PlFile, PlFile1) :-
 	set_bip_name(prolog_file_name, 2),
 	'$call_c_test'('Prolog_File_Name_2'(PlFile, PlFile1)).
-

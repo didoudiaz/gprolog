@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_sockets'.
@@ -96,4 +98,3 @@ socket_accept(Socket, Client, StreamIn, StreamOut) :-
 hostname_address(HostName, HostAddress) :-
 	set_bip_name(hostname_address, 2),
 	'$call_c_test'('Hostname_Address_2'(HostName, HostAddress)).
-

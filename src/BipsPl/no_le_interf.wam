@@ -1,19 +1,19 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : no_le_interf.pl
-% date    : 1 23 2001
-% time    : 12:49:56
+% date    : 9 16 2001
+% time    : 18:16:6
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/no_le_interf.pl').
 
 
-predicate('$use_le_interf'/0,27,static,private,built_in,[
+predicate('$use_le_interf'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate('$get_linedit_prompt'/1,30,static,private,built_in,[
+predicate('$get_linedit_prompt'/1,32,static,private,built_in,[
     proceed]).
 
 
-predicate('$set_linedit_prompt'/1,32,static,private,built_in,[
+predicate('$set_linedit_prompt'/1,34,static,private,built_in,[
     proceed]).

@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : sort.pl
-% date    : 1 23 2001
-% time    : 12:49:50
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/sort.pl').
 
 
-predicate('$use_sort'/0,27,static,private,built_in,[
+predicate('$use_sort'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(sort/2,30,static,private,built_in,[
+predicate(sort/2,32,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -28,7 +28,7 @@ predicate(sort/2,30,static,private,built_in,[
     proceed]).
 
 
-predicate(sort0/2,38,static,private,built_in,[
+predicate(sort0/2,40,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -45,7 +45,7 @@ predicate(sort0/2,38,static,private,built_in,[
     proceed]).
 
 
-predicate(keysort/2,46,static,private,built_in,[
+predicate(keysort/2,48,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -62,7 +62,7 @@ predicate(keysort/2,46,static,private,built_in,[
     proceed]).
 
 
-predicate(sort/1,54,static,private,built_in,[
+predicate(sort/1,56,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(sort,0),
@@ -77,7 +77,7 @@ predicate(sort/1,54,static,private,built_in,[
     proceed]).
 
 
-predicate(sort0/1,62,static,private,built_in,[
+predicate(sort0/1,64,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(sort0,0),
@@ -92,7 +92,7 @@ predicate(sort0/1,62,static,private,built_in,[
     proceed]).
 
 
-predicate(keysort/1,70,static,private,built_in,[
+predicate(keysort/1,72,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_atom(keysort,0),

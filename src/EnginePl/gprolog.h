@@ -29,6 +29,7 @@
 #define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
+#define HAVE_MKSTEMP 1
 #define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
@@ -632,6 +633,8 @@ int M_Spawn(char *arg[]);
 int M_Spawn_Redirect(char *arg[], int detach,
 		     FILE **f_in, FILE **f_out, FILE **f_err);
 int M_Get_Status(int pid);
+char *M_Mktemp(char *template);
+char *M_Tempnam(char *dir, char *pfx);
 #define   DBGPRINTF             printf
 void Init_Machine(void);
 void M_Allocate_Stacks(void);

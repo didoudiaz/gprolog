@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_dec10io'.
@@ -38,19 +40,17 @@
 
 '$find_existing_stream'(File, Stream, Mode) :-
 	clause('$dec10_stream'(File, Stream, Mode), _), !,
-	(   current_stream(Stream),              % test if it still exists
-	    stream_property(Stream, file_name(File)),
-                                                 % (with correct name)
-	    stream_property(Stream, Mode)        % (and correct mode)
+	(   current_stream(Stream),                 % test if it still exists
+	    stream_property(Stream, file_name(File)),   % (with correct name)
+	    stream_property(Stream, Mode)                % (and correct mode)
 	                                  ->
 	    true
-	;   retract('$dec10_stream'(File, Stream, Mode)),
-                                                 % no, retract
+	;   retract('$dec10_stream'(File, Stream, Mode)),       % no, retract
 	    fail
 	).
 
 '$find_existing_stream'(Stream, Stream, Mode) :-
-	Stream='$stream'(S),                     % test if it is a stream
+	Stream = '$stream'(S),                       % test if it is a stream
 	integer(S),
 	current_stream(Stream),
 	stream_property(Stream, Mode).
@@ -85,7 +85,7 @@ seeing(File) :-
 seen :-
 	set_bip_name(seen, 0),
 	current_input(Stream),
-	close(Stream),                           % before find_existing to retract
+	close(Stream),                      % before find_existing to retract
 	(   '$find_existing_stream'(_, Stream, input)
 	;   true
 	), !.
@@ -119,7 +119,7 @@ telling(File) :-
 told :-
 	set_bip_name(told, 0),
 	current_output(Stream),
-	close(Stream),                           % before find_existing to retract
+	close(Stream),                      % before find_existing to retract
 	(   '$find_existing_stream'(_, Stream, output)
 	;   true
 	), !.
@@ -151,9 +151,9 @@ get(X) :-
 	set_bip_name(get, 1),
 	'$check_in_character_code'(X),
 	'$call_c_test'('Get_Code_1'(X0)),
-	(   X0=<32 ->
+	(   X0 =< 32 ->
 	    get(X)
-	;   X=X0
+	;   X = X0
 	).
 
 put(X) :-
@@ -166,7 +166,7 @@ skip(X) :-
 	'$check_in_character_code'(X),
 	repeat,
 	'$call_c_test'('Get_Code_1'(X0)),
-	X0=X, !.
+	X0 = X, !.
 
 
 
@@ -176,8 +176,8 @@ skip(X) :-
 
 '$check_in_character_code'(X) :-
 	integer(X), !,
-	(   X>= -1,
-	    X=<255 ->
+	(   X >= -1,
+	    X =< 255 ->
 	    true
 	;   '$pl_err_representation'(in_character_code)
 	).
@@ -194,5 +194,3 @@ tab(Exp) :-
 	fail.
 
 tab(_).
-
-	

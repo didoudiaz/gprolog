@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : inst_codif.pl
-% date    : 1 23 2001
-% time    : 12:50:28
+% date    : 9 16 2001
+% time    : 18:21:1
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/inst_codif.pl').

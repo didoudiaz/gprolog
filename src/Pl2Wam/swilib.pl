@@ -1,6 +1,11 @@
+/* $Id$ */
+
 prolog_name('SWI Prolog').
-prolog_version(X):- current_prolog_flag(version, V), number_atom(V,X).
-prolog_date(X):- current_prolog_flag(compiled_at, X).
+prolog_version(X) :-
+	current_prolog_flag(version, V),
+	number_atom(V, X).
+prolog_date(X) :-
+	current_prolog_flag(compiled_at, X).
 prolog_copyright('').
 
 callable(X) :-
@@ -13,7 +18,7 @@ callable(X) :-
 
 /* g_vars */
 
-:-	dynamic(gvar/2).
+:-	dynamic(gvar / 2).
 
 g_assign(Var, Value) :-
 	(   retract(gvar(Var, _))
@@ -23,9 +28,9 @@ g_assign(Var, Value) :-
 
 g_read(Var, Value) :-
 	(   gvar(Var, Value1)
-	;   Value1=0
+	;   Value1 = 0
 	), !,
-	Value=Value1.
+	Value = Value1.
 
 
 
@@ -50,7 +55,7 @@ delete_flags([--|L], L).
 
 
 go_other :-
-        argument_list(L),
+	argument_list(L),
 	go_other1(L).
 
 
@@ -58,5 +63,5 @@ go_other1([]) :-
 	!.
 
 go_other1(L) :-
-        pl2wam(L),
+	pl2wam(L),
 	halt.

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 prolog_name('YAP Prolog').
 prolog_version('4.3.12').
 prolog_date('2000').
@@ -10,9 +12,9 @@ g_assign(Var, Value) :-
 
 g_read(Var, Value) :-
 	(   bb_get(Var, Value1)
-        ;   Value1=0
-        ), !,
-	Value=Value1.
+	;   Value1 = 0
+	), !,
+	Value = Value1.
 
 
 
@@ -46,7 +48,7 @@ append([X|L1], L2, [X|L3]) :-
 
 
 go_other :-
-        argument_list(L),
+	argument_list(L),
 	go_other1(L).
 
 
@@ -54,8 +56,8 @@ go_other1([]) :-
 	!.
 
 go_other1(L) :-
-        pl2wam(L),
+	pl2wam(L),
 	halt.
 
 
-:- initialization(go_other).
+:-	initialization(go_other).

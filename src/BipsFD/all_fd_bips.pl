@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 '$use_all_fd_bips' :-
 	'$use_fd_infos',
 	'$use_fd_values',
@@ -30,8 +32,3 @@
 	'$use_fd_prime',
 	'$use_fd_symbolic',
 	'$use_fd_optim'.
-
-
-
-
-

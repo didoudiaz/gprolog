@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_call'.
@@ -32,7 +34,7 @@ once(Goal) :-
 	call(Goal), !.
 
 
-\+Goal :-
+\+ Goal :-
 	(   call(Goal) ->
 	    fail
 	;   true
@@ -43,8 +45,8 @@ once(Goal) :-
 
 call(Goal, Deterministic) :-
 	(   nonvar(Deterministic),
-	    Deterministic\==false,
-	    Deterministic\==true ->
+	    Deterministic \== false,
+	    Deterministic \== true ->
 	    set_bip_name(call, 2),
 	    '$pl_err_type'(boolean, Deterministic)
 	;   true
@@ -52,9 +54,9 @@ call(Goal, Deterministic) :-
 	'$get_current_B'(B),
 	call(Goal),
 	'$get_current_B'(B1),
-	(   B1>B ->
-	    Deterministic=false
-	;   Deterministic=true
+	(   B1 > B ->
+	    Deterministic = false
+	;   Deterministic = true
 	).
 
 
@@ -65,7 +67,7 @@ call(Goal, Deterministic) :-
 	'$call1'(Goal, 0).
 
 '$call1'(Goal, CallInfo) :-
-	'$call_c'('Load_Call_Info_Arg_1'(1)),    % to ensure CallInfo is deref
+	'$call_c'('Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
 	'$call_internal'(Goal, CallInfo).
 
 '$call_internal'(Goal, CallInfo) :-
@@ -79,7 +81,7 @@ call(Goal, Deterministic) :-
 
 
 '$call_internal1'(Goal, CallInfo) :-
-	'$get_cut_level'(VarCut),                % must be the first goal (A(2)=cut)
+	'$get_cut_level'(VarCut),         % must be the first goal (A(2)=cut)
 	'$call_internal_with_cut'(Goal, CallInfo, VarCut).
 
 
@@ -90,7 +92,7 @@ call(Goal, Deterministic) :-
 	'$call_internal_with_cut'(P, CallInfo, VarCut),
 	'$call_internal_with_cut'(Q, CallInfo, VarCut).
 
-'$call_internal_with_cut'((P;Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P ; Q), CallInfo, VarCut) :-
 	!,
 	'$call_internal_or'(P, Q, CallInfo, VarCut).
 
@@ -98,7 +100,7 @@ call(Goal, Deterministic) :-
 % !,                               this cut is useless because '$cut'/1
 	'$cut'(VarCut).
 
-'$call_internal_with_cut'((P->Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P -> Q), CallInfo, VarCut) :-
 	!,
 	'$call_internal'(P, CallInfo), !,
 	'$call_internal_with_cut'(Q, CallInfo, VarCut).
@@ -128,7 +130,7 @@ call(Goal, Deterministic) :-
 
 
 
-'$call_internal_or'((P->Q), R, CallInfo, VarCut) :-
+'$call_internal_or'((P -> Q), R, CallInfo, VarCut) :-
 	!,
 	(   '$call_internal'(P, CallInfo), !,
 	    '$call_internal_with_cut'(Q, CallInfo, VarCut)

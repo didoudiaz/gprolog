@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 '$use_all_pl_bips' :-
 	'$use_control',
 	'$use_call',
@@ -57,4 +59,3 @@
 	'$use_pretty',
 	'$use_random',
 	'$use_sockets'.
-

@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_le_interf'.
@@ -66,9 +68,5 @@ find_linedit_completion(Prefix, Compl) :-
 
 
 
-'$find_linedit_completion_alt' :-                % used by C code to create a choice-point
+'$find_linedit_completion_alt' :-   % used by C code to create a choice-point
 	'$call_c_test'('Find_Linedit_Completion_Alt_0').
-	
-
-
-

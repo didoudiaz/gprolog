@@ -22,9 +22,11 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
-:-	ensure_linked([consult/1, load/1]).
+:-	ensure_linked([consult / 1, load / 1]).
 
 
 top_level :-
@@ -45,7 +47,7 @@ break :-
 	'$sys_var_read'(10, Level),
 	'$sys_var_read'(11, B),
 	g_read('$all_solutions', All),
-	(   Level>0 ->
+	(   Level > 0 ->
 	    format(top_level_output, '~N{Break Level ~d}~n', [Level])
 	;   true
 	),
@@ -54,7 +56,7 @@ break :-
 	'$sys_var_dec'(10),
 	'$sys_var_write'(11, B),
 	g_assign('$all_solutions', All),
-	(   Level>0 ->
+	(   Level > 0 ->
 	    format(top_level_output, '~N{End Break}~n', [Level])
 	;   true
 	).
@@ -108,7 +110,7 @@ break :-
 % current_prolog_flag(char_conversion,CharConv),
 % g_assign('$char_conv',CharConv),
 % set_prolog_flag(char_conversion,off),
-	Prompt='| ?- ',
+	Prompt = '| ?- ',
 	(   '$sys_var_read'(12, 1) ->
 	    '$get_linedit_prompt'(UserPrompt),
 	    g_assign('$user_prompt', UserPrompt),
@@ -123,17 +125,17 @@ break :-
 	),
 % set_prolog_flag(char_conversion,CharConv),
 	sort(QueryVars, QueryVars1),
-	(   X==end_of_file ->
+	(   X == end_of_file ->
 	    nl(top_level_output), !
 	;   user_time(Time0),
 	    (   '$exec'(X, QueryVars1) ->
-	        Ok=yes
-	    ;   Ok=no
+	        Ok = yes
+	    ;   Ok = no
 	    ),
 	    user_time(Time1),
-	    Time is Time1-Time0,
+	    Time is Time1 - Time0,
 	    format(top_level_output, '~N~n', []),
-	    (   Time=0 ->
+	    (   Time = 0 ->
 	        true
 	    ;   format(top_level_output, '(~d ms) ', [Time])
 	    ),
@@ -147,13 +149,13 @@ break :-
 	g_read('$debug_mode', DebugMode),
 	'$dbg_indicator'(DebugMode, A),
 	'$sys_var_read'(10, Level),
-	(   Level>1 ->
-	    Level1 is Level-1,
-	    (   A='' ->
+	(   Level > 1 ->
+	    Level1 is Level - 1,
+	    (   A = '' ->
 	        format(top_level_output, '{~d}~n', [Level1])
 	    ;   format(top_level_output, '{~a,~d}~n', [A, Level1])
 	    )
-	;   A='' ->
+	;   A = '' ->
 	    true
 	;   format(top_level_output, '{~a}~n', [A])
 	),
@@ -181,17 +183,17 @@ break :-
 	'$call'(X, top_level, 0, true),
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
-	(   fail,                                % do not activate 'alt if vars'
-	    QueryVars=[] ->
-	    true                                 % no alt if only anonymous vars
+	(   fail,                             % do not activate 'alt if vars'
+	    QueryVars = [] ->
+	    true                              % no alt if only anonymous vars
 	;   name_query_vars(QueryVars, ToDispVars),
 	    name_singleton_vars(ToDispVars),
 	    bind_variables(ToDispVars, [exclude(QueryVars), namevars]),
 	    '$write_solution'(ToDispVars, B1, B),
-	    (   B1>B ->
-	        g_read('$all_solutions', f),     % fail for previous 'a'
+	    (   B1 > B ->
+	        g_read('$all_solutions', f),          % fail for previous 'a'
 	        write(top_level_output, ' ? '),
-	        '$read_return'                   % fail for ';' and  'a'
+	        '$read_return'                        % fail for ';' and  'a'
 	    ;   true
 	    )
 	).
@@ -201,7 +203,7 @@ break :-
 
 '$write_solution'([], B1, B) :-
 	!,
-	(   B1>B ->
+	(   B1 > B ->
 	    format(top_level_output, '~ntrue', [])
 	;   true
 	).
@@ -212,7 +214,7 @@ break :-
 
 '$write_solution1'([]).
 
-'$write_solution1'([Name=Value|ToDispVars]) :-
+'$write_solution1'([Name = Value|ToDispVars]) :-
 	format(top_level_output, '~n~a = ', [Name]),
 	write_term(top_level_output, Value, [quoted(true), numbervars(false)]),
 	'$write_solution1'(ToDispVars).

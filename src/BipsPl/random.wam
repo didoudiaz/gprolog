@@ -1,22 +1,22 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : random.pl
-% date    : 1 23 2001
-% time    : 12:49:54
+% date    : 9 16 2001
+% time    : 18:16:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/random.pl').
 
 
-predicate('$use_random'/0,27,static,private,built_in,[
+predicate('$use_random'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(randomize/0,31,static,private,built_in,[
+predicate(randomize/0,33,static,private,built_in,[
     call_c('M_Randomize',[]),
     proceed]).
 
 
-predicate(set_seed/1,37,static,private,built_in,[
+predicate(set_seed/1,39,static,private,built_in,[
     put_atom(set_seed,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -24,7 +24,7 @@ predicate(set_seed/1,37,static,private,built_in,[
     proceed]).
 
 
-predicate(get_seed/1,44,static,private,built_in,[
+predicate(get_seed/1,46,static,private,built_in,[
     put_atom(get_seed,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -32,7 +32,7 @@ predicate(get_seed/1,44,static,private,built_in,[
     proceed]).
 
 
-predicate(random/1,51,static,private,built_in,[
+predicate(random/1,53,static,private,built_in,[
     put_atom(random,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -40,7 +40,7 @@ predicate(random/1,51,static,private,built_in,[
     proceed]).
 
 
-predicate(random/3,58,static,private,built_in,[
+predicate(random/3,60,static,private,built_in,[
     put_atom(random,3),
     put_integer(3,4),
     call_c('Set_Bip_Name_2',[3,4]),

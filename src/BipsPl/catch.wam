@@ -1,29 +1,29 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : catch.pl
-% date    : 1 23 2001
-% time    : 12:49:48
+% date    : 9 16 2001
+% time    : 18:16:3
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/catch.pl').
 
 
-predicate('$use_catch'/0,27,static,private,built_in,[
+predicate('$use_catch'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate('$catch'/6,33,static,private,built_in,[
+predicate('$catch'/6,35,static,private,built_in,[
     call_c('Save_Call_Info_3',[3,4,5]),
     put_integer(0,3),
     execute('$catch1'/4)]).
 
 
-predicate('$catch1'/4,37,static,private,built_in,[
+predicate('$catch1'/4,39,static,private,built_in,[
     put_integer(3,4),
     call_c('Load_Call_Info_Arg_1',[4]),
     execute('$catch_internal'/4)]).
 
 
-predicate('$catch_internal'/4,42,static,private,built_in,[
+predicate('$catch_internal'/4,44,static,private,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -44,7 +44,7 @@ predicate('$catch_internal'/4,42,static,private,built_in,[
     execute('$catch_internal1'/5)]).
 
 
-predicate('$catch_internal1'/5,48,static,private,built_in,[
+predicate('$catch_internal1'/5,50,static,private,built_in,[
     load_cut_level(5),
     try_me_else(1),
     allocate(6),
@@ -96,7 +96,7 @@ label(1),
     execute('$catch_a_throw'/5)]).
 
 
-predicate('$$catch_internal1/5_$aux1'/3,48,static,private,built_in,[
+predicate('$$catch_internal1/5_$aux1'/3,50,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     put_atom(>,2),
@@ -115,7 +115,7 @@ label(1),
     proceed]).
 
 
-predicate('$catch_a_throw'/5,78,static,private,built_in,[
+predicate('$catch_a_throw'/5,80,static,private,built_in,[
     load_cut_level(5),
     try_me_else(1),
     call_c_test('Blt_Non_Var',[0]),
@@ -145,7 +145,7 @@ label(2),
     execute('$unwind'/1)]).
 
 
-predicate('$$catch_a_throw/5_$aux1'/2,78,static,private,built_in,[
+predicate('$$catch_a_throw/5_$aux1'/2,80,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -165,7 +165,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$trail_handler'/1,98,static,private,built_in,[
+predicate('$trail_handler'/1,100,static,private,built_in,[
     try_me_else(1),
     proceed,
 
@@ -178,7 +178,7 @@ label(1),
     fail]).
 
 
-predicate('$catch_sync_for_fail_at'/1,107,static,private,built_in,[
+predicate('$catch_sync_for_fail_at'/1,109,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -190,7 +190,7 @@ predicate('$catch_sync_for_fail_at'/1,107,static,private,built_in,[
     execute('$$catch_sync_for_fail_at/1_$aux1'/2)]).
 
 
-predicate('$$catch_sync_for_fail_at/1_$aux1'/2,107,static,private,built_in,[
+predicate('$$catch_sync_for_fail_at/1_$aux1'/2,109,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -213,7 +213,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$catch_fail_now'/1,117,static,private,built_in,[
+predicate('$catch_fail_now'/1,119,static,private,built_in,[
     allocate(0),
     call('$set_current_B'/1),
     fail]).

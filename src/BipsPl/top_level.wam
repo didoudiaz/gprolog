@@ -1,13 +1,13 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : top_level.pl
-% date    : 1 23 2001
-% time    : 12:49:55
+% date    : 9 16 2001
+% time    : 18:16:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
 
 
-predicate(top_level/0,30,static,private,built_in,[
+predicate(top_level/0,32,static,private,built_in,[
     allocate(3),
     put_atom(prolog_name,0),
     put_variable(y(0),1),
@@ -39,7 +39,7 @@ predicate(top_level/0,30,static,private,built_in,[
     execute(break/0)]).
 
 
-predicate(break/0,43,static,private,built_in,[
+predicate(break/0,45,static,private,built_in,[
     allocate(3),
     call_c('Set_Ctrl_C_Handler_0',[]),
     put_integer(10,0),
@@ -69,7 +69,7 @@ predicate(break/0,43,static,private,built_in,[
     execute('$break/0_$aux2'/1)]).
 
 
-predicate('$break/0_$aux2'/1,43,static,private,built_in,[
+predicate('$break/0_$aux2'/1,45,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(>,2),
@@ -91,7 +91,7 @@ label(1),
     proceed]).
 
 
-predicate('$break/0_$aux1'/1,43,static,private,built_in,[
+predicate('$break/0_$aux1'/1,45,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(>,2),
@@ -113,7 +113,7 @@ label(1),
     proceed]).
 
 
-predicate('$top_level1'/0,65,static,private,built_in,[
+predicate('$top_level1'/0,67,static,private,built_in,[
     load_cut_level(0),
     allocate(1),
     get_variable(y(0),0),
@@ -128,7 +128,7 @@ predicate('$top_level1'/0,65,static,private,built_in,[
     proceed]).
 
 
-predicate('$top_level_abort'/0,72,static,private,built_in,[
+predicate('$top_level_abort'/0,74,static,private,built_in,[
     allocate(1),
     put_integer(11,0),
     put_variable(y(0),1),
@@ -142,7 +142,7 @@ predicate('$top_level_abort'/0,72,static,private,built_in,[
     execute('$catch_sync_for_fail_at'/1)]).
 
 
-predicate('$top_level_stop'/0,80,static,private,built_in,[
+predicate('$top_level_stop'/0,82,static,private,built_in,[
     allocate(1),
     put_integer(11,0),
     put_variable(y(0),1),
@@ -152,7 +152,7 @@ predicate('$top_level_stop'/0,80,static,private,built_in,[
     execute('$catch_sync_for_fail_at'/1)]).
 
 
-predicate('$top_level_exception'/1,87,static,private,built_in,[
+predicate('$top_level_exception'/1,89,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call('$$top_level_exception/1_$aux1'/0),
@@ -177,7 +177,7 @@ predicate('$top_level_exception'/1,87,static,private,built_in,[
     fail]).
 
 
-predicate('$$top_level_exception/1_$aux1'/0,87,static,private,built_in,[
+predicate('$$top_level_exception/1_$aux1'/0,89,static,private,built_in,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -197,7 +197,7 @@ label(1),
     proceed]).
 
 
-predicate('$top_level2'/0,103,static,private,built_in,[
+predicate('$top_level2'/0,105,static,private,built_in,[
     load_cut_level(0),
     allocate(6),
     get_variable(y(0),0),
@@ -233,7 +233,7 @@ predicate('$top_level2'/0,103,static,private,built_in,[
     execute('$$top_level2/0_$aux3'/3)]).
 
 
-predicate('$$top_level2/0_$aux3'/3,103,static,private,built_in,[
+predicate('$$top_level2/0_$aux3'/3,105,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -285,7 +285,7 @@ label(1),
     fail]).
 
 
-predicate('$$top_level2/0_$aux5'/1,103,static,private,built_in,[
+predicate('$$top_level2/0_$aux5'/1,105,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     get_integer(0,0),
@@ -302,7 +302,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$top_level2/0_$aux4'/3,103,static,private,built_in,[
+predicate('$$top_level2/0_$aux4'/3,105,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -321,7 +321,7 @@ label(1),
     proceed]).
 
 
-predicate('$$top_level2/0_$aux2'/1,103,static,private,built_in,[
+predicate('$$top_level2/0_$aux2'/1,105,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -340,7 +340,7 @@ label(1),
     proceed]).
 
 
-predicate('$$top_level2/0_$aux1'/2,103,static,private,built_in,[
+predicate('$$top_level2/0_$aux1'/2,105,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -366,7 +366,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate('$write_indicator'/0,146,static,private,built_in,[
+predicate('$write_indicator'/0,148,static,private,built_in,[
     try_me_else(1),
     allocate(2),
     put_atom('$debug_mode',1),
@@ -387,7 +387,7 @@ label(1),
     proceed]).
 
 
-predicate('$$write_indicator/0_$aux1'/2,146,static,private,built_in,[
+predicate('$$write_indicator/0_$aux1'/2,148,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),1),
@@ -425,7 +425,7 @@ label(2),
     execute(format/3)]).
 
 
-predicate('$$write_indicator/0_$aux2'/2,146,static,private,built_in,[
+predicate('$$write_indicator/0_$aux2'/2,148,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_atom('',0),
@@ -449,7 +449,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$dbg_indicator'/2,167,static,private,built_in,[
+predicate('$dbg_indicator'/2,169,static,private,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -480,7 +480,7 @@ label(7),
     proceed]).
 
 
-predicate('$exec'/2,176,static,private,built_in,[
+predicate('$exec'/2,178,static,private,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -512,7 +512,7 @@ predicate('$exec'/2,176,static,private,built_in,[
     execute('$$exec/2_$aux1'/3)]).
 
 
-predicate('$$exec/2_$aux1'/3,176,static,private,built_in,[
+predicate('$$exec/2_$aux1'/3,178,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -550,7 +550,7 @@ label(1),
     execute('$$exec/2_$aux2'/2)]).
 
 
-predicate('$$exec/2_$aux2'/2,176,static,private,built_in,[
+predicate('$$exec/2_$aux2'/2,178,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(0),
@@ -578,7 +578,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution'/3,202,static,private,built_in,[
+predicate('$write_solution'/3,204,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_nil(0),
@@ -592,7 +592,7 @@ label(1),
     execute('$write_solution1'/1)]).
 
 
-predicate('$$write_solution/3_$aux1'/2,202,static,private,built_in,[
+predicate('$$write_solution/3_$aux1'/2,204,static,private,built_in,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(>,3),
@@ -612,7 +612,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution1'/1,213,static,private,built_in,[
+predicate('$write_solution1'/1,215,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -656,7 +656,7 @@ label(4),
     execute('$write_solution1'/1)]).
 
 
-predicate('$read_return'/0,223,static,private,built_in,[
+predicate('$read_return'/0,225,static,private,built_in,[
     load_cut_level(0),
     allocate(2),
     get_variable(y(0),0),
@@ -672,7 +672,7 @@ predicate('$read_return'/0,223,static,private,built_in,[
     proceed]).
 
 
-predicate('$read_return'/1,231,static,private,built_in,[
+predicate('$read_return'/1,233,static,private,built_in,[
     load_cut_level(1),
     try_me_else(10),
     switch_on_term(2,fail,1,fail,fail),

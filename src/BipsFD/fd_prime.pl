@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in_fd.
 
 '$use_fd_prime'.
@@ -37,4 +39,3 @@ fd_prime(X) :-
 fd_not_prime(X) :-
 	set_bip_name(fd_not_prime, 1),
 	fd_tell(not_prime_x(X)).
-

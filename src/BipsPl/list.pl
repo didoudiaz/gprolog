@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_list'.
@@ -36,13 +38,13 @@ append([H|T1], List, [H|T2]) :-
 
 
 member(X, [H|T]) :-
-	(   X=H
+	(   X = H
 	;   member(X, T)
 	).
 
 
 memberchk(X, [H|T]) :-
-	(   X=H, !
+	(   X = H, !
 	;   memberchk(X, T)
 	).
 
@@ -66,7 +68,7 @@ reverse([H|T], L) :-
 delete([], _, []).
 
 delete([H|T], X, L) :-
-	H==X, !,
+	H == X, !,
 	delete(T, X, L).
 
 delete([H|T], X, [H|L]) :-
@@ -142,7 +144,7 @@ last([H|T], X) :-
 
 length(L, N) :-
 	integer(N), !,
-	N>=0,
+	N >= 0,
 	'$make_list'(N, L).
 
 length(L, N) :-
@@ -152,7 +154,7 @@ length(L, N) :-
 '$length'([], N, N).
 
 '$length'([_|L], M, N) :-
-	M1 is M+1,
+	M1 is M + 1,
 	'$length'(L, M1, N).
 
 
@@ -162,7 +164,7 @@ length(L, N) :-
 	!.
 
 '$make_list'(N, [_|L]) :-
-	N1 is N-1,
+	N1 is N - 1,
 	'$make_list'(N1, L).
 
 
@@ -170,7 +172,7 @@ length(L, N) :-
 
 nth(N, L, X) :-
 	integer(N), !,
-	N>=1,
+	N >= 1,
 	'$nth1'(N, L, X).
 
 nth(N, L, X) :-
@@ -182,14 +184,14 @@ nth(N, L, X) :-
 	!.
 
 '$nth1'(N, [_|T], X) :-
-	N1 is N-1,
+	N1 is N - 1,
 	'$nth1'(N1, T, X).
 
 
 '$nth2'([X|_], X, N, N).
 
 '$nth2'([_|T], X, I, N) :-
-	I1 is I+1,
+	I1 is I + 1,
 	'$nth2'(T, X, I1, N).
 
 
@@ -201,7 +203,7 @@ max_list([H|T], Max) :-
 '$max_list1'([], Max, Max).
 
 '$max_list1'([H|T], X, Max) :-
-	H=<X, !,
+	H =< X, !,
 	'$max_list1'(T, X, Max).
 
 '$max_list1'([H|T], _, Max) :-
@@ -216,7 +218,7 @@ min_list([H|T], Min) :-
 '$min_list1'([], Min, Min).
 
 '$min_list1'([H|T], X, Min) :-
-	H>=X, !,
+	H >= X, !,
 	'$min_list1'(T, X, Min).
 
 '$min_list1'([H|T], _, Min) :-
@@ -232,6 +234,5 @@ sum_list(L, Sum) :-
 '$sum_list1'([], Sum, Sum).
 
 '$sum_list1'([H|T], Sum0, Sum) :-
-	Sum1 is H+Sum0,
+	Sum1 is H + Sum0,
 	'$sum_list1'(T, Sum1, Sum).
-

@@ -35,6 +35,12 @@
 #include "bips_pl.h"
 
 
+				/* define to only put spaces for fx, xfx, xf */
+#if 0
+#define SPACE_ARGS_RESTRICTED
+#endif
+
+
 
 
 /*---------------------------------*
@@ -676,8 +682,18 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
       Show_Atom(GENERAL_TERM, functor);
 
-      last_prefix_op = (strcmp(atom_tbl[functor].name, "-") == 0)
-	? W_PREFIX_OP_MINUS : W_PREFIX_OP_ANY;
+      last_prefix_op = W_PREFIX_OP_ANY;
+
+      if (space_args
+#if SPACE_ARGS_RESTRICTED	/* space_args -> space after fx operator */
+	  && oper->prec > oper->right
+#endif
+	  )
+	Out_Char(' ');
+      else
+	if (strcmp(atom_tbl[functor].name, "-") == 0)
+	  last_prefix_op = W_PREFIX_OP_MINUS;
+
       Show_Term(depth, oper->right, INSIDE_ANY_OP, Arg(stc_adr, 0));
       last_prefix_op = W_NO_PREFIX_OP;
 
@@ -701,6 +717,14 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
+
+      if (space_args
+#if SPACE_ARGS_RESTRICTED	/* space_args -> space before xf operator */
+	  && oper->prec > oper->left
+#endif
+	  )
+	Out_Char(' ');
+
       Show_Atom(GENERAL_TERM, functor);
 
       if (bracket)
@@ -732,7 +756,12 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  surround_space = FALSE;
 
 	  if (atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
-	      atom_tbl[functor].prop.type == OTHER_ATOM)
+	      atom_tbl[functor].prop.type == OTHER_ATOM ||
+	      (space_args 
+#ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
+	       && oper->left != oper->prec && oper->right != oper->prec
+#endif
+	       ))
 	    {
 	      surround_space = TRUE;
 	      Out_Char(' ');

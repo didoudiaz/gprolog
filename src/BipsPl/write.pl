@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_write'.
@@ -110,7 +112,7 @@ write_term(SorA, Term, Options) :-
 
 
 '$set_write_defaults' :-
-	'$sys_var_write'(0, 12),                 % default mask
+	'$sys_var_write'(0, 12),                               % default mask
 	'$sys_var_write'(1, -1).
 
 
@@ -134,49 +136,49 @@ write_term(SorA, Term, Options) :-
 
 '$get_write_options2'(quoted(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 0)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 0)
 	).
 
 '$get_write_options2'(ignore_ops(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 1)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 1)
 	).
 
 '$get_write_options2'(numbervars(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 2)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 2)
 	).
 
 '$get_write_options2'(namevars(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 3)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 3)
 	).
 
 '$get_write_options2'(space_args(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 4)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 4)
 	).
 
 '$get_write_options2'(portrayed(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 5)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 5)
 	).
 
@@ -197,4 +199,3 @@ nl :-
 nl(SorA) :-
 	set_bip_name(nl, 1),
 	'$call_c'('Nl_1'(SorA)).
-

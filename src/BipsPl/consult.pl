@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_consult'.
@@ -37,7 +39,7 @@ consult(File) :-
 	set_bip_name(consult, 1),
 	'$check_atom_or_atom_list'(File), !,
 	(   atom(File),
-	    File\==[] ->
+	    File \== [] ->
 	    '$consult2'(File)
 	;   '$consult1'(File)
 	).
@@ -52,8 +54,8 @@ consult(File) :-
 
 '$consult2'(File) :-
 	'$call_c_test'('Prolog_File_Name_2'(File, File1)),
-	(   File1=user ->
-	    File2=File1
+	(   File1 = user ->
+	    File2 = File1
 	;   '$call_c_test'('Absolute_File_Name_2'(File1, File2)),
 	    (   file_exists(File2) ->
 	        true
@@ -95,7 +97,7 @@ consult(File) :-
 	open(BCFile, read, Stream),
 	repeat,
 	read(Stream, P),
-	(   P=end_of_file ->
+	(   P = end_of_file ->
 	    !
 	;   '$load_pred'(P, Stream),
 	    fail
@@ -120,14 +122,14 @@ consult(File) :-
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(PI, PlFile, PlLine),
 	'$check_owner_files'(PI, PlFile, PlLine),
-	PI=Pred/N,
+	PI = Pred / N,
 	'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd),
 	g_assign('$ctr', 0),
 	repeat,
 	g_read('$ctr', Ctr),
-	Ctr1 is Ctr+1,
+	Ctr1 is Ctr + 1,
 	g_assign('$ctr', Ctr1),
-	(   Ctr=NbCl ->
+	(   Ctr = NbCl ->
 	    true
 	;   read(Stream, clause(Cl, WamCl)),
 	    '$add_clause_term_and_bc'(Cl, WamCl),
@@ -147,7 +149,7 @@ consult(File) :-
 
 '$check_pred_type'(PI, PlFile, PlLine) :-
 	'$predicate_property_any'(PI, native_code), !,
-	PI=Name/_,
+	PI = Name / _,
 	(   '$aux_name'(Name) ->
 	    true
 	;   format(top_level_output, 'error: ~a:~d: native code procedure ~q cannot be redefined (ignored)~n', [PlFile, PlLine, PI])
@@ -161,8 +163,8 @@ consult(File) :-
 
 '$check_owner_files'(PI, PlFile, PlLine) :-
 	'$get_predicate_file_info'(PI, PlFile1, PlLine1),
-	PlFile\==PlFile1, !,
-	PI=Name/_,
+	PlFile \== PlFile1, !,
+	PI = Name / _,
 	(   '$aux_name'(Name) ->
 	    true
 	;   format(top_level_output, 'warning: ~a:~d: redefining procedure ~q~n', [PlFile, PlLine, PI]),
@@ -178,7 +180,7 @@ load(File) :-
 	set_bip_name(load, 1),
 	'$check_atom_or_atom_list'(File), !,
 	(   atom(File),
-	    File\==[] ->
+	    File \== [] ->
 	    '$load2'(File)
 	;   '$load1'(File)
 	).
@@ -193,9 +195,9 @@ load(File) :-
 
 '$load2'(File) :-
 	decompose_file_name(File, _Dir, _Prefix, Suffix),
-	(   Suffix='' ->
+	(   Suffix = '' ->
 	    atom_concat(File, '.wbc', File1)
-	;   File1=File
+	;   File1 = File
 	),
 	'$call_c_test'('Absolute_File_Name_2'(File1, File2)),
 	(   file_exists(File2) ->
@@ -231,7 +233,7 @@ load(File) :-
 
 
 
-'$bc_emulate_cont' :-                            % used by C code to set a continuation
+'$bc_emulate_cont' :-                  % used by C code to set a continuation
 	'$call_c_jump'('BC_Emulate_Cont_0').
 
 
@@ -269,7 +271,7 @@ listing(PI) :-
 
 listing(N) :-
 	atom(N), !,
-	'$listing_all'(N/_).
+	'$listing_all'(N / _).
 
 listing(PI) :-
 	'$listing_all'(PI).
@@ -298,10 +300,8 @@ listing(PI) :-
 	functor(H, N, A),
 	nl(top_level_output),
 	'$clause'(H, B, 2),
-	portray_clause(top_level_output, (H:-B)),
+	portray_clause(top_level_output, (H :- B)),
 	nl(top_level_output),
 	fail.
 
 '$listing_one'(_).
-
-

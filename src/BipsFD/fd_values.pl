@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in_fd.
 
 '$use_fd_values'.
@@ -39,7 +41,7 @@ fd_domain(List, L, U) :-
 	'$call_c_test'('Fd_Domain_3'(List, L, U)).
 
 
-'$fd_domain'(X, L, U) :-                         % for fd builtins (exact errors)
+'$fd_domain'(X, L, U) :-                     % for fd builtins (exact errors)
 	fd_tell(fd_domain(X, L, U)).
 
 
@@ -75,7 +77,7 @@ fd_labeling(List, Options) :-
 	'$sys_var_read'(0, VarMethod),
 	'$sys_var_read'(1, ValMethod),
 	'$sys_var_read'(2, Reorder),
-	'$sys_var_write'(3, 0),                  % bckts counter
+	'$sys_var_write'(3, 0),                               % bckts counter
 	(   (   fd_var(List)
 	    ;   integer(List)
 	    ) ->
@@ -116,44 +118,44 @@ fd_labeling(List, Options) :-
 	'$pl_err_instantiation'.
 
 '$get_labeling_options2'(variable_method(X)) :-
-	nonvar(X),                               % same order as in fd_values_c.c
-	(   X=standard,
+	nonvar(X),                           % same order as in fd_values_c.c
+	(   X = standard,
 	    '$sys_var_write'(0, 0)
-	;   X=first_fail,
+	;   X = first_fail,
 	    '$sys_var_write'(0, 1)
-	;   X=ff,
+	;   X = ff,
 	    '$sys_var_write'(0, 1)
-	;   X=most_constrained,
+	;   X = most_constrained,
 	    '$sys_var_write'(0, 2)
-	;   X=smallest,
+	;   X = smallest,
 	    '$sys_var_write'(0, 3)
-	;   X=largest,
+	;   X = largest,
 	    '$sys_var_write'(0, 4)
-	;   X=max_regret,
+	;   X = max_regret,
 	    '$sys_var_write'(0, 5)
-	;   X=random,
+	;   X = random,
 	    '$sys_var_write'(0, 6)
 	).
 
 '$get_labeling_options2'(value_method(X)) :-
-	nonvar(X),                               % same order as in fd_values_c.c
-	(   X=min,
+	nonvar(X),                           % same order as in fd_values_c.c
+	(   X = min,
 	    '$sys_var_write'(1, 0)
-	;   X=max,
+	;   X = max,
 	    '$sys_var_write'(1, 1)
-	;   X=middle,
+	;   X = middle,
 	    '$sys_var_write'(1, 2)
-	;   X=limits,
+	;   X = limits,
 	    '$sys_var_write'(1, 3)
-	;   X=random,
+	;   X = random,
 	    '$sys_var_write'(1, 4)
 	).
 
 '$get_labeling_options2'(reorder(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_write'(2, 0)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_write'(2, 1)
 	).
 
@@ -166,7 +168,7 @@ fd_labeling(List, Options) :-
 
 
 
-'$fd_labeling1'(List, 0, ValMethod, _) :-        % standard
+'$fd_labeling1'(List, 0, ValMethod, _) :-                          % standard
 	!,
 	'$fd_labeling_std'(List, ValMethod).
 
@@ -214,20 +216,20 @@ fd_labeling(List, Options) :-
 	'$call_c_test'('Indomain_2'(X, ValMethod)).
 
 
-'$indomain_min_alt' :-                           % used by C code to create a choice-point
+'$indomain_min_alt' :-              % used by C code to create a choice-point
 	'$call_c_test'('Indomain_Min_Alt_0').
 
-'$indomain_max_alt' :-                           % used by C code to create a choice-point
+'$indomain_max_alt' :-              % used by C code to create a choice-point
 	'$call_c_test'('Indomain_Max_Alt_0').
 
-'$indomain_middle_alt' :-                        % used by C code to create a choice-point
+'$indomain_middle_alt' :-           % used by C code to create a choice-point
 	'$call_c_test'('Indomain_Middle_Alt_0').
 
-'$indomain_limits_alt' :-                        % used by C code to create a choice-point
+'$indomain_limits_alt' :-           % used by C code to create a choice-point
 	'$call_c_test'('Indomain_Limits_Alt_0').
 
-'$indomain_random_alt' :-                        % used by C code to create a choice-point
+'$indomain_random_alt' :-           % used by C code to create a choice-point
 	'$call_c_test'('Indomain_Random_Alt_0').
 
-'$extra_cstr_alt' :-                             % used by C code to create a choice-point
+'$extra_cstr_alt' :-                % used by C code to create a choice-point
 	'$call_c_test'('Extra_Cstr_Alt_0').

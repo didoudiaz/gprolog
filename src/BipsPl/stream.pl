@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_stream'.
@@ -122,7 +124,7 @@ open(SourceSink, Mode, Stream, Options) :-
 '$get_open_stm'(Stream, Stm) :-
 	(   nonvar(Stream) ->
 	    '$pl_err_type'(variable, Stream)
-	;   Stream='$stream'(Stm)
+	;   Stream = '$stream'(Stm)
 	).
 
 
@@ -146,30 +148,30 @@ open(SourceSink, Mode, Stream, Options) :-
 
 '$get_open_options2'(type(X), LAlias, LAlias) :-
 	nonvar(X),
-	(   X=text,
+	(   X = text,
 	    '$sys_var_set_bit'(0, 0)
-	;   X=binary,
+	;   X = binary,
 	    '$sys_var_reset_bit'(0, 0)
 	).
 
 '$get_open_options2'(reposition(X), LAlias, LAlias) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 1)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 1)
 	),
 	'$sys_var_set_bit'(0, 2).
 
 '$get_open_options2'(eof_action(X), LAlias, LAlias) :-
 	nonvar(X),
-	(   X=error,
+	(   X = error,
 	    '$sys_var_reset_bit'(0, 4),
 	    '$sys_var_reset_bit'(0, 3)
-	;   X=eof_code,
+	;   X = eof_code,
 	    '$sys_var_reset_bit'(0, 4),
 	    '$sys_var_set_bit'(0, 3)
-	;   X=reset,
+	;   X = reset,
 	    '$sys_var_set_bit'(0, 4),
 	    '$sys_var_reset_bit'(0, 3)
 	),
@@ -177,13 +179,13 @@ open(SourceSink, Mode, Stream, Options) :-
 
 '$get_open_options2'(buffering(X), LAlias, LAlias) :-
 	nonvar(X),
-	(   X=none,
+	(   X = none,
 	    '$sys_var_reset_bit'(0, 7),
 	    '$sys_var_reset_bit'(0, 6)
-	;   X=line,
+	;   X = line,
 	    '$sys_var_reset_bit'(0, 7),
 	    '$sys_var_set_bit'(0, 6)
-	;   X=block,
+	;   X = block,
 	    '$sys_var_set_bit'(0, 7),
 	    '$sys_var_reset_bit'(0, 6)
 	),
@@ -230,7 +232,7 @@ close(SorA, Options) :-
 
 
 '$close'(SorA, Options) :-
-	'$sys_var_write'(0, 0),                  % default mask
+	'$sys_var_write'(0, 0),                                % default mask
 	'$get_close_options'(Options),
 	'$call_c'('Close_1'(SorA)).
 
@@ -255,9 +257,9 @@ close(SorA, Options) :-
 
 '$get_close_options2'(force(X)) :-
 	nonvar(X),
-	(   X=false,
+	(   X = false,
 	    '$sys_var_reset_bit'(0, 0)
-	;   X=true,
+	;   X = true,
 	    '$sys_var_set_bit'(0, 0)
 	).
 
@@ -283,10 +285,10 @@ set_stream_type(SorA, Type) :-
 	    '$pl_err_instantiation'
 	;   true
 	),
-	(   Type=text,
-	    IsText=1
-	;   Type=binary,
-	    IsText=0
+	(   Type = text,
+	    IsText = 1
+	;   Type = binary,
+	    IsText = 0
 	), !,
 	'$call_c'('Set_Stream_Type_2'(SorA, IsText)).
 
@@ -302,12 +304,12 @@ set_stream_eof_action(SorA, EofAction) :-
 	    '$pl_err_instantiation'
 	;   true
 	),
-	(   EofAction=error,
-	    Action=0
-	;   EofAction=eof_code,
-	    Action=1
-	;   EofAction=reset,
-	    Action=2
+	(   EofAction = error,
+	    Action = 0
+	;   EofAction = eof_code,
+	    Action = 1
+	;   EofAction = reset,
+	    Action = 2
 	), !,
 	'$call_c'('Set_Stream_Eof_Action_2'(SorA, Action)).
 
@@ -323,12 +325,12 @@ set_stream_buffering(SorA, Buffering) :-
 	    '$pl_err_instantiation'
 	;   true
 	),
-	(   Buffering=none,
-	    BuffMode=0
-	;   Buffering=line,
-	    BuffMode=1
-	;   Buffering=block,
-	    BuffMode=2
+	(   Buffering = none,
+	    BuffMode = 0
+	;   Buffering = line,
+	    BuffMode = 1
+	;   Buffering = block,
+	    BuffMode = 2
 	), !,
 	'$call_c'('Set_Stream_Buffering_2'(SorA, BuffMode)).
 
@@ -361,7 +363,7 @@ current_stream(Stream) :-
 	'$call_c_test'('Current_Stream_1'(S)).
 
 
-'$current_stream_alt' :-                         % used by C code to create a choice-point
+'$current_stream_alt' :-            % used by C code to create a choice-point
 	'$call_c_test'('Current_Stream_Alt_0').
 
 
@@ -371,7 +373,7 @@ stream_property(Stream, Property) :-
 	set_bip_name(stream_property, 2),
 	'$check_stream_or_var'(Stream, S),
 	(   nonvar(Property),
-	    Property=alias(Alias),
+	    Property = alias(Alias),
 	    atom(Alias) ->
 	    '$call_c_test'('From_Alias_To_Stream_2'(Alias, S))
 	;   '$check_stream_prop'(Property), !,
@@ -476,7 +478,7 @@ current_alias(Stream, Alias) :-
 '$current_alias'(S, Alias) :-
 	'$call_c_test'('Current_Alias_2'(S, Alias)).
 
-'$current_alias_alt' :-                          % used by C code to create a choice-point
+'$current_alias_alt' :-             % used by C code to create a choice-point
 	'$call_c_test'('Current_Alias_Alt_0').
 
 
@@ -649,4 +651,3 @@ close_output_codes_stream(SorA, SinkCodes) :-
 	set_bip_name(close_output_codes_stream, 2),
 	'$sys_var_write'(0, 2),
 	'$call_c_test'('Close_Output_Term_Stream_2'(SorA, SinkCodes)).
-

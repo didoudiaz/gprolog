@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_read'.
@@ -76,7 +78,7 @@ read_term(SorA, Term, Options) :-
 
 
 '$set_read_defaults' :-
-	'$sys_var_write'(0, 0),                  % default mask
+	'$sys_var_write'(0, 0),                                % default mask
 	'$sys_var_write'(1, -1).
 
 
@@ -118,19 +120,19 @@ read_term(SorA, Term, Options) :-
 
 '$get_read_options2'(syntax_error(X)) :-
 	nonvar(X),
-	(   X=error,
-	    '$sys_var_write'(1, 0)               % same order as in flag_supp.h
-	;   X=warning,
+	(   X = error,
+	    '$sys_var_write'(1, 0)             % same order as in flag_supp.h
+	;   X = warning,
 	    '$sys_var_write'(1, 1)
-	;   X=fail,
+	;   X = fail,
 	    '$sys_var_write'(1, 2)
 	).
 
 '$get_read_options2'(end_of_term(X)) :-
-	nonvar(X),                               % same order as in parse_supp.h
-	(   X=dot,
+	nonvar(X),                            % same order as in parse_supp.h
+	(   X = dot,
 	    '$sys_var_reset_bit'(0, 3)
-	;   X=eof,
+	;   X = eof,
 	    '$sys_var_set_bit'(0, 3)
 	).
 
@@ -213,6 +215,5 @@ current_char_conversion(InChar, OutChar) :-
 
 
 
-'$current_char_conversion_alt' :-                % used by C code to create a choice-point
+'$current_char_conversion_alt' :-   % used by C code to create a choice-point
 	'$call_c_test'('Current_Char_Conversion_Alt_0').
-

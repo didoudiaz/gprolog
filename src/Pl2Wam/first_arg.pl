@@ -29,7 +29,7 @@ find_first_arg([], var).
 find_first_arg([WamInst|WamCode], FirstArg) :-
 	(   defines_first_arg(WamInst, FirstArg)
 	;   stopping_inst(WamInst),
-	    FirstArg=var
+	    FirstArg = var
 	;   find_first_arg(WamCode, FirstArg)
 	), !.
 
@@ -50,10 +50,10 @@ stopping_inst(WamInst) :-
 
 
 assign_x0([Code|LCode]) :-
-	(   Code=w(0)
-	;   Code=c(R1, R2),
-	    R1\==R2,
-	    R2=0
+	(   Code = w(0)
+	;   Code = c(R1, R2),
+	    R1 \== R2,
+	    R2 = 0
 	;   assign_x0(LCode)
 	).
 
@@ -70,4 +70,4 @@ defines_first_arg(get_nil(0), atm([])).
 
 defines_first_arg(get_list(0), lst).
 
-defines_first_arg(get_structure(F/N, 0), stc(F, N)).
+defines_first_arg(get_structure(F / N, 0), stc(F, N)).

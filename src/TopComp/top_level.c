@@ -113,15 +113,14 @@ Top_Level_Initializer(void)
  *-------------------------------------------------------------------------*/
 static void
 Display_Help(void)
-#define L(msg)  fprintf(stderr,"%s\n",msg);
+#define L(msg)  fprintf(stderr,"%s\n",msg)
 {
   fprintf(stderr, "Usage: %s [OPTION]... \n", TOP_LEVEL);
   L(" ");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
-  L
-    ("  --                          do not check following arguments (passed to Prolog")
-    L("");
+  L("  --                          do not check following arguments (passed to Prolog");
+  L("");
   L("Report bugs to bug-prolog@gnu.org.");
 }
 

@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : call.pl
-% date    : 1 23 2001
-% time    : 12:49:47
+% date    : 9 16 2001
+% time    : 18:16:3
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call.pl').
 
 
-predicate('$use_call'/0,27,static,private,built_in,[
+predicate('$use_call'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(once/1,31,static,private,built_in,[
+predicate(once/1,33,static,private,built_in,[
     load_cut_level(1),
     allocate(1),
     get_variable(y(0),1),
@@ -24,11 +24,11 @@ predicate(once/1,31,static,private,built_in,[
     proceed]).
 
 
-predicate((\+)/1,35,static,private,built_in,[
+predicate((\+)/1,37,static,private,built_in,[
     execute('$\\+/1_$aux1'/1)]).
 
 
-predicate('$\\+/1_$aux1'/1,35,static,private,built_in,[
+predicate('$\\+/1_$aux1'/1,37,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -45,7 +45,7 @@ label(1),
     proceed]).
 
 
-predicate(call/2,44,static,private,built_in,[
+predicate(call/2,46,static,private,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -67,7 +67,7 @@ predicate(call/2,44,static,private,built_in,[
     execute('$call/2_$aux2'/3)]).
 
 
-predicate('$call/2_$aux2'/3,44,static,private,built_in,[
+predicate('$call/2_$aux2'/3,46,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     put_atom(>,4),
@@ -86,7 +86,7 @@ label(1),
     proceed]).
 
 
-predicate('$call/2_$aux1'/1,44,static,private,built_in,[
+predicate('$call/2_$aux1'/1,46,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Non_Var',[0]),
@@ -107,19 +107,19 @@ label(1),
     proceed]).
 
 
-predicate('$call'/4,63,static,private,built_in,[
+predicate('$call'/4,65,static,private,built_in,[
     call_c('Save_Call_Info_3',[1,2,3]),
     put_integer(0,1),
     execute('$call1'/2)]).
 
 
-predicate('$call1'/2,67,static,private,built_in,[
+predicate('$call1'/2,69,static,private,built_in,[
     put_integer(1,2),
     call_c('Load_Call_Info_Arg_1',[2]),
     execute('$call_internal'/2)]).
 
 
-predicate('$call_internal'/2,71,static,private,built_in,[
+predicate('$call_internal'/2,73,static,private,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -137,7 +137,7 @@ predicate('$call_internal'/2,71,static,private,built_in,[
     execute('$call_internal1'/2)]).
 
 
-predicate('$$call_internal/2_$aux1'/1,71,static,private,built_in,[
+predicate('$$call_internal/2_$aux1'/1,73,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -149,12 +149,12 @@ label(1),
     proceed]).
 
 
-predicate('$call_internal1'/2,81,static,private,built_in,[
+predicate('$call_internal1'/2,83,static,private,built_in,[
     load_cut_level(2),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$call_internal_with_cut'/3,88,static,private,built_in,[
+predicate('$call_internal_with_cut'/3,90,static,private,built_in,[
     load_cut_level(3),
     try_me_else(21),
     switch_on_term(3,1,fail,fail,2),
@@ -281,7 +281,7 @@ label(21),
     proceed]).
 
 
-predicate('$call_internal_or'/4,131,static,private,built_in,[
+predicate('$call_internal_or'/4,133,static,private,built_in,[
     load_cut_level(4),
     try_me_else(1),
     get_variable(x(6),3),
@@ -309,7 +309,7 @@ label(2),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$$call_internal_or/4_$aux1'/6,131,static,private,built_in,[
+predicate('$$call_internal_or/4_$aux1'/6,133,static,private,built_in,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),1),
@@ -332,7 +332,7 @@ label(1),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$call_from_debugger'/2,147,static,private,built_in,[
+predicate('$call_from_debugger'/2,149,static,private,built_in,[
     put_integer(0,2),
     call_c_jump('BC_Call_Terminal_Pred_3',[0,1,2]),
     proceed]).

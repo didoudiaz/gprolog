@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_throw'.
@@ -33,7 +35,7 @@
 
 
 '$throw1'(Ball, CallInfo) :-
-	'$call_c'('Load_Call_Info_Arg_1'(1)),    % to ensure CallInfo is deref
+	'$call_c'('Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
 	'$throw_internal'(Ball, CallInfo).
 
 
@@ -51,5 +53,5 @@
 
 '$unwind'(Ball) :-
 	'$sys_var_read'(7, Handler),
-	'$call_c'('Throw_2'(Ball, Handler)),     /* mainly does a cut */
+	'$call_c'('Throw_2'(Ball, Handler)),              % mainly does a cut
 	fail.

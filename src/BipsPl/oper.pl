@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_oper'.
@@ -53,5 +55,5 @@ current_op(Prec, Specif, Oper) :-
 	'$call_c_test'('Current_Op_3'(Prec, Specif, Oper)).
 
 
-'$current_op_alt' :-                             % used by C code to create a choice-point
+'$current_op_alt' :-                % used by C code to create a choice-point
 	'$call_c_test'('Current_Op_Alt_0').

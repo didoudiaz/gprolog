@@ -83,26 +83,26 @@ format_body1(true, NoPred, _, StartChunk, LNext, LNext, NoPred, StartChunk) :-
 	!.
 
 format_body1(Pred, NoPred, DicoVar, StartChunk, LNext, [Pred1|LNext], NoPred1, StartChunk1) :-
-	(   StartChunk=t ->
-	    NoPred1 is NoPred+1
-	;   NoPred1=NoPred
+	(   StartChunk = t ->
+	    NoPred1 is NoPred + 1
+	;   NoPred1 = NoPred
 	),
 	format_pred(Pred, NoPred1, DicoVar, Pred1, InlinePred),
-	(   InlinePred=t ->
-	    StartChunk1=f
-	;   StartChunk1=t
+	(   InlinePred = t ->
+	    StartChunk1 = f
+	;   StartChunk1 = t
 	).
 
 
 
 
-format_pred(Pred, NoPred, DicoVar, p(NoPred, F/N, ArgLst1), InlinePred) :-
+format_pred(Pred, NoPred, DicoVar, p(NoPred, F / N, ArgLst1), InlinePred) :-
 	functor(Pred, F, N),
-	Pred=..[_|ArgLst],
+	Pred =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1),
 	(   inline_predicate(F, N) ->
-	    InlinePred=t
-	;   InlinePred=f
+	    InlinePred = t
+	;   InlinePred = f
 	).
 
 
@@ -134,7 +134,7 @@ format_arg(N, _, _, flt(N)) :-
 
 format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
 	functor(Fonc, F, N),
-	Fonc=..[_|ArgLst],
+	Fonc =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1).
 
 
@@ -149,17 +149,17 @@ format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
 
 add_var_to_dico(DicoVar, Var, NoPred1stOcc, V) :-
 	var(DicoVar), !,
-	V=var(_, _),
-	DicoVar=[v(Var, NoPred1stOcc, _, V)|_].
+	V = var(_, _),
+	DicoVar = [v(Var, NoPred1stOcc, _, V)|_].
 
 add_var_to_dico([v(Var1, NoPred1stOcc1, Singleton, V)|_], Var2, NoPred1stOcc2, V) :-
-	Var1==Var2, !,
-	V=var(VarName, _),
-	Singleton=f,
+	Var1 == Var2, !,
+	V = var(VarName, _),
+	Singleton = f,
 	(   var(VarName),
-	    NoPred1stOcc1\==NoPred1stOcc2,
-	    NoPred1stOcc2>1 ->
-	    VarName=y(_)
+	    NoPred1stOcc1 \== NoPred1stOcc2,
+	    NoPred1stOcc2 > 1 ->
+	    VarName = y(_)
 	;   true
 	).
 
@@ -175,13 +175,13 @@ classif_vars([], NbY, NbY) :-
 classif_vars([v(_, _, Singleton, var(VarName, _))|DicoVar], Y, NbY) :-
 	var(VarName), !,
 	(   var(Singleton) ->
-	    VarName=x(void)
-	;   VarName=x(_)
+	    VarName = x(void)
+	;   VarName = x(_)
 	),
 	classif_vars(DicoVar, Y, NbY).
 
 classif_vars([v(_, _, _, var(y(Y), _))|DicoVar], Y, NbY) :-
-	Y1 is Y+1,
+	Y1 is Y + 1,
 	classif_vars(DicoVar, Y1, NbY).
 
 
@@ -204,12 +204,12 @@ inline_predicate('$cut', 1, _).
 
 
 
-inline_predicate(CallC, 1, _) :-                 % must be an inline predicate
-	(   CallC='$call_c'
-	;   CallC='$call_c_test'
-	;   CallC='$call_c_jump'
+inline_predicate(CallC, 1, _) :-                % must be an inline predicate
+	(   CallC = '$call_c'
+	;   CallC = '$call_c_test'
+	;   CallC = '$call_c_jump'
 	), !,
-	test_call_c_allowed(CallC/1).
+	test_call_c_allowed(CallC / 1).
 
 inline_predicate(=, 2, _).
 

@@ -1,41 +1,41 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : pred.pl
-% date    : 1 23 2001
-% time    : 12:49:46
+% date    : 9 16 2001
+% time    : 18:16:3
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
 
 
-predicate('$use_pred'/0,27,static,private,built_in,[
+predicate('$use_pred'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(current_predicate/1,30,static,private,built_in,[
+predicate(current_predicate/1,32,static,private,built_in,[
     put_atom(current_predicate,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
     execute('$current_predicate'/1)]).
 
 
-predicate('$current_predicate'/1,34,static,private,built_in,[
+predicate('$current_predicate'/1,36,static,private,built_in,[
     put_integer(1,1),
     call_c_test('Current_Predicate_2',[0,1]),
     proceed]).
 
 
-predicate('$current_predicate_any'/1,39,static,private,built_in,[
+predicate('$current_predicate_any'/1,41,static,private,built_in,[
     put_integer(0,1),
     call_c_test('Current_Predicate_2',[0,1]),
     proceed]).
 
 
-predicate('$current_predicate_alt'/0,43,static,private,built_in,[
+predicate('$current_predicate_alt'/0,45,static,private,built_in,[
     call_c_test('Current_Predicate_Alt_0',[]),
     proceed]).
 
 
-predicate(predicate_property/2,49,static,private,built_in,[
+predicate(predicate_property/2,51,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -50,7 +50,7 @@ predicate(predicate_property/2,49,static,private,built_in,[
     execute('$predicate_property1'/2)]).
 
 
-predicate('$predicate_property_any'/2,55,static,private,built_in,[
+predicate('$predicate_property_any'/2,57,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -62,7 +62,7 @@ predicate('$predicate_property_any'/2,55,static,private,built_in,[
     execute('$predicate_property1'/2)]).
 
 
-predicate('$predicate_property1'/2,62,static,private,built_in,[
+predicate('$predicate_property1'/2,64,static,private,built_in,[
     load_cut_level(2),
     allocate(3),
     get_variable(y(0),0),
@@ -77,7 +77,7 @@ predicate('$predicate_property1'/2,62,static,private,built_in,[
     execute('$predicate_property2'/2)]).
 
 
-predicate('$check_pred_prop'/1,69,static,private,built_in,[
+predicate('$check_pred_prop'/1,71,static,private,built_in,[
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
     proceed,
@@ -171,7 +171,7 @@ label(24),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$predicate_property2'/2,98,static,private,built_in,[
+predicate('$predicate_property2'/2,100,static,private,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -263,31 +263,31 @@ label(22),
     proceed]).
 
 
-predicate('$get_predicate_file_info'/3,131,static,private,built_in,[
+predicate('$get_predicate_file_info'/3,133,static,private,built_in,[
     call_c_test('Get_Predicate_File_Info_3',[0,1,2]),
     proceed]).
 
 
-predicate('$set_predicate_file_info'/3,137,static,private,built_in,[
+predicate('$set_predicate_file_info'/3,139,static,private,built_in,[
     call_c_test('Set_Predicate_File_Info_3',[0,1,2]),
     proceed]).
 
 
-predicate('$aux_name'/1,143,static,private,built_in,[
+predicate('$aux_name'/1,145,static,private,built_in,[
     call_c_test('Aux_Name_1',[0]),
     proceed]).
 
 
-predicate('$father_of_aux_name'/3,149,static,private,built_in,[
+predicate('$father_of_aux_name'/3,151,static,private,built_in,[
     call_c_test('Father_Of_Aux_Name_3',[0,1,2]),
     proceed]).
 
 
-predicate('$pred_without_aux'/4,155,static,private,built_in,[
+predicate('$pred_without_aux'/4,157,static,private,built_in,[
     call_c_test('Pred_Without_Aux_4',[0,1,2,3]),
     proceed]).
 
 
-predicate('$make_aux_name'/4,161,static,private,built_in,[
+predicate('$make_aux_name'/4,163,static,private,built_in,[
     call_c_test('Make_Aux_Name_4',[0,1,2,3]),
     proceed]).

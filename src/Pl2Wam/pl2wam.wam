@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : pl2wam.pl
-% date    : 1 23 2001
-% time    : 12:50:26
+% date    : 9 16 2001
+% time    : 18:20:58
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
@@ -758,6 +758,24 @@ predicate(cmd_line_args/3,251,static,private,user,[
     put_atom(wamfile,1),
     put_atom('',2),
     call_c_test('Blt_G_Assign',[1,2]),
+    put_atom(native_code,1),
+    put_atom(t,2),
+    call_c_test('Blt_G_Assign',[1,2]),
+    put_atom(susp_warn,1),
+    put_atom(t,2),
+    call_c_test('Blt_G_Assign',[1,2]),
+    put_atom(singl_warn,1),
+    put_atom(t,2),
+    call_c_test('Blt_G_Assign',[1,2]),
+    put_atom(redef_error,1),
+    put_atom(t,2),
+    call_c_test('Blt_G_Assign',[1,2]),
+    put_atom(foreign_only,1),
+    put_atom(f,2),
+    call_c_test('Blt_G_Assign',[1,2]),
+    put_atom(call_c,1),
+    put_atom(t,2),
+    call_c_test('Blt_G_Assign',[1,2]),
     put_atom(inline,1),
     put_atom(t,2),
     call_c_test('Blt_G_Assign',[1,2]),
@@ -773,23 +791,8 @@ predicate(cmd_line_args/3,251,static,private,user,[
     put_atom(keep_void_inst,1),
     put_atom(f,2),
     call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(susp_warn,1),
-    put_atom(t,2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(singl_warn,1),
-    put_atom(t,2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(redef_error,1),
-    put_atom(t,2),
-    call_c_test('Blt_G_Assign',[1,2]),
     put_atom(fast_math,1),
     put_atom(f,2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(native_code,1),
-    put_atom(t,2),
-    call_c_test('Blt_G_Assign',[1,2]),
-    put_atom(call_c,1),
-    put_atom(t,2),
     call_c_test('Blt_G_Assign',[1,2]),
     put_atom(statistics,1),
     put_atom(f,2),
@@ -827,7 +830,7 @@ label(1),
     proceed]).
 
 
-predicate(cmd_line_args/1,279,static,private,user,[
+predicate(cmd_line_args/1,280,static,private,user,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -856,12 +859,12 @@ label(4),
     execute(cmd_line_args/1)]).
 
 
-predicate(cmd_line_arg1/3,286,static,private,user,[
-    try_me_else(48),
+predicate(cmd_line_arg1/3,287,static,private,user,[
+    try_me_else(50),
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('-o',3),('--output',5),('--pl-state',7),('--no-inline',9),('--no-reorder',11),('--no-reg-opt',13),('--min-reg-opt',15),('--no-opt-last-subterm',17),('--fast-math',19),('--keep-void-inst',21),('--no-susp-warn',23),('--no-singl-warn',25),('--no-redef-error',27),('-W',29),('--wam-for-native',31),('-w',33),('--wam-for-byte-code',35),('--no-call-c',37),('--statistics',39),('--compile-msg',41),('--version',43),('-h',45),('--help',47)]),
+    switch_on_atom([('-o',3),('--output',5),('--pl-state',7),('-W',9),('--wam-for-native',11),('-w',13),('--wam-for-byte-code',15),('--no-susp-warn',17),('--no-singl-warn',19),('--no-redef-error',21),('--foreign-only',23),('--no-call-c',25),('--no-inline',27),('--no-reorder',29),('--no-reg-opt',31),('--min-reg-opt',33),('--no-opt-last-subterm',35),('--fast-math',37),('--keep-void-inst',39),('--statistics',41),('--compile-msg',43),('--version',45),('-h',47),('--help',49)]),
 
 label(2),
     try_me_else(4),
@@ -907,124 +910,14 @@ label(8),
     retry_me_else(10),
 
 label(9),
-    get_atom('--no-inline',0),
-    get_value(x(2),1),
-    put_atom(inline,0),
-    put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
+    get_atom('-W',0),
+    put_atom('--wam-for-native',0),
+    execute(cmd_line_arg1/3),
 
 label(10),
     retry_me_else(12),
 
 label(11),
-    get_atom('--no-reorder',0),
-    get_value(x(2),1),
-    put_atom(reorder,0),
-    put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(12),
-    retry_me_else(14),
-
-label(13),
-    get_atom('--no-reg-opt',0),
-    get_value(x(2),1),
-    put_atom(reg_opt,0),
-    put_integer(0,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(14),
-    retry_me_else(16),
-
-label(15),
-    get_atom('--min-reg-opt',0),
-    get_value(x(2),1),
-    put_atom(reg_opt,0),
-    put_integer(1,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(16),
-    retry_me_else(18),
-
-label(17),
-    get_atom('--no-opt-last-subterm',0),
-    get_value(x(2),1),
-    put_atom(opt_last_subterm,0),
-    put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(18),
-    retry_me_else(20),
-
-label(19),
-    get_atom('--fast-math',0),
-    get_value(x(2),1),
-    put_atom(fast_math,0),
-    put_atom(t,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(20),
-    retry_me_else(22),
-
-label(21),
-    get_atom('--keep-void-inst',0),
-    get_value(x(2),1),
-    put_atom(keep_void_inst,0),
-    put_atom(t,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(22),
-    retry_me_else(24),
-
-label(23),
-    get_atom('--no-susp-warn',0),
-    get_value(x(2),1),
-    put_atom(susp_warn,0),
-    put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(24),
-    retry_me_else(26),
-
-label(25),
-    get_atom('--no-singl-warn',0),
-    get_value(x(2),1),
-    put_atom(singl_warn,0),
-    put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(26),
-    retry_me_else(28),
-
-label(27),
-    get_atom('--no-redef-error',0),
-    get_value(x(2),1),
-    put_atom(redef_error,0),
-    put_atom(f,1),
-    call_c_test('Blt_G_Assign',[0,1]),
-    proceed,
-
-label(28),
-    retry_me_else(30),
-
-label(29),
-    get_atom('-W',0),
-    put_atom('--wam-for-native',0),
-    execute(cmd_line_arg1/3),
-
-label(30),
-    retry_me_else(32),
-
-label(31),
     get_atom('--wam-for-native',0),
     get_value(x(2),1),
     put_atom(native_code,0),
@@ -1032,18 +925,18 @@ label(31),
     call_c_test('Blt_G_Assign',[0,1]),
     proceed,
 
-label(32),
-    retry_me_else(34),
+label(12),
+    retry_me_else(14),
 
-label(33),
+label(13),
     get_atom('-w',0),
     put_atom('--wam-for-byte-code',0),
     execute(cmd_line_arg1/3),
 
-label(34),
-    retry_me_else(36),
+label(14),
+    retry_me_else(16),
 
-label(35),
+label(15),
     get_atom('--wam-for-byte-code',0),
     get_value(x(2),1),
     put_atom(native_code,0),
@@ -1057,10 +950,54 @@ label(35),
     call_c_test('Blt_G_Assign',[0,1]),
     proceed,
 
-label(36),
-    retry_me_else(38),
+label(16),
+    retry_me_else(18),
 
-label(37),
+label(17),
+    get_atom('--no-susp-warn',0),
+    get_value(x(2),1),
+    put_atom(susp_warn,0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(18),
+    retry_me_else(20),
+
+label(19),
+    get_atom('--no-singl-warn',0),
+    get_value(x(2),1),
+    put_atom(singl_warn,0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(20),
+    retry_me_else(22),
+
+label(21),
+    get_atom('--no-redef-error',0),
+    get_value(x(2),1),
+    put_atom(redef_error,0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(22),
+    retry_me_else(24),
+
+label(23),
+    get_atom('--foreign-only',0),
+    get_value(x(2),1),
+    put_atom(foreign_only,0),
+    put_atom(t,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(24),
+    retry_me_else(26),
+
+label(25),
     get_atom('--no-call-c',0),
     get_value(x(2),1),
     put_atom(call_c,0),
@@ -1068,13 +1005,79 @@ label(37),
     call_c_test('Blt_G_Assign',[0,1]),
     proceed,
 
+label(26),
+    retry_me_else(28),
+
+label(27),
+    get_atom('--no-inline',0),
+    get_value(x(2),1),
+    put_atom(inline,0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(28),
+    retry_me_else(30),
+
+label(29),
+    get_atom('--no-reorder',0),
+    get_value(x(2),1),
+    put_atom(reorder,0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(30),
+    retry_me_else(32),
+
+label(31),
+    get_atom('--no-reg-opt',0),
+    get_value(x(2),1),
+    put_atom(reg_opt,0),
+    put_integer(0,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(32),
+    retry_me_else(34),
+
+label(33),
+    get_atom('--min-reg-opt',0),
+    get_value(x(2),1),
+    put_atom(reg_opt,0),
+    put_integer(1,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(34),
+    retry_me_else(36),
+
+label(35),
+    get_atom('--no-opt-last-subterm',0),
+    get_value(x(2),1),
+    put_atom(opt_last_subterm,0),
+    put_atom(f,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(36),
+    retry_me_else(38),
+
+label(37),
+    get_atom('--fast-math',0),
+    get_value(x(2),1),
+    put_atom(fast_math,0),
+    put_atom(t,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
 label(38),
     retry_me_else(40),
 
 label(39),
-    get_atom('--statistics',0),
+    get_atom('--keep-void-inst',0),
     get_value(x(2),1),
-    put_atom(statistics,0),
+    put_atom(keep_void_inst,0),
     put_atom(t,1),
     call_c_test('Blt_G_Assign',[0,1]),
     proceed,
@@ -1083,9 +1086,9 @@ label(40),
     retry_me_else(42),
 
 label(41),
-    get_atom('--compile-msg',0),
+    get_atom('--statistics',0),
     get_value(x(2),1),
-    put_atom(compile_msg,0),
+    put_atom(statistics,0),
     put_atom(t,1),
     call_c_test('Blt_G_Assign',[0,1]),
     proceed,
@@ -1094,6 +1097,17 @@ label(42),
     retry_me_else(44),
 
 label(43),
+    get_atom('--compile-msg',0),
+    get_value(x(2),1),
+    put_atom(compile_msg,0),
+    put_atom(t,1),
+    call_c_test('Blt_G_Assign',[0,1]),
+    proceed,
+
+label(44),
+    retry_me_else(46),
+
+label(45),
     allocate(0),
     get_atom('--version',0),
     get_value(x(2),1),
@@ -1101,24 +1115,24 @@ label(43),
     deallocate,
     execute(stop/0),
 
-label(44),
-    retry_me_else(46),
+label(46),
+    retry_me_else(48),
 
-label(45),
+label(47),
     get_atom('-h',0),
     put_atom('--help',0),
     execute(cmd_line_arg1/3),
 
-label(46),
+label(48),
     trust_me_else_fail,
 
-label(47),
+label(49),
     get_atom('--help',0),
     get_value(x(2),1),
     execute('$cmd_line_arg1/3_$aux4'/0),
 
-label(48),
-    retry_me_else(49),
+label(50),
+    retry_me_else(51),
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -1135,7 +1149,7 @@ label(48),
     deallocate,
     execute(abort/0),
 
-label(49),
+label(51),
     trust_me_else_fail,
     allocate(1),
     get_variable(y(0),0),
@@ -1151,7 +1165,7 @@ label(49),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux5'/1,387,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux5'/1,391,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     get_atom('',0),
@@ -1170,7 +1184,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/0,371,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux4'/0,375,static,private,user,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1191,7 +1205,7 @@ label(1),
     execute(stop/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,304,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux3'/0,305,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -1211,7 +1225,7 @@ label(1),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux2'/1,289,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux2'/1,290,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     get_atom('',0),
@@ -1230,7 +1244,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux1'/3,289,static,private,user,[
+predicate('$cmd_line_arg1/3_$aux1'/3,290,static,private,user,[
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1258,7 +1272,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate(display_copying/0,401,static,private,user,[
+predicate(display_copying/0,405,static,private,user,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1298,39 +1312,39 @@ predicate(display_copying/0,401,static,private,user,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,417,static,private,user,[
+predicate(prolog_name/1,421,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,420,static,private,user,[
+predicate(prolog_version/1,424,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,423,static,private,user,[
+predicate(prolog_date/1,427,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,426,static,private,user,[
+predicate(prolog_copyright/1,430,static,private,user,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,434,static,private,user,[
+predicate(h/1,438,static,private,user,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  --pl-state FILE             read FILE to set the initial Prolog state',16),('  --no-inline                 do not inline predicates',18),('  --no-reorder                do not reorder predicate arguments',20),('  --no-reg-opt                do not optimize registers',22),('  --min-reg-opt               minimally optimize registers',24),('  --no-opt-last-subterm       do not optimize last subterm compilation',26),('  --fast-math                 fast mathematical mode (assume integer arithmetic)',28),('  --keep-void-inst            keep void instructions in the output file',30),('  --no-susp-warn              do not show warnings for suspicious predicates',32),('  --no-singl-warn             do not show warnings for named singleton variables',34),('  --no-redef-error            do not show errors for built-in redefinitions',36),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',38),('  --compile-msg               print a compile message',40),('  --statistics                print statistics information',42),('  --help                      print this help and exit',44),('  --version                   print version number and exit',46),('''user'' can be given as FILE for the standard input/output',50)]),
+    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  --pl-state FILE             read FILE to set the initial Prolog state',16),('  --no-susp-warn              do not show warnings for suspicious predicates',18),('  --no-singl-warn             do not show warnings for named singleton variables',20),('  --no-redef-error            do not show errors for built-in redefinitions',22),('  --foreign-only              only compile foreign/1-2 directives',24),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',26),('  --no-inline                 do not inline predicates',28),('  --no-reorder                do not reorder predicate arguments',30),('  --no-reg-opt                do not optimize registers',32),('  --min-reg-opt               minimally optimize registers',34),('  --no-opt-last-subterm       do not optimize last subterm compilation',36),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',38),('  --keep-void-inst            keep void instructions in the output file',40),('  --compile-msg               print a compile message',42),('  --statistics                print statistics information',44),('  --help                      print this help and exit',46),('  --version                   print version number and exit',48),('''user'' can be given as FILE for the standard input/output',52)]),
 
 label(2),
     try(6),
-    trust(48),
+    trust(50),
 
 label(3),
     try_me_else(5),
@@ -1385,123 +1399,130 @@ label(17),
     retry_me_else(19),
 
 label(18),
-    get_atom('  --no-inline                 do not inline predicates',0),
+    get_atom('  --no-susp-warn              do not show warnings for suspicious predicates',0),
     proceed,
 
 label(19),
     retry_me_else(21),
 
 label(20),
-    get_atom('  --no-reorder                do not reorder predicate arguments',0),
+    get_atom('  --no-singl-warn             do not show warnings for named singleton variables',0),
     proceed,
 
 label(21),
     retry_me_else(23),
 
 label(22),
-    get_atom('  --no-reg-opt                do not optimize registers',0),
+    get_atom('  --no-redef-error            do not show errors for built-in redefinitions',0),
     proceed,
 
 label(23),
     retry_me_else(25),
 
 label(24),
-    get_atom('  --min-reg-opt               minimally optimize registers',0),
+    get_atom('  --foreign-only              only compile foreign/1-2 directives',0),
     proceed,
 
 label(25),
     retry_me_else(27),
 
 label(26),
-    get_atom('  --no-opt-last-subterm       do not optimize last subterm compilation',0),
+    get_atom('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',0),
     proceed,
 
 label(27),
     retry_me_else(29),
 
 label(28),
-    get_atom('  --fast-math                 fast mathematical mode (assume integer arithmetic)',0),
+    get_atom('  --no-inline                 do not inline predicates',0),
     proceed,
 
 label(29),
     retry_me_else(31),
 
 label(30),
-    get_atom('  --keep-void-inst            keep void instructions in the output file',0),
+    get_atom('  --no-reorder                do not reorder predicate arguments',0),
     proceed,
 
 label(31),
     retry_me_else(33),
 
 label(32),
-    get_atom('  --no-susp-warn              do not show warnings for suspicious predicates',0),
+    get_atom('  --no-reg-opt                do not optimize registers',0),
     proceed,
 
 label(33),
     retry_me_else(35),
 
 label(34),
-    get_atom('  --no-singl-warn             do not show warnings for named singleton variables',0),
+    get_atom('  --min-reg-opt               minimally optimize registers',0),
     proceed,
 
 label(35),
     retry_me_else(37),
 
 label(36),
-    get_atom('  --no-redef-error            do not show errors for built-in redefinitions',0),
+    get_atom('  --no-opt-last-subterm       do not optimize last subterm compilation',0),
     proceed,
 
 label(37),
     retry_me_else(39),
 
 label(38),
-    get_atom('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',0),
+    get_atom('  --fast-math                 fast mathematical mode (assume integer arithmetics)',0),
     proceed,
 
 label(39),
     retry_me_else(41),
 
 label(40),
-    get_atom('  --compile-msg               print a compile message',0),
+    get_atom('  --keep-void-inst            keep void instructions in the output file',0),
     proceed,
 
 label(41),
     retry_me_else(43),
 
 label(42),
-    get_atom('  --statistics                print statistics information',0),
+    get_atom('  --compile-msg               print a compile message',0),
     proceed,
 
 label(43),
     retry_me_else(45),
 
 label(44),
-    get_atom('  --help                      print this help and exit',0),
+    get_atom('  --statistics                print statistics information',0),
     proceed,
 
 label(45),
     retry_me_else(47),
 
 label(46),
-    get_atom('  --version                   print version number and exit',0),
+    get_atom('  --help                      print this help and exit',0),
     proceed,
 
 label(47),
     retry_me_else(49),
 
 label(48),
-    get_atom('',0),
+    get_atom('  --version                   print version number and exit',0),
     proceed,
 
 label(49),
-    trust_me_else_fail,
+    retry_me_else(51),
 
 label(50),
+    get_atom('',0),
+    proceed,
+
+label(51),
+    trust_me_else_fail,
+
+label(52),
     get_atom('''user'' can be given as FILE for the standard input/output',0),
     proceed]).
 
 
-predicate(go/0,464,static,private,user,[
+predicate(go/0,469,static,private,user,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1510,5 +1531,5 @@ predicate(go/0,464,static,private,user,[
     execute(pl2wam/1)]).
 
 
-directive(468,user,[
+directive(473,user,[
     execute(go/0)]).

@@ -83,14 +83,12 @@ static int nb_to_try;
 
 static void Portray_Clause(StmInf *pstm, WamWord term_word);
 
-static
-  Bool Check_Structure(WamWord term_word, int func, int arity,
-		       WamWord arg_word[]);
+static Bool Check_Structure(WamWord term_word, int func, int arity,
+			    WamWord arg_word[]);
 
 static Bool Is_Cut(WamWord body_word);
 
-static
-  void Show_Body(StmInf *pstm, int level, int context, WamWord body_word);
+static void Show_Body(StmInf *pstm, int level, int context, WamWord body_word);
 
 static void Start_Line(StmInf *pstm, int level, char c_before);
 
@@ -505,7 +503,7 @@ Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 
 
 
-#define BIND_WITH_NUMBERVAR        (sys_var[0]==0)
+#define BIND_WITH_NUMBERVAR        (sys_var[0] == 0)
 
 
 /*-------------------------------------------------------------------------*

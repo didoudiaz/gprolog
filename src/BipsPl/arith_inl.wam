@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : arith_inl.pl
-% date    : 1 23 2001
-% time    : 12:49:48
+% date    : 9 16 2001
+% time    : 18:16:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/arith_inl.pl').
 
 
-predicate('$use_arith_inl'/0,27,static,private,built_in,[
+predicate('$use_arith_inl'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate((is)/2,30,static,private,built_in,[
+predicate((is)/2,32,static,private,built_in,[
     put_atom(is,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -20,7 +20,7 @@ predicate((is)/2,30,static,private,built_in,[
     proceed]).
 
 
-predicate((=:=)/2,33,static,private,built_in,[
+predicate((=:=)/2,35,static,private,built_in,[
     put_atom(=:=,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -30,7 +30,7 @@ predicate((=:=)/2,33,static,private,built_in,[
     proceed]).
 
 
-predicate((=\=)/2,36,static,private,built_in,[
+predicate((=\=)/2,38,static,private,built_in,[
     put_atom(=\=,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -40,7 +40,7 @@ predicate((=\=)/2,36,static,private,built_in,[
     proceed]).
 
 
-predicate((<)/2,39,static,private,built_in,[
+predicate((<)/2,41,static,private,built_in,[
     put_atom(<,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -50,7 +50,7 @@ predicate((<)/2,39,static,private,built_in,[
     proceed]).
 
 
-predicate((=<)/2,42,static,private,built_in,[
+predicate((=<)/2,44,static,private,built_in,[
     put_atom(=<,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -60,7 +60,7 @@ predicate((=<)/2,42,static,private,built_in,[
     proceed]).
 
 
-predicate((>)/2,45,static,private,built_in,[
+predicate((>)/2,47,static,private,built_in,[
     put_atom(>,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -70,7 +70,7 @@ predicate((>)/2,45,static,private,built_in,[
     proceed]).
 
 
-predicate((>=)/2,48,static,private,built_in,[
+predicate((>=)/2,50,static,private,built_in,[
     put_atom(>=,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -80,6 +80,6 @@ predicate((>=)/2,48,static,private,built_in,[
     proceed]).
 
 
-predicate('$arith_eval'/2,52,static,private,built_in,[
+predicate('$arith_eval'/2,54,static,private,built_in,[
     call_c('Arith_Eval_2',[0,1]),
     proceed]).

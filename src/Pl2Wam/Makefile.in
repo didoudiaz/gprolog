@@ -58,7 +58,7 @@ wam_emit.wam:   wam_emit.pl
 
 
 make_bip_list@EXE_SUFFIX@: make_bip_list.pl ../Bips??/[a-z]??*.pl
-	$(GPLC) -o make_bip_list@EXE_SUFFIX@ make_bip_list.pl --no-top-level
+	$(GPLC) -o make_bip_list@EXE_SUFFIX@ make_bip_list.pl
 	./make_bip_list@EXE_SUFFIX@ >bip_list.pl
 	make
 

@@ -22,11 +22,13 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
-'$init_debugger' :-                              % called by Debug_Initializer()
-	'$sys_var_write'(13, 1),                 % debugger is present
-	DebugInfo=d(0, []),
+'$init_debugger' :-                           % called by Debug_Initializer()
+	'$sys_var_write'(13, 1),                        % debugger is present
+	DebugInfo = d(0, []),
 	g_link('$debug_info', DebugInfo),
 	'$debug_switch_off'.
 
@@ -160,7 +162,7 @@ leash(L) :-
 '$leash_make_mask'([Port|L], LeashMask1) :-
 	'$leash_make_mask'(L, LeashMask),
 	'$debug_port_mask'(Port, Mask),
-	LeashMask1 is LeashMask\/Mask.
+	LeashMask1 is LeashMask \/ Mask.
 
 
 
@@ -184,7 +186,7 @@ leash(L) :-
 
 '$show_leashing_info2'(LeashMask) :-
 	'$debug_port_mask'(Port, Mask),
-	LeashMask/\Mask>0,
+	LeashMask /\ Mask > 0,
 	g_read('$debug_work', C),
 	g_assign('$debug_work', 44),
 	format(debugger_output, '~c~a', [C, Port]),
@@ -198,7 +200,7 @@ leash(L) :-
 '$debug_is_not_leashed'(Port) :-
 	g_read('$debug_leash', LeashMask),
 	'$debug_port_mask'(Port, Mask),
-	Mask/\LeashMask=:=0 .
+	Mask /\ LeashMask =:= 0 .
 
 
 
@@ -250,8 +252,8 @@ spypoint_condition(Goal, _, _) :-
 
 '$spypoint_condition1'(Goal, Port, Test) :-
 	functor(Goal, N, A),
-	(   '$current_predicate_any'(N/A) ->
-	    '$debug_spy_set'([N/A], c(Goal, Port, Test)),
+	(   '$current_predicate_any'(N / A) ->
+	    '$debug_spy_set'([N / A], c(Goal, Port, Test)),
 	    g_read('$debug_mode', nodebug),
 	    debug
 	;   format(debugger_output, 'Warning: The predicate ~a/~d is undefined~n', [N, A])
@@ -268,7 +270,7 @@ spy(Spec) :-
 	set_bip_name(spy, 1),
 	'$debug_list_of_pred'(Spec, L),
 	'$debug_spy_set'(L, _),
-	L\==[],
+	L \== [],
 	g_read('$debug_mode', nodebug),
 	debug,
 	fail.
@@ -303,10 +305,10 @@ nospyall.
 
 '$debug_spy_set'([], _).
 
-'$debug_spy_set'([N/A|L], Cond) :-
+'$debug_spy_set'([N / A|L], Cond) :-
 	(   retract('$debug_spy_point'(N, A, _)) ->
-	    Msg='There is already a spypoint on'
-	;   Msg='Spypoint placed on'
+	    Msg = 'There is already a spypoint on'
+	;   Msg = 'Spypoint placed on'
 	),
 	assertz('$debug_spy_point'(N, A, Cond)),
 	format(debugger_output, '~a ~a/~d~n', [Msg, N, A]), !,
@@ -317,10 +319,10 @@ nospyall.
 
 '$debug_spy_reset'([]).
 
-'$debug_spy_reset'([N/A|L]) :-
+'$debug_spy_reset'([N / A|L]) :-
 	(   retract('$debug_spy_point'(N, A, _)) ->
-	    Msg='Spypoint removed from'
-	;   Msg='There is no spypoint on'
+	    Msg = 'Spypoint removed from'
+	;   Msg = 'There is no spypoint on'
 	),
 	format(debugger_output, '~a ~a/~d~n', [Msg, N, A]), !,
 	'$debug_spy_reset'(L).
@@ -377,7 +379,7 @@ nospyall.
 	'$debug_list_of_pred'(Spec2, L2),
 	append(L1, L2, L).
 
-'$debug_list_of_pred'(N/A1-A2, L) :-
+'$debug_list_of_pred'(N / A1 - A2, L) :-
 	'$debug_list_of_pred1'(N, A1, A2, L), !.
 
 '$debug_list_of_pred'(N, L) :-
@@ -409,26 +411,26 @@ nospyall.
 	current_prolog_flag(max_arity, Max),
 	integer(A1),
 	integer(A2),
-	A1>=0,
-	A1=<Max,
-	A2>=0,
-	A2=<Max,
+	A1 >= 0,
+	A1 =< Max,
+	A2 >= 0,
+	A2 =< Max,
 	g_assign('$debug_work', []),
-	(   '$current_predicate_any'(N/A),
-	    A>=A1,
-	    A=<A2,
+	(   '$current_predicate_any'(N / A),
+	    A >= A1,
+	    A =< A2,
 	    g_read('$debug_work', X),
-	    g_assign('$debug_work', [N/A|X]),
+	    g_assign('$debug_work', [N / A|X]),
 	    fail
 	;   g_read('$debug_work', L)
 	),
-	(   L=[],
-	    (   A1=A2,
-	        Z=A1
-	    ;   A1=0,
-	        A2=Max,
-	        Z=any
-	    ;   Z=A1-A2
+	(   L = [],
+	    (   A1 = A2,
+	        Z = A1
+	    ;   A1 = 0,
+	        A2 = Max,
+	        Z = any
+	    ;   Z = A1 - A2
 	    ),
 	    format(debugger_output, 'Warning: spy ~a/~w - no matching predicate~n', [N, Z])
 	;   true
@@ -478,15 +480,15 @@ nospyall.
 
 '$debug_call'(Goal, CallInfo) :-
 	g_read('$debug_info', DebugInfo),
-	DebugInfo=d(Invoc, OldAncLst),
-	(   OldAncLst=[] ->
-	    Index=0
-	;   OldAncLst=[a(_, _, Index, _)|_]
+	DebugInfo = d(Invoc, OldAncLst),
+	(   OldAncLst = [] ->
+	    Index = 0
+	;   OldAncLst = [a(_, _, Index, _)|_]
 	),
-	Invoc1 is Invoc+1,
-	Index1 is Index+1,
+	Invoc1 is Invoc + 1,
+	Index1 is Index + 1,
 	'$get_current_B'(B),
-	NewAncLst=[a(Goal, Invoc1, Index1, B)|OldAncLst],
+	NewAncLst = [a(Goal, Invoc1, Index1, B)|OldAncLst],
 	setarg(1, DebugInfo, Invoc1),
 	setarg(2, DebugInfo, NewAncLst),
 % format('starting of call:~w',[Goal]), disp_B(''),
@@ -508,7 +510,7 @@ nospyall.
 % disp_B('before end call'),
 	'$debug_end_call'(Goal, Invoc1, Index1, NewAncLst, DebugInfo, OldAncLst),
 % disp_B('after end call and before test determin'),
-	(   B1=<B, !
+	(   B1 =< B, !
 	;   true
 	).
 %disp_B('after cut if determin').
@@ -520,7 +522,7 @@ nospyall.
 
 '$debug_call1'(Goal, CallInfo, Invoc1, _, _, DebugInfo, Invoc, OldAncLst) :-
 	g_read('$debug_next', retry(X)),
-	X>=Invoc1,
+	X >= Invoc1,
 	setarg(1, DebugInfo, Invoc),
 	setarg(2, DebugInfo, OldAncLst),
 	g_assign('$debug_next', trace),
@@ -533,9 +535,9 @@ nospyall.
 	g_assign('$debug_unify', ''),
 	'$debug_port'(Goal, Invoc, Index, AncLst, call),
 	g_read('$debug_unify', DebugUnify),
-	(   DebugUnify=='' ->
+	(   DebugUnify == '' ->
 	    '$call_from_debugger'(Goal, CallInfo)
-	;   Goal=DebugUnify
+	;   Goal = DebugUnify
 	).
 
 
@@ -572,7 +574,7 @@ nospyall.
 	fail.
 
 '$debug_port1'(_, _, _, _, _, _) :-
-	g_read('$debug_next', DebugNext),        % fail for 'r' and 'f'
+	g_read('$debug_next', DebugNext),              % fail for 'r' and 'f'
 	atom(DebugNext).
 
 
@@ -603,15 +605,15 @@ nospyall.
 '$debug_port_ignore'(skip, _, Invoc, Port) :-
 	g_read('$debug_skip', s(Invoc1, Mask1)),
 	'$debug_port_mask'(Port, Mask),
-	(   Invoc=Invoc1,
-	    Mask/\Mask1>0 ->
+	(   Invoc = Invoc1,
+	    Mask /\ Mask1 > 0 ->
 	    fail
 	;   !
 	).
 
 '$debug_port_ignore'(fail(Invoc1), _, Invoc, Port) :-
-	(   Invoc>Invoc1
-	;   Port\==fail
+	(   Invoc > Invoc1
+	;   Port \== fail
 	), !.
 
 '$debug_port_ignore'(retry(_), _, _, _).
@@ -637,8 +639,8 @@ nospyall.
 	write(debugger_output, ' ? '),
 	flush_output(debugger_output),
 	get_code_no_echo(debugger_input, X),
-	X>=0,
-	X<255,
+	X >= 0,
+	X < 255,
 	char_code(C, X),
 	format(debugger_output, '~N', []).
 
@@ -648,78 +650,78 @@ nospyall.
 '$debug_read_integer'(X) :-
 	read_integer(debugger_input, X),
 	repeat,
-	get_code(debugger_input, 10),            /* the last '\n' */
+	get_code(debugger_input, 10),                         % the last '\n'
 	                              !.
 	
 
 
 '$debug_exec_cmd'(C, _, _, _, _, _) :-
 	char_code(C, X),
-	X>=10,
-	X=<13,
+	X >= 10,
+	X =< 13,
 	'$debug_exec_cmd'(c, _, _, _, _, _).
 
-'$debug_exec_cmd'(c, _, _, _, _, _) :-           % creep
+'$debug_exec_cmd'(c, _, _, _, _, _) :-                                % creep
 	g_assign('$debug_next', trace).
 
-'$debug_exec_cmd'(l, _, _, _, _, _) :-           % leap
+'$debug_exec_cmd'(l, _, _, _, _, _) :-                                 % leap
 	g_assign('$debug_next', debug).
 
-'$debug_exec_cmd'(s, _, _, _, Port, _) :-        % skip
-	(   Port=exit
-	;   Port=fail
-	;   Port=exception
+'$debug_exec_cmd'(s, _, _, _, Port, _) :-                              % skip
+	(   Port = exit
+	;   Port = fail
+	;   Port = exception
 	), !,
 	'$debug_exec_cmd'(c, _, _, _, _, _).
 
-'$debug_exec_cmd'(s, _, Invoc, _, _, _) :-       % skip
+'$debug_exec_cmd'(s, _, Invoc, _, _, _) :-                             % skip
 	g_assign('$debug_next', skip),
 	'$debug_port_mask'(exit, Mask1),
 	'$debug_port_mask'(fail, Mask2),
 	'$debug_port_mask'(exception, Mask3),
-	Mask is Mask1\/Mask2\/Mask3,
+	Mask is Mask1 \/ Mask2 \/ Mask3,
 	g_assign('$debug_skip', s(Invoc, Mask)).
 
-'$debug_exec_cmd'('G', _, _, _, _, _) :-         % goto
+'$debug_exec_cmd'('G', _, _, _, _, _) :-                               % goto
 	write(debugger_output, 'Inovcation nb: '),
 	'$debug_read_integer'(Invoc),
 	g_assign('$debug_next', skip),
 	g_assign('$debug_skip', s(Invoc, 31)).
 	
-'$debug_exec_cmd'(r, _, _, _, call, _) :-        % retry
+'$debug_exec_cmd'(r, _, _, _, call, _) :-                             % retry
 	!,
 	fail.
 
-'$debug_exec_cmd'(r, _, Invoc, _, _, _) :-       % retry
+'$debug_exec_cmd'(r, _, Invoc, _, _, _) :-                            % retry
 	g_assign('$debug_next', retry(Invoc)).
 
-'$debug_exec_cmd'(f, _, _, _, fail, _) :-        % fail
+'$debug_exec_cmd'(f, _, _, _, fail, _) :-                              % fail
 	!,
 	fail.
 
-'$debug_exec_cmd'(f, _, Invoc, _, _, _) :-       % fail
+'$debug_exec_cmd'(f, _, Invoc, _, _, _) :-                             % fail
 	g_assign('$debug_next', fail(Invoc)).
 
-'$debug_exec_cmd'(w, Goal, _, _, _, _) :-        % write
+'$debug_exec_cmd'(w, Goal, _, _, _, _) :-                             % write
 	write(debugger_output, '                    '),
 	write(debugger_output, Goal),
 	nl(debugger_output), !,
 	fail.
 
-'$debug_exec_cmd'(d, Goal, _, _, _, _) :-        % display
+'$debug_exec_cmd'(d, Goal, _, _, _, _) :-                           % display
 	write(debugger_output, '                    '),
 	display(debugger_output, Goal),
 	nl(debugger_output), !,
 	fail.
 
-'$debug_exec_cmd'(p, Goal, _, _, _, _) :-        % print
+'$debug_exec_cmd'(p, Goal, _, _, _, _) :-                             % print
 	write(debugger_output, '                    '),
 	print(debugger_output, Goal),
 	nl(debugger_output), !,
 	fail.
 
-'$debug_exec_cmd'(e, _, _, _, Port, _) :-        % exception
-	(   Port=exception ->
+'$debug_exec_cmd'(e, _, _, _, Port, _) :-                         % exception
+	(   Port = exception ->
 	    g_read('$debug_ball', Ball),
 	    format(debugger_output, 'Exception raised: ~q~n', [Ball])
 	;   write(debugger_output, 'Option not applicable at this port'),
@@ -727,16 +729,16 @@ nospyall.
 	), !,
 	fail.
 
-'$debug_exec_cmd'(g, _, _, AncLst, _, _) :-      % ancestors
+'$debug_exec_cmd'(g, _, _, AncLst, _, _) :-                       % ancestors
 	'$debug_disp_anc_lst'(AncLst), !,
 	fail.
 
-'$debug_exec_cmd'('A', _, _, AncLst, _, B) :-    % alternatives
+'$debug_exec_cmd'('A', _, _, AncLst, _, B) :-                  % alternatives
 	'$debug_disp_alternatives'(AncLst, B), !,
 	fail.
 
-'$debug_exec_cmd'(u, _, _, _, Port, _) :-        % unify
-	(   Port=call ->
+'$debug_exec_cmd'(u, _, _, _, Port, _) :-                             % unify
+	(   Port = call ->
 	    write(debugger_output, 'Head: '),
 	    read(debugger_input, DebugUnify),
 	    g_assign('$debug_unify', DebugUnify)
@@ -745,28 +747,28 @@ nospyall.
 	    fail
 	).
 
-'$debug_exec_cmd'(n, _, _, _, _, _) :-           % nodebug
+'$debug_exec_cmd'(n, _, _, _, _, _) :-                              % nodebug
 	'$debug_switch_off'.
 
-'$debug_exec_cmd'(=, _, _, _, _, _) :-           % debugging
+'$debug_exec_cmd'(=, _, _, _, _, _) :-                            % debugging
 	debugging, !,
 	fail.
 
-'$debug_exec_cmd'('.', Goal, _, _, _, _) :-      % father file
+'$debug_exec_cmd'('.', Goal, _, _, _, _) :-                     % father file
 	!,
 	functor(Goal, N, A),
-	(   '$get_predicate_file_info'(N/A, PlFile, PlLine) ->
+	(   '$get_predicate_file_info'(N / A, PlFile, PlLine) ->
 	    format(debugger_output, '~a/~d defined in ~a:~d~n', [N, A, PlFile, PlLine])
 	;   format(debugger_output, 'no file information for ~a/~d~n', [N, A])
 	),
 	fail.
 
-'$debug_exec_cmd'(+, Goal, _, _, _, _) :-        % spy this
+'$debug_exec_cmd'(+, Goal, _, _, _, _) :-                          % spy this
 	functor(Goal, N, A),
-	spy(N/A), !,
+	spy(N / A), !,
 	fail.
 
-'$debug_exec_cmd'(*, Goal, _, _, _, _) :-        % spy conditionally
+'$debug_exec_cmd'(*, Goal, _, _, _, _) :-                 % spy conditionally
 	repeat,
 	write(debugger_output, 'Goal,Port,Test: '),
 	read(debugger_input, (Goal1,Port1,Test1)),
@@ -776,15 +778,15 @@ nospyall.
 	spypoint_condition(Goal1, Port1, Test1), !,
 	fail.
 
-'$debug_exec_cmd'(-, Goal, _, _, _, _) :-        % nospy this
+'$debug_exec_cmd'(-, Goal, _, _, _, _) :-                        % nospy this
 	functor(Goal, N, A),
-	nospy(N/A), !,
+	nospy(N / A), !,
 	fail.
 
-'$debug_exec_cmd'('L', Goal, _, _, _, _) :-      % listing
+'$debug_exec_cmd'('L', Goal, _, _, _, _) :-                         % listing
 	!,
 	functor(Goal, N, A),
-	PI=N/A,
+	PI = N / A,
 	(   '$current_predicate_any'(PI) ->
 	    (   '$predicate_property_any'(PI, native_code) ->
 	        format(debugger_output, 'native code predicate ~a/~d~n', [N, A])
@@ -795,14 +797,14 @@ nospyall.
 	),
 	fail.
 
-'$debug_exec_cmd'(a, _, _, _, _, _) :-           % abort
+'$debug_exec_cmd'(a, _, _, _, _, _) :-                                % abort
 	abort.
 
-'$debug_exec_cmd'(b, _, _, _, _, _) :-           % break
+'$debug_exec_cmd'(b, _, _, _, _, _) :-                                % break
 	break, !,
 	fail.
 
-'$debug_exec_cmd'(@, _, _, _, _, _) :-           % command
+'$debug_exec_cmd'(@, _, _, _, _, _) :-                              % command
 	write(debugger_output, 'Command: '),
 	read(debugger_input, Command),
 	(   '$catch'(Command, Err, format(debugger_output, 'Warning: ~w - exception raised ~w~n', [Command, Err]), debugger_exec_cmd, 1, false) ->
@@ -811,26 +813,26 @@ nospyall.
 	), !,
 	fail.
 
-'$debug_exec_cmd'(<, _, _, _, _, _) :-           % print depth
+'$debug_exec_cmd'(<, _, _, _, _, _) :-                          % print depth
 	write(debugger_output, 'Print Depth: '),
 	'$debug_read_integer'(Depth),
 	g_assign('$debug_depth', Depth), !,
 	fail.
 
-'$debug_exec_cmd'(?, _, _, _, _, _) :-           % help
+'$debug_exec_cmd'(?, _, _, _, _, _) :-                                 % help
 	'$debug_disp_help', !,
 	fail.
 
-'$debug_exec_cmd'(h, _, _, _, _, _) :-           % help
+'$debug_exec_cmd'(h, _, _, _, _, _) :-                                 % help
 	'$debug_disp_help', !,
 	fail.
 
-'$debug_exec_cmd'('W', _, _, _, _, _) :-         % WAM debugger
+'$debug_exec_cmd'('W', _, _, _, _, _) :-                       % WAM debugger
 	wam_debug, !,
 	fail.
 
 
-'$debug_exec_cmd'(_, _, _, _, _, _) :-           % error
+'$debug_exec_cmd'(_, _, _, _, _, _) :-                                % error
 	write(debugger_output, 'Unknown command (type h for help)'),
 	nl(debugger_output),
 	fail.
@@ -844,8 +846,8 @@ nospyall.
 '$debug_write_goal'(Goal, Invoc, Index, Port) :-
 	g_read('$debug_depth', Depth),
 	(   '$has_no_spy_point'(Goal) ->
-	    Indic=' '
-	;   Indic=(+)
+	    Indic = ' '
+	;   Indic = (+)
 	),
 	'$debug_port_pretty'(Port, Port1),
 	format(debugger_output, '~N ~a %4d %4d  ~a', [Indic, Invoc, Index, Port1]),
@@ -910,36 +912,35 @@ nospyall.
 	'$debug_disp_alt1'(N1, A1, BFrom), !.
 
 
-'$debug_disp_alt1'(N, _, _) :-                   % hide debug alternatives
+'$debug_disp_alt1'(N, _, _) :-                      % hide debug alternatives
 	'$debug_is_debug_predicate'(N).
 
-'$debug_disp_alt1'(_, _, B) :-                   % clause selection ?
-	'$call_c_test'('Scan_Choice_Point_Info_3'(B, N, A)),
-                                                 % fail if not
+'$debug_disp_alt1'(_, _, B) :-                           % clause selection ?
+	'$call_c_test'('Scan_Choice_Point_Info_3'(B, N, A)),    % fail if not
 	'$pred_without_aux'(N, A, N1, A1),
-	'$debug_disp_alt2'(N1/A1).
+	'$debug_disp_alt2'(N1 / A1).
 
-'$debug_disp_alt1'('$catch_internal1', 5, B) :-  % hide debug catch
+'$debug_disp_alt1'('$catch_internal1', 5, B) :-            % hide debug catch
 	'$choice_point_arg'(B, 1, Goal),
 	functor(Goal, N, _),
 	'$debug_is_debug_predicate'(N).
 
 '$debug_disp_alt1'('$trail_handler', 1, _).
 
-'$debug_disp_alt1'(N, A, _) :-                   % detect system predicate
+'$debug_disp_alt1'(N, A, _) :-                      % detect system predicate
 	sub_atom(N, 0, 1, _, $),
-	'$predicate_property_any'(N/A, native_code),
+	'$predicate_property_any'(N / A, native_code),
 	(   (   sub_atom(N, 1, _, 4, N1),
 	        '$debug_check_bip'(N1, A1)
 	    ;   sub_atom(N, 1, _, 1, N1),
 	        '$debug_check_bip'(N1, A1)
 	    ) ->
-	    '$debug_disp_alt2'(N1/A1)
-	;   '$debug_disp_alt2'('system predicate'(N/A))
+	    '$debug_disp_alt2'(N1 / A1)
+	;   '$debug_disp_alt2'('system predicate'(N / A))
 	).
 
-'$debug_disp_alt1'(N, A, _) :-                   % normal predicate
-	'$debug_disp_alt2'(N/A).
+'$debug_disp_alt1'(N, A, _) :-                             % normal predicate
+	'$debug_disp_alt2'(N / A).
 
 
 '$debug_disp_alt2'(X) :-
@@ -955,10 +956,10 @@ nospyall.
 
 
 '$debug_check_bip'(N1, A1) :-
-	predicate_property(N1/A1, built_in), !.
+	predicate_property(N1 / A1, built_in), !.
 
 '$debug_check_bip'(N1, A1) :-
-	predicate_property(N1/A1, built_in_fd).
+	predicate_property(N1 / A1, built_in_fd).
 
 
 
@@ -990,4 +991,3 @@ nospyall.
 
 '$choice_point_arg'(B, I, Arg) :-
 	'$call_c'('Choice_Point_Arg_3'(B, I, Arg)).
-

@@ -1,5 +1,8 @@
+/* $Id$ */
+
 prolog_name('SICStus Prolog').
-prolog_version(X):- current_prolog_flag(version, X).
+prolog_version(X) :-
+	current_prolog_flag(version, X).
 prolog_date('2000').
 prolog_copyright('').
 
@@ -10,9 +13,9 @@ g_assign(Var, Value) :-
 
 g_read(Var, Value) :-
 	(   bb_get(Var, Value1)
-        ;   Value1=0
-        ), !,
-	Value=Value1.
+	;   Value1 = 0
+	), !,
+	Value = Value1.
 
 
 
@@ -47,7 +50,7 @@ append([X|L1], L2, [X|L3]) :-
 
 
 go_other :-
-        argument_list(L),
+	argument_list(L),
 	go_other1(L).
 
 
@@ -55,8 +58,8 @@ go_other1([]) :-
 	!.
 
 go_other1(L) :-
-        pl2wam(L),
+	pl2wam(L),
 	halt.
 
 
-:- initialization(go_other).
+:-	initialization(go_other).

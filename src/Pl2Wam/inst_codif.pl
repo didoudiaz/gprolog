@@ -28,8 +28,8 @@
 
 alias_stop_instruction(InstW) :-
 	functor(InstW, F, _),
-	(   F=call
-	;   F=execute
+	(   F = call
+	;   F = execute
 	), !.
 
 
@@ -99,10 +99,10 @@ codif(unify_value(x(Tmp)), [r(Tmp)]).
 
 codif(unify_local_value(x(Tmp)), [r(Tmp)]).
 
-codif(call(_/N), LCode) :-
+codif(call(_ / N), LCode) :-
 	lst_r_for_call_execute(0, N, LCode).
 
-codif(execute(_/N), LCode) :-
+codif(execute(_ / N), LCode) :-
 	lst_r_for_call_execute(0, N, LCode).
 
 codif(load_cut_level(Tmp), [w(Tmp)]).
@@ -134,7 +134,7 @@ codif(_, []).
 lst_r_for_call_execute(N, N, []).
 
 lst_r_for_call_execute(I, N, [r(I)|L]) :-
-	I1 is I+1,
+	I1 is I + 1,
 	lst_r_for_call_execute(I1, N, L).
 
 
@@ -152,5 +152,3 @@ lst_rw_for_call_c([], End, End).
 
 lst_rw_for_call_c([Reg|LReg], End, [r(Reg)|LCode]) :-
 	lst_rw_for_call_c(LReg, [w(Reg)|End], LCode).
-
-

@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : assert.pl
-% date    : 1 23 2001
-% time    : 12:49:44
+% date    : 9 16 2001
+% time    : 18:16:2
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').
 
 
-predicate('$use_assert'/0,27,static,private,built_in,[
+predicate('$use_assert'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(asserta/1,30,static,private,built_in,[
+predicate(asserta/1,32,static,private,built_in,[
     put_atom(asserta,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -20,7 +20,7 @@ predicate(asserta/1,30,static,private,built_in,[
     execute('$assert'/3)]).
 
 
-predicate(assertz/1,37,static,private,built_in,[
+predicate(assertz/1,39,static,private,built_in,[
     put_atom(assertz,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -29,7 +29,7 @@ predicate(assertz/1,37,static,private,built_in,[
     execute('$assert'/3)]).
 
 
-predicate('$assert'/3,44,static,private,built_in,[
+predicate('$assert'/3,46,static,private,built_in,[
     try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
@@ -53,7 +53,7 @@ label(1),
     proceed]).
 
 
-predicate(retract/1,55,static,private,built_in,[
+predicate(retract/1,57,static,private,built_in,[
     allocate(2),
     put_atom(retract,1),
     put_integer(1,2),
@@ -67,12 +67,12 @@ predicate(retract/1,55,static,private,built_in,[
     execute('$retract'/2)]).
 
 
-predicate('$retract'/2,61,static,private,built_in,[
+predicate('$retract'/2,63,static,private,built_in,[
     call_c_test('Retract_2',[0,1]),
     proceed]).
 
 
-predicate(retractall/1,67,static,private,built_in,[
+predicate(retractall/1,69,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(retractall,2),
@@ -94,12 +94,12 @@ label(2),
     proceed]).
 
 
-predicate('$retract_last_found'/0,80,static,private,built_in,[
+predicate('$retract_last_found'/0,82,static,private,built_in,[
     call_c('Retract_Last_Found_0',[]),
     proceed]).
 
 
-predicate(clause/2,85,static,private,built_in,[
+predicate(clause/2,87,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -115,23 +115,23 @@ predicate(clause/2,85,static,private,built_in,[
     execute('$clause'/3)]).
 
 
-predicate('$clause'/3,91,static,private,built_in,[
+predicate('$clause'/3,93,static,private,built_in,[
     call_c_test('Clause_3',[0,1,2]),
     proceed]).
 
 
-predicate('$instance_for_setarg'/2,96,static,private,built_in,[
+predicate('$instance_for_setarg'/2,99,static,private,built_in,[
     put_integer(0,2),
     call_c_test('Clause_3',[0,1,2]),
     proceed]).
 
 
-predicate('$setarg_in_last_found'/2,99,static,private,built_in,[
+predicate('$setarg_in_last_found'/2,102,static,private,built_in,[
     call_c('Setarg_Of_Last_Found_2',[0,1]),
     proceed]).
 
 
-predicate(abolish/1,104,static,private,built_in,[
+predicate(abolish/1,107,static,private,built_in,[
     put_atom(abolish,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -139,16 +139,16 @@ predicate(abolish/1,104,static,private,built_in,[
     proceed]).
 
 
-predicate('$remove_predicate'/2,111,static,private,built_in,[
+predicate('$remove_predicate'/2,114,static,private,built_in,[
     call_c('Remove_Predicate_2',[0,1]),
     proceed]).
 
 
-predicate('$scan_dyn_test_alt'/0,117,static,private,built_in,[
+predicate('$scan_dyn_test_alt'/0,120,static,private,built_in,[
     call_c_test('Scan_Dynamic_Pred_Alt_0',[]),
     proceed]).
 
 
-predicate('$scan_dyn_jump_alt'/0,120,static,private,built_in,[
+predicate('$scan_dyn_jump_alt'/0,123,static,private,built_in,[
     call_c_jump('Scan_Dynamic_Pred_Alt_0',[]),
     proceed]).

@@ -1,13 +1,13 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : all_pl_bips.pl
-% date    : 1 23 2001
-% time    : 12:49:56
+% date    : 9 16 2001
+% time    : 18:16:6
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_pl_bips.pl').
 
 
-predicate('$use_all_pl_bips'/0,25,static,private,user,[
+predicate('$use_all_pl_bips'/0,27,static,private,user,[
     allocate(0),
     call('$use_control'/0),
     call('$use_call'/0),

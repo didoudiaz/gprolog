@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in_fd.
 
 '$use_fd_optim'.
@@ -32,7 +34,7 @@ fd_minimize(Goal, Var) :-
 	g_assign('$cur_min', Inf),
 	repeat,
 	g_read('$cur_min', B),
-	B1 is B-1,
+	B1 is B - 1,
 	set_bip_name(fd_minimize, 2),
 	(   '$fd_domain'(Var, 0, B1),
 	    '$call'(Goal, fd_minimize, 2, true) ->
@@ -40,7 +42,7 @@ fd_minimize(Goal, Var) :-
 	    g_assign('$cur_min', C),
 	    fail
 	;   !,
-	    Var=B,
+	    Var = B,
 	    '$call'(Goal, fd_minimize, 2, true)
 	).
 
@@ -52,7 +54,7 @@ fd_maximize(Goal, Var) :-
 	g_assign('$cur_max', 0),
 	repeat,
 	g_read('$cur_max', B),
-	B1 is B+1,
+	B1 is B + 1,
 	set_bip_name(fd_maximize, 2),
 	(   '$fd_domain'(Var, B1, Inf),
 	    '$call'(Goal, fd_maximize, 2, true) ->
@@ -60,6 +62,6 @@ fd_maximize(Goal, Var) :-
 	    g_assign('$cur_max', C),
 	    fail
 	;   !,
-	    Var=B,
+	    Var = B,
 	    '$call'(Goal, fd_maximize, 2, true)
 	).

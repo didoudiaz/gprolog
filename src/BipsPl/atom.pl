@@ -22,6 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 :-	built_in.
 
 '$use_atom'.
@@ -38,7 +40,7 @@ atom_concat(Atom1, Atom2, Atom3) :-
 	set_bip_name(atom_concat, 3),
 	'$call_c_test'('Atom_Concat_3'(Atom1, Atom2, Atom3)).
 
-'$atom_concat_alt' :-                            % used by C code to create a choice-point
+'$atom_concat_alt' :-               % used by C code to create a choice-point
 	'$call_c_test'('Atom_Concat_Alt_0').
 
 
@@ -48,7 +50,7 @@ sub_atom(Atom, Before, Length, After, SubAtom) :-
 	'$call_c_test'('Sub_Atom_5'(Atom, Before, Length, After, SubAtom)).
 
 
-'$sub_atom_alt' :-                               % used by C code to create a choice-point
+'$sub_atom_alt' :-                  % used by C code to create a choice-point
 	'$call_c_test'('Sub_Atom_Alt_0').
 
 
@@ -129,7 +131,7 @@ current_atom(X) :-
 	'$call_c_test'('Current_Atom_2'(X, 0)).
 
 
-'$current_atom_alt' :-                           % used by C code to create a choice-point
+'$current_atom_alt' :-              % used by C code to create a choice-point
 	'$call_c_test'('Current_Atom_Alt_0').
 
 
@@ -199,16 +201,15 @@ atom_property(Atom, Property) :-
 
 new_atom(X) :-
 	set_bip_name(new_atom, 1),
-	'$sys_var_write'(0, 0),                  % hash not specified
+	'$sys_var_write'(0, 0),                          % hash not specified
 	'$call_c_test'('New_Atom_3'(atom_, 0, X)).
 
 new_atom(Prefix, X) :-
 	set_bip_name(new_atom, 2),
-	'$sys_var_write'(0, 0),                  % hash not specified
+	'$sys_var_write'(0, 0),                          % hash not specified
 	'$call_c_test'('New_Atom_3'(Prefix, 0, X)).
 
 new_atom(Prefix, Hash, X) :-
 	set_bip_name(new_atom, 3),
-	'$sys_var_write'(0, 1),                  % hash specified
+	'$sys_var_write'(0, 1),                              % hash specified
 	'$call_c_test'('New_Atom_3'(Prefix, Hash, X)).
-

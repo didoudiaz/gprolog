@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.2.6 (Jan 22 2001)
+% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
 % file    : le_interf.pl
-% date    : 1 23 2001
-% time    : 12:49:56
+% date    : 9 16 2001
+% time    : 18:16:6
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/le_interf.pl').
 
 
-predicate('$use_le_interf'/0,27,static,private,built_in,[
+predicate('$use_le_interf'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(get_linedit_prompt/1,30,static,private,built_in,[
+predicate(get_linedit_prompt/1,32,static,private,built_in,[
     put_atom(get_linedit_prompt,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -19,12 +19,12 @@ predicate(get_linedit_prompt/1,30,static,private,built_in,[
     proceed]).
 
 
-predicate('$get_linedit_prompt'/1,37,static,private,built_in,[
+predicate('$get_linedit_prompt'/1,39,static,private,built_in,[
     call_c_test('Get_Linedit_Prompt_1',[0]),
     proceed]).
 
 
-predicate(set_linedit_prompt/1,43,static,private,built_in,[
+predicate(set_linedit_prompt/1,45,static,private,built_in,[
     put_atom(set_linedit_prompt,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -32,12 +32,12 @@ predicate(set_linedit_prompt/1,43,static,private,built_in,[
     proceed]).
 
 
-predicate('$set_linedit_prompt'/1,50,static,private,built_in,[
+predicate('$set_linedit_prompt'/1,52,static,private,built_in,[
     call_c('Set_Linedit_Prompt_1',[0]),
     proceed]).
 
 
-predicate(add_linedit_completion/1,56,static,private,built_in,[
+predicate(add_linedit_completion/1,58,static,private,built_in,[
     put_atom(add_linedit_completion,1),
     put_integer(1,2),
     call_c('Set_Bip_Name_2',[1,2]),
@@ -45,7 +45,7 @@ predicate(add_linedit_completion/1,56,static,private,built_in,[
     proceed]).
 
 
-predicate(find_linedit_completion/2,63,static,private,built_in,[
+predicate(find_linedit_completion/2,65,static,private,built_in,[
     put_atom(find_linedit_completion,2),
     put_integer(2,3),
     call_c('Set_Bip_Name_2',[2,3]),
@@ -53,6 +53,6 @@ predicate(find_linedit_completion/2,63,static,private,built_in,[
     proceed]).
 
 
-predicate('$find_linedit_completion_alt'/0,69,static,private,built_in,[
+predicate('$find_linedit_completion_alt'/0,71,static,private,built_in,[
     call_c_test('Find_Linedit_Completion_Alt_0',[]),
     proceed]).
