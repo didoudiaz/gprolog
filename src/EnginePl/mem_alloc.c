@@ -32,7 +32,9 @@
  * inserting an appropriate file.                                          *
  *-------------------------------------------------------------------------*/
 
-#if defined(M_ix86_linuxxx)
+/* this is no longer used for linux, see mallopt initial call in machine.c */
+
+#if 0 && defined(M_linux)
 
 #ifdef HAVE_MMAP
 #undef  HAVE_MMAP

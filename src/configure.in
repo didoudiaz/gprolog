@@ -13,8 +13,8 @@ dnl ***************************
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.2.3'
-PROLOG_DATE='Sep 12 2000'
+PROLOG_VERSION='1.2.4'
+PROLOG_DATE='Oct 13 2000'
 PROLOG_COPYRIGHT='Copyright (C) 1999,2000 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
