@@ -115,11 +115,11 @@ Foreign type & Prolog type & C type & Description of the C type \\
 
 \hline\hline
 
-\texttt{integer} & integer & \texttt{int} & value of the integer \\
+\texttt{integer} & integer & \texttt{long} & value of the integer \\
 
 \hline
 
-\texttt{positive} & positive integer & \texttt{int} & value of the integer
+\texttt{positive} & positive integer & \texttt{long} & value of the integer
 \\
 
 \hline
@@ -244,7 +244,7 @@ raised.
 \texttt{domain\_error(not\_less\_than\_zero, Arg)} is raised.
 
 \item otherwise the value of \texttt{Arg} is passed to the C is passed to
-the C function as an integer (\texttt{int}).
+the C function as an integer (\texttt{long}).
 
 \end{itemize}
 
@@ -272,7 +272,7 @@ is handled as follows:
 \item if \texttt{Arg} is an integer $<$ 0 a
 \texttt{domain\_error(not\_less\_than\_zero, Arg)} is raised.
 
-\item otherwise a pointer to an integer (\texttt{int} \texttt{*}) is passed
+\item otherwise a pointer to an integer (\texttt{long} \texttt{*}) is passed
 to the C function. If the function returns \texttt{TRUE} the integer stored
 at this location is unified with \texttt{Arg}.
 
@@ -316,11 +316,12 @@ non-variable argument will not) but it can be modified by the C function.
 The field \texttt{value} stores the value of the argument. It is declared as
 a C \texttt{union} since there are several kinds of value types. The field
 \texttt{s} is used for C strings, \texttt{d} for C doubles and \texttt{l}
-otherwise (\texttt{int}, \texttt{PlTerm}). if \texttt{is\_var} is
-\texttt{FALSE} then \texttt{value} contains the input value of the argument
-with the same conventions as for input arguments \RefSP{Input-arguments}.
-At the exit of the function, if unify is \texttt{TRUE} \texttt{value} must
-contain the value to unify with the same conventions as for output arguments
+otherwise (\texttt{int}, \texttt{long}, \texttt{PlTerm}). if \texttt{is\_var}
+is \texttt{FALSE} then \texttt{value} contains the input value of the
+argument with the same conventions as for input arguments
+\RefSP{Input-arguments}.  At the exit of the function, if unify is
+\texttt{TRUE} \texttt{value} must contain the value to unify with the same
+conventions as for output arguments
 \RefSP{Output-arguments}.
 
 For instance, the effective argument \texttt{Arg} associated to
@@ -398,7 +399,7 @@ In the C file \texttt{utils.c}:
 #include <string.h>
 #include "gprolog.h"
 
-Bool first_occurrence(char *str, int c, int *pos)
+Bool first_occurrence(char *str, int c, long *pos)
 
 {
  char *p;
@@ -457,7 +458,7 @@ In the C file \texttt{utils.c}:
 #include <string.h>
 #include "gprolog.h"
 
-Bool occurrence(char *str, int c, int *pos)
+Bool occurrence(char *str, int c, long *pos)
 
 {
  char **info_pos;
@@ -516,7 +517,7 @@ Here is the corresponding definition of the C function:
 #include <string.h>
 #include "gprolog.h"
 
-Bool occurrence(char *str, int c, int *pos)
+Bool occurrence(char *str, int c, long *pos)
 
 {
  char **info_pos;
@@ -677,7 +678,7 @@ Bool  Is_Valid_Atom       (int atom)
 int   Create_Atom         (char *str)
 int   Create_Allocate_Atom(char *str)
 int   Find_Atom           (char *str)
-int   atom_char[256]
+int   ATOM_CHAR           (char c)
 int   atom_nil
 int   atom_false
 int   atom_true
@@ -709,12 +710,11 @@ The function \texttt{Find\_Atom(str)} returns the internal key of the
 atom whose name is \texttt{str} or \texttt{-1} if does not exist.
 
 All atoms corresponding to a single character already exist and their
-key can be obtained via the global array \texttt{atom\_char[]}.  For
-instance \texttt{atom\_char['.']} is the atom associated to
+key can be obtained via the macro \texttt{ATOM\_CHAR}.  For
+instance \texttt{ATOM\_CHAR('.')} is the atom associated to
 \texttt{'.'} (this atom is the functor of lists). The other variables
 correspond to the internal key of frequently used atoms: \texttt{[]},
-\texttt{false}, \texttt{true} and
-\texttt{end\_of\_file}.
+\texttt{false}, \texttt{true} and \texttt{end\_of\_file}.
 
 \subsubsection{Reading Prolog terms}
 \label{Reading-Prolog-terms}
@@ -729,8 +729,8 @@ interface when an input argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-int     Rd_Integer_Check  (PlTerm term)
-int     Rd_Positive_Check (PlTerm term)
+long    Rd_Integer_Check  (PlTerm term)
+long    Rd_Positive_Check (PlTerm term)
 double  Rd_Float_Check    (PlTerm term)
 double  Rd_Number_Check   (PlTerm term)
 int     Rd_Atom_Check     (PlTerm term)
@@ -783,8 +783,8 @@ interface when an output argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-Bool Un_Integer_Check (int n,     PlTerm term)
-Bool Un_Positive_Check(int n,     PlTerm term)
+Bool Un_Integer_Check (long n,    PlTerm term)
+Bool Un_Positive_Check(long n,    PlTerm term)
 Bool Un_Float_Check   (double n,  PlTerm term)
 Bool Un_Number_Check  (double n,  PlTerm term)
 Bool Un_Atom_Check    (int atom,  PlTerm term)
@@ -899,8 +899,8 @@ a \texttt{PlTerm} containing the created term.
 
 \begin{Indentation}
 \begin{verbatim}
-PlTerm Mk_Integer (int n)
-PlTerm Mk_Positive(int n)
+PlTerm Mk_Integer (long n)
+PlTerm Mk_Positive(long n)
 PlTerm Mk_Float   (double n)
 PlTerm Mk_Number  (double n)
 PlTerm Mk_Atom    (int atom)
