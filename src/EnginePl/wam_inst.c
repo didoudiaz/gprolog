@@ -1020,7 +1020,7 @@ Delete_Choice_Point(int arity)
   for (i = 0; i < arity; i++)
     A(i) = AB(B, i);
 
-  B = BB(B);			/* warning B must be the last element restored */
+  B = BB(B);			/* B must be the last element restored */
 
   STAMP--;
 }

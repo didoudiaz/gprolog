@@ -94,13 +94,13 @@ Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0) Prolog_Prototype(CALL_INTERNAL, 2)
  * FOREIGN_INITIALIZER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void
-     Foreign_Initializer(void)
+static void
+Foreign_Initializer(void)
 {
   goal_H = H;
   H = H + MAX_ARITY + 1;
 
-  Set_Heap_Actual_Start(H);	/* changed to reserve space for meta-call goal */
+  Set_Heap_Actual_Start(H);	/* reserve space for meta-call goal */
 }
 
 
@@ -294,11 +294,12 @@ Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr)
 
 
 /*-------------------------------------------------------------------------*
- * PL_QUERY_START                                                          *
+ * PL_QUERY_BEGIN                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
-Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable)
+void
+Pl_Query_Begin(Bool recoverable)
+
 {
   if (query_stack_top - query_stack >= QUERY_STACK_SIZE)
     Fatal_Error("Too many nested Pl_Query_Start() (max: %d)",
@@ -306,7 +307,18 @@ Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable)
 
   if (recoverable)
     Create_Choice_Point(Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0), 0);
+}
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_QUERY_CALL                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Query_Call(int func, int arity, WamWord *arg_adr)
+{
   *query_stack_top++ = query_top_b = B;
   query_exception = atom_void;
 
@@ -319,11 +331,12 @@ Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable)
 /*-------------------------------------------------------------------------*
  * PL_QUERY_RECOVER_ALT_0                                                  *
  *                                                                         *
+ * NB: This choice-point is invoked when PL_KEEP_FOR_PROLOG is used        *
  *-------------------------------------------------------------------------*/
 void
 Pl_Query_Recover_Alt_0(void)
 {
-  Delete_Choice_Point(0);	/* remove recover chc-point */
+  Delete_Choice_Point(0);	/* remove recover choice-point */
 }
 
 
