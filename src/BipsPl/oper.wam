@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : oper.pl
-% date    : 6 4 2002
-% time    : 15:29:47
+% date    : 6 12 2002
+% time    : 13:44:57
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/oper.pl').

@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.13 (Apr 20 2002)
 % file    : read_file.pl
-% date    : 6 4 2002
-% time    : 15:29:59
+% date    : 6 12 2002
+% time    : 13:43:27
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/read_file.pl').

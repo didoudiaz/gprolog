@@ -413,7 +413,7 @@ Set_Stream_Type_2(WamWord sora_word, WamWord is_text_word)
   {
     FILE *f;
 
-    f = Stdio_File_Of_Stream(stm);
+    f = Stdio_Desc_Of_Stream(stm);
     if (f == NULL)
       return;
 

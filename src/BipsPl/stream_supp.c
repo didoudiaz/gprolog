@@ -241,10 +241,10 @@ Init_Stream_Supp(void)
 		/* ok for both GUI and console EOM<->ANSI conversion */
   pstm = stm_tbl[stm_stdout];
   pstm->prop.buffering = STREAM_BUFFERING_LINE;
-  if (le_hook_put_char && istty)
+  if (le_hook_put_char && isatty(1))
     pstm->fct_putc = (StmFct) le_hook_put_char;
 
-  if (le_hook_flush && istty)
+  if (le_hook_flush && isatty(1))
     pstm->fct_flush = (StmFct) le_hook_flush;
 #endif
 
@@ -731,9 +731,6 @@ Set_Stream_Buffering(int stm)
 {
   StmInf *pstm = stm_tbl[stm];
   FILE *f;
-#ifndef NO_USE_LINEDIT
-  int buff_flag;
-#endif
 
   f = Stdio_Desc_Of_Stream(stm);
   if (f == NULL)
@@ -744,7 +741,7 @@ Set_Stream_Buffering(int stm)
 
 #ifndef NO_USE_LINEDIT		/* if use_gui == 1 */
   if (pstm->file == (long) stdout && le_hook_set_line_buffering)
-    (*le_hook_set_line_buffering)(buff_flag != _IONBF);
+    (*le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif
 
