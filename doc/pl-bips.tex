@@ -1440,10 +1440,12 @@ predicate\_property(?predicate\_indicator, ?predicate\_property)
 
 \Description
 
-\texttt{predicate\_property(Pred, Property)} succeeds if
-\texttt{current\_predicate(Pred)} succeeds \RefSP{current-predicate/1} and
-if \texttt{Property} unifies with one of the properties of the procedure.
-This predicate is re-executable on backtracking.
+\texttt{predicate\_property(Pred, Property)} succeeds if there
+exists a predicate indicator of a defined procedure that unifies with
+\texttt{Pred} and if \texttt{Property} unifies with one of the properties of
+the procedure. All user defined procedures and built-in predicates are 
+found. Internal system procedures whose name begins with \texttt{'\$'}
+are not found. This predicate is re-executable on backtracking.
 
 \SPart{Predicate properties}:
 
