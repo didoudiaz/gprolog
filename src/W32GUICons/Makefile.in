@@ -1,15 +1,21 @@
-LIB_W32GUICONS = @LIB_W32GUICONS@
+DLL_W32GUICONS = @DLL_W32GUICONS@
 CC             = @CC@
-CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@ /D "_AFXDLL" /D "_MBCS"
-AR_RC          = @AR_RC@
-RANLIB         = @RANLIB@
-RC             = rc
-RCFLAGS        = /l 0x409 /d "_AFXDLL"
+CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@
+RC             = @RC@
+LD             = @LD@
 
-LIBNAME = $(LIB_W32GUICONS)
-OBJLIB  = CntrItem.obj GUIConsDoc.obj  MainFrm.obj        StackSizeDlg.obj \
-          GUICons.obj  GUIConsView.obj RestartExitDlg.obj StdAfx.obj
+# RCFLAGS        = /l 0x409
+RCFLAGS        =
 
+DLLNAME = $(DLL_W32GUICONS)
+OBJDLL  = w32_console.obj
+RESDLL  = w32_console.res
+
+WIN32LIBS = kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib \
+            comctl32.lib shell32.lib ole32.lib htmlhelp.lib
+
+# others:
+# winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
 
 
 .SUFFIXES:
@@ -24,18 +30,14 @@ OBJLIB  = CntrItem.obj GUIConsDoc.obj  MainFrm.obj        StackSizeDlg.obj \
 .rc.res:
 	$(RC) $(RCFLAGS) $*.rc
 
-all: $(LIBNAME) GUICons.res w32gc_interf@OBJ_SUFFIX@
+all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@
 
-$(LIBNAME): $(OBJLIB) GUICons.res
-	rm -f $(LIBNAME)
-	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
-	$(RANLIB) $(LIBNAME)	
+$(DLLNAME): $(OBJDLL) $(RESDLL)
+	$(LD) /dll @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(WIN32LIBS)
+
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ $(LIBNAME) *.res
-
+	rm -f *@OBJ_SUFFIX@ *.res *.RES $(DLLNAME) *.lib *.exp *.EXP *.idb *.pdb
 
 distclean: clean
-
-
