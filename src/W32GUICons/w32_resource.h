@@ -15,6 +15,10 @@
 #define IDM_INTERRUPT                   40012
 #define IDM_BUFFERING                   40013
 #define IDM_SHOW_CONSOLE                40015
+#define IDM_CONSULT                     40016
+#define IDM_CHDIR                       40018
+#define IDM_FILE_NAME                   40019
+#define IDM_WEB                         40020
 
 // Next default values for new objects
 // 
@@ -22,7 +26,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        111
-#define _APS_NEXT_COMMAND_VALUE         40016
+#define _APS_NEXT_COMMAND_VALUE         40021
 #define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

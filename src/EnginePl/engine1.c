@@ -6,7 +6,7 @@
  * Descr.: general engine                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -58,13 +58,14 @@ Call_Compiled(CodePtr codep)
 
 #if !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK)
 
-#if defined(M_ix86_linux) || defined(M_ix86_cygwin) || \
+#if defined(M_ix86_linux) || \
+    defined(M_ix86_cygwin) || defined(M_ix86_mingw) || \
     defined(M_ix86_sco) || defined(M_ix86_bsd)
 
   register WamWord *rb asm("%ebx") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_ix86_win32)
+#elif defined(_MSC_VER)
 
   _asm mov ebx, reg_bank
 

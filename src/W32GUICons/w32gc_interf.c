@@ -6,7 +6,7 @@
  * Descr.: line editor <--> GUICons interface                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -88,21 +88,20 @@ void (*le_hook_exit_process) ();
 static FARPROC Find_Fct(HANDLE h, char *name);
 
 
-typedef
-__declspec(dllimport)
-     int (*Fct) ();
+typedef __declspec(dllimport) int (*Fct) ();
 
 
 /*-------------------------------------------------------------------------*
  * START_GUI                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-     static void Start_GUI(void)
+static void
+Start_GUI(void)
 {
   Fct W32GC_Start_Window;
   HANDLE h;
 
-#if 1
+#if 1 /* O to force console mode */
   h = LoadLibrary(DLL_W32GUICONS);
 #else
   h = NULL;
@@ -116,7 +115,6 @@ __declspec(dllimport)
       le_hook_start = NULL;
       return;
     }
-
   le_hook_put_char = (void (*)()) Find_Fct(h, "_W32GC_Put_Char");
   le_hook_get_char0 = (int (*)()) Find_Fct(h, "_W32GC_Get_Char0");
   le_hook_kbd_is_not_empty =
@@ -158,12 +156,14 @@ __declspec(dllimport)
 static FARPROC
 Find_Fct(HANDLE h, char *name)
 {
-  FARPROC p = GetProcAddress(h, name + 1);
+  FARPROC p;			/* init here to avoid lcc (buggy) warning */
+
+  p = GetProcAddress(h, name + 1);
 
   if (p)
     return p;
 
-  /* use necessary for MSVC++ but useful for lcc for instance */
+  /* useless for MSVC++ but useful for lcc for instance */
 
   p = GetProcAddress(h, name);
 

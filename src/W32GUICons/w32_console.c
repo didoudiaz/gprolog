@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -25,6 +25,7 @@
 /* $Id$ */
 
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <malloc.h>
 
@@ -50,6 +51,11 @@
 #define LOAD_HTMLHELP_DYNAMICALLY
 #endif
 
+#if 0
+#define DEBUG
+#endif
+
+
 
 
 /*---------------------------------*
@@ -66,6 +72,14 @@
     PROLOG_NAME " comes with ABSOLUTELY NO WARRANTY.\n" \
     "You may redistribute copies of " PROLOG_NAME " under the\n" \
     "terms of the GNU General Public License."
+
+
+#define FIX_TAB                    1	// replace \t by ESC+tab
+#define FIX_CR                     2	// remove \r
+#define FIX_BACKSLASH              4	// replace \ by /
+#define FIX_QUOTE                  8	// replace ' by ''
+
+
 
 
 /*---------------------------------*
@@ -102,6 +116,10 @@ static int posit = 0;		 // position inside current (last) line
 static int line_buffering = 1;	// default: line buffered
 static char wr_buffer[4096];
 static char *wr_buffer_ptr = wr_buffer;
+
+
+static char buff_pathname[MAX_PATH];
+
 
 
 
@@ -141,11 +159,21 @@ static LRESULT CALLBACK SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1,
 
 static char *Get_Current_Word(void);
 
+static void Consult_File(void);
+
+static void Change_Directory(void);
+
+static void Insert_File_Name(void);
+
+static char *Get_Selected_File_Name(char *title, char *default_ext, 
+									char *filter);
+
+static char *Get_Selected_Directory(char *title, int new_folder);
+
 static void Show_Help(char *word);
 
 static int Get_CHM_Help_Path(char *path);
 
-static int Browse_For_Dir(char *result);
 
 static int WINAPI BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp,
                                      LPARAM pData);
@@ -154,20 +182,27 @@ static int WINAPI BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp,
 
 static void Add_Clipboard_To_Queue(void);
 
+static void Add_String_To_Queue(char *str, int mask_fix);
+
 static void Add_Char_To_Queue(int c);
 
 static void Set_Selection(int posit, int n);
 
 static void Set_Caret_Position(int posit);
 
-static void Move_Caret_From_Mouse(void);
+static int Move_Caret_To(int start_or_end);
+
+static void Move_Caret_From_Mouse(int if_no_selection);
+
+static int Delete_Selection(void);
 
 static void Display_Text(char *str, int n);
 
 static void Flush_Buffer(void);
 
+#ifdef DEBUG
 static int Console_Printf(char *format, ...);
-
+#endif
 
 DLLEXPORT void W32GC_Set_Line_Buffering(int is_buffered);
 DLLEXPORT void W32GC_Backd(int n);
@@ -177,6 +212,13 @@ DLLEXPORT int W32GC_Confirm_Box(char *titre, char *msg);
 static BOOL Launched_From_Command_Line();
 static HWND Find_Text_Console_Handle(void);
 static void Show_Text_Console(int show);
+
+
+
+							/* from terminal.h */
+
+#define KEY_CTRL(x)                ((x) & 0x1f)
+#define KEY_ESC(x)                 ((2<<8) | ((x)|0x20))
 
 
 /*<---------------------------------------------------------------------->*/
@@ -231,7 +273,7 @@ DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
 DLLEXPORT int
 W32GC_Start_Window(char *(*get_separators) (), int (*get_prompt_length) ())
 {
-    int tid;
+    DWORD tid;
     
     fct_get_separators = get_separators;
     fct_get_prompt_length = get_prompt_length;
@@ -384,6 +426,18 @@ MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     switch (id)
     {
+    case IDM_CONSULT:
+		Consult_File();
+        break;
+        
+    case IDM_CHDIR:
+		Change_Directory();
+        break;
+        
+	case IDM_FILE_NAME:
+		Insert_File_Name();
+		break;
+
     case IDM_EXIT:
         PostMessage(hwnd, WM_CLOSE, 0, 0);
         break;
@@ -400,7 +454,7 @@ MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         
     case IDM_INTERRUPT:
         if (in_get_char)
-            Add_Char_To_Queue(3);	/* i.e. CTRL+C */
+            Add_Char_To_Queue(KEY_CTRL('C'));
         else
             GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
         break;
@@ -430,9 +484,13 @@ MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         break;
         
     case IDM_INDEX:
-        Show_Help("");
+        Show_Help(Get_Current_Word());
         break;
         
+	case IDM_WEB:
+		ShellExecute(NULL, "open", "http://gprolog.inria.fr/", NULL, ".", 0);
+		break;
+
     case IDM_ABOUT:
         MessageBox(hwndMain, ABOUT_TEXT, "About GNU Prolog",
             MB_OK | MB_ICONINFORMATION);
@@ -501,14 +559,20 @@ static LRESULT CALLBACK
 SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
 {
     LRESULT r;
-    int c, repeat, hasCtrl, hasAlt;
+    int c, del, repeat, hasCtrl, hasAlt;
     unsigned char pKeyState[256];
     
     if (msg == WM_CHAR)
     {
         repeat = (int) (mp2 & 0xffff);
+		del = (mp1 == '\b' || mp1 == KEY_CTRL('D') || isprint(mp1)) ? Delete_Selection() : 0;
+
+		if (del && (mp1 == '\b' || mp1 == KEY_CTRL('D')) && --repeat == 0)
+			return 0;
+
         while (repeat--)
             Add_Char_To_Queue(mp1);
+
         return 0;
     }
     if (msg == WM_KEYDOWN)
@@ -536,14 +600,17 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
         case VK_PRIOR:
             break;
             
-        case VK_LEFT:
+        case VK_DELETE:
+			if (Delete_Selection())
+				break;    /* else like other keys */    
+		case VK_LEFT:
         case VK_RIGHT:
         case VK_UP:
         case VK_DOWN:
         case VK_HOME:
         case VK_END:
         case VK_INSERT:
-        case VK_DELETE:
+	        Move_Caret_From_Mouse(0);
             c = (hasCtrl) ? 2 : 1;
             c = ((c << 8) | mp1);
             Add_Char_To_Queue(c);
@@ -553,16 +620,16 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
             Show_Help(Get_Current_Word());
             return 0;
 			
-#if 0 /* to include a test code */
+#ifdef DEBUG /* to include a test code */
         case VK_F2:
 			{
 				int size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
 				int len = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
 				char s[100];
 				
-				int beg,end;
+				int beg, end;
 				Set_Selection(3, 200);
-				SendMessage(hwndEditControl, EM_GETSEL, &beg, &end);
+				SendMessage(hwndEditControl, EM_GETSEL, (WPARAM)  &beg, (WPARAM)  &end);
 				
 				sprintf(s,"limit: %d   len: %d   sel: %d-%d", size, len, beg, end);
 				MessageBox(NULL, s, "Error", MB_OK);
@@ -575,8 +642,8 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
         
     }
     r = CallWindowProc(lpEProc, hwnd, msg, mp1, mp2);
-    if (msg == WM_LBUTTONDOWN)	/* left button (inside cur line) move the caret */
-        Move_Caret_From_Mouse();
+    if (msg == WM_LBUTTONUP)	/* left button (inside cur line) move the caret */
+        Move_Caret_From_Mouse(1);
     
     return r;
 }
@@ -622,6 +689,157 @@ Get_Current_Word(void)
     return p;
 }
 
+
+static void
+Consult_File(void)
+{
+	char *p = Get_Selected_File_Name("Consult...", "pl", 
+			"Prolog Files (.pl .pro),*.pl;*.pro,All Files,*.*");
+
+	if (p == NULL)
+		return;
+
+	Add_Char_To_Queue(KEY_CTRL('A'));
+	Add_Char_To_Queue(KEY_CTRL('K'));
+	Add_String_To_Queue("consult('", 0);
+	Add_String_To_Queue(p, FIX_TAB | FIX_CR | FIX_BACKSLASH | FIX_QUOTE);
+	Add_String_To_Queue("').\n", 0);
+}
+
+
+static void
+Change_Directory(void)
+{
+	char *p = Get_Selected_Directory("Select working directory", 1);
+
+	if (p == NULL)
+		return;
+
+	Add_Char_To_Queue(KEY_CTRL('A'));
+	Add_Char_To_Queue(KEY_CTRL('K'));
+	Add_String_To_Queue("change_directory('", 0);
+	Add_String_To_Queue(p, FIX_TAB | FIX_CR | FIX_BACKSLASH | FIX_QUOTE);
+	Add_String_To_Queue("').\n", 0);
+#ifdef DEBUG
+	SetCurrentDirectory(p);
+#endif
+}
+
+
+static void 
+Insert_File_Name(void)
+{
+	char *p = Get_Selected_File_Name("Pick a file name...", NULL,
+			"Prolog Files (.pl .pro),*.pl;*.pro,All Files,*.*");
+
+	if (p == NULL)
+		return;
+
+	Add_Char_To_Queue('\'');
+	Add_String_To_Queue(p, FIX_TAB | FIX_CR | FIX_BACKSLASH | FIX_QUOTE);
+	Add_Char_To_Queue('\'');
+}
+
+static char *
+Get_Selected_File_Name(char *title, char *default_ext, char *filter)
+{
+	char tmp_filter[128], *p;
+	OPENFILENAME ofn;
+
+	for(p = tmp_filter; *filter; filter++, p++) {
+		*p = *filter;
+		if (*p == ',')
+			*p = '\0';
+	}
+	*p++ = '\0'; *p = '\0';
+
+	memset(&ofn,0,sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = GetActiveWindow();
+	ofn.hInstance = GetModuleHandle(NULL);
+	ofn.lpstrFilter = tmp_filter;
+	ofn.nFilterIndex = 0;
+	ofn.lpstrFile = buff_pathname;
+	ofn.nMaxFile = sizeof(buff_pathname);
+	ofn.lpstrTitle = title;
+	ofn.lpstrDefExt = default_ext;
+	ofn.lpstrInitialDir = ".";
+	*buff_pathname = '\0';
+	ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_PATHMUSTEXIST ;
+	return GetOpenFileName(&ofn) ? buff_pathname : NULL;
+}
+
+
+
+#ifndef BIF_NEWDIALOGSTYLE
+#define BIF_NEWDIALOGSTYLE 0x40 // new style
+#endif
+#ifndef BIF_NONEWFOLDERBUTTON
+#define BIF_NONEWFOLDERBUTTON 0x0200 // dont show "create new folder" button
+#endif
+
+static char *
+Get_Selected_Directory(char *title, int new_folder)
+{
+    LPMALLOC pMalloc;
+    BROWSEINFO browseInfo;
+    LPITEMIDLIST lpItemIDList;
+    
+    CoInitialize(0);	// needed for BIF_NEWDIALOGSTYLE
+    if (S_OK != SHGetMalloc(&pMalloc))
+        return 0;
+    
+    memset(&browseInfo, 0, sizeof(BROWSEINFO));
+    
+    browseInfo.hwndOwner = GetActiveWindow();
+    browseInfo.lpszTitle = title;
+    browseInfo.lpfn = BrowseCallbackProc;
+    browseInfo.ulFlags = BIF_NEWDIALOGSTYLE;
+	if (!new_folder)
+		browseInfo.ulFlags |= BIF_NONEWFOLDERBUTTON;
+    lpItemIDList = SHBrowseForFolder(&browseInfo);
+	*buff_pathname = '\0';
+    if (lpItemIDList != NULL)
+    {
+        SHGetPathFromIDList(lpItemIDList, buff_pathname);
+        pMalloc->lpVtbl->Free(pMalloc, lpItemIDList);
+    }
+    pMalloc->lpVtbl->Release(pMalloc);
+    CoUninitialize();
+    return (*buff_pathname) ? buff_pathname : NULL;
+}
+
+
+
+static int WINAPI
+BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData)
+{    
+    switch (uMsg)
+    {
+    case BFFM_INITIALIZED:
+        {
+            if (GetCurrentDirectory(sizeof(buff_pathname), buff_pathname))
+            {
+                // WParam is TRUE since you are passing a path.
+                // It would be FALSE if you were passing a pidl.
+                SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM) buff_pathname);
+            }
+            break;
+        }
+    case BFFM_SELCHANGED:
+        {
+            // Set the status window to the currently selected path.
+            if (SHGetPathFromIDList((LPITEMIDLIST) lp, buff_pathname))
+            {
+                SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM) buff_pathname);
+            }
+            break;
+        }
+    default:
+        break;
+    }
+    return 0;
+}
 
 static void
 Show_Help(char *word)
@@ -675,6 +893,7 @@ Show_Help(char *word)
 }
 
 
+
 static int
 Get_CHM_Help_Path(char *path)
 {
@@ -685,18 +904,18 @@ Get_CHM_Help_Path(char *path)
     {
         if ((p = Get_Prolog_Path(&devel_mode)) != NULL)
             break;
-        
-        if (Browse_For_Dir(path) == 0)
+
+        if ((p = Get_Selected_Directory("Select the GNU Prolog directory", 0)) == NULL)
             return 0;
         
-        Read_Write_Registry(0, "RootPath", path, 0);
+        Read_Write_Registry(0, "RootPath", p, 0);
     }
     
-#if 0				/* remove the stored path to enforce Browse_For_Dir next time (debug only) */
+#ifdef DEBUG			/* to force display + remove path (debug) */
     MessageBox(NULL, p, "Prolog Root Path", MB_OK);
     Read_Write_Registry(0, "RootPath", "", 0);
 #endif
-    
+
     if (devel_mode)
         sprintf(path, "%s\\..\\..\\doc\\manual.chm", p);
     else
@@ -706,74 +925,6 @@ Get_CHM_Help_Path(char *path)
 
 
 
-static int
-Browse_For_Dir(char *result)
-{
-    LPMALLOC pMalloc;
-    BROWSEINFO browseInfo;
-    LPITEMIDLIST lpItemIDList;
-    int r = 0;
-    char *Title = "GNU Prolog";
-    
-    CoInitialize(0);
-    if (S_OK != SHGetMalloc(&pMalloc))
-        return 0;
-    
-    memset(&browseInfo, 0, sizeof(BROWSEINFO));
-    
-    browseInfo.hwndOwner = GetActiveWindow();
-    browseInfo.lpszTitle = Title;
-    browseInfo.lpfn = BrowseCallbackProc;
-    browseInfo.ulFlags = BIF_STATUSTEXT | 0x40;	// use the new user interface
-    lpItemIDList = SHBrowseForFolder(&browseInfo);
-    if (lpItemIDList != NULL)
-    {
-        *result = 0;
-        if (SHGetPathFromIDList(lpItemIDList, result))
-        {
-            if (result[0])
-            {
-                r = 1;
-            }
-        }
-        pMalloc->lpVtbl->Free(pMalloc, lpItemIDList);
-    }
-    pMalloc->lpVtbl->Release(pMalloc);
-    CoUninitialize();
-    return r;
-}
-
-static int WINAPI
-BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData)
-{
-    char szDir[MAX_PATH];
-    
-    switch (uMsg)
-    {
-    case BFFM_INITIALIZED:
-        {
-            if (GetCurrentDirectory(sizeof(szDir), szDir))
-            {
-                // WParam is TRUE since you are passing a path.
-                // It would be FALSE if you were passing a pidl.
-                SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM) szDir);
-            }
-            break;
-        }
-    case BFFM_SELCHANGED:
-        {
-            // Set the status window to the currently selected path.
-            if (SHGetPathFromIDList((LPITEMIDLIST) lp, szDir))
-            {
-                SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM) szDir);
-            }
-            break;
-        }
-    default:
-        break;
-    }
-    return 0;
-}
 
 /*<---------------------------------------------------------------------->*/
 
@@ -789,23 +940,47 @@ Add_Clipboard_To_Queue(void)
             char *str = GlobalLock(hClipData);
             
             if (str)
-                while (*str)
-                {
-					/* from terminal.h */
-#define KEY_ESC(x)                 ((2<<8) | ((x)|0x20))
-					
-					if (*str == '\t') /* send ESC+tab */
-						Add_Char_To_Queue(KEY_ESC('\t'));
-					else 
-						if (*str != '\r')
-							Add_Char_To_Queue(*str);
-						str++;
-                }
-                GlobalUnlock(hClipData);
+				Add_String_To_Queue(str, FIX_TAB | FIX_CR);
+
+			GlobalUnlock(hClipData);
         }
         CloseClipboard();
     }
     
+}
+
+static void
+Add_String_To_Queue(char *str, int mask_fix)
+{
+	int c;
+
+    EnterCriticalSection(&cs);
+	SetEvent(event_char_in_queue);
+	while(*str)
+	{
+		c = *str++;
+		if (c == '\r' && (mask_fix & FIX_CR))
+			continue;
+
+		if (c == '\t' && (mask_fix & FIX_TAB))
+			c = KEY_ESC('\t');
+
+		if (c == '\\' && (mask_fix & FIX_BACKSLASH))
+			c = '/';
+
+		if (c == '\'' && (mask_fix & FIX_QUOTE))
+		{
+			queue[queue_end++] = '\'';
+			if (queue_end >= sizeof(queue))
+				queue_end = 0;
+		}
+
+		queue[queue_end++] = c;
+		if (queue_end >= sizeof(queue))
+			queue_end = 0;
+	}
+    LeaveCriticalSection(&cs);
+    SetEvent(event_char_in_queue);
 }
 
 
@@ -813,8 +988,7 @@ static void
 Add_Char_To_Queue(int c)
 {
     EnterCriticalSection(&cs);
-    queue[queue_end] = c;
-    queue_end++;
+    queue[queue_end++] = c;
     if (queue_end >= sizeof(queue))
         queue_end = 0;
     LeaveCriticalSection(&cs);
@@ -876,11 +1050,9 @@ Set_Caret_Position(int posit)
 }
 
 
-
-static void
-Move_Caret_From_Mouse(void)
+static int
+Move_Caret_To(int start_or_end)
 {
-    int start, end;
     int lines = SendMessage(hwndEditControl, EM_GETLINECOUNT, 0, 0);
     int line_index = SendMessage(hwndEditControl, EM_LINEINDEX, lines - 1, 0);
     int prompt_length = 0;
@@ -890,24 +1062,53 @@ Move_Caret_From_Mouse(void)
     if (fct_get_prompt_length)
         prompt_length = (*fct_get_prompt_length) ();
     
-    SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &start, (LPARAM) &end);
     
-    end -= line_index;		/* < 0 if not in the current (last) line */
-    if (end < prompt_length)	/* not in cur line nor in the prompt: do nothing */
-        return;
+    start_or_end -= line_index;		    /* < 0 if not in the current (last) line */
+    if (start_or_end < prompt_length)	/* not in cur line or in the prompt: do nothing */
+        return 0;
     
-    count = end - posit;
-    if (count < 0)
-        
+    count = start_or_end - posit;
+    if (count < 0)        
     {
         count = -count;
         c = (1 << 8) | VK_LEFT;
     }
     while (count--)
         Add_Char_To_Queue(c);
+
+	return 1;
 }
 
 
+static void
+Move_Caret_From_Mouse(int if_no_selection)
+{
+    int start, end;
+
+    SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &start, (LPARAM) &end);
+	if (if_no_selection && start != end)
+		return;
+
+	Move_Caret_To(start);
+}
+
+
+static int
+Delete_Selection(void)
+{
+    int start, end;
+	int count;
+
+    SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &start, (LPARAM) &end);
+	count = end - start;
+    
+	if (count == 0 || !Move_Caret_To(start))
+		return 0;
+
+    while (count--)
+        Add_Char_To_Queue(KEY_CTRL('D'));
+	return 1;
+}
 
 static void
 Display_Text(char *str, int n)
@@ -1018,9 +1219,9 @@ W32GC_Flush(FILE *f)
     Flush_Buffer();
 }
 
-#if 0
+#ifdef DEBUG
 static int
-Console_Printf(char *format, ...)	/* debugging purpose: display in the GUI */
+Console_Printf(char *format, ...)	/* debug: display in the GUI */
 {
     va_list arg_ptr;
     char buff[1024];
@@ -1183,7 +1384,7 @@ Find_Text_Console_Handle(void)
     char uniq_title[256];
     
     GetConsoleTitle(save_title, sizeof(save_title));
-    sprintf(uniq_title, "%d/%d", GetTickCount(), GetCurrentProcessId());
+    sprintf(uniq_title, "%ld/%ld", GetTickCount(), GetCurrentProcessId());
     SetConsoleTitle(uniq_title);
     Sleep(40); // wait to be sure the title is displayed
     hwnd = FindWindow(NULL, uniq_title);

@@ -6,7 +6,7 @@
  * Descr.: general engine                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -31,7 +31,7 @@
 #include <locale.h>
 
 #include "gp_config.h"
-#ifdef M_ix86_win32
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
 #endif
 
@@ -318,17 +318,13 @@ Call_Prolog(CodePtr codep)
   ALTB(query_b) = (CodePtr) Call_Prolog_Fail;	/* modify choice point */
 
   CP = Adjust_CP(Call_Prolog_Success);
-#ifdef M_ix86_win32
-  _try
-  {
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+  SEH_PUSH(Win32_SEH_Handler);
 #endif
-    ok = Call_Next(codep);
-#ifdef M_ix86_win32
-  }
-  _except(Is_Win32_SEGV(GetExceptionInformation()))
-  {
-    SIGSEGV_Handler();
-  }
+  ok = Call_Next(codep);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  SEH_POP;
 #endif
 
   CP = save_CP;			/* restore continuation */
@@ -431,7 +427,7 @@ Call_Next(CodePtr codep)
   if (jmp_val == 3)		/* return with a continuation in jmp_val */
     Call_Compiled(cont_jmp);
 
-  /* normal return */
+				/* normal return */
   p_jumper = old_jumper;
   p_buff_save = old_buff_save;
 

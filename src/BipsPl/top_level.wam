@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.18 (Jan 16 2004)
+% compiler: GNU Prolog 1.2.18 (Jan 29 2004)
 % file    : top_level.pl
-% date    : 1 16 2004
-% time    : 15:46:27
+% date    : 3 12 2004
+% time    : 17:32:18
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
+file_name('C:\\cygwin\\home\\diaz\\GP\\src\\src\\BipsPl\\top_level.pl').
 
 
 predicate(top_level/0,32,static,private,built_in,[
@@ -26,8 +26,9 @@ predicate(top_level/0,32,static,private,built_in,[
     unify_local_value(y(1)),
     unify_nil,
     call(format/3),
-    put_atom('By Daniel Diaz',0),
-    call(write/1),
+    put_atom(top_level_output,0),
+    put_atom('By Daniel Diaz',1),
+    call(write/2),
     call(nl/0),
     put_atom(top_level_output,0),
     put_atom('~a~n',1),

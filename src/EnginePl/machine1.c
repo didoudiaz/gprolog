@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -26,10 +26,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <errno.h>
 
 #include "gp_config.h"
+#include "bool.h"
 
 #if 0
 
@@ -91,6 +93,10 @@
  * Function Prototypes             *
  *---------------------------------*/
 
+#if defined(_WIN32) && !defined(CYGWIN)
+static Bool Get_Windows_OS_Name(char *buff);
+#endif
+
 
 
 
@@ -109,8 +115,8 @@ Init_Machine1(void)
 
   if (uname(&uname_info) < 0)
     {
-      strcpy(m_architecture, "architecture unknown");
-      strcpy(m_os_version, "OS version unknown");
+      strcpy(m_architecture, "unknown architecture");
+      strcpy(m_os_version, "unknown OS version");
       return;
     }
 
@@ -121,53 +127,219 @@ Init_Machine1(void)
 #else
 
   SYSTEM_INFO si;
-  char *p;
-  OSVERSIONINFO osvi;
 
   GetSystemInfo(&si);
   if (si.wProcessorLevel >= 3 && si.wProcessorLevel < 10)
     sprintf(m_architecture, "i%c86", si.wProcessorLevel + '0');
   else
-    sprintf(m_architecture, "i%d", si.dwProcessorType);
+    sprintf(m_architecture, "i%ld", si.dwProcessorType);
 
   m_os_type = M_OS_WINDOWS;
+  if (!Get_Windows_OS_Name(m_os_version))
+    strcpy(m_os_version, "unknown OS version");
 
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  if (!GetVersionEx(&osvi))
+#endif
+}
+
+
+
+
+#if defined(_WIN32) && !defined(CYGWIN)
+
+/*-------------------------------------------------------------------------*
+ * GET_WINDOWS_OS_NAME                                                     *
+ *                                                                         *
+ * code obtained from                                                      *
+ * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/       *
+ *        sysinfo/base/getting_the_system_version.asp                      *
+ * then:                                                                   *
+ * 1) indent (with .indent.pro in src or with -gnu -bap -npcs)             *
+ * 2) replace "int main()" by "static Bool Get_Windows_OS_Name(char *buff)"*
+ * 3) replace "printf(" by "buff += sprintf(buff, "                        *
+ * 4) replace "\n" by ""                                                   *
+ * 5) after "case VER_PLATFORM_WIN32_NT:" add                              *
+ *          m_os_type = M_OS_WINDOWS_NT;                                   *
+ * 6) fix warnings %d -> %ld                                               *
+ *-------------------------------------------------------------------------*/
+static Bool
+Get_Windows_OS_Name(char *buff)
+{
+  OSVERSIONINFOEX osvi;
+  BOOL bOsVersionInfoEx;
+
+  // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
+  // If that fails, try using the OSVERSIONINFO structure.
+
+  ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+  if (!(bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO *) & osvi)))
     {
-      strcpy(m_os_version, "OS version unknown");
-      return;
+      osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+      if (!GetVersionEx((OSVERSIONINFO *) & osvi))
+	return FALSE;
     }
 
   switch (osvi.dwPlatformId)
     {
-    case VER_PLATFORM_WIN32_WINDOWS:
-      sprintf(m_os_version, "Win%s %d.%d (%d)",
-	      (osvi.dwMinorVersion == 0) ? "95" : "98",
-	      osvi.dwMajorVersion, osvi.dwMinorVersion,
-	      LOWORD(osvi.dwBuildNumber));
-      break;
-
+      // Test for the Windows NT product family.
     case VER_PLATFORM_WIN32_NT:
       m_os_type = M_OS_WINDOWS_NT;
-      sprintf(m_os_version, "WinNT %d.%d (%d)",
-	      osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
+      // Test for the specific product family.
+      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
+	buff += sprintf(buff, "Microsoft Windows Server 2003 family, ");
+
+      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
+	buff += sprintf(buff, "Microsoft Windows XP ");
+
+      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
+	buff += sprintf(buff, "Microsoft Windows 2000 ");
+
+      if (osvi.dwMajorVersion <= 4)
+	buff += sprintf(buff, "Microsoft Windows NT ");
+
+      // Test for specific product on Windows NT 4.0 SP6 and later.
+      if (bOsVersionInfoEx)
+	{
+	  // Test for the workstation type.
+	  if (osvi.wProductType == VER_NT_WORKSTATION)
+	    {
+	      if (osvi.dwMajorVersion == 4)
+		buff += sprintf(buff, "Workstation 4.0 ");
+	      else if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
+		buff += sprintf(buff, "Home Edition ");
+	      else
+		buff += sprintf(buff, "Professional ");
+	    }
+
+	  // Test for the server type.
+	  else if (osvi.wProductType == VER_NT_SERVER)
+	    {
+	      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
+		{
+		  if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
+		    buff += sprintf(buff, "Datacenter Edition ");
+		  else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
+		    buff += sprintf(buff, "Enterprise Edition ");
+		  else if (osvi.wSuiteMask == VER_SUITE_BLADE)
+		    buff += sprintf(buff, "Web Edition ");
+		  else
+		    buff += sprintf(buff, "Standard Edition ");
+		}
+
+	      else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
+		{
+		  if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
+		    buff += sprintf(buff, "Datacenter Server ");
+		  else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
+		    buff += sprintf(buff, "Advanced Server ");
+		  else
+		    buff += sprintf(buff, "Server ");
+		}
+
+	      else		// Windows NT 4.0 
+		{
+		  if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
+		    buff += sprintf(buff, "Server 4.0, Enterprise Edition ");
+		  else
+		    buff += sprintf(buff, "Server 4.0 ");
+		}
+	    }
+	}
+      else			// Test for specific product on Windows NT 4.0 SP5 and earlier
+	{
+#define BUFSIZE 80
+	  HKEY hKey;
+	  char szProductType[BUFSIZE];
+	  DWORD dwBufLen = BUFSIZE;
+	  LONG lRet;
+
+	  lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+			      "SYSTEM\\CurrentControlSet\\Control\\ProductOptions",
+			      0, KEY_QUERY_VALUE, &hKey);
+	  if (lRet != ERROR_SUCCESS)
+	    return FALSE;
+
+	  lRet = RegQueryValueEx(hKey, "ProductType", NULL, NULL,
+				 (LPBYTE) szProductType, &dwBufLen);
+	  if ((lRet != ERROR_SUCCESS) || (dwBufLen > BUFSIZE))
+	    return FALSE;
+
+	  RegCloseKey(hKey);
+
+	  if (lstrcmpi("WINNT", szProductType) == 0)
+	    buff += sprintf(buff, "Workstation ");
+	  if (lstrcmpi("LANMANNT", szProductType) == 0)
+	    buff += sprintf(buff, "Server ");
+	  if (lstrcmpi("SERVERNT", szProductType) == 0)
+	    buff += sprintf(buff, "Advanced Server ");
+
+	  buff += sprintf(buff, "%ld.%ld ", osvi.dwMajorVersion, osvi.dwMinorVersion);
+	}
+
+      // Display service pack (if any) and build number.
+
+      if (osvi.dwMajorVersion == 4 &&
+	  lstrcmpi(osvi.szCSDVersion, "Service Pack 6") == 0)
+	{
+	  HKEY hKey;
+	  LONG lRet;
+
+	  // Test for SP6 versus SP6a.
+	  lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+			      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009",
+			      0, KEY_QUERY_VALUE, &hKey);
+	  if (lRet == ERROR_SUCCESS)
+	    buff += sprintf(buff, "Service Pack 6a (Build %ld)",
+		   osvi.dwBuildNumber & 0xFFFF);
+	  else			// Windows NT 4.0 prior to SP6a
+	    {
+	      buff += sprintf(buff, "%s (Build %ld)",
+		     osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
+	    }
+
+	  RegCloseKey(hKey);
+	}
+      else			// Windows NT 3.51 and earlier or Windows 2000 and later
+	{
+	  buff += sprintf(buff, "%s (Build %ld)",
+		 osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
+	}
+
+
       break;
 
-    default:
-      strcpy(m_os_version, "unknown windows OS version");
-      return;
+      // Test for the Windows 95 product family.
+    case VER_PLATFORM_WIN32_WINDOWS:
+
+      if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
+	{
+	  buff += sprintf(buff, "Microsoft Windows 95 ");
+	  if (osvi.szCSDVersion[1] == 'C' || osvi.szCSDVersion[1] == 'B')
+	    buff += sprintf(buff, "OSR2 ");
+	}
+
+      if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
+	{
+	  buff += sprintf(buff, "Microsoft Windows 98 ");
+	  if (osvi.szCSDVersion[1] == 'A')
+	    buff += sprintf(buff, "SE ");
+	}
+
+      if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
+	{
+	  buff += sprintf(buff, "Microsoft Windows Millennium Edition");
+	}
+      break;
+
+    case VER_PLATFORM_WIN32s:
+
+      buff += sprintf(buff, "Microsoft Win32s");
+      break;
     }
-
-  for (p = osvi.szCSDVersion; *p; p++)
-    if (!isspace(*p))
-      break;
-
-  if (*p)
-    sprintf(m_os_version + strlen(m_os_version), " - %s", p);
-
-#endif
+  return TRUE;
 }
+#endif
 
 
 
@@ -431,7 +603,7 @@ err:
 
 #else
 
-  int pid = 0, status;
+  int status;
   SECURITY_ATTRIBUTES sa = { 0 };
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi = { 0 };
@@ -562,7 +734,7 @@ M_Get_Status(int pid)
 #elif defined(_WIN32)
 
   WaitForSingleObject((HANDLE) pid, INFINITE);
-  if (!GetExitCodeProcess((HANDLE) pid, &status))
+  if (!GetExitCodeProcess((HANDLE) pid, (LPDWORD) &status))
     status = -2;
 
   CloseHandle((HANDLE) pid);

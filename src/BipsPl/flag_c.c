@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable management - C Part             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -35,7 +35,7 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifndef M_ix86_win32
+#ifndef _WIN32
 #include <unistd.h>
 extern char **environ;
 #endif

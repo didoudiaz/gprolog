@@ -6,7 +6,7 @@
  * Descr.: top Level                                                       * 
  * Author: Daniel Diaz                                                     * 
  *                                                                         * 
- * Copyright (C) 1999-2003 Daniel Diaz                                     * 
+ * Copyright (C) 1999-2004 Daniel Diaz                                     * 
  *                                                                         * 
  * GNU Prolog is free software; you can redistribute it and/or modify it   * 
  * under the terms of the GNU General Public License as published by the   * 
@@ -34,7 +34,7 @@ top_level :-
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
 	format(top_level_output, '~N~a ~a~n', [Name, Version]),
-	write('By Daniel Diaz'),
+	write(top_level_output, 'By Daniel Diaz'),
 	nl,
 	format(top_level_output, '~a~n', [Copyright]),
 	break.

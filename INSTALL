@@ -166,7 +166,7 @@ Options to control GNU features to include/exclude:
    --disable-piped-consult do not pipe stdin of pl2wam when consult/1
    --disable-sockets       do not include sockets facility
    --disable-fd-solver     do not include the finite domain constraint solver
-   --disable-gui-console   do not use a GUI console (only with MSVC++)
+   --disable-gui-console   do not use a GUI console (only with MSVC++ or MinGW)
 
    Default: all features are included.
 

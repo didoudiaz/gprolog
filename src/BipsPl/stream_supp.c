@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -51,7 +51,7 @@ extern void clearerr(FILE *stream);
 #include "linedit.h"
 #endif
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>
@@ -237,7 +237,7 @@ Init_Stream_Supp(void)
   stm_stdout = Add_Stream_For_Stdio_Desc(stdout, atom_user_output,
 					 STREAM_MODE_WRITE, TRUE);
 
-#if !defined(NO_USE_LINEDIT) && defined(M_ix86_win32)
+#if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
   pstm = stm_tbl[stm_stdout];
   pstm->prop.buffering = STREAM_BUFFERING_LINE;
@@ -926,7 +926,7 @@ Stdio_Set_Buffering(FILE *f, int buffering)
 
     case STREAM_BUFFERING_LINE:
       buff_flag = _IOLBF;
-#ifdef M_ix86_win32
+#ifdef _WIN32
       if (!use_gui)		/* in Win32 console app, line buff = full */
 	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif

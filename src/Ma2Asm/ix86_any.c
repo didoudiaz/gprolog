@@ -3,10 +3,10 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : ix86_any.c                                                      *
- * Descr.: translation file for Linux/Cygwin/... on intel x86              *
+ * Descr.: translation file for Linux/Cygwin/mingw32/... on intel x86      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -38,7 +38,8 @@
 
 #define MAX_C_ARGS_IN_C_CODE       32
 
-#if (defined(M_ix86_cygwin) || defined(M_ix86_bsd)) && !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
+#if (defined(M_ix86_cygwin) || defined(M_ix86_mingw) || defined(M_ix86_bsd)) \
+     && !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 
 #define UN                         "_"
 

@@ -6,7 +6,7 @@
  * Descr.: C Compiler options and WAM Configuration                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -190,7 +190,7 @@ main(void)
 	 "No"
 #endif
     );
-#ifdef M_ix86_win32
+#ifdef _WIN32
   printf("Use GUI console   : %s\n",
 #ifdef W32_GUI_CONSOLE
 	 "Yes"

@@ -78,15 +78,13 @@ Bool M_Set_Working_Dir(char *path);
 
 char *M_Absolute_Path_Name(char *src);
 
-#ifdef M_ix86_win32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 
 int getpagesize(void);
 
-int Is_Win32_SEGV(void *exp);
-
-void SIGSEGV_Handler(void);
-
 #endif
+
+void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 
 
@@ -140,7 +138,7 @@ void SIGSEGV_Handler(void);
 #endif
 
 
-#if defined(M_ix86) && !defined(M_ix86_win32) && !defined(NO_USE_REGS)
+#if defined(M_ix86) && !defined(_WIN32) && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
@@ -151,45 +149,22 @@ void SIGSEGV_Handler(void);
  * Stacks Management               *
  *---------------------------------*/
 
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris)  || \
-    defined(M_ix86_linux)  || defined(M_powerpc_linux)  || \
-    defined(M_ix86_sco)    || defined(M_ix86_solaris)   || \
-    defined(M_mips_irix)   || defined(M_powerpc_darwin) || \
-    defined(M_ix86_win32)
+#if WORD_SIZE == 32
 
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x0ffffff0
-#   define M_MMAP_HIGH_ADR_ALT     0x3ffffff0
-#   define M_Check_Stacks()
+#   define M_MMAP_HIGH_ADR1        0x0ffffff0
+#   define M_MMAP_HIGH_ADR2        0x3ffffff0
+#   define M_MMAP_HIGH_ADR3        0x7ffffff0
 
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
 
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x3f800000000ULL
-#   define M_Check_Stacks()
+#   define M_MMAP_HIGH_ADR1        0x3f800000000ULL
 
 #elif defined(M_x86_64_linux)
 
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x4000000000ULL
-#   define M_Check_Stacks()
-
-#else
-
-#   define M_USE_MALLOC
-#   define M_Check_Stacks()        M_Check_Magic_Words()
+#   define M_MMAP_HIGH_ADR1        0x4000000000ULL
 
 #endif
 
 #if defined(M_sunos) || defined(M_solaris)
 #   define MMAP_NEEDS_FIXED
-#endif
-
-
-
-#if defined(M_USE_MALLOC) || defined(M_powerpc_darwin)
-
-#define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-void M_Check_Magic_Words(void);
-
 #endif

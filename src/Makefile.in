@@ -169,7 +169,7 @@ clean-pl-fd: clean-pl clean-fd
 
 
 distclean:
-	rm -f config.status config.log config.cache
+	rm -rf config.status config.log config.cache autom4te.cache
 	for i in $(SUB_DIRS_ALL); do (cd $$i; $(MAKE) distclean); done
 
 

@@ -6,7 +6,7 @@
  * Descr.: mathematical support                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -40,6 +40,9 @@
 
 
 
+#if 1
+#define DEVELOP_TIMES_2
+#endif
 
 /*---------------------------------*
  * Constants                       *
@@ -165,7 +168,9 @@ static WamWord Push_Delayed_Cstr(int cstr, WamWord a1, WamWord a2,
 
 static void Add_Monom(Poly *p, int sign, long a, WamWord x_word);
 
+#ifdef DEVELOP_TIMES_2
 static Bool Add_Multiply_Monom(Poly *p, int sign, Monom *m1, Monom *m2);
+#endif
 
 static Bool Normalize(WamWord e_word, int sign, Poly *p);
 
@@ -467,8 +472,8 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
   long c;
 
 
-  if (!Load_Left_Right_Rec
-      (FALSE, e_word, NOT_A_WAM_WORD, &mask, &c, &l_word, &r_word))
+  if (!Load_Left_Right_Rec(FALSE, e_word, NOT_A_WAM_WORD, &mask, &c, 
+			   &l_word, &r_word))
     return FALSE;
 
   if (mask == MASK_EMPTY)
@@ -616,6 +621,7 @@ Add_Monom(Poly *p, int sign, long a, WamWord x_word)
 
 
 
+#ifdef DEVELOP_TIMES_2
 /*-------------------------------------------------------------------------*
  * ADD_MULTIPLY_MONOM                                                      *
  *                                                                         *
@@ -638,6 +644,7 @@ Add_Multiply_Monom(Poly *p, int sign, Monom *m1, Monom *m2)
   Add_Monom(p, sign, a, x_word);
   return TRUE;
 }
+#endif
 
 
 
@@ -760,6 +767,7 @@ Normalize(WamWord e_word, int sign, Poly *p)
       goto terminal_rec;
 
     case TIMES_2:
+#ifdef DEVELOP_TIMES_2
 #if 1				/* optimize frequent use: INT*VAR */
       DEREF(le_word, word, tag_mask);
       if (tag_mask != TAG_INT_MASK)
@@ -810,6 +818,41 @@ Normalize(WamWord e_word, int sign, Poly *p)
 
 	return TRUE;
       }
+#else
+      if (!Load_Term_Into_Word(le_word, &word1) ||
+	  !Load_Term_Into_Word(re_word, &word2))
+	return FALSE;
+
+      if (Tag_Is_INT(word1))
+	{
+	  n1 = UnTag_INT(word1);
+	  if (Tag_Is_INT(word2))
+	    {
+	      n2 = UnTag_INT(word2);
+	      n1 = n1 * n2;
+	      Add_Cst_To_Poly(p, sign, n1);
+	      return TRUE;
+	    }
+
+	  Add_Monom(p, sign, n1, word2);
+	  return TRUE;
+	}
+
+      if (Tag_Is_INT(word2))
+	{
+	  n2 = UnTag_INT(word2);
+	  Add_Monom(p, sign, n2, word1);
+	  return TRUE;
+	}
+
+
+      word1 = (word1 == word2)
+	? Push_Delayed_Cstr(DC_X2_EQ_Y, word1, 0, 0)
+	: Push_Delayed_Cstr(DC_XY_EQ_Z, word1, word2, 0);
+
+      Add_Monom(p, sign, 1, word1);
+      return TRUE;
+#endif
 
     case POWER_2:
       if (!Load_Term_Into_Word(le_word, &word1) ||

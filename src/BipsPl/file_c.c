@@ -6,7 +6,7 @@
  * Descr.: file name management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -29,7 +29,7 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>
@@ -101,7 +101,7 @@ Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
   Check_For_Un_Atom(suffix_word);
 
   p = strrchr(path, DIR_SEP_C);
-#ifdef M_ix86_win32
+#ifdef _WIN32
   {
     char *q = strrchr(path, '/');
 
@@ -178,7 +178,7 @@ Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
     }
 
   p = strrchr(f1, DIR_SEP_C);
-#ifdef M_ix86_win32
+#ifdef _WIN32
   {
     char *q = strrchr(f1, '/');
 

@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -38,7 +38,7 @@
 #include "gp_config.h"		/* ensure __unix__ defined if not Win32 */
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#include <windows.h>
+#include <windows.h>		/* warning: windows.h defines _WIN32 */
 #endif
 
 #if defined(__unix__) || defined(__CYGWIN__)
@@ -47,6 +47,9 @@
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#ifdef __CYGWIN__
+#include <sys/cygwin.h>
+#endif
 #else /* _WIN32 */
 #include <process.h>
 #include <direct.h>
@@ -80,8 +83,8 @@
  * Constants                       *
  *---------------------------------*/
 
-#define M_SECURITY_MARGIN          128	/* in WamWords */
-#define M_MAGIC                    0x12345678
+#define M_MAGIC1                   0x12345678
+#define M_MAGIC2                   0xdeadbeef
 
 #define UNKOWN_SYS_ERRNO           "Unknown error (%d)"
 
@@ -95,6 +98,7 @@
 #define ERR_CANNOT_OPEN_DEV0       "Cannot open /dev/zero : %s"
 #define ERR_CANNOT_UNMAP           "unmap failed : %s"
 
+#define ERR_CANNOT_FREE        	   "VirtualFree failed : %lu"
 #define ERR_CANNOT_PROTECT         "VirtualProtect failed : %lu"
 
 #define ERR_CANNOT_EXEC_GETCWD     "cannot execute getcwd"
@@ -121,20 +125,7 @@ static long start_real_time = 0;
 
 static int cur_seed = 1;
 
-static char cur_work_dir[MAXPATHLEN];
-
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-static WamWord *check_adr[NB_OF_STACKS];
-
-#endif
-
-#ifdef M_USE_MMAP
-
 static int page_size;
-
-#endif
 
 
 
@@ -143,19 +134,9 @@ static int page_size;
  * Function Prototypes             *
  *---------------------------------*/
 
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-static void Fill_Magic_Adr_Table(void);
-
-#endif
-
-#ifndef M_ix86_win32
-
 static void SIGSEGV_Handler();
 
-#endif
-
-static void Stack_Overflow(int stk_nb);
+static char *Stack_Overflow_Err_Msg(int stk_nb);
 
 #ifdef INET_MANAGEMENT
 
@@ -185,8 +166,6 @@ Init_Machine(void)
   start_system_time = M_System_Time();
   start_real_time = M_Real_Time();
 
-  getcwd(cur_work_dir, sizeof(cur_work_dir) - 1);
-
 #if defined(HAVE_MALLOPT) && defined(M_MMAP_MAX)
   mallopt(M_MMAP_MAX, 0);
 #endif
@@ -196,216 +175,7 @@ Init_Machine(void)
 
 
 
-
-#ifdef M_USE_MALLOC
-
-/*-------------------------------------------------------------------------*
- * M_ALLOCATE_STACKS                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-M_Allocate_Stacks(void)
-{
-  unsigned len = 0;
-  WamWord *addr;
-  int i;
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    len += stk_tbl[i].size;
-
-  addr = (WamWord *) Calloc(len, sizeof(WamWord));
-
-  if (addr == NULL)
-    Fatal_Error(ERR_STACKS_ALLOCATION);
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      stk_tbl[i].stack = addr;
-      addr += stk_tbl[i].size;
-    }
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-  Fill_Magic_Adr_Table();
-#endif
-}
-
-#endif
-
-
-
-
-#ifdef M_USE_MMAP
-
-#ifndef M_ix86_win32
-#include <sys/mman.h>
-
-#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
-#define MAP_ANON MAP_ANONYMOUS
-#endif
-#endif
-
-/*-------------------------------------------------------------------------*
- * M_ALLOCATE_STACKS                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-M_Allocate_Stacks(void)
-{
-  unsigned len = 0;
-  WamWord *addr;
-  int i;
-
-#if !defined(M_ix86_win32) && !defined(MAP_ANON)
-  int fd;
-
-  fd = open("/dev/zero", 0);
-
-  if (fd == -1)
-    Fatal_Error(ERR_CANNOT_OPEN_DEV0, M_Sys_Err_String(errno));
-
-#endif
-
-  page_size = getpagesize() / sizeof(WamWord);
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      stk_tbl[i].size = Round_Up(stk_tbl[i].size, page_size);
-      len += stk_tbl[i].size + page_size;
-    }
-
-  addr = (WamWord *) M_MMAP_HIGH_ADR;
-  len *= sizeof(WamWord);
-
-#if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
-  i = 0;
- try_mmap:
-#endif
-#ifdef DEBUG
-  DBGPRINTF("trying at high addr:%lx\n", (long) addr);
-#endif
-  addr = (WamWord *) Round_Down((long) addr, getpagesize());
-  addr -= len;
-#ifdef M_ix86_win32
-  addr = (WamWord *) VirtualAlloc(addr, len,
-				  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-#else
-  addr = (WamWord *) mmap((caddr_t) addr, len, PROT_READ | PROT_WRITE,
-			  MAP_PRIVATE
-#ifdef MMAP_NEEDS_FIXED
-			  | MAP_FIXED
-#endif
-#ifdef MAP_ANON
-			  | MAP_ANON, -1,
-#else
-			  , fd,
-#endif
-			  0);
-#endif
-
-
-#ifdef DEBUG
-  DBGPRINTF("start addr:%lx   size:%d\n", (long) addr, len);
-#endif
-
-#ifdef M_ix86_win32
-  if (addr == NULL
-#else
-  if ((long) addr == -1
-#endif
-#if TAG_SIZE_HIGH > 0
-      || (((unsigned long) (addr) + len) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0
-#endif
-      )
-    {
-#if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
-      if (i == 0)
-	{
-	  i = 1;
-	  if ((long) addr >= 0)
-	    munmap(addr, len);
-	  addr = (WamWord *) M_MMAP_HIGH_ADR_ALT;
-	  goto try_mmap;
-	}
-#endif
-
-      Fatal_Error(ERR_STACKS_ALLOCATION);
-    }
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      stk_tbl[i].stack = addr;
-      addr += stk_tbl[i].size;
-#ifdef M_ix86_win32
-      {
-	DWORD old_prot;
-
-	if (!VirtualProtect(addr, page_size, PAGE_NOACCESS, &old_prot))
-	  Fatal_Error(ERR_CANNOT_PROTECT, GetLastError());
-      }
-#else
-      if (munmap((caddr_t) addr, page_size) == -1)
-	Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
-#endif
-
-      addr += page_size;
-    }
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-  Fill_Magic_Adr_Table();
-#endif
-
-#if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-    defined(M_ix86_sco) || defined(M_x86_64_linux)
-  {
-    struct sigaction act;
-
-    act.sa_handler = NULL;
-    act.sa_sigaction = (void (*)()) SIGSEGV_Handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = SA_SIGINFO;
-
-    sigaction(SIGSEGV, &act, NULL);
-  }
-
-#elif !defined(M_ix86_win32)
-  signal(SIGSEGV, (void (*)()) SIGSEGV_Handler);
-#endif
-}
-
-#endif /* M_USE_MMAP */
-
-
-
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-/*-------------------------------------------------------------------------*
- * FILL_MAGIC_ADR_TABLE                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Fill_Magic_Adr_Table(void)
-{
-  int i;
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      if (stk_tbl[i].size == 0)
-	check_adr[i] = (WamWord *) NULL;
-      else
-	{
-	  check_adr[i] = stk_tbl[i].stack + stk_tbl[i].size -
-	    M_SECURITY_MARGIN;
-	  *check_adr[i] = M_MAGIC;
-	}
-    }
-}
-
-#endif
-
-
-
-#ifdef M_ix86_win32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 
 /*-------------------------------------------------------------------------*
  * GETPAGESIZE                                                             *
@@ -420,31 +190,245 @@ getpagesize(void)
   return si.dwPageSize;
 }
 
+#endif
 
 
 
-static long *fault_addr;
+#if HAVE_MMAP && !defined(_WIN32) && !defined(__CYGWIN__)
+#include <sys/mman.h>
+
+#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
+#define MAP_ANON MAP_ANONYMOUS
+#endif
+#endif
 
 /*-------------------------------------------------------------------------*
- * IS_WIN32_SEGV                                                           *
+ * VIRTUAL_MEM_ALLOC                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
-Is_Win32_SEGV(void *exp)
+static WamWord *
+Virtual_Mem_Alloc(WamWord *addr, int length)
 {
-  LPEXCEPTION_POINTERS err = (LPEXCEPTION_POINTERS) exp;
-  PEXCEPTION_RECORD per = err->ExceptionRecord;
+#if defined(_WIN32) || defined(__CYGWIN__)
 
-  if (per->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
-    return EXCEPTION_CONTINUE_SEARCH;
+  addr = (WamWord *) VirtualAlloc(addr, length,
+				  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-  fault_addr = (long *) (per->ExceptionInformation[1]);
-  return EXCEPTION_EXECUTE_HANDLER;
+#elif defined(HAVE_MMAP)
+
+#ifndef MAP_ANON
+  static int fd = -1;
+
+  if (fd == -1)
+    fd = open("/dev/zero", 0);
+
+  if (fd == -1)
+    Fatal_Error(ERR_CANNOT_OPEN_DEV0, M_Sys_Err_String(errno));
+#endif /* !MAP_ANON */
+
+  addr = (WamWord *) mmap((caddr_t) addr, length, PROT_READ | PROT_WRITE,
+			  MAP_PRIVATE
+#ifdef MMAP_NEEDS_FIXED
+			  | MAP_FIXED
+#endif
+#ifdef MAP_ANON
+			  | MAP_ANON, -1,
+#else
+			  , fd,
+#endif /* !MAP_ANON */
+			  0);
+
+  if (addr == -1)
+    addr = NULL;
+
+#else
+
+  addr = (WamWord *) Calloc(length, 1);
+
+#endif
+
+  return addr;
 }
 
-#endif /* M_ix86_win32 */
 
 
+
+/*-------------------------------------------------------------------------*
+ * VIRTUAL_MEM_FREE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Virtual_Mem_Free(WamWord *addr, int length)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+  if (!VirtualFree(addr, 0, MEM_RELEASE))
+    Fatal_Error(ERR_CANNOT_FREE, GetLastError());
+
+#elif defined(HAVE_MMAP)
+
+  if (munmap(addr, length) == -1)
+    Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
+
+#else 
+
+  Free(addr);
+  
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * VIRTUAL_MEM_PROTECT                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Virtual_Mem_Protect(WamWord *addr, int length)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+  DWORD old_prot;
+
+  if (!VirtualProtect(addr, length, PAGE_NOACCESS, &old_prot))
+    Fatal_Error(ERR_CANNOT_PROTECT, GetLastError());
+
+#elif defined(HAVE_MMAP)
+
+#ifdef HAVE_MPROTECT
+  if (mprotect(addr, length, PROT_NONE) == -1)
+#endif
+    if (munmap(addr, length) == -1)
+      Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
+
+#else
+
+  addr[0] = M_MAGIC1;
+  addr[1] = M_MAGIC2;		/* and rest (addr[1...]) should be 0 */
+
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * M_ALLOCATE_STACKS                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+M_Allocate_Stacks(void)
+{
+  unsigned length = 0;
+  WamWord *addr;
+  int i;
+  WamWord *addr_to_try[] = { NULL, 
+#ifdef M_MMAP_HIGH_ADR1
+			     (WamWord *) M_MMAP_HIGH_ADR1,
+#endif
+#ifdef M_MMAP_HIGH_ADR2
+			     (WamWord *) M_MMAP_HIGH_ADR2,
+#endif
+#ifdef M_MMAP_HIGH_ADR3
+			     (WamWord *) M_MMAP_HIGH_ADR3,
+#endif
+			     (WamWord *) -1 };
+
+  page_size = getpagesize() / sizeof(WamWord);
+
+  for (i = 0; i < NB_OF_STACKS; i++)
+    {
+      stk_tbl[i].size = Round_Up(stk_tbl[i].size, page_size);
+      length += stk_tbl[i].size + page_size;
+    }
+  length *= sizeof(WamWord);
+
+  addr = NULL;
+  for(i = 0; addr == NULL && addr_to_try[i] != (WamWord *) -1; i++)
+    {
+      addr = addr_to_try[i];
+#ifdef DEBUG
+      DBGPRINTF("trying at high addr: %p --> ", addr);
+#endif
+      if (addr)
+	{
+	  addr = (WamWord *) Round_Down((long) addr, getpagesize());
+	  addr -= length;
+	}
+#ifdef DEBUG
+      DBGPRINTF("base: %p length: %d\n", addr, length);
+#endif
+      addr = Virtual_Mem_Alloc(addr, length);
+#ifdef DEBUG
+      DBGPRINTF("obtaining: %p\n", addr);
+#endif
+#if TAG_SIZE_HIGH > 0
+      if (addr && (((unsigned long) (addr) + length) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
+	{
+#ifdef DEBUG
+	  DBGPRINTF("  -> invalid high bits addr\n");
+#endif
+	  Virtual_Mem_Free(addr, length);
+	  addr = NULL;
+	}
+#endif /* TAG_SIZE_HIGH > 0 */
+    }
+
+  if (addr == NULL)
+    Fatal_Error(ERR_STACKS_ALLOCATION);
+
+  for (i = 0; i < NB_OF_STACKS; i++)
+    {
+      stk_tbl[i].stack = addr;
+      addr += stk_tbl[i].size;
+      Virtual_Mem_Protect(addr, page_size);
+      addr += page_size;
+    }
+
+#if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
+    defined(M_ix86_sco) || defined(M_x86_64_linux)
+  {
+    struct sigaction act;
+
+    act.sa_sigaction = (void (*)()) SIGSEGV_Handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &act, NULL);
+  }
+
+#elif !defined(_WIN32) && !defined(__CYGWIN__)
+  signal(SIGSEGV, (void (*)()) SIGSEGV_Handler);
+#endif
+}
+
+
+
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+/*-------------------------------------------------------------------------*
+ * WIN32_SEH_HANDLER                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+EXCEPT_DISPOSITION
+Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame, 
+		  CONTEXT *context_rec, void *dispatcher_cxt)
+{
+  WamWord *addr;
+  
+  if (excp_rec->ExceptionFlags)
+    return ExceptContinueSearch; /* unwind and others */
+
+  if (excp_rec->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
+    return ExceptContinueSearch;
+  
+  addr = (WamWord *) excp_rec->ExceptionInformation[1];
+  SIGSEGV_Handler(addr);
+  return ExceptContinueExecution;
+}
+
+#endif
 
 
 /*-------------------------------------------------------------------------*
@@ -452,18 +436,19 @@ Is_Win32_SEGV(void *exp)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 #if defined(M_sparc_sunos)
-
 static void
 SIGSEGV_Handler(int sig, int code, int scp, WamWord *addr)
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris)
 
+#elif defined(M_sparc_solaris) || defined(M_ix86_solaris)
 void
 SIGSEGV_Handler(int sig, siginfo_t * sip)
-#elif defined(M_alpha_osf)
 
+#elif defined(M_alpha_osf)
 static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
-#elif defined(M_ix86_linux) || defined(M_powerpc_linux) || defined(M_alpha_linux)
+
+#elif defined(M_ix86_linux) || defined(M_powerpc_linux) || \
+      defined(M_alpha_linux)
 #include <asm/sigcontext.h>
 
 #if 0				/* old linux */
@@ -473,43 +458,36 @@ SIGSEGV_Handler(int sig, struct sigcontext_struct scp)
 static void
 SIGSEGV_Handler(int sig, struct sigcontext scp)
 #endif
+
 #elif defined(M_ix86_sco)
 #define _XOPEN_SOURCE_EXTENDED
 #include <signal.h>
 #include <sys/siginfo.h>
-
 static void
 SIGSEGV_Handler(int sig, siginfo_t * si)
-#elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd)
 
+#elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd)
 static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
-#elif defined(M_ix86_win32)
 
+#elif defined(_WIN32) || defined(__CYGWIN__)
 void
-SIGSEGV_Handler(void)
+SIGSEGV_Handler(WamWord *addr)
+
 #elif defined(M_mips_irix)
-
 #include <signal.h>
-
 void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
-#elif defined(M_x86_64_linux)
 
+#elif defined(M_x86_64_linux)
 void
 SIGSEGV_Handler(int sig, siginfo_t *sip, void *scp)
-#else
 
+#else
 static void
 SIGSEGV_Handler(int sig)
 #endif
 {
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-  M_Check_Magic_Words();
-
-#else
-
 #if defined(M_alpha_osf)
 
   WamWord *addr = (WamWord *) (scp->sc_traparg_a0);
@@ -548,17 +526,28 @@ SIGSEGV_Handler(int sig)
 
   WamWord *addr = scp->sc_regs[16];
 
-#elif defined(M_ix86_win32)
+#elif defined(_WIN32)
+				/* addr passed as argument */
+#else
+				/* cannot detect fault addr */
+#warning SIGSEGV_Handler does not know how to detect fault addr - use magic numbers
 
-  WamWord *addr = (WamWord *) fault_addr;
+#define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 
 #endif
+
+
+#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
+
+  M_Check_Magic_Words();
+
+#else  /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
 
   int i;
 
 #ifdef DEBUG
   DBGPRINTF("BAD ADDRESS:%lx\n", (long) addr);
-#endif /* DEBUG */
+#endif
 
   i = NB_OF_STACKS - 1;
   if (addr < stk_tbl[i].stack + stk_tbl[i].size + page_size)
@@ -569,18 +558,23 @@ SIGSEGV_Handler(int sig)
 		  i, (long) (stk_tbl[i].stack + stk_tbl[i].size));
 #endif
 	if (addr >= stk_tbl[i].stack + stk_tbl[i].size)
-	  Stack_Overflow(i);
+	  Fatal_Error(Stack_Overflow_Err_Msg(i));
 	i--;
       }
-#endif
+#endif /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
 
   Fatal_Error("Segmentation Violation");
+
 }
 
 
 
 
 #ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
+
+#ifndef NO_USE_LINEDIT
+#include "../Linedit/linedit.h"
+#endif
 
 /*-------------------------------------------------------------------------*
  * M_CHECK_MAGIC_WORDS                                                     *
@@ -589,28 +583,52 @@ SIGSEGV_Handler(int sig)
 void
 M_Check_Magic_Words(void)
 {
-  int i;
+  int i, err = 0;
+  WamWord *end, *top;
+  char *msg;
 
   for (i = 0; i < NB_OF_STACKS; i++)
-    if (check_adr[i] && *check_adr[i] != M_MAGIC)
-      Stack_Overflow(i);
+    {
+      if (stk_tbl[i].size == 0)
+	continue;
+
+      end = stk_tbl[i].stack + stk_tbl[i].size;
+#ifdef DEBUG
+      DBGPRINTF("stack: %s start: %p  end: %p  top: %p\n", stk_tbl[i].name, 
+		stk_tbl[i].stack, end, Stack_Top(i));
+#endif
+      if ((end[0] != M_MAGIC1 || end[1] != M_MAGIC2 || end[8] != 0)
+	  || (top = Stack_Top(i)) >= end)
+	{
+	  err++;
+	  msg = Stack_Overflow_Err_Msg(i);
+#ifndef NO_USE_LINEDIT
+	  if (le_hook_message_box)
+	    (*le_hook_message_box)("Possible Error", msg, 0);
+	  else
+#endif
+	    fprintf(stderr, "Possible Error: %s\n", msg);
+	}
+    }
+  if (err)
+    Exit_With_Value(1);
 }
 
 #endif
 
 
 
-
 /*-------------------------------------------------------------------------*
- * STACK_OVERFLOW                                                          *
+ * STACK_OVERFLOW_ERR_MSG                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Stack_Overflow(int stk_nb)
+static char *
+Stack_Overflow_Err_Msg(int stk_nb)
 {
   InfStack *s = stk_tbl + stk_nb;
   char *var = s->env_var_name;
   int size = s->size;
+  static char msg[256];
 
   if (s->stack == Global_Stack)
     size += REG_BANK_SIZE;	/* see Init_Engine */
@@ -618,9 +636,11 @@ Stack_Overflow(int stk_nb)
   size = Wam_Words_To_KBytes(size);
 
   if (fixed_sizes || var[0] == '\0')
-    Fatal_Error(ERR_STACK_OVERFLOW_NO_ENV, s->name, size);
+    sprintf(msg, ERR_STACK_OVERFLOW_NO_ENV, s->name, size);
+  else
+    sprintf(msg, ERR_STACK_OVERFLOW_ENV, s->name, size, var);
 
-  Fatal_Error(ERR_STACK_OVERFLOW_ENV, s->name, size, var);
+  return msg;
 }
 
 
@@ -657,7 +677,7 @@ M_Sys_Err_String(int err_no)
 
 
 
-#ifdef __CIGWIN__
+#if 0
 #define ULL unsigned long long
 #else
 #define ULL unsigned __int64
@@ -794,7 +814,7 @@ M_Real_Time(void)
 void
 M_Randomize(void)
 {
-#ifdef M_ix86_win32
+#if defined(_WIN32) || defined(__CYGWIN__)
   int seed = GetTickCount();
 #else
   struct timeval tv;
@@ -876,20 +896,18 @@ M_Host_Name_From_Name(char *host_name)
 {
   static char buff[4096];
 
-#ifdef M_ix86_win32
-  long length = sizeof(buff);
-#endif
 #ifdef INET_MANAGEMENT
   struct hostent *host_entry;
 #endif
 
   if (host_name == NULL)
     {
+      long length = sizeof(buff);
       host_name = buff;
-#if defined(M_ix86_win32) && defined(NO_USE_SOCKETS)
+#if defined(_WIN32) && !defined(__CYGWIN__) && defined(NO_USE_SOCKETS)
       if (GetComputerName(buff, &length) == 0)
 #else
-      if (gethostname(buff, sizeof(buff)))
+      if (gethostname(buff, length))
 #endif
 	{
 	  strcpy(buff, "unknown host name");
@@ -930,7 +948,7 @@ M_Host_Name_From_Adr(char *host_address)
 
 #if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
     defined(M_ix86_cygwin) || defined(M_ix86_solaris)  || \
-    defined(M_ix86_win32)
+    defined(_WIN32)
   if ((iadr.s_addr = inet_addr(host_address)) == -1)
 #else
   if (inet_aton(host_address, &iadr) == 0)
@@ -988,13 +1006,7 @@ M_Set_Working_Dir(char *path)
 {
   char *new_path = M_Absolute_Path_Name(path);
 
-  if (new_path != NULL && chdir(new_path) == 0)
-    {
-      strcpy(cur_work_dir, new_path);
-      return TRUE;
-    }
-
-  return FALSE;
+  return (new_path != NULL && chdir(new_path) == 0);
 }
 
 
@@ -1007,6 +1019,9 @@ M_Set_Working_Dir(char *path)
 char *
 M_Get_Working_Dir(void)
 {
+  static char cur_work_dir[MAXPATHLEN];
+
+  getcwd(cur_work_dir, sizeof(cur_work_dir) - 1);
   return cur_work_dir;
 }
 
@@ -1025,20 +1040,14 @@ M_Absolute_Path_Name(char *src)
   int res = 0;
   char *dst;
   char *p, *q;
-
-#ifdef M_ix86_win32
   char c;
-#endif
-
 
   dst = buff[res];
-  while ((*dst++ = *src))	/* expand $VARNAME */
+  while ((*dst++ = *src))	/* expand $VARNAME and %VARNAME% (Win32) */
     {
-#ifdef M_ix86_win32
-      c = *src;
-#endif
-      if (*src++ == '$'
-#ifdef M_ix86_win32
+      c = *src++;
+      if (c == '$'
+#if defined(_WIN32) || defined(__CYGWIN__)
 	  || c == '%'
 #endif
 	)
@@ -1046,7 +1055,7 @@ M_Absolute_Path_Name(char *src)
 	  p = dst;
 	  while (isalnum(*src))
 	    *dst++ = *src++;
-#ifdef M_ix86_win32
+#if defined(_WIN32) || defined(__CYGWIN__)
 	  if (c == '%' && *src != '%')
 	    continue;
 #endif
@@ -1057,12 +1066,12 @@ M_Absolute_Path_Name(char *src)
 	      p--;
 	      strcpy(p, q);
 	      dst = p + strlen(p);
-#ifdef M_ix86_win32
+#if defined(_WIN32) || defined(__CYGWIN__)
 	      if (c == '%')
 		src++;
 #endif
 	    }
-#ifdef M_ix86_win32
+#if defined(_WIN32) || defined(__CYGWIN__)
 	  else if (c == '%')
 	    *dst++ = *src++;
 #endif
@@ -1070,21 +1079,11 @@ M_Absolute_Path_Name(char *src)
     }
   *dst = '\0';
 
-#if defined(_WIN32) || defined(__CYGWIN__)
-  for (src = buff[res]; *src; src++)	/* \ becomes / */
-    if (*src == '\\')
-      *src = '/';
-#endif
-
-  if (strcmp(buff[res], "user") == 0)	/* prolog special file 'user' */
-    return buff[res];
-
-
   if (buff[res][0] == '~')
     {
       if (buff[res][1] == DIR_SEP_C || buff[res][1] == '\0')	/* ~/... cf $HOME */
 	{
-	  if ((p = getenv("HOME")) == NULL)
+	  if ((p = getenv("HOME")) == NULL && (p = getenv("HOMEPATH")) == NULL)
 	    return NULL;
 
 	  sprintf(buff[1 - res], "%s/%s", p, buff[res] + 1);
@@ -1112,25 +1111,34 @@ M_Absolute_Path_Name(char *src)
 #endif
     }
 
+  if (strcmp(buff[res], "user") == 0)	/* prolog special file 'user' */
+    return buff[res];
+
 #ifdef __CYGWIN__
   cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
   res = 1 - res;
 #endif
 
-#ifdef M_ix86_win32
+#if defined(_WIN32) || defined(__CYGWIN__)
+  for (src = buff[res]; *src; src++)	/* \ becomes / */
+    if (*src == '\\')
+      *src = '/';
+#endif
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
   if (_fullpath(buff[1 - res], buff[res], MAXPATHLEN) == NULL)
     return NULL;
   res = 1 - res;
-#else
-  if (buff[res][0] != DIR_SEP_C)	/* add cur_work_dir */
+#else /* unix */
+  if (buff[res][0] != DIR_SEP_C)	/* add current directory */
     {
-      sprintf(buff[1 - res], "%s/%s", cur_work_dir, buff[res]);
+      sprintf(buff[1 - res], "%s/%s", M_Get_Working_Dir(), buff[res]);
       res = 1 - res;
     }
 #endif
 
+  src = buff[res];
   res = 1 - res;
-  src = buff[1 - res];
   dst = buff[res];
 
   while ((*dst++ = *src))
@@ -1139,10 +1147,9 @@ M_Absolute_Path_Name(char *src)
 	continue;
 
     collapse:
-#ifndef __CYGWIN__		/* CYGWIN uses //<drive>/<path> for <drive>:\<path> */
       while (*src == DIR_SEP_C)	/* collapse /////... as / */
 	src++;
-#endif
+
       if (*src != '.')
 	continue;
 

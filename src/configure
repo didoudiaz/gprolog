@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROLOG_NAME1 PROLOG_NAME PROLOG_VERSION PROLOG_DATE PROLOG_COPYRIGHT TOP_LEVEL GPLC HEXGPLC ENV_VARIABLE TOP_LEVEL_FLAGS CFLAGS_PREFIX_REG CFLAGS_MACHINE CFLAGS_UNSIGNED_CHAR LDLIBS ASM_SUFFIX OBJ_SUFFIX EXE_SUFFIX CC_OBJ_NAME_OPT CC_EXE_NAME_OPT AR_RC AR_SEP AS STRIP RC LD LD_OUT_NAME_OPT ROOT_DIR ROOT_DIR1 PKG_NAME INSTALL_DIR LINKS_DIR DOC_DIR HTML_DIR EXAMPLES_DIR TXT_FILES BIN_FILES OBJ_FILES LIB_FILES INC_FILES DOC_FILES HTML_FILES EXPL_FILES EXC_FILES EXFD_FILES MAKE_LE_DIRS MAKE_W32GC_DIRS MAKE_FD_DIRS MAKE_LE_INTERF_OBJS MAKE_SOCKETS_OBJS DLL_W32GUICONS LIB_LINEDIT LIB_ENGINE_PL LIB_BIPS_PL LIB_ENGINE_FD LIB_BIPS_FD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT NASM RANLIB ac_ct_RANLIB SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROLOG_NAME1 PROLOG_NAME PROLOG_VERSION PROLOG_DATE PROLOG_COPYRIGHT TOP_LEVEL GPLC HEXGPLC ENV_VARIABLE TOP_LEVEL_FLAGS CFLAGS_PREFIX_REG CFLAGS_MACHINE CFLAGS_UNSIGNED_CHAR LDLIBS LDGUILIBS ASM_SUFFIX OBJ_SUFFIX EXE_SUFFIX CC_OBJ_NAME_OPT CC_EXE_NAME_OPT AR_RC AR_SEP AS STRIP RC RCFLAGS RC_OUT_NAME_OPT LD LD_OUT_NAME_OPT LD_DLL_NAME_OPT ROOT_DIR ROOT_DIR1 PKG_NAME INSTALL_DIR LINKS_DIR DOC_DIR HTML_DIR EXAMPLES_DIR TXT_FILES BIN_FILES OBJ_FILES LIB_FILES INC_FILES DOC_FILES HTML_FILES EXPL_FILES EXC_FILES EXFD_FILES MAKE_LE_DIRS MAKE_W32GC_DIRS MAKE_FD_DIRS MAKE_LE_INTERF_OBJS MAKE_SOCKETS_OBJS DLL_W32GUICONS LIB_LINEDIT LIB_ENGINE_PL LIB_BIPS_PL LIB_ENGINE_FD LIB_BIPS_FD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT NASM RANLIB ac_ct_RANLIB SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1401,6 +1401,10 @@ LIB_BIPS_FD=libbips_fd
 
 
 
+
+
+
+
 # *******************
 # * package options *
 # *******************
@@ -1463,45 +1467,45 @@ fi;
 if test "${enable_regs+set}" = set; then
   enableval="$enable_regs"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_REGS 1
 _ACEOF
 ;;
-		   *)  ;;
-	       esac
+                   *)  ;;
+               esac
 fi;
 
 # Check whether --enable-ebp or --disable-ebp was given.
 if test "${enable_ebp+set}" = set; then
   enableval="$enable_ebp"
   case "$enableval" in
-		   yes) USE_EBP=yes;;
-		   *)   ;;
-	       esac
+                   yes) USE_EBP=yes;;
+                   *)   ;;
+               esac
 fi;
 
 # Check whether --enable-fast-call or --disable-fast-call was given.
 if test "${enable_fast_call+set}" = set; then
   enableval="$enable_fast_call"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_FAST_CALL 1
 _ACEOF
 ;;
-		   *)  ;;
-	       esac
+                   *)  ;;
+               esac
 fi;
 
 # Check whether --enable-linedit or --disable-linedit was given.
 if test "${enable_linedit+set}" = set; then
   enableval="$enable_linedit"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_LINEDIT 1
 _ACEOF
  USE_LINEDIT=no;;
-		   *)  ;;
-	       esac
+                   *)  ;;
+               esac
 fi;
 
 
@@ -1509,12 +1513,12 @@ fi;
 if test "${enable_piped_consult+set}" = set; then
   enableval="$enable_piped_consult"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_PIPED_STDIN_FOR_CONSULT 1
 _ACEOF
 ;;
-		   *)  ;;
-	       esac
+                   *)  ;;
+               esac
 fi;
 
 
@@ -1522,40 +1526,40 @@ fi;
 if test "${enable_gui_console+set}" = set; then
   enableval="$enable_gui_console"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_GUI_CONSOLE 1
 _ACEOF
  USE_GUI_CONSOLE=no;;
-		   *)  USE_GUI_CONSOLE=yes;;
-	       esac
+                   *)  USE_GUI_CONSOLE=yes;;
+               esac
 fi;
 
 # Check whether --enable-sockets or --disable-sockets was given.
 if test "${enable_sockets+set}" = set; then
   enableval="$enable_sockets"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_SOCKETS 1
 _ACEOF
   USE_SOCKETS=no;;
-		   *)  ;;
-	       esac
+                   *)  ;;
+               esac
 fi;
 
 # Check whether --enable-fd-solver or --disable-fd-solver was given.
 if test "${enable_fd_solver+set}" = set; then
   enableval="$enable_fd_solver"
   case "$enableval" in
-		   no) cat >>confdefs.h <<\_ACEOF
+                   no) cat >>confdefs.h <<\_ACEOF
 #define NO_USE_FD_SOLVER 1
 _ACEOF
  USE_FD_SOLVER=no;;
-		   *)  ;;
-	       esac
+                   *)  ;;
+               esac
 fi;
 
 if test "$USE_EBP" = no; then
-	cat >>confdefs.h <<\_ACEOF
+        cat >>confdefs.h <<\_ACEOF
 #define NO_USE_EBP 1
 _ACEOF
 
@@ -1568,8 +1572,8 @@ fi
 # ***********************
 
 if test "$WITH_MSVC" != no; then
-	echo "using MSVC++ as C compiler"
-	CC=cl
+    echo "using MSVC++ as C compiler"
+    CC=cl
 fi
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
@@ -2446,12 +2450,12 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 if test "$WITH_MSVC" != no; then
-	ASM_SUFFIX='.asm'
-	OBJ_SUFFIX='.obj'
-        LIB_SUFFIX='.lib'
-	CC_OBJ_NAME_OPT='/Fo'
-	CC_EXE_NAME_OPT='/Fe'
-	for ac_prog in nasmw nasm
+    ASM_SUFFIX='.asm'
+    OBJ_SUFFIX='.obj'
+    LIB_SUFFIX='.lib'
+    CC_OBJ_NAME_OPT='-Fo'
+    CC_EXE_NAME_OPT='-Fe'
+    for ac_prog in nasmw nasm
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -2492,27 +2496,30 @@ fi
 done
 test -n "$NASM" || NASM="no"
 
-	if test "$NASM" = no; then
-		{ { echo "$as_me:$LINENO: error: nasm is required under win32" >&5
+    if test "$NASM" = no; then
+        { { echo "$as_me:$LINENO: error: nasm is required under win32" >&5
 echo "$as_me: error: nasm is required under win32" >&2;}
    { (exit 1); exit 1; }; }
-	fi
-	AS="$NASM -f win32"
-        AR_RC='lib /nologo /out:'
-        AR_SEP=''
-	STRIP=:
-        RANLIB=:
-	RC=rc
-	LD=link
-	LD_OUT_NAME_OPT='/out:'
+    fi
+    AS="$NASM -f win32"
+    AR_RC='lib -nologo -out:'
+    AR_SEP=''
+    STRIP=:
+    RANLIB=:
+    RC=rc
+    RCFLAGS=''
+    RC_OUT_NAME_OPT='-fo'
+    LD=link
+    LD_OUT_NAME_OPT='-out:'
+    LD_DLL_NAME_OPT='-dll'
 else
-	if test "$GCC" != yes; then
-		{ { echo "$as_me:$LINENO: error: gcc is required (or MSVC++ under win32)" >&5
+    if test "$GCC" != yes; then
+        { { echo "$as_me:$LINENO: error: gcc is required (or MSVC++ under win32)" >&5
 echo "$as_me: error: gcc is required (or MSVC++ under win32)" >&2;}
    { (exit 1); exit 1; }; }
-	fi
-	AS=as
-        if test -n "$ac_tool_prefix"; then
+    fi
+    AS=as
+    if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ranlib; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -2593,21 +2600,21 @@ else
 fi
 
 
-	ASM_SUFFIX='.s'
-	OBJ_SUFFIX='.o'
-        LIB_SUFFIX='.a'
-	CC_OBJ_NAME_OPT='-o '
-	CC_EXE_NAME_OPT='-o '
-        AR_RC='ar rc '
-        AR_SEP=' '
-	STRIP=strip
+    ASM_SUFFIX='.s'
+    OBJ_SUFFIX='.o'
+    LIB_SUFFIX='.a'
+    CC_OBJ_NAME_OPT='-o '
+    CC_EXE_NAME_OPT='-o '
+    RC='windres'
+    RCFLAGS='-O coff'
+    RC_OUT_NAME_OPT='-o '
+    LD=gcc
+    LD_OUT_NAME_OPT='-o '
+    LD_DLL_NAME_OPT='-shared'
+    AR_RC='ar rc '
+    AR_SEP=' '
+    STRIP=strip
 fi
-
-
-# for old versions of autoconf which had not AC_EXEEXT
-# EXEEXT=
-# the following is useless in 2.52
-# AC_EXEEXT
 
 EXE_SUFFIX=$EXEEXT
 echo "$as_me:$LINENO: checking whether ${MAKE-make} sets \$(MAKE)" >&5
@@ -2821,154 +2828,164 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
 if test "$WITH_MSVC" != no; then
-	cat >>confdefs.h <<\_ACEOF
+
+    cat >>confdefs.h <<\_ACEOF
 #define M_ix86 1
 _ACEOF
 
-	cat >>confdefs.h <<\_ACEOF
+    cat >>confdefs.h <<\_ACEOF
 #define M_win32 1
 _ACEOF
 
-	cat >>confdefs.h <<\_ACEOF
+    cat >>confdefs.h <<\_ACEOF
 #define M_ix86_win32 1
 _ACEOF
 
-        host_vendor=Microsoft
-        host_os=win32
-        WIN32=yes
+    host_vendor=Microsoft
+    host_os=win32
+    WIN32=yes
 else
-        WIN32=no
-	case "$host_cpu" in
-		mips)           cat >>confdefs.h <<\_ACEOF
+
+    WIN32=no
+    case "$host_cpu" in
+        mips)           cat >>confdefs.h <<\_ACEOF
 #define M_mips 1
 _ACEOF
 ;;
-		alpha)          cat >>confdefs.h <<\_ACEOF
+        alpha)          cat >>confdefs.h <<\_ACEOF
 #define M_alpha 1
 _ACEOF
 ;;
-		sparc)          cat >>confdefs.h <<\_ACEOF
+        sparc)          cat >>confdefs.h <<\_ACEOF
 #define M_sparc 1
 _ACEOF
 ;;
-		i*86)           cat >>confdefs.h <<\_ACEOF
+        i*86)           cat >>confdefs.h <<\_ACEOF
 #define M_ix86 1
 _ACEOF
 ;;
-        	powerpc|ppc)    cat >>confdefs.h <<\_ACEOF
+        powerpc|ppc)    cat >>confdefs.h <<\_ACEOF
 #define M_powerpc 1
 _ACEOF
 ;;
-		x86_64)         cat >>confdefs.h <<\_ACEOF
+        x86_64)         cat >>confdefs.h <<\_ACEOF
 #define M_x86_64 1
 _ACEOF
 ;;
-	esac
+    esac
 
-	case "$host_os" in
-		*osf*)		cat >>confdefs.h <<\_ACEOF
+    case "$host_os" in
+        *osf*)          cat >>confdefs.h <<\_ACEOF
 #define M_osf 1
 _ACEOF
 ;;
-		irix*)          cat >>confdefs.h <<\_ACEOF
+        irix*)          cat >>confdefs.h <<\_ACEOF
 #define M_irix 1
 _ACEOF
 ;;
-		sunos*)         cat >>confdefs.h <<\_ACEOF
+        sunos*)         cat >>confdefs.h <<\_ACEOF
 #define M_sunos 1
 _ACEOF
 ;;
-		solaris*)       cat >>confdefs.h <<\_ACEOF
+        solaris*)       cat >>confdefs.h <<\_ACEOF
 #define M_solaris 1
 _ACEOF
 ;;
-		linux*)         cat >>confdefs.h <<\_ACEOF
+        linux*)         cat >>confdefs.h <<\_ACEOF
 #define M_linux 1
 _ACEOF
 ;;
-		cygwin*)        cat >>confdefs.h <<\_ACEOF
+        cygwin*)        cat >>confdefs.h <<\_ACEOF
 #define M_cygwin 1
 _ACEOF
 ;;
-		*sco*)          cat >>confdefs.h <<\_ACEOF
+        mingw*)         cat >>confdefs.h <<\_ACEOF
+#define M_mingw 1
+_ACEOF
+ MINGW=yes; WIN32=yes;;
+        *sco*)          cat >>confdefs.h <<\_ACEOF
 #define M_sco 1
 _ACEOF
 ;;
-		*bsd*)		cat >>confdefs.h <<\_ACEOF
+        *bsd*)          cat >>confdefs.h <<\_ACEOF
 #define M_bsd 1
 _ACEOF
 ;;
-		*darwin*)	cat >>confdefs.h <<\_ACEOF
+        *darwin*)       cat >>confdefs.h <<\_ACEOF
 #define M_bsd 1
 _ACEOF
 ;;
-	esac
+    esac
 
-	case "$host" in
-		mips*irix*)      cat >>confdefs.h <<\_ACEOF
+    case "$host" in
+        mips*irix*)      cat >>confdefs.h <<\_ACEOF
 #define M_mips_irix 1
 _ACEOF
 ;;
-		sparc*sunos*)    cat >>confdefs.h <<\_ACEOF
+        sparc*sunos*)    cat >>confdefs.h <<\_ACEOF
 #define M_sparc_sunos 1
 _ACEOF
 ;;
-		sparc*solaris*)  cat >>confdefs.h <<\_ACEOF
+        sparc*solaris*)  cat >>confdefs.h <<\_ACEOF
 #define M_sparc_solaris 1
 _ACEOF
 ;;
-		sparc*bsd*)	 cat >>confdefs.h <<\_ACEOF
+        sparc*bsd*)      cat >>confdefs.h <<\_ACEOF
 #define M_sparc_bsd 1
 _ACEOF
 ;;
-	        alpha*osf*)      cat >>confdefs.h <<\_ACEOF
+        alpha*osf*)      cat >>confdefs.h <<\_ACEOF
 #define M_alpha_osf 1
 _ACEOF
 ;;
-	        alpha*linux*)    cat >>confdefs.h <<\_ACEOF
+        alpha*linux*)    cat >>confdefs.h <<\_ACEOF
 #define M_alpha_linux 1
 _ACEOF
 ;;
-		i*86*linux*)     cat >>confdefs.h <<\_ACEOF
+        i*86*linux*)     cat >>confdefs.h <<\_ACEOF
 #define M_ix86_linux 1
 _ACEOF
 ;;
-		i*86*solaris*)   cat >>confdefs.h <<\_ACEOF
+        i*86*solaris*)   cat >>confdefs.h <<\_ACEOF
 #define M_ix86_solaris 1
 _ACEOF
 ;;
-		i*86*sco*)       cat >>confdefs.h <<\_ACEOF
+        i*86*sco*)       cat >>confdefs.h <<\_ACEOF
 #define M_ix86_sco 1
 _ACEOF
 ;;
-		i*86*bsd*)       cat >>confdefs.h <<\_ACEOF
+        i*86*bsd*)       cat >>confdefs.h <<\_ACEOF
 #define M_ix86_bsd 1
 _ACEOF
 ;;
-        	powerpc*linux*)  cat >>confdefs.h <<\_ACEOF
+        powerpc*linux*)  cat >>confdefs.h <<\_ACEOF
 #define M_powerpc_linux 1
 _ACEOF
 ;;
-		powerpc*darwin*) cat >>confdefs.h <<\_ACEOF
+        powerpc*darwin*) cat >>confdefs.h <<\_ACEOF
 #define M_powerpc_darwin 1
 _ACEOF
 ;;
-		powerpc*bsd*)    cat >>confdefs.h <<\_ACEOF
+        powerpc*bsd*)    cat >>confdefs.h <<\_ACEOF
 #define M_powerpc_bsd 1
 _ACEOF
 ;;
-		*86*cygwin*)     cat >>confdefs.h <<\_ACEOF
+        *86*cygwin*)     cat >>confdefs.h <<\_ACEOF
 #define M_ix86_cygwin 1
 _ACEOF
 ;;
-		x86_64*linux*)   cat >>confdefs.h <<\_ACEOF
+        *86*mingw*)      cat >>confdefs.h <<\_ACEOF
+#define M_ix86_mingw 1
+_ACEOF
+;;
+        x86_64*linux*)   cat >>confdefs.h <<\_ACEOF
 #define M_x86_64_linux 1
 _ACEOF
 ;;
-		*)               { { echo "$as_me:$LINENO: error: unsupported architecture" >&5
+        *)               { { echo "$as_me:$LINENO: error: unsupported architecture" >&5
 echo "$as_me: error: unsupported architecture" >&2;}
    { (exit 1); exit 1; }; }
-	esac
+    esac
 
 fi
 
@@ -4356,7 +4373,8 @@ rm -f conftest.mmap
 
 
 
-for ac_func in mallopt fgetc
+
+for ac_func in mprotect mallopt fgetc
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -4508,66 +4526,73 @@ esac
 
 
 if test "$WITH_MSVC" != no; then
-	case "$WITH_C_FLAGS" in
-		debug) CFLAGS='/W3 /ZI /GX';;
-		no)    CFLAGS='';;
-		yes)   CFLAGS='/O2 /GX';;
-		*)     CFLAGS="$WITH_C_FLAGS";;
-	esac
 
-	CFLAGS_UNSIGNED_CHAR='/J'
-	CFLAGS_MACHINE='/nologo'
+    case "$WITH_C_FLAGS" in
+        debug) CFLAGS='-W3 -ZI -GX';;
+        no)    CFLAGS='';;
+        yes)   CFLAGS='-O2 -GX';;
+        *)     CFLAGS="$WITH_C_FLAGS";;
+    esac
+
+    CFLAGS_UNSIGNED_CHAR='-J'
+    CFLAGS_MACHINE='-nologo'
 
 else
-	case "$WITH_C_FLAGS" in
-		debug) CFLAGS='-g -Wall';;
-		no)    CFLAGS='';;
-		yes)   CFLAGS='-O3 -fomit-frame-pointer';;
-		*)     CFLAGS="$WITH_C_FLAGS";;
-	esac
 
-	CFLAGS_PREFIX_REG='-ffixed-%s'
-	CFLAGS_UNSIGNED_CHAR='-funsigned-char'
+    case "$WITH_C_FLAGS" in
+        debug) CFLAGS='-g -Wall';;
+        no)    CFLAGS='';;
+        yes)   CFLAGS='-O3 -fomit-frame-pointer';;
+        *)     CFLAGS="$WITH_C_FLAGS";;
+    esac
 
-        CFLAGS_MACHINE=
-	case "$host" in
-		mips*irix*)        CFLAGS_MACHINE='-mcpu=4000';;
-		*sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
-		*sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
-		i686*)             CFLAGS_MACHINE='-mcpu=pentiumpro';;
-		i586*)             CFLAGS_MACHINE='-mcpu=pentium';;
-		i*86*)             CFLAGS_MACHINE='-mcpu=i486';;
-		powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc -no-cpp-precomp';;
-	esac
+# -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
+    if test "$MINGW-$WITH_C_FLAGS" = yes-yes; then
+	CFLAGS='-O3'
+    fi
 
-	case "$host" in
-		i*86*) if test "$USE_EBP" != no; then
-			CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
-			if test "$CF1" != "$CFLAGS"; then
-				echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
-				CFLAGS=$CF1
-				CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
-			else
-				echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
-				USE_EBP=no
-				cat >>confdefs.h <<\_ACEOF
+    CFLAGS_PREFIX_REG='-ffixed-%s'
+    CFLAGS_UNSIGNED_CHAR='-funsigned-char'
+
+    CFLAGS_MACHINE=
+    case "$host" in
+        mips*irix*)        CFLAGS_MACHINE='-mcpu=4000';;
+        *sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
+        *sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
+        i686*)             CFLAGS_MACHINE='-mcpu=pentiumpro';;
+        i586*)             CFLAGS_MACHINE='-mcpu=pentium';;
+        i*86*)             CFLAGS_MACHINE='-mcpu=i486';;
+        powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc -no-cpp-precomp';;
+    esac
+
+    case "$host" in
+        i*86*) if test "$USE_EBP" != no; then
+                    CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
+                    if test "$CF1" != "$CFLAGS"; then
+                        echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
+                        CFLAGS=$CF1
+                        CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
+                    else
+                        echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
+                        USE_EBP=no
+                        cat >>confdefs.h <<\_ACEOF
 #define NO_USE_EBP 1
 _ACEOF
 
-			fi
-		       fi;;
-	esac
+                    fi
+               fi;;
+    esac
 
 
-#	case "$host" in
-#		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
-#	esac
+#    case "$host" in
+#       i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
+#    esac
 
 
 # For MacOsX - try to avoid this (activate only for fast library fix)
-#	case "$host" in
-#		powerpc*darwin*)	RANLIB="$RANLIB -c";;
-#	esac
+#    case "$host" in
+#       powerpc*darwin*)        RANLIB="$RANLIB -c";;
+#    esac
 
 fi
 
@@ -4577,19 +4602,33 @@ fi
 # * libraries to add *
 # ********************
 
-
 if test "$WITH_MSVC" != no; then
-	LDFLAGS='/nologo /F8000000'
-	LDLIBS='advapi32.lib user32.lib'
-else
-	LDLIBS='-lm'
+    LDFLAGS='-nologo -F8000000'
 fi
 
-if test "$USE_SOCKETS" = yes; then
-	if test "$WITH_MSVC" != no; then
-		LDLIBS="$LDLIBS ws2_32.lib"
-	else
-		echo "$as_me:$LINENO: checking for socket" >&5
+make_lib_list()
+{
+    list=''
+    if test $CC = cl -o $CC = lc; then
+        for i; do list="$list $i.lib"; done
+    else
+        for i; do list="$list -l$i"; done
+    fi
+    echo $list
+}
+
+if test $WIN32 = yes; then
+    LIB='advapi32 user32'
+    GUILIB='kernel32 user32 gdi32 comdlg32 advapi32 comctl32 shell32 ole32 htmlhelp'
+# other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+    if test "$USE_SOCKETS" = yes; then
+        LIB="$LIB ws2_32"
+    fi
+else
+    LIB='m'
+    GUILIB=''
+    if test "$USE_SOCKETS" = yes; then
+        echo "$as_me:$LINENO: checking for socket" >&5
 echo $ECHO_N "checking for socket... $ECHO_C" >&6
 if test "${ac_cv_func_socket+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4719,7 +4758,7 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_socket_socket" >&5
 echo "${ECHO_T}$ac_cv_lib_socket_socket" >&6
 if test $ac_cv_lib_socket_socket = yes; then
-  LDLIBS="$LDLIBS -lsocket"
+  LIB="$LIB socket"
 else
   { { echo "$as_me:$LINENO: error: cannot find socket library" >&5
 echo "$as_me: error: cannot find socket library" >&2;}
@@ -4729,7 +4768,7 @@ fi
 fi
 
 
-		echo "$as_me:$LINENO: checking for gethostbyname" >&5
+        echo "$as_me:$LINENO: checking for gethostbyname" >&5
 echo $ECHO_N "checking for gethostbyname... $ECHO_C" >&6
 if test "${ac_cv_func_gethostbyname+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4859,14 +4898,18 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_nsl_gethostbyname" >&5
 echo "${ECHO_T}$ac_cv_lib_nsl_gethostbyname" >&6
 if test $ac_cv_lib_nsl_gethostbyname = yes; then
-  LDLIBS="$LDLIBS -lnsl"
+  LIB="$LIB nsl"
 fi
 
 fi
 
-	# (No error here; just assume gethostbyname is in -lsocket.)
-	fi
+    # (No error here; just assume gethostbyname is in -lsocket.)
+    fi
 fi
+
+LDLIBS=`make_lib_list $LIB`
+LDGUILIBS=`make_lib_list $GUILIB`
+
 
 
 
@@ -5015,16 +5058,16 @@ _ACEOF
 
 same_directory()
 {
- f1=`dirname $1`/`basename $1`
- f2=`dirname $2`/`basename $2`
- test $f1 = $f2
+    f1=`dirname $1`/`basename $1`
+    f2=`dirname $2`/`basename $2`
+    test $f1 = $f2
 }
 
 ROOT_DIR=`(cd .. ; pwd)`
 if test -x /bin/cygpath.exe; then
-	ROOT_DIR1=`cygpath -a -w ..`
+    ROOT_DIR1=`cygpath -a -w ..`
 else
-	ROOT_DIR1=$ROOT_DIR
+    ROOT_DIR1=$ROOT_DIR
 fi
 
 test "$prefix"      = NONE && prefix=/usr/local
@@ -5037,16 +5080,16 @@ PKG_NAME=$PROLOG_NAME1-$PROLOG_VERSION
 # *-------------*
 
 if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
-	IN_PLACE=yes
-	INSTALL_DIR=$ROOT_DIR
-	test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
+    IN_PLACE=yes
+    INSTALL_DIR=$ROOT_DIR
+    test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
 else
-	IN_PLACE=no
-	if test -z "$WITH_INSTALL_DIR"; then
-             INSTALL_DIR=$prefix/$PKG_NAME
-        else
-             INSTALL_DIR=$WITH_INSTALL_DIR
-        fi
+    IN_PLACE=no
+    if test -z "$WITH_INSTALL_DIR"; then
+         INSTALL_DIR=$prefix/$PKG_NAME
+    else
+         INSTALL_DIR=$WITH_INSTALL_DIR
+    fi
 fi
 
 
@@ -5055,9 +5098,9 @@ fi
 # *-----------*
 
 case "$WITH_LINKS_DIR" in
-	no) LINKS_DIR=none;;
-	'') LINKS_DIR=$exec_prefix/bin;;
-	*)  LINKS_DIR=$WITH_LINKS_DIR;;
+    no) LINKS_DIR=none;;
+    '') LINKS_DIR=$exec_prefix/bin;;
+    *)  LINKS_DIR=$WITH_LINKS_DIR;;
 esac
 
 
@@ -5066,13 +5109,13 @@ esac
 # *---------*
 
 case "$WITH_DOC_DIR" in
-	no) DOC_DIR=none;
-            test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/Html;;
-	'') DOC_DIR=$INSTALL_DIR/doc;;
-	*)  DOC_DIR=$WITH_DOC_DIR;;
+    no) DOC_DIR=none;
+        test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/Html;;
+    '') DOC_DIR=$INSTALL_DIR/doc;;
+    *)  DOC_DIR=$WITH_DOC_DIR;;
 esac
 if same_directory "$DOC_DIR" $ROOT_DIR/doc; then
-	DOC_DIR=none
+    DOC_DIR=none
 fi
 
 
@@ -5082,17 +5125,17 @@ fi
 
 
 case "$WITH_HTML_DIR" in
-	no) HTML_DIR=none;;
-	'') if test "$DOC_DIR" = none; then
-		WITH_HTML_DIR=no;
-		HTML_DIR=none
-	    else
-		HTML_DIR=$DOC_DIR/Html
-	    fi;;
-	*)  HTML_DIR=$WITH_HTML_DIR;;
+    no) HTML_DIR=none;;
+    '') if test "$DOC_DIR" = none; then
+            WITH_HTML_DIR=no;
+            HTML_DIR=none
+        else
+            HTML_DIR=$DOC_DIR/Html
+        fi;;
+    *)  HTML_DIR=$WITH_HTML_DIR;;
 esac
 if same_directory "$HTML_DIR" $ROOT_DIR/doc/Html; then
-	HTML_DIR=none
+    HTML_DIR=none
 fi
 
 
@@ -5101,12 +5144,12 @@ fi
 # *--------------*
 
 case "$WITH_EXAMPLES_DIR" in
-	no) EXAMPLES_DIR=none;;
-	'') EXAMPLES_DIR=$INSTALL_DIR;;
-	*)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
+    no) EXAMPLES_DIR=none;;
+    '') EXAMPLES_DIR=$INSTALL_DIR;;
+    *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
 if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
-	EXAMPLES_DIR=none
+    EXAMPLES_DIR=none
 fi
 
 
@@ -5128,9 +5171,9 @@ echo "--> Examples:           $EXAMPLES_DIR"
 
 
 if test "$IN_PLACE" = no; then
-	TXT_FILES='COPYING VERSION NEWS ChangeLog'
+    TXT_FILES='COPYING VERSION NEWS ChangeLog'
 else
-	TXT_FILES=
+    TXT_FILES=
 fi
 
 BIN_FILES=
@@ -5151,53 +5194,53 @@ L="$LIB_ENGINE_PL $LIB_BIPS_PL"
 
 if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WIN32" = no \)
 then
-        cat >>confdefs.h <<\_ACEOF
+    cat >>confdefs.h <<\_ACEOF
 #define NO_USE_GUI_CONSOLE 1
 _ACEOF
  USE_GUI_CONSOLE=no
 fi
 
 if test "$USE_LINEDIT" = yes; then
-	MAKE_LE_DIRS='$(LE_DIRS)'
-	MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
-        L="$L $LIB_LINEDIT"
+    MAKE_LE_DIRS='$(LE_DIRS)'
+    MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
+    L="$L $LIB_LINEDIT"
 else
-	MAKE_LE_DIRS=
-	MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
+    MAKE_LE_DIRS=
+    MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
 fi
 
 
 if test "$USE_GUI_CONSOLE" = yes; then
-        TOP_LEVEL_FLAGS=--gui-console
-	MAKE_W32GC_DIRS='$(W32GC_DIRS)'
-        L="$L $DLL_W32GUICONS"
-        O="$O w32gc_interf"
+    TOP_LEVEL_FLAGS=--gui-console
+    MAKE_W32GC_DIRS='$(W32GC_DIRS)'
+    L="$L $DLL_W32GUICONS"
+    O="$O w32gc_interf"
 else
-        TOP_LEVEL_FLAGS=
-	MAKE_W32GC_DIRS=
+    TOP_LEVEL_FLAGS=
+    MAKE_W32GC_DIRS=
 fi
 
 if test "$USE_SOCKETS" = yes; then
-	MAKE_SOCKETS_OBJS='$(SOCKETS_OBJS)'
+    MAKE_SOCKETS_OBJS='$(SOCKETS_OBJS)'
 else
-	MAKE_SOCKETS_OBJS='$(NO_SOCKETS_OBJS)'
+    MAKE_SOCKETS_OBJS='$(NO_SOCKETS_OBJS)'
 fi
 
 if test "$USE_FD_SOLVER" = yes; then
-	MAKE_FD_DIRS='$(FD_DIRS)'
-	B="$B fd2c"
-        L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
-        O="$O all_fd_bips"
+    MAKE_FD_DIRS='$(FD_DIRS)'
+    B="$B fd2c"
+    L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
+    O="$O all_fd_bips"
 else
-	MAKE_FD_DIRS=
+    MAKE_FD_DIRS=
 fi
 
 for i in $B; do
-	BIN_FILES="$BIN_FILES $i$EXE_SUFFIX"
+    BIN_FILES="$BIN_FILES $i$EXE_SUFFIX"
 done
 
 for i in $O; do
-	OBJ_FILES="$OBJ_FILES $i$OBJ_SUFFIX"
+    OBJ_FILES="$OBJ_FILES $i$OBJ_SUFFIX"
 done
 
 LIB_FILES=$L
@@ -5210,16 +5253,19 @@ LIB_FILES=$L
 
 echo "$PKG_NAME" >VERSION
 echo "$PKG_NAME" >../VERSION
-echo "$PROLOG_VERSION" >version_no.tex
-if diff version_no.tex ../doc/version_no.tex >/dev/null 2>&1; then
-	rm version_no.tex
+
+echo "$PROLOG_VERSION" >/tmp/version_no.tex
+if diff /tmp/version_no.tex ../doc/version_no.tex >/dev/null 2>&1; then
+    rm /tmp/version_no.tex
 else
-	mv version_no.tex ../doc/version_no.tex
+    mv /tmp/version_no.tex ../doc/version_no.tex
 fi
-if diff copyright.tex ../doc/copyright.tex >/dev/null 2>&1; then
-	rm copyright.tex
+
+echo "$PROLOG_COPYRIGHT" >/tmp/copyrigth.tex
+if diff /tmp/copyright.tex ../doc/copyright.tex >/dev/null 2>&1; then
+    rm /tmp/copyright.tex
 else
-	mv copyright.tex ../doc/copyright.tex
+    mv /tmp/copyright.tex ../doc/copyright.tex
 fi
 
 
@@ -5231,9 +5277,9 @@ fi
 OTHER_MAKEFILES=
 for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile
 do
-	if test -f $i.in; then
-		OTHER_MAKEFILES="$OTHER_MAKEFILES $i"
-	fi
+    if test -f $i.in; then
+        OTHER_MAKEFILES="$OTHER_MAKEFILES $i"
+    fi
 done
 
 cat >confcache <<\_ACEOF
@@ -5872,6 +5918,7 @@ s,@CFLAGS_PREFIX_REG@,$CFLAGS_PREFIX_REG,;t t
 s,@CFLAGS_MACHINE@,$CFLAGS_MACHINE,;t t
 s,@CFLAGS_UNSIGNED_CHAR@,$CFLAGS_UNSIGNED_CHAR,;t t
 s,@LDLIBS@,$LDLIBS,;t t
+s,@LDGUILIBS@,$LDGUILIBS,;t t
 s,@ASM_SUFFIX@,$ASM_SUFFIX,;t t
 s,@OBJ_SUFFIX@,$OBJ_SUFFIX,;t t
 s,@EXE_SUFFIX@,$EXE_SUFFIX,;t t
@@ -5882,8 +5929,11 @@ s,@AR_SEP@,$AR_SEP,;t t
 s,@AS@,$AS,;t t
 s,@STRIP@,$STRIP,;t t
 s,@RC@,$RC,;t t
+s,@RCFLAGS@,$RCFLAGS,;t t
+s,@RC_OUT_NAME_OPT@,$RC_OUT_NAME_OPT,;t t
 s,@LD@,$LD,;t t
 s,@LD_OUT_NAME_OPT@,$LD_OUT_NAME_OPT,;t t
+s,@LD_DLL_NAME_OPT@,$LD_DLL_NAME_OPT,;t t
 s,@ROOT_DIR@,$ROOT_DIR,;t t
 s,@ROOT_DIR1@,$ROOT_DIR1,;t t
 s,@PKG_NAME@,$PKG_NAME,;t t
@@ -6396,4 +6446,7 @@ if test "$no_create" != yes; then
   # would make configure fail if this is the last instruction.
   $ac_cs_success || { (exit 1); exit 1; }
 fi
+
+
+
 

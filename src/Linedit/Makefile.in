@@ -33,8 +33,8 @@ distclean: clean
 # You can also use gplc test_linedit.c and gplc --gui-console test_linedit.c
 # even linking the GUI console you can set the env var NO_LE_HOOK to avoid it
 
-W32LNK=..\W32GUICons\w32gc_interf.obj
-# /link /subsystem:windows
+W32LNK=..\W32GUICons\w32gc_interf@OBJ_SUFFIX@
+# /link /subsystem:windows  (remove the console, obsolete now)
 
 test_linedit@EXE_SUFFIX@: test_linedit@OBJ_SUFFIX@ $(LIBNAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \

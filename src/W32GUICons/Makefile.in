@@ -1,21 +1,17 @@
 DLL_W32GUICONS = @DLL_W32GUICONS@
 CC             = @CC@
-CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@
+CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@ -I../EnginePl
 RC             = @RC@
+#RCFLAGS        = @RCFLAGS@ -l 0x409
+RCFLAGS        = @RCFLAGS@
 LD             = @LD@
+LDFLAGS        = @LDFLAGS@
+LDGUILIBS      = @LDGUILIBS@
 
-# RCFLAGS        = /l 0x409
-RCFLAGS        =
 
 DLLNAME = $(DLL_W32GUICONS)
-OBJDLL  = w32_console.obj
+OBJDLL  = w32_console@OBJ_SUFFIX@
 RESDLL  = w32_console.res
-
-WIN32LIBS = kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib \
-            comctl32.lib shell32.lib ole32.lib htmlhelp.lib
-
-# others:
-# winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
 
 
 .SUFFIXES:
@@ -28,12 +24,12 @@ WIN32LIBS = kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib \
 	$(CC) -c $(CFLAGS) $*.c
 
 .rc.res:
-	$(RC) $(RCFLAGS) $*.rc
+	$(RC) $(RCFLAGS) @RC_OUT_NAME_OPT@$*.res $*.rc
 
 all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@
 
 $(DLLNAME): $(OBJDLL) $(RESDLL)
-	$(LD) /dll @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(WIN32LIBS)
+	$(LD) $(LDFLAGS) @LD_DLL_NAME_OPT@ @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(LDGUILIBS)
 
 
 

@@ -1,9 +1,13 @@
 Change in GNU Prolog version 1.2.18:
 
+* add consult, ... and fix minor bugs in the Win32 GUI console menu
+* fix the stack overflow detection under cygwin
+* port to ix86/MinGW - many thanks to:
+  Cesar Rabak <csrabak@ig.com.br>
 * fix a problem in the port to x86/OpenBSD
 * port to sparc/NetBSD and powerpc/NetBSD - many thanks to:
   Jason Beegan <jtb@netbsd.org>
-* fix bug in =../2 involving FD variables
+* fix a bug in =../2 involving FD variables
 * fix a bug in arithmetics (in float_{integer/fractional}_part)
 * fix a bug in FD solver (wrong union with a singleton)
 

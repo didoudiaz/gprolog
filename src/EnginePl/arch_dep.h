@@ -46,19 +46,27 @@
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
+
+#ifndef F_OK
 #define F_OK                       00
 #define W_OK                       02
 #define R_OK                       04
 #define X_OK                       F_OK
+#endif
+
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	           (((m)&_S_IFMT) == _S_IFDIR)
 #define	S_ISCHR(m)                 (((m)&_S_IFMT) == _S_IFCHR)
 #define	S_ISFIFO(m)	           (((m)&_S_IFMT) == _S_IFIFO)
 #define	S_ISREG(m)	           (((m)&_S_IFMT) == _S_IFREG)
 #endif
+
+#ifndef S_IRUSR
 #define S_IRUSR                    _S_IREAD
 #define S_IWUSR                    _S_IWRITE
 #define S_IXUSR                    _S_IEXEC
+#endif
+
 #define DIR_SEP_S                  "\\"
 #define DIR_SEP_C                  '\\'
 
@@ -67,11 +75,11 @@
 #define DIR_SEP_S                  "/"
 #define DIR_SEP_C                  '/'
 
-#endif
+#endif /* defined(_WIN32) && !defined(__CYGWIN__) */
 
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
-#elif defined(M_ix86_win32)
+#elif defined(_WIN32)
 #define Set_Line_Buf(s)            setbuf(s, NULL)
 #else
 #define Set_Line_Buf(s)            setlinebuf(s)
@@ -131,4 +139,89 @@
 #endif
 
 
+/* Win32 SEH macros */
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+				/* from MSVC++ windows.h + renaming */
+typedef enum {
+    ExceptContinueExecution,
+    ExceptContinueSearch,
+    ExceptNestedException,
+    ExceptCollidedUnwind
+} EXCEPT_DISPOSITION;
+
+typedef struct _excp_lst
+{
+  struct _excp_lst *chain;
+  EXCEPT_DISPOSITION (*handler)();
+} excp_lst;
+  
+
+#ifdef __GNUC__
+
+#  define SEH_PUSH(new_handler)			\
+{						\
+  excp_lst e;					\
+  EXCEPT_DISPOSITION new_handler();		\
+  e.handler = new_handler;			\
+  asm("movl %%fs:0,%0" : "=r" (e.chain));	\
+  asm("movl %0,%%fs:0" : : "r" (&e));
+
+ 
+#  define SEH_POP				\
+  asm("movl %0,%%fs:0" : : "r" (e.chain));	\
+}
+
+#elif defined(_MSC_VER)
+
+#  define SEH_PUSH(new_handler)			\
+{						\
+  excp_lst e;					\
+  EXCEPT_DISPOSITION new_handler();		\
+  e.handler = new_handler;			\
+  __asm push eax				\
+  __asm mov eax,dword ptr fs:[0]		\
+  __asm mov dword ptr [e.chain],eax		\
+  __asm lea eax,[e]				\
+  __asm mov dword ptr fs:[0],eax		\
+  __asm pop eax
+
+#  define SEH_POP				\
+  __asm push eax				\
+  __asm mov eax,dword ptr [e.chain]		\
+  __asm mov dword ptr fs:[0],eax		\
+  __asm pop eax					\
+}
+
+#elif defined(__LCC__)
+ /* below in movl %eax,%e and movel %e,%eax %e should be %e.chain the lcc asm 
+    does not support it. Here %e works since chain is the 1st field */
+#  define SEH_PUSH(new_handler)			\
+{						\
+  excp_lst e;					\
+  EXCEPT_DISPOSITION new_handler();		\
+  e.handler = new_handler;			\
+  _asm("pushl %eax");				\
+  _asm("movl %fs:0,%eax");			\
+  _asm("movl %eax,%e");				\
+  _asm("leal %e,%eax");				\
+  _asm("movl %eax,%fs:0");			\
+  _asm("popl %eax");
+
+#  define SEH_POP				\
+  _asm("pushl %eax");				\
+  _asm("movl %e,%eax");				\
+  _asm("movl %eax,%fs:0");			\
+  _asm("popl %eax");				\
+}
+
+#else
+
+#  error macros SEH_PUSH/POP undefined for this compiler
+
+#endif
+
+#endif /* defined(_WIN32) || defined(__CYGWIN__) */
+
 #endif /* !_ARCH_DEP_H */
+

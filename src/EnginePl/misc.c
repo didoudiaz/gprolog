@@ -6,7 +6,7 @@
  * Descr.: malloc with checks + other miscellaneous operations             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -208,5 +208,5 @@ Fatal_Error(char *format, ...)
 #endif
     fprintf(stderr, "\nFatal Error: %s\n", buff);
 
-  exit(1);
+  Exit_With_Value(1);
 }

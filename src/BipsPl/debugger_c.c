@@ -6,7 +6,7 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -26,6 +26,12 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <setjmp.h>
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <windows.h>
+#endif
 
 #define OBJ_INIT Debug_Initializer
 
@@ -89,6 +95,8 @@ static WamWord reg_copy[NB_OF_REGS];
 static StmInf *pstm_i;
 static StmInf *pstm_o;
 
+static jmp_buf dbg_jumper;
+
 
 
 
@@ -148,9 +156,9 @@ Prolog_Prototype(DEBUG_CALL, 2);
  *                                                                         *
  * Calls '$init_debugger' and reset the heap actual start (cf. engine.c).  *
  * '$init_debugger' is not called via a directive :- initialize to avoid to*
- * count it in Exec_Directive() (cf engine.c).                             *
- * However, it cannot be called directly since we do not if the initializer*
- * of g_var_inl_c.c has been executed ('$init_debugger' uses g_assign).    *
+ * count it in Exec_Directive() (cf engine.c). However, it cannot be called*
+ * directly since we do not know if the initializer of g_var_inl_c.c has   *
+ * been executed ('$init_debugger' uses g_assign).                         *
  * We thus act like a Prolog object, calling New_Object.                   *
  *-------------------------------------------------------------------------*/
 static void
@@ -314,17 +322,37 @@ Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 }
 
 
-#include <signal.h>
-#include <setjmp.h>
 
-jmp_buf dbg_jumper;
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+/*-------------------------------------------------------------------------*
+ * DEBUGGER_SEH_HANDLER                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static EXCEPT_DISPOSITION
+Debugger_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame, 
+		     CONTEXT *context_rec, void *dispatcher_cxt)
+{
+  if (excp_rec->ExceptionFlags)
+    return ExceptContinueSearch; /* unwind and others */
+
+  longjmp(dbg_jumper, excp_rec->ExceptionCode);
+}
+
+#else
+
+/*-------------------------------------------------------------------------*
+ * DEBUGGER_SIGNAL_HANDLER                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
 static void
 Debugger_Signal_Handler(int sig)
 {
   longjmp(dbg_jumper, sig);
 }
 
+#endif
 
 
 
@@ -345,16 +373,20 @@ Debug_Wam(void)
 
   Stream_Printf(pstm_o, "Welcome to the WAM debugger - experts only\n");
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+  SEH_PUSH(Debugger_SEH_Handler);
+#endif
+
   ret = setjmp(dbg_jumper);
   if (ret == 0)
     {
-#if defined(__unix__) || defined(__CYGWIN__)
+#if !(defined(_WIN32) || defined(__CYGWIN__))
       signal(SIGSEGV, Debugger_Signal_Handler);
 #endif
     }
   else
     {
-      Stream_Printf(pstm_o, "ERROR from handler: %d\n", ret);
+      Stream_Printf(pstm_o, "ERROR from handler: %d (%#x)\n", ret, ret);
     }
 
   for (;;)
@@ -371,6 +403,9 @@ Debug_Wam(void)
       if (command)
 	(*command) ();
     }
+#if defined(_WIN32) || defined(__CYGWIN__)
+  SEH_POP;
+#endif
 }
 
 

@@ -37,8 +37,11 @@
 /* Define if you have malloc.h */
 #undef HAVE_MALLOC_H
 
-/* Define if you have a working `mmap' system call */
+/* Define if you have a working mmap system call */
 #undef HAVE_MMAP
+
+/* Define if you have a working mprotect system call */
+#undef HAVE_MPROTECT
 
 /* Define if you have a mallopt function */
 #undef HAVE_MALLOPT
@@ -140,6 +143,9 @@
 
 /* Define if the system is a ix86/cygwin */
 #undef M_ix86_cygwin
+
+/* Define if the system is a ix86/mingw */
+#undef M_ix86_mingw
 
 /* Define if the system is a ix86/win32 */
 #undef M_ix86_win32

@@ -6,7 +6,7 @@
  * Descr.: sockets management - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -29,7 +29,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
-#ifndef M_ix86_win32
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/socket.h>
 #else
@@ -48,7 +48,7 @@
 #ifdef SUPPORT_AF_UNIX
 #include <sys/un.h>
 #endif
-#ifndef M_ix86_win32
+#ifndef _WIN32
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -100,7 +100,7 @@ static
 static void
 Socket_Initializer(void)
 {
-#ifdef M_ix86_win32
+#ifdef _WIN32
   WORD versReqstd = MAKEWORD( 2, 2);		// Current Winsock 2 DLL's
   WSADATA wsaData;
   int err;
@@ -112,7 +112,7 @@ Socket_Initializer(void)
 #endif
   atom_AF_INET = Create_Atom("AF_INET");
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   if ((err = WSAStartup(versReqstd, &wsaData)) != 0 ||
       wsaData.wVersion != versReqstd)
     {
@@ -122,9 +122,10 @@ Socket_Initializer(void)
 	WSACleanup();
     }
   /* Allow Windows sockets to act as filehandles */
-  Os_Test_Error(setsockopt(INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE, 
-			   (char *)&optionValue,
-			   sizeof(optionValue)) == SOCKET_ERROR);
+  if (setsockopt(INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE, 
+		 (char *)&optionValue,
+		 sizeof(optionValue)) == SOCKET_ERROR)
+    Os_Error();
 #endif
 }
 
@@ -139,7 +140,7 @@ Bool
 Socket_2(WamWord domain_word, WamWord socket_word)
 {
   int domain;
-#ifdef M_ix86_win32
+#ifdef _WIN32
   SOCKET sock;
   int proto = IPPROTO_TCP;
 
@@ -165,7 +166,7 @@ Socket_2(WamWord domain_word, WamWord socket_word)
 #endif
     sock = socket(AF_INET, SOCK_STREAM, proto);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   Os_Test_Error(sock == INVALID_SOCKET);
   /*
    * Windows (by default) causes sockets to be inherited
@@ -189,7 +190,7 @@ Socket_2(WamWord domain_word, WamWord socket_word)
 Bool
 Socket_Close_1(WamWord socket_word)
 {
-#ifndef M_ix86_win32
+#ifndef _WIN32
   int sock;
 #else
   SOCKET sock;
@@ -202,7 +203,7 @@ Socket_Close_1(WamWord socket_word)
       Os_Test_Error(1);
     }
   else
-#ifndef M_ix86_win32
+#ifndef _WIN32
     Os_Test_Error(close(sock));
 #else
     Os_Test_Error(closesocket(sock));
@@ -376,7 +377,7 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
 		    (sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
       sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)",
 	      path_name, sock);
-#ifdef M_ix86_win32
+#ifdef _WIN32
 	  /* Check for in-progress connection */
 	  Os_Test_Error( send(sock, "", 0, 0) );
 #endif
@@ -517,7 +518,7 @@ Create_Socket_Streams(int sock, char *stream_name,
   int atom;
   int stm;
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   int r;
 
   Os_Test_Error((fd = _open_osfhandle(sock, _O_BINARY | _O_RDWR | _O_BINARY)) == -1);

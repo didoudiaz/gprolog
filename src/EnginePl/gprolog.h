@@ -33,6 +33,7 @@ extern "C" {
 #define HAVE_TERMIOS_H 1
 #define HAVE_MALLOC_H 1
 #define HAVE_MMAP 1
+#define HAVE_MPROTECT 1
 #define HAVE_MALLOPT 1
 #define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
@@ -92,28 +93,32 @@ extern "C" {
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
+#ifndef F_OK
 #define F_OK                       00
 #define W_OK                       02
 #define R_OK                       04
 #define X_OK                       F_OK
+#endif
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	           (((m)&_S_IFMT) == _S_IFDIR)
 #define	S_ISCHR(m)                 (((m)&_S_IFMT) == _S_IFCHR)
 #define	S_ISFIFO(m)	           (((m)&_S_IFMT) == _S_IFIFO)
 #define	S_ISREG(m)	           (((m)&_S_IFMT) == _S_IFREG)
 #endif
+#ifndef S_IRUSR
 #define S_IRUSR                    _S_IREAD
 #define S_IWUSR                    _S_IWRITE
 #define S_IXUSR                    _S_IEXEC
+#endif
 #define DIR_SEP_S                  "\\"
 #define DIR_SEP_C                  '\\'
 #else
 #define DIR_SEP_S                  "/"
 #define DIR_SEP_C                  '/'
-#endif
+#endif /* defined(_WIN32) && !defined(__CYGWIN__) */
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
-#elif defined(M_ix86_win32)
+#elif defined(_WIN32)
 #define Set_Line_Buf(s)            setbuf(s, NULL)
 #else
 #define Set_Line_Buf(s)            setlinebuf(s)
@@ -150,6 +155,69 @@ extern "C" {
 #else
 #define FC
 #endif
+#if defined(_WIN32) || defined(__CYGWIN__)
+typedef enum {
+    ExceptContinueExecution,
+    ExceptContinueSearch,
+    ExceptNestedException,
+    ExceptCollidedUnwind
+} EXCEPT_DISPOSITION;
+typedef struct _excp_lst
+{
+  struct _excp_lst *chain;
+  EXCEPT_DISPOSITION (*handler)();
+} excp_lst;
+#ifdef __GNUC__
+#  define SEH_PUSH(new_handler)			\
+{						\
+  excp_lst e;					\
+  EXCEPT_DISPOSITION new_handler();		\
+  e.handler = new_handler;			\
+  asm("movl %%fs:0,%0" : "=r" (e.chain));	\
+  asm("movl %0,%%fs:0" : : "r" (&e));
+#  define SEH_POP				\
+  asm("movl %0,%%fs:0" : : "r" (e.chain));	\
+}
+#elif defined(_MSC_VER)
+#  define SEH_PUSH(new_handler)			\
+{						\
+  excp_lst e;					\
+  EXCEPT_DISPOSITION new_handler();		\
+  e.handler = new_handler;			\
+  __asm push eax				\
+  __asm mov eax,dword ptr fs:[0]		\
+  __asm mov dword ptr [e.chain],eax		\
+  __asm lea eax,[e]				\
+  __asm mov dword ptr fs:[0],eax		\
+  __asm pop eax
+#  define SEH_POP				\
+  __asm push eax				\
+  __asm mov eax,dword ptr [e.chain]		\
+  __asm mov dword ptr fs:[0],eax		\
+  __asm pop eax					\
+}
+#elif defined(__LCC__)
+#  define SEH_PUSH(new_handler)			\
+{						\
+  excp_lst e;					\
+  EXCEPT_DISPOSITION new_handler();		\
+  e.handler = new_handler;			\
+  _asm("pushl %eax");				\
+  _asm("movl %fs:0,%eax");			\
+  _asm("movl %eax,%e");				\
+  _asm("leal %e,%eax");				\
+  _asm("movl %eax,%fs:0");			\
+  _asm("popl %eax");
+#  define SEH_POP				\
+  _asm("pushl %eax");				\
+  _asm("movl %e,%eax");				\
+  _asm("movl %eax,%fs:0");			\
+  _asm("popl %eax");				\
+}
+#else
+#  error macros SEH_PUSH/POP undefined for this compiler
+#endif
+#endif /* defined(_WIN32) || defined(__CYGWIN__) */
 #endif /* !_ARCH_DEP_H */
 #endif /* !_GP_CONFIG_H */
 #define MAX_OBJECT                 1024
@@ -663,11 +731,10 @@ char *M_Host_Name_From_Adr(char *host_address);
 char *M_Get_Working_Dir(void);
 Bool M_Set_Working_Dir(char *path);
 char *M_Absolute_Path_Name(char *src);
-#ifdef M_ix86_win32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 int getpagesize(void);
-int Is_Win32_SEGV(void *exp);
-void SIGSEGV_Handler(void);
 #endif
+void M_Check_Magic_Words(void); /* not compiled if not needed */
 #if defined(M_sparc_sunos)
 #    define M_USED_REGS            {"g6", "g7", 0}
 #elif defined(M_sparc_solaris)
@@ -693,36 +760,20 @@ void SIGSEGV_Handler(void);
 #else
 #    define M_USED_REGS            {0}
 #endif
-#if defined(M_ix86) && !defined(M_ix86_win32) && !defined(NO_USE_REGS)
+#if defined(M_ix86) && !defined(_WIN32) && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris)  || \
-    defined(M_ix86_linux)  || defined(M_powerpc_linux)  || \
-    defined(M_ix86_sco)    || defined(M_ix86_solaris)   || \
-    defined(M_mips_irix)   || defined(M_powerpc_darwin) || \
-    defined(M_ix86_win32)
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x0ffffff0
-#   define M_MMAP_HIGH_ADR_ALT     0x3ffffff0
-#   define M_Check_Stacks()
+#if WORD_SIZE == 32
+#   define M_MMAP_HIGH_ADR1        0x0ffffff0
+#   define M_MMAP_HIGH_ADR2        0x3ffffff0
+#   define M_MMAP_HIGH_ADR3        0x7ffffff0
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x3f800000000ULL
-#   define M_Check_Stacks()
+#   define M_MMAP_HIGH_ADR1        0x3f800000000ULL
 #elif defined(M_x86_64_linux)
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x4000000000ULL
-#   define M_Check_Stacks()
-#else
-#   define M_USE_MALLOC
-#   define M_Check_Stacks()        M_Check_Magic_Words()
+#   define M_MMAP_HIGH_ADR1        0x4000000000ULL
 #endif
 #if defined(M_sunos) || defined(M_solaris)
 #   define MMAP_NEEDS_FIXED
-#endif
-#if defined(M_USE_MALLOC) || defined(M_powerpc_darwin)
-#define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-void M_Check_Magic_Words(void);
 #endif
 #define OBJ_CHAIN_MAGIC_1          0xdeadbeef
 #define OBJ_CHAIN_MAGIC_2          0x12345678

@@ -6,7 +6,7 @@
  * Descr.: translation file for SunOs/Solaris on sparc                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -67,7 +67,7 @@ char asm_reg_cp[16];
 int w_label = 0;
 
 char *delay_op;
-char delay_operands[64];
+char delay_operands[1024];
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: stream selection and control management - C part                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -37,11 +37,11 @@
 #include "linedit.h"
 #endif
 
-#if defined(M_ix86_cygwin) || defined(M_ix86_win32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <io.h>
 #endif
 
-#ifndef M_ix86_win32
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/fcntl.h>
 #endif
@@ -272,7 +272,7 @@ Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 
 
   if ((mask & 4) != 0)		/* buffering specified */
-    if (prop.buffering != (mask & 3))
+    if (prop.buffering != (unsigned) (mask & 3)) /* cast for MSVC warning */
       {
 	prop.buffering = mask & 3;
 	Stdio_Set_Buffering(f, prop.buffering);
@@ -409,7 +409,7 @@ Set_Stream_Type_2(WamWord sora_word, WamWord is_text_word)
 		      permission_type_stream, sora_word);
 
   pstm->prop.text = text;
-#if defined(M_ix86_cygwin) || defined(M_ix86_win32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   {
     FILE *f;
 

@@ -6,7 +6,7 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -36,7 +36,7 @@
 
 #include "gp_config.h"
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
 #include <process.h>
 #include <direct.h>
 #include <io.h>
@@ -243,7 +243,7 @@ Make_Directory_1(WamWord path_name_word)
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   Os_Test_Error(_mkdir(path_name));
 #else
   Os_Test_Error(mkdir(path_name, 0777));
@@ -321,7 +321,7 @@ Directory_Files_2(WamWord path_name_word, WamWord list_word)
   Bool res;
   char *name;
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   long h;
   struct _finddata_t d;
   static char buff[MAXPATHLEN];
@@ -335,7 +335,7 @@ Directory_Files_2(WamWord path_name_word, WamWord list_word)
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   sprintf(buff, "%s\\*.*", path_name);
   h = _findfirst(buff, &d);	/* instead of Win32 FindFirstFile since uses errno */
   Os_Test_Error(h == -1);
@@ -344,7 +344,7 @@ Directory_Files_2(WamWord path_name_word, WamWord list_word)
   Os_Test_Error(dir == NULL);
 #endif
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   do
     {
       name = d.name;
@@ -361,14 +361,14 @@ Directory_Files_2(WamWord path_name_word, WamWord list_word)
 
       list_word = Unify_Variable();
     }
-#ifdef M_ix86_win32
+#ifdef _WIN32
   while (_findnext(h, &d) == 0);
 #endif
 
   res = Get_Nil(list_word);
 
 finish:
-#ifdef M_ix86_win32
+#ifdef _WIN32
   _findclose(h);
 #else
   closedir(dir);
@@ -581,7 +581,7 @@ File_Prop_Real_File_Name_2(WamWord real_path_name_word,
 {
   char *path_name = Get_Path_Name(path_name_word);
 
-#ifndef M_ix86_win32
+#ifndef _WIN32
   char real_path_name[MAXPATHLEN];
 
   Os_Test_Error(realpath(path_name, real_path_name) == NULL);
@@ -851,7 +851,7 @@ Architecture_1(WamWord architecture_word)
 void
 Sleep_1(WamWord seconds_word)
 {
-#ifdef M_ix86_win32
+#ifdef _WIN32
   DWORD ms;
 
   ms = (DWORD) (Rd_Number_Check(seconds_word) * 1000);
@@ -912,7 +912,7 @@ System_2(WamWord cmd_word, WamWord status_word)
   cmd = Rd_String_Check(cmd_word);
   Check_For_Un_Integer(status_word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   _flushall();
 #endif
 
@@ -1105,7 +1105,7 @@ Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
   FILE *f_in, *f_out;
   int atom;
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   Os_Test_Error(_pipe(p, 4096, O_TEXT));
 #else
   Os_Test_Error(pipe(p));
@@ -1138,7 +1138,7 @@ Bool
 Fork_Prolog_1(WamWord pid_word)
 
 {
-#if defined(M_ix86_win32)
+#ifdef _WIN32
 
   Pl_Err_Resource(Create_Atom("not implemented"));
   return FALSE;
@@ -1167,7 +1167,7 @@ Select_5(WamWord reads_word, WamWord ready_reads_word,
 	 WamWord writes_word, WamWord ready_writes_word,
 	 WamWord time_out_word)
 {
-#if defined(M_ix86_win32) && defined(NO_USE_SOCKETS)
+#if defined(_WIN32) && defined(NO_USE_SOCKETS)
 
   Pl_Err_Resource(Create_Atom("not implemented"));
   return FALSE;
@@ -1367,7 +1367,7 @@ Send_Signal_2(WamWord pid_word, WamWord signal_word)
   else
     sig = Rd_Integer_Check(word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   {
     int ret;
 
@@ -1407,7 +1407,7 @@ Wait_2(WamWord pid_word, WamWord status_word)
   pid = Rd_Integer_Check(pid_word);
   Check_For_Un_Integer(status_word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   Os_Test_Error(_cwait(&status, pid, _WAIT_CHILD) == -1);
 #else
   Os_Test_Error(waitpid(pid, &status, 0) == -1);

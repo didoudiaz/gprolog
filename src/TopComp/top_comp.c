@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2003 Daniel Diaz                                     *
+ * Copyright (C) 1999-2004 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -35,7 +35,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
 #include <windows.h>
 #include <process.h>
 #include <fcntl.h>
@@ -282,7 +282,7 @@ main(int argc, char *argv[])
 {
   char **pdev;
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
 #endif
@@ -712,9 +712,9 @@ Link_Cmd(void)
     {
       if (gui_console)
 	{    /* modify Linedit/Makefile.in to follow this list of ld objects */
-	  Find_File("w32gc_interf.obj", "", buff + strlen(buff));
+	  Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff));
 	}
-#ifdef M_ix86_win32
+#ifdef _MSC_VER
       else
 	strcat(buff, "/link /subsystem:console ");
 #endif
@@ -1269,7 +1269,7 @@ Parse_Arguments(int argc, char *argv[])
 
       for(q = f->suffix; q >= f->name; q--)
 	if (*q == '/'
-#ifdef M_ix86_win32
+#ifdef _WIN32
 	    || *q == '\\'
 #endif
 	    )
