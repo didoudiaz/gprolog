@@ -55,8 +55,8 @@
 /*                                                                         */
 /* Ex: X ==> Y <=> B                                                       */
 /*                                                                         */
-/* var  true_formula   false_formula    not_false_formlula         X Y B   */
-/* ---  ------------   -------------    ------------------         -----   */
+/* var  true_formula   false_formula    not_false_formula          X Y B   */
+/* ---  ------------   -------------    -----------------          -----   */
 /*  B    ~X \/ Y       X /\ ~Y          ~X \/ Y                    0 0 1   */
 /*  X    ~B            B /\ ~Y          ~B \/ Y                    0 1 1   */
 /*  Y    X /\ B        ~B               B                          1 0 0   */
