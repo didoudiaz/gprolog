@@ -950,8 +950,10 @@ Environ_Alt_0(void)
     Delete_Last_Choice_Point();
   else				/* non deterministic case */
     {
-/*   AB(B,0)=var_name_word; */
-/*   AB(B,1)=value_word;    */
+#if 0 /* the following data is unchanged */
+      AB(B,0)=var_name_word;
+      AB(B,1)=value_word;
+#endif
       AB(B, 2) = (WamWord) cur_env;
     }
 

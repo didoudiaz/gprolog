@@ -67,21 +67,18 @@ static WamWord dcg_2;
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  WamWord Dcg_Head(WamWord dcg_head_word, WamWord *in_word,
-		   WamWord *out_word, WamWord **end_lst_adr);
+static WamWord Dcg_Head(WamWord dcg_head_word, WamWord *in_word,
+			WamWord *out_word, WamWord **end_lst_adr);
 
-static
-  WamWord Dcg_Body(WamWord dcg_body_word, Bool for_alt,
-		   WamWord in_word, WamWord out_word, WamWord *end_lst_adr);
+static WamWord Dcg_Body(WamWord dcg_body_word, Bool for_alt,
+			WamWord in_word, WamWord out_word, 
+			WamWord *end_lst_adr);
 
-static
-  void Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word,
-			 WamWord out_word);
-
-static
-  void Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word,
+static void Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word,
 			      WamWord out_word);
+
+static void Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word,
+				   WamWord out_word);
 
 static WamWord Dcg_Compound2(int func, WamWord w1, WamWord w2);
 

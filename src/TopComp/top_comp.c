@@ -183,6 +183,7 @@ int no_top_level = 0;
 int min_pl_bips = 0;
 int min_fd_bips = 0;
 int no_debugger = 0;
+int no_pl_lib = 0;
 int no_fd_lib = 0;
 int strip = 0;
 
@@ -781,9 +782,6 @@ Link_Cmd(void)
   FileInf *f;
 
 
-  if (no_fd_lib)
-    min_fd_bips = 1;
-
   if (file_name_out == NULL)
     {
       f = file;
@@ -838,8 +836,11 @@ Link_Cmd(void)
     }
 #endif
 
-  Find_File(LIB_BIPS_PL, "", buff + strlen(buff));
-  strcat(buff, " ");
+  if (!no_pl_lib)
+    {
+      Find_File(LIB_BIPS_PL, "", buff + strlen(buff));
+      strcat(buff, " ");
+    }
 
   Find_File(OBJ_FILE_OBJ_END, OBJ_SUFFIX, buff + strlen(buff));
   strcat(buff, " ");
@@ -854,19 +855,22 @@ Link_Cmd(void)
 
   strcat(buff, LDLIBS " ");
 
-  if (gui_console)
-    {				/* modify Linedit/Makefile.in to follow this list of linker objects */
-      Find_File(LIB_W32GUICONS, "", buff + strlen(buff));
-      strcat(buff, " ");
-      Find_File("w32gc_interf.obj", "", buff + strlen(buff));
-      strcat(buff, " ");
-      Find_File("GUICons.res", "", buff + strlen(buff));
-      strcat(buff, " /link /subsystem:windows ");
-    }
+  if (!no_pl_lib)
+    {
+      if (gui_console)
+	{    /* modify Linedit/Makefile.in to follow this list of ld objects */
+	  Find_File(LIB_W32GUICONS, "", buff + strlen(buff));
+	  strcat(buff, " ");
+	  Find_File("w32gc_interf.obj", "", buff + strlen(buff));
+	  strcat(buff, " ");
+	  Find_File("GUICons.res", "", buff + strlen(buff));
+	  strcat(buff, " /link /subsystem:windows ");
+	}
 #ifdef M_ix86_win32
-  else
-    strcat(buff, "/link /subsystem:console ");
+      else
+	strcat(buff, "/link /subsystem:console ");
 #endif
+    }
 
   Exec_One_Cmd(buff, no_decode_hex);
 
@@ -1389,10 +1393,18 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--no-pl-lib"))
+	    {
+	      Record_Link_Warn_Option(i);
+	      no_pl_lib = no_fd_lib = 1;
+	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = 1;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--no-fd-lib"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_fd_lib = 1;
+	      no_fd_lib = min_fd_bips = 1;
 	      continue;
 	    }
 
@@ -1565,8 +1577,8 @@ Display_Help(void)
   L
     ("  --min-bips                  same as: --no-top-level --min-pl-bips --min-fd-bips");
   L("  --min-size                  same as: --min-bips --strip");
-  L
-    ("  --no-fd-lib                 do not look for the FD library (maintenance only)");
+  L("  --no-pl-lib                 do not look for the Prolog and FD libraries (maintenance only)");
+  L("  --no-fd-lib                 do not look for the FD library (maintenance only)");
   L("  -s, --strip                 strip the executable");
   L("  -L OPTION                   pass OPTION to the linker");
   L("");

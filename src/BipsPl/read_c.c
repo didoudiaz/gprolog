@@ -46,9 +46,8 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  Bool Common_Read(WamWord (*read_fct) (),
-		   WamWord sora_word, WamWord term_word);
+static Bool Common_Read(WamWord (*read_fct) (),
+			WamWord sora_word, WamWord term_word);
 
 
 

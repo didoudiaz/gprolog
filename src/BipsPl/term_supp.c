@@ -269,7 +269,7 @@ terminal_rec:
   switch (Tag_From_Tag_Mask(tag_mask))
     {
 #ifndef NO_USE_FD_SOLVER
-    case FDV:		   /* 1+ for <REF,->fdv_adr> since Dont_Separate_Tag */
+    case FDV:		/* 1+ for <REF,->fdv_adr> since Dont_Separate_Tag */
       return n + 1 + Fd_Variable_Size(UnTag_FDV(word));
 #endif
 
@@ -620,56 +620,4 @@ Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
   func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
   return Get_Atom(func, func_word) && Get_Integer(arity, arity_word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * FLOAT_TO_STRING                                                         *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Float_To_String(double d)
-{
-  char *p, *q, *e;
-  static char buff[32];
-
-  sprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
-
-  p = buff;			/* skip leading blanks */
-  while (*p == ' ')
-    p++;
-
-  if (p != buff)		/* remove leading blanks */
-    {
-      q = buff;
-      while ((*q++ = *p++))
-	;
-    }
-
-  p = strchr(buff, '.');
-  if (p == NULL)		/* if p==NULL then NaN or +/-inf (ignore) */
-    return buff;
-
-  if (p[1] == '\0')		/* a dot but no decimal numbers */
-    {
-      strcat(buff, "0");
-      return buff;
-    }
-
-  e = strchr(buff, 'e');	/* search exposant part */
-  if (e == NULL)
-    e = buff + strlen(buff);
-  p = e - 1;
-  while (*p == '0')
-    p--;
-
-  q = (*p == '.') ? p + 2 : p + 1;	/* but keep at least one 0 */
-
-  if (q != e)
-    while ((*q++ = *e++))	/* move exposant part */
-      ;
-
-  return buff;
 }

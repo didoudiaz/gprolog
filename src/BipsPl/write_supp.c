@@ -78,10 +78,6 @@ static WamWord dollar_varname_1;
 
 static int atom_dots;
 
-static CodePtr try_portray_code = NULL;
-
-
-
 static StmInf *pstm_o;
 static Bool quoted;
 static Bool ignore_op;
@@ -196,6 +192,58 @@ Write_A_Char(StmInf *pstm, int c)
 {
   pstm_o = pstm;
   Out_Char(c);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * FLOAT_TO_STRING                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Float_To_String(double d)
+{
+  char *p, *q, *e;
+  static char buff[32];
+
+  sprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
+
+  p = buff;			/* skip leading blanks */
+  while (*p == ' ')
+    p++;
+
+  if (p != buff)		/* remove leading blanks */
+    {
+      q = buff;
+      while ((*q++ = *p++))
+	;
+    }
+
+  p = strchr(buff, '.');
+  if (p == NULL)		/* if p==NULL then NaN or +/-inf (ignore) */
+    return buff;
+
+  if (p[1] == '\0')		/* a dot but no decimal numbers */
+    {
+      strcat(buff, "0");
+      return buff;
+    }
+
+  e = strchr(buff, 'e');	/* search exposant part */
+  if (e == NULL)
+    e = buff + strlen(buff);
+  p = e - 1;
+  while (*p == '0')
+    p--;
+
+  q = (*p == '.') ? p + 2 : p + 1;	/* but keep at least one 0 */
+
+  if (q != e)
+    while ((*q++ = *e++))	/* move exposant part */
+      ;
+
+  return buff;
 }
 
 
@@ -820,6 +868,9 @@ Need_Space(int c)
 static Bool
 Try_Portray(WamWord word)
 {
+#ifdef FOR_EXTERNAL_USE
+  return FALSE;
+#else
   PredInf *pred;
   StmInf *print_pstm_o;
   Bool print_quoted;
@@ -829,7 +880,7 @@ Try_Portray(WamWord word)
   Bool print_space_args;
   Bool print_portrayed;
   Bool print_ok;
-
+  static CodePtr try_portray_code = NULL;
 
   if (!portrayed)
     return FALSE;
@@ -865,4 +916,5 @@ Try_Portray(WamWord word)
   portrayed = print_portrayed;
 
   return print_ok;
+#endif
 }

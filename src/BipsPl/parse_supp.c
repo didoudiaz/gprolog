@@ -96,6 +96,8 @@ static WamWord Parse_Bracketed_Term(void);
 
 static WamWord Parse_List(Bool can_be_empty);
 
+static WamWord Create_Structure(int func, int arity, WamWord *arg);
+
 static int Lookup_In_Dico_Var(char *name);
 
 static void Parse_Error(char *err_msg);
@@ -203,7 +205,7 @@ Read_Term(StmInf *pstm)
 	      Parse_Error(". or operator expected after expression");
 	    }
 	}
-      /* parse_end_of_term==PARSE_END_OF_TERM_EOF */
+      /* parse_end_of_term == PARSE_END_OF_TERM_EOF */
       if (token.type == TOKEN_END_OF_FILE)
 	goto finish;
       else
@@ -352,7 +354,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	  term = Parse_Term(oper->right, TRYING_PREFIX, comma_is_punct);
 	  if (term != NOT_A_WAM_WORD)
 	    {
-	      term = Mk_Compound(atom, 1, &term);
+	      term = Create_Structure(atom, 1, &term);
 	      break;
 	    }
 	  /* prefix operator as a name */
@@ -363,7 +365,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 
       left_is_op = (Check_Oper_Any_Type(atom));
 
-      if (left_is_op && context != GENERAL_TERM)	/* in operator context */
+      if (left_is_op && context != GENERAL_TERM)   /* in operator context */
 	{
 	  if (Check_Oper(atom, INFIX) || Check_Oper(atom, POSTFIX))
 	    Parse_Error("current or previous operator needs brackets");
@@ -374,7 +376,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       term = Put_Atom(atom);
       break;
 
-    default:			/* TOKEN_END_OF_FILE, TOKEN_FULL_STOP, TOKEN_EXTENDED */
+    default:	  /* TOKEN_END_OF_FILE, TOKEN_FULL_STOP, TOKEN_EXTENDED */
       term = NOT_A_WAM_WORD;
       goto finish;
     }
@@ -409,10 +411,17 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	  if (w[1] == NOT_A_WAM_WORD)
 	    Parse_Error("right operand expected for infix operator");
 
-	  term = Mk_Compound(atom, 2, w);
+	  if (atom == ATOM_CHAR('.'))
+	    {
+	      term = Put_List();
+	      Unify_Value(w[0]);
+	      Unify_Value(w[1]);
+	    }
+ 	  else
+	    term = Create_Structure(atom, 2, w);
 	}
       else
-	term = Mk_Compound(atom, 1, &term);	/* postfix operator */
+	term = Create_Structure(atom, 1, &term); /* postfix operator */
 
       cur_left = oper->prec;
     }
@@ -455,7 +464,7 @@ Parse_Args_Of_Functor(int atom)
   if (token.type != TOKEN_PUNCTUATION || token.punct != ')')
     Parse_Error(", or ) expected");
 
-  return Mk_Compound(atom, i, w);
+  return Create_Structure(atom, i, w);
 }
 
 
@@ -490,12 +499,12 @@ Parse_Bracketed_Term(void)
       if (token.type != TOKEN_PUNCTUATION || token.punct != '}')
 	Parse_Error("} or operator expected");
 
-      if (term != NOT_A_WAM_WORD)	/* term==NOT_A_WAM_WORD if {} */
-	term = Mk_Compound(atom_curly_brackets, 1, &term);
+      if (term != NOT_A_WAM_WORD)	/* term == NOT_A_WAM_WORD if {} */
+	term = Create_Structure(atom_curly_brackets, 1, &term);
       break;
 
     case '[':
-      term = Parse_List(TRUE);	/* term==NOT_A_WAM_WORD if [] */
+      term = Parse_List(TRUE);	/* term == NOT_A_WAM_WORD if [] */
       break;
     }
 
@@ -550,7 +559,6 @@ Parse_List(Bool can_be_empty)
       Read_Next_Token(TRUE);
       if (token.type != TOKEN_PUNCTUATION || token.punct != ']')
 	Parse_Error("] or operator expected in list");
-
       break;
 
     case ']':			/* [X] */
@@ -563,6 +571,28 @@ Parse_List(Bool can_be_empty)
   Unify_Value(cdr_word);
 
   return term;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CREATE_STRUCTURE                                                        *
+ *                                                                         *
+ * like Mk_Compound but simplified since we know arity != 0 and arg != NULL*
+ * and func != '.'                                                         *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Create_Structure(int func, int arity, WamWord *arg)
+{
+  WamWord res_word;
+  int i;
+
+  res_word = Put_Structure(func, arity);
+  for (i = 0; i < arity; i++)
+    Unify_Value(arg[i]);
+
+  return res_word;
 }
 
 

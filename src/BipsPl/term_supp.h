@@ -80,5 +80,3 @@ void Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 
 int Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 		       int *arity);
-
-char *Float_To_String(double d);

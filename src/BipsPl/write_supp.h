@@ -69,3 +69,6 @@ void Write_Term(StmInf *pstm, int depth, int prec, int mask,
 void Write_Simple(WamWord term_word);
 
 void Write_A_Char(StmInf *pstm, int c);
+
+char *Float_To_String(double d);
+

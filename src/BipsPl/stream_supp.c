@@ -33,11 +33,14 @@
 #include <fcntl.h>
 
 
-#ifdef clearerr			/* prevent the case clearerr is (also) a macro */
+#ifdef clearerr	/* prevent the case clearerr is (also) a macro */
 #undef clearerr
 extern void clearerr(FILE *stream);
 #endif
 
+#if defined(FOR_EXTERNAL_USE) && defined(W32_GUI_CONSOLE)
+#undef W32_GUI_CONSOLE
+#endif
 
 #define OBJ_INIT Stream_Supp_Initializer
 
@@ -154,6 +157,7 @@ static void Str_Stream_Putc(int c, StrSInf *str_stream);
 
 
 
+
 /*-------------------------------------------------------------------------*
  * STREAM_SUPP_INITIALIZER                                                 *
  *                                                                         *
@@ -170,17 +174,13 @@ Stream_Supp_Initializer(void)
   stream_1 = Functor_Arity(atom_stream, 1);
 
   word_current_input_stream = Tag_ATM(Create_Atom("current_input_stream"));
-  word_current_output_stream =
-    Tag_ATM(Create_Atom("current_output_stream"));
-
-
-  le_prompt = "";
+  word_current_output_stream = Tag_ATM(Create_Atom("current_output_stream"));
 
   atom_glob_stream_alias = Create_Atom("$glob_stream_alias");
 
-  /* this could be stream_c.c with an initializer but when */
-  /* executed we must be sure that Stream_Supp_Initializer */
-  /* has already been initialized. It is simpler like this */
+  /* this could be in stream_c.c with an initializer but when */
+  /* executed we must be sure that Stream_Supp_Initializer    */
+  /* has already been initialized. It is simpler like this    */
 
   atom_user_input = Create_Atom("user_input");
   atom_user_output = Create_Atom("user_output");
@@ -218,6 +218,7 @@ Stream_Supp_Initializer(void)
   atom_current = Create_Atom("current");
   atom_eof = Create_Atom("eof");
 
+  le_prompt = "";
 
 #ifdef W32_GUI_CONSOLE
   if (le_hook_present)
@@ -232,7 +233,7 @@ Stream_Supp_Initializer(void)
   prop.text = TRUE;
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
-#ifdef M_ix86_win32		/* MSVC++ doesn't detect a tty on stdin/out under RXVT */
+#ifdef M_ix86_win32  /* MSVC++ doesn't detect a tty on stdin/out under RXVT */
   prop.buffering = STREAM_BUFFERING_NONE;
 #else
   prop.buffering = (istty) ? STREAM_BUFFERING_LINE : STREAM_BUFFERING_BLOCK;
@@ -262,7 +263,7 @@ Stream_Supp_Initializer(void)
   prop.text = TRUE;
   prop.reposition = FALSE;
   prop.eof_action = STREAM_EOF_ACTION_RESET;
-#ifdef M_ix86_win32		/* MSVC++ doesn't detect a tty on stdin/out under RXVT */
+#ifdef M_ix86_win32  /* MSVC++ doesn't detect a tty on stdin/out under RXVT */
   prop.buffering = STREAM_BUFFERING_NONE;
 #else
   prop.buffering = (istty) ? STREAM_BUFFERING_LINE : STREAM_BUFFERING_BLOCK;
@@ -288,6 +289,7 @@ Stream_Supp_Initializer(void)
 
 
 
+#ifndef FOR_EXTERNAL_USE
 
 /*-------------------------------------------------------------------------*
  * GET_STREAM_MODE                                                         *
@@ -337,21 +339,19 @@ end:
   return prop;
 }
 
-
-
+#endif /* !FOR_EXTERNAL_USE */
 
 /*-------------------------------------------------------------------------*
- * ADD_STREAM                                                              *
+ * INIT_STREAM_STRUCT                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
-Add_Stream(int atom_file_name, long file, StmProp prop,
-	   StmFct fct_getc, StmFct fct_putc,
-	   StmFct fct_flush, StmFct fct_close,
-	   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
+static void
+Init_Stream_Struct(int atom_file_name, long file, StmProp prop,
+		   StmFct fct_getc, StmFct fct_putc,
+		   StmFct fct_flush, StmFct fct_close,
+		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
+		   StmInf *pstm)
 {
-  int stm;
-  StmInf *pstm;
   int d;
   static StmFct def[3][7] = { {(StmFct)
 #ifndef M_ix86_bsd
@@ -364,30 +364,21 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
 			       (StmFct) ftell, (StmFct) fseek,
 			       (StmFct) clearerr}
 #ifndef NO_USE_LINEDIT
-  ,
-  {(StmFct) TTY_Getc, (StmFct) TTY_Putc,
-   (StmFct) TTY_Flush, (StmFct) TTY_Close,
-   STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-   (StmFct) TTY_Clearerr}
+			      ,
+			      {(StmFct) TTY_Getc, (StmFct) TTY_Putc,
+			       (StmFct) TTY_Flush, (StmFct) TTY_Close,
+			       STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
+			       (StmFct) TTY_Clearerr}
 #endif
 #ifdef W32_GUI_CONSOLE
-  ,
-  {(StmFct) NULL, (StmFct) W32_Putc,
-   STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-   STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-   STREAM_FCT_UNDEFINED}
+			      ,
+			      {(StmFct) NULL, (StmFct) W32_Putc,
+			       STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
+			       STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
+			       STREAM_FCT_UNDEFINED}
 #endif
   };
 
-
-  stm = Find_Free_Stream();
-
-  if (prop.reposition && (fct_tell == STREAM_FCT_UNDEFINED ||
-			  fct_seek == STREAM_FCT_UNDEFINED))
-    Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
-
-
-  pstm = stm_tbl + stm;
 
   pstm->atom_file_name = atom_file_name;
   pstm->file = file;
@@ -444,6 +435,35 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
   pstm->line_count = 0;
   pstm->line_pos = 0;
   PB_Init(pstm->pb_line_pos);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ADD_STREAM                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Add_Stream(int atom_file_name, long file, StmProp prop,
+	   StmFct fct_getc, StmFct fct_putc,
+	   StmFct fct_flush, StmFct fct_close,
+	   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
+{
+  int stm;
+  StmInf *pstm;
+
+  stm = Find_Free_Stream();
+
+  if (prop.reposition && (fct_tell == STREAM_FCT_UNDEFINED ||
+			  fct_seek == STREAM_FCT_UNDEFINED))
+    Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
+
+
+  pstm = stm_tbl + stm;
+  Init_Stream_Struct(atom_file_name, file, prop, fct_getc, fct_putc,
+		     fct_flush, fct_close, fct_tell, fct_seek, fct_clearerr,
+		     pstm);
 
   Set_Stream_Buffering(stm);
 
@@ -501,8 +521,10 @@ Find_Free_Stream(void)
     if (stm_tbl[stm].file == 0)
       break;
 
+#ifndef FOR_EXTERNAL_USE
   if (stm >= MAX_STREAM)
     Pl_Err_Resource(resource_too_many_open_streams);
+#endif /* !FOR_EXTERNAL_USE */
 
   if (stm > stm_last_used)
     stm_last_used = stm;
@@ -657,6 +679,7 @@ Set_Stream_Buffering(int stm)
 
 
 
+#ifndef FOR_EXTERNAL_USE
 
 /*-------------------------------------------------------------------------*
  * GET_STREAM_OR_ALIAS                                                     *
@@ -780,7 +803,7 @@ Check_Stream_Type(int stm, Bool check_text, Bool for_input)
   Pl_Err_Permission(perm_oper, perm_type, sora_word);
 }
 
-
+#endif /* !FOR_EXTERNAL_USE */
 
 
 /*-------------------------------------------------------------------------*
@@ -991,11 +1014,16 @@ W32_Putc(int c, long file)
 
 
 
-
 /*-------------------------------------------------------------------------*
  * Only the following functions should be used to read/write a stream.     *
  *-------------------------------------------------------------------------*/
 
+
+#ifdef FOR_EXTERNAL_USE
+
+#define Before_Reading(pstm, file)
+
+#else
 
 #define Before_Reading(pstm,file)                                           \
  if (pstm->eof_reached)                                                     \
@@ -1018,7 +1046,7 @@ W32_Putc(int c, long file)
          (*pstm->fct_clearerr)(file);                                       \
     }
 
-
+#endif /* FOR_EXTERNAL_USE */
 
 
 #define Update_Counters(pstm,c)                                             \
@@ -1031,7 +1059,6 @@ W32_Putc(int c, long file)
         }                                                                   \
       else                                                                  \
          pstm->line_pos++
-
 
 
 
@@ -1179,6 +1206,7 @@ Stream_Peekc(StmInf *pstm)
 
   return c;
 }
+
 
 
 
@@ -1695,3 +1723,4 @@ Str_Stream_Putc(int c, StrSInf *str_stream)
 
   *(str_stream->ptr)++ = c;
 }
+

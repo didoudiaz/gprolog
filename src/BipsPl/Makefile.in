@@ -167,3 +167,21 @@ unify.wam:       unify.pl
 utils.wam:       utils.pl
 write.wam:       write.pl
 
+
+# test: read alone
+
+RCFLAGS=$(CFLAGS) -I../EnginePl -DFOR_EXTERNAL_USE
+
+ROBJS=scan_supp.o parse_supp.o /tmp/stream_supp.o /tmp/write_supp.o
+
+
+/tmp/stream_supp.o: stream_supp.c
+	$(GPLC) -C "$(RCFLAGS)" -c stream_supp.c -o /tmp/stream_supp.o
+
+/tmp/write_supp.o: write_supp.c
+	$(GPLC) -C "$(RCFLAGS)" -c write_supp.c -o /tmp/write_supp.o
+
+
+r: r.o $(ROBJS) ../EnginePl/libengine_pl.a
+	$(GPLC) -o r r.o $(ROBJS) --no-pl-lib
+

@@ -41,7 +41,7 @@
 
 typedef struct			/* Parsed variable information    */
 {				/* ------------------------------ */
-  char name[MAX_VAR_NAME_LENGTH];	/* variable name                */
+  char name[MAX_VAR_NAME_LENGTH]; /* variable name                */
   WamWord word;			/* associated WAM word            */
   Bool named;			/* has it a name ?                */
   int nb_of_uses;		/* occurrence counter             */
