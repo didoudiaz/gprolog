@@ -1009,13 +1009,23 @@ It is possible to only give the prefix of an option if there is no ambiguity.
 
 The name of the output file is controlled via the \texttt{-o}
 \Param{FILE} option. If present the output file produced will be
-named \Param{FILE}. If not specified, the output file name depends
-on the last stage reached by the compiler. If the link is not done the
-output file name(s) is the input file name(s) with the suffix associated to
-the last stage. If the link is done, the name of the executable is the name
-(without suffix) of the first file name encountered in the command-line.
-Note that if the link is not done \texttt{-o} should be used if only one
-file name is given as argument.
+named \Param{FILE}. If not specified, the output file name depends on the
+last stage reached by the compiler. If the link is not done the output file
+name(s) is the input file name(s) with the suffix associated to the last
+stage. If the link is done, the name of the executable is the name (without
+suffix) of the first file name encountered in the command-line.  Note that if
+the link is not done \texttt{-o} has no sense in the presence of multiple
+input file names. For this reason, several meta characters are available for substitution in \Param{FILE}:
+
+\begin{itemize}
+\item \texttt{\%f} is substitued by the whole input file name.
+\item \texttt{\%F} is similar to \texttt{\%f} but the directory part is omitted.
+\item \texttt{\%p} is substitued by the whole prefix file name (omitting the suffix).
+\item \texttt{\%P} is similar to \texttt{\%p} but the directory part is omitted.
+\item \texttt{\%s} is substitued by the file suffix (including the dot).
+\item \texttt{\%d} is substitued by the directory part (empty if no directory is specified).
+\item \texttt{\%c} is substitued by the value of an internal counter starting from 1 and auto-incremented.
+\end{itemize}
 
 By default the compiler runs in the native-code compilation scheme. To
 generate a WAM file for byte-code use the \texttt{--wam-for-byte-code}
