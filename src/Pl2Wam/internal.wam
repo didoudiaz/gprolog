@@ -1,13 +1,13 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : internal.pl
-% date    : 12 20 2000
-% time    : 13:13:28
+% date    : 12 21 2000
+% time    : 12:42:36
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/internal.pl').
 
 
-predicate(internal_format/6,58,static,private,user,[
+predicate(internal_format/6,60,static,private,user,[
     allocate(5),
     get_variable(y(0),1),
     get_variable(y(1),3),
@@ -27,7 +27,7 @@ predicate(internal_format/6,58,static,private,user,[
     execute(classif_vars/3)]).
 
 
-predicate(format_head/3,66,static,private,user,[
+predicate(format_head/3,68,static,private,user,[
     get_variable(x(3),2),
     put_value(x(1),2),
     put_integer(0,1),
@@ -35,7 +35,7 @@ predicate(format_head/3,66,static,private,user,[
     execute(format_pred/5)]).
 
 
-predicate(format_body/4,72,static,private,user,[
+predicate(format_body/4,74,static,private,user,[
     get_variable(x(5),2),
     put_value(x(1),2),
     put_value(x(3),6),
@@ -46,7 +46,7 @@ predicate(format_body/4,72,static,private,user,[
     execute(format_body1/8)]).
 
 
-predicate(format_body1/8,75,static,private,user,[
+predicate(format_body1/8,77,static,private,user,[
     load_cut_level(8),
     try_me_else(5),
     switch_on_term(1,4,fail,fail,2),
@@ -117,7 +117,7 @@ label(5),
     execute('$format_body1/8_$aux2'/2)]).
 
 
-predicate('$format_body1/8_$aux2'/2,83,static,private,user,[
+predicate('$format_body1/8_$aux2'/2,85,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     get_atom(t,0),
@@ -131,7 +131,7 @@ label(1),
     proceed]).
 
 
-predicate('$format_body1/8_$aux1'/3,83,static,private,user,[
+predicate('$format_body1/8_$aux1'/3,85,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     get_atom(t,0),
@@ -147,7 +147,7 @@ label(1),
     proceed]).
 
 
-predicate(format_pred/5,97,static,private,user,[
+predicate(format_pred/5,99,static,private,user,[
     allocate(3),
     get_variable(y(2),4),
     get_variable(x(4),0),
@@ -173,7 +173,7 @@ predicate(format_pred/5,97,static,private,user,[
     execute('$format_pred/5_$aux1'/3)]).
 
 
-predicate('$format_pred/5_$aux1'/3,97,static,private,user,[
+predicate('$format_pred/5_$aux1'/3,99,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -192,7 +192,7 @@ label(1),
     proceed]).
 
 
-predicate(format_arg_lst/4,109,static,private,user,[
+predicate(format_arg_lst/4,111,static,private,user,[
     load_cut_level(4),
     switch_on_term(1,2,fail,4,fail),
 
@@ -230,7 +230,7 @@ label(4),
     execute(format_arg_lst/4)]).
 
 
-predicate(format_arg/4,118,static,private,user,[
+predicate(format_arg/4,120,static,private,user,[
     try_me_else(1),
     get_variable(x(4),2),
     get_variable(x(2),1),
@@ -281,7 +281,7 @@ label(5),
     execute(format_arg_lst/4)]).
 
 
-predicate(add_var_to_dico/4,148,static,private,user,[
+predicate(add_var_to_dico/4,150,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -337,7 +337,7 @@ label(6),
     execute(add_var_to_dico/4)]).
 
 
-predicate('$add_var_to_dico/4_$aux1'/3,153,static,private,user,[
+predicate('$add_var_to_dico/4_$aux1'/3,155,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -355,7 +355,7 @@ label(1),
     proceed]).
 
 
-predicate(classif_vars/3,170,static,private,user,[
+predicate(classif_vars/3,172,static,private,user,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -416,7 +416,7 @@ label(7),
     execute(classif_vars/3)]).
 
 
-predicate('$classif_vars/3_$aux1'/2,173,static,private,user,[
+predicate('$classif_vars/3_$aux1'/2,175,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -432,14 +432,14 @@ label(1),
     proceed]).
 
 
-predicate(inline_predicate/2,192,static,private,user,[
+predicate(inline_predicate/2,194,static,private,user,[
     put_atom(inline,3),
     put_variable(x(2),4),
     call_c_test('Blt_G_Read',[3,4]),
     execute(inline_predicate/3)]).
 
 
-predicate(inline_predicate/3,199,static,private,user,[
+predicate(inline_predicate/3,201,static,private,user,[
     load_cut_level(3),
     try_me_else(6),
     switch_on_term(2,1,fail,fail,fail),
@@ -844,7 +844,7 @@ label(88),
     proceed]).
 
 
-predicate('$inline_predicate/3_$aux1'/1,205,static,private,user,[
+predicate('$inline_predicate/3_$aux1'/1,207,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),

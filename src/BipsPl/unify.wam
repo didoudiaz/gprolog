@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : unify.pl
-% date    : 12 20 2000
-% time    : 13:4:48
+% date    : 12 21 2000
+% time    : 12:41:19
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/unify.pl').

@@ -159,7 +159,7 @@ portray_clause(S, C) :-
 	portray_clause(C),
 	set_output(O),
 	flush_output(S).
-	
+
 
 '$aux_name'(Name) :-
 	sub_atom(Name, _, 5, _, '_$aux').

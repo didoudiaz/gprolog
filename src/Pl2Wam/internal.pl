@@ -1,59 +1,61 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog to WAM compiler                                          */
-/* File  : internal.pl                                                     */
-/* Descr.: pass 2: internal format transformation                          */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog to WAM compiler                                          *
+ * File  : internal.pl                                                     *
+ * Descr.: pass 2: internal format transformation                          *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------------------*/
-/* predicate internal format: (I(t)=internal format of t)                  */
-/*                                                                         */
-/* I(p(Arg1,...,ArgN))= p(NoPred,Pred/N,[I(Arg1),...,I(ArgN)])             */
-/*                                                                         */
-/* NoPred : predicate number = corresponding chunk number                  */
-/*                                                                         */
-/* Pred/N : predicate/arity                                                */
-/*                                                                         */
-/* I(Argi): internal format of the ith argument                            */
-/*                                                                         */
-/*    var          : var(VarName,Info) with:                               */
-/*                                                                         */
-/*                   VarName=x(NoX) temporary (in pass 2 NoX is unbound or */
-/*                                  assigned to void if var is singleton)  */
-/*                           y(NoY) permanent (in pass 2 NoY is assigned)  */
-/*                   Info   =in_heap       : the var is stored in the heap */
-/*                           unsafe        : the var refers cur env.       */
-/*                           not_in_cur_env: the var doesn't reside in the */
-/*                                           current environment           */
-/*                           in pass 2 Info or remains unbound             */
-/*                                                                         */
-/*    atom []      : nil                                                   */
-/*    atom (others): atm(atom)                                             */
-/*    integer      : int(integer)                                          */
-/*    float        : flt(float)                                            */
-/*    f(A1,...,An) : stc(f,n,[I(A1),...,I(An)])  ([H|T] = '.'(H,T))        */
-/*                                                                         */
-/* NB: true/0 in the body of a clause is removed.                          */
-/*     variables are classified and permanent variables are assigned       */
-/*     (temporary=x(_), permanent=y(i))                                    */
-/*-------------------------------------------------------------------------*/
+/* $Id$ */
+
+/*-------------------------------------------------------------------------*
+ * predicate internal format: (I(t)=internal format of t)                  *
+ *                                                                         *
+ * I(p(Arg1,...,ArgN))= p(NoPred,Pred/N,[I(Arg1),...,I(ArgN)])             *
+ *                                                                         *
+ * NoPred : predicate number = corresponding chunk number                  *
+ *                                                                         *
+ * Pred/N : predicate/arity                                                *
+ *                                                                         *
+ * I(Argi): internal format of the ith argument                            *
+ *                                                                         *
+ *    var          : var(VarName,Info) with:                               *
+ *                                                                         *
+ *                   VarName=x(NoX) temporary (in pass 2 NoX is unbound or *
+ *                                  assigned to void if var is singleton)  *
+ *                           y(NoY) permanent (in pass 2 NoY is assigned)  *
+ *                   Info   =in_heap       : the var is stored in the heap *
+ *                           unsafe        : the var refers cur env.       *
+ *                           not_in_cur_env: the var doesn't reside in the *
+ *                                           current environment           *
+ *                           in pass 2 Info or remains unbound             *
+ *                                                                         *
+ *    atom []      : nil                                                   *
+ *    atom (others): atm(atom)                                             *
+ *    integer      : int(integer)                                          *
+ *    float        : flt(float)                                            *
+ *    f(A1,...,An) : stc(f,n,[I(A1),...,I(An)])  ([H|T] = '.'(H,T))        *
+ *                                                                         *
+ * NB: true/0 in the body of a clause is removed.                          *
+ *     variables are classified and permanent variables are assigned       *
+ *     (temporary=x(_), permanent=y(i))                                    *
+ *-------------------------------------------------------------------------*/
 
 internal_format(Head, Body, Head1, Body1, NbChunk, NbY) :-
 	format_head(Head, DicoVar, Head1),
@@ -130,9 +132,9 @@ format_arg(N, _, _, int(N)) :-
 format_arg(N, _, _, flt(N)) :-
 	float(N).
 
-format_arg(Func, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
-	functor(Func, F, N),
-	Func=..[_|ArgLst],
+format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
+	functor(Fonc, F, N),
+	Fonc=..[_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1).
 
 
@@ -142,7 +144,7 @@ format_arg(Func, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
           %
           % Singleton = f or unbound variable
           % V=var(VarName,VarInfo)
-          % VarName=x(_) or y(_)  
+          % VarName=x(_) or y(_)
           % Info=unbound or singleton
 
 add_var_to_dico(DicoVar, Var, NoPred1stOcc, V) :-
@@ -186,7 +188,7 @@ classif_vars([v(_, _, _, var(y(Y), _))|DicoVar], Y, NbY) :-
 
 
 	% Inline predicates: inline_predicate(Pred,Arity)
-	% all predicates defined here must have a corresponding clause 
+	% all predicates defined here must have a corresponding clause
 	% gen_inline_pred/5 in pass 3 describing their associated code
 
 inline_predicate(Pred, Arity) :-

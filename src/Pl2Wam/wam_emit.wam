@@ -1,13 +1,13 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : wam_emit.pl
-% date    : 12 20 2000
-% time    : 13:13:31
+% date    : 12 21 2000
+% time    : 12:42:39
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/wam_emit.pl').
 
 
-predicate(emit_code_init/2,82,static,private,user,[
+predicate(emit_code_init/2,84,static,private,user,[
     allocate(13),
     get_variable(y(0),0),
     put_value(x(1),0),
@@ -79,7 +79,7 @@ predicate(emit_code_init/2,82,static,private,user,[
     execute(format/3)]).
 
 
-predicate('$emit_code_init/2_$aux1'/2,82,static,private,user,[
+predicate('$emit_code_init/2_$aux1'/2,84,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     get_atom(user,0),
@@ -94,7 +94,7 @@ label(1),
     execute(open/3)]).
 
 
-predicate(emit_code_files/3,103,static,private,user,[
+predicate(emit_code_files/3,105,static,private,user,[
     load_cut_level(3),
     try_me_else(7),
     switch_on_term(3,1,fail,fail,fail),
@@ -144,7 +144,7 @@ label(7),
     proceed]).
 
 
-predicate('$emit_code_files/3_$aux2'/4,106,static,private,user,[
+predicate('$emit_code_files/3_$aux2'/4,108,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_atom('.pl',0),
@@ -171,7 +171,7 @@ label(1),
     execute(atom_concat/3)]).
 
 
-predicate('$emit_code_files/3_$aux1'/1,106,static,private,user,[
+predicate('$emit_code_files/3_$aux1'/1,108,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(native_code,2),
@@ -187,7 +187,7 @@ label(1),
     proceed]).
 
 
-predicate(emit_code_term/2,124,static,private,user,[
+predicate(emit_code_term/2,126,static,private,user,[
     allocate(2),
     get_variable(y(0),1),
     put_atom(streamwamfile,1),
@@ -204,7 +204,7 @@ predicate(emit_code_term/2,124,static,private,user,[
     execute(close/1)]).
 
 
-predicate(emit_code/5,133,static,private,user,[
+predicate(emit_code/5,135,static,private,user,[
     allocate(2),
     get_variable(y(0),4),
     put_atom(streamwamfile,4),
@@ -225,7 +225,7 @@ predicate(emit_code/5,133,static,private,user,[
     execute(nl/1)]).
 
 
-predicate(emit_pred_start/6,143,static,private,user,[
+predicate(emit_pred_start/6,145,static,private,user,[
     load_cut_level(6),
     try_me_else(1),
     allocate(5),
@@ -293,7 +293,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$emit_pred_start/6_$aux4'/3,152,static,private,user,[
+predicate('$emit_pred_start/6_$aux4'/3,154,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -330,7 +330,7 @@ label(2),
     proceed]).
 
 
-predicate('$emit_pred_start/6_$aux3'/3,152,static,private,user,[
+predicate('$emit_pred_start/6_$aux3'/3,154,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -352,7 +352,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_pred_start/6_$aux2'/3,152,static,private,user,[
+predicate('$emit_pred_start/6_$aux2'/3,154,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -374,7 +374,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_pred_start/6_$aux1'/2,143,static,private,user,[
+predicate('$emit_pred_start/6_$aux1'/2,145,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -397,7 +397,7 @@ label(5),
     proceed]).
 
 
-predicate(emit_file_name_if_needed/2,173,static,private,user,[
+predicate(emit_file_name_if_needed/2,175,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     put_atom(cur_pl_file,1),
@@ -422,7 +422,7 @@ label(1),
     proceed]).
 
 
-predicate(emit_wam_code/3,183,static,private,user,[
+predicate(emit_wam_code/3,185,static,private,user,[
     load_cut_level(3),
     try_me_else(5),
     switch_on_term(1,2,fail,4,fail),
@@ -524,7 +524,7 @@ label(8),
     execute(emit_one_inst/2)]).
 
 
-predicate('$emit_wam_code/3_$aux2'/2,207,static,private,user,[
+predicate('$emit_wam_code/3_$aux2'/2,209,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -539,7 +539,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_wam_code/3_$aux1'/2,197,static,private,user,[
+predicate('$emit_wam_code/3_$aux1'/2,199,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     call_c_test('Blt_Var',[0]),
@@ -554,7 +554,7 @@ label(1),
     proceed]).
 
 
-predicate(emit_one_inst/2,219,static,private,user,[
+predicate(emit_one_inst/2,221,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),1),
@@ -586,7 +586,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate(emit_args/4,229,static,private,user,[
+predicate(emit_args/4,231,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_value(x(1),0),
@@ -625,7 +625,7 @@ label(1),
     execute(emit_args/4)]).
 
 
-predicate('$emit_args/4_$aux1'/2,232,static,private,user,[
+predicate('$emit_args/4_$aux1'/2,234,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     get_integer(1,0),
@@ -639,7 +639,7 @@ label(1),
     proceed]).
 
 
-predicate(emit_ensure_linked/0,245,static,private,user,[
+predicate(emit_ensure_linked/0,247,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     allocate(4),
@@ -675,7 +675,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_ensure_linked/0_$aux1'/1,245,static,private,user,[
+predicate('$emit_ensure_linked/0_$aux1'/1,247,static,private,user,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -700,7 +700,7 @@ label(1),
     proceed]).
 
 
-predicate(bc_emit_code/5,262,static,private,user,[
+predicate(bc_emit_code/5,264,static,private,user,[
     allocate(3),
     get_variable(y(0),4),
     put_atom(streamwamfile,4),
@@ -716,7 +716,7 @@ predicate(bc_emit_code/5,262,static,private,user,[
     execute('$bc_emit_code/5_$aux1'/3)]).
 
 
-predicate('$bc_emit_code/5_$aux1'/3,262,static,private,user,[
+predicate('$bc_emit_code/5_$aux1'/3,264,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -765,7 +765,7 @@ label(1),
     execute(bc_emit_lst_clause/2)]).
 
 
-predicate('$bc_emit_code/5_$aux2'/4,262,static,private,user,[
+predicate('$bc_emit_code/5_$aux2'/4,264,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_list(0),
@@ -788,7 +788,7 @@ label(1),
     proceed]).
 
 
-predicate(bc_emit_lst_clause/2,283,static,private,user,[
+predicate(bc_emit_lst_clause/2,285,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -834,7 +834,7 @@ label(4),
     execute(bc_emit_lst_clause/2)]).
 
 
-predicate(bc_emit_prolog_term/2,296,static,private,user,[
+predicate(bc_emit_prolog_term/2,298,static,private,user,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),

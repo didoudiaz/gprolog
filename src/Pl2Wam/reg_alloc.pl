@@ -1,93 +1,95 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog to WAM compiler                                          */
-/* File  : reg_alloc.pl                                                    */
-/* Descr.: pass 4: register allocation                                     */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog to WAM compiler                                          *
+ * File  : reg_alloc.pl                                                    *
+ * Descr.: pass 4: register allocation                                     *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------------------*/
-/* The main predicate is:                                                  */
-/* allocate_registers(LInstW) ou allocate_registers(LInstW,MaxRegUsed):    */
-/*    where LInstW is a list of instructions.                              */
-/*    and MaxRegUsed is an integer corresponding to the greatest register  */
-/*    used (-1 if none or n>=0 if reg0...regMaxRegUsed are used).          */
-/*                                                                         */
-/* Two predicates must be provided in addition to the allocater:           */
-/*                                                                         */
-/* codification(InstW,LCode):                                              */
-/*    defines the action of InstW on the registers as a list LCode of codes*/
-/*    c(R1,R2) (copy R1 into R2), r(R) (read R) or w(R) (write R).         */
-/*                                                                         */
-/* alias_stop_instruction(InstW):                                          */
-/*     true if InstW stop aliasing propagation.                            */
-/*                                                                         */
-/* Terminology:                                                            */
-/*     Arg: Arg is an argument iff integer(Arg)                            */
-/*     Tmp: Tmp is a temporary iff var(Tmp)                                */
-/*     Reg: Reg is a register if it is either an argument or a temporary.  */
-/*                                                                         */
-/* This allocation proceeds in 3 steps:                                    */
-/*                                                                         */
-/*  1) computing aliases (i.e. list of same values at entry of each inst): */
-/*     LAlias is a list of aliases (one for each instruction)              */
-/*     LAlias=[Alias,...]                                                  */
-/*     The aliases (Alias) are represented as a set of same values (LSame) */
-/*     Alias=[LSame,...].                                                  */
-/*     each LSame is a set of Regs (integers or variables)                 */
-/*     eg Alias=[ [1,2,X,Y],[3,Z,4] ] means 1,2,X,Y are aliased, 3,Z,4 also*/
-/*                                                                         */
-/*  2) computing the list of temporaries LTmp=[tmp(Tmp,Imposs,Wish),...]   */
-/*     where Imposs is a set of impossible values and Wish a set of wanted */
-/*     values (to give rise to useless copy instructions).                 */
-/*     The code is traversed in reverse order, computing at each time the  */
-/*     set of Regs in life (InLife) (see Mats Carlsson's PhD Thesis).      */
-/*                                                                         */
-/*  3) Each Tmp in LTmp is assigned wrt to Wish and Imposs in 2 steps:     */
-/*                                                                         */
-/*     a) from [tmp(Tmp,Imposs,Wish)|LTmp]:                                */
-/*                                                                         */
-/*        while there exists Tmpj in Wish and not in Imposs:               */
-/*           let tmp(Tmpj,Impossj,Wishj) be the associated record in LTmp  */
-/*           Imposs:=Imposs+Impossj and Wish:=Wish+Wishj,                  */
-/*           LTmp:=LTmp - tmp(Tmpj,Impossj,Wishj) (remove Tmpj from LTmp)  */
-/*           Tmpj=Tmp (unify them)                                         */
-/*                                                                         */
-/*        At the end of the loop:                                          */
-/*        if there exists an integer k in Wish-Imposs then  (see comment *)*/
-/*           Tmp=k else replace tmp(Tmp,Imposs,Wish) in LTmp               */
-/*                                                                         */
-/*     b) for each Tmp remaining in LTmp assign a value w.r.t to Imposs    */
-/*        by chosing the first integer not present in Imposs (after sort)  */
-/*                                                                         */
-/* Comments:                                                               */
-/*                                                                         */
-/* It seems, from the construction, that, in Wish, only remains possible   */
-/* so the compl(Wish,Imposs,AssignOK) would be useless, but I have to check*/
-/* this correctly.                                                         */
-/*                                                                         */
-/* It would be possible to eliminate useless instructions. In codification */
-/* we could add an argument specifying that when a w(Reg) code is handled  */
-/* and Reg is not in InLife then the surrounding instruction is useless.   */
-/* it is the case for get_variable(x(_),_)/put_value(x(_),_),              */
-/* not for put_variable(x(_),_).  Is it useful ?                           */
-/*-------------------------------------------------------------------------*/
+/* $Id$ */
+
+/*-------------------------------------------------------------------------*
+ * The main predicate is:                                                  *
+ * allocate_registers(LInstW) ou allocate_registers(LInstW,MaxRegUsed):    *
+ *    where LInstW is a list of instructions.                              *
+ *    and MaxRegUsed is an integer corresponding to the greatest register  *
+ *    used (-1 if none or n>=0 if reg0...regMaxRegUsed are used).          *
+ *                                                                         *
+ * Two predicates must be provided in addition to the allocater:           *
+ *                                                                         *
+ * codification(InstW,LCode):                                              *
+ *    defines the action of InstW on the registers as a list LCode of codes*
+ *    c(R1,R2) (copy R1 into R2), r(R) (read R) or w(R) (write R).         *
+ *                                                                         *
+ * alias_stop_instruction(InstW):                                          *
+ *     true if InstW stop aliasing propagation.                            *
+ *                                                                         *
+ * Terminology:                                                            *
+ *     Arg: Arg is an argument iff integer(Arg)                            *
+ *     Tmp: Tmp is a temporary iff var(Tmp)                                *
+ *     Reg: Reg is a register if it is either an argument or a temporary.  *
+ *                                                                         *
+ * This allocation proceeds in 3 steps:                                    *
+ *                                                                         *
+ *  1) computing aliases (i.e. list of same values at entry of each inst): *
+ *     LAlias is a list of aliases (one for each instruction)              *
+ *     LAlias=[Alias,...]                                                  *
+ *     The aliases (Alias) are represented as a set of same values (LSame) *
+ *     Alias=[LSame,...].                                                  *
+ *     each LSame is a set of Regs (integers or variables)                 *
+ *     eg Alias=[ [1,2,X,Y],[3,Z,4] ] means 1,2,X,Y are aliased, 3,Z,4 also*
+ *                                                                         *
+ *  2) computing the list of temporaries LTmp=[tmp(Tmp,Imposs,Wish),...]   *
+ *     where Imposs is a set of impossible values and Wish a set of wanted *
+ *     values (to give rise to useless copy instructions).                 *
+ *     The code is traversed in reverse order, computing at each time the  *
+ *     set of Regs in life (InLife) (see Mats Carlsson's PhD Thesis).      *
+ *                                                                         *
+ *  3) Each Tmp in LTmp is assigned wrt to Wish and Imposs in 2 steps:     *
+ *                                                                         *
+ *     a) from [tmp(Tmp,Imposs,Wish)|LTmp]:                                *
+ *                                                                         *
+ *        while there exists Tmpj in Wish and not in Imposs:               *
+ *           let tmp(Tmpj,Impossj,Wishj) be the associated record in LTmp  *
+ *           Imposs:=Imposs+Impossj and Wish:=Wish+Wishj,                  *
+ *           LTmp:=LTmp - tmp(Tmpj,Impossj,Wishj) (remove Tmpj from LTmp)  *
+ *           Tmpj=Tmp (unify them)                                         *
+ *                                                                         *
+ *        At the end of the loop:                                          *
+ *        if there exists an integer k in Wish-Imposs then  (see comment *)*
+ *           Tmp=k else replace tmp(Tmp,Imposs,Wish) in LTmp               *
+ *                                                                         *
+ *     b) for each Tmp remaining in LTmp assign a value w.r.t to Imposs    *
+ *        by chosing the first integer not present in Imposs (after sort)  *
+ *                                                                         *
+ * Comments:                                                               *
+ *                                                                         *
+ * It seems, from the construction, that, in Wish, only remains possible   *
+ * so the compl(Wish,Imposs,AssignOK) would be useless, but I have to check*
+ * this correctly.                                                         *
+ *                                                                         *
+ * It would be possible to eliminate useless instructions. In codification *
+ * we could add an argument specifying that when a w(Reg) code is handled  *
+ * and Reg is not in InLife then the surrounding instruction is useless.   *
+ * it is the case for get_variable(x(_),_)/put_value(x(_),_),              *
+ * not for put_variable(x(_),_).  Is it useful ?                           *
+ *-------------------------------------------------------------------------*/
 
 allocate_registers(LInstW) :-
 	allocate_registers(LInstW, _).
@@ -143,7 +145,7 @@ add_alias([LSame|Alias], Reg, Reg1, [LSame1|Alias1]) :-
 	;   LSame1=LSame,
 	    add_alias(Alias, Reg, Reg1, Alias1)
 	).
-	
+
 
 
 

@@ -1,26 +1,26 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog buit-in predicates                                       */
-/* File  : debugger.pl                                                     */
-/* Descr.: debugger                                                        */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * GNU Prolog                                                              * 
+ *                                                                         * 
+ * Part  : Prolog buit-in predicates                                       * 
+ * File  : debugger.pl                                                     * 
+ * Descr.: debugger                                                        * 
+ * Author: Daniel Diaz                                                     * 
+ *                                                                         * 
+ * Copyright (C) 1999,2000 Daniel Diaz                                     * 
+ *                                                                         * 
+ * GNU Prolog is free software; you can redistribute it and/or modify it   * 
+ * under the terms of the GNU General Public License as published by the   * 
+ * Free Software Foundation; either version 2, or any later version.       * 
+ *                                                                         * 
+ * GNU Prolog is distributed in the hope that it will be useful, but       * 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
+ * General Public License for more details.                                * 
+ *                                                                         * 
+ * You should have received a copy of the GNU General Public License along * 
+ * with this program; if not, write to the Free Software Foundation, Inc.  * 
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+ *-------------------------------------------------------------------------*/
 
 :-	built_in.
 
@@ -53,10 +53,10 @@
 
 
 
-          /*---------------------------------------------------------------*/
-          /* Debugger built-in predicates                                  */
-          /*                                                               */
-          /*---------------------------------------------------------------*/
+          /*---------------------------------------------------------------* 
+           * Debugger built-in predicates                                  * 
+           *                                                               * 
+           *---------------------------------------------------------------*/
 
 wam_debug :-
 	set_bip_name(wam_debug, 0),
@@ -437,12 +437,12 @@ nospyall.
 
 
 
-          /*---------------------------------------------------------------*/
-          /* The debugger:                                                 */
-          /*                                                               */
-          /* '$debug_call'/2 is called by meta-call (cf Call_2()) when the */
-          /* debugger is active, ie. Set_Debug_Call_Code() has been called */
-          /*---------------------------------------------------------------*/
+          /*---------------------------------------------------------------* 
+           * The debugger:                                                 * 
+           *                                                               * 
+           * '$debug_call'/2 is called by meta-call (cf Call_2()) when the * 
+           * debugger is active, ie. Set_Debug_Call_Code() has been called * 
+           *---------------------------------------------------------------*/
 
 '$debug_call'(notrace, _) :-
 	!,

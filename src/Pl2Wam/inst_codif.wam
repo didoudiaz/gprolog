@@ -1,13 +1,13 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : inst_codif.pl
-% date    : 12 20 2000
-% time    : 13:13:30
+% date    : 12 21 2000
+% time    : 12:42:38
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/inst_codif.pl').
 
 
-predicate(alias_stop_instruction/1,28,static,private,user,[
+predicate(alias_stop_instruction/1,29,static,private,user,[
     load_cut_level(1),
     allocate(1),
     get_variable(x(2),0),
@@ -21,7 +21,7 @@ predicate(alias_stop_instruction/1,28,static,private,user,[
     proceed]).
 
 
-predicate('$alias_stop_instruction/1_$aux1'/1,28,static,private,user,[
+predicate('$alias_stop_instruction/1_$aux1'/1,29,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -42,7 +42,7 @@ label(5),
     proceed]).
 
 
-predicate(codification/2,39,static,private,user,[
+predicate(codification/2,40,static,private,user,[
     load_cut_level(2),
     allocate(1),
     get_variable(y(0),2),
@@ -52,7 +52,7 @@ predicate(codification/2,39,static,private,user,[
     proceed]).
 
 
-predicate(codif/2,43,static,private,user,[
+predicate(codif/2,44,static,private,user,[
     try_me_else(84),
     switch_on_term(8,fail,fail,fail,1),
 
@@ -641,7 +641,7 @@ label(84),
     proceed]).
 
 
-predicate(lst_r_for_call_execute/3,133,static,private,user,[
+predicate(lst_r_for_call_execute/3,134,static,private,user,[
     try_me_else(1),
     get_nil(2),
     get_value(x(1),0),
@@ -659,7 +659,7 @@ label(1),
     execute(lst_r_for_call_execute/3)]).
 
 
-predicate(lst_r_for_function/3,142,static,private,user,[
+predicate(lst_r_for_function/3,143,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -689,7 +689,7 @@ label(4),
     execute(lst_r_for_function/3)]).
 
 
-predicate(lst_rw_for_call_c/3,150,static,private,user,[
+predicate(lst_rw_for_call_c/3,151,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),

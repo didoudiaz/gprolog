@@ -1,13 +1,13 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : syn_sugar.pl
-% date    : 12 20 2000
-% time    : 13:13:28
+% date    : 12 21 2000
+% time    : 12:42:35
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/syn_sugar.pl').
 
 
-predicate(syntactic_sugar_init_pred/2,25,static,private,user,[
+predicate(syntactic_sugar_init_pred/2,27,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -25,7 +25,7 @@ label(1),
     proceed]).
 
 
-predicate(syntactic_sugar/3,34,static,private,user,[
+predicate(syntactic_sugar/3,36,static,private,user,[
     load_cut_level(3),
     allocate(5),
     get_variable(y(0),1),
@@ -45,7 +45,7 @@ predicate(syntactic_sugar/3,34,static,private,user,[
     execute(normalize_alts/3)]).
 
 
-predicate('$syntactic_sugar/3_$aux1'/3,34,static,private,user,[
+predicate('$syntactic_sugar/3_$aux1'/3,36,static,private,user,[
     try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
@@ -59,7 +59,7 @@ label(1),
     proceed]).
 
 
-predicate(normalize_cuts/2,44,static,private,user,[
+predicate(normalize_cuts/2,46,static,private,user,[
     load_cut_level(2),
     allocate(4),
     get_variable(y(0),1),
@@ -78,7 +78,7 @@ predicate(normalize_cuts/2,44,static,private,user,[
     execute('$normalize_cuts/2_$aux1'/3)]).
 
 
-predicate('$normalize_cuts/2_$aux1'/3,44,static,private,user,[
+predicate('$normalize_cuts/2_$aux1'/3,46,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     put_atom(has_cut,4),
@@ -98,7 +98,7 @@ label(1),
     proceed]).
 
 
-predicate(normalize_cuts1/3,53,static,private,user,[
+predicate(normalize_cuts1/3,55,static,private,user,[
     try_me_else(1),
     get_variable(x(3),0),
     call_c_test('Blt_Var',[3]),
@@ -283,7 +283,7 @@ label(20),
     execute(pred_rewriting/2)]).
 
 
-predicate('$normalize_cuts1/3_$aux1'/1,88,static,private,user,[
+predicate('$normalize_cuts1/3_$aux1'/1,90,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     call_c_test('Blt_Callable',[0]),
@@ -299,7 +299,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(normalize_alts/3,98,static,private,user,[
+predicate(normalize_alts/3,100,static,private,user,[
     load_cut_level(3),
     allocate(1),
     get_variable(y(0),3),
@@ -316,7 +316,7 @@ predicate(normalize_alts/3,98,static,private,user,[
     proceed]).
 
 
-predicate(normalize_alts1/3,105,static,private,user,[
+predicate(normalize_alts1/3,107,static,private,user,[
     try_me_else(1),
     get_structure(call/1,2),
     unify_local_value(x(0)),
@@ -417,7 +417,7 @@ label(7),
     proceed]).
 
 
-predicate(init_aux_pred_name/4,130,static,private,user,[
+predicate(init_aux_pred_name/4,132,static,private,user,[
     load_cut_level(4),
     allocate(5),
     get_variable(y(0),0),
@@ -446,7 +446,7 @@ predicate(init_aux_pred_name/4,130,static,private,user,[
     proceed]).
 
 
-predicate('$init_aux_pred_name/4_$aux1'/4,130,static,private,user,[
+predicate('$init_aux_pred_name/4_$aux1'/4,132,static,private,user,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -481,11 +481,11 @@ label(2),
     proceed]).
 
 
-predicate(linearize/4,145,static,private,user,[
+predicate(linearize/4,147,static,private,user,[
     execute('$linearize/4_$aux1'/4)]).
 
 
-predicate('$linearize/4_$aux1'/4,145,static,private,user,[
+predicate('$linearize/4_$aux1'/4,147,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(6),
@@ -516,7 +516,7 @@ label(1),
     execute(linearize1/4)]).
 
 
-predicate(linearize1/4,154,static,private,user,[
+predicate(linearize1/4,156,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_atom(fail,0),
@@ -540,7 +540,7 @@ label(1),
     execute(copy_term/2)]).
 
 
-predicate(lst_var/3,163,static,private,user,[
+predicate(lst_var/3,165,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     get_variable(x(4),1),
@@ -562,11 +562,11 @@ label(1),
     execute(lst_var_args/5)]).
 
 
-predicate(lst_var_args/5,173,static,private,user,[
+predicate(lst_var_args/5,175,static,private,user,[
     execute('$lst_var_args/5_$aux1'/5)]).
 
 
-predicate('$lst_var_args/5_$aux1'/5,173,static,private,user,[
+predicate('$lst_var_args/5_$aux1'/5,175,static,private,user,[
     load_cut_level(5),
     try_me_else(1),
     allocate(5),
@@ -600,7 +600,7 @@ label(1),
     proceed]).
 
 
-predicate(pred_rewriting/2,187,static,private,user,[
+predicate(pred_rewriting/2,189,static,private,user,[
     load_cut_level(2),
     try_me_else(6),
     switch_on_term(2,fail,fail,fail,1),
@@ -693,7 +693,7 @@ label(7),
     proceed]).
 
 
-predicate('$pred_rewriting/2_$aux3'/1,202,static,private,user,[
+predicate('$pred_rewriting/2_$aux3'/1,204,static,private,user,[
     try_me_else(1),
     get_atom(is,0),
     proceed,
@@ -704,7 +704,7 @@ label(1),
     execute(math_cmp_functor_name/2)]).
 
 
-predicate('$pred_rewriting/2_$aux2'/1,190,static,private,user,[
+predicate('$pred_rewriting/2_$aux2'/1,192,static,private,user,[
     try_me_else(1),
     call_c_test('Blt_Integer',[0]),
     proceed,
@@ -718,7 +718,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$pred_rewriting/2_$aux1'/1,190,static,private,user,[
+predicate('$pred_rewriting/2_$aux1'/1,192,static,private,user,[
     try_me_else(1),
     call_c_test('Blt_Atom',[0]),
     proceed,
@@ -732,7 +732,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(test_call_c_allowed/1,217,static,private,user,[
+predicate(test_call_c_allowed/1,219,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(call_c,0),
@@ -750,7 +750,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(add_wrapper_to_dyn_clause/4,226,static,private,user,[
+predicate(add_wrapper_to_dyn_clause/4,228,static,private,user,[
     allocate(5),
     get_variable(y(0),1),
     get_structure((+)/2,2),
@@ -778,7 +778,7 @@ predicate(add_wrapper_to_dyn_clause/4,226,static,private,user,[
     execute(assertz/1)]).
 
 
-predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,226,static,private,user,[
+predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,228,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
@@ -801,7 +801,7 @@ label(1),
     execute(head_wrapper/3)]).
 
 
-predicate(head_wrapper/3,236,static,private,user,[
+predicate(head_wrapper/3,238,static,private,user,[
     put_list(4),
     unify_void(1),
     unify_variable(x(3)),

@@ -1,13 +1,13 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : first_arg.pl
-% date    : 12 20 2000
-% time    : 13:13:30
+% date    : 12 21 2000
+% time    : 12:42:38
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/first_arg.pl').
 
 
-predicate(find_first_arg/2,26,static,private,user,[
+predicate(find_first_arg/2,27,static,private,user,[
     load_cut_level(2),
     switch_on_term(1,2,fail,4,fail),
 
@@ -35,7 +35,7 @@ label(4),
     proceed]).
 
 
-predicate('$find_first_arg/2_$aux1'/3,28,static,private,user,[
+predicate('$find_first_arg/2_$aux1'/3,29,static,private,user,[
     try_me_else(1),
     execute(defines_first_arg/2),
 
@@ -55,7 +55,7 @@ label(2),
     execute(find_first_arg/2)]).
 
 
-predicate(stopping_inst/1,38,static,private,user,[
+predicate(stopping_inst/1,39,static,private,user,[
     try_me_else(8),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -96,14 +96,14 @@ label(8),
     execute(assign_x0/1)]).
 
 
-predicate(assign_x0/1,51,static,private,user,[
+predicate(assign_x0/1,52,static,private,user,[
     get_list(0),
     unify_variable(x(0)),
     unify_variable(x(1)),
     execute('$assign_x0/1_$aux1'/2)]).
 
 
-predicate('$assign_x0/1_$aux1'/2,51,static,private,user,[
+predicate('$assign_x0/1_$aux1'/2,52,static,private,user,[
     try_me_else(6),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -135,7 +135,7 @@ label(6),
     execute(assign_x0/1)]).
 
 
-predicate(defines_first_arg/2,62,static,private,user,[
+predicate(defines_first_arg/2,63,static,private,user,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),

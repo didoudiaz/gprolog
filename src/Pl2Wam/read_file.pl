@@ -1,105 +1,107 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog to WAM compiler                                          */
-/* File  : read_file.pl                                                    */
-/* Descr.: source file reading                                             */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog to WAM compiler                                          *
+ * File  : read_file.pl                                                    *
+ * Descr.: source file reading                                             *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------------------*/
-/* Data structures:                                                        */
-/*                                                                         */
-/* the stack of opened files (for nested includes):                        */
-/*    global variable open_file_stack = [PlFile*Stream,...]                */
-/*    from last to first.                                                  */
-/*                                                                         */
-/* the context (where occurs an error):                                    */
-/*    global variable where = OpenFileStack+(L1-L2)                        */
-/*    L1 = first line of the current clause (resp. directive).             */
-/*    L2 = last  line of the current clause (resp. directive).             */
-/*                                                                         */
-/* read_predicate(Pred,N,LSrcCl):                                          */
-/*    the structure of the compiler is a repeat/fail loop on 1 predicate   */
-/*    calling read_predicate(Pred,N,LSrcCl) to obtain next predicate.      */
-/*    Pred   = predicate name (an atom).                                   */
-/*    N      = arity (an integer >=0).                                     */
-/*    LSrcCl = [SrcCl,...], list of source clauses, with                   */
-/*     SrcCl = Where+Cl where Cl is the source clause read.                */
-/*                                                                         */
-/* Buffers for special predicate management (with assert/retract):         */
-/*                                                                         */
-/* buff_aux_pred(Pred,N,LSrcCl):                                           */
-/*    records the clauses of an auxiliary predicate.                       */
-/*    Asserted by Pass 1 (syntactic sugar removing) when splitting ;/2,etc.*/
-/*    Retracted at the very next invocation of read_predicate/3 to         */
-/*    ensure that aux. predicates always follow their "father" predicate.  */
-/*                                                                         */
-/* buff_discontig_clause(Pred,N,SrcCl):                                    */
-/*    records a clause of a discontiguous predicate (:- discontiguous).    */
-/*    Eacho clause of a discontiguous predicate is asserted when it is read*/
-/*    When the end of file is reached all clauses of a discontiguous pred  */
-/*    are grouped to return a list of source clauses LSrcCl.               */
-/*    Thus discontiguous predicates are always compiled after other        */
-/*    predicates.                                                          */
-/*                                                                         */
-/* buff_dyn_interf_clause(Pred,N,SrcCl):                                   */
-/*    records the interface clause of a dynamic predicate (:- dynamic).    */
-/*    This clause is of the form Head:- call(Head) and only ensures that   */
-/*    an external invocation to this predicate will not need to know that  */
-/*    it is dynamic (and should be called by call/1).                      */
-/*    Asserted as soon as a :- dynamic directive is encountered.           */
-/*    Retracted only when the end of file is reached. All other clauses of */
-/*    a dynamic predicate give rise to a system executable directive to    */
-/*    assert(z) it.                                                        */
-/*                                                                         */
-/* empty_dyn_pred(Pred,N,Where):                                           */
-/*    asserted when the declaration of a dynamic predicate is encoutered   */
-/*    (:- dynamic). Retracted when a clause of a dynamic predicate is read.*/
-/*    At the end, only contains dynamic predicate with no clauses.         */
-/*    Used then to define the interface clause.                            */
-/*                                                                         */
-/* ensure_linked(Pred,N):                                                  */
-/*    asserted for each Pred/N occuring in a :- ensure_linked directive.   */
-/*                                                                         */
-/* Buffers for executable directive management (with assert/retract):      */
-/*                                                                         */
-/* buff_exe_system(SrcDirec)                                               */
-/*     SrcDirec = Where+Body (i.e. source directive).                      */
-/*     records a system directive.                                         */
-/*     Asserted for dynamic clauses (to assertz it), and to execute, at    */
-/*     run-time, op/3 set_prolog_flag/2, char_conversion/2.                */
-/*     Retracted only when the end of file has been reached to provide a   */
-/*     predicate '$exe_system':- Body.                                     */
-/*                                                                         */
-/* buff_exe_user(SrcDirec)                                                 */
-/*     records user defined directives (:- initialization).                */
-/*     Asserted when a :- initialization declaration is encountered.       */
-/*     Retracted just after all '$buff_exe_system' to ensure that any user */
-/*     directive has the needed environment.                               */
-/*                                                                         */
-/* Buffers for special clause management (with assert/retract):            */
-/*                                                                         */
-/* buff_clause(Pred,N,SrcCl):                                              */
-/*    the reader needs a lookahead clause (to group clauses by predicates).*/
-/*    For such a clause we assert/retract(buff_clause(Pred,N,SrcCl)).      */
-/*    Read at the very next invocation of get_next_clause/3.               */
-/*-------------------------------------------------------------------------*/
+/* $Id$ */
+
+/*-------------------------------------------------------------------------*
+ * Data structures:                                                        *
+ *                                                                         *
+ * the stack of opened files (for nested includes):                        *
+ *    global variable open_file_stack = [PlFile*Stream,...]                *
+ *    from last to first.                                                  *
+ *                                                                         *
+ * the context (where occurs an error):                                    *
+ *    global variable where = OpenFileStack+(L1-L2)                        *
+ *    L1 = first line of the current clause (resp. directive).             *
+ *    L2 = last  line of the current clause (resp. directive).             *
+ *                                                                         *
+ * read_predicate(Pred,N,LSrcCl):                                          *
+ *    the structure of the compiler is a repeat/fail loop on 1 predicate   *
+ *    calling read_predicate(Pred,N,LSrcCl) to obtain next predicate.      *
+ *    Pred   = predicate name (an atom).                                   *
+ *    N      = arity (an integer >=0).                                     *
+ *    LSrcCl = [SrcCl,...], list of source clauses, with                   *
+ *     SrcCl = Where+Cl where Cl is the source clause read.                *
+ *                                                                         *
+ * Buffers for special predicate management (with assert/retract):         *
+ *                                                                         *
+ * buff_aux_pred(Pred,N,LSrcCl):                                           *
+ *    records the clauses of an auxiliary predicate.                       *
+ *    Asserted by Pass 1 (syntactic sugar removing) when splitting ;/2,etc.*
+ *    Retracted at the very next invocation of read_predicate/3 to         *
+ *    ensure that aux. predicates always follow their "father" predicate.  *
+ *                                                                         *
+ * buff_discontig_clause(Pred,N,SrcCl):                                    *
+ *    records a clause of a discontiguous predicate (:- discontiguous).    *
+ *    Eacho clause of a discontiguous predicate is asserted when it is read*
+ *    When the end of file is reached all clauses of a discontiguous pred  *
+ *    are grouped to return a list of source clauses LSrcCl.               *
+ *    Thus discontiguous predicates are always compiled after other        *
+ *    predicates.                                                          *
+ *                                                                         *
+ * buff_dyn_interf_clause(Pred,N,SrcCl):                                   *
+ *    records the interface clause of a dynamic predicate (:- dynamic).    *
+ *    This clause is of the form Head:- call(Head) and only ensures that   *
+ *    an external invocation to this predicate will not need to know that  *
+ *    it is dynamic (and should be called by call/1).                      *
+ *    Asserted as soon as a :- dynamic directive is encountered.           *
+ *    Retracted only when the end of file is reached. All other clauses of *
+ *    a dynamic predicate give rise to a system executable directive to    *
+ *    assert(z) it.                                                        *
+ *                                                                         *
+ * empty_dyn_pred(Pred,N,Where):                                           *
+ *    asserted when the declaration of a dynamic predicate is encoutered   *
+ *    (:- dynamic). Retracted when a clause of a dynamic predicate is read.*
+ *    At the end, only contains dynamic predicate with no clauses.         *
+ *    Used then to define the interface clause.                            *
+ *                                                                         *
+ * ensure_linked(Pred,N):                                                  *
+ *    asserted for each Pred/N occuring in a :- ensure_linked directive.   *
+ *                                                                         *
+ * Buffers for executable directive management (with assert/retract):      *
+ *                                                                         *
+ * buff_exe_system(SrcDirec)                                               *
+ *     SrcDirec = Where+Body (i.e. source directive).                      *
+ *     records a system directive.                                         *
+ *     Asserted for dynamic clauses (to assertz it), and to execute, at    *
+ *     run-time, op/3 set_prolog_flag/2, char_conversion/2.                *
+ *     Retracted only when the end of file has been reached to provide a   *
+ *     predicate '$exe_system':- Body.                                     *
+ *                                                                         *
+ * buff_exe_user(SrcDirec)                                                 *
+ *     records user defined directives (:- initialization).                *
+ *     Asserted when a :- initialization declaration is encountered.       *
+ *     Retracted just after all '$buff_exe_system' to ensure that any user *
+ *     directive has the needed environment.                               *
+ *                                                                         *
+ * Buffers for special clause management (with assert/retract):            *
+ *                                                                         *
+ * buff_clause(Pred,N,SrcCl):                                              *
+ *    the reader needs a lookahead clause (to group clauses by predicates).*
+ *    For such a clause we assert/retract(buff_clause(Pred,N,SrcCl)).      *
+ *    Read at the very next invocation of get_next_clause/3.               *
+ *-------------------------------------------------------------------------*/
 
 :-	op(200, fx, ?).
 
@@ -167,9 +169,9 @@ close_last_prolog_file :-
 
 
 
-          /*------------------*/
-          /* Read a predicate */
-          /*------------------*/
+          /*------------------*
+           * Read a predicate *
+           *------------------*/
 
 read_predicate(Pred, N, LSrcCl) :-
 	repeat,
@@ -737,7 +739,7 @@ set_flag_for_preds(Pred/N, Flag) :-
 	    ), !,
 	    set_pred_info(Flag, Pred, N)
 	).
-              
+
 
 
 
@@ -751,14 +753,14 @@ define_predicate(F, N) :-
 define_predicate(F, N) :-
 	g_read(default_kind, built_in), !,
 	set_pred_info(bpl, F, N).
-	
+
 define_predicate(F, N) :-
 	g_read(default_kind, built_in_fd), !,
 	set_pred_info(bfd, F, N).
-	
+
 define_predicate(_, _).
 
-	
+
 
 
 flag_bit(def, 0).

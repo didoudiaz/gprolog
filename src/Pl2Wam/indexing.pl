@@ -1,121 +1,123 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog to WAM compiler                                          */
-/* File  : indexing.pl                                                     */
-/* Descr.: indexing code generation                                        */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog to WAM compiler                                          *
+ * File  : indexing.pl                                                     *
+ * Descr.: indexing code generation                                        *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------------------*/
-/* Level 1:                                                                */
-/*                                                                         */
-/* The clauses C1,...,Cn of a predicate Pred are split into groups         */
-/* G0,...,Gm so that each group Gi:                                        */
-/*                                                                         */
-/*   a) contains only one clause whose 1st arg is a variable.              */
-/*   b) contains only clauses whose 1st arg is not a variable.             */
-/*                                                                         */
-/* The following code is then produced:                                    */
-/*                                                                         */
-/*   L0: try_me_else(L1)                                                   */
-/*       <code for G0>                                                     */
-/*                                                                         */
-/*   L1: retry_me_else(L2)                                                 */
-/*       <code for G1>                                                     */
-/*            :                                                            */
-/*            :                                                            */
-/*   Lm: trust_me_else_fail                                                */
-/*       <code for Gm>                                                     */
-/*                                                                         */
-/* Level 2:                                                                */
-/*                                                                         */
-/* For a group Gi whose type is a), the <code for Gi> only contains the    */
-/* code produced for the associated Ck clause.                             */
-/* For a group Gi whose type is b), the <code for Gi> contains indexing    */
-/* instructions for the level 2 to discriminate between atoms, integers    */
-/* lists and structures as follows:                                        */
-/*                                                                         */
-/*            switch_on_term(LabVar,LabAtm,LabInt,LabLst,LabStc)           */
-/*                                                                         */
-/*   LabFail: fail                 if there is a LabXxx = LabFail          */
-/*                                                                         */
-/*   LabAtm : switch_on_atom(N,[(atm1,LabAtm1),...(atmN,LabAtmN)])       \ */
-/*                                                                       | */
-/*   LabAtmj: try(Adj1)                  \  if more than 1 clause has    | */
-/*            retry(Adj2) if more than 2 |  atmj as 1st arg,             | */
-/*              :                        |  else LabAtmj = Adj1          | */
-/*            trust(Adjk)                /                               | */
-/*                                 if there are atms, else LabAtm=LabFail/ */
-/*   idem for switch_on_integer                                            */
-/*                                                                         */
-/*   LabLst : try(Adj1)                  \  if more than 1 clause has    | */
-/*            retry(Adj2) if more than 2 |  [_|_] as 1st arg,            | */
-/*              :                        |  else LabLst = Adj1           | */
-/*            trust(Adjk)                /                               | */
-/*                                 if there are lsts, else LabLst=LabFail/ */
-/*                                                                         */
-/*   LabStc : switch_on_structure(N,[(stc1,LabStc1),...(stcN,LabStcN)])  \ */
-/*                                                                       | */
-/*   LabStcj: try(Adj1)                  \  if more than 1 clause has    | */
-/*            retry(Adj2) if more than 2 |  stcj as 1st arg,             | */
-/*              :                        |  else LabStcj = Adj1          | */
-/*            trust(Adjk)                /                               | */
-/*                                 if there are stcs, else LabStc=LabFail/ */
-/*                                                                         */
-/*   LabVar:  try_me_else(LabVar2) if there are more than 1 clause in Gi,  */
-/*   Ad1:     <code for clause 1>  else LabVar = Ad1                       */
-/*                                                                         */
-/*   LabVar2: retry_me_else(LabVar3)                                       */
-/*   Ad2:     <code for clause 2>                                          */
-/*                :                                                        */
-/*                :                                                        */
-/*   LabVarp: trust_me_else_fail                                           */
-/*   Adp:     <code for clause p>                                          */
-/*                                                                         */
-/* LCC: [cl(Ad,FirstArg,WamCl), ...] list of compiled clauses for Pred.    */
-/*                                                                         */
-/*       Ad      : will contain (in level 2) the label associated to WamCl */
-/*                 (initially Ad is an unbound variable).                  */
-/*       FirstArg: the first argument of the source clause.                */
-/*       WamCl   : [wam_inst, ...] clause wam code.                        */
-/*                                                                         */
-/* look_for_var partitions LCC in LCCBefore, CCVar and LCCAfter and detects*/
-/* the current case:                                                       */
-/*                                                                         */
-/*   1...) a variables has been found (thus level 1), sub-cases:           */
-/*    11) LCCBefore<>[] and LCCAfter<>[]  12) LCCBefore<>[] and LCCAfter=[]*/
-/*    13) LCCBefore= [] and LCCAfter<>[]  14) LCCBefore= [] and LCCAfter=[]*/
-/*                                                                         */
-/*   2) no variables (thus level 2).                                       */
-/*                                                                         */
-/* other used variables:                                                   */
-/*                                                                         */
-/* Lev1: has any try/retry/trust_me_else been generated for level 1 (t/f)? */
-/* Atm : [a(atm,[Ad, ...]), ...]                                           */
-/* Int : [a(int,[Ad, ...]), ...]                                           */
-/* Lst : [Ad, ...]                                                         */
-/* Stc : [a(f/n,[Ad, ...]), ...]                                           */
-/* List: Atm, Int, or Stc for general processings                          */
-/*                                                                         */
-/* Each label issued from the indexing phase is first referenced and later */
-/* defined.                                                                */
-/*-------------------------------------------------------------------------*/
+/* $Id$ */
+
+/*-------------------------------------------------------------------------*
+ * Level 1:                                                                *
+ *                                                                         *
+ * The clauses C1,...,Cn of a predicate Pred are split into groups         *
+ * G0,...,Gm so that each group Gi:                                        *
+ *                                                                         *
+ *   a) contains only one clause whose 1st arg is a variable.              *
+ *   b) contains only clauses whose 1st arg is not a variable.             *
+ *                                                                         *
+ * The following code is then produced:                                    *
+ *                                                                         *
+ *   L0: try_me_else(L1)                                                   *
+ *       <code for G0>                                                     *
+ *                                                                         *
+ *   L1: retry_me_else(L2)                                                 *
+ *       <code for G1>                                                     *
+ *            :                                                            *
+ *            :                                                            *
+ *   Lm: trust_me_else_fail                                                *
+ *       <code for Gm>                                                     *
+ *                                                                         *
+ * Level 2:                                                                *
+ *                                                                         *
+ * For a group Gi whose type is a), the <code for Gi> only contains the    *
+ * code produced for the associated Ck clause.                             *
+ * For a group Gi whose type is b), the <code for Gi> contains indexing    *
+ * instructions for the level 2 to discriminate between atoms, integers    *
+ * lists and structures as follows:                                        *
+ *                                                                         *
+ *            switch_on_term(LabVar,LabAtm,LabInt,LabLst,LabStc)           *
+ *                                                                         *
+ *   LabFail: fail                 if there is a LabXxx = LabFail          *
+ *                                                                         *
+ *   LabAtm : switch_on_atom(N,[(atm1,LabAtm1),...(atmN,LabAtmN)])       \ *
+ *                                                                       | *
+ *   LabAtmj: try(Adj1)                  \  if more than 1 clause has    | *
+ *            retry(Adj2) if more than 2 |  atmj as 1st arg,             | *
+ *              :                        |  else LabAtmj = Adj1          | *
+ *            trust(Adjk)                /                               | *
+ *                                 if there are atms, else LabAtm=LabFail/ *
+ *   idem for switch_on_integer                                            *
+ *                                                                         *
+ *   LabLst : try(Adj1)                  \  if more than 1 clause has    | *
+ *            retry(Adj2) if more than 2 |  [_|_] as 1st arg,            | *
+ *              :                        |  else LabLst = Adj1           | *
+ *            trust(Adjk)                /                               | *
+ *                                 if there are lsts, else LabLst=LabFail/ *
+ *                                                                         *
+ *   LabStc : switch_on_structure(N,[(stc1,LabStc1),...(stcN,LabStcN)])  \ *
+ *                                                                       | *
+ *   LabStcj: try(Adj1)                  \  if more than 1 clause has    | *
+ *            retry(Adj2) if more than 2 |  stcj as 1st arg,             | *
+ *              :                        |  else LabStcj = Adj1          | *
+ *            trust(Adjk)                /                               | *
+ *                                 if there are stcs, else LabStc=LabFail/ *
+ *                                                                         *
+ *   LabVar:  try_me_else(LabVar2) if there are more than 1 clause in Gi,  *
+ *   Ad1:     <code for clause 1>  else LabVar = Ad1                       *
+ *                                                                         *
+ *   LabVar2: retry_me_else(LabVar3)                                       *
+ *   Ad2:     <code for clause 2>                                          *
+ *                :                                                        *
+ *                :                                                        *
+ *   LabVarp: trust_me_else_fail                                           *
+ *   Adp:     <code for clause p>                                          *
+ *                                                                         *
+ * LCC: [cl(Ad,FirstArg,WamCl), ...] list of compiled clauses for Pred.    *
+ *                                                                         *
+ *       Ad      : will contain (in level 2) the label associated to WamCl *
+ *                 (initially Ad is an unbound variable).                  *
+ *       FirstArg: the first argument of the source clause.                *
+ *       WamCl   : [wam_inst, ...] clause wam code.                        *
+ *                                                                         *
+ * look_for_var partitions LCC in LCCBefore, CCVar and LCCAfter and detects*
+ * the current case:                                                       *
+ *                                                                         *
+ *   1...) a variables has been found (thus level 1), sub-cases:           *
+ *    11) LCCBefore<>[] and LCCAfter<>[]  12) LCCBefore<>[] and LCCAfter=[]*
+ *    13) LCCBefore= [] and LCCAfter<>[]  14) LCCBefore= [] and LCCAfter=[]*
+ *                                                                         *
+ *   2) no variables (thus level 2).                                       *
+ *                                                                         *
+ * other used variables:                                                   *
+ *                                                                         *
+ * Lev1: has any try/retry/trust_me_else been generated for level 1 (t/f)? *
+ * Atm : [a(atm,[Ad, ...]), ...]                                           *
+ * Int : [a(int,[Ad, ...]), ...]                                           *
+ * Lst : [Ad, ...]                                                         *
+ * Stc : [a(f/n,[Ad, ...]), ...]                                           *
+ * List: Atm, Int, or Stc for general processings                          *
+ *                                                                         *
+ * Each label issued from the indexing phase is first referenced and later *
+ * defined.                                                                *
+ *-------------------------------------------------------------------------*/
 
 indexing(LCC, WamCode1) :-
 	indexing1(LCC, f, _, [_|WamCode]),       % ignore the unused label(0)
@@ -306,7 +308,7 @@ gen_list1([Ad|LAd], LNext, WamRT1) :-
 gen_insts([cl(Ad, _, WamCl)], Ad, [label(Ad)|WamCl]) :-
                                                  % only 1 clause
 	!.
-	
+
 gen_insts([cl(Ad, _, WamCl)|LCC], Lab, WamCode2) :-
                                                  % 2..n
 	gen_insts1(LCC, Lab1, WamCode),

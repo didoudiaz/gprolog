@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.2.5 (Dec 1 2000)
 % file    : foreign.pl
-% date    : 12 20 2000
-% time    : 13:4:47
+% date    : 12 21 2000
+% time    : 12:41:18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/foreign.pl').

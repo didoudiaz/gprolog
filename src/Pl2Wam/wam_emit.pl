@@ -1,83 +1,85 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog to WAM compiler                                          */
-/* File  : wam_emit.pl                                                     */
-/* Descr.: code emission                                                   */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog to WAM compiler                                          *
+ * File  : wam_emit.pl                                                     *
+ * Descr.: code emission                                                   *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------------------*/
-/* WAM Instructions                                                        */
-/*                                                                         */
-/* get_variable(V,A)                        put_variable(V,A)              */
-/*                                          put_void(A)                    */
-/* get_value(V,A)                           put_value(V,A)                 */
-/*                                          put_unsafe_value(y(Y),A)       */
-/* get_atom(F,A)                            put_atom(F,A)                  */
-/* get_integer(I,A)                         put_integer(N,A)               */
-/* get_float(N,A)                           put_float(N,A)                 */
-/* get_nil(A)                               put_nil(A)                     */
-/* get_list(A)                              put_list(A)                    */
-/* get_structure(F/N,A)                     put_structure(F/N,A)           */
-/*                                                                         */
-/*                                          math_load_value(V,A)           */
-/*                                          math_fast_load_value(V,A)      */
-/*                                                                         */
-/* unify_variable(V)                        allocate(N)                    */
-/* unify_void(N)                            deallocate                     */
-/* unify_value(V)                                                          */
-/* unify_local_value(V)                     call(F/N)                      */
-/* unify_atom(F)                            execute(F/N)                   */
-/* unify_integer(N)                         proceed                        */
-/* unify_nil                                fail                           */
-/* unify_list           (only for the last subterm if it is a list)        */
-/* unify_structure(F/N) (only for the last subterm if it is a structure)   */
-/*                                                                         */
-/* label(L)                                                                */
-/*                                                                         */
-/* switch_on_term(Lvar,Latm,Lint,Llst,Lstc)                                */
-/* switch_on_atom([(F,L),...])                                             */
-/* switch_on_integer([(N,L),...])                                          */
-/* switch_on_structure([(F/N,L),...])                                      */
-/*                                                                         */
-/* try_me_else(L)                           try(L)                         */
-/* retry_me_else(L)                         retry(L)                       */
-/* trust_me_else_fail                       trust(L)                       */
-/*                                                                         */
-/* load_cut_level(A)                                                       */
-/* cut(V)                                                                  */
-/*                                                                         */
-/* function(F,X,[X,...])                                                   */
-/* call_c(F,[X,...])                                                       */
-/* call_c_test(F,[X1,...])                                                 */
-/* call_c_jump(F,[X1,...])                                                 */
-/* foreign_call_c(F,T0,F0,N0,K,[(T1,N1)...],[X1,...])                      */
-/*                F=FctName, T0=ret type F0/N0=BipName/BipArity K=ChcSize  */
-/*                Ti=type Ni=0:in 1:out 2:in/out                           */
-/*                                                                         */
-/* V  : x(X) or y(Y)                                                       */
-/* X,Y: integer >= 0                                                       */
-/* A  : integer                                                            */
-/* N,K: integer                                                            */
-/* F,T: atom                                                               */
-/* L  : integer >= 1 (with no "holes") or 'fail' inside switch_on_term     */
-/*-------------------------------------------------------------------------*/
+/* $Id$ */
+
+/*-------------------------------------------------------------------------*
+ * WAM Instructions                                                        *
+ *                                                                         *
+ * get_variable(V,A)                        put_variable(V,A)              *
+ *                                          put_void(A)                    *
+ * get_value(V,A)                           put_value(V,A)                 *
+ *                                          put_unsafe_value(y(Y),A)       *
+ * get_atom(F,A)                            put_atom(F,A)                  *
+ * get_integer(I,A)                         put_integer(N,A)               *
+ * get_float(N,A)                           put_float(N,A)                 *
+ * get_nil(A)                               put_nil(A)                     *
+ * get_list(A)                              put_list(A)                    *
+ * get_structure(F/N,A)                     put_structure(F/N,A)           *
+ *                                                                         *
+ *                                          math_load_value(V,A)           *
+ *                                          math_fast_load_value(V,A)      *
+ *                                                                         *
+ * unify_variable(V)                        allocate(N)                    *
+ * unify_void(N)                            deallocate                     *
+ * unify_value(V)                                                          *
+ * unify_local_value(V)                     call(F/N)                      *
+ * unify_atom(F)                            execute(F/N)                   *
+ * unify_integer(N)                         proceed                        *
+ * unify_nil                                fail                           *
+ * unify_list           (only for the last subterm if it is a list)        *
+ * unify_structure(F/N) (only for the last subterm if it is a structure)   *
+ *                                                                         *
+ * label(L)                                                                *
+ *                                                                         *
+ * switch_on_term(Lvar,Latm,Lint,Llst,Lstc)                                *
+ * switch_on_atom([(F,L),...])                                             *
+ * switch_on_integer([(N,L),...])                                          *
+ * switch_on_structure([(F/N,L),...])                                      *
+ *                                                                         *
+ * try_me_else(L)                           try(L)                         *
+ * retry_me_else(L)                         retry(L)                       *
+ * trust_me_else_fail                       trust(L)                       *
+ *                                                                         *
+ * load_cut_level(A)                                                       *
+ * cut(V)                                                                  *
+ *                                                                         *
+ * function(F,X,[X,...])                                                   *
+ * call_c(F,[X,...])                                                       *
+ * call_c_test(F,[X1,...])                                                 *
+ * call_c_jump(F,[X1,...])                                                 *
+ * foreign_call_c(F,T0,F0,N0,K,[(T1,N1)...],[X1,...])                      *
+ *                F=FctName, T0=ret type F0/N0=BipName/BipArity K=ChcSize  *
+ *                Ti=type Ni=0:in 1:out 2:in/out                           *
+ *                                                                         *
+ * V  : x(X) or y(Y)                                                       *
+ * X,Y: integer >= 0                                                       *
+ * A  : integer                                                            *
+ * N,K: integer                                                            *
+ * F,T: atom                                                               *
+ * L  : integer >= 1 (with no "holes") or 'fail' inside switch_on_term     *
+ *-------------------------------------------------------------------------*/
 
 emit_code_init(WamFile0, PlFile0) :-
 	prolog_file_name(PlFile0, PlFile),

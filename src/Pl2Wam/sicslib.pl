@@ -194,7 +194,7 @@ find_dir_and_file_name(Path, Before, Dir, FileName) :-
 	;   Func1=Func,
 	    Arity1=Arity
 	).
-	
+
 
 
 argument_list(LArgs) :-
