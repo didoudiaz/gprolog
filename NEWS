@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.18:
 
+* fix a bug in arithmetics (in float_{integer/fractional}_part)
 * fix a bug in FD solver (wrong union with a singleton)
 
 Change in GNU Prolog version 1.2.17:

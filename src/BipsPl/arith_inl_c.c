@@ -34,7 +34,7 @@
 #include "bips_pl.h"
 
 #ifdef M_ix86_win32
-#define rint(x)  (floor((x)+(double) 0.5))
+#define rint(x)  (floor((x) + (double) 0.5))
 #endif
 
 
@@ -337,9 +337,9 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 #define DSign(x)     ((x) < 0.0 ? -1.0 : (x) > 0.0 ? 1.0 : 0.0)
 
-#define DInteg(x)    ((double) ((long) (x)))
+#define DInteg(x)    (((x) > 0) ? floor(x) : ceil(x))
 
-#define DFract(x)    ((double) ((x) - (long) (x)))
+#define DFract(x)    ((x) - DInteg(x))
 
 
 #define X_and_Y_are_INT(x, y)  Tag_Is_INT(x & y)

@@ -1,45 +1,49 @@
-Thu Mar  6 09:28:20 CET 2003 <Daniel.Diaz@inria.fr>
+Fri Mar 21 14:09:26 CET 2003 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in arithmetics (in float_{integer/fractional}_part)
+
+Thu Mar  6 09:28:20 CET 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in FD solver (wrong union with a singleton)
 
-Tue Feb 25 16:48:12 CET 2003 <Daniel.Diaz@inria.fr>
+Tue Feb 25 16:48:12 CET 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with the foreign C interface
 
-Wed Feb 19 18:10:22 CET 2003 <Daniel.Diaz@inria.fr>
+Wed Feb 19 18:10:22 CET 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* change configure.in: by default ebp is not used
 
-Mon Feb 17 13:45:05 CET 2003 <Daniel.Diaz@inria.fr>
+Mon Feb 17 13:45:05 CET 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a but with CTRL+C handler not reinstalled
 
-Wed Jan  8 15:22:09 CET 2003 <Daniel.Diaz@inria.fr>
+Wed Jan  8 15:22:09 CET 2003 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with _XXX (re)displayed under the top-level
 
-Mon Dec 16 13:00:42 CET 2002 <Daniel.Diaz@inria.fr>
+Mon Dec 16 13:00:42 CET 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to x86_64/linux - many thanks to:
 	  Gwenole Beauchesne <gbeauchesne@mandrakesoft.com>
 
-Mon Sep 30 22:08:41 CEST 2002 <Daniel.Diaz@inria.fr>
+Mon Sep 30 22:08:41 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in predicate_property/2
 	
-Wed Sep 25 13:41:46 CEST 2002 <Daniel.Diaz@inria.fr>
+Wed Sep 25 13:41:46 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* add new built-in fork_prolog/1 and create_pipe/2
 	
-Tue Sep 24 19:30:35 CEST 2002 <Daniel.Diaz@inria.fr>
+Tue Sep 24 19:30:35 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in atom_concat/3
 
-Thu Sep 19 12:53:45 CEST 2002 <Daniel.Diaz@inria.fr>
+Thu Sep 19 12:53:45 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug when detecting if a stream can be repositioned
 
-Thu Sep 12 18:45:10 CEST 2002 <Daniel.Diaz@inria.fr>
+Thu Sep 12 18:45:10 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in output to constant terms (e.g. write_to_atom/2)
 	* include another additional patch for sockets under win32 - due to:
@@ -47,58 +51,58 @@ Thu Sep 12 18:45:10 CEST 2002 <Daniel.Diaz@inria.fr>
 	* fix bug in bagof/3 with FD variables
 	* fix bug with randomize/0
 
-Fri Jun 21 18:32:06 CEST 2002 <Daniel.Diaz@inria.fr>
+Fri Jun 21 18:32:06 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* added min/max to Prolog arithmetics
 
-Thu Jun 20 15:20:43 CEST 2002 <Daniel.Diaz@inria.fr>
+Thu Jun 20 15:20:43 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bugs in current_predicate and predicate_property
 
-Mon Jun 10 14:25:52 CEST 2002 <Daniel.Diaz@inria.fr>
+Mon Jun 10 14:25:52 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to powerpc/Darwin (Mac OS X) - many thanks to:
           Lindsey Spratt <spratt@alum.mit.edu>
 	* fix bug in Win32 GUI console (deal with edit control text limit)
 	* fix bug with in-place installation procedure
 
-Wed Apr 24 19:00:03 CEST 2002 <Daniel.Diaz@inria.fr>
+Wed Apr 24 19:00:03 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix problem with portray_clause/2 using $VARNAME and $VAR
 	  now portray_clause((p(Z):-p('$VARNAME'('A'),Z))) is ok
 
-Tue Apr 23 13:13:18 CEST 2002 <Daniel.Diaz@inria.fr>
+Tue Apr 23 13:13:18 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug with stream buffering (open/4 and set_stream_buffering/2)
 
-Sat Apr 21 13:09:54 CEST 2002 <Daniel.Diaz@inria.fr>
+Sat Apr 21 13:09:54 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* add stream mirror facility (see add_stream_mirror/2)
 
-Fri Apr 19 15:20:51 CEST 2002 <Daniel.Diaz@inria.fr>
+Fri Apr 19 15:20:51 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* improve global vars (arg. selector, automatic array, new built-ins)
 
-Sun Apr 14 16:35:10 CEST 2002 <Daniel.Diaz@inria.fr>
+Sun Apr 14 16:35:10 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix two bugs with Ctrl+C reentrency under the top-level
 
-Thu Apr 11 20:30:16 CEST 2002 <Daniel.Diaz@inria.fr>
+Thu Apr 11 20:30:16 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* added priority/1 option to write_term to specify starting priority
 	* now under the top-level, _XXX variables are not displayed
 
-Wed Apr 10 15:04:23 CEST 2002 <Daniel.Diaz@inria.fr>
+Wed Apr 10 15:04:23 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in decompose_file_name/4 (tried to modify read-only string)
 	* now open/4 better detects if a stream can be repositioned
 
-Mon Apr  8 20:08:29 CEST 2002 <Daniel.Diaz@inria.fr>
+Mon Apr  8 20:08:29 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* add source reader facility (built-in) - not yet documented
 	* fix current_predicate bug, now current_predicate(nl/0) fails
 	
-Fri Apr  5 12:32:26 CEST 2002 <Daniel.Diaz@inria.fr>
+Fri Apr  5 12:32:26 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix linedit bug in tab pasting and add Esc-Tab function
 	* now linedit goes to EOL at CR to fix bug with multi-line inputs
@@ -106,61 +110,61 @@ Fri Apr  5 12:32:26 CEST 2002 <Daniel.Diaz@inria.fr>
 	* remove max_stream limitation (the Prolog flag no longer exists)
 	* the template of get_print_stream/1 is now ?stream
 
-Thu Mar 28 00:35:59 CEST 2002 <Daniel.Diaz@inria.fr>
+Thu Mar 28 00:35:59 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* patch to allow more than 64Mb for the stacks under ix86/linux
 	
-Mon Mar 25 13:34:52 CEST 2002 <Daniel.Diaz@inria.fr>
+Mon Mar 25 13:34:52 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
 
-Fri Mar 22 11:31:52 CEST 2002 <Daniel.Diaz@inria.fr>
+Fri Mar 22 11:31:52 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a problem under sparc/solaris using mmap (adding MAP_FIXED)
 
-Tue Mar 19 18:51:50 CEST 2002 <Daniel.Diaz@inria.fr>
+Tue Mar 19 18:51:50 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 	
 	* fix a problem with gcc 3.0.x which always uses ebp in main()
 	* use -march=xxx gcc option instead of -mxxx for ix86
 	
-Tue Jan 15 19:26:26 CEST 2002 <Daniel.Diaz@inria.fr>
+Tue Jan 15 19:26:26 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* gplc now passes -L option to ld in the order of apparition
 	* gplc accepts meta-characters %p, %d,... in output file names
 
-Tue Jan  8 16:51:48 CEST 2002 <Daniel.Diaz@inria.fr>
+Tue Jan  8 16:51:48 CEST 2002 <Daniel.Diaz@univ-paris1.fr>
 
 	* include additional patch for sockets under win32 - due to:
 	  Brent Fulgham <brent.fulgham@xpsystems.com>
 
-Thu Dec 20 16:17:00 CEST 2001 <Daniel.Diaz@inria.fr>
+Thu Dec 20 16:17:00 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* re-write Windows GUI Console in pure Win32 (no more MFC)
 	* adapt configure.in to work with autoconf 2.52
 
-Thu Dec 13 12:09:36 CEST 2001 <Daniel.Diaz@inria.fr>
+Thu Dec 13 12:09:36 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* add Prolog flag back_quotes and values {atom,chars,codes}_no_escape
 	* use a terminal recusion in FD arithmetic normalization
 
-Wed Dec 12 11:04:57 CEST 2001 <Daniel.Diaz@inria.fr>
+Wed Dec 12 11:04:57 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in bind_variables/2, reported by: 
 	  Bowie Owens <owe043@phi-cq.vic.cmis.csiro.au>
 
-Tue Dec 11 18:25:19 CEST 2001 <Daniel.Diaz@inria.fr>
+Tue Dec 11 18:25:19 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* modify Ma2Asm mappers to use Y_OFFSET (from ENVIR_STATIC_SIZE)
 	* fix some bugs in the Wam debugger
 	
-Fri Dec  7 19:01:02 CEST 2001 <Daniel.Diaz@inria.fr>
+Fri Dec  7 19:01:02 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* add several options to the top-level to execute goals
 	* add an environment variable LINEDIT to control linedit options
 	* fix bug in linedit on \b in start of line (using ANSI ESC sequence)
 	* now linedit works with XFree keyboard encoding
 
-Tue Dec  4 20:29:00 CEST 2001 <Daniel.Diaz@inria.fr>
+Tue Dec  4 20:29:00 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* simplify linedit: only apply to stdin
 	* now linedit is reentrant
@@ -169,33 +173,33 @@ Tue Dec  4 20:29:00 CEST 2001 <Daniel.Diaz@inria.fr>
 	* use get_key/1-2 in the top_level + debugger (thus with echo)
 	* improve the top-level Ctrl+C manager
 
-Mon Dec  3 18:13:16 CEST 2001 <Daniel.Diaz@inria.fr>
+Mon Dec  3 18:13:16 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bux on linux configured with --disable-regs
 	* add pipe to pl2wam stdin when called by consult/1
 
-Mon Nov  5 10:25:29 CEST 2001 <Daniel.Diaz@inria.fr>
+Mon Nov  5 10:25:29 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 	
 	* fix bug in FD: forall is now recognized in .fd files
 	* fix bug in DCG: expand_term((a --> X), Y) is OK
 
-Wed Oct 31 20:31:04 CEST 2001 <Daniel.Diaz@inria.fr>
+Wed Oct 31 20:31:04 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix X paste problem in linedit
 
-Tue Oct 3O 17:31:04 CEST 2001 <Daniel.Diaz@inria.fr>
+Tue Oct 3O 17:31:04 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* simplify top_comp.c to better control include dirs in devel. mode
 
-Sun Oct 14 17:12:32 CEST 2001 <Daniel.Diaz@inria.fr>
+Sun Oct 14 17:12:32 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 	
 	* specialized functions for create/update/delete choice points
 
-Tue Oct  9 12:11:44 CEST 2001 <Daniel.Diaz@inria.fr>
+Tue Oct  9 12:11:44 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
 
-Mon Oct  8 12:33:02 CEST 2001 <Daniel.Diaz@inria.fr>
+Mon Oct  8 12:33:02 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* include patch to support basic sockets under win32 - due to:
 	  Brent Fulgham <brent.fulgham@xpsystems.com>
@@ -203,82 +207,82 @@ Mon Oct  8 12:33:02 CEST 2001 <Daniel.Diaz@inria.fr>
 	* specialized functions for switch_on_term_xxx
 	* modify pl2wam to generalize '$call_c' (add options)
 
-Mon Oct  8 11:33:02 CEST 2001 <Daniel.Diaz@inria.fr>
+Mon Oct  8 11:33:02 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug - delete file created by mkstemp(2), patch from:
 	  Salvador Abreu <spa@debian.org>
 
-Fri Sep 28 17:09:35 CEST 2001 <Daniel.Diaz@inria.fr>
+Fri Sep 28 17:09:35 CEST 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* space_args(true) now displays a space inside {}/1
 	* space_args(true) now displays a space after a comma (','/2)
 
-Sat Sep 15 12:49:19 CET 2001 <Daniel.Diaz@inria.fr>
+Sat Sep 15 12:49:19 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* add a --foreign-only option to pl2wam
 	* foreign/2 directives are ignored in byte-code mode (no fatal error)
 
-Fri Sep  7 09:58:36 CET 2001 <Daniel.Diaz@inria.fr>
+Fri Sep  7 09:58:36 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* space_args(true) now displays space between operators and arguments
 	* add CVS Id to prolog files
 	* fix bug in pl2wam to include break/0, trace/0,... in bip_list.pl
 
-Thu Jul 12 16:03:30 CET 2001 <Daniel.Diaz@inria.fr>
+Thu Jul 12 16:03:30 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* get rid of mktemp and tempnam calls (use mkstemp if available)
 
-Thu Jun  7 20:34:13 CET 2001 <Daniel.Diaz@inria.fr>
+Thu Jun  7 20:34:13 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in fd_element_var/3 constraint
 
-Thu Feb  8 11:25:30 CET 2001 <Daniel.Diaz@inria.fr>
+Thu Feb  8 11:25:30 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in fd headers (fd_to_c.h not installed)
 
-Thu Jan 25 21:12:06 CET 2001 <Daniel.Diaz@inria.fr>
+Thu Jan 25 21:12:06 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with unify_with_occurs_check/2
 	* fix bug on ix86 using ebp (add -fomit-frame-pointer in CFLAGS_MACHINE)
 
-Mon Jan 22 12:41:26 CET 2001 <Daniel.Diaz@inria.fr>
+Mon Jan 22 12:41:26 CET 2001 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with ! in dynamic code
 	* fix a bug in arithmetics
 
-Tue Dec 19 16:32:39 CET 20000 <Daniel.Diaz@inria.fr>
+Tue Dec 19 16:32:39 CET 20000 <Daniel.Diaz@univ-paris1.fr>
 
 	* big modification (1 month) to optimize the execution speed
 
-Thu Nov  9 19:06:06 CEST 2000 <Daniel.Diaz@inria.fr>
+Thu Nov  9 19:06:06 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* implement fast call (mainly for WAM functions)
 
-Tue Nov  7 15:12:11 CEST 2000 <Daniel.Diaz@inria.fr>
+Tue Nov  7 15:12:11 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* modify C->Prolog foreign interface to recover arguments space
 
-Mon Nov  6 14:58:07 CEST 2000 <Daniel.Diaz@inria.fr>
+Mon Nov  6 14:58:07 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* improve dynamic clause management and fix a bug (memory leak)
 
-Fri Nov  3 09:17:19 CEST 2000 <Daniel.Diaz@inria.fr>
+Fri Nov  3 09:17:19 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix _ symbol prefix problem for Free BSD
 
-Fri Oct 13 17:46:38 CEST 2000 <Daniel.Diaz@inria.fr>
+Fri Oct 13 17:46:38 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* no longer use dl_malloc on Linux but prevent MMAP using mallopt
 
-Tue Sep 12 15:42:48 CEST 2000 <Daniel.Diaz@inria.fr>
+Tue Sep 12 15:42:48 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* full re-indentation of the sources for CVS
 
-Thu Sep  7 18:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
+Thu Sep  7 18:04:15 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* added acos/asin to Prolog arithmetics
 
-Wed Sep  6 20:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
+Wed Sep  6 20:04:15 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to alpha/linux - many thanks to:
 	  Alexander Diemand <ax@apax.net>
@@ -287,62 +291,62 @@ Wed Sep  6 20:04:15 CEST 2000 <Daniel.Diaz@inria.fr>
 	  Alexander Diemand <ax@apax.net>
 	* fix a bug in stty.c (use standard termios if present)
 
-Mon Jul 31 11:42:44 CEST 2000 <Daniel.Diaz@inria.fr>
+Mon Jul 31 11:42:44 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in stty.c (use termio by default and else termios)
 
-Thu Jul  6 11:38:58 CEST 2000 <Daniel.Diaz@inria.fr>
+Thu Jul  6 11:38:58 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* more customizable configuration/installation procedure
 
-Mon Jun  3 19:57:20 CEST 2000 <Daniel.Diaz@inria.fr>
+Mon Jun  3 19:57:20 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* port for ix86/NetBSD - many thanks to:
 	  Brook Milligan <brook@nmsu.edu>
 
-Wed Jun 28 11:38:37 CEST 2000 <Daniel.Diaz@inria.fr>
+Wed Jun 28 11:38:37 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* rename configuration file config.h by gp_config.h
 
-Mon Jun 19 14:24:44 CEST 2000 <Daniel.Diaz@inria.fr>
+Mon Jun 19 14:24:44 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* avoid to establish a connection at start to get the hostname
 
-Tue Jun  6 16:51:48 CEST 2000 <Daniel.Diaz@inria.fr>
+Tue Jun  6 16:51:48 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the compiler about \\ inside quoted atoms
 
-Thu May  4 17:39:53 CEST 2000 <Daniel.Diaz@inria.fr>
+Thu May  4 17:39:53 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in dynamic clause retraction (memory leak)
 
-Wed Apr 26 10:51:53 CEST 2000 <Daniel.Diaz@inria.fr>
+Wed Apr 26 10:51:53 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in dynamic clause retraction (memory leak)
 
-Tue Apr 25 16:32:09 CEST 2000 <Daniel.Diaz@inria.fr>
+Tue Apr 25 16:32:09 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in atom management (existing atoms eat mallocated space)
 
-Tue Apr 18 13:23:02 CEST 2000 <Daniel.Diaz@inria.fr>
+Tue Apr 18 13:23:02 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* added creation/1 and last_access/1 property to file_property/2
 
-Wed Mar 1 14:23:45 CEST 2000 <Daniel.Diaz@inria.fr>
+Wed Mar 1 14:23:45 CEST 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* start of native Win32 port
 
-Mon Feb 14 14:00:46 CET 2000 <Daniel.Diaz@inria.fr>
+Mon Feb 14 14:00:46 CET 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* port for ix86/FreeBSD - many thanks to:
 	Nicolas Ollinger <nollinge@ens-lyon.fr>
 
-Tue Jan 18 17:30:25 CET 2000 <Daniel.Diaz@inria.fr>
+Tue Jan 18 17:30:25 CET 2000 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the byte-code loader (bad realloc computation)
 	* fix a bug in the malloc (used MMAP under linux)
 
-Fri Dec 17 15:54:51 CET 1999 <Daniel.Diaz@inria.fr>
+Fri Dec 17 15:54:51 CET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* port for ix86/SCO - many thanks to:
 	  Clive Cox <clive@laluna.demon.co.uk> and
@@ -350,109 +354,109 @@ Fri Dec 17 15:54:51 CET 1999 <Daniel.Diaz@inria.fr>
 	* port for ix86/solaris - many thanks to: 
 	  Andreas Stolcke <stolcke@speech.sri.com>
 
-Thu Dec 16 18:23:13 CET 1999 <Daniel.Diaz@inria.fr>
+Thu Dec 16 18:23:13 CET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the FD solver for X#\=C (if C is max(X))
 
-Thu Dec  2 17:31:31 CET 1999 <Daniel.Diaz@inria.fr>
+Thu Dec  2 17:31:31 CET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with directory_files/2 (too many open files)
 
-Thu Nov 25 14:27:11 CET 1999 <Daniel.Diaz@inria.fr>
+Thu Nov 25 14:27:11 CET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the compiler about \t in quoted atoms
 
-Fri Oct 22 14:59:47 CEST 1999 <Daniel.Diaz@inria.fr>
+Fri Oct 22 14:59:47 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the scanner about 0'<character>
 
-Mon Oct 18 12:46:59 CEST 1999 <Daniel.Diaz@inria.fr>
+Mon Oct 18 12:46:59 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug with popen/3
 	* update machine.c for struct sigcontext under Linux
 
-Fri Oct 8 19:36:59 CEST 1999 <Daniel.Diaz@inria.fr>
+Fri Oct 8 19:36:59 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with some extended characters in native compilation
 
-Tue Sep 28 18:00:44 CEST 1999 <Daniel.Diaz@inria.fr>
+Tue Sep 28 18:00:44 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* implement call_with_args
 
-Mon Sep 27 16:18:55 CEST 1999 <Daniel.Diaz@inria.fr>
+Mon Sep 27 16:18:55 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in sign/1 for arithmetic evaluation
 
-Fri Jul 16 13:26:31 CEST 1999 <Daniel.Diaz@inria.fr>
+Fri Jul 16 13:26:31 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in foreign C calling Prolog for sparc
 
-Thu Jul 15 12:04:38 CEST 1999 <Daniel.Diaz@inria.fr>
+Thu Jul 15 12:04:38 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug for sparc compilation
 	* fix a bug in foreign code under sparc
 	* update pl_config.c to show which version is installed
 
-Tue Jul 6 14:47:51 CEST 1999 <Daniel.Diaz@inria.fr>
+Tue Jul 6 14:47:51 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* add linedit test to avoid to re-echo an already buffered full-line
 	* fix bugs is sort/1
 
-Fri Jun 25 10:04:03 CEST 1999 <Daniel.Diaz@inria.fr>
+Fri Jun 25 10:04:03 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in sleep/1 (incorrect behavior with a float)
 	* finish preliminar port to cygwin (see file src/PROBLEMS)
 
-Wed Jun 23 13:49:07 MEST 1999 <Daniel.Diaz@inria.fr>
+Wed Jun 23 13:49:07 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in FD solver (too much trail allocated due to bad vec_size)
 	* fix labeling first-fail to correspond to clp(FD)
 
-Fri Jun 18 12:29:03 CEST 1999 <Daniel.Diaz@inria.fr>
+Fri Jun 18 12:29:03 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix message from consult when pl2wam cannot be found
 
-Thu Jun 17 16:12:53 MEST 1999 <Daniel.Diaz@inria.fr>
+Thu Jun 17 16:12:53 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix precision bug on floating constants
 
-Sun Jun  6 12:05:32 CEST 1999 <Daniel.Diaz@inria.fr>
+Sun Jun  6 12:05:32 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* port for ix86/cygwin (Win32) (to finish)
 
-Fri Jun  4 11:05:37 CEST 1999 <Daniel.Diaz@inria.fr>
+Fri Jun  4 11:05:37 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug in throw_c.c (foreign code catch exception)
 	* improve Ma2Asm check.c and FromC/ utilities
 	* port for PowerPC / GNU/Linux  (see file src/PROBLEMS)
 
-Mon May 31 10:45:35 CEST 1999 <Daniel.Diaz@inria.fr>
+Mon May 31 10:45:35 CEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug using egcs-1.1.2 (RedHat 6.0) (add a Stop_Prolog() fct)
 
-Fri May 21 15:56:50 MEST 1999 <Daniel.Diaz@inria.fr>
+Fri May 21 15:56:50 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* removed Configure directory (clashes with ./configure under WinXX)
 	* fix Linedit/Makefile.in (CFLAGS added)
 
-Fri May 21 11:54:31 MEST 1999 <Daniel.Diaz@inria.fr>
+Fri May 21 11:54:31 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* added :- ensure_linked directive
 	* fix bug in gplc help (-C/-A/-L instead of --C/--A/--L)
 	* fix bug in gplc (with too long command-lines)
 	* fix bug in M_Absolute_Path_Name() (/.automount gave /automount)
 
-Wed Apr 21 09:53:00 MEST 1999 <Daniel.Diaz@inria.fr>
+Wed Apr 21 09:53:00 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* work release 1.0.1
 	* fix bug --disable-regs works now for solaris
 
-Mon Apr 19 19:46:07 MEST 1999 <Daniel.Diaz@inria.fr>
+Mon Apr 19 19:46:07 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* optimize FD equations (math_supp.c) avoid qsort sometimes
 	* fix bug in installation procedure (Html doc installation)
 
-Fri Apr 16 15:49:34 MEST 1999 <Daniel.Diaz@inria.fr>
+Fri Apr 16 15:49:34 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* official release 1.0.0
 	* rewrite in C DCG translation: 
@@ -460,58 +464,58 @@ Fri Apr 16 15:49:34 MEST 1999 <Daniel.Diaz@inria.fr>
 	* fix bug in bc_supp.c to avoid aux pred name for unknown predicate
 	* fix bug in pl2wam (:- set_prolog_flag(singleton_warning,off))
 
-Thu Apr  8 19:09:40 MEST 1999 <Daniel.Diaz@inria.fr>
+Thu Apr  8 19:09:40 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* current_prolog/1 conforms to ISO thanks to strict_iso flag
 	* fix bug (type_list instead of instantiation error for Options)
 	* fix bug setof (not sorted when comes down to findall)
 
-Tue Apr  6 20:48:32 MEST 1999 <Daniel.Diaz@inria.fr>
+Tue Apr  6 20:48:32 MEST 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* add Prolog flag strict_iso (to relax predicate indicators)
 	* fix number_chars and friends non ISO conforming behavior
 	* modify wam2ma to avoid static arrays (use dynamic allocation)
 
-Sun Apr  4 15:28:12 MET 1999 <Daniel.Diaz@inria.fr>
+Sun Apr  4 15:28:12 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* add in-place installation (modify configure.in and Makefile.in)
 
-Wed Mar 31 16:26:10 MET 1999 <Daniel.Diaz@inria.fr>
+Wed Mar 31 16:26:10 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* add copyright headers in source files
 
-Thu Mar 30 17:20:10 MET 1999 <Daniel.Diaz@inria.fr>
+Thu Mar 30 17:20:10 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* rewrite all solutions built-in predicates (in C)
 	* add in-place sorts
 
-Wed Mar 24 10:12:02 MET 1999 <Daniel.Diaz@inria.fr>
+Wed Mar 24 10:12:02 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* rewrite DCG translations
 
-Mon Mar 22 19:42:12 MET 1999 <Daniel.Diaz@inria.fr>
+Mon Mar 22 19:42:12 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix compiler bug in wam2ma (atom using \xHH\ not correctly handled)
 
-Fri Mar 19 19:42:12 MET 1999 <Daniel.Diaz@inria.fr>
+Fri Mar 19 19:42:12 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* rewrite sorts built-in predicates (in C)
 
-Mon Mar 15 10:12:02 MET 1999 <Daniel.Diaz@inria.fr>
+Mon Mar 15 10:12:02 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* Calypso (beta 7) becomes GNU Prolog 0.9.0
 	  change command names (calypso -> gprolog, plcc -> gplc,...)
 	  copyright messages (--version),...
 
-Fri Mar 12 09:38:24 MET 1999 <Daniel.Diaz@inria.fr>
+Fri Mar 12 09:38:24 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* fail/0 caused an existence_error under the debugger
 
-Wed Mar 10 11:57:25 MET 1999 <Daniel.Diaz@inria.fr>
+Wed Mar 10 11:57:25 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* user/built_in/built_in_fd not recognized by load/1
 
-Mon Mar 8 20:39:25 MET 1999 <Daniel.Diaz@inria.fr>
+Mon Mar 8 20:39:25 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* Calypso version 1.0-beta7 ready for internal use
 
