@@ -217,95 +217,95 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-SwtTbl Create_Swt_Table(int size);
+SwtTbl Create_Swt_Table(int size) FC;
 
-void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep);
+void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep) FC;
 
 void Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
-			    CodePtr codep);
+			    CodePtr codep) FC;
 
-Bool Get_Atom(int atom, WamWord start_word);
+Bool Get_Atom(int atom, WamWord start_word) FC;
 
-Bool Get_Integer(long n, WamWord start_word);
+Bool Get_Integer(long n, WamWord start_word) FC;
 
-Bool Get_Float(double n, WamWord start_word);
+Bool Get_Float(double n, WamWord start_word) FC;
 
-Bool Get_Nil(WamWord start_word);
+Bool Get_Nil(WamWord start_word) FC;
 
-Bool Get_List(WamWord start_word);
+Bool Get_List(WamWord start_word) FC;
 
-Bool Get_Structure(int func, int arity, WamWord start_word);
+Bool Get_Structure(int func, int arity, WamWord start_word) FC;
 
-WamWord Put_X_Variable(void);
+WamWord Put_X_Variable(void) FC;
 
-WamWord Put_Y_Variable(WamWord *y_adr);
+WamWord Put_Y_Variable(WamWord *y_adr) FC;
 
-WamWord Put_Unsafe_Value(WamWord start_word);
+WamWord Put_Unsafe_Value(WamWord start_word) FC;
 
-WamWord Put_Atom(int atom);
+WamWord Put_Atom(int atom) FC;
 
-WamWord Put_Integer(long n);
+WamWord Put_Integer(long n) FC;
 
-WamWord Put_Float(double n);
+WamWord Put_Float(double n) FC;
 
-WamWord Put_Nil(void);
+WamWord Put_Nil(void) FC;
 
-WamWord Put_List(void);
+WamWord Put_List(void) FC;
 
-WamWord Put_Structure(int func, int arity);
+WamWord Put_Structure(int func, int arity) FC;
 
-WamWord Unify_Variable(void);
+WamWord Unify_Variable(void) FC;
 
-void Unify_Void(int n);
+void Unify_Void(int n) FC;
 
-Bool Unify_Value(WamWord start_word);
+Bool Unify_Value(WamWord start_word) FC;
 
-Bool Unify_Local_Value(WamWord start_word);
+Bool Unify_Local_Value(WamWord start_word) FC;
 
-Bool Unify_Atom(int atom);
+Bool Unify_Atom(int atom) FC;
 
-Bool Unify_Integer(long n);
+Bool Unify_Integer(long n) FC;
 
-Bool Unify_Nil(void);
+Bool Unify_Nil(void) FC;
 
-Bool Unify_List(void);
+Bool Unify_List(void) FC;
 
-Bool Unify_Structure(int func, int arity);
+Bool Unify_Structure(int func, int arity) FC;
 
-void Allocate(int n);
+void Allocate(int n) FC;
 
-void Deallocate(void);
+void Deallocate(void) FC;
 
 CodePtr Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-		       CodePtr c_lst, CodePtr c_stc);
+		       CodePtr c_lst, CodePtr c_stc) FC;
 
-CodePtr Switch_On_Atom(SwtTbl t, int size);
+CodePtr Switch_On_Atom(SwtTbl t, int size) FC;
 
-long Switch_On_Integer(void);
+long Switch_On_Integer(void) FC;
 
-CodePtr Switch_On_Structure(SwtTbl t, int size);
+CodePtr Switch_On_Structure(SwtTbl t, int size) FC;
 
-void Load_Cut_Level(WamWord *word_adr);
+void Load_Cut_Level(WamWord *word_adr) FC;
 
-void Cut(WamWord b_word);
+void Cut(WamWord b_word) FC;
 
-void Global_Push_Float(double n);
+void Global_Push_Float(double n) FC;
 
-double Obtain_Float(WamWord *adr);
+double Obtain_Float(WamWord *adr) FC;
 
-void Create_Choice_Point(CodePtr codep_alt, int arity);
+void Create_Choice_Point(CodePtr codep_alt, int arity) FC;
 
-void Update_Choice_Point(CodePtr codep_alt, int arity);
+void Update_Choice_Point(CodePtr codep_alt, int arity) FC;
 
-void Delete_Choice_Point(int arity);
+void Delete_Choice_Point(int arity) FC;
 
-void Untrail(WamWord *low_adr);
+void Untrail(WamWord *low_adr) FC;
 
-WamWord Make_Copy_Of_Word(int tag, WamWord word);
+WamWord Make_Copy_Of_Word(int tag, WamWord word) FC;
 
-Bool Unify(WamWord start_u_word, WamWord start_v_word);
+Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
 
-Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
+Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
 
 
 

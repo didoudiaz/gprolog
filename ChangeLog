@@ -1,3 +1,7 @@
+Thu Nov  9 19:06:06 CEST 2000 <Daniel.Diaz@inria.fr>
+
+	* implement fast call (mainly for WAM functions)
+
 Tue Nov  7 15:12:11 CEST 2000 <Daniel.Diaz@inria.fr>
 
 	* modify C->Prolog foreign interface to recover arguments space

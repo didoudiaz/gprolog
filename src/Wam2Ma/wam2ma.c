@@ -38,6 +38,12 @@
 #include "bt_string.c"
 #include "../TopComp/copying.c"
 
+#ifdef FC
+#define FAST "fast "
+#else
+#define FAST
+#endif
+
 #if 0
 #define CHECK_PRINTF_ARGS
 #endif
@@ -208,12 +214,13 @@ void Emit_Exec_Directives(void);
 
 void Emit_One_Atom(int no, char *str);
 
-void
-Label_Printf(char *label, ...)
-GCCPRINTF(1);
-     void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
-     SwtTbl *Create_Switch_Table(int type, int nb_elem);
-     void Write_Call_C(char *fct_name, ArgVal arg[]);
+void Label_Printf(char *label, ...) GCCPRINTF(1);
+
+void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
+
+SwtTbl *Create_Switch_Table(int type, int nb_elem);
+
+void Write_Call_C(char *fct_name, ArgVal arg[]);
 
 
 
@@ -402,7 +409,7 @@ Emit_Obj_Initializer(void)
       for (i = 0; i < 3; i++)
 	for (t = p->swt_tbl[i]; t != NULL; t = t->next)
 	  {
-	    Inst_Printf("call_c", "Create_Swt_Table(%d)", t->nb_elem);
+	    Inst_Printf("call_c", FAST "Create_Swt_Table(%d)", t->nb_elem);
 	    Inst_Printf("move_ret", "st(%d)", t->tbl_no);
 
 	    switch (i)
@@ -411,7 +418,7 @@ Emit_Obj_Initializer(void)
 		for (j = 0; j < t->nb_elem; j++)
 		  {
 		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
-		    Inst_Printf("call_c",
+		    Inst_Printf("call_c", FAST
 				"Create_Swt_Atm_Element(st(%d),%d,at(%d),&%s)",
 				t->tbl_no, t->nb_elem,
 				(t->elem[j].atom)->no, l);
@@ -422,7 +429,7 @@ Emit_Obj_Initializer(void)
 		for (j = 0; j < t->nb_elem; j++)
 		  {
 		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
-		    Inst_Printf("call_c",
+		    Inst_Printf("call_c", FAST
 				"Create_Swt_Int_Element(st(%d),%d,%ld,&%s)",
 				t->tbl_no, t->nb_elem, t->elem[j].n, l);
 		  }
@@ -432,7 +439,7 @@ Emit_Obj_Initializer(void)
 		for (j = 0; j < t->nb_elem; j++)
 		  {
 		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
-		    Inst_Printf("call_c",
+		    Inst_Printf("call_c", FAST
 				"Create_Swt_Stc_Element(st(%d),%d,at(%d),%ld,&%s)",
 				t->tbl_no, t->nb_elem,
 				(t->elem[j].atom)->no, t->elem[j].n, l);
@@ -736,7 +743,7 @@ void
 F_get_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", "Unify(%c(%ld),X(%ld))", c, xy, a);
+  Inst_Printf("call_c", FAST "Unify(%c(%ld),X(%ld))", c, xy, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -751,7 +758,7 @@ void
 F_get_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), INTEGER(a));
-  Inst_Printf("call_c", "Get_Atom(at(%d),X(%ld))", atom->no, a);
+  Inst_Printf("call_c", FAST "Get_Atom(at(%d),X(%ld))", atom->no, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -766,7 +773,7 @@ void
 F_get_integer(ArgVal arg[])
 {
   Args2(INTEGER(n), INTEGER(a));
-  Inst_Printf("call_c", "Get_Integer(%ld,X(%ld))", n, a);
+  Inst_Printf("call_c", FAST "Get_Integer(%ld,X(%ld))", n, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -781,7 +788,7 @@ void
 F_get_float(ArgVal arg[])
 {
   Args2(FLOAT(n), INTEGER(a));
-  Inst_Printf("call_c", "Get_Float(%1.20e,X(%ld))", n, a);
+  Inst_Printf("call_c", FAST "Get_Float(%1.20e,X(%ld))", n, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -796,7 +803,7 @@ void
 F_get_nil(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", "Get_Nil(X(%ld))", a);
+  Inst_Printf("call_c", FAST "Get_Nil(X(%ld))", a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -811,7 +818,7 @@ void
 F_get_list(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", "Get_List(X(%ld))", a);
+  Inst_Printf("call_c", FAST "Get_List(X(%ld))", a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -826,7 +833,8 @@ void
 F_get_structure(ArgVal arg[])
 {
   Args2(F_N(atom, n), INTEGER(a));
-  Inst_Printf("call_c", "Get_Structure(at(%d),%ld,X(%ld))", atom->no, n, a);
+  Inst_Printf("call_c", FAST "Get_Structure(at(%d),%ld,X(%ld))", atom->no,
+	      n, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -843,13 +851,13 @@ F_put_variable(ArgVal arg[])
   Args2(X_Y(xy), INTEGER(a));
   if (c == 'X')
     {
-      Inst_Printf("call_c", "Put_X_Variable()");
+      Inst_Printf("call_c", FAST "Put_X_Variable()");
       Inst_Printf("move_ret", "X(%ld)", a);
       Inst_Printf("move", "X(%ld),X(%ld)", a, xy);
     }
   else
     {
-      Inst_Printf("call_c", "Put_Y_Variable(&Y(%ld))", xy);
+      Inst_Printf("call_c", FAST "Put_Y_Variable(&Y(%ld))", xy);
       Inst_Printf("move_ret", "X(%ld)", a);
     }
 }
@@ -865,7 +873,7 @@ void
 F_put_void(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", "Put_X_Variable()");
+  Inst_Printf("call_c", FAST "Put_X_Variable()");
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -894,7 +902,7 @@ void
 F_put_unsafe_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", "Put_Unsafe_Value(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Put_Unsafe_Value(%c(%ld))", c, xy);
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -909,7 +917,7 @@ void
 F_put_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), INTEGER(a));
-  Inst_Printf("call_c", "Put_Atom(at(%d))", atom->no);
+  Inst_Printf("call_c", FAST "Put_Atom(at(%d))", atom->no);
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -924,7 +932,7 @@ void
 F_put_integer(ArgVal arg[])
 {
   Args2(INTEGER(n), INTEGER(a));
-  Inst_Printf("call_c", "Put_Integer(%ld)", n);
+  Inst_Printf("call_c", FAST "Put_Integer(%ld)", n);
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -939,7 +947,7 @@ void
 F_put_float(ArgVal arg[])
 {
   Args2(FLOAT(n), INTEGER(a));
-  Inst_Printf("call_c", "Put_Float(%1.20e)", n);
+  Inst_Printf("call_c", FAST "Put_Float(%1.20e)", n);
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -954,7 +962,7 @@ void
 F_put_nil(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", "Put_Nil()");
+  Inst_Printf("call_c", FAST "Put_Nil()");
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -969,7 +977,7 @@ void
 F_put_list(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", "Put_List()");
+  Inst_Printf("call_c", FAST "Put_List()");
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -984,7 +992,7 @@ void
 F_put_structure(ArgVal arg[])
 {
   Args2(F_N(atom, n), INTEGER(a));
-  Inst_Printf("call_c", "Put_Structure(at(%d),%ld)", atom->no, n);
+  Inst_Printf("call_c", FAST "Put_Structure(at(%d),%ld)", atom->no, n);
   Inst_Printf("move_ret", "X(%ld)", a);
 }
 
@@ -999,7 +1007,7 @@ void
 F_math_load_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", "Math_Load_Value(%c(%ld),&X(%ld))", c, xy, a);
+  Inst_Printf("call_c", FAST "Math_Load_Value(%c(%ld),&X(%ld))", c, xy, a);
 }
 
 
@@ -1013,7 +1021,7 @@ void
 F_math_fast_load_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", "Math_Fast_Load_Value(%c(%ld),&X(%ld))", c, xy, a);
+  Inst_Printf("call_c", FAST "Math_Fast_Load_Value(%c(%ld),&X(%ld))", c, xy, a);
 }
 
 
@@ -1027,7 +1035,7 @@ void
 F_unify_variable(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", "Unify_Variable()");
+  Inst_Printf("call_c", FAST "Unify_Variable()");
   Inst_Printf("move_ret", "%c(%ld)", c, xy);
 }
 
@@ -1042,7 +1050,7 @@ void
 F_unify_void(ArgVal arg[])
 {
   Args1(INTEGER(n));
-  Inst_Printf("call_c", "Unify_Void(%ld)", n);
+  Inst_Printf("call_c", FAST "Unify_Void(%ld)", n);
 }
 
 
@@ -1056,7 +1064,7 @@ void
 F_unify_value(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", "Unify_Value(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Unify_Value(%c(%ld))", c, xy);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1071,7 +1079,7 @@ void
 F_unify_local_value(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", "Unify_Local_Value(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Unify_Local_Value(%c(%ld))", c, xy);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1086,7 +1094,7 @@ void
 F_unify_atom(ArgVal arg[])
 {
   Args1(ATOM(atom));
-  Inst_Printf("call_c", "Unify_Atom(at(%d))", atom->no);
+  Inst_Printf("call_c", FAST "Unify_Atom(at(%d))", atom->no);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1101,7 +1109,7 @@ void
 F_unify_integer(ArgVal arg[])
 {
   Args1(INTEGER(n));
-  Inst_Printf("call_c", "Unify_Integer(%ld)", n);
+  Inst_Printf("call_c", FAST "Unify_Integer(%ld)", n);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1115,7 +1123,7 @@ F_unify_integer(ArgVal arg[])
 void
 F_unify_nil(ArgVal arg[])
 {
-  Inst_Printf("call_c", "Unify_Nil()");
+  Inst_Printf("call_c", FAST "Unify_Nil()");
   Inst_Printf("fail_ret", "");
 }
 
@@ -1129,7 +1137,7 @@ F_unify_nil(ArgVal arg[])
 void
 F_unify_list(ArgVal arg[])
 {
-  Inst_Printf("call_c", "Unify_List()");
+  Inst_Printf("call_c", FAST "Unify_List()");
   Inst_Printf("fail_ret", "");
 }
 
@@ -1144,7 +1152,7 @@ void
 F_unify_structure(ArgVal arg[])
 {
   Args1(F_N(atom, n));
-  Inst_Printf("call_c", "Unify_Structure(at(%d),%ld)", atom->no, n);
+  Inst_Printf("call_c", FAST "Unify_Structure(at(%d),%ld)", atom->no, n);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1159,7 +1167,7 @@ void
 F_allocate(ArgVal arg[])
 {
   Args1(INTEGER(n));
-  Inst_Printf("call_c", "Allocate(%ld)", n);
+  Inst_Printf("call_c", FAST "Allocate(%ld)", n);
 }
 
 
@@ -1172,7 +1180,7 @@ F_allocate(ArgVal arg[])
 void
 F_deallocate(ArgVal arg[])
 {
-  Inst_Printf("call_c", "Deallocate()");
+  Inst_Printf("call_c", FAST "Deallocate()");
 }
 
 
@@ -1257,7 +1265,7 @@ F_switch_on_term(ArgVal arg[])
 {
   Args5(LABEL(lv), LABEL(lc), LABEL(li), LABEL(ll), LABEL(ls));
 
-  Inst_Printf("call_c", "Switch_On_Term(%s%s,%s%s,%s%s,%s%s,%s%s)",
+  Inst_Printf("call_c", FAST "Switch_On_Term(%s%s,%s%s,%s%s,%s%s,%s%s)",
 	      (*lv == '0') ? "" : "&", lv,
 	      (*lc == '0') ? "" : "&", lc,
 	      (*li == '0') ? "" : "&", li,
@@ -1322,7 +1330,7 @@ F_switch_on_atom(ArgVal arg[])
       elem->label = label;
     }
 
-  Inst_Printf("call_c", "Switch_On_Atom(st(%d),%d)",
+  Inst_Printf("call_c", FAST "Switch_On_Atom(st(%d),%d)",
 	      nb_swt_tbl - 1, t->nb_elem);
   Inst_Printf("jump_ret", "");
 }
@@ -1355,7 +1363,7 @@ F_switch_on_integer(ArgVal arg[])
       elem->label = label;
     }
 
-  Inst_Printf("call_c", "Switch_On_Integer(st(%d),%d)",
+  Inst_Printf("call_c", FAST "Switch_On_Integer(st(%d),%d)",
 	      nb_swt_tbl - 1, t->nb_elem);
   Inst_Printf("jump_ret", "");
 
@@ -1367,7 +1375,7 @@ F_switch_on_integer(ArgVal arg[])
   DEF_LABEL(l);
   Args1(INTEGER(nb_elem));
 
-  Inst_Printf("call_c", "Switch_On_Integer()");
+  Inst_Printf("call_c", FAST "Switch_On_Integer()");
   Inst_Printf("switch_ret", NULL);	/* NULL to avoid newline */
   c = '(';
   while (nb_elem--)
@@ -1412,7 +1420,7 @@ F_switch_on_structure(ArgVal arg[])
       elem->label = label;
     }
 
-  Inst_Printf("call_c", "Switch_On_Structure(st(%d),%d)",
+  Inst_Printf("call_c", FAST "Switch_On_Structure(st(%d),%d)",
 	      nb_swt_tbl - 1, t->nb_elem);
   Inst_Printf("jump_ret", "");
 }
@@ -1428,7 +1436,7 @@ void
 F_try_me_else(ArgVal arg[])
 {
   Args1(LABEL(l));
-  Inst_Printf("call_c", "Create_Choice_Point(&%s,%d)", l, cur_arity);
+  Inst_Printf("call_c", FAST "Create_Choice_Point(&%s,%d)", l, cur_arity);
 }
 
 
@@ -1442,7 +1450,7 @@ void
 F_retry_me_else(ArgVal arg[])
 {
   Args1(LABEL(l));
-  Inst_Printf("call_c", "Update_Choice_Point(&%s,%d)", l, cur_arity);
+  Inst_Printf("call_c", FAST "Update_Choice_Point(&%s,%d)", l, cur_arity);
 }
 
 
@@ -1455,7 +1463,7 @@ F_retry_me_else(ArgVal arg[])
 void
 F_trust_me_else_fail(ArgVal arg[])
 {
-  Inst_Printf("call_c", "Delete_Choice_Point(%d)", cur_arity);
+  Inst_Printf("call_c", FAST "Delete_Choice_Point(%d)", cur_arity);
 }
 
 
@@ -1474,7 +1482,7 @@ F_try(ArgVal arg[])
 
   sprintf(sl, FORMAT_SUB_LABEL(cur_sub_label++));
 
-  Inst_Printf("call_c", "Create_Choice_Point(&%s,%d)", sl, cur_arity);
+  Inst_Printf("call_c", FAST "Create_Choice_Point(&%s,%d)", sl, cur_arity);
   Inst_Printf("jump", "%s", l);
   Label_Printf("%s:", sl);
 }
@@ -1495,7 +1503,7 @@ F_retry(ArgVal arg[])
 
   sprintf(sl, FORMAT_SUB_LABEL(cur_sub_label++));
 
-  Inst_Printf("call_c", "Update_Choice_Point(&%s,%d)", sl, cur_arity);
+  Inst_Printf("call_c", FAST "Update_Choice_Point(&%s,%d)", sl, cur_arity);
   Inst_Printf("jump", "%s", l);
   Label_Printf("%s:", sl);
 }
@@ -1512,7 +1520,7 @@ F_trust(ArgVal arg[])
 {
   Args1(LABEL(l));
 
-  Inst_Printf("call_c", "Delete_Choice_Point(%d)", cur_arity);
+  Inst_Printf("call_c", FAST "Delete_Choice_Point(%d)", cur_arity);
   Inst_Printf("jump", "%s", l);
 }
 
@@ -1527,7 +1535,7 @@ void
 F_load_cut_level(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", "Load_Cut_Level(&X(%ld))", a);
+  Inst_Printf("call_c", FAST "Load_Cut_Level(&X(%ld))", a);
   cur_arity = a + 1;		/* to save X(a) in backatrack points */
 }
 
@@ -1542,7 +1550,7 @@ void
 F_cut(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", "Cut(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Cut(%c(%ld))", c, xy);
 }
 
 
@@ -1730,7 +1738,7 @@ F_foreign_call_c(ArgVal arg[])
     }
 
   if (*bip_name || bip_arity != -2)
-    Inst_Printf("call_c", "Set_C_Bip_Name(\"%s\",%ld)",
+    Inst_Printf("call_c", FAST "Set_C_Bip_Name(\"%s\",%ld)",
 		bip_name, bip_arity);
 
   for (i = 0; i < nb_elem; i++)
@@ -1823,7 +1831,7 @@ F_foreign_call_c(ArgVal arg[])
 	    Inst_Printf("call_c", "Un_%s(F%c(%d),X(%d))",
 			foreign_tbl[n], c, i, reg[i]);
 	  else
-	    Inst_Printf("call_c", "Unify(X(%d),FL(%d))", reg[i], i);
+	    Inst_Printf("call_c", FAST "Unify(X(%d),FL(%d))", reg[i], i);
 	  Inst_Printf("fail_ret", "");
 	  break;
 

@@ -548,7 +548,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int nb_args)
+Call_C_Start(char *fct_name, int fc, int nb_args)
 {
   Label_Printf(" # Call_C_Start");
 }

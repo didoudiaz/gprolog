@@ -74,6 +74,11 @@ int use_envir = 0;
 #endif
 
 
+char *fc_arg_regs[] = { "%eax", "%edx", "%ecx" };
+int inside_fc;
+int fc_off_in_stack;
+
+
 
 
 	  /* variables for ma_parser.c */
@@ -354,9 +359,60 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int nb_args)
+Call_C_Start(char *fct_name, int fc, int nb_args)
 {
+  inside_fc = fc;
+  fc_off_in_stack = 0;
 }
+
+
+
+#define BEFORE_ARG                                                          \
+{                                                                           \
+  char r[10], *r_aux;                                                       \
+  int  r_eq_r_aux = 0;                                                      \
+  int off1 = offset;                                                        \
+                                                                            \
+  if (inside_fc)                                                            \
+    {                                                                       \
+      if (offset < FC_MAX_ARGS_IN_REGS)                                     \
+        {                                                                   \
+  	  strcpy(r, fc_arg_regs[offset]);                                   \
+          r_aux = r;                                                        \
+          r_eq_r_aux = 1;                                                   \
+        }                                                                   \
+      else                                                                  \
+        {                                                                   \
+          off1 = (offset - FC_MAX_ARGS_IN_REGS + fc_off_in_stack);          \
+	  sprintf(r, "%d(%%esp)", off1 * 4);                                \
+          r_aux = "%edi";                                                   \
+        }                                                                   \
+    }                                                                       \
+  else                                                                      \
+    {                                                                       \
+      sprintf(r, "%d(%%esp)", offset * 4);                                  \
+      r_aux = "%eax";                                                       \
+    }
+
+
+#define BEFORE_HALF_ARG_DOUBLE                                              \
+{                                                                           \
+  char r[10];                                                               \
+  int off1 = offset;                                                        \
+                                                                            \
+  if (inside_fc)                                                            \
+    {                                                                       \
+      if (offset < FC_MAX_ARGS_IN_REGS)                                     \
+        fc_off_in_stack++;                                                  \
+      else                                                                  \
+        off1 = (offset - FC_MAX_ARGS_IN_REGS + fc_off_in_stack);            \
+    }                                                                       \
+  sprintf(r, "%d(%%esp)", off1 * 4);
+  
+
+#define AFTER_ARG                                                           \
+}
+    
 
 
 
@@ -368,7 +424,11 @@ Call_C_Start(char *fct_name, int nb_args)
 int
 Call_C_Arg_Int(int offset, long int_val)
 {
-  Inst_Printf("movl", "$%ld,%d(%%esp)", int_val, offset * 4);
+  BEFORE_ARG;
+
+  Inst_Printf("movl", "$%ld,%s", int_val, r);
+
+  AFTER_ARG;
 
   return 1;
 }
@@ -385,8 +445,20 @@ Call_C_Arg_Double(int offset, double dbl_val)
 {
   int *p = (int *) &dbl_val;
 
-  Inst_Printf("movl", "$%d,%d(%%esp)", p[0], offset * 4);
-  Inst_Printf("movl", "$%d,%d(%%esp)", p[1], (offset + 1) * 4);
+
+  BEFORE_HALF_ARG_DOUBLE;
+
+  Inst_Printf("movl", "$%d,%s", p[0], r);
+
+  AFTER_ARG;
+
+  offset++;
+
+  BEFORE_HALF_ARG_DOUBLE;
+
+  Inst_Printf("movl", "$%d,%s", p[1], r);
+
+  AFTER_ARG;
 
   return 2;
 }
@@ -401,7 +473,11 @@ Call_C_Arg_Double(int offset, double dbl_val)
 int
 Call_C_Arg_String(int offset, int str_no)
 {
-  Inst_Printf("movl", "$%s%d,%d(%%esp)", STRING_PREFIX, str_no, offset * 4);
+  BEFORE_ARG;
+
+  Inst_Printf("movl", "$%s%d,%s", STRING_PREFIX, str_no, r);
+
+  AFTER_ARG;
 
   return 1;
 }
@@ -416,14 +492,18 @@ Call_C_Arg_String(int offset, int str_no)
 int
 Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
 {
+  BEFORE_ARG;
+
   if (adr_of)
-    Inst_Printf("movl", "$" UN "%s+%d,%d(%%esp)", name, index * 4,
-		offset * 4);
+    Inst_Printf("movl", "$" UN "%s+%d,%s", name, index * 4, r);
   else
     {
-      Inst_Printf("movl", UN "%s+%d,%%eax", name, index * 4);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
+      Inst_Printf("movl", UN "%s+%d,%s", name, index * 4, r_aux);
+      if (!r_eq_r_aux)
+	Inst_Printf("movl", "%s,%s", r_aux, r);
     }
+
+  AFTER_ARG;
 
   return 1;
 }
@@ -438,21 +518,25 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
 int
 Call_C_Arg_Reg_X(int offset, int adr_of, int index)
 {
+  BEFORE_ARG;
+
   if (adr_of)
     {
-      if (index == 0)
-	Inst_Printf("movl", "%s,%d(%%esp)", asm_reg_bank, offset * 4);
-      else
+      if (!r_eq_r_aux && index == 0)
 	{
-	  Inst_Printf("leal", "%d(%s),%%eax", index * 4, asm_reg_bank);
-	  Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
+	  Inst_Printf("movl", "%s,%s", asm_reg_bank, r);
+	  goto finish;
 	}
+      Inst_Printf("leal", "%d(%s),%s", index * 4, asm_reg_bank, r_aux);
     }
   else
-    {
-      Inst_Printf("movl", "%d(%s),%%eax", index * 4, asm_reg_bank);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
-    }
+    Inst_Printf("movl", "%d(%s),%s", index * 4, asm_reg_bank, r_aux);
+
+  if (!r_eq_r_aux)
+    Inst_Printf("movl", "%s,%s", r_aux, r);
+
+ finish:  
+  AFTER_ARG;
 
   return 1;
 }
@@ -467,16 +551,17 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
 int
 Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
 {
+  BEFORE_ARG;
+
   if (adr_of)
-    {
-      Inst_Printf("leal", "-%d(%s),%%eax", (index + 4) * 4, asm_reg_e);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
-    }
+    Inst_Printf("leal", "-%d(%s),%s", (index + 4) * 4, asm_reg_e, r_aux);
   else
-    {
-      Inst_Printf("movl", "-%d(%s),%%eax", (index + 4) * 4, asm_reg_e);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
-    }
+    Inst_Printf("movl", "-%d(%s),%s", (index + 4) * 4, asm_reg_e, r_aux);
+  
+  if (!r_eq_r_aux)
+    Inst_Printf("movl", "%s,%s", r_aux, r);
+  
+  AFTER_ARG;
 
   return 1;
 }
@@ -491,14 +576,18 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
 int
 Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
 {
+  BEFORE_ARG;
+
   if (adr_of)
-    Inst_Printf("movl", "$" UN "foreign_long+%d,%d(%%esp)", index * 4,
-		offset * 4);
+    Inst_Printf("movl", "$" UN "foreign_long+%d,%s", index * 4, r);
   else
     {
-      Inst_Printf("movl", UN "foreign_long+%d,%%eax", index * 4);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
+      Inst_Printf("movl", UN "foreign_long+%d,%s", index * 4, r_aux);
+      if (!r_eq_r_aux)
+	Inst_Printf("movl", "%s,%s", r_aux, r);
     }
+  
+  AFTER_ARG;
 
   return 1;
 }
@@ -515,18 +604,32 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 {
   if (adr_of)
     {
-      Inst_Printf("movl", "$" UN "foreign_double+%d,%d(%%esp)", index * 8,
-		  offset * 4);
+      BEFORE_ARG;
+
+      Inst_Printf("movl", "$" UN "foreign_double+%d,%s", index * 8, r);
+
+      AFTER_ARG;
+
       return 1;
     }
-  else
-    {
-      Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", offset * 4);
-      Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8 + 4);
-      Inst_Printf("movl", "%%eax,%d(%%esp)", (offset + 1) * 4);
-      return 2;
-    }
+
+  BEFORE_HALF_ARG_DOUBLE;
+
+  Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8);
+  Inst_Printf("movl", "%%eax,%s", r);
+
+  AFTER_ARG;
+
+  offset++;
+
+  BEFORE_HALF_ARG_DOUBLE;
+
+  Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8 + 4);
+  Inst_Printf("movl", "%%eax,%s", r);
+
+  AFTER_ARG;
+
+  return 2;
 }
 
 

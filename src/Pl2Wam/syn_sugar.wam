@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
+% compiler: GNU Prolog 1.2.4 (Oct 13 2000)
 % file    : syn_sugar.pl
-% date    : 9 9 2000
-% time    : 14:17:44
+% date    : 11 9 2000
+% time    : 18:30:58
 
 
-file_name('/home/diaz/GNU-Prolog/src/Pl2Wam/syn_sugar.pl').
+file_name('/home/diaz/GP/src/src/Pl2Wam/syn_sugar.pl').
 
 
 predicate(syntactic_sugar_init_pred/2,25,static,private,user,[

@@ -214,6 +214,15 @@ main(void)
 	 "No"
 #endif
     );
+#ifdef M_ix86
+  printf("Use fast call     : %s\n",
+#ifndef NO_USE_FAST_CALL
+	 "Yes"
+#else
+	 "No"
+#endif
+    );
+#endif
 
   nb_of_used_regs = Generate_Archi();
   Write_C_Compiler_Info(nb_of_used_regs);

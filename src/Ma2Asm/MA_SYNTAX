@@ -23,8 +23,8 @@ inst::=		'pl_jump' pl_label	Prolog jump to a predicate
 
 		'move' reg1 ',' reg2	move wam reg1 to reg2
 
-		'call_c' fct_name '(' fct_arg ','...')'
-					call a C function
+		'call_c' [ 'fast' ] fct_name '(' fct_arg ','...')'
+					call a C function (fc = fast call)
 		'jump_ret'		jump at the returned value
 		'fail_ret'              if returned value==0 then 'pl_fail'
 		'move_ret' ( mem | reg | f_array )

@@ -119,9 +119,9 @@ Bool Blt_G_Array_Size(WamWord x, WamWord y);
 
 	  /* from arith_inl_c.c */
 
-void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr);
+void Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 
-void Math_Load_Value(WamWord start_word, WamWord *word_adr);
+void Math_Load_Value(WamWord start_word, WamWord *word_adr) FC;
 
 WamWord Fct_Fast_Neg(int x);
 

@@ -142,6 +142,12 @@ AC_ARG_ENABLE(regs,     [  --disable-regs         do not use machine registers],
 		   *)  ;;
 	       esac])
 
+AC_ARG_ENABLE(fast-call,[  --disable-fast-call    do not use fast call on ix86],
+              [case "$enableval" in
+		   no) AC_DEFINE(NO_USE_FAST_CALL);;
+		   *)  ;;
+	       esac])
+
 AC_ARG_ENABLE(linedit,  [  --disable-linedit      do not include line editor facility],
               [case "$enableval" in
 		   no) AC_DEFINE(NO_USE_LINEDIT) USE_LINEDIT=no;;

@@ -46,6 +46,9 @@
 /* Define if you don't want to use machine registers */
 #undef NO_USE_REGS
 
+/* Define if you don't want to fast call on ix86 */
+#undef NO_USE_FAST_CALL
+
 /* Define if you don't want to include line editor facility */
 #undef NO_USE_LINEDIT
 

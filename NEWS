@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.2.4:
 
+* implement fast call (mainly for WAM functions)
 * modify C->Prolog foreign interface to recover arguments space
 * improve dynamic clause management and fix a bug (memory leak)
 * fix _ symbol prefix problem for Free BSD

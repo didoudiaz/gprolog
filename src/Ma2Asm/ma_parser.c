@@ -91,6 +91,7 @@ char *inst[] = { "pl_code", "pl_jump", "pl_call", "pl_fail", "pl_ret",
 int init_already_read;
 
 char fct_name[MAX_STR_LEN];
+int fc;
 int nb_args;
 ArgInf arg[MAX_ARGS];
 
@@ -272,7 +273,7 @@ Parser(void)
 
 	case CALL_C:
 	  Read_Function();
-	  Call_C(fct_name, nb_args, arg);
+	  Call_C(fct_name, fc, nb_args, arg);
 	  break;
 
 	case JUMP_RET:
@@ -409,7 +410,14 @@ Read_Function(void)
 {
   int k;
 
+  fc = 0;
   Read_Token(IDENTIFIER);
+  if (strcmp(str_val, "fast") == 0)
+    {
+      fc = 1;
+      Read_Token(IDENTIFIER);
+    }
+
   strcpy(fct_name, str_val);
   nb_args = 0;
   Read_Token('(');

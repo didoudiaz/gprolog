@@ -36,12 +36,12 @@ distclean: clean
 W32LNK=W32GUICons/w32gc_interf.obj W32GUICons/GUICons.res W32GUICons/libw32guicons.lib /link /subsystem:windows
 
 test_linedit@EXE_SUFFIX@: test_linedit@OBJ_SUFFIX@ $(LIBNAME)
-	( if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W )
+	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
+	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
 test_noecho@EXE_SUFFIX@: test_noecho@OBJ_SUFFIX@ $(LIBNAME)
-	( if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W )
+	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
+	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
 
 clean-test:

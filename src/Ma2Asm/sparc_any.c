@@ -372,28 +372,30 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int nb_args)
+Call_C_Start(char *fct_name, int fc, int nb_args)
 {
   delay_op = NULL;
 }
 
 
 
+#define MAX_ARGS_IN_REGS 6
 
 #define BEFORE_ARG                                                          \
-    {                                                                       \
-     char r[4];                                                             \
+{                                                                           \
+  char r[4];                                                                \
                                                                             \
-     if (offset<6)                                                          \
-         sprintf(r,"%%o%d",offset);                                         \
-      else                                                                  \
-         strcpy(r,"%l7");
+  if (offset < MAX_ARGS_IN_REGS)                                            \
+    sprintf(r, "%%o%d", offset);                                            \
+  else                                                                      \
+    strcpy(r, "%l7");
 
 
 #define AFTER_ARG                                                           \
-     if (offset>=6)                                                         \
-         Delay_Printf("st","%s,[%%sp+%d]",r,92+(offset-6)*4);               \
-    }
+  if (offset >= MAX_ARGS_IN_REGS)                                           \
+    Delay_Printf("st","%s,[%%sp+%d]", r,                                    \
+                 92 + (offset - MAX_ARGS_IN_REGS) * 4);                     \
+ }
 
 
 

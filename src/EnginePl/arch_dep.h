@@ -27,9 +27,6 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
-#include "gp_config.h"
-
-
 #ifdef M_ix86_win32
 
 #define MAXPATHLEN                 1024
@@ -92,6 +89,21 @@
 
 #if !defined(_WIN32) && !defined(__unix__)
 #define __unix__
+#endif
+
+#if defined(NO_USE_FAST_CALL) || !defined(M_ix86)
+
+#define FC
+
+#else
+
+#ifdef __GNUC__
+#define FC_MAX_ARGS_IN_REGS 3
+#define FC __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
+#else  /* MSVC++ ? */
+#define FC
+#endif
+
 #endif
 
 

@@ -43,7 +43,7 @@
 
 void Declare_Initializer(char *initializer_fct);
 
-void Call_C(char *fct_name, int nb_arg, ArgInf arg[]);
+void Call_C(char *fct_name, int fc, int nb_arg, ArgInf arg[]);
 
 void Switch_Ret(int nb_swt, SwtInf swt[]);
 
@@ -83,7 +83,7 @@ void Move_To_Reg_X(int index);
 
 void Move_To_Reg_Y(int index);
 
-void Call_C_Start(char *fct_name, int nb_args);
+void Call_C_Start(char *fct_name, int fc, int nb_args);
 
 int Call_C_Arg_Int(int offset, long int_val);
 

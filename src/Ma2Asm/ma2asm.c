@@ -216,14 +216,14 @@ Declare_Initializer(char *init_fct)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C(char *fct_name, int nb_args, ArgInf arg[])
+Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
 {
   unsigned i;			/* unsigned is important for the loop */
   int inc;
   int offset = 0;
   int no;
 
-  Call_C_Start(fct_name, nb_args);
+  Call_C_Start(fct_name, fc, nb_args);
 
   if (!call_c_reverse_args)
     i = 0, inc = 1;

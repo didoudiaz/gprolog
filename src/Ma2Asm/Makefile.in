@@ -33,11 +33,18 @@ distclean: clean
 # for check
 CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
 
+# use make FC=Y check to generate an fc check
+
+FC=-DFAST
+
 check@OBJ_SUFFIX@: check.c
-	$(GPLC) -C '$(CFLAGS)' -c check.c
+	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
+	$(GPLC) -C "$(CFLAGS) $$FCFLAGS" -c check.c
 
 check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
-	$(GPLC) -S --comment check_ma.ma
+	if [ "$$FC" = "Y" ]; then cp check_ma.ma /tmp; \
+	else sed -e 's/ fast / /' check_ma.ma >/tmp/check_ma.ma; fi; \
+	$(GPLC) -S --comment /tmp/check_ma.ma -o check_ma@ASM_SUFFIX@
 
 check_ma@OBJ_SUFFIX@: check_ma@ASM_SUFFIX@
 	$(GPLC) -c check_ma@ASM_SUFFIX@
