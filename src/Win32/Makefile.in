@@ -1,0 +1,43 @@
+NAME         = @PROLOG_NAME1@
+VERSION      = @PROLOG_VERSION@
+PKG_NAME     = @PKG_NAME@
+CC           = @CC@
+CFLAGS       = @CFLAGS@
+WIN_TMP_DIR  = @WIN_TMP_DIR@
+WIN_CONF_OPT = @WIN_CONF_OPT@
+ISCC         = iscc.exe
+#ISCC         = compil32.exe /cc
+
+# the name gprolog_win32 is also used inside gp-setup.iss.in
+TMPDIR=/tmp/gprolog_win32
+
+create_bat@EXE_SUFFIX@: create_bat.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@create_bat@EXE_SUFFIX@ create_bat.c
+
+compile: ../$(PKG_NAME).tar.gz
+	cp ../$(PKG_NAME).tar.gz /tmp
+	(cd /tmp; tar xfz $(PKG_NAME).tar.gz)
+	compile_install "$(WIN_CONF_OPT)" /tmp/$(PKG_NAME)/src $(TMPDIR)
+
+compile-link:
+	compile_install "$(WIN_CONF_OPT)" .. $(TMPDIR)
+
+
+setup: compile create-setup
+
+
+setup-link: compile-link create-setup
+
+
+create-setup: create_bat.exe
+	cp create_bat.exe $(TMPDIR)/bin
+	unix2dos gp-setup.iss
+	$(ISCC) gp-setup.iss
+
+../$(PKG_NAME).tar.gz:
+	(cd ..; make dist)
+
+clean:
+	rm -rf create_bat@OBJ_SUFFIX@ create_bat@EXE_SUFFIX@ /tmp/$(PKG_NAME).tar.gz /tmp/$(PKG_NAME) $(TMPDIR)
+
+
