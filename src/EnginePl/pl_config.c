@@ -1,26 +1,29 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : configuration                                                   */
-/* File  : pl_config.c                                                     */
-/* Descr.: C Compiler options and WAM Configuration                        */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : configuration                                                   *
+ * File  : pl_config.c                                                     *
+ * Descr.: C Compiler options and WAM Configuration                        *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
+
+/* $Id$ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -33,9 +36,9 @@
 
 
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
 #define STR_LENGTH                 512
 
@@ -47,884 +50,910 @@
 
 
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
 typedef struct
-    {
-     char type[32];
-     char name[32];
-    }RegInf;
+{
+  char type[32];
+  char name[32];
+}
+RegInf;
 
 
 
 typedef enum
-    {
-     INTEGER,
-     UNSIGNED,
-     STACK,
-     MALLOC
-    }TypTag;
+{
+  INTEGER,
+  UNSIGNED,
+  STACK,
+  MALLOC
+}
+TypTag;
 
 
 typedef struct
-    {
-     char   name[32];
-     TypTag type;
-     char   cast[32];
-    }TagInf;
+{
+  char name[32];
+  TypTag type;
+  char cast[32];
+}
+TagInf;
 
 
 
 
 typedef struct
-   {
-    char name[32];
-    int  def_size;
-    char top_macro[128];
-   }StackInf;
+{
+  char name[32];
+  int def_size;
+  char top_macro[128];
+}
+StackInf;
 
 
 
 
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
-char  save_str[STR_LENGTH];
+char save_str[STR_LENGTH];
 FILE *fw_r;
 
 
 
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-void      Write_C_Compiler_Info (int nb_of_used_regs);
+void Write_C_Compiler_Info(int nb_of_used_regs);
 
-int       Generate_Archi        (void);
-char     *Read_Identifier       (char *s,int fail_if_error,char **end);
-int       Read_Integer          (char *s,char **end);
-int       Generate_Regs         (FILE *f,FILE *g);
-void      Generate_Tags         (FILE *f,FILE *g);
-void      Generate_Stacks       (FILE *f,FILE *g);
+int Generate_Archi(void);
 
-void      Fatal_Error           (char *format,...);
+char *Read_Identifier(char *s, int fail_if_error, char **end);
+
+int Read_Integer(char *s, char **end);
+
+int Generate_Regs(FILE *f, FILE *g);
+
+void Generate_Tags(FILE *f, FILE *g);
+
+void Generate_Stacks(FILE *f, FILE *g);
+
+void Fatal_Error(char *format, ...);
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* MAIN                                                                    */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-int main(void)
-
+/*-------------------------------------------------------------------------*
+ * MAIN                                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+main(void)
 {
- int    nb_of_used_regs;
+  int nb_of_used_regs;
+
 #ifndef NO_USE_REGS
- char  *used_regs[]=M_USED_REGS;
- int    i;
+  char *used_regs[] = M_USED_REGS;
+  int i;
 #endif
 
- if (*M_CPU=='?')
+  if (*M_CPU == '?')
     {
-     printf("*** This architecture is not supported ***\n");
-     return 1;
+      printf("*** This architecture is not supported ***\n");
+      return 1;
     }
 
 
- if (WORD_SIZE!=(sizeof(long)*8))
+  if (WORD_SIZE != (sizeof(long) * 8))
     {
-     printf("Bad Value of WORD_SIZE - should be %d\n",(sizeof(long)*8));
-     return 1;
+      printf("Bad Value of WORD_SIZE - should be %d\n",
+	     (int) (sizeof(long) * 8));
+
+      return 1;
     }
 
- if ((fw_r=fopen(FILE_WAM_REGS_H,"wb"))==NULL)
-     Fatal_Error("cannot open %s",FILE_WAM_REGS_H);
+  if ((fw_r = fopen(FILE_WAM_REGS_H, "wb")) == NULL)
+    Fatal_Error("cannot open %s", FILE_WAM_REGS_H);
 
- fprintf(fw_r,"/* this file is automatically generated by pl_config.c */\n");
- fprintf(fw_r,"\n#include \"gp_config.h\"\n\n");
+  fprintf(fw_r,
+	  "/* this file is automatically generated by pl_config.c */\n");
+  fprintf(fw_r, "\n#include \"gp_config.h\"\n\n");
 
- printf("\n");
- printf("\t-------------------------------\n");
- printf("\t--- GNU PROLOG INSTALLATION ---\n");
- printf("\t-------------------------------\n\n");
- printf("GNU Prolog version: %s (%s)\n",PROLOG_VERSION,PROLOG_DATE);
- printf("Operating system  : %s\n",M_OS);
- printf("Processor         : %s\n",M_CPU);
- printf("Size of a word    : %d bits\n",(int) WORD_SIZE);
- printf("C compiler        : %s\n",CC);
- printf("C flags           : %s\n",CFLAGS);
- printf("C flags machine   : %s\n",CFLAGS_MACHINE);
- printf("Loader flags      : %s\n",LDFLAGS);
- printf("Loader libraries  : %s\n",LDLIBS);
- printf("Use line editor   : %s\n",
+  printf("\n");
+  printf("\t-------------------------------\n");
+  printf("\t--- GNU PROLOG INSTALLATION ---\n");
+  printf("\t-------------------------------\n\n");
+  printf("GNU Prolog version: %s (%s)\n", PROLOG_VERSION, PROLOG_DATE);
+  printf("Operating system  : %s\n", M_OS);
+  printf("Processor         : %s\n", M_CPU);
+  printf("Size of a word    : %d bits\n", (int) WORD_SIZE);
+  printf("C compiler        : %s\n", CC);
+  printf("C flags           : %s\n", CFLAGS);
+  printf("C flags machine   : %s\n", CFLAGS_MACHINE);
+  printf("Loader flags      : %s\n", LDFLAGS);
+  printf("Loader libraries  : %s\n", LDLIBS);
+  printf("Use line editor   : %s\n",
 #ifndef NO_USE_LINEDIT
- "Yes"
+	 "Yes"
 #else
- "No"
+	 "No"
 #endif
- );
+    );
 #ifdef M_ix86_win32
- printf("Use GUI console   : %s\n",
+  printf("Use GUI console   : %s\n",
 #ifdef W32_GUI_CONSOLE
- "Yes"
+	 "Yes"
 #else
- "No"
+	 "No"
 #endif
- );
+    );
 #endif
- printf("Use sockets       : %s\n",
+  printf("Use sockets       : %s\n",
 #ifndef NO_USE_SOCKETS
- "Yes"
+	 "Yes"
 #else
- "No"
+	 "No"
 #endif
- );
- printf("Use FD solver     : %s\n",
+    );
+  printf("Use FD solver     : %s\n",
 #ifndef NO_USE_FD_SOLVER
- "Yes"
+	 "Yes"
 #else
- "No"
+	 "No"
 #endif
- );
- printf("Use machine regs. : %s\n",
+    );
+  printf("Use machine regs. : %s\n",
 #ifndef NO_USE_REGS
- "Yes"
+	 "Yes"
 #else
- "No"
+	 "No"
 #endif
- );
+    );
 
- nb_of_used_regs=Generate_Archi();
- Write_C_Compiler_Info(nb_of_used_regs);
+  nb_of_used_regs = Generate_Archi();
+  Write_C_Compiler_Info(nb_of_used_regs);
 
- fclose(fw_r);
+  fclose(fw_r);
 
 #ifndef NO_USE_REGS
- printf("Used register(s)  : ");
+  printf("Used register(s)  : ");
 
- for(i=0;i<nb_of_used_regs;i++)
-     printf("%s ",used_regs[i]);
- printf("\n");
+  for (i = 0; i < nb_of_used_regs; i++)
+    printf("%s ", used_regs[i]);
+  printf("\n");
 #endif
 
- printf("\n");
- printf("\t------------------------------\n\n");
+  printf("\n");
+  printf("\t------------------------------\n\n");
 
- return 0;
+  return 0;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* WRITE_C_COMPILER_INFO                                                   */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-void Write_C_Compiler_Info(int nb_of_used_regs)
-
+/*-------------------------------------------------------------------------*
+ * WRITE_C_COMPILER_INFO                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Write_C_Compiler_Info(int nb_of_used_regs)
 {
- char  *used_regs[]=M_USED_REGS;
- int    i;
+  char *used_regs[] = M_USED_REGS;
+  int i;
 
- fputc('\n',fw_r);
- fprintf(fw_r,"#define CFLAGS_REGS\t\t\"");
- for(i=0;i<nb_of_used_regs;i++)
+  fputc('\n', fw_r);
+  fprintf(fw_r, "#define CFLAGS_REGS\t\t\"");
+  for (i = 0; i < nb_of_used_regs; i++)
     {
-     fprintf(fw_r,CFLAGS_PREFIX_REG,used_regs[i]);
-     fputc(' ',fw_r);
+      fprintf(fw_r, CFLAGS_PREFIX_REG, used_regs[i]);
+      fputc(' ', fw_r);
     }
 
- fputs("\"\n",fw_r);
+  fputs("\"\n", fw_r);
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* GENERATE_ARCHI                                                          */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-int Generate_Archi(void)
-
+/*-------------------------------------------------------------------------*
+ * GENERATE_ARCHI                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Generate_Archi(void)
 {
- FILE *f,*g;
- char  str[STR_LENGTH];
- char *p1,*p2;
- int   nb_of_used_regs=0;
+  FILE *f, *g;
+  char str[STR_LENGTH];
+  char *p1, *p2;
+  int nb_of_used_regs = 0;
 
- if ((f=fopen(FILE_WAM_ARCHI_DEF,"rt"))==NULL)
-     Fatal_Error("cannot open %s",FILE_WAM_ARCHI_DEF);
+  if ((f = fopen(FILE_WAM_ARCHI_DEF, "rt")) == NULL)
+    Fatal_Error("cannot open %s", FILE_WAM_ARCHI_DEF);
 
- if ((g=fopen(FILE_WAM_ARCHI_H,"wb"))==NULL)
-     Fatal_Error("cannot open %s",FILE_WAM_ARCHI_H);
+  if ((g = fopen(FILE_WAM_ARCHI_H, "wb")) == NULL)
+    Fatal_Error("cannot open %s", FILE_WAM_ARCHI_H);
 
- while(!feof(f) && fgets(str,sizeof(str),f))
+  while (!feof(f) && fgets(str, sizeof(str), f))
     {
-     if (*str!='@')
-        {
-         fputs(str,g);
-         continue;
-        }
+      if (*str != '@')
+	{
+	  fputs(str, g);
+	  continue;
+	}
 
-     strcpy(save_str,str);
-     p1=Read_Identifier(str+1,1,&p2);
+      strcpy(save_str, str);
+      p1 = Read_Identifier(str + 1, 1, &p2);
 
-     if (strcmp(p1,"begin")!=0)
-         Fatal_Error("Syntax error: incorrect @ declaration in: %s",save_str);
+      if (strcmp(p1, "begin") != 0)
+	Fatal_Error("Syntax error: incorrect @ declaration in: %s",
+		    save_str);
 
-     p1=Read_Identifier(p2+1,1,&p2);
+      p1 = Read_Identifier(p2 + 1, 1, &p2);
 
-     if (strcmp(p1,"regs")==0)
-        {
-         nb_of_used_regs=Generate_Regs(f,g);
-         continue;
-        }
+      if (strcmp(p1, "regs") == 0)
+	{
+	  nb_of_used_regs = Generate_Regs(f, g);
+	  continue;
+	}
 
-     if (strcmp(p1,"tags")==0)
-        {
-         Generate_Tags(f,g);
-         continue;
-        }
+      if (strcmp(p1, "tags") == 0)
+	{
+	  Generate_Tags(f, g);
+	  continue;
+	}
 
-     if (strcmp(p1,"stacks")==0)
-        {
-         Generate_Stacks(f,g);
-         continue;
-        }
+      if (strcmp(p1, "stacks") == 0)
+	{
+	  Generate_Stacks(f, g);
+	  continue;
+	}
 
 
-     Fatal_Error("Syntax error: unknown section in: %s",save_str);
+      Fatal_Error("Syntax error: unknown section in: %s", save_str);
     }
 
- fclose(f);
- fclose(g);
+  fclose(f);
+  fclose(g);
 
- return nb_of_used_regs;
+  return nb_of_used_regs;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* READ_IDENTIFIER                                                         */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-char *Read_Identifier(char *s,int fail_if_error,char **end)
-
+/*-------------------------------------------------------------------------*
+ * READ_IDENTIFIER                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Read_Identifier(char *s, int fail_if_error, char **end)
 {
- while(isspace(*s))
-     s++;
+  while (isspace(*s))
+    s++;
 
- *end=s;
- if (!isalpha(**end))
+  *end = s;
+  if (!isalpha(**end))
     {
-     if (fail_if_error)
-         Fatal_Error("Syntax error: identifier expected in: %s",save_str);
+      if (fail_if_error)
+	Fatal_Error("Syntax error: identifier expected in: %s", save_str);
       else
-         return NULL;
+	return NULL;
     }
 
- do
-     (*end)++;
- while(isalnum(**end) || **end=='_');
+  do
+    (*end)++;
+  while (isalnum(**end) || **end == '_');
 
- if (!isspace(**end))
-     Fatal_Error("Syntax error: space expected after identifier in: %s",
-                 save_str);
+  if (!isspace(**end))
+    Fatal_Error("Syntax error: space expected after identifier in: %s",
+		save_str);
 
- **end='\0';
+  **end = '\0';
 
- return s;
+  return s;
 }
- 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* READ_INTEGER                                                            */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-int Read_Integer(char *s,char **end)
 
+/*-------------------------------------------------------------------------*
+ * READ_INTEGER                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Read_Integer(char *s, char **end)
 {
- int x=0;
+  int x = 0;
 
- while(isspace(*s))
-     s++;
+  while (isspace(*s))
+    s++;
 
- *end=s;
- if (!isdigit(**end))
-     Fatal_Error("Syntax error: integer expected in: %s",save_str);
+  *end = s;
+  if (!isdigit(**end))
+    Fatal_Error("Syntax error: integer expected in: %s", save_str);
 
- do
+  do
     {
-     x=x*10+**end-'0';
-     (*end)++;
+      x = x * 10 + **end - '0';
+      (*end)++;
     }
- while(isdigit(**end) || **end=='_');
+  while (isdigit(**end) || **end == '_');
 
- if (!isspace(**end))
-     Fatal_Error("Syntax error: space expected after identifier in: %s",
-                 save_str);
- **end='\0';
- return x;
+  if (!isspace(**end))
+    Fatal_Error("Syntax error: space expected after identifier in: %s",
+		save_str);
+  **end = '\0';
+  return x;
 }
 
- 
 
 
-/*-------------------------------------------------------------------------*/
-/* GENERATE_REGS                                                           */
-/*                                                                         */
-/* initial filler description                                              */
-/*    @filler size                                                         */
-/*                                                                         */
-/* register description:                                                   */
-/*    @reg priority type name                                              */
-/*         priority: 1-9 (1:high, 9:low)                                   */
-/*         type must be machine word castable (ex int unsigned pointer...) */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-int Generate_Regs(FILE *f,FILE *g)
 
+/*-------------------------------------------------------------------------*
+ * GENERATE_REGS                                                           *
+ *                                                                         *
+ * initial filler description                                              *
+ *    @filler size                                                         *
+ *                                                                         *
+ * register description:                                                   *
+ *    @reg priority type name                                              *
+ *         priority: 1-9 (1:high, 9:low)                                   *
+ *         type must be machine word castable (ex int unsigned pointer...) *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Generate_Regs(FILE *f, FILE *g)
 {
- char    *p1,*p2;
- char     str[STR_LENGTH];
- char     str_base[32]="";
- char    *used_regs[]=M_USED_REGS;
- int      nb_of_used_regs=0;
- RegInf   reg[10][50];
- int      nb_reg[10]={0,0,0,0,0,0,0,0,0,0};
- RegInf  *dp;
- char    **p;
- int      total_nb_reg=0;
- int      nb_not_alloc=0;
- int      i,j,k;
+  char *p1, *p2;
+  char str[STR_LENGTH];
+  char str_base[32] = "";
+  char *used_regs[] = M_USED_REGS;
+  int nb_of_used_regs = 0;
+  RegInf reg[10][50];
+  int nb_reg[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  RegInf *dp;
+  char **p;
+  int total_nb_reg = 0;
+  int nb_not_alloc = 0;
+  int i, j, k;
 
 #ifdef NO_USE_REGS
- used_regs[0]=NULL;
+  used_regs[0] = NULL;
 #endif
 
- for(;;)
+  for (;;)
     {
-     if (feof(f) || !fgets(str,sizeof(str),f))
-         Fatal_Error("Syntax error: end expected for @begin reg");
+      if (feof(f) || !fgets(str, sizeof(str), f))
+	Fatal_Error("Syntax error: end expected for @begin reg");
 
-     if (*str!='@')
-        {
-         if (*str!='\n')
-             fputs(str,g);
-         continue;
-        }
+      if (*str != '@')
+	{
+	  if (*str != '\n')
+	    fputs(str, g);
+	  continue;
+	}
 
-     strcpy(save_str,str);
-     p1=Read_Identifier(str+1,1,&p2);
+      strcpy(save_str, str);
+      p1 = Read_Identifier(str + 1, 1, &p2);
 
-     if (strcmp(p1,"end")==0)
-         break;
+      if (strcmp(p1, "end") == 0)
+	break;
 
-     if (strcmp(p1,"filler")==0)
-        {
-         p1=Read_Identifier(p2+1,0,&p2);
-	 if (!p1)
-            {
-             i=Read_Integer(p2,&p2);
-             p1=str;
-             sprintf(p1,"%d",i);
-            }
+      if (strcmp(p1, "filler") == 0)
+	{
+	  p1 = Read_Identifier(p2 + 1, 0, &p2);
+	  if (!p1)
+	    {
+	      i = Read_Integer(p2, &p2);
+	      p1 = str;
+	      sprintf(p1, "%d", i);
+	    }
 
-         sprintf(str_base+strlen(str_base),"%s+",p1);
-         continue;
-        }
+	  sprintf(str_base + strlen(str_base), "%s+", p1);
+	  continue;
+	}
 
-     if (strcmp(p1,"reg")==0)
-        {
-         i=Read_Integer(p2+1,&p2);
-         strcpy(reg[i][nb_reg[i]].type,Read_Identifier(p2+1,1,&p2));
-         strcpy(reg[i][nb_reg[i]].name,Read_Identifier(p2+1,1,&p2));
-         nb_reg[i]++;
-         continue;
-        }
+      if (strcmp(p1, "reg") == 0)
+	{
+	  i = Read_Integer(p2 + 1, &p2);
+	  strcpy(reg[i][nb_reg[i]].type, Read_Identifier(p2 + 1, 1, &p2));
+	  strcpy(reg[i][nb_reg[i]].name, Read_Identifier(p2 + 1, 1, &p2));
+	  nb_reg[i]++;
+	  continue;
+	}
 
-     Fatal_Error("Syntax error: incorrect @ declaration in: %s",save_str);
+      Fatal_Error("Syntax error: incorrect @ declaration in: %s", save_str);
     }
 
 
 
 
- fprintf(g,"\n\n   /*--- Begin Register Generation ---*/\n\n");
+  fprintf(g, "\n\n   /*--- Begin Register Generation ---*/\n\n");
 
- p=used_regs;
- if (*p)
+  p = used_regs;
+  if (*p)
     {
-     nb_of_used_regs++;
-     fprintf(g,"register WamWord \t\t*reg_bank asm (\"%s\");\n\n",*p);
-     fprintf(fw_r,"#define MAP_REG_BANK\t\t\"%s\"\n\n",*p++);
+      nb_of_used_regs++;
+      fprintf(g, "register WamWord \t\t*reg_bank asm (\"%s\");\n\n", *p);
+      fprintf(fw_r, "#define MAP_REG_BANK\t\t\"%s\"\n\n", *p++);
     }
   else
     {
-     fprintf(g,"#ifdef ENGINE_FILE\n\n");
-     fprintf(g,"       WamWord \t\t\t*reg_bank;\n");
-     fprintf(g,"\n#else\n\n");
-     fprintf(g,"extern WamWord \t\t\t*reg_bank;\n");
-     fprintf(g,"\n#endif\n\n");
+      fprintf(g, "#ifdef ENGINE_FILE\n\n");
+      fprintf(g, "       WamWord \t\t\t*reg_bank;\n");
+      fprintf(g, "\n#else\n\n");
+      fprintf(g, "extern WamWord \t\t\t*reg_bank;\n");
+      fprintf(g, "\n#endif\n\n");
     }
 
- for(i=0;i<10;i++)
-     for(j=0,total_nb_reg+=nb_reg[i];j<nb_reg[i];j++)
-        {
-         dp= &reg[i][j];
-         if (*p)
-            {
-             nb_of_used_regs++;
-             fprintf(g,"register %s\t\t%-3s asm (\"%s\");\n",
-                     dp->type,dp->name,*p);
-             fprintf(fw_r,"#define MAP_REG_%-10s\t\"%s\"\n",dp->name,*p++);
-             if (!*p)
-                 fprintf(g,"\n\n");
-            }
-          else
-            {
-             fprintf(g,"#define %s\t\t\t((%s)\t (reg_bank[%s%d]))\n",
-                     dp->name,dp->type,str_base,nb_not_alloc);
-             fprintf(fw_r,"#define MAP_OFFSET_%-6s\t((%s%d)*%d)\n",
-                     dp->name,str_base,nb_not_alloc++,(int) sizeof(long));
-            }
-        }
+  for (i = 0; i < 10; i++)
+    for (j = 0, total_nb_reg += nb_reg[i]; j < nb_reg[i]; j++)
+      {
+	dp = &reg[i][j];
+	if (*p)
+	  {
+	    nb_of_used_regs++;
+	    fprintf(g, "register %s\t\t%-3s asm (\"%s\");\n",
+		    dp->type, dp->name, *p);
+	    fprintf(fw_r, "#define MAP_REG_%-10s\t\"%s\"\n", dp->name,
+		    *p++);
+	    if (!*p)
+	      fprintf(g, "\n\n");
+	  }
+	else
+	  {
+	    fprintf(g, "#define %s\t\t\t((%s)\t (reg_bank[%s%d]))\n",
+		    dp->name, dp->type, str_base, nb_not_alloc);
+	    fprintf(fw_r, "#define MAP_OFFSET_%-6s\t((%s%d)*%d)\n",
+		    dp->name, str_base, nb_not_alloc++, (int) sizeof(long));
+	  }
+      }
 
 
- fprintf(g,"\n\n");
- fprintf(g,"#define NB_OF_REGS          \t%d\n",total_nb_reg);
- fprintf(g,"#define NB_OF_ALLOC_REGS    \t%d\n",total_nb_reg-nb_not_alloc);
- fprintf(g,"#define NB_OF_NOT_ALLOC_REGS\t%d\n",nb_not_alloc);
- fprintf(g,"#define REG_BANK_SIZE       \t(%sNB_OF_NOT_ALLOC_REGS)\n",str_base);
+  fprintf(g, "\n\n");
+  fprintf(g, "#define NB_OF_REGS          \t%d\n", total_nb_reg);
+  fprintf(g, "#define NB_OF_ALLOC_REGS    \t%d\n",
+	  total_nb_reg - nb_not_alloc);
+  fprintf(g, "#define NB_OF_NOT_ALLOC_REGS\t%d\n", nb_not_alloc);
+  fprintf(g, "#define REG_BANK_SIZE       \t(%sNB_OF_NOT_ALLOC_REGS)\n",
+	  str_base);
 
- fprintf(g,"\n\n");
- fprintf(g,"#define Reg(i)\t\t\t(");
- k=0;
- for(i=0;i<10;i++)
-     for(j=0;j<nb_reg[i];j++)
-        {
-         dp= &reg[i][j];
-         if (k<total_nb_reg-1)
-             fprintf(g,"((i)==%d) ? (WamWord) %-3s\t: \\\n\t\t\t\t ",
-                     k++,dp->name);
-          else
-             fprintf(g,"           (WamWord) %s)\n",dp->name);
-        }
+  fprintf(g, "\n\n");
+  fprintf(g, "#define Reg(i)\t\t\t(");
+  k = 0;
+  for (i = 0; i < 10; i++)
+    for (j = 0; j < nb_reg[i]; j++)
+      {
+	dp = &reg[i][j];
+	if (k < total_nb_reg - 1)
+	  fprintf(g, "((i)==%d) ? (WamWord) %-3s\t: \\\n\t\t\t\t ",
+		  k++, dp->name);
+	else
+	  fprintf(g, "           (WamWord) %s)\n", dp->name);
+      }
 
 
- fprintf(g,"\n");
- fprintf(g,"#ifdef ENGINE_FILE\n\n");
- fprintf(g,"       char    *reg_tbl[]=\t{");
- k=0;
- for(i=0;i<10;i++)
-     for(j=0;j<nb_reg[i];j++)
-        {
-         dp= &reg[i][j];
-         fprintf(g,"\"%s\"%s",dp->name,k<total_nb_reg-1 ? "," : "};\n");
-         k++;
-        }
+  fprintf(g, "\n");
+  fprintf(g, "#ifdef ENGINE_FILE\n\n");
+  fprintf(g, "       char    *reg_tbl[]=\t{");
+  k = 0;
+  for (i = 0; i < 10; i++)
+    for (j = 0; j < nb_reg[i]; j++)
+      {
+	dp = &reg[i][j];
+	fprintf(g, "\"%s\"%s", dp->name,
+		k < total_nb_reg - 1 ? "," : "};\n");
+	k++;
+      }
 
- fprintf(g,"\n#else\n\n");
- fprintf(g,"extern char    *reg_tbl[];\n");
+  fprintf(g, "\n#else\n\n");
+  fprintf(g, "extern char    *reg_tbl[];\n");
 
- fprintf(g,"\n#endif\n");
-
- 
-
- fprintf(g,"\n\n\n\n#define Save_All_Regs(buff_save)\t\t\\\n");
- fprintf(g,"    {               \t\t\t\t\\\n");
-
- k=0;
- for(i=0;i<10;i++)
-     for(j=0;j<nb_reg[i];j++)
-        {
-         dp= &reg[i][j];
-         fprintf(g,"     buff_save[%d]=(WamWord) %-6s;\t\t\\\n",k,dp->name);
-         k++;
-        }
-
- fprintf(g,"    }\n");
+  fprintf(g, "\n#endif\n");
 
 
 
- fprintf(g,"\n\n\n\n#define Restore_All_Regs(buff_save)\t\t\\\n");
- fprintf(g,"    {               \t\t\t\t\\\n");
+  fprintf(g, "\n\n\n\n#define Save_All_Regs(buff_save)\t\t\\\n");
+  fprintf(g, "    do {            \t\t\t\t\\\n");
 
- k=0;
- for(i=0;i<10;i++)
-     for(j=0;j<nb_reg[i];j++)
-        {
-         dp= &reg[i][j];
-         fprintf(g,"     %-6s=(%s)\tbuff_save[%d];\t\t\\\n",
-                 dp->name,dp->type,k);
-         k++;
-        }
+  k = 0;
+  for (i = 0; i < 10; i++)
+    for (j = 0; j < nb_reg[i]; j++)
+      {
+	dp = &reg[i][j];
+	fprintf(g, "     buff_save[%d]=(WamWord) %-6s;\t\t\\\n", k,
+		dp->name);
+	k++;
+      }
 
- fprintf(g,"    }\n");
-
-
-
- fprintf(g,"\n\n\n\n#define NB_OF_USED_MACHINE_REGS %d\n",nb_of_used_regs);
- fprintf(g,"\n\n\n\n#define Save_Machine_Regs(buff_save)\t\t\\\n");
- fprintf(g,"    {               \t\t\t\t\\\n");
-
- for(i=0;i<nb_of_used_regs;i++)
-     fprintf(g,"     register long reg%d asm (\"%s\");\t\t\\\n",i,used_regs[i]);
-
- for(i=0;i<nb_of_used_regs;i++)
-     fprintf(g,"     buff_save[%d]=reg%d;\t\t\t\t\\\n",i,i);
-
- fprintf(g,"    }\n");
+  fprintf(g, "    } while(0)\n");
 
 
 
- fprintf(g,"\n\n\n\n#define Restore_Machine_Regs(buff_save)\t\t\\\n");
- fprintf(g,"    {               \t\t\t\t\\\n");
+  fprintf(g, "\n\n\n\n#define Restore_All_Regs(buff_save)\t\t\\\n");
+  fprintf(g, "    do {            \t\t\t\t\\\n");
 
- for(i=0;i<nb_of_used_regs;i++)
-     fprintf(g,"     register long reg%d asm (\"%s\");\t\t\\\n",i,used_regs[i]);
+  k = 0;
+  for (i = 0; i < 10; i++)
+    for (j = 0; j < nb_reg[i]; j++)
+      {
+	dp = &reg[i][j];
+	fprintf(g, "     %-6s=(%s)\tbuff_save[%d];\t\t\\\n",
+		dp->name, dp->type, k);
+	k++;
+      }
 
- for(i=0;i<nb_of_used_regs;i++)
-     fprintf(g,"     reg%d=buff_save[%d];\t\t\t\t\\\n",i,i);
-
- fprintf(g,"    }\n");
+  fprintf(g, "    } while(0)\n");
 
 
 
- fprintf(g,"\n\n   /*--- End Register Generation ---*/\n\n");
+  fprintf(g, "\n\n\n\n#define NB_OF_USED_MACHINE_REGS %d\n",
+	  nb_of_used_regs);
+  fprintf(g, "\n\n\n\n#define Save_Machine_Regs(buff_save)\t\t\\\n");
+  fprintf(g, "    do {            \t\t\t\t\\\n");
 
- return nb_of_used_regs;
+  for (i = 0; i < nb_of_used_regs; i++)
+    fprintf(g, "     register long reg%d asm (\"%s\");\t\t\\\n", i,
+	    used_regs[i]);
+
+  for (i = 0; i < nb_of_used_regs; i++)
+    fprintf(g, "     buff_save[%d]=reg%d;\t\t\t\t\\\n", i, i);
+
+  fprintf(g, "    } while(0)\n");
+
+
+
+  fprintf(g, "\n\n\n\n#define Restore_Machine_Regs(buff_save)\t\t\\\n");
+  fprintf(g, "    do {            \t\t\t\t\\\n");
+
+  for (i = 0; i < nb_of_used_regs; i++)
+    fprintf(g, "     register long reg%d asm (\"%s\");\t\t\\\n", i,
+	    used_regs[i]);
+
+  for (i = 0; i < nb_of_used_regs; i++)
+    fprintf(g, "     reg%d=buff_save[%d];\t\t\t\t\\\n", i, i);
+
+  fprintf(g, "    } while(0)\n");
+
+
+
+  fprintf(g, "\n\n   /*--- End Register Generation ---*/\n\n");
+
+  return nb_of_used_regs;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* GENERATE_TAGS                                                           */
-/*                                                                         */
-/* tag description:                                                        */
-/*    @tag name type [cast_type]                                           */
-/*         type of the value: int/unsigned/stack/malloc                    */
-/*-------------------------------------------------------------------------*/
-void Generate_Tags(FILE *f,FILE *g)
-
+/*-------------------------------------------------------------------------*
+ * GENERATE_TAGS                                                           *
+ *                                                                         *
+ * tag description:                                                        *
+ *    @tag name type [cast_type]                                           *
+ *         type of the value: int/unsigned/stack/malloc                    *
+ *-------------------------------------------------------------------------*/
+void
+Generate_Tags(FILE *f, FILE *g)
 {
- char          str[STR_LENGTH];
- char          *p1,*p2;
- TagInf         tag[128];
- int            nb_tag=0;
- int            tag_size,value_size;
- unsigned long  malloc_start;
- unsigned long  malloc_high_adr;
- unsigned long  tag_mask;
- int            i;
+  char str[STR_LENGTH];
+  char *p1, *p2;
+  TagInf tag[128];
+  int nb_tag = 0;
+  int tag_size, value_size;
+  unsigned long malloc_start;
+  unsigned long malloc_high_adr;
+  unsigned long tag_mask;
+  int i;
 
 
- for(;;)
+  for (;;)
     {
-     if (feof(f) || !fgets(str,sizeof(str),f))
-         Fatal_Error("Syntax error: end expected for @begin tag");
+      if (feof(f) || !fgets(str, sizeof(str), f))
+	Fatal_Error("Syntax error: end expected for @begin tag");
 
-     if (*str!='@')
-        {
-         if (*str!='\n')
-             fputs(str,g);
-         continue;
-        }
+      if (*str != '@')
+	{
+	  if (*str != '\n')
+	    fputs(str, g);
+	  continue;
+	}
 
-     strcpy(save_str,str);
-     p1=Read_Identifier(str+1,1,&p2);
+      strcpy(save_str, str);
+      p1 = Read_Identifier(str + 1, 1, &p2);
 
-     if (strcmp(p1,"end")==0)
-         break;
+      if (strcmp(p1, "end") == 0)
+	break;
 
-     if (strcmp(p1,"tag")==0)
-        {
-         strcpy(tag[nb_tag].name,Read_Identifier(p2+1,1,&p2));
-         p1=Read_Identifier(p2+1,1,&p2);
+      if (strcmp(p1, "tag") == 0)
+	{
+	  strcpy(tag[nb_tag].name, Read_Identifier(p2 + 1, 1, &p2));
+	  p1 = Read_Identifier(p2 + 1, 1, &p2);
 
-         if (strcmp(p1,"int")==0)
-             tag[nb_tag].type=INTEGER;
-          else
-             if (strcmp(p1,"unsigned")==0)
-                 tag[nb_tag].type=UNSIGNED;
-              else
-                 if (strcmp(p1,"stack")==0)
-                     tag[nb_tag].type=STACK;
-                  else
-                     if (strcmp(p1,"malloc")==0)
-                         tag[nb_tag].type=MALLOC;
-                      else
-                         Fatal_Error("Syntax error: wrong tag type in: %s",
-                                      save_str);
+	  if (strcmp(p1, "int") == 0)
+	    tag[nb_tag].type = INTEGER;
+	  else if (strcmp(p1, "unsigned") == 0)
+	    tag[nb_tag].type = UNSIGNED;
+	  else if (strcmp(p1, "stack") == 0)
+	    tag[nb_tag].type = STACK;
+	  else if (strcmp(p1, "malloc") == 0)
+	    tag[nb_tag].type = MALLOC;
+	  else
+	    Fatal_Error("Syntax error: wrong tag type in: %s", save_str);
 
-         if ((p1=Read_Identifier(p2+1,0,&p2)))
-             strcpy(tag[nb_tag].cast,p1);
-          else
-             tag[nb_tag].cast[0]='\0';
+	  if ((p1 = Read_Identifier(p2 + 1, 0, &p2)))
+	    strcpy(tag[nb_tag].cast, p1);
+	  else
+	    tag[nb_tag].cast[0] = '\0';
 
-         nb_tag++;
-         continue;
-        }
+	  nb_tag++;
+	  continue;
+	}
 
-     Fatal_Error("Syntax error: incorrect @ declaration in: %s",save_str);
+      Fatal_Error("Syntax error: incorrect @ declaration in: %s", save_str);
     }
 
 
 
 
- fprintf(g,"\n\n   /*--- Begin Tag Generation ---*/\n\n");
+  fprintf(g, "\n\n   /*--- Begin Tag Generation ---*/\n\n");
 
- for(tag_size=0;(1<<tag_size) < nb_tag;tag_size++)
-     ;
+  for (tag_size = 0; (1 << tag_size) < nb_tag; tag_size++)
+    ;
 
- value_size=WORD_SIZE-tag_size;
+  value_size = WORD_SIZE - tag_size;
 
- tag_mask=(unsigned long) (((unsigned long) -1) << value_size);
+  tag_mask = (unsigned long) (((unsigned long) -1) << value_size);
 
- malloc_start=(unsigned long) malloc(512);
- malloc_high_adr=malloc_start+15*1024*1024;
+  malloc_start = (unsigned long) malloc(512);
+  malloc_high_adr = malloc_start + 15 * 1024 * 1024;
 
- fprintf(g,"#define TAG_SIZE   \t\t%d\n",tag_size);
- fprintf(g,"#define VALUE_SIZE \t\t%d\n",value_size);
+  fprintf(g, "#define TAG_SIZE   \t\t%d\n", tag_size);
+  fprintf(g, "#define VALUE_SIZE \t\t%d\n", value_size);
 
- fprintf(g,"\n");
- for(i=0;i<nb_tag;i++)
-     fprintf(g,"#define %-10s \t\t%-2d\n",tag[i].name,i);
- 
- fprintf(g,"\n");
- fprintf(g,"#define MALLOC_MASK \t\t%#lx\n",(long) (malloc_high_adr & tag_mask));
+  fprintf(g, "\n");
+  for (i = 0; i < nb_tag; i++)
+    fprintf(g, "#define %-10s \t\t%-2d\n", tag[i].name, i);
+
+  fprintf(g, "\n");
+  fprintf(g, "#define MALLOC_MASK \t\t%#lx\n",
+	  (long) (malloc_high_adr & tag_mask));
 
 #if defined(M_USE_MMAP)
 
- fprintf(g,"#define STACK_MASK  \t\t%#lx\n",(long) (M_MMAP_HIGH_ADR & tag_mask));
+  fprintf(g, "#define STACK_MASK  \t\t%#lx\n",
+	  (long) (M_MMAP_HIGH_ADR & tag_mask));
 
 #elif defined(M_USE_SHM)
 
- fprintf(g,"#define STACK_MASK  \t\t%#lx\n",(long) (M_SHM_HIGH_ADR & tag_mask));
+  fprintf(g, "#define STACK_MASK  \t\t%#lx\n",
+	  (long) (M_SHM_HIGH_ADR & tag_mask));
 
 #else
 
- fprintf(g,"#define STACK_MASK  \t\tMALLOC_MASK\n");
+  fprintf(g, "#define STACK_MASK  \t\tMALLOC_MASK\n");
 
 #endif
 
- fprintf(g,"\n");
- fprintf(g,"#define Tag_Value(t,v)\t\t(((unsigned long) (v) << %d) | (t))\n",tag_size);
- fprintf(g,"#define Tag_Of(w)     \t\t((unsigned long) (w) & %#x)\n",(1<<tag_size)-1);
+  fprintf(g, "\n");
+  fprintf(g,
+	  "#define Tag_Value(t,v)\t\t(((unsigned long) (v) << %d) | (t))\n",
+	  tag_size);
+  fprintf(g, "#define Tag_Of(w)     \t\t((unsigned long) (w) & %#x)\n",
+	  (1 << tag_size) - 1);
 
- fprintf(g,"\n");
- fprintf(g,"#define UnTag_Integer(w) \t((int) (((long) (w) >> %d)))\n",
-         tag_size);
+  fprintf(g, "\n");
+  fprintf(g, "#define UnTag_Integer(w) \t((long) (w) >> %d)\n", tag_size);
 
- fprintf(g,"#define UnTag_Unsigned(w)\t((unsigned) (((unsigned long) (w) >> %d)))\n",
-         tag_size);
+  fprintf(g, "#define UnTag_Unsigned(w)\t((unsigned long) (w) >> %d)\n",
+	  tag_size);
 
- fprintf(g,"#define UnTag_Stack(w)   \t((WamWord *) (((unsigned long) (w) >> %d) | STACK_MASK))\n",
-         tag_size);
- fprintf(g,"#define UnTag_Malloc(w)  \t((unsigned long) (((unsigned long) (w) >> %d) | MALLOC_MASK))\n",
-         tag_size);
+  fprintf(g,
+	  "#define UnTag_Stack(w)   \t((WamWord *) (((unsigned long) (w) >> %d) | STACK_MASK))\n",
+	  tag_size);
+  fprintf(g,
+	  "#define UnTag_Malloc(w)  \t((unsigned long) (((unsigned long) (w) >> %d) | MALLOC_MASK))\n",
+	  tag_size);
 
 
- fprintf(g,"\n");
+  fprintf(g, "\n");
 
- fprintf(g,"#define NB_OF_TAGS       \t%d\n\n",nb_tag);
+  fprintf(g, "#define NB_OF_TAGS       \t%d\n\n", nb_tag);
 
- for(i=0;i<nb_tag;i++)
+  for (i = 0; i < nb_tag; i++)
     {
-     fprintf(g,"#define Tag_%s(v)  \t\tTag_Value(%s,v)\n",
-             tag[i].name,tag[i].name);
-     fprintf(g,"#define UnTag_%s(w) \t\t",tag[i].name);
+      fprintf(g, "#define Tag_%s(v)  \t\tTag_Value(%s,v)\n",
+	      tag[i].name, tag[i].name);
+      fprintf(g, "#define UnTag_%s(w) \t\t", tag[i].name);
 
-     if (tag[i].cast[0])
-         fprintf(g,"((%s) ",tag[i].cast);
+      if (tag[i].cast[0])
+	fprintf(g, "((%s) ", tag[i].cast);
 
-     fprintf(g,"UnTag_%s(w)%s\n\n",
-             (tag[i].type==INTEGER) ? "Integer" :
-             (tag[i].type==UNSIGNED) ? "Unsigned" :
-             (tag[i].type==STACK) ? "Stack" : "Malloc",
-             (tag[i].cast[0]) ? ")" : "");
+      fprintf(g, "UnTag_%s(w)%s\n\n",
+	      (tag[i].type == INTEGER) ? "Integer" :
+	      (tag[i].type == UNSIGNED) ? "Unsigned" :
+	      (tag[i].type == STACK) ? "Stack" : "Malloc",
+	      (tag[i].cast[0]) ? ")" : "");
     }
 
 
- fprintf(g,"\ntypedef enum\n");
- fprintf(g,"    {\n");
- fprintf(g,"     INTEGER,\n");
- fprintf(g,"     UNSIGNED,\n");
- fprintf(g,"     STACK,\n");
- fprintf(g,"     MALLOC\n");
- fprintf(g,"    }TypTag;\n");
+  fprintf(g, "\ntypedef enum\n");
+  fprintf(g, "{\n");
+  fprintf(g, "  INTEGER,\n");
+  fprintf(g, "  UNSIGNED,\n");
+  fprintf(g, "  STACK,\n");
+  fprintf(g, "  MALLOC\n");
+  fprintf(g, "}TypTag;\n");
 
- fprintf(g,"\ntypedef struct\n");
- fprintf(g,"    {\n");
- fprintf(g,"     char    *name;\n");
- fprintf(g,"     TypTag   type;\n");
- fprintf(g,"    }InfTag;\n\n\n");
+  fprintf(g, "\ntypedef struct\n");
+  fprintf(g, "{\n");
+  fprintf(g, "  char    *name;\n");
+  fprintf(g, "  TypTag   type;\n");
+  fprintf(g, "}InfTag;\n\n\n");
 
 
- fprintf(g,"#ifdef ENGINE_FILE\n\n");
- fprintf(g,"       InfTag   tag_tbl[]=\t{");
+  fprintf(g, "#ifdef ENGINE_FILE\n\n");
+  fprintf(g, "InfTag   tag_tbl[]=\t{");
 
- for(i=0;i<nb_tag;i++)
+  for (i = 0; i < nb_tag; i++)
     {
-     fprintf(g,"{\"%s\",%s}%s",tag[i].name,
-             (tag[i].type==INTEGER) ? "INTEGER" :
-             (tag[i].type==UNSIGNED) ? "UNSIGNED" :
-             (tag[i].type==STACK) ? "STACK" : "MALLOC",
-             (i<nb_tag-1) ? ",\n\t\t\t\t " : "};\n");
+      fprintf(g, "{\"%s\",%s}%s", tag[i].name,
+	      (tag[i].type == INTEGER) ? "INTEGER" :
+	      (tag[i].type == UNSIGNED) ? "UNSIGNED" :
+	      (tag[i].type == STACK) ? "STACK" : "MALLOC",
+	      (i < nb_tag - 1) ? ",\n\t\t\t\t " : "};\n");
     }
 
- fprintf(g,"\n#else\n\n");
- fprintf(g,"extern InfTag   tag_tbl[];\n");
- fprintf(g,"\n#endif\n");
+  fprintf(g, "\n#else\n\n");
+  fprintf(g, "extern InfTag   tag_tbl[];\n");
+  fprintf(g, "\n#endif\n");
 
 
- fprintf(g,"\n\n   /*--- End Tag Generation ---*/\n\n");
+  fprintf(g, "\n\n   /*--- End Tag Generation ---*/\n\n");
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* GENERATE_STACKS                                                         */
-/*                                                                         */
-/* stack description:                                                      */
-/*    @stack name default_size stack_top_macro                             */
-/*-------------------------------------------------------------------------*/
-void Generate_Stacks(FILE *f,FILE *g)
-
+/*-------------------------------------------------------------------------*
+ * GENERATE_STACKS                                                         *
+ *                                                                         *
+ * stack description:                                                      *
+ *    @stack name default_size stack_top_macro                             *
+ *-------------------------------------------------------------------------*/
+void
+Generate_Stacks(FILE *f, FILE *g)
 {
- char     str[STR_LENGTH];
- char    *p1,*p2;
- int      i;
- StackInf stack[128];
- int      nb_stack=0;
+  char str[STR_LENGTH];
+  char *p1, *p2;
+  int i;
+  StackInf stack[128];
+  int nb_stack = 0;
 
- for(;;)
+  for (;;)
     {
-     if (feof(f) || !fgets(str,sizeof(str),f))
-         Fatal_Error("Syntax error: end expected for @begin stack");
+      if (feof(f) || !fgets(str, sizeof(str), f))
+	Fatal_Error("Syntax error: end expected for @begin stack");
 
-     if (*str!='@')
-        {
-         if (*str!='\n')
-             fputs(str,g);
-         continue;
-        }
+      if (*str != '@')
+	{
+	  if (*str != '\n')
+	    fputs(str, g);
+	  continue;
+	}
 
-     strcpy(save_str,str);
-     p1=Read_Identifier(str+1,1,&p2);
+      strcpy(save_str, str);
+      p1 = Read_Identifier(str + 1, 1, &p2);
 
-     if (strcmp(p1,"end")==0)
-         break;
+      if (strcmp(p1, "end") == 0)
+	break;
 
-     if (strcmp(p1,"stack")==0)
-        {
-         strcpy(stack[nb_stack].name,Read_Identifier(p2+1,1,&p2));
-         i=Read_Integer(p2+1,&p2);
-         stack[nb_stack].def_size=i*1024/sizeof(long);
-         strcpy(stack[nb_stack].top_macro,Read_Identifier(p2+1,1,&p2));
-         nb_stack++;
-         continue;
-        }
+      if (strcmp(p1, "stack") == 0)
+	{
+	  strcpy(stack[nb_stack].name, Read_Identifier(p2 + 1, 1, &p2));
+	  i = Read_Integer(p2 + 1, &p2);
+	  stack[nb_stack].def_size = i * 1024 / sizeof(long);
 
-     Fatal_Error("Syntax error: incorrect @ declaration in: %s",save_str);
+	  strcpy(stack[nb_stack].top_macro,
+		 Read_Identifier(p2 + 1, 1, &p2));
+	  nb_stack++;
+	  continue;
+	}
+
+      Fatal_Error("Syntax error: incorrect @ declaration in: %s", save_str);
     }
 
 
- fprintf(g,"\n\n   /*--- Begin Stack Generation ---*/\n\n");
+  fprintf(g, "\n\n   /*--- Begin Stack Generation ---*/\n\n");
 
- fprintf(g,"#define NB_OF_STACKS \t\t%d\n\n",nb_stack);
+  fprintf(g, "#define NB_OF_STACKS \t\t%d\n\n", nb_stack);
 
 
- for(i=0;i<nb_stack;i++)
+  for (i = 0; i < nb_stack; i++)
     {
-     strcpy(str,stack[i].name);
-     *str=toupper(*str);
+      strcpy(str, stack[i].name);
+      *str = toupper(*str);
 
-     fprintf(g,"#define %s_Stack       \t(stk_tbl[%d].stack)\n",str,i);
-     fprintf(g,"#define %s_Size        \t(stk_tbl[%d].size)\n", str,i);
-     fprintf(g,"#define %s_Offset(adr) \t((WamWord *)(adr)-%s_Stack)\n",
-             str,str);
-     fprintf(g,"#define %s_Used_Size   \t%s_Offset(%s)\n\n",str,str,
-             stack[i].top_macro);
+      fprintf(g, "#define %s_Stack       \t(stk_tbl[%d].stack)\n", str, i);
+      fprintf(g, "#define %s_Size        \t(stk_tbl[%d].size)\n", str, i);
+      fprintf(g, "#define %s_Offset(adr) \t((WamWord *)(adr)-%s_Stack)\n",
+	      str, str);
+      fprintf(g, "#define %s_Used_Size   \t%s_Offset(%s)\n\n", str, str,
+	      stack[i].top_macro);
     }
 
- fprintf(g,"\n#define Stack_Top(s)       \t(");
- for(i=0;i<nb_stack-1;i++)
-     fprintf(g,"((s)==%d) ? %s : ",i,stack[i].top_macro);
+  fprintf(g, "\n#define Stack_Top(s)       \t(");
+  for (i = 0; i < nb_stack - 1; i++)
+    fprintf(g, "((s)==%d) ? %s : ", i, stack[i].top_macro);
 
- fprintf(g,"%s)\n",stack[nb_stack-1].top_macro);
-
-
- fprintf(g,"\ntypedef struct\n");
- fprintf(g,"    {\n");
- fprintf(g,"     char    *name;\n");
- fprintf(g,"     char    *env_var_name;\n");
- fprintf(g,"     long    *p_def_size;\n");
- fprintf(g,"     int      default_size; \t/* in WamWords */\n");
- fprintf(g,"     int      size;         \t/* in WamWords */\n");
- fprintf(g,"     WamWord *stack;\n");
- fprintf(g,"    }InfStack;\n\n\n");
+  fprintf(g, "%s)\n", stack[nb_stack - 1].top_macro);
 
 
- fprintf(g,"#ifdef ENGINE_FILE\n\n");
+  fprintf(g, "\ntypedef struct\n");
+  fprintf(g, "{\n");
+  fprintf(g, "  char    *name;\n");
+  fprintf(g, "  char    *env_var_name;\n");
+  fprintf(g, "  long    *p_def_size;\n");
+  fprintf(g, "  int      default_size; \t/* in WamWords */\n");
+  fprintf(g, "  int      size;         \t/* in WamWords */\n");
+  fprintf(g, "  WamWord *stack;\n");
+  fprintf(g, "}InfStack;\n\n\n");
 
- fprintf(g,"    /* these variables can be overwritten by top_comp.c (see stack size file) */\n");
 
- for(i=0;i<nb_stack;i++)
-     fprintf(g,"       long def_%s_size;\n",stack[i].name);
- fprintf(g,"       long fixed_sizes;\n\n\n");
+  fprintf(g, "#ifdef ENGINE_FILE\n\n");
 
- fprintf(g,"       InfStack  stk_tbl[]=\t{");
+  fprintf(g,
+	  "    /* these variables can be overwritten by top_comp.c (see stack size file) */\n");
 
- for(i=0;i<nb_stack;i++)
+  for (i = 0; i < nb_stack; i++)
+    fprintf(g, "long def_%s_size;\n", stack[i].name);
+  fprintf(g, "long fixed_sizes;\n\n");
+
+  fprintf(g, "InfStack  stk_tbl[]=\t{");
+
+  for (i = 0; i < nb_stack; i++)
     {
-     strcpy(str,stack[i].name);
-     for(p1=str;*p1;p1++)
-         *p1=toupper(*p1);
+      strcpy(str, stack[i].name);
+      for (p1 = str; *p1; p1++)
+	*p1 = toupper(*p1);
 
-     fprintf(g,"{\"%s\",\"%sSZ\",&def_%s_size,%d,0,NULL}%s",
-             stack[i].name,str,stack[i].name,stack[i].def_size,
-             (i<nb_stack-1) ? ",\n\t\t\t\t " : "};\n");
+      fprintf(g, "{\"%s\",\"%sSZ\",&def_%s_size,%d,0,NULL}%s",
+	      stack[i].name, str, stack[i].name, stack[i].def_size,
+	      (i < nb_stack - 1) ? ",\n\t\t\t " : "};\n");
     }
 
- fprintf(g,"\n#else\n\n");
- for(i=0;i<nb_stack;i++)
-     fprintf(g,"extern long def_%s_size;\n",stack[i].name);
- fprintf(g,"extern long fixed_sizes;\n\n\n");
- fprintf(g,"extern InfStack stk_tbl[];\n");
- fprintf(g,"\n#endif\n");
+  fprintf(g, "\n#else\n\n");
+  for (i = 0; i < nb_stack; i++)
+    fprintf(g, "extern long def_%s_size;\n", stack[i].name);
+  fprintf(g, "extern long fixed_sizes;\n\n\n");
+  fprintf(g, "extern InfStack stk_tbl[];\n");
+  fprintf(g, "\n#endif\n");
 
 
- fprintf(g,"\n\n   /*--- End Stack Generation ---*/\n\n");
+  fprintf(g, "\n\n   /*--- End Stack Generation ---*/\n\n");
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* FATAL_ERROR                                                             */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-void Fatal_Error(char *format,...)
-
+/*-------------------------------------------------------------------------*
+ * FATAL_ERROR                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Fatal_Error(char *format, ...)
 {
- va_list arg_ptr;
+  va_list arg_ptr;
 
- va_start(arg_ptr,format);
- vfprintf(stderr,format,arg_ptr);
- va_end(arg_ptr);
+  va_start(arg_ptr, format);
+  vfprintf(stderr, format, arg_ptr);
+  va_end(arg_ptr);
 
- fprintf(stderr,"\n");
- exit(1);
+  fprintf(stderr, "\n");
+  exit(1);
 }
-
-

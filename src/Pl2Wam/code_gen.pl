@@ -523,7 +523,9 @@ math_exp_functor_name(**,                   2,'Fct_Pow').
 math_exp_functor_name(sqrt,                 1,'Fct_Sqrt').
 math_exp_functor_name(atan,                 1,'Fct_Atan').
 math_exp_functor_name(cos,                  1,'Fct_Cos').
+math_exp_functor_name(acos,                 1,'Fct_Acos').
 math_exp_functor_name(sin,                  1,'Fct_Sin').
+math_exp_functor_name(asin,                 1,'Fct_Asin').
 math_exp_functor_name(exp,                  1,'Fct_Exp').
 math_exp_functor_name(log,                  1,'Fct_Log').
 math_exp_functor_name(float,                1,'Fct_Float').

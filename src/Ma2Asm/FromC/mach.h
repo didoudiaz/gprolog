@@ -1,15 +1,15 @@
-/*-------------------------------------------------------------------------*/
-/* Prolog To Wam Compiler                INRIA Rocquencourt - CLoE Project */
-/* C Run-time                                           Daniel Diaz - 1994 */
-/*                                                                         */
-/* Machine Dependent Features - Header file                                */
-/*                                                                         */
-/* machine.h                                                               */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------* 
+ * Prolog To Wam Compiler                INRIA Rocquencourt - CLoE Project * 
+ * C Run-time                                           Daniel Diaz - 1994 * 
+ *                                                                         * 
+ * Machine Dependent Features - Header file                                * 
+ *                                                                         * 
+ * machine.h                                                               * 
+ *-------------------------------------------------------------------------*/
 
-/*---------------------------------*/
-/* Asm Labels, Symbols and Gotos   */
-/*---------------------------------*/
+/*---------------------------------* 
+ * Asm Labels, Symbols and Gotos   * 
+ *---------------------------------*/
 
 #if defined(M_sony_news) || defined(M_ultrix_dec) || defined(M_alpha_osf) ||\
     defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd)
@@ -79,24 +79,24 @@
 
 
 
-/*---------------------------------*/
-/* WAM                             */
-/*---------------------------------*/
+/*---------------------------------* 
+ * WAM                             * 
+ *---------------------------------*/
 
 typedef long WamWord;
 typedef WamWord *WamWordP;
-typedef void(*WamCont)();
-typedef void  (*CodePtr)();  
+typedef void (*WamCont) ();
+typedef void (*CodePtr) ();
 
 #if 1
 
 #if defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd)
 
-register WamWord                *reg_bank asm ("ebx");
+register WamWord *reg_bank asm("ebx");
 
 #elif defined(M_powerpc_linux)
 
-register WamWord                *reg_bank asm ("r31");
+register WamWord *reg_bank asm("r31");
 
 #else
 
@@ -126,7 +126,3 @@ WamWord *reg_bank;
 
 #define X(x)                       (reg_bank[x])
 #define Y(e,y)                     ((WamWord)   (e[-4-(y)]))
-
-
-
-

@@ -1,63 +1,73 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : FD constraint solver buit-in predicates                         */
-/* File  : oper_supp.h                                                     */
-/* Descr.: FD Operation support - header file                              */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint solver buit-in predicates                         *
+ * File  : oper_supp.h                                                     *
+ * Descr.: FD Operation support - header file                              *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/* $Id$ */
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
-unsigned  Power                 (unsigned x,unsigned n);
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-unsigned  Nth_Root_Dn           (unsigned y,unsigned n);
-unsigned  Nth_Root_Up           (unsigned y,unsigned n);
-unsigned  Nth_Root_Exact        (unsigned y,unsigned n);
+unsigned Power(unsigned x, unsigned n);
 
-unsigned  Sqrt_Dn               (unsigned y);
-unsigned  Sqrt_Up               (unsigned y);
-unsigned  Sqrt_Exact            (unsigned y);
+unsigned Nth_Root_Dn(unsigned y, unsigned n);
 
-unsigned  Find_Expon_Dn         (unsigned x,unsigned y);
-unsigned  Find_Expon_Up         (unsigned x,unsigned y);
-unsigned  Find_Expon_Exact      (unsigned x,unsigned y);
+unsigned Nth_Root_Up(unsigned y, unsigned n);
 
-void      Full_Coeff_Power_Var  (Range *y,int a,Range *n);
-void      Full_Find_Expon       (Range *n,int a,Range *y);
+unsigned Nth_Root_Exact(unsigned y, unsigned n);
 
-void      Full_Var_Power_Coeff  (Range *y,Range *x,int a);
+unsigned Sqrt_Dn(unsigned y);
 
-void      Full_Nth_Root         (Range *x,Range *y,int a);
+unsigned Sqrt_Up(unsigned y);
 
-void      Full_Max_Cst_Var      (Range *z,int a,Range *x);
-void      Full_Min_Cst_Var      (Range *z,int a,Range *x);
+unsigned Sqrt_Exact(unsigned y);
+
+unsigned Find_Expon_Dn(unsigned x, unsigned y);
+
+unsigned Find_Expon_Up(unsigned x, unsigned y);
+
+unsigned Find_Expon_Exact(unsigned x, unsigned y);
+
+void Full_Coeff_Power_Var(Range *y, int a, Range *n);
+
+void Full_Find_Expon(Range *n, int a, Range *y);
+
+void Full_Var_Power_Coeff(Range *y, Range *x, int a);
+
+void Full_Nth_Root(Range *x, Range *y, int a);
+
+void Full_Max_Cst_Var(Range *z, int a, Range *x);
+
+void Full_Min_Cst_Var(Range *z, int a, Range *x);

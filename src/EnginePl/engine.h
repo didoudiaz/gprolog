@@ -1,26 +1,28 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog engine                                                   */
-/* File  : engine.h                                                        */
-/* Descr.: general engine - header file                                    */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog engine                                                   *
+ * File  : engine.h                                                        *
+ * Descr.: general engine - header file                                    *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
+
+/* $Id$ */
 
 #ifdef NO_STACK_TEST
 #   undef  M_Check_Stacks()
@@ -30,9 +32,9 @@
 
 
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
 
 #define cpp_recurs(p,n)            p##_##n
@@ -43,75 +45,92 @@
 
 
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
 
-typedef long    WamWord;               /* a wam word is a long (32/64 bits)*/
+typedef long WamWord;		/* a wamword is a long (32/64 bits) */
 
-typedef void  (*CodePtr)();            /* a code pointer is an ptr to fct  */
+typedef void (*CodePtr) ();	/* a code pointer is an ptr to fct  */
 
-typedef CodePtr WamCont;               /* a continuation is a code pointer */
-
-
+typedef CodePtr WamCont;	/* a continuation is a code pointer */
 
 
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
+
+
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
 #ifdef ENGINE_FILE
 
-       int     os_argc;
-       char  **os_argv;
+int os_argc;
+char **os_argv;
 
-       char    glob_buff[10240];
+char glob_buff[10240];
 
-       long   *base_fl;               /* overwritten by foreign if present */
-       double *base_fd;               /* overwritten by foreign if present */
+long *base_fl;			/* overwritten by foreign if present */
+double *base_fd;		/* overwritten by foreign if present */
+
+/* we need some extra space to save our registers while in a libc routine!
+ * otherwise they are not correct after a signal has raised.
+ */
+#ifdef M_alpha_linux
+unsigned long bug_reg_buffer[32];
+#endif
 
 #else
 
-extern int    os_argc;
+extern int os_argc;
 extern char **os_argv;
 
-extern char   glob_buff[];
+extern char glob_buff[];
 
-extern long   *base_fl;
+extern long *base_fl;
 extern double *base_fd;
+
+#ifdef M_alpha_linux
+extern unsigned long bug_reg_buffer[];
+#endif
 
 #endif
 
 
 
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
+int Start_Prolog(int argc, char *argv[]);
 
-int       Start_Prolog          (int argc,char *argv[]);
-void      Stop_Prolog           (void);
-void      Reset_Prolog          (void);
-void      Reset_Prolog_In_Signal(void);
-void      Set_Heap_Actual_Start (WamWord *heap_actual_start);
+void Stop_Prolog(void);
+
+void Reset_Prolog(void);
+
+void Reset_Prolog_In_Signal(void);
+
+void Set_Heap_Actual_Start(WamWord *heap_actual_start);
 
 
 
-void      Execute_Directive     (int pl_file,int pl_line,Bool is_system,
-                                 CodePtr proc);
-Bool      Try_Execute_Top_Level (void);
+void Execute_Directive(int pl_file, int pl_line, Bool is_system,
+		       CodePtr proc);
 
-void      Switch_Reg_Bank       (WamWord *new_reg_bank);
+Bool Try_Execute_Top_Level(void);
 
-Bool      Call_Prolog           (CodePtr codep);
-Bool      Call_Prolog_Next_Sol  (WamWord *query_b);
-void      Keep_Rest_For_Prolog  (WamWord *query_b);
-void      Exit_With_Exception   (void);
-void      Execute_A_Continuation(CodePtr codep);
+void Switch_Reg_Bank(WamWord *new_reg_bank);
 
+Bool Call_Prolog(CodePtr codep);
+
+Bool Call_Prolog_Next_Sol(WamWord *query_b);
+
+void Keep_Rest_For_Prolog(WamWord *query_b);
+
+void Exit_With_Exception(void);
+
+void Execute_A_Continuation(CodePtr codep);
 
 
 
 #define   Goto_Predicate(p,n)   ((*Prolog_Predicate(p,n))())
-

@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.1.7 (Jul 3 2000)
+% compiler: GNU Prolog 1.2.2 (Sep 4 2000)
 % file    : reg_alloc.pl
-% date    : 7 20 2000
-% time    : 11:15:35
+% date    : 9 9 2000
+% time    : 14:17:46
 
 
-file_name('/home/lima/diaz/GNU-Prolog/src/Pl2Wam/reg_alloc.pl').
+file_name('/home/diaz/GNU-Prolog/src/Pl2Wam/reg_alloc.pl').
 
 
 predicate(allocate_registers/1,92,static,private,user,[

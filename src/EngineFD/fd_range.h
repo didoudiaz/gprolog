@@ -1,58 +1,62 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : FD constraint solver                                            */
-/* File  : fd_range.h                                                      */
-/* Descr.: FD Range Implementation - header file                           */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint solver                                            *
+ * File  : fd_range.h                                                      *
+ * Descr.: FD Range Implementation - header file                           *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
+
+/* $Id$ */
+
 #include "bool.h"
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
 typedef unsigned long VecWord;
 
 typedef VecWord *Vector;
 
-typedef struct               /* Ranges are always handled through pointers */
-    {
-     Bool   extra_cstr;
-     int    min;
-     int    max;
-     Vector vec;
-    }Range;
+typedef struct			/* Ranges are always handled through pointers */
+{
+  Bool extra_cstr;
+  int min;
+  int max;
+  Vector vec;
+}
+Range;
 
 
 
 
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
 #include "fd_hook_range.h"
 
-          /* Default definitions (if not defined in fd_hook_range.h) */
+	  /* Default definitions (if not defined in fd_hook_range.h) */
 
 #ifndef WORD_SIZE
 #   define WORD_SIZE                32
@@ -73,68 +77,112 @@ typedef struct               /* Ranges are always handled through pointers */
 
 
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-int       Least_Significant_Bit (VecWord x);
-int       Most_Significant_Bit  (VecWord x);
+int Least_Significant_Bit(VecWord x);
 
-void      Define_Vector_Size    (int max_val);
-void      Vector_From_Interval  (Vector vec,int min,int max);
-int       Vector_Nb_Elem        (Vector vec);
-int       Vector_Ith_Elem       (Vector vec,int n);
-int       Vector_Next_After     (Vector vec,int n);
-int       Vector_Next_Before    (Vector vec,int n);
-void      Vector_Empty          (Vector vec);
-void      Vector_Full           (Vector vec);
-Bool      Vector_Test_Null_Inter(Vector vec,Vector vec1);
-void      Vector_Copy           (Vector vec,Vector vec1);
-void      Vector_Union          (Vector vec,Vector vec1);
-void      Vector_Inter          (Vector vec,Vector vec1);
-void      Vector_Compl          (Vector vec);
-void      Vector_Add_Vector     (Vector vec,Vector vec1);
-void      Vector_Sub_Vector     (Vector vec,Vector vec1);
-void      Vector_Mul_Vector     (Vector vec,Vector vec1);
-void      Vector_Div_Vector     (Vector vec,Vector vec1);
-void      Vector_Mod_Vector     (Vector vec,Vector vec1);
-void      Vector_Add_Value      (Vector vec,int n);
-void      Vector_Mul_Value      (Vector vec,int n);
-void      Vector_Div_Value      (Vector vec,int n);
-void      Vector_Mod_Value      (Vector vec,int n);
+int Most_Significant_Bit(VecWord x);
 
-Bool      Range_Test_Value      (Range *range,int n);
-Bool      Range_Test_Null_Inter (Range *range,Range *range1);
-void      Range_Copy            (Range *range,Range *range1);
-int       Range_Nb_Elem         (Range *range);
-int       Range_Ith_Elem        (Range *range,int n);
-int       Range_Next_After      (Range *range,int n);
-int       Range_Next_Before     (Range *range,int n);
-void      Range_Set_Value       (Range *range,int n);
-void      Range_Reset_Value     (Range *range,int n);
-void      Range_Becomes_Sparse  (Range *range);
-void      Range_From_Vector     (Range *range);
-void      Range_Union           (Range *range,Range *range1);
-void      Range_Inter           (Range *range,Range *range1);
-void      Range_Compl           (Range *range);
-void      Range_Add_Range       (Range *range,Range *range1);
-void      Range_Sub_Range       (Range *range,Range *range1);
-void      Range_Mul_Range       (Range *range,Range *range1);
-void      Range_Div_Range       (Range *range,Range *range1);
-void      Range_Mod_Range       (Range *range,Range *range1);
-void      Range_Add_Value       (Range *range,int n);
-void      Range_Mul_Value       (Range *range,int n);
-void      Range_Div_Value       (Range *range,int n);
-void      Range_Mod_Value       (Range *range,int n);
+void Define_Vector_Size(int max_val);
 
-char     *Range_To_String       (Range *range);
+void Vector_From_Interval(Vector vec, int min, int max);
+
+int Vector_Nb_Elem(Vector vec);
+
+int Vector_Ith_Elem(Vector vec, int n);
+
+int Vector_Next_After(Vector vec, int n);
+
+int Vector_Next_Before(Vector vec, int n);
+
+void Vector_Empty(Vector vec);
+
+void Vector_Full(Vector vec);
+
+Bool Vector_Test_Null_Inter(Vector vec, Vector vec1);
+
+void Vector_Copy(Vector vec, Vector vec1);
+
+void Vector_Union(Vector vec, Vector vec1);
+
+void Vector_Inter(Vector vec, Vector vec1);
+
+void Vector_Compl(Vector vec);
+
+void Vector_Add_Vector(Vector vec, Vector vec1);
+
+void Vector_Sub_Vector(Vector vec, Vector vec1);
+
+void Vector_Mul_Vector(Vector vec, Vector vec1);
+
+void Vector_Div_Vector(Vector vec, Vector vec1);
+
+void Vector_Mod_Vector(Vector vec, Vector vec1);
+
+void Vector_Add_Value(Vector vec, int n);
+
+void Vector_Mul_Value(Vector vec, int n);
+
+void Vector_Div_Value(Vector vec, int n);
+
+void Vector_Mod_Value(Vector vec, int n);
+
+Bool Range_Test_Value(Range *range, int n);
+
+Bool Range_Test_Null_Inter(Range *range, Range *range1);
+
+void Range_Copy(Range *range, Range *range1);
+
+int Range_Nb_Elem(Range *range);
+
+int Range_Ith_Elem(Range *range, int n);
+
+int Range_Next_After(Range *range, int n);
+
+int Range_Next_Before(Range *range, int n);
+
+void Range_Set_Value(Range *range, int n);
+
+void Range_Reset_Value(Range *range, int n);
+
+void Range_Becomes_Sparse(Range *range);
+
+void Range_From_Vector(Range *range);
+
+void Range_Union(Range *range, Range *range1);
+
+void Range_Inter(Range *range, Range *range1);
+
+void Range_Compl(Range *range);
+
+void Range_Add_Range(Range *range, Range *range1);
+
+void Range_Sub_Range(Range *range, Range *range1);
+
+void Range_Mul_Range(Range *range, Range *range1);
+
+void Range_Div_Range(Range *range, Range *range1);
+
+void Range_Mod_Range(Range *range, Range *range1);
+
+void Range_Add_Value(Range *range, int n);
+
+void Range_Mul_Value(Range *range, int n);
+
+void Range_Div_Value(Range *range, int n);
+
+void Range_Mod_Value(Range *range, int n);
+
+char *Range_To_String(Range *range);
 
 
 
 
-/*---------------------------------*/
-/* Vector Management Macros        */
-/*---------------------------------*/
+/*---------------------------------*
+ * Vector Management Macros        *
+ *---------------------------------*/
 
 #define Word_No_And_Bit_No(w,b)    (((VecWord) (w) << WORD_SIZE_BITS)|\
                                      (VecWord) (b))
@@ -176,12 +224,12 @@ char     *Range_To_String       (Range *range);
 
 
 
-          /* To enumerate a vector use VECTOR_BEGIN_ENUM / VECTOR_END_ENUM */
-          /* macros as follows:                                            */
-          /* ...                                                           */
-          /* VECTOR_BEGIN_ENUM(the_vector,vec_elem)                        */
-          /*    your code (vec_elem contains the current range element)    */
-          /* VECTOR_END_ENUM                                               */
+	  /* To enumerate a vector use VECTOR_BEGIN_ENUM / VECTOR_END_ENUM */
+	  /* macros as follows:                                            */
+	  /* ...                                                           */
+	  /* VECTOR_BEGIN_ENUM(the_vector,vec_elem)                        */
+	  /*    your code (vec_elem contains the current range element)    */
+	  /* VECTOR_END_ENUM                                               */
 
 #define VECTOR_BEGIN_ENUM(vec,vec_elem)                                     \
     {                                                                       \
@@ -211,9 +259,9 @@ char     *Range_To_String       (Range *range);
 
 
 
-/*---------------------------------*/
-/* Range Management Macros         */
-/*---------------------------------*/
+/*---------------------------------*
+ * Range Management Macros         *
+ *---------------------------------*/
 
 #define Is_Interval(range)         ((range)->vec==NULL)
 #define Is_Sparse(range)           ((range)->vec!=NULL)
@@ -231,7 +279,3 @@ char     *Range_To_String       (Range *range);
      (range)->max       =(r_max);                                           \
      (range)->vec       =NULL;                                              \
     } while(0)
-
-
-
-

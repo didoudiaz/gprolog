@@ -103,7 +103,7 @@ clean:
 	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ *@OBJ_SUFFIX@ $(LIBNAME)
 
 distclean: clean
-	rm -f wam_archi.h $(TOP_LEVEL).h gp_config.h
+	rm -f wam_archi.h wam_regs.h $(TOP_LEVEL).h gp_config.h
 
 
 

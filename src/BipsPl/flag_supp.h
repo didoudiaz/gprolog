@@ -1,44 +1,45 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog buit-in predicates                                       */
-/* File  : flag_supp.h                                                     */
-/* Descr.: Prolog flag and system variable support - header file           */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : flag_supp.h                                                     *
+ * Descr.: Prolog flag and system variable support - header file           *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
+/* $Id$ */
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
-#define FLAG_BOUNDED               0        /* flags defining integer type */
+#define FLAG_BOUNDED               0	/* flags defining integer type */
 #define FLAG_MAX_INTEGER           1
 #define FLAG_MIN_INTEGER           2
 #define FLAG_ROUNDING_FCT          3
 
-#define FLAG_CHAR_CONVERSION       4                        /* other flags */
+#define FLAG_CHAR_CONVERSION       4	/* other flags */
 #define FLAG_DEBUG                 5
 #define FLAG_MAX_ARITY             6
 #define FLAG_UNKNOWN               7
 #define FLAG_DOUBLE_QUOTES         8
 
-#define FLAG_SYNTAX_ERROR          9                      /* non ISO flags */
+#define FLAG_SYNTAX_ERROR          9	/* non ISO flags */
 #define FLAG_OS_ERROR              10
 #define FLAG_MAX_ATOM              11
 #define FLAG_MAX_STREAM            12
@@ -55,7 +56,7 @@
 
 
 
-#define FLAG_VALUE_ERROR           0           /* same order as in read.pl */
+#define FLAG_VALUE_ERROR           0	/* same order as in read.pl */
 #define FLAG_VALUE_WARNING         1
 #define FLAG_VALUE_FAIL            2
 
@@ -90,17 +91,17 @@
 
 
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
 #ifdef FLAG_C_FILE
 
-       long sys_var[MAX_SYS_VARS];
+long sys_var[MAX_SYS_VARS];
 
 #else
 
@@ -111,28 +112,30 @@ extern long sys_var[];
 
 
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-/*-------------------------------------------------------------------------*/
-/* System variables (C and Prolog) - bank description                      */
-/*                                                                         */
-/*   0: temporary (e.g. masks for option lists (open/read/write)).         */
-/*   1: temporary (e.g. depth in write).                                   */
-/*   2: temporary (e.g. reorder in FD labeling).                           */
-/*   3: temporary (e.g. backtracks counter in FD labeling).                */
-/*                                                                         */
-/*   6: pseudo-permanent current print stream (for get_print_stream/1)     */
-/*                                                                         */
-/*   7: permanent catch handler.                                           */
-/*   8: permanent catch ball.                                              */
-/*                                                                         */
-/*  10: permanent top level depth (for top-level and stop/abort).          */
-/*  11: permanent top level handler (B level) for abort and stop.          */
-/*  12: permanent: is linedit present ?                                    */
-/*  13: permanent: is the debugger present ?                               */
-/*                                                                         */
-/* 200..: some prolog flag values.                                         */
-/*-------------------------------------------------------------------------*/
 
+
+
+/*-------------------------------------------------------------------------*
+ * System variables (C and Prolog) - bank description                      *
+ *                                                                         *
+ *   0: temporary (e.g. masks for option lists (open/read/write)).         *
+ *   1: temporary (e.g. depth in write).                                   *
+ *   2: temporary (e.g. reorder in FD labeling).                           *
+ *   3: temporary (e.g. backtracks counter in FD labeling).                *
+ *                                                                         *
+ *   6: pseudo-permanent current print stream (for get_print_stream/1)     *
+ *                                                                         *
+ *   7: permanent catch handler.                                           *
+ *   8: permanent catch ball.                                              *
+ *                                                                         *
+ *  10: permanent top level depth (for top-level and stop/abort).          *
+ *  11: permanent top level handler (B level) for abort and stop.          *
+ *  12: permanent: is linedit present ?                                    *
+ *  13: permanent: is the debugger present ?                               *
+ *                                                                         *
+ * 200..: some prolog flag values.                                         *
+ *-------------------------------------------------------------------------*/

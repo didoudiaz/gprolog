@@ -1,26 +1,29 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : FD constraint solver                                            */
-/* File  : fd_to_c.h                                                       */
-/* Descr.: FD to C macros - header file                                    */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint solver                                            *
+ * File  : fd_to_c.h                                                       *
+ * Descr.: FD to C macros - header file                                    *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
+
+/* $Id$ */
+
 #include <stdio.h>
 
 #include "engine_pl.h"
@@ -29,13 +32,13 @@
 
 
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
 
 
-          /* Environment Frame */
+	  /* Environment Frame */
 
 #define Frame_Variable(fv)         ((WamWord *)(AF[fv]))
 #define Frame_Range_Parameter(fp)  ((Range *)  (AF[fp]))
@@ -52,21 +55,24 @@
 
 
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-/*---------------------------------*/
-/* Auxiliary engine macros         */
-/*---------------------------------*/
+
+
+
+/*---------------------------------*
+ * Auxiliary engine macros         *
+ *---------------------------------*/
 
 #define DivDn(x,y)                 ((x)/(y))
 #define DivUp(x,y)                 (((x)+(y)-1)/(y))
@@ -74,7 +80,7 @@
 
 #define R(r_no)                    rr##r_no
 
-          /* Interface with Prolog clauses instructions */
+	  /* Interface with Prolog clauses instructions */
 
 #define fd_create_a_frame(nb_arg)                                           \
      AF=CS;                                                                 \
@@ -208,7 +214,7 @@
 
 
 
-          /* Install instructions */
+	  /* Install instructions */
 
 #define fd_create_c_frame(fct_name,tell_fv,optim2)                          \
      CF=Fd_Create_C_Frame(fct_name,AF,(tell_fv== -1) ? NULL : Frame_Variable(tell_fv),optim2);
@@ -228,7 +234,7 @@
 
 
 
-          /* Constraint instructions */
+	  /* Constraint instructions */
 
 #define fd_before_add_constraint                                            \
      Fd_Before_Add_Cstr();
@@ -351,7 +357,7 @@
         }
 
 
-          /* Tests */
+	  /* Tests */
 
 #define fd_test_exit_condition(t)                                           \
      if (t)                                                                 \
@@ -379,7 +385,7 @@
 
 
 
-          /* Range */
+	  /* Range */
 
 #define fd_range_interval(r,t_min,t_max)                                    \
      Range_Init_Interval(&R(r),t_min,t_max);
@@ -521,7 +527,7 @@
 
 
 
-          /* term */
+	  /* term */
 
 #define fd_load_int(var_name,fp)                                            \
      var_name=Frame_Term_Parameter(fp);
@@ -610,14 +616,14 @@
 
 
 
-#define range_arg(r)              &R(r)                      /* by address */
+#define range_arg(r)              &R(r)	/* by address */
 
 
 
 
-/*---------------------------------*/
-/* Interface with C files          */
-/*---------------------------------*/
+/*---------------------------------*
+ * Interface with C files          *
+ *---------------------------------*/
 
 #define max_integer                   INTERVAL_MAX_INTEGER
 
@@ -714,4 +720,3 @@
 
 #define fd_init_local_value_var(var_name,term)                              \
      var_name=(term);
-

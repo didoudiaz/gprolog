@@ -1,26 +1,29 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : Prolog buit-in predicates                                       */
-/* File  : dynam_supp.c                                                    */
-/* Descr.: dynamic predicate support                                       */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999,2000 Daniel Diaz                                     */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : dynam_supp.c                                                    *
+ * Descr.: dynamic predicate support                                       *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999,2000 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
+
+/* $Id$ */
+
 #include <stdlib.h>
 
 #include "engine_pl.h"
@@ -34,9 +37,9 @@
 
 
 
-/*---------------------------------*/
-/* Constants                       */
-/*---------------------------------*/
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
 #define Clause_From_Seq_Chain_F(p) ((DynCInf *) ((long **) (p)-0))
 #define Clause_From_Seq_Chain_B(p) ((DynCInf *) ((long **) (p)-1))
@@ -46,7 +49,7 @@
 
 
 #define DYN_STAMP_NONE             ((DynStamp) -1)
-#define ALL_MUST_BE_ERASED         (DynCInf *) 2 /* NB: bit 0 used for mark*/
+#define ALL_MUST_BE_ERASED         (DynCInf *) 2	/* NB: bit 0 for mark */
 #define MAX_KBYTES_BEFORE_CLEAN    32
 
 #define MAX_SIZE_BEFORE_CLEAN      (MAX_KBYTES_BEFORE_CLEAN*1024/sizeof(WamWord))
@@ -64,892 +67,895 @@
 
 
 
-/*---------------------------------*/
-/* Type Definitions                */
-/*---------------------------------*/
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-typedef struct                           /* Dynamic clause scanning info   */
-    {                                    /* --------- input data --------- */
-     ScanFct   alt_fct;                  /* alt fct to call for each clause*/
-     int       alt_size_info;            /* user alt info size             */
-     int       owner_func;               /* func  of the owner (for dbg)   */
-     int       owner_arity;              /* arity of the owner (for dbg)   */
-     DynPInf  *dyn;                      /* associated dyn info            */
-     int       stop_cl_no;               /* clause no to reach to stop scan*/
-     DynStamp  erase_stamp;              /* max stamp to not ignore retract*/
-     Bool      xxx_is_seq_chain;         /* scan all clauses ?             */
-     long     *xxx_ind_chain;            /* current assoc index (->*clause)*/
-     long     *var_ind_chain;            /* current var   index (->*clause)*/
-     DynCInf  *clause;                   /* current clause                 */
-    }DynScan;
-
-
-
-
-/*---------------------------------*/
-/* Global Variables                */
-/*---------------------------------*/
-
-static DynStamp erase_stamp=1;
-static DynPInf *first_dyn_with_erase=NULL;
-static int      size_of_erased=0;
+typedef struct			/* Dynamic clause scanning info   */
+{				/* --------- input data --------- */
+  ScanFct alt_fct;		/* fct to call for each clause    */
+  int alt_size_info;		/* user alt info size             */
+  int owner_func;		/* func  of the owner (for dbg)   */
+  int owner_arity;		/* arity of the owner (for dbg)   */
+  DynPInf *dyn;			/* associated dyn info            */
+  int stop_cl_no;		/* clause # to reach to stop scan */
+  DynStamp erase_stamp;		/* max stamp to perform a retract */
+  Bool xxx_is_seq_chain;	/* scan all clauses ?             */
+  long *xxx_ind_chain;		/* current assoc idx (->*clause)  */
+  long *var_ind_chain;		/* current var   idx (->*clause)  */
+  DynCInf *clause;		/* current clause                 */
+}
+DynScan;
 
 
 
-/*---------------------------------*/
-/* Function Prototypes             */
-/*---------------------------------*/
 
-static
-DynPInf  *Alloc_Init_Dyn_Info   (PredInf *pred,int arity);
-static
-int       Index_From_First_Arg  (WamWord first_arg_word,long *key);
-static
-void      Add_To_List           (long **list,long **to_add,Bool asserta);
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
-static
-void      Erase_All             (DynPInf *dyn);
-
-static
-void      Clean_Erased_Clauses  (void);
-static
-void      Unlink_Clause         (DynCInf *clause);
-static
-void      Free_Clause           (DynCInf *clause);
+static DynStamp erase_stamp = 1;
+static DynPInf *first_dyn_with_erase = NULL;
+static int size_of_erased = 0;
 
 
-static
-DynScan  *Get_Scan_Choice_Point (WamWord *b);
 
-static
-DynCInf  *Scan_Dynamic_Pred_Next(DynScan *scan);
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
+
+static DynPInf *Alloc_Init_Dyn_Info(PredInf *pred, int arity);
+
+static int Index_From_First_Arg(WamWord first_arg_word, long *key);
+
+static void Add_To_List(long **list, long **to_add, Bool asserta);
+
+static void Erase_All(DynPInf *dyn);
+
+static void Clean_Erased_Clauses(void);
+
+static void Unlink_Clause(DynCInf *clause);
+
+static void Free_Clause(DynCInf *clause);
+
+
+
+static DynScan *Get_Scan_Choice_Point(WamWord *b);
+
+static DynCInf *Scan_Dynamic_Pred_Next(DynScan *scan);
+
 
 
 #ifdef DEBUG
-static
-void      Check_Dynamic_Clauses (DynPInf *dyn);
-static
-void      Check_Hash            (char *t,int index_nb);
-static
-void      Check_List            (long *p,int index_nb);
+
+static void Check_Dynamic_Clauses(DynPInf *dyn);
+
+static void Check_Hash(char *t, int index_nb);
+
+static void Check_List(long *p, int index_nb);
+
 #endif
+
 
 
 #define SCAN_DYN_TEST_ALT          X247363616E5F64796E5F746573745F616C74
+
 #define SCAN_DYN_JUMP_ALT          X247363616E5F64796E5F6A756D705F616C74
 
-Prolog_Prototype(SCAN_DYN_TEST_ALT,0)
-Prolog_Prototype(SCAN_DYN_JUMP_ALT,0)
+Prolog_Prototype(SCAN_DYN_TEST_ALT, 0)
+Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0)
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* Dynamic clause management                                               */
-/*                                                                         */
-/* Dynamic clauses are stored in clause frames allocated by malloc.        */
-/* The frame consists of:                                                  */
-/*                                                                         */
-/*   - a number (<0 if asserta >=0 if assertz) to order them.              */
-/*   - a forward  sequential chain (chronological chain).                  */
-/*   - a backward sequential chain (chronological chain).                  */
-/*   - a forward  indexing   chain                                         */
-/*   - a backward indexing   chain                                         */
-/*   - the clause number                                                   */
-/*   - the erase stamp (only if the clause is reased, DYN_STAMP_NONE else) */
-/*   - the pointer to the next erased clause (only if the clause is erased)*/
-/*   - the pointer to the byte-code (or NULL if the clause is interpreted) */
-/*   - the size of the Prolog term                                         */
-/*   - the corresponding Prolog term of the form [Head|Body] for Head:-Body*/
-/*                                                                         */
-/* For a dynamic predicate the structure DynPInfo has 6 entry-points for   */
-/* clause chaining: 1 for the sequential chain, 5 for indexing chains,     */
-/* depending on the first argument of the Head:                            */
-/*                                                                         */
-/*   - seq_chain    : a chain to the first clause                          */
-/*   - var_ind_chain: a chain to the first clause with a var as 1st arg    */
-/*   - atm_htbl     : a hash table: key=atm/info=chain to the first clause */
-/*   - int_htbl     : a hash table: key=int/info=chain to the first clause */
-/*   - lst_ind_chain: a chain to the first clause with a list as 1st arg   */
-/*   - stc_htbl     : a hash table: key=f_n/info=chain to the first clause */
-/*                                                                         */
-/* This clause management uses the logical database update view, ie. the   */
-/* different altenatives of a predicate are not influenced by subsequent   */
-/* actions. When a predicate must be scanned (cf. Scan_Dynamic_Pred) we    */
-/* must ensure that subsequent retracted clause must be selected and all   */
-/* subsequent added clause must be ignored.                                */
-/* For added clause we use the count_z value when the selection starts (cf.*/
-/* stop_cl_no). A clause is ignored it its clause number (cl_no) is >= to  */
-/* stop_cl_no.                                                             */
-/* For retracted clause we use a stamp incremented at each selection. When */
-/* a clause is retracted its erase_stamp is set to the current stamp. Then */
-/* an erased clause ignored for a selection if its stamp is <= to the stamp*/
-/* of the selection.                                                       */
-/* All erased clause of a predicate are linked (first_erased_cl /          */
-/* next_erased_cl).                                                        */
-/* All dynamic predicates with at least one erased clause are linked       */
-/* (first_dyn_with_erase / next_dyn_with_erase).                           */
-/* Erased clauses are physically cleaned when MAX_KBYTES_BEFORE_CLEAN are  */
-/* reached. Then the local stack is scanned to detect all predicates with  */
-/* selections and to mark them. All erased clauses of a predicate which is */
-/* not marked are physically destroyed (free).                             */
-/*-------------------------------------------------------------------------*/
-
-
-/*-------------------------------------------------------------------------*/
-/* ADD_DYNAMIC_CLAUSE                                                      */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-DynCInf *Add_Dynamic_Clause(WamWord head_word,WamWord body_word,Bool asserta,
-                            Bool check_perm)
-
+/*-------------------------------------------------------------------------*
+ * Dynamic clause management                                               *
+ *                                                                         *
+ * Dynamic clauses are stored in clause frames allocated by malloc.        *
+ * The frame consists of:                                                  *
+ *                                                                         *
+ *   - a number (<0 if asserta >=0 if assertz) to order them.              *
+ *   - a forward  sequential chain (chronological chain).                  *
+ *   - a backward sequential chain (chronological chain).                  *
+ *   - a forward  indexing   chain                                         *
+ *   - a backward indexing   chain                                         *
+ *   - the clause number                                                   *
+ *   - the erase stamp (only if the clause is reased, DYN_STAMP_NONE else) *
+ *   - the pointer to the next erased clause (only if the clause is erased)*
+ *   - the pointer to the byte-code (or NULL if the clause is interpreted) *
+ *   - the size of the Prolog term                                         *
+ *   - the corresponding Prolog term of the form [Head|Body] for Head:-Body*
+ *                                                                         *
+ * For a dynamic predicate the structure DynPInfo has 6 entry-points for   *
+ * clause chaining: 1 for the sequential chain, 5 for indexing chains,     *
+ * depending on the first argument of the Head:                            *
+ *                                                                         *
+ *   - seq_chain    : a chain to the first clause                          *
+ *   - var_ind_chain: a chain to the first clause with a var as 1st arg    *
+ *   - atm_htbl     : a hash table: key=atm/info=chain to the first clause *
+ *   - int_htbl     : a hash table: key=int/info=chain to the first clause *
+ *   - lst_ind_chain: a chain to the first clause with a list as 1st arg   *
+ *   - stc_htbl     : a hash table: key=f_n/info=chain to the first clause *
+ *                                                                         *
+ * This clause management uses the logical database update view, ie. the   *
+ * different altenatives of a predicate are not influenced by subsequent   *
+ * actions. When a predicate must be scanned (cf. Scan_Dynamic_Pred) we    *
+ * must ensure that subsequent retracted clause must be selected and all   *
+ * subsequent added clause must be ignored.                                *
+ * For added clause we use the count_z value when the selection starts (cf.*
+ * stop_cl_no). A clause is ignored it its clause number (cl_no) is >= to  *
+ * stop_cl_no.                                                             *
+ * For retracted clause we use a stamp incremented at each selection. When *
+ * a clause is retracted its erase_stamp is set to the current stamp. Then *
+ * an erased clause ignored for a selection if its stamp is <= to the stamp*
+ * of the selection.                                                       *
+ * All erased clause of a predicate are linked (first_erased_cl /          *
+ * next_erased_cl).                                                        *
+ * All dynamic predicates with at least one erased clause are linked       *
+ * (first_dyn_with_erase / next_dyn_with_erase).                           *
+ * Erased clauses are physically cleaned when MAX_KBYTES_BEFORE_CLEAN are  *
+ * reached. Then the local stack is scanned to detect all predicates with  *
+ * selections and to mark them. All erased clauses of a predicate which is *
+ * not marked are physically destroyed (free).                             *
+ *-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * ADD_DYNAMIC_CLAUSE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+     DynCInf *Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
+				 Bool asserta, Bool check_perm)
 {
- WamWord   word;
- WamWord  *first_arg_adr;
- int       func,arity;
- PredInf  *pred;
- int       index_nb;
- long      key;
- DynCInf  *clause;
- DynPInf  *dyn;
- char    **p_htbl;
- DSwtInf   swt_info;
- DSwtInf  *swt;
- int       size;
- WamWord   lst_h_b;
+  WamWord word;
+  WamWord *first_arg_adr;
+  int func, arity;
+  PredInf *pred;
+  int index_nb;
+  long key;
+  DynCInf *clause;
+  DynPInf *dyn;
+  char **p_htbl;
+  DSwtInf swt_info;
+  DSwtInf *swt;
+  int size;
+  WamWord lst_h_b;
 
 
- first_arg_adr=Rd_Callable_Check(head_word,&func,&arity);
+  first_arg_adr = Rd_Callable_Check(head_word, &func, &arity);
 
 #ifdef DEBUG
- DBGPRINTF("\tarity: %d",arity);
- if (arity>0)
-    { DBGPRINTF("\tfirst arg: "); Write_Simple(*first_arg_adr); }
- DBGPRINTF("\n");
+  DBGPRINTF("\tarity: %d", arity);
+  if (arity > 0)
+    {
+      DBGPRINTF("\tfirst arg: ");
+      Write_Simple(*first_arg_adr);
+    }
+  DBGPRINTF("\n");
 #endif
 
- if ((pred=Lookup_Pred(func,arity))==NULL)
-     pred=Create_Pred(func,arity,atom_user_input,
-                      stm_tbl[stm_stdin].line_count,
-                      MASK_PRED_DYNAMIC|MASK_PRED_PUBLIC,NULL);
-  else
-     if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
-        {
-         word=Put_Structure(ATOM_CHAR('/'),2);
-         Unify_Atom(func);
-         Unify_Integer(arity);
-         Pl_Err_Permission(permission_operation_modify,
-                           permission_type_static_procedure,
-                           word);
-        }
+  if ((pred = Lookup_Pred(func, arity)) == NULL)
+    pred = Create_Pred(func, arity, atom_user_input,
+		       stm_tbl[stm_stdin].line_count,
+		       MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+  else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
+    {
+      word = Put_Structure(ATOM_CHAR('/'), 2);
+      Unify_Atom(func);
+      Unify_Integer(arity);
+      Pl_Err_Permission(permission_operation_modify,
+			permission_type_static_procedure, word);
+    }
 
- dyn=(DynPInf *)(pred->dyn);
- if (dyn==NULL)                        /* dynamic info not yet allocated ? */
-     dyn=Alloc_Init_Dyn_Info(pred,arity);
+  dyn = (DynPInf *) (pred->dyn);
+  if (dyn == NULL)		/* dynamic info not yet allocated ? */
+    dyn = Alloc_Init_Dyn_Info(pred, arity);
 
 
- index_nb=(dyn->arity) ? Index_From_First_Arg(*first_arg_adr,&key)
-                       : NO_INDEX;
+  index_nb = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key)
+    : NO_INDEX;
 
 #ifdef DEBUG
- DBGPRINTF("\n");
- DBGPRINTF("asserta: %d  Clause: ",asserta);
- DBGPRINTF("\thead: "); Write_Simple(head_word);
- DBGPRINTF("\tbody: "); Write_Simple(body_word);
- DBGPRINTF("\nByte Code at :%08lx\n",(long) byte_code);
+  DBGPRINTF("\n");
+  DBGPRINTF("asserta: %d  Clause: ", asserta);
+  DBGPRINTF("\thead: ");
+  Write_Simple(head_word);
+  DBGPRINTF("\tbody: ");
+  Write_Simple(body_word);
+  DBGPRINTF("\nByte Code at :%08lx\n", (long) byte_code);
 #endif
 
 
- lst_h_b=Tag_Value(LST,H);
- H[0]=head_word;
- H[1]=body_word;
+  lst_h_b = Tag_Value(LST, H);
+  H[0] = head_word;
+  H[1] = body_word;
 
- size=Term_Size(lst_h_b);
- clause=(DynCInf *)
-        Malloc(sizeof(DynCInf)-3*sizeof(WamWord)+size*sizeof(WamWord));
+  size = Term_Size(lst_h_b);
+  clause = (DynCInf *)
+    Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
 
- Add_To_List(&dyn->seq_chain,&clause->seq_chain_f,asserta);
+  Add_To_List(&dyn->seq_chain, &clause->seq_chain_f, asserta);
 
- clause->dyn=dyn;
- clause->cl_no=(asserta) ? dyn->count_a-- : dyn->count_z++;
- clause->erase_stamp=DYN_STAMP_NONE;
- clause->next_erased_cl=NULL;
- clause->term_size=size;
+  clause->dyn = dyn;
+  clause->cl_no = (asserta) ? dyn->count_a-- : dyn->count_z++;
+  clause->erase_stamp = DYN_STAMP_NONE;
+  clause->next_erased_cl = NULL;
+  clause->term_size = size;
 
- Copy_Term(&clause->term_word,&lst_h_b);
+  Copy_Term(&clause->term_word, &lst_h_b);
 
- clause->byte_code=byte_code;
- byte_code=NULL;
+  clause->byte_code = byte_code;
+  byte_code = NULL;
 
- if (index_nb==NO_INDEX)
+  if (index_nb == NO_INDEX)
     {
-     clause->ind_chain_f=NULL;
-     clause->ind_chain_b=NULL;
+      clause->ind_chain_f = NULL;
+      clause->ind_chain_b = NULL;
 
 #ifdef DEBUG
-     Check_Dynamic_Clauses(dyn);
+      Check_Dynamic_Clauses(dyn);
 #endif
 
-     return clause;
+      return clause;
     }
 
 
- if (index_nb==VAR_INDEX || index_nb==LST_INDEX)
+  if (index_nb == VAR_INDEX || index_nb == LST_INDEX)
     {
-     Add_To_List((long **) dyn+index_nb,&clause->ind_chain_f,asserta);
+      Add_To_List((long **) dyn + index_nb, &clause->ind_chain_f, asserta);
 
 #ifdef DEBUG
-     Check_Dynamic_Clauses(dyn);
+      Check_Dynamic_Clauses(dyn);
 #endif
 
-     return clause;
+      return clause;
     }
 
- p_htbl=(char **) dyn+index_nb;
+  p_htbl = (char **) dyn + index_nb;
 
- if (*p_htbl==NULL)
-     *p_htbl=Hash_Alloc_Table(START_DYNAMIC_SWT_SIZE,sizeof(DSwtInf));
+  if (*p_htbl == NULL)
+    *p_htbl = Hash_Alloc_Table(START_DYNAMIC_SWT_SIZE, sizeof(DSwtInf));
 
- swt_info.key=key;
- swt_info.ind_chain=NULL;
+  swt_info.key = key;
+  swt_info.ind_chain = NULL;
 
- Extend_Table_If_Needed(p_htbl);
- swt=(DSwtInf *) Hash_Insert(*p_htbl,(char *) &swt_info,FALSE);
+  Extend_Table_If_Needed(p_htbl);
+  swt = (DSwtInf *) Hash_Insert(*p_htbl, (char *) &swt_info, FALSE);
 
- Add_To_List(&(swt->ind_chain),&clause->ind_chain_f,asserta);
+  Add_To_List(&(swt->ind_chain), &clause->ind_chain_f, asserta);
 
 #ifdef DEBUG
- Check_Dynamic_Clauses(dyn);
+  Check_Dynamic_Clauses(dyn);
 #endif
 
- return clause;
+  return clause;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* ALLOC_INIT_DYN_INFO                                                     */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static DynPInf *Alloc_Init_Dyn_Info(PredInf *pred,int arity)
-
+/*-------------------------------------------------------------------------*
+ * ALLOC_INIT_DYN_INFO                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static DynPInf *
+Alloc_Init_Dyn_Info(PredInf *pred, int arity)
 {
- DynPInf *dyn;
+  DynPInf *dyn;
 
- dyn=(DynPInf *) Malloc(sizeof(DynPInf));
+  dyn = (DynPInf *) Malloc(sizeof(DynPInf));
 
- dyn->seq_chain=dyn->var_ind_chain=dyn->lst_ind_chain=NULL;
- dyn->atm_htbl=dyn->int_htbl=dyn->stc_htbl=NULL;
- dyn->arity=arity;
- dyn->count_a= -1;
- dyn->count_z=  0;
- dyn->first_erased_cl=NULL;
- dyn->next_dyn_with_erase=NULL;
+  dyn->seq_chain = dyn->var_ind_chain = dyn->lst_ind_chain = NULL;
+  dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
+  dyn->arity = arity;
+  dyn->count_a = -1;
+  dyn->count_z = 0;
+  dyn->first_erased_cl = NULL;
+  dyn->next_dyn_with_erase = NULL;
 
- pred->dyn=(long *) dyn;
+  pred->dyn = (long *) dyn;
 
- return dyn;
+  return dyn;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* INDEX_FROM_FIRST_ARG                                                    */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static int Index_From_First_Arg(WamWord first_arg_word,long *key)
-
+/*-------------------------------------------------------------------------*
+ * INDEX_FROM_FIRST_ARG                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Index_From_First_Arg(WamWord first_arg_word, long *key)
 {
- WamWord word,tag,*adr;
- int     index_nb;
+  WamWord word, tag, *adr;
+  int index_nb;
 
 
- Deref(first_arg_word,word,tag,adr)
- switch(tag)
+  Deref(first_arg_word, word, tag, adr);
+  switch (tag)
     {
-     case REF:
-     case FDV:
-         index_nb=VAR_INDEX;
-         break;
+    case REF:
+    case FDV:
+      index_nb = VAR_INDEX;
+      break;
 
-     case INT:
-         index_nb=INT_INDEX;
-         *key=UnTag_INT(word);
-         break;
+    case INT:
+      index_nb = INT_INDEX;
+      *key = UnTag_INT(word);
+      break;
 
-     case ATM:
-         index_nb=ATM_INDEX;
-         *key=(long) UnTag_ATM(word);
-         break;
+    case ATM:
+      index_nb = ATM_INDEX;
+      *key = (long) UnTag_ATM(word);
+      break;
 
-     case FLT:
-         index_nb=NO_INDEX;
-         break;
+    case FLT:
+      index_nb = NO_INDEX;
+      break;
 
-     case LST:
-         index_nb=LST_INDEX;
-         break;
+    case LST:
+      index_nb = LST_INDEX;
+      break;
 
-     default:                                                  /* tag==STC */
-         index_nb=STC_INDEX;
-         *key=(long) Functor_And_Arity(UnTag_STC(word));
-         break;
+    default:			/* tag==STC */
+      index_nb = STC_INDEX;
+      *key = (long) Functor_And_Arity(UnTag_STC(word));
+      break;
     }
 
- return index_nb;
+  return index_nb;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* ADD_TO_LIST                                                             */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static void Add_To_List(long **list,long **to_add,Bool asserta)
-
+/*-------------------------------------------------------------------------*
+ * ADD_TO_LIST                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Add_To_List(long **list, long **to_add, Bool asserta)
 {
- if (!asserta)
-     while(*list)
-         list=(long **) *list;
+  if (!asserta)
+    while (*list)
+      list = (long **) *list;
 
- if ((to_add[0]=*list)!=NULL)
-     ((long **) (*list))[1]=(long *) to_add;
+  if ((to_add[0] = *list) != NULL)
+    ((long **) (*list))[1] = (long *) to_add;
 
- to_add[1]=(long *) list;
- *list=(long *) to_add;
+  to_add[1] = (long *) list;
+  *list = (long *) to_add;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* DELETE_DYNAMIC_CLAUSE                                                   */
-/*                                                                         */
-/* This comes down to erase the clause, ie. set it to current erase_stamp  */
-/*-------------------------------------------------------------------------*/
-void Delete_Dynamic_Clause(DynCInf *clause)
-
+/*-------------------------------------------------------------------------*
+ * DELETE_DYNAMIC_CLAUSE                                                   *
+ *                                                                         *
+ * This comes down to erase the clause, ie. set it to current erase_stamp  *
+ *-------------------------------------------------------------------------*/
+void
+Delete_Dynamic_Clause(DynCInf *clause)
 {
- DynPInf *dyn;
- Bool first;
+  DynPInf *dyn;
+  Bool first;
 
- dyn=clause->dyn;
- first=(dyn->first_erased_cl==NULL);
+  dyn = clause->dyn;
+  first = (dyn->first_erased_cl == NULL);
 
- clause->erase_stamp=erase_stamp;
- clause->next_erased_cl=dyn->first_erased_cl;
- dyn->first_erased_cl=clause;
+  clause->erase_stamp = erase_stamp;
+  clause->next_erased_cl = dyn->first_erased_cl;
+  dyn->first_erased_cl = clause;
 
- if (first)
+  if (first)
     {
-     dyn->next_dyn_with_erase=first_dyn_with_erase;
-     first_dyn_with_erase=dyn;
+      dyn->next_dyn_with_erase = first_dyn_with_erase;
+      first_dyn_with_erase = dyn;
     }
 
- size_of_erased+=clause->term_size;
- Clean_Erased_Clauses();
+  size_of_erased += clause->term_size;
+  Clean_Erased_Clauses();
 
 #ifdef DEBUG
- Check_Dynamic_Clauses(dyn);
+  Check_Dynamic_Clauses(dyn);
 #endif
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* ERASE_ALL                                                               */
-/*                                                                         */
-/* This function is called to erase all clauses and, when possible, to free*/
-/* dyn with all associated info (hash tables,...)                          */
-/*-------------------------------------------------------------------------*/
-static void Erase_All(DynPInf *dyn)
-
+/*-------------------------------------------------------------------------*
+ * ERASE_ALL                                                               *
+ *                                                                         *
+ * This function is called to erase all clauses and, when possible, to free*
+ * dyn with all associated info (hash tables,...)                          *
+ *-------------------------------------------------------------------------*/
+static void
+Erase_All(DynPInf *dyn)
 {
- Bool     first;
- DynCInf *clause;
- long    *seq_chain;
+  Bool first;
+  DynCInf *clause;
+  long *seq_chain;
 
- if (dyn==NULL)
-     return;
+  if (dyn == NULL)
+    return;
 
- first=(dyn->first_erased_cl==NULL);
- dyn->first_erased_cl=ALL_MUST_BE_ERASED;
+  first = (dyn->first_erased_cl == NULL);
+  dyn->first_erased_cl = ALL_MUST_BE_ERASED;
 
- if (first)
+  if (first)
     {
-     dyn->next_dyn_with_erase=first_dyn_with_erase;
-     first_dyn_with_erase=dyn;
+      dyn->next_dyn_with_erase = first_dyn_with_erase;
+      first_dyn_with_erase = dyn;
     }
 
- for(seq_chain=dyn->seq_chain;seq_chain;seq_chain=clause->seq_chain_f)
+  for (seq_chain = dyn->seq_chain; seq_chain;
+       seq_chain = clause->seq_chain_f)
     {
-     clause=Clause_From_Seq_Chain_F(seq_chain);
-     if (clause->erase_stamp==DYN_STAMP_NONE)
-         size_of_erased+=clause->term_size;
+      clause = Clause_From_Seq_Chain_F(seq_chain);
+      if (clause->erase_stamp == DYN_STAMP_NONE)
+	size_of_erased += clause->term_size;
     }
 
- Clean_Erased_Clauses();
+  Clean_Erased_Clauses();
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* CLEAN_ERASED_CLAUSES                                                    */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static void Clean_Erased_Clauses(void)
-
+/*-------------------------------------------------------------------------*
+ * CLEAN_ERASED_CLAUSES                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Clean_Erased_Clauses(void)
 {
- WamWord *b;
- DynScan *scan;
- DynPInf *dyn,*dyn1,**prev;
- DynCInf *clause,*clause1;
- long    *seq_chain;
+  WamWord *b;
+  DynScan *scan;
+  DynPInf *dyn, *dyn1, **prev;
+  DynCInf *clause, *clause1;
+  long *seq_chain;
 
 
- if (size_of_erased<=MAX_SIZE_BEFORE_CLEAN)
-     return;
+  if (size_of_erased <= MAX_SIZE_BEFORE_CLEAN)
+    return;
 
- for(b=B;b>Local_Stack;b=BB(b))
+  for (b = B; b > Local_Stack; b = BB(b))
     {
-     scan=Get_Scan_Choice_Point(b);
-     if (scan==NULL)
-         continue;
+      scan = Get_Scan_Choice_Point(b);
+      if (scan == NULL)
+	continue;
 
-     dyn=scan->dyn;
+      dyn = scan->dyn;
 
-     if (dyn->first_erased_cl)        /* we must keep it - free impossible */
-         (unsigned long) (dyn->first_erased_cl)|=1;             /* mark it */
+      if (dyn->first_erased_cl)	/* we must keep it - free impossible */
+	(unsigned long) (dyn->first_erased_cl) |= 1;	/* mark it */
     }
 
 
- prev=&first_dyn_with_erase;
- for(dyn=first_dyn_with_erase;dyn;dyn=dyn1)
+  prev = &first_dyn_with_erase;
+  for (dyn = first_dyn_with_erase; dyn; dyn = dyn1)
     {
-     dyn1=dyn->next_dyn_with_erase;
-     if ((long) (dyn->first_erased_cl) & 1)                    /* marked ? */
-        {                                                /* cannot free it */
-         dyn->first_erased_cl=(DynCInf *) 
-                              ((unsigned long)(dyn->first_erased_cl) & (~1));
-         prev=&(dyn->next_dyn_with_erase);
-         continue;
-        }
+      dyn1 = dyn->next_dyn_with_erase;
+      if ((long) (dyn->first_erased_cl) & 1)	/* marked ? */
+	{			/* cannot free it */
+	  dyn->first_erased_cl = (DynCInf *)
+	    ((unsigned long) (dyn->first_erased_cl) & (~1));
+	  prev = &(dyn->next_dyn_with_erase);
+	  continue;
+	}
 
-                                            /* not marked - can be cleaned */
-     *prev=dyn->next_dyn_with_erase;
+      /* not marked - can be cleaned */
+      *prev = dyn->next_dyn_with_erase;
 
-     if (dyn->first_erased_cl==ALL_MUST_BE_ERASED)          /* clean all ? */
-        {
-         seq_chain=dyn->seq_chain;
-         while(seq_chain)
-            {
-             clause=Clause_From_Seq_Chain_F(seq_chain);
-             size_of_erased-=clause->term_size;
-             seq_chain=clause->seq_chain_f;
-             Free_Clause(clause);
-            }
+      if (dyn->first_erased_cl == ALL_MUST_BE_ERASED)	/* clean all ? */
+	{
+	  seq_chain = dyn->seq_chain;
+	  while (seq_chain)
+	    {
+	      clause = Clause_From_Seq_Chain_F(seq_chain);
+	      size_of_erased -= clause->term_size;
+	      seq_chain = clause->seq_chain_f;
+	      Free_Clause(clause);
+	    }
 
-         if (dyn->atm_htbl)
-             Hash_Free_Table(dyn->atm_htbl);
+	  if (dyn->atm_htbl)
+	    Hash_Free_Table(dyn->atm_htbl);
 
-         if (dyn->int_htbl)
-             Hash_Free_Table(dyn->int_htbl);
+	  if (dyn->int_htbl)
+	    Hash_Free_Table(dyn->int_htbl);
 
-         if (dyn->stc_htbl)
-             Hash_Free_Table(dyn->stc_htbl);
+	  if (dyn->stc_htbl)
+	    Hash_Free_Table(dyn->stc_htbl);
 
-         Free(dyn);
-         continue;
-        }
+	  Free(dyn);
+	  continue;
+	}
 
-     clause=dyn->first_erased_cl;
-     while(clause)
-        {
-         clause1=clause;
-         size_of_erased-=clause->term_size;
-         Unlink_Clause(clause);
-         clause=clause->next_erased_cl;
-         Free_Clause(clause1);
-        }
-     dyn->first_erased_cl=NULL;
-     dyn->next_dyn_with_erase=NULL;
+      clause = dyn->first_erased_cl;
+      while (clause)
+	{
+	  clause1 = clause;
+	  size_of_erased -= clause->term_size;
+	  Unlink_Clause(clause);
+	  clause = clause->next_erased_cl;
+	  Free_Clause(clause1);
+	}
+      dyn->first_erased_cl = NULL;
+      dyn->next_dyn_with_erase = NULL;
 
-     if (dyn->seq_chain==NULL)                          /* no more clauses */
-        {
-         if (dyn->atm_htbl)
-             Hash_Free_Table(dyn->atm_htbl);
+      if (dyn->seq_chain == NULL)	/* no more clauses */
+	{
+	  if (dyn->atm_htbl)
+	    Hash_Free_Table(dyn->atm_htbl);
 
-         if (dyn->int_htbl)
-             Hash_Free_Table(dyn->int_htbl);
+	  if (dyn->int_htbl)
+	    Hash_Free_Table(dyn->int_htbl);
 
-         if (dyn->stc_htbl)
-             Hash_Free_Table(dyn->stc_htbl);
+	  if (dyn->stc_htbl)
+	    Hash_Free_Table(dyn->stc_htbl);
 
-         dyn->atm_htbl=dyn->int_htbl=dyn->stc_htbl=NULL;
-         dyn->count_a= -1;
-         dyn->count_z=  0;
-        }
-    }
-}
-
-
-
-
-/*-------------------------------------------------------------------------*/
-/* UNLINK_CLAUSE                                                           */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static void Unlink_Clause(DynCInf *clause)
-
-{
- DynCInf  *clause1;
- long    **seq_chain_back;
- long    **ind_chain_back;
-
- seq_chain_back=(long **) clause->seq_chain_b;
- ind_chain_back=(long **) clause->ind_chain_b;
-
- if ((*seq_chain_back=clause->seq_chain_f)!=NULL)
-    {
-     clause1=Clause_From_Seq_Chain_F(*seq_chain_back);
-     clause1->seq_chain_b=(long *) seq_chain_back;
-    }
-
-                                                  /* test also if no index */
- if (ind_chain_back && (*ind_chain_back=clause->ind_chain_f)!=NULL)
-    {
-     clause1=Clause_From_Ind_Chain_F(*ind_chain_back);
-     clause1->ind_chain_b=(long *) ind_chain_back;
+	  dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
+	  dyn->count_a = -1;
+	  dyn->count_z = 0;
+	}
     }
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* FREE_CLAUSE                                                             */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static void Free_Clause(DynCInf *clause)
-
+/*-------------------------------------------------------------------------*
+ * UNLINK_CLAUSE                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Unlink_Clause(DynCInf *clause)
 {
- if (clause->byte_code)
-     Free(clause->byte_code);
+  DynCInf *clause1;
+  long **seq_chain_back;
+  long **ind_chain_back;
 
- Free(clause);
+  seq_chain_back = (long **) clause->seq_chain_b;
+  ind_chain_back = (long **) clause->ind_chain_b;
+
+  if ((*seq_chain_back = clause->seq_chain_f) != NULL)
+    {
+      clause1 = Clause_From_Seq_Chain_F(*seq_chain_back);
+      clause1->seq_chain_b = (long *) seq_chain_back;
+    }
+
+  /* test also if no index */
+  if (ind_chain_back && (*ind_chain_back = clause->ind_chain_f) != NULL)
+    {
+      clause1 = Clause_From_Ind_Chain_F(*ind_chain_back);
+      clause1->ind_chain_b = (long *) ind_chain_back;
+    }
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* UPDATE_DYNAMIC_PRED                                                     */
-/*                                                                         */
-/* what_to_do: bit 0: with check dynamic ?                                 */
-/*             bit 1: also predicate definition ?                          */
-/* examples  : 0 for consult/1                                             */
-/*             1 for retractall/1                                          */
-/*             2 for '$remove_predicate'/2                                 */
-/*             3 for abolish/1                                             */
-/*                                                                         */
-/* returns a pointer to associated pred or NULL if it does not exist.      */
-/*-------------------------------------------------------------------------*/
-PredInf *Update_Dynamic_Pred(int func,int arity,int what_to_do)
-
+/*-------------------------------------------------------------------------*
+ * FREE_CLAUSE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Free_Clause(DynCInf *clause)
 {
- WamWord  word;
- PredInf *pred;
+  if (clause->byte_code)
+    Free(clause->byte_code);
 
- pred=Lookup_Pred(func,arity);
- if (pred==NULL)
-     return NULL;
-
- if ((what_to_do & 1) && !(pred->prop & MASK_PRED_DYNAMIC))
-    {
-     word=Put_Structure(ATOM_CHAR('/'),2);
-     Unify_Atom(func);
-     Unify_Integer(arity);
-     Pl_Err_Permission(permission_operation_modify,
-                       permission_type_static_procedure,
-                       word);
-    }
-
- Erase_All((DynPInf *) (pred->dyn));
- pred->dyn=NULL;
-
- if ((what_to_do & 2))
-    {
-     Delete_Pred(func,arity);
-     return NULL;
-    }
-
- return pred;
+  Free(clause);
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* GET_SCAN_CHOICE_POINT                                                   */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static DynScan *Get_Scan_Choice_Point(WamWord *b)
-
+/*-------------------------------------------------------------------------*
+ * UPDATE_DYNAMIC_PRED                                                     *
+ *                                                                         *
+ * what_to_do: bit 0: with check dynamic ?                                 *
+ *             bit 1: also predicate definition ?                          *
+ * examples  : 0 for consult/1                                             *
+ *             1 for retractall/1                                          *
+ *             2 for '$remove_predicate'/2                                 *
+ *             3 for abolish/1                                             *
+ *                                                                         *
+ * returns a pointer to associated pred or NULL if it does not exist.      *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Update_Dynamic_Pred(int func, int arity, int what_to_do)
 {
- DynScan *scan;
- int      i;
+  WamWord word;
+  PredInf *pred;
 
- if (ALTB(b)!=(CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT,0) &&
-     ALTB(b)!=(CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT,0))
-     return NULL;
+  pred = Lookup_Pred(func, arity);
+  if (pred == NULL)
+    return NULL;
 
- i=sizeof(DynScan)/sizeof(WamWord)-1;
- scan=(DynScan *) &AB(b,i);
+  if ((what_to_do & 1) && !(pred->prop & MASK_PRED_DYNAMIC))
+    {
+      word = Put_Structure(ATOM_CHAR('/'), 2);
+      Unify_Atom(func);
+      Unify_Integer(arity);
+      Pl_Err_Permission(permission_operation_modify,
+			permission_type_static_procedure, word);
+    }
 
- return scan;
+  Erase_All((DynPInf *) (pred->dyn));
+  pred->dyn = NULL;
+
+  if ((what_to_do & 2))
+    {
+      Delete_Pred(func, arity);
+      return NULL;
+    }
+
+  return pred;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* SCAN_DYNAMIC_PRED                                                       */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-DynCInf *Scan_Dynamic_Pred(int owner_func,int owner_arity,
-                           DynPInf *dyn,WamWord first_arg_word,
-                           ScanFct alt_fct,int alt_fct_type,
-                           int alt_info_size,WamWord *alt_info)
-
+/*-------------------------------------------------------------------------*
+ * GET_SCAN_CHOICE_POINT                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static DynScan *
+Get_Scan_Choice_Point(WamWord *b)
 {
- int      index_nb;
- long     key;
- char    *htbl;
- DSwtInf *swt;
- DynScan  scan;
- DynCInf *clause;
- WamWord *adr;
- int      i;
- CodePtr  scan_alt;
+  DynScan *scan;
+  int i;
 
- if (owner_func<0)
-     owner_func=Get_Current_Bip(&owner_arity);
+  if (ALTB(b) != (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0) &&
+      ALTB(b) != (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0))
+    return NULL;
 
- index_nb=(dyn->arity) ? Index_From_First_Arg(first_arg_word,&key)
-                       : NO_INDEX;
+  i = sizeof(DynScan) / sizeof(WamWord) - 1;
+  scan = (DynScan *) &AB(b, i);
 
- scan.alt_fct      =alt_fct;
- scan.alt_size_info=alt_info_size;
- scan.owner_func   =owner_func;
- scan.owner_arity  =owner_arity;
- scan.dyn          =dyn;
- scan.stop_cl_no   =dyn->count_z;
- scan.erase_stamp  =erase_stamp++;
+  return scan;
+}
 
- switch(index_nb)
+
+
+
+/*-------------------------------------------------------------------------*
+ * SCAN_DYNAMIC_PRED                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+DynCInf *
+Scan_Dynamic_Pred(int owner_func, int owner_arity,
+		  DynPInf *dyn, WamWord first_arg_word,
+		  ScanFct alt_fct, int alt_fct_type,
+		  int alt_info_size, WamWord *alt_info)
+{
+  int index_nb;
+  long key;
+  char *htbl;
+  DSwtInf *swt;
+  DynScan scan;
+  DynCInf *clause;
+  WamWord *adr;
+  int i;
+  CodePtr scan_alt;
+
+  if (owner_func < 0)
+    owner_func = Get_Current_Bip(&owner_arity);
+
+  index_nb = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
+    : NO_INDEX;
+
+  scan.alt_fct = alt_fct;
+  scan.alt_size_info = alt_info_size;
+  scan.owner_func = owner_func;
+  scan.owner_arity = owner_arity;
+  scan.dyn = dyn;
+  scan.stop_cl_no = dyn->count_z;
+  scan.erase_stamp = erase_stamp++;
+
+  switch (index_nb)
     {
-     case NO_INDEX:
-     case VAR_INDEX:
-         scan.xxx_is_seq_chain=TRUE;
-         scan.xxx_ind_chain   =dyn->seq_chain;
-         scan.var_ind_chain   =NULL;
-         break;
+    case NO_INDEX:
+    case VAR_INDEX:
+      scan.xxx_is_seq_chain = TRUE;
+      scan.xxx_ind_chain = dyn->seq_chain;
+      scan.var_ind_chain = NULL;
+      break;
 
-     case LST_INDEX:
-         scan.xxx_is_seq_chain=FALSE;
-         scan.xxx_ind_chain   =dyn->lst_ind_chain;
-         scan.var_ind_chain   =dyn->var_ind_chain;
-         break;
+    case LST_INDEX:
+      scan.xxx_is_seq_chain = FALSE;
+      scan.xxx_ind_chain = dyn->lst_ind_chain;
+      scan.var_ind_chain = dyn->var_ind_chain;
+      break;
 
-     default:
-         scan.xxx_is_seq_chain=FALSE;
-         htbl=((char **) dyn)[index_nb];
-         if (htbl && (swt=(DSwtInf *) Hash_Find(htbl,key))!=NULL)
-             scan.xxx_ind_chain=swt->ind_chain;
-          else
-             scan.xxx_ind_chain=NULL;
-
-         scan.var_ind_chain=dyn->var_ind_chain;
-    }
-
- clause=Scan_Dynamic_Pred_Next(&scan);
- if (clause==NULL)
-     return NULL;
-
- if (Scan_Dynamic_Pred_Next(&scan)!=NULL)        /* non deterministic case */
-    {
-     i=(sizeof(DynScan)+sizeof(WamWord)-1)/sizeof(WamWord)+alt_info_size;
-
-
-     if (alt_fct_type==DYN_ALT_FCT_FOR_TEST)
-         scan_alt=(CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT,0);
+    default:
+      scan.xxx_is_seq_chain = FALSE;
+      htbl = ((char **) dyn)[index_nb];
+      if (htbl && (swt = (DSwtInf *) Hash_Find(htbl, key)) != NULL)
+	scan.xxx_ind_chain = swt->ind_chain;
       else
-         scan_alt=(CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT,0);
+	scan.xxx_ind_chain = NULL;
 
-     Create_Choice_Point(scan_alt,i);
-     adr=&AB(B,i)+1;
-
-
-     i=alt_info_size;
-     while(i--)
-         *adr++ = *alt_info++;
-
-     *(DynScan *) adr=scan;
+      scan.var_ind_chain = dyn->var_ind_chain;
     }
 
- return clause;
+  clause = Scan_Dynamic_Pred_Next(&scan);
+  if (clause == NULL)
+    return NULL;
+
+  if (Scan_Dynamic_Pred_Next(&scan) != NULL)	/* non deterministic case */
+    {
+      i =
+	(sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) +
+	alt_info_size;
+
+
+      if (alt_fct_type == DYN_ALT_FCT_FOR_TEST)
+	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0);
+      else
+	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0);
+
+      Create_Choice_Point(scan_alt, i);
+      adr = &AB(B, i) + 1;
+
+
+      i = alt_info_size;
+      while (i--)
+	*adr++ = *alt_info++;
+
+      *(DynScan *) adr = scan;
+    }
+
+  return clause;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* SCAN_DYNAMIC_PRED_NEXT                                                  */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-static DynCInf *Scan_Dynamic_Pred_Next(DynScan *scan)
-
+/*-------------------------------------------------------------------------*
+ * SCAN_DYNAMIC_PRED_NEXT                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static DynCInf *
+Scan_Dynamic_Pred_Next(DynScan *scan)
 {
- long    *xxx_ind_chain,*var_ind_chain;
- DynCInf *xxx_clause,   *var_clause;
- int      xxx_nb,        var_nb;
- DynCInf *clause;
+  long *xxx_ind_chain, *var_ind_chain;
+  DynCInf *xxx_clause, *var_clause;
+  long xxx_nb, var_nb;
+  DynCInf *clause;
 
 #ifdef DEBUG
- DBGPRINTF("Looking for next clause stamp:%ld",(long) (scan->erase_stamp));
- Check_Dynamic_Clauses(scan->dyn);
+  DBGPRINTF("Looking for next clause stamp:%ld",
+	    (long) (scan->erase_stamp));
+  Check_Dynamic_Clauses(scan->dyn);
 #endif
 
- scan->clause=NULL;
+  scan->clause = NULL;
 
 start:
- xxx_ind_chain=scan->xxx_ind_chain;
- if (xxx_ind_chain)
+  xxx_ind_chain = scan->xxx_ind_chain;
+  if (xxx_ind_chain)
     {
-     xxx_clause=(scan->xxx_is_seq_chain)
-                       ? Clause_From_Seq_Chain_F(xxx_ind_chain)
-                       : Clause_From_Ind_Chain_F(xxx_ind_chain);
+      xxx_clause = (scan->xxx_is_seq_chain)
+	? Clause_From_Seq_Chain_F(xxx_ind_chain)
+	: Clause_From_Ind_Chain_F(xxx_ind_chain);
 
-     xxx_nb    =xxx_clause->cl_no;
+      xxx_nb = xxx_clause->cl_no;
     }
   else
-     xxx_nb    =INT_GREATEST_VALUE;
+    xxx_nb = INT_GREATEST_VALUE;
 
- var_ind_chain =scan->var_ind_chain;
- if (var_ind_chain)
+  var_ind_chain = scan->var_ind_chain;
+  if (var_ind_chain)
     {
-     var_clause=Clause_From_Ind_Chain_F(var_ind_chain);
-     var_nb    =var_clause->cl_no;
+      var_clause = Clause_From_Ind_Chain_F(var_ind_chain);
+      var_nb = var_clause->cl_no;
     }
   else
-     var_nb    =INT_GREATEST_VALUE;
+    var_nb = INT_GREATEST_VALUE;
 
- if (xxx_nb<=var_nb)
+  if (xxx_nb <= var_nb)
     {
-     if (xxx_nb==INT_GREATEST_VALUE)
-         return NULL;
+      if (xxx_nb == INT_GREATEST_VALUE)
+	return NULL;
 
-     clause=xxx_clause;
-     scan->xxx_ind_chain=*(long **) xxx_ind_chain;
+      clause = xxx_clause;
+      scan->xxx_ind_chain = *(long **) xxx_ind_chain;
     }
   else
     {
-     clause=var_clause;
-     scan->var_ind_chain=*(long **) var_ind_chain;
+      clause = var_clause;
+      scan->var_ind_chain = *(long **) var_ind_chain;
     }
 
- if (clause->cl_no >= scan->stop_cl_no)
-     return NULL;
+  if (clause->cl_no >= scan->stop_cl_no)
+    return NULL;
 
- if (clause->erase_stamp <= scan->erase_stamp)
-     goto start;
+  if (clause->erase_stamp <= scan->erase_stamp)
+    goto start;
 
 
- scan->clause=clause;
+  scan->clause = clause;
 
- return clause;
+  return clause;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* SCAN_DYNAMIC_PRED_ALT_0                                                 */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-long Scan_Dynamic_Pred_Alt_0(void)
-
+/*-------------------------------------------------------------------------*
+ * SCAN_DYNAMIC_PRED_ALT_0                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+long
+Scan_Dynamic_Pred_Alt_0(void)
 {
- WamWord  *alt_info;
- DynScan  *scan;
- DynCInf  *clause;
- Bool      is_last;
- WamWord  *adr;
- int       i;
- CodePtr   scan_alt;
+  WamWord *alt_info;
+  DynScan *scan;
+  DynCInf *clause;
+  Bool is_last;
+  WamWord *adr;
+  int i;
+  CodePtr scan_alt;
 
- scan_alt=ALTB(B);
- Update_Choice_Point(scan_alt,0);
+  scan_alt = ALTB(B);
+  Update_Choice_Point(scan_alt, 0);
 
- i=(sizeof(DynScan)+sizeof(WamWord)-1)/sizeof(WamWord)-1;
+  i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) - 1;
 
- scan    =(DynScan *) &AB(B,i);
- adr     =(WamWord *) scan;
- alt_info=(WamWord *) (adr-scan->alt_size_info);
+  scan = (DynScan *) &AB(B, i);
+  adr = (WamWord *) scan;
+  alt_info = (WamWord *) (adr - scan->alt_size_info);
 
- clause=scan->clause;
+  clause = scan->clause;
 
- is_last=(Scan_Dynamic_Pred_Next(scan)==NULL);
+  is_last = (Scan_Dynamic_Pred_Next(scan) == NULL);
 
- if (is_last)
-     Delete_Last_Choice_Point();
+  if (is_last)
+    Delete_Last_Choice_Point();
 
- return (*scan->alt_fct)(clause,alt_info,is_last);
+  return (*scan->alt_fct) (clause, alt_info, is_last);
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* SCAN_CHOICE_POINT_PRED                                                  */
-/*                                                                         */
-/* returns the functor and initializes the arity of the scan choice point b*/
-/* or -1 if b is not a scan choice point.                                  */
-/*-------------------------------------------------------------------------*/
-int Scan_Choice_Point_Pred(WamWord *b,int *arity)
-
+/*-------------------------------------------------------------------------*
+ * SCAN_CHOICE_POINT_PRED                                                  *
+ *                                                                         *
+ * returns the functor and initializes the arity of the scan choice point b*
+ * or -1 if b is not a scan choice point.                                  *
+ *-------------------------------------------------------------------------*/
+int
+Scan_Choice_Point_Pred(WamWord *b, int *arity)
 {
- DynScan *scan;
+  DynScan *scan;
 
- scan=Get_Scan_Choice_Point(b);
- if (scan==NULL)
-     return -1;
+  scan = Get_Scan_Choice_Point(b);
+  if (scan == NULL)
+    return -1;
 
- *arity=scan->owner_arity;
+  *arity = scan->owner_arity;
 
- return scan->owner_func;
+  return scan->owner_func;
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* COPY_CLAUSE_TO_HEAP                                                     */
-/*                                                                         */
-/*-------------------------------------------------------------------------*/
-void Copy_Clause_To_Heap(DynCInf *clause,WamWord *head_word,
-                         WamWord *body_word)
-
+/*-------------------------------------------------------------------------*
+ * COPY_CLAUSE_TO_HEAP                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 {
- Copy_Contiguous_Term(H,&clause->term_word);           /* *H=<LST,H+1> */
- *head_word=H[1];
- *body_word=H[2];
- H+=clause->term_size;
+  Copy_Contiguous_Term(H, &clause->term_word);	/* *H=<LST,H+1> */
+  *head_word = H[1];
+  *body_word = H[2];
+  H += clause->term_size;
 }
 
 
@@ -957,150 +963,151 @@ void Copy_Clause_To_Heap(DynCInf *clause,WamWord *head_word,
 
 #ifdef DEBUG
 
-/*-------------------------------------------------------------------------*/
-/* CHECK_DYNAMIC_CLAUSES                                                   */
-/*                                                                         */
-/* (debug function)                                                        */
-/*-------------------------------------------------------------------------*/
-static void Check_Dynamic_Clauses(DynPInf *dyn)
-
+/*-------------------------------------------------------------------------*
+ * CHECK_DYNAMIC_CLAUSES                                                   *
+ *                                                                         *
+ * (debug function)                                                        *
+ *-------------------------------------------------------------------------*/
+static void
+Check_Dynamic_Clauses(DynPInf *dyn)
 {
- DBGPRINTF("\nFirst dyn with erase:0x%08lx\n",(long) first_dyn_with_erase);
- DBGPRINTF("Dyn:0x%08lx  count_a:%d  count_z:%d  "
-           "1st erased:0x%08lx  next dyn with erase:0x%08lx\n",
-           (long) dyn,dyn->count_a,dyn->count_z,
-           (long) (dyn->first_erased_cl),(long) (dyn->next_dyn_with_erase));
+  DBGPRINTF("\nFirst dyn with erase:0x%08lx\n",
+	    (long) first_dyn_with_erase);
+  DBGPRINTF("Dyn:0x%08lx  count_a:%d  count_z:%d  "
+	    "1st erased:0x%08lx  next dyn with erase:0x%08lx\n", (long) dyn,
+	    dyn->count_a, dyn->count_z, (long) (dyn->first_erased_cl),
+	    (long) (dyn->next_dyn_with_erase));
 
- Check_List(dyn->seq_chain,NO_INDEX);
- Check_List(dyn->var_ind_chain,VAR_INDEX);
- Check_Hash(dyn->atm_htbl,ATM_INDEX);
- Check_Hash(dyn->int_htbl,INT_INDEX);
- Check_List(dyn->lst_ind_chain,LST_INDEX);
- Check_Hash(dyn->stc_htbl,STC_INDEX);
+  Check_List(dyn->seq_chain, NO_INDEX);
+  Check_List(dyn->var_ind_chain, VAR_INDEX);
+  Check_Hash(dyn->atm_htbl, ATM_INDEX);
+  Check_Hash(dyn->int_htbl, INT_INDEX);
+  Check_List(dyn->lst_ind_chain, LST_INDEX);
+  Check_Hash(dyn->stc_htbl, STC_INDEX);
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* CHECK_HASH                                                              */
-/*                                                                         */
-/* (debug function)                                                        */
-/*-------------------------------------------------------------------------*/
-static void Check_Hash(char *t,int index_nb)
-
+/*-------------------------------------------------------------------------*
+ * CHECK_HASH                                                              *
+ *                                                                         *
+ * (debug function)                                                        *
+ *-------------------------------------------------------------------------*/
+static void
+Check_Hash(char *t, int index_nb)
 {
- DSwtInf *buff_ptr;
- HashScan scan;
+  DSwtInf *buff_ptr;
+  HashScan scan;
 
- if (t==NULL)
-     return;
+  if (t == NULL)
+    return;
 
- switch(index_nb)
+  switch (index_nb)
     {
-     case ATM_INDEX:
-         DBGPRINTF("\nAtom\n");
-         break;
+    case ATM_INDEX:
+      DBGPRINTF("\nAtom\n");
+      break;
 
-     case INT_INDEX:
-         DBGPRINTF("\nInteger\n");
-         break;
+    case INT_INDEX:
+      DBGPRINTF("\nInteger\n");
+      break;
 
-     case STC_INDEX:
-         DBGPRINTF("\nStructure\n");
-         break;
+    case STC_INDEX:
+      DBGPRINTF("\nStructure\n");
+      break;
     }
 
- for(buff_ptr=(DSwtInf *) Hash_First(t,&scan);buff_ptr;
-     buff_ptr=(DSwtInf *) Hash_Next(&scan))
+  for (buff_ptr = (DSwtInf *) Hash_First(t, &scan); buff_ptr;
+       buff_ptr = (DSwtInf *) Hash_Next(&scan))
     {
-     DBGPRINTF(" val (0x%08lx)",(long) &(buff_ptr->ind_chain));
+      DBGPRINTF(" val (0x%08lx)", (long) &(buff_ptr->ind_chain));
 
-     if (index_nb==ATM_INDEX)
-         DBGPRINTF(" <%s>\n",atom_tbl[buff_ptr->key].name);
+      if (index_nb == ATM_INDEX)
+	DBGPRINTF(" <%s>\n", atom_tbl[buff_ptr->key].name);
 
-     if (index_nb==INT_INDEX)
-         DBGPRINTF(" <%ld>\n",buff_ptr->key);
+      if (index_nb == INT_INDEX)
+	DBGPRINTF(" <%ld>\n", buff_ptr->key);
 
-     if (index_nb==STC_INDEX)
-         DBGPRINTF(" <%s/%d>\n",atom_tbl[Functor_Of(buff_ptr->key)].name,
-                             (int) Arity_Of(buff_ptr->key));
+      if (index_nb == STC_INDEX)
+	DBGPRINTF(" <%s/%d>\n", atom_tbl[Functor_Of(buff_ptr->key)].name,
+		  (int) Arity_Of(buff_ptr->key));
 
-     Check_List(buff_ptr->ind_chain,index_nb);
+      Check_List(buff_ptr->ind_chain, index_nb);
     }
 }
 
 
 
 
-/*-------------------------------------------------------------------------*/
-/* CHECK_LIST                                                              */
-/*                                                                         */
-/* (debug function)                                                        */
-/*-------------------------------------------------------------------------*/
-static void Check_List(long *p,int index_nb)
-
+/*-------------------------------------------------------------------------*
+ * CHECK_LIST                                                              *
+ *                                                                         *
+ * (debug function)                                                        *
+ *-------------------------------------------------------------------------*/
+static void
+Check_List(long *p, int index_nb)
 {
- DynCInf *clause;
- long    *ind_chain_b;
- long    *ind_chain_f;
- DynCInf *clause_b;
- DynCInf *clause_f;
+  DynCInf *clause;
+  long *ind_chain_b;
+  long *ind_chain_f;
+  DynCInf *clause_b;
+  DynCInf *clause_f;
 
- if (p==NULL)
-     return;
+  if (p == NULL)
+    return;
 
- switch(index_nb)
+  switch (index_nb)
     {
-     case NO_INDEX:
-         DBGPRINTF("\nSequential\n");
-         break;
+    case NO_INDEX:
+      DBGPRINTF("\nSequential\n");
+      break;
 
-     case VAR_INDEX:
-         DBGPRINTF("\nVariable\n");
-         break;
+    case VAR_INDEX:
+      DBGPRINTF("\nVariable\n");
+      break;
 
-     case LST_INDEX:
-         DBGPRINTF("\nList\n");
-         break;
+    case LST_INDEX:
+      DBGPRINTF("\nList\n");
+      break;
     }
 
- while(p)
+  while (p)
     {
-     clause_f=clause_b=NULL;
-     if (index_nb==NO_INDEX)
-        {
-         clause=Clause_From_Seq_Chain_F(p);
+      clause_f = clause_b = NULL;
+      if (index_nb == NO_INDEX)
+	{
+	  clause = Clause_From_Seq_Chain_F(p);
 
-         if ((ind_chain_b=clause->seq_chain_b)!=NULL)
-             clause_b=Clause_From_Seq_Chain_F(ind_chain_b);
+	  if ((ind_chain_b = clause->seq_chain_b) != NULL)
+	    clause_b = Clause_From_Seq_Chain_F(ind_chain_b);
 
-         if ((ind_chain_f=clause->seq_chain_f)!=NULL)
-             clause_f=Clause_From_Seq_Chain_F(ind_chain_f);
-        }
+	  if ((ind_chain_f = clause->seq_chain_f) != NULL)
+	    clause_f = Clause_From_Seq_Chain_F(ind_chain_f);
+	}
       else
-        {
-         clause=Clause_From_Ind_Chain_F(p);
+	{
+	  clause = Clause_From_Ind_Chain_F(p);
 
-         if ((ind_chain_b=clause->ind_chain_b)!=NULL)
-             clause_b=Clause_From_Ind_Chain_F(ind_chain_b);
+	  if ((ind_chain_b = clause->ind_chain_b) != NULL)
+	    clause_b = Clause_From_Ind_Chain_F(ind_chain_b);
 
-         if ((ind_chain_f=clause->ind_chain_f)!=NULL)
-             clause_f=Clause_From_Ind_Chain_F(ind_chain_f);
-        }
+	  if ((ind_chain_f = clause->ind_chain_f) != NULL)
+	    clause_f = Clause_From_Ind_Chain_F(ind_chain_f);
+	}
 
-     DBGPRINTF(" %3d  %3d  0x%08lx  0x%08lx <-> 0x%08lx  ",
-               clause->cl_no,clause->term_size,(long) clause,
-               (long) clause_b,(long) clause_f);
-     Write_Simple(clause->head_word);
-     DBGPRINTF(":-");
-     Write_Simple(clause->body_word);
-     if (clause->erase_stamp!=DYN_STAMP_NONE)
-         DBGPRINTF("  erased at:%ld   next erased: 0x%08lx",
-                    clause->erase_stamp,(long) (clause->next_erased_cl));
-     DBGPRINTF("\n");
+      DBGPRINTF(" %3d  %3d  0x%08lx  0x%08lx <-> 0x%08lx  ",
+		clause->cl_no, clause->term_size, (long) clause,
+		(long) clause_b, (long) clause_f);
+      Write_Simple(clause->head_word);
+      DBGPRINTF(":-");
+      Write_Simple(clause->body_word);
+      if (clause->erase_stamp != DYN_STAMP_NONE)
+	DBGPRINTF("  erased at:%ld   next erased: 0x%08lx",
+		  clause->erase_stamp, (long) (clause->next_erased_cl));
+      DBGPRINTF("\n");
 
-     p=(long *) (*(long **) p);
+      p = (long *) (*(long **) p);
     }
 }
 

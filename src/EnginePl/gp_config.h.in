@@ -1,26 +1,26 @@
-/*-------------------------------------------------------------------------*/
-/* GNU Prolog                                                              */
-/*                                                                         */
-/* Part  : configuration                                                   */
-/* File  : gp_config.h.in                                                  */
-/* Descr.: general configuration file (handled by autoconf) - header file  */
-/* Author: Daniel Diaz                                                     */
-/*                                                                         */
-/* Copyright (C) 1999 Daniel Diaz                                          */
-/*                                                                         */
-/* GNU Prolog is free software; you can redistribute it and/or modify it   */
-/* under the terms of the GNU General Public License as published by the   */
-/* Free Software Foundation; either version 2, or any later version.       */
-/*                                                                         */
-/* GNU Prolog is distributed in the hope that it will be useful, but       */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of              */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        */
-/* General Public License for more details.                                */
-/*                                                                         */
-/* You should have received a copy of the GNU General Public License along */
-/* with this program; if not, write to the Free Software Foundation, Inc.  */
-/* 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     */
-/*-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : configuration                                                   *
+ * File  : gp_config.h.in                                                  *
+ * Descr.: general configuration file (handled by autoconf) - header file  *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999 Daniel Diaz                                          *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ *-------------------------------------------------------------------------*/
 
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
@@ -58,6 +58,12 @@
 
 
 
+/* Define if the cpu is a mips */
+#undef M_mips
+
+/* Define if the cpu is an alpha */
+#undef M_alpha
+
 /* Define if the cpu is a sparc */
 #undef M_sparc
 
@@ -68,6 +74,12 @@
 #undef M_powerpc
 
 
+
+/* Define if the OS is an SGI IRIX */
+#undef M_irix
+
+/* Define if the OS is an DEC OSF1 */
+#undef M_osf
 
 /* Define if the OS is a sunos */
 #undef M_sunos
@@ -90,6 +102,15 @@
 /* Define if the OS is a BSD */
 #undef M_bsd
 
+
+/* Define if the system is an mips/irix */
+#undef M_mips_irix
+
+/* Define if the system is an alpha/linux */
+#undef M_alpha_linux
+
+/* Define if the system is an alpha/OSF1 */
+#undef M_alpha_osf
 
 /* Define if the system is a ix86/linux */
 #undef M_ix86_linux
@@ -167,16 +188,16 @@
 
 
 
-/*---------------------------------*/
-/* Miscellaneous                   */
-/*---------------------------------*/
+/*---------------------------------*
+ * Miscellaneous                   *
+ *---------------------------------*/
 
 #ifndef NO_USE_GUI_CONSOLE
 #define W32_GUI_CONSOLE
 #endif
 
 #ifdef M_sparc_sunos
-#     define __USE_FIXED_PROTOTYPES__
+#define __USE_FIXED_PROTOTYPES__
 #endif
 
 #include "arch_dep.h"
