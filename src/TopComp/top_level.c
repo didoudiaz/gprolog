@@ -78,8 +78,8 @@ main(int argc, char *argv[])
   int i;
   int new_argc = 0;
   char **new_argv;
-  WamWord *goal;
-  int nb_goal = 0;
+  WamWord *entry_goal;
+  int nb_entry_goal = 0;
   WamWord *query_goal;
   int nb_query_goal = 0;
   WamWord word;
@@ -90,7 +90,7 @@ main(int argc, char *argv[])
   new_argv = (char **) Malloc(sizeof(char *) * (argc + 1));
   new_argv[new_argc++] = argv[0];
 
-  goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
+  entry_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
   query_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
 
   for (i = 1; i < argc; i++)
@@ -125,7 +125,7 @@ main(int argc, char *argv[])
 	      if (++i >= argc)
 		Fatal_Error("Goal missing after --entry-goal option");
 
-	      goal[nb_goal++] = Tag_ATM(Create_Atom(argv[i]));
+	      entry_goal[nb_entry_goal++] = Tag_ATM(Create_Atom(argv[i]));
 	      continue;
 	    }
 
@@ -156,20 +156,21 @@ main(int argc, char *argv[])
   os_argc = new_argc;
   os_argv = new_argv;
 
-  if (nb_goal)
+  if (nb_entry_goal)
     {
-      word = Mk_Proper_List(nb_goal, goal);
-      Blt_G_Link(Tag_ATM(Create_Atom("$cmd_line_entry_goal")), word);
+      word = Mk_Proper_List(nb_entry_goal, entry_goal);
+      Blt_G_Assign(Tag_ATM(Create_Atom("$cmd_line_entry_goal")), word);
     }
-  Free(goal);
+  Free(entry_goal);
 
   if (nb_query_goal)
     {
       word = Mk_Proper_List(nb_query_goal, query_goal);
-      Blt_G_Link(Tag_ATM(Create_Atom("$cmd_line_query_goal")), word);
+      Blt_G_Assign(Tag_ATM(Create_Atom("$cmd_line_query_goal")), word);
     }
   Free(query_goal);
 
+  Reset_Prolog();
   Call_Prolog(Prolog_Predicate(PREDICATE_TOP_LEVEL, 0));
 
   Stop_Prolog();
