@@ -31,9 +31,13 @@
 
 #include "../EnginePl/gp_config.h"
 #include "../EnginePl/wam_regs.h"
+#define FRAMES_ONLY
+#include "../EnginePl/wam_inst.h"
 #include "../EnginePl/machine.h"
 #include "../EnginePl/pl_params.h"
 #include "../EnginePl/obj_chain.h"
+
+#define Y_OFFSET(index)   ((- ENVIR_STATIC_SIZE - 1 - index) * sizeof(long))
 
 
 #if 0				/* to force the inclusion of a mapper */
@@ -70,5 +74,5 @@
 
 #endif
 
-
 #endif
+

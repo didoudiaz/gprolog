@@ -28,31 +28,35 @@
  * Constants                       *
  *---------------------------------*/
 
-#define FLAG_BOUNDED               0	/* flags defining integer type */
-#define FLAG_MAX_INTEGER           1
-#define FLAG_MIN_INTEGER           2
-#define FLAG_ROUNDING_FCT          3
+enum
+{
+  FLAG_BOUNDED,
+  FLAG_MAX_INTEGER,
+  FLAG_MIN_INTEGER,
+  FLAG_ROUNDING_FCT,
 
-#define FLAG_CHAR_CONVERSION       4	/* other flags */
-#define FLAG_DEBUG                 5
-#define FLAG_MAX_ARITY             6
-#define FLAG_UNKNOWN               7
-#define FLAG_DOUBLE_QUOTES         8
+  FLAG_CHAR_CONVERSION,
+  FLAG_DEBUG,
+  FLAG_MAX_ARITY,
+  FLAG_UNKNOWN,
+  FLAG_DOUBLE_QUOTES,
+  FLAG_BACK_QUOTES,
 
-#define FLAG_SYNTAX_ERROR          9	/* non ISO flags */
-#define FLAG_OS_ERROR              10
-#define FLAG_MAX_ATOM              11
-#define FLAG_MAX_STREAM            12
-#define FLAG_MAX_UNGET             13
-#define FLAG_SINGLETON_WARNING     14
-#define FLAG_STRICT_ISO            15
+  FLAG_SYNTAX_ERROR,
+  FLAG_OS_ERROR,
+  FLAG_MAX_ATOM,
+  FLAG_MAX_STREAM,
+  FLAG_MAX_UNGET,
+  FLAG_SINGLETON_WARNING,
+  FLAG_STRICT_ISO,
 
-#define FLAG_PROLOG_NAME           16
-#define FLAG_PROLOG_VERSION        17
-#define FLAG_PROLOG_DATE           18
-#define FLAG_PROLOG_COPYRIGHT      19
+  FLAG_PROLOG_NAME,
+  FLAG_PROLOG_VERSION,
+  FLAG_PROLOG_DATE,
+  FLAG_PROLOG_COPYRIGHT,
 
-#define NB_OF_FLAGS                20
+  NB_OF_FLAGS			/* this gives us the number of used flags */
+};
 
 
 
@@ -61,11 +65,13 @@
 #define FLAG_VALUE_FAIL            2
 
 
-#define FLAG_DOUBLE_QUOTES_CODES   0
-#define FLAG_DOUBLE_QUOTES_CHARS   1
-#define FLAG_DOUBLE_QUOTES_ATOM    2
-
-
+     /* values for double_quotes and back_quotes */
+#define FLAG_AS_CODES              0	/* bit 2 is set if no_escape */	
+#define FLAG_AS_CHARS              1
+#define FLAG_AS_ATOM               2
+#define FLAG_NO_ESCAPE_BIT         2
+#define FLAG_AS_PART_MASK          ((1 << FLAG_NO_ESCAPE_BIT) - 1)
+#define FLAG_NO_ESCAPE_MASK        (1 << FLAG_NO_ESCAPE_BIT)
 
 
 #define Char_Conversion(c)         ((Flag_Value(FLAG_CHAR_CONVERSION) &&    \
@@ -89,7 +95,7 @@
 #define SYS_VAR_SAY_GETC            (sys_var[20])
 #define CHAR_TO_EMIT_WHEN_CHAR      '\1'
 
-#define Flag_Value(flag)            (sys_var[200+(flag)])
+#define Flag_Value(flag)            (sys_var[200 + (flag)])
 
 
 
@@ -119,6 +125,9 @@ extern long sys_var[];
  * Function Prototypes             *
  *---------------------------------*/
 
+Bool Read_Pl_State_File(WamWord file_word);
+Bool Write_Pl_State_File(WamWord file_word);
+  
 
 
 
@@ -138,8 +147,10 @@ extern long sys_var[];
  *  10: permanent top level depth (for top-level and stop/abort).          *
  *  11: permanent top level handler (B level) for abort and stop.          *
  *  12: permanent: is linedit present ?                                    *
+ *  13: permanent: is the debugger present ?                               *
  *                                                                         *
- *  20: permanent: should Stream_Getc emit a char before calling fgetc ?   *
+ *  20: permanent: should stream fcts emit a char before calling fgetc ?   *
  *                                                                         *
+ * 100..199: free for users (who know sys_var[] exists !)                  *
  * 200..: some prolog flag values.                                         *
  *-------------------------------------------------------------------------*/

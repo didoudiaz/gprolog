@@ -63,4 +63,6 @@ char *Strdup_Check(char *str, char *src_file, int src_line);
 
 void Extend_Table_If_Needed(char **hash_tbl);
 
+void Exit_With_Value(int ret_val);
+
 void Fatal_Error(char *format, ...);

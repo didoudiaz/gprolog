@@ -128,7 +128,7 @@ static void TTY_Clearerr(void);
 
 #endif
 
-
+static int Basic_Call_Fct_Getc(StmInf *pstm);
 
 static int Str_Stream_Getc(StrSInf *str_stream);
 
@@ -149,6 +149,8 @@ Init_Stream_Supp(void)
 {
   StmProp prop;
   int istty;
+  StmFct fct_putc = NULL;
+  StmFct fct_flush = NULL;
 
   alias_tbl = Hash_Alloc_Table(START_ALIAS_TBL_SIZE, sizeof(AliasInf));
 
@@ -198,7 +200,7 @@ Init_Stream_Supp(void)
 
   le_prompt = "";
 
-  istty = (use_gui) || (isatty(0) != 0);
+  istty = (use_gui) || isatty(0);
 
   prop.mode = STREAM_MODE_READ;
   prop.input = TRUE;
@@ -226,7 +228,7 @@ Init_Stream_Supp(void)
   Add_Alias_To_Stream(atom_user_input, stm_stdin);
   stm_input = stm_stdin;
 
-  istty = (use_gui) || (isatty(1) != 0);
+  istty = (use_gui) || isatty(1);
 
   prop.mode = STREAM_MODE_APPEND;
   prop.input = FALSE;
@@ -238,9 +240,18 @@ Init_Stream_Supp(void)
   prop.special_close = FALSE;
   prop.other = 0;
 
+#if !defined(NO_USE_LINEDIT) && defined(M_ix86_win32)
+		/* ok for both GUI and console EOM<->ANSI conversion */
+  if (le_hook_put_char && istty)
+    fct_putc = (StmFct) le_hook_put_char;
+
+  if (le_hook_flush && istty)
+    fct_flush = (StmFct) le_hook_flush;
+#endif
+
   stm_stdout = Add_Stream(atom_user_output, (long) stdout, prop,
-			  NULL, NULL, NULL, STREAM_FCT_UNDEFINED, NULL,
-			  NULL, NULL);
+			  NULL, fct_putc, fct_flush,
+			  STREAM_FCT_UNDEFINED, NULL, NULL, NULL);
   Add_Alias_To_Stream(atom_user_output, stm_stdout);
   stm_output = stm_stdout;
 
@@ -334,14 +345,6 @@ Init_Stream_Struct(int atom_file_name, long file, StmProp prop,
 
   /* Works only because putc will be called with c as 1st and flush's arg
      is ignored */
-
-#if !defined(NO_USE_LINEDIT) && defined(M_ix86_win32)
-		/* ok for both GUI and console EOM<->ANSI conversion */
-  if (file == (long) stdout && le_hook_put_char)
-    pstm->fct_putc = (StmFct) (*le_hook_put_char);
-  if (file == (long) stdout && le_hook_flush)
-    pstm->fct_flush = (StmFct) (*le_hook_flush);
-#endif
 
   pstm->eof_reached = FALSE;
   PB_Init(pstm->pb_char);
@@ -765,14 +768,12 @@ File_Star_Of_Stream(int stm)
 #define SAVE_FOR_REENTRANCY				\
 {							\
   int save_sys_var_option_mask = SYS_VAR_OPTION_MASK;	\
-  int save_parse_end_of_term = parse_end_of_term;	\
   int save_last_read_line = last_read_line;		\
   int save_last_read_col = last_read_col;
 
 
 #define RESTORE_FOR_REENTRANCY				\
   SYS_VAR_OPTION_MASK = save_sys_var_option_mask;	\
-  parse_end_of_term = save_parse_end_of_term;		\
   last_read_line = save_last_read_line;			\
   last_read_col = save_last_read_col;			\
 }
@@ -934,6 +935,32 @@ TTY_Clearerr(void)
 
 
 
+
+/*-------------------------------------------------------------------------*
+ * BASIC_CALL_FCT_GETC                                                     *
+ *                                                                         *
+ * only useful if !defined(NO_USE_PIPED_STDIN_FOR_CONSULT)                 *
+ *-------------------------------------------------------------------------*/
+static int
+Basic_Call_Fct_Getc(StmInf *pstm)
+{
+  int c;
+#ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
+  if (SYS_VAR_SAY_GETC && pstm->file == (long) stdin)
+    /* could also test pstm->fct_getc == fgetc) */
+    {
+      putchar(CHAR_TO_EMIT_WHEN_CHAR);
+      fflush(stdout);
+    }
+#endif
+  c = (*pstm->fct_getc) (pstm->file);
+ 
+  return c;
+}
+
+
+
+
 /*-------------------------------------------------------------------------*
  * STREAM_GET_KEY                                                          *
  *                                                                         *
@@ -962,7 +989,7 @@ Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
     {
       Start_Protect_Regs_For_Signal;
       if (simulate)
-	c = pstm->fct_getc((FILE *) file);
+	c = Basic_Call_Fct_Getc(pstm);
 #ifndef NO_USE_LINEDIT
       else
 	c = TTY_Get_Key(echo, catch_ctrl_c);
@@ -973,7 +1000,7 @@ Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
   
   if (simulate && c != '\n')
     {
-      while (pstm->fct_getc((FILE *) file) >= ' ')
+      while (Basic_Call_Fct_Getc(pstm) >= ' ')
 	;
 
       Update_Counters((stm_tbl + stm_stdout), '\n'); /* reflect \n */
@@ -1012,16 +1039,7 @@ Stream_Getc(StmInf *pstm)
   else
     {
       Start_Protect_Regs_For_Signal;
-
-#ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
-      if (pstm->file == (long) stdin && 
-	  pstm->fct_getc == fgetc && SYS_VAR_SAY_GETC)
-	{
-	  putchar(CHAR_TO_EMIT_WHEN_CHAR);
-	  fflush(stdout);
-	}
-#endif
-      c = (*pstm->fct_getc) (file);
+      c = Basic_Call_Fct_Getc(pstm);
       Stop_Protect_Regs_For_Signal;
     }
   if (c == EOF)
@@ -1087,13 +1105,12 @@ Stream_Peekc(StmInf *pstm)
     PB_Top(pstm->pb_char, c);
   else
     {
-      c = (*pstm->fct_getc) (file);
+      c = Basic_Call_Fct_Getc(pstm);
       PB_Push(pstm->pb_char, c);
     }
 
   return c;
 }
-
 
 
 
@@ -1128,6 +1145,34 @@ Stream_Gets(char *str, int size, StmInf *pstm)
     return NULL;
 
   *p = '\0';
+  return str;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * STREAM_GET_LINE                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
+		   char *str, int size, StmInf *pstm_i)
+
+{
+#ifndef NO_USE_LINEDIT
+  char *save_le_prompt = le_prompt;
+  le_prompt = prompt;
+
+  if (pstm_i->fct_getc != TTY_Getc)
+#endif
+    Stream_Printf(pstm_o, prompt);
+
+  str = Stream_Gets(str, size, pstm_i);
+
+#ifndef NO_USE_LINEDIT
+  le_prompt = save_le_prompt;
+#endif
   return str;
 }
 

@@ -71,8 +71,6 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 		  "--pl-state", tmp_file, "-o", tmp_file, pl_file,
 		  singl_warn, NULL };
 
-  Bool Write_Pl_State_File(WamWord file_word);
-  
   save = SYS_VAR_SAY_GETC;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
   SYS_VAR_SAY_GETC = 1;
@@ -97,7 +95,12 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 
   for (;;)
     {
+#if 1
       c = fgetc(f_out);
+#else
+      char c0;
+      c = (read(fileno(f_out), &c0, 1) == 1) ? c0 : EOF;
+#endif
       if (c == EOF)
 	break;
 	  

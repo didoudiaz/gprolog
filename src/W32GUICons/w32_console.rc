@@ -36,14 +36,17 @@ BEGIN
     BEGIN
         MENUITEM "&Copy\tCtrl+Alt+C",           IDM_COPY
         MENUITEM "&Paste\tCtrl+Alt+V",          IDM_PASTE
-        MENUITEM "Change &Font...",             IDM_FONT
     END
-    POPUP "&Console"
+    POPUP "&Terminal", CHECKED
     BEGIN
         MENUITEM "&Interrupt (send Ctrl+C)",    IDM_INTERRUPT
         MENUITEM SEPARATOR
         MENUITEM "Line &Buffering",             IDM_BUFFERING, CHECKED
         MENUITEM "&Flush Output",               IDM_FLUSH
+        MENUITEM SEPARATOR
+        MENUITEM "&Show Text Console",          IDM_SHOW_CONSOLE
+        MENUITEM SEPARATOR
+        MENUITEM "Change &Font...",             IDM_FONT
     END
     POPUP "&Help"
     BEGIN

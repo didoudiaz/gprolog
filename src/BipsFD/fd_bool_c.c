@@ -825,6 +825,8 @@ Add_Fd_Variables(WamWord e_word)
 
   if (tag_mask == TAG_LST_MASK)
     {
+      adr = UnTag_LST(word);
+
       Add_Fd_Variables(Car(adr));
       Add_Fd_Variables(Cdr(adr));
     }

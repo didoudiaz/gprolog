@@ -20,12 +20,12 @@ PLS       = pl2wam.pl read_file.pl bip_list.pl syn_sugar.pl internal.pl \
 
 
 pl2wam@EXE_SUFFIX@: $(OBJS)
-	-cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@ 2>/dev/null
+	[ ! -f  pl2wam@EXE_SUFFIX@ ] || cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
 	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib --min-bips $(OBJS)
 
 
 clean:
-	-mv pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
+	[ ! -f  pl2wam@EXE_SUFFIX@ ] || mv pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
 	rm -f *@OBJ_SUFFIX@
 
 

@@ -24,19 +24,20 @@
 
 /* $Id$ */
 
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
 
-#include "engine_pl.h"
-#include "bips_pl.h"
+#include "gp_config.h"
 
 #ifndef NO_USE_LINEDIT
 #include "ctrl_c.h"
 #else
-#include "../Linedit/ctrl_c.c"
+#include "../Linedit/ctrl_c.c"	/* must be included before other .h... */
 #endif
 
+#include "engine_pl.h"
+#include "bips_pl.h"
+#include <string.h>
+#include <stdlib.h>
+#include <signal.h>
 
 
 
@@ -129,7 +130,7 @@ start:
       break;
 
     case 'e':			/* exit */
-      exit(0);
+      Exit_With_Value(0);
 
     case 't':			/* trace */
     case 'd':			/* debug */

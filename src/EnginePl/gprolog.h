@@ -35,44 +35,43 @@ extern "C" {
 #define HAVE_MMAP 1
 #define HAVE_MALLOPT 1
 #define HAVE_MKSTEMP 1
-#define NO_USE_EBP 1
 #define NO_USE_GUI_CONSOLE 1
 #define M_ix86 1
 #define M_linux 1
 #define M_ix86_linux 1
-#define PROLOG_NAME1               "gprolog"
-#define PROLOG_NAME                "GNU Prolog"
-#define PROLOG_VERSION             "1.2.9"
-#define PROLOG_DATE                "Oct 15 2001"
-#define PROLOG_COPYRIGHT           "Copyright (C) 1999-2001 Daniel Diaz"
-#define TOP_LEVEL                  "gprolog"
-#define GPLC                       "gplc"
-#define HEXGPLC                    "hexgplc"
-#define ENV_VARIABLE               "PL_PATH"
-#define M_VENDOR                   "pc"
-#define M_CPU                      "i686"
-#define M_OS                       "linux-gnu"
-#define CC                         "gcc"
-#define CFLAGS_PREFIX_REG          "-ffixed-%s"
-#define CFLAGS                     "-g -Wall"
-#define CFLAGS_MACHINE             "-mpentiumpro"
-#define LDFLAGS                    ""
-#define LDLIBS                     "-lm"
-#define AS                         "as"
-#define STRIP                      "strip"
-#define ASM_SUFFIX                 ".s"
-#define OBJ_SUFFIX                 ".o"
-#define EXE_SUFFIX                 ""
-#define CC_OBJ_NAME_OPT            "-o "
-#define CC_EXE_NAME_OPT            "-o "
-#define DLL_W32GUICONS             "w32guicons.dll"
-#define LIB_LINEDIT                "liblinedit.a"
-#define LIB_ENGINE_PL              "libengine_pl.a"
-#define LIB_BIPS_PL                "libbips_pl.a"
-#define LIB_ENGINE_FD              "libengine_fd.a"
-#define LIB_BIPS_FD                "libbips_fd.a"
-#define SIZEOF_LONG                4
-#define WORD_SIZE                  (8*SIZEOF_LONG)
+#define PROLOG_NAME1 "gprolog"
+#define PROLOG_NAME "GNU Prolog"
+#define PROLOG_VERSION "1.2.9"
+#define PROLOG_DATE "Dec 20 2001"
+#define PROLOG_COPYRIGHT "Copyright (C) 1999-2001 Daniel Diaz"
+#define TOP_LEVEL "gprolog"
+#define GPLC "gplc"
+#define HEXGPLC "hexgplc"
+#define ENV_VARIABLE "PL_PATH"
+#define M_VENDOR "pc"
+#define M_CPU "i686"
+#define M_OS "linux-gnu"
+#define CC "gcc"
+#define CFLAGS_PREFIX_REG "-ffixed-%s"
+#define CFLAGS "-O3 "
+#define CFLAGS_MACHINE "-mpentiumpro -fomit-frame-pointer"
+#define LDFLAGS ""
+#define LDLIBS "-lm"
+#define AS "as"
+#define STRIP "strip"
+#define ASM_SUFFIX ".s"
+#define OBJ_SUFFIX ".o"
+#define EXE_SUFFIX ""
+#define CC_OBJ_NAME_OPT "-o "
+#define CC_EXE_NAME_OPT "-o "
+#define DLL_W32GUICONS "w32guicons.dll"
+#define LIB_LINEDIT "liblinedit.a"
+#define LIB_ENGINE_PL "libengine_pl.a"
+#define LIB_BIPS_PL "libbips_pl.a"
+#define LIB_ENGINE_FD "libengine_fd.a"
+#define LIB_BIPS_FD "libbips_fd.a"
+#define SIZEOF_LONG 4
+#define WORD_SIZE                  (8 * SIZEOF_LONG)
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -202,17 +201,17 @@ typedef int Bool;
 #endif
 #endif /* !_BOOL_H */
 #define MAP_REG_TR        	"ebx"
-#define MAP_OFFSET_B     	((NB_OF_X_REGS+0)*4)
-#define MAP_OFFSET_H     	((NB_OF_X_REGS+1)*4)
-#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+2)*4)
-#define MAP_OFFSET_CP    	((NB_OF_X_REGS+3)*4)
-#define MAP_OFFSET_E     	((NB_OF_X_REGS+4)*4)
-#define MAP_OFFSET_CS    	((NB_OF_X_REGS+5)*4)
-#define MAP_OFFSET_S     	((NB_OF_X_REGS+6)*4)
-#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+7)*4)
-#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+8)*4)
-#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+9)*4)
-#define CFLAGS_REGS		"-ffixed-ebx "
+#define MAP_REG_B         	"ebp"
+#define MAP_OFFSET_H     	((NB_OF_X_REGS+0)*4)
+#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+1)*4)
+#define MAP_OFFSET_CP    	((NB_OF_X_REGS+2)*4)
+#define MAP_OFFSET_E     	((NB_OF_X_REGS+3)*4)
+#define MAP_OFFSET_CS    	((NB_OF_X_REGS+4)*4)
+#define MAP_OFFSET_S     	((NB_OF_X_REGS+5)*4)
+#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+6)*4)
+#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+7)*4)
+#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+8)*4)
+#define CFLAGS_REGS		"-ffixed-ebx -ffixed-ebp "
 typedef long WamWord;		/* a wamword is a long (32/64 bits) */
 typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
 typedef CodePtr WamCont;	/* a continuation is a code pointer */
@@ -221,21 +220,21 @@ typedef CodePtr WamCont;	/* a continuation is a code pointer */
 #define A(a)                       (reg_bank[a])
 typedef WamWord *WamWordP;
 register WamWordP		TR  asm ("ebx");
-#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
+register WamWordP		B   asm ("ebp");
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+2])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+3])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+6])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+8])
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	1
-#define NB_OF_NOT_ALLOC_REGS	10
+#define NB_OF_ALLOC_REGS    	2
+#define NB_OF_NOT_ALLOC_REGS	9
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
-#define NB_OF_USED_MACHINE_REGS 1
+#define NB_OF_USED_MACHINE_REGS 2
 #ifdef ENGINE_FILE
 WamWord reg_bank[REG_BANK_SIZE];
 WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
@@ -288,12 +287,16 @@ extern char *reg_tbl[];
 #define Save_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
+    register long reg1 asm ("ebp"); \
     buff_save[0] = reg0; \
+    buff_save[1] = reg1; \
   } while(0)
 #define Restore_Machine_Regs(buff_save) \
   do { \
     register long reg0 asm ("ebx"); \
+    register long reg1 asm ("ebp"); \
     reg0 = buff_save[0]; \
+    reg1 = buff_save[1]; \
   } while(0)
 #define Start_Protect_Regs_For_Signal \
   do { \
@@ -428,10 +431,10 @@ long def_local_size;
 long fixed_sizes;
 InfStack stk_tbl[] =
 {
- { "trail", "TRAILSZ", &def_trail_size, 524288, 0, NULL },
- { "cstr", "CSTRSZ", &def_cstr_size, 524288, 0, NULL },
- { "global", "GLOBALSZ", &def_global_size, 1048576, 0, NULL },
- { "local", "LOCALSZ", &def_local_size, 817152, 0, NULL }
+ { "trail", "TRAILSZ", &def_trail_size, 786432, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 786432, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 2097152, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 1048576, 0, NULL }
 };
 #else
 extern long def_trail_size;
@@ -590,6 +593,7 @@ char *Strdup_Check(char *str, char *src_file, int src_line);
 #define Free(ptr)          free(ptr)
 #define Strdup(str)        Strdup_Check(str, __FILE__, __LINE__)
 void Extend_Table_If_Needed(char **hash_tbl);
+void Exit_With_Value(int ret_val);
 void Fatal_Error(char *format, ...);
 #define MAX_PREC                   1200
 #define MAX_ARG_OF_FUNCTOR_PREC    999
@@ -742,15 +746,28 @@ static long obj_chain_start = (long) OBJ_INIT;
 #pragma data_seg()
 #endif /* _MSC_VER */
 #endif /* OBJ_INIT */
+#if 0
+#define GARBAGE_COLLECTOR
+#endif
 #define NOT_A_WAM_WORD             Tag_REF(0)
 #define NIL_WORD                   Tag_ATM(ATOM_NIL)
 #define WRITE_MODE                 NULL
+#ifdef GARBAGE_COLLECTOR
+#define ENVIR_STATIC_SIZE          4
+#define CPE(e)                     ((WamCont)   (e[-1]))
+#define BCIE(e)                    ((WamWord)   (e[-2]))
+#define EE(e)                      ((WamWord *) (e[-3]))
+#define NBYE(e)                    ((WamWord)   (e[-4]))
+#define Y(e, y)                    ((WamWord)   (e[-5 - (y)]))
+#define ENVIR_NAMES                {"CPE", "BCIE", "EE", "NBYE"}
+#else
 #define ENVIR_STATIC_SIZE          3
 #define CPE(e)                     ((WamCont)   (e[-1]))
 #define BCIE(e)                    ((WamWord)   (e[-2]))
 #define EE(e)                      ((WamWord *) (e[-3]))
 #define Y(e, y)                    ((WamWord)   (e[-4 - (y)]))
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
+#endif
 #define CHOICE_STATIC_SIZE         8
 #define ALTB(b)                    ((CodePtr)   (b[-1]))
 #define CPB(b)                     ((WamCont)   (b[-2]))
@@ -808,6 +825,7 @@ static long obj_chain_start = (long) OBJ_INIT;
 #define Adjust_CP(p)               ((WamCont) (p))
 #define UnAdjust_CP(cp)            (cp)
 #endif
+#ifndef FRAMES_ONLY
 typedef struct			/* Switch item information         */
 {				/* ------------------------------- */
   long key;			/* key: atm, int (if no_opt), f/n  */
@@ -888,6 +906,7 @@ void Delete_Choice_Point4(void) FC;
 void Untrail(WamWord *low_adr) FC;
 Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
 Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
+#endif /* FRAME_ONLY */
 #if 0
 #define DEREF_STATS
 #endif
@@ -962,8 +981,15 @@ long chain_len;
       Trail_Push(Trail_Tag_Value(TMV, adr));	\
     }						\
   while (0)
-#define Trail_FC(fct)  				\
-  Trail_Push(Trail_Tag_Value(TFC,fct))
+#define Trail_FC(fct, nb, arg)			\
+  do						\
+    {						\
+      Mem_Word_Cpy(TR, arg, nb);		\
+      TR += nb;					\
+      Trail_Push(nb);				\
+      Trail_Push(Trail_Tag_Value(TFC, fct));	\
+    }						\
+  while (0)
 #define Assign_B(newB)              (B = (newB), HB1 = HB(B))
 #define Delete_Last_Choice_Point()  Assign_B(BB(B))
 #define Globalize_Local_Unbound_Var(adr, res_word)	\
@@ -1499,6 +1525,8 @@ int Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
 void Stream_Ungetc(int c, StmInf *pstm);
 int Stream_Peekc(StmInf *pstm);
 char *Stream_Gets(char *str, int size, StmInf *pstm);
+char *Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
+			 char *str, int size, StmInf *pstm_i);
 void Stream_Putc(int c, StmInf *pstm);
 int Stream_Puts(char *str, StmInf *pstm);
 int Stream_Printf(StmInf *pstm, char *format, ...);
@@ -1785,19 +1813,17 @@ typedef struct			/* Parsed variable information    */
 }
 InfVar;
 #ifdef PARSE_SUPP_FILE
-int parse_end_of_term;
 InfVar parse_dico_var[MAX_VAR_IN_TERM];
 int parse_nb_var;
 int last_read_line;
 int last_read_col;
 #else
-extern int parse_end_of_term;
 extern InfVar parse_dico_var[];
 extern int parse_nb_var;
 extern int last_read_line;
 extern int last_read_col;
 #endif
-WamWord Read_Term(StmInf *pstm);
+WamWord Read_Term(StmInf *pstm, int parse_end_of_term);
 WamWord Read_Atom(StmInf *pstm);
 WamWord Read_Integer(StmInf *pstm);
 WamWord Read_Number(StmInf *pstm);
@@ -1818,33 +1844,40 @@ void Write_Term(StmInf *pstm, int depth, int prec, int mask,
 void Write_Simple(WamWord term_word);
 void Write_A_Char(StmInf *pstm, int c);
 char *Float_To_String(double d);
-#define FLAG_BOUNDED               0	/* flags defining integer type */
-#define FLAG_MAX_INTEGER           1
-#define FLAG_MIN_INTEGER           2
-#define FLAG_ROUNDING_FCT          3
-#define FLAG_CHAR_CONVERSION       4	/* other flags */
-#define FLAG_DEBUG                 5
-#define FLAG_MAX_ARITY             6
-#define FLAG_UNKNOWN               7
-#define FLAG_DOUBLE_QUOTES         8
-#define FLAG_SYNTAX_ERROR          9	/* non ISO flags */
-#define FLAG_OS_ERROR              10
-#define FLAG_MAX_ATOM              11
-#define FLAG_MAX_STREAM            12
-#define FLAG_MAX_UNGET             13
-#define FLAG_SINGLETON_WARNING     14
-#define FLAG_STRICT_ISO            15
-#define FLAG_PROLOG_NAME           16
-#define FLAG_PROLOG_VERSION        17
-#define FLAG_PROLOG_DATE           18
-#define FLAG_PROLOG_COPYRIGHT      19
-#define NB_OF_FLAGS                20
+enum
+{
+  FLAG_BOUNDED,
+  FLAG_MAX_INTEGER,
+  FLAG_MIN_INTEGER,
+  FLAG_ROUNDING_FCT,
+  FLAG_CHAR_CONVERSION,
+  FLAG_DEBUG,
+  FLAG_MAX_ARITY,
+  FLAG_UNKNOWN,
+  FLAG_DOUBLE_QUOTES,
+  FLAG_BACK_QUOTES,
+  FLAG_SYNTAX_ERROR,
+  FLAG_OS_ERROR,
+  FLAG_MAX_ATOM,
+  FLAG_MAX_STREAM,
+  FLAG_MAX_UNGET,
+  FLAG_SINGLETON_WARNING,
+  FLAG_STRICT_ISO,
+  FLAG_PROLOG_NAME,
+  FLAG_PROLOG_VERSION,
+  FLAG_PROLOG_DATE,
+  FLAG_PROLOG_COPYRIGHT,
+  NB_OF_FLAGS			/* this gives us the number of used flags */
+};
 #define FLAG_VALUE_ERROR           0	/* same order as in read.pl */
 #define FLAG_VALUE_WARNING         1
 #define FLAG_VALUE_FAIL            2
-#define FLAG_DOUBLE_QUOTES_CODES   0
-#define FLAG_DOUBLE_QUOTES_CHARS   1
-#define FLAG_DOUBLE_QUOTES_ATOM    2
+#define FLAG_AS_CODES              0	/* bit 2 is set if no_escape */	
+#define FLAG_AS_CHARS              1
+#define FLAG_AS_ATOM               2
+#define FLAG_NO_ESCAPE_BIT         2
+#define FLAG_AS_PART_MASK          ((1 << FLAG_NO_ESCAPE_BIT) - 1)
+#define FLAG_NO_ESCAPE_MASK        (1 << FLAG_NO_ESCAPE_BIT)
 #define Char_Conversion(c)         ((Flag_Value(FLAG_CHAR_CONVERSION) &&    \
                                     Is_Valid_Code(c)) ? char_conv[c] : (c))
 #define SYS_VAR_OPTION_MASK         (sys_var[0])
@@ -1857,12 +1890,14 @@ char *Float_To_String(double d);
 #define SYS_VAR_DEBUGGER            (sys_var[13])
 #define SYS_VAR_SAY_GETC            (sys_var[20])
 #define CHAR_TO_EMIT_WHEN_CHAR      '\1'
-#define Flag_Value(flag)            (sys_var[200+(flag)])
+#define Flag_Value(flag)            (sys_var[200 + (flag)])
 #ifdef FLAG_C_FILE
 long sys_var[MAX_SYS_VARS];
 #else
 extern long sys_var[];
 #endif
+Bool Read_Pl_State_File(WamWord file_word);
+Bool Write_Pl_State_File(WamWord file_word);
 #define DYN_ALT_FCT_FOR_TEST       0
 #define DYN_ALT_FCT_FOR_JUMP       1
 typedef long (*ScanFct) ();

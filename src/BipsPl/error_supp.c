@@ -419,7 +419,7 @@ Syntax_Error_Info_4(WamWord file_name_word,
 void
 Syntax_Error(int flag_value)
 {
-  char str[256];
+  char str[512];
 
   if (last_err_file == NULL || *last_err_file == '\0')
     sprintf(str, "(char:%d) %s", last_err_col, last_err_msg);

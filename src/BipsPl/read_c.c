@@ -46,46 +46,33 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static Bool Common_Read(WamWord (*read_fct) (),
-			WamWord sora_word, WamWord term_word);
-
-
-
 #define CURRENT_CHAR_CONVERSION_ALT X2463757272656E745F636861725F636F6E76657273696F6E5F616C74
 
 Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
 
 
+#define CHECK_STREAM_AND_GET_STM(sora_word, stm)		\
+  stm = (sora_word == NOT_A_WAM_WORD)				\
+         ? stm_input : 						\
+         Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);	\
+								\
+  last_input_sora = sora_word;					\
+  Check_Stream_Type(stm, TRUE, TRUE)
 
 
-/*-------------------------------------------------------------------------*
- * COMMON_READ                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static Bool
-Common_Read(WamWord (*read_fct) (), WamWord sora_word, WamWord term_word)
-{
-  WamWord word;
-  int stm;
-
-  stm = (sora_word == NOT_A_WAM_WORD)
-    ? stm_input : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
-
-  last_input_sora = sora_word;
-  Check_Stream_Type(stm, TRUE, TRUE);
 
 
-  word = (*read_fct) (stm_tbl + stm);
-  if (word == NOT_A_WAM_WORD)
-    {
-      Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)
-		   ? Flag_Value(FLAG_SYNTAX_ERROR)
-		   : SYS_VAR_SYNTAX_ERROR_ACTON);
-      return FALSE;
-    }
-
-  return Unify(word, term_word);
-}
+#define CHECK_RESULT_AND_UNIFY(returned_word, term_word)	\
+  if (returned_word == NOT_A_WAM_WORD)				\
+    {								\
+      Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)		\
+		   ? Flag_Value(FLAG_SYNTAX_ERROR)		\
+		   : SYS_VAR_SYNTAX_ERROR_ACTON);		\
+      return FALSE;						\
+    }								\
+								\
+  if (!Unify(word, term_word))					\
+    return FALSE
 
 
 
@@ -100,12 +87,13 @@ Read_Term_5(WamWord sora_word, WamWord term_word,
 	    WamWord sing_names_word)
 {
   WamWord word;
+  int stm;
   int i;
+  int parse_end_of_term = (SYS_VAR_OPTION_MASK >> 3) & 1;
 
-  parse_end_of_term = (SYS_VAR_OPTION_MASK >> 3) & 1;
-
-  if (!Common_Read(Read_Term, sora_word, term_word))
-    return FALSE;
+  CHECK_STREAM_AND_GET_STM(sora_word, stm);
+  word = Read_Term(stm_tbl + stm, parse_end_of_term);
+  CHECK_RESULT_AND_UNIFY(word, term_word);
 
   /* list of variables (i.e. [Var,...]) */
 
@@ -231,8 +219,16 @@ Read_2(WamWord sora_word, WamWord term_word)
 Bool
 Read_Atom_2(WamWord sora_word, WamWord atom_word)
 {
+  WamWord word;
+  int stm;
+
   Check_For_Un_Atom(atom_word);
-  return Common_Read(Read_Atom, sora_word, atom_word);
+
+  CHECK_STREAM_AND_GET_STM(sora_word, stm);
+  word = Read_Atom(stm_tbl + stm);
+  CHECK_RESULT_AND_UNIFY(word, atom_word);
+
+  return TRUE;
 }
 
 
@@ -258,8 +254,15 @@ Read_Atom_1(WamWord atom_word)
 Bool
 Read_Integer_2(WamWord sora_word, WamWord integer_word)
 {
+  WamWord word;
+  int stm;
   Check_For_Un_Integer(integer_word);
-  return Common_Read(Read_Integer, sora_word, integer_word);
+
+  CHECK_STREAM_AND_GET_STM(sora_word, stm);
+  word = Read_Integer(stm_tbl + stm);
+  CHECK_RESULT_AND_UNIFY(word, integer_word);
+
+  return TRUE;
 }
 
 
@@ -285,8 +288,16 @@ Read_Integer_1(WamWord integer_word)
 Bool
 Read_Number_2(WamWord sora_word, WamWord number_word)
 {
+  WamWord word;
+  int stm;
+
   Check_For_Un_Number(number_word);
-  return Common_Read(Read_Number, sora_word, number_word);
+
+  CHECK_STREAM_AND_GET_STM(sora_word, stm);
+  word = Read_Number(stm_tbl + stm);
+  CHECK_RESULT_AND_UNIFY(word, number_word);
+
+  return TRUE;
 }
 
 
@@ -312,7 +323,14 @@ Read_Number_1(WamWord number_word)
 Bool
 Read_Token_2(WamWord sora_word, WamWord token_word)
 {
-  return Common_Read(Read_Token, sora_word, token_word);
+  WamWord word;
+  int stm;
+
+  CHECK_STREAM_AND_GET_STM(sora_word, stm);
+  word = Read_Token(stm_tbl + stm);
+  CHECK_RESULT_AND_UNIFY(word, token_word);
+
+  return TRUE;
 }
 
 

@@ -147,6 +147,24 @@ Extend_Table_If_Needed(char **hash_tbl)
 
 
 /*-------------------------------------------------------------------------*
+ * EXIT_WITH_VALUE                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Exit_With_Value(int ret_val)
+{
+#ifndef NO_USE_LINEDIT
+  if (le_hook_exit_process)
+    (*le_hook_exit_process)();
+#endif
+
+  exit(ret_val);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * FATAL_ERROR                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -162,7 +180,7 @@ Fatal_Error(char *format, ...)
 
 #ifndef NO_USE_LINEDIT
   if (le_hook_message_box)
-    (*le_hook_message_box)("Fatal Error", buff);
+    (*le_hook_message_box)("Fatal Error", buff, 0);
   else
 #endif
     fprintf(stderr, "\nFatal Error: %s\n", buff);

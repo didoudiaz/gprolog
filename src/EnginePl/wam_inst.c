@@ -31,6 +31,7 @@
 
 
 
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -890,23 +891,20 @@ Allocate(int n)
   CPE(cur_E) = (WamCont) CP;
   BCIE(cur_E) = BCI;
   EE(cur_E) = (WamWord *) old_E;
+
+
+#ifdef GARBAGE_COLLECTOR
+  NBYE(cur_E) = n;
+
+  cur_E = &Y(cur_E, 0);
+  while(n-- > 0)
+    {
+      *cur_E = Make_Self_Ref(cur_E);
+      cur_E--;
+    }
+#endif
 }
 
-void
-Allocate4(void) FC;
-
-void
-Allocate4(void)
-{
-  WamWord *old_E = E;
-  WamWord *cur_E = Local_Top + ENVIR_STATIC_SIZE + 4;
-
-  E = cur_E;
-
-  CPE(cur_E) = (WamCont) CP;
-  BCIE(cur_E) = BCI;
-  EE(cur_E) = (WamWord *) old_E;
-}
 
 
 
@@ -1486,7 +1484,9 @@ Untrail(WamWord *low_adr)
 	  break;
 
 	default:		/* TFC */
-	  (*((int (*)()) adr)) ();
+	  nb = Trail_Pop;
+	  TR -= nb;
+	  (*((int (*)()) adr)) (nb, TR);
 	}
     }
 }

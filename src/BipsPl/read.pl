@@ -47,11 +47,11 @@ read(SorA, Term) :-
 
           % option mask in sys_var[0]:
           %
-          %    b3          b2         b1         b0
-          %    0/1         0/1        0/1        0/1
-          % end_of_term singletons   var_names   vars
-          %   0=dot       0=false     0=false    0=false
-          %   1=eof       1=true      1=true     1=true
+          %    b3            b2          b1         b0
+          %    0/1           0/1         0/1        0/1
+          % end_of_term   singletons   var_names   vars
+          %   0=dot         0=false     0=false    0=false
+          %   1=eof         1=true      1=true     1=true
           %
           % syntax error action in sys_var[1]:
           %

@@ -66,14 +66,14 @@ Halt_If_No_Top_Level_1(WamWord exit_code_word)
   x = Rd_Integer_Check(exit_code_word);
 
   if (SYS_VAR_TOP_LEVEL == 0)	/* no top level running */
-    exit(x);
+    Exit_With_Value(x);
 
   pred =
     Lookup_Pred(Create_Atom((x) ? "$top_level_abort" : "$top_level_stop"),
 		0);
 
   if (pred == NULL)		/* should not occur */
-    exit(x);
+    Exit_With_Value(x);
 
   return (WamCont) (pred->codep);
 }
@@ -88,7 +88,7 @@ Halt_If_No_Top_Level_1(WamWord exit_code_word)
 void
 Halt_1(WamWord exit_code_word)
 {
-  exit(Rd_Integer_Check(exit_code_word));
+  Exit_With_Value(Rd_Integer_Check(exit_code_word));
 }
 
 

@@ -237,18 +237,19 @@ M_Cmd_Line_To_Argv(char *cmd, int *argc)
 	}
       arg[i++] = p;
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-      if (*p == '"')
+      while (*p != ' ' && *p != '\t' && *p != '\0')
 	{
-	  while (*p != '"' && *p != '\0')
-	    p++;
 	  if (*p == '"')
+	  {
+	    do
+	      p++;
+	    while (*p != '"' && *p != '\0');
+	    if (*p == '"')
+	      p++;
+	  }
+	  else
 	    p++;
 	}
-      else
-#endif
-	while (*p != ' ' && *p != '\t' && *p != '\0')
-	  p++;
 
       if (*p == '\0')
 	break;

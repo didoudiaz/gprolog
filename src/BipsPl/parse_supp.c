@@ -104,15 +104,15 @@ static void Parse_Error(char *err_msg);
 
 
 
-#define   Unget_Token           tok_present=TRUE
+#define Unget_Token           tok_present = TRUE
 
 
 
-#define Update_Last_Read_Position                                           \
-    {                                                                       \
-     last_read_line=token.line;                                             \
-     last_read_col =token.col;                                              \
-    }
+#define Update_Last_Read_Position		\
+{						\
+  last_read_line = token.line;			\
+  last_read_col = token.col;			\
+}
 
 
 
@@ -131,8 +131,6 @@ Parse_Supp_Initializer(void)
   atom_back_quotes = Create_Atom("back_quotes");
   atom_full_stop = Create_Atom("full_stop");
   atom_extend = Create_Atom("extend");
-
-  parse_end_of_term = PARSE_END_OF_TERM_DOT;
 }
 
 
@@ -160,9 +158,11 @@ Read_Next_Token(Bool comma_is_punct)
  * READ_TERM                                                               *
  *                                                                         *
  * Returns a Prolog term as a WAM word or NOT_A_WAM_WORD on syntax error.  *
+ * parse_end_of_term controls the end of term (see parse_supp.h).          *
+ * Uses the value of: FLAG_DOUBLE_QUOTES                                   *
  *-------------------------------------------------------------------------*/
 WamWord
-Read_Term(StmInf *pstm)
+Read_Term(StmInf *pstm, int parse_end_of_term)
 {
   int jmp_val;
   WamWord term;
@@ -286,8 +286,13 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       break;
 
     case TOKEN_STRING:
-      flag_value = Flag_Value(FLAG_DOUBLE_QUOTES);
-      if (flag_value == FLAG_DOUBLE_QUOTES_ATOM)
+    case TOKEN_BACK_QUOTED:	/* undefined in ISO */
+      flag_value = (token.type == TOKEN_STRING) ? 
+	Flag_Value(FLAG_DOUBLE_QUOTES) :
+	Flag_Value(FLAG_BACK_QUOTES);
+
+      flag_value &= FLAG_AS_PART_MASK;
+      if (flag_value == FLAG_AS_ATOM)
 	{
 	  atom = Create_Allocate_Atom(token.name);
 	  goto a_name;
@@ -298,7 +303,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       while (i--)
 	{
 	  term1 = Put_List();
-	  if (flag_value == FLAG_DOUBLE_QUOTES_CODES)
+	  if (flag_value == FLAG_AS_CODES)
 	    Unify_Integer(token.name[i]);
 	  else
 	    Unify_Atom(ATOM_CHAR(token.name[i]));
@@ -326,7 +331,6 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       break;
 
     case TOKEN_NAME:
-    case TOKEN_BACK_QUOTED:	/* undefined in ISO */
       atom = Create_Allocate_Atom(token.name);
 
     a_name:

@@ -35,33 +35,30 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"
-
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <windows.h>
 #endif
 
-#ifdef M_ix86_win32
-#include <windows.h>
-#include <process.h>
-#include <direct.h>
-#else
+#if defined(__unix__) || defined(__CYGWIN__)
 #include <pwd.h>
 #include <unistd.h>
 #include <sys/param.h>
-#endif
-
-#ifdef M_ix86_cygwin
+#include <sys/time.h>
+#include <sys/resource.h>
+#else /* _WIN32 */
 #include <process.h>
-#include <sys/cygwin.h>
-#include <sys/times.h>
+#include <direct.h>
 #endif
 
 #include "engine_pl.h"		/* before netdb.h which declares a function */
 			 /* gcc cannot define a global reg var after a fct */
 
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #ifndef NO_USE_SOCKETS
-#  ifndef M_ix86_win32
+#  if defined(__unix__) || defined(__CYGWIN__)
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -115,12 +112,6 @@
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
-#ifdef M_ix86_cygwin
-static long tps = 0;
-static clock_t rt0;
-static struct tms time_buf0;
-#endif
 
 static long start_user_time = 0;
 static long start_system_time = 0;
@@ -184,11 +175,6 @@ static char *Host_Name_From_Alias(struct hostent *host_entry);
 void
 Init_Machine(void)
 {
-#ifdef M_ix86_cygwin
-  tps = sysconf(_SC_CLK_TCK);
-  rt0 = times(&time_buf0);
-#endif
-
   tzset();
 
   start_user_time = M_User_Time();
@@ -224,6 +210,7 @@ M_Allocate_Stacks(void)
     len += stk_tbl[i].size;
 
   addr = (WamWord *) Calloc(len, sizeof(WamWord));
+
   if (addr == NULL)
     Fatal_Error(ERR_STACKS_ALLOCATION);
 
@@ -650,24 +637,23 @@ M_Sys_Err_String(int err_no)
 
 
 
-#if defined(__unix__) || defined(__CYGWIN__)
-
-#include <sys/time.h>
-#include <sys/resource.h>
-
+#ifdef __CIGWIN__
+#define ULL unsigned long long
+#else
+#define ULL unsigned __int64
 #endif
 
-/*-------------------------------------------------------------------------*
- * M_USER_TIME                                                             *
- *                                                                         *
- * returns the user time used since the start of the process (in ms).      *
- *-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*/
+/* M_USER_TIME                                                             */
+/*                                                                         */
+/* returns the user time used since the start of the process (in ms).      */
+/*-------------------------------------------------------------------------*/
 long
 M_User_Time(void)
 {
   long user_time;
 
-#if defined(__unix__)
+#if defined(__unix__) && !defined(__CYGWIN__)
   struct rusage rsr_usage;
 
   getrusage(RUSAGE_SELF, &rsr_usage);
@@ -675,16 +661,16 @@ M_User_Time(void)
   user_time = (rsr_usage.ru_utime.tv_sec * 1000) +
     (rsr_usage.ru_utime.tv_usec / 1000);
 
-#elif defined(M_ix86_cygwin)	/* does not work well, returns real_time */
+#elif defined(_WIN32) || defined(__CYGWIN__)
+  FILETIME creat_t, exit_t, kernel_t, user_t;
 
-  struct tms time_buf1;
-
-  times(&time_buf1);
-  user_time = (time_buf1.tms_utime - time_buf0.tms_utime) * 1000 / tps;
-
-#elif defined(M_ix86_win32)
-
-  user_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
+  /* Success on Windows NT */
+  if (GetProcessTimes(GetCurrentProcess(),
+		      &creat_t, &exit_t, &kernel_t, &user_t))
+    user_time = (long) (((ULL) user_t.dwHighDateTime << 32) +
+			(ULL) user_t.dwLowDateTime) / 10000;
+  else				/* not implemented on Windows 95/98 */
+    user_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
 #else
 
@@ -709,7 +695,7 @@ M_System_Time(void)
 {
   long system_time;
 
-#if defined(__unix__)
+#if defined(__unix__) && !defined(__CYGWIN__)
   struct rusage rsr_usage;
 
   getrusage(RUSAGE_SELF, &rsr_usage);
@@ -717,16 +703,16 @@ M_System_Time(void)
   system_time = (rsr_usage.ru_stime.tv_sec * 1000) +
     (rsr_usage.ru_stime.tv_usec / 1000);
 
-#elif defined(M_ix86_cygwin)	/* does not work well, returns 0 */
+#elif defined(_WIN32) || defined(__CYGWIN__)
+  FILETIME creat_t, exit_t, kernel_t, user_t;
 
-  struct tms time_buf1;
-
-  times(&time_buf1);
-  system_time = (time_buf1.tms_stime - time_buf0.tms_stime) * 1000 / tps;
-
-#elif defined(M_ix86_win32)
-
-  system_time = 0;
+  /* Success on Windows NT */
+  if (GetProcessTimes(GetCurrentProcess(),
+		      &creat_t, &exit_t, &kernel_t, &user_t))
+    system_time = (long) (((ULL) kernel_t.dwHighDateTime << 32) +
+			  (ULL) kernel_t.dwLowDateTime) / 10000;
+  else				/* not implemented on Windows 95/98 */
+    system_time = 0;
 
 #else
 
@@ -751,15 +737,15 @@ M_Real_Time(void)
 {
   long real_time;
 
-#if defined(__unix__) || defined(__CYGWIN__)
+#if defined(__unix__) && !defined(__CYGWIN__)
   struct timeval tv;
 
   gettimeofday(&tv, NULL);
   real_time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 
-#elif defined(M_ix86_win32)
+#elif defined(_WIN32) || defined(__CYGWIN__)
 
-  real_time = M_User_Time();
+  real_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
 #else
 
@@ -1054,7 +1040,7 @@ M_Absolute_Path_Name(char *src)
     }
   *dst = '\0';
 
-#if defined(M_ix86_win32) || defined(M_ix86_cygwin)
+#if defined(_WIN32) || defined(__CYGWIN__)
   for (src = buff[res]; *src; src++)	/* \ becomes / */
     if (*src == '\\')
       *src = '/';
@@ -1096,7 +1082,7 @@ M_Absolute_Path_Name(char *src)
 #endif
     }
 
-#ifdef M_ix86_cygwin
+#ifdef __CYGWIN__
   cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
   res = 1 - res;
 #endif
@@ -1123,7 +1109,7 @@ M_Absolute_Path_Name(char *src)
 	continue;
 
     collapse:
-#ifndef M_ix86_cygwin		/* CYGWIN uses //<drive>/<path> for <drive>:\<path> */
+#ifndef __CYGWIN__		/* CYGWIN uses //<drive>/<path> for <drive>:\<path> */
       while (*src == DIR_SEP_C)	/* collapse /////... as / */
 	src++;
 #endif

@@ -76,6 +76,7 @@ void (*le_hook_flush) ();
 
 int (*le_hook_confirm_box) ();
 void (*le_hook_message_box) ();
+void (*le_hook_exit_process) ();
 
 
 
@@ -116,23 +117,6 @@ __declspec(dllimport)
       return;
     }
 
-  if (getenv("KEEP_CONSOLE") == NULL)
-    {
-#if 0
-#if 0
-      HWND hwndConsole;
-      char consoleTitle[512];
-
-      //AllocConsole();
-      GetConsoleTitle(consoleTitle, sizeof(consoleTitle));
-      hwndConsole = FindWindow(NULL, consoleTitle);
-      ShowWindow(hwndConsole, SW_HIDE);
-#else /* violent ! and cannot handle CTRL_C... */
-      FreeConsole();
-#endif
-#endif
-    }
-
   le_hook_put_char = (void (*)()) Find_Fct(h, "_W32GC_Put_Char");
   le_hook_get_char0 = (int (*)()) Find_Fct(h, "_W32GC_Get_Char0");
   le_hook_kbd_is_not_empty =
@@ -159,6 +143,7 @@ __declspec(dllimport)
 
   le_hook_confirm_box = (int (*)()) Find_Fct(h, "_W32GC_Confirm_Box");
   le_hook_message_box = (void (*)()) Find_Fct(h, "_W32GC_Message_Box");
+  le_hook_exit_process = (void (*)()) Find_Fct(h, "_W32GC_Exit_Process");
 
   W32GC_Start_Window = (Fct) Find_Fct(h, "_W32GC_Start_Window");
   (*W32GC_Start_Window) (LE_Get_Separators, LE_Get_Prompt_Length);

@@ -334,7 +334,7 @@ Move_From_Reg_X(int index)
 void
 Move_From_Reg_Y(int index)
 {
-  Inst_Printf("ld", "[%s-%d],%%o0", asm_reg_e, (index + 4) * 4);
+  Inst_Printf("ld", "[%s%+d],%%o0", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -360,7 +360,7 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-  Inst_Printf("st", "%%o0,[%s-%d]", asm_reg_e, (index + 4) * 4);
+  Inst_Printf("st", "%%o0,[%s%+d]", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -530,9 +530,9 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Delay_Printf("add", "%s,-%d,%s", asm_reg_e, (index + 4) * 4, r);
+    Delay_Printf("add", "%s,%+d,%s", asm_reg_e, Y_OFFSET(index), r);
   else
-    Delay_Printf("ld", "[%s-%d],%s", asm_reg_e, (index + 4) * 4, r);
+    Delay_Printf("ld", "[%s%+d],%s", asm_reg_e, Y_OFFSET(index), r);
 
   AFTER_ARG;
 
@@ -710,7 +710,7 @@ Move_Ret_To_Reg_X(int index)
 void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
-  Inst_Printf("st", "%%o0,[%s-%d]", asm_reg_e, (index + 4) * 4);
+  Inst_Printf("st", "%%o0,[%s%+d]", asm_reg_e, Y_OFFSET(index));
 }
 
 

@@ -332,6 +332,9 @@ int Stream_Peekc(StmInf *pstm);
 
 char *Stream_Gets(char *str, int size, StmInf *pstm);
 
+char *Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
+			 char *str, int size, StmInf *pstm_i);
+
 void Stream_Putc(int c, StmInf *pstm);
 
 int Stream_Puts(char *str, StmInf *pstm);

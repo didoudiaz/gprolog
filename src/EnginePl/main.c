@@ -58,6 +58,7 @@ main(int argc, char *argv[])
 {
   int nb_user_directive;
   Bool top_level;
+  int ret_val = 0;
 
   nb_user_directive = Start_Prolog(argc, argv);
 
@@ -65,17 +66,16 @@ main(int argc, char *argv[])
 
   Stop_Prolog();
 
-  if (top_level)
-    return 0;
-
-  if (nb_user_directive)
-    return 0;
-
-  fprintf(stderr,
+  if (!top_level && nb_user_directive == 0)
+    {
+      ret_val = 1;
+      fprintf(stderr,
 	  "Warning: no initial goal executed\n"
 	  "   use a directive :- initialization(Goal)\n"
 	  "   or remove the link option --no-top-level"
 	  " (or --min-bips or --min-size)\n");
+    }
 
-  return 1;
+  Exit_With_Value(ret_val);
+  return 0;			/* anything for the compiler */
 }

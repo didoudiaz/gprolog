@@ -681,6 +681,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
   int i;
   long n1, n2, n3;
 
+ terminal_rec:
+
   DEREF(e_word, word, tag_mask);
 
   if (tag_mask == TAG_FDV_MASK)
@@ -736,16 +738,26 @@ Normalize(WamWord e_word, int sign, Poly *p)
   switch (i)
     {
     case PLUS_1:
-      return Normalize(le_word, sign, p);
+      e_word = le_word;
+      goto terminal_rec;
 
     case PLUS_2:
-      return Normalize(le_word, sign, p) && Normalize(re_word, sign, p);
+      if (!Normalize(le_word, sign, p))
+	return FALSE;
+      e_word = re_word;
+      goto terminal_rec;
 
     case MINUS_2:
-      return Normalize(le_word, sign, p) && Normalize(re_word, -sign, p);
+      if (!Normalize(le_word, sign, p))
+	return FALSE;
+      e_word = re_word;
+      sign = -sign;
+      goto terminal_rec;
 
     case MINUS_1:
-      return Normalize(le_word, -sign, p);
+      e_word = le_word;
+      sign = -sign;
+      goto terminal_rec;
 
     case TIMES_2:
 #if 1				/* optimize frequent use: INT*VAR */

@@ -198,7 +198,7 @@
 
 
 #define SIZEOF_LONG                any
-#define WORD_SIZE                  (8*SIZEOF_LONG)
+#define WORD_SIZE                  (8 * SIZEOF_LONG)
 
 #include "arch_dep.h"
 

@@ -24,6 +24,11 @@
 
 /* $Id$ */
 
+#if 0
+#define GARBAGE_COLLECTOR
+#endif
+
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -46,6 +51,20 @@
 
 	  /* Environment Frame */
 
+#ifdef GARBAGE_COLLECTOR
+
+#define ENVIR_STATIC_SIZE          4
+
+#define CPE(e)                     ((WamCont)   (e[-1]))
+#define BCIE(e)                    ((WamWord)   (e[-2]))
+#define EE(e)                      ((WamWord *) (e[-3]))
+#define NBYE(e)                    ((WamWord)   (e[-4]))
+#define Y(e, y)                    ((WamWord)   (e[-5 - (y)]))
+
+#define ENVIR_NAMES                {"CPE", "BCIE", "EE", "NBYE"}
+
+#else
+
 #define ENVIR_STATIC_SIZE          3
 
 #define CPE(e)                     ((WamCont)   (e[-1]))
@@ -55,7 +74,7 @@
 
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 
-
+#endif
 
 
 	  /* Choice Point Frame */
@@ -207,7 +226,7 @@
 #endif
 
 
-
+#ifndef FRAMES_ONLY
 
 /*---------------------------------*
  * Type Definitions                *
@@ -362,7 +381,7 @@ Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
 Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
 
 
-
+#endif /* FRAME_ONLY */
 
 /*---------------------------------*
  * Auxiliary engine macros         *
@@ -482,8 +501,15 @@ long chain_len;
 
 
 
-#define Trail_FC(fct)  				\
-  Trail_Push(Trail_Tag_Value(TFC,fct))
+#define Trail_FC(fct, nb, arg)			\
+  do						\
+    {						\
+      Mem_Word_Cpy(TR, arg, nb);		\
+      TR += nb;					\
+      Trail_Push(nb);				\
+      Trail_Push(Trail_Tag_Value(TFC, fct));	\
+    }						\
+  while (0)
 
 
 

@@ -43,10 +43,10 @@
 
 #if WORD_SIZE == 32
 #define HEXADECIMAL_LENGTH         10
-#define DECIMAL_LENGTH             10
+#define DECIMAL_LENGTH             11
 #else
 #define HEXADECIMAL_LENGTH         20
-#define DECIMAL_LENGTH             20
+#define DECIMAL_LENGTH             21
 #endif
 #define VALUE_PART_LENGTH          BANK_NAME_OFFSET_LENGTH
 
@@ -129,6 +129,7 @@ static WamWord *Detect_Stack(WamWord *adr, char **stack_name);
 static PredInf *Detect_Pred_From_Code(long *codep);
 
 static Bool Help(void);
+
 
 
 
@@ -313,6 +314,18 @@ Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 }
 
 
+#include <signal.h>
+#include <setjmp.h>
+
+jmp_buf dbg_jumper;
+
+static void
+Debugger_Signal_Handler(int sig)
+{
+  longjmp(dbg_jumper, sig);
+}
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -324,16 +337,30 @@ Debug_Wam(void)
 {
   FctPtr command;
   char str[80] = "";
-
+  char *prompt = "(wam debug) ";
+  int ret;
 
   pstm_i = stm_tbl + stm_debugger_input;
   pstm_o = stm_tbl + stm_debugger_output;
 
+  Stream_Printf(pstm_o, "Welcome to the WAM debugger - experts only\n");
+
+  ret = setjmp(dbg_jumper);
+  if (ret == 0)
+    {
+#if defined(__unix__) || defined(__CYGWIN__)
+      signal(SIGSEGV, Debugger_Signal_Handler);
+#endif
+    }
+  else
+    {
+      Stream_Printf(pstm_o, "ERROR from handler: %d\n", ret);
+    }
+
   for (;;)
     {
-      Stream_Printf(pstm_o, "\nwam debugger> ");
-
-      if (Stream_Gets(str, sizeof(str) - 1, pstm_i) == NULL)
+      if (Stream_Gets_Prompt(prompt, pstm_o,
+			     str, sizeof(str), pstm_i) == NULL)
 	break;
 
       Scan_Command(str);
@@ -423,6 +450,7 @@ Write_Data_Modify(void)
   char *bank_name;
   int offset;
   int nb;
+  int incr = 1;
 
   if ((adr = Read_Bank_Adr(FALSE, 1, &bank_name)) != NULL)
     {
@@ -439,6 +467,8 @@ Write_Data_Modify(void)
 	  else if (nb > NB_OF_REGS - offset)
 	    nb = NB_OF_REGS - offset;
 	}
+      else if (strcmp(bank_name, "y") == 0 || strcmp(bank_name, "ab") == 0)
+	incr = -1;
 
       while (nb--)
 	{
@@ -458,7 +488,7 @@ Write_Data_Modify(void)
 	    }
 
 	  Stream_Printf(pstm_o, "\n");
-	  offset++;
+	  offset += incr;
 	}
     }
 
@@ -528,16 +558,18 @@ What(void)
 static Bool
 Where(void)
 {
-  char *stack_name;
+  char *bank_name;
   int offset;
   WamWord *adr;
 
-  if ((adr = Read_Bank_Adr(TRUE, 1, &stack_name)) != NULL)
+  if ((adr = Read_Bank_Adr(FALSE, 1, &bank_name)) != NULL)
     {
       offset = (nb_read_arg < 3) ? 0 : Read_An_Integer(2);
+      if (strcmp(bank_name, "y") == 0 || strcmp(bank_name, "ab") == 0)
+	offset = -offset;
 
       Print_Bank_Name_Offset((adr == reg_copy) ? reg_tbl[offset] : "",
-			     stack_name, offset);
+			     bank_name, offset);
       Stream_Printf(pstm_o, " at %#lx\n", (long) (adr + offset));
     }
 
@@ -564,6 +596,8 @@ Dereference(void)
   if ((adr = Read_Bank_Adr(FALSE, 1, &bank_name)) != NULL)
     {
       offset = (nb_read_arg < 3) ? 0 : Read_An_Integer(2);
+      if (strcmp(bank_name, "y") == 0 || strcmp(bank_name, "ab") == 0)
+	offset = -offset;
 
 				/* my own DEREF here to get the address */
       d_adr = NULL;		/* added this */
@@ -757,6 +791,12 @@ Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name)
 	  return &Y(E, 0);
 	}
 
+      if (strncmp("ab", read_arg[arg_nb], lg) == 0)
+	{
+	  *bank_name = "ab";
+	  return &AB(B, 0);
+	}
+
       if (strncmp("reg", read_arg[arg_nb], lg) == 0)
 	{
 	  *bank_name = "reg";
@@ -841,6 +881,7 @@ Print_Wam_Word(WamWord *word_adr)
   WamWord *adr;
   int functor;
   int arity;
+  int i;
 
   Stream_Printf(pstm_o, "%#*lx  %*ld  ", HEXADECIMAL_LENGTH, (long) word,
 		DECIMAL_LENGTH, (long) word);
@@ -853,41 +894,45 @@ Print_Wam_Word(WamWord *word_adr)
   Stream_Printf(pstm_o, "  ");
 
   tag = Tag_Of(word);
-  if (tag < NB_OF_TAGS)
-    {
-      switch (tag_tbl[tag].type)
-	{
-	case LONG_INT:
-	  value = (WamWord) UnTag_Long_Int(word);
-	  Stream_Printf(pstm_o, "%s,%*ld", tag_tbl[tag].name,
+  for (i = 0; i < NB_OF_TAGS; i++)
+    if (tag_tbl[i].value == tag)
+      break;
+
+  if (i < NB_OF_TAGS)
+    switch (tag_tbl[i].type)
+      {
+      case LONG_INT:
+	value = (WamWord) UnTag_Long_Int(word);
+	Stream_Printf(pstm_o, "%s,%*ld", tag_tbl[i].name,
+		      VALUE_PART_LENGTH, (long) value);
+	break;
+
+      case SHORT_UNS:
+	value = (WamWord) UnTag_Short_Uns(word);
+	if (tag == ATM && value >= 0 && value < MAX_ATOM &&
+	    atom_tbl[value].name != NULL)
+	  Stream_Printf(pstm_o, "ATM,%*s (%ld)",
+			VALUE_PART_LENGTH, atom_tbl[value].name,
+			(long) value);
+	else if (tag == ATM)
+	  tag = -1;
+	else
+	  Stream_Printf(pstm_o, "%s,%*lu", tag_tbl[i].name,
 			VALUE_PART_LENGTH, (long) value);
-	  break;
+	break;
 
-	case SHORT_UNS:
-	  value = (WamWord) UnTag_Short_Uns(word);
-	  if (tag == ATM && value >= 0 && value < MAX_ATOM &&
-	      atom_tbl[value].name != NULL)
-	    Stream_Printf(pstm_o, "ATM,%*s (%ld)",
-			  VALUE_PART_LENGTH, atom_tbl[value].name,
-			  (long) value);
-	  else
-	    Stream_Printf(pstm_o, "%s,%*lu", tag_tbl[tag].name,
-			  VALUE_PART_LENGTH, (long) value);
-	  break;
-
-	case ADDRESS:
-	  value = (WamWord) UnTag_Address(word);
-	  if ((adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL)
-	    {
-	      Stream_Printf(pstm_o, "%s,", tag_tbl[tag].name);
-	      Print_Bank_Name_Offset("", stack_name,
-				     (WamWord *) value - adr);
-	    }
-	  else
-	    tag = -1;
-	  break;
-	}
-    }
+      case ADDRESS:
+	value = (WamWord) UnTag_Address(word);
+	if ((adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL)
+	  {
+	    Stream_Printf(pstm_o, "%s,", tag_tbl[i].name);
+	    Print_Bank_Name_Offset("", stack_name,
+				   (WamWord *) value - adr);
+	  }
+	else
+	  tag = -1;
+	break;
+      }
   else
     tag = -1;
 
@@ -908,12 +953,12 @@ Print_Wam_Word(WamWord *word_adr)
 	if (tag < NB_OF_TRAIL_TAGS &&
 	    (adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL &&
 	    *stack_name != 't')
-	{
-	  Stream_Printf(pstm_o, "%s,", trail_tag_name[tag]);
-	  Print_Bank_Name_Offset("", stack_name, (WamWord *) value - adr);
-	}
-      else
-	Stream_Printf(pstm_o, "???,%*s", VALUE_PART_LENGTH, "?");
+	  {
+	    Stream_Printf(pstm_o, "%s,", trail_tag_name[tag]);
+	    Print_Bank_Name_Offset("", stack_name, (WamWord *) value - adr);
+	  }
+	else
+	  Stream_Printf(pstm_o, "???,%*s", VALUE_PART_LENGTH, "?");
 
       Stream_Printf(pstm_o, "  ");
     }
@@ -948,9 +993,10 @@ Modify_Wam_Word(WamWord *word_adr)
 
   for (;;)
     {
-      Stream_Printf(pstm_o, "\nNew value: ");
+      Stream_Printf(pstm_o, "\n");
 
-      if (Stream_Gets(str, sizeof(str) - 1, pstm_i) == NULL ||
+      if (Stream_Gets_Prompt("New value: ", pstm_o, 
+			     str, sizeof(str), pstm_i) == NULL ||
 	  *str == '\0' || *str == '\n')
 	break;
 
@@ -990,8 +1036,6 @@ Modify_Wam_Word(WamWord *word_adr)
 
       /* tag,value */
     tag_value:
-      comma++;
-
       for (i = 0; i < NB_OF_TAGS; i++)
 	if (strcmp(tag_tbl[i].name, read_arg[0]) == 0)
 	  break;
@@ -1001,7 +1045,7 @@ Modify_Wam_Word(WamWord *word_adr)
 	  switch (tag_tbl[i].type)
 	    {
 	    case LONG_INT:
-	      word = strtol(comma, &p, 0);
+	      word = strtol(read_arg[1], &p, 0);
 	      if (*p != '\0')
 		goto err;
 
@@ -1009,11 +1053,11 @@ Modify_Wam_Word(WamWord *word_adr)
 	      return;
 
 	    case SHORT_UNS:
-	      word = strtol(comma, &p, 0);
+	      word = strtol(read_arg[1], &p, 0);
 	      if (*p == '\0')
 		j = Read_An_Integer(1);
 	      else if (strcmp(read_arg[0], "ATM") == 0)
-		  j = Create_Allocate_Atom(comma);
+		  j = Create_Allocate_Atom(comma + 1);
 	      else
 		goto err;
 	      
@@ -1143,7 +1187,7 @@ Help(void)
   L("   write     A [N] write   N (or 1) Prolog terms starting at A");
   L("   data      A [N] display N (or 1) words starting at A");
   L("   modify    A [N] display and modify N (or 1) words starting at A");
-  L("   where     SA    display the real address corresponding to SA");
+  L("   where     A     display the real address corresponding to SA");
   L("   what      RA    display what corresponds to the real address RA");
   L("   deref     A     display the dereferenced word starting at A");
   L("   envir     [SA]  display an environment located at SA (or current)");
@@ -1152,7 +1196,7 @@ Help(void)
   L("   quit            return to Prolog debugger");
   L("");
   L("A WAM address (A) has the following syntax: bank_name [N]");
-  L("   bank_name  is either reg/x/y/stack_name (see below)");
+  L("   bank_name  is either reg/x/y/ab/stack_name (see below)");
   L("   N          is an optional index (default 0)");
   Stream_Printf(pstm_o, "   stack_name is either:");
 

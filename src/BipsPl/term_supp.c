@@ -180,7 +180,7 @@ terminal_rec:
 
   DEREF(start_word, word, tag_mask);
 
-  switch (Tag_Mask_Of(word))
+  switch (Tag_Of(word))
     {
     case REF:
       (*fct) (UnTag_REF(word), word);
@@ -188,7 +188,7 @@ terminal_rec:
 
 #ifndef NO_USE_FD_SOLVER
     case FDV:
-      if (!generic_var)
+      if (generic_var)
 	(*fct) (UnTag_FDV(word), word);
       break;
 #endif

@@ -57,8 +57,6 @@ InfVar;
 
 #ifdef PARSE_SUPP_FILE
 
-int parse_end_of_term;
-
 InfVar parse_dico_var[MAX_VAR_IN_TERM];
 int parse_nb_var;
 
@@ -66,8 +64,6 @@ int last_read_line;
 int last_read_col;
 
 #else
-
-extern int parse_end_of_term;
 
 extern InfVar parse_dico_var[];
 extern int parse_nb_var;
@@ -84,7 +80,7 @@ extern int last_read_col;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamWord Read_Term(StmInf *pstm);
+WamWord Read_Term(StmInf *pstm, int parse_end_of_term);
 
 WamWord Read_Atom(StmInf *pstm);
 

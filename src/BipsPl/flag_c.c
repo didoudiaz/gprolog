@@ -84,6 +84,9 @@ static int atom_fail;
 static int atom_chars;
 static int atom_codes;
 static int atom_atom;
+static int atom_chars_no_escape;
+static int atom_codes_no_escape;
+static int atom_atom_no_escape;
 
 static int atom_prolog[4];
 
@@ -126,6 +129,7 @@ Flag_Initializer(void)
   atom_flag_tbl[FLAG_MAX_ARITY] = Create_Atom("max_arity");
   atom_flag_tbl[FLAG_UNKNOWN] = Create_Atom("unknown");
   atom_flag_tbl[FLAG_DOUBLE_QUOTES] = Create_Atom("double_quotes");
+  atom_flag_tbl[FLAG_BACK_QUOTES] = Create_Atom("back_quotes");
 
   atom_flag_tbl[FLAG_SYNTAX_ERROR] = Create_Atom("syntax_error");
   atom_flag_tbl[FLAG_OS_ERROR] = Create_Atom("os_error");
@@ -154,7 +158,9 @@ Flag_Initializer(void)
   atom_chars = Create_Atom("chars");
   atom_codes = Create_Atom("codes");
   atom_atom = Create_Atom("atom");
-
+  atom_chars_no_escape = Create_Atom("chars_no_escape");
+  atom_codes_no_escape = Create_Atom("codes_no_escape");
+  atom_atom_no_escape = Create_Atom("atom_no_escape");
 
   atom_prolog[0] = Create_Atom(PROLOG_NAME);
   atom_prolog[1] = Create_Atom(PROLOG_VERSION);
@@ -163,6 +169,9 @@ Flag_Initializer(void)
 
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_STRICT_ISO) = 1;
+
+  Flag_Value(FLAG_DOUBLE_QUOTES) = FLAG_AS_CODES;
+  Flag_Value(FLAG_BACK_QUOTES) = FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK;
 
 #ifndef NO_USE_LINEDIT
   SYS_VAR_LINEDIT = 1;
@@ -260,46 +269,35 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 	goto err_value;
 
       if (atom == atom_error)
-	{
-	  Flag_Value(i) = FLAG_VALUE_ERROR;
-	  break;
-	}
-
-      if (atom == atom_warning)
-	{
-	  Flag_Value(i) = FLAG_VALUE_WARNING;
-	  break;
-	}
-
-      if (atom == atom_fail)
-	{
-	  Flag_Value(i) = FLAG_VALUE_FAIL;
-	  break;
-	}
-      goto err_value;
+	Flag_Value(i) = FLAG_VALUE_ERROR;
+      else if (atom == atom_warning)
+	Flag_Value(i) = FLAG_VALUE_WARNING;
+      else if (atom == atom_fail)
+	Flag_Value(i) = FLAG_VALUE_FAIL;
+      else
+	goto err_value;
+      break;
 
     case FLAG_DOUBLE_QUOTES:
+    case FLAG_BACK_QUOTES:
       if (tag_mask != TAG_ATM_MASK)
 	goto err_value;
 
       if (atom == atom_codes)
-	{
-	  Flag_Value(i) = FLAG_DOUBLE_QUOTES_CODES;
-	  break;
-	}
-
-      if (atom == atom_chars)
-	{
-	  Flag_Value(i) = FLAG_DOUBLE_QUOTES_CHARS;
-	  break;
-	}
-
-      if (atom == atom_atom)
-	{
-	  Flag_Value(i) = FLAG_DOUBLE_QUOTES_ATOM;
-	  break;
-	}
-      goto err_value;
+	Flag_Value(i) = FLAG_AS_CODES;
+      else if (atom == atom_codes_no_escape)
+	Flag_Value(i) = FLAG_AS_CODES | FLAG_NO_ESCAPE_MASK;
+      else if (atom == atom_chars)
+	Flag_Value(i) = FLAG_AS_CHARS;
+      else if (atom == atom_chars_no_escape)
+	Flag_Value(i) = FLAG_AS_CHARS | FLAG_NO_ESCAPE_MASK;
+      else if (atom == atom_atom)
+	Flag_Value(i) = FLAG_AS_ATOM;
+      else if (atom == atom_atom_no_escape)
+	Flag_Value(i) = FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK;
+      else
+	goto err_value;
+      break;
 
     case FLAG_PROLOG_NAME:
     case FLAG_PROLOG_VERSION:
@@ -469,18 +467,31 @@ Unif_Flag(int i, WamWord value_word)
       break;
 
     case FLAG_DOUBLE_QUOTES:
+    case FLAG_BACK_QUOTES:
       switch (Flag_Value(i))
 	{
-	case FLAG_DOUBLE_QUOTES_CODES:
+	case FLAG_AS_CODES:
 	  atom = atom_codes;
 	  break;
 
-	case FLAG_DOUBLE_QUOTES_CHARS:
+	case FLAG_AS_CODES | FLAG_NO_ESCAPE_MASK:
+	  atom = atom_codes_no_escape;
+	  break;
+
+	case FLAG_AS_CHARS:
 	  atom = atom_chars;
 	  break;
 
-	case FLAG_DOUBLE_QUOTES_ATOM:
+	case FLAG_AS_CHARS | FLAG_NO_ESCAPE_MASK:
+	  atom = atom_chars_no_escape;
+	  break;
+
+	case FLAG_AS_ATOM:
 	  atom = atom_atom;
+	  break;
+
+	case FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK:
+	  atom = atom_atom_no_escape;
 	  break;
 	}
       break;
@@ -727,6 +738,9 @@ Write_Pl_State_File(WamWord file_word)
   i = Flag_Value(FLAG_DOUBLE_QUOTES);
   fwrite(&i, sizeof(i), 1, f);
 
+  i = Flag_Value(FLAG_BACK_QUOTES);
+  fwrite(&i, sizeof(i), 1, f);
+
   i = Flag_Value(FLAG_CHAR_CONVERSION);
   fwrite(&i, sizeof(i), 1, f);
 
@@ -791,6 +805,9 @@ Read_Pl_State_File(WamWord file_word)
 
   fread(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_DOUBLE_QUOTES) = i;
+
+  fread(&i, sizeof(i), 1, f);
+  Flag_Value(FLAG_BACK_QUOTES) = i;
 
   fread(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_CHAR_CONVERSION) = i;

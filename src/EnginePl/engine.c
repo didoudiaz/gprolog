@@ -185,7 +185,7 @@ Stop_Prolog(void)
 {
 #ifdef DEREF_STATS
   double d = (double) chain_len / (double) nb_deref;
-  printf("Deref: nb: %ld  avg len = %g\n", nb_deref, d);
+  fprintf(stderr, "Deref: nb: %ld  avg len = %g\n", nb_deref, d);
 #endif
   Restore_Machine_Regs(init_buff_regs);
 }

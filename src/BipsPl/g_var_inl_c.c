@@ -88,7 +88,7 @@ static void G_Free_Element(GVarElt *g_elem);
 
 static void G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem);
 
-static void G_Untrail(void);
+static void G_Untrail(int nb, WamWord *arg_frame);
 
 static Bool G_Read(WamWord gvar_word, WamWord gval_word);
 
@@ -324,10 +324,12 @@ finish:
 
   if (backtrack)
     {
-      Trail_Push(save_g_elem.val);	/* push frame (see G_Untrail) */
-      Trail_Push(save_g_elem.size);
-      Trail_Push(g_elem);
-      Trail_FC(G_Untrail);
+      WamWord arg_frame[3];
+
+      arg_frame[0] = (WamWord) g_elem;
+      arg_frame[1] = (WamWord) save_g_elem.val;
+      arg_frame[2] = (WamWord) save_g_elem.size;
+      Trail_FC(G_Untrail, 3, arg_frame);
     }
   else
     G_Free_Element(&save_g_elem);
@@ -565,14 +567,14 @@ G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-G_Untrail(void)
+G_Untrail(int n, WamWord *arg_frame)
 {
-  GVarElt *g_elem;
+  GVarElt *g_elem = (GVarElt *) arg_frame[0];
 
-  g_elem = (GVarElt *) Trail_Pop;	/* pop frame (see G_Assign_Element) */
   G_Free_Element(g_elem);
-  g_elem->size = Trail_Pop;
-  g_elem->val = Trail_Pop;
+
+  g_elem->val = arg_frame[1];
+  g_elem->size = arg_frame[2];
 }
 
 

@@ -69,7 +69,8 @@ static void Scan_Number(StmInf *pstm, Bool integer_only);
 
 static void Scan_Quoted(StmInf *pstm);
 
-static int Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0);
+static int Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, 
+			    Bool no_escape);
 
 
 
@@ -329,7 +330,7 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 
   if (c == '\'')		/* 0'<character> */
     {
-      c = Scan_Quoted_Char(pstm, TRUE, '\'');
+      c = Scan_Quoted_Char(pstm, TRUE, '\'', FALSE);
       if (c == -1)		/* <character> is ' */
 	{
 	  token.line = pstm->line_count + 1;
@@ -423,15 +424,32 @@ Scan_Quoted(StmInf *pstm)
   int c0;
   char *s;
   Bool convert = (c_orig != '\'');
+  Bool no_escape;
+  int i = 0;
 
-  token.type = (c_type == QT) ? TOKEN_NAME
-    : (c_type == DQ) ? TOKEN_STRING : TOKEN_BACK_QUOTED;
+  if (c_type == QT)
+    {
+      token.type = TOKEN_NAME;
+      i = 0;
+    }
+  else if (c_type == DQ)
+    {
+      token.type = TOKEN_STRING;
+      i = Flag_Value(FLAG_DOUBLE_QUOTES);
+    }
+  else
+    {
+      token.type = TOKEN_BACK_QUOTED;
+      i = Flag_Value(FLAG_BACK_QUOTES);
+    }
+
   s = token.name;
   c0 = c;
+  no_escape = i >> FLAG_NO_ESCAPE_BIT;
 
   for (;;)
     {
-      c = Scan_Quoted_Char(pstm, convert, c0);
+      c = Scan_Quoted_Char(pstm, convert, c0, no_escape);
       if (c == -1)
 	{
 	  *s = '\0';
@@ -484,7 +502,7 @@ Scan_Quoted(StmInf *pstm)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0)
+Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 {
   int radix;
   char *p, *f;
@@ -503,14 +521,14 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0)
   if (c == EOF || c == '\n')
     return -2;
 
-  if (c != '\\')
+  if (c != '\\' || no_escape)
     return c;
   /* escape sequence */
   Read_Next_Char(pstm, convert);
   if (c == '\n')		/* \ followed by \n */
     return -3;
 
-  if (strchr("\\'\"`", c))	/* \\ or \' or \" or \`  " */
+  if (strchr("\\'\"`", c))	/* \\ or \' or \" or \` */
     return c;
 
   if ((p = (char *) strchr(escape_symbol, c)))	/* \a \b \f \n \r \t \v */
@@ -663,20 +681,12 @@ Scan_Next_Atom(StmInf *pstm)
 {
   char *s;
 
-  for (;;)
-    {
-      Read_Next_Char(pstm, TRUE);
-      if (c_type != LA)		/* layout character */
-	break;
-    }
-
+  do
+    Read_Next_Char(pstm, TRUE);
+  while (c_type == LA);		/* layout character */
 
   token.line = pstm->line_count + 1;
   token.col = pstm->line_pos;
-
-  if (c_type == DQ
-      && Flag_Value(FLAG_DOUBLE_QUOTES) != FLAG_DOUBLE_QUOTES_ATOM)
-    c_type = 0;
 
   switch (c_type)
     {
@@ -692,9 +702,16 @@ Scan_Next_Atom(StmInf *pstm)
       Unget_Last_Char;
       break;
 
-    case QT:			/* quote */
     case DQ:			/* double quote */
+      if ((Flag_Value(FLAG_DOUBLE_QUOTES) & FLAG_AS_PART_MASK) != FLAG_AS_ATOM)
+	goto error;
+      goto do_scan_quoted;
+
     case BQ:			/* back quote */
+      if ((Flag_Value(FLAG_BACK_QUOTES) & FLAG_AS_PART_MASK) != FLAG_AS_ATOM)
+	goto error;
+    case QT:			/* quote */
+    do_scan_quoted:
       err_msg = NULL;
       Scan_Quoted(pstm);
       if (err_msg)
@@ -718,6 +735,7 @@ Scan_Next_Atom(StmInf *pstm)
       break;
 
     default:
+    error:
       Unget_Last_Char;
       return "cannot start an atom (use quotes ?)";
     }

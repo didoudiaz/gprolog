@@ -1,5 +1,13 @@
 Change in GNU Prolog version 1.2.9:
 
+* re-write Windows GUI Console in pure Win32 (no more MFC)
+* adapt configure.in to work with autoconf 2.52
+* add Prolog flag back_quotes and values {atom,chars,codes}_no_escape
+* use a terminal recusion in FD arithmetic normalization
+* fix bug in bind_variables/2, reported by: 
+  Bowie Owens <owe043@phi-cq.vic.cmis.csiro.au>
+* modify Ma2Asm mappers to use Y_OFFSET (from ENVIR_STATIC_SIZE)
+* fix some bugs in the Wam debugger
 * add several options to the top-level to execute goals
 * add an environment variable LINEDIT to control linedit options
 * fix bug in linedit on \b in start of line (using ANSI ESC sequences)
@@ -15,7 +23,6 @@ Change in GNU Prolog version 1.2.9:
 * fix bug in FD: forall is now recognized in .fd files
 * fix bug in DCG: expand_term((a --> X), Y) is OK
 * fix X paste problem in linedit
-* re-write Windows GUI Console in pure Win32 (no more MFC)
 * simplify top_comp.c to better control include dirs in devel. mode
 * specialized functions for create/update/delete choice points
 * fix a bug in wam2ma (hexa name creation overflowed malloc buffer)

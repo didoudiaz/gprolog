@@ -411,10 +411,10 @@ void
 Move_From_Reg_Y(int index)
 {
 #ifdef MAP_REG_E
-  Inst_Printf("lw", "$24,-%d(%s)", index * 4 + 16, asm_reg_e);
+  Inst_Printf("lw", "$24,%d(%s)", Y_OFFSET(index), asm_reg_e);
 #else
   Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("lw", "$24,-%d($13)", index * 4 + 16);
+  Inst_Printf("lw", "$24,%d($13)", Y_OFFSET(index));
 #endif
 }
 
@@ -442,10 +442,10 @@ void
 Move_To_Reg_Y(int index)
 {
 #ifdef MAP_REG_E
-  Inst_Printf("sw", "$24,-%d(%s)", index * 4 + 16, asm_reg_e);
+  Inst_Printf("sw", "$24,%d(%s)", Y_OFFSET(index), asm_reg_e);
 #else
   Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("sw", "$24,-%d($13)", index * 4 + 16);
+  Inst_Printf("sw", "$24,%d($13)", Y_OFFSET(index));
 #endif
 }
 
@@ -766,19 +766,19 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
   if (!adr_of)
     {
 #ifdef MAP_REG_E
-      Inst_Printf("lw", "%s,-%d(%s)", dest, index * 4 + 16, asm_reg_e);
+      Inst_Printf("lw", "%s,%d(%s)", dest, Y_OFFSET(index), asm_reg_e);
 #else
       Inst_Printf("lw", "$12,%s", asm_reg_e);
-      Inst_Printf("lw", "%s,-%d($12)", dest, index * 4 + 16);
+      Inst_Printf("lw", "%s,%d($12)", dest, Y_OFFSET(index));
 #endif
     }
   else
     {
 #ifdef MAP_REG_E
-      Inst_Printf("la", "%s,-%d(%s)", dest, index * 4 + 16, asm_reg_e);
+      Inst_Printf("la", "%s,%d(%s)", dest, Y_OFFSET(index), asm_reg_e);
 #else
       Inst_Printf("lw", "$12,%s", asm_reg_e);
-      Inst_Printf("la", "%s,-%d($12)", dest, index * 4 + 16);
+      Inst_Printf("la", "%s,%d($12)", dest, Y_OFFSET(index));
 #endif
     }
   if (offset > 7)
@@ -1041,10 +1041,10 @@ void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
 #ifdef MAP_REG_E
-  Inst_Printf("sw", "$2,-%d(%s)", index * 4 + 16, asm_reg_e);
+  Inst_Printf("sw", "$2,%d(%s)", Y_OFFSET(index), asm_reg_e);
 #else
   Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("sw", "$2,-%d($13)", index * 4 + 16);
+  Inst_Printf("sw", "$2,%d($13)", Y_OFFSET(index));
 #endif
 }
 

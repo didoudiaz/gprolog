@@ -17,6 +17,7 @@ doc/[a-z][a-z]?*.eps
 doc/[a-z][a-z]?*.dvi
 doc/[a-z][a-z]?*.ps
 doc/[a-z][a-z]?*.pdf
+doc/[a-z][a-z]?*.chm
 doc/Html/[a-z][a-z]?*.html
 doc/Html/[a-z][a-z]?*.gif
 
@@ -105,8 +106,8 @@ src/Linedit/Makefile.in
 src/Linedit/[a-z][a-z]?*.[ch]
 
 src/W32GUICons/Makefile.in
-src/W32GUICons/[a-z][a-z]?*.[ch]
-src/W32GUICons/[a-z][a-z]?*.rc
+src/W32GUICons/[a-z][a-z0-9]?*.[ch]
+src/W32GUICons/[a-z][a-z0-9]?*.rc
 
 src/EnginePl/Makefile.in
 src/EnginePl/gp_config.h.in
