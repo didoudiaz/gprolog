@@ -144,3 +144,14 @@ Please report bugs to bug-prolog@gnu.org. To (un)subscribe to this mailing
 list send a mail to bug-prolog-request@gnu.org with (un)subscribe in the
 subject line.
 
+
+
+COPYING
+*******
+
+Because the basic GNU Prolog libraries are released under the GNU
+General Public License (GNU GPL), any program recommended for use with
+them must be free software and released under a GPL-compatible free
+software license, so that the combination can be (as a whole) under
+the GNU GPL as well.  For a list of some GPL-compatible free software
+licenses, see http://www.gnu.org/philosophy/license-list.html.
