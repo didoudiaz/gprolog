@@ -213,7 +213,7 @@ Find_Linked_Objects(void)
 #elif 0
       p = (ObjChain *) ((char *) p + 1);
 #else
-      p = (ObjChain *) (q + 1);
+      p = ((ObjChain *) q > p) ? (ObjChain *) (q + 1) : p + 1;
 #endif
     }
 
