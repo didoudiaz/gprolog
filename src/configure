@@ -1001,8 +1001,8 @@ ac_config_files="$ac_config_files Makefile TopComp/Makefile Pl2Wam/Makefile Wam2
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
 PROLOG_VERSION='1.2.18'
-PROLOG_DATE='Mar 6 2003'
-PROLOG_COPYRIGHT='Copyright (C) 1999-2003 Daniel Diaz'
+PROLOG_DATE='Jan 16 2004'
+PROLOG_COPYRIGHT='Copyright (C) 1999-2004 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
 GPLC=gplc
@@ -3630,7 +3630,7 @@ fi
 # ********************
 
 if test "$WITH_MSVC" != no; then
-	LDFLAGS='/nologo'
+	LDFLAGS='/nologo /F8000000'
 	LDLIBS='advapi32.lib user32.lib'
 else
 	LDLIBS='-lm'

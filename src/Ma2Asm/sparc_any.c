@@ -73,8 +73,11 @@ char delay_operands[64];
 
 
 	  /* variables for ma_parser.c / ma2asm.c */
-
-char *comment_prefix = "#";
+#if 0
+char *comment_prefix = "#";  /* does not work on solaris 9 */
+#else
+char *comment_prefix = "!";
+#endif
 char *local_symb_prefix = "L";
 int strings_need_null = 1;
 int call_c_reverse_args = 0;

@@ -82,7 +82,7 @@ install-links: uninstall-links
 	fi
 
 uninstall-links:
-	if test $(LINKS_DIR) != none; then \
+	-if test $(LINKS_DIR) != none; then \
 	   (cd $(LINKS_DIR) 2>/dev/null && rm -f $(BIN_FILES)); \
 	   rmdir $(LINKS_DIR) 2>/dev/null; \
 	fi || exit 0;
@@ -98,7 +98,7 @@ install-doc:
 	fi
 
 uninstall-doc:
-	if test $(DOC_DIR) != none; then \
+	-if test $(DOC_DIR) != none; then \
 	   (cd $(DOC_DIR); rm -f $(DOC_FILES)); \
 	   rmdir $(DOC_DIR) 2>/dev/null; \
 	fi || exit 0;
@@ -114,7 +114,7 @@ install-html:
 	fi
 
 uninstall-html:
-	if test $(HTML_DIR) != none; then \
+	-if test $(HTML_DIR) != none; then \
 	   (cd $(HTML_DIR); rm -f $(HTML_FILES)); \
 	   rmdir $(HTML_DIR) 2>/dev/null; \
 	fi || exit 0;
@@ -139,7 +139,7 @@ uninstall-examples:
 	rm -rf $(EXAMPLES_DIR)/ExamplesPl
 	rm -rf $(EXAMPLES_DIR)/ExamplesC
 	rm -rf $(EXAMPLES_DIR)/ExamplesFD
-	rmdir $(EXAMPLES_DIR) 2>/dev/null || exit 0
+	-rmdir $(EXAMPLES_DIR) 2>/dev/null || exit 0
 
 
 # --- CHECKS --- #

@@ -38,3 +38,13 @@ ix86/FreeBSD (OpenBSD ?):
 ix86/sco:
 	On SCO UnixWare use --host=i586-pc-sco when using ./configure
 	(until autoconf is updated to recognize UnixWare).
+
+
+MacOS:
+	if a Fatal Error: Segmentation Violation occurs it can be due to a C
+	stack overflow. It is possible to change the size of the C stack
+	before starting GNU Prolog. For instance the following command set the
+	C stack size to 8Mb:
+
+	ulimit -s 8192     (with bash)
+	limit stacksize 8M (with csh) 
