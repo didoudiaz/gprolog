@@ -1,3 +1,8 @@
+Fri Sep 28 17:09:35 CEST 2001 <Daniel.Diaz@inria.fr>
+
+	* space_args(true) now displays a space inside {}/1
+	* space_args(true) now displays a space after a comma (','/2)
+
 Sat Sep 15 12:49:19 CET 2001 <Daniel.Diaz@inria.fr>
 
 	* add a --foreign-only to pl2wam

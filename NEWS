@@ -1,3 +1,8 @@
+Change in GNU Prolog version 1.2.8:
+ 
+* space_args(true) now displays a space inside {}/1
+* space_args(true) now displays a space after a comma (','/2)
+
 Change in GNU Prolog version 1.2.7:
 
 * add a --foreign-only to pl2wam

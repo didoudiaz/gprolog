@@ -1,10 +1,10 @@
-% compiler: GNU Prolog 1.2.7 (Jan 25 2001)
+% compiler: GNU Prolog 1.2.8 (Sep 28 2001)
 % file    : control.pl
 % date    : 9 28 2001
-% time    : 20:28:45
+% time    : 20:43:40
 
 
-file_name('/home/diaz/GP1/src/src/BipsPl/control.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/control.pl').
 
 
 predicate('$use_control'/0,29,static,private,built_in,[

@@ -554,7 +554,7 @@ fi
 
 
 
-PROLOG_NAME='Contexts>>GNU Prolog'
+PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
 PROLOG_VERSION='1.2.8'
 PROLOG_DATE='Sep 28 2001'
