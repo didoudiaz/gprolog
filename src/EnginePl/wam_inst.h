@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2004 Daniel Diaz                                     *
+ * Copyright (C) 1999-2005 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -19,7 +19,7 @@
  *                                                                         *
  * You should have received a copy of the GNU General Public License along *
  * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.            *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -509,7 +509,8 @@ long chain_len;
       Mem_Word_Cpy(TR, arg, nb);		\
       TR += nb;					\
       Trail_Push(nb);				\
-      Trail_Push(Trail_Tag_Value(TFC, fct));	\
+      Trail_Push(fct);	/*fct adr not aligned*/	\
+      Trail_Push(Trail_Tag_Value(TFC, 0));	\
     }						\
   while (0)
 

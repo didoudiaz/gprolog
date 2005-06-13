@@ -23,19 +23,18 @@ help:
 	@echo
 	@echo '*** Please read the README file ***'
 	@echo
-	@echo 'make all       make DVI, PDF, PostScript, HTML and CHM versions'
-	@echo 'make dvi       make DVI version        (needs LaTeX2e)'
-	@echo 'make pdf       make PDF version        (needs pdflatex)'
-	@echo 'make ps        make PostScript version (needs dvips)'
-	@echo 'make html      make HTML version       (needs HeVeA)'
-	@echo 'make chm       make HTMLHelp version   (needs hhc - Win32 only)'
+	@echo 'make all        make DVI, PDF, PostScript, HTML and CHM versions'
+	@echo 'make dvi        make DVI version        (needs LaTeX2e)'
+	@echo 'make pdf        make PDF version        (needs pdflatex)'
+	@echo 'make ps         make PostScript version (needs dvips)'
+	@echo 'make html       make HTML version       (needs HeVeA)'
+	@echo 'make chm        make HTMLHelp version   (needs hhc - Win32 only)'
 	@echo
-	@echo 'make clean     remove all temporary files'
-	@echo 'make distclean same as clean'
-	@echo 'make clean-all remove all versions'
-	@echo 'make clean-full remove all versions'
+	@echo 'make clean      remove all temporary files'
+	@echo 'make distclean  remove all versions and auxiliary files'
+	@echo 'make clean-all  remove all versions'
 	@echo
-	@echo 'make help      this help'
+	@echo 'make help       this help'
 	@echo
 
 
@@ -90,7 +89,7 @@ clean:
 	rm -rf $(PREFIX)*.htoc $(PREFIX)*.haux $(PREFIX)*.hind $(PREFIX)*.hrf
 
 
-distclean: clean
+distclean: clean-full
 
 
 clean-all: distclean

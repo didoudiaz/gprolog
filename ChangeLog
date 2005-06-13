@@ -1,3 +1,7 @@
+Mon Jun 13 15:46:49 CEST 2005 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix 2 bugs in global variables
+
 Mon Jun  7 15:22:44 CEST 2004 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix problem when compiling with gcc 3.4.0

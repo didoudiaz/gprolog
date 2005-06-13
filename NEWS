@@ -1,3 +1,7 @@
+Change in GNU Prolog version 1.2.19:
+
+* fix 2 bugs in global variables
+
 Change in GNU Prolog version 1.2.18:
 
 * fix problem when compiling with gcc 3.4.0

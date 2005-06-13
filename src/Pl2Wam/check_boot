@@ -3,14 +3,14 @@ do_diff() {
     diff --ignore-space-change -I '% date' -I '% compiler' -I '% time' $1 $2
 }
 
-pl_files='pl2wam read_file bip_list syn_sugar internal code_gen reg_alloc inst_codif first_arg indexing wam_emit'
+files=*.wam
 
 
 if [ $# = 2 ]; then
     do_diff $1 $2
 else
-    for i in $pl_files; do
-	do_diff $i.wam $i.wam1
+    for i in $files; do
+	do_diff $i ${i}1
     done
 fi
 

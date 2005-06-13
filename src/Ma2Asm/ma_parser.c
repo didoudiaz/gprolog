@@ -6,7 +6,7 @@
  * Descr.: mini-assembler parser                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2004 Daniel Diaz                                     *
+ * Copyright (C) 1999-2005 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -19,7 +19,7 @@
  *                                                                         *
  * You should have received a copy of the GNU General Public License along *
  * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
