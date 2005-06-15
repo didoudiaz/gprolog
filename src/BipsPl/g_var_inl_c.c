@@ -1303,7 +1303,7 @@ G_Array_Size(WamWord gvar_word, WamWord size_word)
 
   size = g_elem->size;
 
-  return g_arg != NULL && size < 0 && Get_Integer(-size, size_word);
+  return g_arg == NULL && size < 0 && Get_Integer(-size, size_word);
 }
 
 
