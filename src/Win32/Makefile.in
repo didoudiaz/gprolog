@@ -31,7 +31,6 @@ setup-link: compile-link create-setup
 
 create-setup: create_bat.exe
 	cp create_bat.exe $(TMPDIR)/bin
-	unix2dos gp-setup.iss
 	$(ISCC) gp-setup.iss
 
 ../$(PKG_NAME).tar.gz:
