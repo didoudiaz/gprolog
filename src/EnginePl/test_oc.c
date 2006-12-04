@@ -3,7 +3,6 @@
 
 #include "obj_chain.h"
 
-
 void
 Fatal_Error(char *msg)
 {
@@ -19,6 +18,7 @@ main()
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
 #endif
+  puts("\nstarting...");
   Find_Linked_Objects();
   puts("\nfinished");
   return 0;

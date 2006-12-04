@@ -5759,17 +5759,20 @@ the shell with the return code \texttt{Status}.
 predicates.
 
 \subsubsection{\texttt{once/1}, \texttt{({\bs}+)/1} - not provable,
-               \texttt{call\_with\_args/1-11}, \texttt{call/2}}
+               \texttt{call/2-11}, 
+	       \texttt{call\_with\_args/1-11}, \texttt{call\_det/2}}
    \AddPBD{once/1}
    \AddPBD{({\bs}+)/1}
+   \AddPBD{call/2-11}
    \AddPBD{call\_with\_args/1-11}
-   \AddPBD{call/2}
+   \AddPBD{call\_det/2}
 
 \begin{TemplatesOneCol}
 once(+callable\_term)\\
 {\bs}+(+callable\_term) \\
+call(+callable\_term, +term,\ldots, +term)\\
 call\_with\_args(+atom, +term,\ldots, +term)\\
-call(+callable\_term, ?boolean)
+call\_det(+callable\_term, ?boolean)
 
 \end{TemplatesOneCol}
 
@@ -5783,9 +5786,16 @@ of \texttt{Goal} are cut. \texttt{once(Goal)} is equivalent to
 \texttt{{\bs}+ Goal} succeeds if \texttt{call(Goal)} fails and fails
 otherwise. This built-in predicate gives negation by failure.
 
-\texttt{call\_with\_args(Functor, Arg1,\ldots, ArgN)} calls the goal whose functor is \texttt{Functor} and whose arguments are \texttt{Arg1},\ldots, \texttt{ArgN} ($0 \leq \texttt{N} \leq 10$).
+\texttt{call(Closure, Arg1,\ldots, ArgN)} calls the goal \texttt{call(Goal)} 
+where \texttt{Goal} is constructed by appending \texttt{Arg1,\ldots, ArgN}
+($1 \leq \texttt{N} \leq 10$) additional arguments to the arguments (if any)
+of \texttt{Closure}.
 
-\texttt{call(Goal, Deterministic)} succeeds if \texttt{call(Goal)}
+\texttt{call\_with\_args(Functor, Arg1,\ldots, ArgN)} calls the goal 
+whose functor is \texttt{Functor} and whose arguments are 
+\texttt{Arg1},\ldots, \texttt{ArgN} ($0 \leq \texttt{N} \leq 10$).
+
+\texttt{call\_det(Goal, Deterministic)} succeeds if \texttt{call(Goal)}
 succeeds and unifies \texttt{Deterministic} with \texttt{true} if
 \texttt{Goal} has not created any choice-points, with \texttt{false}
 otherwise.
@@ -5814,11 +5824,14 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 \ErrCond{\texttt{Deterministic} is neither a variable nor a boolean}
 \ErrTerm{type\_error(boolean, Deterministic)}
 
+\ErrCond{for \texttt{call/2-11} the resulting arity of \texttt{Goal} (arity of $\texttt{Closure} + \texttt{N}$) is an integer $>$ \texttt{max\_arity} flag \RefSP{set-prolog-flag/2}}
+\ErrTerm{representation\_error(max\_arity)}
+
 \end{PlErrors}
 
 \Portability
 
-\texttt{once/1} and \texttt{({\bs}+)/1} are ISO predicates, \texttt{call\_with\_args/1-11} and \texttt{call/2} are GNU Prolog predicates.
+\texttt{once/1} and \texttt{({\bs}+)/1} are ISO predicates, \texttt{call/2-11}, \texttt{call\_with\_args/1-11} and \texttt{call\_det/2} are GNU Prolog predicates.
 
 \subsubsection{\texttt{repeat/0}}
    \AddPBD{repeat/0}
@@ -6621,8 +6634,8 @@ sublist(?list, ?list)
 
 \Description
 
-\texttt{sublist(List1, List2)} succeeds if \texttt{List2} is a sub-list of
-\texttt{List1}. This predicate is re-executable on backtracking.
+\texttt{sublist(List1, List2)} succeeds if \texttt{List1} is a sub-list of
+\texttt{List2}. This predicate is re-executable on backtracking.
 
 \PlErrorsNone
 

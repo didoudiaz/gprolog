@@ -6,7 +6,7 @@
  * Descr.: sockets management - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -86,9 +86,8 @@ static int atom_AF_INET;
  * Function Prototypes             *
  *---------------------------------*/
 
-static
-  Bool Create_Socket_Streams(int sock, char *stream_name,
-			     int *stm_in, int *stm_out);
+static Bool Create_Socket_Streams(int sock, char *stream_name,
+				  int *stm_in, int *stm_out);
 
 
 
@@ -227,7 +226,7 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   int dom;
   int sock;
   int port;
-  int l;
+  socklen_t l;
 
 #ifdef SUPPORT_AF_UNIX
   char *path_name;
@@ -444,7 +443,7 @@ Socket_Accept_4(WamWord socket_word, WamWord client_word,
 		WamWord stm_in_word, WamWord stm_out_word)
 {
   int sock, cli_sock;
-  int l;
+  socklen_t l;
   struct sockaddr_in adr_in;
   int stm_in, stm_out;
   char *cli_ip_adr = "AF_UNIX";

@@ -71,7 +71,7 @@ $(PSNAME): $(DVINAME)
 html: Html/index.html
 
 $(HTMLNAME): custom.hva $(TEX_SRC)
-	hevea -O -nosymb -s -exec xxdate.exe -fix custom.hva $(MAIN) -o $(HTMLNAME)
+	hevea -O -s -exec xxdate.exe -fix custom.hva $(MAIN) -o $(HTMLNAME)
 
 Html/index.html: $(HTMLNAME)
 	rm -f Html/index.html Html/$(PREFIX)*.html

@@ -6,7 +6,7 @@
  * Descr.: FD instruction implementation                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -993,7 +993,7 @@ Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
   WamWord *save_CS = CS;
 
   if (range->vec)
-    CS = range->vec;
+    CS = (WamWord *) range->vec;
   CS += vec_size;
 
   Range_Inter(range, Range(fdv_adr));
@@ -1096,7 +1096,7 @@ Fd_After_Add_Cstr(void)
 
 #if 1
 		/* optim #2 */
-		pdate = Optim_Pointer(CF);
+		pdate = (unsigned long *) Optim_Pointer(CF);
 		if (*pdate < date)
 		  continue;
 #endif

@@ -6,7 +6,7 @@
  * Descr.: global variable (inline) management - C part                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -45,7 +45,7 @@
 #define G_ARRAY_AUTO               1
 #define G_ARRAY_EXTEND             2
 
-#define G_IMPOSSIBLE_SIZE          ((unsigned long) -1 >> 1)
+#define G_IMPOSSIBLE_SIZE          ((unsigned int) -1 >> 1)
 #define MAX_AUTO_SIZE              (1 << 20)
 
 

@@ -6,7 +6,7 @@
  * Descr.: translation file for SunOs/Solaris on sparc                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -252,8 +252,9 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
-  fprintf(stderr, "PREP_CP not implemented\n");
-  exit(1);
+  Inst_Printf("sethi", "%%hi(.Lcont%d-8),%%g1", w_label);
+  Inst_Printf("or", "%%g1,%%lo(.Lcont%d-8),%%g1", w_label);
+  Inst_Printf("st", "%%g1,%s", asm_reg_cp);
 }
 
 
@@ -266,8 +267,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  fprintf(stderr, "HERE_CP not implemented\n");
-  exit(1);
+  Label_Printf(".Lcont%d:", w_label++);
 }
 
 
@@ -842,6 +842,7 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
+  Inst_Printf(".section", ".rodata");
 }
 
 
@@ -856,7 +857,7 @@ Dico_String(int str_no, char *asciiz)
 {
   Inst_Printf(".align", "8");
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Inst_Printf(".ascii", "%s", asciiz);
+  Inst_Printf(".asciz", "%s", asciiz);
 }
 
 
@@ -959,14 +960,9 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-  Label_Printf(".data");
-  Label_Printf("\t.align 4");
-  Label_Printf(UN "obj_chain_start:");
-
-  Inst_Printf(".word", "%d", OBJ_CHAIN_MAGIC_1);
-  Inst_Printf(".word", "%d", OBJ_CHAIN_MAGIC_2);
-  Inst_Printf(".word", UN "obj_chain_stop");
-  Inst_Printf(".word", UN "%s", initializer_fct);
+  Inst_Printf(".section", ".ctors,#alloc,#write");
+  Inst_Printf(".align", "4");
+  Inst_Printf(".long", UN "%s", initializer_fct);
 }
 
 
@@ -979,14 +975,6 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-  Label_Printf(".data");
-  Label_Printf("\t.align 4");
-  Label_Printf(UN "obj_chain_stop:");
-
-  Inst_Printf(".word", UN "obj_chain_start");
 }
 
 

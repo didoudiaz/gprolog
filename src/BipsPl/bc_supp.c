@@ -6,7 +6,7 @@
  * Descr.: byte-code support                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -570,7 +570,7 @@ BC_Emit_Inst_1(WamWord inst_word)
     case GET_STRUCTURE:
     case PUT_STRUCTURE:
       nb_word = 2;
-      BC_Fun(w) = BC_Arg_Func_Arity(*arg_adr++, &w1);
+      BC_Fun(w) = BC_Arg_Func_Arity(*arg_adr++, (int *) &w1);
       BC_X0(w) = Rd_Integer(*arg_adr);
       break;
 
@@ -602,7 +602,7 @@ BC_Emit_Inst_1(WamWord inst_word)
       break;
 
     case UNIFY_STRUCTURE:
-      BC_Fun(w) = BC_Arg_Func_Arity(*arg_adr++, &w1);
+      BC_Fun(w) = BC_Arg_Func_Arity(*arg_adr++, (int *) &w1);
       BC_Ari(w) = w1;
       break;
 

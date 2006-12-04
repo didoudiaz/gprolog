@@ -6,7 +6,7 @@
  * Descr.: file consulting - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -116,7 +116,7 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 	      if (c == EOF)
 		{
 		eof_reached:
-		  p = "end_of_file.\n";
+		  p = (unsigned char *) "end_of_file.\n";
 		  c = *p++;
 		}
 	    }

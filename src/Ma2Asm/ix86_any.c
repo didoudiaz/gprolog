@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Cygwin/mingw32/... on intel x86      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -67,8 +67,9 @@ char asm_reg_cp[16];
 int w_label = 0;
 
 char *fc_arg_regs[] = FC_SET_OF_REGISTERS;
-int inside_fc;
-int fc_off_in_stack;
+int stack_offset = 0;		/* offset wrt esp to store the next argument in the stack */
+int fc_reg_no = 0;		/* index  wrt fc_arg_reg to store the next arg in a FC reg */
+int eax_used_as_fc_reg = 0;	/* is eax already containing an arg (FC) ? */
 
 
 
@@ -164,6 +165,9 @@ Off_Reg_Bank(int offset)
 void
 Asm_Stop(void)
 {
+#ifdef __ELF__
+  Inst_Printf(".section", ".note.GNU-stack,\"\",@progbits");
+#endif
 }
 
 
@@ -177,8 +181,8 @@ void
 Code_Start(char *label, int prolog, int global)
 {
   Label_Printf("");
-  Inst_Printf(".align", "4");
-#if defined(M_ix86_linux) || defined(M_ix86_sco)
+  Inst_Printf(".p2align", "4,,15");
+#if defined(M_ix86_linux) || defined(M_ix86_bsd) || defined(M_ix86_sco)
   Inst_Printf(".type", UN "%s,@function", label);
 #endif
 
@@ -189,7 +193,7 @@ Code_Start(char *label, int prolog, int global)
 
   if (!prolog)
     {
-      Inst_Printf("pushl", "%%esi"); /* used if argno>FC_MAX_ARGS_IN_REGS */
+      Inst_Printf("pushl", "%%esi"); /* used as r_aux when %eax is a FC reg */
       Inst_Printf("subl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
     }
 }
@@ -406,56 +410,62 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
   if (p_inline == NULL)		/* inlined code used a fast call */
     fc = 0;
 #endif
-  inside_fc = fc;
-  fc_off_in_stack = 0;
+  stack_offset = 0;
+  if (fc)
+    fc_reg_no = 0;
+  else
+    fc_reg_no = FC_MAX_ARGS_IN_REGS; /* so no more regs left to use */
+  eax_used_as_fc_reg = 0;
+  
 }
 
 
 
-#define BEFORE_ARG                                                          \
-{                                                                           \
-  char r[10], *r_aux;                                                       \
-  int  r_eq_r_aux = 0;                                                      \
-  int off1 = offset;                                                        \
-                                                                            \
-  if (inside_fc)                                                            \
-    {                                                                       \
-      if (offset < FC_MAX_ARGS_IN_REGS)                                     \
-        {                                                                   \
-  	  strcpy(r, fc_arg_regs[offset]);                                   \
-          r_aux = r;                                                        \
-          r_eq_r_aux = 1;                                                   \
-        }                                                                   \
-      else                                                                  \
-        {                                                                   \
-          off1 = (offset - FC_MAX_ARGS_IN_REGS + fc_off_in_stack);          \
-	  sprintf(r, "%d(%%esp)", off1 * 4);                                \
-          r_aux = "%esi";                                                   \
-        }                                                                   \
-    }                                                                       \
-  else                                                                      \
-    {                                                                       \
-      sprintf(r, "%d(%%esp)", offset * 4);                                  \
-      r_aux = "%eax";                                                       \
+#define BEFORE_ARG					\
+{							\
+  char r[10], *r_aux;					\
+  int  r_eq_r_aux = 0;					\
+							\
+  if (fc_reg_no < FC_MAX_ARGS_IN_REGS)			\
+    {							\
+      strcpy(r, fc_arg_regs[fc_reg_no++]);		\
+      if (strcmp("%eax", r) == 0)			\
+	eax_used_as_fc_reg = 1;				\
+      r_aux = r;					\
+      r_eq_r_aux = 1;					\
+    }							\
+  else							\
+    {							\
+      sprintf(r, "%d(%%esp)", stack_offset * 4);	\
+      stack_offset++;					\
+      r_aux = (eax_used_as_fc_reg) ? "%esi" : "%eax";	\
     }
 
 
-#define BEFORE_HALF_ARG_DOUBLE                                              \
-{                                                                           \
-  char r[10];                                                               \
-  int off1 = offset;                                                        \
-                                                                            \
-  if (inside_fc)                                                            \
-    {                                                                       \
-      if (offset < FC_MAX_ARGS_IN_REGS)                                     \
-        fc_off_in_stack++;                                                  \
-      else                                                                  \
-        off1 = (offset - FC_MAX_ARGS_IN_REGS + fc_off_in_stack);            \
-    }                                                                       \
-  sprintf(r, "%d(%%esp)", off1 * 4);
+/* In GCC 3, the 3 first args are passed via registers if they
+ * ints (recall: 1 double = 2 ints). So if the 2 first args are
+ * double (4 ints) nothing is passed in registers.
+ * In GCC 4, the 3 first int args are passed in register whatever 
+ * the previous arg types.
+ */
+
+#if __GNUC__ >= 4
+#define SKIP_FC_REG
+#else
+#define SKIP_FC_REG   fc_reg_no++
+#endif
+
+#define BEFORE_HALF_ARG_DOUBLE			\
+{						\
+  char r[10];					\
+						\
+  if (fc_reg_no < MAX_C_ARGS_IN_C_CODE)		\
+    SKIP_FC_REG;				\
+  sprintf(r, "%d(%%esp)", stack_offset * 4);	\
+  stack_offset++;
   
 
-#define AFTER_ARG                                                           \
+#define AFTER_ARG				\
 }
     
 
@@ -870,8 +880,10 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
-#if !defined(M_ix86_bsd)
-  Label_Printf(".section\t.rodata");
+#if 1
+  Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
+#else
+  Inst_Printf(".section", ".rodata");
 #endif
 }
 
@@ -979,12 +991,8 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-  Label_Printf(".data");
-  Label_Printf(UN "obj_chain_start:");
-
-  Inst_Printf(".long", "%d", OBJ_CHAIN_MAGIC_1);
-  Inst_Printf(".long", "%d", OBJ_CHAIN_MAGIC_2);
-  Inst_Printf(".long", UN "obj_chain_stop");
+  Inst_Printf(".section", ".ctors,\"aw\",@progbits");
+  Inst_Printf(".align", "4");
   Inst_Printf(".long", UN "%s", initializer_fct);
 }
 
@@ -998,11 +1006,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-  Label_Printf(".data");
-  Label_Printf(UN "obj_chain_stop:");
-
-  Inst_Printf(".long", UN "obj_chain_start");
 }

@@ -6,7 +6,7 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -79,6 +79,7 @@ InfLong;
 char *file_name_in;
 char *file_name_out;
 int inline_asm;
+int ignore_fc;
 int comment;
 
 FILE *file_out;
@@ -235,6 +236,9 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
       p_inline = NULL;
   }
 #endif
+
+  if (ignore_fc)
+    fc = 0;
 
   Call_C_Start(fct_name, fc, nb_args, p_inline);
 
@@ -625,6 +629,7 @@ Parse_Arguments(int argc, char *argv[])
 
   file_name_in = file_name_out = NULL;
   inline_asm = 0;
+  ignore_fc = 0;
   comment = 0;
 
   for (i = 1; i < argc; i++)
@@ -653,6 +658,12 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--full-inline-asm"))
 	    {
 	      inline_asm = 2;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--ignore-fast"))
+	    {
+	      ignore_fc = 1;
 	      continue;
 	    }
 
@@ -724,6 +735,7 @@ Display_Help(void)
   L("  -o FILE, --output FILE      set output file name");
   L("  --inline-asm                inline some C calls as asm instructions");
   L("  --full-inline-asm           inline most C calls as asm instructions");
+  L("  --ignore-fast               ignore fast call (FC) declarations");
   L("  --comment                   include comments in the output file");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");

@@ -6,7 +6,7 @@
  * Descr.: architecture dependent features - Header file                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -130,10 +130,11 @@
 
 #endif
 
-
 #if !defined(NO_USE_FAST_CALL) && defined(FC_ATTRIB)
 #define FC_USED_TO_COMPILE_CORE
+#ifndef FC /* to compile Ma2Asm/check.c without FC */
 #define FC FC_ATTRIB
+#endif
 #else
 #define FC
 #endif

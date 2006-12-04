@@ -6,7 +6,7 @@
  * Descr.: malloc with checks + other miscellaneous operations             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -23,6 +23,18 @@
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
+
+#include "machine.h"
+
+#ifdef USE_DL_MALLOC
+#include "dl_malloc.c"
+
+static void __attribute__((constructor)) 
+Init_Dl_Malloc(void) {
+  mallopt(M_MMAP_THRESHOLD, 0xFFFFFFF);	/* big value to no use mmap */
+}
+#endif
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,3 +222,5 @@ Fatal_Error(char *format, ...)
 
   Exit_With_Value(1);
 }
+
+

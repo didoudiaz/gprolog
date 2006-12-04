@@ -1,3 +1,14 @@
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+   \pdffalse % we are not running PDFLaTeX
+\else 
+   \ifnum\pdfoutput=0
+      \pdffalse  % we are not running PDFLaTeX
+   \else
+      \pdfoutput=1 \pdftrue  % we are running PDFLaTeX
+   \fi
+\fi
+
 \documentclass[twoside]{article}
 
 \usepackage{hevea}
@@ -7,7 +18,7 @@
 \usepackage{tabularx}
 \usepackage{makeidx}
 \usepackage{ifthen}
-\usepackage{fancyheadings}
+\usepackage{fancyhdr}
 \ifpdf
 	\usepackage[pdftex]{graphicx}
 	\usepackage[pdftex=true]{hyperref}

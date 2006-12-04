@@ -34,9 +34,12 @@ ppc/linux:
 	with no optimization options for gcc do not use global registers
 	(use: ./configure --with-c-flags=debug --disable-regs)
 
-ix86/FreeBSD (OpenBSD ?):
-	linedit is not yet supported, use ./configure --disable-linedit
-	check before (this is maybe no longer true)
+ppc/darwin-macosx:
+	for gcc 3.3 do not use global registers
+	(use: ./configure --disable-regs)
+
+ix86/OpenBSD:
+	use gmake instead of make 
 
 ix86/sco:
 	On SCO UnixWare use --host=i586-pc-sco when using ./configure

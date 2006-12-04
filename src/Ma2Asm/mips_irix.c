@@ -6,7 +6,7 @@
  * Descr.: translation file for IRIX on MIPS                               *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -1300,21 +1300,8 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-  Label_Printf("\t.section\t.rodata");
-  Label_Printf("\t.data");
-  Inst_Printf(".align", "3");
-  Inst_Printf(".size", "obj_chain_start,16");
-  Label_Printf("obj_chain_start:");
-
-  Inst_Printf(".word", "%d", OBJ_CHAIN_MAGIC_1);
-  Inst_Printf(".word", "%d", OBJ_CHAIN_MAGIC_2);
-  Inst_Printf(".word", "obj_chain_stop");
+  Inst_Printf(".section", ".ctors,\"aw\",@progbits");
   Inst_Printf(".word", "%s", initializer_fct);
-
-  Inst_Printf(".align", "2");
-  Inst_Printf(".size", "obj_chain_stop,4");
-  Label_Printf("obj_chain_stop:");
-  Inst_Printf(".word", "obj_chain_start");
 }
 
 
@@ -1327,6 +1314,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
 }

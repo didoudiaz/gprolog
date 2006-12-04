@@ -6,7 +6,7 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -217,7 +217,7 @@ void Parse_Arguments(int argc, char *argv[]);
 
 void Display_Help(void);
 
-char *Compute_Hexa(unsigned char *str, char *hexa);
+char *Compute_Hexa(char *str, char *hexa);
 
 void Make_Native_Hexa_Symbol(Pred *p, char *buff);
 
@@ -418,7 +418,7 @@ main(int argc, char *argv[])
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Compute_Hexa(unsigned char *str, char *hexa)
+Compute_Hexa(char *str, char *hexa)
 {
   *hexa++ = 'X';
 
@@ -480,8 +480,15 @@ Emit_Obj_Initializer(void)
   Label_Printf("\n");
 
   Label_Printf("c_code  initializer Object_Initializer\n");
+  Inst_Printf("call_c", "New_Object(&Prolog_Object_Initializer,&System_Directives,&User_Directives)");
+  Inst_Printf("c_ret", "");
+  Label_Printf("\n");
 
-  Inst_Printf("call_c", "New_Object(&System_Directives,&User_Directives)");
+  Label_Printf("c_code  local Prolog_Object_Initializer\n");
+
+#ifdef DEBUG
+  Inst_Printf("call_c", "printf(\"executing init obj of %s\\n\")", file_name_in);
+#endif
 
   BT_String_List(&bt_atom, Emit_One_Atom);
   BT_String_List(&bt_tagged_atom, Emit_One_Atom_Tagged);
@@ -576,6 +583,13 @@ Emit_Exec_Directives(void)
       if (!p->system)
 	continue;
 
+#ifdef DEBUG
+      { static int flag = 0;
+	if (!flag)
+	  Inst_Printf("call_c", "printf(\"executing syst directives of %s\\n\")", file_name_in);
+	flag = 1;
+      }
+#endif
       Inst_Printf("call_c", "Execute_Directive(at(%d),%d,%d,&directive_%d)",
 		  p->pl_file->no, p->pl_line, 1, i);
     }
@@ -585,6 +599,7 @@ Emit_Exec_Directives(void)
   fputc('\n', file_out);
   Label_Printf("c_code  local User_Directives\n");
 
+
   i = 0;
   for (p = dummy_direct_start.next; p; p = p->next)
     {
@@ -592,6 +607,13 @@ Emit_Exec_Directives(void)
       if (p->system)
 	continue;
 
+#ifdef DEBUG
+      { static int flag = 0;
+	if (!flag)
+	  Inst_Printf("call_c", "printf(\"executing user directives of %s\\n\")", file_name_in);
+	flag = 1;
+      }
+#endif
       Inst_Printf("call_c", "Execute_Directive(at(%d),%d,%d,&directive_%d)",
 		  p->pl_file->no, p->pl_line, 0, i);
     }

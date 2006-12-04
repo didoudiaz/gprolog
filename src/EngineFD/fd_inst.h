@@ -6,7 +6,7 @@
  * Descr.: FD instruction implementation - header file                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -111,8 +111,8 @@
 
 #define CHAIN_RECORD_FRAME_SIZE    2
 
-#define CF_Pointer(rec_adr)        ((WamWord *) (rec_adr[0]))
-#define Next_Chain(rec_adr)        ((WamWord *) (rec_adr[1]))
+#define CF_Pointer(rec_adr)        (*(WamWord **) &(rec_adr[0]))
+#define Next_Chain(rec_adr)        (*(WamWord **) &(rec_adr[1]))
 
 
 
@@ -123,9 +123,9 @@
 
 #define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to */
 
-#define AF_Pointer(cf)             ((WamWord *)  (cf[0]))
-#define Optim_Pointer(cf)          ((WamWord *)  (cf[1]))	/* this cell */
-#define Cstr_Address(cf)           ((long (*)()) (cf[2]))
+#define AF_Pointer(cf)             (*(WamWord **)  &(cf[0]))
+#define Optim_Pointer(cf)          (*(WamWord **)  &(cf[1]))	/* this cell */
+#define Cstr_Address(cf)           (*(long (**)()) &(cf[2]))
 
 
 

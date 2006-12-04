@@ -6,7 +6,7 @@
  * Descr.: FD to C macros - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -717,10 +717,13 @@ fct_name(WamWord *AF)				\
   WamWord *CF;
 
 
-
+#ifdef __GNUC__
+#define fd_local_fdv_adr			\
+  WamWord *fdv_adr __attribute__((unused));
+#else
 #define fd_local_fdv_adr			\
   WamWord *fdv_adr;
-
+#endif
 
 
 

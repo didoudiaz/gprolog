@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -263,7 +263,7 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   Write_Simple(head_word);
   DBGPRINTF("\tbody: ");
   Write_Simple(body_word);
-  DBGPRINTF("\nByte Code at :%08lx\n", (long) byte_code);
+  DBGPRINTF("\nByte Code at :%p\n", (long) byte_code);
 #endif
 
 
@@ -601,7 +601,8 @@ Clean_Erased_Clauses(void)
       dyn = scan->dyn;
 
       if (dyn->first_erased_cl)	/* we must keep it - free impossible */
-	(unsigned long) (dyn->first_erased_cl) |= 1;	/* mark it */
+	dyn->first_erased_cl = (DynCInf *)
+	  ((unsigned long) (dyn->first_erased_cl) | 1);	/* mark it */
     }
 
 
@@ -1055,10 +1056,10 @@ Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 static void
 Check_Dynamic_Clauses(DynPInf *dyn)
 {
-  DBGPRINTF("\nFirst dyn with erase:0x%08lx\n",
+  DBGPRINTF("\nFirst dyn with erase:%p\n",
 	    (long) first_dyn_with_erase);
-  DBGPRINTF("Dyn:0x%08lx  arity:%d  count_a:%d  count_z:%d  "
-	    "1st erased:0x%08lx  next dyn with erase:0x%08lx\n",
+  DBGPRINTF("Dyn:%p  arity:%d  count_a:%d  count_z:%d  "
+	    "1st erased:%p  next dyn with erase:%p\n",
 	    (long) dyn, dyn->arity, dyn->count_a, dyn->count_z, 
 	    (long) dyn->first_erased_cl, (long) dyn->next_dyn_with_erase);
 
@@ -1164,14 +1165,14 @@ Check_Chain(D2ChHdr *hdr, int index_no)
 	  clause_b = clause->ind_chain.prev;
 	}
 
-      DBGPRINTF(" %3d  %3d  0x%08lx  0x%08lx <-> 0x%08lx  ",
+      DBGPRINTF(" %3d  %3d  %p  %p <-> %p  ",
 		clause->cl_no, clause->term_size, (long) clause,
 		(long) clause_b, (long) clause_f);
       Write_Simple(clause->head_word);
       DBGPRINTF(":-");
       Write_Simple(clause->body_word);
       if (clause->erase_stamp != DYN_STAMP_NONE)
-	DBGPRINTF("  erased at:%ld   next erased: 0x%08lx",
+	DBGPRINTF("  erased at:%ld   next erased: %p",
 		  clause->erase_stamp, (long) (clause->next_erased_cl));
       DBGPRINTF("\n");
     }

@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -322,17 +322,20 @@ M_Allocate_Stacks(void)
   unsigned length = 0;
   WamWord *addr;
   int i;
-  WamWord *addr_to_try[] = { NULL, 
+  WamWord *addr_to_try[] = {
+#ifndef MMAP_NEEDS_FIXED
+    NULL, 
+#endif
 #ifdef M_MMAP_HIGH_ADR1
-			     (WamWord *) M_MMAP_HIGH_ADR1,
+    (WamWord *) M_MMAP_HIGH_ADR1,
 #endif
 #ifdef M_MMAP_HIGH_ADR2
-			     (WamWord *) M_MMAP_HIGH_ADR2,
+    (WamWord *) M_MMAP_HIGH_ADR2,
 #endif
 #ifdef M_MMAP_HIGH_ADR3
-			     (WamWord *) M_MMAP_HIGH_ADR3,
+    (WamWord *) M_MMAP_HIGH_ADR3,
 #endif
-			     (WamWord *) -1 };
+    (WamWord *) -1 };
 
   page_size = getpagesize() / sizeof(WamWord);
 

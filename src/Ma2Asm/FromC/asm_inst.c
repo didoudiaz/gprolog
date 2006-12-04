@@ -91,6 +91,16 @@ TRANS_pl_ret()
 }
 
 
+/* to define Prep_CP() and Here_CP() */
+void
+TRANS_prep_cp_here_cp() {
+  CP = &&a;
+  if (x<3) {
+    bar(x);
+  }
+ a:;
+}
+
 
 /* to define Jump() */
 

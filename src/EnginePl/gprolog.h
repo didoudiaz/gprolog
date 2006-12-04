@@ -7,7 +7,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -42,9 +42,9 @@ extern "C" {
 #define M_ix86_linux 1
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
-#define PROLOG_VERSION "1.2.19"
-#define PROLOG_DATE "Jun 13 2005"
-#define PROLOG_COPYRIGHT "Copyright (C) 1999-2005 Daniel Diaz"
+#define PROLOG_VERSION "1.3.0"
+#define PROLOG_DATE "Nov 21 2006"
+#define PROLOG_COPYRIGHT "Copyright (C) 1999-2006 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
 #define HEXGPLC "hexgplc"
@@ -151,7 +151,9 @@ extern "C" {
 #endif
 #if !defined(NO_USE_FAST_CALL) && defined(FC_ATTRIB)
 #define FC_USED_TO_COMPILE_CORE
+#ifndef FC /* to compile Ma2Asm/check.c without FC */
 #define FC FC_ATTRIB
+#endif
 #else
 #define FC
 #endif
@@ -715,6 +717,8 @@ int M_Get_Status(int pid);
 char *M_Mktemp(char *tmp_template);
 char *M_Tempnam(char *dir, char *pfx);
 #define   DBGPRINTF             printf
+#ifndef _MACHINE_H
+#define _MACHINE_H
 void Init_Machine(void);
 void M_Allocate_Stacks(void);
 char *M_Sys_Err_String(int err_no);
@@ -747,7 +751,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #elif defined(M_alpha_osf)
 #    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 #elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
-      defined(M_ix86_solaris) || defined(M_ix86_cygwin)
+      defined(M_ix86_solaris) || defined(M_ix86_cygwin)  || defined(M_ix86_bsd)
 #ifdef NO_USE_EBP
 #    define M_USED_REGS            {"ebx", 0}
 #else
@@ -775,41 +779,23 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #if defined(M_sunos) || defined(M_solaris)
 #   define MMAP_NEEDS_FIXED
 #endif
-#define OBJ_CHAIN_MAGIC_1          0xdeadbeef
-#define OBJ_CHAIN_MAGIC_2          0x12345678
-#ifndef _MSC_VER
-typedef struct objchain *PObjChain;
-typedef struct objchain
-{
-  long magic1;
-  long magic2;
-  PObjChain *next;
-  void (*fct_init) ();
-}
-ObjChain;
+#ifdef __OpenBSD__
+#define USE_DL_MALLOC
+#endif
 #endif
 void Find_Linked_Objects(void);
-void New_Object(void (*fct_exec_system) (), void (*fct_exec_user) ());
-#ifndef __GNUC__
-#define ATTR_TO_KEEP_UNREF_STATIC_VAR
-#elif __GNUC__ >= 3 && __GNUC_MINOR__ >= 3
-#define ATTR_TO_KEEP_UNREF_STATIC_VAR __attribute__ ((used))
-#else
-#define ATTR_TO_KEEP_UNREF_STATIC_VAR __attribute__ ((unused))
-#endif
+void New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ());
 #ifdef OBJ_INIT
-static void (OBJ_INIT) ();
-#ifndef _MSC_VER
-extern ObjChain *obj_chain_stop;
-static ObjChain obj_chain_start ATTR_TO_KEEP_UNREF_STATIC_VAR =
-  { OBJ_CHAIN_MAGIC_1, OBJ_CHAIN_MAGIC_2, &obj_chain_stop, OBJ_INIT };
-static ObjChain *obj_chain_stop = &obj_chain_start;
-#if 0 /* antoher way to force to keep the chain : a fct using obj_chain_start
-         which references the initializer function (OBJ_INIT) */
+#ifdef __GNUC__
 #define CPP_CAT1(x, y)   x ## y
 #define CPP_CAT(x, y)    CPP_CAT1(x, y)
-CPP_CAT(OBJ_INIT,_Dummy)(void) { exit((int) &obj_chain_start); }
-#endif
+#define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
+static void OBJ_INIT(void);
+static void __attribute__ ((constructor))
+OBJ_CTOR(void)
+{
+  New_Object(OBJ_INIT, NULL, NULL);
+}
 #else
 #pragma data_seg(".INIT$b")
 static long obj_chain_start = (long) OBJ_INIT;
@@ -824,30 +810,30 @@ static long obj_chain_start = (long) OBJ_INIT;
 #define WRITE_MODE                 NULL
 #ifdef GARBAGE_COLLECTOR
 #define ENVIR_STATIC_SIZE          4
-#define CPE(e)                     ((WamCont)   (e[-1]))
-#define BCIE(e)                    ((WamWord)   (e[-2]))
-#define EE(e)                      ((WamWord *) (e[-3]))
-#define NBYE(e)                    ((WamWord)   (e[-4]))
-#define Y(e, y)                    ((WamWord)   (e[-5 - (y)]))
+#define CPE(e)                     (*(WamCont *)  &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
+#define EE(e)                      (*(WamWord **) &(e[-3]))
+#define NBYE(e)                    (*(WamWord *)  &(e[-4]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-5 - (y)]))
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE", "NBYE"}
 #else
 #define ENVIR_STATIC_SIZE          3
-#define CPE(e)                     ((WamCont)   (e[-1]))
-#define BCIE(e)                    ((WamWord)   (e[-2]))
-#define EE(e)                      ((WamWord *) (e[-3]))
-#define Y(e, y)                    ((WamWord)   (e[-4 - (y)]))
+#define CPE(e)                     (*(WamCont *)  &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
+#define EE(e)                      (*(WamWord **) &(e[-3]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-4 - (y)]))
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 #endif
 #define CHOICE_STATIC_SIZE         8
-#define ALTB(b)                    ((CodePtr)   (b[-1]))
-#define CPB(b)                     ((WamCont)   (b[-2]))
-#define BCIB(b)                    ((WamWord)   (b[-3]))
-#define EB(b)                      ((WamWord *) (b[-4]))
-#define BB(b)                      ((WamWord *) (b[-5]))
-#define HB(b)                      ((WamWord *) (b[-6]))
-#define TRB(b)                     ((WamWord *) (b[-7]))
-#define CSB(b)                     ((WamWord *) (b[-8]))
-#define AB(b, a)                   ((WamWord)   (b[-9 - (a)]))
+#define ALTB(b)                    (*(CodePtr *)  &(b[-1]))
+#define CPB(b)                     (*(WamCont *)  &(b[-2]))
+#define BCIB(b)                    (*(WamWord *)  &(b[-3]))
+#define EB(b)                      (*(WamWord **) &(b[-4]))
+#define BB(b)                      (*(WamWord **) &(b[-5]))
+#define HB(b)                      (*(WamWord **) &(b[-6]))
+#define TRB(b)                     (*(WamWord **) &(b[-7]))
+#define CSB(b)                     (*(WamWord **) &(b[-8]))
+#define AB(b, a)                   (*(WamWord *)  &(b[-9 - (a)]))
 #define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
                                     "HB", "TRB", "CSB"}
 #define NB_OF_TRAIL_TAGS           4
@@ -2253,13 +2239,13 @@ char *Range_To_String(Range *range);
 #define Set_Dom_Mask(mask)         ((mask) |= MASK_DOM)
 #define Set_Val_Mask(mask)         ((mask) |= MASK_VAL)
 #define CHAIN_RECORD_FRAME_SIZE    2
-#define CF_Pointer(rec_adr)        ((WamWord *) (rec_adr[0]))
-#define Next_Chain(rec_adr)        ((WamWord *) (rec_adr[1]))
+#define CF_Pointer(rec_adr)        (*(WamWord **) &(rec_adr[0]))
+#define Next_Chain(rec_adr)        (*(WamWord **) &(rec_adr[1]))
 #define CONSTRAINT_FRAME_SIZE      3
 #define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to */
-#define AF_Pointer(cf)             ((WamWord *)  (cf[0]))
-#define Optim_Pointer(cf)          ((WamWord *)  (cf[1]))	/* this cell */
-#define Cstr_Address(cf)           ((long (*)()) (cf[2]))
+#define AF_Pointer(cf)             (*(WamWord **)  &(cf[0]))
+#define Optim_Pointer(cf)          (*(WamWord **)  &(cf[1]))	/* this cell */
+#define Cstr_Address(cf)           (*(long (**)()) &(cf[2]))
 #define ENV_VAR_VECTOR_MAX         "VECTORMAX"
 #define DEFAULT_VECTOR_MAX         127
 #define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr))==INT)

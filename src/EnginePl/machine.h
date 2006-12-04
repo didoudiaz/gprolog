@@ -6,7 +6,7 @@
  * Descr.: machine dependent features - Header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -23,6 +23,9 @@
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
+
+#ifndef _MACHINE_H
+#define _MACHINE_H
 
 #include "bool.h"
 
@@ -115,7 +118,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 
 #elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
-      defined(M_ix86_solaris) || defined(M_ix86_cygwin)
+      defined(M_ix86_solaris) || defined(M_ix86_cygwin)  || defined(M_ix86_bsd)
 
 #ifdef NO_USE_EBP
 #    define M_USED_REGS            {"ebx", 0}
@@ -167,4 +170,17 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #if defined(M_sunos) || defined(M_solaris)
 #   define MMAP_NEEDS_FIXED
+#endif
+
+
+
+/*---------------------------------*
+ * Malloc Management               *
+ *---------------------------------*/
+
+#ifdef __OpenBSD__
+#define USE_DL_MALLOC
+#endif
+
+
 #endif

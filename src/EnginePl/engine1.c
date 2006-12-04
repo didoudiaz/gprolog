@@ -6,7 +6,7 @@
  * Descr.: general engine                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -57,15 +57,16 @@ Call_Compiled(CodePtr codep)
   WamWord reserved_stack_space[1024];
 
 #if defined(M_sparc) && !defined(M_sparc_bsd)
-  register long *rfl asm("%l2") = base_fl;
-  register double *rfd asm("%l3") = base_fd;
+  register long * __attribute__ ((unused)) rfl asm("%l2") = base_fl;
+  register double * __attribute__ ((unused)) rfd asm("%l3") = base_fd;
+  ensure_reserved = (WamWord *) rfl + (long) rfd; /* to avoid gcc remove 2 previous inits ! */
 #endif
 
 #if !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK)
 
 #if defined(M_ix86_linux) || \
     defined(M_ix86_cygwin) || defined(M_ix86_mingw) || \
-    defined(M_ix86_sco) || defined(M_ix86_bsd)
+    defined(M_ix86_sco) || defined(M_ix86_bsd) 
 
   register WamWord *rb asm("%ebx") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */

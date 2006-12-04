@@ -229,7 +229,7 @@ precedence([[start,a1],[start,a2],[start,a3],[start,a4],[start,a5],
 	[m5,k2],[m6,k2],[l1,t1],[l1,t2],[l1,t3],
 	[l1,t4],[l1,t5],[t1,v1],[t5,v2],[t2,stop],
 	[t3,stop],[t4,stop],[v1,stop],[v2,stop],[ua,stop],
-	[k2,stop]]).
+	[k1,stop],[k2,stop]]).
 
 max_nf([[start,l1,30],[a1,s1,3],[a2,s2,3],[a5,s5,3],
 	[a6,s6,3],[p1,s3,3],[p2,s4,3]]).

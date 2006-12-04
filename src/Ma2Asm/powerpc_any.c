@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Darwin (MacOsX) on PowerPC           *
  * Author: Daniel Diaz and Lindsey Spratt                                  *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -161,6 +161,9 @@ Asm_Start(void)
 void
 Asm_Stop(void)
 {
+#ifdef __ELF__
+  Inst_Printf(".section", ".note.GNU-stack,\"\",@progbits");
+#endif
 }
 
 
@@ -994,6 +997,7 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
+#if 0
   Label_Printf(".data");
   Label_Printf(UN "obj_chain_start:");
 
@@ -1001,6 +1005,12 @@ Data_Start(char *initializer_fct)
   Inst_Printf(".long", "%d", OBJ_CHAIN_MAGIC_2);
   Inst_Printf(".long", UN "obj_chain_stop");
   Inst_Printf(".long", UN "%s", initializer_fct);
+#endif
+  Label_Printf(".data");
+  Label_Printf(".mod_init_func");
+  Inst_Printf(".align", "2");
+  Inst_Printf(".long", UN "%s", initializer_fct);
+
 }
 
 
@@ -1016,8 +1026,10 @@ Data_Stop(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
+#if 0
   Label_Printf(".data");
   Label_Printf(UN "obj_chain_stop:");
 
   Inst_Printf(".long", UN "obj_chain_start");
+#endif
 }

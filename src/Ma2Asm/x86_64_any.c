@@ -166,6 +166,9 @@ Off_Reg_Bank(int offset)
 void
 Asm_Stop(void)
 {
+#ifdef __ELF__
+  Inst_Printf(".section", ".note.GNU-stack,\"\",@progbits");
+#endif
 }
 
 
@@ -943,13 +946,8 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-  Label_Printf(".data");
-  Inst_Printf(".align", "32");
-  Label_Printf("obj_chain_start:");
-
-  Inst_Printf(".quad", "%ld", OBJ_CHAIN_MAGIC_1);
-  Inst_Printf(".quad", "%ld", OBJ_CHAIN_MAGIC_2);
-  Inst_Printf(".quad", "obj_chain_stop");
+  Inst_Printf(".section", ".ctors,\"aw\",@progbits");
+  Inst_Printf(".align", "8");
   Inst_Printf(".quad", "%s", initializer_fct);
 }
 
@@ -961,11 +959,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-  Label_Printf(".data");
-  Label_Printf("obj_chain_stop:");
-
-  Inst_Printf(".quad", "obj_chain_start");
 }

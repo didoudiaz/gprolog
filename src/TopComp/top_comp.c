@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -71,8 +71,6 @@
 
 #define TEMP_FILE_PREFIX           GPLC
 
-#define OBJ_FILE_OBJ_BEGIN         "obj_begin"
-#define OBJ_FILE_OBJ_END           "obj_end"
 #define OBJ_FILE_ALL_PL_BIPS       "all_pl_bips"
 #define OBJ_FILE_ALL_FD_BIPS       "all_fd_bips"
 #define OBJ_FILE_TOP_LEVEL         "top_level"
@@ -645,9 +643,6 @@ Link_Cmd(void)
   sprintf(buff, "%s%s%s%s ", cmd_link.exe_name, cmd_link.opt,
 	  cmd_link.out_opt, file_name_out);
 
-  Find_File(OBJ_FILE_OBJ_BEGIN, OBJ_SUFFIX, buff + strlen(buff));
-  strcat(buff, " ");
-
 				/* f->work_name1 is OK for LINK_OPTION */
   for (f = file_lopt; f->name; f++)
     sprintf(buff + strlen(buff), "%s ", f->work_name1);
@@ -694,9 +689,6 @@ Link_Cmd(void)
       Find_File(LIB_BIPS_PL, "", buff + strlen(buff));
       strcat(buff, " ");
     }
-
-  Find_File(OBJ_FILE_OBJ_END, OBJ_SUFFIX, buff + strlen(buff));
-  strcat(buff, " ");
 
   Find_File(LIB_ENGINE_PL, "", buff + strlen(buff));
   strcat(buff, " ");
@@ -1399,7 +1391,7 @@ Display_Help(void)
   L("  --no-debugger               do not link the Prolog/WAM debugger");
   L("  --min-pl-bips               link only used Prolog built-in predicates");
   L("  --min-fd-bips               link only used FD solver built-in predicates");
-  L("  --min-bips                  same as: --no-top-level --min-pl-bips --min-fd-bips");
+  L("  --min-bips                  same as: --no-top-level --min-pl-bips --min-fd-bips --no-debugger");
   L("  --min-size                  same as: --min-bips --strip");
   L("  --no-pl-lib                 do not look for the Prolog and FD libraries (maintenance only)");
   L("  --no-fd-lib                 do not look for the FD library (maintenance only)");

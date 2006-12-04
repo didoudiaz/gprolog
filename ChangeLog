@@ -1,3 +1,18 @@
+Mon Nov 27 18:38:09 CET 2006<Daniel.Diaz@univ-paris1.fr>
+
+	* rename call/2 to call_det/2
+	* implement call/2-11 as will be defined in the next standard
+	
+Fri Nov 24 18:38:25 CET 2006 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix various problems when compiling with gcc 4 (gcc 4.1.1)
+	* emit .note.GNU-stack to mark the stack as no executable for
+	  for x86_any.c, x86_64_any.c and powerpc_any.c
+	* change the way objects are found (obj_chain.c) using constructors
+	* use Doug Lea malloc for OpenBSD (problem with malloc using mmap)
+	* fix problems in various ports:
+	  alpha/linux, powerpc/MacOSX, sparc/solaris, ix86/OpenBSD
+
 Mon Jun 13 15:46:49 CEST 2005 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix 2 bugs in global variables

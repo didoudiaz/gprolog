@@ -6,7 +6,7 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -94,8 +94,7 @@ InfSig;
 
 static int atom_dt;
 
-static int atom_read;
-static int atom_write;
+/* atom_write is already defined in the set of often used atoms */
 static int atom_execute;
 static int atom_search;
 
@@ -140,8 +139,6 @@ Os_Interf_Initializer(void)
 {
   atom_dt = Create_Atom("dt");
 
-  atom_read = Create_Atom("read");
-  atom_write = Create_Atom("write");
   atom_execute = Create_Atom("execute");
   atom_search = Create_Atom("search");
 

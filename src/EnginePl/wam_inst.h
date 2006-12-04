@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -55,11 +55,11 @@
 
 #define ENVIR_STATIC_SIZE          4
 
-#define CPE(e)                     ((WamCont)   (e[-1]))
-#define BCIE(e)                    ((WamWord)   (e[-2]))
-#define EE(e)                      ((WamWord *) (e[-3]))
-#define NBYE(e)                    ((WamWord)   (e[-4]))
-#define Y(e, y)                    ((WamWord)   (e[-5 - (y)]))
+#define CPE(e)                     (*(WamCont *)  &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
+#define EE(e)                      (*(WamWord **) &(e[-3]))
+#define NBYE(e)                    (*(WamWord *)  &(e[-4]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-5 - (y)]))
 
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE", "NBYE"}
 
@@ -67,10 +67,10 @@
 
 #define ENVIR_STATIC_SIZE          3
 
-#define CPE(e)                     ((WamCont)   (e[-1]))
-#define BCIE(e)                    ((WamWord)   (e[-2]))
-#define EE(e)                      ((WamWord *) (e[-3]))
-#define Y(e, y)                    ((WamWord)   (e[-4 - (y)]))
+#define CPE(e)                     (*(WamCont *)  &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
+#define EE(e)                      (*(WamWord **) &(e[-3]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-4 - (y)]))
 
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 
@@ -81,15 +81,15 @@
 
 #define CHOICE_STATIC_SIZE         8
 
-#define ALTB(b)                    ((CodePtr)   (b[-1]))
-#define CPB(b)                     ((WamCont)   (b[-2]))
-#define BCIB(b)                    ((WamWord)   (b[-3]))
-#define EB(b)                      ((WamWord *) (b[-4]))
-#define BB(b)                      ((WamWord *) (b[-5]))
-#define HB(b)                      ((WamWord *) (b[-6]))
-#define TRB(b)                     ((WamWord *) (b[-7]))
-#define CSB(b)                     ((WamWord *) (b[-8]))
-#define AB(b, a)                   ((WamWord)   (b[-9 - (a)]))
+#define ALTB(b)                    (*(CodePtr *)  &(b[-1]))
+#define CPB(b)                     (*(WamCont *)  &(b[-2]))
+#define BCIB(b)                    (*(WamWord *)  &(b[-3]))
+#define EB(b)                      (*(WamWord **) &(b[-4]))
+#define BB(b)                      (*(WamWord **) &(b[-5]))
+#define HB(b)                      (*(WamWord **) &(b[-6]))
+#define TRB(b)                     (*(WamWord **) &(b[-7]))
+#define CSB(b)                     (*(WamWord **) &(b[-8]))
+#define AB(b, a)                   (*(WamWord *)  &(b[-9 - (a)]))
 
 #define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
                                     "HB", "TRB", "CSB"}

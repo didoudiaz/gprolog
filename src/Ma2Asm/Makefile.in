@@ -43,16 +43,13 @@ CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@
 
 # use make FC=Y check to generate an fc check
 
-FC=-DFAST
-
 check@OBJ_SUFFIX@: check.c
 	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
-	$(GPLC) -C "$(CFLAGS) $$FCFLAGS" -c check.c
+	$(GPLC) --c-compiler $(CC) -C "$(CFLAGS) $$FCFLAGS" -c check.c
 
 check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
-	if [ "$$FC" = "Y" ]; then cp check_ma.ma tmp.ma; \
-	else sed -e 's/ fast / /' check_ma.ma >tmp.ma; fi; \
-	$(GPLC) -S --comment tmp.ma -o check_ma@ASM_SUFFIX@
+	if [ "$$FC" != "Y" ]; then MAFLAGS='--ignore-fast'; fi; \
+	./ma2asm --comment $$MAFLAGS check_ma.ma
 
 check_ma@OBJ_SUFFIX@: check_ma@ASM_SUFFIX@
 	$(GPLC) -c check_ma@ASM_SUFFIX@

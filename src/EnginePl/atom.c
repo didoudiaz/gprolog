@@ -6,7 +6,7 @@
  * Descr.: atom table management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -120,7 +120,7 @@ static AtomInf *Locate_Atom(char *name);
 
 static int Hash_String(char *str);
 
-static char *Gen_Sym(unsigned char *prefix, int gen_sym_hash);
+static char *Gen_Sym(char *prefix, int gen_sym_hash);
 
 
 
@@ -478,7 +478,7 @@ Gen_New_Atom(char *prefix, int hash)
  * returns a string beginning by a prefix st. its hash code is gen_sym_hash*
  *-------------------------------------------------------------------------*/
 static char *
-Gen_Sym(unsigned char *prefix, int gen_sym_hash)
+Gen_Sym(char *prefix, int gen_sym_hash)
 {
   unsigned pl = strlen(prefix);
   unsigned hp = Hash_String(prefix);

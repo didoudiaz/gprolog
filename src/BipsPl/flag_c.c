@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable management - C Part             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -77,7 +77,7 @@ static int atom_toward_zero;
 static int atom_on;
 static int atom_off;
 
-static int atom_error;
+/* atom_error is already defined in the set of often used atoms */
 static int atom_warning;
 static int atom_fail;
 
@@ -150,7 +150,6 @@ Flag_Initializer(void)
   atom_on = Create_Atom("on");
   atom_off = Create_Atom("off");
 
-  atom_error = Create_Atom("error");
   atom_warning = Create_Atom("warning");
   atom_fail = Create_Atom("fail");
 

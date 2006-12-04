@@ -6,7 +6,7 @@
  * Descr.: meta call management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -24,6 +24,8 @@
 
 /* $Id$ */
 
+#define OBJ_INIT Call_Args_Initializer
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -40,6 +42,12 @@
  * Global Variables                *
  *---------------------------------*/
 
+static int atom_call_with_args;
+static int atom_call;
+
+
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -52,20 +60,45 @@ Prolog_Prototype(CALL_INTERNAL, 2);
 
 
 /*-------------------------------------------------------------------------*
- * CALL_WITH_ARGS                                                          *
+ * CALL_ARGS_INITIALIZER                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Call_Args_Initializer(void)
+{
+  atom_call_with_args = Create_Atom("call_with_args");
+  atom_call = Create_Atom("call");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CALL_CLOSURE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-Call_With_Args(int arity)
+Call_Closure(int atom_bip, int arity_rest)
 {
   int call_info;
-  int func;
+  int func, arity0, arity;
+  WamWord *arg_adr;
   PredInf *pred;
   WamWord *w;
   int i;
 
-  Set_C_Bip_Name("call_with_args", 1 + arity);
-  func = Rd_Atom_Check(A(0));
+  Set_C_Bip_Name(atom_tbl[atom_bip].name, 1 + arity_rest);
+  if (atom_bip == atom_call_with_args) {
+    func = Rd_Atom_Check(A(0));
+    arity0 = 0;
+  } else {
+    arg_adr = Rd_Callable_Check(A(0), &func, &arity0);
+  }
+  
+  arity = arity0 + arity_rest;
+  if (arity > MAX_ARITY)
+    Pl_Err_Representation(representation_max_arity);
+
 
   call_info = Call_Info(func, arity, 1);
 
@@ -76,19 +109,23 @@ Call_With_Args(int arity)
 	  w = H;
 	  A(0) = Tag_STC(w);
 	  *w++ = Functor_Arity(func, arity);
-	  for (i = 0; i < arity;)
-	    *w++ = A(++i);
+	  while(arity0-- > 0)
+	    *w++ = *arg_adr++;
+	  for (i = 1; i <= arity_rest; i++)
+	    *w++ = A(i);
 	  H = w;
 	}
 
-      A(1) =
-	Tag_INT(
-		  Call_Info(Create_Atom("call_with_args"), arity + 1, 1));
+      A(1) = Tag_INT(Call_Info(atom_bip, arity_rest + 1, 1));
+
       return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
     }
 
-  for (i = 0; i < arity; i++)
-    A(i) = A(i + 1);
+  w = &A(0);
+  while(arity0-- > 0)
+    *w++ = *arg_adr++;
+  for (i = 1; i <= arity_rest; i++)
+    *w++ = A(i);
 
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
@@ -106,65 +143,128 @@ Call_With_Args(int arity)
 WamCont
 Call_With_Args_1(void)
 {
-  return Call_With_Args(0);
+  return Call_Closure(atom_call_with_args, 0);
 }
 
 WamCont
 Call_With_Args_2(void)
 {
-  return Call_With_Args(1);
+  return Call_Closure(atom_call_with_args, 1);
 }
 
 WamCont
 Call_With_Args_3(void)
 {
-  return Call_With_Args(2);
+  return Call_Closure(atom_call_with_args, 2);
 }
 
 WamCont
 Call_With_Args_4(void)
 {
-  return Call_With_Args(3);
+  return Call_Closure(atom_call_with_args, 3);
 }
 
 WamCont
 Call_With_Args_5(void)
 {
-  return Call_With_Args(4);
+  return Call_Closure(atom_call_with_args, 4);
 }
 
 WamCont
 Call_With_Args_6(void)
 {
-  return Call_With_Args(5);
+  return Call_Closure(atom_call_with_args, 5);
 }
 
 WamCont
 Call_With_Args_7(void)
 {
-  return Call_With_Args(6);
+  return Call_Closure(atom_call_with_args, 6);
 }
 
 WamCont
 Call_With_Args_8(void)
 {
-  return Call_With_Args(7);
+  return Call_Closure(atom_call_with_args, 7);
 }
 
 WamCont
 Call_With_Args_9(void)
 {
-  return Call_With_Args(8);
+  return Call_Closure(atom_call_with_args, 8);
 }
 
 WamCont
 Call_With_Args_10(void)
 {
-  return Call_With_Args(9);
+  return Call_Closure(atom_call_with_args, 9);
 }
 
 WamCont
 Call_With_Args_11(void)
 {
-  return Call_With_Args(10);
+  return Call_Closure(atom_call_with_args, 10);
+}
+
+
+WamCont
+Call_2(void)
+{
+  return Call_Closure(atom_call, 1);
+}
+
+WamCont
+Call_3(void)
+{
+  return Call_Closure(atom_call, 2);
+}
+
+WamCont
+Call_4(void)
+{
+  return Call_Closure(atom_call, 3);
+}
+
+
+WamCont
+Call_5(void)
+{
+  return Call_Closure(atom_call, 4);
+}
+
+WamCont
+Call_6(void)
+{
+  return Call_Closure(atom_call, 5);
+}
+
+WamCont
+Call_7(void)
+{
+  return Call_Closure(atom_call, 6);
+}
+
+WamCont
+Call_8(void)
+{
+  return Call_Closure(atom_call, 7);
+}
+
+WamCont
+Call_9(void)
+{
+  return Call_Closure(atom_call, 8);
+}
+
+WamCont
+Call_10(void)
+{
+  return Call_Closure(atom_call, 9);
+}
+
+
+WamCont
+Call_11(void)
+{
+  return Call_Closure(atom_call, 10);
 }

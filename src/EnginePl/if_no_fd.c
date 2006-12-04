@@ -6,7 +6,7 @@
  * Descr.: FD interface for Prolog engine                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -40,7 +40,7 @@
 
 	  /* Errors Messages */
 
-#define ERR_FD_SOLVER_MISSING      "fd_interf.c: FD Solver not linked"
+#define ERR_FD_SOLVER_MISSING      __FILE__ ": FD Solver not linked"
 
 
 

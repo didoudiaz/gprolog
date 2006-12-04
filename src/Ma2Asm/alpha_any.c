@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/OSF on alpha                         *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -703,9 +703,7 @@ Here_CP(void)
 {
   Label_Printf("$Lcont%d:", w_label++);
 
-  /* get GP back */
-  /* this has only be introduced to get dynamic object loading work */
-  /* Inst_Printf("ldgp","$gp,0($27)"); */
+  Inst_Printf("ldgp","$gp,0($27)");
 }
 
 
@@ -1635,16 +1633,7 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-  Label_Printf(".data");
-  Inst_Printf(".align", "3");
-#ifdef M_alpha_linux
-  Inst_Printf(".type", "obj_chain_start,@object");
-  Inst_Printf(".size", "obj_chain_start,32");
-#endif
-  Label_Printf("obj_chain_start:");
-  Inst_Printf(".quad", "%u", OBJ_CHAIN_MAGIC_1);
-  Inst_Printf(".quad", "%u", OBJ_CHAIN_MAGIC_2);
-  Inst_Printf(".quad", "obj_chain_stop");
+  Inst_Printf(".section", ".ctors,\"aw\"");
   Inst_Printf(".quad", "%s", initializer_fct);
 }
 
@@ -1658,19 +1647,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-#ifdef M_alpha_linux
-  Label_Printf(".section\t.sdata,\"aw\"");
-#else
-  Label_Printf(".data");
-#endif
-  Inst_Printf(".align", "3");
-#ifdef M_alpha_linux
-  Inst_Printf(".type", "obj_chain_stop,@object");
-  Inst_Printf(".size", "obj_chain_stop,8");
-#endif
-  Label_Printf("obj_chain_stop:");
-  Inst_Printf(".quad", "obj_chain_start");
 }

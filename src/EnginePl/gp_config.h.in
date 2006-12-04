@@ -6,7 +6,7 @@
  * Descr.: general configuration file (handled by autoconf) - header file  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2005 Daniel Diaz                                     *
+ * Copyright (C) 1999-2006 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -119,7 +119,7 @@
 /* Define if the OS is a SCO */
 #undef M_sco
 
-/* Define if the OS is a BSD */
+/* Define if the OS is a (Free/Open/Net)BSD */
 #undef M_bsd
 
 
@@ -138,7 +138,7 @@
 /* Define if the system is a ix86/sco */
 #undef M_ix86_sco
 
-/* Define if the system is a ix86/freebsd */
+/* Define if the system is a ix86/freebsd or openbsd or netbsd */
 #undef M_ix86_bsd
 
 /* Define if the system is a ix86/cygwin */
@@ -219,6 +219,9 @@
 
 #define SIZEOF_LONG                any
 #define WORD_SIZE                  (8 * SIZEOF_LONG)
+
+/* Define if socklen_t is not defined */
+#undef socklen_t
 
 #include "arch_dep.h"
 
