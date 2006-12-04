@@ -126,7 +126,7 @@ dist-html: $(HTMLDIRNAME).tar.gz
 
 $(HTMLDIRNAME).tar.gz: Html/index.html
 	ln -sf Html $(HTMLDIRNAME)
-	tar cf $(HTMLDIRNAME).tar $(HTMLDIRNAME)/index.html $(HTMLDIRNAME)/$(PREFIX)*.html $(HTMLDIRNAME)/???*.gif
+	tar cf $(HTMLDIRNAME).tar $(HTMLDIRNAME)/index.html $(HTMLDIRNAME)/$(PREFIX)*.html $(HTMLDIRNAME)/$(PREFIX)*.css $(HTMLDIRNAME)/???*.gif
 	gzip -f $(HTMLDIRNAME).tar
 	rm -f $(HTMLDIRNAME)
 	@echo HTML distribution is in $(HTMLDIRNAME).tar.gz
