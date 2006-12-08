@@ -2,7 +2,7 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
- * File  : ma2asm_inst.c                                                   *
+ * File  : chkma.c                                                         *
  * Descr.: test file for MA translation                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *

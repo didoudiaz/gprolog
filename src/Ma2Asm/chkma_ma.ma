@@ -2,7 +2,7 @@
 ;/* GNU Prolog                                                             */
 ;/*                                                                        */
 ;/* Part  : mini-assembler to assembler translator                         */
-;/* File  : check_ma.ma                                                    */
+;/* File  : chkma_ma.ma                                                    */
 ;/* Descr.: test file for MA translation                                   */
 ;/* Author: Daniel Diaz                                                    */
 ;/*                                                                        */

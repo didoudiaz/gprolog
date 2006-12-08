@@ -148,9 +148,11 @@ uninstall-examples:
 # --- CHECKS --- #
 
 check:
-	cd EnginePl; make check
-	cd Ma2Asm; make check
-	cd Pl2Wam; make check
+	(cd EnginePl; make check) && \
+	(cd Ma2Asm; make check) && \
+	(cd Pl2Wam; make check) && \
+	(cd BipsPl; make check) && \
+	echo All tests succeeded
 
 
 # --- CLEAN --- #

@@ -13,7 +13,7 @@ ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Wam2Ma/bt_string.c \
 	$(CC) $(CFLAGS) -c ma2asm.c
 
 ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
-               ix86_any.c ix86_win32.c powerpc_any.c sparc_any.c \
+               ix86_any.c powerpc_any.c sparc_any.c \
                mips_irix.c alpha_any.c x86_64_any.c
 	$(CC) $(CFLAGS) -c ma2asm_inst.c
 
@@ -26,7 +26,7 @@ clean:
 	rm -f *@OBJ_SUFFIX@ ma2asm@EXE_SUFFIX@
 
 
-distclean: clean clean-check clean-extract_asm
+distclean: clean clean-chkma clean-extract_asm
 
 
 
@@ -38,27 +38,35 @@ extract_asm@EXE_SUFFIX@: extract_asm.c
 clean-extract_asm:
 	rm -f extract_asm@EXE_SUFFIX@
 
-# for check
-CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
 
-# use make FC=Y check to generate an fc check
+check: chkma@EXE_SUFFIX@
+	./chkma@EXE_SUFFIX@
 
-check@OBJ_SUFFIX@: check.c
+clean-check: clean-chkma
+
+
+
+# for chkma
+CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
+
+# use make FC=Y chkma to generate an fc check
+
+chkma@OBJ_SUFFIX@: chkma.c
 	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
-	$(GPLC) --c-compiler "$(CC)" -C "$(CFLAGS) $$FCFLAGS" -c check.c
+	$(GPLC) --c-compiler "$(CC)" -C "$(CFLAGS) $$FCFLAGS" -c chkma.c
 
-check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
+chkma_ma@ASM_SUFFIX@: chkma_ma.ma ma2asm@EXE_SUFFIX@
 	if [ "$$FC" != "Y" ]; then MAFLAGS='--ignore-fast'; fi; \
-	./ma2asm --comment $$MAFLAGS check_ma.ma
+	./ma2asm --comment $$MAFLAGS chkma_ma.ma
 
-check_ma@OBJ_SUFFIX@: check_ma@ASM_SUFFIX@
-	$(GPLC) -c check_ma@ASM_SUFFIX@
+chkma_ma@OBJ_SUFFIX@: chkma_ma@ASM_SUFFIX@
+	$(GPLC) -c chkma_ma@ASM_SUFFIX@
 
-check@EXE_SUFFIX@: $(CHECK_OBJS)
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@check@EXE_SUFFIX@ $(CHECK_OBJS)
+chkma@EXE_SUFFIX@: $(CHKMA_OBJS)
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@chkma@EXE_SUFFIX@ $(CHKMA_OBJS)
 
-clean-check:
-	rm -f check@OBJ_SUFFIX@ check_ma@ASM_SUFFIX@ check_ma@OBJ_SUFFIX@ check@EXE_SUFFIX@
+clean-chkma:
+	rm -f chkma@OBJ_SUFFIX@ chkma_ma@ASM_SUFFIX@ chkma_ma@OBJ_SUFFIX@ chkma@EXE_SUFFIX@
 
 
 

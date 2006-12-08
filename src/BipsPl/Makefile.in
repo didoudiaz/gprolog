@@ -173,6 +173,13 @@ utils.wam:       utils.pl
 write.wam:       write.pl
 src_rdr.wam:   	 src_rdr.pl
 
+PLS=$(shell echo [a-z][a-z]*.pl)
+WAMS=$(PLS:.pl=.wam)
+
+check:
+	../Pl2Wam/check_boot -a && echo Bootstrap Bips OK
+
+
 
 # test: read alone
 
