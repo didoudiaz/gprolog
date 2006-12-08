@@ -76,6 +76,9 @@ extern "C" {
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 #if defined(_WIN32) && !defined(__CYGWIN__)
+#ifdef _MSC_VER
+#pragma warning(disable : 4996)
+#endif
 #define MAXPATHLEN                 1024
 #define SIGQUIT                    SIGTERM
 #define fdopen                     _fdopen
@@ -146,7 +149,14 @@ extern "C" {
 #define FC_MAX_ARGS_IN_REGS 3	
 #define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
 #define FC_ATTRIB __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
-#else  /* MSVC++ ? */
+#elif 0  /* under MSVC++ we can use __fastcall convention (#elif 1 if wanted) */
+#define FC_MAX_ARGS_IN_REGS 2
+#define FC_SET_OF_REGISTERS { "%ecx", "%edx" };
+#define FC_ATTRIB __fastcall
+#else
+#define FC_MAX_ARGS_IN_REGS 0
+#define FC_SET_OF_REGISTERS { NULL };
+#define FC_ATTRIB
 #endif
 #endif
 #if !defined(NO_USE_FAST_CALL) && defined(FC_ATTRIB)
@@ -786,19 +796,24 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 void Find_Linked_Objects(void);
 void New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ());
 #ifdef OBJ_INIT
-#ifdef __GNUC__
+static void OBJ_INIT(void);
 #define CPP_CAT1(x, y)   x ## y
 #define CPP_CAT(x, y)    CPP_CAT1(x, y)
 #define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
-static void OBJ_INIT(void);
+#ifdef __GNUC__
 static void __attribute__ ((constructor))
 OBJ_CTOR(void)
 {
   New_Object(OBJ_INIT, NULL, NULL);
 }
 #else
-#pragma data_seg(".INIT$b")
-static long obj_chain_start = (long) OBJ_INIT;
+static void 
+OBJ_CTOR(void)
+{
+  New_Object(OBJ_INIT, NULL, NULL);
+}
+#pragma data_seg(".GPLC$m")
+static long obj_chain_start = (long) OBJ_CTOR;
 #pragma data_seg()
 #endif /* _MSC_VER */
 #endif /* OBJ_INIT */

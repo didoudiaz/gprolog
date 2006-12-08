@@ -4,9 +4,9 @@ Here are some help to port GNU Prolog.
 1) I suppose you are in ROOT_DIR/src:
 
    . ./SETVARS        (or source CSHSETVARS if you are under csh)
-   ./configure --with-c-flags='-g -Wall'
+   ./configure --with-c-flags=debug
 
---with-c-flags='-g -Wall' is a "good" option to allow you to use the C
+--with-c-flags=debug is a "good" option to allow you to use the C
 debugger, you can always use this until a final point is reached.
 
 
@@ -22,7 +22,6 @@ eventually look at EnginePl/arch_dep.h
 
 3) you must be able to compile the following:
 
-% cd Configure ; make
 % cd EnginePl ; make engine.o engine1.o
 
 
@@ -102,7 +101,7 @@ point.
 
 At this point you should discover which part is not OK. 
 
-5) Check that Obj Chain works:
+5) Check that ObjChain works:
 
 ObjChain is a way to find at run-time which Prolog modules are linked (to
 then initialize them). Normally this should be OK but you can test it.

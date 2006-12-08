@@ -57,19 +57,22 @@ install: install-system install-doc install-html install-examples install-links
 install-system:
 	./mkinstalldirs $(INSTALL_DIR) $(INSTALL_DIR)/bin \
 	$(INSTALL_DIR)/include $(INSTALL_DIR)/lib
-	for i in `echo "$(TXT_FILES)"`; do $(INSTALL_DATA) ../$$i $(INSTALL_DIR);done
-	for i in $(BIN_FILES); do $(INSTALL_PROGRAM) */$$i $(INSTALL_DIR)/bin;done
-	for i in $(OBJ_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib;done
-	for i in $(LIB_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib;done
-	for i in $(INC_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/include;done
+	for i in $(TXT_FILES); do $(INSTALL_DATA) ../$$i $(INSTALL_DIR); done
+	for i in $(BIN_FILES); do $(INSTALL_PROGRAM) */$$i $(INSTALL_DIR)/bin; done
+	for i in $(OBJ_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
+	for i in $(LIB_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
+	for i in $(INC_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/include; done
 	for i in $(INSTALL_DIR)/lib/*.a; do $(RANLIB) $$i; done
 
 
 uninstall: uninstall-links uninstall-html uninstall-doc uninstall-examples
-	rm -rf $(INSTALL_DIR)/bin
-	rm -rf $(INSTALL_DIR)/lib
-	rm -rf $(INSTALL_DIR)/include
-	for i in `echo "$(TXT_FILES)"`; do rm -f $(INSTALL_DIR)/$$i;done
+	for i in $(BIN_FILES); do rm -f $(INSTALL_DIR)/bin/$$i; done
+	rmdir -p $(INSTALL_DIR)/bin 2>/dev/null || exit 0
+	for i in $(LIB_FILES) $(OBJ_FILES); do rm -f $(INSTALL_DIR)/lib/$$i; done
+	rmdir -p $(INSTALL_DIR)/lib 2>/dev/null || exit 0
+	for i in $(INC_FILES); do rm -f $(INSTALL_DIR)/include/$$i; done
+	rmdir -p $(INSTALL_DIR)/include 2>/dev/null || exit 0
+	for i in $(TXT_FILES); do rm -f $(INSTALL_DIR)/$$i; done
 	rmdir $(INSTALL_DIR) 2>/dev/null || exit 0
 
 
@@ -145,7 +148,9 @@ uninstall-examples:
 # --- CHECKS --- #
 
 check:
-	@echo "No checks implemented (yet)."
+	cd EnginePl; make check
+	cd Ma2Asm; make check
+	cd Pl2Wam; make check
 
 
 # --- CLEAN --- #

@@ -1,12 +1,13 @@
 NAME         = @PROLOG_NAME1@
 VERSION      = @PROLOG_VERSION@
 PKG_NAME     = @PKG_NAME@
-CC           = @CC@
+CC           = @CC@ @CFLAGS_MACHINE@
 CFLAGS       = @CFLAGS@
 WIN_TMP_DIR  = @WIN_TMP_DIR@
 WIN_CONF_OPT = @WIN_CONF_OPT@
 ISCC         = iscc.exe
-#ISCC         = compil32.exe /cc
+AS           = @AS@
+
 
 # the name gprolog_win32 is also used inside gp-setup.iss.in
 TMPDIR=/tmp/gprolog_win32
@@ -30,6 +31,7 @@ setup-link: compile-link create-setup
 
 
 create-setup: create_bat.exe
+	cp `which $(AS)` $(TMPDIR)/bin
 	cp create_bat.exe $(TMPDIR)/bin
 	$(ISCC) gp-setup.iss
 

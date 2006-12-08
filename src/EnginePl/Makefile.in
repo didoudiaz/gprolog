@@ -2,7 +2,7 @@ ROOT_DIR1     = @ROOT_DIR1@
 TOP_LEVEL     = @TOP_LEVEL@
 LIB_ENGINE_PL = @LIB_ENGINE_PL@
 GPLC          = @GPLC@
-CC            = @CC@
+CC            = @CC@ @CFLAGS_MACHINE@
 CFLAGS        = @CFLAGS@
 AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
@@ -54,7 +54,7 @@ cpp_headers@EXE_SUFFIX@: cpp_headers.c
 	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
 
 
-$(TOP_LEVEL).h: headers.h cpp_headers
+$(TOP_LEVEL).h: headers.h cpp_headers@EXE_SUFFIX@
 	D=`(cd ..;for i in *;do test -d $$i && X="$$X $(ROOT_DIR1)/src/$$i";done;echo $$X)`; ./cpp_headers headers.h $(TOP_LEVEL).h $$D
 
 
@@ -104,12 +104,19 @@ distclean: clean clean-test_oc
 
 
 
+check:	test_oc@EXE_SUFFIX@
+	./test_oc@EXE_SUFFIX@
+
+clean-check: clean-test_oc
+
 # test obj chain utility
 
-TEST_OC_SRC=obj_chain.c test_oc.c test_oc_m1.c test_oc_m2.c
+TEST_OC_SRC=obj_chain.c test_oc.c
 
-test_oc@EXE_SUFFIX@: $(TEST_OC_SRC) obj_chain.h test_oc_defs.h
-	$(CC) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ $(TEST_OC_SRC)
+test_oc@EXE_SUFFIX@: obj_chain.c obj_chain.h test_oc.c test_oc_defs.h
+	for i in 1 2 3 4 5; do echo -e "#define OBJ_NO $$i\\n#include \"test_oc_defs.h\"" >/tmp/test_oc_m$$i.c; done
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. /tmp/test_oc_m[1-5].c
+	rm -f /tmp/test_oc_m[1-5].c
 
 clean-test_oc: 
 	rm -f test_oc@EXE_SUFFIX@

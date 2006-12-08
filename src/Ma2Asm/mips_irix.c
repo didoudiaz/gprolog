@@ -484,7 +484,8 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
+Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words, 
+	     char **p_inline)
 {
 }
 
@@ -977,7 +978,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int nb_args)
+Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
 {
 /*  if (!make_inline (fct_name, nb_args)) { */
   Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);

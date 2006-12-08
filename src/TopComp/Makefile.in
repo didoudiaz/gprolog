@@ -2,7 +2,7 @@ TOP_LEVEL       = @TOP_LEVEL@
 TOP_LEVEL_FLAGS = @TOP_LEVEL_FLAGS@
 GPLC            = @GPLC@
 HEXGPLC         = @HEXGPLC@
-CC              = @CC@
+CC              = @CC@ @CFLAGS_MACHINE@
 CFLAGS          = @CFLAGS@
 LDLIBS          = @LDLIBS@
 

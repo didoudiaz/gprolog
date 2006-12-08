@@ -38,8 +38,7 @@
 
 #define MAX_C_ARGS_IN_C_CODE       32
 
-#if (defined(M_ix86_cygwin) || defined(M_ix86_mingw) || defined(M_ix86_bsd)) \
-     && !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
+#if defined( __CYGWIN__) || defined (_WIN32)
 
 #define UN                         "_"
 
@@ -48,7 +47,6 @@
 #define UN
 
 #endif
-
 
 
 
@@ -75,8 +73,11 @@ int eax_used_as_fc_reg = 0;	/* is eax already containing an arg (FC) ? */
 
 
 	  /* variables for ma_parser.c / ma2asm.c */
-
+#ifndef M_solaris
 char *comment_prefix = "#";
+#else
+char *comment_prefix = "/";
+#endif
 char *local_symb_prefix = ".L";
 int strings_need_null = 0;
 int call_c_reverse_args = 0;
@@ -181,7 +182,11 @@ void
 Code_Start(char *label, int prolog, int global)
 {
   Label_Printf("");
+#ifndef M_solaris
   Inst_Printf(".p2align", "4,,15");
+#else
+  Inst_Printf(".align", "4");
+#endif
 #if defined(M_ix86_linux) || defined(M_ix86_bsd) || defined(M_ix86_sco)
   Inst_Printf(".type", UN "%s,@function", label);
 #endif
@@ -404,7 +409,8 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
+Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words, 
+	     char **p_inline)
 {
 #ifndef FC_USED_TO_COMPILE_CORE
   if (p_inline == NULL)		/* inlined code used a fast call */
@@ -416,8 +422,8 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
   else
     fc_reg_no = FC_MAX_ARGS_IN_REGS; /* so no more regs left to use */
   eax_used_as_fc_reg = 0;
-  
 }
+
 
 
 
@@ -449,7 +455,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
  * the previous arg types.
  */
 
-#if __GNUC__ >= 4
+#if __GNUC__ >= 4 || defined(_MSC_VER)
 #define SKIP_FC_REG
 #else
 #define SKIP_FC_REG   fc_reg_no++
@@ -700,8 +706,22 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int nb_args)
+Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
 {
+#if defined(_MSC_VER) && FC_MAX_ARGS_IN_REGS > 0
+  if (fc)
+    {
+      /* under MSVC: __fastcall implies decorated names @fct_name@nb_args_in_word
+       * It also implies the callee pops the args then we have to readjust the stack.
+       * I suppose this removes the benefit of passing args in stack:
+       * by default it is switched off (see file arch_dep.h)
+       */
+      Inst_Printf("call", "@%s@%d", fct_name, nb_args_in_words * sizeof(int));
+      if (stack_offset > 0)
+	Inst_Printf("subl", "$%d,%%esp", stack_offset * 4);
+      return;
+    }
+#endif
   Inst_Printf("call", UN "%s", fct_name);
 }
 
@@ -880,10 +900,12 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
-#if 1
-  Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
-#else
+#if defined( __CYGWIN__) || defined (_WIN32)
+  Inst_Printf(".section", ".rdata,\"dr\"");
+#elif defined(M_solaris)
   Inst_Printf(".section", ".rodata");
+#else
+  Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
 #endif
 }
 
@@ -923,7 +945,7 @@ Dico_String_Stop(int nb_consts)
 void
 Dico_Long_Start(int nb_longs)
 {
-  Label_Printf(".data");
+  Inst_Printf(".data", "");
   Inst_Printf(".align", "4");
 }
 
@@ -942,7 +964,7 @@ Dico_Long(char *name, int global, VType vtype, long value)
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-#if defined(M_ix86_linux) || defined(M_ix86_sco)
+#if defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_solaris)
       if (!global)
 	Inst_Printf(".local", UN "%s", name);
       Inst_Printf(".comm", UN "%s,%ld,4", name, value * 4);
@@ -956,10 +978,10 @@ Dico_Long(char *name, int global, VType vtype, long value)
 
     case INITIAL_VALUE:
       if (global)
-	Inst_Printf(".globl", UN "%s", name);
-#ifdef M_ix86_cygwin
+	Label_Printf(".globl " UN "%s", name);
       Inst_Printf(".align", "4");
-#endif
+      Inst_Printf(".type", UN "%s,@object", name);
+      Inst_Printf(".size", UN "%s,4", name);
       Label_Printf(UN "%s:", name);
       Inst_Printf(".long", "%ld", value);
       break;
@@ -991,7 +1013,13 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
+#ifdef _MSC_VER
+  Inst_Printf(".section", ".GPLC$m");
+#elif defined( __CYGWIN__) || defined (_WIN32)
+  Inst_Printf(".section", ".ctors,\"aw\"");
+#else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
+#endif
   Inst_Printf(".align", "4");
   Inst_Printf(".long", UN "%s", initializer_fct);
 }

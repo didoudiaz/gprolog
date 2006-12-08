@@ -3,6 +3,8 @@
 
 #include "obj_chain.h"
 
+int no;
+
 void
 Fatal_Error(char *msg)
 {
@@ -14,12 +16,16 @@ Fatal_Error(char *msg)
 int
 main()
 {
-#ifdef __MSC_VER
+#ifdef _MSC_VER
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
 #endif
-  puts("\nstarting...");
+  puts("starting...");
   Find_Linked_Objects();
-  puts("\nfinished");
+  if (no != 1) {
+    printf("error: all objects are not found (last #: %d instead of 1)", no);
+    exit(1);
+  }
+  puts("finished - OK !");
   return 0;
 }

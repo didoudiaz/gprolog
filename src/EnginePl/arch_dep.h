@@ -29,6 +29,20 @@
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
+/* There are 2 kinds of MSVC warning C4996 one wants to remove:
+ * 1) XXX was declared deprecated ... This function or variable may be unsafe
+ *    solution: #define _CRT_SECURE_NO_DEPRECATE 1
+ * 2) The POSIX name for this item is deprecated
+ *    solution: #define _CRT_NONSTDC_NO_DEPRECATE 1
+ * However, these defines only work if they are before any #include <...>
+ * So: pass to cl: -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE 
+ * or deactivate the warning with the following pragma. We do both !
+ */
+
+#ifdef _MSC_VER
+#pragma warning(disable : 4996)
+#endif
+
 #define MAXPATHLEN                 1024
 #define SIGQUIT                    SIGTERM
 #define fdopen                     _fdopen
@@ -124,8 +138,15 @@
 #define FC_MAX_ARGS_IN_REGS 3	
 #define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
 #define FC_ATTRIB __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
-#else  /* MSVC++ ? */
-/* TO DO */
+#elif 0  /* under MSVC++ we can use __fastcall convention (#elif 1 if wanted) */
+         /* see file ix86_any.c to see why it is not selected by default */
+#define FC_MAX_ARGS_IN_REGS 2
+#define FC_SET_OF_REGISTERS { "%ecx", "%edx" };
+#define FC_ATTRIB __fastcall
+#else
+#define FC_MAX_ARGS_IN_REGS 0
+#define FC_SET_OF_REGISTERS { NULL };
+#define FC_ATTRIB
 #endif
 
 #endif

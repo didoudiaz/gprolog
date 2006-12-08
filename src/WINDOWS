@@ -26,16 +26,12 @@ Cygwin is a Unix-like environment for Windows. It consists of two parts:
 Refer to www.cygwin.com to properly install Cygwin. The resulting system is
 installed under something like c:\Cygwin.
 
-It is a good idea to create a home/<username> directory under the Cygwin
-directory (e.g. c:\Cygwin\home) and to define the HOME environment variable
-in the .bat launching Cygwin (NB: under Windows XP the last versions of
-Cygwin already do this: they create a home directory based on the login name
-and set the HOME variable). You can also set some other variables in this
-.bat since environment variables are inherited by the Cygwin shell. For
-instance if you use MSVC++ and the Microsoft SDK (see below) you can add
-"call c:\Program Files\Microsoft SDK\SetEnv.Bat" to the .bat (note that if
-you have installed "Register environment variables" from the Microsoft SDK,
-you don't need to call SetEnv.bat as explained below).
+You can set some variables in this .bat launching cygwin
+(c:\cygwin\cygwin.bat) since environment variables are inherited by the
+Cygwin shell. For instance if you use MSVC++ and the Microsoft SDK (see
+below) you can add "call c:\Program Files\Microsoft SDK\SetEnv.Bat" to the
+.bat (note that if you have installed "Register environment variables" from
+the Microsoft SDK, you don't need to call SetEnv.bat as explained below).
 
 You can also modify your .bashrc file to set the PATH variable for the tools
 you will use.
@@ -47,9 +43,8 @@ the .bat file (or '/cygdrive/c/Program Files/HTML Help Workshop' in your
 
 Here is an example of .bat file launching bash in a text console:
 	@ECHO OFF
-	SET HOME=c:\Cygwin\home\diaz
 	CALL c:\hhvars.bat
-	CALL c:\Cygwin\Cygwin.bat
+	CALL c:\cygwin\cygwin.bat
 
 with hhvars.bat containing:
 	@ECHO OFF
@@ -57,23 +52,10 @@ with hhvars.bat containing:
 	PATH=%PATH%;C:\Program Files\HTML Help Workshop
 
 
-You can also use RXVT, which is a graphical environment for bash. Here is an
-example of .bat file launching rxvt+bash:
-	@ECHO OFF
-	SET HOME=c:\Cygwin\home\diaz
-	CALL c:\hhvars.bat
-	START rxvt -sl 2500 -fn Courier-12 -e /usr/bin/bash --login
-
 Finally note that a pure Win32 native graphical version of Emacs exists for
 winXX machines (in addition to the one provided by Cygwin which requires
 Cygwin1.dll and runs in text mode unless a X server is started). Refer to
-www.gnu.org/software/emacs/windows for more information.  If you use it, you
-should initialize the HOME variable to be able to use pathnames beginning
-with ~ (tilde) under Emacs. Also you can put a _emacs file in your HOME
-(similar to .emacs under Unix).
-
-Finally, last versions of Cygwin include a port of X11. Once launched you
-can have xterms, emacs,... in a graphical environment.
+www.gnu.org/software/emacs/windows for more information. 
 
 The gcc version provided by Cygwin is a cygwin port of gcc (it uses
 cygwin1.dll). By default it generates a code using cygwin1.dll. It is however
@@ -100,6 +82,10 @@ ability to execute and create a Makefile used by make.
 Refer to www.mingw.org for more information (how to get MinGW/MSYS and all
 needed tools).
 
+NB: if you want your .bash_profile to be executed, add this line at the end
+of /etc/profile (in c:\msys\1.0\etc):
+if [ -f "$HOME/.bash_profile" ]; then source "$HOME/.bash_profile"; fi
+
 The gcc version provided by MinGW is a native win32 port of gcc. It generates
 a code for native win32.
 
@@ -119,30 +105,29 @@ procedure (see ../INSTALL file), i.e.:
 	make install
 
 The default gcc will be used (the one using cygwin1.dll and producing code
-using cygwin1.dll) under cygwin and native win32 gcc under msys. Note that it
-is possible to the MinGW
+using cygwin1.dll) under cygwin and native win32 gcc under msys.
 
 
 4) Compiling GNU Prolog using MSVC++
 ------------------------------------
 
-You need MSVC++ (tested with version 6.0) and the preferably Microsoft SDK
-(which updates C/C++ header files and libs). This SDK can be downloaded from
-www.microsoft.com/msdownload/platformsdk/sdkupdate/ There are several SDK,
-among all of them you can install:
+You need MSVC++. GNU Prolog has been tested with version 6.0 and Visual C++
+2005 Express Edition. The later is freely available from microsoft site:
+http://msdn.microsoft.com/vstudio/express/visualc/download/.
 
-	the core SDK
-	Common Setup Files
-	Register environment variables
+Then install this SDK (or more recent version) : Microsoft Windows Server
+2003 R2 Platform SDK. You can install it from :
+http://www.microsoft.com/downloads/details.aspx?FamilyId=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en. 
+If you chose to set up environement variables, MSVC++ is informed about new
+include/library directories. Else your can execute .bat provided with the MS
+compiler (e.g. vcvarvs32.bat or vsvar32.bat). Anyway, your PATH shoud contain
+the cl.exe command-line compiler, INCLUDE and LIB should be correctly set.
+NB: for MSVC6.0: its lib directory should appear before the lib directory of
+the SDK (else an error occurs when linking the GUI console).
 
-If you have installed "Register environment variables" normally your MSVC++
-is informed about new include/library directories. Else you can execute the
-SetEnv.bat provided by the SDK (e.g. in c:\Program Files\Microsoft
-SDK\). Anyway, your PATH shoud contain the cl.exe command-line compiler,
-INCLUDE should contain the SDK header files directory (e.g. c:\Program
-Files\Microsoft SDK\include\) and LIB the library directory (e.g. c:\Program
-Files\Microsoft SDK\Lib). More information on using the SDK with MSVC at:
-msdn.microsoft.com/library/default.asp?url=/library/en-us/sdkintro/sdkintro/installing_the_platform_sdk_with_visual_studio.asp
+NB: recent cygwin include a /bin/link.exe command. Be sure it doesn't shadow
+the Microsoft linker (also called link.exe). The simplest way to solve it is
+to rename /bin/link.exe of cygwin.
 
 Once MSVC++ and the SDK are well installed use --with-msvc at configure time:
 
@@ -172,26 +157,13 @@ Workshop". There are 2 parts: a compiler to create a .chm version of the
 documentation (see doc/README) and a library that makes it possible to use
 this file from a C program. 
 
-The user does not need the entire HTML Help Workshop to view a .chm, only a
-runtime called "Help Viewer" is necessary. It is provided with recent
-versions of windows (e.g Windows XP). Else a viewer can be downloaded (file:
-HHUPD.EXE) from the same URL (also available in C:\Program Files\HTML Help
-Workshop\REDIST).
-
 You can get the HTML-Help Workshop from
 msdn.microsoft.com/library/en-us/htmlhelp/html/vsconHH1Start.asp (file
 HTMLHELP.EXE). In order to access to the compiler you have to add "C:\Program
 Files\HTML Help Workshop" to your PATH (see file hhvars.bat above).
 
-In order to use the API copy the .h file(s) to the include directory of your
-compiler and the .lib files to the lib directory of your compiler. Normally
-there is a .h (htmlhelp.h) and a .lib (htmlhelp.lib)
-
-For MSVC++:
-
- 	copy "c:\Program Files\HTML Help Workshop\INCLUDE\*.*" "c:\Program Files\Microsoft Visual Studio\VC98\Include\."
-
-  	copy "c:\Program Files\HTML Help Workshop\LIB\*.*" " c:\Program Files\Microsoft Visual Studio\VC98\Lib\."
+If you have the SDK (see above) the header file htmlhelp.h and the library
+htmlhel.lib are already present. Else copy them from the workshop directory.
 
 For MinGW (I suppose you are under MSYS and mingw is in /mingw):
 	cp /c/Program\ Files/HTML\ Help\ Workshop/include/* /mingw/include/.

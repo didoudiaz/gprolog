@@ -263,7 +263,6 @@ Create_Atom(char *name)
   Bool identifier;
   Bool graphic;
 
-
   patom = Locate_Atom(name);
 
   if (patom == NULL)

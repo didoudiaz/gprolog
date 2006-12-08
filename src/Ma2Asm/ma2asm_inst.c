@@ -49,11 +49,7 @@
 
 	  /* include machine-dependent mapper file */
 
-#if defined(M_ix86_win32)
-
-#include "ix86_win32.c"
-
-#elif defined(M_ix86)
+#if defined(M_ix86)
 
 #include "ix86_any.c"
 

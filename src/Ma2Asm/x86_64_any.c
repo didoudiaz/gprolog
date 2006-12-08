@@ -420,7 +420,8 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
+Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words, 
+	     char **p_inline)
 {
   gpr_arg_no = 0;
   fpr_arg_no = 0;
@@ -671,7 +672,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int nb_args)
+Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
 {
   Inst_Printf("call", "%s", fct_name);
 }

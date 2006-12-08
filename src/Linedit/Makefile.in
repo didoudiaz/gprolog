@@ -1,6 +1,6 @@
 LIB_LINEDIT = @LIB_LINEDIT@
-CC          = @CC@
-CFLAGS      = @CFLAGS_MACHINE@ @CFLAGS@
+CC          = @CC@ @CFLAGS_MACHINE@
+CFLAGS      = @CFLAGS@
 LDLIBS      = @LDLIBS@
 AR_RC       = @AR_RC@
 RANLIB      = @RANLIB@
@@ -38,11 +38,11 @@ W32LNK=..\W32GUICons\w32gc_interf@OBJ_SUFFIX@
 
 test_linedit@EXE_SUFFIX@: test_linedit@OBJ_SUFFIX@ $(LIBNAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ @CFLAGS_MACHINE@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
+	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
 test_noecho@EXE_SUFFIX@: test_noecho@OBJ_SUFFIX@ $(LIBNAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ @CFLAGS_MACHINE@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
+	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
 
 clean-test:

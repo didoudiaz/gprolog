@@ -426,7 +426,8 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline)
+Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words, 
+	     char **p_inline)
 {
   dbl_reg_no = 0;
 }
@@ -685,7 +686,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int nb_args)
+Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
 {
 #if 0	/* only useful to call varargs functions - not the case here */
   if (dbl_reg_no == 0)
@@ -997,20 +998,16 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-#if 0
-  Label_Printf(".data");
-  Label_Printf(UN "obj_chain_start:");
-
-  Inst_Printf(".long", "%d", OBJ_CHAIN_MAGIC_1);
-  Inst_Printf(".long", "%d", OBJ_CHAIN_MAGIC_2);
-  Inst_Printf(".long", UN "obj_chain_stop");
+#ifdef M_powerpc_linux
+  Inst_Printf(".section", ".ctors,\"aw\",@progbits");
+  Inst_Printf(".align", "2");
   Inst_Printf(".long", UN "%s", initializer_fct);
-#endif
+#else
   Label_Printf(".data");
   Label_Printf(".mod_init_func");
   Inst_Printf(".align", "2");
   Inst_Printf(".long", UN "%s", initializer_fct);
-
+#endif
 }
 
 

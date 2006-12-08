@@ -629,6 +629,7 @@ Link_Cmd(void)
   static char file_out[MAXPATHLEN];
   static char buff[CMD_LINE_LENGTH];
   FileInf *f;
+  int has_gui_console = 0;
 
 
   if (file_name_out == NULL)
@@ -640,10 +641,31 @@ Link_Cmd(void)
   Create_Output_File_Name(f, file_out);
   file_name_out = file_out;
 
+  /* with MSVC: if at run-time we don't find cl.exe we use link.exe
+   * it is a workaround for users who have installed a binary version
+   * (from a setup.exe) compiled with cl.exe but who don't have cl.exe
+   */
+#ifdef _MSC_VER
+  {
+    char *dont_care;
+
+    if (SearchPath(NULL, cmd_link.exe_name, ".exe", CMD_LINE_LENGTH, buff, &dont_care) && getenv("USE_LINKER") == NULL)
+#endif
+
   sprintf(buff, "%s%s%s%s ", cmd_link.exe_name, cmd_link.opt,
 	  cmd_link.out_opt, file_name_out);
 
-				/* f->work_name1 is OK for LINK_OPTION */
+#ifdef _MSC_VER
+    else
+      {
+	if (verbose)
+	  printf("%s.exe not found ! we use link.exe\n", cmd_link.exe_name);
+	sprintf(buff, "link /nologo /stack:8000000 /out:%s ", file_name_out);
+      }
+  }
+#endif
+
+  /* f->work_name1 is OK for LINK_OPTION */
   for (f = file_lopt; f->name; f++)
     sprintf(buff + strlen(buff), "%s ", f->work_name1);
 
@@ -700,17 +722,20 @@ Link_Cmd(void)
 
   strcat(buff, LDLIBS " ");
 
-  if (!no_pl_lib)
-    {
-      if (gui_console)
-	{    /* modify Linedit/Makefile.in to follow this list of ld objects */
-	  Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff));
-	}
-#ifdef _MSC_VER
-      else
-	strcat(buff, "/link /subsystem:console ");
-#endif
+  if (!no_pl_lib && gui_console) 
+    {    /* modify Linedit/Makefile.in to follow this list of ld objects */
+      Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff));
+      strcat(buff, " ");
+      has_gui_console = 1;
     }
+
+#ifdef _MSC_VER
+  if (*buff != 'l' && *buff != 'L') /* it is not link.exe ! */
+    strcat(buff, "/link ");
+  strcat(buff, "/ignore:4089 ");
+  if (!has_gui_console)
+    strcat(buff, "/subsystem:console ");
+#endif
 
   Exec_One_Cmd(buff, no_decode_hex);
 

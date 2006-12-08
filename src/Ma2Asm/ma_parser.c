@@ -97,6 +97,7 @@ int init_already_read;
 char fct_name[MAX_STR_LEN];
 int fc;
 int nb_args;
+int nb_args_in_words;		/* args counted in words (e.g. 32 bits) */
 ArgInf arg[MAX_ARGS];
 
 
@@ -282,7 +283,7 @@ Parser(void)
 
 	case CALL_C:
 	  Read_Function();
-	  Call_C(fct_name, fc, nb_args, arg);
+	  Call_C(fct_name, fc, nb_args, nb_args_in_words, arg);
 	  break;
 
 	case JUMP_RET:
@@ -429,6 +430,7 @@ Read_Function(void)
 
   strcpy(fct_name, str_val);
   nb_args = 0;
+  nb_args_in_words = 0;
   Read_Token('(');
   k = Scanner();
   if (k == ')')
@@ -445,8 +447,7 @@ Read_Function(void)
 	  k = Scanner();
 	  if (k != IDENTIFIER && k != X_REG && k != Y_REG && k != FL_ARRAY
 	      && k != FD_ARRAY)
-	    Syntax_Error
-	      ("identifier, X(...), Y(...), FL(...) or FD(...) expected");
+	    Syntax_Error("identifier, X(...), Y(...), FL(...) or FD(...) expected");
 	  arg[nb_args].type = k;
 	  arg[nb_args].adr_of = 1;
 	  goto one_arg;
@@ -460,6 +461,7 @@ Read_Function(void)
 	  break;
 
 	case FLOAT:
+	  nb_args_in_words++;	/* double count 1 word more */
 	  arg[nb_args].t.dbl_val = dbl_val;
 	  break;
 
@@ -469,16 +471,19 @@ Read_Function(void)
 	  arg[nb_args].t.mem.index = Read_Optional_Index();
 	  break;
 
+	case FD_ARRAY:
+	  if (arg[nb_args].adr_of == 0)
+	    nb_args_in_words++;	/* double count 1 word more */
+	case FL_ARRAY:
 	case X_REG:
 	case Y_REG:
-	case FL_ARRAY:
-	case FD_ARRAY:
 	  arg[nb_args].t.index = Read_Index();
 	  break;
 	}
 
       k = Scanner();
       nb_args++;
+      nb_args_in_words++;
       if (k == ')')
 	break;
 

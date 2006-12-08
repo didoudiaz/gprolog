@@ -1,4 +1,4 @@
-CC     = @CC@
+CC     = @CC@ @CFLAGS_MACHINE@
 CFLAGS = @CFLAGS@
 
 

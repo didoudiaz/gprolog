@@ -1,5 +1,5 @@
 GPLC     = gplc
-GPLCFLAGS= --fast-math --min-size
+GPLCFLAGS= --fast-math --min-bips
 BENCH_PL = boyer browse cal chat_parser crypt ham meta_qsort nand nrev \
            poly_10 qsort queens queensn query reducer sdda sendmore \
            tak tak_gvar zebra

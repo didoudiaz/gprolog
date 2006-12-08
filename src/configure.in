@@ -216,16 +216,16 @@ AC_PROG_CC
 
 
 if test "$WITH_MSVC" != no; then
-    ASM_SUFFIX='.asm'
+    ASM_SUFFIX='.s'
     OBJ_SUFFIX='.obj'
     LIB_SUFFIX='.lib'
     CC_OBJ_NAME_OPT='-Fo'
     CC_EXE_NAME_OPT='-Fe'
-    AC_CHECK_PROGS(NASM,nasmw nasm,no)
-    if test "$NASM" = no; then
-        AC_MSG_ERROR([nasm is required under win32])
+    AC_CHECK_PROGS(MINGWAS, mingw-as,no)
+    if test "$MINGWAS" = no; then
+        AC_MSG_ERROR([mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/download/mingw-as.exe])
     fi
-    AS="$NASM -f win32"
+    AS=mingw-as
     AR_RC='lib -nologo -out:'
     AR_SEP=''
     STRIP=:
@@ -381,14 +381,14 @@ AC_C_INLINE
 if test "$WITH_MSVC" != no; then
     
     case "$WITH_C_FLAGS" in
-        debug) CFLAGS='-W3 -ZI -GX';;
+        debug) CFLAGS='-W3 -ZI -EHsc';;
         no)    CFLAGS='';;
-        yes)   CFLAGS='-O2 -GX';;
+        yes)   CFLAGS='-O2 -EHsc';;
         *)     CFLAGS="$WITH_C_FLAGS";;
     esac
     
     CFLAGS_UNSIGNED_CHAR='-J'
-    CFLAGS_MACHINE='-nologo'
+    CFLAGS_MACHINE='-nologo -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE'
 
 else
     

@@ -81,7 +81,7 @@ extern int reload_e;
 
 void Declare_Initializer(char *initializer_fct);
 
-void Call_C(char *fct_name, int fc, int nb_arg, ArgInf arg[]);
+void Call_C(char *fct_name, int fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
 
 void Switch_Ret(int nb_swt, SwtInf swt[]);
 
@@ -139,7 +139,8 @@ void Move_To_Reg_X(int index);
 
 void Move_To_Reg_Y(int index);
 
-void Call_C_Start(char *fct_name, int fc, int nb_args, char **p_inline);
+void Call_C_Start(char *fct_name, int fc, int nb_args, 
+		  int nb_args_in_words, char **p_inline);
 
 int Call_C_Arg_Int(int offset, long int_val);
 
@@ -157,7 +158,7 @@ int Call_C_Arg_Foreign_L(int offset, int adr_of, int index);
 
 int Call_C_Arg_Foreign_D(int offset, int adr_of, int index);
 
-void Call_C_Invoke(char *fct_name, int nb_args);
+void Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words);
 
 void Call_C_Stop(char *fct_name, int nb_args, char **p_inline);
 

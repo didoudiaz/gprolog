@@ -1,6 +1,6 @@
 DLL_W32GUICONS = @DLL_W32GUICONS@
-CC             = @CC@
-CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@ -I../EnginePl
+CC             = @CC@ @CFLAGS_MACHINE@
+CFLAGS         = @CFLAGS@ -I../EnginePl
 RC             = @RC@
 #RCFLAGS        = @RCFLAGS@ -l 0x409
 RCFLAGS        = @RCFLAGS@
@@ -29,7 +29,7 @@ RESDLL  = w32_console.res
 all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@
 
 $(DLLNAME): $(OBJDLL) $(RESDLL)
-	$(LD) $(LDFLAGS) @LD_DLL_NAME_OPT@ @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(LDGUILIBS)
+	$(LD) @LD_DLL_NAME_OPT@ @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(LDGUILIBS)
 
 
 

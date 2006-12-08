@@ -4,11 +4,11 @@
 Auto-extract installation files are created with Inno Setup (version > 5.0). 
 Refer to http://www.jrsoftware.org/ for more information. 
 
-*** DEVELOPMENT MODE from CVS ***
-Under MINGW to create a setup it is necessary to first create the distrib under
-cygwin using make dist (because mingw does not support links). Then
-simply do (under mingw) make setup (setup-link will NOT work).
-*********************************
+Note: this works under cygwin or MSYS. Under MSYS it is necessary to first
+create the distrib under cygwin using make dist (because mingw does not
+support links). Then simply do (under mingw) make setup (setup-link will NOT
+work).
+
 
 
 1) Building a setup classically

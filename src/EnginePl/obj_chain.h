@@ -48,13 +48,15 @@ void New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_e
 
 #ifdef OBJ_INIT
 
-#ifdef __GNUC__
+static void OBJ_INIT(void);
 
 #define CPP_CAT1(x, y)   x ## y
 #define CPP_CAT(x, y)    CPP_CAT1(x, y)
 
 #define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
-static void OBJ_INIT(void);
+
+
+#ifdef __GNUC__
 static void __attribute__ ((constructor))
 OBJ_CTOR(void)
 {
@@ -62,14 +64,28 @@ OBJ_CTOR(void)
 }
 
 
-#else
+#else /* _MSC_VER */
 
-#pragma data_seg(".INIT$b")
+static void 
+OBJ_CTOR(void)
+{
+  New_Object(OBJ_INIT, NULL, NULL);
+}
 
-static long obj_chain_start = (long) OBJ_INIT;
+#pragma data_seg(".GPLC$m")
+
+static long obj_chain_start = (long) OBJ_CTOR;
 
 #pragma data_seg()
+
+#define OBJ_CHAIN_REVERSE_ORDER
 
 #endif /* _MSC_VER */
 
 #endif /* OBJ_INIT */
+
+
+
+#ifdef _MSC_VER
+#define OBJ_CHAIN_REVERSE_ORDER
+#endif

@@ -1,7 +1,7 @@
 LIB_BIPS_FD   = @LIB_BIPS_FD@
 LIB_ENGINE_FD = @LIB_ENGINE_FD@
 GPLC          = @GPLC@
-CC            = @CC@
+CC            = @CC@ @CFLAGS_MACHINE@
 CFLAGS        = @CFLAGS@
 AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@

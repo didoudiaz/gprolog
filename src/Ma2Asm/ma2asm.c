@@ -220,7 +220,7 @@ Declare_Initializer(char *init_fct)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
+Call_C(char *fct_name, int fc, int nb_args, int nb_args_in_words, ArgInf arg[])
 {
   unsigned i;			/* unsigned is important for the loop */
   int inc;
@@ -240,7 +240,7 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
   if (ignore_fc)
     fc = 0;
 
-  Call_C_Start(fct_name, fc, nb_args, p_inline);
+  Call_C_Start(fct_name, fc, nb_args, nb_args_in_words, p_inline);
 
   if (!call_c_reverse_args)
     i = 0, inc = 1;
@@ -300,7 +300,7 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
       Emit_Inline_Data(p_inline);
     }
   else
-    Call_C_Invoke(fct_name, nb_args);
+    Call_C_Invoke(fct_name, fc, nb_args, nb_args_in_words);
   
   if (p_inline && comment)
     Label_Printf("\t\t%s code after inlining (Call_C_Stop)", comment_prefix);

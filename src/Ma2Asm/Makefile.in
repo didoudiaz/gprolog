@@ -1,5 +1,5 @@
 GPLC   = @GPLC@
-CC     = @CC@
+CC     = @CC@ @CFLAGS_MACHINE@
 CFLAGS = @CFLAGS@
 
 
@@ -39,13 +39,13 @@ clean-extract_asm:
 	rm -f extract_asm@EXE_SUFFIX@
 
 # for check
-CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
+CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
 
 # use make FC=Y check to generate an fc check
 
 check@OBJ_SUFFIX@: check.c
 	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
-	$(GPLC) --c-compiler $(CC) -C "$(CFLAGS) $$FCFLAGS" -c check.c
+	$(GPLC) --c-compiler "$(CC)" -C "$(CFLAGS) $$FCFLAGS" -c check.c
 
 check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
 	if [ "$$FC" != "Y" ]; then MAFLAGS='--ignore-fast'; fi; \

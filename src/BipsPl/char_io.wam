@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : char_io.pl
-% date    : 11 24 2006
-% time    : 11:5:8
+% date    : 12 5 2006
+% time    : 13:53:12
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/char_io.pl').
+file_name('c:\\cygwin\\home\\diaz\\GP\\src\\src\\BipsPl\\char_io.pl').
 
 
 predicate('$use_char_io'/0,29,static,private,built_in,[

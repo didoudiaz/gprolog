@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : wam_emit.pl
-% date    : 11 24 2006
-% time    : 11:5:25
+% date    : 12 7 2006
+% time    : 12:38:14
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/wam_emit.pl').
+file_name('c:\\cygwin\\home\\diaz\\GP\\src\\src\\Pl2Wam\\wam_emit.pl').
 
 
 predicate(emit_code_init/2,89,static,private,user,[
