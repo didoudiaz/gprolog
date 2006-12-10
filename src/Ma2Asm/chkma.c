@@ -270,7 +270,7 @@ main(int argc, char *argv[])
     }
 
   Restore_Machine_Regs(init_buff_regs);
-  printf("All tests suceeded\n");
+  printf("MA checks suceeded\n");
   return 0;
 }
 

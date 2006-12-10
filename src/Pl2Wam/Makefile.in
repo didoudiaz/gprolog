@@ -54,7 +54,7 @@ wam_emit.wam:   wam_emit.pl
 
 
 check:
-	./check_boot -a $(WAMS)
+	./check_boot -a && echo Bootstrap Prolog Compiler OK
 
 
 make_bip_list@EXE_SUFFIX@: make_bip_list.pl ../Bips??/[a-z]??*.pl

@@ -17,8 +17,7 @@ Installing the source distribution
 ---------------
 
 ** Win32 preamble **
-	To compile GNU-Prolog under win32 (either with cygwin or MSVC++) you
-	must properly install cygwin development tools (see file src/WINDOWS).
+	To compile GNU-Prolog under win32 see file src/WINDOWS.
 
 The following tools are required to compile and install the source package:
    gcc, as, ranlib (if needed), sh, mkdir, cp, rm, sed, test,...
@@ -29,6 +28,10 @@ The installation process is as follows:
    ./configure [OPTIONS]		configure the system
    make					compile locally the package
    make install or (make install-strip)	install the package
+
+you can check the result of the local compilation using:
+
+   make check
 
 
 2) Installation directories

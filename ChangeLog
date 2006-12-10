@@ -1,7 +1,12 @@
+Fri Dec  8 16:59:49 CET 2006  <Daniel.Diaz@univ-paris1.fr>
+
+     	* add check target to main Makefile
+
 Thu Dec  7 14:59:46 CET 2006  <Daniel.Diaz@univ-paris1.fr>
 
-	* improve Win32 ports (cygwin, MSVC++ 6.0 and 2005 Express Edition, MinGW)
-	  (MSVC port uses as.exe instead of nasm.exe - provided in the setup.exe)
+
+ 	* improve Win32 ports (cygwin, MinGW, MSVC 6.0 and 2005 Express Edition)
+	  (MSVC port uses MinGW as.exe instead of nasm.exe - named mingw-as.exe
 
 Mon Nov 27 18:38:09 CET 2006 <Daniel.Diaz@univ-paris1.fr>
 

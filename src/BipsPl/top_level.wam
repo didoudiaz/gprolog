@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : top_level.pl
-% date    : 12 8 2006
-% time    : 16:53:33
+% date    : 12 10 2006
+% time    : 13:24:10
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
