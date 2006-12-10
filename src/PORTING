@@ -1,4 +1,3 @@
-
 Here are some help to port GNU Prolog.
 
 1) I suppose you are in ROOT_DIR/src:
@@ -37,64 +36,70 @@ and/or look at the assembly produced by gcc. For that you can do:
 This will create a file asm_inst.s from asm_inst.c. The study of both files
 can help you to write the translater (in Ma2Asm/).
 
-You can check your translation using the check program (in Ma2Asm/):
+You can check your translation using the chkma program (in Ma2Asm/):
 
-% make check
-% ./check
+% make chkma
+% ./chkma
 
 You should obtain something like:
 
-reg_bank=&X(0): 0x804bd40   B: 0x804c2d0   E:0x804d2d0  &Y(0): 0x804d2c0
-test 1: long local/global ...
+reg_bank=&X(0):0x8052a00   B:0x8053ac0   E:0x8054ac0  &Y(0):0x8054ab0
+stack:0x8053ac0
+test 1: c_code intializer...
 test 1  OK
-test 2: pl_jump/pl_ret...
+test 2: long local/global ...
 test 2  OK
-test 3: pl_call/pl_ret/pl_fail...
+test 3: pl_jump/pl_ret...
 test 3  OK
-test 4: jump/c_ret...
+test 4: pl_call/pl_ret/pl_fail...
 test 4  OK
-test 5: call_c(void)...
+test 5: prep_cp/here_cp...
 test 5  OK
-test 6: move X(i) to Y(j)...
+test 6: jump/c_ret...
 test 6  OK
-test 7: move Y(i) to X(j)...
+test 7: call_c(void)...
 test 7  OK
-test 8: call_c(int)...
+test 8: move X(i) to Y(j)...
 test 8  OK
-test 9: call_c(double)...
+test 9: move Y(i) to X(j)...
 test 9  OK
-test 10: call_c(string)...
+test 10: call_c(int)...
 test 10  OK
-test 11: call_c(mem,&label,mem(...),&mem(...))...
+test 11: call_c(double)...
 test 11  OK
-test 12: call_c(X())...
+test 12: call_c(string)...
 test 12  OK
-test 13: call_c(Y())...
+test 13: call_c(mem,&label,mem(...),&mem(...))...
 test 13  OK
-test 14: call_c(FL())...
+test 14: call_c(X())...
 test 14  OK
-test 15: call_c(FD())...
+test 15: call_c(Y())...
 test 15  OK
-test 16: call_c(lot_of_args)...
+test 16: call_c(FL())...
 test 16  OK
-test 17: call_c()+jump_ret...
+test 17: call_c(FD())...
 test 17  OK
-test 18: call_c()+fail_ret...
+test 18: call_c(lot_of_args)...
 test 18  OK
-test 19: call_c()+move_ret mem...
+test 19: call_c()+jump_ret...
 test 19  OK
-test 20: call_c()+move_ret X()...
+test 20: call_c()+fail_ret...
 test 20  OK
-test 21: call_c()+move_ret Y()...
+test 21: call_c()+move_ret mem...
 test 21  OK
-test 22: call_c()+move_ret FL()...
+test 22: call_c()+move_ret X()...
 test 22  OK
-test 23: call_c()+move_ret FD()...
+test 23: call_c()+move_ret Y()...
 test 23  OK
-test 24: call_c()+switch_ret...
+test 24: call_c()+move_ret FL()...
 test 24  OK
+test 25: call_c()+move_ret FD()...
+test 25  OK
+test 26: call_c()+switch_ret...
+test 26  OK
+MA checks suceeded
 
-(you can use make clean-check to erase check objects/execs)
+(you can use make clean-chkma to erase chkma objects/execs)
 
 All tests must be OK else you have an error in the corresponding tested
 point.
@@ -110,39 +115,19 @@ then initialize them). Normally this should be OK but you can test it.
 % make test_oc
 % ./test_oc
 
-This will find 2 modules and display somthing like:
+This will find 5 modules and display somthing like:
 
-% main
+starting...
+object <object #5> found  &name:0x804c200
+object <object #4> found  &name:0x804c1e0
+object <object #3> found  &name:0x804c1c0
+object <object #2> found  &name:0x804c1a0
+object <object #1> found  &name:0x804c180
+finished - OK !
 
-ObjChain: chain begin: 0x8049b20
-ObjChain: chain end  : 0x8049c20
-..........
-*** Obj Found  start: 0x8049b58  end: 0x8049ba4  Initializer: 0x80484d0
-object <object 1> found
-   start at:0x8049b58    end at:0x8049ba4
-   &name:0x8049b68
- n &a:0x8049d5c
-   &b:0x8049b6c
- g &c:0x804bda4
-   &d:0x8049b70
-   &e:0x8049b78
-   &f:0x8049b7c
- g &g:0x804bd90
-..........
-*** Obj Found  start: 0x8049bd0  end: 0x8049c1c  Initializer: 0x8048590
-object <object 2> found
-   start at:0x8049bd0    end at:0x8049c1c
-   &name:0x8049be0
- n &a:0x8049d88
-   &b:0x8049be4
- g &c:0x804bda4
-   &d:0x8049be8
-   &e:0x8049bf0
-   &f:0x8049bf4
- g &g:0x804bd90
-
-The important point to check is if 2 modules are found. If not you have to 
-debug the file EnginePl/obj_chain.c
+The important point to check is if 5 modules are found and peferably in
+reverse order. If not you have to debug the file EnginePl/obj_chain.c. Since
+1.3.0 we use gcc __atribute__((constructor)).
 
 (you can use make clean-test_oc to erase test objects/execs)
 
@@ -156,11 +141,8 @@ look at the files EnginePl/*_SIGSEGV.C
 
 
 
-
-
-
 other things to do when porting:
-	ma2asm (use check)
+	ma2asm (use chkma)
 	(call_c needs at least 7 args)
 	test with all combinations of mapped registers
 
@@ -176,4 +158,17 @@ things to test:
 	os stuffs
 	random
 	ctrl/c (prg TEST_CTRLC.c)
+
+7) Once all compile fine and pl2wam and gprolog executables are created you
+can check the bootstraping by:
+
+% cd Pl2Wam
+% make check
+Bootstrap Prolog Compiler OK
+
+the same for Built-ins;
+
+% cd ../BipsPl
+% make check
+Bootstrap Prolog Bips OK
 
