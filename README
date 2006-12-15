@@ -71,6 +71,7 @@ GNU Prolog is currently ported to the following architectures:
    - ix86 / FreeBSD
    - ix86 / OpenBSD
    - ix86 / NetBSD
+   - ix86 / Darwin (Mac OS X)
    - x86_64 / GNU/Linux
    - PowerPC / GNU/Linux
    - PowerPC / Darwin (Mac OS X)
@@ -123,10 +124,10 @@ the documentation you need to ascertain the following conditions are
 met:
 
    - for the port compiled with MS Visual C++ (tested with version
-     6.0) you'll need to have NASM (the Netwide Assembler available at
-     http://nasm.sourceforge.net/) installed and the 'cl' compiler
-     (used mainly as linker by GNU Prolog) available in your session
-     path.
+     6.0 and Visual C++ 2005 Express Edition) you'll need to have
+     MinGW as.exe (renamed as mingw-as.exe) installed and the cl.exe
+     compiler (used mainly as linker by GNU Prolog) available in 
+     your session path (alternatively link.exe is used).
 
    - for the ports compiled either with MinGW or Cygwin, the gcc
      toolchain must be installed and available in your session
