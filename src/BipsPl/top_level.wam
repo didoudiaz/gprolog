@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : top_level.pl
 % date    : 12 15 2006
-% time    : 13:45:12
+% time    : 8:3:31
 
 
-file_name('/Users/daniel/GP/src/src/BipsPl/top_level.pl').
+file_name('/home/users/d/di/diaz/GP/src/src/BipsPl/top_level.pl').
 
 
 predicate(top_level/0,32,static,private,built_in,[

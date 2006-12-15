@@ -29,7 +29,7 @@
 #include <string.h>
 
 
-/* For M_ix86_darwin: an important point is that C stack must be aligned
+/* For M_ix86_darwin: an important point is the C stack must be aligned
  * on 16 bytes. It is possible to use gcc option -mstackrealign but
  * it produces bigger and slower code (and uses %ecx as register).
  * If this is not done and if the called function performs a movdqa

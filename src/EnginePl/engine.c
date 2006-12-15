@@ -454,8 +454,9 @@ static void
 Call_Prolog_Fail(void)
 {
 #ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
-  //  asm("andl $0xfffffff0,%esp");
   asm("subl $4,%esp");
+#elif defined(M_x86_64_linux) 	/* see comment in Ma2Asm/x86_64_any.c */
+  asm("subq $8,%rsp");
 #endif
   Save_Machine_Regs(p_buff_save);
   longjmp(*p_jumper, -1);
@@ -474,6 +475,8 @@ Call_Prolog_Success(void)
 {
 #ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
   asm("subl $4,%esp");
+#elif defined(M_x86_64_linux) 	/* see comment in Ma2Asm/x86_64_any.c */
+  asm("subq $8,%rsp");
 #endif
   Save_Machine_Regs(p_buff_save);
   longjmp(*p_jumper, 1);

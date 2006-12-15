@@ -110,9 +110,12 @@ Call_Compiled(CodePtr codep)
 #endif
 
   ensure_reserved = reserved_stack_space;
-#ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
+#if defined(M_ix86_darwin)		/* see comment in Ma2Asm/ix86_any.c */
   asm("andl $0xfffffff0,%esp");
   asm("addl $4,%esp");
+#elif defined(M_x86_64_linux)		/* see comment in Ma2Asm/x86_64_any.c */
+  asm("andq $0xfffffffffffffff0,%rsp");
+  asm("addq $8,%rsp");
 #endif
 
   (*codep) ();

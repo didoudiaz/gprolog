@@ -30,6 +30,28 @@
 #include <limits.h>
 
 
+/* For M_x86_64_linux: an important point is that C stack must be aligned
+ * on 16 bytes else some problems occurs with double.
+ * If this is not done and if the called function performs a movaps %xmm0,xx
+ * an error will occur.
+ * Just before calling a function %rsp is 16bytes aligned, %rsp = 0x...0
+ * (4 low bits = 0). The callq instruction pushes the return address, so at
+ * the entry of a function, %rsp is 0x...8. Gcc then adjusts (via subq) 
+ * %rsp to be 0x...0 before calling a function. We mimic the same modifying
+ * Call_Compiled to force %rsp to be 0x...0 when arriving in a Prolog code. 
+ * So a Prolog code can call C functions safely.
+ * When a Prolog code finishes it returns into C inside Call_Prolog_Success
+ * or Call_Prolog_Fail. In both functions we re-adjust the stack (gcc thinks
+ * %rsp = 0x...8 while it is 0x...0): after the gcc adjustment code we
+ * force %rsp to be 0x...0.
+ * For MA c_code (MA code called by a C function), we have to reserve enough
+ * space in the stack to pass args to C functions. We receive %rsp = 0x...c
+ * In addition we have to push 1 register (%rbx)
+ * Thus 0x...8 - 8 = 0x...0 : OK ! We have to sub to %rsp the space for
+ * MAX_C_ARGS_IN_C_CODE*8 (this is OK if MAX_C_ARGS_IN_C_CODE is a multiple
+ * of 2). So we have to reserve: MAX_C_ARGS_IN_C_CODE * 8.
+ */
+
 
 /*---------------------------------*
  * Constants                       *
@@ -38,7 +60,8 @@
 #define STRING_PREFIX              ".LC"
 #define DOUBLE_PREFIX              ".LCD"
 
-#define MAX_C_ARGS_IN_C_CODE       32
+#define MAX_C_ARGS_IN_C_CODE       32 /* must be a multiple of 2 */
+#define RESERVED_STACK_SPACE       MAX_C_ARGS_IN_C_CODE * 8
 
 #define MAX_DOUBLES_IN_PRED        2048
 
@@ -213,7 +236,7 @@ Code_Start(char *label, int prolog, int global)
          preserve %r12-%r15 since they are already handled as global
          -ffixed ones.  */
       Inst_Printf("pushq", "%%rbx");
-      Inst_Printf("subq", "$%d,%%rsp", MAX_C_ARGS_IN_C_CODE * 8);
+      Inst_Printf("subq", "$%d,%%rsp", RESERVED_STACK_SPACE);
     }
 }
 
@@ -843,7 +866,7 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Inst_Printf("addq", "$%d,%%rsp", MAX_C_ARGS_IN_C_CODE * 8);
+  Inst_Printf("addq", "$%d,%%rsp", RESERVED_STACK_SPACE);
   Inst_Printf("popq", "%%rbx");
   Inst_Printf("ret", "");
 }
