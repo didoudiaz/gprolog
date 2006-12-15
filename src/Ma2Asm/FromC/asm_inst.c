@@ -5,8 +5,11 @@
 
 #include "../../EnginePl/gp_config.h"
 #include "../../EnginePl/pl_params.h"
-//#include "../../EnginePl/wam_archi.h"
+#if 1 /* #if 0, cp ../../EnginePl/wam_archi.h . and customize it if needed */
+#include "../../EnginePl/wam_archi.h"
+#else
 #include "wam_archi.h"
+#endif
 #include "../../EnginePl/machine.h"
 #include "../../EnginePl/obj_chain.h"
 #include "../../EnginePl/wam_inst.h"
