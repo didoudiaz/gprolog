@@ -25,9 +25,32 @@
 /* $Id$ */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
+/* For M_ix86_darwin: an important point is that C stack must be aligned
+ * on 16 bytes. It is possible to use gcc option -mstackrealign but
+ * it produces bigger and slower code (and uses %ecx as register).
+ * If this is not done and if the called function performs a movdqa
+ * an error will occur (generally Bus Error).
+ * Just before calling a function %esp is 16bytes aligned, %esp = 0x...0
+ * (4 low bits = 0). The call instruction pushes the return address, so at
+ * the entry of a function, %esp is 0x...c. Gcc then adjusts (via subl) 
+ * %esp to be 0x...0 before calling a function. We mimic the same modifying
+ * Call_Compiled to force %esp to be 0x...0 when arriving in a Prolog code. 
+ * So a Prolog code can call C functions safely.
+ * When a Prolog code finishes it returns into C inside Call_Prolog_Success
+ * or Call_Prolog_Fail. In both functions we re-adjust the stack (gcc thinks
+ * %esp = 0x...c while it is 0x...0): after the gcc adjustment code we
+ * force %esp to be 0x...0.
+ * For MA c_code (MA code called by a C function), we have to reserve enough
+ * space in the stack to pass args to C functions. We receive %esp = 0x...c
+ * In addition we have to push 2 registers (%ebp = PB_REG and %esi)
+ * Thus 0x...c - 4 - 4 = 0x...4. We have to sub 4 to %esp and the space for
+ * MAX_C_ARGS_IN_C_CODE*4 (this is OK if MAX_C_ARGS_IN_C_CODE is a multiple
+ * of 4). So we have to reserve: 4 + MAX_C_ARGS_IN_C_CODE * 4.
+ */
 
 
 /*---------------------------------*
@@ -36,9 +59,10 @@
 
 #define STRING_PREFIX              ".LC"
 
-#define MAX_C_ARGS_IN_C_CODE       32
+#define MAX_C_ARGS_IN_C_CODE       32 /* must be a multiple of 4 for darwin */
+#define RESERVED_STACK_SPACE       MAX_C_ARGS_IN_C_CODE * 4 + 4
 
-#if defined( __CYGWIN__) || defined (_WIN32)
+#if defined(__CYGWIN__) || defined (_WIN32) || defined(M_ix86_darwin)
 
 #define UN                         "_"
 
@@ -78,8 +102,18 @@ char *comment_prefix = "#";
 #else
 char *comment_prefix = "/";
 #endif
+
+#ifdef M_ix86_darwin
+char *local_symb_prefix = "L";
+#else
 char *local_symb_prefix = ".L";
+#endif
+#ifdef M_ix86_darwin
+int strings_need_null = 1;
+#else
 int strings_need_null = 0;
+#endif
+
 int call_c_reverse_args = 0;
 
 char *inline_asm_data[] = { NULL };
@@ -92,6 +126,26 @@ char *inline_asm_data[] = { NULL };
  *---------------------------------*/
 
 static char *Off_Reg_Bank(int offset);
+
+
+
+#ifdef M_ix86_darwin 
+
+#define DARWIN_PB_REG "%ebp"	/* PIC BASE (PB) customization */
+int load_pb_reg = 0;
+int pb_label_no = 0;
+char pb_label[32];
+
+int needs_pre_pass = 1;
+
+#include "../Wam2Ma/bt_string.h"
+BTString bt_stub;
+BTString bt_non_lazy;
+
+void Emit_Non_Lazy(int str_no, char *name);
+void Emit_Stub(int str_no, char *name);
+
+#endif
 
 
 
@@ -129,10 +183,15 @@ Asm_Start(void)
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
 
-  Label_Printf(".text");
+  Inst_Printf(".text", "");
 
   Label("fail");
   Pl_Fail();
+
+#ifdef M_ix86_darwin
+  BT_String_Init(&bt_stub);
+  BT_String_Init(&bt_non_lazy);
+#endif
 }
 
 
@@ -158,7 +217,6 @@ Off_Reg_Bank(int offset)
 
 
 
-
 /*-------------------------------------------------------------------------*
  * ASM_STOP                                                                *
  *                                                                         *
@@ -169,8 +227,64 @@ Asm_Stop(void)
 #ifdef __ELF__
   Inst_Printf(".section", ".note.GNU-stack,\"\",@progbits");
 #endif
+
+#ifdef M_ix86_darwin
+  if (bt_non_lazy.nb_elem) 
+    {
+      Inst_Printf(".section __IMPORT,__pointers,non_lazy_symbol_pointers", "");
+      BT_String_List(&bt_non_lazy, Emit_Non_Lazy);
+    }
+
+  if (bt_stub.nb_elem) 
+    {
+      Inst_Printf(".section __IMPORT,__jump_table,symbol_stubs,self_modifying_code+pure_instructions,5", "");
+
+      BT_String_List(&bt_stub, Emit_Stub);
+    }
+
+
+  Inst_Printf(".subsections_via_symbols", "");
+  Inst_Printf(".section", "__TEXT,__textcoal_nt,coalesced,pure_instructions");
+  Label_Printf(".weak_definition\t___i686.get_pc_thunk.%s", DARWIN_PB_REG + 2);
+  Label_Printf(".private_extern ___i686.get_pc_thunk.%s", DARWIN_PB_REG + 2);
+  Label_Printf("___i686.get_pc_thunk.%s:", DARWIN_PB_REG + 2);
+  Inst_Printf("movl", "(%%esp), %s", DARWIN_PB_REG);
+  Inst_Printf("ret", "");
+#endif
 }
 
+#ifdef M_ix86_darwin
+void
+Emit_Non_Lazy(int str_no, char *name)
+{
+  Label_Printf("L_%s$non_lazy_ptr:", name);
+  Label_Printf("\t.indirect_symbol _%s", name);
+  Inst_Printf(".long", "0");
+}
+
+void
+Emit_Stub(int str_no, char *name)
+{
+  Label_Printf("L_%s$stub:", name);
+  Label_Printf(".indirect_symbol _%s", name);
+  Inst_Printf("hlt ; hlt ; hlt ; hlt ; hlt", "");
+}
+
+
+
+void
+Load_PB_Reg(void)
+{
+  if (!load_pb_reg)
+    return;
+  int i;
+  Inst_Printf("call", "___i686.get_pc_thunk.%s", DARWIN_PB_REG + 2);
+  i = sprintf(pb_label, "\"L%011d$pb\"", ++pb_label_no);
+  Label_Printf("%s:", pb_label);
+  sprintf(pb_label + i, "(%s)", DARWIN_PB_REG);
+  load_pb_reg = 0;
+}
+#endif
 
 
 
@@ -181,25 +295,28 @@ Asm_Stop(void)
 void
 Code_Start(char *label, int prolog, int global)
 {
-  Label_Printf("");
-#ifndef M_solaris
-  Inst_Printf(".p2align", "4,,15");
-#else
+#ifdef M_solaris
   Inst_Printf(".align", "4");
+#elif defined(M_ix86_darwin)
+#else
+  Inst_Printf(".p2align", "4,,15");
 #endif
 #if defined(M_ix86_linux) || defined(M_ix86_bsd) || defined(M_ix86_sco)
   Inst_Printf(".type", UN "%s,@function", label);
 #endif
 
   if (global)
-    Inst_Printf(".globl", UN "%s", label);
+    Label_Printf(".globl " UN "%s", label);
 
   Label(label);
 
   if (!prolog)
     {
+#ifdef M_ix86_darwin
+      Inst_Printf("pushl", "%s", DARWIN_PB_REG);
+#endif
       Inst_Printf("pushl", "%%esi"); /* used as r_aux when %eax is a FC reg */
-      Inst_Printf("subl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
+      Inst_Printf("subl", "$%d,%%esp", RESERVED_STACK_SPACE);
     }
 }
 
@@ -230,6 +347,9 @@ Label(char *label)
   Inst_Printf(".align", "4");
 #endif
   Label_Printf(UN "%s:", label);
+#ifdef M_ix86_darwin
+  load_pb_reg = 1;
+#endif
 }
 
 
@@ -257,7 +377,15 @@ Reload_E_In_Register(void)
 void
 Pl_Jump(char *label)
 {
-  Inst_Printf("jmp", UN "%s", label);
+#ifdef M_ix86_darwin
+  if (!Is_Code_Defined(label))
+    {
+      BT_String_Add(&bt_stub, strdup(label));
+      Inst_Printf("jmp", "L_%s$stub", label);
+    }
+  else
+#endif
+    Inst_Printf("jmp", UN "%s", label);
 }
 
 
@@ -270,7 +398,13 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
+#ifdef M_ix86_darwin
+  Load_PB_Reg();
+  Inst_Printf("leal", "Lcont%d-%s,%%eax", w_label, pb_label);
+  Inst_Printf("movl", "%%eax,%s", asm_reg_cp);
+#else
   Inst_Printf("movl", "$.Lcont%d,%s", w_label, asm_reg_cp);
+#endif
 }
 
 
@@ -283,7 +417,10 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%scont%d:", local_symb_prefix, w_label++);
+#ifdef M_ix86_darwin
+  load_pb_reg = 1;
+#endif
 }
 
 
@@ -448,7 +585,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
     }
 
 
-/* In GCC 3, the 3 first args are passed via registers if they
+/* In GCC 3, the 3 first args are passed via registers if they are
  * ints (recall: 1 double = 2 ints). So if the 2 first args are
  * double (4 ints) nothing is passed in registers.
  * In GCC 4, the 3 first int args are passed in register whatever 
@@ -463,12 +600,13 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 
 #define BEFORE_HALF_ARG_DOUBLE			\
 {						\
-  char r[10];					\
+  char r[10], *r_aux;				\
 						\
-  if (fc_reg_no < MAX_C_ARGS_IN_C_CODE)		\
+  if (fc_reg_no < FC_MAX_ARGS_IN_REGS)		\
     SKIP_FC_REG;				\
   sprintf(r, "%d(%%esp)", stack_offset * 4);	\
-  stack_offset++;
+  stack_offset++;				\
+  r_aux = (eax_used_as_fc_reg) ? "%esi" : "%eax";
   
 
 #define AFTER_ARG				\
@@ -536,7 +674,14 @@ Call_C_Arg_String(int offset, int str_no)
 {
   BEFORE_ARG;
 
+#ifdef M_ix86_darwin
+  Load_PB_Reg();
+  Inst_Printf("leal", "%s%d-%s,%s", STRING_PREFIX, str_no, pb_label, r_aux);
+  if (!r_eq_r_aux)
+    Inst_Printf("movl", "%s,%s", r_aux, r);
+#else
   Inst_Printf("movl", "$%s%d,%s", STRING_PREFIX, str_no, r);
+#endif
 
   AFTER_ARG;
 
@@ -553,7 +698,44 @@ Call_C_Arg_String(int offset, int str_no)
 int
 Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
 {
+#ifdef M_ix86_darwin
+  int global, value;
+  VType vtype;
+  int is_a_long;
+#endif
+
   BEFORE_ARG;
+
+#ifdef M_ix86_darwin
+
+  Load_PB_Reg();
+  is_a_long = Get_Long_Infos(name, &global, &vtype, &value);
+    
+  if ((is_a_long && global && vtype != INITIAL_VALUE) || 
+      (!is_a_long && !Is_Code_Defined(name))) /* external code */
+    {
+      BT_String_Add(&bt_non_lazy, name); /* strdup done by parser */
+      Inst_Printf("movl", "L_%s$non_lazy_ptr-%s,%s", name, pb_label, r_aux);
+      if (adr_of)
+	{
+	  if (index > 0)
+	    Inst_Printf("addl", "$%d,%s", index * 4, r_aux);
+	}
+      else
+	Inst_Printf("movl", "%d(%s),%s", index * 4, r_aux, r_aux);
+    }
+  else
+    {
+      if (adr_of)
+	Inst_Printf("leal", "%d+_%s-%s,%s", index * 4, name, pb_label, r_aux);
+      else
+	Inst_Printf("movl", "%d+_%s-%s,%s", index * 4, name, pb_label, r_aux);
+    }
+
+  if (!r_eq_r_aux)
+    Inst_Printf("movl", "%s,%s", r_aux, r);
+
+#else /* !M_ix86_darwin */
 
   if (adr_of)
     Inst_Printf("movl", "$" UN "%s+%d,%s", name, index * 4, r);
@@ -563,6 +745,8 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
       if (!r_eq_r_aux)
 	Inst_Printf("movl", "%s,%s", r_aux, r);
     }
+
+#endif
 
   AFTER_ARG;
 
@@ -642,20 +826,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
 int
 Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
 {
-  BEFORE_ARG;
-
-  if (adr_of)
-    Inst_Printf("movl", "$" UN "foreign_long+%d,%s", index * 4, r);
-  else
-    {
-      Inst_Printf("movl", UN "foreign_long+%d,%s", index * 4, r_aux);
-      if (!r_eq_r_aux)
-	Inst_Printf("movl", "%s,%s", r_aux, r);
-    }
-  
-  AFTER_ARG;
-
-  return 1;
+  return Call_C_Arg_Mem_L(offset, adr_of, "foreign_long", index);
 }
 
 
@@ -669,20 +840,22 @@ int
 Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 {
   if (adr_of)
-    {
-      BEFORE_ARG;
-
-      Inst_Printf("movl", "$" UN "foreign_double+%d,%s", index * 8, r);
-
-      AFTER_ARG;
-
-      return 1;
-    }
+    return Call_C_Arg_Mem_L(offset, adr_of, "foreign_double", index * 2);
 
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8);
-  Inst_Printf("movl", "%%eax,%s", r);
+#ifdef M_ix86_darwin
+
+  Load_PB_Reg();
+  Inst_Printf("movl", "L_foreign_double$non_lazy_ptr-%s,%s", pb_label, r_aux);
+  Inst_Printf("movsd", "%d(%s),%%xmm0", index * 8, r_aux);
+  Inst_Printf("movsd", "%%xmm0,%s", r);
+  stack_offset++;
+
+#else /* !M_ix86_darwin */
+
+  Inst_Printf("movl", UN "foreign_double+%d,%s", index * 8, r_aux);
+  Inst_Printf("movl", "%s,%s", r_aux, r);
 
   AFTER_ARG;
 
@@ -692,6 +865,8 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 
   Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8 + 4);
   Inst_Printf("movl", "%%eax,%s", r);
+
+#endif
 
   AFTER_ARG;
 
@@ -722,6 +897,7 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
       return;
     }
 #endif
+
   Inst_Printf("call", UN "%s", fct_name);
 }
 
@@ -885,8 +1061,11 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Inst_Printf("addl", "$%d,%%esp", MAX_C_ARGS_IN_C_CODE * 4);
+  Inst_Printf("addl", "$%d,%%esp", RESERVED_STACK_SPACE);
   Inst_Printf("popl", "%%esi");
+#ifdef M_ix86_darwin
+  Inst_Printf("popl", "%s", DARWIN_PB_REG);
+#endif
   Inst_Printf("ret", "");
 }
 
@@ -904,6 +1083,8 @@ Dico_String_Start(int nb_consts)
   Inst_Printf(".section", ".rdata,\"dr\"");
 #elif defined(M_solaris)
   Inst_Printf(".section", ".rodata");
+#elif defined(M_ix86_darwin)
+  Inst_Printf(".cstring", "");
 #else
   Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
 #endif
@@ -920,7 +1101,11 @@ void
 Dico_String(int str_no, char *asciiz)
 {
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
+#ifdef M_ix86_darwin
+  Inst_Printf(".ascii", "%s", asciiz);
+#else
   Inst_Printf(".string", "%s", asciiz);
+#endif
 }
 
 
@@ -946,7 +1131,11 @@ void
 Dico_Long_Start(int nb_longs)
 {
   Inst_Printf(".data", "");
+#ifdef M_ix86_darwin
+  Inst_Printf(".align", "2");
+#else
   Inst_Printf(".align", "4");
+#endif
 }
 
 
@@ -964,13 +1153,18 @@ Dico_Long(char *name, int global, VType vtype, long value)
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-#if defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_solaris)
+#if defined(M_ix86_linux) || defined(M_ix86_sco) || \
+    defined(M_ix86_solaris) || defined(M_ix86_bsd)
       if (!global)
 	Inst_Printf(".local", UN "%s", name);
       Inst_Printf(".comm", UN "%s,%ld,4", name, value * 4);
 #else
       if (!global)
+#ifdef M_ix86_darwin
+	Inst_Printf(".lcomm", UN "%s,%ld,2", name, value * 4);
+#else
 	Inst_Printf(".lcomm", UN "%s,%ld", name, value * 4);
+#endif
       else
 	Inst_Printf(".comm", UN "%s,%ld", name, value * 4);
 #endif
@@ -979,9 +1173,13 @@ Dico_Long(char *name, int global, VType vtype, long value)
     case INITIAL_VALUE:
       if (global)
 	Label_Printf(".globl " UN "%s", name);
+#ifdef M_ix86_darwin
+      Inst_Printf(".align", "2");
+#else
       Inst_Printf(".align", "4");
       Inst_Printf(".type", UN "%s,@object", name);
       Inst_Printf(".size", UN "%s,4", name);
+#endif
       Label_Printf(UN "%s:", name);
       Inst_Printf(".long", "%ld", value);
       break;
@@ -1013,6 +1211,13 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
+#if defined(M_ix86_darwin)
+  Inst_Printf(".mod_init_func", "");
+  Inst_Printf(".align", "2");
+  Inst_Printf(".long", UN "%s", initializer_fct);
+
+#else
+
 #ifdef _MSC_VER
   Inst_Printf(".section", ".GPLC$m");
 #elif defined( __CYGWIN__) || defined (_WIN32)
@@ -1022,6 +1227,8 @@ Data_Start(char *initializer_fct)
 #endif
   Inst_Printf(".align", "4");
   Inst_Printf(".long", UN "%s", initializer_fct);
+
+#endif /* M_ix86_darwin */
 }
 
 

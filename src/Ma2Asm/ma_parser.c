@@ -83,6 +83,8 @@ enum
  * Global Variables                *
  *---------------------------------*/
 
+int needs_pre_pass;		/* can be overwritten by mappers */
+
 char *inst[] = {
   "pl_code", "pl_jump", "prep_cp", "here_cp", "pl_call", "pl_fail",
   "pl_ret", "jump", "move", "call_c", "jump_ret", "fail_ret", "move_ret",
@@ -91,8 +93,6 @@ char *inst[] = {
 
 int reload_e;
 
-
-int init_already_read;
 
 char fct_name[MAX_STR_LEN];
 int fc;
@@ -132,7 +132,7 @@ double dbl_val;
  * Function Prototypes             *
  *---------------------------------*/
 
-static void Parser(void);
+static void Parser(int pass_no, int nb_passes);
 
 static int Read_If_Global(int initializer);
 
@@ -159,29 +159,42 @@ int
 Parse_Ma_File(char *file_name_in, int comment)
 {
   int ret_val;
+  int i, nb_passes = needs_pre_pass + 1;
 
-  keep_source_lines = comment;
-  init_already_read = 0;
 
   if (file_name_in == NULL)
-    file_in = stdin;
+    {
+      file_name_in = "stdin";
+      file_in = stdin;
+    }
   else if ((file_in = fopen(file_name_in, "rt")) == NULL)
     {
       fprintf(stderr, "cannot open input file %s\n", file_name_in);
       return 0;
     }
 
-  cur_line_p = cur_line_str;
-  cur_line_str[0] = '\0';
-  cur_line_no = 0;
+  for(i = 1; i <= nb_passes; i++) 
+    {
+      if (i == 2 && fseek(file_in, 0, SEEK_SET) == -1) 
+	{
+	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", 
+		  file_name_in);
+	  return 0;
+	}
 
-  if ((ret_val = setjmp(jumper)) == 0)
-    Parser();
+      keep_source_lines = comment;
+
+      if ((ret_val = setjmp(jumper)) == 0)
+	Parser(i, nb_passes);
+  
+      if (ret_val != 0)
+	return 0;
+    }
 
   if (file_in != stdin)
     fclose(file_in);
 
-  return ret_val == 0;
+  return 1;
 }
 
 
@@ -191,17 +204,27 @@ Parse_Ma_File(char *file_name_in, int comment)
  * PARSER                                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
+
+#define Pre_Pass() (pass_no < nb_passes)
+
 static void
-Parser(void)
+Parser(int pass_no, int nb_passes)
 {
+  int init_already_read = 0;
   char **in, *name;
   int k, i;
   int global;
 
+  if (Pre_Pass())
+    keep_source_lines = 0;
+
+  cur_line_p = cur_line_str;
+  cur_line_str[0] = '\0';
+  cur_line_no = 0;
+
   for (;;)
     {
       k = Scanner();
-    a_token:
       if (k == 0)		/* end of file */
 	break;
 
@@ -212,19 +235,27 @@ Parser(void)
 	if (strcmp(str_val, *in) == 0)
 	  break;
 
-      if (*in == NULL)
-	{
-	  Read_Token(':');
-	  Label(str_val);
-	}
+      k = in - inst;
 
-      switch (in - inst)
+      /* ignore it in Pre_Pass() or long decl if Pre_Pass() done before */
+      if ((Pre_Pass() && k != PL_CODE && k != C_CODE && k != LONG && *in != NULL) ||
+	  (pass_no > 1 && k == LONG)) {
+	*cur_line_p = '\0';	/* skip rest of line */
+	continue;
+      }
+
+      switch (k)
 	{
 	case PL_CODE:
 	  global = Read_If_Global(0);
 	  Read_Token(IDENTIFIER);
-	  Code_Start(str_val, 1, global);
-	  reload_e = 1;
+	  if (Pre_Pass())
+	    Decl_Code(strdup(str_val), 1, global);
+	  else 
+	    {
+	      Code_Start(str_val, 1, global);
+	      reload_e = 1;
+	    }
 	  break;
 
 	case PL_JUMP:
@@ -319,8 +350,7 @@ Parser(void)
 	      break;
 
 	    default:
-	      Syntax_Error
-		("identifier, X(...), Y(...), FL(...) or FD(...) expected");
+	      Syntax_Error("identifier, X(...), Y(...), FL(...) or FD(...) expected");
 	      break;
 
 	    }
@@ -339,10 +369,13 @@ Parser(void)
 	    {
 	      init_already_read = 1;
 	      global = 0;
-
-	      Declare_Initializer(str_val);
+	      if (!Pre_Pass())
+		Declare_Initializer(strdup(str_val));
 	    }
-	  Code_Start(str_val, 0, global);
+	  if (Pre_Pass())
+	    Decl_Code(strdup(str_val), 0, global);
+	  else
+	    Code_Start(str_val, 0, global);
 	  break;
 
 	case C_RET:
@@ -357,22 +390,30 @@ Parser(void)
 	  if ((i = Read_Optional_Index()) > 0)	/* array */
 	    {
 	      Decl_Long(name, global, ARRAY_SIZE, i);
-
 	      break;
 	    }
 
-	  k = Scanner();
-	  if (k != '=')
+	  while (isspace(*cur_line_p))
+	    cur_line_p++;
+	  if (*cur_line_p != '=')
 	    {
 	      Decl_Long(name, global, NONE, 0);
-
-	      goto a_token;
+	      break;
 	    }
-
+	  cur_line_p++;		/* skip the = */
 	  Read_Token(INTEGER);
 	  Decl_Long(name, global, INITIAL_VALUE, int_val);
-
 	  break;
+
+	default:
+	  if (*in == NULL)
+	    {
+	      Read_Token(':');
+	      if (Pre_Pass())
+		Decl_Code(strdup(str_val), 1, global);
+	      else
+		Label(str_val);
+	    }
 	}
     }
 }

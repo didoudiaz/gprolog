@@ -117,10 +117,7 @@ pl_code global ma_test_arg_fd_array
 
 pl_code global ma_test_call_c_lot_args
 	call_c fast Allocate(1)
-	call_c fast test_call_c_lot_args1(0,0,0,0,0,0,&test_call_c_lot_args,ma_local_var2,4095,123456789,-3.141593,
-                       "abcd\01489def\n\r",
-                       X(0),&X(0),X(255),&X(128),
-                       Y(0),&Y(0),Y(12),&Y(6), 1.23456)
+	call_c fast test_call_c_lot_args1(0,0,0,0,0,0,&test_call_c_lot_args,ma_local_var2,4095,123456789,-3.141593,"abcd\01489def\n\r",X(0),&X(0),X(255),&X(128),Y(0),&Y(0),Y(12),&Y(6), 1.23456)
 	pl_ret
 
 pl_code global ma_test_jump_ret
@@ -200,7 +197,7 @@ sl5:	call_c fast test_switch_ret2(5)
 	pl_ret
 
 
-; ma_array must be just before ma_global_var1
+; ma_array must be just before ma_global_var1 (in alphabetic order)
 long global ma_array(5000)
 long global ma_global_var1
 long global ma_global_var2 = 12345

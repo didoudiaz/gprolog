@@ -3578,6 +3578,10 @@ _ACEOF
 #define M_ix86_mingw 1
 _ACEOF
 ;;
+        i*86*darwin*)    cat >>confdefs.h <<\_ACEOF
+#define M_ix86_darwin 1
+_ACEOF
+;;
         powerpc*linux*)  cat >>confdefs.h <<\_ACEOF
 #define M_powerpc_linux 1
 _ACEOF

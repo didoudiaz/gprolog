@@ -4,7 +4,6 @@ CFLAGS = @CFLAGS@
 
 # other local variables
 
-INCL=-I../../EnginePl
 #CFLAGS    = -O3
 #CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer
 CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
@@ -12,11 +11,11 @@ CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
 #CFLAGS= /Ox /Oy
 
 opt: 
-	 $(GPLC) -c -C '$(CFLAGS) $(INCL) -S' -o asm_inst.s asm_inst.c
+	 $(CC) -S '$(CFLAGS) asm_inst.c
 
 
 no:
-	 $(GPLC) -c -C '-S $(INCL)' -o asm_inst.s asm_inst.c
+	 $(CC) -S asm_inst.c
 
 clean:
 	-rm *.s

@@ -78,14 +78,12 @@ static long obj_chain_start = (long) OBJ_CTOR;
 
 #pragma data_seg()
 
-#define OBJ_CHAIN_REVERSE_ORDER
-
 #endif /* _MSC_VER */
 
 #endif /* OBJ_INIT */
 
 
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(M_ix86_darwin)
 #define OBJ_CHAIN_REVERSE_ORDER
 #endif

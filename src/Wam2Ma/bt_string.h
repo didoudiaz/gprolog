@@ -38,6 +38,7 @@ typedef struct btnode
 {
   char *str;
   int no;
+  char info[32];		/* a buffer to store some information */
   PBTNode left;
   PBTNode right;
 }
@@ -70,5 +71,7 @@ BTString;
 void BT_String_Init(BTString *bt_str);
 
 BTNode *BT_String_Add(BTString *bt_str, char *str);
+
+BTNode *BT_String_Lookup(BTString *bt_str, char *str);
 
 void BT_String_List(BTString *bt_str, void (*fct) ());

@@ -96,29 +96,21 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
  * Register Definitions            *
  *---------------------------------*/
 
-#if defined(M_sparc_sunos)
+#if defined(M_sparc)
 
 #    define M_USED_REGS            {"g6", "g7", 0}
 
-#elif defined(M_sparc_solaris)
-
-#    define M_USED_REGS            {"g6", "g7", 0}
-
-#elif defined(M_mips_irix)
+#elif defined(M_mips)
 
 #define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
                                     "$21", "$22", "$23", 0}
 
-#elif defined(M_alpha_linux)
+#elif defined(M_alpha)
 
 #    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 
-#elif defined(M_alpha_osf)
-
-#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
-
-#elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
-      defined(M_ix86_solaris) || defined(M_ix86_cygwin)  || defined(M_ix86_bsd)
+/* on M_ix86_darwin : %ebx is used by gcc for pic base */
+#elif defined(M_ix86) && !defined(_MSC_VER) && !defined(M_ix86_darwin)
 
 #ifdef NO_USE_EBP
 #    define M_USED_REGS            {"ebx", 0}
@@ -126,11 +118,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
 
-#elif defined(M_powerpc_linux) || defined(M_powerpc_darwin) || defined(M_powerpc_bsd)
+#elif defined(M_powerpc)
 
 #    define M_USED_REGS            {"15", "20", 0}
 
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64)
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 

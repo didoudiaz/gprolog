@@ -150,6 +150,9 @@
 /* Define if the system is a ix86/win32 */
 #undef M_ix86_win32
 
+/* Define if the system is a ix86/darwin */
+#undef M_ix86_darwin
+
 /* Define if the system is a ix86/solaris */
 #undef M_ix86_solaris
 

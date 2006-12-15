@@ -56,15 +56,11 @@
                                     asm("jmp $31,($28)," M_Asm_Symbol(lab));\
                                     return;}
 
-#elif defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd)
+#elif defined(M_ix86) && defined(__GNUC__)
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
 
-#elif defined(M_ix86_cygwin)
-
-#    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
-
-#elif defined(M_ix86_win32)
+#elif defined(_MSC_VER)
 
 #    define M_Direct_Goto(lab)     {_asm {jmp M_Asm_Symbol(lab)}; return;}
 
@@ -91,11 +87,11 @@
 
 #if 0
 
-#if defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd)
+#if defined(M_ix86)
 
 register WamWord *reg_bank asm("ebx");
 
-#elif defined(M_powerpc_linux)
+#elif defined(M_powerpc)
 
 register WamWord *reg_bank asm("r31");
 

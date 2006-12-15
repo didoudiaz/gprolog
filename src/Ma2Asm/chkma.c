@@ -355,7 +355,6 @@ test_initializer(void)
 #endif
 }
 
-
 void
 test_declaration(void)
 {
@@ -399,7 +398,7 @@ test_pl_call_and_pl_ret_and_pl_fail(void)
 
 
 
-
+#if 1
 void
 test_prep_cp_and_here_cp(void)
 {
@@ -930,7 +929,7 @@ test_switch_ret2(int k)
     error();
 }
 
-
+#endif
 
 
 

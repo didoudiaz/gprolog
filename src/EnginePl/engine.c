@@ -453,6 +453,10 @@ Call_Next(CodePtr codep)
 static void
 Call_Prolog_Fail(void)
 {
+#ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
+  //  asm("andl $0xfffffff0,%esp");
+  asm("subl $4,%esp");
+#endif
   Save_Machine_Regs(p_buff_save);
   longjmp(*p_jumper, -1);
 }
@@ -468,6 +472,9 @@ Call_Prolog_Fail(void)
 static void
 Call_Prolog_Success(void)
 {
+#ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
+  asm("subl $4,%esp");
+#endif
   Save_Machine_Regs(p_buff_save);
   longjmp(*p_jumper, 1);
 }

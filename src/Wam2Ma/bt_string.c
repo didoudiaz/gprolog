@@ -24,6 +24,8 @@
 
 /* $Id$ */
 
+#include "bt_string.h"
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -32,51 +34,13 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef struct btnode *PBTNode;
-
-typedef struct btnode
-{
-  char *str;
-  int no;
-  PBTNode left;
-  PBTNode right;
-}
-BTNode;
-
-
-
-
-typedef struct
-{
-  BTNode *tree;
-  int nb_elem;
-}
-BTString;
-
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
 
-
-
-
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-void BT_String_Init(BTString *bt_str);
-
-BTNode *BT_String_Add(BTString *bt_str, char *str);
-
-void BT_String_List(BTString *bt_str, void (*fct) ());
-
-
-
-static BTNode *BT_String_Add_Rec(BTString *bt_str, BTNode **pbt_node,
-				 char *str);
 
 static void BT_String_List_Rec(BTNode *bt_node, void (*fct) ());
 
@@ -104,47 +68,57 @@ BT_String_Init(BTString *bt_str)
 BTNode *
 BT_String_Add(BTString *bt_str, char *str)
 {
-  return BT_String_Add_Rec(bt_str, &(bt_str->tree), str);
+  BTNode **pbt_node = &bt_str->tree;
+  BTNode *bt_node;
+  int cmp;
+
+  while(*pbt_node) 
+    {
+      bt_node = *pbt_node;
+      cmp = strcmp(str, bt_node->str);
+
+      if (cmp == 0)
+	return bt_node;
+
+      pbt_node = (cmp < 0) ? &(bt_node->left) : &(bt_node->right);
+    }
+
+  if ((bt_node = (BTNode *) malloc(sizeof(BTNode))) == NULL)
+    {
+      fprintf(stderr, "Cannot allocate memory for BT string: %s\n",
+	      str);
+      exit(1);
+    }
+
+  bt_node->str = str;
+  bt_node->no = (bt_str->nb_elem)++;
+  memset(bt_node->info, 0, sizeof(bt_node)->info);
+  bt_node->left = bt_node->right = NULL;
+  *pbt_node = bt_node;
+  return bt_node;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BT_STRING_ADD_REC                                                       *
+ * BT_STRING_LOOKUP                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static BTNode *
-BT_String_Add_Rec(BTString *bt_str, BTNode **pbt_node, char *str)
+BTNode *
+BT_String_Lookup(BTString *bt_str, char *str)
 {
-  BTNode *bt_node;
+  BTNode *bt_node = bt_str->tree;
   int cmp;
-
-  if (*pbt_node == NULL)
+  
+  while(bt_node)
     {
-      if ((bt_node = (BTNode *) malloc(sizeof(BTNode))) == NULL)
-	{
-	  fprintf(stderr, "Cannot allocate memory for BT string: %s\n",
-		  str);
-	  exit(1);
-	}
-
-      bt_node->str = str;
-      bt_node->no = (bt_str->nb_elem)++;
-      bt_node->left = bt_node->right = NULL;
-      *pbt_node = bt_node;
-      return bt_node;
+      cmp = strcmp(str, bt_node->str);
+      if (cmp == 0)
+	return bt_node;
+      bt_node =  (cmp < 0) ? bt_node->left : bt_node->right;
     }
-
-  bt_node = *pbt_node;
-  cmp = strcmp(str, bt_node->str);
-
-  if (cmp == 0)
-    return bt_node;
-
-  pbt_node = (cmp < 0) ? &(bt_node->left) : &(bt_node->right);
-
-  return BT_String_Add_Rec(bt_str, pbt_node, str);
+  return NULL;
 }
 
 
@@ -174,6 +148,6 @@ BT_String_List_Rec(BTNode *bt_node, void (*fct) ())
     return;
 
   BT_String_List_Rec(bt_node->left, fct);
-  (*fct) (bt_node->no, bt_node->str);
+  (*fct) (bt_node->no, bt_node->str, bt_node->info);
   BT_String_List_Rec(bt_node->right, fct);
 }

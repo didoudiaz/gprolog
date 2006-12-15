@@ -749,27 +749,22 @@ char *M_Absolute_Path_Name(char *src);
 int getpagesize(void);
 #endif
 void M_Check_Magic_Words(void); /* not compiled if not needed */
-#if defined(M_sparc_sunos)
+#if defined(M_sparc)
 #    define M_USED_REGS            {"g6", "g7", 0}
-#elif defined(M_sparc_solaris)
-#    define M_USED_REGS            {"g6", "g7", 0}
-#elif defined(M_mips_irix)
+#elif defined(M_mips)
 #define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
                                     "$21", "$22", "$23", 0}
-#elif defined(M_alpha_linux)
+#elif defined(M_alpha)
 #    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
-#elif defined(M_alpha_osf)
-#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
-#elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
-      defined(M_ix86_solaris) || defined(M_ix86_cygwin)  || defined(M_ix86_bsd)
+#elif defined(M_ix86) && !defined(_MSC_VER) && !defined(M_ix86_darwin)
 #ifdef NO_USE_EBP
 #    define M_USED_REGS            {"ebx", 0}
 #else
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
-#elif defined(M_powerpc_linux) || defined(M_powerpc_darwin) || defined(M_powerpc_bsd)
+#elif defined(M_powerpc)
 #    define M_USED_REGS            {"15", "20", 0}
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64)
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 #else
 #    define M_USED_REGS            {0}
@@ -806,7 +801,7 @@ OBJ_CTOR(void)
 {
   New_Object(OBJ_INIT, NULL, NULL);
 }
-#else
+#else /* _MSC_VER */
 static void 
 OBJ_CTOR(void)
 {
@@ -817,6 +812,9 @@ static long obj_chain_start = (long) OBJ_CTOR;
 #pragma data_seg()
 #endif /* _MSC_VER */
 #endif /* OBJ_INIT */
+#if defined(_MSC_VER) || defined(M_ix86_darwin)
+#define OBJ_CHAIN_REVERSE_ORDER
+#endif
 #if 0
 #define GARBAGE_COLLECTOR
 #endif

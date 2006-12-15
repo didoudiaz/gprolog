@@ -85,10 +85,19 @@ void Call_C(char *fct_name, int fc, int nb_args, int nb_args_in_words, ArgInf ar
 
 void Switch_Ret(int nb_swt, SwtInf swt[]);
 
+void Decl_Code(char *name, int prolog, int global);
+
 void Decl_Long(char *name, int global, VType vtype, long value);
 
 
+
+
+
 	  /* defined in ma2asm.c - used by mappers */
+
+int Is_Code_Defined(char *name);
+
+int Get_Long_Infos(char *name, int *global, VType *vtype, int *value);
 
 void Label_Printf(char *label, ...) GCCPRINTF(1);
 

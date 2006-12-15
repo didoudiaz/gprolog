@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : write.pl
-% date    : 12 10 2006
-% time    : 13:24:9
+% date    : 12 15 2006
+% time    : 13:45:10
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/write.pl').
+file_name('/Users/daniel/GP/src/src/BipsPl/write.pl').
 
 
 predicate('$use_write'/0,29,static,private,built_in,[

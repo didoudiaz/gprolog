@@ -45,8 +45,6 @@
 
 #define DEFAULT_OUTPUT_SUFFIX      ASM_SUFFIX
 
-#define LONG_STACK_SIZE            8192
-
 #define MASK_LONG_GLOBAL           1
 #define MASK_LONG_INITIALIZED      2
 
@@ -57,17 +55,21 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef struct inflong *InfLongP;
-
-typedef struct inflong
+typedef struct
 {
-  char *name;
   int global;
   VType vtype;			/* NONE, INITIAL_VALUE, ARRAY_SZIE */
   long value;
-  InfLongP next;
 }
-InfLong;
+LongInf;
+
+
+typedef struct
+{
+  int prolog;
+  int global;
+}
+CodeInf;
 
 
 
@@ -87,10 +89,8 @@ FILE *file_out;
 int work_label = 0;
 
 BTString bt_string;
-
-InfLong dummy_long_start;
-InfLong *long_end = &dummy_long_start;
-int nb_long;
+BTString bt_code;
+BTString bt_long;
 
 char *initializer_fct = NULL;
 
@@ -100,6 +100,8 @@ char *initializer_fct = NULL;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+void Invoke_Dico_Long(int unused_no, char *name, LongInf *p);
 
 void Init_Inline_Data(void);
 
@@ -143,7 +145,6 @@ void Display_Help(void);
 int
 main(int argc, char *argv[])
 {
-  InfLong *p;
   int n;
 
   Parse_Arguments(argc, argv);
@@ -159,6 +160,8 @@ main(int argc, char *argv[])
   Init_Inline_Data();
 
   BT_String_Init(&bt_string);
+  BT_String_Init(&bt_code);	/* only fill if Pre_Pass is asked */
+  BT_String_Init(&bt_long);
   Asm_Start();
 
   if (!Parse_Ma_File(file_name_in, comment))
@@ -173,20 +176,16 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_String_Start(n);
-
       BT_String_List(&bt_string, Dico_String);
-
       Dico_String_Stop(n);
     }
 
-  if (nb_long)
+  n = bt_long.nb_elem;
+  if (n)
     {
-      Dico_Long_Start(nb_long);
-
-      for (p = dummy_long_start.next; p; p = p->next)
-	Dico_Long(p->name, p->global, p->vtype, p->value);
-
-      Dico_Long_Stop(nb_long);
+      Dico_Long_Start(n);
+      BT_String_List(&bt_long, Invoke_Dico_Long);
+      Dico_Long_Stop(n);
     }
 
   Data_Stop(initializer_fct);
@@ -203,13 +202,26 @@ main(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
+ * INVOKE_DICO_LONG                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Invoke_Dico_Long(int unused_no, char *name, LongInf *p)
+{
+  Dico_Long(name, p->global, p->vtype, p->value);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * DECLARE_INITIALIZER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
 Declare_Initializer(char *init_fct)
-{
-  initializer_fct = strdup(init_fct);
+{				/* init_fct: strdup done by the parser */
+  initializer_fct = init_fct;
 }
 
 
@@ -492,27 +504,67 @@ Switch_Cmp_Int(SwtInf *c1, SwtInf *c2)
 void
 Decl_Long(char *name, int global, VType vtype, long value)
 {
-  InfLong *p;
+  LongInf *p;
 
-  nb_long++;
+		/* name: strdup done by the parser */
+  p = (LongInf *) BT_String_Add(&bt_long, name)->info;
 
-  p = (InfLong *) malloc(sizeof(InfLong));
-  if (p == NULL)
-    {
-      fprintf(stderr, "Cannot allocate memory for long %s\n", name);
-      exit(1);
-    }
-
-
-  p->name = name;		/* strdup done by the parser */
   p->global = global;
-
   p->vtype = vtype;
   p->value = value;
-  p->next = NULL;
+}
 
-  long_end->next = p;
-  long_end = p;
+
+
+
+/*-------------------------------------------------------------------------*
+ * DECL_CODE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void				/* called by Pre_Pass */
+Decl_Code(char *name, int prolog, int global)
+{
+  CodeInf *p;
+
+		/* name: strdup done by the parser */
+  p = (CodeInf *) BT_String_Add(&bt_code, name)->info;
+
+  p->prolog = prolog;
+  p->global = global;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * IS_CODE_DEFINED                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Is_Code_Defined(char *name)
+{
+  return (BT_String_Lookup(&bt_code, name) != NULL);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * GET_LONG_INFOS                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Get_Long_Infos(char *name, int *global, VType *vtype, int *value)
+{
+  BTNode *b = BT_String_Lookup(&bt_long, name);
+  LongInf *p;
+
+  if (b == NULL)
+    return 0;
+
+  p = (LongInf *) b->info;
+  *global = p->global;
+  *vtype = p->vtype;
+  *value = p->value;
+  return 1;
 }
 
 

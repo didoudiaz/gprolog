@@ -334,6 +334,7 @@ else
         i*86*bsd*)       AC_DEFINE(M_ix86_bsd);;
         i*86*cygwin*)    AC_DEFINE(M_ix86_cygwin);;
         i*86*mingw*)     AC_DEFINE(M_ix86_mingw);;
+        i*86*darwin*)    AC_DEFINE(M_ix86_darwin);;
         powerpc*linux*)  AC_DEFINE(M_powerpc_linux);;
         powerpc*darwin*) AC_DEFINE(M_powerpc_darwin);;
         powerpc*bsd*)    AC_DEFINE(M_powerpc_bsd);;

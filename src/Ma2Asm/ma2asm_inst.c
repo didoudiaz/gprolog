@@ -42,8 +42,8 @@
 
 #if 0				/* to force the inclusion of a mapper */
 
-#define M_powerpc_darwin
-#include "powerpc_any.c"
+#define M_ix86_darwin
+#include "ix86_any.c"
 
 #else
 
@@ -76,4 +76,5 @@
 #endif
 
 #endif
+
 

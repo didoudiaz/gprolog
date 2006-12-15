@@ -1,6 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #define OBJ_INIT initializer_fct
 
-#include "engine_pl.h"
+#include "../../EnginePl/gp_config.h"
+#include "../../EnginePl/pl_params.h"
+//#include "../../EnginePl/wam_archi.h"
+#include "wam_archi.h"
+#include "../../EnginePl/machine.h"
+#include "../../EnginePl/obj_chain.h"
+#include "../../EnginePl/wam_inst.h"
+
+
 #include "mach.h"
 
 #define YY(k) Y(E,k)
@@ -60,15 +71,30 @@ _foo1:;
 void
 TRANS_pl_call()
 {
+#ifdef __GNUC__
+  CP = (CodePtr) &&cont;
+  M_Direct_Goto(foo);
+ cont:
+#else
   CP = (CodePtr) pl_call1;
   M_Direct_Goto(foo);
-#ifdef M_ix86_win32
 _foo:;
-#else
-  asm("pl_call1:");
 #endif
+  dummy(CP);
 }
 
+
+void TRNAS_pl_call_another()
+{
+  CP = (CodePtr) &&cont;
+  foo();
+ cont:
+  CP = (CodePtr) &var;
+  dummy(CP);
+ cont2:
+  CP = (CodePtr) &&cont2;
+  dummy(var);
+}
 
 /* to define Pl_Fail() */
 
@@ -347,21 +373,23 @@ TRANS_dico_string()
 /* to define Dico_Long_Start() + Dico_Long() + Dico_Long_Stop()         */
 /* see definitions of longs in the asm file produced (global/not global)*/
 
-static long long1;
-static long long1b = 0;
-static long long2 = 100;
-long long3;
-long long4 = 128;
+static long var_long_static_uninit;
+static long var_long_static_init0;
+static long var_long_static_init100 = 100;
+long var_long_common_unint;
+long var_long_common_init128 = 128;
 
-static long local_array[128];
-long global_array[128];
+static long var_array_static128[128];
+long var_array_common128[128];
 
 /* to define Data_Start() + Data_Stop */
 /* between obj_chain_start and obj_chain_stop */
 
 static void
 initializer_fct()
-{
+{ /* the following printf to ensure gcc does not remove unused static vars */
+  printf("%ld %ld %ld %ld\n", var_long_static_uninit, var_long_static_init0,
+	 var_long_static_init100, var_array_static128);
 }
 
 
