@@ -11,7 +11,7 @@ CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
 #CFLAGS= /Ox /Oy
 
 opt: 
-	 $(CC) -S '$(CFLAGS) asm_inst.c
+	 $(CC) -S $(CFLAGS) asm_inst.c
 
 
 no:

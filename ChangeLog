@@ -1,8 +1,13 @@
-Fri Dec  8 16:59:49 CET 2006  <Daniel.Diaz@univ-paris1.fr>
+Fri Dec 15 17:48:30 CET 2006 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug with Prolog floats in x86_64/linux (bad stack alignment)
+	* port for ix86/darwin (Mac OS X)
+
+Fri Dec  8 16:59:49 CET 2006 <Daniel.Diaz@univ-paris1.fr>
 
      	* add check target to main Makefile
 
-Thu Dec  7 14:59:46 CET 2006  <Daniel.Diaz@univ-paris1.fr>
+Thu Dec  7 14:59:46 CET 2006 <Daniel.Diaz@univ-paris1.fr>
 
 
  	* improve Win32 ports (cygwin, MinGW, MSVC 6.0 and 2005 Express Edition)
@@ -21,7 +26,7 @@ Fri Nov 24 18:38:25 CET 2006 <Daniel.Diaz@univ-paris1.fr>
 	* change the way objects are found (obj_chain.c) using gcc ctors
 	* use Doug Lea malloc for OpenBSD (problem with malloc using mmap)
 	* fix problems in various ports:
-	  alpha/linux, powerpc/MacOSX, sparc/solaris, ix86/OpenBSD
+	  alpha/linux, powerpc/darwin (Mac OS X), sparc/solaris, ix86/OpenBSD
 
 Mon Jun 13 15:46:49 CEST 2005 <Daniel.Diaz@univ-paris1.fr>
 
