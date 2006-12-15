@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : assert.pl
 % date    : 12 15 2006
-% time    : 8:3:26
+% time    : 17:10:59
 
 
-file_name('/home/users/d/di/diaz/GP/src/src/BipsPl/assert.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').
 
 
 predicate('$use_assert'/0,29,static,private,built_in,[

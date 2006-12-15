@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.0 (Nov 21 2006)
 % file    : unify.pl
 % date    : 12 15 2006
-% time    : 8:3:25
+% time    : 17:10:59
 
 
-file_name('/home/users/d/di/diaz/GP/src/src/BipsPl/unify.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/unify.pl').
 
 
 predicate('$use_unify'/0,29,static,private,built_in,[
