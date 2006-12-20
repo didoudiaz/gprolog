@@ -68,7 +68,7 @@
     PROLOG_NAME " version " PROLOG_VERSION "\n" \
     "By Daniel Diaz\n" \
     PROLOG_COPYRIGHT "\n\n" \
-    "http://gprolog.inria.fr\n\n" \
+    "http://www.gprolog.org\n\n" \
     PROLOG_NAME " comes with ABSOLUTELY NO WARRANTY.\n" \
     "You may redistribute copies of " PROLOG_NAME " under the\n" \
     "terms of the GNU General Public License."
@@ -427,16 +427,16 @@ MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     switch (id)
     {
     case IDM_CONSULT:
-		Consult_File();
+	Consult_File();
         break;
         
     case IDM_CHDIR:
-		Change_Directory();
+	Change_Directory();
         break;
         
 	case IDM_FILE_NAME:
-		Insert_File_Name();
-		break;
+	Insert_File_Name();
+	break;
 
     case IDM_EXIT:
         PostMessage(hwnd, WM_CLOSE, 0, 0);
@@ -487,9 +487,9 @@ MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         Show_Help(Get_Current_Word());
         break;
         
-	case IDM_WEB:
-		ShellExecute(NULL, "open", "http://gprolog.inria.fr/", NULL, ".", 0);
-		break;
+    case IDM_WEB:
+	ShellExecute(NULL, "open", "http://www.gprolog.org/", NULL, ".", 0);
+	break;
 
     case IDM_ABOUT:
         MessageBox(hwndMain, ABOUT_TEXT, "About GNU Prolog",
@@ -565,10 +565,10 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
     if (msg == WM_CHAR)
     {
         repeat = (int) (mp2 & 0xffff);
-		del = (mp1 == '\b' || mp1 == KEY_CTRL('D') || isprint(mp1)) ? Delete_Selection() : 0;
+	del = (mp1 == '\b' || mp1 == KEY_CTRL('D') || isprint(mp1)) ? Delete_Selection() : 0;
 
-		if (del && (mp1 == '\b' || mp1 == KEY_CTRL('D')) && --repeat == 0)
-			return 0;
+	if (del && (mp1 == '\b' || mp1 == KEY_CTRL('D')) && --repeat == 0)
+		return 0;
 
         while (repeat--)
             Add_Char_To_Queue(mp1);
@@ -622,23 +622,23 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
 			
 #ifdef DEBUG /* to include a test code */
         case VK_F2:
-			{
-				int size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
-				int len = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
-				char s[100];
-				
-				int beg, end;
-				Set_Selection(3, 200);
-				SendMessage(hwndEditControl, EM_GETSEL, (WPARAM)  &beg, (WPARAM)  &end);
-				
-				sprintf(s,"limit: %d   len: %d   sel: %d-%d", size, len, beg, end);
-				MessageBox(NULL, s, "Error", MB_OK);
-				// size += 10;
-				SendMessage(hwndEditControl, EM_SETLIMITTEXT, size, 0);
-				return 0;
-			}
-#endif        
+		{
+			int size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
+			int len = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
+			char s[100];
+			
+			int beg, end;
+			Set_Selection(3, 200);
+			SendMessage(hwndEditControl, EM_GETSEL, (WPARAM)  &beg, (WPARAM)  &end);
+			
+			sprintf(s,"limit: %d   len: %d   sel: %d-%d", size, len, beg, end);
+			MessageBox(NULL, s, "Error", MB_OK);
+			// size += 10;
+			SendMessage(hwndEditControl, EM_SETLIMITTEXT, size, 0);
+			return 0;
 		}
+#endif        
+	}
         
     }
     r = CallWindowProc(lpEProc, hwnd, msg, mp1, mp2);

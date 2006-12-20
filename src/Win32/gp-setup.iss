@@ -5,9 +5,9 @@ AppName=GNU Prolog
 AppVerName=GNU Prolog version 1.3.0
 AppVersion=1.3.0
 AppPublisher=Daniel Diaz
-AppPublisherURL=http://gprolog.inria.fr
-AppSupportURL=http://gprolog.inria.fr
-AppUpdatesURL=http://gprolog.inria.fr
+AppPublisherURL=http://www.gprolog.org
+AppSupportURL=http://www.gprolog.org
+AppUpdatesURL=http://www.gprolog.org
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
@@ -37,7 +37,7 @@ Source: "ExamplesFD\*.*"; DestDir: "{app}\ExamplesFD";  Flags: ignoreversion
 Source: "ExamplesC\*.*"; DestDir: "{app}\ExamplesC";  Flags: ignoreversion 
 
 [INI]
-Filename: "{app}\gprolog.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://gprolog.inria.fr"
+Filename: "{app}\gprolog.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.gprolog.org"
 
 [Icons]
 Name: "{group}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"

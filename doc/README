@@ -17,7 +17,7 @@ The Html directory contains the HTML version in several pages
 (files index.html, manual*.html)
 
 An on-line HTML version is also available at 
-http://gprolog.inria.fr/manual
+http://www.gprolog.org/manual
 
 By default, the installation procedure copies each version in a directory
 INSTALL_DIR/doc (see file ../INSTALL for more details).
