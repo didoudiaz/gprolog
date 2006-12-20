@@ -43,7 +43,7 @@ extern "C" {
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
 #define PROLOG_VERSION "1.3.0"
-#define PROLOG_DATE "Nov 21 2006"
+#define PROLOG_DATE "Dec 20 2006"
 #define PROLOG_COPYRIGHT "Copyright (C) 1999-2006 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
