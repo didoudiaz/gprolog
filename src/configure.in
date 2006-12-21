@@ -599,7 +599,7 @@ esac
 
 case "$WITH_DOC_DIR" in
     no) DOC_DIR=none;
-        test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/Html;;
+        test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/html_node;;
     '') DOC_DIR=$INSTALL_DIR/doc;;
     *)  DOC_DIR=$WITH_DOC_DIR;;
 esac
@@ -619,11 +619,11 @@ case "$WITH_HTML_DIR" in
             WITH_HTML_DIR=no;
             HTML_DIR=none
         else
-            HTML_DIR=$DOC_DIR/Html
+            HTML_DIR=$DOC_DIR/html_node
         fi;;
     *)  HTML_DIR=$WITH_HTML_DIR;;
 esac
-if same_directory "$HTML_DIR" $ROOT_DIR/doc/Html; then
+if same_directory "$HTML_DIR" $ROOT_DIR/doc/html_node; then
     HTML_DIR=none
 fi
 
@@ -670,8 +670,8 @@ OBJ_FILES=
 LIB_FILES=
 
 INC_FILES="$PROLOG_NAME1.h fd_to_c.h"
-DOC_FILES='???*.dvi ???*.ps ???*.pdf ???*.chm'
-HTML_FILES='???*.html ???*.gif'
+DOC_FILES='???*.dvi ???*.ps ???*.pdf ???*.chm ???*.eps ???*.html ???*.gif'
+HTML_FILES='???*.html ???*.gif ???*.css'
 EXPL_FILES='Makefile README PROGS ??*.pl'
 EXC_FILES='Makefile README ??*.pl ??*_c.c'
 EXFD_FILES='Makefile ??*.pl ??*.fd'

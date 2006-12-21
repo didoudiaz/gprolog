@@ -13,17 +13,20 @@ doc/[a-z][a-z-]?*.tex
 doc/[a-z][a-z]?*.sty
 doc/[a-z][a-z]?*.hva
 doc/[a-z][a-z]?*.fig
+doc/[a-z][a-z]?*.gif
 doc/[a-z][a-z]?*.eps
 doc/[a-z][a-z]?*.dvi
 doc/[a-z][a-z]?*.ps
 doc/[a-z][a-z]?*.pdf
 doc/[a-z][a-z]?*.chm
 doc/[a-z][a-z]?*.html
-doc/Html/[a-z][a-z]?*.html
-doc/Html/[a-z][a-z]?*.gif
-doc/Html/[a-z][a-z]?*.hh[ckp]
-doc/Html/[a-z][a-z]?*.tex
-doc/Html/hh_do_hhc_hhk
+doc/html_node/[a-z][a-z]?*.html
+doc/html_node/[a-z][a-z]?*.gif
+doc/html_node/[a-z][a-z]?*.hh[ckp]
+doc/html_node/[a-z][a-z]?*.tex
+doc/html_node/[a-z][a-z]?*.css
+doc/html_node/README
+doc/html_node/hh_do_hhc_hhk
 
 ExamplesPl/Makefile
 ExamplesPl/README

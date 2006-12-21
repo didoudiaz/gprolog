@@ -112,8 +112,8 @@ uninstall-doc:
 install-html:
 	if test $(HTML_DIR) != none; then \
 	   ./mkinstalldirs $(HTML_DIR); \
-	   (F=`cd ../doc/Html; echo $(HTML_FILES)`; \
-	   for i in $$F; do $(INSTALL_DATA) ../doc/Html/$$i $(HTML_DIR); done); \
+	   (F=`cd ../doc/html_node; echo $(HTML_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../doc/html_node/$$i $(HTML_DIR); done); \
 	fi
 
 uninstall-html:
