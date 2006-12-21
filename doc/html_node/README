@@ -1,0 +1,11 @@
+In this directory everything can be removed except :
+
+   compile-scheme.gif and debug_box.gif (they should also be in the parent directory)
+
+and some files needed to build a .chm :
+
+   hh_do_hhc_hhk    a script to create hh-gprolog.hhc (toc) hh-gprolog.hhk (index)
+   hh-mkind.tex     used by the script to create .hhc
+   hh-mktoc.tex     used by the script to create .hhk
+
+   hh-gprolog.hhp   a HTMLHelp project to build the .chm

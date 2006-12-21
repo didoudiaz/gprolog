@@ -7,17 +7,16 @@
 This directory contains the source of the manual written in LaTeX and several
 target versions:
 
-   - manual.dvi  (DVI version)
-   - manual.pdf  (PDF version)
-   - manual.ps   (PostScript version)
-   - manual.html (HTML version entirely in one page)
-   - manual.chm  (Compressed HTML used by MS HTMLHelp under Win32)
+   - gprolog.dvi  (DVI version)
+   - gprolog.pdf  (PDF version)
+   - gprolog.ps   (PostScript version)
+   - gprolog.html (HTML version entirely in one page)
+   - gprolog.chm  (Compressed HTML used by MS HTMLHelp under Win32)
 
-The Html directory contains the HTML version in several pages
-(files index.html, manual*.html)
+The html_node directory contains the HTML version in several pages (on per node)
+(files index.html, gprolog*.html)
 
-An on-line HTML version is also available at 
-http://www.gprolog.org/manual
+This manual is also available at http://www.gprolog.org/manual
 
 By default, the installation procedure copies each version in a directory
 INSTALL_DIR/doc (see file ../INSTALL for more details).
@@ -28,7 +27,8 @@ INSTALL_DIR/doc (see file ../INSTALL for more details).
 ------------------------
 
 Each version can be reconstructed using the Makefile (type 'make help' for
-a brief summary of available targets). Be sure to have the following environment before trying to rebuild the manual:
+a brief summary of available targets). Be sure to have the following environment
+before trying to rebuild the manual:
 
    - LaTeX2e (with standard packages) is needed to rebuild the DVI version.
    - dvips is needed to rebuild the PostScript version from the DVI.
@@ -53,10 +53,10 @@ http://msdn.microsoft.com/library/en-us/htmlhelp/html/vsconHH1Start.asp
 To install the workshop consult the file src/WINDOWS.
 
 The HH version of the manual is constructed from the HTML files
-(Html/index.html and Html/manual*.html) using a HH project (.hhp) which
+(html_node/index.html and html_node/gprolog*.html) using a HH project (.hhp) which
 includes a HH table of contents (.hhc) and a HH index (.hhk). The .hhc and
-.hhk files are constructed wih HeVeA (from ) thanks to the script
-hh_do_hhc_hhk. The result is a compressed (or compiled) HTML file (.chm).
+.hhk files are constructed wih HeVeA with a script hh_do_hhc_hhk and 2 .tex files. 
+The result is a compressed (or compiled) HTML file (.chm).
 
 The user does not need the entire HTML Help Workshop to view a .chm, only a
 runtime called "Help Viewer" is necessary. It is provided with recent

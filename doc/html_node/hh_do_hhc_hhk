@@ -1,0 +1,15 @@
+#!/bin/sh
+
+p=${1:-manual}
+
+sed -e 's!^\([^	]*\)	\(.*\)$!\\remember{\1}{\2}!' $p.hrf >/tmp/$p.hrf.hh
+hevea -text -w 1000 <hh-mktoc.tex | sed  -e '/^----------/,$d' >hh-$p.hhc
+
+sed -e 's!^\\indexitem \([^,]*\)\(, .*\)!\\indexitem{\1}\2£\\enditem!' \
+    -e 's!^\\indexitem \([^,]*,[^,]*\)\(, .*\)!\\indexitem{\1}\2£\\enditem!' \
+    -e 's!^\\indexitem{\([^}]*\)}\(, \\see *{\(.*\)} *{\\@locref\)!\\indexitem{\1, see \3}\2!' \
+    -e 's!, \\!£\\!g' \
+    ../$p.hind \
+    | tr '£' '\n' \
+    >/tmp/$p.hind.hh
+hevea -text -w 1000 <hh-mkind.tex | sed  -e '/^----------/,$d' >hh-$p.hhk
