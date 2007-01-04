@@ -6,7 +6,7 @@
  * Descr.: parser support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2006 Daniel Diaz                                     *
+ * Copyright (C) 1999-2007 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -237,7 +237,7 @@ finish:
  * Recursively parses a term whose precedence is <=cur_prec and returns a  *
  * WamWord associated to the term. If a syntax error is encountered the    *
  * parser returns NOT_A_WAM_WORD and update syntax error information       *
- * (see Set_Syntax_Error_Info() in error_supp.c).                          *
+ * (see Set_Last_Syntax_Error_Info() in error_supp.c).                     *
  * The flag comma_is_punct specifies if an eventual ',' following the term *
  * must be considered as a punctuation (separator of args of compound term *
  * or of a list) or as an atom. The value COMMA_ANY is used when this flag *
@@ -367,8 +367,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	    }
 	  /* prefix operator as a name */
 	  if (context != GENERAL_TERM)
-	    Parse_Error
-	      ("expression expected or previous operator needs brackets");
+	    Parse_Error("expression expected or previous operator needs brackets");
 	}
 
       left_is_op = (Check_Oper_Any_Type(atom));

@@ -6,7 +6,7 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2006 Daniel Diaz                                     *
+ * Copyright (C) 1999-2007 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -403,10 +403,10 @@ after_syn_error :-
 	g_read(syn_error_nb, SynErrNb),
 	SynErrNb1 is SynErrNb + 1,
 	g_assign(syn_error_nb, SynErrNb1),
-	syntax_error_info(_, Line, Char, Msg),
+	syntax_error_info(_, Line, Column, Msg),
 	g_read(open_file_stack, OpenFileStack),
 	g_assign(where, OpenFileStack + (Line - Line)),
-	disp_msg('syntax error: ~a (char:~d)', [Msg, Char], error).
+	disp_msg('syntax error', Column, '~a', [Msg]).
 
 
 
@@ -869,13 +869,13 @@ suspicious_predicate(//, 2).
 
 
 warn(Msg, LArg) :-
-	disp_msg(Msg, LArg, warning).
+	disp_msg(warning, 0, Msg, LArg).
 
 
 
 
 error(Msg, LArg) :-
-	disp_msg(Msg, LArg, 'fatal error'),
+	disp_msg('fatal error', 0, Msg, LArg),
 	repeat,                                      % close all opened files
 	(   close_last_prolog_file ->
 	    fail
@@ -886,13 +886,14 @@ error(Msg, LArg) :-
 
 
 
-disp_msg(Msg, LArg, MsgType) :-
+disp_msg(MsgType, Column, Msg, LArg) :-
 	numbervars(LArg),
 	g_read(where, Where),
 	(   Where = OpenFileStack + L12,
 	    L12 = _ - _ ->
 	    disp_file_name(OpenFileStack, _),
-	    disp_lines(L12)
+	    disp_lines(L12),
+	    disp_column(Column)
 	;   true
 	),
 	format('~a: ', [MsgType]),
@@ -914,10 +915,19 @@ disp_file_name([FileName * _|OpenFileStack], ' including ') :-
 
 disp_lines(L - L) :-
 	!,
-	format(':~d ', [L]).
+	format(':~d', [L]).
 
 disp_lines(L1 - L2) :-
-	format(':~d--~d ', [L1, L2]).
+	format(':~d-~d', [L1, L2]).
+
+
+
+disp_column(Column) :-
+	Column > 0, !,
+	format(':~d: ', [Column]).
+
+disp_column(_) :-
+	write(': ').
 
 
 

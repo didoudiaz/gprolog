@@ -6,7 +6,7 @@
  * Descr.: indexing code generation                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2006 Daniel Diaz                                     *
+ * Copyright (C) 1999-2007 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
