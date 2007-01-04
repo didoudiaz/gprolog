@@ -1,5 +1,9 @@
 Change in GNU Prolog version 1.3.0:
 
+* official release (Jan 4 2007)
+* change error messages emitted by the compiler to follow GNU standards
+* modify doc (mainly rename manual.xxx to gprolog.xxx)
+* add DESTDIR variable support in main Makefile for staged installs
 * fix a bug with Prolog floats in x86_64/linux (bad stack alignment)
 * port for ix86/darwin (Mac OS X)
 * add check target to main Makefile

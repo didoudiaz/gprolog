@@ -1,3 +1,12 @@
+Thu Jan  4 11:17:12 CET 2007 <Daniel.Diaz@univ-paris1.fr>
+
+	* change error messages emitted by the compiler to follow GNU standards
+
+Fri Dec 22 14:21:26 CET 2006 <Daniel.Diaz@univ-paris1.fr>
+
+	* modify doc (mainly rename manual.xxx to gprolog.xxx)
+	* add DESTDIR variable support in main Makefile for staged installs
+
 Fri Dec 15 17:48:30 CET 2006 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with Prolog floats in x86_64/linux (bad stack alignment)

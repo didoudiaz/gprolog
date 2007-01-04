@@ -7,7 +7,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2006 Daniel Diaz                                     *
+ * Copyright (C) 1999-2007 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -43,8 +43,8 @@ extern "C" {
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
 #define PROLOG_VERSION "1.3.0"
-#define PROLOG_DATE "Dec 20 2006"
-#define PROLOG_COPYRIGHT "Copyright (C) 1999-2006 Daniel Diaz"
+#define PROLOG_DATE "Jan 4 2007"
+#define PROLOG_COPYRIGHT "Copyright (C) 1999-2007 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
 #define HEXGPLC "hexgplc"
