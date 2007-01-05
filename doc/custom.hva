@@ -104,7 +104,7 @@ medium, provided this notice is preserved.
 % To give a name to the HTML file containing the index
 
 \let\@isection=\@indexsection
-\renewcommand{\@indexsection}[1]{\@isection{#1}\cutname{manual-idx.html}}
+\renewcommand{\@indexsection}[1]{\@isection{#1}\cutname{gprolog-idx.html}}
 
 
 \setcounter{tocdepth}{3}
