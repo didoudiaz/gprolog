@@ -31,7 +31,7 @@ Source: "lib\*.*"; DestDir: "{app}\lib";  Flags: ignoreversion
 Source: "lib\*.dll"; DestDir: "{app}\bin";  Flags: ignoreversion skipifsourcedoesntexist
 Source: "include\*.*"; DestDir: "{app}\include";  Flags: ignoreversion 
 Source: "doc\*.*"; DestDir: "{app}\doc";  Flags: ignoreversion 
-Source: "doc\Html\*.*"; DestDir: "{app}\doc\Html";  Flags: ignoreversion 
+Source: "doc\html_node\*.*"; DestDir: "{app}\doc\html_node";  Flags: ignoreversion 
 Source: "ExamplesPl\*.*"; DestDir: "{app}\ExamplesPl";  Flags: ignoreversion 
 Source: "ExamplesFD\*.*"; DestDir: "{app}\ExamplesFD";  Flags: ignoreversion 
 Source: "ExamplesC\*.*"; DestDir: "{app}\ExamplesC";  Flags: ignoreversion 
@@ -41,8 +41,8 @@ Filename: "{app}\gprolog.url"; Section: "InternetShortcut"; Key: "URL"; String: 
 
 [Icons]
 Name: "{group}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"
-Name: "{group}\Help"; Filename: "{app}\doc\Html\manual.chm"
-Name: "{group}\Html Manual"; Filename: "{app}\doc\Html\index.html"
+Name: "{group}\Help"; Filename: "{app}\doc\manual.chm"
+Name: "{group}\Html Manual"; Filename: "{app}\doc\html_node\index.html"
 Name: "{group}\The GNU Prolog Web Site"; Filename: "{app}\gprolog.url"
 Name: "{group}\Uninstall GNU Prolog"; Filename: "{uninstallexe}"
 

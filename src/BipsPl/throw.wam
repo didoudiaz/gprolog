@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.0 (Jan 4 2007)
 % file    : throw.pl
-% date    : 1 4 2007
-% time    : 12:21:1
+% date    : 1 5 2007
+% time    : 13:13:13
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/throw.pl').

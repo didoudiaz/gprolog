@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.0 (Jan 4 2007)
 % file    : src_rdr.pl
-% date    : 1 4 2007
-% time    : 12:21:5
+% date    : 1 5 2007
+% time    : 13:13:14
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').

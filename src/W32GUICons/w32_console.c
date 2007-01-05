@@ -918,12 +918,12 @@ Get_CHM_Help_Path(char *path)
 
     if (devel_mode)
     {
-        sprintf(path, "%s\\..\\doc\\manual.chm", p);
+        sprintf(path, "%s\\..\\doc\\gprolog.chm", p);
 	    if (access(path, F_OK) != 0)
-	        sprintf(path, "%s\\..\\..\\doc\\manual.chm", p);
+	        sprintf(path, "%s\\..\\..\\doc\\gprolog.chm", p);
     }
     else
-        sprintf(path, "%s\\doc\\manual.chm", p);
+        sprintf(path, "%s\\doc\\gprolog.chm", p);
     return 1;
 }
 
