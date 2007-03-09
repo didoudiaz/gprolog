@@ -42,8 +42,8 @@ extern "C" {
 #define M_ix86_linux 1
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
-#define PROLOG_VERSION "1.3.0"
-#define PROLOG_DATE "Jan 4 2007"
+#define PROLOG_VERSION "1.3.1"
+#define PROLOG_DATE "Mar 9 2007"
 #define PROLOG_COPYRIGHT "Copyright (C) 1999-2007 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
@@ -778,7 +778,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #   define M_MMAP_HIGH_ADR3        0x7ffffff0
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
 #   define M_MMAP_HIGH_ADR1        0x3f800000000ULL
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris)
 #   define M_MMAP_HIGH_ADR1        0x4000000000ULL
 #endif
 #if defined(M_sunos) || defined(M_solaris)

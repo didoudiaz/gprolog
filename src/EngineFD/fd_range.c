@@ -319,7 +319,7 @@ Vector_Next_After(Vector vec, int n)
 
       start = vec + word_no;
 
-      word = (bit_no == WORD_SIZE) ? 0 : *start & ~((1 << bit_no) - 1);
+      word = (bit_no == WORD_SIZE) ? 0 : *start & ~((1L << bit_no) - 1);
     }
   else				/* n < 0 find first */
     {
@@ -371,7 +371,7 @@ Vector_Next_Before(Vector vec, int n)
 
       end = vec + word_no;
 
-      word = *end & ((1 << bit_no) - 1);
+      word = *end & ((1L << bit_no) - 1);
     }
   else				/* n > vec_max_integer find last */
     {

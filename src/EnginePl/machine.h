@@ -154,7 +154,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #   define M_MMAP_HIGH_ADR1        0x3f800000000ULL
 
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris)
 
 #   define M_MMAP_HIGH_ADR1        0x4000000000ULL
 

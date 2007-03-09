@@ -177,6 +177,9 @@
 /* Define if the system is a x86-64/linux */
 #undef M_x86_64_linux
 
+/* Define if the system is a x86-64/solaris */
+#undef M_x86_64_solaris
+
 
 
 /* Constant definitions */

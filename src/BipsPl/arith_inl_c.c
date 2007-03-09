@@ -487,7 +487,7 @@ Fct_Fast_Mod(WamWord x, WamWord y)
 
   m = vx % vy;
 
-  if ((m ^ vy) < 0)		/* have m and vy different signs ? */
+  if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
     m += vy;
 
   return Tag_INT(m);

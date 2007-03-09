@@ -1,3 +1,13 @@
+Fri Mar  9 10:31:53 CET 2007 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to x86_64/Solaris - many thanks to:
+	  Scott L. Burson <Scott@coral8.com>
+
+Thu Mar  8 14:12:50 CET 2007 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in the FD solver (under 64 bits machines)
+	* fix a bug in arithmetics (mod)
+
 Thu Jan  4 11:17:12 CET 2007 <Daniel.Diaz@univ-paris1.fr>
 
 	* change error messages emitted by the compiler to follow GNU standards

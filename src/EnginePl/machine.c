@@ -389,7 +389,7 @@ M_Allocate_Stacks(void)
     }
 
 #if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-    defined(M_ix86_sco) || defined(M_x86_64_linux)
+    defined(M_ix86_sco) || defined(M_x86_64_linux) || defined(M_x86_64_solaris)
   {
     struct sigaction act;
 
@@ -442,7 +442,7 @@ Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
 static void
 SIGSEGV_Handler(int sig, int code, int scp, WamWord *addr)
 
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris)
+#elif defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
 void
 SIGSEGV_Handler(int sig, siginfo_t * sip)
 
@@ -501,7 +501,7 @@ SIGSEGV_Handler(int sig)
 
   /* WamWord *addr=(WamWord *) (scp.sc_traparg_a0); */
 
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris)
+#elif defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
 
   WamWord *addr = (WamWord *) sip->si_addr;
 

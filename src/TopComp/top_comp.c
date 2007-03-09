@@ -193,7 +193,7 @@ CmdInf cmd_ma2asm = { EXE_FILE_MA2ASM, " ", "-o " };
 CmdInf cmd_asm = { EXE_FILE_ASM, " ", "-o " };
 CmdInf cmd_fd2c = { EXE_FILE_FD2C, " ", "-o " };
 CmdInf cmd_cc = { EXE_FILE_CC, " ", CC_OBJ_NAME_OPT };
-CmdInf cmd_link = { EXE_FILE_LINK, " ", CC_EXE_NAME_OPT };
+CmdInf cmd_link = { EXE_FILE_LINK, " " CFLAGS_MACHINE " ", CC_EXE_NAME_OPT };
 
 char *cc_fd2c_flags = CFLAGS " ";
 
