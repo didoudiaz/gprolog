@@ -5,7 +5,7 @@
 /* Title          : Gardner's prime puzzle problem                         */
 /* Original Source: Daniel Diaz - INRIA France                             */
 /* Adapted by     : Daniel Diaz for GNU Prolog                             */
-/* Date           : February 1997                                          */
+/* Date           : February 1997 - modified May 2007                      */
 /*                                                                         */
 /* Solve the operation:                                                    */
 /*                                                                         */
@@ -68,9 +68,6 @@ gardner(M,N,L,Lab):-
 	length(LX,M),
 	length(LY,N),
 	length(LZ,MN),
-	prim(LX),
-	prim(LY),
-	prim(LZ),
 	nb(LX,X),
 	nb(LY,Y),
 	nb(LZ,Z),
@@ -82,27 +79,15 @@ gardner(M,N,L,Lab):-
 
 
 
-
-
-prim([]).
-
-prim([X|L]):-
-	fd_domain(X,[2,3,5,7]),
-	prim(L).
-
-
-
-
 nb(LX,X):-
-	nb(LX,1,_,X).
+	fd_domain(LX,[2,3,5,7]),
+	nb(LX,0,X).
 
-nb([],I,I,0).
+nb([],N,N).
 
-nb([X|L],I,I2,N):-
-	nb(L,I,I1,N1),
-	I2 is I1*10,
-	I1*X+N1 #= N.
-
+nb([X|L],I,N):-
+	I1 #= X+I*10,
+	nb(L,I1,N).
 
 
 
