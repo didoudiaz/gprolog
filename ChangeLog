@@ -1,3 +1,12 @@
+Fri May 18 13:06:58 CEST 2007
+
+	* fix stack alignment for x86_64/Solaris
+
+Wed Mar 28 15:12:58 CEST 2007 <Daniel.Diaz@univ-paris1.fr>
+
+	* include patch from Paul Eggert <eggert@cs.ucla.edu> for
+	  sparc/solaris8
+
 Fri Mar  9 10:31:53 CET 2007 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to x86_64/Solaris - many thanks to:
