@@ -843,7 +843,7 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
-  Inst_Printf(".section", ".rodata");
+  Inst_Printf(".section", "\".rodata\"");
 }
 
 
@@ -961,7 +961,7 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-  Inst_Printf(".section", ".ctors,#alloc,#write");
+  Inst_Printf(".section", "\".ctors\",#alloc,#write");
   Inst_Printf(".align", "4");
   Inst_Printf(".long", UN "%s", initializer_fct);
 }

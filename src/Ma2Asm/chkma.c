@@ -229,7 +229,9 @@ main(int argc, char *argv[])
 
 #elif !defined(FC_USED_TO_COMPILE_CORE)
 
+#ifdef FAST
 #error FAST defined but cannot compile for FC
+#endif
 
 #else
 

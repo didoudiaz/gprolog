@@ -30,8 +30,8 @@
 #include <limits.h>
 
 
-/* For M_x86_64_linux: an important point is that C stack must be aligned
- * on 16 bytes else some problems occurs with double.
+/* For M_x86_64_linux/solaris: an important point is that C stack must be 
+ * aligned on 16 bytes else some problems occurs with double.
  * If this is not done and if the called function performs a movaps %xmm0,xx
  * an error will occur.
  * Just before calling a function %rsp is 16bytes aligned, %rsp = 0x...0

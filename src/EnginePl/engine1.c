@@ -100,12 +100,7 @@ Call_Compiled(CodePtr codep)
   register WamWord *rb asm("%l0") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_x86_64_linux)
-
-  register WamWord *rb asm("%r12") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
-
-#elif defined(M_x86_64_solaris)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris)
 
   register WamWord *rb asm("%r12") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
@@ -115,10 +110,10 @@ Call_Compiled(CodePtr codep)
 #endif
 
   ensure_reserved = reserved_stack_space;
-#if defined(M_ix86_darwin)		/* see comment in Ma2Asm/ix86_any.c */
+#if defined(M_ix86_darwin)	/* see comment in Ma2Asm/ix86_any.c */
   asm("andl $0xfffffff0,%esp");
   asm("addl $4,%esp");
-#elif defined(M_x86_64_linux)		/* see comment in Ma2Asm/x86_64_any.c */
+#elif defined(M_x86_64)		/* see comment in Ma2Asm/x86_64_any.c */
   asm("andq $0xfffffffffffffff0,%rsp");
   asm("addq $8,%rsp");
 #endif

@@ -114,7 +114,10 @@ clean-check: clean-test_oc
 TEST_OC_SRC=obj_chain.c test_oc.c
 
 test_oc@EXE_SUFFIX@: obj_chain.c obj_chain.h test_oc.c test_oc_defs.h
-	for i in 1 2 3 4 5; do echo -e "#define OBJ_NO $$i\\n#include \"test_oc_defs.h\"" >/tmp/test_oc_m$$i.c; done
+	for i in 1 2 3 4 5; do \
+	  (echo "#define OBJ_NO $$i" && \
+	   echo "#include \"test_oc_defs.h\"") >/tmp/test_oc_m$$i.c || exit; \
+	done
 	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. /tmp/test_oc_m[1-5].c
 	rm -f /tmp/test_oc_m[1-5].c
 
