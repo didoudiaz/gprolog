@@ -13,7 +13,7 @@
 
 #if defined(M_sony_news) || defined(M_ultrix_dec) || defined(M_alpha_osf) ||\
     defined(M_ix86_linux) || defined(M_ix86_sco) || defined(M_ix86_bsd) ||\
-    defined(M_x86_64_linux) || \
+    defined(M_x86_64_linux) || defined(m_x86_64_bsd) || \
     defined(M_powerpc_bsd) || defined(M_sparc_bsd) || defined(__ELF__)
 
 #   define M_Asm_Symbol1(name)     #name
@@ -64,7 +64,7 @@
 
 #    define M_Direct_Goto(lab)     {_asm {jmp M_Asm_Symbol(lab)}; return;}
 
-#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
 
@@ -95,7 +95,7 @@ register WamWord *reg_bank asm("ebx");
 
 register WamWord *reg_bank asm("r31");
 
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64)
 
 register WamWord *reg_bank asm("r12");
 

@@ -1797,8 +1797,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
 PROLOG_VERSION='1.3.1'
-PROLOG_DATE='Mar 9 2007'
-PROLOG_COPYRIGHT='Copyright (C) 1999-2007 Daniel Diaz'
+PROLOG_DATE='Oct 1 2008'
+PROLOG_COPYRIGHT='Copyright (C) 1999-2008 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
 GPLC=gplc
@@ -3562,6 +3562,10 @@ _ACEOF
 ;;
         x86_64*linux*)   cat >>confdefs.h <<\_ACEOF
 #define M_x86_64_linux 1
+_ACEOF
+;;
+        x86_64*bsd*)     cat >>confdefs.h <<\_ACEOF
+#define M_x86_64_bsd 1
 _ACEOF
 ;;
         x86_64*solaris*) cat >>confdefs.h <<\_ACEOF

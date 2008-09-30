@@ -6,7 +6,7 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -264,7 +264,15 @@ Load_Math_Expression(WamWord exp)
 	  Unify_Integer(2);
 	  Pl_Err_Type(type_evaluable, word);
 	}
-      return Load_Math_Expression(Car(lst_adr));
+      DEREF(Car(lst_adr), word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
+	Pl_Err_Instantiation();
+
+      if (tag_mask != TAG_INT_MASK) 
+	{
+	  Pl_Err_Type(type_integer, word);
+	}
+      return word;
     }
 
   if (tag_mask == TAG_STC_MASK)

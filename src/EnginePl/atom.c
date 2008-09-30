@@ -6,7 +6,7 @@
  * Descr.: atom table management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -56,7 +56,7 @@
 
 
 #define RADIX                      67
-#define INV_RADIX_MOD_MAX_ATOM     19563	/* see prog. euclide.c */
+#define INV_RADIX_MOD_MAX_ATOM     281707	/* see prog. euclide.c */
 
 
 
@@ -71,29 +71,29 @@
 
 int char_type[256] = {
 
-/*  nul soh stx etx eot enq ack bel bs  ht  nl  vt  np  cr  so  si  */
-  LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
+/* nul soh stx etx eot enq ack bel bs  ht  nl  vt  np  cr  so  si  */
+   LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
 
-/*  dle dc1 dc2 dc3 dc4 nak syn etb can em sub esc  fs  gs  rs  us  */
-  LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
+/* dle dc1 dc2 dc3 dc4 nak syn etb can em sub esc  fs  gs  rs  us  */
+   LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
 
-/*  spc !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /   */
-  LA, SC, DQ, GR, GR, CM, GR, QT, PC, PC, GR, GR, SC, GR, GR, GR,
+/* spc !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /   */
+   LA, SC, DQ, GR, GR, CM, GR, QT, PC, PC, GR, GR, SC, GR, GR, GR,
 
-/*  0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?   */
-  DI, DI, DI, DI, DI, DI, DI, DI, DI, DI, GR, SC, GR, GR, GR, GR,
+/* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?   */
+   DI, DI, DI, DI, DI, DI, DI, DI, DI, DI, GR, SC, GR, GR, GR, GR,
 
-/*  @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   */
-  GR, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL,
+/* @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   */
+   GR, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL,
 
-/*  P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _   */
-  CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, PC, GR, PC, GR, UL,
+/* P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _   */
+   CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, PC, GR, PC, GR, UL,
 
-/*  `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o    */
-  BQ, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL,
+/* `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o    */
+   BQ, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL,
 
-/*  p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   del  */
-  SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, PC, PC, PC, GR, LA
+/* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   del  */
+   SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, PC, PC, PC, GR, LA
 /*  0x80 ... 0xff = EX (set by Init_Atom)"                           */
 };
 
@@ -313,7 +313,11 @@ Create_Atom(char *name)
   if (graphic)
     {
       prop.type = GRAPHIC_ATOM;
-      prop.needs_quote = (lg == 1 && *name == '.');
+      prop.needs_quote = 
+	(lg == 1 && *name == '.') || 
+	(lg == 1 && *name == '%') || 
+	(lg == 2 && name[0] == '/' && name[1] == '*') ||
+	(lg == 2 && name[0] == '*' && name[1] == '/');
       goto finish;
     }
 

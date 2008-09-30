@@ -6,7 +6,7 @@
  * Descr.: Wam architecture definition - description file                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -107,10 +107,10 @@ typedef WamWord *WamWordP;
 
 @begin stacks
 
-@stack trail  3072 TR		/* Trail  stack */
-@stack cstr   3072 CS		/* Constraint stack */
-@stack global 8192 H		/* Global stack */
-@stack local  4096 Local_Top	/* Local  stack (after global) */
+@stack trail  10240 TR		/* Trail  stack */
+@stack cstr   10240 CS		/* Constraint stack */
+@stack global 32768 H		/* Global stack */
+@stack local  10240 Local_Top	/* Local  stack (after global) */
 
 @end stacks
 

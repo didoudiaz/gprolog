@@ -11,8 +11,11 @@ OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
 
+all: $(LIBNAME)
+
 .c@OBJ_SUFFIX@:
 	$(CC) -c $(CFLAGS) $*.c
+
 
 $(LIBNAME): $(OBJLIB)
 	rm -f $(LIBNAME)

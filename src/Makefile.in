@@ -148,10 +148,11 @@ uninstall-examples:
 # --- CHECKS --- #
 
 check:
-	(cd EnginePl; make check) && \
-	(cd Ma2Asm; make check) && \
-	(cd Pl2Wam; make check) && \
-	(cd BipsPl; make check) && \
+	. ./SETVARS; \
+	(cd EnginePl; $(MAKE) check) && \
+	(cd Ma2Asm; $(MAKE) check) && \
+	(cd Pl2Wam; $(MAKE) check) && \
+	(cd BipsPl; $(MAKE) check) && \
 	echo All tests succeeded
 
 

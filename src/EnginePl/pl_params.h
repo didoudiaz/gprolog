@@ -6,7 +6,7 @@
  * Descr.: parameter header file                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -30,7 +30,7 @@
 
 #define START_OPER_TBL_SIZE        1024
 
-#define ATOM_SIZE                  16
+#define ATOM_SIZE                  20
 #define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
 
 #define NB_OF_X_REGS               256

@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -389,7 +389,7 @@ M_Allocate_Stacks(void)
     }
 
 #if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-    defined(M_ix86_sco) || defined(M_x86_64_linux) || defined(M_x86_64_solaris)
+  defined(M_ix86_sco) || defined(M_x86_64)
   {
     struct sigaction act;
 
@@ -482,7 +482,7 @@ SIGSEGV_Handler(WamWord *addr)
 void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_bsd)
 void
 SIGSEGV_Handler(int sig, siginfo_t *sip, void *scp)
 
@@ -509,7 +509,7 @@ SIGSEGV_Handler(int sig)
 
   WamWord *addr = (WamWord *) scp.cr2;
 
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_bsd)
 
   WamWord *addr = (WamWord *) sip->si_addr;
 
