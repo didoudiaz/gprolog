@@ -7,7 +7,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -43,8 +43,8 @@ extern "C" {
 #define PROLOG_NAME1 "gprolog"
 #define PROLOG_NAME "GNU Prolog"
 #define PROLOG_VERSION "1.3.1"
-#define PROLOG_DATE "Mar 9 2007"
-#define PROLOG_COPYRIGHT "Copyright (C) 1999-2007 Daniel Diaz"
+#define PROLOG_DATE "Oct 1 2008"
+#define PROLOG_COPYRIGHT "Copyright (C) 1999-2008 Daniel Diaz"
 #define TOP_LEVEL "gprolog"
 #define GPLC "gplc"
 #define HEXGPLC "hexgplc"
@@ -54,7 +54,7 @@ extern "C" {
 #define M_OS "linux-gnu"
 #define CC "gcc"
 #define CFLAGS_PREFIX_REG "-ffixed-%s"
-#define CFLAGS "-O3 -fomit-frame-pointer"
+#define CFLAGS "-g -Wall"
 #define CFLAGS_MACHINE "-march=pentiumpro"
 #define LDFLAGS ""
 #define LDLIBS "-lm"
@@ -235,7 +235,7 @@ typedef struct _excp_lst
 #define MAX_OBJECT                 1024
 #define START_PRED_TBL_SIZE        4096
 #define START_OPER_TBL_SIZE        1024
-#define ATOM_SIZE                  16
+#define ATOM_SIZE                  20
 #define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
 #define NB_OF_X_REGS               256
 #define MAX_ARITY                  (NB_OF_X_REGS - 1)
@@ -505,10 +505,10 @@ long def_local_size;
 long fixed_sizes;
 InfStack stk_tbl[] =
 {
- { "trail", "TRAILSZ", &def_trail_size, 786432, 0, NULL },
- { "cstr", "CSTRSZ", &def_cstr_size, 786432, 0, NULL },
- { "global", "GLOBALSZ", &def_global_size, 2097152, 0, NULL },
- { "local", "LOCALSZ", &def_local_size, 1048576, 0, NULL }
+ { "trail", "TRAILSZ", &def_trail_size, 2621440, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 2621440, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 8388608, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 2621440, 0, NULL }
 };
 #else
 extern long def_trail_size;

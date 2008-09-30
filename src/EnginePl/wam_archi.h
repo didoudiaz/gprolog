@@ -6,7 +6,7 @@
  * Descr.: Wam architecture definition - description file                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2007 Daniel Diaz                                     *
+ * Copyright (C) 1999-2008 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -45,24 +45,24 @@ typedef WamWord *WamWordP;
 
    /*--- Begin Register Generation ---*/
 
-register WamWord 		*reg_bank asm ("ebx");
+register WamWordP		TR  asm ("ebx");
 
-#define TR			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+3])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+4])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+7])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+9])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+10])
+
+#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
 
 
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	0
-#define NB_OF_NOT_ALLOC_REGS	11
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
 
 
@@ -72,19 +72,21 @@ register WamWord 		*reg_bank asm ("ebx");
 
 #ifdef ENGINE_FILE
 
-WamWord *save_reg_bank;
+WamWord reg_bank[REG_BANK_SIZE];
+WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
 
 char *reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
 
 #else
 
-extern WamWord *save_reg_bank;
+extern WamWord reg_bank[];
+extern WamWord buff_signal_reg[];
 
 extern char *reg_tbl[];
 
 #endif
 
-#define Init_Reg_Bank(x)  save_reg_bank = reg_bank = x
+#define Init_Reg_Bank(x)
 
 
 #define Reg(i)			(((i)==0) ? (WamWord) TR 	: \
@@ -140,25 +142,36 @@ extern char *reg_tbl[];
 
 #define Save_Machine_Regs(buff_save) \
   do { \
-    buff_save[0] = (WamWord) reg_bank; \
+    buff_save[0] = (WamWord) TR; \
   } while(0)
 
 
 #define Restore_Machine_Regs(buff_save) \
   do { \
-    reg_bank = (WamWordP) buff_save[0]; \
+    TR = (WamWordP) buff_save[0]; \
   } while(0)
 
 
 
 
-#define Start_Protect_Regs_For_Signal
+#define Start_Protect_Regs_For_Signal \
+  do { \
+    Save_Machine_Regs(buff_signal_reg); \
+    buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \
+  } while(0)
 
 
-#define Stop_Protect_Regs_For_Signal
+#define Stop_Protect_Regs_For_Signal \
+  buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \
 
 
-#define Restore_Protect_Regs_For_Signal
+#define Restore_Protect_Regs_For_Signal \
+  do { \
+    if (buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \
+      Restore_Machine_Regs(buff_signal_reg); \
+      Stop_Protect_Regs_For_Signal; \
+    } \
+  } while(0)
 
 
    /*--- End Register Generation ---*/
@@ -345,10 +358,10 @@ long fixed_sizes;
 
 InfStack stk_tbl[] =
 {
- { "trail", "TRAILSZ", &def_trail_size, 786432, 0, NULL },
- { "cstr", "CSTRSZ", &def_cstr_size, 786432, 0, NULL },
- { "global", "GLOBALSZ", &def_global_size, 2097152, 0, NULL },
- { "local", "LOCALSZ", &def_local_size, 1048576, 0, NULL }
+ { "trail", "TRAILSZ", &def_trail_size, 2621440, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 2621440, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 8388608, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 2621440, 0, NULL }
 };
 
 #else
