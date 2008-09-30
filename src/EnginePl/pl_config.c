@@ -56,6 +56,15 @@
 
 typedef struct
 {
+  char *mach_reg_name;
+  char *pl_reg_name;
+  char *type;
+}
+UsedMachRegInf;
+
+
+typedef struct
+{
   char type[32];
   char name[32];
 }
@@ -98,6 +107,9 @@ StackInf;
  * Global Variables                *
  *---------------------------------*/
 
+UsedMachRegInf used_mach_reg[256];
+int nb_of_used_mach_regs;
+
 char save_str[STR_LENGTH];
 FILE *fw_r;
 
@@ -108,15 +120,15 @@ FILE *fw_r;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Write_C_Compiler_Info(int nb_of_used_regs);
+void Generate_Archi(void);
 
-int Generate_Archi(void);
+void Write_C_Compiler_Info(void);
 
 char *Read_Identifier(char *s, int fail_if_error, char **end);
 
 int Read_Integer(char *s, char **end);
 
-int Generate_Regs(FILE *f, FILE *g);
+void Generate_Regs(FILE *f, FILE *g);
 
 void Generate_Tags(FILE *f, FILE *g);
 
@@ -134,12 +146,7 @@ void Fatal_Error(char *format, ...);
 int
 main(void)
 {
-  int nb_of_used_regs;
-
-#ifndef NO_USE_REGS
-  char *used_regs[] = M_USED_REGS;
   int i;
-#endif
 
   if (*M_CPU == '?')
     {
@@ -230,18 +237,17 @@ main(void)
 #endif
     );
 
-  nb_of_used_regs = Generate_Archi();
-  Write_C_Compiler_Info(nb_of_used_regs);
+  Generate_Archi();
+  Write_C_Compiler_Info();
 
   fclose(fw_r);
 
-#ifndef NO_USE_REGS
   printf("Used register(s)  : ");
 
-  for (i = 0; i < nb_of_used_regs; i++)
-    printf("%s ", used_regs[i]);
+  for (i = 0; i < nb_of_used_mach_regs; i++)
+    printf("%s (%s)  ", used_mach_reg[i].mach_reg_name, used_mach_reg[i].pl_reg_name);
   printf("\n");
-#endif
+
 
   printf("\n");
   printf("\t------------------------------\n\n");
@@ -257,16 +263,15 @@ main(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Write_C_Compiler_Info(int nb_of_used_regs)
+Write_C_Compiler_Info(void)
 {
-  char *used_regs[] = M_USED_REGS;
   int i;
 
   fputc('\n', fw_r);
   fprintf(fw_r, "#define CFLAGS_REGS\t\t\"");
-  for (i = 0; i < nb_of_used_regs; i++)
+  for (i = 0; i < nb_of_used_mach_regs; i++)
     {
-      fprintf(fw_r, CFLAGS_PREFIX_REG, used_regs[i]);
+      fprintf(fw_r, CFLAGS_PREFIX_REG, used_mach_reg[i].mach_reg_name);
       fputc(' ', fw_r);
     }
 
@@ -280,13 +285,12 @@ Write_C_Compiler_Info(int nb_of_used_regs)
  * GENERATE_ARCHI                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+void
 Generate_Archi(void)
 {
   FILE *f, *g;
   char str[STR_LENGTH];
   char *p1, *p2;
-  int nb_of_used_regs = 0;
 
   if ((f = fopen(FILE_WAM_ARCHI_DEF, "rt")) == NULL)
     Fatal_Error("cannot open %s", FILE_WAM_ARCHI_DEF);
@@ -313,7 +317,7 @@ Generate_Archi(void)
 
       if (strcmp(p1, "regs") == 0)
 	{
-	  nb_of_used_regs = Generate_Regs(f, g);
+	  Generate_Regs(f, g);
 	  continue;
 	}
 
@@ -335,8 +339,6 @@ Generate_Archi(void)
 
   fclose(f);
   fclose(g);
-
-  return nb_of_used_regs;
 }
 
 
@@ -422,25 +424,24 @@ Read_Integer(char *s, char **end)
  *         type must be machine word castable (ex int unsigned pointer...) *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+void
 Generate_Regs(FILE *f, FILE *g)
 {
   char *p1, *p2;
   char str[STR_LENGTH];
   char str_base[32] = "";
   char *used_regs[] = M_USED_REGS;
-  int nb_of_used_regs = 0;
+  char **p = used_regs;
   RegInf reg[10][50];
   int nb_reg[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   RegInf *dp;
-  char **p;
   int total_nb_reg = 0;
   int nb_not_alloc = 0;
   int regs_to_save_for_signal;
   int i, j, k;
 
 #ifdef NO_USE_REGS
-  used_regs[0] = NULL;
+  p[0] = NULL;
 #endif
 
   for (;;)
@@ -492,13 +493,16 @@ Generate_Regs(FILE *f, FILE *g)
 
   fprintf(g, "\n\n   /*--- Begin Register Generation ---*/\n\n");
 
-  p = used_regs;
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
   if (*p)
     {
-      nb_of_used_regs++;
+      used_mach_reg[nb_of_used_mach_regs].mach_reg_name = *p;
+      used_mach_reg[nb_of_used_mach_regs].pl_reg_name = "reg_bank";
+      used_mach_reg[nb_of_used_mach_regs].type = "WamWordP";
+      nb_of_used_mach_regs++;
       fprintf(g, "register WamWord \t\t*reg_bank asm (\"%s\");\n\n", *p);
-      fprintf(fw_r, "#define MAP_REG_BANK\t\t\"%s\"\n\n", *p++);
+      fprintf(fw_r, "#define MAP_REG_BANK\t\t\"%s\"\n\n", *p);
+      p++;
     }
   else
     {
@@ -516,7 +520,10 @@ Generate_Regs(FILE *f, FILE *g)
 	dp = &reg[i][j];
 	if (*p)
 	  {
-	    nb_of_used_regs++;
+	    used_mach_reg[nb_of_used_mach_regs].mach_reg_name = *p;
+	    used_mach_reg[nb_of_used_mach_regs].pl_reg_name = dp->name;
+	    used_mach_reg[nb_of_used_mach_regs].type = dp->type;
+	    nb_of_used_mach_regs++;
 	    fprintf(g, "register %s\t\t%-3s asm (\"%s\");\n",
 		    dp->type, dp->name, *p);
 	    fprintf(fw_r, "#define MAP_REG_%-10s\t\"%s\"\n", dp->name,
@@ -536,19 +543,18 @@ Generate_Regs(FILE *f, FILE *g)
 
   fprintf(g, "\n\n");
   fprintf(g, "#define NB_OF_REGS          \t%d\n", total_nb_reg);
-  fprintf(g, "#define NB_OF_ALLOC_REGS    \t%d\n",
-	  total_nb_reg - nb_not_alloc);
+  fprintf(g, "#define NB_OF_ALLOC_REGS    \t%d\n", total_nb_reg - nb_not_alloc);
   fprintf(g, "#define NB_OF_NOT_ALLOC_REGS\t%d\n", nb_not_alloc);
   fprintf(g, "#define REG_BANK_SIZE       \t(%sNB_OF_NOT_ALLOC_REGS)\n",
 	  str_base);
   fprintf(g, "\n\n\n\n#define NB_OF_USED_MACHINE_REGS %d\n",
-	  nb_of_used_regs);	/* same as NB_OF_ALLOC_REGS :-) ? */
+	  nb_of_used_mach_regs);	/* same as NB_OF_ALLOC_REGS :-) ? */
 
 
 #ifndef NO_MACHINE_REG_FOR_REG_BANK /* reg_bank restored anyway */
-  regs_to_save_for_signal = (nb_of_used_regs > 1);
+  regs_to_save_for_signal = (nb_of_used_mach_regs > 1);
 #else
-  regs_to_save_for_signal = (nb_of_used_regs >= 1);
+  regs_to_save_for_signal = (nb_of_used_mach_regs >= 1);
 #endif
     
   fprintf(g, "\n");
@@ -645,12 +651,8 @@ Generate_Regs(FILE *f, FILE *g)
   fprintf(g, "\n\n\n\n#define Save_Machine_Regs(buff_save) \\\n");
   fprintf(g, "  do { \\\n");
 
-  for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "    register long reg%d asm (\"%s\"); \\\n", i,
-	    used_regs[i]);
-
-  for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "    buff_save[%d] = reg%d; \\\n", i, i);
+  for (i = 0; i < nb_of_used_mach_regs; i++)
+    fprintf(g, "    buff_save[%d] = (WamWord) %s; \\\n", i, used_mach_reg[i].pl_reg_name);
 
   fprintf(g, "  } while(0)\n");
 
@@ -659,12 +661,8 @@ Generate_Regs(FILE *f, FILE *g)
   fprintf(g, "\n\n#define Restore_Machine_Regs(buff_save) \\\n");
   fprintf(g, "  do { \\\n");
 
-  for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "    register long reg%d asm (\"%s\"); \\\n", i,
-	    used_regs[i]);
-
-  for (i = 0; i < nb_of_used_regs; i++)
-    fprintf(g, "    reg%d = buff_save[%d]; \\\n", i, i);
+  for (i = 0; i < nb_of_used_mach_regs; i++)
+    fprintf(g, "    %s = (%-8s) buff_save[%d]; \\\n", used_mach_reg[i].pl_reg_name, used_mach_reg[i].type, i);
 
   fprintf(g, "  } while(0)\n");
 
@@ -703,8 +701,6 @@ Generate_Regs(FILE *f, FILE *g)
 
 
   fprintf(g, "\n\n   /*--- End Register Generation ---*/\n\n");
-
-  return nb_of_used_regs;
 }
 
 

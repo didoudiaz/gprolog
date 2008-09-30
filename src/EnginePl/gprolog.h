@@ -54,7 +54,7 @@ extern "C" {
 #define M_OS "linux-gnu"
 #define CC "gcc"
 #define CFLAGS_PREFIX_REG "-ffixed-%s"
-#define CFLAGS "-g -Wall"
+#define CFLAGS "-O3 -fomit-frame-pointer"
 #define CFLAGS_MACHINE "-march=pentiumpro"
 #define LDFLAGS ""
 #define LDLIBS "-lm"
@@ -366,13 +366,11 @@ extern char *reg_tbl[];
   } while(0)
 #define Save_Machine_Regs(buff_save) \
   do { \
-    register long reg0 asm ("ebx"); \
-    buff_save[0] = reg0; \
+    buff_save[0] = (WamWord) TR; \
   } while(0)
 #define Restore_Machine_Regs(buff_save) \
   do { \
-    register long reg0 asm ("ebx"); \
-    reg0 = buff_save[0]; \
+    TR = (WamWordP) buff_save[0]; \
   } while(0)
 #define Start_Protect_Regs_For_Signal \
   do { \
