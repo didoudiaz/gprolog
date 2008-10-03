@@ -67,7 +67,7 @@ itself, i.e. to execute the built-in predicate
 \begin{verbatim}
 GNU Prolog 1.2.9
 By Daniel Diaz
-Copyright (C) 1999-2007 Daniel Diaz
+Copyright (C) 1999-2008 Daniel Diaz
 | ?-
 \end{verbatim}
 \end{Code}
@@ -144,7 +144,7 @@ will produce the following:
 before
 GNU Prolog 1.2.9
 By Daniel Diaz
-Copyright (C) 1999-2007 Daniel Diaz
+Copyright (C) 1999-2008 Daniel Diaz
 inside
 | ?- append([a,b],[c,d],X).
 
@@ -658,22 +658,22 @@ name  & size (Kb) & variable    & \\
 
 \hline\hline
 
-\texttt{local} & 4096 & \texttt{LOCALSZ} & control stack (environments
+\texttt{local} & 8192 & \texttt{LOCALSZ} & control stack (environments
 and choice-points) \\
 
 \hline
 
-\texttt{global} & 8192 & \texttt{GLOBALSZ} & heap (compound terms)
+\texttt{global} & 16384 & \texttt{GLOBALSZ} & heap (compound terms)
 \\
 
 \hline
 
-\texttt{trail} & 3072 & \texttt{TRAILSZ} & conditional bindings (bindings
+\texttt{trail} & 8192 & \texttt{TRAILSZ} & conditional bindings (bindings
 to undo at backtracking) \\
 
 \hline
 
-\texttt{cstr} & 3072 & \texttt{CSTRSZ} & finite domain constraint stack
+\texttt{cstr} & 8192 & \texttt{CSTRSZ} & finite domain constraint stack
 (FD variables and constraints) \\
 
 \hline
@@ -689,11 +689,11 @@ where \Param{S} is the name of the stack, \Param{N} is
 the current stack size in Kb and \Param{E} the name of the
 associated environment variable. When such a message occurs it is possible
 to (re)define the variable \Param{E} with the new size. For
-instance to allocate 8192 Kb to the local stack under a Unix shell use:
+instance to allocate  Kb to the local stack under a Unix shell use:
 
 \begin{CodeTwoCols}[6cm]
-\Two{LOCALSZ=8192; export LOCALS}{(under \texttt{sh} or \texttt{bash})}
-\Two{setenv LOCALSZ 8192}{(under \texttt{csh} or \texttt{tcsh})}
+\Two{LOCALSZ=32768; export LOCALSZ}{(under \texttt{sh} or \texttt{bash})}
+\Two{setenv LOCALSZ 32768}{(under \texttt{csh} or \texttt{tcsh})}
 \end{CodeTwoCols}
 
 This method allows the user to adjust the size of Prolog stacks. However, in
@@ -908,7 +908,7 @@ initial Prolog state \\
 \IdxKD{--no-singl-warn} & do not show warnings for named singleton
 variables \\
 
-\IdxKD{--no-redef-error} & no not show errors for built-in predicate
+\IdxKD{--no-redef-error} & do not show errors for built-in predicate
 redefinitions \\
 
 \IdxKD{--foreign-only} & only compile \texttt{foreign/1-2} directives \\
@@ -955,7 +955,7 @@ arithmetics) \\
 \SPart{C compiler options}:
 
 \begin{CmdOptions}
-\IdxKD{--c-compiler} \Param{FILE} & use \Param{FILE} as C compiler \\
+\IdxKD{--c-compiler} \Param{FILE} & use \Param{FILE} as C compiler/linker \\
 
 \IdxKD{-C} \Param{OPTION} & pass \Param{OPTION} to the C compiler \\
 
@@ -971,6 +971,8 @@ arithmetics) \\
 \SPart{Linker options}:
 
 \begin{CmdOptions}
+\IdxKD{--linker} \Param{FILE} & use \Param{FILE} as linker \\
+
 \IdxKD{--local-size} \Param{N} & set default local stack size to
 \Param{N} Kb \\
 
@@ -998,7 +1000,7 @@ arithmetics) \\
 \IdxKD{--min-bips} & shorthand for: \texttt{--no-top-level}
 \texttt{--min-pl-bips} \texttt{--min-fd-bips} \\
 
-\IdxKD{--min-size} & shorthand² for: \texttt{--min-bips} \texttt{--strip} \\
+\IdxKD{--min-size} & shorthand for: \texttt{--min-bips} \texttt{--strip} \\
 
 \IdxKD{--no-fd-lib} & do not look for the FD library (maintenance only) \\
 

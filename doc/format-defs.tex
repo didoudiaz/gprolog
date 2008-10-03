@@ -279,7 +279,7 @@ To illustrate how to write error cases, let us write a predicate
 my_pred(X) :-
         (   nonvar(X) ->
             true
-        ;   throw(error(instantiation_error), my_pred/1)),
+        ;   throw(error(instantiation_error, my_pred/1)),
         ),
         (   integer(X) ->
             true

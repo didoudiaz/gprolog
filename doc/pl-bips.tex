@@ -1978,7 +1978,7 @@ otherwise.
 
 \end{itemize}
 
-\texttt{open(SourceSink, Mode, Stream, Options)} is equivalent to
+\texttt{open(SourceSink, Mode, Stream)} is equivalent to
 \texttt{open(SourceSink, Mode, Stream, [])}.
 
 \begin{PlErrors}
@@ -3317,7 +3317,7 @@ get\_key\_no\_echo(?integer)
 
 \Description
 
-\texttt{get\_key(Code, SorA)} succeeds if \texttt{Code} unifies with the
+\texttt{get\_key(SorA, Code)} succeeds if \texttt{Code} unifies with the
 character code of the next key read from the stream associated with the
 stream-term or alias \texttt{SorA}. It is intended to read a single key from
 the keyboard (thus \texttt{SorA} should refer to current input stream). No
@@ -4388,7 +4388,7 @@ Format sequence  & type of the argument & Description \\
 
 \hline\hline
 
-\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal number of characters to print using spaces on the rigth if needed (default: the length of the atom) \\
+\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal number of characters to print using spaces on the right if needed (default: the length of the atom) \\
 
 \hline
 
@@ -5535,7 +5535,7 @@ of this list and gives as output the rest of this list (possibly enlarged).
 This rest is generally parsed later. So, each a grammar rule is translated
 into a Prolog clause that explicitly the manages the list. Two arguments
 are then added: the input list (\texttt{Start}) and the output list
-(\texttt{Stop}). For instance:
+(\texttt{End}). For instance:
 
 \OneLine{p --{\gt} q.}
 
@@ -6185,10 +6185,10 @@ number\_codes(-number, +character\_code\_list)
 \texttt{Number}.
 
 \texttt{number\_chars(Number, Chars)} is similar to
-\texttt{number\_atom/2} but deals with a list of character codes.
+\texttt{number\_atom/2} but deals with a list of characters.
 
 \texttt{number\_codes(Number, Codes)} is similar to
-\texttt{number\_atom/2} but deals with a list of characters.
+\texttt{number\_atom/2} but deals with a list of character codes.
 
 \begin{PlErrors}
 
@@ -7254,7 +7254,7 @@ test(B) :-                           & test(B) :-                \\
 
 The query \texttt{test(B)} will succeed unifying \texttt{B} with
 \texttt{f(\_)} (\texttt{g\_assign/2} assigns a copy of the value). The query
-\texttt{testl(B)} will succeed unifying \texttt{B} with \texttt{f(12)}
+\texttt{test(B)} will succeed unifying \texttt{B} with \texttt{f(12)}
 (\texttt{g\_link/2} assigns a pointer to the term). 
 
 \SPart{Simple array definition}: here are some queries to show how arrays
@@ -8771,7 +8771,7 @@ a list of permissions. A permission is an atom among:
 
 \end{itemize}
 
-If \texttt{PathName} does not exists or if it its permissions do not include
+If \texttt{PathName} does not exists or if its permissions do not include
 \texttt{Permission} this predicate fails.
 
 \texttt{file\_exists(PathName)} is equivalent to
@@ -9395,7 +9395,7 @@ fork\_prolog(-integer)
 \texttt{fork\_prolog(Pid)} creates a child process that differs from the parent
 process only in its PID. In the parent process \texttt{Pid} is unified with
 the PID of the child while in the child process \texttt{Pid} is unified with
-0. In the parent process, the status of the child process can be ontained
+0. In the parent process, the status of the child process can be obtained
 using \texttt{wait/2} \RefSP{wait/2}. Until a call to \texttt{wait/2} is done
 the child process remains in the system processes table (as a zombie process
 if terminated). This predicate is an interface to the C Unix function
