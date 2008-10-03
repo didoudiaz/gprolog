@@ -327,7 +327,7 @@ else
         mingw*)         AC_DEFINE(M_mingw) MINGW=yes; WIN32=yes;;
         *sco*)          AC_DEFINE(M_sco);;
         *bsd*)          AC_DEFINE(M_bsd);;
-        *darwin*)       AC_DEFINE(M_bsd);;
+        *darwin*)       AC_DEFINE(M_darwin);;
     esac
     
     case "$host" in

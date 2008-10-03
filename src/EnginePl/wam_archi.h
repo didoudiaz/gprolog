@@ -358,10 +358,10 @@ long fixed_sizes;
 
 InfStack stk_tbl[] =
 {
- { "trail", "TRAILSZ", &def_trail_size, 2621440, 0, NULL },
- { "cstr", "CSTRSZ", &def_cstr_size, 2621440, 0, NULL },
- { "global", "GLOBALSZ", &def_global_size, 8388608, 0, NULL },
- { "local", "LOCALSZ", &def_local_size, 2621440, 0, NULL }
+ { "trail", "TRAILSZ", &def_trail_size, 2097152, 0, NULL },
+ { "cstr", "CSTRSZ", &def_cstr_size, 2097152, 0, NULL },
+ { "global", "GLOBALSZ", &def_global_size, 4194304, 0, NULL },
+ { "local", "LOCALSZ", &def_local_size, 2097152, 0, NULL }
 };
 
 #else

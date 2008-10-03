@@ -157,15 +157,11 @@
 
 #ifdef FD_INST_FILE
 
-WamWord DATE;
-WamWord *TP;
 WamWord vec_size;
 WamWord vec_max_integer;
 
 #else
 
-extern WamWord DATE;
-extern WamWord *TP;
 extern WamWord vec_size;
 extern WamWord vec_max_integer;
 

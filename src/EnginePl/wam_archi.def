@@ -107,10 +107,10 @@ typedef WamWord *WamWordP;
 
 @begin stacks
 
-@stack trail  10240 TR		/* Trail  stack */
-@stack cstr   10240 CS		/* Constraint stack */
-@stack global 32768 H		/* Global stack */
-@stack local  10240 Local_Top	/* Local  stack (after global) */
+@stack trail   8192 TR		/* Trail  stack */
+@stack cstr    8192 CS		/* Constraint stack */
+@stack global 16384 H		/* Global stack */
+@stack local   8192 Local_Top	/* Local  stack (after global) */
 
 @end stacks
 

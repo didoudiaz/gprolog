@@ -1103,6 +1103,17 @@ Parse_Arguments(int argc, char *argv[])
 		Fatal_Error("FILE missing after %s option", last_opt);
 
 	      cmd_cc.exe_name = argv[i];
+	      if (cmd_link.exe_name == EXE_FILE_LINK)
+		cmd_link.exe_name = argv[i];
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--linker"))
+	    {
+	      if (++i >= argc)
+		Fatal_Error("FILE missing after %s option", last_opt);
+
+	      cmd_link.exe_name = argv[i];
 	      continue;
 	    }
 
@@ -1399,13 +1410,14 @@ Display_Help(void)
   L("  --full-inline-asm           inline most C calls as asm instructions");
   L(" ");
   L("C Compiler options:");
-  L("  --c-compiler FILE           use FILE as C compiler");
+  L("  --c-compiler FILE           use FILE as C compiler/linker");
   L("  -C OPTION                   pass OPTION to the C compiler");
   L(" ");
   L("Assembler options:");
   L("  -A OPTION                   pass OPTION to the assembler");
   L(" ");
   L("Linker options:");
+  L("  --linker FILE               use FILE as linker");
   L("  --local-size N              set default local  stack size to N Kb");
   L("  --global-size N             set default global stack size to N Kb");
   L("  --trail-size N              set default trail  stack size to N Kb");

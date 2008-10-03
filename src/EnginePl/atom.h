@@ -68,9 +68,9 @@
 
 
 
-#define Is_Valid_Code(c)           ((unsigned) (c)-1 <256-1)	/* 1<= c <256 */
-#define Is_Valid_Byte(c)           ((unsigned) (c) <256)	/* 0=< c <256 */
-#define Is_Valid_Atom(a)           ((a)>=0 && (a)<MAX_ATOM && \
+#define Is_Valid_Code(c)           ((unsigned long) (c)-1 <256-1)     /* 1<= c <256 */
+#define Is_Valid_Byte(c)           ((unsigned long) (c) <256)	/* 0=< c <256 */
+#define Is_Valid_Atom(a)           ((unsigned long) (a)<MAX_ATOM && \
                                     atom_tbl[(a)].name!=NULL)
 
 

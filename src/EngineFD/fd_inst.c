@@ -54,6 +54,9 @@
  * Global Variables                *
  *---------------------------------*/
 
+static WamWord DATE;
+static WamWord *TP;
+
 static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
 static unsigned long always_date = -1;	/* must be always > DATE */
