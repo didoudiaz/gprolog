@@ -576,9 +576,9 @@ void Execute_A_Continuation(CodePtr codep);
 #define GRAPHIC_ATOM               1
 #define SOLO_ATOM                  2
 #define OTHER_ATOM                 3
-#define Is_Valid_Code(c)           ((unsigned) (c)-1 <256-1)	/* 1<= c <256 */
-#define Is_Valid_Byte(c)           ((unsigned) (c) <256)	/* 0=< c <256 */
-#define Is_Valid_Atom(a)           ((a)>=0 && (a)<MAX_ATOM && \
+#define Is_Valid_Code(c)           ((unsigned long) (c)-1 <256-1)     /* 1<= c <256 */
+#define Is_Valid_Byte(c)           ((unsigned long) (c) <256)	/* 0=< c <256 */
+#define Is_Valid_Atom(a)           ((unsigned long) (a)<MAX_ATOM && \
                                     atom_tbl[(a)].name!=NULL)
 typedef struct			/* Atom properties                */
 {				/* ------------------------------ */
@@ -2263,13 +2263,9 @@ char *Range_To_String(Range *range);
 #define math_min(x, y)             ((x) <= (y) ? (x) : (y))
 #define math_max(x, y)             ((x) >= (y) ? (x) : (y))
 #ifdef FD_INST_FILE
-WamWord DATE;
-WamWord *TP;
 WamWord vec_size;
 WamWord vec_max_integer;
 #else
-extern WamWord DATE;
-extern WamWord *TP;
 extern WamWord vec_size;
 extern WamWord vec_max_integer;
 #endif
