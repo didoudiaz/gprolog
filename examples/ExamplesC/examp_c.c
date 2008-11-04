@@ -50,17 +50,17 @@
  * FIRST_OCCURRENCE                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+PlBool
 first_occurrence(char *str, long c, long *pos)
 {
   char *p;
 
   p = strchr(str, c);
   if (p == NULL)		/* C does not appear in A */
-    return FALSE;		/* fail */
+    return PL_FALSE;		/* fail */
 
   *pos = p - str;		/* set the output argument */
-  return TRUE;			/* succeed */
+  return PL_TRUE;			/* succeed */
 }
 
 
@@ -70,27 +70,27 @@ first_occurrence(char *str, long c, long *pos)
  * OCCURRENCE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+PlBool
 occurrence(char *str, long c, long *pos)
 {
   char **info_pos;
   char *p;
 
-  info_pos = Get_Choice_Buffer(char **); /* recover the buffer */
+  info_pos = Pl_Get_Choice_Buffer(char **); /* recover the buffer */
 
-  if (Get_Choice_Counter() == 0)	/* first invocation ? */
+  if (Pl_Get_Choice_Counter() == 0)	/* first invocation ? */
     *info_pos = str;
 
   p = strchr(*info_pos, c);
   if (p == NULL)		/* C does not appear */
     {
-      No_More_Choice();		/* remove choice-point */
-      return FALSE;		/* fail */
+      Pl_No_More_Choice();		/* remove choice-point */
+      return PL_FALSE;		/* fail */
     }
 
   *pos = p - str;		/* set the output argument */
   *info_pos = p + 1;		/* update next starting pos */
-  return TRUE;			/* succeed */
+  return PL_TRUE;			/* succeed */
 }
 
 
@@ -100,21 +100,21 @@ occurrence(char *str, long c, long *pos)
  * OCCURRENCE2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+PlBool
 occurrence2(char *str, long c, long *pos)
 {
   char **info_pos;
   char *p;
 
-  info_pos = Get_Choice_Buffer(char **); /* recover the buffer */
+  info_pos = Pl_Get_Choice_Buffer(char **); /* recover the buffer */
 
-  if (Get_Choice_Counter() == 0) /* first invocation ? */
+  if (Pl_Get_Choice_Counter() == 0) /* first invocation ? */
     {
       p = strchr(str, c);
       if (p == NULL)		/* C does not appear at all */
 	{
-	  No_More_Choice();	/* remove choice-point */
-	  return FALSE;		/* fail */
+	  Pl_No_More_Choice();	/* remove choice-point */
+	  return PL_FALSE;		/* fail */
 	}
 
       *info_pos = p;
@@ -124,11 +124,11 @@ occurrence2(char *str, long c, long *pos)
 
   p = strchr(*info_pos + 1, c);
   if (p == NULL)		/* no more occurrence */
-    No_More_Choice();		/* remove choice-point */
+    Pl_No_More_Choice();		/* remove choice-point */
   else
     *info_pos = p;		/* else update next solution */
 
-  return TRUE;			/* succeed */
+  return PL_TRUE;			/* succeed */
 }
 
 
@@ -138,21 +138,21 @@ occurrence2(char *str, long c, long *pos)
  * CHAR_ASCII                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-char_ascii(FIOArg *c, FIOArg *ascii)
+PlBool
+char_ascii(PlFIOArg *c, PlFIOArg *ascii)
 {
   if (!c->is_var)		/* Char is not a variable */
     {
-      ascii->unify = TRUE;	/* enforce unif. of Code */
+      ascii->unify = PL_TRUE;	/* enforce unif. of Code */
       ascii->value.l = c->value.l; /* set Code */
-      return TRUE;		/* succeed */
+      return PL_TRUE;		/* succeed */
     }
 
   if (ascii->is_var)		/* Code is also a variable */
     Pl_Err_Instantiation();	/* emit instantiation_error */
 
   c->value.l = ascii->value.l;	/* set Char */
-  return TRUE;			/* succeed */
+  return PL_TRUE;			/* succeed */
 }
 
 
@@ -162,8 +162,8 @@ char_ascii(FIOArg *c, FIOArg *ascii)
  * CHAR_ASCII2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-char_ascii2(FIOArg *c, FIOArg *ascii)
+PlBool
+char_ascii2(PlFIOArg *c, PlFIOArg *ascii)
 {
   if (!c->is_var)
     {
@@ -171,14 +171,14 @@ char_ascii2(FIOArg *c, FIOArg *ascii)
 	return ascii->value.l == c->value.l;
 
       ascii->value.l = c->value.l;
-      return TRUE;
+      return PL_TRUE;
     }
 
   if (ascii->is_var)
     Pl_Err_Instantiation();
 
   c->value.l = ascii->value.l;
-  return TRUE;
+  return PL_TRUE;
 }
 
 
@@ -188,21 +188,21 @@ char_ascii2(FIOArg *c, FIOArg *ascii)
  * MY_CALL                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+PlBool
 my_call(PlTerm goal)
 {
   PlTerm *args;
   int functor, arity;
   int result;
 
-  args = Rd_Callable_Check(goal, &functor, &arity);
-  Pl_Query_Begin(FALSE);
+  args = Pl_Rd_Callable_Check(goal, &functor, &arity);
+  Pl_Query_Begin(PL_FALSE);
   result = Pl_Query_Call(functor, arity, args);
   Pl_Query_End(PL_KEEP_FOR_PROLOG);
   if (result == PL_EXCEPTION)
     {
       PlTerm except = Pl_Get_Exception();
-      Pl_Exec_Continuation(Find_Atom("throw"), 1, &except);
+      Pl_Exec_Continuation(Pl_Find_Atom("throw"), 1, &except);
     }
 
   return result;
@@ -215,15 +215,15 @@ my_call(PlTerm goal)
  * MY_CALL2                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+PlBool
 my_call2(PlTerm goal)
 {
   PlTerm *args;
   int functor, arity;
 
-  args = Rd_Callable_Check(goal, &functor, &arity);
+  args = Pl_Rd_Callable_Check(goal, &functor, &arity);
   Pl_Exec_Continuation(functor, arity, args);
-  return TRUE;
+  return PL_TRUE;
 }
 
 
@@ -233,7 +233,7 @@ my_call2(PlTerm goal)
  * ALL_OP                                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+PlBool
 all_op(PlTerm list)
 {
   PlTerm op[1024];
@@ -241,17 +241,17 @@ all_op(PlTerm list)
   int n = 0;
   int result;
 
-  Pl_Query_Begin(TRUE);
-  args[0] = Mk_Variable();
-  args[1] = Mk_Variable();
-  args[2] = Mk_Variable();
-  result = Pl_Query_Call(Find_Atom("current_op"), 3, args);
+  Pl_Query_Begin(PL_TRUE);
+  args[0] = Pl_Mk_Variable();
+  args[1] = Pl_Mk_Variable();
+  args[2] = Pl_Mk_Variable();
+  result = Pl_Query_Call(Pl_Find_Atom("current_op"), 3, args);
   while (result)
     {
-      op[n++] = Mk_Atom(Rd_Atom(args[2])); /* arg #2 is the name of the op */
+      op[n++] = Pl_Mk_Atom(Pl_Rd_Atom(args[2])); /* arg #2 is the name of the op */
       result = Pl_Query_Next_Solution();
     }
   Pl_Query_End(PL_RECOVER);
 
-  return Un_Proper_List_Check(n, op, list);
+  return Pl_Un_Proper_List_Check(n, op, list);
 }

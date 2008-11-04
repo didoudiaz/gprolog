@@ -2,7 +2,7 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : foreign facility test                                           *
- * File  : for_ex.pl                                                       *
+ * File  : examp.pl                                                        *
  * Descr.: test file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
@@ -22,6 +22,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
 
+ /* $Id$ */
+ 
 :- foreign(first_occurrence(+string,+char,-positive)).
 
 :- foreign(occurrence(+string,+char,-positive),[choice_size(1)]).

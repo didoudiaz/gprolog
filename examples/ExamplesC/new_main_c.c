@@ -22,8 +22,10 @@
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
 
+#include <stdio.h>
 #include <string.h>
 
+#define __GPROLOG_FOREIGN_STRICT__
 #include "gprolog.h"
 
 
@@ -51,20 +53,19 @@
  *                                                                         *
  * See comments in EnginePl/main.c about the use of the wrapper function.  *
  *-------------------------------------------------------------------------*/
-
 static int
 Main_Wrapper(int argc, char *argv[])
 {
   int func;
-  WamWord arg[10];
+  PlTerm arg[10];
   char str[100];
   char *sol[100];
   int i, nb_sol = 0;
-  Bool res;
+  PlBool res;
 
-  Start_Prolog(argc, argv);
+  Pl_Start_Prolog(argc, argv);
 
-  func = Find_Atom("anc");
+  func = Pl_Find_Atom("anc");
   for (;;)
     {
       printf("\nEnter a name (or 'end' to finish): ");
@@ -74,15 +75,15 @@ Main_Wrapper(int argc, char *argv[])
       if (strcmp(str, "end") == 0)
 	break;
 
-      Pl_Query_Begin(TRUE);
+      Pl_Query_Begin(PL_TRUE);
 
-      arg[0] = Mk_Variable();
-      arg[1] = Mk_String(str);
+      arg[0] = Pl_Mk_Variable();
+      arg[1] = Pl_Mk_String(str);
       nb_sol = 0;
       res = Pl_Query_Call(func, 2, arg);
       while (res)
 	{
-	  sol[nb_sol++] = Rd_String(arg[0]);
+	  sol[nb_sol++] = Pl_Rd_String(arg[0]);
 	  res = Pl_Query_Next_Solution();
 	}
       Pl_Query_End(PL_RECOVER);
@@ -92,7 +93,7 @@ Main_Wrapper(int argc, char *argv[])
       printf("%d solution(s)\n", nb_sol);
     }
 
-  Stop_Prolog();
+  Pl_Stop_Prolog();
   return 0;
 }
 
