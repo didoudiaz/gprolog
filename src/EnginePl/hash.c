@@ -105,11 +105,11 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
 
 
 /*-------------------------------------------------------------------------*
- * HASH_ALLOC_TABLE                                                        *
+ * PL_HASH_ALLOC_TABLE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Alloc_Table(int tbl_size, int elem_size)
+Pl_Hash_Alloc_Table(int tbl_size, int elem_size)
 {
   char *tbl;
 
@@ -133,12 +133,12 @@ Hash_Alloc_Table(int tbl_size, int elem_size)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_REALLOC_TABLE                                                      *
+ * PL_HASH_REALLOC_TABLE                                                   *
  *                                                                         *
  * NB: user information is not moved elsewhere                             *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Realloc_Table(char *tbl, int new_tbl_size)
+Pl_Hash_Realloc_Table(char *tbl, int new_tbl_size)
 {
   int tbl_size = Tbl_Size(tbl);
   int elem_size = Elem_Size(tbl);
@@ -149,7 +149,7 @@ Hash_Realloc_Table(char *tbl, int new_tbl_size)
   char *new_tbl;
   HashNode *new_t;
 
-  if ((new_tbl = Hash_Alloc_Table(new_tbl_size, elem_size)) == NULL)
+  if ((new_tbl = Pl_Hash_Alloc_Table(new_tbl_size, elem_size)) == NULL)
     return NULL;
 
   Nb_Elem(new_tbl) = Nb_Elem(tbl);
@@ -179,11 +179,11 @@ Hash_Realloc_Table(char *tbl, int new_tbl_size)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_FREE_TABLE                                                         *
+ * PL_HASH_FREE_TABLE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Hash_Free_Table(char *tbl)
+Pl_Hash_Free_Table(char *tbl)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -209,11 +209,11 @@ Hash_Free_Table(char *tbl)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_DELETE_ALL                                                         *
+ * PL_HASH_DELETE_ALL                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Hash_Delete_All(char *tbl)
+Pl_Hash_Delete_All(char *tbl)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -245,7 +245,7 @@ Hash_Delete_All(char *tbl)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Insert(char *tbl, char *elem, int replace)
+Pl_Hash_Insert(char *tbl, char *elem, int replace)
 {
   int tbl_size = Tbl_Size(tbl);
   int elem_size = Elem_Size(tbl);
@@ -284,11 +284,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * HASH_FIND                                                               *
+ * PL_HASH_FIND                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Find(char *tbl, long key)
+Pl_Hash_Find(char *tbl, long key)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -308,11 +308,11 @@ Hash_Find(char *tbl, long key)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_DELETE                                                             *
+ * PL_HASH_DELETE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Delete(char *tbl, long key)
+Pl_Hash_Delete(char *tbl, long key)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -364,7 +364,7 @@ Hash_Locate(HashNode *t, int tbl_size, long key)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_FIRST                                                              *
+ * PL_HASH_FIRST                                                           *
  *                                                                         *
  * Hash_First and Hash_Next make it possible to scan a hash table.         *
  * Example of use:                                                         *
@@ -372,11 +372,11 @@ Hash_Locate(HashNode *t, int tbl_size, long key)
  *   HashScan scan;                                                        *
  *   char     *buff_ptr;                                                   *
  *                                                                         *
- *   for(buff_ptr=Hash_First(tbl,&scan);buff_ptr;buff_ptr=Hash_Next(&scan))*
+ *   for(buff_ptr=Pl_Hash_First(tbl,&scan);buff_ptr;buff_ptr=Pl_Hash_Next(&scan))*
  *       Display_Element(buff_ptr);                                        *
  *-------------------------------------------------------------------------*/
 char *
-Hash_First(char *tbl, HashScan *scan)
+Pl_Hash_First(char *tbl, HashScan *scan)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -387,18 +387,18 @@ Hash_First(char *tbl, HashScan *scan)
   scan->cur_t = (char *) t;
   scan->cur_p = (char *) (*t);
 
-  return Hash_Next(scan);
+  return Pl_Hash_Next(scan);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * HASH_NEXT                                                               *
+ * PL_HASH_NEXT                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Next(HashScan *scan)
+Pl_Hash_Next(HashScan *scan)
 {
   HashNode *t;
   HashNode *endt;
@@ -432,11 +432,11 @@ Hash_Next(HashScan *scan)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_TABLE_SIZE                                                         *
+ * PL_HASH_TABLE_SIZE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Hash_Table_Size(char *tbl)
+Pl_Hash_Table_Size(char *tbl)
 {
   return Tbl_Size(tbl);
 }
@@ -445,11 +445,11 @@ Hash_Table_Size(char *tbl)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_NB_ELEMENTS                                                        *
+ * PL_HASH_NB_ELEMENTS                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Hash_Nb_Elements(char *tbl)
+Pl_Hash_Nb_Elements(char *tbl)
 {
   return Nb_Elem(tbl);
 }
@@ -519,7 +519,7 @@ main(void)
   printf("initial size: ");
   scanf("%d", &size);
   getchar();
-  t = Hash_Alloc_Table(size, sizeof(Elem));
+  t = Pl_Hash_Alloc_Table(size, sizeof(Elem));
   if (t == NULL)
     printf("Cannot allocate the table\n");
 
@@ -552,41 +552,41 @@ main(void)
 	  elem.info2 = key * i * 100;
 	  printf("passed value: Key:%ld  Info1:%d  Info2:%d\n",
 		 elem.key, elem.info1, elem.info2);
-	  p = (Elem *) Hash_Insert(t, (char *) &elem, c - 1);
+	  p = (Elem *) Pl_Hash_Insert(t, (char *) &elem, c - 1);
 	  break;
 	  break;
 
 	case 3:
-	  p = (Elem *) Hash_Find(t, key);
+	  p = (Elem *) Pl_Hash_Find(t, key);
 	  break;
 
 	case 4:
-	  p = (Elem *) Hash_Delete(t, key);
+	  p = (Elem *) Pl_Hash_Delete(t, key);
 	  break;
 
 	case 5:
-	  Hash_Delete_All(t);
+	  Pl_Hash_Delete_All(t);
 	  break;
 
 	case 6:
 	  k = 0;
-	  for (p = (Elem *) Hash_First(t, &scan); p;
-	       p = (Elem *) Hash_Next(&scan))
+	  for (p = (Elem *) Pl_Hash_First(t, &scan); p;
+	       p = (Elem *) Pl_Hash_Next(&scan))
 	    {
 	      printf("adr: %#lx  (Key:%ld  Info1:%d  Info2:%d)\n",
 		     (long) p, p->key, p->info1, p->info2);
 	      k++;
 	    }
-	  if (k != Hash_Nb_Elements(t))
+	  if (k != Pl_Hash_Nb_Elements(t))
 	    printf("# displayed elements: %d <> %d\n",
-		   k, Hash_Nb_Elements(t));
+		   k, Pl_Hash_Nb_Elements(t));
 	  break;
 
 	case 7:
 	  printf("new size: ");
 	  scanf("%d", &size);
 	  getchar();
-	  t = Hash_Realloc_Table(t, size);
+	  t = Pl_Hash_Realloc_Table(t, size);
 	  if (t == NULL)
 	    printf("Cannot extend the table\n");
 	  break;
@@ -605,7 +605,7 @@ main(void)
 		   (long) p, p->key, p->info1, p->info2);
 	}
 
-      printf("Nb Elements:%d\n", Hash_Nb_Elements(t));
+      printf("Nb Elements:%d\n", Pl_Hash_Nb_Elements(t));
     }
 
   return 0;

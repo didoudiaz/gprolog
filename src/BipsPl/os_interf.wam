@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : os_interf.pl
-% date    : 9 30 2008
-% time    : 17:26:19
+% date    : 11 4 2008
+% time    : 15:35:22
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').
@@ -14,80 +14,80 @@ predicate('$use_os_interf'/0,29,static,private,built_in,[
 predicate(make_directory/1,32,static,private,built_in,[
     put_atom(make_directory,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Make_Directory_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Make_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(delete_directory/1,39,static,private,built_in,[
     put_atom(delete_directory,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Delete_Directory_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Delete_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(working_directory/1,46,static,private,built_in,[
     put_atom(working_directory,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Working_Directory_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Working_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(change_directory/1,53,static,private,built_in,[
     put_atom(change_directory,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Change_Directory_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Change_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(directory_files/2,59,static,private,built_in,[
     put_atom(directory_files,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Directory_Files_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Directory_Files_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(rename_file/2,66,static,private,built_in,[
     put_atom(rename_file,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Rename_File_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Rename_File_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(unlink/1,73,static,private,built_in,[
     put_atom(unlink,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Unlink_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Unlink_1',[],[x(0)]),
     proceed]).
 
 
 predicate(delete_file/1,80,static,private,built_in,[
     put_atom(delete_file,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Delete_File_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Delete_File_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(file_exists/1,87,static,private,built_in,[
     put_atom(file_exists,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('File_Exists_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_File_Exists_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(file_permission/2,92,static,private,built_in,[
     put_atom(file_permission,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('File_Permission_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_File_Permission_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -99,7 +99,7 @@ predicate(file_property/2,99,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(file_property,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(1),0),
     call('$check_file_prop'/1),
     cut(y(2)),
@@ -204,7 +204,7 @@ label(2),
 label(3),
     get_structure(absolute_file_name/1,0),
     unify_variable(x(0)),
-    call_c('File_Prop_Absolute_File_Name_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Absolute_File_Name_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(4),
@@ -213,7 +213,7 @@ label(4),
 label(5),
     get_structure(real_file_name/1,0),
     unify_variable(x(0)),
-    call_c('File_Prop_Real_File_Name_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Real_File_Name_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(6),
@@ -222,7 +222,7 @@ label(6),
 label(7),
     get_structure(type/1,0),
     unify_variable(x(0)),
-    call_c('File_Prop_Type_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Type_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(8),
@@ -231,7 +231,7 @@ label(8),
 label(9),
     get_structure(size/1,0),
     unify_variable(x(0)),
-    call_c('File_Prop_Size_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Size_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(10),
@@ -240,7 +240,7 @@ label(10),
 label(11),
     get_structure(permission/1,0),
     unify_variable(x(0)),
-    call_c('Check_Prop_Perm_And_File_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Check_Prop_Perm_And_File_2',[boolean],[x(0),x(1)]),
     execute('$file_prop_perm'/2),
 
 label(12),
@@ -257,7 +257,7 @@ label(13),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
-    call_c('File_Prop_Date_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Date_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(14),
@@ -274,7 +274,7 @@ label(15),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
-    call_c('File_Prop_Date_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Date_2',[boolean],[x(0),x(1)]),
     proceed,
 
 label(16),
@@ -291,7 +291,7 @@ label(17),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
-    call_c('File_Prop_Date_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_File_Prop_Date_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -341,117 +341,117 @@ label(9),
 predicate(temporary_name/2,176,static,private,built_in,[
     put_atom(temporary_name,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Temporary_Name_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Temporary_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(temporary_file/3,183,static,private,built_in,[
     put_atom(temporary_file,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('Temporary_File_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Temporary_File_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(date_time/1,190,static,private,built_in,[
     put_atom(date_time,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Date_Time_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Date_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(host_name/1,197,static,private,built_in,[
     put_atom(host_name,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Host_Name_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Host_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(os_version/1,204,static,private,built_in,[
     put_atom(os_version,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Os_Version_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Os_Version_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(architecture/1,211,static,private,built_in,[
     put_atom(architecture,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Architecture_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Architecture_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(shell/0,218,static,private,built_in,[
     put_atom(shell,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_atom('',0),
     put_integer(0,1),
-    call_c('Shell_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Shell_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(shell/1,222,static,private,built_in,[
     put_atom(shell,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_integer(0,1),
-    call_c('Shell_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Shell_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(shell/2,226,static,private,built_in,[
     put_atom(shell,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Shell_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Shell_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(system/1,233,static,private,built_in,[
     put_atom(system,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_integer(0,1),
-    call_c('System_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_System_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(system/2,237,static,private,built_in,[
     put_atom(system,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('System_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_System_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(spawn/2,244,static,private,built_in,[
     put_atom(spawn,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     put_integer(0,2),
-    call_c('Spawn_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Spawn_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(spawn/3,248,static,private,built_in,[
     put_atom(spawn,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('Spawn_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Spawn_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(sleep/1,255,static,private,built_in,[
     put_atom(sleep,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Sleep_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Sleep_1',[],[x(0)]),
     proceed]).
 
 
@@ -461,7 +461,7 @@ predicate(popen/3,262,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(popen,0),
     put_integer(3,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(x(2),0),
     put_variable(y(2),1),
     call('$get_open_stm'/2),
@@ -469,7 +469,7 @@ predicate(popen/3,262,static,private,built_in,[
     put_value(y(1),1),
     put_unsafe_value(y(2),2),
     deallocate,
-    call_c('Popen_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Popen_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
@@ -482,7 +482,7 @@ predicate(exec/5,274,static,private,built_in,[
     get_variable(y(4),4),
     put_atom(exec,0),
     put_integer(5,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(4),0),
     call('$exec/5_$aux1'/1),
     put_integer(0,0),
@@ -522,7 +522,7 @@ predicate(exec/4,286,static,private,built_in,[
     get_variable(y(3),3),
     put_atom(exec,0),
     put_integer(4,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
@@ -556,7 +556,7 @@ predicate('$exec'/5,294,static,private,built_in,[
     put_unsafe_value(y(6),3),
     put_value(y(3),4),
     deallocate,
-    call_c('Exec_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
+    call_c('Pl_Exec_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
@@ -565,7 +565,7 @@ predicate(create_pipe/2,304,static,private,built_in,[
     get_variable(y(0),1),
     put_atom(create_pipe,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(1),1),
     call('$get_open_stm'/2),
     put_value(y(0),0),
@@ -574,7 +574,7 @@ predicate(create_pipe/2,304,static,private,built_in,[
     put_unsafe_value(y(1),0),
     put_unsafe_value(y(2),1),
     deallocate,
-    call_c('Create_Pipe_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Create_Pipe_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -583,12 +583,12 @@ predicate(fork_prolog/1,313,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(fork_prolog,0),
     put_integer(1,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(0),0),
     call('$fork_prolog/1_$aux1'/1),
     put_value(y(0),0),
     deallocate,
-    call_c('Fork_Prolog_1',[boolean],[x(0)]),
+    call_c('Pl_Fork_Prolog_1',[boolean],[x(0)]),
     proceed]).
 
 
@@ -609,30 +609,30 @@ label(1),
 predicate(select/5,324,static,private,built_in,[
     put_atom(select,5),
     put_integer(5,6),
-    call_c('Set_Bip_Name_2',[],[x(5),x(6)]),
-    call_c('Select_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(5),x(6)]),
+    call_c('Pl_Select_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
 predicate(prolog_pid/1,331,static,private,built_in,[
     put_atom(prolog_pid,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Prolog_Pid_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Prolog_Pid_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(send_signal/2,338,static,private,built_in,[
     put_atom(send_signal,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Send_Signal_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Send_Signal_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(wait/2,345,static,private,built_in,[
     put_atom(wait,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Wait_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Wait_2',[boolean],[x(0),x(1)]),
     proceed]).

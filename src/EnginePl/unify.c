@@ -153,8 +153,8 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 
   if (v_tag_mask == TAG_FLT_MASK)
     return (u_tag_mask == v_tag_mask && 
-	    Obtain_Float(UnTag_FLT(u_word)) ==
-	    Obtain_Float(UnTag_FLT(v_word)));
+	    Pl_Obtain_Float(UnTag_FLT(u_word)) ==
+	    Pl_Obtain_Float(UnTag_FLT(v_word)));
 
   return FALSE;
 }

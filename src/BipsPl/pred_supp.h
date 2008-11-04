@@ -52,10 +52,10 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Detect_If_Aux_Name(int func);
+char *Pl_Detect_If_Aux_Name(int func);
 
-int Father_Pred_Of_Aux(int func, int *father_arity);
+int Pl_Father_Pred_Of_Aux(int func, int *father_arity);
 
-int Pred_Without_Aux(int func, int arity, int *arity1);
+int Pl_Pred_Without_Aux(int func, int arity, int *arity1);
 
-int Make_Aux_Name(int func, int arity, int aux_nb);
+int Pl_Make_Aux_Name(int func, int arity, int aux_nb);

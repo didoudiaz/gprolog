@@ -101,28 +101,28 @@ static Bool Get_Windows_OS_Name(char *buff);
 
 
 /*-------------------------------------------------------------------------*
- * INIT_MACHINE1                                                           *
+ * PL_INIT_MACHINE1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Machine1(void)
+Pl_Init_Machine1(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
 
   struct utsname uname_info;
 
-  m_os_type = M_OS_UNIX;
+  pl_m_os_type = M_OS_UNIX;
 
   if (uname(&uname_info) < 0)
     {
-      strcpy(m_architecture, "unknown architecture");
-      strcpy(m_os_version, "unknown OS version");
+      strcpy(pl_m_architecture, "unknown architecture");
+      strcpy(pl_m_os_version, "unknown OS version");
       return;
     }
 
-  strcpy(m_architecture, uname_info.machine);
+  strcpy(pl_m_architecture, uname_info.machine);
 
-  sprintf(m_os_version, "%s %s", uname_info.sysname, uname_info.release);
+  sprintf(pl_m_os_version, "%s %s", uname_info.sysname, uname_info.release);
 
 #else
 
@@ -130,13 +130,13 @@ Init_Machine1(void)
 
   GetSystemInfo(&si);
   if (si.wProcessorLevel >= 3 && si.wProcessorLevel < 10)
-    sprintf(m_architecture, "i%c86", si.wProcessorLevel + '0');
+    sprintf(pl_m_architecture, "i%c86", si.wProcessorLevel + '0');
   else
-    sprintf(m_architecture, "i%ld", si.dwProcessorType);
+    sprintf(pl_m_architecture, "i%ld", si.dwProcessorType);
 
-  m_os_type = M_OS_WINDOWS;
-  if (!Get_Windows_OS_Name(m_os_version))
-    strcpy(m_os_version, "unknown OS version");
+  pl_m_os_type = M_OS_WINDOWS;
+  if (!Get_Windows_OS_Name(pl_m_os_version))
+    strcpy(pl_m_os_version, "unknown OS version");
 
 #endif
 }
@@ -158,7 +158,7 @@ Init_Machine1(void)
  * 3) replace "printf(" by "buff += sprintf(buff, "                        *
  * 4) replace "\n" by ""                                                   *
  * 5) after "case VER_PLATFORM_WIN32_NT:" add                              *
- *          m_os_type = M_OS_WINDOWS_NT;                                   *
+ *          pl_m_os_type = M_OS_WINDOWS_NT;                                *
  * 6) fix warnings %d -> %ld                                               *
  *-------------------------------------------------------------------------*/
 static Bool
@@ -184,7 +184,7 @@ Get_Windows_OS_Name(char *buff)
     {
       // Test for the Windows NT product family.
     case VER_PLATFORM_WIN32_NT:
-      m_os_type = M_OS_WINDOWS_NT;
+      pl_m_os_type = M_OS_WINDOWS_NT;
       // Test for the specific product family.
       if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
 	buff += sprintf(buff, "Microsoft Windows Server 2003 family, ");
@@ -346,12 +346,12 @@ Get_Windows_OS_Name(char *buff)
 
 
 /*-------------------------------------------------------------------------*
- * M_CREATE_SHELL_COMMAND                                                  *
+ * PL_M_CREATE_SHELL_COMMAND                                               *
  *                                                                         *
  * Create a shell command if != NULL (or else a shell invocation)          *
  *-------------------------------------------------------------------------*/
 char **
-M_Create_Shell_Command(char *cmd)
+Pl_M_Create_Shell_Command(char *cmd)
 {
   static char *arg[4];
   char *p;
@@ -364,7 +364,7 @@ M_Create_Shell_Command(char *cmd)
 #else
 
   arg[0] = ((p = getenv("COMSPEC")) != NULL)
-    ? p : (m_os_type == M_OS_WINDOWS_NT) ? "cmd.exe" : "c:\\command.com";
+    ? p : (pl_m_os_type == M_OS_WINDOWS_NT) ? "cmd.exe" : "c:\\command.com";
   arg[1] = "/c";
 
 #endif
@@ -384,11 +384,11 @@ M_Create_Shell_Command(char *cmd)
 
 
 /*-------------------------------------------------------------------------*
- * M_CMD_LINE_TO_ARGV                                                      *
+ * PL_M_CMD_LINE_TO_ARGV                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char **
-M_Cmd_Line_To_Argv(char *cmd, int *argc)
+Pl_M_Cmd_Line_To_Argv(char *cmd, int *argc)
 {
   static char **arg = NULL;
   static int nb_arg = 0;
@@ -441,21 +441,21 @@ M_Cmd_Line_To_Argv(char *cmd, int *argc)
 
 
 /*-------------------------------------------------------------------------*
- * M_SHELL                                                                 *
+ * PL_M_SHELL                                                              *
  *                                                                         *
  * Invoke a shell (eventually passing a cmd if != NULL)                    *
  *-------------------------------------------------------------------------*/
 int
-M_Shell(char *cmd)
+Pl_M_Shell(char *cmd)
 {
-  return M_Spawn(M_Create_Shell_Command(cmd));
+  return Pl_M_Spawn(Pl_M_Create_Shell_Command(cmd));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * M_SPAWN                                                                 *
+ * PL_M_SPAWN                                                              *
  *                                                                         *
  * Execute a command with arguments in arg[], (arg[0]=the name of the cmd) *
  * a NULL must follow the last argument.                                   *
@@ -464,7 +464,7 @@ M_Shell(char *cmd)
  * (errno is not set).                                                     *
  *-------------------------------------------------------------------------*/
 int
-M_Spawn(char *arg[])
+Pl_M_Spawn(char *arg[])
 {
 #if defined(__unix__)
   int pid;
@@ -473,7 +473,7 @@ M_Spawn(char *arg[])
   fflush(stderr);
 
   if (arg[1] == (char *) 1)
-    arg = M_Cmd_Line_To_Argv(arg[0], NULL);
+    arg = Pl_M_Cmd_Line_To_Argv(arg[0], NULL);
 
   pid = fork();
 
@@ -486,7 +486,7 @@ M_Spawn(char *arg[])
       exit((errno == ENOENT || errno == ENOTDIR) ? 126 : 127);
     }
 
-  return M_Get_Status(pid);
+  return Pl_M_Get_Status(pid);
 
 #else
 
@@ -495,7 +495,7 @@ M_Spawn(char *arg[])
 #endif
 
   if (arg[1] == (char *) 1)
-    arg = M_Cmd_Line_To_Argv(arg[0], NULL);
+    arg = Pl_M_Cmd_Line_To_Argv(arg[0], NULL);
 
   return spawnvp(_P_WAIT, arg[0], (const char *const *) arg);
 #endif
@@ -505,7 +505,7 @@ M_Spawn(char *arg[])
 
 
 /*-------------------------------------------------------------------------*
- * M_SPAWN_REDIRECT                                                        *
+ * PL_M_SPAWN_REDIRECT                                                     *
  *                                                                         *
  * Execute a command with arguments in arg[], (arg[0]=the name of the cmd) *
  * a NULL must follow the last argument.                                   *
@@ -515,10 +515,10 @@ M_Spawn(char *arg[])
  * f_out==f_err the 2 output streams are merged in f_out.                  *
  * In case of error return -1 if errno is set or else -2.                  *
  * In case of success, return 0 if detached or the pid else (the function  *
- * M_Get_Status() should be called later to avoid zombie processes).       *
+ * Pl_M_Get_Status() should be called later to avoid zombie processes).    *
  *-------------------------------------------------------------------------*/
 int
-M_Spawn_Redirect(char *arg[], int detach,
+Pl_M_Spawn_Redirect(char *arg[], int detach,
 		 FILE **f_in, FILE **f_out, FILE **f_err)
 {
 #if defined(__unix__ ) || defined(__CYGWIN__)
@@ -529,7 +529,7 @@ M_Spawn_Redirect(char *arg[], int detach,
   fflush(stderr);
 
   if (arg[1] == (char *) 1)
-    arg = M_Cmd_Line_To_Argv(arg[0], NULL);
+    arg = Pl_M_Cmd_Line_To_Argv(arg[0], NULL);
 
   if ((f_in && pipe(pipe_in)) ||
       (f_out && pipe(pipe_out)) ||
@@ -707,11 +707,11 @@ unknown_err:
 
 
 /*-------------------------------------------------------------------------*
- * M_GET_STATUS                                                            *
+ * PL_M_GET_STATUS                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-M_Get_Status(int pid)
+Pl_M_Get_Status(int pid)
 {
   int status;
 
@@ -748,11 +748,11 @@ M_Get_Status(int pid)
 
 
 /*-------------------------------------------------------------------------*
- * M_MKTEMP                                                                *
+ * PL_M_MKTEMP                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Mktemp(char *tmpl)
+Pl_M_Mktemp(char *tmpl)
 {
 				/* redefined to avoid link warning */
 #if defined(__unix__) || defined(__CYGWIN__)
@@ -827,11 +827,11 @@ M_Mktemp(char *tmpl)
 
 
 /*-------------------------------------------------------------------------*
- * M_TEMPNAM                                                               *
+ * PL_M_TEMPNAM                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Tempnam(char *dir, char *pfx)
+Pl_M_Tempnam(char *dir, char *pfx)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
 				/* this code comes from glibc */
@@ -892,7 +892,7 @@ M_Tempnam(char *dir, char *pfx)
     }
 
   sprintf(tmpl, "%.*s/%.*sXXXXXX", dlen, dir, plen, pfx);
-  d = M_Mktemp(tmpl);
+  d = Pl_M_Mktemp(tmpl);
   if (d)
     d = strdup(d);
   return d;
@@ -962,7 +962,7 @@ M_Tempnam(char *dir, char *pfx)
 
 #define STAT(pid)				\
 {						\
-  int status = M_Get_Status(pid);		\
+  int status = Pl_M_Get_Status(pid);		\
   STATUS(status)				\
 }
 
@@ -1013,8 +1013,8 @@ main(int argc, char *argv[])
   char *arg[10];
   char buff[256];
 
-  Init_Machine1();
-  printf("OS used:%s\n", m_os_version);
+  Pl_Init_Machine1();
+  printf("OS used:%s\n", pl_m_os_version);
 
 
 #if defined(_MSC_VER)
@@ -1027,7 +1027,7 @@ main(int argc, char *argv[])
     char buff[100];
 
     DBGPRINTF("HELLO World\n");
-    LE_Gets(buff);
+    Pl_LE_Gets(buff);
   }
 #endif
 
@@ -1036,12 +1036,12 @@ main(int argc, char *argv[])
     {
       DBGPRINTF("1- Executing from argv[1]...=%s... no redirect\n",
 		argv[1]);
-      pid = M_Spawn_Redirect(argv + 1, 0, NULL, NULL, NULL);
+      pid = Pl_M_Spawn_Redirect(argv + 1, 0, NULL, NULL, NULL);
       CHECK(pid);
       STAT(pid);
 
       DBGPRINTF("1b- Executing from argv[1]...=%s... Spawn\n", argv[1]);
-      status = M_Spawn(argv + 1);
+      status = Pl_M_Spawn(argv + 1);
       STATUS(status);
     }
   else
@@ -1054,7 +1054,7 @@ main(int argc, char *argv[])
   strcpy(buff, PREFIX_DIR "uname -a");	/* should be modifiable */
   arg[0] = buff;
   arg[1] = (char *) 1;
-  pid = M_Spawn_Redirect(arg, 0, NULL, &o, NULL);
+  pid = Pl_M_Spawn_Redirect(arg, 0, NULL, &o, NULL);
   CHECK(pid);
   READ("output", o);
   STAT(pid);
@@ -1070,7 +1070,7 @@ main(int argc, char *argv[])
 #if 1
   DBGPRINTF("3- command with redirected input\n");
   COMMAND;
-  pid = M_Spawn_Redirect(arg, 0, &i, NULL, NULL);
+  pid = Pl_M_Spawn_Redirect(arg, 0, &i, NULL, NULL);
   CHECK(pid);
     
   CDE_INPUT;
@@ -1080,7 +1080,7 @@ main(int argc, char *argv[])
 #if 1
   DBGPRINTF("4- command with redirected input and output\n");
   COMMAND;
-  pid = M_Spawn_Redirect(arg, 0, &i, &o, NULL);
+  pid = Pl_M_Spawn_Redirect(arg, 0, &i, &o, NULL);
   CHECK(pid);
   CDE_INPUT;
   READ("output", o);
@@ -1090,7 +1090,7 @@ main(int argc, char *argv[])
 #if 1
   DBGPRINTF("5- command with redirected input output and error\n");
   COMMAND;
-  pid = M_Spawn_Redirect(arg, 0, &i, &o, &e);
+  pid = Pl_M_Spawn_Redirect(arg, 0, &i, &o, &e);
   CHECK(pid);
   CDE_INPUT;
   READ("output", o);
@@ -1101,7 +1101,7 @@ main(int argc, char *argv[])
 #if 1
   DBGPRINTF("6- command with redirected input and output=error\n");
   COMMAND;
-  pid = M_Spawn_Redirect(arg, 0, &i, &o, &o);
+  pid = Pl_M_Spawn_Redirect(arg, 0, &i, &o, &o);
   CHECK(pid);
   CDE_INPUT;
   READ("output/error", o);
@@ -1113,7 +1113,7 @@ main(int argc, char *argv[])
     char buff[100];
 
     DBGPRINTF("Terminated - press ENTER\n");
-    LE_Gets(buff);
+    Pl_LE_Gets(buff);
   }
 #endif
 

@@ -158,4 +158,4 @@
 
 
 '$get_pred_indic'(PI, N, A) :-
-	'$call_c_test'('Get_Pred_Indic_3'(PI, N, A)).
+	'$call_c_test'('Pl_Get_Pred_Indic_3'(PI, N, A)).

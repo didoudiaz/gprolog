@@ -59,32 +59,32 @@
 
 
 /*-------------------------------------------------------------------------*
- * ABSOLUTE_FILE_NAME_2                                                    *
+ * PL_ABSOLUTE_FILE_NAME_2                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Absolute_File_Name_2(WamWord f1_word, WamWord f2_word)
+Pl_Absolute_File_Name_2(WamWord f1_word, WamWord f2_word)
 {
   char *f1, *f2;
 
-  f1 = atom_tbl[Rd_Atom_Check(f1_word)].name;
+  f1 = pl_atom_tbl[Pl_Rd_Atom_Check(f1_word)].name;
 
-  f2 = M_Absolute_Path_Name(f1);
+  f2 = Pl_M_Absolute_Path_Name(f1);
   if (f2 == NULL)
-    Pl_Err_Domain(domain_os_path, f1_word);
+    Pl_Err_Domain(pl_domain_os_path, f1_word);
 
-  return Un_String_Check(f2, f2_word);
+  return Pl_Un_String_Check(f2, f2_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * DECOMPOSE_FILE_NAME_4                                                   *
+ * PL_DECOMPOSE_FILE_NAME_4                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
+Pl_Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
 		      WamWord prefix_word, WamWord suffix_word)
 {
   char *path;
@@ -92,13 +92,13 @@ Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
   int atom;
   char c;
 
-  strcpy(glob_buff, atom_tbl[Rd_Atom_Check(path_word)].name);
-  path = glob_buff;
+  strcpy(pl_glob_buff, pl_atom_tbl[Pl_Rd_Atom_Check(path_word)].name);
+  path = pl_glob_buff;
 
 
-  Check_For_Un_Atom(dir_word);
-  Check_For_Un_Atom(prefix_word);
-  Check_For_Un_Atom(suffix_word);
+  Pl_Check_For_Un_Atom(dir_word);
+  Pl_Check_For_Un_Atom(prefix_word);
+  Pl_Check_For_Un_Atom(suffix_word);
 
   p = strrchr(path, DIR_SEP_C);
 #ifdef _WIN32
@@ -115,14 +115,14 @@ Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
       p++;
       c = *p;
       *p = '\0';
-      atom = Create_Allocate_Atom(path);
+      atom = Pl_Create_Allocate_Atom(path);
       *p = c;
       path = p;
     }
   else
-    atom = atom_void;
+    atom = pl_atom_void;
 
-  if (!Get_Atom(atom, dir_word))
+  if (!Pl_Get_Atom(atom, dir_word))
     return FALSE;
 
 
@@ -130,33 +130,33 @@ Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
   if (p != NULL)
     {
       *p = '\0';
-      atom = Create_Allocate_Atom(path);
+      atom = Pl_Create_Allocate_Atom(path);
       *p = '.';
       path = p;
     }
   else
-    atom = Create_Allocate_Atom(path);
+    atom = Pl_Create_Allocate_Atom(path);
 
-  if (!Get_Atom(atom, prefix_word))
+  if (!Pl_Get_Atom(atom, prefix_word))
     return FALSE;
 
   if (p != NULL)
-    atom = Create_Allocate_Atom(path);
+    atom = Pl_Create_Allocate_Atom(path);
   else
-    atom = atom_void;
+    atom = pl_atom_void;
 
-  return Get_Atom(atom, suffix_word);
+  return Pl_Get_Atom(atom, suffix_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PROLOG_FILE_NAME_2                                                      *
+ * PL_PROLOG_FILE_NAME_2                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
+Pl_Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
 {
   int atom;
   char *f1;
@@ -164,17 +164,17 @@ Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
   char *p;
   Bool suffix_pl;
 
-  atom = Rd_Atom_Check(f1_word);
-  f1 = atom_tbl[atom].name;
+  atom = Pl_Rd_Atom_Check(f1_word);
+  f1 = pl_atom_tbl[atom].name;
 
-  f1 = M_Absolute_Path_Name(f1);
+  f1 = Pl_M_Absolute_Path_Name(f1);
   if (f1 == NULL)
-    Pl_Err_Domain(domain_os_path, f1_word);
+    Pl_Err_Domain(pl_domain_os_path, f1_word);
 
   if (strcmp(f1, "user") == 0)
     {
     same:
-      return Un_Atom_Check(atom, f2_word);
+      return Pl_Un_Atom_Check(atom, f2_word);
     }
 
   p = strrchr(f1, DIR_SEP_C);
@@ -190,21 +190,21 @@ Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
   if (strchr((p) ? p : f1, '.'))
     goto same;
 
-  strcpy(glob_buff, f1);
+  strcpy(pl_glob_buff, f1);
   len = strlen(f1);
 
-  strcpy(glob_buff + len, ".pl");
+  strcpy(pl_glob_buff + len, ".pl");
   suffix_pl = TRUE;
-  if (access(glob_buff, F_OK))	/* f1.pl does not exist */
+  if (access(pl_glob_buff, F_OK))	/* f1.pl does not exist */
     {
-      strcpy(glob_buff + len, ".pro");
+      strcpy(pl_glob_buff + len, ".pro");
       suffix_pl = FALSE;
-      if (access(glob_buff, F_OK))	/* f1.pro does not exist */
+      if (access(pl_glob_buff, F_OK))	/* f1.pro does not exist */
 	suffix_pl = TRUE;
     }
 
-  sprintf(glob_buff, "%s%s", atom_tbl[atom].name,
+  sprintf(pl_glob_buff, "%s%s", pl_atom_tbl[atom].name,
 	  (suffix_pl) ? ".pl" : ".pro");
 
-  return Un_String_Check(glob_buff, f2_word);
+  return Pl_Un_String_Check(pl_glob_buff, f2_word);
 }

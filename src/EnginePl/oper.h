@@ -75,11 +75,11 @@ OperInf;
 
 #ifdef OPER_FILE
 
-char *oper_tbl;
+char *pl_oper_tbl;
 
 #else
 
-extern char *oper_tbl;
+extern char *pl_oper_tbl;
 
 #endif
 
@@ -88,22 +88,22 @@ extern char *oper_tbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Oper(void);
+void Pl_Init_Oper(void);
 
-OperInf *Create_Oper(int atom_op, int type, int prec, int left, int right);
+OperInf *Pl_Create_Oper(int atom_op, int type, int prec, int left, int right);
 
-OperInf *Lookup_Oper(int atom_op, int type);
+OperInf *Pl_Lookup_Oper(int atom_op, int type);
 
-OperInf *Lookup_Oper_Any_Type(int atom_op);
+OperInf *Pl_Lookup_Oper_Any_Type(int atom_op);
 
-OperInf *Delete_Oper(int atom_op, int type);
+OperInf *Pl_Delete_Oper(int atom_op, int type);
 
 
 
 #define Check_Oper(atom_op, type) \
-     (atom_tbl[(atom_op)].prop.op_mask & Make_Op_Mask(type))
+     (pl_atom_tbl[(atom_op)].prop.op_mask & Make_Op_Mask(type))
 
 
 
 #define Check_Oper_Any_Type(atom_op) \
-     (atom_tbl[(atom_op)].prop.op_mask)
+     (pl_atom_tbl[(atom_op)].prop.op_mask)

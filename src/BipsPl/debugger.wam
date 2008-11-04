@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : debugger.pl
-% date    : 9 30 2008
-% time    : 17:26:19
+% date    : 11 4 2008
+% time    : 15:35:22
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/debugger.pl').
@@ -34,7 +34,7 @@ predicate('$debug_switch_off'/0,38,static,private,built_in,[
     put_atom('$debug_depth',0),
     put_integer(10,1),
     call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
-    call_c('Reset_Debug_Call_Code_0',[],[]),
+    call_c('Pl_Reset_Debug_Call_Code_0',[],[]),
     proceed]).
 
 
@@ -58,22 +58,22 @@ predicate('$debug_switch_on'/1,47,static,private,built_in,[
     put_atom(false,3),
     call(setarg/4),
     deallocate,
-    call_c('Set_Debug_Call_Code_0',[],[]),
+    call_c('Pl_Set_Debug_Call_Code_0',[],[]),
     proceed]).
 
 
 predicate(wam_debug/0,60,static,private,built_in,[
     put_atom(wam_debug,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
-    call_c('Debug_Wam',[],[]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Debug_Wam',[],[]),
     proceed]).
 
 
 predicate(notrace/0,67,static,private,built_in,[
     put_atom(notrace,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     execute(nodebug/0)]).
 
 
@@ -81,7 +81,7 @@ predicate(nodebug/0,74,static,private,built_in,[
     allocate(0),
     put_atom(nodebug,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$debug_switch_off'/0),
     deallocate,
     execute('$show_debugger_mode'/0)]).
@@ -91,7 +91,7 @@ predicate(trace/0,80,static,private,built_in,[
     allocate(0),
     put_atom(trace,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_atom(trace,0),
     call('$debug_switch_on'/1),
     deallocate,
@@ -102,7 +102,7 @@ predicate(debug/0,86,static,private,built_in,[
     allocate(0),
     put_atom(debug,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_atom(debug,0),
     call('$debug_switch_on'/1),
     deallocate,
@@ -168,7 +168,7 @@ predicate(debugging/0,114,static,private,built_in,[
     allocate(0),
     put_atom(debugging,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$show_debugger_mode'/0),
     call('$show_leashing_info'/0),
     call('$show_undefined_action'/0),
@@ -181,7 +181,7 @@ predicate(leash/1,124,static,private,built_in,[
     try_me_else(1),
     put_atom(leash,2),
     put_integer(1,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
@@ -503,7 +503,7 @@ predicate(spypoint_condition/3,237,static,private,built_in,[
     try_me_else(1),
     put_atom(spypoint_condition,1),
     put_integer(3,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(3)),
     execute('$pl_err_instantiation'/0),
@@ -587,7 +587,7 @@ predicate(spy/1,266,static,private,built_in,[
     allocate(1),
     put_atom(spy,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$debug_list_of_pred'/2),
     put_value(y(0),0),
@@ -612,7 +612,7 @@ predicate(nospy/1,280,static,private,built_in,[
     allocate(1),
     put_atom(nospy,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     call('$debug_list_of_pred'/2),
     put_value(y(0),0),
@@ -629,7 +629,7 @@ predicate(nospyall/0,291,static,private,built_in,[
     allocate(0),
     put_atom(nospyall,0),
     put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_structure('$debug_spy_point'/3,0),
     unify_void(3),
     call(retractall/1),
@@ -2748,7 +2748,7 @@ label(1),
     allocate(2),
     put_variable(x(0),3),
     put_variable(x(1),4),
-    call_c('Scan_Choice_Point_Info_3',[boolean],[x(2),x(3),x(4)]),
+    call_c('Pl_Scan_Choice_Point_Info_3',[boolean],[x(2),x(3),x(4)]),
     put_variable(y(0),2),
     put_variable(y(1),3),
     call('$pred_without_aux'/4),
@@ -2983,10 +2983,10 @@ predicate('$debug_disp_help'/0,962,static,private,built_in,[
 
 
 predicate('$choice_point_info'/4,983,static,private,built_in,[
-    call_c('Choice_Point_Info_4',[],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Choice_Point_Info_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate('$choice_point_arg'/3,987,static,private,built_in,[
-    call_c('Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
+    call_c('Pl_Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
     proceed]).

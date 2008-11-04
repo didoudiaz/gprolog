@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : call.pl
-% date    : 9 30 2008
-% time    : 17:26:17
+% date    : 11 4 2008
+% time    : 15:35:20
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call.pl').
@@ -72,7 +72,7 @@ predicate('$call_det/2_$aux2'/3,46,static,private,built_in,[
     try_me_else(1),
     put_atom(>,4),
     put_integer(2,5),
-    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
@@ -97,7 +97,7 @@ predicate('$call_det/2_$aux1'/1,46,static,private,built_in,[
     cut(x(1)),
     put_atom(call,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_value(x(0),1),
     put_atom(boolean,0),
     execute('$pl_err_type'/2),
@@ -108,14 +108,14 @@ label(1),
 
 
 predicate('$call'/4,65,static,private,built_in,[
-    call_c('Save_Call_Info_3',[],[x(1),x(2),x(3)]),
+    call_c('Pl_Save_Call_Info_3',[],[x(1),x(2),x(3)]),
     put_integer(0,1),
     execute('$call1'/2)]).
 
 
 predicate('$call1'/2,69,static,private,built_in,[
     put_integer(1,2),
-    call_c('Load_Call_Info_Arg_1',[],[x(2)]),
+    call_c('Pl_Load_Call_Info_Arg_1',[],[x(2)]),
     execute('$call_internal'/2)]).
 
 
@@ -124,7 +124,7 @@ predicate('$call_internal'/2,73,static,private,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_value(y(1),0),
-    call_c('Call_Info_Bip_Name_1',[],[x(0)]),
+    call_c('Pl_Call_Info_Bip_Name_1',[],[x(0)]),
     put_value(y(0),0),
     call('$$call_internal/2_$aux1'/1),
     put_value(y(0),0),
@@ -277,7 +277,7 @@ label(20),
 label(21),
     trust_me_else_fail,
     put_integer(1,2),
-    call_c('BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
+    call_c('Pl_BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
     proceed]).
 
 
@@ -334,5 +334,5 @@ label(1),
 
 predicate('$call_from_debugger'/2,149,static,private,built_in,[
     put_integer(0,2),
-    call_c('BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
+    call_c('Pl_BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
     proceed]).

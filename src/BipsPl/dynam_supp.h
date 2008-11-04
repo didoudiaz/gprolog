@@ -70,7 +70,7 @@ typedef struct dyncinf		/* Dynamic clause information     */
   int cl_no;			/* clause number                  */
   DynStamp erase_stamp;		/* FFF...F if not erased or stamp */
   DynCInfP next_erased_cl;	/* pointer to next erased clause  */
-  unsigned *byte_code;		/* bc pointer (NULL=interpreted)  */
+  unsigned *pl_byte_code;		/* bc pointer (NULL=interpreted)  */
   int term_size;		/* size of the term of the clause */
   WamWord term_word;		/* clause [Head|Body]=<LST,adr+1> */
   WamWord head_word;		/* adr+1 = Car = clause term Head */
@@ -118,19 +118,19 @@ DynPInf;
  * Function Prototypes             *
  *---------------------------------*/
 
-DynCInf *Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
+DynCInf *Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
 			    Bool asserta, Bool check_perm);
 
-void Delete_Dynamic_Clause(DynCInf *clause);
+void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 
-PredInf *Update_Dynamic_Pred(int func, int arity, int what_to_do);
+PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do);
 
-DynCInf *Scan_Dynamic_Pred(int owner_func, int owner_arity,
+DynCInf *Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 			   DynPInf *dyn, WamWord first_arg_word,
 			   ScanFct alt_fct, int alt_fct_type,
 			   int alt_info_size, WamWord *alt_info);
 
-int Scan_Choice_Point_Pred(WamWord *b, int *arity);
+int Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity);
 
-void Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
+void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
 			 WamWord *body_word);

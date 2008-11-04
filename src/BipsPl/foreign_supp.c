@@ -53,13 +53,13 @@
  * Global Variables                *
  *---------------------------------*/
 
-long foreign_long[NB_OF_X_REGS];
-double foreign_double[NB_OF_X_REGS];
+long pl_foreign_long[NB_OF_X_REGS];
+double pl_foreign_double[NB_OF_X_REGS];
 
-long *base_fl = foreign_long;	/* overwrite var of engine.c */
-double *base_fd = foreign_double;	/* overwrite var of engine.c */
+long *pl_base_fl = pl_foreign_long;	/* overwrite var of engine.c */
+double *pl_base_fd = pl_foreign_double;	/* overwrite var of engine.c */
 
-static FIOArg fio_arg_array[NB_OF_X_REGS];
+static PlFIOArg fio_arg_array[NB_OF_X_REGS];
 
 
 
@@ -67,8 +67,8 @@ static WamWord *query_stack[QUERY_STACK_SIZE];
 static WamWord **query_stack_top = query_stack;
 static WamWord *goal_H;
 
-WamWord *query_top_b;		/* overwrite var of throw_c.c */
-WamWord query_exception;	/* overwrite var of throw_c.c */
+WamWord *pl_query_top_b;		/* overwrite var of throw_c.c */
+WamWord pl_query_exception;	/* overwrite var of throw_c.c */
 
 
 
@@ -101,41 +101,41 @@ Foreign_Initializer(void)
   goal_H = H;
   H = H + MAX_ARITY + 1;
 
-  Set_Heap_Actual_Start(H);	/* reserve space for meta-call goal */
+  Pl_Set_Heap_Actual_Start(H);	/* reserve space for meta-call goal */
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FOREIGN_CREATE_CHOICE                                                   *
+ * PL_FOREIGN_CREATE_CHOICE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Foreign_Create_Choice(CodePtr codep_alt, int arity, int choice_size)
+Pl_Foreign_Create_Choice(CodePtr codep_alt, int arity, int choice_size)
 {
   A(arity) = -1;		/* bkt_counter */
-  Create_Choice_Point(codep_alt, arity + 1 + choice_size);
+  Pl_Create_Choice_Point(codep_alt, arity + 1 + choice_size);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FOREIGN_UPDATE_CHOICE                                                   *
+ * PL_FOREIGN_UPDATE_CHOICE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Foreign_Update_Choice(CodePtr codep_alt, int arity, int choice_size)
+Pl_Foreign_Update_Choice(CodePtr codep_alt, int arity, int choice_size)
 {
-  foreign_bkt_counter = AB(B, arity) + 1;
-  AB(B, arity) = foreign_bkt_counter;
+  pl_foreign_bkt_counter = AB(B, arity) + 1;
+  AB(B, arity) = pl_foreign_bkt_counter;
 
-  foreign_bkt_buffer = (char *) (&(AB(B, arity + choice_size)));
+  pl_foreign_bkt_buffer = (char *) (&(AB(B, arity + choice_size)));
 
-  if (foreign_bkt_counter > 0)
+  if (pl_foreign_bkt_counter > 0)
     {
-      Update_Choice_Point(codep_alt, arity);
+      Pl_Update_Choice_Point(codep_alt, arity);
     }
 }
 
@@ -143,11 +143,11 @@ Foreign_Update_Choice(CodePtr codep_alt, int arity, int choice_size)
 
 
 /*-------------------------------------------------------------------------*
- * FOREIGN_JUMP_RET                                                        *
+ * PL_FOREIGN_JUMP_RET                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 CodePtr
-Foreign_Jump_Ret(CodePtr codep)
+Pl_Foreign_Jump_Ret(CodePtr codep)
 {
   return codep;
 }
@@ -156,15 +156,15 @@ Foreign_Jump_Ret(CodePtr codep)
 
 
 /*-------------------------------------------------------------------------*
- * FOREIGN_RD_IO_ARG                                                       *
+ * PL_FOREIGN_RD_IO_ARG                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-FIOArg *
-Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, long (*rd_fct) (),
+PlFIOArg *
+Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, long (*rd_fct) (),
 		  int fio_arg_index)
 {
   WamWord word, tag_mask;
-  FIOArg *fa = fio_arg_array + fio_arg_index;
+  PlFIOArg *fa = fio_arg_array + fio_arg_index;
 
   DEREF(start_word, word, tag_mask);
 
@@ -191,11 +191,11 @@ Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, long (*rd_fct) (),
 
 
 /*-------------------------------------------------------------------------*
- * FOREIGN_UN_IO_ARG                                                       *
+ * PL_FOREIGN_UN_IO_ARG                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), FIOArg *fa,
+Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
 		  WamWord start_word)
 {
   if (!fa->unify)
@@ -211,31 +211,14 @@ Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), FIOArg *fa,
 
 
 /*-------------------------------------------------------------------------*
- * EMIT_SYNTAX_ERROR                                                       *
+ * PL_EMIT_SYNTAX_ERROR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg)
+Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg)
 {
-  Set_Last_Syntax_Error(file_name, err_line, err_col, err_msg);
-  Syntax_Error(Flag_Value(FLAG_SYNTAX_ERROR));
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * TYPE_OF_TERM                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Type_Of_Term(WamWord start_word)
-{
-  WamWord word, tag_mask;
-
-  DEREF(start_word, word, tag_mask);
-
-  return Tag_From_Tag_Mask(tag_mask);
+  Pl_Set_Last_Syntax_Error(file_name, err_line, err_col, err_msg);
+  Pl_Syntax_Error(Flag_Value(FLAG_SYNTAX_ERROR));
 }
 
 
@@ -253,7 +236,7 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
   int i;
   int bip_func, bip_arity;
 
-  pred = Lookup_Pred(func, arity);
+  pred = Pl_Lookup_Pred(func, arity);
   if (pred == NULL || !(pred->prop & MASK_PRED_NATIVE_CODE))
     {
       if (arity == 0)
@@ -267,7 +250,7 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
 	    *w++ = *arg_adr++;
 	}
 
-      bip_func = Get_Current_Bip(&bip_arity);
+      bip_func = Pl_Get_Current_Bip(&bip_arity);
       A(1) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
       return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
     }
@@ -288,7 +271,7 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
 void
 Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr)
 {
-  Execute_A_Continuation(Prepare_Call(func, arity, arg_adr));
+  Pl_Execute_A_Continuation(Prepare_Call(func, arity, arg_adr));
 }
 
 
@@ -303,11 +286,11 @@ Pl_Query_Begin(Bool recoverable)
 
 {
   if (query_stack_top - query_stack >= QUERY_STACK_SIZE)
-    Fatal_Error("too many nested Pl_Query_Start() (max: %d)",
+    Pl_Fatal_Error("too many nested Pl_Query_Start() (max: %d)",
 		QUERY_STACK_SIZE);
 
   if (recoverable)
-    Create_Choice_Point(Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0), 0);
+    Pl_Create_Choice_Point(Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0), 0);
 }
 
 
@@ -320,10 +303,10 @@ Pl_Query_Begin(Bool recoverable)
 int
 Pl_Query_Call(int func, int arity, WamWord *arg_adr)
 {
-  *query_stack_top++ = query_top_b = B;
-  query_exception = atom_void;
+  *query_stack_top++ = pl_query_top_b = B;
+  pl_query_exception = pl_atom_void;
 
-  return Call_Prolog(Prepare_Call(func, arity, arg_adr));
+  return Pl_Call_Prolog(Prepare_Call(func, arity, arg_adr));
 }
 
 
@@ -337,7 +320,7 @@ Pl_Query_Call(int func, int arity, WamWord *arg_adr)
 void
 Pl_Query_Recover_Alt_0(void)
 {
-  Delete_Choice_Point(0);	/* remove recover choice-point */
+  Pl_Delete_Choice_Point(0);	/* remove recover choice-point */
 }
 
 
@@ -351,10 +334,10 @@ int
 Pl_Query_Next_Solution(void)
 {
   if (query_stack_top == query_stack)
-    Fatal_Error("Pl_Query_Next_Solution() but no query remaining");
+    Pl_Fatal_Error("Pl_Query_Next_Solution() but no query remaining");
 
-  query_exception = atom_void;
-  return Call_Prolog_Next_Sol(query_top_b);
+  pl_query_exception = pl_atom_void;
+  return Pl_Call_Prolog_Next_Sol(pl_query_top_b);
 }
 
 
@@ -372,10 +355,10 @@ Pl_Query_End(int op)
 
 
   if (query_stack_top == query_stack)
-    Fatal_Error("Pl_Query_End() but no query remaining");
+    Pl_Fatal_Error("Pl_Query_End() but no query remaining");
 
   query_b = *--query_stack_top;
-  query_top_b = query_stack_top[-1];
+  pl_query_top_b = query_stack_top[-1];
 
   recoverable =
     (ALTB(query_b) == Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0));
@@ -386,9 +369,9 @@ Pl_Query_End(int op)
     case PL_RECOVER:
       Assign_B(query_b);
       if (!recoverable)
-	Fatal_Error("Pl_Query_End(PL_RECOVER) but unrecoverable query");
+	Pl_Fatal_Error("Pl_Query_End(PL_RECOVER) but unrecoverable query");
 
-      Delete_Choice_Point(0);	/* remove recover chc-point */
+      Pl_Delete_Choice_Point(0);	/* remove recover chc-point */
       break;
 
     case PL_CUT:
@@ -405,7 +388,7 @@ Pl_Query_End(int op)
 	      if (BB(b) == query_b)
 		BB(b) = prev_b;
 	}
-      Keep_Rest_For_Prolog(query_b);
+      Pl_Keep_Rest_For_Prolog(query_b);
     }
 }
 
@@ -419,5 +402,594 @@ Pl_Query_End(int op)
 WamWord
 Pl_Get_Exception(void)
 {
-  return query_exception;
+  return pl_query_exception;
+}
+
+
+/*
+ * The following functions are defined here to have a minimal gprolog.h
+ */
+
+
+/*-------------------------------------------------------------------------*
+ * PL_NO_MORE_CHOICE                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void 
+Pl_No_More_Choice(void)
+{
+  Delete_Last_Choice_Point();
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_TYPE_OF_TERM                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Type_Of_Term(WamWord start_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+
+  return Tag_From_Tag_Mask(tag_mask);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_NAME                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Atom_Name(int atom)
+{
+  return pl_atom_tbl[atom].name;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_LENGTH                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Atom_Length(int atom)
+{
+  return pl_atom_tbl[atom].prop.length;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_NEEDS_QUOTE                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Atom_Needs_Quote(int atom)
+{
+  return pl_atom_tbl[atom].prop.needs_quote;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_NEEDS_SCAN                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Atom_Needs_Scan(int atom)
+{
+  return pl_atom_tbl[atom].prop.needs_scan;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_IS_VALID_ATOM                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Is_Valid_Atom(int atom)
+{
+  return Is_Valid_Atom(atom);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_CHAR                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_Char(char c)
+{
+  return ATOM_CHAR(c);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_NIL                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_Nil(void)
+{
+  return ATOM_NIL;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_FALSE                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_False(void)
+{
+  return pl_atom_false;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_TRUE                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_True(void)
+{
+  return pl_atom_true;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_END_OF_FILE                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_End_Of_File(void)
+{
+  return pl_atom_end_of_file;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_UNIF                                                                 *
+ *                                                                         *
+ * do not use directly Pl_Unify because of FC (fast call)                  *
+ *-------------------------------------------------------------------------*/
+PlBool
+Pl_Unif(PlTerm term1, PlTerm term2)
+{
+  return Pl_Unify(term1, term2);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_Unif_With_Occurs_Check                                               *
+ *                                                                         *
+ * do not use directly Pl_Unify_Occurs_Check because of FC (fast call)     *
+ *-------------------------------------------------------------------------*/
+PlBool
+Pl_Unif_With_Occurs_Check(PlTerm term1, PlTerm term2)
+{
+  return Pl_Unify_Occurs_Check(term1, term2);
+}
+
+
+
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_VAR                                                          *
+ *                                                                         *
+ * do not use directly Pl_Blt_Var because of FC (fast call)                *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Var(WamWord term)
+{
+  return Pl_Blt_Var(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_NON_VAR                                                      *
+ *                                                                         *
+ * do not use directly Pl_Blt_Non_Var because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Non_Var(WamWord term)
+{
+  return Pl_Blt_Non_Var(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_ATOM                                                         *
+ *                                                                         *
+ * do not use directly Pl_Blt_Atom because of FC (fast call)               *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Atom(WamWord term)
+{
+  return Pl_Blt_Atom(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_INTEGER                                                      *
+ *                                                                         *
+ * do not use directly Pl_Blt_Integer because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Integer(WamWord term)
+{
+  return Pl_Blt_Integer(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_FLOAT                                                        *
+ *                                                                         *
+ * do not use directly Pl_Blt_Float because of FC (fast call)              *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Float(WamWord term)
+{
+  return Pl_Blt_Float(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_NUMBER                                                       *
+ *                                                                         *
+ * do not use directly Pl_Blt_Number because of FC (fast call)             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Number(WamWord term)
+{
+  return Pl_Blt_Number(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_ATOMIC                                                       *
+ *                                                                         *
+ * do not use directly Pl_Blt_Atomic because of FC (fast call)             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Atomic(WamWord term)
+{
+  return Pl_Blt_Atomic(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_COMPOUND                                                     *
+ *                                                                         *
+ * do not use directly Pl_Blt_Compound because of FC (fast call)           *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Compound(WamWord term)
+{
+  return Pl_Blt_Compound(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_Callable                                                     *
+ *                                                                         *
+ * do not use directly Pl_Blt_Callable because of FC (fast call)           *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Callable(WamWord term)
+{
+  return Pl_Blt_Callable(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_FD_VAR                                                       *
+ *                                                                         *
+ * do not use directly Pl_Blt_Fd_Var because of FC (fast call)             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Fd_Var(WamWord term)
+{
+  return Pl_Blt_Fd_Var(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_NON_FD_VAR                                                   *
+ *                                                                         *
+ * do not use directly Pl_Blt_Non_Fd_Var because of FC (fast call)         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Non_Fd_Var(WamWord term)
+{
+  return Pl_Blt_Non_Fd_Var(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_GENERIC_VAR                                                  *
+ *                                                                         *
+ * do not use directly Pl_Blt_Generic_Var because of FC (fast call)        *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Generic_Var(WamWord term)
+{
+  return Pl_Blt_Generic_Var(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_NON_GENERIC_VAR                                              *
+ *                                                                         *
+ * do not use directly Pl_Blt_Non_Generic_Var because of FC (fast call)    *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Non_Generic_Var(WamWord term)
+{
+  return Pl_Blt_Non_Generic_Var(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_LIST                                                         *
+ *                                                                         *
+ * do not use directly Pl_Blt_List because of FC (fast call)               *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_List(WamWord term)
+{
+  return Pl_Blt_List(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_PARTIAL_LIST                                                 *
+ *                                                                         *
+ * do not use directly Pl_Blt_Partial_List because of FC (fast call)       *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Partial_List(WamWord term)
+{
+  return Pl_Blt_Partial_List(term);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_LIST_OR_PARTIAL_LIST                                         *
+ *                                                                         *
+ * do not use directly Pl_Blt_List_Or_Partial_List because of FC(fast call)*
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_List_Or_Partial_List(WamWord term)
+{
+  return Pl_Blt_List_Or_Partial_List(term);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_TERM_EQ                                                      *
+ *                                                                         *
+ * do not use directly Pl_Blt_Term_Eq because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Term_Eq(WamWord term1, WamWord term2)
+{
+  return Pl_Blt_Term_Eq(term1, term2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_TERM_NEQ                                                     *
+ *                                                                         *
+ * do not use directly Pl_Blt_Term_Neq because of FC (fast call)           *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Term_Neq(WamWord term1, WamWord term2)
+{
+  return Pl_Blt_Term_Neq(term1, term2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_TERM_LT                                                      *
+ *                                                                         *
+ * do not use directly Pl_Blt_Term_Lt because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Term_Lt(WamWord term1, WamWord term2)
+{
+  return Pl_Blt_Term_Lt(term1, term2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_TERM_LTE                                                     *
+ *                                                                         *
+ * do not use directly Pl_Blt_Term_Lte because of FC (fast call)           *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Term_Lte(WamWord term1, WamWord term2)
+{
+  return Pl_Blt_Term_Lte(term1, term2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_TERM_GT                                                      *
+ *                                                                         *
+ * do not use directly Pl_Blt_Term_Gt because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Term_Gt(WamWord term1, WamWord term2)
+{
+  return Pl_Blt_Term_Gt(term1, term2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_TERM_GTE                                                     *
+ *                                                                         *
+ * do not use directly Pl_Blt_Term_Gte because of FC (fast call)           *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Term_Gte(WamWord term1, WamWord term2)
+{
+  return Pl_Blt_Term_Gte(term1, term2);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_COMPARE                                                      *
+ *                                                                         *
+ * do not use directly Pl_Blt_Compare because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Compare(WamWord cmp_word, WamWord x, WamWord y)
+{
+  return Pl_Blt_Compare(cmp_word, x, y);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_ARG                                                          *
+ *                                                                         *
+ * do not use directly Pl_BLT_Arg because of FC (fast call)                *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
+{
+  return Pl_Blt_Arg(arg_no_word, term_word, sub_term_word);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_FUNCTOR                                                      *
+ *                                                                         *
+ * do not use directly Pl_BLT_Functor because of FC (fast call)            *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
+{
+  return Pl_Blt_Functor(term_word, functor_word, arity_word);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_UNIV                                                         *
+ *                                                                         *
+ * do not use directly Pl_BLT_Univ because of FC (fast call)               *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Univ(WamWord term_word, WamWord list_word)
+{
+  return Pl_Blt_Univ(term_word, list_word);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_EQ                                                           *
+ *                                                                         *
+ * do not use directly Pl_Blt_Eq because of FC (fast call)                 *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Eq(WamWord expr1, WamWord expr2)
+{
+  return Pl_Blt_Eq(expr1, expr2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_NEQ                                                          *
+ *                                                                         *
+ * do not use directly Pl_Blt_Neq because of FC (fast call)                *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Neq(WamWord expr1, WamWord expr2)
+{
+  return Pl_Blt_Neq(expr1, expr2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_LT                                                           *
+ *                                                                         *
+ * do not use directly Pl_Blt_Lt because of FC (fast call)                 *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Lt(WamWord expr1, WamWord expr2)
+{
+  return Pl_Blt_Lt(expr1, expr2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_LTE                                                          *
+ *                                                                         *
+ * do not use directly Pl_Blt_Lte because of FC (fast call)                *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Lte(WamWord expr1, WamWord expr2)
+{
+  return Pl_Blt_Lte(expr1, expr2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_GT                                                           *
+ *                                                                         *
+ * do not use directly Pl_Blt_Gt because of FC (fast call)                 *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Gt(WamWord expr1, WamWord expr2)
+{
+  return Pl_Blt_Gt(expr1, expr2);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILTIN_GTE                                                          *
+ *                                                                         *
+ * do not use directly Pl_Blt_Gte because of FC (fast call)                *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Builtin_Gte(WamWord expr1, WamWord expr2)
+{
+  return Pl_Blt_Gte(expr1, expr2);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_MATH_EVALUATE                                                        *
+ *                                                                         *
+ * do not use directly Pl_Math_Load_Value because of FC (fast call)        *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Math_Evaluate(WamWord expr, WamWord *result)
+{
+  Pl_Math_Load_Value(expr, result);
 }

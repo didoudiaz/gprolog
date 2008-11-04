@@ -47,15 +47,15 @@
 
 #ifdef MACHINE1_FILE
 
-int m_os_type;
-char m_architecture[32];
-char m_os_version[256];
+int pl_m_os_type;
+char pl_m_architecture[32];
+char pl_m_os_version[256];
 
 #else
 
-extern int m_os_type;
-extern char m_architecture[];
-extern char m_os_version[];
+extern int pl_m_os_type;
+extern char pl_m_architecture[];
+extern char pl_m_os_version[];
 
 #endif
 
@@ -66,26 +66,26 @@ extern char m_os_version[];
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Machine1(void);
+void Pl_Init_Machine1(void);
 
-char **M_Create_Shell_Command(char *cmd);
+char **Pl_M_Create_Shell_Command(char *cmd);
 
-char **M_Cmd_Line_To_Argv(char *cmd, int *argc);
+char **Pl_M_Cmd_Line_To_Argv(char *cmd, int *argc);
 
-int M_Shell(char *cmd);
+int Pl_M_Shell(char *cmd);
 
-int M_Spawn(char *arg[]);
+int Pl_M_Spawn(char *arg[]);
 
-int M_Spawn_Redirect(char *arg[], int detach,
+int Pl_M_Spawn_Redirect(char *arg[], int detach,
 		     FILE **f_in, FILE **f_out, FILE **f_err);
 
-int M_Get_Status(int pid);
+int Pl_M_Get_Status(int pid);
 
 
 
-char *M_Mktemp(char *tmp_template);
+char *Pl_M_Mktemp(char *tmp_template);
 
-char *M_Tempnam(char *dir, char *pfx);
+char *Pl_M_Tempnam(char *dir, char *pfx);
 
 
 

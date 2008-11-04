@@ -57,22 +57,22 @@ InfVar;
 
 #ifdef PARSE_SUPP_FILE
 
-InfVar parse_dico_var[MAX_VAR_IN_TERM];
-int parse_nb_var;
+InfVar pl_parse_dico_var[MAX_VAR_IN_TERM];
+int pl_parse_nb_var;
 
 #else
 
-extern InfVar parse_dico_var[];
-extern int parse_nb_var;
+extern InfVar pl_parse_dico_var[];
+extern int pl_parse_nb_var;
 
 #endif
 
 
 				/* defined as this to avoid to force the   */
 				/* inclusion of parse_supp.o if not needed */
-				/* (stream_supp.c uses last_read_line/col) */
-int last_read_line;
-int last_read_col;
+				/* (stream_supp.c uses pl_last_read_line/col) */
+int pl_last_read_line;
+int pl_last_read_col;
 
 
 
@@ -81,12 +81,12 @@ int last_read_col;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamWord Read_Term(StmInf *pstm, int parse_end_of_term);
+WamWord Pl_Read_Term(StmInf *pstm, int parse_end_of_term);
 
-WamWord Read_Atom(StmInf *pstm);
+WamWord Pl_Read_Atom(StmInf *pstm);
 
-WamWord Read_Integer(StmInf *pstm);
+WamWord Pl_Read_Integer(StmInf *pstm);
 
-WamWord Read_Number(StmInf *pstm);
+WamWord Pl_Read_Number(StmInf *pstm);
 
-WamWord Read_Token(StmInf *pstm);
+WamWord Pl_Read_Token(StmInf *pstm);

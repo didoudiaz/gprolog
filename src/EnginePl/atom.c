@@ -69,7 +69,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-int char_type[256] = {
+int pl_char_type[256] = {
 
 /* nul soh stx etx eot enq ack bel bs  ht  nl  vt  np  cr  so  si  */
    LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
@@ -98,8 +98,8 @@ int char_type[256] = {
 };
 
 
-char escape_symbol[] = "abfnrtv";
-char escape_char[] = "\a\b\f\n\r\t\v";
+char pl_escape_symbol[] = "abfnrtv";
+char pl_escape_char[] = "\a\b\f\n\r\t\v";
 
 
 static char str_char[256][2];
@@ -126,11 +126,11 @@ static char *Gen_Sym(char *prefix, int gen_sym_hash);
 
 
 /*-------------------------------------------------------------------------*
- * INIT_ATOM                                                               *
+ * PL_INIT_ATOM                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Atom(void)
+Pl_Init_Atom(void)
 {
   int i, c;
 
@@ -179,21 +179,21 @@ Init_Atom(void)
   for (c = 128; c < 256; c++) {
     if (isalpha (c)) {
       i++;
-      char_type[c] = islower(c)? SL: CL;
+      pl_char_type[c] = islower(c)? SL: CL;
       hash_weight_tbl[c] = i;
       hash_inv_tbl[i] = c;
     }
     else {
-      char_type[c] = EX;	/* extended char set */
+      pl_char_type[c] = EX;	/* extended char set */
     }
   }
 
   for (i = 0; i < 256; i++)	/* initial conv mapping = identity */
-    char_conv[i] = i;
+    pl_char_conv[i] = i;
 
 
 
-  nb_atom = 0;
+  pl_nb_atom = 0;
 
   for (i = 0; i < 256; i++)
     {
@@ -202,31 +202,31 @@ Init_Atom(void)
 #ifndef OPTIM_1_CHAR_ATOM
       atom_char[i] =
 #endif
-	Create_Atom(str_char[i]);
+	Pl_Create_Atom(str_char[i]);
     }
 
-  i = Create_Atom("[]");
+  i = Pl_Create_Atom("[]");
   if (i != ATOM_NIL)
-    Fatal_Error(ERR_ATOM_NIL_INVALID, i);
+    Pl_Fatal_Error(ERR_ATOM_NIL_INVALID, i);
 
-  atom_void = Create_Atom("");
-  atom_curly_brackets = Create_Atom("{}");
+  pl_atom_void = Pl_Create_Atom("");
+  pl_atom_curly_brackets = Pl_Create_Atom("{}");
 
-  atom_false = Create_Atom("false");
-  atom_true = Create_Atom("true");
+  pl_atom_false = Pl_Create_Atom("false");
+  pl_atom_true = Pl_Create_Atom("true");
 
-  atom_end_of_file = Create_Atom("end_of_file");
+  pl_atom_end_of_file = Pl_Create_Atom("end_of_file");
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_ALLOCATE_ATOM                                                    *
+ * PL_CREATE_ALLOCATE_ATOM                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int FC
-Create_Allocate_Atom(char *name)
+int
+Pl_Create_Allocate_Atom(char *name)
 {
   AtomInf *patom;
   char *name1;
@@ -234,26 +234,26 @@ Create_Allocate_Atom(char *name)
   patom = Locate_Atom(name);
 
   if (patom == NULL)
-    Fatal_Error(ERR_ATOM_TBL_FULL);
+    Pl_Fatal_Error(ERR_ATOM_TBL_FULL);
 
   if (patom->name != NULL)
-    return patom - atom_tbl;	/* already exists */
+    return patom - pl_atom_tbl;	/* already exists */
 
   name1 = Strdup(name);
 
-  return Create_Atom(name1);
+  return Pl_Create_Atom(name1);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_ATOM                                                             *
+ * PL_CREATE_ATOM                                                          *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-int FC
-Create_Atom(char *name)
+int
+Pl_Create_Atom(char *name)
 {
   AtomInf *patom;
   AtomProp prop;
@@ -266,12 +266,12 @@ Create_Atom(char *name)
   patom = Locate_Atom(name);
 
   if (patom == NULL)
-    Fatal_Error(ERR_ATOM_TBL_FULL);
+    Pl_Fatal_Error(ERR_ATOM_TBL_FULL);
 
   if (patom->name != NULL)
-    return patom - atom_tbl;	/* already exists */
+    return patom - pl_atom_tbl;	/* already exists */
 
-  nb_atom++;
+  pl_nb_atom++;
 
   patom->name = name;
   prop.needs_scan = FALSE;
@@ -280,7 +280,7 @@ Create_Atom(char *name)
 
   for (p = name; *p; p++)
     {
-      c_type = char_type[(unsigned char) *p];
+      c_type = pl_char_type[(unsigned char) *p];
 
       if ((c_type & (UL | CL | SL | DI)) == 0)
 	identifier = FALSE;
@@ -296,10 +296,10 @@ Create_Atom(char *name)
 
 #ifndef NO_USE_LINEDIT
   if (lg > 1 && identifier)
-    LE_Compl_Add_Word(name, lg);
+    Pl_LE_Compl_Add_Word(name, lg);
 #endif
 
-  if (char_type[(unsigned char) *name] != SL)	/* small letter */
+  if (pl_char_type[(unsigned char) *name] != SL)	/* small letter */
     identifier = FALSE;
 
 
@@ -321,7 +321,7 @@ Create_Atom(char *name)
       goto finish;
     }
 
-  if (lg == 1 && char_type[(unsigned char) *name] == SC)
+  if (lg == 1 && pl_char_type[(unsigned char) *name] == SC)
     {
       prop.type = SOLO_ATOM;
       prop.needs_quote = (*name == ',');
@@ -338,38 +338,38 @@ finish:
   prop.op_mask = 0;
   patom->prop = prop;
 
-  return patom - atom_tbl;
+  return patom - pl_atom_tbl;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_ATOM                                                             *
+ * PL_CREATE_ATOM                                                          *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 WamWord FC
-Create_Atom_Tagged(char *name)
+Pl_Create_Atom_Tagged(char *name)
 {
-  return Tag_ATM(Create_Atom(name));
+  return Tag_ATM(Pl_Create_Atom(name));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FIND_ATOM                                                               *
+ * PL_FIND_ATOM                                                            *
  *                                                                         *
  * return the atom key or -1 if not exist.                                 *
  *-------------------------------------------------------------------------*/
-int FC
-Find_Atom(char *name)
+int
+Pl_Find_Atom(char *name)
 {
   AtomInf *patom;
 
   patom = Locate_Atom(name);
-  return (patom == NULL || patom->name == NULL) ? -1 : patom - atom_tbl;
+  return (patom == NULL || patom->name == NULL) ? -1 : patom - pl_atom_tbl;
 }
 
 
@@ -392,20 +392,20 @@ Locate_Atom(char *name)
   int n;
   AtomInf *patom, *endt;
 
-  if (nb_atom == MAX_ATOM)
+  if (pl_nb_atom == MAX_ATOM)
     return NULL;
 
   n = Hash_String(name);
   /* here either the atom is in the table */
   /* or there is at least one free cell.  */
-  patom = atom_tbl + n;
-  endt = atom_tbl + MAX_ATOM;
+  patom = pl_atom_tbl + n;
+  endt = pl_atom_tbl + MAX_ATOM;
 
   while (patom->name && strcmp(patom->name, name) != 0)
     {
       patom++;
       if (patom == endt)
-	patom = atom_tbl;
+	patom = pl_atom_tbl;
     }
 
   return patom;
@@ -448,28 +448,28 @@ Hash_String(char *str)
 
 
 /*-------------------------------------------------------------------------*
- * GEN_NEW_ATOM                                                            *
+ * PL_GEN_NEW_ATOM                                                         *
  *                                                                         *
  * Find a new atom (gensym) beginning by a given prefix.                   *
  * hash<0 for any input or the index of the free atom to produce.          *
  *-------------------------------------------------------------------------*/
-int FC
-Gen_New_Atom(char *prefix, int hash)
+int
+Pl_Gen_New_Atom(char *prefix, int hash)
 {
   AtomInf *patom;
 
-  if (nb_atom == MAX_ATOM)
-    Fatal_Error(ERR_ATOM_TBL_FULL);
+  if (pl_nb_atom == MAX_ATOM)
+    Pl_Fatal_Error(ERR_ATOM_TBL_FULL);
 
   if (hash < 0)
     {
-      patom = atom_tbl;
+      patom = pl_atom_tbl;
       while (patom->name)
 	patom++;
-      hash = patom - atom_tbl;
+      hash = patom - pl_atom_tbl;
     }
 
-  return Create_Allocate_Atom(Gen_Sym(prefix, hash));
+  return Pl_Create_Allocate_Atom(Gen_Sym(prefix, hash));
 }
 
 
@@ -531,16 +531,16 @@ Gen_Sym(char *prefix, int gen_sym_hash)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_NEXT_ATOM                                                          *
+ * PL_FIND_NEXT_ATOM                                                       *
  *                                                                         *
  * returns the atom next after 'last_atom' (-1 to start) or -1 at the end  *
  *-------------------------------------------------------------------------*/
-int FC
-Find_Next_Atom(int last_atom)
+int
+Pl_Find_Next_Atom(int last_atom)
 {
   while (++last_atom < MAX_ATOM)
     {
-      if (atom_tbl[last_atom].name)
+      if (pl_atom_tbl[last_atom].name)
 	return last_atom;
     }
 

@@ -31,10 +31,15 @@
 
 #include "gp_config.h"
 
+#if 1
 #define DO_NOT_ADD_COMMENTS
+#endif
+#if 0
 #define REMOVE_COMMENTS
+#endif
+#if 0
 #define REMOVE_BLANK_LINES
-
+#endif
 
 
 
@@ -86,8 +91,7 @@ main(int argc, char *argv[])
 {
   if (argc < 4)
     {
-      fprintf(stderr,
-	      "Usage cpp_headers in_file.h out_file.h search_dir...\n");
+      fprintf(stderr, "Usage cpp_headers in_file.h out_file.h search_dir...\n");
       return 1;
     }
   dir = argv + 3;
@@ -96,8 +100,11 @@ main(int argc, char *argv[])
       perror(argv[2]);
       return 1;
     }
+
+#ifndef DO_NOT_ADD_COMMENTS
   fprintf(fout, "/* %s generated from %s using cpp_headers */\n",
 	  argv[2], argv[1]);
+#endif
 
   Cpp_File(argv[1], 0);
   fclose(fout);

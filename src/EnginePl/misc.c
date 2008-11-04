@@ -71,16 +71,16 @@ Init_Dl_Malloc(void) {
 
 
 /*-------------------------------------------------------------------------*
- * MALLOC_CHECK                                                            *
+ * PL_MALLOC_CHECK                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Malloc_Check(unsigned size, char *src_file, int src_line)
+Pl_Malloc_Check(unsigned size, char *src_file, int src_line)
 {
   char *m = malloc(size);
 
   if (m == NULL)
-    Fatal_Error(ERR_ALLOC_FAULT, "malloc", src_file, src_line);
+    Pl_Fatal_Error(ERR_ALLOC_FAULT, "malloc", src_file, src_line);
 
   return m;
 }
@@ -89,16 +89,16 @@ Malloc_Check(unsigned size, char *src_file, int src_line)
 
 
 /*-------------------------------------------------------------------------*
- * CALLOC_CHECK                                                            *
+ * PL_CALLOC_CHECK                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Calloc_Check(unsigned nb, unsigned size, char *src_file, int src_line)
+Pl_Calloc_Check(unsigned nb, unsigned size, char *src_file, int src_line)
 {
   char *m = calloc(nb, size);
 
   if (m == NULL)
-    Fatal_Error(ERR_ALLOC_FAULT, "calloc", src_file, src_line);
+    Pl_Fatal_Error(ERR_ALLOC_FAULT, "calloc", src_file, src_line);
 
   return m;
 }
@@ -107,16 +107,16 @@ Calloc_Check(unsigned nb, unsigned size, char *src_file, int src_line)
 
 
 /*-------------------------------------------------------------------------*
- * REALLOC_CHECK                                                           *
+ * PL_REALLOC_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line)
+Pl_Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line)
 {
   char *m = realloc(ptr, size);
 
   if (m == NULL)
-    Fatal_Error(ERR_ALLOC_FAULT, "realloc", src_file, src_line);
+    Pl_Fatal_Error(ERR_ALLOC_FAULT, "realloc", src_file, src_line);
 
   return m;
 }
@@ -125,16 +125,16 @@ Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line)
 
 
 /*-------------------------------------------------------------------------*
- * STRDUP_CHECK                                                            *
+ * PL_STRDUP_CHECK                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Strdup_Check(char *str, char *src_file, int src_line)
+Pl_Strdup_Check(char *str, char *src_file, int src_line)
 {
   char *s = strdup(str);
 
   if (s == NULL)
-    Fatal_Error(ERR_ALLOC_FAULT, "strdup", src_file, src_line);
+    Pl_Fatal_Error(ERR_ALLOC_FAULT, "strdup", src_file, src_line);
 
   return s;
 }
@@ -143,27 +143,27 @@ Strdup_Check(char *str, char *src_file, int src_line)
 
 
 /*-------------------------------------------------------------------------*
- * EXTEND_TABLE_IF_NEEDED                                                  *
+ * PL_EXTEND_TABLE_IF_NEEDED                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Extend_Table_If_Needed(char **hash_tbl)
+Pl_Extend_Table_If_Needed(char **hash_tbl)
 {
-  int size = Hash_Table_Size(*hash_tbl);
+  int size = Pl_Hash_Table_Size(*hash_tbl);
 
-  if (Hash_Nb_Elements(*hash_tbl) >= size)
-    *hash_tbl = Hash_Realloc_Table(*hash_tbl, size * 2);
+  if (Pl_Hash_Nb_Elements(*hash_tbl) >= size)
+    *hash_tbl = Pl_Hash_Realloc_Table(*hash_tbl, size * 2);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * EXTEND_ARRAY                                                            *
+ * PL_EXTEND_ARRAY                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero)
+Pl_Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero)
 {
   int old_nb_elem = *nb_elem;
   int new_nb_elem = old_nb_elem * 2;
@@ -182,15 +182,15 @@ Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero)
 
 
 /*-------------------------------------------------------------------------*
- * EXIT_WITH_VALUE                                                         *
+ * PL_EXIT_WITH_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Exit_With_Value(int ret_val)
+Pl_Exit_With_Value(int ret_val)
 {
 #ifndef NO_USE_LINEDIT
-  if (le_hook_exit_process)
-    (*le_hook_exit_process)();
+  if (pl_le_hook_exit_process)
+    (*pl_le_hook_exit_process)();
 #endif
 
   exit(ret_val);
@@ -200,11 +200,11 @@ Exit_With_Value(int ret_val)
 
 
 /*-------------------------------------------------------------------------*
- * FATAL_ERROR                                                             *
+ * PL_FATAL_ERROR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fatal_Error(char *format, ...)
+Pl_Fatal_Error(char *format, ...)
 {
   va_list arg_ptr;
   char buff[1024];
@@ -214,13 +214,13 @@ Fatal_Error(char *format, ...)
   va_end(arg_ptr);
 
 #ifndef NO_USE_LINEDIT
-  if (le_hook_message_box)
-    (*le_hook_message_box)("Fatal Error", buff, 0);
+  if (pl_le_hook_message_box)
+    (*pl_le_hook_message_box)("Fatal Error", buff, 0);
   else
 #endif
     fprintf(stderr, "\nFatal Error: %s\n", buff);
 
-  Exit_With_Value(1);
+  Pl_Exit_With_Value(1);
 }
 
 

@@ -1178,7 +1178,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
       break;
     }
 
-  Inst_Printf("lda", "$2,foreign_long");
+  Inst_Printf("lda", "$2,pl_foreign_long");
   if (!adr_of)
     {
       Inst_Printf("ldq", "%s,%d($2)", dest, index * 8);
@@ -1232,7 +1232,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 	  sprintf(dest, "%s", "$1");
 	  break;
 	}
-      Inst_Printf("lda", "%s,foreign_double+%d", dest, index * 8);
+      Inst_Printf("lda", "%s,pl_foreign_double+%d", dest, index * 8);
       if (offset > 5)
 	{
 	  Inst_Printf("stq", "%s,%d($30)", dest, (offset - 6) * 8);
@@ -1265,7 +1265,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 	  sprintf(dest, "%s", "$f1");
 	  break;
 	}
-      Inst_Printf("lda", "$1,foreign_double+%d", index * 8);
+      Inst_Printf("lda", "$1,pl_foreign_double+%d", index * 8);
       Inst_Printf("ldt", "%s,0($1)", dest);
       if (offset > 5)
 	{
@@ -1394,7 +1394,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("lda", "$1,foreign_long");
+  Inst_Printf("lda", "$1,pl_foreign_long");
   Inst_Printf("stq", "$0,%d($1)", index * 8);
 }
 
@@ -1408,7 +1408,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("lda", "$1,foreign_double");
+  Inst_Printf("lda", "$1,pl_foreign_double");
   Inst_Printf("stt", "$f0,%d($1)", index * 8);
 }
 

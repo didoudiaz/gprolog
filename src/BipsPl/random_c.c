@@ -50,51 +50,51 @@
 
 
 /*-------------------------------------------------------------------------*
- * SET_SEED_1                                                              *
+ * PL_SET_SEED_1                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Seed_1(WamWord seed_word)
+Pl_Set_Seed_1(WamWord seed_word)
 {
-  M_Set_Seed(Rd_Positive_Check(seed_word));
+  Pl_M_Set_Seed(Pl_Rd_Positive_Check(seed_word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GET_SEED_1                                                              *
+ * PL_GET_SEED_1                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Seed_1(WamWord seed_word)
+Pl_Get_Seed_1(WamWord seed_word)
 {
-  return Un_Positive_Check(M_Get_Seed(), seed_word);
+  return Pl_Un_Positive_Check(Pl_M_Get_Seed(), seed_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANDOM_1                                                                *
+ * PL_RANDOM_1                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Random_1(WamWord n_word)
+Pl_Random_1(WamWord n_word)
 {
-  Check_For_Un_Variable(n_word);
-  Get_Float(M_Random_Float(1.0), n_word);
+  Pl_Check_For_Un_Variable(n_word);
+  Pl_Get_Float(Pl_M_Random_Float(1.0), n_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANDOM_3                                                                *
+ * PL_RANDOM_3                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
+Pl_Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
 {
   double l, u;
   long l1, u1;
@@ -102,9 +102,9 @@ Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
   double d;
 
 
-  l = Rd_Number_Check(l_word);
-  u = Rd_Number_Check(u_word);
-  Check_For_Un_Variable(n_word);
+  l = Pl_Rd_Number_Check(l_word);
+  u = Pl_Rd_Number_Check(u_word);
+  Pl_Check_For_Un_Variable(n_word);
 
   if (l >= u)
     return FALSE;
@@ -114,13 +114,13 @@ Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
 
   if (l1 == l && u1 == u)
     {
-      i = l1 + M_Random_Integer(u1 - l1);
-      Get_Integer(i, n_word);
+      i = l1 + Pl_M_Random_Integer(u1 - l1);
+      Pl_Get_Integer(i, n_word);
     }
   else
     {
-      d = l + M_Random_Float(u - l);
-      Get_Float(d, n_word);
+      d = l + Pl_M_Random_Float(u - l);
+      Pl_Get_Float(d, n_word);
     }
 
   return TRUE;

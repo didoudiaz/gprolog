@@ -63,8 +63,8 @@ typedef struct
   int punct;			/* for PUNCTUATION                      */
   long int_num;			/* for INTEGER                          */
   double float_num;		/* for FLOAT                            */
-  int line;			/* source line of the token             */
-  int col;			/* source column of the token           */
+  int line;			/* source line of the pl_token          */
+  int col;			/* source column of the pl_token        */
 }
 TokInf;
 
@@ -77,11 +77,11 @@ TokInf;
 
 #ifdef SCAN_SUPP_FILE
 
-TokInf token;
+TokInf pl_token;
 
 #else
 
-extern TokInf token;
+extern TokInf pl_token;
 
 #endif
 
@@ -92,18 +92,18 @@ extern TokInf token;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Scan_Peek_Char(StmInf *pstm, Bool convert);
+int Pl_Scan_Peek_Char(StmInf *pstm, Bool convert);
 
 
 
-char *Scan_Token(StmInf *pstm, Bool comma_is_punct);
+char *Pl_Scan_Token(StmInf *pstm, Bool comma_is_punct);
 
 
 
-void Recover_After_Error(StmInf *pstm);
+void Pl_Recover_After_Error(StmInf *pstm);
 
 
 
-char *Scan_Next_Atom(StmInf *pstm);
+char *Pl_Scan_Next_Atom(StmInf *pstm);
 
-char *Scan_Next_Number(StmInf *pstm, Bool integer_only);
+char *Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only);

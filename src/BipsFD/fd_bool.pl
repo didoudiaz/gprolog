@@ -30,50 +30,50 @@
 
 
 '$truth_of'(Cstr, B) :-
-	'$call_c_test'('Fd_Bool_Meta_3'(Cstr, B, 1)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(Cstr, B, 1)).
 
 
 
 
 #\ LE :-
 	set_bip_name(#\, 1),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, 0, 0)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, 0, 0)).
 
 LE #<=> RE :-
 	set_bip_name(#<=>, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 1)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 1)).
 
 LE #\<=> RE :-
 	set_bip_name(#\<=>, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 2)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 2)).
 
 LE ## RE :-
 	set_bip_name(#, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 2)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 2)).
 
 LE #==> RE :-
 	set_bip_name(#==>, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 3)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 3)).
 
 LE #\==> RE :-
 	set_bip_name(#\==>, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 4)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 4)).
 
 LE #/\ RE :-
 	set_bip_name(#/\, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 5)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 5)).
 
 LE #\/\ RE :-
 	set_bip_name(#\/\, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 6)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 6)).
 
 LE #\/ RE :-
 	set_bip_name(#\/, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 7)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 7)).
 
 LE #\\/ RE :-
 	set_bip_name(#\\/, 2),
-	'$call_c_test'('Fd_Bool_Meta_3'(LE, RE, 8)).
+	'$call_c_test'('Pl_Fd_Bool_Meta_3'(LE, RE, 8)).
 
 
 

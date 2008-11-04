@@ -32,7 +32,7 @@
 sort(List1, List2) :-
 	set_bip_name(sort, 2),
 	'$sys_var_write'(0, 0),                                    % 0 = sort
-	'$call_c_test'('Sort_List_2'(List1, List2)).
+	'$call_c_test'('Pl_Sort_List_2'(List1, List2)).
 
 
 
@@ -40,7 +40,7 @@ sort(List1, List2) :-
 sort0(List1, List2) :-
 	set_bip_name(sort0, 2),
 	'$sys_var_write'(0, 1),                                   % 1 = sort0
-	'$call_c_test'('Sort_List_2'(List1, List2)).
+	'$call_c_test'('Pl_Sort_List_2'(List1, List2)).
 
 
 
@@ -48,7 +48,7 @@ sort0(List1, List2) :-
 keysort(List1, List2) :-
 	set_bip_name(keysort, 2),
 	'$sys_var_write'(0, 2),                                 % 2 = keysort
-	'$call_c_test'('Sort_List_2'(List1, List2)).
+	'$call_c_test'('Pl_Sort_List_2'(List1, List2)).
 
 
         % sort in-place predicates
@@ -56,7 +56,7 @@ keysort(List1, List2) :-
 sort(List) :-
 	set_bip_name(sort, 1),
 	'$sys_var_write'(0, 0),                                    % 0 = sort
-	'$call_c'('Sort_List_1'(List)).
+	'$call_c'('Pl_Sort_List_1'(List)).
 
 
 
@@ -64,7 +64,7 @@ sort(List) :-
 sort0(List) :-
 	set_bip_name(sort0, 1),
 	'$sys_var_write'(0, 1),                                   % 1 = sort0
-	'$call_c'('Sort_List_1'(List)).
+	'$call_c'('Pl_Sort_List_1'(List)).
 
 
 
@@ -72,4 +72,4 @@ sort0(List) :-
 keysort(List) :-
 	set_bip_name(keysort, 1),
 	'$sys_var_write'(0, 2),                                 % 2 = keysort
-	'$call_c'('Sort_List_1'(List)).
+	'$call_c'('Pl_Sort_List_1'(List)).

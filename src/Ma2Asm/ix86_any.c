@@ -82,9 +82,9 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_e[16];
-char asm_reg_b[16];
-char asm_reg_cp[16];
+char asm_reg_e[20];
+char asm_reg_b[20];
+char asm_reg_cp[20];
 
 int w_label = 0;
 
@@ -158,7 +158,7 @@ void
 Asm_Start(void)
 {
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
-#define ASM_REG_BANK UN "reg_bank"
+#define ASM_REG_BANK UN "pl_reg_bank"
 #elif defined(MAP_REG_BANK)
 #define ASM_REG_BANK "%" MAP_REG_BANK
 #else
@@ -204,7 +204,7 @@ Asm_Start(void)
 static char *
 Off_Reg_Bank(int offset)
 {
-  static char str[16];
+  static char str[20];
 
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
   sprintf(str, ASM_REG_BANK "+%d", offset);
@@ -826,7 +826,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
 int
 Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
 {
-  return Call_C_Arg_Mem_L(offset, adr_of, "foreign_long", index);
+  return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_long", index);
 }
 
 
@@ -840,21 +840,21 @@ int
 Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 {
   if (adr_of)
-    return Call_C_Arg_Mem_L(offset, adr_of, "foreign_double", index * 2);
+    return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_double", index * 2);
 
   BEFORE_HALF_ARG_DOUBLE;
 
 #ifdef M_ix86_darwin
 
   Load_PB_Reg();
-  Inst_Printf("movl", "L_foreign_double$non_lazy_ptr-%s,%s", pb_label, r_aux);
+  Inst_Printf("movl", "L_pl_foreign_double$non_lazy_ptr-%s,%s", pb_label, r_aux);
   Inst_Printf("movsd", "%d(%s),%%xmm0", index * 8, r_aux);
   Inst_Printf("movsd", "%%xmm0,%s", r);
   stack_offset++;
 
 #else /* !M_ix86_darwin */
 
-  Inst_Printf("movl", UN "foreign_double+%d,%s", index * 8, r_aux);
+  Inst_Printf("movl", UN "pl_foreign_double+%d,%s", index * 8, r_aux);
   Inst_Printf("movl", "%s,%s", r_aux, r);
 
   AFTER_ARG;
@@ -863,7 +863,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", UN "foreign_double+%d,%%eax", index * 8 + 4);
+  Inst_Printf("movl", UN "pl_foreign_double+%d,%%eax", index * 8 + 4);
   Inst_Printf("movl", "%%eax,%s", r);
 
 #endif
@@ -993,7 +993,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("movl", "%%eax," UN "foreign_long+%d", index * 4);
+  Inst_Printf("movl", "%%eax," UN "pl_foreign_long+%d", index * 4);
 }
 
 
@@ -1006,7 +1006,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("fstpl", UN "foreign_double+%d", index * 8);
+  Inst_Printf("fstpl", UN "pl_foreign_double+%d", index * 8);
 }
 
 
@@ -1177,8 +1177,10 @@ Dico_Long(char *name, int global, VType vtype, long value)
       Inst_Printf(".align", "2");
 #else
       Inst_Printf(".align", "4");
+#if !defined(__CYGWIN__) && !defined(_WIN32)
       Inst_Printf(".type", UN "%s,@object", name);
       Inst_Printf(".size", UN "%s,4", name);
+#endif
 #endif
       Label_Printf(UN "%s:", name);
       Inst_Printf(".long", "%ld", value);

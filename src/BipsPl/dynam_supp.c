@@ -48,7 +48,7 @@
 #define ALL_MUST_BE_ERASED         (DynCInf *) 2 /* bit 0 used for mark */
 
 #define MAX_KBYTES_BEFORE_CLEAN    512
-#define MAX_SIZE_BEFORE_CLEAN      (MAX_KBYTES_BEFORE_CLEAN*1024/sizeof(WamWord))
+#define MAX_SIZE_BEFORE_CLEAN      (MAX_KBYTES_BEFORE_CLEAN * 1024 / sizeof(WamWord))
 
 
 #define START_DYNAMIC_SWT_SIZE     32
@@ -201,11 +201,11 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
- * ADD_DYNAMIC_CLAUSE                                                      *
+ * PL_ADD_DYNAMIC_CLAUSE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DynCInf *
-Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
+Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 		   Bool check_perm)
 {
   WamWord word;
@@ -223,29 +223,29 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   int size;
   WamWord lst_h_b;
 
-  first_arg_adr = Rd_Callable_Check(head_word, &func, &arity);
+  first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
 #ifdef DEBUG
   DBGPRINTF("\tarity: %d", arity);
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
-      Write_Simple(*first_arg_adr);
+      Pl_Write_Simple(*first_arg_adr);
     }
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Lookup_Pred(func, arity)) == NULL)
-    pred = Create_Pred(func, arity, atom_user_input,
-		       stm_tbl[stm_stdin]->line_count,
+  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+    pred = Pl_Create_Pred(func, arity, pl_atom_user_input,
+		       pl_stm_tbl[pl_stm_stdin]->line_count,
 		       MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Put_Structure(ATOM_CHAR('/'), 2);
-      Unify_Atom(func);
-      Unify_Integer(arity);
-      Pl_Err_Permission(permission_operation_modify,
-			permission_type_static_procedure, word);
+      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+      Pl_Unify_Atom(func);
+      Pl_Unify_Integer(arity);
+      Pl_Err_Permission(pl_permission_operation_modify,
+			pl_permission_type_static_procedure, word);
     }
 
   dyn = (DynPInf *) (pred->dyn);
@@ -260,10 +260,10 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   DBGPRINTF("\n");
   DBGPRINTF("asserta: %d  Clause: ", asserta);
   DBGPRINTF("\thead: ");
-  Write_Simple(head_word);
+  Pl_Write_Simple(head_word);
   DBGPRINTF("\tbody: ");
-  Write_Simple(body_word);
-  DBGPRINTF("\nByte Code at :%p\n", (long) byte_code);
+  Pl_Write_Simple(body_word);
+  DBGPRINTF("\nByte Code at :%p\n", (long) pl_byte_code);
 #endif
 
 
@@ -271,7 +271,7 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   H[0] = head_word;
   H[1] = body_word;
 
-  size = Term_Size(lst_h_b);
+  size = Pl_Term_Size(lst_h_b);
   clause = (DynCInf *)
     Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
 
@@ -283,10 +283,10 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   clause->next_erased_cl = NULL;
   clause->term_size = size;
 
-  Copy_Term(&clause->term_word, &lst_h_b);
+  Pl_Copy_Term(&clause->term_word, &lst_h_b);
 
-  clause->byte_code = byte_code;
-  byte_code = NULL;
+  clause->pl_byte_code = pl_byte_code;
+  pl_byte_code = NULL;
 
 
   switch(index_no)
@@ -325,13 +325,13 @@ Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   if (p_ind_htbl)
     {
       if (*p_ind_htbl == NULL)
-	*p_ind_htbl = Hash_Alloc_Table(START_DYNAMIC_SWT_SIZE, sizeof(DSwtInf));
+	*p_ind_htbl = Pl_Hash_Alloc_Table(START_DYNAMIC_SWT_SIZE, sizeof(DSwtInf));
 
       swt_info.key = key;
       swt_info.ind_chain.first = swt_info.ind_chain.last = NULL;
 
-      Extend_Table_If_Needed(p_ind_htbl);
-      swt = (DSwtInf *) Hash_Insert(*p_ind_htbl, (char *) &swt_info, FALSE);
+      Pl_Extend_Table_If_Needed(p_ind_htbl);
+      swt = (DSwtInf *) Pl_Hash_Insert(*p_ind_htbl, (char *) &swt_info, FALSE);
 
       p_ind_hdr = &(swt->ind_chain);
     }
@@ -506,12 +506,12 @@ Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain)
 
 
 /*-------------------------------------------------------------------------*
- * DELETE_DYNAMIC_CLAUSE                                                   *
+ * PL_DELETE_DYNAMIC_CLAUSE                                                *
  *                                                                         *
  * This comes down to erase the clause, ie. set it to current erase_stamp  *
  *-------------------------------------------------------------------------*/
 void
-Delete_Dynamic_Clause(DynCInf *clause)
+Pl_Delete_Dynamic_Clause(DynCInf *clause)
 {
   DynPInf *dyn;
   Bool first;
@@ -631,13 +631,13 @@ Clean_Erased_Clauses(void)
 	    }
 
 	  if (dyn->atm_htbl)
-	    Hash_Free_Table(dyn->atm_htbl);
+	    Pl_Hash_Free_Table(dyn->atm_htbl);
 
 	  if (dyn->int_htbl)
-	    Hash_Free_Table(dyn->int_htbl);
+	    Pl_Hash_Free_Table(dyn->int_htbl);
 
 	  if (dyn->stc_htbl)
-	    Hash_Free_Table(dyn->stc_htbl);
+	    Pl_Hash_Free_Table(dyn->stc_htbl);
 
 	  Free(dyn);
 	  continue;
@@ -656,13 +656,13 @@ Clean_Erased_Clauses(void)
       if (dyn->seq_chain.first == NULL)	/* no more clauses */
 	{
 	  if (dyn->atm_htbl)
-	    Hash_Free_Table(dyn->atm_htbl);
+	    Pl_Hash_Free_Table(dyn->atm_htbl);
 
 	  if (dyn->int_htbl)
-	    Hash_Free_Table(dyn->int_htbl);
+	    Pl_Hash_Free_Table(dyn->int_htbl);
 
 	  if (dyn->stc_htbl)
-	    Hash_Free_Table(dyn->stc_htbl);
+	    Pl_Hash_Free_Table(dyn->stc_htbl);
 
 	  dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
 	  dyn->count_a = -1;
@@ -700,7 +700,7 @@ Unlink_Clause(DynCInf *clause)
 #ifdef DEBUG1
       DBGPRINTF("Removing last ind key in a hash table  (%ld)\n", *p_key);
 #endif
-      Hash_Delete(*clause->p_ind_htbl, *p_key);
+      Pl_Hash_Delete(*clause->p_ind_htbl, *p_key);
     }
 }
 
@@ -714,8 +714,8 @@ Unlink_Clause(DynCInf *clause)
 static void
 Free_Clause(DynCInf *clause)
 {
-  if (clause->byte_code)
-    Free(clause->byte_code);
+  if (clause->pl_byte_code)
+    Free(clause->pl_byte_code);
 
   Free(clause);
 }
@@ -724,7 +724,7 @@ Free_Clause(DynCInf *clause)
 
 
 /*-------------------------------------------------------------------------*
- * UPDATE_DYNAMIC_PRED                                                     *
+ * PL_UPDATE_DYNAMIC_PRED                                                  *
  *                                                                         *
  * what_to_do: bit 0: with check dynamic ?                                 *
  *             bit 1: also predicate definition ?                          *
@@ -736,22 +736,22 @@ Free_Clause(DynCInf *clause)
  * returns a pointer to associated pred or NULL if it does not exist.      *
  *-------------------------------------------------------------------------*/
 PredInf *
-Update_Dynamic_Pred(int func, int arity, int what_to_do)
+Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do)
 {
   WamWord word;
   PredInf *pred;
 
-  pred = Lookup_Pred(func, arity);
+  pred = Pl_Lookup_Pred(func, arity);
   if (pred == NULL)
     return NULL;
 
   if ((what_to_do & 1) && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Put_Structure(ATOM_CHAR('/'), 2);
-      Unify_Atom(func);
-      Unify_Integer(arity);
-      Pl_Err_Permission(permission_operation_modify,
-			permission_type_static_procedure, word);
+      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+      Pl_Unify_Atom(func);
+      Pl_Unify_Integer(arity);
+      Pl_Err_Permission(pl_permission_operation_modify,
+			pl_permission_type_static_procedure, word);
     }
 
   Erase_All((DynPInf *) (pred->dyn));
@@ -759,7 +759,7 @@ Update_Dynamic_Pred(int func, int arity, int what_to_do)
 
   if ((what_to_do & 2))
     {
-      Delete_Pred(func, arity);
+      Pl_Delete_Pred(func, arity);
       return NULL;
     }
 
@@ -793,11 +793,11 @@ Get_Scan_Choice_Point(WamWord *b)
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_DYNAMIC_PRED                                                       *
+ * PL_SCAN_DYNAMIC_PRED                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DynCInf *
-Scan_Dynamic_Pred(int owner_func, int owner_arity,
+Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 		  DynPInf *dyn, WamWord first_arg_word,
 		  ScanFct alt_fct, int alt_fct_type,
 		  int alt_info_size, WamWord *alt_info)
@@ -813,7 +813,7 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
   CodePtr scan_alt;
 
   if (owner_func < 0)
-    owner_func = Get_Current_Bip(&owner_arity);
+    owner_func = Pl_Get_Current_Bip(&owner_arity);
 
   index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
     : NO_INDEX;
@@ -859,7 +859,7 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
     {
       scan.xxx_is_seq_chain = FALSE;
       if (*p_ind_htbl && 
-	  (swt = (DSwtInf *) Hash_Find(*p_ind_htbl, key)) != NULL)
+	  (swt = (DSwtInf *) Pl_Hash_Find(*p_ind_htbl, key)) != NULL)
 	scan.xxx_ind_chain = swt->ind_chain.first;
       else
 	scan.xxx_ind_chain = NULL;
@@ -884,7 +884,7 @@ Scan_Dynamic_Pred(int owner_func, int owner_arity,
       else
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0);
 
-      Create_Choice_Point(scan_alt, i);
+      Pl_Create_Choice_Point(scan_alt, i);
       adr = &AB(B, i) + 1;
 
       i = alt_info_size;
@@ -971,11 +971,11 @@ start:
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_DYNAMIC_PRED_ALT_0                                                 *
+ * PL_SCAN_DYNAMIC_PRED_ALT_0                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Scan_Dynamic_Pred_Alt_0(void)
+Pl_Scan_Dynamic_Pred_Alt_0(void)
 {
   WamWord *alt_info;
   DynScan *scan;
@@ -986,7 +986,7 @@ Scan_Dynamic_Pred_Alt_0(void)
   CodePtr scan_alt;
 
   scan_alt = ALTB(B);
-  Update_Choice_Point(scan_alt, 0);
+  Pl_Update_Choice_Point(scan_alt, 0);
 
   i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) - 1;
 
@@ -1008,13 +1008,13 @@ Scan_Dynamic_Pred_Alt_0(void)
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_CHOICE_POINT_PRED                                                  *
+ * PL_SCAN_CHOICE_POINT_PRED                                               *
  *                                                                         *
  * returns the functor and initializes the arity of the scan choice point b*
  * or -1 if b is not a scan choice point.                                  *
  *-------------------------------------------------------------------------*/
 int
-Scan_Choice_Point_Pred(WamWord *b, int *arity)
+Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity)
 {
   DynScan *scan;
 
@@ -1031,13 +1031,13 @@ Scan_Choice_Point_Pred(WamWord *b, int *arity)
 
 
 /*-------------------------------------------------------------------------*
- * COPY_CLAUSE_TO_HEAP                                                     *
+ * PL_COPY_CLAUSE_TO_HEAP                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
+Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 {
-  Copy_Contiguous_Term(H, &clause->term_word);	/* *H=<LST,H+1> */
+  Pl_Copy_Contiguous_Term(H, &clause->term_word);	/* *H=<LST,H+1> */
   *head_word = H[1];
   *body_word = H[2];
   H += clause->term_size;
@@ -1103,17 +1103,17 @@ Check_Hash(char *t, int index_no)
       break;
     }
 
-  for (swt = (DSwtInf *) Hash_First(t, &scan); swt;
-       swt = (DSwtInf *) Hash_Next(&scan))
+  for (swt = (DSwtInf *) Pl_Hash_First(t, &scan); swt;
+       swt = (DSwtInf *) Pl_Hash_Next(&scan))
     {
       if (index_no == ATM_INDEX)
-	DBGPRINTF("val <%s>\n", atom_tbl[swt->key].name);
+	DBGPRINTF("val <%s>\n", pl_atom_tbl[swt->key].name);
 
       if (index_no == INT_INDEX)
 	DBGPRINTF("val <%ld>\n", swt->key);
 
       if (index_no == STC_INDEX)
-	DBGPRINTF("val <%s/%d>\n", atom_tbl[Functor_Of(swt->key)].name,
+	DBGPRINTF("val <%s/%d>\n", pl_atom_tbl[Functor_Of(swt->key)].name,
 		  (int) Arity_Of(swt->key));
 
       Check_Chain(&swt->ind_chain, index_no);
@@ -1168,9 +1168,9 @@ Check_Chain(D2ChHdr *hdr, int index_no)
       DBGPRINTF(" %3d  %3d  %p  %p <-> %p  ",
 		clause->cl_no, clause->term_size, (long) clause,
 		(long) clause_b, (long) clause_f);
-      Write_Simple(clause->head_word);
+      Pl_Write_Simple(clause->head_word);
       DBGPRINTF(":-");
-      Write_Simple(clause->body_word);
+      Pl_Write_Simple(clause->body_word);
       if (clause->erase_stamp != DYN_STAMP_NONE)
 	DBGPRINTF("  erased at:%ld   next erased: %p",
 		  clause->erase_stamp, (long) (clause->next_erased_cl));

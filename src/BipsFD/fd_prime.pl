@@ -31,11 +31,11 @@
 
 fd_prime(X) :-
 	set_bip_name(fd_prime, 1),
-	fd_tell(prime_x(X)).
+	fd_tell(pl_prime_x(X)).
 
 
 
 
 fd_not_prime(X) :-
 	set_bip_name(fd_not_prime, 1),
-	fd_tell(not_prime_x(X)).
+	fd_tell(pl_not_prime_x(X)).

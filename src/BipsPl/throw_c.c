@@ -42,8 +42,8 @@
  * Global Variables                *
  *---------------------------------*/
 
-WamWord *query_top_b;		/* overwritten by foreign_supp if present */
-WamWord query_exception;	/* overwritten by foreign_supp if present */
+WamWord *pl_query_top_b;		/* overwritten by foreign_supp if present */
+WamWord pl_query_exception;	/* overwritten by foreign_supp if present */
 
 
 
@@ -56,11 +56,11 @@ WamWord query_exception;	/* overwritten by foreign_supp if present */
 
 
 /*-------------------------------------------------------------------------*
- * THROW_2                                                                 *
+ * PL_THROW_2                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Throw_2(WamWord ball_word, WamWord b_word)
+Pl_Throw_2(WamWord ball_word, WamWord b_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
@@ -69,24 +69,24 @@ Throw_2(WamWord ball_word, WamWord b_word)
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
-  if (b <= query_top_b && query_top_b != NULL)
+  if (b <= pl_query_top_b && pl_query_top_b != NULL)
     {
-      Assign_B(query_top_b);
-      query_exception = ball_word;
-      Exit_With_Exception();
+      Assign_B(pl_query_top_b);
+      pl_query_exception = ball_word;
+      Pl_Exit_With_Exception();
     }
 
   if (b == LSSA)
     {
-      pstm = stm_tbl[stm_top_level_output];
+      pstm = pl_stm_tbl[pl_stm_top_level_output];
 
-      Stream_Printf(pstm, "\nsystem_error(cannot_catch_throw(");
-      Write_Term(pstm, -1, MAX_PREC,
+      Pl_Stream_Printf(pstm, "\nsystem_error(cannot_catch_throw(");
+      Pl_Write_Term(pstm, -1, MAX_PREC,
 		 WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_QUOTED,
 		 ball_word);
-      Stream_Printf(pstm, "))\n");
+      Pl_Stream_Printf(pstm, "))\n");
       return;
     }
 
-  Cut(b_word);
+  Pl_Cut(b_word);
 }

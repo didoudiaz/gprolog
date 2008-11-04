@@ -31,6 +31,7 @@
 #include <locale.h>
 
 #include "gp_config.h"
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
 #endif
@@ -61,7 +62,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-void (*init_stream_supp)();	/* overwritten by foreign if present */
+void (*pl_init_stream_supp)();	/* overwritten by foreign if present */
 
 #if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
 static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
@@ -90,17 +91,17 @@ static void Call_Prolog_Success(void);
 
 static Bool Call_Next(CodePtr codep);
 
-void Call_Compiled(CodePtr codep);	/* defined in engine1.c */
+void Pl_Call_Compiled(CodePtr codep);	/* defined in engine1.c */
 
 
 
 
 /*-------------------------------------------------------------------------*
- * START_PROLOG                                                            *
+ * PL_START_PROLOG                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Start_Prolog(int argc, char *argv[])
+Pl_Start_Prolog(int argc, char *argv[])
 {
   int i, x;
   char *p;
@@ -108,38 +109,38 @@ Start_Prolog(int argc, char *argv[])
   setlocale(LC_ALL, "");
   setlocale(LC_NUMERIC, "C");	/* make sure floats come out right... */
 
-  Init_Machine();
+  Pl_Init_Machine();
 
-  os_argc = argc;
-  os_argv = argv;
+  pl_os_argc = argc;
+  pl_os_argv = argv;
 
   Set_Line_Buf(stdout);
   Set_Line_Buf(stderr);
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
-      if (fd_init_solver == NULL && strcmp(stk_tbl[i].name, "cstr") == 0)
+      if (pl_fd_init_solver == NULL && strcmp(pl_stk_tbl[i].name, "cstr") == 0)
 	{			/* FD solver not linked */
-	  stk_tbl[i].size = 0;
+	  pl_stk_tbl[i].size = 0;
 	  continue;
 	}
 
-      if ((stk_tbl[i].size = KBytes_To_Wam_Words(*(stk_tbl[i].p_def_size)))
+      if ((pl_stk_tbl[i].size = KBytes_To_Wam_Words(*(pl_stk_tbl[i].p_def_size)))
 	  == 0)
-	stk_tbl[i].size = stk_tbl[i].default_size;
+	pl_stk_tbl[i].size = pl_stk_tbl[i].default_size;
 
-      if (!fixed_sizes && *stk_tbl[i].env_var_name)
+      if (!pl_fixed_sizes && *pl_stk_tbl[i].env_var_name)
 	{
-	  p = (char *) getenv(stk_tbl[i].env_var_name);
+	  p = (char *) getenv(pl_stk_tbl[i].env_var_name);
 	  if (p && *p)
 	    {
 	      sscanf(p, "%d", &x);
-	      stk_tbl[i].size = KBytes_To_Wam_Words(x);
+	      pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
 	    }
 	}
     }
 
-  M_Allocate_Stacks();
+  Pl_M_Allocate_Stacks();
   Save_Machine_Regs(init_buff_regs);
 
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
@@ -151,24 +152,24 @@ Start_Prolog(int argc, char *argv[])
   /* must be changed to store global info (see the debugger) */
   heap_actual_start = Global_Stack;
 
-  Init_Atom();
-  Init_Pred();
-  Init_Oper();
+  Pl_Init_Atom();
+  Pl_Init_Pred();
+  Pl_Init_Oper();
 
 #ifndef NO_USE_LINEDIT
-  if (le_initialize != NULL)
-    use_gui = (*le_initialize)();
+  if (pl_le_initialize != NULL)
+    pl_use_gui = (*pl_le_initialize)();
   else
 #endif
-    use_gui = 0;
+    pl_use_gui = 0;
 
-  if (init_stream_supp)
-    (*init_stream_supp)();
+  if (pl_init_stream_supp)
+    (*pl_init_stream_supp)();
 
-  Reset_Prolog();
-  Fd_Init_Solver();
+  Pl_Reset_Prolog();
+  Pl_Fd_Init_Solver();
 
-  Find_Linked_Objects();
+  Pl_Find_Linked_Objects();
 
   return nb_user_directives;
 }
@@ -177,11 +178,11 @@ Start_Prolog(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
- * STOP_PROLOG                                                             *
+ * PL_STOP_PROLOG                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stop_Prolog(void)
+Pl_Stop_Prolog(void)
 {
 #ifdef DEREF_STATS
   double d = (double) chain_len / (double) nb_deref;
@@ -194,12 +195,12 @@ Stop_Prolog(void)
 
 
 /*-------------------------------------------------------------------------*
- * RESET_PROLOG                                                            *
+ * PL_RESET_PROLOG                                                         *
  *                                                                         *
  * Reset top stack pointers and create first choice point (for Call_Prolog)*
  *-------------------------------------------------------------------------*/
 void
-Reset_Prolog(void)
+Pl_Reset_Prolog(void)
 {
   E = B = LSSA = Local_Stack;
   H = heap_actual_start;	/* restart after needed global terms */
@@ -209,20 +210,20 @@ Reset_Prolog(void)
   CS = Cstr_Stack;
   BCI = 0;			/* BCI only needed for byte-code (cf. bips prolog) */
 
-  Create_Choice_Point(Call_Prolog_Fail, 0);	/* 1st choice point */
+  Pl_Create_Choice_Point(Call_Prolog_Fail, 0);	/* 1st choice point */
 
-  Fd_Reset_Solver();
+  Pl_Fd_Reset_Solver();
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RESET_PROLOG_IN_SIGNAL                                                  *
+ * PL_RESET_PROLOG_IN_SIGNAL                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Reset_Prolog_In_Signal(void)
+Pl_Reset_Prolog_In_Signal(void)
 {
   Restore_Protect_Regs_For_Signal;
 }
@@ -231,12 +232,12 @@ Reset_Prolog_In_Signal(void)
 
 
 /*-------------------------------------------------------------------------*
- * SET_HEAP_ACTUAL_START                                                   *
+ * PL_SET_HEAP_ACTUAL_START                                                *
  *                                                                         *
  * Called to store permanent terms (cf. debugger).                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Heap_Actual_Start(WamWord *new_heap_actual_start)
+Pl_Set_Heap_Actual_Start(WamWord *new_heap_actual_start)
 {
   heap_actual_start = new_heap_actual_start;
 }
@@ -245,49 +246,49 @@ Set_Heap_Actual_Start(WamWord *new_heap_actual_start)
 
 
 /*-------------------------------------------------------------------------*
- * EXECUTE_DIRECTIVE                                                       *
+ * PL_EXECUTE_DIRECTIVE                                                    *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void
-Execute_Directive(int pl_file, int pl_line, Bool is_system, CodePtr proc)
+Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system, CodePtr proc)
 {
-  Reset_Prolog();
+  Pl_Reset_Prolog();
 
   if (!is_system)
     nb_user_directives++;
 
-  if (!Call_Prolog(proc))
+  if (!Pl_Call_Prolog(proc))
     fprintf(stderr,
-	    ERR_DIRECTIVE_FAILED, atom_tbl[pl_file].name, pl_line,
+	    ERR_DIRECTIVE_FAILED, pl_atom_tbl[pl_file].name, pl_line,
 	    (is_system) ? "system" : "user");
 
-  Reset_Prolog();
+  Pl_Reset_Prolog();
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * TRY_EXECUTE_TOP_LEVEL                                                   *
+ * PL_TRY_EXECUTE_TOP_LEVEL                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Try_Execute_Top_Level(void)
+Pl_Try_Execute_Top_Level(void)
 {
   PredInf *pred;
 
-  Reset_Prolog();
+  Pl_Reset_Prolog();
 
-  pred = Lookup_Pred(Create_Atom("top_level"), 0);
+  pred = Pl_Lookup_Pred(Pl_Create_Atom("top_level"), 0);
 
   if (pred != NULL)
     {
-      Call_Prolog((CodePtr) (pred->codep));
+      Pl_Call_Prolog((CodePtr) (pred->codep));
       return TRUE;
     }
 
-  Reset_Prolog();
+  Pl_Reset_Prolog();
   return FALSE;
 }
 
@@ -295,7 +296,7 @@ Try_Execute_Top_Level(void)
 
 
 /*-------------------------------------------------------------------------*
- * CALL_PROLOG                                                             *
+ * PL_CALL_PROLOG                                                          *
  *                                                                         *
  * Call_Prolog runs the execution of one prolog goal.                      *
  * The current choice point is updated to set ALTB to Call_Prolog_Fail and *
@@ -308,7 +309,7 @@ Try_Execute_Top_Level(void)
  * The called predicate can be non-deterministic.                          *
  *-------------------------------------------------------------------------*/
 Bool
-Call_Prolog(CodePtr codep)
+Pl_Call_Prolog(CodePtr codep)
 {
   WamWord *query_b = B;
   WamCont save_CP = CP;
@@ -337,12 +338,12 @@ Call_Prolog(CodePtr codep)
 
 
 /*-------------------------------------------------------------------------*
- * CALL_PROLOG_NEXT_SOL                                                    *
+ * PL_CALL_PROLOG_NEXT_SOL                                                 *
  *                                                                         *
  * Call_Prolog_Next_Sol bactracks over the next solution.                  *
  *-------------------------------------------------------------------------*/
 Bool
-Call_Prolog_Next_Sol(WamWord *query_b)
+Pl_Call_Prolog_Next_Sol(WamWord *query_b)
 {
   WamCont save_CP = CP;
   WamCont save_ALTB = ALTB(query_b);
@@ -365,13 +366,13 @@ Call_Prolog_Next_Sol(WamWord *query_b)
 
 
 /*-------------------------------------------------------------------------*
- * KEEP_REST_FOR_PROLOG                                                    *
+ * PL_KEEP_REST_FOR_PROLOG                                                 *
  *                                                                         *
  * Update CP in choices points to be used by classical Prolog engine       *
  * (some CPB(b) have been set to Call_Prolog_Success due to Call_Prolog).  *
  *-------------------------------------------------------------------------*/
 void
-Keep_Rest_For_Prolog(WamWord *query_b)
+Pl_Keep_Rest_For_Prolog(WamWord *query_b)
 {
   WamWord *b, *e, *query_e;
 
@@ -422,10 +423,10 @@ Call_Next(CodePtr codep)
   Restore_Machine_Regs(buff_save_machine_regs);
 
   if (jmp_val == 0)		/* normal call to codep */
-    Call_Compiled(codep);
+    Pl_Call_Compiled(codep);
 
   if (jmp_val == 3)		/* return with a continuation in jmp_val */
-    Call_Compiled(cont_jmp);
+    Pl_Call_Compiled(cont_jmp);
 
 				/* normal return */
   p_jumper = old_jumper;
@@ -493,7 +494,7 @@ Call_Prolog_Success(void)
            *------------------------------------------------------------*/
 
 void
-Exit_With_Exception(void)
+Pl_Exit_With_Exception(void)
 {
   Save_Machine_Regs(p_buff_save);
   longjmp(*p_jumper, 2);
@@ -511,7 +512,7 @@ Exit_With_Exception(void)
            *------------------------------------------------------------*/
 
 void
-Execute_A_Continuation(CodePtr codep)
+Pl_Execute_A_Continuation(CodePtr codep)
 {
   Save_Machine_Regs(p_buff_save);
 

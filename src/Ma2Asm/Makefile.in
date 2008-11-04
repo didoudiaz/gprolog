@@ -40,7 +40,7 @@ clean-extract_asm:
 
 
 check: chkma@EXE_SUFFIX@
-	./chkma@EXE_SUFFIX@
+	@./chkma@EXE_SUFFIX@
 
 clean-check: clean-chkma
 

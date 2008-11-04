@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : pred.pl
-% date    : 9 30 2008
-% time    : 17:26:17
+% date    : 11 4 2008
+% time    : 15:35:20
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
@@ -14,30 +14,30 @@ predicate('$use_pred'/0,29,static,private,built_in,[
 predicate(current_predicate/1,32,static,private,built_in,[
     put_atom(current_predicate,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$current_predicate'/1)]).
 
 
 predicate('$current_predicate'/1,36,static,private,built_in,[
     put_integer(0,1),
-    call_c('Current_Predicate_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_predicate_bips'/1,40,static,private,built_in,[
     put_integer(1,1),
-    call_c('Current_Predicate_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_predicate_any'/1,44,static,private,built_in,[
     put_integer(2,1),
-    call_c('Current_Predicate_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$current_predicate_alt'/0,48,static,private,built_in,[
-    call_c('Current_Predicate_Alt_0',[boolean],[]),
+    call_c('Pl_Current_Predicate_Alt_0',[boolean],[]),
     proceed]).
 
 
@@ -47,7 +47,7 @@ predicate(predicate_property/2,54,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(predicate_property,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(0),0),
     call('$current_predicate_bips'/1),
     put_value(y(0),0),
@@ -191,7 +191,7 @@ label(3),
 
 label(4),
     get_atom(static,0),
-    call_c('Pred_Prop_Static_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Static_1',[boolean],[x(1)]),
     proceed,
 
 label(5),
@@ -199,7 +199,7 @@ label(5),
 
 label(6),
     get_atom(dynamic,0),
-    call_c('Pred_Prop_Dynamic_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Dynamic_1',[boolean],[x(1)]),
     proceed,
 
 label(7),
@@ -207,7 +207,7 @@ label(7),
 
 label(8),
     get_atom(private,0),
-    call_c('Pred_Prop_Private_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Private_1',[boolean],[x(1)]),
     proceed,
 
 label(9),
@@ -215,7 +215,7 @@ label(9),
 
 label(10),
     get_atom(public,0),
-    call_c('Pred_Prop_Public_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Public_1',[boolean],[x(1)]),
     proceed,
 
 label(11),
@@ -223,7 +223,7 @@ label(11),
 
 label(12),
     get_atom(user,0),
-    call_c('Pred_Prop_User_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_User_1',[boolean],[x(1)]),
     proceed,
 
 label(13),
@@ -231,7 +231,7 @@ label(13),
 
 label(14),
     get_atom(built_in,0),
-    call_c('Pred_Prop_Built_In_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Built_In_1',[boolean],[x(1)]),
     proceed,
 
 label(15),
@@ -239,7 +239,7 @@ label(15),
 
 label(16),
     get_atom(built_in_fd,0),
-    call_c('Pred_Prop_Built_In_Fd_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Built_In_Fd_1',[boolean],[x(1)]),
     proceed,
 
 label(17),
@@ -247,7 +247,7 @@ label(17),
 
 label(18),
     get_atom(native_code,0),
-    call_c('Pred_Prop_Native_Code_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Native_Code_1',[boolean],[x(1)]),
     proceed,
 
 label(19),
@@ -256,7 +256,7 @@ label(19),
 label(20),
     get_structure(prolog_file/1,0),
     unify_variable(x(0)),
-    call_c('Pred_Prop_Prolog_File_2',[boolean],[x(1),x(0)]),
+    call_c('Pl_Pred_Prop_Prolog_File_2',[boolean],[x(1),x(0)]),
     proceed,
 
 label(21),
@@ -265,35 +265,35 @@ label(21),
 label(22),
     get_structure(prolog_line/1,0),
     unify_variable(x(0)),
-    call_c('Pred_Prop_Prolog_Line_2',[boolean],[x(1),x(0)]),
+    call_c('Pl_Pred_Prop_Prolog_Line_2',[boolean],[x(1),x(0)]),
     proceed]).
 
 
 predicate('$get_predicate_file_info'/3,136,static,private,built_in,[
-    call_c('Get_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Get_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$set_predicate_file_info'/3,142,static,private,built_in,[
-    call_c('Set_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$aux_name'/1,148,static,private,built_in,[
-    call_c('Aux_Name_1',[boolean],[x(0)]),
+    call_c('Pl_Aux_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate('$father_of_aux_name'/3,154,static,private,built_in,[
-    call_c('Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$pred_without_aux'/4,160,static,private,built_in,[
-    call_c('Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate('$make_aux_name'/4,166,static,private,built_in,[
-    call_c('Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

@@ -40,11 +40,11 @@ repeat :-
 
 
 abort :-
-	'$call_c_jump'('Halt_If_No_Top_Level_1'(1)).
+	'$call_c_jump'('Pl_Halt_If_No_Top_Level_1'(1)).
 
 
 stop :-
-	'$call_c_jump'('Halt_If_No_Top_Level_1'(0)).
+	'$call_c_jump'('Pl_Halt_If_No_Top_Level_1'(0)).
 
 
 
@@ -58,7 +58,7 @@ halt :-
 
 halt(X) :-
 	set_bip_name(halt, 1),
-	'$call_c'('Halt_1'(X)).
+	'$call_c'('Pl_Halt_1'(X)).
 
 
 
@@ -66,8 +66,8 @@ halt(X) :-
 
 for(I, L, U) :-
 	set_bip_name(for, 3),
-	'$call_c_test'('For_3'(I, L, U)).
+	'$call_c_test'('Pl_For_3'(I, L, U)).
 
 
 '$for_alt' :-
-	'$call_c'('For_Alt_0').
+	'$call_c'('Pl_For_Alt_0').

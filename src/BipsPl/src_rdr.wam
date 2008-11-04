@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : src_rdr.pl
-% date    : 9 30 2008
-% time    : 17:26:20
+% date    : 11 4 2008
+% time    : 15:35:22
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').
@@ -18,7 +18,7 @@ predicate(sr_open/3,58,static,private,built_in,[
     get_variable(y(2),2),
     put_atom(sr_open,0),
     put_integer(3,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     call('$set_sr_defaults'/0),
     put_value(y(2),0),
     put_variable(y(3),1),
@@ -27,7 +27,7 @@ predicate(sr_open/3,58,static,private,built_in,[
     call('$sr_open/3_$aux1'/1),
     put_value(y(1),0),
     put_unsafe_value(y(3),1),
-    call_c('SR_Init_Open_2',[],[x(0),x(1)]),
+    call_c('Pl_SR_Init_Open_2',[],[x(0),x(1)]),
     put_value(y(0),0),
     deallocate,
     execute('$sr_open/3_$aux2'/1)]).
@@ -41,7 +41,7 @@ predicate('$sr_open/3_$aux2'/1,58,static,private,built_in,[
     unify_void(1),
     cut(x(1)),
     put_atom(true,1),
-    call_c('SR_Open_File_2',[],[x(0),x(1)]),
+    call_c('Pl_SR_Open_File_2',[],[x(0),x(1)]),
     proceed,
 
 label(1),
@@ -144,18 +144,18 @@ label(1),
     call('$sr_treat_pass_no'/3),
     put_atom(is,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     math_load_value(y(1),0),
     put_integer(2,1),
     call_c('Fct_Mul',[fast_call,x(1)],[x(0),x(1)]),
     put_atom(is,0),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
     math_load_value(x(1),0),
     call_c('Fct_Inc',[fast_call,x(2)],[x(0)]),
     put_atom(sr_open,0),
     put_integer(3,3),
-    call_c('Set_Bip_Name_2',[],[x(0),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(3)]),
     put_unsafe_value(y(0),0),
     deallocate,
     execute('$sr_set_treat_pass_bits'/3),
@@ -466,9 +466,9 @@ label(9),
 
 predicate('$sr_open_new_prolog_file'/1,200,static,private,built_in,[
     put_variable(x(1),2),
-    call_c('Prolog_File_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Prolog_File_Name_2',[],[x(0),x(2)]),
     put_atom(false,0),
-    call_c('SR_Open_File_2',[],[x(1),x(0)]),
+    call_c('Pl_SR_Open_File_2',[],[x(1),x(0)]),
     proceed]).
 
 
@@ -476,34 +476,34 @@ predicate(sr_change_options/2,212,static,private,built_in,[
     allocate(0),
     put_atom(sr_change_options,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('SR_Check_Descriptor_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_SR_Check_Descriptor_1',[],[x(0)]),
     put_value(x(1),0),
     call('$get_sr_options1'/1),
     deallocate,
-    call_c('SR_Change_Options_0',[],[]),
+    call_c('Pl_SR_Change_Options_0',[],[]),
     proceed]).
 
 
 predicate(sr_close/1,221,static,private,built_in,[
     put_atom(sr_close,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('SR_Close_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_SR_Close_1',[],[x(0)]),
     proceed]).
 
 
 predicate(sr_new_pass/1,227,static,private,built_in,[
     put_atom(sr_new_pass,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$sr_new_pass/1_$aux1'/1)]).
 
 
 predicate('$sr_new_pass/1_$aux1'/1,227,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c('SR_New_Pass_1',[boolean],[x(0)]),
+    call_c('Pl_SR_New_Pass_1',[boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -524,15 +524,15 @@ predicate(sr_read_term/4,237,static,private,built_in,[
     get_variable(y(3),3),
     get_variable(y(4),4),
     put_value(y(0),0),
-    call_c('SR_Check_Descriptor_1',[],[x(0)]),
+    call_c('Pl_SR_Check_Descriptor_1',[],[x(0)]),
     call(repeat/0),
     put_variable(x(0),1),
-    call_c('SR_Get_Stm_For_Read_Term_1',[],[x(1)]),
+    call_c('Pl_SR_Get_Stm_For_Read_Term_1',[],[x(1)]),
     put_structure('$stream'/1,1),
     unify_value(x(0)),
     put_atom(sr_read_term,0),
     put_integer(3,2),
-    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
     put_structure('$read_term'/3,0),
     unify_value(x(1)),
     unify_local_value(y(1)),
@@ -543,7 +543,7 @@ predicate(sr_read_term/4,237,static,private,built_in,[
     put_integer(3,4),
     put_atom(false,5),
     call('$catch'/6),
-    call_c('SR_Update_Position_0',[],[]),
+    call_c('Pl_SR_Update_Position_0',[],[]),
     put_value(y(5),0),
     put_value(y(1),1),
     put_value(y(3),2),
@@ -564,7 +564,7 @@ predicate('$sr_read_term/4_$aux2'/2,237,static,private,built_in,[
     get_structure(sr_error/2,1),
     unify_void(2),
     put_integer(19,0),
-    call_c('SR_Is_Bit_Set_1',[boolean],[x(0)]),
+    call_c('Pl_SR_Is_Bit_Set_1',[boolean],[x(0)]),
     cut(x(2)),
     put_value(x(3),0),
     execute(sr_write_error/2),
@@ -597,7 +597,7 @@ predicate('$sr_treat_term'/2,264,static,private,built_in,[
     call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(3)]),
     cut(x(2)),
     put_variable(x(0),2),
-    call_c('SR_EOF_Reached_1',[boolean],[x(2)]),
+    call_c('Pl_SR_EOF_Reached_1',[boolean],[x(2)]),
     execute('$$sr_treat_term/2_$aux1'/2),
 
 label(1),
@@ -619,14 +619,14 @@ label(1),
     cut(y(1)),
     put_atom(is,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     math_load_value(y(3),0),
     put_integer(2,1),
     call_c('Fct_Mul',[fast_call,x(0)],[x(0),x(1)]),
     get_variable(y(4),0),
     put_atom(is,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     math_load_value(y(4),0),
     call_c('Fct_Inc',[fast_call,x(0)],[x(0)]),
     put_value(y(2),1),
@@ -649,7 +649,7 @@ predicate('$$sr_treat_term/2_$aux3'/2,272,static,private,built_in,[
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
-    call_c('SR_Is_Bit_Set_1',[boolean],[x(1)]),
+    call_c('Pl_SR_Is_Bit_Set_1',[boolean],[x(1)]),
     proceed,
 
 label(1),
@@ -661,7 +661,7 @@ predicate('$$sr_treat_term/2_$aux2'/4,272,static,private,built_in,[
     load_cut_level(4),
     try_me_else(1),
     get_variable(x(5),2),
-    call_c('SR_Is_Bit_Set_1',[boolean],[x(0)]),
+    call_c('Pl_SR_Is_Bit_Set_1',[boolean],[x(0)]),
     cut(x(4)),
     put_structure('$sr_exec_directive'/2,0),
     unify_local_value(x(1)),
@@ -752,7 +752,7 @@ label(5),
     put_unsafe_value(y(4),5),
     put_value(y(2),6),
     deallocate,
-    call_c('SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
+    call_c('Pl_SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
     proceed,
 
 label(6),
@@ -775,7 +775,7 @@ label(7),
     put_unsafe_value(y(2),5),
     put_integer(0,6),
     deallocate,
-    call_c('SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
+    call_c('Pl_SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
     proceed,
 
 label(8),
@@ -798,7 +798,7 @@ label(9),
     put_unsafe_value(y(2),5),
     put_integer(0,6),
     deallocate,
-    call_c('SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
+    call_c('Pl_SR_Add_Directive_7',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6)]),
     proceed,
 
 label(10),
@@ -972,7 +972,7 @@ label(15),
 predicate('$sr_start_module'/3,368,static,private,built_in,[
     get_variable(x(3),0),
     put_variable(x(0),4),
-    call_c('SR_Start_Module_3',[],[x(3),x(1),x(4)]),
+    call_c('Pl_SR_Start_Module_3',[],[x(3),x(1),x(4)]),
     put_value(x(2),1),
     execute('$$sr_start_module/3_$aux1'/2)]).
 
@@ -996,7 +996,7 @@ label(1),
 predicate('$sr_stop_module'/3,377,static,private,built_in,[
     get_variable(x(3),0),
     put_variable(x(0),4),
-    call_c('SR_Stop_Module_3',[],[x(3),x(1),x(4)]),
+    call_c('Pl_SR_Stop_Module_3',[],[x(3),x(1),x(4)]),
     put_value(x(2),1),
     execute('$$sr_stop_module/3_$aux1'/2)]).
 
@@ -1020,13 +1020,13 @@ label(1),
 predicate(sr_current_descriptor/1,386,static,private,built_in,[
     put_atom(sr_current_descriptor,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('SR_Current_Descriptor_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_SR_Current_Descriptor_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate('$sr_current_descriptor_alt'/0,393,static,private,built_in,[
-    call_c('SR_Current_Descriptor_Alt_0',[boolean],[]),
+    call_c('Pl_SR_Current_Descriptor_Alt_0',[boolean],[]),
     proceed]).
 
 
@@ -1035,102 +1035,102 @@ predicate(sr_get_stream/2,399,static,private,built_in,[
     get_variable(y(0),0),
     put_atom(sr_get_stream,0),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(1),1),
     call('$check_stream_or_var'/2),
     put_value(y(0),0),
     put_unsafe_value(y(1),1),
     deallocate,
-    call_c('SR_Get_Stm_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_SR_Get_Stm_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(sr_get_module/3,407,static,private,built_in,[
     put_atom(sr_get_module,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('SR_Get_Module_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_SR_Get_Module_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(sr_get_file_name/2,414,static,private,built_in,[
     put_atom(sr_get_file_name,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('SR_Get_File_Name_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_SR_Get_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(sr_get_position/3,421,static,private,built_in,[
     put_atom(sr_get_position,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('SR_Get_Position_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_SR_Get_Position_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(sr_get_include_list/2,428,static,private,built_in,[
     put_atom(sr_get_include_list,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('SR_Get_Include_List_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_SR_Get_Include_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(sr_get_include_stream_list/2,435,static,private,built_in,[
     put_atom(sr_get_include_stream_list,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('SR_Get_Include_Stream_List_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_SR_Get_Include_Stream_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(sr_get_size_counters/3,442,static,private,built_in,[
     put_atom(sr_get_size_counters,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('SR_Get_Size_Counters_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_SR_Get_Size_Counters_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(sr_get_error_counters/3,449,static,private,built_in,[
     put_atom(sr_get_error_counters,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('SR_Get_Error_Counters_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_SR_Get_Error_Counters_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(sr_set_error_counters/3,456,static,private,built_in,[
     put_atom(sr_set_error_counters,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('SR_Set_Error_Counters_3',[],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_SR_Set_Error_Counters_3',[],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(sr_write_message/4,463,static,private,built_in,[
     put_atom(sr_write_message,4),
     put_integer(4,5),
-    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
-    call_c('SR_Write_Message_4',[],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Pl_SR_Write_Message_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(sr_write_message/6,470,static,private,built_in,[
     put_atom(sr_write_message,6),
     put_integer(6,7),
-    call_c('Set_Bip_Name_2',[],[x(6),x(7)]),
-    call_c('SR_Write_Message_6',[],[x(0),x(1),x(2),x(3),x(4),x(5)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(6),x(7)]),
+    call_c('Pl_SR_Write_Message_6',[],[x(0),x(1),x(2),x(3),x(4),x(5)]),
     proceed]).
 
 
 predicate(sr_write_message/8,477,static,private,built_in,[
     put_atom(sr_write_message,8),
     put_integer(8,9),
-    call_c('Set_Bip_Name_2',[],[x(8),x(9)]),
-    call_c('SR_Write_Message_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(8),x(9)]),
+    call_c('Pl_SR_Write_Message_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
     proceed]).
 
 
@@ -1142,7 +1142,7 @@ predicate(sr_write_error/2,484,static,private,built_in,[
     get_variable(y(1),2),
     put_atom(sr_write_error,0),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
     put_value(x(1),0),
     put_variable(y(2),1),
     put_variable(y(3),2),
@@ -1169,12 +1169,12 @@ label(1),
 predicate('$sr_write_error/2_$aux1'/6,484,static,private,built_in,[
     try_me_else(1),
     call_c('Blt_Var',[fast_call,boolean],[x(0)]),
-    call_c('SR_Write_Message_4',[],[x(1),x(2),x(3),x(4)]),
+    call_c('Pl_SR_Write_Message_4',[],[x(1),x(2),x(3),x(4)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    call_c('SR_Write_Message_6',[],[x(1),x(0),x(5),x(2),x(3),x(4)]),
+    call_c('Pl_SR_Write_Message_6',[],[x(1),x(0),x(5),x(2),x(3),x(4)]),
     proceed]).
 
 
@@ -1188,7 +1188,7 @@ predicate(sr_write_error/4,498,static,private,built_in,[
     get_variable(y(3),4),
     put_atom(sr_write_error,0),
     put_integer(4,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(x(3),0),
     put_variable(y(4),1),
     put_variable(y(5),2),
@@ -1207,7 +1207,7 @@ predicate(sr_write_error/4,498,static,private,built_in,[
     put_unsafe_value(y(6),3),
     put_unsafe_value(y(7),4),
     put_unsafe_value(y(8),5),
-    call_c('SR_Write_Message_6',[],[x(0),x(1),x(2),x(3),x(4),x(5)]),
+    call_c('Pl_SR_Write_Message_6',[],[x(0),x(1),x(2),x(3),x(4),x(5)]),
     cut(y(3)),
     deallocate,
     proceed,
@@ -1240,7 +1240,7 @@ predicate(sr_write_error/6,509,static,private,built_in,[
     get_variable(y(5),6),
     put_atom(sr_write_error,0),
     put_integer(6,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(x(5),0),
     put_variable(y(6),1),
     put_variable(y(7),2),
@@ -1261,7 +1261,7 @@ predicate(sr_write_error/6,509,static,private,built_in,[
     put_unsafe_value(y(8),5),
     put_unsafe_value(y(9),6),
     put_unsafe_value(y(10),7),
-    call_c('SR_Write_Message_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
+    call_c('Pl_SR_Write_Message_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
     cut(y(5)),
     deallocate,
     proceed,
@@ -1316,7 +1316,7 @@ label(3),
     cut(x(5)),
     put_atom(is,5),
     put_integer(2,6),
-    call_c('Set_Bip_Name_2',[],[x(5),x(6)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(5),x(6)]),
     math_load_value(x(1),1),
     call_c('Fct_Neg',[fast_call,x(1)],[x(1)]),
     get_value(x(2),1),
@@ -1370,7 +1370,7 @@ predicate(sr_error_from_exception/2,555,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(sr_error_from_exception,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(0),0),
     call('$sr_error_from_exception/2_$aux1'/1),
     put_value(y(0),0),

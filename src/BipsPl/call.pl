@@ -63,15 +63,15 @@ call_det(Goal, Deterministic) :-
 
 
 '$call'(Goal, Func, Arity, DebugCall) :-
-	'$call_c'('Save_Call_Info_3'(Func, Arity, DebugCall)),
+	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
 	'$call1'(Goal, 0).
 
 '$call1'(Goal, CallInfo) :-
-	'$call_c'('Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
+	'$call_c'('Pl_Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
 	'$call_internal'(Goal, CallInfo).
 
 '$call_internal'(Goal, CallInfo) :-
-	'$call_c'('Call_Info_Bip_Name_1'(CallInfo)),
+	'$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
 	(   var(Goal) ->
 	    '$pl_err_instantiation'
 	;   true
@@ -125,7 +125,7 @@ call_det(Goal, Deterministic) :-
 	'$throw_internal'(Ball, CallInfo).
 
 '$call_internal_with_cut'(P, CallInfo, _VarCut) :-
-	'$call_c_jump'('BC_Call_Terminal_Pred_3'(P, CallInfo, 1)).
+	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_3'(P, CallInfo, 1)).
 
 
 
@@ -147,4 +147,4 @@ call_det(Goal, Deterministic) :-
 
 
 '$call_from_debugger'(Goal, CallInfo) :-
-	'$call_c_jump'('BC_Call_Terminal_Pred_3'(Goal, CallInfo, 0)).
+	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_3'(Goal, CallInfo, 0)).

@@ -154,23 +154,23 @@ static char *Host_Name_From_Alias(struct hostent *host_entry);
 
 
 /*-------------------------------------------------------------------------*
- * INIT_MACHINE                                                            *
+ * PL_INIT_MACHINE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Machine(void)
+Pl_Init_Machine(void)
 {
   tzset();
 
-  start_user_time = M_User_Time();
-  start_system_time = M_System_Time();
-  start_real_time = M_Real_Time();
+  start_user_time = Pl_M_User_Time();
+  start_system_time = Pl_M_System_Time();
+  start_real_time = Pl_M_Real_Time();
 
 #if defined(HAVE_MALLOPT) && defined(M_MMAP_MAX)
   mallopt(M_MMAP_MAX, 0);
 #endif
 
-  Init_Machine1();
+  Pl_Init_Machine1();
 }
 
 
@@ -223,7 +223,7 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
     fd = open("/dev/zero", 0);
 
   if (fd == -1)
-    Fatal_Error(ERR_CANNOT_OPEN_DEV0, M_Sys_Err_String(errno));
+    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_M_Sys_Err_String(errno));
 #endif /* !MAP_ANON */
 
   addr = (WamWord *) mmap((void *) addr, length, PROT_READ | PROT_WRITE,
@@ -263,12 +263,12 @@ Virtual_Mem_Free(WamWord *addr, int length)
 #if defined(_WIN32) || defined(__CYGWIN__)
 
   if (!VirtualFree(addr, 0, MEM_RELEASE))
-    Fatal_Error(ERR_CANNOT_FREE, GetLastError());
+    Pl_Fatal_Error(ERR_CANNOT_FREE, GetLastError());
 
 #elif defined(HAVE_MMAP)
 
   if (munmap((void *) addr, length) == -1)
-    Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
+    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
 
 #else 
 
@@ -291,7 +291,7 @@ Virtual_Mem_Protect(WamWord *addr, int length)
   DWORD old_prot;
 
   if (!VirtualProtect(addr, length, PAGE_NOACCESS, &old_prot))
-    Fatal_Error(ERR_CANNOT_PROTECT, GetLastError());
+    Pl_Fatal_Error(ERR_CANNOT_PROTECT, GetLastError());
 
 #elif defined(HAVE_MMAP)
 
@@ -299,7 +299,7 @@ Virtual_Mem_Protect(WamWord *addr, int length)
   if (mprotect((void *) addr, length, PROT_NONE) == -1)
 #endif
     if (munmap((void *) addr, length) == -1)
-      Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
+      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
 
 #else
 
@@ -313,11 +313,11 @@ Virtual_Mem_Protect(WamWord *addr, int length)
 
 
 /*-------------------------------------------------------------------------*
- * M_ALLOCATE_STACKS                                                       *
+ * PL_M_ALLOCATE_STACKS                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-M_Allocate_Stacks(void)
+Pl_M_Allocate_Stacks(void)
 {
   unsigned length = 0;
   WamWord *addr;
@@ -341,8 +341,8 @@ M_Allocate_Stacks(void)
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
-      stk_tbl[i].size = Round_Up(stk_tbl[i].size, page_size);
-      length += stk_tbl[i].size + page_size;
+      pl_stk_tbl[i].size = Round_Up(pl_stk_tbl[i].size, page_size);
+      length += pl_stk_tbl[i].size + page_size;
     }
   length *= sizeof(WamWord);
 
@@ -378,12 +378,12 @@ M_Allocate_Stacks(void)
     }
 
   if (addr == NULL)
-    Fatal_Error(ERR_STACKS_ALLOCATION);
+    Pl_Fatal_Error(ERR_STACKS_ALLOCATION);
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
-      stk_tbl[i].stack = addr;
-      addr += stk_tbl[i].size;
+      pl_stk_tbl[i].stack = addr;
+      addr += pl_stk_tbl[i].size;
       Virtual_Mem_Protect(addr, page_size);
       addr += page_size;
     }
@@ -452,7 +452,10 @@ SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 
 #elif defined(M_ix86_linux) || defined(M_powerpc_linux) || \
       defined(M_alpha_linux)
+
+#ifdef LINUX_NEEDS_ASM_SIGCONTEXT // see configure.in
 #include <asm/sigcontext.h>
+#endif
 
 #if 0				/* old linux */
 static void
@@ -553,20 +556,20 @@ SIGSEGV_Handler(int sig)
 #endif
 
   i = NB_OF_STACKS - 1;
-  if (addr < stk_tbl[i].stack + stk_tbl[i].size + page_size)
+  if (addr < pl_stk_tbl[i].stack + pl_stk_tbl[i].size + page_size)
     while (i >= 0)
       {
 #ifdef DEBUG
 	DBGPRINTF("STACK[%d].stack + size: %lx\n",
-		  i, (long) (stk_tbl[i].stack + stk_tbl[i].size));
+		  i, (long) (pl_stk_tbl[i].stack + pl_stk_tbl[i].size));
 #endif
-	if (addr >= stk_tbl[i].stack + stk_tbl[i].size)
-	  Fatal_Error(Stack_Overflow_Err_Msg(i));
+	if (addr >= pl_stk_tbl[i].stack + pl_stk_tbl[i].size)
+	  Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
 	i--;
       }
 #endif /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
 
-  Fatal_Error("Segmentation Violation");
+  Pl_Fatal_Error("Segmentation Violation");
 
 }
 
@@ -592,13 +595,13 @@ M_Check_Magic_Words(void)
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
-      if (stk_tbl[i].size == 0)
+      if (pl_stk_tbl[i].size == 0)
 	continue;
 
-      end = stk_tbl[i].stack + stk_tbl[i].size;
+      end = pl_stk_tbl[i].stack + pl_stk_tbl[i].size;
 #ifdef DEBUG
-      DBGPRINTF("stack: %s start: %p  end: %p  top: %p\n", stk_tbl[i].name, 
-		stk_tbl[i].stack, end, Stack_Top(i));
+      DBGPRINTF("stack: %s start: %p  end: %p  top: %p\n", pl_stk_tbl[i].name, 
+		pl_stk_tbl[i].stack, end, Stack_Top(i));
 #endif
       if ((end[0] != M_MAGIC1 || end[1] != M_MAGIC2 || end[8] != 0)
 	  || (top = Stack_Top(i)) >= end)
@@ -606,15 +609,15 @@ M_Check_Magic_Words(void)
 	  err++;
 	  msg = Stack_Overflow_Err_Msg(i);
 #ifndef NO_USE_LINEDIT
-	  if (le_hook_message_box)
-	    (*le_hook_message_box)("Possible Error", msg, 0);
+	  if (pl_le_hook_message_box)
+	    (*pl_le_hook_message_box)("Possible Error", msg, 0);
 	  else
 #endif
 	    fprintf(stderr, "Possible Error: %s\n", msg);
 	}
     }
   if (err)
-    Exit_With_Value(1);
+    Pl_Exit_With_Value(1);
 }
 
 #endif
@@ -628,7 +631,7 @@ M_Check_Magic_Words(void)
 static char *
 Stack_Overflow_Err_Msg(int stk_nb)
 {
-  InfStack *s = stk_tbl + stk_nb;
+  InfStack *s = pl_stk_tbl + stk_nb;
   char *var = s->env_var_name;
   int size = s->size;
   static char msg[256];
@@ -638,7 +641,7 @@ Stack_Overflow_Err_Msg(int stk_nb)
 
   size = Wam_Words_To_KBytes(size);
 
-  if (fixed_sizes || var[0] == '\0')
+  if (pl_fixed_sizes || var[0] == '\0')
     sprintf(msg, ERR_STACK_OVERFLOW_NO_ENV, s->name, size);
   else
     sprintf(msg, ERR_STACK_OVERFLOW_ENV, s->name, size, var);
@@ -650,11 +653,11 @@ Stack_Overflow_Err_Msg(int stk_nb)
 
 
 /*-------------------------------------------------------------------------*
- * M_SYS_ERR_STRING                                                        *
+ * PL_M_SYS_ERR_STRING                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Sys_Err_String(int err_no)
+Pl_M_Sys_Err_String(int err_no)
 {
 #ifdef M_sparc_sunos
   extern char *sys_errlist[];
@@ -692,7 +695,7 @@ M_Sys_Err_String(int err_no)
 /* returns the user time used since the start of the process (in ms).      */
 /*-------------------------------------------------------------------------*/
 long
-M_User_Time(void)
+Pl_M_User_Time(void)
 {
   long user_time;
 
@@ -717,7 +720,7 @@ M_User_Time(void)
 
 #else
 
-  Fatal_Error("user time not available");
+  Pl_Fatal_Error("user time not available");
   return 0;
 
 #endif
@@ -729,12 +732,12 @@ M_User_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_SYSTEM_TIME                                                           *
+ * PL_M_SYSTEM_TIME                                                        *
  *                                                                         *
  * returns the system time used since the start of the process (in ms).    *
  *-------------------------------------------------------------------------*/
 long
-M_System_Time(void)
+Pl_M_System_Time(void)
 {
   long system_time;
 
@@ -759,7 +762,7 @@ M_System_Time(void)
 
 #else
 
-  Fatal_Error("system time not available");
+  Pl_Fatal_Error("system time not available");
   return 0;
 
 #endif
@@ -771,12 +774,12 @@ M_System_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_REAL_TIME                                                             *
+ * PL_M_REAL_TIME                                                          *
  *                                                                         *
  * returns the real time used since the start of the process (in ms).      *
  *-------------------------------------------------------------------------*/
 long
-M_Real_Time(void)
+Pl_M_Real_Time(void)
 {
   long real_time;
 
@@ -792,7 +795,7 @@ M_Real_Time(void)
 
 #else
 
-  Fatal_Error("real time not available");
+  Pl_Fatal_Error("real time not available");
   return 0;
 
 #endif
@@ -811,11 +814,11 @@ M_Real_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_RANDOMIZE                                                             *
+ * PL_M_RANDOMIZE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-M_Randomize(void)
+Pl_M_Randomize(void)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
   int seed = GetTickCount();
@@ -828,18 +831,18 @@ M_Randomize(void)
 #endif
   seed = (seed ^ getpid()) & 0xFFFFFF;
 
-  M_Set_Seed(seed);
+  Pl_M_Set_Seed(seed);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * M_SET_SEED                                                              *
+ * PL_M_SET_SEED                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-M_Set_Seed(int n)
+Pl_M_Set_Seed(int n)
 {
   cur_seed = n;
   srand(cur_seed);
@@ -849,11 +852,11 @@ M_Set_Seed(int n)
 
 
 /*-------------------------------------------------------------------------*
- * M_GET_SEED                                                              *
+ * PL_M_GET_SEED                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-M_Get_Seed(void)
+Pl_M_Get_Seed(void)
 {
   return cur_seed;
 }
@@ -862,12 +865,12 @@ M_Get_Seed(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_RANDOM_INTEGER                                                        *
+ * PL_M_RANDOM_INTEGER                                                     *
  *                                                                         *
  * return an integer x s.t. 0 <= x < n                                     *
  *-------------------------------------------------------------------------*/
 int
-M_Random_Integer(int n)
+Pl_M_Random_Integer(int n)
 {
   return (int) ((double) n * rand() / (RAND_MAX + 1.0));
 }
@@ -876,12 +879,12 @@ M_Random_Integer(int n)
 
 
 /*-------------------------------------------------------------------------*
- * M_RANDOM_FLOAT                                                          *
+ * PL_M_RANDOM_FLOAT                                                       *
  *                                                                         *
  * return a double x s.t. 0 <= x < n                                       *
  *-------------------------------------------------------------------------*/
 double
-M_Random_Float(double n)
+Pl_M_Random_Float(double n)
 {
   return n * rand() / (RAND_MAX + 1.0);
 }
@@ -890,12 +893,12 @@ M_Random_Float(double n)
 
 
 /*-------------------------------------------------------------------------*
- * M_HOST_NAME_FROM_NAME                                                   *
+ * PL_M_HOST_NAME_FROM_NAME                                                *
  *                                                                         *
  * if host_name==NULL use current host name.                               *
  *-------------------------------------------------------------------------*/
 char *
-M_Host_Name_From_Name(char *host_name)
+Pl_M_Host_Name_From_Name(char *host_name)
 {
   static char buff[4096];
 
@@ -939,11 +942,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * M_HOST_NAME_FROM_ADR                                                    *
+ * PL_M_HOST_NAME_FROM_ADR                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Host_Name_From_Adr(char *host_address)
+Pl_M_Host_Name_From_Adr(char *host_address)
 {
 #ifdef INET_MANAGEMENT
   struct hostent *host_entry;
@@ -1000,14 +1003,14 @@ Host_Name_From_Alias(struct hostent *host_entry)
 
 
 /*-------------------------------------------------------------------------*
- * M_SET_WORKING_DIR                                                       *
+ * PL_M_SET_WORKING_DIR                                                    *
  *                                                                         *
  * must preserve errno if fails (used in os_interf_c.c)                    *
  *-------------------------------------------------------------------------*/
 Bool
-M_Set_Working_Dir(char *path)
+Pl_M_Set_Working_Dir(char *path)
 {
-  char *new_path = M_Absolute_Path_Name(path);
+  char *new_path = Pl_M_Absolute_Path_Name(path);
 
   return (new_path != NULL && chdir(new_path) == 0);
 }
@@ -1016,11 +1019,11 @@ M_Set_Working_Dir(char *path)
 
 
 /*-------------------------------------------------------------------------*
- * M_GET_WORKING_DIR                                                       *
+ * PL_M_GET_WORKING_DIR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Get_Working_Dir(void)
+Pl_M_Get_Working_Dir(void)
 {
   static char cur_work_dir[MAXPATHLEN];
 
@@ -1032,12 +1035,12 @@ M_Get_Working_Dir(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_ABSOLUTE_PATH_NAME                                                    *
+ * PL_M_ABSOLUTE_PATH_NAME                                                 *
  *                                                                         *
  * returns an absolute file name.                                          *
  *-------------------------------------------------------------------------*/
 char *
-M_Absolute_Path_Name(char *src)
+Pl_M_Absolute_Path_Name(char *src)
 {
   static char buff[2][MAXPATHLEN];
   int res = 0;
@@ -1098,7 +1101,7 @@ M_Absolute_Path_Name(char *src)
 	  struct passwd *pw;
 
 	  p = buff[res] + 1;
-	  while (*p && *p != DIR_SEP_C)
+	  while (*p && *p != '/')
 	    p++;
 
 	  buff[res][0] = *p;
@@ -1117,28 +1120,32 @@ M_Absolute_Path_Name(char *src)
   if (strcmp(buff[res], "user") == 0)	/* prolog special file 'user' */
     return buff[res];
 
-#ifdef __CYGWIN__
-  cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
-  res = 1 - res;
-#endif
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-  for (src = buff[res]; *src; src++)	/* \ becomes / */
-    if (*src == '\\')
-      *src = '/';
-#endif
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
+
   if (_fullpath(buff[1 - res], buff[res], MAXPATHLEN) == NULL)
     return NULL;
+
   res = 1 - res;
-#else /* unix */
-  if (buff[res][0] != DIR_SEP_C)	/* add current directory */
+  for (dst = buff[res]; *dst; dst++)	/* \ becomes / */
+    if (*dst == '\\')
+      *dst = '/';
+
+  /* dst points the \0 */
+
+#else  /* __unix__ || __CYGWIN__ */
+
+#if defined(__CYGWIN__)
+
+  cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
+  res = 1 - res;
+
+#endif
+
+  if (buff[res][0] != '/')	/* add current directory */
     {
-      sprintf(buff[1 - res], "%s/%s", M_Get_Working_Dir(), buff[res]);
+      sprintf(buff[1 - res], "%s/%s", Pl_M_Get_Working_Dir(), buff[res]);
       res = 1 - res;
     }
-#endif
 
   src = buff[res];
   res = 1 - res;
@@ -1146,28 +1153,28 @@ M_Absolute_Path_Name(char *src)
 
   while ((*dst++ = *src))
     {
-      if (*src++ != DIR_SEP_C)
+      if (*src++ != '/')
 	continue;
 
     collapse:
-      while (*src == DIR_SEP_C)	/* collapse /////... as / */
+      while (*src == '/')	/* collapse /////... as / */
 	src++;
 
       if (*src != '.')
 	continue;
 
-      if (src[1] == DIR_SEP_C || src[1] == '\0')	/* /./ removed */
+      if (src[1] == '/' || src[1] == '\0')	/* /./ removed */
 	{
 	  src++;
 	  goto collapse;
 	}
 
-      if (src[1] != '.' || (src[2] != DIR_SEP_C && src[2] != '\0'))
+      if (src[1] != '.' || (src[2] != '/' && src[2] != '\0'))
 	continue;
       /* case /../ */
       src += 2;
       p = dst - 2;
-      while (p >= buff[res] && *p != DIR_SEP_C)
+      while (p >= buff[res] && *p != '/')
 	p--;
 
       if (p < buff[res])
@@ -1176,8 +1183,19 @@ M_Absolute_Path_Name(char *src)
       dst = p;
     }
 
-  if (dst[-2] == DIR_SEP_C)
-    dst[-2] = '\0';		/* remove last / */
+  dst--;			/* dst points the \0 */
+
+#endif
+
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define MIN_PREFIX 3		/* win32 minimal path c:\  */
+#else
+#define MIN_PREFIX 1		/* unix  minimal path /    */
+#endif
+
+  if (dst - buff[res] > MIN_PREFIX && (dst[-1] == '/' || dst[-1] == '\\'))
+    dst[-1] = '\0';		/* remove last / or \ */
 
   return buff[res];
 }

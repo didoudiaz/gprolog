@@ -41,9 +41,6 @@
 #endif
 
 
-
-
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -74,10 +71,10 @@
 
 /* these 4 lines are get from foreign_supp.c */
 
-long foreign_long[NB_OF_X_REGS];
-double foreign_double[NB_OF_X_REGS];
-long *base_fl = foreign_long;	  /* overwrite var of engine.c */
-double *base_fd = foreign_double; /* overwrite var of engine.c */
+long pl_foreign_long[NB_OF_X_REGS];
+double pl_foreign_double[NB_OF_X_REGS];
+long *base_fl = pl_foreign_long;	  /* overwrite var of engine.c */
+double *base_fd = pl_foreign_double; /* overwrite var of engine.c */
 
 
 WamWord stack[4096];
@@ -247,21 +244,21 @@ main(int argc, char *argv[])
 #endif
 
 #if 1
-  foreign_double[0] = 1.2e30;
-  foreign_double[47] = -1.234567;
+  pl_foreign_double[0] = 1.2e30;
+  pl_foreign_double[47] = -1.234567;
 #endif
 
   Save_Machine_Regs(init_buff_regs);
 
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
-  reg_bank = stack;
+  pl_reg_bank = stack;
   B = stack + NB_OF_X_REGS + 100;
 #else
   B = stack;
 #endif
   E = B + 1024;
-  printf("reg_bank=&X(0):%#lx   B:%#lx   E:%#lx  &Y(0):%#lx\n",
-	 (long) reg_bank, (long) B, (long) E, (long) &Y(E, 0));
+  printf("pl_reg_bank=&X(0):%#lx   B:%#lx   E:%#lx  &Y(0):%#lx\n",
+	 (long) pl_reg_bank, (long) B, (long) E, (long) &Y(E, 0));
 
   printf("stack:%#lx\n", (long) stack);
   while (tbl[i++])
@@ -331,7 +328,7 @@ error(void)
 void
 Call_Pl(void (*code) (), int must_succeed)
 {
-  int ok = Call_Prolog(code);
+  int ok = Pl_Call_Prolog(code);
 
   if (ok != must_succeed)
     error();
@@ -626,8 +623,8 @@ test_arg_fl_array(void)
 {
   printf("call_c(FL())...\n");
   x = 0;
-  foreign_long[0] = 12;
-  foreign_long[10] = 14;
+  pl_foreign_long[0] = 12;
+  pl_foreign_long[10] = 14;
 
   Call_Pl(ma_test_arg_fl_array, 1);
   if (x != 1)
@@ -640,9 +637,9 @@ test_arg_fl_array1(long a, long b, long *c, long *d)
 {
 #ifdef DEBUG
   printf("a=%d b=%d c=%x e=%x (fl=%x fl+56=%x)\n",
-	 a, b, c, d, foreign_long, foreign_long + 56);
+	 a, b, c, d, pl_foreign_long, pl_foreign_long + 56);
 #endif
-  if (a != 12 || b != 14 || c != foreign_long || d != foreign_long + 56)
+  if (a != 12 || b != 14 || c != pl_foreign_long || d != pl_foreign_long + 56)
     error();
   x++;
 }
@@ -655,8 +652,8 @@ test_arg_fd_array(void)
 {
   printf("call_c(FD())...\n");
   x = 0;
-  foreign_double[0] = 1.2e30;
-  foreign_double[47] = -1.234567;
+  pl_foreign_double[0] = 1.2e30;
+  pl_foreign_double[47] = -1.234567;
 
 
   Call_Pl(ma_test_arg_fd_array, 1);
@@ -668,8 +665,8 @@ test_arg_fd_array(void)
 void FC
 test_arg_fd_array1(double a, double b, double *c, double *d)
 {
-  if (a != 1.2e30 || b != -1.234567 || c != foreign_double
-      || d != foreign_double + 127)
+  if (a != 1.2e30 || b != -1.234567 || c != pl_foreign_double
+      || d != pl_foreign_double + 127)
     error();
   x++;
 }
@@ -859,12 +856,12 @@ test_move_ret_fl(void)
 {
   printf("call_c()+move_ret FL()...\n");
   x = 0;
-  foreign_long[0] = -1;
-  foreign_long[11] = -1;
+  pl_foreign_long[0] = -1;
+  pl_foreign_long[11] = -1;
   Call_Pl(ma_test_move_ret_fl, 1);
   if (x != 2)
     error();
-  if (foreign_long[0] != 1234987 || foreign_long[11] != 45678)
+  if (pl_foreign_long[0] != 1234987 || pl_foreign_long[11] != 45678)
     error();
 }
 
@@ -884,12 +881,12 @@ test_move_ret_fd(void)
 {
   printf("call_c()+move_ret FD()...\n");
   x = 0;
-  foreign_double[0] = -1.0;
-  foreign_double[11] = -1;
+  pl_foreign_double[0] = -1.0;
+  pl_foreign_double[11] = -1;
   Call_Pl(ma_test_move_ret_fd, 1);
   if (x != 2)
     error();
-  if (foreign_double[0] != 1.234987 || foreign_double[11] != -3.141593)
+  if (pl_foreign_double[0] != 1.234987 || pl_foreign_double[11] != -3.141593)
     error();
 }
 
@@ -938,57 +935,57 @@ test_switch_ret2(int k)
 /*--- dummy functions needed by engine.c ---*/
 
 void
-Init_Atom(void)
+Pl_Init_Atom(void)
 {
 }
 void
-Init_Oper(void)
+Pl_Init_Oper(void)
 {
 }
 void
-Init_Pred(void)
+Pl_Init_Pred(void)
 {
 }
 void
-Init_Machine(void)
+Pl_Init_Machine(void)
 {
 }
 void
-Find_Linked_Objects(void)
+Pl_Find_Linked_Objects(void)
 {
 }
 void
-Fd_Init_Engine(void)
+Pl_Fd_Init_Engine(void)
 {
 }
-int FC
-Create_Atom(char *name)
+int
+Pl_Create_Atom(char *name)
 {
   return 1;
 }
 
 PredInf * FC
-Lookup_Pred(int func, int arity)
+Pl_Lookup_Pred(int func, int arity)
 {
   return NULL;
 }
 
 void
-M_Allocate_Stacks(void)
+Pl_M_Allocate_Stacks(void)
 {
 }
-AtomInf atom_tbl[1];
+AtomInf pl_atom_tbl[1];
 void FC
-Create_Choice_Point(CodePtr codep_alt, int arity)
+Pl_Create_Choice_Point(CodePtr codep_alt, int arity)
 {
 }
 
 void
-Fd_Init_Solver(void)
+Pl_Fd_Init_Solver(void)
 {
 }
 void
-Fd_Reset_Solver(void)
+Pl_Fd_Reset_Solver(void)
 {
 }
 

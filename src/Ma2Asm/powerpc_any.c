@@ -82,10 +82,10 @@ int nb_dbl = 0;
 int dbl_lc_no = 0;
 int dbl_reg_no;
 
-char asm_reg_bank[16];
-char asm_reg_e[16];
-char asm_reg_b[16];
-char asm_reg_cp[16];
+char asm_reg_bank[20];
+char asm_reg_e[20];
+char asm_reg_b[20];
+char asm_reg_cp[20];
 
 int w_label = 0;
 
@@ -628,12 +628,12 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
 {
   BEFORE_ARG;
 
-  Inst_Printf("addis", "%s,0," HI_UN(foreign_long+%d), r, index * 4);
+  Inst_Printf("addis", "%s,0," HI_UN(pl_foreign_long+%d), r, index * 4);
 
   if (adr_of)
-    Inst_Printf("addi", "%s,%s," LO_UN(foreign_long+%d), r, r, index * 4);
+    Inst_Printf("addi", "%s,%s," LO_UN(pl_foreign_long+%d), r, r, index * 4);
   else
-    Inst_Printf("lwz", "%s," LO_UN(foreign_long+%d) "(%s)", r, index * 4, r);
+    Inst_Printf("lwz", "%s," LO_UN(pl_foreign_long+%d) "(%s)", r, index * 4, r);
 
   AFTER_ARG;
 
@@ -652,7 +652,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 {
   BEFORE_ARG;
 
-  Inst_Printf("addis", "%s,0," HI_UN(foreign_double+%d), r,
+  Inst_Printf("addis", "%s,0," HI_UN(pl_foreign_double+%d), r,
 #if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
 	      index * 4
 #else
@@ -662,7 +662,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 
   if (adr_of)
     {
-      Inst_Printf("addi", "%s,%s," LO_UN(foreign_double+%d), r, r,
+      Inst_Printf("addi", "%s,%s," LO_UN(pl_foreign_double+%d), r, r,
 		  index * 8);
       if (offset >= MAX_ARGS_IN_REGS)
 	Inst_Printf("stw", "%s,%d(" R(1) ")", r, offset * 4 + 24);
@@ -670,7 +670,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
       return 1;
     }
 
-  Inst_Printf("lfd", F(%d) "," LO_UN(foreign_double+%d) "(%s)", ++dbl_reg_no,
+  Inst_Printf("lfd", F(%d) "," LO_UN(pl_foreign_double+%d) "(%s)", ++dbl_reg_no,
 	      index * 8, r);
 
   AFTER_ARG_DBL;
@@ -794,8 +794,8 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("addis", R(4) ",0," HI_UN(foreign_long+%d), index * 4);
-  Inst_Printf("stw", R(3) "," LO_UN(foreign_long+%d) "(" R(4) ")",
+  Inst_Printf("addis", R(4) ",0," HI_UN(pl_foreign_long+%d), index * 4);
+  Inst_Printf("stw", R(3) "," LO_UN(pl_foreign_long+%d) "(" R(4) ")",
 	      index * 4);
 }
 
@@ -809,8 +809,8 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("addis", R(4) ",0," HI_UN(foreign_double+%d), index * 8);
-  Inst_Printf("stfd", F(1) "," LO_UN(foreign_double+%d) "(" R(4) ")",
+  Inst_Printf("addis", R(4) ",0," HI_UN(pl_foreign_double+%d), index * 8);
+  Inst_Printf("stfd", F(1) "," LO_UN(pl_foreign_double+%d) "(" R(4) ")",
 	      index * 8);
 }
 

@@ -50,7 +50,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define W_NOTHING                  0	/* for last_writing */
+#define W_NOTHING                  0	/* for pl_last_writing */
 #define W_NUMBER                   1
 #define W_IDENTIFIER               2
 #define W_QUOTED                   3
@@ -143,22 +143,22 @@ static Bool Try_Portray(WamWord word);
 static void
 Write_Supp_Initializer(void)
 {
-  atom_dots = Create_Atom("...");
+  atom_dots = Pl_Create_Atom("...");
 
-  curly_brackets_1 = Functor_Arity(atom_curly_brackets, 1);
-  dollar_var_1 = Functor_Arity(Create_Atom("$VAR"), 1);
-  dollar_varname_1 = Functor_Arity(Create_Atom("$VARNAME"), 1);
+  curly_brackets_1 = Functor_Arity(pl_atom_curly_brackets, 1);
+  dollar_var_1 = Functor_Arity(Pl_Create_Atom("$VAR"), 1);
+  dollar_varname_1 = Functor_Arity(Pl_Create_Atom("$VARNAME"), 1);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * WRITE_TERM                                                              *
+ * PL_WRITE_TERM                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
+Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
 {
   pstm_o = pstm;
 
@@ -169,7 +169,7 @@ Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
   space_args = mask & WRITE_SPACE_ARGS;
   portrayed = mask & WRITE_PORTRAYED;
 
-  last_writing = W_NOTHING;
+  pl_last_writing = W_NOTHING;
 
   Show_Term(depth, prec, GENERAL_TERM, term_word);
 }
@@ -178,15 +178,15 @@ Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * WRITE_SIMPLE                                                            *
+ * PL_WRITE_SIMPLE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Write_Simple(WamWord term_word)
+Pl_Write_Simple(WamWord term_word)
 {
-  StmInf *pstm = stm_tbl[stm_output];
+  StmInf *pstm = pl_stm_tbl[pl_stm_output];
 
-  Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
 	     term_word);
   /* like write/1 */
 }
@@ -201,8 +201,8 @@ Write_Simple(WamWord term_word)
 static void
 Out_Space(void)
 {
-  Stream_Putc(' ', pstm_o);
-  last_writing = W_NOTHING;
+  Pl_Stream_Putc(' ', pstm_o);
+  pl_last_writing = W_NOTHING;
 }
 
 
@@ -216,7 +216,7 @@ static void
 Out_Char(int c)
 {
   Need_Space(c);
-  Stream_Putc(c, pstm_o);
+  Pl_Stream_Putc(c, pstm_o);
 }
 
 
@@ -230,7 +230,7 @@ static void
 Out_String(char *str)
 {
   Need_Space(*str);
-  Stream_Puts(str, pstm_o);
+  Pl_Stream_Puts(str, pstm_o);
 }
 
 
@@ -243,10 +243,10 @@ Out_String(char *str)
 static void
 Need_Space(int c)
 {
-  int c_type = char_type[c];
+  int c_type = pl_char_type[c];
   int space;
 
-  switch (last_writing)
+  switch (pl_last_writing)
     {
     case W_NUMBER:
       space = (c_type & (UL | CL | SL | DI)) || c == '.';
@@ -270,21 +270,21 @@ Need_Space(int c)
 
   if (space || (c == '(' && last_prefix_op) ||
       (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS))
-    Stream_Putc(' ', pstm_o);
+    Pl_Stream_Putc(' ', pstm_o);
 
   last_prefix_op = W_NO_PREFIX_OP;
-  last_writing = W_NOTHING;
+  pl_last_writing = W_NOTHING;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * WRITE_A_CHAR                                                            *
+ * PL_WRITE_A_CHAR                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Write_A_Char(StmInf *pstm, int c)
+Pl_Write_A_Char(StmInf *pstm, int c)
 {
   pstm_o = pstm;
   Out_Char(c);
@@ -294,11 +294,11 @@ Write_A_Char(StmInf *pstm, int c)
 
 
 /*-------------------------------------------------------------------------*
- * FLOAT_TO_STRING                                                         *
+ * PL_FLOAT_TO_STRING                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Float_To_String(double d)
+Pl_Float_To_String(double d)
 {
   char *p, *q, *e;
   static char buff[32];
@@ -392,7 +392,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       break;
 
     case FLT:
-      Show_Float(Obtain_Float(UnTag_FLT(word)));
+      Show_Float(Pl_Obtain_Float(UnTag_FLT(word)));
       break;
 
     case LST:
@@ -437,7 +437,7 @@ Show_Global_Var(WamWord *adr)
   sprintf(str, "_%d", (int) Global_Offset(adr));
   Out_String(str);
 
-  last_writing = W_IDENTIFIER;
+  pl_last_writing = W_IDENTIFIER;
 }
 
 
@@ -457,7 +457,7 @@ Show_Atom(int context, int atom)
   AtomProp prop;
 
 
-  prop = atom_tbl[atom].prop;
+  prop = pl_atom_tbl[atom].prop;
 
   if (context != GENERAL_TERM && Check_Oper_Any_Type(atom))
     {
@@ -468,33 +468,33 @@ Show_Atom(int context, int atom)
 
   if (!quoted || !prop.needs_quote)
     {
-      Out_String(atom_tbl[atom].name);
+      Out_String(pl_atom_tbl[atom].name);
 
       switch (prop.type)
 	{
 	case IDENTIFIER_ATOM:
-	  last_writing = W_IDENTIFIER;
+	  pl_last_writing = W_IDENTIFIER;
 	  break;
 
 	case GRAPHIC_ATOM:
-	  last_writing = W_GRAPHIC;
+	  pl_last_writing = W_GRAPHIC;
 	  break;
 
 	case SOLO_ATOM:
-	  last_writing = W_NOTHING;
+	  pl_last_writing = W_NOTHING;
 	  break;
 
 	case OTHER_ATOM:
-	  c = atom_tbl[atom].name[prop.length - 1];
-	  c_type = char_type[c];
+	  c = pl_atom_tbl[atom].name[prop.length - 1];
+	  c_type = pl_char_type[c];
 	  if (c_type & (UL | CL | SL | DI))
-	    last_writing = W_IDENTIFIER;
+	    pl_last_writing = W_IDENTIFIER;
 	  else if (c == '\'')
-	    last_writing = W_QUOTED;
+	    pl_last_writing = W_QUOTED;
 	  else if (c_type == GR)
-	    last_writing = W_GRAPHIC;
+	    pl_last_writing = W_GRAPHIC;
 	  else
-	    last_writing = W_NOTHING;
+	    pl_last_writing = W_NOTHING;
 	}
     }
   else
@@ -503,11 +503,11 @@ Show_Atom(int context, int atom)
 
       if (prop.needs_scan)
 	{
-	  for (p = atom_tbl[atom].name; *p; p++)
-	    if ((q = (char *) strchr(escape_char, *p)))
+	  for (p = pl_atom_tbl[atom].name; *p; p++)
+	    if ((q = (char *) strchr(pl_escape_char, *p)))
 	      {
 		Out_Char('\\');
-		Out_Char(escape_symbol[q - escape_char]);
+		Out_Char(pl_escape_symbol[q - pl_escape_char]);
 	      }
 	    else if (*p == '\'' || *p == '\\')	/* display twice */
 	      {
@@ -523,11 +523,11 @@ Show_Atom(int context, int atom)
 	      Out_Char(*p);
 	}
       else
-	Out_String(atom_tbl[atom].name);
+	Out_String(pl_atom_tbl[atom].name);
 
       Out_Char('\'');
 
-      last_writing = W_QUOTED;
+      pl_last_writing = W_QUOTED;
     }
 
   if (bracket)
@@ -549,7 +549,7 @@ Show_Integer(long x)
   sprintf(str, "%ld", x);
   Out_String(str);
 
-  last_writing = W_NUMBER;
+  pl_last_writing = W_NUMBER;
 }
 
 
@@ -570,7 +570,7 @@ Show_Fd_Variable(WamWord *fdv_adr)
   Out_String(Fd_Variable_To_String(fdv_adr));
   Out_Char(')');
 
-  last_writing = W_IDENTIFIER;
+  pl_last_writing = W_IDENTIFIER;
 }
 #endif
 
@@ -583,9 +583,9 @@ Show_Fd_Variable(WamWord *fdv_adr)
 static void
 Show_Float(double x)
 {
-  Out_String(Float_To_String(x));
+  Out_String(Pl_Float_To_String(x));
 
-  last_writing = W_NUMBER;
+  pl_last_writing = W_NUMBER;
 }
 
 
@@ -659,7 +659,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       if (Try_Portray(word))
 	return;
 
-      Show_Float(Obtain_Float(UnTag_FLT(word)));
+      Show_Float(Pl_Obtain_Float(UnTag_FLT(word)));
       break;
 
     case LST:
@@ -711,8 +711,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       if (tag_mask == TAG_ATM_MASK)
 	{
-	  Out_String(atom_tbl[UnTag_ATM(word)].name);
-	  last_writing = W_IDENTIFIER;
+	  Out_String(pl_atom_tbl[UnTag_ATM(word)].name);
+	  pl_last_writing = W_IDENTIFIER;
 	  return;
 	}
     }
@@ -733,7 +733,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	      Out_String(str);
 	    }
 
-	  last_writing = W_IDENTIFIER;
+	  pl_last_writing = W_IDENTIFIER;
 	  return;
 	}
     }
@@ -755,7 +755,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   bracket = FALSE;
 
-  if (arity == 1 && (oper = Lookup_Oper(functor, PREFIX)))
+  if (arity == 1 && (oper = Pl_Lookup_Oper(functor, PREFIX)))
     {
 #if 1
       /* Koen de Bosschere says "in case of ambiguity :          */
@@ -765,7 +765,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       OperInf *oper1;
 
       if (oper->prec > oper->right
-	  && (oper1 = Lookup_Oper(functor, POSTFIX))
+	  && (oper1 = Pl_Lookup_Oper(functor, POSTFIX))
 	  && oper1->left == oper1->prec)
 	{
 	  oper = oper1;
@@ -792,7 +792,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  )
 	Out_Space();
       else
-	if (strcmp(atom_tbl[functor].name, "-") == 0)
+	if (strcmp(pl_atom_tbl[functor].name, "-") == 0)
 	  last_prefix_op = W_PREFIX_OP_MINUS;
 
       Show_Term(depth, oper->right, INSIDE_ANY_OP, Arg(stc_adr, 0));
@@ -805,7 +805,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
     }
 
 
-  if (arity == 1 && (oper = Lookup_Oper(functor, POSTFIX)))
+  if (arity == 1 && (oper = Pl_Lookup_Oper(functor, POSTFIX)))
     {
     postfix:
       if (oper->prec > prec)
@@ -835,7 +835,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
     }
 
 
-  if (arity == 2 && (oper = Lookup_Oper(functor, INFIX)))
+  if (arity == 2 && (oper = Pl_Lookup_Oper(functor, INFIX)))
     {
       if (oper->prec > prec || (context == INSIDE_LEFT_ASSOC_OP &&
 				(oper->prec == oper->right
@@ -860,8 +860,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	{
 	  surround_space = FALSE;
 
-	  if (atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
-	      atom_tbl[functor].prop.type == OTHER_ATOM ||
+	  if (pl_atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
+	      pl_atom_tbl[functor].prop.type == OTHER_ATOM ||
 	      (space_args 
 #ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
 	       && oper->left != oper->prec && oper->right != oper->prec
@@ -948,9 +948,9 @@ Try_Portray(WamWord word)
 
   if (try_portray_code == NULL)
     {
-      pred = Lookup_Pred(Create_Atom("$try_portray"), 1);
+      pred = Pl_Lookup_Pred(Pl_Create_Atom("$try_portray"), 1);
       if (pred == NULL || pred->codep == NULL)
-	Pl_Err_Resource(resource_print_object_not_linked);
+	Pl_Err_Resource(pl_resource_print_object_not_linked);
 
       try_portray_code = (CodePtr) (pred->codep);
     }
@@ -964,7 +964,7 @@ Try_Portray(WamWord word)
   print_portrayed = portrayed;
 
   A(0) = word;
-  print_ok = Call_Prolog(try_portray_code);
+  print_ok = Pl_Call_Prolog(try_portray_code);
 
   pstm_o = print_pstm_o;
   quoted = print_quoted;
@@ -982,17 +982,17 @@ Try_Portray(WamWord word)
 
 
 /*-------------------------------------------------------------------------*
- * GET_PRINT_STM_1                                                         *
+ * PL_GET_PRINT_STM_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Print_Stm_1(WamWord stm_word)
+Pl_Get_Print_Stm_1(WamWord stm_word)
 {
-  int stm = Find_Stream_From_PStm(pstm_o);
+  int stm = Pl_Find_Stream_From_PStm(pstm_o);
 
   if (stm < 0)
-    stm = stm_output;
+    stm = pl_stm_output;
 
-  return Get_Integer(stm, stm_word);
+  return Pl_Get_Integer(stm, stm_word);
 }
 

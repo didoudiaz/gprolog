@@ -45,15 +45,15 @@ op(Prec, Specif, Oper) :-
 
 
 '$op2'(Prec, Specif, Oper) :-
-	'$call_c'('Op_3'(Prec, Specif, Oper)).
+	'$call_c'('Pl_Op_3'(Prec, Specif, Oper)).
 
 
 
 
 current_op(Prec, Specif, Oper) :-
 	set_bip_name(current_op, 3),
-	'$call_c_test'('Current_Op_3'(Prec, Specif, Oper)).
+	'$call_c_test'('Pl_Current_Op_3'(Prec, Specif, Oper)).
 
 
 '$current_op_alt' :-                % used by C code to create a choice-point
-	'$call_c_test'('Current_Op_Alt_0').
+	'$call_c_test'('Pl_Current_Op_Alt_0').

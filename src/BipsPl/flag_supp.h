@@ -74,27 +74,27 @@ enum
 
 
 #define Char_Conversion(c)         ((Flag_Value(FLAG_CHAR_CONVERSION) &&    \
-                                    Is_Valid_Code(c)) ? char_conv[c] : (c))
+                                    Is_Valid_Code(c)) ? pl_char_conv[c] : (c))
 
 
 
-#define SYS_VAR_OPTION_MASK         (sys_var[0])
+#define SYS_VAR_OPTION_MASK         (pl_sys_var[0])
 
-#define SYS_VAR_WRITE_DEPTH         (sys_var[1])
-#define SYS_VAR_SYNTAX_ERROR_ACTON  (sys_var[1])
+#define SYS_VAR_WRITE_DEPTH         (pl_sys_var[1])
+#define SYS_VAR_SYNTAX_ERROR_ACTON  (pl_sys_var[1])
 
-#define SYS_VAR_WRITE_PREC          (sys_var[2])
+#define SYS_VAR_WRITE_PREC          (pl_sys_var[2])
 
-#define SYS_VAR_FD_BCKTS            (sys_var[3])
+#define SYS_VAR_FD_BCKTS            (pl_sys_var[3])
 
-#define SYS_VAR_TOP_LEVEL           (sys_var[10])
-#define SYS_VAR_LINEDIT             (sys_var[12])
-#define SYS_VAR_DEBUGGER            (sys_var[13])
+#define SYS_VAR_TOP_LEVEL           (pl_sys_var[10])
+#define SYS_VAR_LINEDIT             (pl_sys_var[12])
+#define SYS_VAR_DEBUGGER            (pl_sys_var[13])
 
-#define SYS_VAR_SAY_GETC            (sys_var[20])
+#define SYS_VAR_SAY_GETC            (pl_sys_var[20])
 #define CHAR_TO_EMIT_WHEN_CHAR      '\1'
 
-#define Flag_Value(flag)            (sys_var[200 + (flag)])
+#define Flag_Value(flag)            (pl_sys_var[200 + (flag)])
 
 
 
@@ -109,11 +109,11 @@ enum
 
 #ifdef FLAG_C_FILE
 
-long sys_var[MAX_SYS_VARS];
+long pl_sys_var[MAX_SYS_VARS];
 
 #else
 
-extern long sys_var[];
+extern long pl_sys_var[];
 
 #endif
 
@@ -124,8 +124,8 @@ extern long sys_var[];
  * Function Prototypes             *
  *---------------------------------*/
 
-Bool Read_Pl_State_File(WamWord file_word);
-Bool Write_Pl_State_File(WamWord file_word);
+Bool Pl_Read_Pl_State_File(WamWord file_word);
+Bool Pl_Write_Pl_State_File(WamWord file_word);
   
 
 
@@ -148,6 +148,6 @@ Bool Write_Pl_State_File(WamWord file_word);
  *                                                                         *
  *  20: permanent: should stream fcts emit a char before calling fgetc ?   *
  *                                                                         *
- * 100..199: free for users (who know sys_var[] exists !)                  *
+ * 100..199: free for users (who know pl_sys_var[] exists !)                  *
  * 200..: some prolog flag values.                                         *
  *-------------------------------------------------------------------------*/

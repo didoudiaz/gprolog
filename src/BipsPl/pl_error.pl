@@ -28,10 +28,10 @@
 
 
 set_bip_name(Name, Arity) :-
-	'$call_c'('Set_Bip_Name_2'(Name, Arity)).
+	'$call_c'('Pl_Set_Bip_Name_2'(Name, Arity)).
 
 current_bip_name(Name, Arity) :-
-	'$call_c_test'('Current_Bip_Name_2'(Name, Arity)).
+	'$call_c_test'('Pl_Current_Bip_Name_2'(Name, Arity)).
 
 
 
@@ -71,7 +71,7 @@ current_bip_name(Name, Arity) :-
 
 
 '$pl_error'(Msg) :-
-	'$call_c'('Context_Error_1'(ContextAtom)),
+	'$call_c'('Pl_Context_Error_1'(ContextAtom)),
 	throw(error(Msg, ContextAtom)).
 
 
@@ -79,4 +79,4 @@ current_bip_name(Name, Arity) :-
 
 syntax_error_info(FileName, Line, Char, Msg) :-
 	set_bip_name(syntax_error_info, 4),
-	'$call_c_test'('Syntax_Error_Info_4'(FileName, Line, Char, Msg)).
+	'$call_c_test'('Pl_Syntax_Error_Info_4'(FileName, Line, Char, Msg)).

@@ -55,19 +55,19 @@ static int save_call_info;
 
 
 /*-------------------------------------------------------------------------*
- * SAVE_CALL_INFO_3                                                        *
+ * PL_SAVE_CALL_INFO_3                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Save_Call_Info_3(WamWord func_word, WamWord arity_word,
+Pl_Save_Call_Info_3(WamWord func_word, WamWord arity_word,
 		 WamWord debug_call_word)
 {
   int func, arity;
   Bool debug_call;
 
-  func = Rd_Atom(func_word);
-  arity = Rd_Integer(arity_word);
-  debug_call = *Rd_String(debug_call_word) == 't';
+  func = Pl_Rd_Atom(func_word);
+  arity = Pl_Rd_Integer(arity_word);
+  debug_call = *Pl_Rd_String(debug_call_word) == 't';
 
   save_call_info = Call_Info(func, arity, debug_call);
 }
@@ -75,15 +75,15 @@ Save_Call_Info_3(WamWord func_word, WamWord arity_word,
 
 
 /*-------------------------------------------------------------------------*
- * LOAD_CALL_INFO_ARG_1                                                    *
+ * PL_LOAD_CALL_INFO_ARG_1                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Load_Call_Info_Arg_1(WamWord arg_no_word)
+Pl_Load_Call_Info_Arg_1(WamWord arg_no_word)
 {
   int arg_no;
 
-  arg_no = Rd_Integer(arg_no_word);
+  arg_no = Pl_Rd_Integer(arg_no_word);
   A(arg_no) = Tag_INT(save_call_info);
 }
 
@@ -91,11 +91,11 @@ Load_Call_Info_Arg_1(WamWord arg_no_word)
 
 
 /*-------------------------------------------------------------------------*
- * CALL_INFO_BIP_NAME_1                                                    *
+ * PL_CALL_INFO_BIP_NAME_1                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_Info_Bip_Name_1(WamWord call_info_word)
+Pl_Call_Info_Bip_Name_1(WamWord call_info_word)
 {
   long call_info;
   int func, arity;
@@ -105,5 +105,5 @@ Call_Info_Bip_Name_1(WamWord call_info_word)
   func = Functor_Of(call_info);
   arity = Arity_Of(call_info);
 
-  Set_Bip_Name_2(Tag_ATM(func), Tag_INT(arity));
+  Pl_Set_Bip_Name_2(Tag_ATM(func), Tag_INT(arity));
 }

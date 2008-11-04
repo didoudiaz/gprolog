@@ -38,7 +38,7 @@
 #endif
 
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);
 
 
 
@@ -125,11 +125,11 @@ static void Accumulate_Objects(void);
 #endif
 
 /*-------------------------------------------------------------------------*
- * FIND_LINKED_OBJECTS                                                     *
+ * PL_FIND_LINKED_OBJECTS                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Find_Linked_Objects(void)
+Pl_Find_Linked_Objects(void)
 {
   int i;
 
@@ -205,12 +205,12 @@ Accumulate_Objects(void) {
 
 
 /*-------------------------------------------------------------------------*
- * NEW_OBJECT                                                              *
+ * PL_NEW_OBJECT                                                           *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void
-New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ())
+Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ())
 {
   obj_tbl[nb_obj].fct_obj_init = fct_obj_init;
   obj_tbl[nb_obj].fct_exec_system = fct_exec_system;

@@ -33,8 +33,8 @@
 
 /* from linedit.h */
 
-extern char *LE_Get_Separators(void);
-extern int LE_Get_Prompt_Length(void);
+extern char *Pl_LE_Get_Separators(void);
+extern int Pl_LE_Get_Prompt_Length(void);
 
 
 /*---------------------------------*
@@ -53,30 +53,30 @@ static void Start_GUI(void);
 
 /* overwrite to customize linedit */
 
-void (*le_hook_start) () = Start_GUI;
+void (*pl_le_hook_start) () = Start_GUI;
 
-void (*le_hook_emit_beep) ();
-void (*le_hook_put_char) ();
-int (*le_hook_get_char0) ();
-void (*le_hook_ins_mode) ();
+void (*pl_le_hook_emit_beep) ();
+void (*pl_le_hook_put_char) ();
+int (*pl_le_hook_get_char0) ();
+void (*pl_le_hook_ins_mode) ();
 
-void (*le_hook_screen_size) ();
-int (*le_hook_kbd_is_not_empty) ();
+void (*pl_le_hook_screen_size) ();
+int (*pl_le_hook_kbd_is_not_empty) ();
 
-void (*le_hook_backd) ();
-void (*le_hook_forwd) ();
-void (*le_hook_displ) ();
-void (*le_hook_displ_str) ();
-void (*le_hook_erase) ();
+void (*pl_le_hook_backd) ();
+void (*pl_le_hook_forwd) ();
+void (*pl_le_hook_displ) ();
+void (*pl_le_hook_displ_str) ();
+void (*pl_le_hook_erase) ();
 void (*le_hook_confirm) ();
 
-void (*le_hook_set_line_buffering) ();
-int (*le_hook_get_line_buffering) ();
-void (*le_hook_flush) ();
+void (*pl_le_hook_set_line_buffering) ();
+int (*pl_le_hook_get_line_buffering) ();
+void (*pl_le_hook_flush) ();
 
-int (*le_hook_confirm_box) ();
-void (*le_hook_message_box) ();
-void (*le_hook_exit_process) ();
+int (*pl_le_hook_confirm_box) ();
+void (*pl_le_hook_message_box) ();
+void (*pl_le_hook_exit_process) ();
 
 
 
@@ -112,39 +112,39 @@ Start_GUI(void)
       fprintf(stderr,
 	      "warning: cannot load DLL " DLL_W32GUICONS
 	      " - text console used\n");
-      le_hook_start = NULL;
+      pl_le_hook_start = NULL;
       return;
     }
-  le_hook_put_char = (void (*)()) Find_Fct(h, "_W32GC_Put_Char");
-  le_hook_get_char0 = (int (*)()) Find_Fct(h, "_W32GC_Get_Char0");
-  le_hook_kbd_is_not_empty =
+  pl_le_hook_put_char = (void (*)()) Find_Fct(h, "_W32GC_Put_Char");
+  pl_le_hook_get_char0 = (int (*)()) Find_Fct(h, "_W32GC_Get_Char0");
+  pl_le_hook_kbd_is_not_empty =
     (int (*)()) Find_Fct(h, "_W32GC_Kbd_Is_Not_Empty");
-  le_hook_screen_size = (void (*)()) Find_Fct(h, "_W32GC_Screen_Size");
+  pl_le_hook_screen_size = (void (*)()) Find_Fct(h, "_W32GC_Screen_Size");
 
   /* the following are not mandatory for linedit and could be commented out */
 
-  le_hook_emit_beep = (void (*)()) Find_Fct(h, "_W32GC_Emit_Beep");
-  le_hook_ins_mode = (void (*)()) Find_Fct(h, "_W32GC_Ins_Mode");
-  le_hook_backd = (void (*)()) Find_Fct(h, "_W32GC_Backd");
-  le_hook_forwd = (void (*)()) Find_Fct(h, "_W32GC_Forwd");
-  le_hook_displ = (void (*)()) Find_Fct(h, "_W32GC_Displ");
-  le_hook_displ_str = (void (*)()) Find_Fct(h, "_W32GC_Displ_Str");
-  le_hook_erase = (void (*)()) Find_Fct(h, "_W32GC_Erase");
+  pl_le_hook_emit_beep = (void (*)()) Find_Fct(h, "_W32GC_Emit_Beep");
+  pl_le_hook_ins_mode = (void (*)()) Find_Fct(h, "_W32GC_Ins_Mode");
+  pl_le_hook_backd = (void (*)()) Find_Fct(h, "_W32GC_Backd");
+  pl_le_hook_forwd = (void (*)()) Find_Fct(h, "_W32GC_Forwd");
+  pl_le_hook_displ = (void (*)()) Find_Fct(h, "_W32GC_Displ");
+  pl_le_hook_displ_str = (void (*)()) Find_Fct(h, "_W32GC_Displ_Str");
+  pl_le_hook_erase = (void (*)()) Find_Fct(h, "_W32GC_Erase");
 
   /* the following are not used by linedit but by stream_supp.c */
 
-  le_hook_set_line_buffering =
+  pl_le_hook_set_line_buffering =
     (void (*)()) Find_Fct(h, "_W32GC_Set_Line_Buffering");
-  le_hook_get_line_buffering =
+  pl_le_hook_get_line_buffering =
     (int (*)()) Find_Fct(h, "_W32GC_Get_Line_Buffering");
-  le_hook_flush = (void (*)()) Find_Fct(h, "_W32GC_Flush");
+  pl_le_hook_flush = (void (*)()) Find_Fct(h, "_W32GC_Flush");
 
-  le_hook_confirm_box = (int (*)()) Find_Fct(h, "_W32GC_Confirm_Box");
-  le_hook_message_box = (void (*)()) Find_Fct(h, "_W32GC_Message_Box");
-  le_hook_exit_process = (void (*)()) Find_Fct(h, "_W32GC_Exit_Process");
+  pl_le_hook_confirm_box = (int (*)()) Find_Fct(h, "_W32GC_Confirm_Box");
+  pl_le_hook_message_box = (void (*)()) Find_Fct(h, "_W32GC_Message_Box");
+  pl_le_hook_exit_process = (void (*)()) Find_Fct(h, "_W32GC_Exit_Process");
 
   W32GC_Start_Window = (Fct) Find_Fct(h, "_W32GC_Start_Window");
-  (*W32GC_Start_Window) (LE_Get_Separators, LE_Get_Prompt_Length);
+  (*W32GC_Start_Window) (Pl_LE_Get_Separators, Pl_LE_Get_Prompt_Length);
 }
 
 

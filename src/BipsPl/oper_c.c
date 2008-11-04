@@ -90,18 +90,18 @@ Oper_Initializer(void)
   int i;
 
   for (i = 0; i < 7; i++)
-    atom_specif_tbl[i] = Create_Atom(a[i]);
+    atom_specif_tbl[i] = Pl_Create_Atom(a[i]);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * OP_3                                                                    *
+ * PL_OP_3                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
+Pl_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   int atom_op;
   int prec;
@@ -110,12 +110,12 @@ Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   int type, left, right;
 
 
-  atom_op = Rd_Atom_Check(oper_word);
-  prec = Rd_Integer_Check(prec_word);
+  atom_op = Pl_Rd_Atom_Check(oper_word);
+  prec = Pl_Rd_Integer_Check(prec_word);
   if (prec < 0 || prec > MAX_PREC)
-    Pl_Err_Domain(domain_operator_priority, prec_word);
+    Pl_Err_Domain(pl_domain_operator_priority, prec_word);
 
-  atom_specif = Rd_Atom_Check(specif_word);
+  atom_specif = Pl_Rd_Atom_Check(specif_word);
 
   for (i = 0; i < 7 && atom_specif != atom_specif_tbl[i]; i++)
     ;
@@ -145,34 +145,34 @@ Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
       break;
 
     default:
-      Pl_Err_Domain(domain_operator_specifier, specif_word);
+      Pl_Err_Domain(pl_domain_operator_specifier, specif_word);
       type = left = right = 0;	/* only for the compiler */
     }
 
   if (type != PREFIX
       && Check_Oper(atom_op, (type == POSTFIX) ? INFIX : POSTFIX))
-    Pl_Err_Permission(permission_operation_create, permission_type_operator,
+    Pl_Err_Permission(pl_permission_operation_create, pl_permission_type_operator,
 		      oper_word);
 
   if (atom_op == ATOM_CHAR(','))
-    Pl_Err_Permission(permission_operation_modify,
-		      permission_type_operator, oper_word);
+    Pl_Err_Permission(pl_permission_operation_modify,
+		      pl_permission_type_operator, oper_word);
 
   if (prec > 0)
-    Create_Oper(atom_op, type, prec, left, right);
+    Pl_Create_Oper(atom_op, type, prec, left, right);
   else
-    Delete_Oper(atom_op, type);
+    Pl_Delete_Oper(atom_op, type);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CURRENT_OP_3                                                            *
+ * PL_CURRENT_OP_3                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
+Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   WamWord word, tag_mask;
   HashScan scan;
@@ -185,7 +185,7 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 
   DEREF(oper_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
-    Pl_Err_Type(type_atom, word);
+    Pl_Err_Type(pl_type_atom, word);
   oper_word = word;
 
 
@@ -193,7 +193,7 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   prec = UnTag_INT(word);
   if (tag_mask != TAG_REF_MASK && 
       (tag_mask != TAG_INT_MASK || prec < 0 || prec > MAX_PREC))
-    Pl_Err_Domain(domain_operator_priority, word);
+    Pl_Err_Domain(pl_domain_operator_priority, word);
   prec_word = word;
 
 
@@ -207,14 +207,14 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
     }
 
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK || i >= 7))
-    Pl_Err_Domain(domain_operator_specifier, specif_word);
+    Pl_Err_Domain(pl_domain_operator_specifier, specif_word);
   specif_word = word;
 
 
   if (Tag_Mask_Of(oper_word) == TAG_ATM_MASK)
     {
       atom = UnTag_ATM(oper_word);
-      op_mask = atom_tbl[atom].prop.op_mask;
+      op_mask = pl_atom_tbl[atom].prop.op_mask;
       if (op_mask == 0)
 	return FALSE;
 
@@ -229,14 +229,14 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 	  A(1) = specif_word;
 	  A(2) = oper_word;
 	  A(3) = op_mask;
-	  Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0),
+	  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0),
 			      4);
 	}
-      oper = Lookup_Oper(atom, i);
+      oper = Pl_Lookup_Oper(atom, i);
     }
   else
     {
-      oper = (OperInf *) Hash_First(oper_tbl, &scan);
+      oper = (OperInf *) Pl_Hash_First(pl_oper_tbl, &scan);
       if (oper == NULL)
 	return FALSE;
 
@@ -247,23 +247,23 @@ Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
       A(3) = (WamWord) scan.endt;
       A(4) = (WamWord) scan.cur_t;
       A(5) = (WamWord) scan.cur_p;
-      Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0), 6);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0), 6);
     }
 
-  return Get_Integer(oper->prec, prec_word) &&
-    Get_Atom(Detect_Oper_Specif(oper), specif_word) &&
-    Get_Atom(Atom_Of_Oper(oper->a_t), oper_word);
+  return Pl_Get_Integer(oper->prec, prec_word) &&
+    Pl_Get_Atom(Detect_Oper_Specif(oper), specif_word) &&
+    Pl_Get_Atom(Atom_Of_Oper(oper->a_t), oper_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CURRENT_OP_ALT_0                                                        *
+ * PL_CURRENT_OP_ALT_0                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Current_Op_Alt_0(void)
+Pl_Current_Op_Alt_0(void)
 {
   WamWord prec_word, specif_word, oper_word;
   HashScan scan;
@@ -273,7 +273,7 @@ Current_Op_Alt_0(void)
   int i;
 
 
-  Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0), 0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0), 0);
 
   prec_word = AB(B, 0);
   specif_word = AB(B, 1);
@@ -288,7 +288,7 @@ Current_Op_Alt_0(void)
 	if (op_mask & Make_Op_Mask(i))
 	  break;
 
-      oper = Lookup_Oper(atom, i);
+      oper = Pl_Lookup_Oper(atom, i);
 
       Delete_Last_Choice_Point();
     }
@@ -298,7 +298,7 @@ Current_Op_Alt_0(void)
       scan.cur_t = (char *) AB(B, 4);
       scan.cur_p = (char *) AB(B, 5);
 
-      oper = (OperInf *) Hash_Next(&scan);
+      oper = (OperInf *) Pl_Hash_Next(&scan);
       if (oper == NULL)
 	{
 	  Delete_Last_Choice_Point();
@@ -316,9 +316,9 @@ Current_Op_Alt_0(void)
       AB(B, 5) = (WamWord) scan.cur_p;
     }
 
-  return Get_Integer(oper->prec, prec_word) &&
-    Get_Atom(Detect_Oper_Specif(oper), specif_word) &&
-    Get_Atom(Atom_Of_Oper(oper->a_t), oper_word);
+  return Pl_Get_Integer(oper->prec, prec_word) &&
+    Pl_Get_Atom(Detect_Oper_Specif(oper), specif_word) &&
+    Pl_Get_Atom(Atom_Of_Oper(oper->a_t), oper_word);
 }
 
 

@@ -47,39 +47,39 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Machine(void);
+void Pl_Init_Machine(void);
 
-void M_Allocate_Stacks(void);
+void Pl_M_Allocate_Stacks(void);
 
-char *M_Sys_Err_String(int err_no);
+char *Pl_M_Sys_Err_String(int err_no);
 
-long M_User_Time(void);
+long Pl_M_User_Time(void);
 
-long M_System_Time(void);
+long Pl_M_System_Time(void);
 
-long M_Real_Time(void);
+long Pl_M_Real_Time(void);
 
-void M_Randomize(void);
+void Pl_M_Randomize(void);
 
-void M_Set_Seed(int n);
+void Pl_M_Set_Seed(int n);
 
-int M_Get_Seed(void);
+int Pl_M_Get_Seed(void);
 
-int M_Random_Integer(int n);
+int Pl_M_Random_Integer(int n);
 
-double M_Random_Float(double n);
+double Pl_M_Random_Float(double n);
 
 
 
-char *M_Host_Name_From_Name(char *host_name);
+char *Pl_M_Host_Name_From_Name(char *host_name);
 
-char *M_Host_Name_From_Adr(char *host_address);
+char *Pl_M_Host_Name_From_Adr(char *host_address);
 
-char *M_Get_Working_Dir(void);
+char *Pl_M_Get_Working_Dir(void);
 
-Bool M_Set_Working_Dir(char *path);
+Bool Pl_M_Set_Working_Dir(char *path);
 
-char *M_Absolute_Path_Name(char *src);
+char *Pl_M_Absolute_Path_Name(char *src);
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
@@ -133,7 +133,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #endif
 
 
-#if defined(M_ix86) && !defined(_WIN32) && !defined(NO_USE_REGS)
+#if defined(M_ix86) // && !defined(_WIN32) // && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 

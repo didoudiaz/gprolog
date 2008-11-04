@@ -58,56 +58,56 @@ Prolog_Prototype(FIND_LINEDIT_COMPLETION_ALT, 0);
 
 
 /*-------------------------------------------------------------------------*
- * GET_LINEDIT_PROMPT_1                                                    *
+ * PL_GET_LINEDIT_PROMPT_1                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Linedit_Prompt_1(WamWord prompt_word)
+Pl_Get_Linedit_Prompt_1(WamWord prompt_word)
 {
-  return Un_String_Check(le_prompt, prompt_word);
+  return Pl_Un_String_Check(pl_le_prompt, prompt_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SET_LINEDIT_PROMPT_1                                                    *
+ * PL_SET_LINEDIT_PROMPT_1                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Linedit_Prompt_1(WamWord prompt_word)
+Pl_Set_Linedit_Prompt_1(WamWord prompt_word)
 {
-  le_prompt = atom_tbl[Rd_Atom_Check(prompt_word)].name;
+  pl_le_prompt = pl_atom_tbl[Pl_Rd_Atom_Check(prompt_word)].name;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ADD_LINEDIT_COMPLETION_1                                                *
+ * PL_ADD_LINEDIT_COMPLETION_1                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Add_Linedit_Completion_1(WamWord compl_word)
+Pl_Add_Linedit_Completion_1(WamWord compl_word)
 {
   int atom;
   AtomProp prop;
   char *p;
 
-  atom = Rd_Atom_Check(compl_word);
-  prop = atom_tbl[atom].prop;
+  atom = Pl_Rd_Atom_Check(compl_word);
+  prop = pl_atom_tbl[atom].prop;
 
   if (prop.length == 0)
     return FALSE;
 
   if (prop.type != IDENTIFIER_ATOM)
     {
-      for (p = atom_tbl[atom].name; *p; p++)
+      for (p = pl_atom_tbl[atom].name; *p; p++)
 	if (!isalnum(*p) && *p != '_')
 	  return FALSE;
     }
 
-  LE_Compl_Add_Word(atom_tbl[atom].name, prop.length);
+  Pl_LE_Compl_Add_Word(pl_atom_tbl[atom].name, prop.length);
   return TRUE;
 }
 
@@ -115,57 +115,57 @@ Add_Linedit_Completion_1(WamWord compl_word)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_LINEDIT_COMPLETION_2                                               *
+ * PL_FIND_LINEDIT_COMPLETION_2                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Find_Linedit_Completion_2(WamWord prefix_word, WamWord compl_word)
+Pl_Find_Linedit_Completion_2(WamWord prefix_word, WamWord compl_word)
 {
-  char *prefix = Rd_String_Check(prefix_word);
+  char *prefix = Pl_Rd_String_Check(prefix_word);
   int nb_match, max_lg, is_last;
   char *compl;
 
-  Check_For_Un_Atom(compl_word);
+  Pl_Check_For_Un_Atom(compl_word);
 
-  if (LE_Compl_Init_Match(prefix, &nb_match, &max_lg) == NULL)
+  if (Pl_LE_Compl_Init_Match(prefix, &nb_match, &max_lg) == NULL)
     return FALSE;
 
-  compl = LE_Compl_Find_Match(&is_last);
+  compl = Pl_LE_Compl_Find_Match(&is_last);
 
   if (!is_last)			/* non deterministic case */
     {
       A(0) = compl_word;
-      Create_Choice_Point((CodePtr)
+      Pl_Create_Choice_Point((CodePtr)
 			  Prolog_Predicate(FIND_LINEDIT_COMPLETION_ALT, 0),
 			  1);
     }
 
-  return Get_Atom(Create_Atom(compl), compl_word);
+  return Pl_Get_Atom(Pl_Create_Atom(compl), compl_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FIND_LINEDIT_COMPLETION_ALT_0                                           *
+ * PL_FIND_LINEDIT_COMPLETION_ALT_0                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Find_Linedit_Completion_Alt_0(void)
+Pl_Find_Linedit_Completion_Alt_0(void)
 {
   WamWord compl_word;
   int is_last;
   char *compl;
 
-  Update_Choice_Point((CodePtr)
+  Pl_Update_Choice_Point((CodePtr)
 		      Prolog_Predicate(FIND_LINEDIT_COMPLETION_ALT, 0), 0);
 
   compl_word = AB(B, 0);
 
-  compl = LE_Compl_Find_Match(&is_last);
+  compl = Pl_LE_Compl_Find_Match(&is_last);
 
   if (is_last)
     Delete_Last_Choice_Point();
 
-  return Get_Atom(Create_Atom(compl), compl_word);
+  return Pl_Get_Atom(Pl_Create_Atom(compl), compl_word);
 }

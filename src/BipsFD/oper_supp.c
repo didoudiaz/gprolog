@@ -55,11 +55,11 @@ static unsigned Find_Expon_General(unsigned x, unsigned y, unsigned *pxn);
 
 
 /*-------------------------------------------------------------------------*
- * POWER                                                                   *
+ * PL_POWER                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Power(unsigned x, unsigned n)
+Pl_Power(unsigned x, unsigned n)
 {
   unsigned xn, xp;
 
@@ -91,11 +91,11 @@ Power(unsigned x, unsigned n)
 
 
 /*-------------------------------------------------------------------------*
- * NTH_ROOT_DN                                                             *
+ * PL_NTH_ROOT_DN                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Nth_Root_Dn(unsigned y, unsigned n)
+Pl_Nth_Root_Dn(unsigned y, unsigned n)
 {
   unsigned old, new;
   unsigned n1 = n - 1;
@@ -111,7 +111,7 @@ Nth_Root_Dn(unsigned y, unsigned n)
   if (n >= sizeof(unsigned) * 8)
     return 1;
 
-  bit = Most_Significant_Bit(y);
+  bit = Pl_Most_Significant_Bit(y);
 
   if ((unsigned) (bit + 1) < n)
     return 1;
@@ -120,13 +120,13 @@ Nth_Root_Dn(unsigned y, unsigned n)
   new = 1 << nb;
 
   old = new;
-  oldn1 = Power(old, n1);
+  oldn1 = Pl_Power(old, n1);
   new = (n1 * old + y / oldn1) / n;
 
   do
     {
       old = new;
-      oldn1 = Power(old, n1);
+      oldn1 = Pl_Power(old, n1);
       new = (n1 * old + y / oldn1) / n;
     }
   while (new < old);
@@ -137,11 +137,11 @@ Nth_Root_Dn(unsigned y, unsigned n)
 
 
 /*-------------------------------------------------------------------------*
- * NTH_ROOT_UP                                                             *
+ * PL_NTH_ROOT_UP                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Nth_Root_Up(unsigned y, unsigned n)
+Pl_Nth_Root_Up(unsigned y, unsigned n)
 {
   unsigned x;
 
@@ -151,8 +151,8 @@ Nth_Root_Up(unsigned y, unsigned n)
   if (n == 0)
     return 0;
 
-  x = Nth_Root_Dn(y, n);
-  if (Power(x, n) != y)
+  x = Pl_Nth_Root_Dn(y, n);
+  if (Pl_Power(x, n) != y)
     x++;
 
   return x;
@@ -162,19 +162,19 @@ Nth_Root_Up(unsigned y, unsigned n)
 
 
 /*-------------------------------------------------------------------------*
- * NTH_ROOT_EXACT                                                          *
+ * PL_NTH_ROOT_EXACT                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Nth_Root_Exact(unsigned y, unsigned n)
+Pl_Nth_Root_Exact(unsigned y, unsigned n)
 {
   unsigned x;
 
   if (y == 0)
     return 0;
 
-  x = Nth_Root_Dn(y, n);
-  if (Power(x, n) != y)
+  x = Pl_Nth_Root_Dn(y, n);
+  if (Pl_Power(x, n) != y)
     return (unsigned) -1;
 
   return x;
@@ -184,11 +184,11 @@ Nth_Root_Exact(unsigned y, unsigned n)
 
 
 /*-------------------------------------------------------------------------*
- * SQRT_DN                                                                 *
+ * PL_SQRT_DN                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Sqrt_Dn(unsigned y)
+Pl_Sqrt_Dn(unsigned y)
 {
   unsigned old, new;
 
@@ -210,15 +210,15 @@ Sqrt_Dn(unsigned y)
 
 
 /*-------------------------------------------------------------------------*
- * SQRT_UP                                                                 *
+ * PL_SQRT_UP                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Sqrt_Up(unsigned y)
+Pl_Sqrt_Up(unsigned y)
 {
   unsigned x;
 
-  x = Sqrt_Dn(y);
+  x = Pl_Sqrt_Dn(y);
   if (x * x != y)
     x++;
 
@@ -229,15 +229,15 @@ Sqrt_Up(unsigned y)
 
 
 /*-------------------------------------------------------------------------*
- * SQRT_EXACT                                                              *
+ * PL_SQRT_EXACT                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Sqrt_Exact(unsigned y)
+Pl_Sqrt_Exact(unsigned y)
 {
   unsigned x;
 
-  x = Sqrt_Dn(y);
+  x = Pl_Sqrt_Dn(y);
   if (x * x != y)
     return (unsigned) -1;
 
@@ -248,11 +248,11 @@ Sqrt_Exact(unsigned y)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_EXPON_DN                                                           *
+ * PL_FIND_EXPON_DN                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Find_Expon_Dn(unsigned x, unsigned y)
+Pl_Find_Expon_Dn(unsigned x, unsigned y)
 {
   unsigned n;
   unsigned xn;
@@ -270,12 +270,12 @@ Find_Expon_Dn(unsigned x, unsigned y)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_EXPON_UP                                                           *
+ * PL_FIND_EXPON_UP                                                        *
  *                                                                         *
  * X must be > 1 and Y must be > 0                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Find_Expon_Up(unsigned x, unsigned y)
+Pl_Find_Expon_Up(unsigned x, unsigned y)
 {
   unsigned n;
   unsigned xn;
@@ -293,12 +293,12 @@ Find_Expon_Up(unsigned x, unsigned y)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_EXPON_EXACT                                                        *
+ * PL_FIND_EXPON_EXACT                                                     *
  *                                                                         *
  * X must be > 1 and Y must be > 0                                         *
  *-------------------------------------------------------------------------*/
 unsigned
-Find_Expon_Exact(unsigned x, unsigned y)
+Pl_Find_Expon_Exact(unsigned x, unsigned y)
 {
   unsigned n;
   unsigned xn;
@@ -366,26 +366,26 @@ Find_Expon_General(unsigned x, unsigned y, unsigned *pxn)
 
 
 /*-------------------------------------------------------------------------*
- * FULL_COEFF_POWER_VAR                                                    *
+ * PL_FULL_COEFF_POWER_VAR                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Full_Coeff_Power_Var(Range *y, int a, Range *n)
+Pl_Full_Coeff_Power_Var(Range *y, int a, Range *n)
 {
   unsigned an, an0;
   int i, vec_elem;
 
-  an = Power(a, n->min);
+  an = Pl_Power(a, n->min);
 
   Vector_Allocate(y->vec);
-  if (an > (unsigned) vec_max_integer)
+  if (an > (unsigned) pl_vec_max_integer)
     {
       y->extra_cstr = TRUE;
       Set_To_Empty(y);
       return;
     }
 
-  Vector_Empty(y->vec);
+  Pl_Vector_Empty(y->vec);
   y->extra_cstr = FALSE;
   y->min = an;
 
@@ -394,7 +394,7 @@ Full_Coeff_Power_Var(Range *y, int a, Range *n)
       an0 = an;
       for (i = n->min; i <= n->max; i++)
 	{
-	  if (an0 > (unsigned) vec_max_integer)
+	  if (an0 > (unsigned) pl_vec_max_integer)
 	    goto end_loop;
 
 	  an = an0;
@@ -408,8 +408,8 @@ Full_Coeff_Power_Var(Range *y, int a, Range *n)
 
       VECTOR_BEGIN_ENUM(n->vec, vec_elem);
 
-      an = Power(a, vec_elem);
-      if (an > (unsigned) vec_max_integer)
+      an = Pl_Power(a, vec_elem);
+      if (an > (unsigned) pl_vec_max_integer)
 	goto end_loop;
 
       Vector_Set_Value(y->vec, an);
@@ -425,18 +425,18 @@ end_loop:
 
 
 /*-------------------------------------------------------------------------*
- * FULL_FIND_EXPON                                                         *
+ * PL_FULL_FIND_EXPON                                                      *
  *                                                                         *
  * Here A>=2 then Y>=1                                                     *
  *-------------------------------------------------------------------------*/
 void
-Full_Find_Expon(Range *n, int a, Range *y)
+Pl_Full_Find_Expon(Range *n, int a, Range *y)
 {
   int e, min;
   int i, vec_elem;
 
   Vector_Allocate(n->vec);
-  Vector_Empty(n->vec);
+  Pl_Vector_Empty(n->vec);
   n->extra_cstr = y->extra_cstr;
 
   min = -1;
@@ -446,7 +446,7 @@ Full_Find_Expon(Range *n, int a, Range *y)
     {
       for (i = y->min; i <= y->max; i++)
 	{
-	  e = Find_Expon_Exact(a, i);
+	  e = Pl_Find_Expon_Exact(a, i);
 
 	  if (e >= 0)
 	    {
@@ -461,7 +461,7 @@ Full_Find_Expon(Range *n, int a, Range *y)
     {
       VECTOR_BEGIN_ENUM(y->vec, vec_elem);
 
-      e = Find_Expon_Exact(a, vec_elem);
+      e = Pl_Find_Expon_Exact(a, vec_elem);
 
       if (e >= 0)
 	{
@@ -482,26 +482,26 @@ Full_Find_Expon(Range *n, int a, Range *y)
 
 
 /*-------------------------------------------------------------------------*
- * FULL_VAR_POWER_COEFF                                                    *
+ * PL_FULL_VAR_POWER_COEFF                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Full_Var_Power_Coeff(Range *y, Range *x, int a)
+Pl_Full_Var_Power_Coeff(Range *y, Range *x, int a)
 {
   unsigned xa;
   int i, vec_elem;
 
-  xa = Power(x->min, a);
+  xa = Pl_Power(x->min, a);
 
   Vector_Allocate(y->vec);
-  if (xa > (unsigned) vec_max_integer)
+  if (xa > (unsigned) pl_vec_max_integer)
     {
       y->extra_cstr = TRUE;
       Set_To_Empty(y);
       return;
     }
 
-  Vector_Empty(y->vec);
+  Pl_Vector_Empty(y->vec);
   y->extra_cstr = FALSE;
   y->min = xa;
 
@@ -509,8 +509,8 @@ Full_Var_Power_Coeff(Range *y, Range *x, int a)
     {
       for (i = x->min; i <= x->max; i++)
 	{
-	  xa = Power(i, a);
-	  if (xa > (unsigned) vec_max_integer)
+	  xa = Pl_Power(i, a);
+	  if (xa > (unsigned) pl_vec_max_integer)
 	    goto end_loop;
 
 	  Vector_Set_Value(y->vec, xa);
@@ -522,8 +522,8 @@ Full_Var_Power_Coeff(Range *y, Range *x, int a)
 
       VECTOR_BEGIN_ENUM(x->vec, vec_elem);
 
-      xa = Power(vec_elem, a);
-      if (xa > (unsigned) vec_max_integer)
+      xa = Pl_Power(vec_elem, a);
+      if (xa > (unsigned) pl_vec_max_integer)
 	goto end_loop;
 
       Vector_Set_Value(y->vec, xa);
@@ -539,17 +539,17 @@ end_loop:
 
 
 /*-------------------------------------------------------------------------*
- * FULL_NTH_ROOT                                                           *
+ * PL_FULL_NTH_ROOT                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Full_Nth_Root(Range *x, Range *y, int a)
+Pl_Full_Nth_Root(Range *x, Range *y, int a)
 {
   int e, min;
   int i, vec_elem;
 
   Vector_Allocate(x->vec);
-  Vector_Empty(x->vec);
+  Pl_Vector_Empty(x->vec);
   x->extra_cstr = y->extra_cstr;
 
   min = -1;
@@ -559,7 +559,7 @@ Full_Nth_Root(Range *x, Range *y, int a)
     {
       for (i = y->min; i <= y->max; i++)
 	{
-	  e = Nth_Root_Exact(i, a);
+	  e = Pl_Nth_Root_Exact(i, a);
 
 	  if (e >= 0)
 	    {
@@ -574,7 +574,7 @@ Full_Nth_Root(Range *x, Range *y, int a)
     {
       VECTOR_BEGIN_ENUM(y->vec, vec_elem);
 
-      e = Nth_Root_Exact(vec_elem, a);
+      e = Pl_Nth_Root_Exact(vec_elem, a);
 
       if (e >= 0)
 	{
@@ -595,11 +595,11 @@ Full_Nth_Root(Range *x, Range *y, int a)
 
 
 /*-------------------------------------------------------------------------*
- * FULL_VAR_POWER_2                                                        *
+ * PL_FULL_VAR_POWER_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Full_Var_Power_2(Range *y, Range *x)
+Pl_Full_Var_Power_2(Range *y, Range *x)
 {
   unsigned x2;
   int i, vec_elem;
@@ -607,14 +607,14 @@ Full_Var_Power_2(Range *y, Range *x)
   x2 = x->min * x->min;
 
   Vector_Allocate(y->vec);
-  if (x2 > (unsigned) vec_max_integer)
+  if (x2 > (unsigned) pl_vec_max_integer)
     {
       y->extra_cstr = TRUE;
       Set_To_Empty(y);
       return;
     }
 
-  Vector_Empty(y->vec);
+  Pl_Vector_Empty(y->vec);
   y->extra_cstr = FALSE;
   y->min = x2;
 
@@ -623,7 +623,7 @@ Full_Var_Power_2(Range *y, Range *x)
       for (i = x->min; i <= x->max; i++)
 	{
 	  x2 = i * i;
-	  if (x2 > (unsigned) vec_max_integer)
+	  if (x2 > (unsigned) pl_vec_max_integer)
 	    goto end_loop;
 
 	  Vector_Set_Value(y->vec, x2);
@@ -636,7 +636,7 @@ Full_Var_Power_2(Range *y, Range *x)
       VECTOR_BEGIN_ENUM(x->vec, vec_elem);
 
       x2 = vec_elem * vec_elem;
-      if (x2 > (unsigned) vec_max_integer)
+      if (x2 > (unsigned) pl_vec_max_integer)
 	goto end_loop;
 
       Vector_Set_Value(y->vec, x2);
@@ -652,17 +652,17 @@ end_loop:
 
 
 /*-------------------------------------------------------------------------*
- * FULL_SQRT_VAR                                                           *
+ * PL_FULL_SQRT_VAR                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Full_Sqrt_Var(Range *x, Range *y)
+Pl_Full_Sqrt_Var(Range *x, Range *y)
 {
   int e, min;
   int i, vec_elem;
 
   Vector_Allocate(x->vec);
-  Vector_Empty(x->vec);
+  Pl_Vector_Empty(x->vec);
   x->extra_cstr = y->extra_cstr;
 
   min = -1;
@@ -672,7 +672,7 @@ Full_Sqrt_Var(Range *x, Range *y)
     {
       for (i = y->min; i <= y->max; i++)
 	{
-	  e = Sqrt_Exact(i);
+	  e = Pl_Sqrt_Exact(i);
 
 	  if (e >= 0)
 	    {
@@ -687,7 +687,7 @@ Full_Sqrt_Var(Range *x, Range *y)
     {
       VECTOR_BEGIN_ENUM(y->vec, vec_elem);
 
-      e = Sqrt_Exact(vec_elem);
+      e = Pl_Sqrt_Exact(vec_elem);
 
       if (e >= 0)
 	{
@@ -708,11 +708,11 @@ Full_Sqrt_Var(Range *x, Range *y)
 
 
 /*-------------------------------------------------------------------------*
- * FULL_VAR_DIV_VAR                                                        *
+ * PL_FULL_VAR_DIV_VAR                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Full_Var_Div_Var(Range *x, Range *z, Range *y)
+Pl_Full_Var_Div_Var(Range *x, Range *z, Range *y)
 {
   if (y->min == 0)
     {
@@ -720,6 +720,6 @@ Full_Var_Div_Var(Range *x, Range *z, Range *y)
       return;
     }
 
-  Range_Copy(x, z);
-  Range_Div_Range(x, y);
+  Pl_Range_Copy(x, z);
+  Pl_Range_Div_Range(x, y);
 }

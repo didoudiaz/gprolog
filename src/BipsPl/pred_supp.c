@@ -59,15 +59,15 @@
 
 
 /*-------------------------------------------------------------------------*
- * DETECT_IF_AUX_NAME                                                      *
+ * PL_DETECT_IF_AUX_NAME                                                   *
  *                                                                         *
  * returns NULL if not an aux name or a pointer to / before the arity of   *
  * the father.                                                             *
  *-------------------------------------------------------------------------*/
 char *
-Detect_If_Aux_Name(int func)
+Pl_Detect_If_Aux_Name(int func)
 {
-  char *str = atom_tbl[func].name;
+  char *str = pl_atom_tbl[func].name;
   char *p, *q;
 
 
@@ -97,42 +97,42 @@ Detect_If_Aux_Name(int func)
 
 
 /*-------------------------------------------------------------------------*
- * FATHER_PRED_OF_AUX                                                      *
+ * PL_FATHER_PRED_OF_AUX                                                   *
  *                                                                         *
  * returns -1 if it is not an aux predicate name.                          *
  *-------------------------------------------------------------------------*/
 int
-Father_Pred_Of_Aux(int func, int *father_arity)
+Pl_Father_Pred_Of_Aux(int func, int *father_arity)
 {
   char *p;
   int l;
 
-  p = Detect_If_Aux_Name(func);
+  p = Pl_Detect_If_Aux_Name(func);
   if (p == NULL)
     return -1;
 
-  l = p - atom_tbl[func].name;
+  l = p - pl_atom_tbl[func].name;
 
   *father_arity = strtol(p + 1, NULL, 10);
-  strcpy(glob_buff, atom_tbl[func].name + 1);	/* skip 1st $ */
-  glob_buff[l - 1] = '\0';
+  strcpy(pl_glob_buff, pl_atom_tbl[func].name + 1);	/* skip 1st $ */
+  pl_glob_buff[l - 1] = '\0';
 
-  return Create_Allocate_Atom(glob_buff);
+  return Pl_Create_Allocate_Atom(pl_glob_buff);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PRED_WITHOUT_AUX                                                        *
+ * PL_PRED_WITHOUT_AUX                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pred_Without_Aux(int func, int arity, int *arity1)
+Pl_Pred_Without_Aux(int func, int arity, int *arity1)
 {
   int func1;
 
-  func1 = Father_Pred_Of_Aux(func, arity1);
+  func1 = Pl_Father_Pred_Of_Aux(func, arity1);
   if (func1 < 0)
     {
       *arity1 = arity;
@@ -146,15 +146,15 @@ Pred_Without_Aux(int func, int arity, int *arity1)
 
 
 /*-------------------------------------------------------------------------*
- * MAKE_AUX_NAME                                                           *
+ * PL_MAKE_AUX_NAME                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Make_Aux_Name(int func, int arity, int aux_nb)
+Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 {
-  func = Pred_Without_Aux(func, arity, &arity);
+  func = Pl_Pred_Without_Aux(func, arity, &arity);
 
-  sprintf(glob_buff, "$%s/%d%s%d", atom_tbl[func].name, arity, AUX_STR,
+  sprintf(pl_glob_buff, "$%s/%d%s%d", pl_atom_tbl[func].name, arity, AUX_STR,
 	  aux_nb);
-  return Create_Allocate_Atom(glob_buff);
+  return Pl_Create_Allocate_Atom(pl_glob_buff);
 }

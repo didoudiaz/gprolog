@@ -40,7 +40,7 @@
 	g_assign('$debug_next', nodebug),
 	g_assign('$debug_leash', 31),
 	g_assign('$debug_depth', 10),
-	'$call_c'('Reset_Debug_Call_Code_0').
+	'$call_c'('Pl_Reset_Debug_Call_Code_0').
 
 
 
@@ -50,7 +50,7 @@
 	g_read('$debug_info', DebugInfo),
 	setarg(1, DebugInfo, 0, false),
 	setarg(2, DebugInfo, [], false),
-	'$call_c'('Set_Debug_Call_Code_0').
+	'$call_c'('Pl_Set_Debug_Call_Code_0').
 
 
 
@@ -59,7 +59,7 @@
 
 wam_debug :-
 	set_bip_name(wam_debug, 0),
-	'$call_c'('Debug_Wam').
+	'$call_c'('Pl_Debug_Wam').
 
 
 
@@ -911,7 +911,7 @@ nospyall.
 	'$debug_is_debug_predicate'(N).
 
 '$debug_disp_alt1'(_, _, B) :-                           % clause selection ?
-	'$call_c_test'('Scan_Choice_Point_Info_3'(B, N, A)),    % fail if not
+	'$call_c_test'('Pl_Scan_Choice_Point_Info_3'(B, N, A)),    % fail if not
 	'$pred_without_aux'(N, A, N1, A1),
 	'$debug_disp_alt2'(N1 / A1).
 
@@ -981,8 +981,8 @@ nospyall.
 
 
 '$choice_point_info'(B, N, A, LastB) :-
-	'$call_c'('Choice_Point_Info_4'(B, N, A, LastB)).
+	'$call_c'('Pl_Choice_Point_Info_4'(B, N, A, LastB)).
 
 
 '$choice_point_arg'(B, I, Arg) :-
-	'$call_c'('Choice_Point_Arg_3'(B, I, Arg)).
+	'$call_c'('Pl_Choice_Point_Arg_3'(B, I, Arg)).

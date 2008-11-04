@@ -52,27 +52,27 @@ HashScan;
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Hash_Alloc_Table(int tbl_size, int elem_size);
+char *Pl_Hash_Alloc_Table(int tbl_size, int elem_size);
 
-void Hash_Free_Table(char *tbl);
+void Pl_Hash_Free_Table(char *tbl);
 
-char *Hash_Realloc_Table(char *tbl, int new_tbl_size);
+char *Pl_Hash_Realloc_Table(char *tbl, int new_tbl_size);
 
-void Hash_Delete_All(char *tbl);
+void Pl_Hash_Delete_All(char *tbl);
 
-char *Hash_Insert(char *tbl, char *elem, int replace);
+char *Pl_Hash_Insert(char *tbl, char *elem, int replace);
 
-char *Hash_Find(char *tbl, long key);
+char *Pl_Hash_Find(char *tbl, long key);
 
-char *Hash_Delete(char *tbl, long key);
+char *Pl_Hash_Delete(char *tbl, long key);
 
-char *Hash_First(char *tbl, HashScan *scan);
+char *Pl_Hash_First(char *tbl, HashScan *scan);
 
-char *Hash_Next(HashScan *scan);
+char *Pl_Hash_Next(HashScan *scan);
 
-int Hash_Table_Size(char *tbl);
+int Pl_Hash_Table_Size(char *tbl);
 
-int Hash_Nb_Elements(char *tbl);
+int Pl_Hash_Nb_Elements(char *tbl);
 
 #ifdef DEBUG
 

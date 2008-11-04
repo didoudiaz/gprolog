@@ -31,11 +31,11 @@
 
 print(Term) :-
 	set_bip_name(print, 1),
-	'$call_c'('Print_1'(Term)).
+	'$call_c'('Pl_Print_1'(Term)).
 
 print(SorA, Term) :-
 	set_bip_name(print, 2),
-	'$call_c'('Print_2'(SorA, Term)).
+	'$call_c'('Pl_Print_2'(SorA, Term)).
 
 
 
@@ -56,4 +56,4 @@ print(SorA, Term) :-
 get_print_stream(Stream) :-
 	set_bip_name(get_print_stream, 1),
 	'$check_stream_or_var'(Stream, Stm),
-	'$call_c'('Get_Print_Stm_1'(Stm)).
+	'$call_c'('Pl_Get_Print_Stm_1'(Stm)).

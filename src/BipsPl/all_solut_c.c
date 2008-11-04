@@ -143,28 +143,28 @@ All_Solut_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * FREE_VARIABLES_4                                                        *
+ * PL_FREE_VARIABLES_4                                                     *
  *                                                                         *
  * Fail if no free variables.                                              *
  *-------------------------------------------------------------------------*/
 Bool
-Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
+Pl_Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
 		 WamWord key_word)
 {
   WamWord gl_key_word;
   WamWord *save_H, *arg;
   int nb_free_var = 0;
 
-  bound_var_ptr = glob_dico_var;	/* glob_dico_var: stores bound vars */
+  bound_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores bound vars */
 
-  Treat_Vars_Of_Term(templ_word, TRUE, Bound_Var);
+  Pl_Treat_Vars_Of_Term(templ_word, TRUE, Bound_Var);
 
   new_gen_word = Existential_Variables(gen_word);
 
   save_H = H++;			/* one more word for f/n is possible */
 
   arg = free_var_base = H;	/* array is in the heap */
-  Treat_Vars_Of_Term(new_gen_word, TRUE, Free_Var);
+  Pl_Treat_Vars_Of_Term(new_gen_word, TRUE, Free_Var);
   nb_free_var = H - arg;
 
   if (nb_free_var == 0)
@@ -178,24 +178,24 @@ Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
   else
     {
       H = free_var_base;
-      gl_key_word = Mk_Proper_List(nb_free_var, arg);
+      gl_key_word = Pl_Mk_Proper_List(nb_free_var, arg);
     }
 
-  Unify(new_gen_word, gen1_word);
-  return Unify(gl_key_word, key_word);
+  Pl_Unify(new_gen_word, gen1_word);
+  return Pl_Unify(gl_key_word, key_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RECOVER_GENERATOR_1                                                     *
+ * PL_RECOVER_GENERATOR_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Recover_Generator_1(WamWord gen1_word)
+Pl_Recover_Generator_1(WamWord gen1_word)
 {
-  Unify(new_gen_word, gen1_word);
+  Pl_Unify(new_gen_word, gen1_word);
 }
 
 
@@ -210,12 +210,12 @@ Bound_Var(WamWord *adr)
 {
   long *p;
 
-  for (p = glob_dico_var; p < bound_var_ptr; p++)
+  for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
     if (*p == (long) adr)
       return;
 
-  if (bound_var_ptr - glob_dico_var >= MAX_VAR_IN_TERM)
-    Pl_Err_Representation(representation_too_many_variables);
+  if (bound_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
+    Pl_Err_Representation(pl_representation_too_many_variables);
 
   *bound_var_ptr++ = (long) adr;
 }
@@ -240,7 +240,7 @@ Existential_Variables(WamWord start_word)
       adr = UnTag_STC(word);
       if (Functor_And_Arity(adr) == exist_2)
 	{
-	  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var);
+	  Pl_Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var);
 	  word = Existential_Variables(Arg(adr, 1));
 	}
     }
@@ -261,7 +261,7 @@ Free_Var(WamWord *adr)
   long *p;
   WamWord word;
 
-  for (p = glob_dico_var; p < bound_var_ptr; p++)
+  for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
     if (*p == (long) adr)
       return;
 
@@ -291,7 +291,7 @@ Free_Var(WamWord *adr)
  *                                                                         *
  * There is a special treatment for bagof/3. Each solution is a term of    *
  * the form Key-Value. In order to group solutions by Key we use a keysort *
- * (done in Prolog) + Group_Solutions_3 (written in C). However, keysort/2 *
+ * (done in Prolog) + Pl_Group_Solutions_3 (written in C). However, keysort/2 *
  * tests a term equality (==) while a structural equality is needed.       *
  *                                                                         *
  * Structural equality: T1 and T2 are structurally equal if their tree     *
@@ -313,7 +313,7 @@ Free_Var(WamWord *adr)
  *   - for each variable V of Key:                                         *
  *       - if V is in the stack do nothing                                 *
  *       - if next_key_var_ptr<save_key_var_ptr (can reuse a variable)     *
- *         then Unify(V,*next_key_var_ptr++)                               *
+ *         then Pl_Unify(V,*next_key_var_ptr++)                            *
  *       - otherwise push V (*key_var_ptr++=V)                             *
  *                                                                         *
  * E.g. the keys [A,B,A], [f(C),D,E,F], [G,H,G] and [f(C),D,E,F] become:   *
@@ -327,24 +327,24 @@ Free_Var(WamWord *adr)
 
 
 /*-------------------------------------------------------------------------*
- * STOP_MARK_1                                                             *
+ * PL_STOP_MARK_1                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stop_Mark_1(WamWord stop_word)
+Pl_Stop_Mark_1(WamWord stop_word)
 {
-  Get_Integer(sol->sol_no, stop_word);
+  Pl_Get_Integer(sol->sol_no, stop_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * STORE_SOLUTION_1                                                        *
+ * PL_STORE_SOLUTION_1                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Store_Solution_1(WamWord term_word)
+Pl_Store_Solution_1(WamWord term_word)
 {
   OneSol *s;
   int size;
@@ -353,7 +353,7 @@ Store_Solution_1(WamWord term_word)
  * This corrupts ebp on ix86 */
   static WamWord fix_bug;
 
-  size = Term_Size(term_word);
+  size = Pl_Term_Size(term_word);
 
   s = (OneSol *) Malloc(sizeof(OneSol) - sizeof(WamWord) +
 			size * sizeof(WamWord));
@@ -361,7 +361,7 @@ Store_Solution_1(WamWord term_word)
   s->sol_no = sol->sol_no + 1;
   s->term_size = size;
   fix_bug = term_word;	
-  Copy_Term(&s->term_word, &fix_bug);
+  Pl_Copy_Term(&s->term_word, &fix_bug);
   sol = s;
 }
 
@@ -369,11 +369,11 @@ Store_Solution_1(WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * RECOVER_SOLUTIONS_2                                                     *
+ * PL_RECOVER_SOLUTIONS_2                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
+Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
 		    WamWord list_word)
 {
   int stop;
@@ -382,14 +382,14 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
   OneSol *s;
   Bool handle_key;
 
-  stop = Rd_Integer(stop_word);
+  stop = Pl_Rd_Integer(stop_word);
   nb_sol = sol->sol_no - stop;
 
   if (nb_sol == 0)
-    return Get_Nil(list_word);
+    return Pl_Get_Nil(list_word);
 
-  handle_key = Rd_Integer(handle_key_word);
-  key_var_ptr = glob_dico_var;	/* glob_dico_var: key vars */
+  handle_key = Pl_Rd_Integer(handle_key_word);
+  key_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: key vars */
 
 
   H += 2 * nb_sol;
@@ -400,7 +400,7 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
       p--;
       *p = Tag_LST(p + 1);
       *--p = Tag_REF(H);
-      Copy_Contiguous_Term(H, &sol->term_word);
+      Pl_Copy_Contiguous_Term(H, &sol->term_word);
 
       if (handle_key)
 	Handle_Key_Variables(*H);
@@ -412,7 +412,7 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
     }
 
   q[-1] = NIL_WORD;
-  return Unify(Tag_LST(p), list_word);
+  return Pl_Unify(Tag_LST(p), list_word);
 }
 
 
@@ -429,11 +429,11 @@ Handle_Key_Variables(WamWord start_word)
   WamWord *adr;
 
   save_key_var_ptr = key_var_ptr;
-  next_key_var_ptr = glob_dico_var;
+  next_key_var_ptr = pl_glob_dico_var;
 
   DEREF(start_word, word, tag_mask);
   adr = UnTag_STC(word);
-  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Link_Key_Var);
+  Pl_Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Link_Key_Var);
 }
 
 
@@ -448,19 +448,19 @@ Link_Key_Var(WamWord *adr)
 {
   long *p;
 
-  for (p = glob_dico_var; p < key_var_ptr; p++)
+  for (p = pl_glob_dico_var; p < key_var_ptr; p++)
     if (*p == (long) adr)
       return;
 
   if (next_key_var_ptr < save_key_var_ptr)
-    {		      /* same as Unify(Tag_REF(adr), *next_key_var_ptr++) */
+    {		      /* same as Pl_Unify(Tag_REF(adr), *next_key_var_ptr++) */
       *adr = *(WamWord *) (*next_key_var_ptr);
       next_key_var_ptr++;
       return;
     }
 
-  if (key_var_ptr - glob_dico_var >= MAX_VAR_IN_TERM)
-    Pl_Err_Representation(representation_too_many_variables);
+  if (key_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
+    Pl_Err_Representation(pl_representation_too_many_variables);
 
   *key_var_ptr++ = (long) adr;
 }
@@ -477,11 +477,11 @@ Link_Key_Var(WamWord *adr)
 
 
 /*-------------------------------------------------------------------------*
- * GROUP_SOLUTIONS_3                                                       *
+ * PL_GROUP_SOLUTIONS_3                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
+Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
 		  WamWord sol_word)
 {
   WamWord word, tag_mask;
@@ -497,29 +497,29 @@ Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
       A(0) = word;
       A(1) = gl_key_word;
       A(2) = sol_word;
-      Create_Choice_Point((CodePtr)
+      Pl_Create_Choice_Point((CodePtr)
 			  Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 3);
     }
 
-  Unify(key_word, gl_key_word);
-  return Unify(sol_word, all_sol_word);
+  Pl_Unify(key_word, gl_key_word);
+  return Pl_Unify(sol_word, all_sol_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GROUP_SOLUTIONS_ALT_0                                                   *
+ * PL_GROUP_SOLUTIONS_ALT_0                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Group_Solutions_Alt_0(void)
+Pl_Group_Solutions_Alt_0(void)
 {
   WamWord all_sol_word, gl_key_word, sol_word;
   WamWord word;
   WamWord key_word;
 
-  Update_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0),
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0),
 		      0);
 
   all_sol_word = AB(B, 0);
@@ -538,8 +538,8 @@ Group_Solutions_Alt_0(void)
 #endif
     }
 
-  Unify(key_word, gl_key_word);
-  return Unify(sol_word, all_sol_word);
+  Pl_Unify(key_word, gl_key_word);
+  return Pl_Unify(sol_word, all_sol_word);
 }
 
 
@@ -579,7 +579,7 @@ Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr)
       adr = UnTag_STC(word);
       key_word1 = Arg(adr, 0);
 
-      if (Term_Compare(key_word, key_word1) != 0)
+      if (Pl_Term_Compare(key_word, key_word1) != 0)
 	break;
     }
 

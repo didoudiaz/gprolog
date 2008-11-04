@@ -31,7 +31,7 @@
 
 #include "linedit.h"
 
-#define printf LE_Printf
+#define printf Pl_LE_Printf
 
 
 

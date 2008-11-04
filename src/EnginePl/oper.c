@@ -65,19 +65,19 @@
 
 #define T_YFX(p)                   INFIX,   p, p,   p-1
 
-#define ADD_OPER(prec, type, name) Create_Oper(Create_Atom(name), T_##type(prec))
+#define ADD_OPER(prec, type, name) Pl_Create_Oper(Pl_Create_Atom(name), T_##type(prec))
 
 
 
 
 /*-------------------------------------------------------------------------*
- * INIT_OPER                                                               *
+ * PL_INIT_OPER                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Oper(void)
+Pl_Init_Oper(void)
 {
-  oper_tbl = Hash_Alloc_Table(START_OPER_TBL_SIZE, sizeof(OperInf));
+  pl_oper_tbl = Pl_Hash_Alloc_Table(START_OPER_TBL_SIZE, sizeof(OperInf));
 
   ADD_OPER(1200, XFX, ":-");
   ADD_OPER(1200, XFX, "-->");
@@ -169,26 +169,26 @@ Init_Oper(void)
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_OPER                                                             *
+ * PL_CREATE_OPER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 OperInf *
-Create_Oper(int atom_op, int type, int prec, int left, int right)
+Pl_Create_Oper(int atom_op, int type, int prec, int left, int right)
 {
   OperInf oper_info;
   OperInf *oper;
 
 
-  Extend_Table_If_Needed(&oper_tbl);
+  Pl_Extend_Table_If_Needed(&pl_oper_tbl);
 
   oper_info.a_t = Make_Oper_Key(atom_op, type);
   oper_info.prec = prec;
   oper_info.left = left;
   oper_info.right = right;
 
-  oper = (OperInf *) Hash_Insert(oper_tbl, (char *) &oper_info, TRUE);
+  oper = (OperInf *) Pl_Hash_Insert(pl_oper_tbl, (char *) &oper_info, TRUE);
 
-  atom_tbl[atom_op].prop.op_mask |= Make_Op_Mask(type);
+  pl_atom_tbl[atom_op].prop.op_mask |= Make_Op_Mask(type);
 
   return oper;
 }
@@ -197,38 +197,38 @@ Create_Oper(int atom_op, int type, int prec, int left, int right)
 
 
 /*-------------------------------------------------------------------------*
- * LOOKUP_OPER                                                             *
+ * PL_LOOKUP_OPER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 OperInf *
-Lookup_Oper(int atom_op, int type)
+Pl_Lookup_Oper(int atom_op, int type)
 {
   if (!Check_Oper(atom_op, type))
     return NULL;
 
-  return (OperInf *) Hash_Find(oper_tbl, Make_Oper_Key(atom_op, type));
+  return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, type));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * LOOKUP_OPER_ANY_TYPE                                                    *
+ * PL_LOOKUP_OPER_ANY_TYPE                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 OperInf *
-Lookup_Oper_Any_Type(int atom_op)
+Pl_Lookup_Oper_Any_Type(int atom_op)
 {
-  int op_mask = atom_tbl[atom_op].prop.op_mask;
+  int op_mask = pl_atom_tbl[atom_op].prop.op_mask;
 
   if (op_mask & Make_Op_Mask(PREFIX))
-    return (OperInf *) Hash_Find(oper_tbl, Make_Oper_Key(atom_op, PREFIX));
+    return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, PREFIX));
 
   if (op_mask & Make_Op_Mask(INFIX))
-    return (OperInf *) Hash_Find(oper_tbl, Make_Oper_Key(atom_op, INFIX));
+    return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, INFIX));
 
   if (op_mask & Make_Op_Mask(POSTFIX))
-    return (OperInf *) Hash_Find(oper_tbl, Make_Oper_Key(atom_op, POSTFIX));
+    return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, POSTFIX));
 
   return NULL;
 }
@@ -237,15 +237,15 @@ Lookup_Oper_Any_Type(int atom_op)
 
 
 /*-------------------------------------------------------------------------*
- * DELETE_OPER                                                             *
+ * PL_DELETE_OPER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 OperInf *
-Delete_Oper(int atom_op, int type)
+Pl_Delete_Oper(int atom_op, int type)
 {
   long key = Make_Oper_Key(atom_op, type);
 
-  atom_tbl[atom_op].prop.op_mask &= ~Make_Op_Mask(type);
+  pl_atom_tbl[atom_op].prop.op_mask &= ~Make_Op_Mask(type);
 
-  return (OperInf *) Hash_Delete(oper_tbl, key);
+  return (OperInf *) Pl_Hash_Delete(pl_oper_tbl, key);
 }

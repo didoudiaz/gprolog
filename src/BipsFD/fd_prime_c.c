@@ -64,32 +64,32 @@ static void Compute_Prime_Range(void);
 
 
 /*-------------------------------------------------------------------------*
- * PRIME_RANGE                                                             *
+ * PL_PRIME_RANGE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Prime_Range(Range *r)
+Pl_Prime_Range(Range *r)
 {
-  if (prime_vec_size != vec_size)
+  if (prime_vec_size != pl_vec_size)
     Compute_Prime_Range();
 
-  Range_Copy(r, &prime_range);
+  Pl_Range_Copy(r, &prime_range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * NOT_PRIME_RANGE                                                         *
+ * PL_NOT_PRIME_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Not_Prime_Range(Range *r)
+Pl_Not_Prime_Range(Range *r)
 {
-  if (prime_vec_size != vec_size)
+  if (prime_vec_size != pl_vec_size)
     Compute_Prime_Range();
 
-  Range_Copy(r, &not_prime_range);
+  Pl_Range_Copy(r, &not_prime_range);
 }
 
 
@@ -111,10 +111,10 @@ Compute_Prime_Range(void)
       Free(not_prime_range.vec);
     }
 
-  prime_range.vec = vec = (Vector) Malloc(vec_size * sizeof(VecWord));
-  not_prime_range.vec = nvec = (Vector) Malloc(vec_size * sizeof(VecWord));
+  prime_range.vec = vec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
+  not_prime_range.vec = nvec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
 
-  Vector_Full(vec);
+  Pl_Vector_Full(vec);
   Vector_Reset_Value(vec, 0);
   Vector_Reset_Value(vec, 1);
 
@@ -122,11 +122,11 @@ Compute_Prime_Range(void)
   do
     {
       j = i;
-      while ((j += i) <= vec_max_integer)
+      while ((j += i) <= pl_vec_max_integer)
 	Vector_Reset_Value(vec, j);
 
       j = i;
-      i = Vector_Next_After(vec, i);
+      i = Pl_Vector_Next_After(vec, i);
     }
   while (i > 0);
 
@@ -136,11 +136,11 @@ Compute_Prime_Range(void)
 
   not_prime_range.extra_cstr = TRUE;
   not_prime_range.min = 0;
-  not_prime_range.max = (j < vec_max_integer) ? vec_max_integer
-    : vec_max_integer - 1;
+  not_prime_range.max = (j < pl_vec_max_integer) ? pl_vec_max_integer
+    : pl_vec_max_integer - 1;
 
 
-  end = vec + vec_size;
+  end = vec + pl_vec_size;
 
   do
     {
@@ -150,5 +150,5 @@ Compute_Prime_Range(void)
     }
   while (vec < end);
 
-  prime_vec_size = vec_size;
+  prime_vec_size = pl_vec_size;
 }

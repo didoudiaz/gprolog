@@ -52,11 +52,11 @@ PredInf;
 
 #ifdef PRED_FILE
 
-char *pred_tbl;
+char *pl_pred_tbl;
 
 #else
 
-extern char *pred_tbl;
+extern char *pl_pred_tbl;
 
 #endif
 
@@ -67,11 +67,11 @@ extern char *pred_tbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Pred(void);
+void Pl_Init_Pred(void);
 
-PredInf * FC Create_Pred(int func, int arity, int pl_file, int pl_line,
+PredInf * FC Pl_Create_Pred(int func, int arity, int pl_file, int pl_line,
 		     int prop, long *codep);
 
-PredInf * FC Lookup_Pred(int func, int arity);
+PredInf * FC Pl_Lookup_Pred(int func, int arity);
 
-void FC Delete_Pred(int func, int arity);
+void FC Pl_Delete_Pred(int func, int arity);

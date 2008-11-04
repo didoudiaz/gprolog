@@ -31,11 +31,11 @@
 
 format(Format, Args) :-
 	set_bip_name(format, 2),
-	'$call_c'('Format_2'(Format, Args)).
+	'$call_c'('Pl_Format_2'(Format, Args)).
 
 
 
 
 format(SorA, Format, Args) :-
 	set_bip_name(format, 3),
-	'$call_c'('Format_3'(SorA, Format, Args)).
+	'$call_c'('Pl_Format_3'(SorA, Format, Args)).

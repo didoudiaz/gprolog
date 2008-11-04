@@ -30,18 +30,18 @@
 
 
 '$throw'(Ball, Func, Arity, DebugCall) :-
-	'$call_c'('Save_Call_Info_3'(Func, Arity, DebugCall)),
+	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
 	'$throw1'(Ball, 0).
 
 
 '$throw1'(Ball, CallInfo) :-
-	'$call_c'('Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
+	'$call_c'('Pl_Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
 	'$throw_internal'(Ball, CallInfo).
 
 
 '$throw_internal'(Ball, CallInfo) :-
 	(   var(Ball) ->
-	    '$call_c'('Call_Info_Bip_Name_1'(CallInfo)),
+	    '$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
 	    '$pl_err_instantiation'
 	;   true
 	),
@@ -53,5 +53,5 @@
 
 '$unwind'(Ball) :-
 	'$sys_var_read'(7, Handler),
-	'$call_c'('Throw_2'(Ball, Handler)),              % mainly does a cut
+	'$call_c'('Pl_Throw_2'(Ball, Handler)),              % mainly does a cut
 	fail.

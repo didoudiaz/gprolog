@@ -80,9 +80,9 @@ static double dbl_tbl[MAX_DOUBLES_IN_PRED];
 static int nb_dbl = 0;
 static int dbl_lc_no = 0;
 
-char asm_reg_e[16];
-char asm_reg_b[16];
-char asm_reg_cp[16];
+char asm_reg_e[20];
+char asm_reg_b[20];
+char asm_reg_cp[20];
 
 int w_label = 0;
 
@@ -127,7 +127,7 @@ void
 Asm_Start(void)
 {
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
-#define ASM_REG_BANK "reg_bank"
+#define ASM_REG_BANK "pl_reg_bank"
 #elif defined(MAP_REG_BANK)
 #define ASM_REG_BANK "%" MAP_REG_BANK
 #else
@@ -168,7 +168,7 @@ Asm_Start(void)
 static char *
 Off_Reg_Bank(int offset)
 {
-  static char str[16];
+  static char str[20];
 
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
   sprintf(str, ASM_REG_BANK "+%d", offset);
@@ -649,10 +649,10 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Inst_Printf("movq", "$foreign_long+%d, %s", index * 8, r);
+    Inst_Printf("movq", "$pl_foreign_long+%d, %s", index * 8, r);
   else
     {
-      Inst_Printf("movq", "foreign_long+%d(%%rip),%s", index * 8, r_aux);
+      Inst_Printf("movq", "pl_foreign_long+%d(%%rip),%s", index * 8, r_aux);
       if (!r_eq_r_aux)
 	Inst_Printf("movq", "%s, %s", r_aux, r);
     }
@@ -673,14 +673,14 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
   if (adr_of)
     {
       BEFORE_ARG;
-      Inst_Printf("movq", "$foreign_double+%d, %s", index * 8, r);
+      Inst_Printf("movq", "$pl_foreign_double+%d, %s", index * 8, r);
       AFTER_ARG;
       return 1;
     }
 
   BEFORE_FPR_ARG;
 
-  Inst_Printf("movsd", "foreign_double+%d(%%rip),%s", index * 8, r_aux);
+  Inst_Printf("movsd", "pl_foreign_double+%d(%%rip),%s", index * 8, r_aux);
   if (!r_eq_r_aux)
     Inst_Printf("movsd", "%s, %s", r_aux, r);
 
@@ -790,7 +790,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("movq", "%%rax, foreign_long+%d(%%rip)", index * 8);
+  Inst_Printf("movq", "%%rax, pl_foreign_long+%d(%%rip)", index * 8);
 }
 
 
@@ -803,7 +803,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("movsd", "%%xmm0, foreign_double+%d(%%rip)", index * 8);
+  Inst_Printf("movsd", "%%xmm0, pl_foreign_double+%d(%%rip)", index * 8);
 }
 
 

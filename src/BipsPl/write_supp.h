@@ -48,11 +48,11 @@
 
 #ifdef WRITE_SUPP_FILE
 
-int last_writing;
+int pl_last_writing;
 
 #else
 
-extern int last_writing;
+extern int pl_last_writing;
 
 #endif
 
@@ -63,13 +63,13 @@ extern int last_writing;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Write_Term(StmInf *pstm, int depth, int prec, int mask,
+void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask,
 		WamWord term_word);
 
-void Write_Simple(WamWord term_word);
+void Pl_Write_Simple(WamWord term_word);
 
-void Write_A_Char(StmInf *pstm, int c);
+void Pl_Write_A_Char(StmInf *pstm, int c);
 
-char *Float_To_String(double d);
+char *Pl_Float_To_String(double d);
 
 int Get_Print_Stm(void);

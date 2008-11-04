@@ -40,33 +40,33 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-unsigned Power(unsigned x, unsigned n);
+unsigned Pl_Power(unsigned x, unsigned n);
 
-unsigned Nth_Root_Dn(unsigned y, unsigned n);
+unsigned Pl_Nth_Root_Dn(unsigned y, unsigned n);
 
-unsigned Nth_Root_Up(unsigned y, unsigned n);
+unsigned Pl_Nth_Root_Up(unsigned y, unsigned n);
 
-unsigned Nth_Root_Exact(unsigned y, unsigned n);
+unsigned Pl_Nth_Root_Exact(unsigned y, unsigned n);
 
-unsigned Sqrt_Dn(unsigned y);
+unsigned Pl_Sqrt_Dn(unsigned y);
 
-unsigned Sqrt_Up(unsigned y);
+unsigned Pl_Sqrt_Up(unsigned y);
 
-unsigned Sqrt_Exact(unsigned y);
+unsigned Pl_Sqrt_Exact(unsigned y);
 
-unsigned Find_Expon_Dn(unsigned x, unsigned y);
+unsigned Pl_Find_Expon_Dn(unsigned x, unsigned y);
 
-unsigned Find_Expon_Up(unsigned x, unsigned y);
+unsigned Pl_Find_Expon_Up(unsigned x, unsigned y);
 
-unsigned Find_Expon_Exact(unsigned x, unsigned y);
+unsigned Pl_Find_Expon_Exact(unsigned x, unsigned y);
 
-void Full_Coeff_Power_Var(Range *y, int a, Range *n);
+void Pl_Full_Coeff_Power_Var(Range *y, int a, Range *n);
 
-void Full_Find_Expon(Range *n, int a, Range *y);
+void Pl_Full_Find_Expon(Range *n, int a, Range *y);
 
-void Full_Var_Power_Coeff(Range *y, Range *x, int a);
+void Pl_Full_Var_Power_Coeff(Range *y, Range *x, int a);
 
-void Full_Nth_Root(Range *x, Range *y, int a);
+void Pl_Full_Nth_Root(Range *x, Range *y, int a);
 
 void Full_Max_Cst_Var(Range *z, int a, Range *x);
 

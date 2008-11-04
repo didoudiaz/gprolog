@@ -35,7 +35,7 @@ findall(Template, Generator, Instances) :-
 '$findall'(Template, Generator, Instances, Func) :-
 	'$check_list_arg'(Instances, Func),
 	'$store_solutions'(Template, Generator, Stop, Func),
-	'$call_c_test'('Recover_Solutions_2'(Stop, 0, Instances)).
+	'$call_c_test'('Pl_Recover_Solutions_2'(Stop, 0, Instances)).
 
 
 
@@ -54,10 +54,10 @@ bagof(Template, Generator, Instances) :-
 
 
 '$bagof'(Template, Generator, Instances, Func) :-
-	'$call_c_test'('Free_Variables_4'(Template, Generator, Generator1, Key)), !,
+	'$call_c_test'('Pl_Free_Variables_4'(Template, Generator, Generator1, Key)), !,
 	'$store_solutions'(Key - Template, Generator1, Stop, Func),
 	set_bip_name(Func, 3),   % for error too_many_variables in C function
-	'$call_c_test'('Recover_Solutions_2'(Stop, 1, AllInstances)),
+	'$call_c_test'('Pl_Recover_Solutions_2'(Stop, 1, AllInstances)),
 	(   Func = bagof ->
 	    keysort(AllInstances)
 	;   sort(AllInstances)
@@ -65,7 +65,7 @@ bagof(Template, Generator, Instances) :-
 	'$group_solutions'(AllInstances, Key, Instances).
 
 '$bagof'(Template, _, Instances, Func) :-
-	'$call_c'('Recover_Generator_1'(Generator)),
+	'$call_c'('Pl_Recover_Generator_1'(Generator)),
 	'$findall'(Template, Generator, Instances, Func),
 	Instances \== [],
 	(   Func = bagof ->
@@ -77,9 +77,9 @@ bagof(Template, Generator, Instances) :-
 
 
 '$store_solutions'(Template, Generator, Stop, Func) :-
-	'$call_c'('Stop_Mark_1'(Stop)),
+	'$call_c'('Pl_Stop_Mark_1'(Stop)),
 	(   '$call'(Generator, Func, 3, true),
-	    '$call_c'('Store_Solution_1'(Template)),
+	    '$call_c'('Pl_Store_Solution_1'(Template)),
 	    fail
 	;   true
 	).
@@ -88,10 +88,10 @@ bagof(Template, Generator, Instances) :-
 
 
 '$group_solutions'(AllInstances1, Key, Instances) :-
-	'$call_c_test'('Group_Solutions_3'(AllInstances1, Key, Instances)).
+	'$call_c_test'('Pl_Group_Solutions_3'(AllInstances1, Key, Instances)).
 
 '$group_solutions_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Group_Solutions_Alt_0').
+	'$call_c_test'('Pl_Group_Solutions_Alt_0').
 
 
 

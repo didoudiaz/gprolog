@@ -902,7 +902,7 @@ Get_CHM_Help_Path(char *path)
     
     for (;;)
     {
-        if ((p = Get_Prolog_Path(&devel_mode)) != NULL)
+        if ((p = Get_Prolog_Path(NULL, &devel_mode)) != NULL)
             break;
 
         if ((p = Get_Selected_Directory("Select the GNU Prolog directory", 0)) == NULL)

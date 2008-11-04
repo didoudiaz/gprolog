@@ -52,4 +52,4 @@ X >= Y :-
 
 
 '$arith_eval'(X, Y) :-
-	'$call_c'('Arith_Eval_2'(X, Y)).
+	'$call_c'('Pl_Arith_Eval_2'(X, Y)).

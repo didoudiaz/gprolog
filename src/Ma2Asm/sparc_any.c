@@ -59,10 +59,10 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[16];
-char asm_reg_e[16];
-char asm_reg_b[16];
-char asm_reg_cp[16];
+char asm_reg_bank[20];
+char asm_reg_e[20];
+char asm_reg_b[20];
+char asm_reg_cp[20];
 
 int w_label = 0;
 

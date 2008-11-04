@@ -53,102 +53,102 @@
 
 
 /*-------------------------------------------------------------------------*
- * BLT_TERM_EQ                                                             *
+ * PL_BLT_TERM_EQ                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Term_Eq(WamWord x, WamWord y)
+Pl_Blt_Term_Eq(WamWord x, WamWord y)
 {
-  return Term_Compare(x, y) == 0;
+  return Pl_Term_Compare(x, y) == 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_TERM_NEQ                                                            *
+ * PL_BLT_TERM_NEQ                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Term_Neq(WamWord x, WamWord y)
+Pl_Blt_Term_Neq(WamWord x, WamWord y)
 {
-  return Term_Compare(x, y) != 0;
+  return Pl_Term_Compare(x, y) != 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_TERM_LT                                                             *
+ * PL_BLT_TERM_LT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Term_Lt(WamWord x, WamWord y)
+Pl_Blt_Term_Lt(WamWord x, WamWord y)
 {
-  return Term_Compare(x, y) < 0;
+  return Pl_Term_Compare(x, y) < 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_TERM_LTE                                                            *
+ * PL_BLT_TERM_LTE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Term_Lte(WamWord x, WamWord y)
+Pl_Blt_Term_Lte(WamWord x, WamWord y)
 {
-  return Term_Compare(x, y) <= 0;
+  return Pl_Term_Compare(x, y) <= 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_TERM_GT                                                             *
+ * PL_BLT_TERM_GT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Term_Gt(WamWord x, WamWord y)
+Pl_Blt_Term_Gt(WamWord x, WamWord y)
 {
-  return Term_Compare(x, y) > 0;
+  return Pl_Term_Compare(x, y) > 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_TERM_GTE                                                            *
+ * PL_BLT_TERM_GTE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Term_Gte(WamWord x, WamWord y)
+Pl_Blt_Term_Gte(WamWord x, WamWord y)
 {
-  return Term_Compare(x, y) >= 0;
+  return Pl_Term_Compare(x, y) >= 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_COMPARE                                                             *
+ * PL_BLT_COMPARE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
+Pl_Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
 {
   int cmp;
   char c;
   Bool res;
 
-  Set_C_Bip_Name("compare", 3);
+  Pl_Set_C_Bip_Name("compare", 3);
 
-  cmp = Term_Compare(x, y);
+  cmp = Pl_Term_Compare(x, y);
   c = (cmp < 0) ? '<' : (cmp == 0) ? '=' : '>';
 
-  res = Un_Atom_Check(ATOM_CHAR(c), cmp_word);
+  res = Pl_Un_Atom_Check(ATOM_CHAR(c), cmp_word);
 
-  Unset_C_Bip_Name();
+  Pl_Unset_C_Bip_Name();
 
   return res;
 }
@@ -157,36 +157,36 @@ Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
 
 
 /*-------------------------------------------------------------------------*
- * BLT_ARG                                                                 *
+ * PL_BLT_ARG                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
+Pl_Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
 {
   WamWord *arg_adr;
   int func, arity;
   int arg_no;
 
-  Set_C_Bip_Name("arg", 3);
+  Pl_Set_C_Bip_Name("arg", 3);
 
-  arg_no = Rd_Positive_Check(arg_no_word) - 1;
-  arg_adr = Rd_Compound_Check(term_word, &func, &arity);
+  arg_no = Pl_Rd_Positive_Check(arg_no_word) - 1;
+  arg_adr = Pl_Rd_Compound_Check(term_word, &func, &arity);
 
-  Unset_C_Bip_Name();
+  Pl_Unset_C_Bip_Name();
 
   return (unsigned) arg_no < (unsigned) arity &&
-    Unify(sub_term_word, arg_adr[arg_no]);
+    Pl_Unify(sub_term_word, arg_adr[arg_no]);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * BLT_FUNCTOR                                                             *
+ * PL_BLT_FUNCTOR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
+Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -195,22 +195,22 @@ Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
   Bool res;
 
 
-  Set_C_Bip_Name("functor", 3);
+  Pl_Set_C_Bip_Name("functor", 3);
 
   DEREF(term_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       if (tag_mask == TAG_LST_MASK)
-	res = Un_Atom_Check(ATOM_CHAR('.'), functor_word) &&
-	  Un_Integer_Check(2, arity_word);
+	res = Pl_Un_Atom_Check(ATOM_CHAR('.'), functor_word) &&
+	  Pl_Un_Integer_Check(2, arity_word);
       else if (tag_mask == TAG_STC_MASK)
 	{
 	  adr = UnTag_STC(word);
-	  res = Un_Atom_Check(Functor(adr), functor_word) &&
-	    Un_Integer_Check(Arity(adr), arity_word);
+	  res = Pl_Un_Atom_Check(Functor(adr), functor_word) &&
+	    Pl_Un_Integer_Check(Arity(adr), arity_word);
 	}
       else
-	res = Unify(word, functor_word) && Un_Integer_Check(0, arity_word);
+	res = Pl_Unify(word, functor_word) && Pl_Un_Integer_Check(0, arity_word);
 
       goto finish;
     }
@@ -224,37 +224,37 @@ Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 
   if (tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK && 
       tag_mask != TAG_FLT_MASK)
-    Pl_Err_Type(type_atomic, functor_word);
+    Pl_Err_Type(pl_type_atomic, functor_word);
 
   tag_functor = tag_mask;
   functor_word = word;
 
-  arity = Rd_Positive_Check(arity_word);
+  arity = Pl_Rd_Positive_Check(arity_word);
 
   if (arity > MAX_ARITY)
-    Pl_Err_Representation(representation_max_arity);
+    Pl_Err_Representation(pl_representation_max_arity);
 
   if (tag_functor == TAG_ATM_MASK && UnTag_ATM(functor_word) == ATOM_CHAR('.')
       && arity == 2)
     {
-      res = (Get_List(term_word)) ? Unify_Void(2), TRUE : FALSE;
+      res = (Pl_Get_List(term_word)) ? Pl_Unify_Void(2), TRUE : FALSE;
       goto finish;
     }
 
   if (tag_functor == TAG_ATM_MASK && arity > 0)
     {
-      res = (Get_Structure(UnTag_ATM(functor_word), arity, term_word)) ?
-	Unify_Void(arity), TRUE : FALSE;
+      res = (Pl_Get_Structure(UnTag_ATM(functor_word), arity, term_word)) ?
+	Pl_Unify_Void(arity), TRUE : FALSE;
       goto finish;
     }
 
   if (arity != 0)
-    Pl_Err_Type(type_atom, functor_word);
+    Pl_Err_Type(pl_type_atom, functor_word);
 
-  res = Unify(functor_word, term_word);
+  res = Pl_Unify(functor_word, term_word);
 
 finish:
-  Unset_C_Bip_Name();
+  Pl_Unset_C_Bip_Name();
 
   return res;
 }
@@ -263,11 +263,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * BLT_UNIV                                                                *
+ * PL_BLT_UNIV                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Univ(WamWord term_word, WamWord list_word)
+Pl_Blt_Univ(WamWord term_word, WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -280,7 +280,7 @@ Blt_Univ(WamWord term_word, WamWord list_word)
   int arity;
 
 
-  Set_C_Bip_Name("=..", 2);
+  Pl_Set_C_Bip_Name("=..", 2);
 
   DEREF(term_word, word, tag_mask);
 
@@ -317,16 +317,16 @@ Blt_Univ(WamWord term_word, WamWord list_word)
       lst_length = 1 + 0;
     }
 
-  Check_For_Un_List(list_word);
+  Pl_Check_For_Un_List(list_word);
 
-  Unset_C_Bip_Name();
+  Pl_Unset_C_Bip_Name();
 
   for (;;)
     {
-      if (!Get_List(list_word) || !Unify_Value(car_word))
+      if (!Pl_Get_List(list_word) || !Pl_Unify_Value(car_word))
 	return FALSE;
 
-      list_word = Unify_Variable();
+      list_word = Pl_Unify_Variable();
 
       if (--lst_length == 0)
 	break;
@@ -334,7 +334,7 @@ Blt_Univ(WamWord term_word, WamWord list_word)
       car_word = *arg1_adr++;
     }
 
-  return Get_Nil(list_word);
+  return Pl_Get_Nil(list_word);
 
   /* from list functor+args to term */
 
@@ -347,10 +347,10 @@ list_to_term:
     Pl_Err_Instantiation();
 
   if (word == NIL_WORD)
-    Pl_Err_Domain(domain_non_empty_list, list_word);
+    Pl_Err_Domain(pl_domain_non_empty_list, list_word);
 
   if (tag_mask != TAG_LST_MASK)
-    Pl_Err_Type(type_list, list_word);
+    Pl_Err_Type(pl_type_list, list_word);
 
   lst_adr = UnTag_LST(word);
   DEREF(Car(lst_adr), functor_word, functor_tag);
@@ -363,20 +363,20 @@ list_to_term:
     {
       if (functor_tag != TAG_ATM_MASK && functor_tag != TAG_INT_MASK &&
 	  functor_tag != TAG_FLT_MASK)
-	Pl_Err_Type(type_atomic, functor_word);
+	Pl_Err_Type(pl_type_atomic, functor_word);
 
       term_word = functor_word;
       goto finish;
     }
 
   if (functor_tag != TAG_ATM_MASK)
-    Pl_Err_Type(type_atom, functor_word);
+    Pl_Err_Type(pl_type_atom, functor_word);
 
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_LST_MASK)
-    Pl_Err_Type(type_list, list_word);
+    Pl_Err_Type(pl_type_list, list_word);
 
   functor = UnTag_ATM(functor_word);
 
@@ -401,11 +401,11 @@ list_to_term:
 	Pl_Err_Instantiation();
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, list_word);
+	Pl_Err_Type(pl_type_list, list_word);
     }
 
   if (arity > MAX_ARITY)
-    Pl_Err_Representation(representation_max_arity);
+    Pl_Err_Representation(pl_representation_max_arity);
 
   if (functor == ATOM_CHAR('.') && arity == 2)	/* a list */
     term_word = Tag_LST(stc_adr + 1);
@@ -417,7 +417,7 @@ list_to_term:
 
 finish:
   Bind_UV(term_adr, term_word);
-  Unset_C_Bip_Name();
+  Pl_Unset_C_Bip_Name();
   return TRUE;
 }
 
@@ -425,11 +425,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * COPY_TERM_2                                                             *
+ * PL_COPY_TERM_2                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Copy_Term_2(WamWord u_word, WamWord v_word)
+Pl_Copy_Term_2(WamWord u_word, WamWord v_word)
 {
   WamWord word;
   int size;
@@ -438,24 +438,24 @@ Copy_Term_2(WamWord u_word, WamWord v_word)
  * This corrupts ebp on ix86 */
   static WamWord fix_bug;
 
-  size = Term_Size(u_word);
+  size = Pl_Term_Size(u_word);
   fix_bug = u_word;	
-  Copy_Term(H, &fix_bug);
+  Pl_Copy_Term(H, &fix_bug);
   word = *H;
   H += size;
 
-  return Unify(word, v_word);
+  return Pl_Unify(word, v_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SETARG_4                                                                *
+ * PL_SETARG_4                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
+Pl_Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
 	 WamWord undo_word)
 {
   WamWord word, tag_mask;
@@ -464,13 +464,13 @@ Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
   WamWord *arg_adr;
   int arg_no;
 
-  arg_adr = Rd_Compound_Check(term_word, &func, &arity);
-  arg_no = Rd_Positive_Check(arg_no_word) - 1;
-  undo = Rd_Boolean_Check(undo_word);
+  arg_adr = Pl_Rd_Compound_Check(term_word, &func, &arity);
+  arg_no = Pl_Rd_Positive_Check(arg_no_word) - 1;
+  undo = Pl_Rd_Boolean_Check(undo_word);
 
   DEREF(new_value_word, word, tag_mask);
   if (!undo && tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK)
-    Pl_Err_Type(type_atomic, word);	/* type_atomic but float not allowed */
+    Pl_Err_Type(pl_type_atomic, word);	/* pl_type_atomic but float not allowed */
 
   if ((unsigned) arg_no >= (unsigned) arity)
     return FALSE;
@@ -487,11 +487,11 @@ Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
 
 
 /*-------------------------------------------------------------------------*
- * TERM_REF_2                                                              *
+ * PL_TERM_REF_2                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Term_Ref_2(WamWord term_word, WamWord ref_word)
+Pl_Term_Ref_2(WamWord term_word, WamWord ref_word)
 {
   WamWord word, tag_mask;
   WamWord word1, *adr;
@@ -513,9 +513,9 @@ Term_Ref_2(WamWord term_word, WamWord ref_word)
 
   if (tag_mask == TAG_REF_MASK)
     {
-      ref = Rd_Positive_Check(ref_word);
+      ref = Pl_Rd_Positive_Check(ref_word);
       adr = Global_Stack + ref;
-      return Unify(word, *adr);
+      return Pl_Unify(word, *adr);
     }
 
   if (adr < Global_Stack || adr > H)
@@ -525,5 +525,5 @@ Term_Ref_2(WamWord term_word, WamWord ref_word)
     }
   ref = Global_Offset(adr);
 
-  return Un_Positive_Check(ref, ref_word);
+  return Pl_Un_Positive_Check(ref, ref_word);
 }

@@ -37,12 +37,12 @@
 read(Term) :-
 	set_bip_name(read, 1),
 	'$set_read_defaults',
-	'$call_c_test'('Read_1'(Term)).
+	'$call_c_test'('Pl_Read_1'(Term)).
 
 read(SorA, Term) :-
 	set_bip_name(read, 2),
 	'$set_read_defaults',
-	'$call_c_test'('Read_2'(SorA, Term)).
+	'$call_c_test'('Pl_Read_2'(SorA, Term)).
 
 
           % option mask in sys_var[0]:
@@ -65,7 +65,7 @@ read_term(Term, Options) :-
 	set_bip_name(read_term, 2),
 	'$set_read_defaults',
 	'$get_read_options'(Options, Vars, VarNames, SinglNames),
-	'$call_c_test'('Read_Term_4'(Term, Vars, VarNames, SinglNames)).
+	'$call_c_test'('Pl_Read_Term_4'(Term, Vars, VarNames, SinglNames)).
 
 
 read_term(SorA, Term, Options) :-
@@ -75,7 +75,7 @@ read_term(SorA, Term, Options) :-
 '$read_term'(SorA, Term, Options) :-
 	'$set_read_defaults',
 	'$get_read_options'(Options, Vars, VarNames, SinglNames),
-	'$call_c_test'('Read_Term_5'(SorA, Term, Vars, VarNames, SinglNames)).
+	'$call_c_test'('Pl_Read_Term_5'(SorA, Term, Vars, VarNames, SinglNames)).
 
 
 
@@ -148,13 +148,13 @@ read_term(SorA, Term, Options) :-
 read_atom(Atom) :-
 	set_bip_name(read_atom, 1),
 	'$set_read_defaults',
-	'$call_c_test'('Read_Atom_1'(Atom)).
+	'$call_c_test'('Pl_Read_Atom_1'(Atom)).
 
 
 read_atom(SorA, Atom) :-
 	set_bip_name(read_atom, 2),
 	'$set_read_defaults',
-	'$call_c_test'('Read_Atom_2'(SorA, Atom)).
+	'$call_c_test'('Pl_Read_Atom_2'(SorA, Atom)).
 
 
 
@@ -162,13 +162,13 @@ read_atom(SorA, Atom) :-
 read_integer(Integer) :-
 	set_bip_name(read_integer, 1),
 	'$set_read_defaults',
-	'$call_c_test'('Read_Integer_1'(Integer)).
+	'$call_c_test'('Pl_Read_Integer_1'(Integer)).
 
 
 read_integer(SorA, Integer) :-
 	set_bip_name(read_integer, 2),
 	'$set_read_defaults',
-	'$call_c_test'('Read_Integer_2'(SorA, Integer)).
+	'$call_c_test'('Pl_Read_Integer_2'(SorA, Integer)).
 
 
 
@@ -176,47 +176,47 @@ read_integer(SorA, Integer) :-
 read_number(Number) :-
 	set_bip_name(read_number, 1),
 	'$set_read_defaults',
-	'$call_c_test'('Read_Number_1'(Number)).
+	'$call_c_test'('Pl_Read_Number_1'(Number)).
 
 
 read_number(SorA, Number) :-
 	set_bip_name(read_number, 2),
 	'$set_read_defaults',
-	'$call_c_test'('Read_Number_2'(SorA, Number)).
+	'$call_c_test'('Pl_Read_Number_2'(SorA, Number)).
 
 
 
 
 read_token(Token) :-
 	set_bip_name(read_token, 1),
-	'$call_c_test'('Read_Token_1'(Token)).
+	'$call_c_test'('Pl_Read_Token_1'(Token)).
 
 read_token(SorA, Token) :-
 	set_bip_name(read_token, 2),
-	'$call_c_test'('Read_Token_2'(SorA, Token)).
+	'$call_c_test'('Pl_Read_Token_2'(SorA, Token)).
 
 
 
 last_read_start_line_column(Line, Col) :-
 	set_bip_name(last_read_start_line_column, 2),
-	'$call_c_test'('Last_Read_Start_Line_Column_2'(Line, Col)).
+	'$call_c_test'('Pl_Last_Read_Start_Line_Column_2'(Line, Col)).
 
 
 
 
 char_conversion(InChar, OutChar) :-
 	set_bip_name(char_conversion, 2),
-	'$call_c'('Char_Conversion_2'(InChar, OutChar)).
+	'$call_c'('Pl_Char_Conversion_2'(InChar, OutChar)).
 
 
 
 
 current_char_conversion(InChar, OutChar) :-
 	set_bip_name(current_char_conversion, 2),
-	'$call_c_test'('Current_Char_Conversion_2'(InChar, OutChar)).
+	'$call_c_test'('Pl_Current_Char_Conversion_2'(InChar, OutChar)).
 
 
 
 
 '$current_char_conversion_alt' :-   % used by C code to create a choice-point
-	'$call_c_test'('Current_Char_Conversion_Alt_0').
+	'$call_c_test'('Pl_Current_Char_Conversion_Alt_0').

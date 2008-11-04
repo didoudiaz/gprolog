@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : assert.pl
-% date    : 9 30 2008
-% time    : 17:26:17
+% date    : 11 4 2008
+% time    : 15:35:19
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').
@@ -14,7 +14,7 @@ predicate('$use_assert'/0,29,static,private,built_in,[
 predicate(asserta/1,32,static,private,built_in,[
     put_atom(asserta,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_integer(1,1),
     put_integer(1,2),
     execute('$assert'/3)]).
@@ -23,7 +23,7 @@ predicate(asserta/1,32,static,private,built_in,[
 predicate(assertz/1,39,static,private,built_in,[
     put_atom(assertz,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_integer(0,1),
     put_integer(1,2),
     execute('$assert'/3)]).
@@ -45,7 +45,7 @@ predicate('$assert'/3,46,static,private,built_in,[
     put_unsafe_value(y(4),1),
     put_value(y(0),2),
     put_value(y(1),3),
-    call_c('Assert_4',[],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Assert_4',[],[x(0),x(1),x(2),x(3)]),
     fail,
 
 label(1),
@@ -57,7 +57,7 @@ predicate(retract/1,57,static,private,built_in,[
     allocate(2),
     put_atom(retract,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     put_variable(y(0),1),
     put_variable(y(1),2),
     call('$get_head_and_body'/3),
@@ -68,7 +68,7 @@ predicate(retract/1,57,static,private,built_in,[
 
 
 predicate('$retract'/2,63,static,private,built_in,[
-    call_c('Retract_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Retract_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
@@ -77,8 +77,8 @@ predicate(retractall/1,69,static,private,built_in,[
     try_me_else(1),
     put_atom(retractall,2),
     put_integer(1,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Retractall_If_Empty_Head_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Retractall_If_Empty_Head_1',[boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -95,7 +95,7 @@ label(2),
 
 
 predicate('$retract_last_found'/0,82,static,private,built_in,[
-    call_c('Retract_Last_Found_0',[],[]),
+    call_c('Pl_Retract_Last_Found_0',[],[]),
     proceed]).
 
 
@@ -105,7 +105,7 @@ predicate(clause/2,87,static,private,built_in,[
     get_variable(y(1),1),
     put_atom(clause,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(0),0),
     call('$check_head'/1),
     put_value(y(0),0),
@@ -116,39 +116,39 @@ predicate(clause/2,87,static,private,built_in,[
 
 
 predicate('$clause'/3,93,static,private,built_in,[
-    call_c('Clause_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$instance_for_setarg'/2,99,static,private,built_in,[
     put_integer(0,2),
-    call_c('Clause_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$setarg_in_last_found'/2,102,static,private,built_in,[
-    call_c('Setarg_Of_Last_Found_2',[],[x(0),x(1)]),
+    call_c('Pl_Setarg_Of_Last_Found_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate(abolish/1,107,static,private,built_in,[
     put_atom(abolish,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Abolish_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Abolish_1',[],[x(0)]),
     proceed]).
 
 
 predicate('$remove_predicate'/2,114,static,private,built_in,[
-    call_c('Remove_Predicate_2',[],[x(0),x(1)]),
+    call_c('Pl_Remove_Predicate_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate('$scan_dyn_test_alt'/0,120,static,private,built_in,[
-    call_c('Scan_Dynamic_Pred_Alt_0',[boolean],[]),
+    call_c('Pl_Scan_Dynamic_Pred_Alt_0',[boolean],[]),
     proceed]).
 
 
 predicate('$scan_dyn_jump_alt'/0,123,static,private,built_in,[
-    call_c('Scan_Dynamic_Pred_Alt_0',[jump],[]),
+    call_c('Pl_Scan_Dynamic_Pred_Alt_0',[jump],[]),
     proceed]).

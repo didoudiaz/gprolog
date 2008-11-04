@@ -42,29 +42,29 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Malloc_Check(unsigned size, char *src_file, int src_line);
+char *Pl_Malloc_Check(unsigned size, char *src_file, int src_line);
 
-char *Calloc_Check(unsigned nb, unsigned size, char *src_file,
+char *Pl_Calloc_Check(unsigned nb, unsigned size, char *src_file,
 		   int src_line);
 
-char *Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
+char *Pl_Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
 
-char *Strdup_Check(char *str, char *src_file, int src_line);
+char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 
-#define Malloc(size)       Malloc_Check(size, __FILE__, __LINE__)
+#define Malloc(size)       Pl_Malloc_Check(size, __FILE__, __LINE__)
 
-#define Calloc(nb, size)   Calloc_Check(nb, size, __FILE__, __LINE__)
+#define Calloc(nb, size)   Pl_Calloc_Check(nb, size, __FILE__, __LINE__)
 
-#define Realloc(ptr, size) Realloc_Check(ptr, size, __FILE__, __LINE__)
+#define Realloc(ptr, size) Pl_Realloc_Check(ptr, size, __FILE__, __LINE__)
 
 #define Free(ptr)          free(ptr)
 
-#define Strdup(str)        Strdup_Check(str, __FILE__, __LINE__)
+#define Strdup(str)        Pl_Strdup_Check(str, __FILE__, __LINE__)
 
-void Extend_Table_If_Needed(char **hash_tbl);
+void Pl_Extend_Table_If_Needed(char **hash_tbl);
 
-void Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);
+void Pl_Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);
 
-void Exit_With_Value(int ret_val);
+void Pl_Exit_With_Value(int ret_val);
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);

@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : top_level.pl
-% date    : 9 30 2008
-% time    : 17:26:19
+% date    : 11 4 2008
+% time    : 15:35:22
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
@@ -42,7 +42,7 @@ predicate(top_level/0,32,static,private,built_in,[
 
 predicate(break/0,45,static,private,built_in,[
     allocate(3),
-    call_c('Set_Ctrl_C_Handler_0',[],[]),
+    call_c('Pl_Set_Ctrl_C_Handler_0',[],[]),
     put_integer(10,0),
     put_variable(y(0),1),
     call('$sys_var_read'/2),
@@ -82,7 +82,7 @@ predicate('$break/0_$aux2'/1,45,static,private,built_in,[
     try_me_else(1),
     put_atom(>,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),2),
     put_integer(0,3),
     call_c('Blt_Gt',[fast_call,boolean],[x(2),x(3)]),
@@ -104,7 +104,7 @@ predicate('$break/0_$aux1'/1,45,static,private,built_in,[
     try_me_else(1),
     put_atom(>,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),2),
     put_integer(0,3),
     call_c('Blt_Gt',[fast_call,boolean],[x(2),x(3)]),
@@ -271,7 +271,7 @@ label(1),
     call(user_time/1),
     put_atom(is,0),
     put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     math_load_value(y(4),0),
     math_load_value(y(2),1),
     call_c('Fct_Sub',[fast_call,x(0)],[x(0),x(1)]),
@@ -399,14 +399,14 @@ predicate('$$write_indicator/0_$aux1'/2,158,static,private,built_in,[
     get_variable(x(3),1),
     put_atom(>,1),
     put_integer(2,4),
-    call_c('Set_Bip_Name_2',[],[x(1),x(4)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(4)]),
     math_load_value(x(0),1),
     put_integer(1,4),
     call_c('Blt_Gt',[fast_call,boolean],[x(1),x(4)]),
     cut(x(2)),
     put_atom(is,1),
     put_integer(2,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     math_load_value(x(0),0),
     call_c('Fct_Dec',[fast_call,x(1)],[x(0)]),
     put_value(x(3),0),
@@ -618,7 +618,7 @@ predicate('$$exec_query/2_$aux2'/2,206,static,private,built_in,[
     allocate(0),
     put_atom(>,3),
     put_integer(2,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
@@ -748,7 +748,7 @@ predicate('$$write_solution/3_$aux1'/2,255,static,private,built_in,[
     try_me_else(1),
     put_atom(>,3),
     put_integer(2,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Gt',[fast_call,boolean],[x(0),x(1)]),

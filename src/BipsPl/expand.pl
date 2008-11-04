@@ -75,10 +75,10 @@ phrase(DcgBody, In, Out) :-
 
 
 '$dcg_trans_rule'(Dcg, Clause) :-
-	'$call_c_test'('Dcg_Trans_Rule_2'(Dcg, Clause)).
+	'$call_c_test'('Pl_Dcg_Trans_Rule_2'(Dcg, Clause)).
 
 
 
 
 '$dcg_trans_body'(DcgBody, In, Out, Body) :-
-	'$call_c_test'('Dcg_Trans_Body_4'(DcgBody, In, Out, Body)).
+	'$call_c_test'('Pl_Dcg_Trans_Body_4'(DcgBody, In, Out, Body)).

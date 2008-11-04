@@ -52,50 +52,50 @@
 
 
 /*-------------------------------------------------------------------------*
- * FD_VECTOR_MAX_1                                                         *
+ * PL_FD_VECTOR_MAX_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Vector_Max_1(WamWord max_word)
+Pl_Fd_Vector_Max_1(WamWord max_word)
 {
-  return Un_Integer_Check(vec_max_integer, max_word);
+  return Pl_Un_Integer_Check(pl_vec_max_integer, max_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_SET_VECTOR_MAX_1                                                     *
+ * PL_FD_SET_VECTOR_MAX_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Set_Vector_Max_1(WamWord max_word)
+Pl_Fd_Set_Vector_Max_1(WamWord max_word)
 {
-  Define_Vector_Size(Rd_Positive_Check(max_word));
+  Pl_Define_Vector_Size(Pl_Rd_Positive_Check(max_word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_MAX_INTEGER_1                                                        *
+ * PL_FD_MAX_INTEGER_1                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Max_Integer_1(WamWord inf_word)
+Pl_Fd_Max_Integer_1(WamWord inf_word)
 {
-  return Un_Integer_Check(INTERVAL_MAX_INTEGER, inf_word);
+  return Pl_Un_Integer_Check(INTERVAL_MAX_INTEGER, inf_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_MIN_2                                                                *
+ * PL_FD_MIN_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Min_2(WamWord fdv_word, WamWord min_word)
+Pl_Fd_Min_2(WamWord fdv_word, WamWord min_word)
 {
   WamWord word, tag_mask;
   int n;
@@ -106,18 +106,18 @@ Fd_Min_2(WamWord fdv_word, WamWord min_word)
   else
     n = Min(UnTag_FDV(word));
 
-  return Un_Integer_Check(n, min_word);
+  return Pl_Un_Integer_Check(n, min_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_MAX_2                                                                *
+ * PL_FD_MAX_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Max_2(WamWord fdv_word, WamWord max_word)
+Pl_Fd_Max_2(WamWord fdv_word, WamWord max_word)
 {
   WamWord word, tag_mask;
   int n;
@@ -128,35 +128,35 @@ Fd_Max_2(WamWord fdv_word, WamWord max_word)
   else
     n = Max(UnTag_FDV(word));
 
-  return Un_Integer_Check(n, max_word);
+  return Pl_Un_Integer_Check(n, max_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_DOM_2                                                                *
+ * PL_FD_DOM_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Dom_2(WamWord fdv_word, WamWord list_word)
+Pl_Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *fdv_adr;
   int x, end;
   int vec_elem;
 
-  Check_For_Un_List(list_word);
+  Pl_Check_For_Un_List(list_word);
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
       x = UnTag_INT(word);
 
-      if (!Get_List(list_word) || !Unify_Integer(x))
+      if (!Pl_Get_List(list_word) || !Pl_Unify_Integer(x))
 	return FALSE;
 
-      list_word = Unify_Variable();
+      list_word = Pl_Unify_Variable();
     }
   else
     {
@@ -166,37 +166,37 @@ Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 	  end = Max(fdv_adr);
 	  for (x = Min(fdv_adr); x <= end; x++)
 	    {
-	      if (!Get_List(list_word) || !Unify_Integer(x))
+	      if (!Pl_Get_List(list_word) || !Pl_Unify_Integer(x))
 		return FALSE;
 
-	      list_word = Unify_Variable();
+	      list_word = Pl_Unify_Variable();
 	    }
 	}
       else
 	{
 	  VECTOR_BEGIN_ENUM(Vec(fdv_adr), vec_elem);
 
-	  if (!Get_List(list_word) || !Unify_Integer(vec_elem))
+	  if (!Pl_Get_List(list_word) || !Pl_Unify_Integer(vec_elem))
 	    return FALSE;
 
-	  list_word = Unify_Variable();
+	  list_word = Pl_Unify_Variable();
 
 	  VECTOR_END_ENUM;
 	}
     }
 
-  return Get_Nil(list_word);
+  return Pl_Get_Nil(list_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_SIZE_2                                                               *
+ * PL_FD_SIZE_2                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Size_2(WamWord fdv_word, WamWord size_word)
+Pl_Fd_Size_2(WamWord fdv_word, WamWord size_word)
 {
   WamWord word, tag_mask;
   int n;
@@ -207,18 +207,18 @@ Fd_Size_2(WamWord fdv_word, WamWord size_word)
   else
     n = Nb_Elem(UnTag_FDV(word));
 
-  return Un_Integer_Check(n, size_word);
+  return Pl_Un_Integer_Check(n, size_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_HAS_EXTRA_CSTR_1                                                     *
+ * PL_FD_HAS_EXTRA_CSTR_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Has_Extra_Cstr_1(WamWord fdv_word)
+Pl_Fd_Has_Extra_Cstr_1(WamWord fdv_word)
 {
   WamWord word, tag_mask;
 
@@ -231,11 +231,11 @@ Fd_Has_Extra_Cstr_1(WamWord fdv_word)
 
 
 /*-------------------------------------------------------------------------*
- * FD_HAS_VECTOR_1                                                         *
+ * PL_FD_HAS_VECTOR_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Has_Vector_1(WamWord fdv_word)
+Pl_Fd_Has_Vector_1(WamWord fdv_word)
 {
   WamWord word, tag_mask;
 
@@ -248,15 +248,15 @@ Fd_Has_Vector_1(WamWord fdv_word)
 
 
 /*-------------------------------------------------------------------------*
- * FD_USE_VECTOR_1                                                         *
+ * PL_FD_USE_VECTOR_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Use_Vector_1(WamWord fdv_word)
+Pl_Fd_Use_Vector_1(WamWord fdv_word)
 {
   WamWord word, tag_mask;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
 
-  return tag_mask == TAG_INT_MASK || Fd_Use_Vector(UnTag_FDV(word));
+  return tag_mask == TAG_INT_MASK || Pl_Fd_Use_Vector(UnTag_FDV(word));
 }

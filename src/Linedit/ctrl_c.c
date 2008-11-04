@@ -122,11 +122,11 @@ Wrapper_Handler(int sig)
 
 
 /*-------------------------------------------------------------------------*
- * EMIT_CTRL_C                                                             *
+ * PL_EMIT_CTRL_C                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Emit_Ctrl_C(void)
+Pl_Emit_Ctrl_C(void)
 {
   from_callback = 1;
 
@@ -168,11 +168,11 @@ Emit_Ctrl_C(void)
 
 
 /*-------------------------------------------------------------------------*
- * INSTALL_CTRL_C_HANDLER                                                  *
+ * PL_INSTALL_CTRL_C_HANDLER                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Install_Ctrl_C_Handler(long (*handler) (int))
+Pl_Install_Ctrl_C_Handler(long (*handler) (int))
 {
   ctrl_c_handler = handler;
 #ifdef WIN32_CONSOLE_CTRL_HANDLER

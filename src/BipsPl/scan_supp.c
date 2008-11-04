@@ -74,21 +74,21 @@ static int Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0,
 
 
 
-#define   Unget_Last_Char       Stream_Ungetc(c_orig, pstm)
+#define   Unget_Last_Char       Pl_Stream_Ungetc(c_orig, pstm)
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_PEEK_CHAR                                                          *
+ * PL_SCAN_PEEK_CHAR                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Scan_Peek_Char(StmInf *pstm, Bool convert)
+Pl_Scan_Peek_Char(StmInf *pstm, Bool convert)
 {
   int c_look;
 
-  c_look = Stream_Peekc(pstm);
+  c_look = Pl_Stream_Peekc(pstm);
 
   if (convert)
     c_look = Char_Conversion(c_look);
@@ -106,7 +106,7 @@ Scan_Peek_Char(StmInf *pstm, Bool convert)
 static int
 Read_Next_Char(StmInf *pstm, Bool convert)
 {
-  c_orig = c = Stream_Getc(pstm);
+  c_orig = c = Pl_Stream_Getc(pstm);
 
   if (c == EOF)
     c_type = 0;
@@ -115,7 +115,7 @@ Read_Next_Char(StmInf *pstm, Bool convert)
       if (convert)
 	c = Char_Conversion(c);
 
-      c_type = char_type[c];
+      c_type = pl_char_type[c];
     }
 
   return c;
@@ -125,18 +125,18 @@ Read_Next_Char(StmInf *pstm, Bool convert)
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_TOKEN                                                              *
+ * PL_SCAN_TOKEN                                                           *
  *                                                                         *
- * Scan the next token. The flag comma_is_punct specifies if ',' must be   *
+ * Scan the next pl_token. The flag comma_is_punct specifies if ',' must be*
  * considered as a punctuation (e.g. separator of args of compound term or *
  * of a list) or as an atom.                                               *
- * The scanner only consumes the needed characters of the token, calling   *
- * Unget_Last_Char if necessary (see Scan_Number). Thus after a token has  *
- * been read Stream_Peekc() will return the character directly following   *
- * this token.                                                             *
+ * The scanner only consumes the needed characters of the pl_token, calling*
+ * Unget_Last_Char if necessary (see Scan_Number). Thus after a pl_token   *
+ * has been read Pl_Stream_Peekc() will return the character directly      *
+ * following this pl_token.                                                *
  *-------------------------------------------------------------------------*/
 char *
-Scan_Token(StmInf *pstm, Bool comma_is_punct)
+Pl_Scan_Token(StmInf *pstm, Bool comma_is_punct)
 {
   int c0;
   char *s;
@@ -156,13 +156,13 @@ start_scan:
     }
 
 
-  token.line = pstm->line_count + 1;
-  token.col = pstm->line_pos;
+  pl_token.line = pstm->line_count + 1;
+  pl_token.col = pstm->line_pos;
 
 
   if (c == EOF)
     {
-      token.type = TOKEN_END_OF_FILE;
+      pl_token.type = TOKEN_END_OF_FILE;
       return err_msg;
     }
 
@@ -172,8 +172,8 @@ start_scan:
     case SL:			/* small letter */
     case UL:			/* underline */
     case CL:			/* capital letter */
-      token.type = (c_type == SL) ? TOKEN_NAME : TOKEN_VARIABLE;
-      s = token.name;
+      pl_token.type = (c_type == SL) ? TOKEN_NAME : TOKEN_VARIABLE;
+      s = pl_token.name;
       do
 	{
 	  *s++ = c;
@@ -202,7 +202,7 @@ start_scan:
 	  if (c_type == CM)
 	    Unget_Last_Char;
 
-	  token.type = TOKEN_FULL_STOP;
+	  pl_token.type = TOKEN_FULL_STOP;
 	  break;
 	}
 
@@ -219,9 +219,9 @@ start_scan:
 
 	  if (c == EOF)
 	    {
-	      token.type = TOKEN_END_OF_FILE;
-	      token.line = pstm->line_count + 1;
-	      token.col = pstm->line_pos;
+	      pl_token.type = TOKEN_END_OF_FILE;
+	      pl_token.line = pstm->line_count + 1;
+	      pl_token.col = pstm->line_pos;
 	      err_msg = "*/ expected here for /*...*/ comment";
 	      break;
 	    }
@@ -231,8 +231,8 @@ start_scan:
 	}
 
 
-      token.type = TOKEN_NAME;
-      s = token.name;
+      pl_token.type = TOKEN_NAME;
+      s = pl_token.name;
       *s++ = c0;
       while (c_type == GR)
 	{
@@ -247,47 +247,47 @@ start_scan:
       do
 	Read_Next_Char(pstm, TRUE);
       while (c != '\n' && c != EOF);
-
+#if 0  // what says standard ? EOF allowad at end of %... comment ?
       if (c == EOF)
 	{
-	  token.type = TOKEN_END_OF_FILE;
-	  token.line = pstm->line_count + 1;
-	  token.col = pstm->line_pos;
+	  pl_token.type = TOKEN_END_OF_FILE;
+	  pl_token.line = pstm->line_count + 1;
+	  pl_token.col = pstm->line_pos;
 	  err_msg = "new-line expected here for %%... comment";
 	  break;
 	}
-
+#endif
       layout_before = TRUE;
       goto start_scan;
 
     case PC:			/* punctuation character */
       if (c == '(' && !layout_before)
 	{
-	  token.type = TOKEN_IMMEDIAT_OPEN;
+	  pl_token.type = TOKEN_IMMEDIAT_OPEN;
 	  break;
 	}
 
-      token.type = TOKEN_PUNCTUATION;
-      token.punct = c;
+      pl_token.type = TOKEN_PUNCTUATION;
+      pl_token.punct = c;
       break;
 
     case SC:			/* solo character */
       if (c == ',' && comma_is_punct)
 	{
-	  token.type = TOKEN_PUNCTUATION;
-	  token.punct = c;
+	  pl_token.type = TOKEN_PUNCTUATION;
+	  pl_token.punct = c;
 	  break;
 	}
 
-      token.type = TOKEN_NAME;
-      token.name[0] = c;
-      token.name[1] = '\0';
+      pl_token.type = TOKEN_NAME;
+      pl_token.name[0] = c;
+      pl_token.name[1] = '\0';
       break;
 
     case EX:			/* extended character */
-      token.type = TOKEN_EXTENDED;
-      token.name[0] = c;
-      token.name[1] = '\0';
+      pl_token.type = TOKEN_EXTENDED;
+      pl_token.name[0] = c;
+      pl_token.name[1] = '\0';
       break;
     }
 
@@ -305,27 +305,38 @@ static void
 Scan_Number(StmInf *pstm, Bool integer_only)
 {
   int lg;
-  int radix, i;
+  int radix;
   char *p, *f;
   int c_orig0;
 
-  p = token.name;
+  /* at entry: c is a digit */
+
+  p = pl_token.name;
   do
     {
       *p++ = c;
       Read_Next_Char(pstm, TRUE);
     }
   while (c_type == DI);
-  lg = p - token.name;
+  lg = p - pl_token.name;
 
   if (!integer_only &&		/* float if . and digit */
-      c == '.' && isdigit(Scan_Peek_Char(pstm, TRUE)))
+      c == '.' && isdigit(Pl_Scan_Peek_Char(pstm, TRUE)))
     goto is_a_float;
-  /* integer number */
-  token.type = TOKEN_INTEGER;
-  *p++ = '\0';
-  sscanf(token.name, "%ld", &token.int_num);
-  if (lg != 1 || token.int_num != 0 || strchr("'bBoOxX", c) == NULL)
+
+				/* integer number */
+  pl_token.type = TOKEN_INTEGER;
+  *p = '\0';
+
+
+  /* if case of an underflow/overflow strtol() returns LONG_MIN/LONG_MAX and
+   * sets errno to ERANGE. We dont test it because LONG_MIN is < INT_LOWEST_VALUE
+   * and LONG_MAX is > INT_GREATEST_VALUE. We will detect it at return from
+   * this function.
+   */
+  pl_token.int_num = strtol(pl_token.name, &p, 10);
+
+  if (lg != 1 || pl_token.int_num != 0 || strchr("'bBoOxX", c) == NULL)
     goto push_back;
 
   if (c == '\'')		/* 0'<character> */
@@ -333,8 +344,8 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       c = Scan_Quoted_Char(pstm, TRUE, '\'', FALSE);
       if (c == -1)		/* <character> is ' */
 	{
-	  token.line = pstm->line_count + 1;
-	  token.col = pstm->line_pos + 1;
+	  pl_token.line = pstm->line_count + 1;
+	  pl_token.col = pstm->line_pos + 1;
 	  err_msg = "quote character expected here";
 	}
 
@@ -342,35 +353,34 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 	{
 	  Unget_Last_Char;
 
-	  token.line = pstm->line_count + 1;
-	  token.col = pstm->line_pos + 1;
+	  pl_token.line = pstm->line_count + 1;
+	  pl_token.col = pstm->line_pos + 1;
 	  err_msg = "character expected here";
 	}
 
-      token.int_num = c;
+      pl_token.int_num = c;
       return;
     }
 
   radix = (c == 'b' || c == 'B') ? (f = "01", 2) :
     (c == 'o' || c == 'O') ? (f = "01234567", 8)
     : (f = "0123456789abcdefABCDEF", 16);
-  p = token.name;
+  p = pl_token.name;
   Read_Next_Char(pstm, TRUE);
-  token.int_num = 0;
-  while ((p = strchr(f, c)) != NULL)
+  while (strchr(f, c) != NULL)
     {
-      i = p - f;
-      if (i >= 16)
-	i -= 6;
-      token.int_num = token.int_num * radix + i;
+      *p++ = c;
       Read_Next_Char(pstm, TRUE);
     }
+  *p = '\0';
+
+  pl_token.int_num = strtol(pl_token.name, &p, radix);
   goto push_back;
 
 
 is_a_float:			/* float number */
 
-  token.type = TOKEN_FLOAT;
+  pl_token.type = TOKEN_FLOAT;
   *p++ = '.';
   Read_Next_Char(pstm, TRUE);
   while (c_type == DI)
@@ -384,7 +394,7 @@ is_a_float:			/* float number */
       c_orig0 = c_orig;
       Read_Next_Char(pstm, TRUE);
       if (!(c_type == DI || ((c == '+' || c == '-') &&
-			     isdigit(Scan_Peek_Char(pstm, TRUE)))))
+			     isdigit(Pl_Scan_Peek_Char(pstm, TRUE)))))
 	{
 	  Unget_Last_Char;
 	  c_orig = c_orig0;
@@ -405,7 +415,7 @@ is_a_float:			/* float number */
 
 end_float:
   *p = '\0';
-  sscanf(token.name, "%lf", &token.float_num);
+  sscanf(pl_token.name, "%lf", &pl_token.float_num);
 
 push_back:
   Unget_Last_Char;
@@ -429,21 +439,21 @@ Scan_Quoted(StmInf *pstm)
 
   if (c_type == QT)
     {
-      token.type = TOKEN_NAME;
+      pl_token.type = TOKEN_NAME;
       i = 0;
     }
   else if (c_type == DQ)
     {
-      token.type = TOKEN_STRING;
+      pl_token.type = TOKEN_STRING;
       i = Flag_Value(FLAG_DOUBLE_QUOTES);
     }
   else
     {
-      token.type = TOKEN_BACK_QUOTED;
+      pl_token.type = TOKEN_BACK_QUOTED;
       i = Flag_Value(FLAG_BACK_QUOTES);
     }
 
-  s = token.name;
+  s = pl_token.name;
   c0 = c;
   no_escape = i >> FLAG_NO_ESCAPE_BIT;
 
@@ -472,10 +482,10 @@ Scan_Quoted(StmInf *pstm)
 
   Unget_Last_Char;
 
-  token.line = pstm->line_count + 1;
-  token.col = pstm->line_pos + 1;
+  pl_token.line = pstm->line_count + 1;
+  pl_token.col = pstm->line_pos + 1;
 
-  switch (token.type)
+  switch (pl_token.type)
     {
     case TOKEN_NAME:
       err_msg = "quote character expected here";
@@ -511,7 +521,7 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
   Read_Next_Char(pstm, convert);
   if (c == c0)
     {
-      if (Scan_Peek_Char(pstm, convert) != c0)	/* '' or "" or `` */
+      if (Pl_Scan_Peek_Char(pstm, convert) != c0)	/* '' or "" or `` */
 	return -1;
 
       Read_Next_Char(pstm, convert);
@@ -531,8 +541,8 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
   if (strchr("\\'\"`", c))	/* \\ or \' or \" or \` */
     return c;
 
-  if ((p = (char *) strchr(escape_symbol, c)))	/* \a \b \f \n \r \t \v */
-    return escape_char[p - escape_symbol];
+  if ((p = (char *) strchr(pl_escape_symbol, c)))	/* \a \b \f \n \r \t \v */
+    return pl_escape_char[p - pl_escape_symbol];
 
   if (c == 'x' || ('0' <= c && c <= '7'))	/* \xnn\ \nn\ */
     {
@@ -561,16 +571,16 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 
       if (!Is_Valid_Code(x) && err_msg == NULL)
 	{
-	  token.line = pstm->line_count + 1;
-	  token.col = pstm->line_pos;
+	  pl_token.line = pstm->line_count + 1;
+	  pl_token.col = pstm->line_pos;
 	  err_msg = "invalid character code in \\constant\\ sequence";
 	}
       if (c != '\\')
 	{
 	  if (err_msg == NULL)
 	    {
-	      token.line = pstm->line_count + 1;
-	      token.col = pstm->line_pos;
+	      pl_token.line = pstm->line_count + 1;
+	      pl_token.col = pstm->line_pos;
 	      err_msg = "\\ expected in \\constant\\ sequence";
 	    }
 
@@ -582,8 +592,8 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 
   if (err_msg == NULL)
     {
-      token.line = pstm->line_count + 1;
-      token.col = pstm->line_pos;
+      pl_token.line = pstm->line_count + 1;
+      pl_token.col = pstm->line_pos;
       err_msg = "unknown escape sequence";
     }
 
@@ -594,12 +604,12 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 
 
 /*-------------------------------------------------------------------------*
- * RECOVER_AFTER_ERROR                                                     *
+ * PL_RECOVER_AFTER_ERROR                                                  *
  *                                                                         *
  * Finds the next full stop (to restart after an error)                    *
  *-------------------------------------------------------------------------*/
 void
-Recover_After_Error(StmInf *pstm)
+Pl_Recover_After_Error(StmInf *pstm)
 #define Next_Char   Read_Next_Char(pstm, convert); if (c == EOF) return
 {
   int c0;
@@ -624,14 +634,14 @@ Recover_After_Error(StmInf *pstm)
       if ((c_type & (QT | DQ | BQ)) == 0)
 	continue;
 
-      /* quoted token */
+      /* quoted pl_token */
       c0 = c;
       convert = (c_orig != '\'');
 
       for (;;)
 	{
 	  Next_Char;
-	  if (c == c0)		/* detect end of token - also for  '' or "" or `` */
+	  if (c == c0)		/* detect end of pl_token - also for  '' or "" or `` */
 	    break;
 
 	  if (c != '\\')
@@ -644,7 +654,7 @@ Recover_After_Error(StmInf *pstm)
 	  if (strchr("\\'\"`", c))	/* \\ or \' or \" or \`  " */
 	    continue;
 
-	  if (strchr(escape_symbol, c))	/* \a \b \f \n \r \t \v */
+	  if (strchr(pl_escape_symbol, c))	/* \a \b \f \n \r \t \v */
 	    continue;
 
 	  if (c != 'x' && (c < '0' || c > '7'))
@@ -672,12 +682,12 @@ Recover_After_Error(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_NEXT_ATOM                                                          *
+ * PL_SCAN_NEXT_ATOM                                                       *
  *                                                                         *
  * Scan the next atom.                                                     *
  *-------------------------------------------------------------------------*/
 char *
-Scan_Next_Atom(StmInf *pstm)
+Pl_Scan_Next_Atom(StmInf *pstm)
 {
   char *s;
 
@@ -685,13 +695,13 @@ Scan_Next_Atom(StmInf *pstm)
     Read_Next_Char(pstm, TRUE);
   while (c_type == LA);		/* layout character */
 
-  token.line = pstm->line_count + 1;
-  token.col = pstm->line_pos;
+  pl_token.line = pstm->line_count + 1;
+  pl_token.col = pstm->line_pos;
 
   switch (c_type)
     {
     case SL:			/* small letter */
-      s = token.name;
+      s = pl_token.name;
       do
 	{
 	  *s++ = c;
@@ -719,7 +729,7 @@ Scan_Next_Atom(StmInf *pstm)
       break;
 
     case GR:			/* graphic */
-      s = token.name;
+      s = pl_token.name;
       while (c_type == GR)
 	{
 	  *s++ = c;
@@ -730,8 +740,8 @@ Scan_Next_Atom(StmInf *pstm)
       break;
 
     case SC:			/* solo character */
-      token.name[0] = c;
-      token.name[1] = '\0';
+      pl_token.name[0] = c;
+      pl_token.name[1] = '\0';
       break;
 
     default:
@@ -740,7 +750,7 @@ Scan_Next_Atom(StmInf *pstm)
       return "cannot start an atom (use quotes ?)";
     }
 
-  token.type = TOKEN_NAME;
+  pl_token.type = TOKEN_NAME;
   return NULL;
 }
 
@@ -748,12 +758,12 @@ Scan_Next_Atom(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * SCAN_NEXT_NUMBER                                                        *
+ * PL_SCAN_NEXT_NUMBER                                                     *
  *                                                                         *
  * Scan the next number (integer if integer_only is TRUE).                 *
  *-------------------------------------------------------------------------*/
 char *
-Scan_Next_Number(StmInf *pstm, Bool integer_only)
+Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only)
 {
   Bool minus_op = FALSE;
 
@@ -765,11 +775,11 @@ Scan_Next_Number(StmInf *pstm, Bool integer_only)
     }
 
 
-  token.line = pstm->line_count + 1;
-  token.col = pstm->line_pos;
+  pl_token.line = pstm->line_count + 1;
+  pl_token.col = pstm->line_pos;
 
 
-  if (c == '-' && isdigit(Scan_Peek_Char(pstm, FALSE)))	/* negative number */
+  if (c == '-' && isdigit(Pl_Scan_Peek_Char(pstm, FALSE)))	/* negative number */
     {
       Read_Next_Char(pstm, TRUE);
       minus_op = TRUE;
@@ -783,14 +793,23 @@ Scan_Next_Number(StmInf *pstm, Bool integer_only)
 
 
   Scan_Number(pstm, integer_only);
+  if (err_msg != NULL)
+    return err_msg;
 
   if (minus_op)
     {
-      if (token.type == TOKEN_INTEGER)
-	token.int_num = -token.int_num;
+      if (pl_token.type == TOKEN_INTEGER)
+	{
+	  if (pl_token.int_num > -INT_LOWEST_VALUE)
+	    return "integer underflow (exceeds min_integer)";
+	  pl_token.int_num = -pl_token.int_num;
+	}
       else
-	token.float_num = -token.float_num;
+	pl_token.float_num = -pl_token.float_num;
     }
+  else
+    if (pl_token.type == TOKEN_INTEGER && pl_token.int_num > INT_GREATEST_VALUE)
+      return "integer overflow (exceeds max_integer)";
 
   return NULL;
 }

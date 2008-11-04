@@ -30,8 +30,8 @@ void pl_call1();
 
 int x, y;
 
-extern long foreign_long[];
-extern double foreign_double[];
+extern long pl_foreign_long[];
+extern double pl_foreign_double[];
 
 
 
@@ -209,9 +209,9 @@ TRANS_call_c_lot_of_args(void)
 void
 TRANS_call_c_foreign(void)
 {
-  bar(foreign_long[0], foreign_long[4], &foreign_long[0], &foreign_long[8]);
-  bar(foreign_double[0], foreign_double[4], &foreign_double[0],
-      &foreign_double[8]);
+  bar(pl_foreign_long[0], pl_foreign_long[4], &pl_foreign_long[0], &pl_foreign_long[8]);
+  bar(pl_foreign_double[0], pl_foreign_double[4], &pl_foreign_double[0],
+      &pl_foreign_double[8]);
 }
 
 /* to define Jump_Ret() */
@@ -279,25 +279,25 @@ TRANS_move_ret_to_reg_y()
 
 
 
-/* to define Move_Ret_To_Foreign_L() */
+/* to define Move_Ret_To_Pl_Foreign_L() */
 
 void
-TRANS_move_ret_to_foreign_l()
+TRANS_move_ret_to_pl_foreign_l()
 {
-  foreign_long[123] = bar(3);
+  pl_foreign_long[123] = bar(3);
 }
 
 
 
 
-/* to define Move_Ret_To_Foreign_D() */
+/* to define Move_Ret_To_Pl_Foreign_D() */
 
 void
-TRANS_move_ret_to_foreign_d()
+TRANS_move_ret_to_pl_foreign_d()
 {
   double bard(void);
 
-  foreign_double[123] = bard();
+  pl_foreign_double[123] = bard();
 }
 
 

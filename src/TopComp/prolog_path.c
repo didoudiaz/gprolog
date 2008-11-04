@@ -45,6 +45,7 @@
 #define DEBUG
 #endif
 
+static char *Get_Prolog_Path_From_Exec(char *str, int *devel_mode);
 static char *Is_A_Valid_Root(char *str, int *devel_mode);
 static char *Search_Path(char *file);
 
@@ -60,11 +61,11 @@ static int Read_Write_Registry(int read, char *key_name, char *buff,
 /*-------------------------------------------------------------------------*
  * GET_PROLOG_PATH                                                         *
  *                                                                         *
- * returns the GNU Prolog start path (or NULL) and if devel_mode           *
- * the returned buffer can be written.                                     *
+ * Returns the GNU Prolog start path (or NULL) and if in devel_mode.       *
+ * The returned buffer can be written.                                     *
  *-------------------------------------------------------------------------*/
 static char *
-Get_Prolog_Path(int *devel_mode)
+Get_Prolog_Path(char *argv0, int *devel_mode)
 {
   static char resolved[MAXPATHLEN];
   char *p;
@@ -78,6 +79,16 @@ Get_Prolog_Path(int *devel_mode)
       if ((p = Is_A_Valid_Root(resolved, devel_mode)) != NULL)
 	return p;
     }
+
+  if (argv0 != NULL && 
+      (p = Get_Prolog_Path_From_Exec(argv0, devel_mode)) != NULL)
+    {
+#ifdef DEBUG
+      fprintf(stderr, "Prolog path from argv[0]: %s\n", p);
+#endif
+      return p;
+    }
+
 
   if ((p = Search_Path(COMPILER_EXE)) == NULL)
     {
@@ -97,11 +108,27 @@ Get_Prolog_Path(int *devel_mode)
   fprintf(stderr, GPLC " found from PATH: %s\n", p);
 #endif
 
+  return Get_Prolog_Path_From_Exec(p, devel_mode);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_PROLOG_PATH_FROM_EXEC                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char *
+Get_Prolog_Path_From_Exec(char *str, int *devel_mode)
+{
+  static char resolved[MAXPATHLEN];
+  char *p;
+
 #if defined(__unix__) || defined(__CYGWIN__)
-  if (realpath(p, resolved) == NULL)
+  if (realpath(str, resolved) == NULL)
     return NULL;
 #else  /* realpath useless under Win32 since SearchPath resolves it */
-  strcpy(resolved, p);
+  strcpy(resolved, str);
 #endif
 
 #ifdef DEBUG
@@ -112,11 +139,20 @@ Get_Prolog_Path(int *devel_mode)
   while (p > resolved && *p != DIR_SEP_C)	/* skip exec_name */
     p--;
 
+  if (p == resolved)
+    return NULL;
+
   while (p > resolved && *p == DIR_SEP_C)	/* skip / */
     p--;
 
+  if (p == resolved)
+    return NULL;
+
   while (p > resolved && *p != DIR_SEP_C)	/* skip previous dir name */
     p--;
+
+  if (p == resolved)
+    return NULL;
 
   p[1] = '\0';
 
@@ -126,7 +162,6 @@ Get_Prolog_Path(int *devel_mode)
 
   return Is_A_Valid_Root(resolved, devel_mode);
 }
-
 
 
 

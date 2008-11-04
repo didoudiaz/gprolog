@@ -100,7 +100,7 @@
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-not_x_eq_b(fdv X,fdv B)
+pl_not_x_eq_b(fdv X,fdv B)
 
 {
  start X in { not(val(B)) }
@@ -115,7 +115,7 @@ not_x_eq_b(fdv X,fdv B)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_equiv_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_equiv_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in { eqv(val(X),val(Y)) }
@@ -131,7 +131,7 @@ x_equiv_y_eq_b(fdv X,fdv Y,fdv B)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_nequiv_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nequiv_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in { xor(val(X),val(Y)) }
@@ -147,7 +147,7 @@ x_nequiv_y_eq_b(fdv X,fdv Y,fdv B)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_imply_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_imply_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in or(not(max(X)),min(Y)) .. or(not(min(X)),max(Y))
@@ -158,7 +158,7 @@ x_imply_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-x_imply_y_eq_1(fdv X,fdv Y)
+pl_x_imply_y_eq_1(fdv X,fdv Y)
 
 {
  start X in 0      .. max(Y)
@@ -173,7 +173,7 @@ x_imply_y_eq_1(fdv X,fdv Y)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_nimply_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nimply_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in and(min(X),not(max(Y))) .. and(max(X),not(min(Y)))
@@ -189,7 +189,7 @@ x_nimply_y_eq_b(fdv X,fdv Y,fdv B)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_and_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_and_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in and(min(X),min(Y)) .. and(max(X),max(Y))
@@ -200,7 +200,7 @@ x_and_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-x_and_y_eq_0(fdv X,fdv Y)
+pl_x_and_y_eq_0(fdv X,fdv Y)
 
 {
  start X in 0 .. not(min(Y))
@@ -215,7 +215,7 @@ x_and_y_eq_0(fdv X,fdv Y)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_nand_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nand_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in or(not(max(X)),not(max(Y))) .. or(not(min(X)),not(min(Y)))
@@ -231,7 +231,7 @@ x_nand_y_eq_b(fdv X,fdv Y,fdv B)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_or_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_or_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in or(min(X),min(Y))       .. or(max(X),max(Y))
@@ -242,7 +242,7 @@ x_or_y_eq_b(fdv X,fdv Y,fdv B)
 
 
 
-x_or_y_eq_1(fdv X,fdv Y)
+pl_x_or_y_eq_1(fdv X,fdv Y)
 
 {
  start X in not(max(Y)) .. 1
@@ -257,7 +257,7 @@ x_or_y_eq_1(fdv X,fdv Y)
  *                                                                         * 
  *-------------------------------------------------------------------------*/
 
-x_nor_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nor_y_eq_b(fdv X,fdv Y,fdv B)
 
 {
  start B in and(not(max(X)),not(max(Y))) .. and(not(min(X)),not(min(Y)))
@@ -279,7 +279,7 @@ x_nor_y_eq_b(fdv X,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_eq_c(fdv X,int C,fdv B)
+pl_truth_x_eq_c(fdv X,int C,fdv B)
 
 {
  wait_switch
@@ -299,7 +299,7 @@ truth_x_eq_c(fdv X,int C,fdv B)
 
 
 
-truth_x_eq_y(fdv X,fdv Y,fdv B)
+pl_truth_x_eq_y(fdv X,fdv Y,fdv B)
 
 {
  wait_switch
@@ -321,7 +321,7 @@ truth_x_eq_y(fdv X,fdv Y,fdv B)
 
 
 
-truth_x_plus_c_eq_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_eq_y(fdv X,int C,fdv Y,fdv B)
 
 {
  wait_switch
@@ -346,7 +346,7 @@ truth_x_plus_c_eq_y(fdv X,int C,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_eq_c_F(fdv X,int C,fdv B)
+pl_truth_x_eq_c_F(fdv X,int C,fdv B)
 
 {
  wait_switch
@@ -356,7 +356,7 @@ truth_x_eq_c_F(fdv X,int C,fdv B)
         case min(B)==1
                 start X in { C }
 
-        case Range_Test_Value(dom(X),C)==0
+        case Pl_Range_Test_Value(dom(X),C)==0
                 start B in { 0 }
 
         case min(X)==C && max(X)==C
@@ -366,7 +366,7 @@ truth_x_eq_c_F(fdv X,int C,fdv B)
 
 
 
-truth_x_eq_y_F(fdv X,fdv Y,fdv B)
+pl_truth_x_eq_y_F(fdv X,fdv Y,fdv B)
 
 {
  wait_switch
@@ -378,7 +378,7 @@ truth_x_eq_y_F(fdv X,fdv Y,fdv B)
                 start X in dom(Y)
                 start Y in dom(X)
 
-        case Range_Test_Null_Inter(dom(X),dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X),dom(Y))
                 start B in { 0 }
 
         case min(X)==max(Y) && max(X)==min(Y)
@@ -387,7 +387,7 @@ truth_x_eq_y_F(fdv X,fdv Y,fdv B)
 
 
 
-truth_x_plus_c_eq_y_F(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_eq_y_F(fdv X,int C,fdv Y,fdv B)
 
 {
  wait_switch
@@ -399,7 +399,7 @@ truth_x_plus_c_eq_y_F(fdv X,int C,fdv Y,fdv B)
                 start X in dom(Y) - C
                 start Y in dom(X) + C
 
-        case Range_Test_Null_Inter(dom(X)+C,dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X)+C,dom(Y))
                 start B in { 0 }
 
         case min(X)+C==max(Y) && max(X)+C==min(Y)
@@ -420,7 +420,7 @@ truth_x_plus_c_eq_y_F(fdv X,int C,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_neq_c(fdv X,int C,fdv B)
+pl_truth_x_neq_c(fdv X,int C,fdv B)
 
 {
  wait_switch
@@ -440,7 +440,7 @@ truth_x_neq_c(fdv X,int C,fdv B)
 
 
 
-truth_x_neq_y(fdv X,fdv Y,fdv B)
+pl_truth_x_neq_y(fdv X,fdv Y,fdv B)
 
 {
  wait_switch
@@ -462,7 +462,7 @@ truth_x_neq_y(fdv X,fdv Y,fdv B)
 
 
 
-truth_x_plus_c_neq_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_neq_y(fdv X,int C,fdv Y,fdv B)
 
 {
  wait_switch
@@ -488,7 +488,7 @@ truth_x_plus_c_neq_y(fdv X,int C,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_neq_c_F(fdv X,int C,fdv B)
+pl_truth_x_neq_c_F(fdv X,int C,fdv B)
 
 {
  wait_switch
@@ -501,14 +501,14 @@ truth_x_neq_c_F(fdv X,int C,fdv B)
         case min(X)==C && max(X)==C
                 start B in { 0 }
 
-        case Range_Test_Value(dom(X),C)==0
+        case Pl_Range_Test_Value(dom(X),C)==0
                 start B in { 1 }
 }
 
 
 
 
-truth_x_neq_y_F(fdv X,fdv Y,fdv B)
+pl_truth_x_neq_y_F(fdv X,fdv Y,fdv B)
 
 {
  wait_switch
@@ -523,13 +523,13 @@ truth_x_neq_y_F(fdv X,fdv Y,fdv B)
         case min(X)==max(Y) && max(X)==min(Y)
                 start B in { 0 }
 
-        case Range_Test_Null_Inter(dom(X),dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X),dom(Y))
                 start B in { 1 }
 }
 
 
 
-truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
 
 {
  wait_switch
@@ -544,7 +544,7 @@ truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
         case min(X)+C==max(Y) && max(X)+C==min(Y)
                 start B in { 0 }
 
-        case Range_Test_Null_Inter(dom(X)+C,dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X)+C,dom(Y))
                 start B in { 1 }
 }
 
@@ -563,7 +563,7 @@ truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_lt_y(fdv X,fdv Y,fdv B)
+pl_truth_x_lt_y(fdv X,fdv Y,fdv B)
 
 {
  wait_switch
@@ -596,7 +596,7 @@ truth_x_lt_y(fdv X,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_lte_c(fdv X,int C,fdv B)
+pl_truth_x_lte_c(fdv X,int C,fdv B)
 
 {
  wait_switch
@@ -616,7 +616,7 @@ truth_x_lte_c(fdv X,int C,fdv B)
 
 
 
-truth_x_lte_y(fdv X,fdv Y,fdv B)
+pl_truth_x_lte_y(fdv X,fdv Y,fdv B)
 
 {
  wait_switch
@@ -638,7 +638,7 @@ truth_x_lte_y(fdv X,fdv Y,fdv B)
 
 
 
-truth_x_plus_c_lte_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_lte_y(fdv X,int C,fdv Y,fdv B)
 
 {
  wait_switch
@@ -671,7 +671,7 @@ truth_x_plus_c_lte_y(fdv X,int C,fdv Y,fdv B)
 	 *------------*/
 
 
-truth_x_gte_c(fdv X,int C,fdv B)
+pl_truth_x_gte_c(fdv X,int C,fdv B)
 
 {
  wait_switch
@@ -691,7 +691,7 @@ truth_x_gte_c(fdv X,int C,fdv B)
 
 
 
-truth_x_plus_c_gte_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_gte_y(fdv X,int C,fdv Y,fdv B)
 
 {
  wait_switch

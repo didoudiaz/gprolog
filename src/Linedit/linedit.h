@@ -50,47 +50,47 @@
 
 /* overwritten if needed to customize linedit */
 
-void (*le_hook_start) ();
+void (*pl_le_hook_start) ();
 
 				/* is it mandatory to define a hook ? */
-void (*le_hook_put_char) ();	/* mandatory */
-int (*le_hook_get_char0) ();	/* mandatory */
-void (*le_hook_emit_beep) ();
-void (*le_hook_ins_mode) ();
+void (*pl_le_hook_put_char) ();	/* mandatory */
+int (*pl_le_hook_get_char0) ();	/* mandatory */
+void (*pl_le_hook_emit_beep) ();
+void (*pl_le_hook_ins_mode) ();
 
-void (*le_hook_screen_size) ();	/* mandatory */
-int (*le_hook_kbd_is_not_empty) ();	/* mandatory */
+void (*pl_le_hook_screen_size) ();	/* mandatory */
+int (*pl_le_hook_kbd_is_not_empty) ();	/* mandatory */
 
-void (*le_hook_backd) ();
-void (*le_hook_forwd) ();
-void (*le_hook_displ) ();
-void (*le_hook_displ_str) ();
-void (*le_hook_erase) ();
+void (*pl_le_hook_backd) ();
+void (*pl_le_hook_forwd) ();
+void (*pl_le_hook_displ) ();
+void (*pl_le_hook_displ_str) ();
+void (*pl_le_hook_erase) ();
 
 				/* functions not used by linedit itself */
-void (*le_hook_set_line_buffering) ();
-int (*le_hook_get_line_buffering) ();
-void (*le_hook_flush) ();
-int (*le_hook_confirm_box) ();
-void (*le_hook_message_box) ();
-void (*le_hook_exit_process) ();
+void (*pl_le_hook_set_line_buffering) ();
+int (*pl_le_hook_get_line_buffering) ();
+void (*pl_le_hook_flush) ();
+int (*pl_le_hook_confirm_box) ();
+void (*pl_le_hook_message_box) ();
+void (*pl_le_hook_exit_process) ();
 
 
 #ifdef LE_DEFINE_HOOK_MACROS
 
-#define EMIT_BEEP           ((*le_hook_emit_beep)())
-#define PUT_CHAR(c)         ((*le_hook_put_char)(c))
-#define GET_CHAR0           ((*le_hook_get_char0)())
-#define INS_MODE(ins_mode)  ((*le_hook_ins_mode)(ins_mode))
+#define EMIT_BEEP           ((*pl_le_hook_emit_beep)())
+#define PUT_CHAR(c)         ((*pl_le_hook_put_char)(c))
+#define GET_CHAR0           ((*pl_le_hook_get_char0)())
+#define INS_MODE(ins_mode)  ((*pl_le_hook_ins_mode)(ins_mode))
 
-#define SCREEN_SIZE(r, c)   ((*le_hook_screen_size)(r, c))
-#define KBD_IS_NOT_EMPTY    ((*le_hook_kbd_is_not_empty)())
+#define SCREEN_SIZE(r, c)   ((*pl_le_hook_screen_size)(r, c))
+#define KBD_IS_NOT_EMPTY    ((*pl_le_hook_kbd_is_not_empty)())
 
-#define BACKD(n)            ((*le_hook_backd)(n))
-#define FORWD(n, str)       ((*le_hook_forwd)(n, str))
-#define DISPL(n, str)       ((*le_hook_displ)(n, str))
-#define DISPL_STR(str)      ((*le_hook_displ_str)(str))
-#define ERASE(n)            ((*le_hook_erase)(n))
+#define BACKD(n)            ((*pl_le_hook_backd)(n))
+#define FORWD(n, str)       ((*pl_le_hook_forwd)(n, str))
+#define DISPL(n, str)       ((*pl_le_hook_displ)(n, str))
+#define DISPL_STR(str)      ((*pl_le_hook_displ_str)(str))
+#define ERASE(n)            ((*pl_le_hook_erase)(n))
 
 #endif
 
@@ -99,53 +99,53 @@ void (*le_hook_exit_process) ();
  * Function Prototypes             *
  *---------------------------------*/
 
-int LE_Initialize(void);
+int Pl_LE_Initialize(void);
 
 
-char *LE_Gets(char *str);
+char *Pl_LE_Gets(char *str);
 
-char *LE_FGets(char *str, int size, char *prompt, int display_prompt);
+char *Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt);
 
 
-long LE_Get_Ctrl_C_Return_Value(void);
+long Pl_LE_Get_Ctrl_C_Return_Value(void);
 
 #define LE_Interrupted_By_Ctrl_C(r)  ((long) r == -2L)
 
 
-int LE_Get_Prompt_Length(void);
+int Pl_LE_Get_Prompt_Length(void);
 
-int LE_Get_Current_Position(void);
+int Pl_LE_Get_Current_Position(void);
 
-void LE_Get_Current_Word(char *word);
+void Pl_LE_Get_Current_Word(char *word);
 
-char *LE_Get_Separators(void);
+char *Pl_LE_Get_Separators(void);
 
-char *LE_Set_Separators(char *sep_str);
-
-
-
-char *LE_Compl_Add_Word(char *word, int word_length);
-
-char *LE_Compl_Del_Word(char *word);
-
-char *LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg);
-
-char *LE_Compl_Find_Match(int *is_last);
+char *Pl_LE_Set_Separators(char *sep_str);
 
 
-int LE_Get_Key(int echo, int catch_ctrl_c);
+
+char *Pl_LE_Compl_Add_Word(char *word, int word_length);
+
+char *Pl_LE_Compl_Del_Word(char *word);
+
+char *Pl_LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg);
+
+char *Pl_LE_Compl_Find_Match(int *is_last);
 
 
-int LE_Printf(char *format, ...);
+int Pl_LE_Get_Key(int echo, int catch_ctrl_c);
+
+
+int Pl_LE_Printf(char *format, ...);
 
 
 
 #ifdef TERMINAL_FILE
 
-int (*le_initialize)() = LE_Initialize;
+int (*pl_le_initialize)() = Pl_LE_Initialize;
 
 #else
 
-int (*le_initialize)();
+int (*pl_le_initialize)();
 
 #endif

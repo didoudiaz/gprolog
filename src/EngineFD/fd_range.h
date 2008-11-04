@@ -81,101 +81,101 @@ Range;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Least_Significant_Bit(VecWord x);
+int Pl_Least_Significant_Bit(VecWord x);
 
-int Most_Significant_Bit(VecWord x);
+int Pl_Most_Significant_Bit(VecWord x);
 
-void Define_Vector_Size(int max_val);
+void Pl_Define_Vector_Size(int max_val);
 
-void Vector_From_Interval(Vector vec, int min, int max);
+void Pl_Vector_From_Interval(Vector vec, int min, int max);
 
-int Vector_Nb_Elem(Vector vec);
+int Pl_Vector_Nb_Elem(Vector vec);
 
-int Vector_Ith_Elem(Vector vec, int n);
+int Pl_Vector_Ith_Elem(Vector vec, int n);
 
-int Vector_Next_After(Vector vec, int n);
+int Pl_Vector_Next_After(Vector vec, int n);
 
-int Vector_Next_Before(Vector vec, int n);
+int Pl_Vector_Next_Before(Vector vec, int n);
 
-void Vector_Empty(Vector vec);
+void Pl_Vector_Empty(Vector vec);
 
-void Vector_Full(Vector vec);
+void Pl_Vector_Full(Vector vec);
 
-Bool Vector_Test_Null_Inter(Vector vec, Vector vec1);
+Bool Pl_Vector_Test_Null_Inter(Vector vec, Vector vec1);
 
-void Vector_Copy(Vector vec, Vector vec1);
+void Pl_Vector_Copy(Vector vec, Vector vec1);
 
-void Vector_Union(Vector vec, Vector vec1);
+void Pl_Vector_Union(Vector vec, Vector vec1);
 
-void Vector_Inter(Vector vec, Vector vec1);
+void Pl_Vector_Inter(Vector vec, Vector vec1);
 
-void Vector_Compl(Vector vec);
+void Pl_Vector_Compl(Vector vec);
 
-void Vector_Add_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Add_Vector(Vector vec, Vector vec1);
 
-void Vector_Sub_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Sub_Vector(Vector vec, Vector vec1);
 
-void Vector_Mul_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Mul_Vector(Vector vec, Vector vec1);
 
-void Vector_Div_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Div_Vector(Vector vec, Vector vec1);
 
-void Vector_Mod_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Mod_Vector(Vector vec, Vector vec1);
 
-void Vector_Add_Value(Vector vec, int n);
+void Pl_Vector_Add_Value(Vector vec, int n);
 
-void Vector_Mul_Value(Vector vec, int n);
+void Pl_Vector_Mul_Value(Vector vec, int n);
 
-void Vector_Div_Value(Vector vec, int n);
+void Pl_Vector_Div_Value(Vector vec, int n);
 
-void Vector_Mod_Value(Vector vec, int n);
+void Pl_Vector_Mod_Value(Vector vec, int n);
 
-Bool Range_Test_Value(Range *range, int n);
+Bool Pl_Range_Test_Value(Range *range, int n);
 
-Bool Range_Test_Null_Inter(Range *range, Range *range1);
+Bool Pl_Range_Test_Null_Inter(Range *range, Range *range1);
 
-void Range_Copy(Range *range, Range *range1);
+void Pl_Range_Copy(Range *range, Range *range1);
 
-int Range_Nb_Elem(Range *range);
+int Pl_Range_Nb_Elem(Range *range);
 
-int Range_Ith_Elem(Range *range, int n);
+int Pl_Range_Ith_Elem(Range *range, int n);
 
-int Range_Next_After(Range *range, int n);
+int Pl_Range_Next_After(Range *range, int n);
 
-int Range_Next_Before(Range *range, int n);
+int Pl_Range_Next_Before(Range *range, int n);
 
-void Range_Set_Value(Range *range, int n);
+void Pl_Range_Set_Value(Range *range, int n);
 
-void Range_Reset_Value(Range *range, int n);
+void Pl_Range_Reset_Value(Range *range, int n);
 
-void Range_Becomes_Sparse(Range *range);
+void Pl_Range_Becomes_Sparse(Range *range);
 
-void Range_From_Vector(Range *range);
+void Pl_Range_From_Vector(Range *range);
 
-void Range_Union(Range *range, Range *range1);
+void Pl_Range_Union(Range *range, Range *range1);
 
-void Range_Inter(Range *range, Range *range1);
+void Pl_Range_Inter(Range *range, Range *range1);
 
-void Range_Compl(Range *range);
+void Pl_Range_Compl(Range *range);
 
-void Range_Add_Range(Range *range, Range *range1);
+void Pl_Range_Add_Range(Range *range, Range *range1);
 
-void Range_Sub_Range(Range *range, Range *range1);
+void Pl_Range_Sub_Range(Range *range, Range *range1);
 
-void Range_Mul_Range(Range *range, Range *range1);
+void Pl_Range_Mul_Range(Range *range, Range *range1);
 
-void Range_Div_Range(Range *range, Range *range1);
+void Pl_Range_Div_Range(Range *range, Range *range1);
 
-void Range_Mod_Range(Range *range, Range *range1);
+void Pl_Range_Mod_Range(Range *range, Range *range1);
 
-void Range_Add_Value(Range *range, int n);
+void Pl_Range_Add_Value(Range *range, int n);
 
-void Range_Mul_Value(Range *range, int n);
+void Pl_Range_Mul_Value(Range *range, int n);
 
-void Range_Div_Value(Range *range, int n);
+void Pl_Range_Div_Value(Range *range, int n);
 
-void Range_Mod_Value(Range *range, int n);
+void Pl_Range_Mod_Value(Range *range, int n);
 
-char *Range_To_String(Range *range);
+char *Pl_Range_To_String(Range *range);
 
 
 
@@ -221,7 +221,7 @@ char *Range_To_String(Range *range);
   do						\
     {						\
       vec = (Vector) RANGE_TOP_STACK;		\
-      RANGE_TOP_STACK += vec_size;		\
+      RANGE_TOP_STACK += pl_vec_size;		\
     }						\
   while (0)
 
@@ -237,7 +237,7 @@ char *Range_To_String(Range *range);
 
 #define VECTOR_BEGIN_ENUM(vec, vec_elem)                              	  \
 {									  \
-  Vector enum_end = vec + vec_size, enum_i = vec;			  \
+  Vector enum_end = vec + pl_vec_size, enum_i = vec;			  \
   int enum_j;								  \
   VecWord enum_word;							  \
 									  \

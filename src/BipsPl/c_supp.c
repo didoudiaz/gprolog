@@ -53,7 +53,7 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
    if (tag_mask != TAG_REF_MASK)                                            \
-     Pl_Err_Type(type_variable, word)
+     Pl_Err_Type(pl_type_variable, word)
 
 
 #define CHECK_FOR_UN_INTEGER                                                \
@@ -61,7 +61,7 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
    if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                \
-     Pl_Err_Type(type_integer, word)
+     Pl_Err_Type(pl_type_integer, word)
 
 
 #define CHECK_FOR_UN_POSITIVE                                               \
@@ -69,9 +69,9 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
-    Pl_Err_Type(type_integer, word);                                        \
+    Pl_Err_Type(pl_type_integer, word);                                        \
   if (tag_mask == TAG_INT_MASK && UnTag_INT(word)<0)                        \
-    Pl_Err_Domain(domain_not_less_than_zero, word)
+    Pl_Err_Domain(pl_domain_not_less_than_zero, word)
 
 
 #define CHECK_FOR_UN_FLOAT                                                  \
@@ -79,7 +79,7 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_FLT_MASK)                 \
-    Pl_Err_Type(type_float, word)
+    Pl_Err_Type(pl_type_float, word)
 
 
 #define CHECK_FOR_UN_NUMBER                                                 \
@@ -88,7 +88,7 @@
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK &&               \
       tag_mask != TAG_FLT_MASK)                                             \
-     Pl_Err_Type(type_number, word)
+     Pl_Err_Type(pl_type_number, word)
 
 
 #define CHECK_FOR_UN_ATOM                                                   \
@@ -96,7 +96,7 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)                 \
-    Pl_Err_Type(type_atom, word)
+    Pl_Err_Type(pl_type_atom, word)
 
 
 #define CHECK_FOR_UN_BOOLEAN                                                \
@@ -106,8 +106,8 @@
   DEREF(start_word, word, tag_mask);                                        \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
-      (atom != atom_true && atom != atom_false)))                           \
-     Pl_Err_Type(type_boolean, word)
+      (atom != pl_atom_true && atom != pl_atom_false)))                           \
+     Pl_Err_Type(pl_type_boolean, word)
 
 
 #define CHECK_FOR_UN_CHAR                                                   \
@@ -117,8 +117,8 @@
   DEREF(start_word, word, tag_mask);                                        \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
-      atom_tbl[atom].prop.length != 1))                                     \
-    Pl_Err_Type(type_character, word)
+      pl_atom_tbl[atom].prop.length != 1))                                     \
+    Pl_Err_Type(pl_type_character, word)
 
 
 #define CHECK_FOR_UN_IN_CHAR                                                \
@@ -128,8 +128,8 @@
   DEREF(start_word, word, tag_mask);                                        \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
-      (atom != atom_end_of_file && atom_tbl[atom].prop.length != 1)))       \
-    Pl_Err_Type(type_in_character, word)
+      (atom != pl_atom_end_of_file && pl_atom_tbl[atom].prop.length != 1)))       \
+    Pl_Err_Type(pl_type_in_character, word)
 
 
 #define CHECK_FOR_UN_CODE                                                   \
@@ -138,10 +138,10 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
-    Pl_Err_Type(type_integer, word);                                        \
+    Pl_Err_Type(pl_type_integer, word);                                        \
   c = UnTag_INT(word);                                                      \
   if (tag_mask == TAG_INT_MASK && !Is_Valid_Code(c))                        \
-    Pl_Err_Representation(representation_character_code)
+    Pl_Err_Representation(pl_representation_character_code)
 
 
 #define CHECK_FOR_UN_IN_CODE                                                \
@@ -150,10 +150,10 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
-    Pl_Err_Type(type_integer, word);                                        \
+    Pl_Err_Type(pl_type_integer, word);                                        \
   c = UnTag_INT(word);                                                      \
   if (tag_mask == TAG_INT_MASK && c != -1 && !Is_Valid_Code(c))             \
-    Pl_Err_Representation(representation_in_character_code)
+    Pl_Err_Representation(pl_representation_in_character_code)
 
 
 #define CHECK_FOR_UN_BYTE                                                   \
@@ -164,7 +164,7 @@
   c = UnTag_INT(word);                                                      \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_INT_MASK ||              \
       !Is_Valid_Byte(c)))                                                   \
-    Pl_Err_Type(type_byte, word)
+    Pl_Err_Type(pl_type_byte, word)
 
 
 #define CHECK_FOR_UN_IN_BYTE                                                \
@@ -175,7 +175,7 @@
   c = UnTag_INT(word);                                                      \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_INT_MASK ||              \
       (c != -1 && !Is_Valid_Byte(c))))                                      \
-     Pl_Err_Type(type_in_byte, word)
+     Pl_Err_Type(pl_type_in_byte, word)
 
 
 #define CHECK_FOR_UN_COMPOUND                                               \
@@ -184,7 +184,7 @@
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK &&               \
       tag_mask != TAG_STC_MASK)                                             \
-    Pl_Err_Type(type_compound, word)
+    Pl_Err_Type(pl_type_compound, word)
 
 
 #define CHECK_FOR_UN_CALLABLE                                               \
@@ -193,17 +193,17 @@
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&               \
       tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)                 \
-    Pl_Err_Type(type_callable, word)
+    Pl_Err_Type(pl_type_callable, word)
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_INTEGER_CHECK                                                        *
+ * PL_RD_INTEGER_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Rd_Integer_Check(WamWord start_word)
+Pl_Rd_Integer_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -212,7 +212,7 @@ Rd_Integer_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_INT_MASK)
-    Pl_Err_Type(type_integer, word);
+    Pl_Err_Type(pl_type_integer, word);
 
   return UnTag_INT(word);
 }
@@ -221,11 +221,11 @@ Rd_Integer_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_INTEGER                                                              *
+ * PL_RD_INTEGER                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Rd_Integer(WamWord start_word)
+Pl_Rd_Integer(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -238,16 +238,16 @@ Rd_Integer(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_POSITIVE_CHECK                                                       *
+ * PL_RD_POSITIVE_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Rd_Positive_Check(WamWord start_word)
+Pl_Rd_Positive_Check(WamWord start_word)
 {
-  long n = Rd_Integer_Check(start_word);
+  long n = Pl_Rd_Integer_Check(start_word);
 
   if (n < 0)
-    Pl_Err_Domain(domain_not_less_than_zero, start_word);
+    Pl_Err_Domain(pl_domain_not_less_than_zero, start_word);
 
   return n;
 }
@@ -256,24 +256,24 @@ Rd_Positive_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_POSITIVE                                                             *
+ * PL_RD_POSITIVE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Rd_Positive(WamWord start_word)
+Pl_Rd_Positive(WamWord start_word)
 {
-  return Rd_Integer(start_word);
+  return Pl_Rd_Integer(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_FLOAT_CHECK                                                          *
+ * PL_RD_FLOAT_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 double
-Rd_Float_Check(WamWord start_word)
+Pl_Rd_Float_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -282,37 +282,37 @@ Rd_Float_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_FLT_MASK)
-    Pl_Err_Type(type_float, word);
+    Pl_Err_Type(pl_type_float, word);
 
-  return Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_FLOAT                                                                *
+ * PL_RD_FLOAT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 double
-Rd_Float(WamWord start_word)
+Pl_Rd_Float(WamWord start_word)
 {
   WamWord word, tag_mask;
 
   DEREF(start_word, word, tag_mask);
 
-  return Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_NUMBER_CHECK                                                         *
+ * PL_RD_NUMBER_CHECK                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 double
-Rd_Number_Check(WamWord start_word)
+Pl_Rd_Number_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -321,23 +321,23 @@ Rd_Number_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_FLT_MASK && tag_mask != TAG_INT_MASK)
-    Pl_Err_Type(type_number, word);
+    Pl_Err_Type(pl_type_number, word);
 
   if (tag_mask == TAG_INT_MASK)
     return (double) UnTag_INT(word);
 
-  return Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_NUMBER                                                               *
+ * PL_RD_NUMBER                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 double
-Rd_Number(WamWord start_word)
+Pl_Rd_Number(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -346,18 +346,18 @@ Rd_Number(WamWord start_word)
   if (tag_mask == TAG_INT_MASK)
     return (double) UnTag_INT(word);
 
-  return Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_ATOM_CHECK                                                           *
+ * PL_RD_ATOM_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Atom_Check(WamWord start_word)
+Pl_Rd_Atom_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -366,7 +366,7 @@ Rd_Atom_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_ATM_MASK)
-    Pl_Err_Type(type_atom, word);
+    Pl_Err_Type(pl_type_atom, word);
 
   return UnTag_ATM(word);
 }
@@ -375,11 +375,11 @@ Rd_Atom_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_ATOM                                                                 *
+ * PL_RD_ATOM                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Atom(WamWord start_word)
+Pl_Rd_Atom(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -392,11 +392,11 @@ Rd_Atom(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_BOOLEAN_CHECK                                                        *
+ * PL_RD_BOOLEAN_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Boolean_Check(WamWord start_word)
+Pl_Rd_Boolean_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
   int atom;
@@ -406,21 +406,21 @@ Rd_Boolean_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   atom = UnTag_ATM(word);
-  if (tag_mask != TAG_ATM_MASK || (atom != atom_true && atom != atom_false))
-    Pl_Err_Type(type_boolean, word);
+  if (tag_mask != TAG_ATM_MASK || (atom != pl_atom_true && atom != pl_atom_false))
+    Pl_Err_Type(pl_type_boolean, word);
 
-  return atom != atom_false;
+  return atom != pl_atom_false;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_BOOLEAN                                                              *
+ * PL_RD_BOOLEAN                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Boolean(WamWord start_word)
+Pl_Rd_Boolean(WamWord start_word)
 {
   WamWord word, tag_mask;
   int atom;
@@ -429,18 +429,18 @@ Rd_Boolean(WamWord start_word)
 
   atom = UnTag_ATM(word);
 
-  return atom != atom_false;
+  return atom != pl_atom_false;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CHAR_CHECK                                                           *
+ * PL_RD_CHAR_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Char_Check(WamWord start_word)
+Pl_Rd_Char_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
   int atom;
@@ -450,21 +450,21 @@ Rd_Char_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   atom = UnTag_ATM(word);
-  if (tag_mask != TAG_ATM_MASK || atom_tbl[atom].prop.length != 1)
-    Pl_Err_Type(type_character, word);
+  if (tag_mask != TAG_ATM_MASK || pl_atom_tbl[atom].prop.length != 1)
+    Pl_Err_Type(pl_type_character, word);
 
-  return atom_tbl[atom].name[0];
+  return pl_atom_tbl[atom].name[0];
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CHAR                                                                 *
+ * PL_RD_CHAR                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Char(WamWord start_word)
+Pl_Rd_Char(WamWord start_word)
 {
   WamWord word, tag_mask;
   int atom;
@@ -472,18 +472,18 @@ Rd_Char(WamWord start_word)
   DEREF(start_word, word, tag_mask);
   atom = UnTag_ATM(word);
 
-  return atom_tbl[atom].name[0];
+  return pl_atom_tbl[atom].name[0];
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_IN_CHAR_CHECK                                                        *
+ * PL_RD_IN_CHAR_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_In_Char_Check(WamWord start_word)
+Pl_Rd_In_Char_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
   int atom;
@@ -494,45 +494,45 @@ Rd_In_Char_Check(WamWord start_word)
 
   atom = UnTag_ATM(word);
   if (tag_mask != TAG_ATM_MASK || 
-      (atom != atom_end_of_file && atom_tbl[atom].prop.length != 1))
-    Pl_Err_Type(type_in_character, word);
+      (atom != pl_atom_end_of_file && pl_atom_tbl[atom].prop.length != 1))
+    Pl_Err_Type(pl_type_in_character, word);
 
-  return (atom != atom_end_of_file) ? atom_tbl[atom].name[0] : -1;
+  return (atom != pl_atom_end_of_file) ? pl_atom_tbl[atom].name[0] : -1;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_IN_CHAR                                                              *
+ * PL_RD_IN_CHAR                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_In_Char(WamWord start_word)
+Pl_Rd_In_Char(WamWord start_word)
 {
   WamWord word, tag_mask;
   int atom;
 
   DEREF(start_word, word, tag_mask);
   atom = UnTag_ATM(word);
-  return (atom != atom_end_of_file) ? atom_tbl[atom].name[0] : -1;
+  return (atom != pl_atom_end_of_file) ? pl_atom_tbl[atom].name[0] : -1;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CODE_CHECK                                                           *
+ * PL_RD_CODE_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Code_Check(WamWord start_word)
+Pl_Rd_Code_Check(WamWord start_word)
 {
   int c;
 
-  c = Rd_Integer_Check(start_word);
+  c = Pl_Rd_Integer_Check(start_word);
   if (!Is_Valid_Code(c))
-    Pl_Err_Representation(representation_character_code);
+    Pl_Err_Representation(pl_representation_character_code);
 
   return c;
 }
@@ -541,30 +541,30 @@ Rd_Code_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_CODE                                                                 *
+ * PL_RD_CODE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Code(WamWord start_word)
+Pl_Rd_Code(WamWord start_word)
 {
-  return Rd_Integer(start_word);
+  return Pl_Rd_Integer(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_IN_CODE_CHECK                                                        *
+ * PL_RD_IN_CODE_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_In_Code_Check(WamWord start_word)
+Pl_Rd_In_Code_Check(WamWord start_word)
 {
   int c;
 
-  c = Rd_Integer_Check(start_word);
+  c = Pl_Rd_Integer_Check(start_word);
   if (c != -1 && !Is_Valid_Code(c))
-    Pl_Err_Representation(representation_in_character_code);
+    Pl_Err_Representation(pl_representation_in_character_code);
 
   return c;
 }
@@ -573,24 +573,24 @@ Rd_In_Code_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_IN_CODE                                                              *
+ * PL_RD_IN_CODE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_In_Code(WamWord start_word)
+Pl_Rd_In_Code(WamWord start_word)
 {
-  return Rd_Integer(start_word);
+  return Pl_Rd_Integer(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_BYTE_CHECK                                                           *
+ * PL_RD_BYTE_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Byte_Check(WamWord start_word)
+Pl_Rd_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
   int c;
@@ -601,7 +601,7 @@ Rd_Byte_Check(WamWord start_word)
 
   c = UnTag_INT(word);
   if (tag_mask != TAG_INT_MASK || !Is_Valid_Byte(c))
-    Pl_Err_Type(type_byte, word);
+    Pl_Err_Type(pl_type_byte, word);
 
   return c;
 }
@@ -610,24 +610,24 @@ Rd_Byte_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_BYTE                                                                 *
+ * PL_RD_BYTE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Byte(WamWord start_word)
+Pl_Rd_Byte(WamWord start_word)
 {
-  return Rd_Integer(start_word);
+  return Pl_Rd_Integer(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_IN_BYTE_CHECK                                                        *
+ * PL_RD_IN_BYTE_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_In_Byte_Check(WamWord start_word)
+Pl_Rd_In_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
   int c;
@@ -638,7 +638,7 @@ Rd_In_Byte_Check(WamWord start_word)
 
   c = UnTag_INT(word);
   if (tag_mask != TAG_INT_MASK || (c != -1 && !Is_Valid_Byte(c)))
-    Pl_Err_Type(type_in_byte, word);
+    Pl_Err_Type(pl_type_in_byte, word);
 
   return c;
 }
@@ -647,24 +647,24 @@ Rd_In_Byte_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_IN_BYTE                                                              *
+ * PL_RD_IN_BYTE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_In_Byte(WamWord start_word)
+Pl_Rd_In_Byte(WamWord start_word)
 {
-  return Rd_Integer(start_word);
+  return Pl_Rd_Integer(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_STRING_CHECK                                                         *
+ * PL_RD_STRING_CHECK                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Rd_String_Check(WamWord start_word)
+Pl_Rd_String_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -673,89 +673,89 @@ Rd_String_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_ATM_MASK)
-    Pl_Err_Type(type_atom, word);
+    Pl_Err_Type(pl_type_atom, word);
 
-  return atom_tbl[UnTag_ATM(word)].name;
+  return pl_atom_tbl[UnTag_ATM(word)].name;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_STRING                                                               *
+ * PL_RD_STRING                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Rd_String(WamWord start_word)
+Pl_Rd_String(WamWord start_word)
 {
-  return atom_tbl[Rd_Atom(start_word)].name;
+  return pl_atom_tbl[Pl_Rd_Atom(start_word)].name;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CHARS_CHECK                                                          *
+ * PL_RD_CHARS_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Rd_Chars_Check(WamWord start_word)
+Pl_Rd_Chars_Check(WamWord start_word)
 {
-  Rd_Chars_Str_Check(start_word, glob_buff);
-  return glob_buff;
+  Pl_Rd_Chars_Str_Check(start_word, pl_glob_buff);
+  return pl_glob_buff;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CHARS                                                                *
+ * PL_RD_CHARS                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Rd_Chars(WamWord start_word)
+Pl_Rd_Chars(WamWord start_word)
 {
-  Rd_Chars_Str(start_word, glob_buff);
-  return glob_buff;
+  Pl_Rd_Chars_Str(start_word, pl_glob_buff);
+  return pl_glob_buff;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CODES_CHECK                                                          *
+ * PL_RD_CODES_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Rd_Codes_Check(WamWord start_word)
+Pl_Rd_Codes_Check(WamWord start_word)
 {
-  Rd_Codes_Str_Check(start_word, glob_buff);
-  return glob_buff;
+  Pl_Rd_Codes_Str_Check(start_word, pl_glob_buff);
+  return pl_glob_buff;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CODES                                                                *
+ * PL_RD_CODES                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Rd_Codes(WamWord start_word)
+Pl_Rd_Codes(WamWord start_word)
 {
-  Rd_Codes_Str(start_word, glob_buff);
-  return glob_buff;
+  Pl_Rd_Codes_Str(start_word, pl_glob_buff);
+  return pl_glob_buff;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RD_CHARS_STR_CHECK                                                      *
+ * PL_RD_CHARS_STR_CHECK                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Chars_Str_Check(WamWord start_word, char *str)
+Pl_Rd_Chars_Str_Check(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
   WamWord save_start_word;
@@ -775,11 +775,11 @@ Rd_Chars_Str_Check(WamWord start_word, char *str)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_start_word);
+	Pl_Err_Type(pl_type_list, save_start_word);
 
       lst_adr = UnTag_LST(word);
 
-      *str++ = Rd_Char_Check(Car(lst_adr));
+      *str++ = Pl_Rd_Char_Check(Car(lst_adr));
       n++;
 
       start_word = Cdr(lst_adr);
@@ -793,11 +793,11 @@ Rd_Chars_Str_Check(WamWord start_word, char *str)
 
 
 /*-------------------------------------------------------------------------*
- * RD_CHARS_STR                                                            *
+ * PL_RD_CHARS_STR                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Chars_Str(WamWord start_word, char *str)
+Pl_Rd_Chars_Str(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
   WamWord save_start_word;
@@ -815,7 +815,7 @@ Rd_Chars_Str(WamWord start_word, char *str)
 
       lst_adr = UnTag_LST(word);
 
-      *str++ = Rd_Char_Check(Car(lst_adr));
+      *str++ = Pl_Rd_Char_Check(Car(lst_adr));
       n++;
 
       start_word = Cdr(lst_adr);
@@ -829,11 +829,11 @@ Rd_Chars_Str(WamWord start_word, char *str)
 
 
 /*-------------------------------------------------------------------------*
- * RD_CODES_STR_CHECK                                                      *
+ * PL_RD_CODES_STR_CHECK                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Codes_Str_Check(WamWord start_word, char *str)
+Pl_Rd_Codes_Str_Check(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
   WamWord save_start_word;
@@ -853,11 +853,11 @@ Rd_Codes_Str_Check(WamWord start_word, char *str)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_start_word);
+	Pl_Err_Type(pl_type_list, save_start_word);
 
       lst_adr = UnTag_LST(word);
 
-      *str++ = Rd_Code_Check(Car(lst_adr));
+      *str++ = Pl_Rd_Code_Check(Car(lst_adr));
       n++;
 
       start_word = Cdr(lst_adr);
@@ -871,11 +871,11 @@ Rd_Codes_Str_Check(WamWord start_word, char *str)
 
 
 /*-------------------------------------------------------------------------*
- * RD_CODES_STR                                                            *
+ * PL_RD_CODES_STR                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Codes_Str(WamWord start_word, char *str)
+Pl_Rd_Codes_Str(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
   WamWord save_start_word;
@@ -893,7 +893,7 @@ Rd_Codes_Str(WamWord start_word, char *str)
 
       lst_adr = UnTag_LST(word);
 
-      *str++ = Rd_Code_Check(Car(lst_adr));
+      *str++ = Pl_Rd_Code_Check(Car(lst_adr));
       n++;
 
       start_word = Cdr(lst_adr);
@@ -907,11 +907,11 @@ Rd_Codes_Str(WamWord start_word, char *str)
 
 
 /*-------------------------------------------------------------------------*
- * RD_LIST_CHECK                                                           *
+ * PL_RD_LIST_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Rd_List_Check(WamWord start_word)
+Pl_Rd_List_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
   WamWord *lst_adr;
@@ -925,7 +925,7 @@ Rd_List_Check(WamWord start_word)
     return NULL;
 
   if (tag_mask != TAG_LST_MASK)
-    Pl_Err_Type(type_list, start_word);
+    Pl_Err_Type(pl_type_list, start_word);
 
   lst_adr = UnTag_LST(word);
   return &Car(lst_adr);
@@ -935,11 +935,11 @@ Rd_List_Check(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_LIST                                                                 *
+ * PL_RD_LIST                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Rd_List(WamWord start_word)
+Pl_Rd_List(WamWord start_word)
 {
   WamWord word, tag_mask;
   WamWord *lst_adr;
@@ -957,11 +957,11 @@ Rd_List(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * RD_PROPER_LIST_CHECK                                                    *
+ * PL_RD_PROPER_LIST_CHECK                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Proper_List_Check(WamWord start_word, WamWord *arg)
+Pl_Rd_Proper_List_Check(WamWord start_word, WamWord *arg)
 {
   WamWord word, tag_mask;
   WamWord save_start_word;
@@ -981,7 +981,7 @@ Rd_Proper_List_Check(WamWord start_word, WamWord *arg)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_start_word);
+	Pl_Err_Type(pl_type_list, save_start_word);
 
       lst_adr = UnTag_LST(word);
 
@@ -998,11 +998,11 @@ Rd_Proper_List_Check(WamWord start_word, WamWord *arg)
 
 
 /*-------------------------------------------------------------------------*
- * RD_PROPER_LIST                                                          *
+ * PL_RD_PROPER_LIST                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Rd_Proper_List(WamWord start_word, WamWord *arg)
+Pl_Rd_Proper_List(WamWord start_word, WamWord *arg)
 {
   WamWord word, tag_mask;
   WamWord save_start_word;
@@ -1033,11 +1033,11 @@ Rd_Proper_List(WamWord start_word, WamWord *arg)
 
 
 /*-------------------------------------------------------------------------*
- * RD_COMPOUND_CHECK                                                       *
+ * PL_RD_COMPOUND_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Rd_Compound_Check(WamWord start_word, int *func, int *arity)
+Pl_Rd_Compound_Check(WamWord start_word, int *func, int *arity)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -1063,7 +1063,7 @@ Rd_Compound_Check(WamWord start_word, int *func, int *arity)
       return &Arg(adr, 0);
     }
 
-  Pl_Err_Type(type_compound, start_word);
+  Pl_Err_Type(pl_type_compound, start_word);
   return NULL;
 }
 
@@ -1071,11 +1071,11 @@ Rd_Compound_Check(WamWord start_word, int *func, int *arity)
 
 
 /*-------------------------------------------------------------------------*
- * RD_COMPOUND                                                             *
+ * PL_RD_COMPOUND                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Rd_Compound(WamWord start_word, int *func, int *arity)
+Pl_Rd_Compound(WamWord start_word, int *func, int *arity)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -1105,11 +1105,11 @@ Rd_Compound(WamWord start_word, int *func, int *arity)
 
 
 /*-------------------------------------------------------------------------*
- * RD_CALLABLE_CHECK                                                       *
+ * PL_RD_CALLABLE_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Rd_Callable_Check(WamWord start_word, int *func, int *arity)
+Pl_Rd_Callable_Check(WamWord start_word, int *func, int *arity)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -1143,7 +1143,7 @@ Rd_Callable_Check(WamWord start_word, int *func, int *arity)
       return &Arg(adr, 0);
     }
 
-  Pl_Err_Type(type_callable, start_word);
+  Pl_Err_Type(pl_type_callable, start_word);
   return NULL;
 }
 
@@ -1151,11 +1151,11 @@ Rd_Callable_Check(WamWord start_word, int *func, int *arity)
 
 
 /*-------------------------------------------------------------------------*
- * RD_CALLABLE                                                             *
+ * PL_RD_CALLABLE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Rd_Callable(WamWord start_word, int *func, int *arity)
+Pl_Rd_Callable(WamWord start_word, int *func, int *arity)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -1192,11 +1192,11 @@ Rd_Callable(WamWord start_word, int *func, int *arity)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_INTEGER                                                    *
+ * PL_CHECK_FOR_UN_INTEGER                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Integer(WamWord start_word)
+Pl_Check_For_Un_Integer(WamWord start_word)
 {
   CHECK_FOR_UN_INTEGER;
 }
@@ -1205,11 +1205,11 @@ Check_For_Un_Integer(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_POSITIVE                                                   *
+ * PL_CHECK_FOR_UN_POSITIVE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Positive(WamWord start_word)
+Pl_Check_For_Un_Positive(WamWord start_word)
 {
   CHECK_FOR_UN_POSITIVE;
 }
@@ -1218,11 +1218,11 @@ Check_For_Un_Positive(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_FLOAT                                                      *
+ * PL_CHECK_FOR_UN_FLOAT                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Float(WamWord start_word)
+Pl_Check_For_Un_Float(WamWord start_word)
 {
   CHECK_FOR_UN_FLOAT;
 }
@@ -1231,11 +1231,11 @@ Check_For_Un_Float(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_NUMBER                                                     *
+ * PL_CHECK_FOR_UN_NUMBER                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Number(WamWord start_word)
+Pl_Check_For_Un_Number(WamWord start_word)
 {
   CHECK_FOR_UN_NUMBER;
 }
@@ -1244,11 +1244,11 @@ Check_For_Un_Number(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_ATOM                                                       *
+ * PL_CHECK_FOR_UN_ATOM                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Atom(WamWord start_word)
+Pl_Check_For_Un_Atom(WamWord start_word)
 {
   CHECK_FOR_UN_ATOM;
 }
@@ -1257,11 +1257,11 @@ Check_For_Un_Atom(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_BOOLEAN                                                    *
+ * PL_CHECK_FOR_UN_BOOLEAN                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Boolean(WamWord start_word)
+Pl_Check_For_Un_Boolean(WamWord start_word)
 {
   CHECK_FOR_UN_BOOLEAN;
 }
@@ -1270,11 +1270,11 @@ Check_For_Un_Boolean(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_CHAR                                                       *
+ * PL_CHECK_FOR_UN_CHAR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Char(WamWord start_word)
+Pl_Check_For_Un_Char(WamWord start_word)
 {
   CHECK_FOR_UN_CHAR;
 }
@@ -1283,11 +1283,11 @@ Check_For_Un_Char(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_IN_CHAR                                                    *
+ * PL_CHECK_FOR_UN_IN_CHAR                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_In_Char(WamWord start_word)
+Pl_Check_For_Un_In_Char(WamWord start_word)
 {
   CHECK_FOR_UN_IN_CHAR;
 }
@@ -1296,11 +1296,11 @@ Check_For_Un_In_Char(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_CODE                                                       *
+ * PL_CHECK_FOR_UN_CODE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Code(WamWord start_word)
+Pl_Check_For_Un_Code(WamWord start_word)
 {
   CHECK_FOR_UN_CODE;
 }
@@ -1309,11 +1309,11 @@ Check_For_Un_Code(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_IN_CODE                                                    *
+ * PL_CHECK_FOR_UN_IN_CODE                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_In_Code(WamWord start_word)
+Pl_Check_For_Un_In_Code(WamWord start_word)
 {
   CHECK_FOR_UN_IN_CODE;
 }
@@ -1322,11 +1322,11 @@ Check_For_Un_In_Code(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_BYTE                                                       *
+ * PL_CHECK_FOR_UN_BYTE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Byte(WamWord start_word)
+Pl_Check_For_Un_Byte(WamWord start_word)
 {
   CHECK_FOR_UN_BYTE;
 }
@@ -1335,11 +1335,11 @@ Check_For_Un_Byte(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_IN_BYTE                                                    *
+ * PL_CHECK_FOR_UN_IN_BYTE                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_In_Byte(WamWord start_word)
+Pl_Check_For_Un_In_Byte(WamWord start_word)
 {
   CHECK_FOR_UN_IN_BYTE;
 }
@@ -1348,64 +1348,64 @@ Check_For_Un_In_Byte(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_CHARS                                                      *
+ * PL_CHECK_FOR_UN_CHARS                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Chars(WamWord start_word)
+Pl_Check_For_Un_Chars(WamWord start_word)
 {
-  Check_For_Un_List(start_word);
+  Pl_Check_For_Un_List(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_STRING                                                     *
+ * PL_CHECK_FOR_UN_STRING                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_String(WamWord start_word)
+Pl_Check_For_Un_String(WamWord start_word)
 {
-  Check_For_Un_Atom(start_word);
+  Pl_Check_For_Un_Atom(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_CODES                                                      *
+ * PL_CHECK_FOR_UN_CODES                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Codes(WamWord start_word)
+Pl_Check_For_Un_Codes(WamWord start_word)
 {
-  Check_For_Un_List(start_word);
+  Pl_Check_For_Un_List(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_LIST                                                       *
+ * PL_CHECK_FOR_UN_LIST                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_List(WamWord start_word)
+Pl_Check_For_Un_List(WamWord start_word)
 {
-  if (!Blt_List_Or_Partial_List(start_word))
-    Pl_Err_Type(type_list, start_word);
+  if (!Pl_Blt_List_Or_Partial_List(start_word))
+    Pl_Err_Type(pl_type_list, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_COMPOUND                                                   *
+ * PL_CHECK_FOR_UN_COMPOUND                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Compound(WamWord start_word)
+Pl_Check_For_Un_Compound(WamWord start_word)
 {
   CHECK_FOR_UN_COMPOUND;
 }
@@ -1414,11 +1414,11 @@ Check_For_Un_Compound(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_CALLABLE                                                   *
+ * PL_CHECK_FOR_UN_CALLABLE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Callable(WamWord start_word)
+Pl_Check_For_Un_Callable(WamWord start_word)
 {
   CHECK_FOR_UN_CALLABLE;
 }
@@ -1427,11 +1427,11 @@ Check_For_Un_Callable(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_FOR_UN_VARIABLE                                                   *
+ * PL_CHECK_FOR_UN_VARIABLE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_For_Un_Variable(WamWord start_word)
+Pl_Check_For_Un_Variable(WamWord start_word)
 {
   CHECK_FOR_UN_VARIABLE;
 }
@@ -1440,95 +1440,95 @@ Check_For_Un_Variable(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * UN_INTEGER_CHECK                                                        *
+ * PL_UN_INTEGER_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Integer_Check(long value, WamWord start_word)
+Pl_Un_Integer_Check(long value, WamWord start_word)
 {
   CHECK_FOR_UN_INTEGER;
 
-  return Get_Integer(value, word);
+  return Pl_Get_Integer(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_INTEGER                                                              *
+ * PL_UN_INTEGER                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Integer(long value, WamWord start_word)
+Pl_Un_Integer(long value, WamWord start_word)
 {
-  return Get_Integer(value, start_word);
+  return Pl_Get_Integer(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_POSITIVE_CHECK                                                       *
+ * PL_UN_POSITIVE_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Positive_Check(long value, WamWord start_word)
+Pl_Un_Positive_Check(long value, WamWord start_word)
 {
   CHECK_FOR_UN_POSITIVE;
 
-  return Get_Integer(value, word);
+  return Pl_Get_Integer(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_POSITIVE                                                             *
+ * PL_UN_POSITIVE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Positive(long value, WamWord start_word)
+Pl_Un_Positive(long value, WamWord start_word)
 {
-  return Get_Integer(value, start_word);
+  return Pl_Get_Integer(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_FLOAT_CHECK                                                          *
+ * PL_UN_FLOAT_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Float_Check(double value, WamWord start_word)
+Pl_Un_Float_Check(double value, WamWord start_word)
 {
   CHECK_FOR_UN_FLOAT;
 
-  return Get_Float(value, word);
+  return Pl_Get_Float(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_FLOAT                                                                *
+ * PL_UN_FLOAT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Float(double value, WamWord start_word)
+Pl_Un_Float(double value, WamWord start_word)
 {
-  return Get_Float(value, start_word);
+  return Pl_Get_Float(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_NUMBER_CHECK                                                         *
+ * PL_UN_NUMBER_CHECK                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Number_Check(double value, WamWord start_word)
+Pl_Un_Number_Check(double value, WamWord start_word)
 {
   long n;
 
@@ -1536,124 +1536,124 @@ Un_Number_Check(double value, WamWord start_word)
 
   n = (long) value;
 
-  return (n == value) ? Get_Integer(n, word) : Get_Float(value, word);
+  return (n == value) ? Pl_Get_Integer(n, word) : Pl_Get_Float(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_NUMBER                                                               *
+ * PL_UN_NUMBER                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Number(double value, WamWord start_word)
+Pl_Un_Number(double value, WamWord start_word)
 {
   long n;
 
   n = (long) value;
 
-  return (n == value) ? Get_Integer(n, start_word) :
-    Get_Float(value, start_word);
+  return (n == value) ? Pl_Get_Integer(n, start_word) :
+    Pl_Get_Float(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_ATOM_CHECK                                                           *
+ * PL_UN_ATOM_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Atom_Check(int value, WamWord start_word)
+Pl_Un_Atom_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_ATOM;
 
-  return Get_Atom(value, word);
+  return Pl_Get_Atom(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_ATOM                                                                 *
+ * PL_UN_ATOM                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Atom(int value, WamWord start_word)
+Pl_Un_Atom(int value, WamWord start_word)
 {
-  return Get_Atom(value, start_word);
+  return Pl_Get_Atom(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_BOOLEAN_CHECK                                                        *
+ * PL_UN_BOOLEAN_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Boolean_Check(int value, WamWord start_word)
+Pl_Un_Boolean_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_BOOLEAN;
 
-  return Get_Atom(value ? atom_true : atom_false, word);
+  return Pl_Get_Atom(value ? pl_atom_true : pl_atom_false, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_BOOLEAN                                                              *
+ * PL_UN_BOOLEAN                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Boolean(int value, WamWord start_word)
+Pl_Un_Boolean(int value, WamWord start_word)
 {
-  return Get_Atom(value ? atom_true : atom_false, start_word);
+  return Pl_Get_Atom(value ? pl_atom_true : pl_atom_false, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_CHAR_CHECK                                                           *
+ * PL_UN_CHAR_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Char_Check(int value, WamWord start_word)
+Pl_Un_Char_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_CHAR;
 
-  return Get_Atom(ATOM_CHAR(value), word);
+  return Pl_Get_Atom(ATOM_CHAR(value), word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_CHAR                                                                 *
+ * PL_UN_CHAR                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Char(int value, WamWord start_word)
+Pl_Un_Char(int value, WamWord start_word)
 {
-  return Get_Atom(ATOM_CHAR(value), start_word);
+  return Pl_Get_Atom(ATOM_CHAR(value), start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_IN_CHAR_CHECK                                                        *
+ * PL_UN_IN_CHAR_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_In_Char_Check(int value, WamWord start_word)
+Pl_Un_In_Char_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_IN_CHAR;
 
-  return Get_Atom((value == -1) ? atom_end_of_file : ATOM_CHAR(value),
+  return Pl_Get_Atom((value == -1) ? pl_atom_end_of_file : ATOM_CHAR(value),
 		  word);
 }
 
@@ -1661,13 +1661,13 @@ Un_In_Char_Check(int value, WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * UN_IN_CHAR                                                              *
+ * PL_UN_IN_CHAR                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_In_Char(int value, WamWord start_word)
+Pl_Un_In_Char(int value, WamWord start_word)
 {
-  return Get_Atom((value == -1) ? atom_end_of_file : ATOM_CHAR(value),
+  return Pl_Get_Atom((value == -1) ? pl_atom_end_of_file : ATOM_CHAR(value),
 		  start_word);
 }
 
@@ -1675,327 +1675,327 @@ Un_In_Char(int value, WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * UN_CODE_CHECK                                                           *
+ * PL_UN_CODE_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Code_Check(int value, WamWord start_word)
+Pl_Un_Code_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_CODE;
 
-  return Get_Integer(value, word);
+  return Pl_Get_Integer(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_CODE                                                                 *
+ * PL_UN_CODE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Code(int value, WamWord start_word)
+Pl_Un_Code(int value, WamWord start_word)
 {
-  return Get_Integer(value, start_word);
+  return Pl_Get_Integer(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_IN_CODE_CHECK                                                        *
+ * PL_UN_IN_CODE_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_In_Code_Check(int value, WamWord start_word)
+Pl_Un_In_Code_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_IN_CODE;
 
-  return Get_Integer(value, word);
+  return Pl_Get_Integer(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_IN_CODE                                                              *
+ * PL_UN_IN_CODE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_In_Code(int value, WamWord start_word)
+Pl_Un_In_Code(int value, WamWord start_word)
 {
-  return Get_Integer(value, start_word);
+  return Pl_Get_Integer(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_BYTE_CHECK                                                           *
+ * PL_UN_BYTE_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Byte_Check(int value, WamWord start_word)
+Pl_Un_Byte_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_BYTE;
 
-  return Get_Integer(value, word);
+  return Pl_Get_Integer(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_BYTE                                                                 *
+ * PL_UN_BYTE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Byte(int value, WamWord start_word)
+Pl_Un_Byte(int value, WamWord start_word)
 {
-  return Get_Integer(value, start_word);
+  return Pl_Get_Integer(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_IN_BYTE_CHECK                                                        *
+ * PL_UN_IN_BYTE_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_In_Byte_Check(int value, WamWord start_word)
+Pl_Un_In_Byte_Check(int value, WamWord start_word)
 {
   CHECK_FOR_UN_IN_BYTE;
 
-  return Get_Integer(value, word);
+  return Pl_Get_Integer(value, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_IN_BYTE                                                              *
+ * PL_UN_IN_BYTE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_In_Byte(int value, WamWord start_word)
+Pl_Un_In_Byte(int value, WamWord start_word)
 {
-  return Get_Integer(value, start_word);
+  return Pl_Get_Integer(value, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_STRING_CHECK                                                         *
+ * PL_UN_STRING_CHECK                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_String_Check(char *value, WamWord start_word)
+Pl_Un_String_Check(char *value, WamWord start_word)
 {
   CHECK_FOR_UN_ATOM;
 
-  return Get_Atom(Create_Allocate_Atom(value), word);
+  return Pl_Get_Atom(Pl_Create_Allocate_Atom(value), word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_STRING                                                               *
+ * PL_UN_STRING                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_String(char *value, WamWord start_word)
+Pl_Un_String(char *value, WamWord start_word)
 {
-  return Get_Atom(Create_Allocate_Atom(value), start_word);
+  return Pl_Get_Atom(Pl_Create_Allocate_Atom(value), start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_CHARS_CHECK                                                          *
+ * PL_UN_CHARS_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Chars_Check(char *str, WamWord start_word)
+Pl_Un_Chars_Check(char *str, WamWord start_word)
 {
-  Check_For_Un_List(start_word);
+  Pl_Check_For_Un_List(start_word);
 
-  return Un_Chars(str, start_word);
+  return Pl_Un_Chars(str, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_CHARS                                                                *
+ * PL_UN_CHARS                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Chars(char *str, WamWord start_word)
-{
-  for (; *str; str++)
-    {
-      if (!Get_List(start_word) || !Unify_Atom(ATOM_CHAR(*str)))
-	return FALSE;
-
-      start_word = Unify_Variable();
-    }
-
-  return Get_Nil(start_word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * UN_CODES_CHECK                                                          *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Un_Codes_Check(char *str, WamWord start_word)
-{
-  Check_For_Un_List(start_word);
-
-  return Un_Codes(str, start_word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * UN_CODES                                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Un_Codes(char *str, WamWord start_word)
+Pl_Un_Chars(char *str, WamWord start_word)
 {
   for (; *str; str++)
     {
-      if (!Get_List(start_word) || !Unify_Integer(*str))
+      if (!Pl_Get_List(start_word) || !Pl_Unify_Atom(ATOM_CHAR(*str)))
 	return FALSE;
 
-      start_word = Unify_Variable();
+      start_word = Pl_Unify_Variable();
     }
 
-  return Get_Nil(start_word);
+  return Pl_Get_Nil(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_LIST_CHECK                                                           *
+ * PL_UN_CODES_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_List_Check(WamWord *arg, WamWord start_word)
+Pl_Un_Codes_Check(char *str, WamWord start_word)
+{
+  Pl_Check_For_Un_List(start_word);
+
+  return Pl_Un_Codes(str, start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_UN_CODES                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Un_Codes(char *str, WamWord start_word)
+{
+  for (; *str; str++)
+    {
+      if (!Pl_Get_List(start_word) || !Pl_Unify_Integer(*str))
+	return FALSE;
+
+      start_word = Pl_Unify_Variable();
+    }
+
+  return Pl_Get_Nil(start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_UN_LIST_CHECK                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Un_List_Check(WamWord *arg, WamWord start_word)
 {
   WamWord word, tag_mask;
 
   if (arg == NULL)
     {
-      if (Get_Nil(start_word))
+      if (Pl_Get_Nil(start_word))
 	return TRUE;
 
     check_type:
       DEREF(start_word, word, tag_mask);
       if (word != NIL_WORD && tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, start_word);
+	Pl_Err_Type(pl_type_list, start_word);
 
       return FALSE;
     }
 
-  if (!Get_List(start_word))
+  if (!Pl_Get_List(start_word))
     goto check_type;
 
-  return Unify_Value(arg[0]) && Unify_Value(arg[1]);
+  return Pl_Unify_Value(arg[0]) && Pl_Unify_Value(arg[1]);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_LIST                                                                 *
+ * PL_UN_LIST                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_List(WamWord *arg, WamWord start_word)
+Pl_Un_List(WamWord *arg, WamWord start_word)
 {
   if (arg == NULL)
-    return Get_Nil(start_word);
+    return Pl_Get_Nil(start_word);
 
-  return Get_List(start_word) && Unify_Value(arg[0]) && Unify_Value(arg[1]);
+  return Pl_Get_List(start_word) && Pl_Unify_Value(arg[0]) && Pl_Unify_Value(arg[1]);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_PROPER_LIST_CHECK                                                    *
+ * PL_UN_PROPER_LIST_CHECK                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Proper_List_Check(int n, WamWord *arg, WamWord start_word)
+Pl_Un_Proper_List_Check(int n, WamWord *arg, WamWord start_word)
 {
-  Check_For_Un_List(start_word);
+  Pl_Check_For_Un_List(start_word);
 
-  return Un_Proper_List(n, arg, start_word);
+  return Pl_Un_Proper_List(n, arg, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_PROPER_LIST                                                          *
+ * PL_UN_PROPER_LIST                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Proper_List(int n, WamWord *arg, WamWord start_word)
+Pl_Un_Proper_List(int n, WamWord *arg, WamWord start_word)
 {
   if (n < 0 || arg == NULL)
     n = 0;
 
   while (n--)
     {
-      if (!Get_List(start_word) || !Unify_Value(*arg++))
+      if (!Pl_Get_List(start_word) || !Pl_Unify_Value(*arg++))
 	return FALSE;
 
-      start_word = Unify_Variable();
+      start_word = Pl_Unify_Variable();
     }
 
-  return Get_Nil(start_word);
+  return Pl_Get_Nil(start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_COMPOUND_CHECK                                                       *
+ * PL_UN_COMPOUND_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Compound_Check(int func, int arity, WamWord *arg, WamWord start_word)
+Pl_Un_Compound_Check(int func, int arity, WamWord *arg, WamWord start_word)
 {
   int i;
 
   if (arity == 0)
-    return Un_Atom_Check(func, start_word);
+    return Pl_Un_Atom_Check(func, start_word);
 
   if (arity == 2 && func == ATOM_CHAR('.'))
-    return Un_List_Check(arg, start_word);
+    return Pl_Un_List_Check(arg, start_word);
 
-  if (!Get_Structure(func, arity, start_word))
+  if (!Pl_Get_Structure(func, arity, start_word))
     {
-      if (!Blt_Compound(start_word))
-	Pl_Err_Type(type_compound, start_word);
+      if (!Pl_Blt_Compound(start_word))
+	Pl_Err_Type(pl_type_compound, start_word);
       return FALSE;
     }
 
   for (i = 0; i < arity; i++)
-    if (!Unify_Value(arg[i]))
+    if (!Pl_Unify_Value(arg[i]))
       return FALSE;
 
   return TRUE;
@@ -2005,25 +2005,25 @@ Un_Compound_Check(int func, int arity, WamWord *arg, WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * UN_COMPOUND                                                             *
+ * PL_UN_COMPOUND                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Compound(int func, int arity, WamWord *arg, WamWord start_word)
+Pl_Un_Compound(int func, int arity, WamWord *arg, WamWord start_word)
 {
   int i;
 
   if (arity == 0)
-    return Un_Atom_Check(func, start_word);
+    return Pl_Un_Atom_Check(func, start_word);
 
   if (arity == 2 && func == ATOM_CHAR('.'))
-    return Un_List(arg, start_word);
+    return Pl_Un_List(arg, start_word);
 
-  if (!Get_Structure(func, arity, start_word))
+  if (!Pl_Get_Structure(func, arity, start_word))
     return FALSE;
 
   for (i = 0; i < arity; i++)
-    if (!Unify_Value(arg[i]))
+    if (!Pl_Unify_Value(arg[i]))
       return FALSE;
 
   return TRUE;
@@ -2033,29 +2033,29 @@ Un_Compound(int func, int arity, WamWord *arg, WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * UN_CALLABLE_CHECK                                                       *
+ * PL_UN_CALLABLE_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Callable_Check(int func, int arity, WamWord *arg, WamWord start_word)
+Pl_Un_Callable_Check(int func, int arity, WamWord *arg, WamWord start_word)
 {
   int i;
 
   if (arity == 0)
-    return Un_Atom_Check(func, start_word);
+    return Pl_Un_Atom_Check(func, start_word);
 
   if (arity == 2 && func == ATOM_CHAR('.'))
-    return Un_List_Check(arg, start_word);
+    return Pl_Un_List_Check(arg, start_word);
 
-  if (!Get_Structure(func, arity, start_word))
+  if (!Pl_Get_Structure(func, arity, start_word))
     {
-      if (!Blt_Callable(start_word))
-	Pl_Err_Type(type_callable, start_word);
+      if (!Pl_Blt_Callable(start_word))
+	Pl_Err_Type(pl_type_callable, start_word);
       return FALSE;
     }
 
   for (i = 0; i < arity; i++)
-    if (!Unify_Value(arg[i]))
+    if (!Pl_Unify_Value(arg[i]))
       return FALSE;
 
   return TRUE;
@@ -2064,231 +2064,231 @@ Un_Callable_Check(int func, int arity, WamWord *arg, WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * UN_CALLABLE                                                             *
+ * PL_UN_CALLABLE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Callable(int func, int arity, WamWord *arg, WamWord start_word)
+Pl_Un_Callable(int func, int arity, WamWord *arg, WamWord start_word)
 {
-  return Un_Compound(func, arity, arg, start_word);
+  return Pl_Un_Compound(func, arity, arg, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * UN_TERM                                                                 *
+ * PL_UN_TERM                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Un_Term(WamWord term_word, WamWord start_word)
+Pl_Un_Term(WamWord term_word, WamWord start_word)
 {				/* used because Unify is FC convention */
-  return Unify(term_word, start_word);
+  return Pl_Unify(term_word, start_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_INTEGER                                                              *
+ * PL_MK_INTEGER                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Integer(long value)
+Pl_Mk_Integer(long value)
 {
-  return Put_Integer(value);
+  return Pl_Put_Integer(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_POSITIVE                                                             *
+ * PL_MK_POSITIVE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Positive(long value)
+Pl_Mk_Positive(long value)
 {
-  return Put_Integer(value);
+  return Pl_Put_Integer(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_FLOAT                                                                *
+ * PL_MK_FLOAT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Float(double value)
+Pl_Mk_Float(double value)
 {
-  return Put_Float(value);
+  return Pl_Put_Float(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_NUMBER                                                               *
+ * PL_MK_NUMBER                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Number(double value)
+Pl_Mk_Number(double value)
 {
   int n;
 
   n = (long) value;
 
   if (n == value)
-    return Put_Integer(n);
+    return Pl_Put_Integer(n);
 
-  return Put_Float(value);
+  return Pl_Put_Float(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_ATOM                                                                 *
+ * PL_MK_ATOM                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Atom(int value)
+Pl_Mk_Atom(int value)
 {
-  return Put_Atom(value);
+  return Pl_Put_Atom(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_BOOLEAN                                                              *
+ * PL_MK_BOOLEAN                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Boolean(int value)
+Pl_Mk_Boolean(int value)
 {
-  return Put_Atom(value ? atom_true : atom_false);
+  return Pl_Put_Atom(value ? pl_atom_true : pl_atom_false);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_CHAR                                                                 *
+ * PL_MK_CHAR                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Char(int value)
+Pl_Mk_Char(int value)
 {
-  return Put_Atom(ATOM_CHAR(value));
+  return Pl_Put_Atom(ATOM_CHAR(value));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_IN_CHAR                                                              *
+ * PL_MK_IN_CHAR                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_In_Char(int value)
+Pl_Mk_In_Char(int value)
 {
-  return Put_Atom((value == -1) ? atom_end_of_file : ATOM_CHAR(value));
+  return Pl_Put_Atom((value == -1) ? pl_atom_end_of_file : ATOM_CHAR(value));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_CODE                                                                 *
+ * PL_MK_CODE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Code(int value)
+Pl_Mk_Code(int value)
 {
-  return Put_Integer(value);
+  return Pl_Put_Integer(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_IN_CODE                                                              *
+ * PL_MK_IN_CODE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_In_Code(int value)
+Pl_Mk_In_Code(int value)
 {
-  return Put_Integer(value);
+  return Pl_Put_Integer(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_BYTE                                                                 *
+ * PL_MK_BYTE                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Byte(int value)
+Pl_Mk_Byte(int value)
 {
-  return Put_Integer(value);
+  return Pl_Put_Integer(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_IN_BYTE                                                              *
+ * PL_MK_IN_BYTE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_In_Byte(int value)
+Pl_Mk_In_Byte(int value)
 {
-  return Put_Integer(value);
+  return Pl_Put_Integer(value);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_STRING                                                               *
+ * PL_MK_STRING                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_String(char *value)
+Pl_Mk_String(char *value)
 {
-  return Put_Atom(Create_Allocate_Atom(value));
+  return Pl_Put_Atom(Pl_Create_Allocate_Atom(value));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_CHARS                                                                *
+ * PL_MK_CHARS                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Chars(char *str)
+Pl_Mk_Chars(char *str)
 {
   WamWord res_word;
 
   if (*str == '\0')
     return NIL_WORD;
 
-  res_word = Put_List();
+  res_word = Pl_Put_List();
   for (;;)
     {
-      Unify_Atom(ATOM_CHAR(*str));
+      Pl_Unify_Atom(ATOM_CHAR(*str));
       str++;
       if (*str == '\0')
 	break;
 
-      Unify_List();
+      Pl_Unify_List();
     }
 
-  Unify_Nil();
+  Pl_Unify_Nil();
   return res_word;
 }
 
@@ -2296,29 +2296,29 @@ Mk_Chars(char *str)
 
 
 /*-------------------------------------------------------------------------*
- * MK_CODES                                                                *
+ * PL_MK_CODES                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Codes(char *str)
+Pl_Mk_Codes(char *str)
 {
   WamWord res_word;
 
   if (*str == '\0')
     return NIL_WORD;
 
-  res_word = Put_List();
+  res_word = Pl_Put_List();
   for (;;)
     {
-      Unify_Integer(*str);
+      Pl_Unify_Integer(*str);
       str++;
       if (*str == '\0')
 	break;
 
-      Unify_List();
+      Pl_Unify_List();
     }
 
-  Unify_Nil();
+  Pl_Unify_Nil();
   return res_word;
 }
 
@@ -2326,20 +2326,20 @@ Mk_Codes(char *str)
 
 
 /*-------------------------------------------------------------------------*
- * MK_LIST                                                                 *
+ * PL_MK_LIST                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_List(WamWord *arg)
+Pl_Mk_List(WamWord *arg)
 {
   WamWord res_word;
 
   if (arg == NULL)
     return NIL_WORD;
 
-  res_word = Put_List();
-  Unify_Value(arg[0]);
-  Unify_Value(arg[1]);
+  res_word = Pl_Put_List();
+  Pl_Unify_Value(arg[0]);
+  Pl_Unify_Value(arg[1]);
 
   return res_word;
 }
@@ -2352,7 +2352,7 @@ Mk_List(WamWord *arg)
 
 
 /*-------------------------------------------------------------------------*
- * MK_PROPER_LIST                                                          *
+ * PL_MK_PROPER_LIST                                                       *
  *                                                                         *
  * This function transform an array of n WamWords located at arg into a    *
  * Prolog list (pushed at the top of the heap) and returns the resulting   *
@@ -2361,7 +2361,7 @@ Mk_List(WamWord *arg)
  * The resulting list uses 2*n WamWord from the top of the heap.           *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Proper_List(int n, WamWord *arg)
+Pl_Mk_Proper_List(int n, WamWord *arg)
 {
   WamWord *src, *dst, *p;
 
@@ -2390,24 +2390,24 @@ Mk_Proper_List(int n, WamWord *arg)
 
 
 /*-------------------------------------------------------------------------*
- * MK_COMPOUND                                                             *
+ * PL_MK_COMPOUND                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Compound(int func, int arity, WamWord *arg)
+Pl_Mk_Compound(int func, int arity, WamWord *arg)
 {
   WamWord res_word;
   int i;
 
   if (arity == 0)
-    return Put_Atom(func);
+    return Pl_Put_Atom(func);
 
   if (arity == 2 && func == ATOM_CHAR('.'))
-    return Mk_List(arg);
+    return Pl_Mk_List(arg);
 
-  res_word = Put_Structure(func, arity);
+  res_word = Pl_Put_Structure(func, arity);
   for (i = 0; i < arity; i++)
-    Unify_Value(arg[i]);
+    Pl_Unify_Value(arg[i]);
 
   return res_word;
 }
@@ -2416,24 +2416,24 @@ Mk_Compound(int func, int arity, WamWord *arg)
 
 
 /*-------------------------------------------------------------------------*
- * MK_CALLABLE                                                             *
+ * PL_MK_CALLABLE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Callable(int func, int arity, WamWord *arg)
+Pl_Mk_Callable(int func, int arity, WamWord *arg)
 {
-  return Mk_Compound(func, arity, arg);
+  return Pl_Mk_Compound(func, arity, arg);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MK_VARIABLE                                                             *
+ * PL_MK_VARIABLE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Mk_Variable(void)
+Pl_Mk_Variable(void)
 {
-  return Put_X_Variable();
+  return Pl_Put_X_Variable();
 }

@@ -76,7 +76,7 @@ void One_File(FILE *f);
 
 void One_Line(char *str);
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);
 
 void Parse_Arguments(int argc, char *argv[]);
 
@@ -104,7 +104,7 @@ main(int argc, char *argv[])
   if (nb_arg == 0)
     {
       if (cmd_line)
-	Fatal_Error("command-line is empty");
+	Pl_Fatal_Error("command-line is empty");
 
       One_File(stdin);
       return 0;
@@ -120,7 +120,7 @@ main(int argc, char *argv[])
 	}
 
       if ((f = fopen(arg[i], "rt")) == NULL)
-	Fatal_Error("cannot open %s", arg[i]);
+	Pl_Fatal_Error("cannot open %s", arg[i]);
 
       One_File(f);
       fclose(f);
@@ -229,7 +229,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--printf"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("format missing after -printf option");
+		Pl_Fatal_Error("format missing after -printf option");
 
 	      format = argv[i];
 	      continue;
@@ -284,7 +284,7 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  Fatal_Error("unknown option %s - try %s --help", argv[i],
+	  Pl_Fatal_Error("unknown option %s - try %s --help", argv[i],
 		      HEXGPLC);
 	}
 
@@ -296,11 +296,11 @@ Parse_Arguments(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
- * FATAL_ERROR                                                             *
+ * PL_FATAL_ERROR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fatal_Error(char *format, ...)
+Pl_Fatal_Error(char *format, ...)
 {
   va_list arg_ptr;
 

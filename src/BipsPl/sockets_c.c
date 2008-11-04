@@ -107,15 +107,15 @@ Socket_Initializer(void)
 #endif
 
 #ifdef SUPPORT_AF_UNIX
-  atom_AF_UNIX = Create_Atom("AF_UNIX");
+  atom_AF_UNIX = Pl_Create_Atom("AF_UNIX");
 #endif
-  atom_AF_INET = Create_Atom("AF_INET");
+  atom_AF_INET = Pl_Create_Atom("AF_INET");
 
 #ifdef _WIN32
   if ((err = WSAStartup(versReqstd, &wsaData)) != 0 ||
       wsaData.wVersion != versReqstd)
     {
-      Stream_Printf(stm_tbl[stm_top_level_output],
+      Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		    "warning: cannot find a usable WinSock DLL\n");
       if (err == 0)
 	WSACleanup();
@@ -124,7 +124,7 @@ Socket_Initializer(void)
   if (setsockopt(INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE, 
 		 (char *)&optionValue,
 		 sizeof(optionValue)) == SOCKET_ERROR)
-    Os_Error();
+    Pl_Os_Error();
 #endif
 }
 
@@ -132,11 +132,11 @@ Socket_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * SOCKET_2                                                                *
+ * PL_SOCKET_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Socket_2(WamWord domain_word, WamWord socket_word)
+Pl_Socket_2(WamWord domain_word, WamWord socket_word)
 {
   int domain;
 #ifdef _WIN32
@@ -148,15 +148,15 @@ Socket_2(WamWord domain_word, WamWord socket_word)
   int proto = 0;
 #endif
 
-  domain = Rd_Atom_Check(domain_word);
+  domain = Pl_Rd_Atom_Check(domain_word);
   if (
 #ifdef SUPPORT_AF_UNIX
       domain != atom_AF_UNIX &&
 #endif
       domain != atom_AF_INET)
-    Pl_Err_Domain(domain_socket_domain, domain_word);
+    Pl_Err_Domain(pl_domain_socket_domain, domain_word);
 
-  Check_For_Un_Variable(socket_word);
+  Pl_Check_For_Un_Variable(socket_word);
 
 #ifdef SUPPORT_AF_UNIX
   if (domain == atom_AF_UNIX)
@@ -176,18 +176,18 @@ Socket_2(WamWord domain_word, WamWord socket_word)
   Os_Test_Error(sock == -1);
 #endif
 
-  return Get_Integer(sock, socket_word);
+  return Pl_Get_Integer(sock, socket_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SOCKET_CLOSE_1                                                          *
+ * PL_SOCKET_CLOSE_1                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Socket_Close_1(WamWord socket_word)
+Pl_Socket_Close_1(WamWord socket_word)
 {
 #ifndef _WIN32
   int sock;
@@ -195,7 +195,7 @@ Socket_Close_1(WamWord socket_word)
   SOCKET sock;
 #endif
 
-  sock = Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_Integer_Check(socket_word);
   if (sock < 2)
     {
       errno = EBADF;
@@ -215,11 +215,11 @@ Socket_Close_1(WamWord socket_word)
 
 
 /*-------------------------------------------------------------------------*
- * SOCKET_BIND_2                                                           *
+ * PL_SOCKET_BIND_2                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Socket_Bind_2(WamWord socket_word, WamWord address_word)
+Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 {
   WamWord word, tag_mask;
   WamWord *stc_adr;
@@ -236,7 +236,7 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   static int atom_host_name = -1; /* not created in an init since */
 				  /* establishes a connection */
 
-  sock = Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_Integer_Check(socket_word);
 
 
   DEREF(address_word, word, tag_mask);
@@ -247,7 +247,7 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   if (tag_mask != TAG_STC_MASK)
     {
     err_domain:
-      Pl_Err_Domain(domain_socket_address, word);
+      Pl_Err_Domain(pl_domain_socket_address, word);
     }
 
   stc_adr = UnTag_STC(word);
@@ -265,9 +265,9 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
 #ifdef SUPPORT_AF_UNIX
   if (dom == AF_UNIX)
     {
-      path_name = Rd_String_Check(Arg(stc_adr, 0));
-      if ((path_name = M_Absolute_Path_Name(path_name)) == NULL)
-	Pl_Err_Domain(domain_os_path, Arg(stc_adr, 0));
+      path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
+      if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+	Pl_Err_Domain(pl_domain_os_path, Arg(stc_adr, 0));
 
       adr_un.sun_family = AF_UNIX;
       strcpy(adr_un.sun_path, path_name);
@@ -283,17 +283,17 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
   if (tag_mask == TAG_REF_MASK)
     {
       if (atom_host_name < 0)
-	atom_host_name = Create_Allocate_Atom(M_Host_Name_From_Name(NULL));
+	atom_host_name = Pl_Create_Allocate_Atom(Pl_M_Host_Name_From_Name(NULL));
 
-      Get_Atom(atom_host_name, word);
+      Pl_Get_Atom(atom_host_name, word);
     }
   else
-    Rd_Atom_Check(word);	/* only to test the type */
+    Pl_Rd_Atom_Check(word);	/* only to test the type */
 
   port = 0;
   DEREF(Arg(stc_adr, 1), word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
-    port = Rd_Integer_Check(word);
+    port = Pl_Rd_Integer_Check(word);
 
   adr_in.sin_port = htons((unsigned short) port);
   adr_in.sin_family = AF_INET;
@@ -308,18 +308,18 @@ Socket_Bind_2(WamWord socket_word, WamWord address_word)
 
   port = ntohs(adr_in.sin_port);
 
-  return Get_Integer(port, word);
+  return Pl_Get_Integer(port, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SOCKET_CONNECT_4                                                        *
+ * PL_SOCKET_CONNECT_4                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Socket_Connect_4(WamWord socket_word, WamWord address_word,
+Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 		 WamWord stm_in_word, WamWord stm_out_word)
 {
   WamWord word, tag_mask;
@@ -338,7 +338,7 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
   int stm_in, stm_out;
   char stream_name[256];
 
-  sock = Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_Integer_Check(socket_word);
 
   DEREF(address_word, word, tag_mask);
 
@@ -348,7 +348,7 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
   if (tag_mask != TAG_STC_MASK)
     {
     err_domain:
-      Pl_Err_Domain(domain_socket_address, word);
+      Pl_Err_Domain(pl_domain_socket_address, word);
     }
 
   stc_adr = UnTag_STC(word);
@@ -366,9 +366,9 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
 #ifdef SUPPORT_AF_UNIX
   if (dom == AF_UNIX)
     {
-      path_name = Rd_String_Check(Arg(stc_adr, 0));
-      if ((path_name = M_Absolute_Path_Name(path_name)) == NULL)
-	Pl_Err_Domain(domain_os_path, Arg(stc_adr, 0));
+      path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
+      if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+	Pl_Err_Domain(pl_domain_os_path, Arg(stc_adr, 0));
 
       adr_un.sun_family = AF_UNIX;
       strcpy(adr_un.sun_path, path_name);
@@ -384,8 +384,8 @@ Socket_Connect_4(WamWord socket_word, WamWord address_word,
     }
 #endif
   /* case AF_INET */
-  host_name = Rd_String_Check(Arg(stc_adr, 0));
-  port = Rd_Integer_Check(Arg(stc_adr, 1));
+  host_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
+  port = Pl_Rd_Integer_Check(Arg(stc_adr, 1));
 
   host_entry = gethostbyname(host_name);
   if (host_entry == NULL)
@@ -406,8 +406,8 @@ create_streams:
   if (!Create_Socket_Streams(sock, stream_name, &stm_in, &stm_out))
     return FALSE;
 
-  Get_Integer(stm_in, stm_in_word);
-  Get_Integer(stm_out, stm_out_word);
+  Pl_Get_Integer(stm_in, stm_in_word);
+  Pl_Get_Integer(stm_out, stm_out_word);
   return TRUE;
 }
 
@@ -415,17 +415,17 @@ create_streams:
 
 
 /*-------------------------------------------------------------------------*
- * SOCKET_LISTEN_2                                                         *
+ * PL_SOCKET_LISTEN_2                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Socket_Listen_2(WamWord socket_word, WamWord length_word)
+Pl_Socket_Listen_2(WamWord socket_word, WamWord length_word)
 {
   int sock;
   int length;
 
-  sock = Rd_Integer_Check(socket_word);
-  length = Rd_Integer_Check(length_word);
+  sock = Pl_Rd_Integer_Check(socket_word);
+  length = Pl_Rd_Integer_Check(length_word);
 
   Os_Test_Error(listen(sock, length));
   return TRUE;
@@ -435,11 +435,11 @@ Socket_Listen_2(WamWord socket_word, WamWord length_word)
 
 
 /*-------------------------------------------------------------------------*
- * SOCKET_ACCEPT_4                                                         *
+ * PL_SOCKET_ACCEPT_4                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Socket_Accept_4(WamWord socket_word, WamWord client_word,
+Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
 		WamWord stm_in_word, WamWord stm_out_word)
 {
   int sock, cli_sock;
@@ -451,7 +451,7 @@ Socket_Accept_4(WamWord socket_word, WamWord client_word,
 
 
   l = sizeof(adr_in);
-  sock = Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_Integer_Check(socket_word);
 
   cli_sock = accept(sock, (struct sockaddr *) &adr_in, &l);
 
@@ -462,7 +462,7 @@ Socket_Accept_4(WamWord socket_word, WamWord client_word,
       cli_ip_adr = inet_ntoa(adr_in.sin_addr);
       if (cli_ip_adr == NULL)
 	return FALSE;
-      Get_Atom(Create_Allocate_Atom(cli_ip_adr), client_word);
+      Pl_Get_Atom(Pl_Create_Allocate_Atom(cli_ip_adr), client_word);
     }
 
   sprintf(stream_name, "socket_stream(accept('%s'),%d)", cli_ip_adr,
@@ -471,8 +471,8 @@ Socket_Accept_4(WamWord socket_word, WamWord client_word,
   if (!Create_Socket_Streams(cli_sock, stream_name, &stm_in, &stm_out))
     return FALSE;
 
-  Get_Integer(stm_in, stm_in_word);
-  Get_Integer(stm_out, stm_out_word);
+  Pl_Get_Integer(stm_in, stm_in_word);
+  Pl_Get_Integer(stm_out, stm_out_word);
   return TRUE;
 }
 
@@ -480,24 +480,24 @@ Socket_Accept_4(WamWord socket_word, WamWord client_word,
 
 
 /*-------------------------------------------------------------------------*
- * ASSOC_SOCKET_STREAMS_3                                                  *
+ * PL_ASSOC_SOCKET_STREAMS_3                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Assoc_Socket_Streams_3(WamWord socket_word,
+Pl_Assoc_Socket_Streams_3(WamWord socket_word,
 		       WamWord stm_in_word, WamWord stm_out_word)
 {
   int stm_in, stm_out;
   char stream_name[256];
 
-  int sock = Rd_Integer_Check(socket_word);
+  int sock = Pl_Rd_Integer_Check(socket_word);
 
   sprintf(stream_name, "socket_stream(assoc(%d))", sock);
   if (!Create_Socket_Streams(sock, stream_name, &stm_in, &stm_out))
     return FALSE;
 
-  Get_Integer(stm_in, stm_in_word);
-  Get_Integer(stm_out, stm_out_word);
+  Pl_Get_Integer(stm_in, stm_in_word);
+  Pl_Get_Integer(stm_out, stm_out_word);
   return TRUE;
 }
 
@@ -530,16 +530,16 @@ Create_Socket_Streams(int sock, char *stream_name,
   Os_Test_Error((f_out = fdopen(fd, "wt")) == NULL);
 #endif
 
-  atom = Create_Allocate_Atom(stream_name);
+  atom = Pl_Create_Allocate_Atom(stream_name);
 
-  stm = Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
-  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  stm_tbl[stm]->prop.other = 4;
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
+  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+  pl_stm_tbl[stm]->prop.other = 4;
 
   *stm_in = stm;
 
-  stm = Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
-  stm_tbl[stm]->prop.other = 4;
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
+  pl_stm_tbl[stm]->prop.other = 4;
 
   *stm_out = stm;
 
@@ -550,11 +550,11 @@ Create_Socket_Streams(int sock, char *stream_name,
 
 
 /*-------------------------------------------------------------------------*
- * HOSTNAME_ADDRESS_2                                                      *
+ * PL_HOSTNAME_ADDRESS_2                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
+Pl_Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
 {
   WamWord word, tag_mask;
   char *host_name;
@@ -565,14 +565,14 @@ Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
   DEREF(host_name_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
-      host_address = Rd_String_Check(host_address_word);
-      host_name = M_Host_Name_From_Adr(host_address);
-      return host_name && Un_String_Check(host_name, host_name_word);
+      host_address = Pl_Rd_String_Check(host_address_word);
+      host_name = Pl_M_Host_Name_From_Adr(host_address);
+      return host_name && Pl_Un_String_Check(host_name, host_name_word);
     }
 
-  host_name = Rd_String_Check(word);
+  host_name = Pl_Rd_String_Check(word);
 
-  Check_For_Un_Atom(host_address_word);
+  Pl_Check_For_Un_Atom(host_address_word);
 
   host_entry = gethostbyname(host_name);
   if (host_entry == NULL)
@@ -581,5 +581,5 @@ Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
   memcpy(&iadr.s_addr, host_entry->h_addr_list[0], host_entry->h_length);
   host_address = inet_ntoa(iadr);
 
-  return Un_String_Check(host_address, host_address_word);
+  return Pl_Un_String_Check(host_address, host_address_word);
 }

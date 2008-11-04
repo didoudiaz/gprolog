@@ -79,13 +79,13 @@ static long Ctrl_C_Manager(int from_callback);
 
 
 /*-------------------------------------------------------------------------*
- * SET_CTRL_C_HANDLER_0                                                    *
+ * PL_SET_CTRL_C_HANDLER_0                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Ctrl_C_Handler_0(void)
+Pl_Set_Ctrl_C_Handler_0(void)
 {
-  Install_Ctrl_C_Handler(Ctrl_C_Manager);
+  Pl_Install_Ctrl_C_Handler(Ctrl_C_Manager);
 }
 
 
@@ -98,19 +98,19 @@ Set_Ctrl_C_Handler_0(void)
 static long
 Ctrl_C_Manager(int from_callback)
 {
-  StmInf *pstm = stm_tbl[stm_top_level_output];
+  StmInf *pstm = pl_stm_tbl[pl_stm_top_level_output];
   PredInf *pred;
   int c;
   CodePtr to_execute;
 
-  Reset_Prolog_In_Signal();
+  Pl_Reset_Prolog_In_Signal();
 
 start:
-  Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
-  Stream_Flush(pstm);
+  Pl_Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
+  Pl_Stream_Flush(pstm);
 
-  c = Stream_Get_Key(stm_tbl[stm_top_level_input], TRUE, FALSE);
-  Stream_Putc('\n', pstm);
+  c = Pl_Stream_Get_Key(pl_stm_tbl[pl_stm_top_level_input], TRUE, FALSE);
+  Pl_Stream_Putc('\n', pstm);
 
   switch (c)
     {
@@ -118,11 +118,11 @@ start:
       to_execute = Prolog_Predicate(ABORT, 0);
       if (from_callback)
 	return (long) to_execute;
-      Execute_A_Continuation(to_execute);
+      Pl_Execute_A_Continuation(to_execute);
       break;
 
     case 'b':			/* break */
-      Call_Prolog(Prolog_Predicate(BREAK, 0));
+      Pl_Call_Prolog(Prolog_Predicate(BREAK, 0));
       goto start;
       break;
 
@@ -130,27 +130,27 @@ start:
       break;
 
     case 'e':			/* exit */
-      Exit_With_Value(0);
+      Pl_Exit_With_Value(0);
 
     case 't':			/* trace */
     case 'd':			/* debug */
       if (SYS_VAR_DEBUGGER)
 	{
 	  pred =
-	    Lookup_Pred(Create_Atom((c == 't') ? "trace" : "debug"), 0);
+	    Pl_Lookup_Pred(Pl_Create_Atom((c == 't') ? "trace" : "debug"), 0);
 	  if (pred == NULL)
-	    Fatal_Error(ERR_DEBUGGER_NOT_FOUND);	/* should not occur */
+	    Pl_Fatal_Error(ERR_DEBUGGER_NOT_FOUND);	/* should not occur */
 
-	  Call_Prolog((CodePtr) pred->codep);
+	  Pl_Call_Prolog((CodePtr) pred->codep);
 	  break;
 	}
 
     default:			/* help */
-      Stream_Printf(pstm, "   a  abort        b  break\n");
-      Stream_Printf(pstm, "   c  continue     e  exit\n");
+      Pl_Stream_Printf(pstm, "   a  abort        b  break\n");
+      Pl_Stream_Printf(pstm, "   c  continue     e  exit\n");
       if (SYS_VAR_DEBUGGER)
-	Stream_Printf(pstm, "   d  debug        t  trace\n");
-      Stream_Printf(pstm, "  h/? help\n");
+	Pl_Stream_Printf(pstm, "   d  debug        t  trace\n");
+      Pl_Stream_Printf(pstm, "  h/? help\n");
       goto start;
     }
   return 0;

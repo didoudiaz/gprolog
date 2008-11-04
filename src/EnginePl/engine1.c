@@ -27,7 +27,7 @@
 #include "engine_pl.h"
 
 
-WamWord *ensure_reserved;
+WamWord *pl_ensure_reserved;
 
 
 /*-------------------------------------------------------------------------*
@@ -52,14 +52,14 @@ WamWord *ensure_reserved;
  *-------------------------------------------------------------------------*/
 
 void
-Call_Compiled(CodePtr codep)
+Pl_Call_Compiled(CodePtr codep)
 {
   WamWord reserved_stack_space[1024];
 
 #if defined(M_sparc) && !defined(M_sparc_bsd)
-  register long * __attribute__ ((unused)) rfl asm("%l2") = base_fl;
-  register double * __attribute__ ((unused)) rfd asm("%l3") = base_fd;
-  ensure_reserved = (WamWord *) rfl + (long) rfd; /* to avoid gcc remove 2 previous inits ! */
+  register long * __attribute__ ((unused)) rfl asm("%l2") = pl_base_fl;
+  register double * __attribute__ ((unused)) rfd asm("%l3") = pl_base_fd;
+  pl_ensure_reserved = (WamWord *) rfl + (long) rfd; /* to avoid gcc remove 2 previous inits ! */
 #endif
 
 #if !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK)
@@ -68,48 +68,48 @@ Call_Compiled(CodePtr codep)
     defined(M_ix86_cygwin) || defined(M_ix86_mingw) || \
     defined(M_ix86_sco) || defined(M_ix86_bsd) 
 
-  register WamWord *rb asm("%ebx") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("%ebx") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(_MSC_VER)
 
-  _asm mov ebx, reg_bank
+  _asm mov ebx, pl_reg_bank
 
 #elif defined(M_mips_irix)
 
-  register WamWord *rb asm("$16") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("$16") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_alpha_linux) || defined(M_alpha_osf)
 
-  register WamWord *rb asm("$9") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("$9") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_powerpc_linux)
 
-  register WamWord *rb asm("15") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("15") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_powerpc_darwin)
 
-  register WamWord *rb asm("r15") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("r15") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_sparc)
 
-  register WamWord *rb asm("%l0") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("%l0") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_x86_64)
 
-  register WamWord *rb asm("%r12") = reg_bank;
-  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+  register WamWord *rb asm("%r12") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #endif
 
 #endif
 
-  ensure_reserved = reserved_stack_space;
+  pl_ensure_reserved = reserved_stack_space;
 #if defined(M_ix86_darwin)	/* see comment in Ma2Asm/ix86_any.c */
   asm("andl $0xfffffff0,%esp");
   asm("addl $4,%esp");

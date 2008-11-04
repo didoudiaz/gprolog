@@ -66,8 +66,8 @@ Prolog_Prototype(CALL_INTERNAL, 2);
 static void
 Call_Args_Initializer(void)
 {
-  atom_call_with_args = Create_Atom("call_with_args");
-  atom_call = Create_Atom("call");
+  atom_call_with_args = Pl_Create_Atom("call_with_args");
+  atom_call = Pl_Create_Atom("call");
 }
 
 
@@ -87,22 +87,22 @@ Call_Closure(int atom_bip, int arity_rest)
   WamWord *w;
   int i;
 
-  Set_C_Bip_Name(atom_tbl[atom_bip].name, 1 + arity_rest);
+  Pl_Set_C_Bip_Name(pl_atom_tbl[atom_bip].name, 1 + arity_rest);
   if (atom_bip == atom_call_with_args) {
-    func = Rd_Atom_Check(A(0));
+    func = Pl_Rd_Atom_Check(A(0));
     arity0 = 0;
   } else {
-    arg_adr = Rd_Callable_Check(A(0), &func, &arity0);
+    arg_adr = Pl_Rd_Callable_Check(A(0), &func, &arity0);
   }
   
   arity = arity0 + arity_rest;
   if (arity > MAX_ARITY)
-    Pl_Err_Representation(representation_max_arity);
+    Pl_Err_Representation(pl_representation_max_arity);
 
 
   call_info = Call_Info(func, arity, 1);
 
-  if ((pred = Lookup_Pred(func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
     {
       if (arity > 0)
 	{
@@ -130,7 +130,7 @@ Call_Closure(int atom_bip, int arity_rest)
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+  return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
 }
 
 
@@ -141,130 +141,130 @@ Call_Closure(int atom_bip, int arity_rest)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamCont
-Call_With_Args_1(void)
+Pl_Call_With_Args_1(void)
 {
   return Call_Closure(atom_call_with_args, 0);
 }
 
 WamCont
-Call_With_Args_2(void)
+Pl_Call_With_Args_2(void)
 {
   return Call_Closure(atom_call_with_args, 1);
 }
 
 WamCont
-Call_With_Args_3(void)
+Pl_Call_With_Args_3(void)
 {
   return Call_Closure(atom_call_with_args, 2);
 }
 
 WamCont
-Call_With_Args_4(void)
+Pl_Call_With_Args_4(void)
 {
   return Call_Closure(atom_call_with_args, 3);
 }
 
 WamCont
-Call_With_Args_5(void)
+Pl_Call_With_Args_5(void)
 {
   return Call_Closure(atom_call_with_args, 4);
 }
 
 WamCont
-Call_With_Args_6(void)
+Pl_Call_With_Args_6(void)
 {
   return Call_Closure(atom_call_with_args, 5);
 }
 
 WamCont
-Call_With_Args_7(void)
+Pl_Call_With_Args_7(void)
 {
   return Call_Closure(atom_call_with_args, 6);
 }
 
 WamCont
-Call_With_Args_8(void)
+Pl_Call_With_Args_8(void)
 {
   return Call_Closure(atom_call_with_args, 7);
 }
 
 WamCont
-Call_With_Args_9(void)
+Pl_Call_With_Args_9(void)
 {
   return Call_Closure(atom_call_with_args, 8);
 }
 
 WamCont
-Call_With_Args_10(void)
+Pl_Call_With_Args_10(void)
 {
   return Call_Closure(atom_call_with_args, 9);
 }
 
 WamCont
-Call_With_Args_11(void)
+Pl_Call_With_Args_11(void)
 {
   return Call_Closure(atom_call_with_args, 10);
 }
 
 
 WamCont
-Call_2(void)
+Pl_Call_2(void)
 {
   return Call_Closure(atom_call, 1);
 }
 
 WamCont
-Call_3(void)
+Pl_Call_3(void)
 {
   return Call_Closure(atom_call, 2);
 }
 
 WamCont
-Call_4(void)
+Pl_Call_4(void)
 {
   return Call_Closure(atom_call, 3);
 }
 
 
 WamCont
-Call_5(void)
+Pl_Call_5(void)
 {
   return Call_Closure(atom_call, 4);
 }
 
 WamCont
-Call_6(void)
+Pl_Call_6(void)
 {
   return Call_Closure(atom_call, 5);
 }
 
 WamCont
-Call_7(void)
+Pl_Call_7(void)
 {
   return Call_Closure(atom_call, 6);
 }
 
 WamCont
-Call_8(void)
+Pl_Call_8(void)
 {
   return Call_Closure(atom_call, 7);
 }
 
 WamCont
-Call_9(void)
+Pl_Call_9(void)
 {
   return Call_Closure(atom_call, 8);
 }
 
 WamCont
-Call_10(void)
+Pl_Call_10(void)
 {
   return Call_Closure(atom_call, 9);
 }
 
 
 WamCont
-Call_11(void)
+Pl_Call_11(void)
 {
   return Call_Closure(atom_call, 10);
 }

@@ -48,10 +48,10 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[16];
-char asm_reg_e[16];
-char asm_reg_b[16];
-char asm_reg_cp[16];
+char asm_reg_bank[20];
+char asm_reg_e[20];
+char asm_reg_b[20];
+char asm_reg_cp[20];
 
 int w_label = 0;
 
@@ -860,7 +860,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
       break;
     }
 
-  Inst_Printf("la", "$2,foreign_long");
+  Inst_Printf("la", "$2,pl_foreign_long");
   if (!adr_of)
     {
       Inst_Printf("lw", "%s,%d($2)", dest, index * 4);
@@ -920,7 +920,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 	  sprintf(dest, "%s", "$24");
 	  break;
 	}
-      Inst_Printf("la", "%s,foreign_double", dest);
+      Inst_Printf("la", "%s,pl_foreign_double", dest);
       Inst_Printf("addu", "%s,%s,%d", dest, dest, index * 8);
       if (offset > 7)
 	{
@@ -960,7 +960,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 	  sprintf(dest, "%s", "$f1");
 	  break;
 	}
-      Inst_Printf("la", "$25,foreign_double");
+      Inst_Printf("la", "$25,pl_foreign_double");
       Inst_Printf("l.d", "%s,%d($25)", dest, index * 8);
       if (offset > 7)
 	{
@@ -1086,7 +1086,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("la", "$13,foreign_long");
+  Inst_Printf("la", "$13,pl_foreign_long");
   Inst_Printf("sw", "$2,%d($13)", index * 4);
 }
 
@@ -1100,7 +1100,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("la", "$13,foreign_double");
+  Inst_Printf("la", "$13,pl_foreign_double");
   Inst_Printf("s.d", "$f0,%d($13)", index * 8);
 }
 

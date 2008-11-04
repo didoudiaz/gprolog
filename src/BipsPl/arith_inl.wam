@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : arith_inl.pl
-% date    : 9 30 2008
-% time    : 17:26:18
+% date    : 11 4 2008
+% time    : 15:35:20
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/arith_inl.pl').
@@ -14,7 +14,7 @@ predicate('$use_arith_inl'/0,29,static,private,built_in,[
 predicate((is)/2,32,static,private,built_in,[
     put_atom(is,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(1),1),
     get_value(x(0),1),
     proceed]).
@@ -23,7 +23,7 @@ predicate((is)/2,32,static,private,built_in,[
 predicate((=:=)/2,35,static,private,built_in,[
     put_atom(=:=,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Eq',[fast_call,boolean],[x(0),x(1)]),
@@ -33,7 +33,7 @@ predicate((=:=)/2,35,static,private,built_in,[
 predicate((=\=)/2,38,static,private,built_in,[
     put_atom(=\=,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Neq',[fast_call,boolean],[x(0),x(1)]),
@@ -43,7 +43,7 @@ predicate((=\=)/2,38,static,private,built_in,[
 predicate((<)/2,41,static,private,built_in,[
     put_atom(<,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Lt',[fast_call,boolean],[x(0),x(1)]),
@@ -53,7 +53,7 @@ predicate((<)/2,41,static,private,built_in,[
 predicate((=<)/2,44,static,private,built_in,[
     put_atom(=<,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Lte',[fast_call,boolean],[x(0),x(1)]),
@@ -63,7 +63,7 @@ predicate((=<)/2,44,static,private,built_in,[
 predicate((>)/2,47,static,private,built_in,[
     put_atom(>,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
@@ -73,7 +73,7 @@ predicate((>)/2,47,static,private,built_in,[
 predicate((>=)/2,50,static,private,built_in,[
     put_atom(>=,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Blt_Gte',[fast_call,boolean],[x(0),x(1)]),
@@ -81,5 +81,5 @@ predicate((>=)/2,50,static,private,built_in,[
 
 
 predicate('$arith_eval'/2,54,static,private,built_in,[
-    call_c('Arith_Eval_2',[],[x(0),x(1)]),
+    call_c('Pl_Arith_Eval_2',[],[x(0),x(1)]),
     proceed]).

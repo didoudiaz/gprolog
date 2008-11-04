@@ -31,25 +31,25 @@
 
 fd_domain(List, R) :-
 	set_bip_name(fd_domain, 2),
-	'$call_c_test'('Fd_Domain_2'(List, R)).
+	'$call_c_test'('Pl_Fd_Domain_2'(List, R)).
 
 
 
 
 fd_domain(List, L, U) :-
 	set_bip_name(fd_domain, 3),
-	'$call_c_test'('Fd_Domain_3'(List, L, U)).
+	'$call_c_test'('Pl_Fd_Domain_3'(List, L, U)).
 
 
 '$fd_domain'(X, L, U) :-                     % for fd builtins (exact errors)
-	fd_tell(fd_domain(X, L, U)).
+	fd_tell(pl_fd_domain(X, L, U)).
 
 
 
 
 fd_domain_bool(List) :-
 	set_bip_name(fd_domain_bool, 1),
-	'$call_c_test'('Fd_Domain_Bool_1'(List)).
+	'$call_c_test'('Pl_Fd_Domain_Bool_1'(List)).
 
 
 
@@ -201,35 +201,35 @@ fd_labeling(List, Options) :-
 
 
 '$fd_sel_array_from_list'(List, SelArray) :-
-	'$call_c_test'('Fd_Sel_Array_From_List_2'(List, SelArray)).
+	'$call_c_test'('Pl_Fd_Sel_Array_From_List_2'(List, SelArray)).
 
 
 
 
 '$fd_sel_array_pick_var'(SelArray, Method, Reorder, Fdv) :-
-	'$call_c_test'('Fd_Sel_Array_Pick_Var_4'(SelArray, Method, Reorder, Fdv)).
+	'$call_c_test'('Pl_Fd_Sel_Array_Pick_Var_4'(SelArray, Method, Reorder, Fdv)).
 
 
 
 
 '$indomain'(X, ValMethod) :-
-	'$call_c_test'('Indomain_2'(X, ValMethod)).
+	'$call_c_test'('Pl_Indomain_2'(X, ValMethod)).
 
 
 '$indomain_min_alt' :-              % used by C code to create a choice-point
-	'$call_c_test'('Indomain_Min_Alt_0').
+	'$call_c_test'('Pl_Indomain_Min_Alt_0').
 
 '$indomain_max_alt' :-              % used by C code to create a choice-point
-	'$call_c_test'('Indomain_Max_Alt_0').
+	'$call_c_test'('Pl_Indomain_Max_Alt_0').
 
 '$indomain_middle_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Indomain_Middle_Alt_0').
+	'$call_c_test'('Pl_Indomain_Middle_Alt_0').
 
 '$indomain_limits_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Indomain_Limits_Alt_0').
+	'$call_c_test'('Pl_Indomain_Limits_Alt_0').
 
 '$indomain_random_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Indomain_Random_Alt_0').
+	'$call_c_test'('Pl_Indomain_Random_Alt_0').
 
 '$extra_cstr_alt' :-                % used by C code to create a choice-point
-	'$call_c_test'('Extra_Cstr_Alt_0').
+	'$call_c_test'('Pl_Extra_Cstr_Alt_0').

@@ -39,18 +39,18 @@
 
 #ifdef BC_SUPP_FILE
 
-int byte_len;
+int pl_byte_len;
 
 #else
 
-extern int byte_len;
+extern int pl_byte_len;
 
 #endif
 
 				/* defined as this to avoid to force the   */
 				/* inclusion of bc_supp.o if not needed    */
-				/* (dynam_supp.c uses byte_code)           */
-unsigned *byte_code;
+				/* (dynam_supp.c uses pl_byte_code)           */
+unsigned *pl_byte_code;
 
 
 
@@ -58,4 +58,4 @@ unsigned *byte_code;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamCont BC_Emulate_Pred(int func, DynPInf *dyn);
+WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);

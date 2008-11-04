@@ -91,7 +91,7 @@ extern void clearerr(FILE *stream);
  *---------------------------------*/
 
 static void Init_Stream_Supp();
-void (*init_stream_supp)() = Init_Stream_Supp; /* overwrite var of engine.c */
+void (*pl_init_stream_supp)() = Init_Stream_Supp; /* overwrite var of engine.c */
 
 static int atom_constant_term_stream;
 
@@ -160,66 +160,66 @@ Init_Stream_Supp(void)
   StmInf *pstm;
 #endif
 
-  stm_tbl_size = 32;
-  stm_tbl = (StmInf **) Calloc(stm_tbl_size, sizeof(StmInf *));
-  stm_last_used = -1;
+  pl_stm_tbl_size = 32;
+  pl_stm_tbl = (StmInf **) Calloc(pl_stm_tbl_size, sizeof(StmInf *));
+  pl_stm_last_used = -1;
 
-  alias_tbl = Hash_Alloc_Table(START_ALIAS_TBL_SIZE, sizeof(AliasInf));
+  pl_alias_tbl = Pl_Hash_Alloc_Table(START_ALIAS_TBL_SIZE, sizeof(AliasInf));
 
-  atom_stream = Create_Atom("$stream");
-  stream_1 = Functor_Arity(atom_stream, 1);
+  pl_atom_stream = Pl_Create_Atom("$stream");
+  stream_1 = Functor_Arity(pl_atom_stream, 1);
 
-  atom_constant_term_stream = Create_Atom("constant term stream");
+  atom_constant_term_stream = Pl_Create_Atom("constant term stream");
 
-  word_current_input_stream = Tag_ATM(Create_Atom("current_input_stream"));
-  word_current_output_stream = Tag_ATM(Create_Atom("current_output_stream"));
+  word_current_input_stream = Tag_ATM(Pl_Create_Atom("current_input_stream"));
+  word_current_output_stream = Tag_ATM(Pl_Create_Atom("current_output_stream"));
 
-  atom_user_input = Create_Atom("user_input");
-  atom_user_output = Create_Atom("user_output");
+  pl_atom_user_input = Pl_Create_Atom("user_input");
+  pl_atom_user_output = Pl_Create_Atom("user_output");
 
-  atom_top_level_input = Create_Atom("top_level_input");
-  atom_top_level_output = Create_Atom("top_level_output");
+  pl_atom_top_level_input = Pl_Create_Atom("top_level_input");
+  pl_atom_top_level_output = Pl_Create_Atom("top_level_output");
 
-  atom_debugger_input = Create_Atom("debugger_input");
-  atom_debugger_output = Create_Atom("debugger_output");
+  pl_atom_debugger_input = Pl_Create_Atom("debugger_input");
+  pl_atom_debugger_output = Pl_Create_Atom("debugger_output");
 
-  atom_read = Create_Atom("read");
-  atom_write = Create_Atom("write");
-  atom_append = Create_Atom("append");
+  pl_atom_read = Pl_Create_Atom("read");
+  pl_atom_write = Pl_Create_Atom("write");
+  pl_atom_append = Pl_Create_Atom("append");
 
-  atom_reposition = Create_Atom("reposition");
+  pl_atom_reposition = Pl_Create_Atom("reposition");
 
-  atom_stream_position = Create_Atom("$stream_position");
+  pl_atom_stream_position = Pl_Create_Atom("$stream_position");
 
-  atom_text = Create_Atom("text");
-  atom_binary = Create_Atom("binary");
+  pl_atom_text = Pl_Create_Atom("text");
+  pl_atom_binary = Pl_Create_Atom("binary");
 
-  atom_error = Create_Atom("error");
-  atom_eof_code = Create_Atom("eof_code");
-  atom_reset = Create_Atom("reset");
+  pl_atom_error = Pl_Create_Atom("error");
+  pl_atom_eof_code = Pl_Create_Atom("eof_code");
+  pl_atom_reset = Pl_Create_Atom("reset");
 
-  atom_none = Create_Atom("none");
-  atom_line = Create_Atom("line");
-  atom_block = Create_Atom("block");
+  pl_atom_none = Pl_Create_Atom("none");
+  pl_atom_line = Pl_Create_Atom("line");
+  pl_atom_block = Pl_Create_Atom("block");
 
-  atom_not = Create_Atom("not");
-  atom_at = Create_Atom("at");
-  atom_past = Create_Atom("past");
+  pl_atom_not = Pl_Create_Atom("not");
+  pl_atom_at = Pl_Create_Atom("at");
+  pl_atom_past = Pl_Create_Atom("past");
 
-  atom_bof = Create_Atom("bof");
-  atom_current = Create_Atom("current");
-  atom_eof = Create_Atom("eof");
+  pl_atom_bof = Pl_Create_Atom("bof");
+  pl_atom_current = Pl_Create_Atom("current");
+  pl_atom_eof = Pl_Create_Atom("eof");
 
-  le_prompt = "";
-  use_le_prompt = TRUE;
+  pl_le_prompt = "";
+  pl_use_le_prompt = TRUE;
 
-  stm_stdin = Add_Stream_For_Stdio_Desc(stdin, atom_user_input,
+  pl_stm_stdin = Pl_Add_Stream_For_Stdio_Desc(stdin, pl_atom_user_input,
 					STREAM_MODE_READ, TRUE);
 
 #ifndef NO_USE_LINEDIT
-  if ((use_gui) || isatty(0))
+  if ((pl_use_gui) || isatty(0))
     {
-      pstm = stm_tbl[stm_stdin];
+      pstm = pl_stm_tbl[pl_stm_stdin];
       pstm->fct_getc = (StmFct) TTY_Getc;
       pstm->fct_putc = STREAM_FCT_UNDEFINED;
       pstm->fct_flush = STREAM_FCT_UNDEFINED;
@@ -229,36 +229,36 @@ Init_Stream_Supp(void)
       pstm->fct_clearerr = (StmFct) TTY_Clearerr;
     }
 #endif
-  Add_Alias_To_Stream(atom_user_input, stm_stdin);
-  stm_input = stm_stdin;
+  Pl_Add_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin);
+  pl_stm_input = pl_stm_stdin;
 
 
 
-  stm_stdout = Add_Stream_For_Stdio_Desc(stdout, atom_user_output,
+  pl_stm_stdout = Pl_Add_Stream_For_Stdio_Desc(stdout, pl_atom_user_output,
 					 STREAM_MODE_WRITE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
-  pstm = stm_tbl[stm_stdout];
+  pstm = pl_stm_tbl[pl_stm_stdout];
   pstm->prop.buffering = STREAM_BUFFERING_LINE;
-  if (le_hook_put_char && isatty(1))
-    pstm->fct_putc = (StmFct) le_hook_put_char;
+  if (pl_le_hook_put_char && isatty(1))
+    pstm->fct_putc = (StmFct) pl_le_hook_put_char;
 
-  if (le_hook_flush && isatty(1))
-    pstm->fct_flush = (StmFct) le_hook_flush;
+  if (pl_le_hook_flush && isatty(1))
+    pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
 
-  Add_Alias_To_Stream(atom_user_output, stm_stdout);
-  stm_output = stm_stdout;
+  Pl_Add_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout);
+  pl_stm_output = pl_stm_stdout;
 
-  stm_top_level_input = stm_debugger_input = stm_input;
-  stm_top_level_output = stm_debugger_output = stm_output;
+  pl_stm_top_level_input = pl_stm_debugger_input = pl_stm_input;
+  pl_stm_top_level_output = pl_stm_debugger_output = pl_stm_output;
 
-  Add_Alias_To_Stream(atom_top_level_input, stm_top_level_input);
-  Add_Alias_To_Stream(atom_top_level_output, stm_top_level_output);
+  Pl_Add_Alias_To_Stream(pl_atom_top_level_input, pl_stm_top_level_input);
+  Pl_Add_Alias_To_Stream(pl_atom_top_level_output, pl_stm_top_level_output);
 
-  Add_Alias_To_Stream(atom_debugger_input, stm_debugger_input);
-  Add_Alias_To_Stream(atom_debugger_output, stm_debugger_output);
+  Pl_Add_Alias_To_Stream(pl_atom_debugger_input, pl_stm_debugger_input);
+  Pl_Add_Alias_To_Stream(pl_atom_debugger_output, pl_stm_debugger_output);
 }
 
 
@@ -267,11 +267,11 @@ Init_Stream_Supp(void)
 #ifndef FOR_EXTERNAL_USE
 
 /*-------------------------------------------------------------------------*
- * PROP_AND_STDIO_MODE                                                     *
+ * PL_PROP_AND_STDIO_MODE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 StmProp
-Prop_And_Stdio_Mode(int mode, Bool text, char *open_str)
+Pl_Prop_And_Stdio_Mode(int mode, Bool text, char *open_str)
 {
   StmProp prop;
 
@@ -314,24 +314,24 @@ Prop_And_Stdio_Mode(int mode, Bool text, char *open_str)
 
 
 /*-------------------------------------------------------------------------*
- * ADD_STREAM_FOR_STDIO_DESC                                               *
+ * PL_ADD_STREAM_FOR_STDIO_DESC                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
+Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
 {
   char open_str[10];
-  StmProp prop = Prop_And_Stdio_Mode(mode, text, open_str);
+  StmProp prop = Pl_Prop_And_Stdio_Mode(mode, text, open_str);
 
-  prop.reposition = Stdio_Is_Repositionable(f);
+  prop.reposition = Pl_Stdio_Is_Repositionable(f);
   prop.buffering = (prop.reposition) ? STREAM_BUFFERING_BLOCK :
     STREAM_BUFFERING_LINE;
 
-  Stdio_Set_Buffering(f, prop.buffering);
+  Pl_Stdio_Set_Buffering(f, prop.buffering);
   if (isatty(fileno(f)))
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
-  return Add_Stream(atom_path, (long) f, prop,
+  return Pl_Add_Stream(atom_path, (long) f, prop,
 		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
@@ -339,24 +339,24 @@ Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
 
 
 /*-------------------------------------------------------------------------*
- * ADD_STREAM_FOR_STDIO_FILE                                               *
+ * PL_ADD_STREAM_FOR_STDIO_FILE                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
+Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
 {
   FILE *f;
   char open_str[10];
   int atom_path;
   
-  Prop_And_Stdio_Mode(mode, text, open_str); /* only for open_str */
+  Pl_Prop_And_Stdio_Mode(mode, text, open_str); /* only for open_str */
 
   if ((f = fopen(path, open_str)) == NULL)
     return -1;
 
-  atom_path = Create_Allocate_Atom(path);
+  atom_path = Pl_Create_Allocate_Atom(path);
 
-  return Add_Stream_For_Stdio_Desc(f, atom_path, mode, text);
+  return Pl_Add_Stream_For_Stdio_Desc(f, atom_path, mode, text);
 }
 
 
@@ -407,11 +407,11 @@ Init_Stream_Struct(int atom_file_name, long file, StmProp prop,
 
 
 /*-------------------------------------------------------------------------*
- * ADD_STREAM                                                              *
+ * PL_ADD_STREAM                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Add_Stream(int atom_file_name, long file, StmProp prop,
+Pl_Add_Stream(int atom_file_name, long file, StmProp prop,
 	   StmFct fct_getc, StmFct fct_putc,
 	   StmFct fct_flush, StmFct fct_close,
 	   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
@@ -423,10 +423,10 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
 
   if (prop.reposition && (fct_tell == STREAM_FCT_UNDEFINED ||
 			  fct_seek == STREAM_FCT_UNDEFINED))
-    Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
+    Pl_Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
 
 
-  pstm = stm_tbl[stm];
+  pstm = pl_stm_tbl[stm];
   Init_Stream_Struct(atom_file_name, file, prop, fct_getc, fct_putc,
 		     fct_flush, fct_close, fct_tell, fct_seek, fct_clearerr,
 		     pstm);
@@ -442,17 +442,17 @@ Add_Stream(int atom_file_name, long file, StmProp prop,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Delete_Stream(int stm)
+Pl_Delete_Stream(int stm)
 {
   Del_Aliases_Of_Stream(stm);
 
   Update_Mirrors_To_Del_Stream(stm);
 
-  Free(stm_tbl[stm]);
-  stm_tbl[stm] = NULL;
+  Free(pl_stm_tbl[stm]);
+  pl_stm_tbl[stm] = NULL;
 
-  while(stm_tbl[stm_last_used] == NULL)
-    stm_last_used--;
+  while(pl_stm_tbl[pl_stm_last_used] == NULL)
+    pl_stm_last_used--;
 }
 
 
@@ -467,17 +467,17 @@ Find_Free_Stream(void)
 {
   int stm;
 
-  for (stm = 0; stm < stm_tbl_size; stm++)
-    if (stm_tbl[stm] == NULL)
+  for (stm = 0; stm < pl_stm_tbl_size; stm++)
+    if (pl_stm_tbl[stm] == NULL)
       break;
 
-  if (stm == stm_tbl_size)
-    Extend_Array((char **) &stm_tbl, &stm_tbl_size, sizeof(StmInf *), TRUE);
+  if (stm == pl_stm_tbl_size)
+    Pl_Extend_Array((char **) &pl_stm_tbl, &pl_stm_tbl_size, sizeof(StmInf *), TRUE);
 
-  stm_tbl[stm] = (StmInf *) Malloc(sizeof(StmInf));
+  pl_stm_tbl[stm] = (StmInf *) Malloc(sizeof(StmInf));
 
-  if (stm > stm_last_used)
-    stm_last_used = stm;
+  if (stm > pl_stm_last_used)
+    pl_stm_last_used = stm;
 
   return stm;
 }
@@ -486,15 +486,15 @@ Find_Free_Stream(void)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_STREAM_BY_ALIAS                                                    *
+ * PL_FIND_STREAM_BY_ALIAS                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Find_Stream_By_Alias(int atom_alias)
+Pl_Find_Stream_By_Alias(int atom_alias)
 {
   AliasInf *alias;
 
-  alias = (AliasInf *) Hash_Find(alias_tbl, atom_alias);
+  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
 
   return (alias == NULL) ? -1 : alias->stm;
 }
@@ -503,25 +503,25 @@ Find_Stream_By_Alias(int atom_alias)
 
 
 /*-------------------------------------------------------------------------*
- * ADD_ALIAS_TO_STREAM                                                     *
+ * PL_ADD_ALIAS_TO_STREAM                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Add_Alias_To_Stream(int atom_alias, int stm)
+Pl_Add_Alias_To_Stream(int atom_alias, int stm)
 {
   AliasInf *alias;
   AliasInf alias_info;
 
-  alias = (AliasInf *) Hash_Find(alias_tbl, atom_alias);
+  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
   if (alias != NULL)
     return alias->stm == stm;	/* fail if assigned to another stream */
 
-  Extend_Table_If_Needed(&alias_tbl);
+  Pl_Extend_Table_If_Needed(&pl_alias_tbl);
 
   alias_info.atom = atom_alias;
   alias_info.stm = stm;
 
-  alias = (AliasInf *) Hash_Insert(alias_tbl, (char *) &alias_info, FALSE);
+  alias = (AliasInf *) Pl_Hash_Insert(pl_alias_tbl, (char *) &alias_info, FALSE);
 
   return TRUE;
 }
@@ -530,15 +530,15 @@ Add_Alias_To_Stream(int atom_alias, int stm)
 
 
 /*-------------------------------------------------------------------------*
- * REASSIGN_ALIAS                                                          *
+ * PL_REASSIGN_ALIAS                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Reassign_Alias(int atom_alias, int stm)
+Pl_Reassign_Alias(int atom_alias, int stm)
 {
   AliasInf *alias;
 
-  alias = (AliasInf *) Hash_Find(alias_tbl, atom_alias);
+  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
 
   if (alias != NULL)
     alias->stm = stm;
@@ -557,24 +557,24 @@ Del_Aliases_Of_Stream(int stm)
   HashScan scan;
   AliasInf *alias;
 
-  for (alias = (AliasInf *) Hash_First(alias_tbl, &scan); alias;
-       alias = (AliasInf *) Hash_Next(&scan))
+  for (alias = (AliasInf *) Pl_Hash_First(pl_alias_tbl, &scan); alias;
+       alias = (AliasInf *) Pl_Hash_Next(&scan))
     if (alias->stm == stm)
-      Hash_Delete(alias_tbl, alias->atom);
+      Pl_Hash_Delete(pl_alias_tbl, alias->atom);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ADD_MIRROR_TO_STREAM                                                    *
+ * PL_ADD_MIRROR_TO_STREAM                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Add_Mirror_To_Stream(int stm, int m_stm)
+Pl_Add_Mirror_To_Stream(int stm, int m_stm)
 {
-  StmInf *pstm = stm_tbl[stm];
-  StmInf *m_pstm = stm_tbl[m_stm];
+  StmInf *pstm = pl_stm_tbl[stm];
+  StmInf *m_pstm = pl_stm_tbl[m_stm];
   StmLst *m;
   
   if (stm == m_stm)
@@ -600,14 +600,14 @@ Add_Mirror_To_Stream(int stm, int m_stm)
 
 
 /*-------------------------------------------------------------------------*
- * DEL_MIRROR_FROM_STREAM                                                  *
+ * PL_DEL_MIRROR_FROM_STREAM                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Del_Mirror_From_Stream(int stm, int m_stm)
+Pl_Del_Mirror_From_Stream(int stm, int m_stm)
 {
-  StmInf *pstm = stm_tbl[stm];
-  StmInf *m_pstm = stm_tbl[m_stm];
+  StmInf *pstm = pl_stm_tbl[stm];
+  StmInf *m_pstm = pl_stm_tbl[m_stm];
 
   if (!Remove_In_Stream_List(m_stm, &pstm->mirror))
     return FALSE;		/* not found */
@@ -626,7 +626,7 @@ Del_Mirror_From_Stream(int stm, int m_stm)
 static void
 Update_Mirrors_To_Del_Stream(int stm)
 {
-  StmInf *pstm = stm_tbl[stm];
+  StmInf *pstm = pl_stm_tbl[stm];
   StmInf *m_pstm;
   StmLst *m, *m1;
   
@@ -634,7 +634,7 @@ Update_Mirrors_To_Del_Stream(int stm)
   while(m)
     {
       m1 = m;
-      m_pstm = stm_tbl[m->stm];
+      m_pstm = pl_stm_tbl[m->stm];
       m = m->next;
       Free(m1);
       Remove_In_Stream_List(stm, &m_pstm->mirror_of);
@@ -644,7 +644,7 @@ Update_Mirrors_To_Del_Stream(int stm)
   while(m)
     {
       m1 = m;
-      m_pstm = stm_tbl[m->stm];
+      m_pstm = pl_stm_tbl[m->stm];
       m = m->next;
       Free(m1);
       Remove_In_Stream_List(stm, &m_pstm->mirror);
@@ -687,16 +687,16 @@ Remove_In_Stream_List(int stm, StmLst **p_start)
 
 
 /*-------------------------------------------------------------------------*
- * FIND_STREAM_FROM_PSTM                                                   *
+ * PL_FIND_STREAM_FROM_PSTM                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Find_Stream_From_PStm(StmInf *pstm)
+Pl_Find_Stream_From_PStm(StmInf *pstm)
 {
   int stm;
 
-  for (stm = 0; stm <= stm_last_used; stm++)
-    if (stm_tbl[stm] == pstm)
+  for (stm = 0; stm <= pl_stm_last_used; stm++)
+    if (pl_stm_tbl[stm] == pstm)
       return stm;
 
   return -1;
@@ -706,46 +706,46 @@ Find_Stream_From_PStm(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * FLUSH_ALL_STREAMS                                                       *
+ * PL_FLUSH_ALL_STREAMS                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Flush_All_Streams(void)
+Pl_Flush_All_Streams(void)
 {
   int stm;
 
-  for (stm = 0; stm <= stm_last_used ; stm++)
-    if (stm_tbl[stm])
-      Stream_Flush(stm_tbl[stm]);
+  for (stm = 0; stm <= pl_stm_last_used ; stm++)
+    if (pl_stm_tbl[stm])
+      Pl_Stream_Flush(pl_stm_tbl[stm]);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SET_STREAM_BUFFERING                                                    *
+ * PL_SET_STREAM_BUFFERING                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Stream_Buffering(int stm)
+Pl_Set_Stream_Buffering(int stm)
 {
-  StmInf *pstm = stm_tbl[stm];
+  StmInf *pstm = pl_stm_tbl[stm];
   FILE *f;
 
-  f = Stdio_Desc_Of_Stream(stm);
+  f = Pl_Stdio_Desc_Of_Stream(stm);
   if (f == NULL)
     {
       pstm->prop.buffering = STREAM_BUFFERING_NONE;
       return;
     }
 
-#ifndef NO_USE_LINEDIT		/* if use_gui == 1 */
-  if (pstm->file == (long) stdout && le_hook_set_line_buffering)
-    (*le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
+#ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
+  if (pstm->file == (long) stdout && pl_le_hook_set_line_buffering)
+    (*pl_le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif
 
-    Stdio_Set_Buffering(f, pstm->prop.buffering);
+    Pl_Stdio_Set_Buffering(f, pstm->prop.buffering);
 }
 
 
@@ -754,12 +754,12 @@ Set_Stream_Buffering(int stm)
 #ifndef FOR_EXTERNAL_USE
 
 /*-------------------------------------------------------------------------*
- * GET_STREAM_OR_ALIAS                                                     *
+ * PL_GET_STREAM_OR_ALIAS                                                  *
  *                                                                         *
  * return the associated stm or -1 if not exist (test==STREAM_CHECK_VALID) *
  *-------------------------------------------------------------------------*/
 int
-Get_Stream_Or_Alias(WamWord sora_word, int test)
+Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
 {
   WamWord word, tag_mask, tag_mask1;
   int atom;
@@ -772,7 +772,7 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
   if (tag_mask == TAG_ATM_MASK)	/* alias ? */
     {
       atom = UnTag_ATM(word);
-      stm = Find_Stream_By_Alias(atom);
+      stm = Pl_Find_Stream_By_Alias(atom);
       goto next_test;
     }
 
@@ -790,16 +790,16 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  Pl_Err_Domain(domain_stream_or_alias, sora_word);
+  Pl_Err_Domain(pl_domain_stream_or_alias, sora_word);
 
  next_test:
 
-  if ((unsigned) stm > stm_last_used || stm_tbl[stm] == NULL)
+  if ((unsigned) stm > pl_stm_last_used || pl_stm_tbl[stm] == NULL)
     {
       if (test == STREAM_CHECK_VALID)
 	return -1;
 
-      Pl_Err_Existence(existence_stream, sora_word);
+      Pl_Err_Existence(pl_existence_stream, sora_word);
     }
 
   if (test == STREAM_CHECK_VALID || test == STREAM_CHECK_EXIST)
@@ -807,20 +807,20 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
 
   if (test == STREAM_CHECK_INPUT)
     {
-      if (stm_tbl[stm]->prop.input)
+      if (pl_stm_tbl[stm]->prop.input)
 	goto ok;
 
-      perm_oper = permission_operation_input;
+      perm_oper = pl_permission_operation_input;
     }
   else				/* test == STREAM_CHECK_OUTPUT */
     {
-      if (stm_tbl[stm]->prop.output)
+      if (pl_stm_tbl[stm]->prop.output)
 	goto ok;
 
-      perm_oper = permission_operation_output;
+      perm_oper = pl_permission_operation_output;
     }
 
-  Pl_Err_Permission(perm_oper, permission_type_stream, sora_word);
+  Pl_Err_Permission(perm_oper, pl_permission_type_stream, sora_word);
 
  ok:
   return stm;
@@ -830,11 +830,11 @@ Get_Stream_Or_Alias(WamWord sora_word, int test)
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_STREAM_TYPE                                                       *
+ * PL_CHECK_STREAM_TYPE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Check_Stream_Type(int stm, Bool check_text, Bool for_input)
+Pl_Check_Stream_Type(int stm, Bool check_text, Bool for_input)
 {
   int perm_oper;
   int perm_type;
@@ -843,30 +843,30 @@ Check_Stream_Type(int stm, Bool check_text, Bool for_input)
 
   if (check_text)
     {
-      if (stm_tbl[stm]->prop.text)
+      if (pl_stm_tbl[stm]->prop.text)
 	return;
 
-      perm_type = permission_type_binary_stream;
+      perm_type = pl_permission_type_binary_stream;
     }
   else				/* check binary */
     {
-      if (!stm_tbl[stm]->prop.text)
+      if (!pl_stm_tbl[stm]->prop.text)
 	return;
 
-      perm_type = permission_type_text_stream;
+      perm_type = pl_permission_type_text_stream;
     }
   /* here there is an error */
   if (for_input)
     {
-      perm_oper = permission_operation_input;
-      sora_word = (last_input_sora == NOT_A_WAM_WORD)
-	? word_current_input_stream : last_input_sora;
+      perm_oper = pl_permission_operation_input;
+      sora_word = (pl_last_input_sora == NOT_A_WAM_WORD)
+	? word_current_input_stream : pl_last_input_sora;
     }
   else				/* for output */
     {
-      perm_oper = permission_operation_output;
-      sora_word = (last_output_sora == NOT_A_WAM_WORD)
-	? word_current_output_stream : last_output_sora;
+      perm_oper = pl_permission_operation_output;
+      sora_word = (pl_last_output_sora == NOT_A_WAM_WORD)
+	? word_current_output_stream : pl_last_output_sora;
     }
 
 
@@ -877,11 +877,11 @@ Check_Stream_Type(int stm, Bool check_text, Bool for_input)
 
 
 /*-------------------------------------------------------------------------*
- * MAKE_STREAM_TAGGED_WORD                                                 *
+ * PL_MAKE_STREAM_TAGGED_WORD                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Make_Stream_Tagged_Word(int stm)
+Pl_Make_Stream_Tagged_Word(int stm)
 {
   static WamWord h[2];
 
@@ -895,11 +895,11 @@ Make_Stream_Tagged_Word(int stm)
 
 
 /*-------------------------------------------------------------------------*
- * STDIO_IS_REPOSITIONABLE                                                 *
+ * PL_STDIO_IS_REPOSITIONABLE                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Stdio_Is_Repositionable(FILE *f)
+Pl_Stdio_Is_Repositionable(FILE *f)
 {
   int fd = fileno(f);
 
@@ -910,11 +910,11 @@ Stdio_Is_Repositionable(FILE *f)
 
 
 /*-------------------------------------------------------------------------*
- * STDIO_SET_BUFFERING                                                     *
+ * PL_STDIO_SET_BUFFERING                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stdio_Set_Buffering(FILE *f, int buffering)
+Pl_Stdio_Set_Buffering(FILE *f, int buffering)
 {
   int buff_flag;
 
@@ -927,7 +927,7 @@ Stdio_Set_Buffering(FILE *f, int buffering)
     case STREAM_BUFFERING_LINE:
       buff_flag = _IOLBF;
 #ifdef _WIN32
-      if (!use_gui)		/* in Win32 console app, line buff = full */
+      if (!pl_use_gui)		/* in Win32 console app, line buff = full */
 	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif
       break;
@@ -944,16 +944,16 @@ Stdio_Set_Buffering(FILE *f, int buffering)
 
 
 /*-------------------------------------------------------------------------*
- * STDIO_DESC_OF_STREAM                                                    *
+ * PL_STDIO_DESC_OF_STREAM                                                 *
  *                                                                         *
  * return a FILE * of a stream or NULL if it is not a stdio stream.        *
  *-------------------------------------------------------------------------*/
 FILE *
-Stdio_Desc_Of_Stream(int stm)
+Pl_Stdio_Desc_Of_Stream(int stm)
 {
-  StmInf *pstm = stm_tbl[stm];
+  StmInf *pstm = pl_stm_tbl[stm];
 
-  if (stm == stm_stdin)		/* works also for stdin with linedit */
+  if (stm == pl_stm_stdin)		/* works also for stdin with linedit */
     return stdin;
 
   if (pstm->fct_getc == (StmFct) fgetc)
@@ -966,16 +966,16 @@ Stdio_Desc_Of_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
- * IO_FILENO_OF_STREAM                                                     *
+ * PL_IO_FILENO_OF_STREAM                                                  *
  *                                                                         *
  * return the fileno of a stream or -1 if this stream has not a fileno.    *
  *-------------------------------------------------------------------------*/
 int
-Io_Fileno_Of_Stream(int stm)
+Pl_Io_Fileno_Of_Stream(int stm)
 {
   FILE *f;
 
-  f = Stdio_Desc_Of_Stream(stm);
+  f = Pl_Stdio_Desc_Of_Stream(stm);
   if (f)
     return fileno(f);
 
@@ -997,14 +997,14 @@ Io_Fileno_Of_Stream(int stm)
 #define SAVE_FOR_REENTRANCY				\
 {							\
   int save_sys_var_option_mask = SYS_VAR_OPTION_MASK;	\
-  int save_last_read_line = last_read_line;		\
-  int save_last_read_col = last_read_col;
+  int save_last_read_line = pl_last_read_line;		\
+  int save_last_read_col = pl_last_read_col;
 
 
 #define RESTORE_FOR_REENTRANCY				\
   SYS_VAR_OPTION_MASK = save_sys_var_option_mask;	\
-  last_read_line = save_last_read_line;			\
-  last_read_col = save_last_read_col;			\
+  pl_last_read_line = save_last_read_line;			\
+  pl_last_read_col = save_last_read_col;			\
 }
 
 
@@ -1030,14 +1030,14 @@ TTY_Getc(void)
 
 				/* tty_ptr must remain NULL for reentrancy */
       SAVE_FOR_REENTRANCY;
-      tty_buff = LE_FGets(tty_buff, TTY_BUFFER_SIZE, le_prompt, 
-			  use_le_prompt);
-      use_le_prompt = 0;
+      tty_buff = Pl_LE_FGets(tty_buff, TTY_BUFFER_SIZE, pl_le_prompt, 
+			  pl_use_le_prompt);
+      pl_use_le_prompt = 0;
       RESTORE_FOR_REENTRANCY;
       tty_linedit_depth--;
 
       if (LE_Interrupted_By_Ctrl_C(tty_buff))
-	Execute_A_Continuation((CodePtr) LE_Get_Ctrl_C_Return_Value());
+	Pl_Execute_A_Continuation((CodePtr) Pl_LE_Get_Ctrl_C_Return_Value());
 	
 
       if (tty_buff == NULL)
@@ -1048,7 +1048,7 @@ TTY_Getc(void)
 
       tty_ptr = tty_buff;
     				/* simulate the echo (+ '\n') on output */
-      pstm = stm_tbl[stm_stdout];
+      pstm = pl_stm_tbl[pl_stm_stdout];
       pstm->char_count += strlen(tty_buff);
       pstm->line_count++;
       pstm->line_pos = 0;
@@ -1094,11 +1094,11 @@ TTY_Get_Key(Bool echo, Bool catch_ctrl_c)
     }
 
   SAVE_FOR_REENTRANCY;
-  c = LE_Get_Key(echo, catch_ctrl_c);
+  c = Pl_LE_Get_Key(echo, catch_ctrl_c);
   RESTORE_FOR_REENTRANCY;
 
   if (LE_Interrupted_By_Ctrl_C(c))
-    Execute_A_Continuation((CodePtr) LE_Get_Ctrl_C_Return_Value());
+    Pl_Execute_A_Continuation((CodePtr) Pl_LE_Get_Ctrl_C_Return_Value());
 
   return c;
 }
@@ -1136,10 +1136,10 @@ TTY_Clearerr(void)
   if (pstm->eof_reached)						    \
     {									    \
       if (pstm->prop.eof_action == STREAM_EOF_ACTION_ERROR)		    \
-        Pl_Err_Permission(permission_operation_input,			    \
-                          permission_type_past_end_of_stream,		    \
-                          (last_input_sora == NOT_A_WAM_WORD)		    \
-                          ? word_current_input_stream : last_input_sora);   \
+        Pl_Err_Permission(pl_permission_operation_input,			    \
+                          pl_permission_type_past_end_of_stream,		    \
+                          (pl_last_input_sora == NOT_A_WAM_WORD)		    \
+                          ? word_current_input_stream : pl_last_input_sora);   \
  									    \
       if (pstm->prop.eof_action == STREAM_EOF_ACTION_EOF_CODE)		    \
         return EOF;							    \
@@ -1147,7 +1147,7 @@ TTY_Clearerr(void)
       /* here: eof_action == STREAM_EOF_ACTION_RESET */			    \
       pstm->eof_reached = FALSE;					    \
       if (pstm->prop.reposition)					    \
-        Stream_Set_Position(pstm, SEEK_SET, 0, 0, 0, 0);		    \
+        Pl_Stream_Set_Position(pstm, SEEK_SET, 0, 0, 0, 0);		    \
       if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)			    \
         (*pstm->fct_clearerr) (file);					    \
     }									    \
@@ -1191,7 +1191,7 @@ Basic_Call_Fct_Getc(StmInf *pstm)
 
   if (c != EOF)
     for (m = pstm->mirror; m ; m = m->next)
-      Stream_Putc(c, stm_tbl[m->stm]);
+      Pl_Stream_Putc(c, pl_stm_tbl[m->stm]);
  
   return c;
 }
@@ -1211,25 +1211,25 @@ Basic_Call_Fct_Putc(int c, StmInf *pstm)
   (*pstm->fct_putc) (c, pstm->file);
 
   for (m = pstm->mirror; m ; m = m->next)
-    Stream_Putc(c, stm_tbl[m->stm]);
+    Pl_Stream_Putc(c, pl_stm_tbl[m->stm]);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GET_KEY                                                          *
+ * PL_STREAM_GET_KEY                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
+Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 {
   int c;
   long file = pstm->file;
   Bool simulate;
 
 #ifndef NO_USE_LINEDIT
-  if (pstm == stm_tbl[stm_stdin]) /* the stdin stream used with linedit */
+  if (pstm == pl_stm_tbl[pl_stm_stdin]) /* the stdin stream used with linedit */
     simulate = FALSE;
   else
 #endif
@@ -1259,7 +1259,7 @@ Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
       while (Basic_Call_Fct_Getc(pstm) >= ' ')
 	;
 
-      Update_Counters(stm_tbl[stm_stdout], '\n'); /* reflect \n */
+      Update_Counters(pl_stm_tbl[pl_stm_stdout], '\n'); /* reflect \n */
     }
 
   if (c == EOF)
@@ -1277,11 +1277,11 @@ Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GETC                                                             *
+ * PL_STREAM_GETC                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Getc(StmInf *pstm)
+Pl_Stream_Getc(StmInf *pstm)
 {
   int c;
   long file = pstm->file;
@@ -1313,13 +1313,13 @@ Stream_Getc(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_UNGETC                                                           *
+ * PL_STREAM_UNGETC                                                        *
  *                                                                         *
  * Several issues should not occur except if more '\n' are unget than read *
- * (when a Stream_Set_Position() is used the number of read '\n' is 0).    *
+ * (when a Pl_Stream_Set_Position() is used the number of read '\n' is 0). *
  *-------------------------------------------------------------------------*/
 void
-Stream_Ungetc(int c, StmInf *pstm)
+Pl_Stream_Ungetc(int c, StmInf *pstm)
 {
   PB_Push(pstm->pb_char, c);
   pstm->eof_reached = FALSE;
@@ -1345,11 +1345,11 @@ Stream_Ungetc(int c, StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_PEEKC                                                            *
+ * PL_STREAM_PEEKC                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Peekc(StmInf *pstm)
+Pl_Stream_Peekc(StmInf *pstm)
 {
   int c;
   long file = pstm->file;
@@ -1372,11 +1372,11 @@ Stream_Peekc(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GETS                                                             *
+ * PL_STREAM_GETS                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Stream_Gets(char *str, int size, StmInf *pstm)
+Pl_Stream_Gets(char *str, int size, StmInf *pstm)
 {
   int c;
   char *p = str;
@@ -1386,7 +1386,7 @@ Stream_Gets(char *str, int size, StmInf *pstm)
       if (p - str >= size)
 	break;
 
-      c = Stream_Getc(pstm);
+      c = Pl_Stream_Getc(pstm);
 
       if (c == EOF)
 	break;
@@ -1412,26 +1412,26 @@ Stream_Gets(char *str, int size, StmInf *pstm)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
+Pl_Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
 		   char *str, int size, StmInf *pstm_i)
 
 {
 #ifndef NO_USE_LINEDIT
-  char *save_le_prompt = le_prompt;
-  int save_use_le_prompt = use_le_prompt;
-  le_prompt = prompt;
+  char *save_le_prompt = pl_le_prompt;
+  int save_use_le_prompt = pl_use_le_prompt;
+  pl_le_prompt = prompt;
 
-  use_le_prompt = 1;
+  pl_use_le_prompt = 1;
 
   if (pstm_i->fct_getc != TTY_Getc)
 #endif
-    Stream_Printf(pstm_o, prompt);
+    Pl_Stream_Printf(pstm_o, prompt);
 
-  str = Stream_Gets(str, size, pstm_i);
+  str = Pl_Stream_Gets(str, size, pstm_i);
 
 #ifndef NO_USE_LINEDIT
-  use_le_prompt = save_use_le_prompt;
-  le_prompt = save_le_prompt;
+  pl_use_le_prompt = save_use_le_prompt;
+  pl_le_prompt = save_le_prompt;
 #endif
   return str;
 }
@@ -1440,11 +1440,11 @@ Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_PUTC                                                             *
+ * PL_STREAM_PUTC                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stream_Putc(int c, StmInf *pstm)
+Pl_Stream_Putc(int c, StmInf *pstm)
 {
   Basic_Call_Fct_Putc(c, pstm);
   Update_Counters(pstm, c);
@@ -1454,11 +1454,11 @@ Stream_Putc(int c, StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_PUTS                                                             *
+ * PL_STREAM_PUTS                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Puts(char *str, StmInf *pstm)
+Pl_Stream_Puts(char *str, StmInf *pstm)
 {
   char *p;
   int c;
@@ -1477,11 +1477,11 @@ Stream_Puts(char *str, StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_PRINTF                                                           *
+ * PL_STREAM_PRINTF                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Printf(StmInf *pstm, char *format, ...)
+Pl_Stream_Printf(StmInf *pstm, char *format, ...)
 {
   va_list arg_ptr;
   static char str[BIG_BUFFER];
@@ -1507,11 +1507,11 @@ Stream_Printf(StmInf *pstm, char *format, ...)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_FLUSH                                                            *
+ * PL_STREAM_FLUSH                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stream_Flush(StmInf *pstm)
+Pl_Stream_Flush(StmInf *pstm)
 {
   long file = pstm->file;
 
@@ -1523,11 +1523,11 @@ Stream_Flush(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_CLOSE                                                            *
+ * PL_STREAM_CLOSE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Close(StmInf *pstm)
+Pl_Stream_Close(StmInf *pstm)
 {
   long file = pstm->file;
   int ret = 0;
@@ -1542,11 +1542,11 @@ Stream_Close(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_END_OF_STREAM                                                    *
+ * PL_STREAM_END_OF_STREAM                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_End_Of_Stream(StmInf *pstm)
+Pl_Stream_End_Of_Stream(StmInf *pstm)
 {
   int c;
 
@@ -1556,7 +1556,7 @@ Stream_End_Of_Stream(StmInf *pstm)
   if (pstm->eof_reached)
     return STREAM_EOF_PAST;
 
-  c = Stream_Peekc(pstm);
+  c = Pl_Stream_Peekc(pstm);
   if (c == EOF)
     return STREAM_EOF_AT;
 
@@ -1567,11 +1567,11 @@ Stream_End_Of_Stream(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GET_POSITION                                                     *
+ * PL_STREAM_GET_POSITION                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stream_Get_Position(StmInf *pstm, int *offset, int *char_count,
+Pl_Stream_Get_Position(StmInf *pstm, int *offset, int *char_count,
 		    int *line_count, int *line_pos)
 {
   long file = pstm->file;
@@ -1607,11 +1607,11 @@ Stream_Get_Position(StmInf *pstm, int *offset, int *char_count,
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_SET_POSITION                                                     *
+ * PL_STREAM_SET_POSITION                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
+Pl_Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
 		    int line_count, int line_pos)
 {
   long file = pstm->file;
@@ -1646,12 +1646,12 @@ Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_SET_POSITION_LC                                                  *
+ * PL_STREAM_SET_POSITION_LC                                               *
  *                                                                         *
  * Only the line count and the line position are given.                    *
  *-------------------------------------------------------------------------*/
 int
-Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos)
+Pl_Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos)
 {
   long file = pstm->file;
   int x;
@@ -1694,14 +1694,14 @@ Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos)
   p = &(pstm->line_count);
 
   while (*p < line_count)
-    if (Stream_Getc(pstm) == EOF)
+    if (Pl_Stream_Getc(pstm) == EOF)
       goto err;
 
   p = &(pstm->line_pos);
 
   while (*p < line_pos)
     {
-      if ((c = Stream_Getc(pstm)) == EOF)
+      if ((c = Pl_Stream_Getc(pstm)) == EOF)
 	goto err;
       if (c == '\n')
 	goto err;
@@ -1742,12 +1742,12 @@ err:
 
 
 /*-------------------------------------------------------------------------*
- * ADD_STR_STREAM                                                          *
+ * PL_ADD_STR_STREAM                                                       *
  *                                                                         *
  * buff == NULL means output stream mode (str_stream->buff_alloc_size != 0)*
  *-------------------------------------------------------------------------*/
 int
-Add_Str_Stream(char *buff, int prop_other)
+Pl_Add_Str_Stream(char *buff, int prop_other)
 {
   int stm;
   StmInf *pstm;
@@ -1792,7 +1792,7 @@ Add_Str_Stream(char *buff, int prop_other)
   prop.other = prop_other;
 
   stm = Find_Free_Stream();
-  pstm = stm_tbl[stm];
+  pstm = pl_stm_tbl[stm];
 
   Init_Stream_Struct(atom_constant_term_stream, (long) str_stream, prop,
 		     (StmFct) Str_Stream_Getc, (StmFct) Str_Stream_Putc,
@@ -1811,9 +1811,9 @@ Add_Str_Stream(char *buff, int prop_other)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Delete_Str_Stream(int stm)
+Pl_Delete_Str_Stream(int stm)
 {
-  StrSInf *str_stream = (StrSInf *) (stm_tbl[stm]->file);
+  StrSInf *str_stream = (StrSInf *) (pl_stm_tbl[stm]->file);
 
   if (str_stream == &static_str_stream_rd ||
       str_stream == &static_str_stream_wr)
@@ -1827,23 +1827,23 @@ Delete_Str_Stream(int stm)
       Free(str_stream);
     }
 
-  Delete_Stream(stm);
+  Pl_Delete_Stream(stm);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * TERM_WRITE_STR_STREAM                                                   *
+ * PL_TERM_WRITE_STR_STREAM                                                *
  *                                                                         *
  * only needed for output string stream.                                   *
  *-------------------------------------------------------------------------*/
 char *
-Term_Write_Str_Stream(int stm)
+Pl_Term_Write_Str_Stream(int stm)
 {
   StrSInf *str_stream;
 
-  str_stream = (StrSInf *) (stm_tbl[stm]->file);
+  str_stream = (StrSInf *) (pl_stm_tbl[stm]->file);
   *(str_stream->ptr) = '\0';
 
   return str_stream->buff;

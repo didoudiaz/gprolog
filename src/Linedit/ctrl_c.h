@@ -40,6 +40,6 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void Install_Ctrl_C_Handler(long (*handler) (int));
+void Pl_Install_Ctrl_C_Handler(long (*handler) (int));
 
-long Emit_Ctrl_C(void);
+long Pl_Emit_Ctrl_C(void);

@@ -24,8 +24,8 @@
 
 /* $Id$ */
 
-#define MAX_VAR_NAME_LENGTH        256
+#define MAX_VAR_NAME_LENGTH        1024
 
-#define MAX_VAR_IN_TERM            2048
+#define MAX_VAR_IN_TERM            10240
 
 #define MAX_SYS_VARS               256

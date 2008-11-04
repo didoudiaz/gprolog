@@ -25,59 +25,59 @@
 /* $Id$ */
 
 %{
-Bool Fd_Element_V_To_Xi(int i,WamWord *array,Range *v);
-Bool Fd_Atmost(int n,WamWord *array,int v);
-Bool Fd_Atleast(int n,WamWord *array,int v);
-Bool Fd_Exactly(int n,WamWord *array,int v);
+Bool Pl_Fd_Element_V_To_Xi(int i,WamWord *array,Range *v);
+Bool Pl_Fd_Atmost(int n,WamWord *array,int v);
+Bool Pl_Fd_Atleast(int n,WamWord *array,int v);
+Bool Pl_Fd_Exactly(int n,WamWord *array,int v);
 %}
 
 
 
-fd_element(fdv I,l_int L,fdv V)
+pl_fd_element(fdv I,l_int L,fdv V)
 
 {
- start I in Fd_Element_I(L)
- start V in Fd_Element_I_To_V(dom(I),L)
- start I in Fd_Element_V_To_I(dom(V),L)
+ start I in Pl_Fd_Element_I(L)
+ start V in Pl_Fd_Element_I_To_V(dom(I),L)
+ start I in Pl_Fd_Element_V_To_I(dom(V),L)
 }
 
 
 
 
-fd_element_var(fdv I,l_fdv L,fdv V)
+pl_fd_element_var(fdv I,l_fdv L,fdv V)
 
 {
- start I in Fd_Element_Var_I(L)
- start V in Fd_Element_Var_I_To_V(dom(I),L) trigger also on dom(L)
- start I in Fd_Element_Var_V_To_I(dom(V),L) trigger also on dom(L)
- start Fd_Element_V_To_Xi(val(I),L,dom(V))
+ start I in Pl_Fd_Element_Var_I(L)
+ start V in Pl_Fd_Element_Var_I_To_V(dom(I),L) trigger also on dom(L)
+ start I in Pl_Fd_Element_Var_V_To_I(dom(V),L) trigger also on dom(L)
+ start Pl_Fd_Element_V_To_Xi(val(I),L,dom(V))
 }
 
 
 
 
-fd_atmost(int N,l_fdv L,int V)
+pl_fd_atmost(int N,l_fdv L,int V)
 
 {
- start Fd_Atmost(N,L,V) trigger on dom(L) always
+ start Pl_Fd_Atmost(N,L,V) trigger on dom(L) always
 }
 
 
 
 
-fd_atleast(int N,l_fdv L,int V)
+pl_fd_atleast(int N,l_fdv L,int V)
 
 {
- start Fd_Atleast(N,L,V) trigger on dom(L) always
+ start Pl_Fd_Atleast(N,L,V) trigger on dom(L) always
 }
 
 
 
 
-fd_exactly(int N,l_fdv L,int V)
+pl_fd_exactly(int N,l_fdv L,int V)
 
 {
- start Fd_Exactly(N,L,V) trigger on dom(L) always
+ start Pl_Fd_Exactly(N,L,V) trigger on dom(L) always
 }
 
 

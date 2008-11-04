@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : random.pl
-% date    : 9 30 2008
-% time    : 17:26:19
+% date    : 11 4 2008
+% time    : 15:35:22
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/random.pl').
@@ -12,37 +12,37 @@ predicate('$use_random'/0,29,static,private,built_in,[
 
 
 predicate(randomize/0,33,static,private,built_in,[
-    call_c('M_Randomize',[],[]),
+    call_c('Pl_M_Randomize',[],[]),
     proceed]).
 
 
 predicate(set_seed/1,39,static,private,built_in,[
     put_atom(set_seed,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Set_Seed_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Seed_1',[],[x(0)]),
     proceed]).
 
 
 predicate(get_seed/1,46,static,private,built_in,[
     put_atom(get_seed,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Get_Seed_1',[boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Get_Seed_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(random/1,53,static,private,built_in,[
     put_atom(random,1),
     put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Random_1',[],[x(0)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Random_1',[],[x(0)]),
     proceed]).
 
 
 predicate(random/3,60,static,private,built_in,[
     put_atom(random,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('Random_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Random_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

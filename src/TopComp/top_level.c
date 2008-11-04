@@ -27,8 +27,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gprolog.h"
-#include "../TopComp/copying.c"
+#include "../EnginePl/engine_pl.h"
+#include "copying.c"
+
 
 
 
@@ -87,7 +88,7 @@ Main_Wrapper(int argc, char *argv[])
   WamWord word;
 
 
-  Start_Prolog(argc, argv);	/* argc and argv will be changed */
+  Pl_Start_Prolog(argc, argv);	/* argc and argv will be changed */
 
   new_argv = (char **) Malloc(sizeof(char *) * (argc + 1));
   new_argv[new_argc++] = argv[0];
@@ -114,29 +115,29 @@ Main_Wrapper(int argc, char *argv[])
 	  if (Check_Arg(i, "--init-goal"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("Goal missing after --init-goal option");
+		Pl_Fatal_Error("Goal missing after --init-goal option");
 
-	      A(0) = Tag_ATM(Create_Atom(argv[i]));
-	      Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
-	      Reset_Prolog();
+	      A(0) = Tag_ATM(Pl_Create_Atom(argv[i]));
+	      Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
+	      Pl_Reset_Prolog();
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--entry-goal"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("Goal missing after --entry-goal option");
+		Pl_Fatal_Error("Goal missing after --entry-goal option");
 
-	      entry_goal[nb_entry_goal++] = Tag_ATM(Create_Atom(argv[i]));
+	      entry_goal[nb_entry_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--query-goal"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("Goal missing after --query-goal option");
+		Pl_Fatal_Error("Goal missing after --query-goal option");
 
-	      query_goal[nb_query_goal++] = Tag_ATM(Create_Atom(argv[i]));
+	      query_goal[nb_query_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
 	      continue;
 	    }
 
@@ -155,27 +156,27 @@ Main_Wrapper(int argc, char *argv[])
 
   new_argv[new_argc] = NULL;
 
-  os_argc = new_argc;
-  os_argv = new_argv;
+  pl_os_argc = new_argc;
+  pl_os_argv = new_argv;
 
   if (nb_entry_goal)
     {
-      word = Mk_Proper_List(nb_entry_goal, entry_goal);
-      Blt_G_Assign(Tag_ATM(Create_Atom("$cmd_line_entry_goal")), word);
+      word = Pl_Mk_Proper_List(nb_entry_goal, entry_goal);
+      Pl_Blt_G_Assign(Tag_ATM(Pl_Create_Atom("$cmd_line_entry_goal")), word);
     }
   Free(entry_goal);
 
   if (nb_query_goal)
     {
-      word = Mk_Proper_List(nb_query_goal, query_goal);
-      Blt_G_Assign(Tag_ATM(Create_Atom("$cmd_line_query_goal")), word);
+      word = Pl_Mk_Proper_List(nb_query_goal, query_goal);
+      Pl_Blt_G_Assign(Tag_ATM(Pl_Create_Atom("$cmd_line_query_goal")), word);
     }
   Free(query_goal);
 
-  Reset_Prolog();
-  Call_Prolog(Prolog_Predicate(PREDICATE_TOP_LEVEL, 0));
+  Pl_Reset_Prolog();
+  Pl_Call_Prolog(Prolog_Predicate(PREDICATE_TOP_LEVEL, 0));
 
-  Stop_Prolog();
+  Pl_Stop_Prolog();
   return 0;
 }
 

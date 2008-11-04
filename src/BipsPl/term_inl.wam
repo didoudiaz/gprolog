@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : term_inl.pl
-% date    : 9 30 2008
-% time    : 17:26:18
+% date    : 11 4 2008
+% time    : 15:35:21
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
@@ -64,31 +64,31 @@ predicate((=..)/2,69,static,private,built_in,[
 predicate(copy_term/2,75,static,private,built_in,[
     put_atom(copy_term,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Copy_Term_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Copy_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(setarg/3,82,static,private,built_in,[
     put_atom(setarg,3),
     put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     put_atom(true,3),
-    call_c('Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(setarg/4,87,static,private,built_in,[
     put_atom(setarg,4),
     put_integer(4,5),
-    call_c('Set_Bip_Name_2',[],[x(4),x(5)]),
-    call_c('Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(term_ref/2,94,static,private,built_in,[
     put_atom(term_ref,2),
     put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Term_Ref_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Term_Ref_2',[boolean],[x(0),x(1)]),
     proceed]).

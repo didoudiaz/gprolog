@@ -35,7 +35,7 @@
 /*-------------------------------------------------------------------------* 
  * EQUAL (LINEAR)                                                          * 
  *                                                                         * 
- * NB: x_eq_c(fdv X,int C) is defined as a function in math_supp.c to avoid* 
+ * NB: pl_x_eq_c(fdv X,int C) is defined as a function in math_supp.c to avoid* 
  * A Frame creation.                                                       * 
  *-------------------------------------------------------------------------*/
 
@@ -45,7 +45,7 @@
 	 *------------*/
 
 
-x_eq_y(fdv X,fdv Y)
+pl_x_eq_y(fdv X,fdv Y)
 
 {
  start X in min(Y) .. max(Y)
@@ -55,7 +55,7 @@ x_eq_y(fdv X,fdv Y)
 
 
 
-x_plus_c_eq_y(fdv X,int C,fdv Y)
+pl_x_plus_c_eq_y(fdv X,int C,fdv Y)
 
 {
  start X in min(Y) - C .. max(Y) - C
@@ -68,7 +68,7 @@ x_plus_c_eq_y(fdv X,int C,fdv Y)
 	 *------------*/
 
 
-x_eq_y_F(fdv X,fdv Y)
+pl_x_eq_y_F(fdv X,fdv Y)
 
 {
  start X in dom(Y)
@@ -78,7 +78,7 @@ x_eq_y_F(fdv X,fdv Y)
 
 
 
-x_plus_c_eq_y_F(fdv X,int C,fdv Y)
+pl_x_plus_c_eq_y_F(fdv X,int C,fdv Y)
 
 {
  start X in dom(Y) - C
@@ -99,7 +99,7 @@ x_plus_c_eq_y_F(fdv X,int C,fdv Y)
 	 *------------*/
 
 
-x_neq_c(fdv X,int C)
+pl_x_neq_c(fdv X,int C)
 
 {
  start X in ~{C}
@@ -108,7 +108,7 @@ x_neq_c(fdv X,int C)
 
 
 
-x_neq_y(fdv X,fdv Y)
+pl_x_neq_y(fdv X,fdv Y)
 
 {
  start X in ~{val(Y)}
@@ -118,7 +118,7 @@ x_neq_y(fdv X,fdv Y)
 
 
 
-x_plus_c_neq_y(fdv X,int C,fdv Y)
+pl_x_plus_c_neq_y(fdv X,int C,fdv Y)
 
 {
  start X in ~{val(Y) - C}
@@ -139,7 +139,7 @@ x_plus_c_neq_y(fdv X,int C,fdv Y)
 	 *------------*/
 
 
-x_lt_y(fdv X,fdv Y)
+pl_x_lt_y(fdv X,fdv Y)
 
 {
  start X in 0 .. max(Y) - 1
@@ -160,7 +160,7 @@ x_lt_y(fdv X,fdv Y)
 	 *------------*/
 
 
-x_lte_c(fdv X,int C)
+pl_x_lte_c(fdv X,int C)
 
 {
  start X in 0 .. C
@@ -169,7 +169,7 @@ x_lte_c(fdv X,int C)
 
 
 
-x_lte_y(fdv X,fdv Y)
+pl_x_lte_y(fdv X,fdv Y)
 
 {
  start X in 0 .. max(Y)
@@ -179,7 +179,7 @@ x_lte_y(fdv X,fdv Y)
 
 
 
-x_plus_c_lte_y(fdv X,int C,fdv Y)
+pl_x_plus_c_lte_y(fdv X,int C,fdv Y)
 
 {
  start X in 0 .. max(Y) - C
@@ -200,7 +200,7 @@ x_plus_c_lte_y(fdv X,int C,fdv Y)
 	 *------------*/
 
 
-x_gte_c(fdv X,int C)
+pl_x_gte_c(fdv X,int C)
 
 {
  start X in C .. max_integer
@@ -209,7 +209,7 @@ x_gte_c(fdv X,int C)
 
 
 
-x_plus_c_gte_y(fdv X,int C,fdv Y)
+pl_x_plus_c_gte_y(fdv X,int C,fdv Y)
 
 {
  start X in min(Y) - C .. max_integer
@@ -231,7 +231,7 @@ x_plus_c_gte_y(fdv X,int C,fdv Y)
 	 *------------*/
 
 
-ax_eq_y(int A,fdv X,fdv Y)
+pl_ax_eq_y(int A,fdv X,fdv Y)
 
 {
  start X in (min(Y)) /> A .. (max(Y)) /< A
@@ -241,7 +241,7 @@ ax_eq_y(int A,fdv X,fdv Y)
 
 
 
-x_plus_y_eq_z(fdv X,fdv Y,fdv Z)
+pl_x_plus_y_eq_z(fdv X,fdv Y,fdv Z)
 
 {
  start X in min(Z) - max(Y) .. max(Z) - min(Y)
@@ -252,7 +252,7 @@ x_plus_y_eq_z(fdv X,fdv Y,fdv Z)
 
 
 
-ax_plus_y_eq_z(int A,fdv X,fdv Y,fdv Z)
+pl_ax_plus_y_eq_z(int A,fdv X,fdv Y,fdv Z)
 
 {
  start X in (min(Z) - max(Y)) /> A .. (max(Z) - min(Y)) /< A
@@ -263,7 +263,7 @@ ax_plus_y_eq_z(int A,fdv X,fdv Y,fdv Z)
 
 
 
-ax_plus_by_eq_z(int A,fdv X,int B,fdv Y,fdv Z)
+pl_ax_plus_by_eq_z(int A,fdv X,int B,fdv Y,fdv Z)
 
 {
  start X in (min(Z) - B*max(Y)) /> A .. (max(Z) - B*min(Y)) /< A
@@ -274,7 +274,7 @@ ax_plus_by_eq_z(int A,fdv X,int B,fdv Y,fdv Z)
 
 
 
-x_plus_y_plus_z_eq_t(fdv X,fdv Y,fdv Z,fdv T)
+pl_x_plus_y_plus_z_eq_t(fdv X,fdv Y,fdv Z,fdv T)
 
 {
  start X in min(T) - max(Y) - max(Z) .. max(T) - min(Y) - min(Z)
@@ -286,7 +286,7 @@ x_plus_y_plus_z_eq_t(fdv X,fdv Y,fdv Z,fdv T)
 
 
 
-ax_plus_y_plus_z_eq_t(int A,fdv X,fdv Y,fdv Z,fdv T)
+pl_ax_plus_y_plus_z_eq_t(int A,fdv X,fdv Y,fdv Z,fdv T)
 
 {
  start X in (min(T) - max(Y) - max(Z)) /> A .. 
@@ -299,7 +299,7 @@ ax_plus_y_plus_z_eq_t(int A,fdv X,fdv Y,fdv Z,fdv T)
 
 
 
-ax_plus_by_plus_z_eq_t(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
+pl_ax_plus_by_plus_z_eq_t(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
 
 {
  start X in (min(T) - B*max(Y) - max(Z)) /> A .. 
@@ -316,7 +316,7 @@ ax_plus_by_plus_z_eq_t(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
 	 *------------*/
 
 
-ax_eq_y_F(int A,fdv X,fdv Y)
+pl_ax_eq_y_F(int A,fdv X,fdv Y)
 
 {
  start X in (dom(Y)) / A
@@ -326,7 +326,7 @@ ax_eq_y_F(int A,fdv X,fdv Y)
 
 
 
-x_plus_y_eq_z_F(fdv X,fdv Y,fdv Z)
+pl_x_plus_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 {
  start X in dom(Z) -- dom(Y)
@@ -337,7 +337,7 @@ x_plus_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 
 
-ax_plus_y_eq_z_F(int A,fdv X,fdv Y,fdv Z)
+pl_ax_plus_y_eq_z_F(int A,fdv X,fdv Y,fdv Z)
 
 {
  start X in (dom(Z) -- dom(Y)) / A
@@ -348,7 +348,7 @@ ax_plus_y_eq_z_F(int A,fdv X,fdv Y,fdv Z)
 
 
 
-ax_plus_by_eq_z_F(int A,fdv X,int B,fdv Y,fdv Z)
+pl_ax_plus_by_eq_z_F(int A,fdv X,int B,fdv Y,fdv Z)
 
 {
  start X in (dom(Z) -- dom(Y)*B) / A
@@ -359,7 +359,7 @@ ax_plus_by_eq_z_F(int A,fdv X,int B,fdv Y,fdv Z)
 
 
 
-x_plus_y_plus_z_eq_t_F(fdv X,fdv Y,fdv Z,fdv T)
+pl_x_plus_y_plus_z_eq_t_F(fdv X,fdv Y,fdv Z,fdv T)
 
 {
  start X in dom(T) -- dom(Y) -- dom(Z)
@@ -371,7 +371,7 @@ x_plus_y_plus_z_eq_t_F(fdv X,fdv Y,fdv Z,fdv T)
 
 
 
-ax_plus_y_plus_z_eq_t_F(int A,fdv X,fdv Y,fdv Z,fdv T)
+pl_ax_plus_y_plus_z_eq_t_F(int A,fdv X,fdv Y,fdv Z,fdv T)
 
 {
  start X in (dom(T) -- dom(Y) -- dom(Z)) / A
@@ -383,7 +383,7 @@ ax_plus_y_plus_z_eq_t_F(int A,fdv X,fdv Y,fdv Z,fdv T)
 
 
 
-ax_plus_by_plus_z_eq_t_F(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
+pl_ax_plus_by_plus_z_eq_t_F(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
 
 {
  start X in (dom(T) -- dom(Y)*B -- dom(Z)) / A
@@ -406,7 +406,7 @@ ax_plus_by_plus_z_eq_t_F(int A,fdv X,int B,fdv Y,fdv Z,fdv T)
 	 *------------*/
 
 
-zero_power_n_eq_y(fdv N,fdv Y)
+pl_zero_power_n_eq_y(fdv N,fdv Y)
 
 {
  start Y in ite(max(N)==0,1,0)..ite(min(N)==0,1,0)
@@ -417,37 +417,37 @@ zero_power_n_eq_y(fdv N,fdv Y)
 
 
 
-a_power_n_eq_y(int A,fdv N,fdv Y)                           /* here A >= 2 */
+pl_a_power_n_eq_y(int A,fdv N,fdv Y)                           /* here A >= 2 */
 
 {
- start Y in Power(A,min(N))..Power(A,max(N))      /* before to ensure Y>=1 */
- start N in Find_Expon_Up(A,min(Y))..Find_Expon_Dn(A,max(Y))
+ start Y in Pl_Power(A,min(N))..Pl_Power(A,max(N))      /* before to ensure Y>=1 */
+ start N in Pl_Find_Expon_Up(A,min(Y))..Pl_Find_Expon_Dn(A,max(Y))
 }
 
 
 
 
-x_power_a_eq_y(fdv X,int A,fdv Y)                            /* here A > 2 */
+pl_x_power_a_eq_y(fdv X,int A,fdv Y)                            /* here A > 2 */
 
 {
- start Y in Power(min(X),A)..Power(max(X),A)
- start X in Nth_Root_Up(min(Y),A)..Nth_Root_Dn(max(Y),A)
+ start Y in Pl_Power(min(X),A)..Pl_Power(max(X),A)
+ start X in Pl_Nth_Root_Up(min(Y),A)..Pl_Nth_Root_Dn(max(Y),A)
 }
 
 
 
 
-x2_eq_y(fdv X,fdv Y)
+pl_x2_eq_y(fdv X,fdv Y)
 
 {
- start X in Sqrt_Up(min(Y))..Sqrt_Dn(max(Y))
+ start X in Pl_Sqrt_Up(min(Y))..Pl_Sqrt_Dn(max(Y))
  start Y in min(X)*min(X)..max(X)*max(X)
 }
 
 
 
 
-xy_eq_z(fdv X,fdv Y,fdv Z)
+pl_xy_eq_z(fdv X,fdv Y,fdv Z)
 
 {
  start X in ite(max(Y)==0,0,min(Z)/>max(Y)) ..
@@ -464,37 +464,37 @@ xy_eq_z(fdv X,fdv Y,fdv Z)
 	 *  Full AC   * 
 	 *------------*/
 
-a_power_n_eq_y_F(int A,fdv N,fdv Y)                         /* here A >= 2 */
+pl_a_power_n_eq_y_F(int A,fdv N,fdv Y)                         /* here A >= 2 */
 
 {
- start Y in Full_Coeff_Power_Var(A,dom(N))  /* to ensure Y<vec_max_integer */
- start N in Full_Find_Expon(A,dom(Y))
+ start Y in Pl_Full_Coeff_Power_Var(A,dom(N))  /* to ensure Y<pl_vec_max_integer */
+ start N in Pl_Full_Find_Expon(A,dom(Y))
 }
 
 
 
 
-x_power_a_eq_y_F(fdv X,int A,fdv Y)                          /* here A > 2 */
+pl_x_power_a_eq_y_F(fdv X,int A,fdv Y)                          /* here A > 2 */
 
 {
- start Y in Full_Var_Power_Coeff(dom(X),A)  /* to ensure Y<vec_max_integer */
- start X in Full_Nth_Root(dom(Y),A)
+ start Y in Pl_Full_Var_Power_Coeff(dom(X),A)  /* to ensure Y<pl_vec_max_integer */
+ start X in Pl_Full_Nth_Root(dom(Y),A)
 }
 
 
 
 
-x2_eq_y_F(fdv X,fdv Y)
+pl_x2_eq_y_F(fdv X,fdv Y)
 
 {
- start Y in Full_Var_Power_2(dom(X))        /* to ensure Y<vec_max_integer */
- start X in Full_Sqrt_Var(dom(Y))
+ start Y in Pl_Full_Var_Power_2(dom(X))        /* to ensure Y<pl_vec_max_integer */
+ start X in Pl_Full_Sqrt_Var(dom(Y))
 }
 
 
 
 
-xy_eq_z_F(fdv X,fdv Y,fdv Z)
+pl_xy_eq_z_F(fdv X,fdv Y,fdv Z)
 
 {
  start Z in dom(X)**dom(Y)
@@ -529,7 +529,7 @@ xy_eq_z_F(fdv X,fdv Y,fdv Z)
 	 *------------*/
 
 
-min_x_y_eq_z(fdv X,fdv Y,fdv Z)
+pl_min_x_y_eq_z(fdv X,fdv Y,fdv Z)
 
 {
  start (c1) Z in math_min(min(X),min(Y)) .. max_integer   /* Z >= min(X,Y) */
@@ -564,7 +564,7 @@ min_x_y_eq_z(fdv X,fdv Y,fdv Z)
 
 
 
-min_x_a_eq_z(fdv X,int A,fdv Z)
+pl_min_x_a_eq_z(fdv X,int A,fdv Z)
 
 {
  start (c1) Z in math_min(min(X),A) .. max_integer        /* Z >= min(X,A) */
@@ -591,7 +591,7 @@ min_x_a_eq_z(fdv X,int A,fdv Z)
 	 *------------*/
 
 
-min_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
+pl_min_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 {
  start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
@@ -603,7 +603,7 @@ min_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
  start (c5) Y in min(Z) .. max_integer
 
  wait_switch
-	case Range_Test_Null_Inter(dom(Y),dom(Z))         /* case : Y != Z */
+	case Pl_Range_Test_Null_Inter(dom(Y),dom(Z))         /* case : Y != Z */
 		stop c1 
 		stop c2 
 		stop c3
@@ -612,7 +612,7 @@ min_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 		start Z in dom(X)                                 /* Z = X */
 		start X in dom(Z)
 
-	case Range_Test_Null_Inter(dom(X),dom(Z))         /* case : X != Z */
+	case Pl_Range_Test_Null_Inter(dom(X),dom(Z))         /* case : X != Z */
 		stop c1 
 		stop c2 
 		stop c3
@@ -625,7 +625,7 @@ min_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 
 
-min_x_a_eq_z_F(fdv X,int A,fdv Z)
+pl_min_x_a_eq_z_F(fdv X,int A,fdv Z)
 
 {
  start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
@@ -659,7 +659,7 @@ min_x_a_eq_z_F(fdv X,int A,fdv Z)
 	 *------------*/
 
 
-max_x_y_eq_z(fdv X,fdv Y,fdv Z)
+pl_max_x_y_eq_z(fdv X,fdv Y,fdv Z)
 
 {
  start (c1) Z in 0 .. math_max(max(X),max(Y))             /* Z <= max(X,Y) */
@@ -694,7 +694,7 @@ max_x_y_eq_z(fdv X,fdv Y,fdv Z)
 
 
 
-max_x_a_eq_z(fdv X,int A,fdv Z)
+pl_max_x_a_eq_z(fdv X,int A,fdv Z)
 
 {
  start (c1) Z in 0 .. math_max(max(X),A)                  /* Z <= max(X,A) */
@@ -720,7 +720,7 @@ max_x_a_eq_z(fdv X,int A,fdv Z)
 	 *------------*/
 
 
-max_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
+pl_max_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 {
  start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
@@ -733,7 +733,7 @@ max_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 
  wait_switch
-	case Range_Test_Null_Inter(dom(Y),dom(Z))         /* case : Y != Z */
+	case Pl_Range_Test_Null_Inter(dom(Y),dom(Z))         /* case : Y != Z */
 		stop c1 
 		stop c2 
 		stop c3
@@ -742,7 +742,7 @@ max_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 		start Z in dom(X)                                 /* Z = X */
 		start X in dom(Z)
 
-	case Range_Test_Null_Inter(dom(X),dom(Z))         /* case : X != Z */
+	case Pl_Range_Test_Null_Inter(dom(X),dom(Z))         /* case : X != Z */
 		stop c1 
 		stop c2 
 		stop c3
@@ -755,7 +755,7 @@ max_x_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 
 
-max_x_a_eq_z_F(fdv X,int A,fdv Z)
+pl_max_x_a_eq_z_F(fdv X,int A,fdv Z)
 
 {
  start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
@@ -789,7 +789,7 @@ max_x_a_eq_z_F(fdv X,int A,fdv Z)
 	 *------------*/
 
 
-abs_x_minus_y_eq_z(fdv X,fdv Y,fdv Z)
+pl_abs_x_minus_y_eq_z(fdv X,fdv Y,fdv Z)
 
 {
  start (c1) X in min(Y) + min(Z) .. max(Y) + max(Z) :
@@ -825,7 +825,7 @@ abs_x_minus_y_eq_z(fdv X,fdv Y,fdv Z)
 	 *------------*/
 
 
-abs_x_minus_a_eq_z(fdv X,int A,fdv Z)
+pl_abs_x_minus_a_eq_z(fdv X,int A,fdv Z)
 
 {
  start (c1) X in A + min(Z) .. A + max(Z) :
@@ -849,7 +849,7 @@ abs_x_minus_a_eq_z(fdv X,int A,fdv Z)
 }
 
 
-abs_x_minus_y_eq_z_F(fdv X,fdv Y,fdv Z)
+pl_abs_x_minus_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 {
  start (c1) X in dom(Y) ++ dom(Z) :
@@ -882,7 +882,7 @@ abs_x_minus_y_eq_z_F(fdv X,fdv Y,fdv Z)
 
 
 
-abs_x_minus_a_eq_z_F(fdv X,int A,fdv Z)
+pl_abs_x_minus_a_eq_z_F(fdv X,int A,fdv Z)
 
 {
  start (c1) X in dom(Z) + A :
@@ -919,7 +919,7 @@ abs_x_minus_a_eq_z_F(fdv X,int A,fdv Z)
 	 *------------*/
 
 
-quot_rem_x_y_r_eq_z(fdv X,fdv Y,fdv R,fdv Z)                  /* X = Z*Y+R */
+pl_quot_rem_x_y_r_eq_z(fdv X,fdv Y,fdv R,fdv Z)                  /* X = Z*Y+R */
 
 {
  start Y in min(R)+1 .. max_integer                               /* R < Y */
@@ -941,7 +941,7 @@ quot_rem_x_y_r_eq_z(fdv X,fdv Y,fdv R,fdv Z)                  /* X = Z*Y+R */
 
 
 
-quot_rem_a_y_r_eq_z(int A,fdv Y,fdv R,fdv Z)                  /* A = Z*Y+R */
+pl_quot_rem_a_y_r_eq_z(int A,fdv Y,fdv R,fdv Z)                  /* A = Z*Y+R */
 
 {
  start Y in min(R)+1 .. max_integer                               /* R < Y */
@@ -960,7 +960,7 @@ quot_rem_a_y_r_eq_z(int A,fdv Y,fdv R,fdv Z)                  /* A = Z*Y+R */
 
 
 
-quot_rem_x_a_r_eq_z(fdv X,int A,fdv R,fdv Z)                  /* X = Z*A+R */
+pl_quot_rem_x_a_r_eq_z(fdv X,int A,fdv R,fdv Z)                  /* X = Z*A+R */
 {
  start R in 0        .. A-1                                       /* R < A */
 
@@ -977,7 +977,7 @@ quot_rem_x_a_r_eq_z(fdv X,int A,fdv R,fdv Z)                  /* X = Z*A+R */
 	 *------------*/
 
 
-quot_rem_x_y_r_eq_z_F(fdv X,fdv Y,fdv R,fdv Z)                /* X = Z*Y+R */
+pl_quot_rem_x_y_r_eq_z_F(fdv X,fdv Y,fdv R,fdv Z)                /* X = Z*Y+R */
 
 {
  start Y in min(R)+1 .. max_integer                               /* R < Y */
@@ -998,7 +998,7 @@ quot_rem_x_y_r_eq_z_F(fdv X,fdv Y,fdv R,fdv Z)                /* X = Z*Y+R */
 
 
 
-quot_rem_a_y_r_eq_z_F(int A,fdv Y,fdv R,fdv Z)                /* A = Z*Y+R */
+pl_quot_rem_a_y_r_eq_z_F(int A,fdv Y,fdv R,fdv Z)                /* A = Z*Y+R */
 
 {
  start Y in min(R)+1 .. max_integer                               /* R < Y */
@@ -1017,7 +1017,7 @@ quot_rem_a_y_r_eq_z_F(int A,fdv Y,fdv R,fdv Z)                /* A = Z*Y+R */
 
 
 
-quot_rem_x_a_r_eq_z_F(fdv X,int A,fdv R,fdv Z)                /* X = Z*A+R */
+pl_quot_rem_x_a_r_eq_z_F(fdv X,int A,fdv R,fdv Z)                /* X = Z*A+R */
 {
  start R in 0        .. A-1                                       /* R < A */
 

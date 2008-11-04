@@ -24,17 +24,17 @@
 
 /* $Id$ */
 
-prime_x(fdv X)
+pl_prime_x(fdv X)
 
 {
- start X in Prime_Range(0)
+ start X in Pl_Prime_Range(0)
 }
 
 
-not_prime_x(fdv X)
+pl_not_prime_x(fdv X)
 
 {
- start X in Not_Prime_Range(0)
+ start X in Pl_Not_Prime_Range(0)
 }
 
 

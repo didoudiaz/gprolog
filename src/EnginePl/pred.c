@@ -55,26 +55,26 @@
 
 
 /*-------------------------------------------------------------------------*
- * INIT_PRED                                                               *
+ * PL_INIT_PRED                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Pred(void)
+Pl_Init_Pred(void)
 {
-  pred_tbl = Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+  pl_pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_PRED                                                             *
+ * PL_CREATE_PRED                                                          *
  *                                                                         *
  * Called by compiled prolog code, by dynamic predicate support and by     *
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
+Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
 	    long *codep)
 {
   PredInf pred_info;
@@ -83,7 +83,7 @@ Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
 
 
 #ifdef DEBUG
-  DBGPRINTF("Create pred: %s/%d  prop: %x\n", atom_tbl[func].name, arity,
+  DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity,
 	    prop);
 #endif
 
@@ -94,8 +94,8 @@ Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
   pred_info.codep = codep;
   pred_info.dyn = NULL;
 
-  Extend_Table_If_Needed(&pred_tbl);
-  pred = (PredInf *) Hash_Insert(pred_tbl, (char *) &pred_info, FALSE);
+  Pl_Extend_Table_If_Needed(&pl_pred_tbl);
+  pred = (PredInf *) Pl_Hash_Insert(pl_pred_tbl, (char *) &pred_info, FALSE);
 
   return pred;
 }
@@ -104,28 +104,28 @@ Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
 
 
 /*-------------------------------------------------------------------------*
- * LOOKUP_PRED                                                             *
+ * PL_LOOKUP_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Lookup_Pred(int func, int arity)
+Pl_Lookup_Pred(int func, int arity)
 {
   long key = Functor_Arity(func, arity);
 
-  return (PredInf *) Hash_Find(pred_tbl, key);
+  return (PredInf *) Pl_Hash_Find(pl_pred_tbl, key);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * DELETE_PRED                                                             *
+ * PL_DELETE_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Delete_Pred(int func, int arity)
+Pl_Delete_Pred(int func, int arity)
 {
   long key = Functor_Arity(func, arity);
 
-  Hash_Delete(pred_tbl, key);
+  Pl_Hash_Delete(pl_pred_tbl, key);
 }

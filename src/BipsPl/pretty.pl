@@ -31,7 +31,7 @@
 
 portray_clause(Term) :-
 	'$portray_clause'(Term, 1),
-	'$call_c'('Portray_Clause_1'(Term)),
+	'$call_c'('Pl_Portray_Clause_1'(Term)),
 	fail.
 
 portray_clause(_).
@@ -41,7 +41,7 @@ portray_clause(_).
 
 portray_clause(SorA, Term) :-
 	'$portray_clause'(Term, 2),
-	'$call_c'('Portray_Clause_2'(SorA, Term)),
+	'$call_c'('Pl_Portray_Clause_2'(SorA, Term)),
 	fail.
 
 portray_clause(_, _).
@@ -68,14 +68,14 @@ portray_clause(_, _).
 
 name_singleton_vars(Term) :-
 	set_bip_name(name_singleton_vars, 1),
-	'$call_c'('Name_Singleton_Vars_1'(Term)).
+	'$call_c'('Pl_Name_Singleton_Vars_1'(Term)).
 
 
 
 
 name_query_vars(QueryVars, RestVars) :-
 	set_bip_name(name_query_vars, 2),
-	'$call_c_test'('Name_Query_Vars_2'(QueryVars, RestVars)).
+	'$call_c_test'('Pl_Name_Query_Vars_2'(QueryVars, RestVars)).
 
 
 
@@ -90,7 +90,7 @@ bind_variables(Term, Options) :-
 
 
 '$bind_variables'(Term, Exclude, From, Next) :-
-	'$call_c_test'('Bind_Variables_4'(Term, Exclude, From, Next)).
+	'$call_c_test'('Pl_Bind_Variables_4'(Term, Exclude, From, Next)).
 
 
 

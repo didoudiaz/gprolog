@@ -33,7 +33,7 @@ Dist_LE(Range *s1, long s2, long d, long size_y)
   int size_x = size_y;
 
   Vector_Allocate(s1->vec);
-  Vector_Empty(s1->vec);
+  Pl_Vector_Empty(s1->vec);
 
   for(x2 = x1 - d; x2 <= x1 + d; x2++)
     {
@@ -48,5 +48,5 @@ Dist_LE(Range *s1, long s2, long d, long size_y)
 	  Vector_Set_Value(s1->vec, x2 * size_y + y2);
     }
 
-  Range_From_Vector(s1);
+  Pl_Range_From_Vector(s1);
 }

@@ -38,17 +38,17 @@
 
 #ifdef TERM_SUPP_FILE
 
-WamWord pi_name_word;
-WamWord pi_arity_word;
+WamWord pl_pi_name_word;
+WamWord pl_pi_arity_word;
 
-long glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
+long pl_glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
 
 #else
 
-extern WamWord pi_name_word;
-extern WamWord pi_arity_word;
+extern WamWord pl_pi_name_word;
+extern WamWord pl_pi_arity_word;
 
-extern long glob_dico_var[];
+extern long pl_glob_dico_var[];
 
 #endif
 
@@ -59,7 +59,7 @@ extern long glob_dico_var[];
  * Function Prototypes             *
  *---------------------------------*/
 
-long Term_Compare(WamWord start_u_word, WamWord start_v_word);
+long Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word);
 
 Bool Is_List(WamWord start_word);
 
@@ -67,16 +67,16 @@ Bool Is_Partial_List(WamWord start_word);
 
 Bool Is_List_Or_Partial(WamWord start_word);
 
-void Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,
+void Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,
 			void (*fct) ());
 
-int List_Length(WamWord start_word);
+int Pl_List_Length(WamWord start_word);
 
-int Term_Size(WamWord start_word);
+int Pl_Term_Size(WamWord start_word);
 
-void Copy_Term(WamWord *dst_adr, WamWord *src_adr);
+void Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr);
 
-void Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
+void Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 
-int Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
+int Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 		       int *arity);

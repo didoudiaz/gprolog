@@ -67,11 +67,11 @@ static void Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p);
 
 
 /*-------------------------------------------------------------------------*
- * TERM_COMPARE                                                            *
+ * PL_TERM_COMPARE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-Term_Compare(WamWord start_u_word, WamWord start_v_word)
+Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
 {
   WamWord u_word, u_tag_mask;
   WamWord v_word, v_tag_mask;
@@ -113,8 +113,8 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
       if (v_tag != FLT)
 	return -1;
 
-      d1 = Obtain_Float(UnTag_FLT(u_word));
-      d2 = Obtain_Float(UnTag_FLT(v_word));
+      d1 = Pl_Obtain_Float(UnTag_FLT(u_word));
+      d2 = Pl_Obtain_Float(UnTag_FLT(v_word));
       return (d1 < d2) ? -1 : (d1 == d2) ? 0 : 1;
 
 
@@ -136,26 +136,26 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
 	  v_tag == FLT || v_tag == INT)
 	return 1;
 
-      return (v_tag != ATM) ? -1 : strcmp(atom_tbl[UnTag_ATM(u_word)].name,
-					  atom_tbl[UnTag_ATM(v_word)].name);
+      return (v_tag != ATM) ? -1 : strcmp(pl_atom_tbl[UnTag_ATM(u_word)].name,
+					  pl_atom_tbl[UnTag_ATM(v_word)].name);
     }
 
 				/* u_tag == LST / STC */
 
-  v_arg_adr = Rd_Compound(v_word, &v_func, &v_arity);
+  v_arg_adr = Pl_Rd_Compound(v_word, &v_func, &v_arity);
   if (v_arg_adr == NULL)	/* v_tag != LST / STC */
     return 1;
 
-  u_arg_adr = Rd_Compound(u_word, &u_func, &u_arity);
+  u_arg_adr = Pl_Rd_Compound(u_word, &u_func, &u_arity);
 
   if (u_arity != v_arity)
     return u_arity - v_arity;
 
   if (u_func != v_func)
-    return strcmp(atom_tbl[u_func].name, atom_tbl[v_func].name);
+    return strcmp(pl_atom_tbl[u_func].name, pl_atom_tbl[v_func].name);
 
   for (i = 0; i < u_arity; i++)
-    if ((x = Term_Compare(*u_arg_adr++, *v_arg_adr++)) != 0)
+    if ((x = Pl_Term_Compare(*u_arg_adr++, *v_arg_adr++)) != 0)
       return x;
 
   return 0;
@@ -165,12 +165,12 @@ Term_Compare(WamWord start_u_word, WamWord start_v_word)
 
 
 /*-------------------------------------------------------------------------*
- * TREAT_VARS_OF_TERM                                                      *
+ * PL_TREAT_VARS_OF_TERM                                                   *
  *                                                                         *
  * Call fct for each variable found in a term.                             *
  *-------------------------------------------------------------------------*/
 void
-Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, void (*fct) ())
+Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, void (*fct) ())
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -196,7 +196,7 @@ terminal_rec:
     case LST:
       adr = UnTag_LST(word);
       adr = &Car(adr);
-      Treat_Vars_Of_Term(*adr++, generic_var, fct);
+      Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct);
 
       start_word = *adr;
       goto terminal_rec;
@@ -206,7 +206,7 @@ terminal_rec:
       i = Arity(adr);
       adr = &Arg(adr, 0);
       while (--i)
-	Treat_Vars_Of_Term(*adr++, generic_var, fct);
+	Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct);
 
       start_word = *adr;
       goto terminal_rec;
@@ -217,14 +217,14 @@ terminal_rec:
 
 
 /*-------------------------------------------------------------------------*
- * LIST_LENGTH                                                             *
+ * PL_LIST_LENGTH                                                          *
  *                                                                         *
  * returns the length of a list or < 0 if not a list:                      *
  * -1: instantation error                                                  *
  * -2: type error (type_list)                                              *
  *-------------------------------------------------------------------------*/
 int
-List_Length(WamWord start_word)
+Pl_List_Length(WamWord start_word)
 {
   WamWord word, tag_mask;
   int n = 0;
@@ -251,11 +251,11 @@ List_Length(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * TERM_SIZE                                                               *
+ * PL_TERM_SIZE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Term_Size(WamWord start_word)
+Pl_Term_Size(WamWord start_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -283,7 +283,7 @@ terminal_rec:
     case LST:
       adr = UnTag_LST(word);
       adr = &Car(adr);
-      n += 1 + Term_Size(*adr++);
+      n += 1 + Pl_Term_Size(*adr++);
       start_word = *adr;
       goto terminal_rec;
 
@@ -294,7 +294,7 @@ terminal_rec:
       i = Arity(adr);
       adr = &Arg(adr, 0);
       while (--i)
-	n += Term_Size(*adr++);
+	n += Pl_Term_Size(*adr++);
 
       start_word = *adr;
       goto terminal_rec;
@@ -308,12 +308,12 @@ terminal_rec:
 
 
 /*-------------------------------------------------------------------------*
- * COPY_TERM                                                               *
+ * PL_COPY_TERM                                                            *
  *                                                                         *
  * Copy a non contiguous term, the result is a contiguous term.            *
  *-------------------------------------------------------------------------*/
 void
-Copy_Term(WamWord *dst_adr, WamWord *src_adr)
+Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr)
 {
   WamWord *qtop, *base;
   WamWord *p;
@@ -370,7 +370,7 @@ terminal_rec:
 	}
 
       if (top_vars >= end_vars)
-	Pl_Err_Representation(representation_too_many_variables);
+	Pl_Err_Representation(pl_representation_too_many_variables);
 
       *top_vars++ = word;	                /* word to restore    */
       *top_vars++ = (WamWord) adr;	        /* address to restore */
@@ -388,7 +388,7 @@ terminal_rec:
 	}
 
       if (top_vars >= end_vars)
-	Pl_Err_Representation(representation_too_many_variables);
+	Pl_Err_Representation(pl_representation_too_many_variables);
 
       *top_vars++ = word;	        /* word to restore    */
       *top_vars++ = (WamWord) adr;	/* address to restore */
@@ -454,12 +454,12 @@ terminal_rec:
 
 
 /*-------------------------------------------------------------------------*
- * COPY_CONTIGUOUS_TERM                                                    *
+ * PL_COPY_CONTIGUOUS_TERM                                                 *
  *                                                                         *
  * Copy a contiguous term (dereferenced), the result is a contiguous term. *
  *-------------------------------------------------------------------------*/
 void
-Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr)
+Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr)
 #define Old_Adr_To_New_Adr(adr)  ((dst_adr)+((adr)-(src_adr)))
 {
   WamWord word, *adr;
@@ -477,7 +477,7 @@ terminal_rec:
       q = Old_Adr_To_New_Adr(adr);
       *dst_adr = Tag_REF(q);
       if (adr > src_adr)	/* only useful for Dont_Separate_Tag */
-	Copy_Contiguous_Term(q, adr);
+	Pl_Copy_Contiguous_Term(q, adr);
       return;
 
 #ifndef NO_USE_FD_SOLVER
@@ -503,7 +503,7 @@ terminal_rec:
       *dst_adr = Tag_LST(q);
       q = &Car(q);
       adr = &Car(adr);
-      Copy_Contiguous_Term(q++, adr++);
+      Pl_Copy_Contiguous_Term(q++, adr++);
       dst_adr = q;
       src_adr = adr;
       goto terminal_rec;
@@ -520,7 +520,7 @@ terminal_rec:
       q = &Arg(q, 0);
       adr = &Arg(adr, 0);
       while (--i)
-	Copy_Contiguous_Term(q++, adr++);
+	Pl_Copy_Contiguous_Term(q++, adr++);
 
       dst_adr = q;
       src_adr = adr;
@@ -536,13 +536,13 @@ terminal_rec:
 
 
 /*-------------------------------------------------------------------------*
- * GET_PRED_INDICATOR                                                      *
+ * PL_GET_PRED_INDICATOR                                                   *
  *                                                                         *
  * returns the functor and initializes the arity of the predicate indicator*
  * func= -1 if it is a variable, arity= -1 if it is a variable             *
  *-------------------------------------------------------------------------*/
 int
-Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
+Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
 {
   WamWord word, tag_mask;
   int func;
@@ -551,47 +551,47 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
   if (tag_mask == TAG_REF_MASK && must_be_ground)
     Pl_Err_Instantiation();
 
-  if (!Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word))
+  if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word))
     {
       if (!Flag_Value(FLAG_STRICT_ISO) &&
-	  Rd_Callable(word, &func, arity) != NULL)
+	  Pl_Rd_Callable(word, &func, arity) != NULL)
 	return func;
 
-      Pl_Err_Type(type_predicate_indicator, pred_indic_word);
+      Pl_Err_Type(pl_type_predicate_indicator, pred_indic_word);
     }
 
-  pi_name_word = Unify_Variable();
-  pi_arity_word = Unify_Variable();
+  pl_pi_name_word = Pl_Unify_Variable();
+  pl_pi_arity_word = Pl_Unify_Variable();
 
   if (must_be_ground)
-    func = Rd_Atom_Check(pi_name_word);
+    func = Pl_Rd_Atom_Check(pl_pi_name_word);
   else
     {
-      DEREF(pi_name_word, word, tag_mask);
+      DEREF(pl_pi_name_word, word, tag_mask);
       if (tag_mask == TAG_REF_MASK)
 	func = -1;
       else
-	func = Rd_Atom_Check(pi_name_word);
+	func = Pl_Rd_Atom_Check(pl_pi_name_word);
     }
 
   if (must_be_ground)
     {
-      *arity = Rd_Positive_Check(pi_arity_word);
+      *arity = Pl_Rd_Positive_Check(pl_pi_arity_word);
 
       if (*arity > MAX_ARITY)
-	Pl_Err_Representation(representation_max_arity);
+	Pl_Err_Representation(pl_representation_max_arity);
     }
   else
     {
-      DEREF(pi_arity_word, word, tag_mask);
+      DEREF(pl_pi_arity_word, word, tag_mask);
       if (tag_mask == TAG_REF_MASK)
 	*arity = -1;
       else
 	{
-	  *arity = Rd_Positive_Check(pi_arity_word);
+	  *arity = Pl_Rd_Positive_Check(pl_pi_arity_word);
 
 	  if (*arity > MAX_ARITY)
-	    Pl_Err_Representation(representation_max_arity);
+	    Pl_Err_Representation(pl_representation_max_arity);
 	}
     }
 
@@ -602,16 +602,16 @@ Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
 
 
 /*-------------------------------------------------------------------------*
- * GET_PRED_INDIC_3                                                        *
+ * PL_GET_PRED_INDIC_3                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
+Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
 		 WamWord arity_word)
 {
   int func, arity;
 
-  func = Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
-  return Get_Atom(func, func_word) && Get_Integer(arity, arity_word);
+  return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
 }

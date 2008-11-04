@@ -6,7 +6,7 @@
 int no;
 
 void
-Fatal_Error(char *msg)
+Pl_Fatal_Error(char *msg)
 {
   fprintf(stderr, msg);
   fprintf(stderr, "\n");
@@ -21,7 +21,7 @@ main()
   setbuf(stderr, NULL);
 #endif
   puts("starting...");
-  Find_Linked_Objects();
+  Pl_Find_Linked_Objects();
   if (no != 1) {
     printf("error: all objects are not found (last #: %d instead of 1)", no);
     exit(1);

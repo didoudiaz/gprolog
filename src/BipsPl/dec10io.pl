@@ -143,14 +143,14 @@ append(_) :-
 
 get0(X) :-
 	set_bip_name(get0, 1),
-	'$call_c_test'('Get_Code_1'(X)).
+	'$call_c_test'('Pl_Get_Code_1'(X)).
 
 
 
 get(X) :-
 	set_bip_name(get, 1),
 	'$check_in_character_code'(X),
-	'$call_c_test'('Get_Code_1'(X0)),
+	'$call_c_test'('Pl_Get_Code_1'(X0)),
 	(   X0 =< 32 ->
 	    get(X)
 	;   X = X0
@@ -158,14 +158,14 @@ get(X) :-
 
 put(X) :-
 	set_bip_name(put, 1),
-	'$call_c'('Put_Code_1'(X)).
+	'$call_c'('Pl_Put_Code_1'(X)).
 
 
 skip(X) :-
 	set_bip_name(skip, 1),
 	'$check_in_character_code'(X),
 	repeat,
-	'$call_c_test'('Get_Code_1'(X0)),
+	'$call_c_test'('Pl_Get_Code_1'(X0)),
 	X0 = X, !.
 
 

@@ -157,13 +157,13 @@
 
 #ifdef FD_INST_FILE
 
-WamWord vec_size;
-WamWord vec_max_integer;
+WamWord pl_vec_size;
+WamWord pl_vec_max_integer;
 
 #else
 
-extern WamWord vec_size;
-extern WamWord vec_max_integer;
+extern WamWord pl_vec_size;
+extern WamWord pl_vec_max_integer;
 
 #endif
 
@@ -174,76 +174,76 @@ extern WamWord vec_max_integer;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamWord *Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok);
+WamWord *Pl_Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok);
 
-Range *Fd_Prolog_To_Range(WamWord list_word);
+Range *Pl_Fd_Prolog_To_Range(WamWord list_word);
 
-int Fd_Prolog_To_Value(WamWord arg_word);
+int Pl_Fd_Prolog_To_Value(WamWord arg_word);
 
-WamWord *Fd_Prolog_To_Array_Int(WamWord list_word);
+WamWord *Pl_Fd_Prolog_To_Array_Int(WamWord list_word);
 
-WamWord *Fd_Prolog_To_Array_Any(WamWord list_word);
+WamWord *Pl_Fd_Prolog_To_Array_Any(WamWord list_word);
 
-WamWord *Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok);
+WamWord *Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok);
 
-void Fd_List_Int_To_Range(Range *range, WamWord list_word);
+void Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word);
 
-WamWord *Fd_New_Variable(void);
+WamWord *Pl_Fd_New_Variable(void);
 
-WamWord *Fd_New_Bool_Variable(void);
+WamWord *Pl_Fd_New_Bool_Variable(void);
 
-WamWord *Fd_New_Int_Variable(int n);
+WamWord *Pl_Fd_New_Int_Variable(int n);
 
-WamWord *Fd_Create_C_Frame(long (*cstr_fct) (), WamWord *AF,
+WamWord *Pl_Fd_Create_C_Frame(long (*cstr_fct) (), WamWord *AF,
 			   WamWord *fdv_adr, Bool optim2);
 
-void Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF);
+void Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF);
 
-void Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF);
-
-
-
-void Fd_Before_Add_Cstr(void);
-
-Bool Fd_After_Add_Cstr(void);
-
-void Fd_Stop_Constraint(WamWord *CF);
+void Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF);
 
 
 
-Bool Fd_Tell_Value(WamWord *fdv_adr, int n);
+void Pl_Fd_Before_Add_Cstr(void);
 
-Bool Fd_Tell_Not_Value(WamWord *fdv_adr, int n);
+Bool Pl_Fd_After_Add_Cstr(void);
 
-Bool Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range);
-
-Bool Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max);
-
-Bool Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range);
-
-void Fd_Display_Extra_Cstr(WamWord *fdv_adr);
+void Pl_Fd_Stop_Constraint(WamWord *CF);
 
 
 
-void Fd_Init_Solver0(void);
+Bool Pl_Fd_Tell_Value(WamWord *fdv_adr, int n);
 
-void Fd_Reset_Solver0(void);
+Bool Pl_Fd_Tell_Not_Value(WamWord *fdv_adr, int n);
 
-Bool Fd_Assign_Value(WamWord *fdv_adr, int n);
+Bool Pl_Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range);
 
-Bool Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
+Bool Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max);
 
-Bool Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
+Bool Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range);
 
-Bool Fd_Use_Vector(WamWord *fdv_adr);
+void Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr);
 
-Bool Fd_Check_For_Bool_Var(WamWord x_word);
 
-int Fd_Variable_Size0(WamWord *fdv_adr);
 
-int Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
+void Pl_Fd_Init_Solver0(void);
 
-char *Fd_Variable_To_String0(WamWord *fdv_adr);
+void Pl_Fd_Reset_Solver0(void);
+
+Bool Pl_Fd_Assign_Value(WamWord *fdv_adr, int n);
+
+Bool Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
+
+Bool Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
+
+Bool Pl_Fd_Use_Vector(WamWord *fdv_adr);
+
+Bool Pl_Fd_Check_For_Bool_Var(WamWord x_word);
+
+int Pl_Fd_Variable_Size0(WamWord *fdv_adr);
+
+int Pl_Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
+
+char *Pl_Fd_Variable_To_String0(WamWord *fdv_adr);
 
 
 
@@ -254,4 +254,4 @@ char *Fd_Variable_To_String0(WamWord *fdv_adr);
     Pl_Err_Instantiation();                                     \
                                                                 \
   if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FDV_MASK)     \
-    Pl_Err_Type(type_fd_variable, word)
+    Pl_Err_Type(pl_type_fd_variable, word)

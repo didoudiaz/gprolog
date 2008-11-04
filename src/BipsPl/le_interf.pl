@@ -31,42 +31,42 @@
 
 get_linedit_prompt(Prompt) :-
 	set_bip_name(get_linedit_prompt, 1),
-	'$call_c_test'('Get_Linedit_Prompt_1'(Prompt)).
+	'$call_c_test'('Pl_Get_Linedit_Prompt_1'(Prompt)).
 
 
 
 
 '$get_linedit_prompt'(Prompt) :-
-	'$call_c_test'('Get_Linedit_Prompt_1'(Prompt)).
+	'$call_c_test'('Pl_Get_Linedit_Prompt_1'(Prompt)).
 
 
 
 
 set_linedit_prompt(Prompt) :-
 	set_bip_name(set_linedit_prompt, 1),
-	'$call_c'('Set_Linedit_Prompt_1'(Prompt)).
+	'$call_c'('Pl_Set_Linedit_Prompt_1'(Prompt)).
 
 
 
 
 '$set_linedit_prompt'(Prompt) :-
-	'$call_c'('Set_Linedit_Prompt_1'(Prompt)).
+	'$call_c'('Pl_Set_Linedit_Prompt_1'(Prompt)).
 
 
 
 
 add_linedit_completion(Compl) :-
 	set_bip_name(add_linedit_completion, 1),
-	'$call_c_test'('Add_Linedit_Completion_1'(Compl)).
+	'$call_c_test'('Pl_Add_Linedit_Completion_1'(Compl)).
 
 
 
 
 find_linedit_completion(Prefix, Compl) :-
 	set_bip_name(find_linedit_completion, 2),
-	'$call_c_test'('Find_Linedit_Completion_2'(Prefix, Compl)).
+	'$call_c_test'('Pl_Find_Linedit_Completion_2'(Prefix, Compl)).
 
 
 
 '$find_linedit_completion_alt' :-   % used by C code to create a choice-point
-	'$call_c_test'('Find_Linedit_Completion_Alt_0').
+	'$call_c_test'('Pl_Find_Linedit_Completion_Alt_0').

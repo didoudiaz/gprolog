@@ -24,14 +24,16 @@
 
 /* $Id$ */
 
+
+#ifndef _FD_TO_C_H
+#define _FD_TO_C_H
+
 #include <stdio.h>
 
-#if 0
-#include "engine_pl.h"
+#include "../EnginePl/pl_params.h"
+#include "../EnginePl/wam_archi.h"
 #include "engine_fd.h"
-#else
-#include "gprolog.h"
-#endif
+
 
 
 
@@ -93,25 +95,25 @@
 
 
 #define fd_int_in_a_frame(arg, offset)			\
-  AF[offset] = (WamWord) Fd_Prolog_To_Value(fd_##arg);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Value(fd_##arg);
 
 
 
 
 #define fd_range_in_a_frame(arg, offset)			\
-  AF[offset] = (WamWord) Fd_Prolog_To_Range(fd_##arg);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Range(fd_##arg);
 
 
 
 
 #define fd_fdv_in_a_frame(arg, offset)				\
-  AF[offset] = (WamWord) Fd_Prolog_To_Fd_Var(fd_##arg, TRUE);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Fd_Var(fd_##arg, TRUE);
 
 
 
 
 #define fd_fdv_in_a_frame(arg, offset)				\
-  AF[offset] = (WamWord) Fd_Prolog_To_Fd_Var(fd_##arg, TRUE);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Fd_Var(fd_##arg, TRUE);
 
 
 
@@ -123,7 +125,7 @@
 
 
 #define fd_l_int_in_a_frame(arg, offset)			\
-  AF[offset] = (WamWord) Fd_Prolog_To_Array_Int(fd_##arg);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Array_Int(fd_##arg);
 
 
 
@@ -135,13 +137,13 @@
 
 
 #define fd_l_fdv_in_a_frame(arg, offset)				\
-  AF[offset] = (WamWord) Fd_Prolog_To_Array_Fdv(fd_##arg, TRUE);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Array_Fdv(fd_##arg, TRUE);
 
 
 
 
 #define fd_l_any_in_a_frame(arg, offset)			\
-  AF[offset] = (WamWord) Fd_Prolog_To_Array_Any(fd_##arg);
+  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Array_Any(fd_##arg);
 
 
 
@@ -201,7 +203,7 @@
 	  goto lab_exit;					\
 	}							\
 								\
-      Fd_Stop_Constraint(CF);					\
+      Pl_Fd_Stop_Constraint(CF);					\
     }								\
 }
 
@@ -212,7 +214,7 @@
 
 #define fd_stop_constraint(offset)					  \
   if (AF[offset])                                                         \
-    Fd_Stop_Constraint((WamWord *) (AF[offset]));
+    Pl_Fd_Stop_Constraint((WamWord *) (AF[offset]));
 
 
 
@@ -220,7 +222,7 @@
 	  /* Install instructions */
 
 #define fd_create_c_frame(fct_name, tell_fv, optim2)			   \
-  CF = Fd_Create_C_Frame(fct_name, AF, 					   \
+  CF = Pl_Fd_Create_C_Frame(fct_name, AF, 					   \
                          (tell_fv == -1) ? NULL : Frame_Variable(tell_fv), \
                          optim2);
 
@@ -228,13 +230,13 @@
 
 
 #define fd_add_dependency(fv, ch)				\
-  Fd_Add_Dependency(Frame_Variable(fv), chain_##ch, CF);
+  Pl_Fd_Add_Dependency(Frame_Variable(fv), chain_##ch, CF);
 
 
 
 
 #define fd_add_list_dependency(fv, ch)				\
-  Fd_Add_List_Dependency(Frame_Variable(fv), chain_##ch, CF);
+  Pl_Fd_Add_List_Dependency(Frame_Variable(fv), chain_##ch, CF);
 
 
 
@@ -242,13 +244,13 @@
 	  /* Constraint instructions */
 
 #define fd_before_add_constraint		\
-  Fd_Before_Add_Cstr();
+  Pl_Fd_Before_Add_Cstr();
 
 
 
 
 #define fd_after_add_constraint			\
-  if (!Fd_After_Add_Cstr())			\
+  if (!Pl_Fd_After_Add_Cstr())			\
     {						\
       ret_val = FALSE;				\
       goto lab_exit;				\
@@ -259,7 +261,7 @@
 #define fd_allocate				\
 {						\
   WamWord *save_CS = CS;			\
-  CS += vec_size;
+  CS += pl_vec_size;
 
 
 
@@ -274,7 +276,7 @@
 #define fd_tell_value(fv, t)			\
 {						\
   fdv_adr = Frame_Variable(fv);			\
-  if (!Fd_Tell_Value(fdv_adr, t))		\
+  if (!Pl_Fd_Tell_Value(fdv_adr, t))		\
     {						\
       ret_val = FALSE;				\
       goto lab_exit;				\
@@ -287,7 +289,7 @@
 #define fd_tell_not_value(fv, t)		\
 {						\
   fdv_adr = Frame_Variable(fv);			\
-  if (!Fd_Tell_Not_Value(fdv_adr, t))		\
+  if (!Pl_Fd_Tell_Not_Value(fdv_adr, t))		\
     {						\
       ret_val = FALSE;				\
       goto lab_exit;				\
@@ -316,13 +318,13 @@
 									\
       Range_Init_Interval(&range, t_min, t_max);			\
 									\
-      if (!Fd_Tell_Range_Range(fdv_adr, &range))			\
+      if (!Pl_Fd_Tell_Range_Range(fdv_adr, &range))			\
 	{								\
 	  ret_val = FALSE;						\
 	  goto lab_exit;						\
 	}								\
     }									\
-  else if (!Fd_Tell_Interv_Interv(fdv_adr, t_min, t_max))		\
+  else if (!Pl_Fd_Tell_Interv_Interv(fdv_adr, t_min, t_max))		\
     {									\
       ret_val = FALSE;							\
       goto lab_exit;							\
@@ -338,13 +340,13 @@
   fdv_adr = Frame_Variable(fv);				\
   if (Fd_Variable_Is_Ground(fdv_adr))			\
     {							\
-      if (!Fd_Tell_Int_Range(fdv_adr, &R(r)))		\
+      if (!Pl_Fd_Tell_Int_Range(fdv_adr, &R(r)))		\
 	{						\
 	  ret_val = FALSE;				\
 	  goto lab_exit;				\
 	}						\
     }							\
-  else if (!Fd_Tell_Range_Range(fdv_adr, &R(r)))	\
+  else if (!Pl_Fd_Tell_Range_Range(fdv_adr, &R(r)))	\
     {							\
       ret_val = FALSE;					\
       goto lab_exit;					\
@@ -401,7 +403,7 @@
 
 #define fd_load_range(r, fp)			\
   R(r).vec = NULL;				\
-  Range_Copy(&R(r), Frame_Range_Parameter(fp));
+  Pl_Range_Copy(&R(r), Frame_Range_Parameter(fp));
 
 
 
@@ -409,25 +411,25 @@
 #define fd_load_dom(r, fv)			\
   fdv_adr = Frame_Variable(fv);			\
   R(r).vec = NULL;				\
-  Range_Copy(&R(r), Range(fdv_adr));
+  Pl_Range_Copy(&R(r), Range(fdv_adr));
 
 
 
 
 #define fd_range_union(r, r1)			\
-  Range_Union(&R(r), &R(r1));
+  Pl_Range_Union(&R(r), &R(r1));
 
 
 
 
 #define fd_range_inter(r, r1)			\
-  Range_Inter(&R(r), &R(r1));
+  Pl_Range_Inter(&R(r), &R(r1));
 
 
 
 
 #define fd_range_compl(r)			\
-  Range_Compl(&R(r));
+  Pl_Range_Compl(&R(r));
 
 
 
@@ -446,80 +448,80 @@
 
 
 #define fd_range_set_value(r, t)		\
-  Range_Set_Value(&R(r), t);
+  Pl_Range_Set_Value(&R(r), t);
 
 
 
 
 #define fd_range_reset_value(r, t)		\
-  Range_Reset_Value(&R(r), t);
+  Pl_Range_Reset_Value(&R(r), t);
 
 
 
 
 #define fd_range_add_range(r, r1)		\
-  Range_Add_Range(&R(r), &R(r1));
+  Pl_Range_Add_Range(&R(r), &R(r1));
 
 
 
 
 #define fd_range_sub_range(r, r1)		\
-  Range_Sub_Range(&R(r), &R(r1));
+  Pl_Range_Sub_Range(&R(r), &R(r1));
 
 
 
 
 #define fd_range_mul_range(r, r1)		\
-  Range_Mul_Range(&R(r), &R(r1));
+  Pl_Range_Mul_Range(&R(r), &R(r1));
 
 
 
 
 #define fd_range_div_range(r, r1)		\
-  Range_Div_Range(&R(r), &R(r1));
+  Pl_Range_Div_Range(&R(r), &R(r1));
 
 
 
 
 #define fd_range_mod_range(r, r1)		\
-  Range_Mod_Range(&R(r), &R(r1));
+  Pl_Range_Mod_Range(&R(r), &R(r1));
 
 
 
 
 #define fd_range_add_value(r, t)		\
-  Range_Add_Value(&R(r), t);
+  Pl_Range_Add_Value(&R(r), t);
 
 
 
 
 #define fd_range_sub_value(r, t)		\
-  Range_Add_Value(&R(r), -(t));
+  Pl_Range_Add_Value(&R(r), -(t));
 
 
 
 
 #define fd_range_mul_value(r, t)		\
-  Range_Mul_Value(&R(r), t);
+  Pl_Range_Mul_Value(&R(r), t);
 
 
 
 
 #define fd_range_div_value(r, t)		\
-  Range_Div_Value(&R(r), t);
+  Pl_Range_Div_Value(&R(r), t);
 
 
 
 
 #define fd_range_mod_value(r, t)		\
-  Range_Mod_Value(&R(r), t);
+  Pl_Range_Mod_Value(&R(r), t);
 
 
 
 
 #define fd_range_copy(r, r1)			\
   R(r).vec = NULL;				\
-  Range_Copy(&R(r), &R(r1));
+  Pl_Range_Copy(&R(r), &R(r1));
 
 
 
@@ -746,3 +748,6 @@ fct_name(WamWord *AF)				\
 #define fd_forall_end      	\
     }				\
 }
+
+
+#endif /* !_FD_TO_C_H */

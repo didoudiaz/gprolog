@@ -144,23 +144,23 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void LE_Open_Terminal(void);
+void Pl_LE_Open_Terminal(void);
 
-void LE_Close_Terminal(void);
+void Pl_LE_Close_Terminal(void);
 
-void LE_Screen_Size(int *row, int *col);
+void Pl_LE_Screen_Size(int *row, int *col);
 
-void LE_Ins_Mode(int ins_mode);
+void Pl_LE_Ins_Mode(int ins_mode);
 
-int LE_Kbd_Is_Not_Empty(void);
+int Pl_LE_Kbd_Is_Not_Empty(void);
 
-int LE_Is_Interrupt_Key(int c);
+int Pl_LE_Is_Interrupt_Key(int c);
 
-void LE_Emit_Beep(void);
+void Pl_LE_Emit_Beep(void);
 
-void LE_Put_Char(int c);
+void Pl_LE_Put_Char(int c);
 
-int LE_Get_Char(void);
+int Pl_LE_Get_Char(void);
 
 
 

@@ -94,10 +94,10 @@ Expand_Initializer(void)
 {
   int atom_dcg;
 
-  atom_dcg = Create_Atom("-->");
-  atom_clause = Create_Atom(":-");
-  atom_phrase = Create_Atom("phrase");
-  atom_if = Create_Atom("->");
+  atom_dcg = Pl_Create_Atom("-->");
+  atom_clause = Pl_Create_Atom(":-");
+  atom_phrase = Pl_Create_Atom("phrase");
+  atom_if = Pl_Create_Atom("->");
 
   dcg_2 = Functor_Arity(atom_dcg, 2);
 }
@@ -106,11 +106,11 @@ Expand_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * DCG_TRANS_RULE_2                                                        *
+ * PL_DCG_TRANS_RULE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
+Pl_Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -129,9 +129,9 @@ Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
   head_word = Dcg_Head(Arg(adr, 0), &in_word, &out_word, &end_lst_adr);
   body_word = Dcg_Body(Arg(adr, 1), FALSE, in_word, out_word, end_lst_adr);
 
-  Get_Structure(atom_clause, 2, clause_word);
-  Unify_Value(head_word);
-  Unify_Value(body_word);
+  Pl_Get_Structure(atom_clause, 2, clause_word);
+  Pl_Unify_Value(head_word);
+  Pl_Unify_Value(body_word);
   return TRUE;
 }
 
@@ -139,20 +139,20 @@ Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
 
 
 /*-------------------------------------------------------------------------*
- * DCG_TRANS_BODY_4                                                        *
+ * PL_DCG_TRANS_BODY_4                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Dcg_Trans_Body_4(WamWord dcg_body_word, WamWord in_word, WamWord out_word,
+Pl_Dcg_Trans_Body_4(WamWord dcg_body_word, WamWord in_word, WamWord out_word,
 		 WamWord body_word)
 {
   top = Local_Top;		/* use local stack for the stack */
   opt_term_unif = TRUE;
 
-  in_word = Globalize_If_In_Local(in_word); 
-  out_word = Globalize_If_In_Local(out_word);
+  in_word = Pl_Globalize_If_In_Local(in_word); 
+  out_word = Pl_Globalize_If_In_Local(out_word);
 
-  return Unify(body_word,
+  return Pl_Unify(body_word,
 	       Dcg_Body(dcg_body_word, FALSE, in_word, out_word, NULL));
 }
 
@@ -177,7 +177,7 @@ Dcg_Head(WamWord dcg_head_word, WamWord *in_word,
   *end_lst_adr = NULL;
 
 start:
-  adr = Rd_Callable_Check(dcg_head_word, &func, &arity);
+  adr = Pl_Rd_Callable_Check(dcg_head_word, &func, &arity);
 
   if (first && arity == 2 && func == ATOM_CHAR(','))
     {
@@ -191,7 +191,7 @@ start:
       if (word != NIL_WORD)
 	{
 	  if (tag_mask != TAG_LST_MASK)
-	    Pl_Err_Type(type_list, word);
+	    Pl_Err_Type(pl_type_list, word);
 	  
 	  *end_lst_adr = UnTag_LST(word);
 	}
@@ -235,7 +235,7 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
     {
       top++;
     new_out_var:
-      new_out_word = Mk_Variable();
+      new_out_word = Pl_Mk_Variable();
     }
   else
     new_out_word = out_word;
@@ -246,15 +246,15 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
     Dcg_Term_List_On_Stack(end_lst_adr, out_word, new_out_word);
   else if (in_alt)
     {
-      if (Blt_Term_Eq(in_word, new_out_word))
+      if (Pl_Blt_Term_Eq(in_word, new_out_word))
 	*--base = Dcg_Compound2(ATOM_CHAR('='), new_out_word, out_word);
       else
-	Unify(new_out_word, out_word);
+	Pl_Unify(new_out_word, out_word);
     }
 
   if (top == base)
     {
-      word = Tag_ATM(atom_true);
+      word = Tag_ATM(pl_atom_true);
       goto finish;
     }
 
@@ -304,7 +304,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
   if (word == NIL_WORD)
     {
     in_is_out:
-      Unify(in_word, out_word);
+      Pl_Unify(in_word, out_word);
       return;
     }
 
@@ -314,7 +314,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
       return;
     }
 
-  adr = Rd_Callable_Check(word, &func, &arity);
+  adr = Pl_Rd_Callable_Check(word, &func, &arity);
 
   if (arity != 2 || func != ATOM_CHAR(','))
     opt_term_unif = FALSE;
@@ -323,7 +323,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
     {
       if (func == ATOM_CHAR(','))
 	{
-	  word = Mk_Variable();
+	  word = Pl_Mk_Variable();
 	  Dcg_Body_On_Stack(*adr++, in_word, word);
 	  Dcg_Body_On_Stack(*adr, word, out_word);
 	  return;
@@ -331,7 +331,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
 
       if (func == atom_if)
 	{
-	  word = Mk_Variable();
+	  word = Pl_Mk_Variable();
 	  w1 = Dcg_Body(*adr++, FALSE, in_word, word, NULL);
 	  w2 = Dcg_Body(*adr, FALSE, word, out_word, NULL);
 
@@ -355,7 +355,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
       goto in_is_out;
     }
 
-  if (arity == 1 && func == atom_curly_brackets)
+  if (arity == 1 && func == pl_atom_curly_brackets)
     {
       *top++ = *adr;
       goto in_is_out;
@@ -402,7 +402,7 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, Tag_LST(save_lst_adr));
+	Pl_Err_Type(pl_type_list, Tag_LST(save_lst_adr));
 
       lst_adr = UnTag_LST(word);
       adr = p + 1;
@@ -413,7 +413,7 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
   word = Tag_LST(save_H);
 
   if (opt_term_unif)
-    Unify(in_word, word);
+    Pl_Unify(in_word, word);
   else
     {
       opt_term_unif = TRUE;

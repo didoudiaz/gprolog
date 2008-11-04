@@ -31,7 +31,7 @@
 
 statistics :-
 	set_bip_name(statistics, 0),
-	'$call_c'('Statistics_0').
+	'$call_c'('Pl_Statistics_0').
 
 
 statistics(Key, Values) :-
@@ -79,53 +79,53 @@ statistics(Key, Values) :-
 	    ), !
 	;   X = user_time
 	),
-	'$call_c_test'('Statistics_User_Time_2'(SinceStart, SinceLast)).
+	'$call_c_test'('Pl_Statistics_User_Time_2'(SinceStart, SinceLast)).
 
 '$stat'(system_time, SinceStart, SinceLast) :-
-	'$call_c_test'('Statistics_System_Time_2'(SinceStart, SinceLast)).
+	'$call_c_test'('Pl_Statistics_System_Time_2'(SinceStart, SinceLast)).
 
 '$stat'(cpu_time, SinceStart, SinceLast) :-
-	'$call_c_test'('Statistics_Cpu_Time_2'(SinceStart, SinceLast)).
+	'$call_c_test'('Pl_Statistics_Cpu_Time_2'(SinceStart, SinceLast)).
 
 '$stat'(real_time, SinceStart, SinceLast) :-
-	'$call_c_test'('Statistics_Real_Time_2'(SinceStart, SinceLast)).
+	'$call_c_test'('Pl_Statistics_Real_Time_2'(SinceStart, SinceLast)).
 
 '$stat'(local_stack, Used, Free) :-
-	'$call_c_test'('Statistics_Local_Stack_2'(Used, Free)).
+	'$call_c_test'('Pl_Statistics_Local_Stack_2'(Used, Free)).
 
 '$stat'(global_stack, Used, Free) :-
-	'$call_c_test'('Statistics_Global_Stack_2'(Used, Free)).
+	'$call_c_test'('Pl_Statistics_Global_Stack_2'(Used, Free)).
 
 '$stat'(trail_stack, Used, Free) :-
-	'$call_c_test'('Statistics_Trail_Stack_2'(Used, Free)).
+	'$call_c_test'('Pl_Statistics_Trail_Stack_2'(Used, Free)).
 
 '$stat'(cstr_stack, Used, Free) :-
-	'$call_c_test'('Statistics_Cstr_Stack_2'(Used, Free)).
+	'$call_c_test'('Pl_Statistics_Cstr_Stack_2'(Used, Free)).
 
 
 
 
 user_time(SinceStart) :-
 	set_bip_name(user_time, 1),
-	'$call_c_test'('User_Time_1'(SinceStart)).
+	'$call_c_test'('Pl_User_Time_1'(SinceStart)).
 
 
 
 
 system_time(SinceStart) :-
 	set_bip_name(system_time, 1),
-	'$call_c_test'('System_Time_1'(SinceStart)).
+	'$call_c_test'('Pl_System_Time_1'(SinceStart)).
 
 
 
 
 cpu_time(SinceStart) :-
 	set_bip_name(cpu_time, 1),
-	'$call_c_test'('Cpu_Time_1'(SinceStart)).
+	'$call_c_test'('Pl_Cpu_Time_1'(SinceStart)).
 
 
 
 
 real_time(SinceStart) :-
 	set_bip_name(real_time, 1),
-	'$call_c_test'('Real_Time_1'(SinceStart)).
+	'$call_c_test'('Pl_Real_Time_1'(SinceStart)).

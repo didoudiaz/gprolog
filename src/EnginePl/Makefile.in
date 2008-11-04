@@ -1,5 +1,4 @@
 ROOT_DIR1     = @ROOT_DIR1@
-TOP_LEVEL     = @TOP_LEVEL@
 LIB_ENGINE_PL = @LIB_ENGINE_PL@
 GPLC          = @GPLC@
 CC            = @CC@ @CFLAGS_MACHINE@
@@ -15,7 +14,7 @@ OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
           if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
 
-all: wam_regs.h $(TOP_LEVEL).h $(LIBNAME)
+all: wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
 
 
 $(LIBNAME): $(OBJLIB)
@@ -53,9 +52,6 @@ gp_config.h:
 cpp_headers@EXE_SUFFIX@: cpp_headers.c
 	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
 
-
-$(TOP_LEVEL).h: headers.h cpp_headers@EXE_SUFFIX@
-	D=`(cd ..;for i in *;do test -d $$i && X="$$X $(ROOT_DIR1)/src/$$i";done;echo $$X)`; ./cpp_headers headers.h $(TOP_LEVEL).h $$D
 
 
 # General core
@@ -99,7 +95,7 @@ clean:
 	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ *@OBJ_SUFFIX@ $(LIBNAME)
 
 distclean: clean clean-test_oc
-	rm -f wam_archi.h wam_regs.h $(TOP_LEVEL).h gp_config.h
+	rm -f wam_archi.h wam_regs.h gp_config.h
 
 
 
@@ -116,11 +112,11 @@ TEST_OC_SRC=obj_chain.c test_oc.c
 test_oc@EXE_SUFFIX@: obj_chain.c obj_chain.h test_oc.c test_oc_defs.h
 	for i in 1 2 3 4 5; do \
 	  (echo "#define OBJ_NO $$i" && \
-	   echo "#include \"test_oc_defs.h\"") >/tmp/test_oc_m$$i.c || exit; \
+	   echo "#include \"test_oc_defs.h\"") >test_oc_m$$i.c || exit; \
 	done
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. /tmp/test_oc_m[1-5].c
-	rm -f /tmp/test_oc_m[1-5].c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. test_oc_m[1-5].c
+	rm -f test_oc_m* test_oc*@OBJ_SUFFIX@
 
 clean-test_oc: 
-	rm -f test_oc@EXE_SUFFIX@
+	rm -f test_oc@EXE_SUFFIX@ test_oc_m*
 

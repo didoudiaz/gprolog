@@ -36,44 +36,44 @@
 
 write(Term) :-
 	set_bip_name(write, 1),
-	'$call_c'('Write_1'(Term)).
+	'$call_c'('Pl_Write_1'(Term)).
 
 write(SorA, Term) :-
 	set_bip_name(write, 2),
-	'$call_c'('Write_2'(SorA, Term)).
+	'$call_c'('Pl_Write_2'(SorA, Term)).
 
 
 
 
 writeq(Term) :-
 	set_bip_name(writeq, 1),
-	'$call_c'('Writeq_1'(Term)).
+	'$call_c'('Pl_Writeq_1'(Term)).
 
 writeq(SorA, Term) :-
 	set_bip_name(writeq, 2),
-	'$call_c'('Writeq_2'(SorA, Term)).
+	'$call_c'('Pl_Writeq_2'(SorA, Term)).
 
 
 
 
 write_canonical(Term) :-
 	set_bip_name(write_canonical, 1),
-	'$call_c'('Write_Canonical_1'(Term)).
+	'$call_c'('Pl_Write_Canonical_1'(Term)).
 
 write_canonical(SorA, Term) :-
 	set_bip_name(write_canonical, 2),
-	'$call_c'('Write_Canonical_2'(SorA, Term)).
+	'$call_c'('Pl_Write_Canonical_2'(SorA, Term)).
 
 
 
 
 display(Term) :-
 	set_bip_name(display, 1),
-	'$call_c'('Display_1'(Term)).
+	'$call_c'('Pl_Display_1'(Term)).
 
 display(SorA, Term) :-
 	set_bip_name(display, 2),
-	'$call_c'('Display_2'(SorA, Term)).
+	'$call_c'('Pl_Display_2'(SorA, Term)).
 
 
 
@@ -99,14 +99,14 @@ write_term(Term, Options) :-
 	set_bip_name(write_term, 2),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Write_Term_1'(Term)).
+	'$call_c'('Pl_Write_Term_1'(Term)).
 
 
 write_term(SorA, Term, Options) :-
 	set_bip_name(write_term, 3),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Write_Term_2'(SorA, Term)).
+	'$call_c'('Pl_Write_Term_2'(SorA, Term)).
 
 
 
@@ -199,8 +199,8 @@ write_term(SorA, Term, Options) :-
 
 nl :-
 	set_bip_name(nl, 0),
-	'$call_c'('Nl_0').
+	'$call_c'('Pl_Nl_0').
 
 nl(SorA) :-
 	set_bip_name(nl, 1),
-	'$call_c'('Nl_1'(SorA)).
+	'$call_c'('Pl_Nl_1'(SorA)).

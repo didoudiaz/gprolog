@@ -163,11 +163,11 @@ int stop_after = FILE_LINK;
 int verbose = 0;
 char *file_name_out = NULL;
 
-int def_local_size = -1;
-int def_global_size = -1;
-int def_trail_size = -1;
-int def_cstr_size = -1;
-int fixed_sizes = 0;
+int pl_def_local_size = -1;
+int pl_def_global_size = -1;
+int pl_def_trail_size = -1;
+int pl_def_cstr_size = -1;
+int pl_fixed_sizes = 0;
 int needs_stack_file = 0;
 
 int bc_mode = 0;
@@ -235,7 +235,7 @@ void Delete_Temp_File(char *name);
 
 void Find_File(char *file, char *suff, char *file_path);
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);
 
 void Parse_Arguments(int argc, char *argv[]);
 
@@ -256,7 +256,7 @@ void Display_Help(void);
 
 #define After_Cmd(error)			\
   if (error)					\
-    Fatal_Error("compilation failed")
+    Pl_Fatal_Error("compilation failed")
 
 
 
@@ -287,15 +287,15 @@ main(int argc, char *argv[])
 
   file_lopt = (FileInf *) calloc(argc + 1, sizeof(FileInf));
   if (file_lopt == NULL)
-    Fatal_Error("memory allocation fault");
+    Pl_Fatal_Error("memory allocation fault");
 
   Parse_Arguments(argc, argv);
   if (verbose)
     fprintf(stderr, "\n");
 
-  start_path = Get_Prolog_Path(&devel_mode);
+  start_path = Get_Prolog_Path(argv[0], &devel_mode);
   if (start_path == NULL)
-    Fatal_Error("cannot find the path for %s, set environment variable %s",
+    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s",
 		PROLOG_NAME, ENV_VARIABLE);
 
   strcat(cmd_cc.opt, CFLAGS_MACHINE " " CFLAGS_REGS CC_COMPILE_OPT);
@@ -368,18 +368,18 @@ Compile_Files(void)
 	fprintf(stderr, "creating stack size file: %s\n", f->name);
 
       if ((fd = fopen(f->name, "wt")) == NULL)
-	Fatal_Error("cannot open stack size file (%s)", f->name);
+	Pl_Fatal_Error("cannot open stack size file (%s)", f->name);
 
-      if (def_local_size >= 0)
-	fprintf(fd, "long global def_local_size = %d\n", def_local_size);
-      if (def_global_size >= 0)
-	fprintf(fd, "long global def_global_size = %d\n", def_global_size);
-      if (def_trail_size >= 0)
-	fprintf(fd, "long global def_trail_size = %d\n", def_trail_size);
-      if (def_cstr_size >= 0)
-	fprintf(fd, "long global def_cstr_size = %d\n", def_cstr_size);
-      if (fixed_sizes)
-	fprintf(fd, "long global fixed_sizes = 1\n");
+      if (pl_def_local_size >= 0)
+	fprintf(fd, "long global pl_def_local_size = %d\n", pl_def_local_size);
+      if (pl_def_global_size >= 0)
+	fprintf(fd, "long global pl_def_global_size = %d\n", pl_def_global_size);
+      if (pl_def_trail_size >= 0)
+	fprintf(fd, "long global pl_def_trail_size = %d\n", pl_def_trail_size);
+      if (pl_def_cstr_size >= 0)
+	fprintf(fd, "long global pl_def_cstr_size = %d\n", pl_def_cstr_size);
+      if (pl_fixed_sizes)
+	fprintf(fd, "long global pl_fixed_sizes = 1\n");
 
       fclose(fd);
     }
@@ -562,7 +562,7 @@ New_Work_File(FileInf *f, int stage, int stop_after)
 
   if (stage < stop_after)	/* intermediate stage */
     {
-      p = M_Tempnam(temp_dir, TEMP_FILE_PREFIX);
+      p = Pl_M_Tempnam(temp_dir, TEMP_FILE_PREFIX);
       sprintf(buff, "%s%s", p, suffixes[stage + 1]);
       free(p);
     }
@@ -765,7 +765,7 @@ Exec_One_Cmd(char *cmd, int no_decode_hex)
   Before_Cmd(cmd);
 
   if (no_decode_hex == 1)
-    status = M_Spawn(arg);
+    status = Pl_M_Spawn(arg);
   else
     status = Spawn_Decode_Hex(arg);
 
@@ -791,7 +791,7 @@ Exec_One_Cmd(char *cmd, int no_decode_hex)
   status = system(cmd);
   status >>= 8;
   if (status == -1 || status == 127)
-    Fatal_Error("error trying to execute %s", cmd);
+    Pl_Fatal_Error("error trying to execute %s", cmd);
 
   After_Cmd(status);
 #endif
@@ -811,7 +811,7 @@ Spawn_Decode_Hex(char *arg[])
   FILE *f_out;
   static char buff[CMD_LINE_LENGTH];
 
-  pid = M_Spawn_Redirect(arg, 0, NULL, &f_out, &f_out);
+  pid = Pl_M_Spawn_Redirect(arg, 0, NULL, &f_out, &f_out);
   if (pid == -1 || pid == -2)
     return pid;
 
@@ -832,7 +832,7 @@ Spawn_Decode_Hex(char *arg[])
   if (fclose(f_out))
     return -1;
 
-  status = M_Get_Status(pid);
+  status = Pl_M_Get_Status(pid);
 
 #ifdef DEBUG
   fprintf(stderr, "error status: %d\n", status);
@@ -892,18 +892,18 @@ Find_File(char *file, char *suff, char *file_path)
 	  return;
       }
 
-  Fatal_Error("cannot locate file %s", name);
+  Pl_Fatal_Error("cannot locate file %s", name);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FATAL_ERROR                                                             *
+ * PL_FATAL_ERROR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fatal_Error(char *format, ...)
+Pl_Fatal_Error(char *format, ...)
 {
   FileInf *f;
   va_list arg_ptr;
@@ -961,7 +961,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      file_name_out_i = i;
 	      if (++i >= argc)
-		Fatal_Error("FILE missing after %s option", last_opt);
+		Pl_Fatal_Error("FILE missing after %s option", last_opt);
 
 	      file_name_out = argv[i];
 	      continue;
@@ -1026,7 +1026,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--temp-dir"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("PATH missing after %s option", last_opt);
+		Pl_Fatal_Error("PATH missing after %s option", last_opt);
 
 	      temp_dir = argv[i];
 	      continue;
@@ -1064,7 +1064,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--pl-state"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("FILE missing after %s option", last_opt);
+		Pl_Fatal_Error("FILE missing after %s option", last_opt);
 
 	      if (access(argv[i], R_OK) != 0)
 		{
@@ -1100,10 +1100,10 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--c-compiler"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("FILE missing after %s option", last_opt);
+		Pl_Fatal_Error("FILE missing after %s option", last_opt);
 
 	      cmd_cc.exe_name = argv[i];
-	      if (cmd_link.exe_name == EXE_FILE_LINK)
+	      if (strcmp(cmd_link.exe_name, EXE_FILE_LINK) == 0)
 		cmd_link.exe_name = argv[i];
 	      continue;
 	    }
@@ -1111,7 +1111,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--linker"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("FILE missing after %s option", last_opt);
+		Pl_Fatal_Error("FILE missing after %s option", last_opt);
 
 	      cmd_link.exe_name = argv[i];
 	      continue;
@@ -1120,7 +1120,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "-C"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("OPTION missing after %s option", last_opt);
+		Pl_Fatal_Error("OPTION missing after %s option", last_opt);
 
 	      Add_Option(i, cmd_cc.opt);
 	      /* if C options specified do not take into account fd2c default C options */
@@ -1131,7 +1131,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "-A"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("OPTION missing after %s option", last_opt);
+		Pl_Fatal_Error("OPTION missing after %s option", last_opt);
 
 	      Add_Option(i, cmd_asm.opt);
 	      continue;
@@ -1141,10 +1141,10 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
-		Fatal_Error("SIZE missing after %s option", last_opt);
-	      def_local_size = strtol(argv[i], &q, 10);
-	      if (*q || def_local_size < 0)
-		Fatal_Error("invalid stack size (%s)", argv[i]);
+		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
+	      pl_def_local_size = strtol(argv[i], &q, 10);
+	      if (*q || pl_def_local_size < 0)
+		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
 	      needs_stack_file = 1;
 	      continue;
@@ -1154,10 +1154,10 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
-		Fatal_Error("SIZE missing after %s option", last_opt);
-	      def_global_size = strtol(argv[i], &q, 10);
-	      if (*q || def_global_size < 0)
-		Fatal_Error("invalid stack size (%s)", argv[i]);
+		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
+	      pl_def_global_size = strtol(argv[i], &q, 10);
+	      if (*q || pl_def_global_size < 0)
+		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
 	      needs_stack_file = 1;
 	      continue;
@@ -1167,10 +1167,10 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
-		Fatal_Error("SIZE missing after %s option", last_opt);
-	      def_trail_size = strtol(argv[i], &q, 10);
-	      if (*q || def_trail_size < 0)
-		Fatal_Error("invalid stack size (%s)", argv[i]);
+		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
+	      pl_def_trail_size = strtol(argv[i], &q, 10);
+	      if (*q || pl_def_trail_size < 0)
+		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
 	      needs_stack_file = 1;
 	      continue;
@@ -1180,10 +1180,10 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
-		Fatal_Error("SIZE missing after %s option", last_opt);
-	      def_cstr_size = strtol(argv[i], &q, 10);
-	      if (*q || def_cstr_size < 0)
-		Fatal_Error("invalid stack size (%s)", argv[i]);
+		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
+	      pl_def_cstr_size = strtol(argv[i], &q, 10);
+	      if (*q || pl_def_cstr_size < 0)
+		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
 	      needs_stack_file = 1;
 	      continue;
@@ -1192,7 +1192,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--fixed-sizes"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      fixed_sizes = 1;
+	      pl_fixed_sizes = 1;
 	      needs_stack_file = 1;
 	      continue;
 	    }
@@ -1272,7 +1272,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
-		Fatal_Error("OPTION missing after %s option", last_opt);
+		Pl_Fatal_Error("OPTION missing after %s option", last_opt);
 
 	      Record_Link_Warn_Option(i);
 #if 0
@@ -1286,7 +1286,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  Fatal_Error("unknown option %s - try %s --help", argv[i], GPLC);
+	  Pl_Fatal_Error("unknown option %s - try %s --help", argv[i], GPLC);
 	}
 
 
@@ -1341,7 +1341,7 @@ Parse_Arguments(int argc, char *argv[])
       if (verbose)
 	exit(0);		/* --verbose with no files same as --version */
       else
-	Fatal_Error("no input file specified");
+	Pl_Fatal_Error("no input file specified");
     }
 
   f->name = NULL;

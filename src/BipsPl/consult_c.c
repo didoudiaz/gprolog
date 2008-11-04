@@ -49,18 +49,18 @@
 #if 1
 
 /*-------------------------------------------------------------------------*
- * CONSULT_2                                                               *
+ * PL_CONSULT_2                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
+Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 {
-  char *tmp_file = Rd_String_Check(tmp_file_word);
-  char *pl_file = Rd_String_Check(pl_file_word);
+  char *tmp_file = Pl_Rd_String_Check(tmp_file_word);
+  char *pl_file = Pl_Rd_String_Check(pl_file_word);
   char *singl_warn = (Flag_Value(FLAG_SINGLETON_WARNING)) ? NULL
     : "--no-singl-warn";
-  StmInf *pstm_o = stm_tbl[stm_top_level_output];
-  StmInf *pstm_i = stm_tbl[stm_top_level_input];
+  StmInf *pstm_o = pl_stm_tbl[pl_stm_top_level_output];
+  StmInf *pstm_i = pl_stm_tbl[pl_stm_top_level_input];
   int pid;
   FILE *f_out, *f_in;
   FILE **pf_in;
@@ -80,22 +80,22 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   f_in = NULL;
   pf_in = NULL;
 #endif
-  Write_Pl_State_File(tmp_file_word);
+  Pl_Write_Pl_State_File(tmp_file_word);
   SYS_VAR_SAY_GETC = save;
 
-  Flush_All_Streams();
-  pid = M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
+  Pl_Flush_All_Streams();
+  pid = Pl_M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
   Os_Test_Error(pid == -1);
   if (pid == -2)
     {
     error_pl2wam:
-      Pl_Err_System(Create_Atom("error trying to execute pl2wam "
+      Pl_Err_System(Pl_Create_Atom("error trying to execute pl2wam "
 				"(maybe not found)"));
       return FALSE;
     }
 
-  save_use_le_prompt = use_le_prompt;
-  use_le_prompt = 0;
+  save_use_le_prompt = pl_use_le_prompt;
+  pl_use_le_prompt = 0;
   for (;;)
     {
 #if 1
@@ -112,7 +112,7 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 	{
 	  if (p == NULL)
 	    {
-	      c = Stream_Getc(pstm_i);
+	      c = Pl_Stream_Getc(pstm_i);
 	      if (c == EOF)
 		{
 		eof_reached:
@@ -132,15 +132,15 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 	  continue;
 	}
 #endif
-      Stream_Putc(c, pstm_o);
+      Pl_Stream_Putc(c, pstm_o);
     }
-  use_le_prompt = save_use_le_prompt;
+  pl_use_le_prompt = save_use_le_prompt;
 
   if (f_in)
     fclose(f_in);
   fclose(f_out);
 
-  status = M_Get_Status(pid);
+  status = Pl_M_Get_Status(pid);
   if (status < 0)
     goto error_pl2wam;
 

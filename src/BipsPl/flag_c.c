@@ -77,7 +77,7 @@ static int atom_toward_zero;
 static int atom_on;
 static int atom_off;
 
-/* atom_error is already defined in the set of often used atoms */
+/* pl_atom_error is already defined in the set of often used atoms */
 static int atom_warning;
 static int atom_fail;
 
@@ -118,52 +118,52 @@ Prolog_Prototype(ENVIRON_ALT, 0);
 static void
 Flag_Initializer(void)
 {
-  atom_flag_tbl[FLAG_BOUNDED] = Create_Atom("bounded");
-  atom_flag_tbl[FLAG_MAX_INTEGER] = Create_Atom("max_integer");
-  atom_flag_tbl[FLAG_MIN_INTEGER] = Create_Atom("min_integer");
+  atom_flag_tbl[FLAG_BOUNDED] = Pl_Create_Atom("bounded");
+  atom_flag_tbl[FLAG_MAX_INTEGER] = Pl_Create_Atom("max_integer");
+  atom_flag_tbl[FLAG_MIN_INTEGER] = Pl_Create_Atom("min_integer");
   atom_flag_tbl[FLAG_ROUNDING_FCT] =
-    Create_Atom("integer_rounding_function");
+    Pl_Create_Atom("integer_rounding_function");
 
-  atom_flag_tbl[FLAG_CHAR_CONVERSION] = Create_Atom("char_conversion");
-  atom_flag_tbl[FLAG_DEBUG] = Create_Atom("debug");
-  atom_flag_tbl[FLAG_MAX_ARITY] = Create_Atom("max_arity");
-  atom_flag_tbl[FLAG_UNKNOWN] = Create_Atom("unknown");
-  atom_flag_tbl[FLAG_DOUBLE_QUOTES] = Create_Atom("double_quotes");
-  atom_flag_tbl[FLAG_BACK_QUOTES] = Create_Atom("back_quotes");
+  atom_flag_tbl[FLAG_CHAR_CONVERSION] = Pl_Create_Atom("char_conversion");
+  atom_flag_tbl[FLAG_DEBUG] = Pl_Create_Atom("debug");
+  atom_flag_tbl[FLAG_MAX_ARITY] = Pl_Create_Atom("max_arity");
+  atom_flag_tbl[FLAG_UNKNOWN] = Pl_Create_Atom("unknown");
+  atom_flag_tbl[FLAG_DOUBLE_QUOTES] = Pl_Create_Atom("double_quotes");
+  atom_flag_tbl[FLAG_BACK_QUOTES] = Pl_Create_Atom("back_quotes");
 
-  atom_flag_tbl[FLAG_SYNTAX_ERROR] = Create_Atom("syntax_error");
-  atom_flag_tbl[FLAG_OS_ERROR] = Create_Atom("os_error");
-  atom_flag_tbl[FLAG_MAX_ATOM] = Create_Atom("max_atom");
-  atom_flag_tbl[FLAG_MAX_UNGET] = Create_Atom("max_unget");
-  atom_flag_tbl[FLAG_SINGLETON_WARNING] = Create_Atom("singleton_warning");
-  atom_flag_tbl[FLAG_STRICT_ISO] = Create_Atom("strict_iso");
+  atom_flag_tbl[FLAG_SYNTAX_ERROR] = Pl_Create_Atom("syntax_error");
+  atom_flag_tbl[FLAG_OS_ERROR] = Pl_Create_Atom("os_error");
+  atom_flag_tbl[FLAG_MAX_ATOM] = Pl_Create_Atom("max_atom");
+  atom_flag_tbl[FLAG_MAX_UNGET] = Pl_Create_Atom("max_unget");
+  atom_flag_tbl[FLAG_SINGLETON_WARNING] = Pl_Create_Atom("singleton_warning");
+  atom_flag_tbl[FLAG_STRICT_ISO] = Pl_Create_Atom("strict_iso");
 
-  atom_flag_tbl[FLAG_PROLOG_NAME] = Create_Atom("prolog_name");
-  atom_flag_tbl[FLAG_PROLOG_VERSION] = Create_Atom("prolog_version");
-  atom_flag_tbl[FLAG_PROLOG_DATE] = Create_Atom("prolog_date");
-  atom_flag_tbl[FLAG_PROLOG_COPYRIGHT] = Create_Atom("prolog_copyright");
+  atom_flag_tbl[FLAG_PROLOG_NAME] = Pl_Create_Atom("prolog_name");
+  atom_flag_tbl[FLAG_PROLOG_VERSION] = Pl_Create_Atom("prolog_version");
+  atom_flag_tbl[FLAG_PROLOG_DATE] = Pl_Create_Atom("prolog_date");
+  atom_flag_tbl[FLAG_PROLOG_COPYRIGHT] = Pl_Create_Atom("prolog_copyright");
 
 
-  atom_down = Create_Atom("down");
-  atom_toward_zero = Create_Atom("toward_zero");
+  atom_down = Pl_Create_Atom("down");
+  atom_toward_zero = Pl_Create_Atom("toward_zero");
 
-  atom_on = Create_Atom("on");
-  atom_off = Create_Atom("off");
+  atom_on = Pl_Create_Atom("on");
+  atom_off = Pl_Create_Atom("off");
 
-  atom_warning = Create_Atom("warning");
-  atom_fail = Create_Atom("fail");
+  atom_warning = Pl_Create_Atom("warning");
+  atom_fail = Pl_Create_Atom("fail");
 
-  atom_chars = Create_Atom("chars");
-  atom_codes = Create_Atom("codes");
-  atom_atom = Create_Atom("atom");
-  atom_chars_no_escape = Create_Atom("chars_no_escape");
-  atom_codes_no_escape = Create_Atom("codes_no_escape");
-  atom_atom_no_escape = Create_Atom("atom_no_escape");
+  atom_chars = Pl_Create_Atom("chars");
+  atom_codes = Pl_Create_Atom("codes");
+  atom_atom = Pl_Create_Atom("atom");
+  atom_chars_no_escape = Pl_Create_Atom("chars_no_escape");
+  atom_codes_no_escape = Pl_Create_Atom("codes_no_escape");
+  atom_atom_no_escape = Pl_Create_Atom("atom_no_escape");
 
-  atom_prolog[0] = Create_Atom(PROLOG_NAME);
-  atom_prolog[1] = Create_Atom(PROLOG_VERSION);
-  atom_prolog[2] = Create_Atom(PROLOG_DATE);
-  atom_prolog[3] = Create_Atom(PROLOG_COPYRIGHT);
+  atom_prolog[0] = Pl_Create_Atom(PROLOG_NAME);
+  atom_prolog[1] = Pl_Create_Atom(PROLOG_VERSION);
+  atom_prolog[2] = Pl_Create_Atom(PROLOG_DATE);
+  atom_prolog[3] = Pl_Create_Atom(PROLOG_COPYRIGHT);
 
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_STRICT_ISO) = 1;
@@ -182,11 +182,11 @@ Flag_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * SET_PROLOG_FLAG_2                                                       *
+ * PL_SET_PROLOG_FLAG_2                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
+Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
   WamWord word, tag_mask;
   WamWord term;
@@ -194,14 +194,14 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   int i;
   PredInf *pred;
 
-  atom = Rd_Atom_Check(flag_word);
+  atom = Pl_Rd_Atom_Check(flag_word);
 
   for (i = 0; i < NB_OF_FLAGS; i++)
     if (atom_flag_tbl[i] == atom)
       break;
 
   if (i >= NB_OF_FLAGS)
-    Pl_Err_Domain(domain_prolog_flag, flag_word);
+    Pl_Err_Domain(pl_domain_prolog_flag, flag_word);
 
   DEREF(value_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -213,7 +213,7 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     {
     case FLAG_BOUNDED:
       if (tag_mask != TAG_ATM_MASK ||
-	  (atom != atom_true && atom != atom_false))
+	  (atom != pl_atom_true && atom != pl_atom_false))
 	goto err_value;
       goto err_perm;
 
@@ -250,11 +250,11 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 
       Flag_Value(i) = atom == atom_on;
 
-      pred = Lookup_Pred(Create_Atom((atom == atom_on)
+      pred = Pl_Lookup_Pred(Pl_Create_Atom((atom == atom_on)
 				     ? "debug" : "nodebug"), 0);
 
       if (pred != NULL)
-	Call_Prolog((CodePtr) (pred->codep));
+	Pl_Call_Prolog((CodePtr) (pred->codep));
       else
 	Flag_Value(i) = FALSE;	/* should not occurs */
       break;
@@ -265,7 +265,7 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
       if (tag_mask != TAG_ATM_MASK)
 	goto err_value;
 
-      if (atom == atom_error)
+      if (atom == pl_atom_error)
 	Flag_Value(i) = FLAG_VALUE_ERROR;
       else if (atom == atom_warning)
 	Flag_Value(i) = FLAG_VALUE_WARNING;
@@ -308,15 +308,15 @@ Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   return TRUE;
 
 err_value:
-  term = Put_Structure(ATOM_CHAR('+'), 2);
-  Unify_Value(flag_word);
-  Unify_Value(value_word);
+  term = Pl_Put_Structure(ATOM_CHAR('+'), 2);
+  Pl_Unify_Value(flag_word);
+  Pl_Unify_Value(value_word);
 
-  Pl_Err_Domain(domain_flag_value, term);
+  Pl_Err_Domain(pl_domain_flag_value, term);
 
 
 err_perm:
-  Pl_Err_Permission(permission_operation_modify, permission_type_flag,
+  Pl_Err_Permission(pl_permission_operation_modify, pl_permission_type_flag,
 		    flag_word);
 
   return FALSE;
@@ -326,11 +326,11 @@ err_perm:
 
 
 /*-------------------------------------------------------------------------*
- * CURRENT_PROLOG_FLAG_2                                                   *
+ * PL_CURRENT_PROLOG_FLAG_2                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
+Pl_Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
   WamWord word, tag_mask;
   int i;
@@ -339,14 +339,14 @@ Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   DEREF(flag_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
-      atom = Rd_Atom_Check(word);
+      atom = Pl_Rd_Atom_Check(word);
 
       for (i = 0; i < NB_OF_FLAGS; i++)
 	if (atom_flag_tbl[i] == atom)
 	  break;
 
       if (i >= NB_OF_FLAGS)
-	Pl_Err_Domain(domain_prolog_flag, flag_word);
+	Pl_Err_Domain(pl_domain_prolog_flag, flag_word);
 
       return Unif_Flag(i, value_word);
     }
@@ -357,10 +357,10 @@ Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   A(0) = flag_word;
   A(1) = value_word;
   A(2) = i + 1;
-  Create_Choice_Point((CodePtr)
+  Pl_Create_Choice_Point((CodePtr)
 		      Prolog_Predicate(CURRENT_PROLOG_FLAG_ALT, 0), 3);
 
-  Get_Atom(atom_flag_tbl[i], flag_word);
+  Pl_Get_Atom(atom_flag_tbl[i], flag_word);
 
   return Unif_Flag(i, value_word);
 }
@@ -369,17 +369,17 @@ Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 
 
 /*-------------------------------------------------------------------------*
- * CURRENT_PROLOG_FLAG_ALT_0                                               *
+ * PL_CURRENT_PROLOG_FLAG_ALT_0                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Current_Prolog_Flag_Alt_0(void)
+Pl_Current_Prolog_Flag_Alt_0(void)
 {
   WamWord flag_word, value_word;
   int i;
 
 
-  Update_Choice_Point((CodePtr)
+  Pl_Update_Choice_Point((CodePtr)
 		      Prolog_Predicate(CURRENT_PROLOG_FLAG_ALT, 0), 0);
 
   flag_word = AB(B, 0);
@@ -397,7 +397,7 @@ Current_Prolog_Flag_Alt_0(void)
       AB(B, 2) = i + 1;
     }
 
-  Get_Atom(atom_flag_tbl[i], flag_word);
+  Pl_Get_Atom(atom_flag_tbl[i], flag_word);
 
   return Unif_Flag(i, value_word);
 }
@@ -418,7 +418,7 @@ Unif_Flag(int i, WamWord value_word)
   switch (i)
     {
     case FLAG_BOUNDED:
-      atom = atom_true;
+      atom = pl_atom_true;
       break;
 
     case FLAG_MAX_INTEGER:
@@ -450,7 +450,7 @@ Unif_Flag(int i, WamWord value_word)
       switch (Flag_Value(i))
 	{
 	case FLAG_VALUE_ERROR:
-	  atom = atom_error;
+	  atom = pl_atom_error;
 	  break;
 
 	case FLAG_VALUE_WARNING:
@@ -510,9 +510,9 @@ Unif_Flag(int i, WamWord value_word)
     }
 
   if (atom < 0)
-    return Get_Integer(n, value_word);
+    return Pl_Get_Integer(n, value_word);
 
- return Get_Atom(atom, value_word);
+ return Pl_Get_Atom(atom, value_word);
 }
 
 
@@ -520,196 +520,205 @@ Unif_Flag(int i, WamWord value_word)
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_WRITE_2                                                         *
+ * PL_SYS_VAR_WRITE_2                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sys_Var_Write_2(WamWord var_word, WamWord n_word)
+Pl_Sys_Var_Write_2(WamWord var_word, WamWord n_word)
 {
-  sys_var[Rd_Integer(var_word)] = Rd_Integer(n_word);
+  pl_sys_var[Pl_Rd_Integer(var_word)] = Pl_Rd_Integer(n_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_READ_2                                                          *
+ * PL_SYS_VAR_READ_2                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Sys_Var_Read_2(WamWord var_word, WamWord n_word)
+Pl_Sys_Var_Read_2(WamWord var_word, WamWord n_word)
 {
-  return Get_Integer(sys_var[Rd_Integer(var_word)], n_word);
+  return Pl_Get_Integer(pl_sys_var[Pl_Rd_Integer(var_word)], n_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_INC_1                                                           *
+ * PL_SYS_VAR_INC_1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sys_Var_Inc_1(WamWord var_word)
+Pl_Sys_Var_Inc_1(WamWord var_word)
 {
-  sys_var[Rd_Integer(var_word)]++;
+  pl_sys_var[Pl_Rd_Integer(var_word)]++;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_DEC_1                                                           *
+ * PL_SYS_VAR_DEC_1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sys_Var_Dec_1(WamWord var_word)
+Pl_Sys_Var_Dec_1(WamWord var_word)
 {
-  sys_var[Rd_Integer(var_word)]--;
+  pl_sys_var[Pl_Rd_Integer(var_word)]--;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_SET_BIT_2                                                       *
+ * PL_SYS_VAR_SET_BIT_2                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sys_Var_Set_Bit_2(WamWord var_word, WamWord bit_word)
+Pl_Sys_Var_Set_Bit_2(WamWord var_word, WamWord bit_word)
 {
-  sys_var[Rd_Integer(var_word)] |= (1 << Rd_Integer(bit_word));
+  pl_sys_var[Pl_Rd_Integer(var_word)] |= (1 << Pl_Rd_Integer(bit_word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_RESET_BIT_2                                                     *
+ * PL_SYS_VAR_RESET_BIT_2                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sys_Var_Reset_Bit_2(WamWord var_word, WamWord bit_word)
+Pl_Sys_Var_Reset_Bit_2(WamWord var_word, WamWord bit_word)
 {
-  sys_var[Rd_Integer(var_word)] &= ~(1 << Rd_Integer(bit_word));
+  pl_sys_var[Pl_Rd_Integer(var_word)] &= ~(1 << Pl_Rd_Integer(bit_word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_SET_BIT_2                                                       *
+ * PL_SYS_VAR_SET_BIT_2                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Sys_Var_Get_Bit_3(WamWord var_word, WamWord bit_word, WamWord value_word)
+Pl_Sys_Var_Get_Bit_3(WamWord var_word, WamWord bit_word, WamWord value_word)
 {
   unsigned x;
 
-  x = (sys_var[Rd_Integer(var_word)] >> Rd_Integer(bit_word))  & 1;
-  return Un_Integer(x, value_word);
+  x = (pl_sys_var[Pl_Rd_Integer(var_word)] >> Pl_Rd_Integer(bit_word))  & 1;
+  return Pl_Un_Integer(x, value_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_PUT_2                                                           *
+ * PL_SYS_VAR_PUT_2                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sys_Var_Put_2(WamWord var_word, WamWord term_word)
+Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
   int sv;
   int size;
 
-  sv = Rd_Integer(var_word);
+  sv = Pl_Rd_Integer(var_word);
+
+  word = pl_sys_var[sv];
+  tag_mask = Tag_Mask_Of(word);
+  if (tag_mask == TAG_REF_MASK)
+    {
+      adr = UnTag_REF(word);
+      if (adr != NULL)
+	Free(adr);		/* recover the Malloc: don't mix sys_var_put/get and others sys_var_write... on same sys variable */
+    }
 
   DEREF(term_word, word, tag_mask);
 
   if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
     {
-      sys_var[sv] = word;
+      pl_sys_var[sv] = word;
       return;
     }
 
-  size = Term_Size(word);
-  adr = (WamWord *) Malloc(size * sizeof(WamWord));	/* never recovered */
-  Copy_Term(adr, &word);
-  sys_var[sv] = Tag_REF(adr);
+  size = Pl_Term_Size(word);
+  adr = (WamWord *) Malloc(size * sizeof(WamWord));	/* recovered at next sys_var_put */
+  Pl_Copy_Term(adr, &word);
+  pl_sys_var[sv] = Tag_REF(adr);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYS_VAR_GET_2                                                           *
+ * PL_SYS_VAR_GET_2                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Sys_Var_Get_2(WamWord var_word, WamWord term_word)
+Pl_Sys_Var_Get_2(WamWord var_word, WamWord term_word)
 {
   WamWord word;
   WamWord *adr;
   int size;
 
-  word = sys_var[Rd_Integer(var_word)];
+  word = pl_sys_var[Pl_Rd_Integer(var_word)];
 
   if (Tag_Mask_Of(word) == TAG_REF_MASK)
     {
       adr = UnTag_REF(word);
-      size = Term_Size(*adr);
-      Copy_Contiguous_Term(H, adr);
+      size = Pl_Term_Size(*adr);
+      Pl_Copy_Contiguous_Term(H, adr);
       word = *H;
       H += size;
     }
 
-  return Unify(word, term_word);
+  return Pl_Unify(word, term_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GET_CURRENT_B_1                                                         *
+ * PL_GET_CURRENT_B_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Get_Current_B_1(WamWord b_word)
+Pl_Get_Current_B_1(WamWord b_word)
 {
   WamWord word;
 
-  Load_Cut_Level(&word);
-  Unify(word, b_word);
+  Pl_Load_Cut_Level(&word);
+  Pl_Unify(word, b_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SET_CURRENT_B_1                                                         *
+ * PL_SET_CURRENT_B_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Current_B_1(WamWord b_word)
+Pl_Set_Current_B_1(WamWord b_word)
 {
   WamWord word, tag_mask;
   
   DEREF(b_word, word, tag_mask);
-  Cut(word);
+  Pl_Cut(word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * WRITE_PL_STATE_FILE                                                     *
+ * PL_WRITE_PL_STATE_FILE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Write_Pl_State_File(WamWord file_word)
+Pl_Write_Pl_State_File(WamWord file_word)
 {
   char *file;
   FILE *f;
@@ -723,25 +732,25 @@ Write_Pl_State_File(WamWord file_word)
   static char cv[2];
 
 
-  file = atom_tbl[Rd_Atom_Check(file_word)].name;
-  file = M_Absolute_Path_Name(file);
+  file = pl_atom_tbl[Pl_Rd_Atom_Check(file_word)].name;
+  file = Pl_M_Absolute_Path_Name(file);
 
   f = fopen(file, "wb");
   Os_Test_Error(f == NULL);
 
-  i = Hash_Nb_Elements(oper_tbl);
+  i = Pl_Hash_Nb_Elements(pl_oper_tbl);
   fwrite(&i, sizeof(i), 1, f);
 
-  for (oper = (OperInf *) Hash_First(oper_tbl, &scan); oper;
-       oper = (OperInf *) Hash_Next(&scan))
+  for (oper = (OperInf *) Pl_Hash_First(pl_oper_tbl, &scan); oper;
+       oper = (OperInf *) Pl_Hash_Next(&scan))
     {
       sf_op.type = Type_Of_Oper(oper->a_t);
       sf_op.prec = oper->prec;
       sf_op.left = oper->left;
       sf_op.right = oper->right;
-      sf_op.length = atom_tbl[Atom_Of_Oper(oper->a_t)].prop.length;
+      sf_op.length = pl_atom_tbl[Atom_Of_Oper(oper->a_t)].prop.length;
       fwrite(&sf_op, sizeof(sf_op), 1, f);
-      fwrite(atom_tbl[Atom_Of_Oper(oper->a_t)].name, sf_op.length, 1, f);
+      fwrite(pl_atom_tbl[Atom_Of_Oper(oper->a_t)].name, sf_op.length, 1, f);
     }
 
   i = Flag_Value(FLAG_DOUBLE_QUOTES);
@@ -760,10 +769,10 @@ Write_Pl_State_File(WamWord file_word)
   fwrite(&i, sizeof(i), 1, f);
 
   for (c = 0; c < 256; c++)
-    if (char_conv[c] != c)
+    if (pl_char_conv[c] != c)
       {
 	cv[0] = c;
-	cv[1] = char_conv[c];
+	cv[1] = pl_char_conv[c];
 	fwrite(&cv, 2, 1, f);
       }
 
@@ -779,11 +788,11 @@ Write_Pl_State_File(WamWord file_word)
 
 
 /*-------------------------------------------------------------------------*
- * READ_PL_STATE_FILE                                                      *
+ * PL_READ_PL_STATE_FILE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Read_Pl_State_File(WamWord file_word)
+Pl_Read_Pl_State_File(WamWord file_word)
 {
   char *file;
   FILE *f;
@@ -793,22 +802,22 @@ Read_Pl_State_File(WamWord file_word)
   char cv[2];
 
 
-  file = atom_tbl[Rd_Atom_Check(file_word)].name;
-  file = M_Absolute_Path_Name(file);
+  file = pl_atom_tbl[Pl_Rd_Atom_Check(file_word)].name;
+  file = Pl_M_Absolute_Path_Name(file);
 
   f = fopen(file, "rb");
   Os_Test_Error(f == NULL);
 
-  Hash_Delete_All(oper_tbl);
+  Pl_Hash_Delete_All(pl_oper_tbl);
 
   fread(&i, sizeof(i), 1, f);
 
   while (i--)
     {
       fread(&sf_op, sizeof(sf_op), 1, f);
-      fread(glob_buff, sf_op.length, 1, f);
-      glob_buff[sf_op.length] = '\0';
-      Create_Oper(Create_Allocate_Atom(glob_buff),
+      fread(pl_glob_buff, sf_op.length, 1, f);
+      pl_glob_buff[sf_op.length] = '\0';
+      Pl_Create_Oper(Pl_Create_Allocate_Atom(pl_glob_buff),
 		  sf_op.type, sf_op.prec, sf_op.left, sf_op.right);
     }
 
@@ -834,7 +843,7 @@ Read_Pl_State_File(WamWord file_word)
       if (c == 0 && cv[1] == 0)
 	break;
 
-      char_conv[c] = cv[1];
+      pl_char_conv[c] = cv[1];
     }
 
   fclose(f);
@@ -845,68 +854,68 @@ Read_Pl_State_File(WamWord file_word)
 
 
 /*-------------------------------------------------------------------------*
- * ARGUMENT_COUNTER_1                                                      *
+ * PL_ARGUMENT_COUNTER_1                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Argument_Counter_1(WamWord n_word)
+Pl_Argument_Counter_1(WamWord n_word)
 {
-  return Un_Integer_Check(os_argc, n_word);
+  return Pl_Un_Integer_Check(pl_os_argc, n_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ARGUMENT_VALUE_2                                                        *
+ * PL_ARGUMENT_VALUE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Argument_Value_2(WamWord i_word, WamWord a_word)
+Pl_Argument_Value_2(WamWord i_word, WamWord a_word)
 {
   int i;
 
-  i = Rd_Positive_Check(i_word);
-  if (i >= os_argc)
+  i = Pl_Rd_Positive_Check(i_word);
+  if (i >= pl_os_argc)
     return FALSE;
 
-  return Un_Atom_Check(Create_Atom(os_argv[i]), a_word);
+  return Pl_Un_Atom_Check(Pl_Create_Atom(pl_os_argv[i]), a_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ARGUMENT_LIST_1                                                         *
+ * PL_ARGUMENT_LIST_1                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Argument_List_1(WamWord list_word)
+Pl_Argument_List_1(WamWord list_word)
 {
   int i;
 
-  Check_For_Un_List(list_word);
+  Pl_Check_For_Un_List(list_word);
 
-  for (i = 1; i < os_argc; i++)
+  for (i = 1; i < pl_os_argc; i++)
     {
-      if (!Get_List(list_word) || !Unify_Atom(Create_Atom(os_argv[i])))
+      if (!Pl_Get_List(list_word) || !Pl_Unify_Atom(Pl_Create_Atom(pl_os_argv[i])))
 	return FALSE;
 
-      list_word = Unify_Variable();
+      list_word = Pl_Unify_Variable();
     }
 
-  return Get_Nil(list_word);
+  return Pl_Get_Nil(list_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ENVIRON_2                                                               *
+ * PL_ENVIRON_2                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Environ_2(WamWord var_name_word, WamWord value_word)
+Pl_Environ_2(WamWord var_name_word, WamWord value_word)
 {
   WamWord word, tag_mask;
   char *var_name;
@@ -915,15 +924,15 @@ Environ_2(WamWord var_name_word, WamWord value_word)
   char *one_env;
   int lg;
 
-  Check_For_Un_Atom(value_word);
+  Pl_Check_For_Un_Atom(value_word);
 
   DEREF(var_name_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
-      var_name = Rd_String_Check(word);
+      var_name = Pl_Rd_String_Check(word);
       value = (char *) getenv(var_name);
 
-      return value && Un_String_Check(value, value_word);
+      return value && Pl_Un_String_Check(value, value_word);
     }
 
   /* non deterministic case */
@@ -938,32 +947,32 @@ Environ_2(WamWord var_name_word, WamWord value_word)
       A(0) = var_name_word;
       A(1) = value_word;
       A(2) = (WamWord) cur_env;
-      Create_Choice_Point((CodePtr) Prolog_Predicate(ENVIRON_ALT, 0), 3);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(ENVIRON_ALT, 0), 3);
     }
 
 
   value = strchr(one_env, '=');
   lg = value - one_env;
-  var_name = glob_buff;
+  var_name = pl_glob_buff;
 
   strncpy(var_name, one_env, lg);
   var_name[lg] = '\0';
 
   value++;			/* skip = */
 
-  return Un_String_Check(var_name, var_name_word) &&
-    Get_Atom(Create_Atom(value), value_word);
+  return Pl_Un_String_Check(var_name, var_name_word) &&
+    Pl_Get_Atom(Pl_Create_Atom(value), value_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ENVIRON_ALT_0                                                           *
+ * PL_ENVIRON_ALT_0                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Environ_Alt_0(void)
+Pl_Environ_Alt_0(void)
 {
   WamWord var_name_word, value_word;
   char *var_name;
@@ -972,7 +981,7 @@ Environ_Alt_0(void)
   char *one_env;
   int lg;
 
-  Update_Choice_Point((CodePtr) Prolog_Predicate(ENVIRON_ALT, 0), 0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(ENVIRON_ALT, 0), 0);
 
   var_name_word = AB(B, 0);
   value_word = AB(B, 1);
@@ -993,13 +1002,13 @@ Environ_Alt_0(void)
 
   value = strchr(one_env, '=');
   lg = value - one_env;
-  var_name = glob_buff;
+  var_name = pl_glob_buff;
 
   strncpy(var_name, one_env, lg);
   var_name[lg] = '\0';
 
   value++;			/* skip = */
 
-  return Un_String_Check(var_name, var_name_word) &&
-    Get_Atom(Create_Atom(value), value_word);
+  return Pl_Un_String_Check(var_name, var_name_word) &&
+    Pl_Get_Atom(Pl_Create_Atom(value), value_word);
 }

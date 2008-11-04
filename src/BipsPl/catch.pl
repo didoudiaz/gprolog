@@ -33,11 +33,11 @@
           % Warning the name '$catch_internal1' is tested by the debugger
 
 '$catch'(Goal, Catch, Recovery, Func, Arity, DebugCall) :-
-	'$call_c'('Save_Call_Info_3'(Func, Arity, DebugCall)),
+	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
 	'$catch1'(Goal, Catch, Recovery, 0).
 	
 '$catch1'(Goal, Catch, Recovery, CallInfo) :-
-	'$call_c'('Load_Call_Info_Arg_1'(3)),   % to ensure CallInfo is deref
+	'$call_c'('Pl_Load_Call_Info_Arg_1'(3)),   % to ensure CallInfo is deref
 	'$catch_internal'(Goal, Catch, Recovery, CallInfo).
 
 

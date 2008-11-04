@@ -90,7 +90,7 @@ typedef struct termio TermIO;
  * Global Variables                *
  *---------------------------------*/
 
-static int use_gui = 1;
+static int pl_use_gui = 1;
 static int use_ansi = 1;
 static int fd_in = 0;		/* not changed */
 static int fd_out = -1;
@@ -150,11 +150,11 @@ static void Erase(int n);
 
 
 /*-------------------------------------------------------------------------*
- * LE_INITIALIZE                                                           *
+ * PL_LE_INITIALIZE                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Initialize(void)
+Pl_LE_Initialize(void)
 {
   static int initialized = 0;
   static int le_hook_present = 0; /* ie. gui is present */
@@ -170,43 +170,43 @@ LE_Initialize(void)
   Choose_Fd_Out();
 #endif
 
-  if (le_hook_start && use_gui == 1)
-    (*le_hook_start) ();
+  if (pl_le_hook_start && pl_use_gui == 1)
+    (*pl_le_hook_start) ();
 
-  if (le_hook_put_char != NULL && le_hook_get_char0 != NULL
-      && le_hook_kbd_is_not_empty != NULL && le_hook_screen_size != NULL)
+  if (pl_le_hook_put_char != NULL && pl_le_hook_get_char0 != NULL
+      && pl_le_hook_kbd_is_not_empty != NULL && pl_le_hook_screen_size != NULL)
     le_hook_present = 1;
   else
     {
-      le_hook_put_char = NULL;
-      le_hook_get_char0 = NULL;
-      le_hook_kbd_is_not_empty = NULL;
-      le_hook_screen_size = NULL;
+      pl_le_hook_put_char = NULL;
+      pl_le_hook_get_char0 = NULL;
+      pl_le_hook_kbd_is_not_empty = NULL;
+      pl_le_hook_screen_size = NULL;
     }
 
 #define INIT_FCT(hook, def) if (hook == NULL) hook = def
 
   /* inside terminal.c */
-  INIT_FCT(le_hook_screen_size, LE_Screen_Size);
-  INIT_FCT(le_hook_kbd_is_not_empty, LE_Kbd_Is_Not_Empty);
-  INIT_FCT(le_hook_put_char, LE_Put_Char);
-  INIT_FCT(le_hook_get_char0, LE_Get_Char0);
-  INIT_FCT(le_hook_ins_mode, LE_Ins_Mode);
-  INIT_FCT(le_hook_emit_beep, LE_Emit_Beep);
+  INIT_FCT(pl_le_hook_screen_size, Pl_LE_Screen_Size);
+  INIT_FCT(pl_le_hook_kbd_is_not_empty, Pl_LE_Kbd_Is_Not_Empty);
+  INIT_FCT(pl_le_hook_put_char, Pl_LE_Put_Char);
+  INIT_FCT(pl_le_hook_get_char0, LE_Get_Char0);
+  INIT_FCT(pl_le_hook_ins_mode, Pl_LE_Ins_Mode);
+  INIT_FCT(pl_le_hook_emit_beep, Pl_LE_Emit_Beep);
 
   /* inside linedit.c */
-  INIT_FCT(le_hook_backd, Backd);
-  INIT_FCT(le_hook_forwd, Forwd);
-  INIT_FCT(le_hook_displ, Displ);
-  INIT_FCT(le_hook_erase, Erase);
-  INIT_FCT(le_hook_displ_str, Displ_Str);
+  INIT_FCT(pl_le_hook_backd, Backd);
+  INIT_FCT(pl_le_hook_forwd, Forwd);
+  INIT_FCT(pl_le_hook_displ, Displ);
+  INIT_FCT(pl_le_hook_erase, Erase);
+  INIT_FCT(pl_le_hook_displ_str, Displ_Str);
 
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
 #elif defined(_WIN32)
 
-  if (le_hook_put_char == LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)	/* DOS console mode */
     {
       h_stdin = GetStdHandle(STD_INPUT_HANDLE);
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -235,7 +235,7 @@ Parse_Env_Var(void)
     return;
 
   if (strstr(p, "gui=no") != NULL)
-    use_gui = 0;
+    pl_use_gui = 0;
       
   if (strstr(p, "ansi=no") != NULL)
     use_ansi = 0;
@@ -303,11 +303,11 @@ Choose_Fd_Out(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_OPEN_TERMINAL                                                        *
+ * PL_LE_OPEN_TERMINAL                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Open_Terminal(void)
+Pl_LE_Open_Terminal(void)
 {
   fflush(stdout);
   fflush(stderr);
@@ -332,13 +332,13 @@ LE_Open_Terminal(void)
       Stty(fd_out, &new_stty_out);
     }
 
-  LE_Screen_Size(&nb_rows, &nb_cols);
+  Pl_LE_Screen_Size(&nb_rows, &nb_cols);
 
   pos = 0;
 
 #elif defined(_WIN32)
 
-  if (le_hook_put_char == LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)	/* DOS console mode */
     {
       h_stdin = GetStdHandle(STD_INPUT_HANDLE);
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -355,11 +355,11 @@ LE_Open_Terminal(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_CLOSE_TERMINAL                                                       *
+ * PL_LE_CLOSE_TERMINAL                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Close_Terminal(void)
+Pl_LE_Close_Terminal(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__) /* Initial mode (cooked mode) */
 
@@ -371,7 +371,7 @@ LE_Close_Terminal(void)
 
 #elif defined(_WIN32)
 
-  if (le_hook_put_char == LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)	/* DOS console mode */
     SetConsoleMode(h_stdin, im);
 
 #endif
@@ -408,11 +408,11 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
 
 
 /*-------------------------------------------------------------------------*
- * LE_SCREEN_SIZE                                                          *
+ * PL_LE_SCREEN_SIZE                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Screen_Size(int *row, int *col)
+Pl_LE_Screen_Size(int *row, int *col)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
   struct winsize ws;
@@ -449,11 +449,11 @@ LE_Screen_Size(int *row, int *col)
 
 
 /*-------------------------------------------------------------------------*
- * LE_IS_INTERRUPT_KEY                                                     *
+ * PL_LE_IS_INTERRUPT_KEY                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Is_Interrupt_Key(int c)
+Pl_LE_Is_Interrupt_Key(int c)
 {
   return (c == interrupt_key);
 }
@@ -462,11 +462,11 @@ LE_Is_Interrupt_Key(int c)
 
 
 /*-------------------------------------------------------------------------*
- * LE_KBD_IS_NOT_EMPTY                                                     *
+ * PL_LE_KBD_IS_NOT_EMPTY                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Kbd_Is_Not_Empty(void)
+Pl_LE_Kbd_Is_Not_Empty(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -490,11 +490,11 @@ LE_Kbd_Is_Not_Empty(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_INS_MODE                                                             *
+ * PL_LE_INS_MODE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Ins_Mode(int ins_mode)
+Pl_LE_Ins_Mode(int ins_mode)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
@@ -514,15 +514,15 @@ LE_Ins_Mode(int ins_mode)
 
 
 /*-------------------------------------------------------------------------*
- * LE_EMIT_BEEP                                                            *
+ * PL_LE_EMIT_BEEP                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Emit_Beep(void)
+Pl_LE_Emit_Beep(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
 
-  LE_Put_Char('\a');
+  Pl_LE_Put_Char('\a');
 
 #else
 
@@ -540,11 +540,11 @@ LE_Emit_Beep(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_PUT_CHAR                                                             *
+ * PL_LE_PUT_CHAR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Put_Char(int c)
+Pl_LE_Put_Char(int c)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
   char c0 = c;
@@ -619,11 +619,11 @@ LE_Put_Char(int c)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_CHAR                                                             *
+ * PL_LE_GET_CHAR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Get_Char(void)
+Pl_LE_Get_Char(void)
 {
   int c;
 

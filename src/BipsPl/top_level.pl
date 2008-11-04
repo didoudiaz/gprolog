@@ -43,7 +43,7 @@ top_level :-
 
 
 break :-
-	'$call_c'('Set_Ctrl_C_Handler_0'),
+	'$call_c'('Pl_Set_Ctrl_C_Handler_0'),
 	'$sys_var_read'(10, Level),
 	'$sys_var_read'(11, B),
 	g_read('$all_solutions', All),

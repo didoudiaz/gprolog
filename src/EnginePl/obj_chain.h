@@ -41,9 +41,9 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void Find_Linked_Objects(void);
+void Pl_Find_Linked_Objects(void);
 
-void New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ());
+void Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ());
 
 
 #ifdef OBJ_INIT
@@ -60,7 +60,7 @@ static void OBJ_INIT(void);
 static void __attribute__ ((constructor))
 OBJ_CTOR(void)
 {
-  New_Object(OBJ_INIT, NULL, NULL);
+  Pl_New_Object(OBJ_INIT, NULL, NULL);
 }
 
 
@@ -69,7 +69,7 @@ OBJ_CTOR(void)
 static void 
 OBJ_CTOR(void)
 {
-  New_Object(OBJ_INIT, NULL, NULL);
+  Pl_New_Object(OBJ_INIT, NULL, NULL);
 }
 
 #pragma data_seg(".GPLC$m")

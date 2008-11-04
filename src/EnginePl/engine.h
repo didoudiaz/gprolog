@@ -57,27 +57,27 @@
 
 #ifdef ENGINE_FILE
 
-int os_argc;
-char **os_argv;
+int pl_os_argc;
+char **pl_os_argv;
 
-char glob_buff[10240];
+char pl_glob_buff[10240];
 
-long *base_fl;			/* overwritten by foreign if present */
-double *base_fd;		/* overwritten by foreign if present */
+long *pl_base_fl;			/* overwritten by foreign if present */
+double *pl_base_fd;		/* overwritten by foreign if present */
 
-int use_gui;
+int pl_use_gui;
 
 #else
 
-extern int os_argc;
-extern char **os_argv;
+extern int pl_os_argc;
+extern char **pl_os_argv;
 
-extern char glob_buff[];
+extern char pl_glob_buff[];
 
-extern long *base_fl;
-extern double *base_fd;
+extern long *pl_base_fl;
+extern double *pl_base_fd;
 
-extern int use_gui;
+extern int pl_use_gui;
 
 #endif
 
@@ -87,32 +87,32 @@ extern int use_gui;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Start_Prolog(int argc, char *argv[]);
+int Pl_Start_Prolog(int argc, char *argv[]);
 
-void Stop_Prolog(void);
+void Pl_Stop_Prolog(void);
 
-void Reset_Prolog(void);
+void Pl_Reset_Prolog(void);
 
-void Reset_Prolog_In_Signal(void);
+void Pl_Reset_Prolog_In_Signal(void);
 
-void Set_Heap_Actual_Start(WamWord *heap_actual_start);
+void Pl_Set_Heap_Actual_Start(WamWord *heap_actual_start);
 
 
 
-void Execute_Directive(int pl_file, int pl_line, Bool is_system,
+void Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system,
 		       CodePtr proc);
 
-Bool Try_Execute_Top_Level(void);
+Bool Pl_Try_Execute_Top_Level(void);
 
-Bool Call_Prolog(CodePtr codep);
+Bool Pl_Call_Prolog(CodePtr codep);
 
-Bool Call_Prolog_Next_Sol(WamWord *query_b);
+Bool Pl_Call_Prolog_Next_Sol(WamWord *query_b);
 
-void Keep_Rest_For_Prolog(WamWord *query_b);
+void Pl_Keep_Rest_For_Prolog(WamWord *query_b);
 
-void Exit_With_Exception(void);
+void Pl_Exit_With_Exception(void);
 
-void Execute_A_Continuation(CodePtr codep);
+void Pl_Execute_A_Continuation(CodePtr codep);
 
 
 

@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Oct 1 2008)
+% compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : all_solut.pl
-% date    : 9 30 2008
-% time    : 17:26:18
+% date    : 11 4 2008
+% time    : 15:35:21
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_solut.pl').
@@ -34,7 +34,7 @@ predicate('$findall'/4,35,static,private,built_in,[
     put_integer(0,1),
     put_value(y(2),2),
     deallocate,
-    call_c('Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
@@ -80,7 +80,7 @@ predicate('$bagof'/4,56,static,private,built_in,[
     get_variable(x(2),0),
     put_variable(x(1),0),
     put_variable(y(2),5),
-    call_c('Free_Variables_4',[boolean],[x(2),x(3),x(0),x(5)]),
+    call_c('Pl_Free_Variables_4',[boolean],[x(2),x(3),x(0),x(5)]),
     cut(x(4)),
     put_structure((-)/2,0),
     unify_local_value(y(2)),
@@ -94,7 +94,7 @@ predicate('$bagof'/4,56,static,private,built_in,[
     put_value(y(3),0),
     put_integer(1,1),
     put_variable(y(4),2),
-    call_c('Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
     put_value(y(1),0),
     put_value(y(4),1),
     call('$$bagof/4_$aux1'/2),
@@ -110,7 +110,7 @@ label(1),
     get_variable(y(0),2),
     get_variable(y(1),3),
     put_variable(x(1),2),
-    call_c('Recover_Generator_1',[],[x(2)]),
+    call_c('Pl_Recover_Generator_1',[],[x(2)]),
     put_value(y(0),2),
     put_value(y(1),3),
     call('$findall'/4),
@@ -153,7 +153,7 @@ label(1),
 predicate('$store_solutions'/4,79,static,private,built_in,[
     get_variable(x(4),2),
     get_variable(x(2),0),
-    call_c('Stop_Mark_1',[],[x(4)]),
+    call_c('Pl_Stop_Mark_1',[],[x(4)]),
     put_value(x(1),0),
     put_value(x(3),1),
     execute('$$store_solutions/4_$aux1'/3)]).
@@ -167,7 +167,7 @@ predicate('$$store_solutions/4_$aux1'/3,79,static,private,built_in,[
     put_atom(true,3),
     call('$call'/4),
     put_value(y(0),0),
-    call_c('Store_Solution_1',[],[x(0)]),
+    call_c('Pl_Store_Solution_1',[],[x(0)]),
     fail,
 
 label(1),
@@ -176,12 +176,12 @@ label(1),
 
 
 predicate('$group_solutions'/3,90,static,private,built_in,[
-    call_c('Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate('$group_solutions_alt'/0,93,static,private,built_in,[
-    call_c('Group_Solutions_Alt_0',[boolean],[]),
+    call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 

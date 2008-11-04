@@ -63,39 +63,39 @@ static void Fd_Solver_Missing(void);
 
 
 /*-------------------------------------------------------------------------*
- * FD_INIT_SOLVER                                                          *
+ * PL_FD_INIT_SOLVER                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Init_Solver(void)
+Pl_Fd_Init_Solver(void)
 {
-  if (fd_init_solver == NULL)	/* FD solver not linked */
+  if (pl_fd_init_solver == NULL)	/* FD solver not linked */
     {
-      fd_unify_with_integer = (Bool (*)()) Fd_Solver_Missing;
-      fd_unify_with_fd_var = (Bool (*)()) Fd_Solver_Missing;
-      fd_variable_size = (int (*)()) Fd_Solver_Missing;
-      fd_copy_variable = (int (*)()) Fd_Solver_Missing;
-      fd_variable_to_string = (char *(*)()) Fd_Solver_Missing;
+      pl_fd_unify_with_integer = (Bool (*)()) Fd_Solver_Missing;
+      pl_fd_unify_with_fd_var = (Bool (*)()) Fd_Solver_Missing;
+      pl_fd_variable_size = (int (*)()) Fd_Solver_Missing;
+      pl_fd_copy_variable = (int (*)()) Fd_Solver_Missing;
+      pl_fd_variable_to_string = (char *(*)()) Fd_Solver_Missing;
       return;
     }
 
-  (*fd_init_solver) ();
+  (*pl_fd_init_solver) ();
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_RESET_SOLVER                                                         *
+ * PL_FD_RESET_SOLVER                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Reset_Solver(void)
+Pl_Fd_Reset_Solver(void)
 {
-  if (fd_reset_solver == NULL)	/* FD solver not linked */
+  if (pl_fd_reset_solver == NULL)	/* FD solver not linked */
     return;
 
-  (*fd_reset_solver) ();
+  (*pl_fd_reset_solver) ();
 }
 
 
@@ -108,5 +108,5 @@ Fd_Reset_Solver(void)
 void
 Fd_Solver_Missing(void)
 {
-  Fatal_Error(ERR_FD_SOLVER_MISSING);
+  Pl_Fatal_Error(ERR_FD_SOLVER_MISSING);
 }

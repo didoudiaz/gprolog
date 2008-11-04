@@ -53,10 +53,10 @@ consult(File) :-
 
 
 '$consult2'(File) :-
-	'$call_c_test'('Prolog_File_Name_2'(File, File1)),
+	'$call_c_test'('Pl_Prolog_File_Name_2'(File, File1)),
 	(   File1 = user ->
 	    File2 = File1
-	;   '$call_c_test'('Absolute_File_Name_2'(File1, File2)),
+	;   '$call_c_test'('Pl_Absolute_File_Name_2'(File1, File2)),
 	    (   file_exists(File2) ->
 	        true
 	    ;   set_bip_name(consult, 1),
@@ -77,7 +77,7 @@ consult(File) :-
 
 
 '$consult3'(TmpFile, PlFile) :-
-	'$call_c_test'('Consult_2'(TmpFile, PlFile)).
+	'$call_c_test'('Pl_Consult_2'(TmpFile, PlFile)).
 
 /*
 '$consult3'(TmpFile,PlFile):-
@@ -199,7 +199,7 @@ load(File) :-
 	    atom_concat(File, '.wbc', File1)
 	;   File1 = File
 	),
-	'$call_c_test'('Absolute_File_Name_2'(File1, File2)),
+	'$call_c_test'('Pl_Absolute_File_Name_2'(File1, File2)),
 	(   file_exists(File2) ->
 	    true
 	;   set_bip_name(load, 1),
@@ -212,14 +212,14 @@ load(File) :-
 
 
 '$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd) :-
-	'$call_c'('BC_Start_Pred_7'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd)).
+	'$call_c'('Pl_BC_Start_Pred_7'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd)).
 
 
 '$bc_start_emit' :-
-	'$call_c'('BC_Start_Emit_0').
+	'$call_c'('Pl_BC_Start_Emit_0').
 
 '$bc_stop_emit' :-
-	'$call_c'('BC_Stop_Emit_0').
+	'$call_c'('Pl_BC_Stop_Emit_0').
 
 '$bc_emit'([]).
 
@@ -228,13 +228,13 @@ load(File) :-
 	'$bc_emit'(WamCode).
 
 '$bc_emit_inst'(WamInst) :-
-	'$call_c'('BC_Emit_Inst_1'(WamInst)).
+	'$call_c'('Pl_BC_Emit_Inst_1'(WamInst)).
 
 
 
 
 '$bc_emulate_cont' :-                  % used by C code to set a continuation
-	'$call_c_jump'('BC_Emulate_Cont_0').
+	'$call_c_jump'('Pl_BC_Emulate_Cont_0').
 
 
 

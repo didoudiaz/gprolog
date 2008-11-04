@@ -35,8 +35,8 @@ typedef CodePtr WamCont;	/* a continuation is a code pointer */
 
 #ifndef ONLY_TAG_PART
 
-#define X(x)                       (reg_bank[x])
-#define A(a)                       (reg_bank[a])
+#define X(x)                       (pl_reg_bank[x])
+#define A(a)                       (pl_reg_bank[a])
 
 typedef WamWord *WamWordP;
 
@@ -48,16 +48,16 @@ typedef WamWord *WamWordP;
 register WamWordP		TR  asm ("ebx");
 
 
-#define B			(((WamWordP *) reg_bank)[NB_OF_X_REGS+0])
-#define H			(((WamWordP *) reg_bank)[NB_OF_X_REGS+1])
-#define HB1			(((WamWordP *) reg_bank)[NB_OF_X_REGS+2])
-#define CP			(((WamCont  *) reg_bank)[NB_OF_X_REGS+3])
-#define E			(((WamWordP *) reg_bank)[NB_OF_X_REGS+4])
-#define CS			(((WamWordP *) reg_bank)[NB_OF_X_REGS+5])
-#define S			(((WamWordP *) reg_bank)[NB_OF_X_REGS+6])
-#define STAMP			(((WamWord  *) reg_bank)[NB_OF_X_REGS+7])
-#define BCI			(((WamWord  *) reg_bank)[NB_OF_X_REGS+8])
-#define LSSA			(((WamWordP *) reg_bank)[NB_OF_X_REGS+9])
+#define B			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) pl_reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+9])
 
 
 #define NB_OF_REGS          	11
@@ -72,17 +72,17 @@ register WamWordP		TR  asm ("ebx");
 
 #ifdef ENGINE_FILE
 
-WamWord reg_bank[REG_BANK_SIZE];
-WamWord buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
+WamWord pl_reg_bank[REG_BANK_SIZE];
+WamWord pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
 
-char *reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
+char *pl_reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
 
 #else
 
-extern WamWord reg_bank[];
-extern WamWord buff_signal_reg[];
+extern WamWord pl_reg_bank[];
+extern WamWord pl_buff_signal_reg[];
 
-extern char *reg_tbl[];
+extern char *pl_reg_tbl[];
 
 #endif
 
@@ -156,19 +156,19 @@ extern char *reg_tbl[];
 
 #define Start_Protect_Regs_For_Signal \
   do { \
-    Save_Machine_Regs(buff_signal_reg); \
-    buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \
+    Save_Machine_Regs(pl_buff_signal_reg); \
+    pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \
   } while(0)
 
 
 #define Stop_Protect_Regs_For_Signal \
-  buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \
+  pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \
 
 
 #define Restore_Protect_Regs_For_Signal \
   do { \
-    if (buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \
-      Restore_Machine_Regs(buff_signal_reg); \
+    if (pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \
+      Restore_Machine_Regs(pl_buff_signal_reg); \
       Stop_Protect_Regs_For_Signal; \
     } \
   } while(0)
@@ -271,7 +271,7 @@ typedef struct
 
 #ifdef ENGINE_FILE
 
-InfTag tag_tbl[] =
+InfTag pl_tag_tbl[] =
 {
   { "REF", ADDRESS, 0, 0UL },
   { "LST", ADDRESS, 1, 0x1UL },
@@ -284,7 +284,7 @@ InfTag tag_tbl[] =
 
 #else
 
-extern InfTag tag_tbl[];
+extern InfTag pl_tag_tbl[];
 
 #endif
 
@@ -313,23 +313,23 @@ extern InfTag tag_tbl[];
 
 #define NB_OF_STACKS 		4
 
-#define Trail_Stack       	(stk_tbl[0].stack)
-#define Trail_Size        	(stk_tbl[0].size)
+#define Trail_Stack       	(pl_stk_tbl[0].stack)
+#define Trail_Size        	(pl_stk_tbl[0].size)
 #define Trail_Offset(adr) 	((WamWord *)(adr) - Trail_Stack)
 #define Trail_Used_Size   	Trail_Offset(TR)
 
-#define Cstr_Stack       	(stk_tbl[1].stack)
-#define Cstr_Size        	(stk_tbl[1].size)
+#define Cstr_Stack       	(pl_stk_tbl[1].stack)
+#define Cstr_Size        	(pl_stk_tbl[1].size)
 #define Cstr_Offset(adr) 	((WamWord *)(adr) - Cstr_Stack)
 #define Cstr_Used_Size   	Cstr_Offset(CS)
 
-#define Global_Stack       	(stk_tbl[2].stack)
-#define Global_Size        	(stk_tbl[2].size)
+#define Global_Stack       	(pl_stk_tbl[2].stack)
+#define Global_Size        	(pl_stk_tbl[2].size)
 #define Global_Offset(adr) 	((WamWord *)(adr) - Global_Stack)
 #define Global_Used_Size   	Global_Offset(H)
 
-#define Local_Stack       	(stk_tbl[3].stack)
-#define Local_Size        	(stk_tbl[3].size)
+#define Local_Stack       	(pl_stk_tbl[3].stack)
+#define Local_Size        	(pl_stk_tbl[3].size)
 #define Local_Offset(adr) 	((WamWord *)(adr) - Local_Stack)
 #define Local_Used_Size   	Local_Offset(Local_Top)
 
@@ -350,30 +350,30 @@ typedef struct
 #ifdef ENGINE_FILE
 
     /* these variables can be overwritten by top_comp.c (see stack size file) */
-long def_trail_size;
-long def_cstr_size;
-long def_global_size;
-long def_local_size;
-long fixed_sizes;
+long pl_def_trail_size;
+long pl_def_cstr_size;
+long pl_def_global_size;
+long pl_def_local_size;
+long pl_fixed_sizes;
 
-InfStack stk_tbl[] =
+InfStack pl_stk_tbl[] =
 {
- { "trail", "TRAILSZ", &def_trail_size, 2097152, 0, NULL },
- { "cstr", "CSTRSZ", &def_cstr_size, 2097152, 0, NULL },
- { "global", "GLOBALSZ", &def_global_size, 4194304, 0, NULL },
- { "local", "LOCALSZ", &def_local_size, 2097152, 0, NULL }
+ { "trail", "TRAILSZ", &pl_def_trail_size, 2097152, 0, NULL },
+ { "cstr", "CSTRSZ", &pl_def_cstr_size, 2097152, 0, NULL },
+ { "global", "GLOBALSZ", &pl_def_global_size, 4194304, 0, NULL },
+ { "local", "LOCALSZ", &pl_def_local_size, 2097152, 0, NULL }
 };
 
 #else
 
-extern long def_trail_size;
-extern long def_cstr_size;
-extern long def_global_size;
-extern long def_local_size;
-extern long fixed_sizes;
+extern long pl_def_trail_size;
+extern long pl_def_cstr_size;
+extern long pl_def_global_size;
+extern long pl_def_local_size;
+extern long pl_fixed_sizes;
 
 
-extern InfStack stk_tbl[];
+extern InfStack pl_stk_tbl[];
 
 #endif
 

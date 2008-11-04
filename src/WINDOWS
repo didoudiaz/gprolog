@@ -157,20 +157,20 @@ Workshop". There are 2 parts: a compiler to create a .chm version of the
 documentation (see doc/README) and a library that makes it possible to use
 this file from a C program. 
 
-You can get the HTML-Help Workshop from
-msdn.microsoft.com/library/en-us/htmlhelp/html/vsconHH1Start.asp (file
-HTMLHELP.EXE). In order to access to the compiler you have to add "C:\Program
-Files\HTML Help Workshop" to your PATH (see file hhvars.bat above).
+You can get the Microsoft HTML-Help Workshop from
+http://go.microsoft.com/fwlink/?linkid=14188 (file htmlhelp.exe). In order to
+access to the compiler you have to add "C:\Program Files\HTML Help Workshop"
+to your PATH (see file hhvars.bat above).
 
 If you have the SDK (see above) the header file htmlhelp.h and the library
 htmlhel.lib are already present. Else copy them from the workshop directory.
 
 For MinGW (I suppose you are under MSYS and mingw is in /mingw):
 	cp /c/Program\ Files/HTML\ Help\ Workshop/include/* /mingw/include/.
-	cp /c/Program\ Files/HTML\ Help\ Workshop/lib/* /mingw/lib/
+	cp /c/Program\ Files/HTML\ Help\ Workshop/lib/htmlhelp.lib /mingw/lib/libhtmlhelp.a
 
-Note that it is possible to rename htmlhelp.lib to libhtmlhelp.a to follow
-the Unix-like names (but a .lib also works).
+Note: libhtmlhelp.a follows unix standards for libs. The lib prefix make is  possible 
+to use the gcc option -lhtmlhelp (linker option). The .a suffix can be replaced by .lib.
 
 Note: when building the GUI console a warning can be displayed by the linker
 due to some directive placed by MS link.exe in the .lib. It does not

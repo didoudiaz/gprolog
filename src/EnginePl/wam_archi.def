@@ -35,8 +35,8 @@ typedef CodePtr WamCont;	/* a continuation is a code pointer */
 
 #ifndef ONLY_TAG_PART
 
-#define X(x)                       (reg_bank[x])
-#define A(a)                       (reg_bank[a])
+#define X(x)                       (pl_reg_bank[x])
+#define A(a)                       (pl_reg_bank[a])
 
 typedef WamWord *WamWordP;
 

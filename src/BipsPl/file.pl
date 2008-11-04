@@ -31,18 +31,18 @@
 
 absolute_file_name(F1, F2) :-
 	set_bip_name(absolute_file_name, 2),
-	'$call_c_test'('Absolute_File_Name_2'(F1, F2)).
+	'$call_c_test'('Pl_Absolute_File_Name_2'(F1, F2)).
 
 
 
 
 decompose_file_name(Path, Dir, Prefix, Suffix) :-
 	set_bip_name(decompose_file_name, 4),
-	'$call_c_test'('Decompose_File_Name_4'(Path, Dir, Prefix, Suffix)).
+	'$call_c_test'('Pl_Decompose_File_Name_4'(Path, Dir, Prefix, Suffix)).
 
 
 
 
 prolog_file_name(PlFile, PlFile1) :-
 	set_bip_name(prolog_file_name, 2),
-	'$call_c_test'('Prolog_File_Name_2'(PlFile, PlFile1)).
+	'$call_c_test'('Pl_Prolog_File_Name_2'(PlFile, PlFile1)).

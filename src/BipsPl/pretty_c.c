@@ -112,12 +112,12 @@ static void Bind_Variable(WamWord *adr, WamWord word);
 static void
 Pretty_Initializer(void)
 {
-  atom_clause = Create_Atom(":-");
-  atom_dcg = Create_Atom("-->");
-  atom_if = Create_Atom("->");
+  atom_clause = Pl_Create_Atom(":-");
+  atom_dcg = Pl_Create_Atom("-->");
+  atom_if = Pl_Create_Atom("->");
 
-  atom_dollar_var = Create_Atom("$VAR");
-  atom_dollar_varname = Create_Atom("$VARNAME");
+  atom_dollar_var = Pl_Create_Atom("$VAR");
+  atom_dollar_varname = Pl_Create_Atom("$VARNAME");
 
   dollar_var_1 = Functor_Arity(atom_dollar_var, 1);
   dollar_varname_1 = Functor_Arity(atom_dollar_varname, 1);
@@ -128,22 +128,22 @@ Pretty_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * PORTRAY_CLAUSE_2                                                        *
+ * PL_PORTRAY_CLAUSE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Portray_Clause_2(WamWord sora_word, WamWord term_word)
+Pl_Portray_Clause_2(WamWord sora_word, WamWord term_word)
 {
   int stm;
   StmInf *pstm;
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? stm_output : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
-  pstm = stm_tbl[stm];
+    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+  pstm = pl_stm_tbl[stm];
 
-  last_output_sora = sora_word;
-  Check_Stream_Type(stm, TRUE, FALSE);
+  pl_last_output_sora = sora_word;
+  Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
   Portray_Clause(pstm, term_word);
 }
@@ -152,13 +152,13 @@ Portray_Clause_2(WamWord sora_word, WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * PORTRAY_CLAUSE_1                                                        *
+ * PL_PORTRAY_CLAUSE_1                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Portray_Clause_1(WamWord term_word)
+Pl_Portray_Clause_1(WamWord term_word)
 {
-  Portray_Clause_2(NOT_A_WAM_WORD, term_word);
+  Pl_Portray_Clause_2(NOT_A_WAM_WORD, term_word);
 }
 
 
@@ -181,44 +181,44 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 
   if (Check_Structure(term_word, atom_clause, 2, arg_word))
     {
-      Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
+      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
       atom = UnTag_ATM(word);
-      if (tag_mask != TAG_ATM_MASK || atom != atom_true)
+      if (tag_mask != TAG_ATM_MASK || atom != pl_atom_true)
 	{
-	  Stream_Puts(" :-", pstm);
+	  Pl_Stream_Puts(" :-", pstm);
 	  Start_Line(pstm, 0, ' ');
 	  Show_Body(pstm, 0, GENERAL_BODY, arg_word[1]);
 	}
-      Write_A_Char(pstm, '.');
+      Pl_Write_A_Char(pstm, '.');
       return;
     }
 
   if (Check_Structure(term_word, atom_dcg, 2, arg_word))
     {
-      Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
+      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
       atom = UnTag_ATM(word);
-      if (tag_mask != TAG_ATM_MASK || atom != atom_true)
+      if (tag_mask != TAG_ATM_MASK || atom != pl_atom_true)
 	{
-	  Stream_Puts(" -->", pstm);
+	  Pl_Stream_Puts(" -->", pstm);
 	  Start_Line(pstm, 0, ' ');
 	  Show_Body(pstm, 0, GENERAL_BODY, arg_word[1]);
 	}
-      Write_A_Char(pstm, '.');
+      Pl_Write_A_Char(pstm, '.');
       return;
     }
 
   if (Check_Structure(term_word, atom_clause, 1, arg_word))
     {
-      Stream_Puts(":-\t", pstm);
+      Pl_Stream_Puts(":-\t", pstm);
       Show_Body(pstm, 0, GENERAL_BODY, arg_word[0]);
-      Write_A_Char(pstm, '.');
+      Pl_Write_A_Char(pstm, '.');
       return;
     }
 
-  Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, term_word);
-  Write_A_Char(pstm, '.');
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, term_word);
+  Pl_Write_A_Char(pstm, '.');
 }
 
 
@@ -289,9 +289,9 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
   if (Check_Structure(body_word, ATOM_CHAR(','), 2, arg_word))
     {
       Show_Body(pstm, level, LEFT_AND, arg_word[0]);
-      Stream_Putc(',', pstm);
+      Pl_Stream_Putc(',', pstm);
       if (Is_Cut(arg_word[1]))
-	Stream_Putc(' ', pstm);
+	Pl_Stream_Putc(' ', pstm);
       else
 	Start_Line(pstm, level, ' ');
       Show_Body(pstm, level, RIGHT_AND, arg_word[1]);
@@ -303,7 +303,7 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
     {
       if (context != RIGHT_OR)
 	{
-	  Stream_Puts("(   ", pstm);
+	  Pl_Stream_Puts("(   ", pstm);
 	  level++;
 	}
 
@@ -314,7 +314,7 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
       if (context != RIGHT_OR)
 	{
 	  Start_Line(pstm, level - 1, ' ');
-	  Stream_Putc(')', pstm);
+	  Pl_Stream_Putc(')', pstm);
 	}
       return;
     }
@@ -324,25 +324,25 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
     {
       if (context != LEFT_OR && context != RIGHT_OR)
 	{
-	  Stream_Puts("(   ", pstm);
+	  Pl_Stream_Puts("(   ", pstm);
 	  level++;
 	}
 
       Show_Body(pstm, level, LEFT_IF, arg_word[0]);
-      Stream_Puts(" ->", pstm);
+      Pl_Stream_Puts(" ->", pstm);
       Start_Line(pstm, level, ' ');
       Show_Body(pstm, level, RIGHT_IF, arg_word[1]);
 
       if (context != LEFT_OR && context != RIGHT_OR)
 	{
 	  Start_Line(pstm, level - 1, ' ');
-	  Stream_Putc(')', pstm);
+	  Pl_Stream_Putc(')', pstm);
 	}
 
       return;
     }
 
-  Write_Term(pstm, -1, prec[context], WRITE_MASK, body_word);
+  Pl_Write_Term(pstm, -1, prec[context], WRITE_MASK, body_word);
 }
 
 
@@ -355,7 +355,7 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
 static void
 Start_Line(StmInf *pstm, int level, char c_before)
 {
-  char *p = glob_buff;
+  char *p = pl_glob_buff;
   int i;
 
 
@@ -375,34 +375,34 @@ Start_Line(StmInf *pstm, int level, char c_before)
 
   *p = '\0';
 
-  Stream_Puts(glob_buff, pstm);
-  last_writing = 0;		/* ie. W_NOTHING */
+  Pl_Stream_Puts(pl_glob_buff, pstm);
+  pl_last_writing = 0;		/* ie. W_NOTHING */
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * NAME_SINGLETON_VARS_1                                                   *
+ * PL_NAME_SINGLETON_VARS_1                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Name_Singleton_Vars_1(WamWord start_word)
+Pl_Name_Singleton_Vars_1(WamWord start_word)
 {
   WamWord word;
 
-  singl_var_ptr = glob_dico_var;	/* glob_dico_var: stores singletons */
+  singl_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores singletons */
   nb_singl_var = 0;
 
-  Treat_Vars_Of_Term(start_word, FALSE, Collect_Singleton);
+  Pl_Treat_Vars_Of_Term(start_word, FALSE, Collect_Singleton);
 
   if (nb_singl_var == 0)
     return;
 
-  word = Put_Structure(atom_dollar_varname, 1);
-  Unify_Atom(ATOM_CHAR('_'));	/* bind to '$VARNAME'('_') */
+  word = Pl_Put_Structure(atom_dollar_varname, 1);
+  Pl_Unify_Atom(ATOM_CHAR('_'));	/* bind to '$VARNAME'('_') */
 
-  while (--singl_var_ptr >= glob_dico_var)
+  while (--singl_var_ptr >= pl_glob_dico_var)
     {
       if (*singl_var_ptr & 1)	/* marked - not a singleton */
 	continue;
@@ -423,7 +423,7 @@ Collect_Singleton(WamWord *adr)
 {
   long *p;
 
-  for (p = glob_dico_var; p < singl_var_ptr; p++)
+  for (p = pl_glob_dico_var; p < singl_var_ptr; p++)
     if ((*p & ~1) == (long) adr)	/* not a singleton */
       {
 	if ((*p & 1) == 0)	/* not yet marked - mark it */
@@ -434,8 +434,8 @@ Collect_Singleton(WamWord *adr)
 	return;
       }
 
-  if (singl_var_ptr - glob_dico_var >= MAX_VAR_IN_TERM)
-    Pl_Err_Representation(representation_too_many_variables);
+  if (singl_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
+    Pl_Err_Representation(pl_representation_too_many_variables);
 
   *singl_var_ptr++ = (long) adr;
   nb_singl_var++;
@@ -445,11 +445,11 @@ Collect_Singleton(WamWord *adr)
 
 
 /*-------------------------------------------------------------------------*
- * NAME_QUERY_VARS_2                                                       *
+ * PL_NAME_QUERY_VARS_2                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
+Pl_Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -457,7 +457,7 @@ Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 
   save_list_word = query_list_word;
 
-  Check_For_Un_List(rest_list_word);
+  Pl_Check_For_Un_List(rest_list_word);
 
   for (;;)
     {
@@ -470,7 +470,7 @@ Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
 
@@ -486,35 +486,35 @@ Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 	  if (tag_mask != TAG_REF_MASK)
 	    goto unchanged;
 				/* Value is a variable */
-	  Get_Structure(atom_dollar_varname, 1, word);
-	  Unify_Value(Arg(stc_adr, 0));	/* bind Value to '$VARNAME'(Name) */
+	  Pl_Get_Structure(atom_dollar_varname, 1, word);
+	  Pl_Unify_Value(Arg(stc_adr, 0));	/* bind Value to '$VARNAME'(Name) */
 	}
       else
 	{
 	unchanged:
-	  if (!Get_List(rest_list_word) || !Unify_Value(Car(lst_adr)))
+	  if (!Pl_Get_List(rest_list_word) || !Pl_Unify_Value(Car(lst_adr)))
 	    return FALSE;
 
-	  rest_list_word = Unify_Variable();
+	  rest_list_word = Pl_Unify_Variable();
 	}
       query_list_word = Cdr(lst_adr);
     }
 
-  return Get_Nil(rest_list_word);
+  return Pl_Get_Nil(rest_list_word);
 }
 
 
 
 
-#define BIND_WITH_NUMBERVAR        (sys_var[0] == 0)
+#define BIND_WITH_NUMBERVAR        (pl_sys_var[0] == 0)
 
 
 /*-------------------------------------------------------------------------*
- * BIND_VARIABLES_4                                                        *
+ * PL_BIND_VARIABLES_4                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
+Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 		 WamWord from_word, WamWord next_word)
 {
   WamWord word, tag_mask;
@@ -523,9 +523,9 @@ Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
   int i;
 
   for (i = 0; i < MAX_VAR_IN_TERM; i++)
-    glob_dico_var[i] = 0;	/* glob_dico_var: excluded var ? (0/1) */
+    pl_glob_dico_var[i] = 0;	/* pl_glob_dico_var: excluded var ? (0/1) */
 
-  nb_to_try = Rd_Positive_Check(from_word);
+  nb_to_try = Pl_Rd_Positive_Check(from_word);
 
   save_list_word = exclude_list_word;
 
@@ -540,7 +540,7 @@ Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
 
@@ -558,9 +558,9 @@ Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
       exclude_list_word = Cdr(lst_adr);
     }
 
-  Treat_Vars_Of_Term(term_word, FALSE, Bind_Variable);
+  Pl_Treat_Vars_Of_Term(term_word, FALSE, Bind_Variable);
 
-  return Un_Integer_Check(nb_to_try, next_word);
+  return Pl_Un_Integer_Check(nb_to_try, next_word);
 }
 
 
@@ -576,7 +576,7 @@ Var_Name_To_Var_Number(int atom)
   char *p, *q;
   int n;
 
-  p = atom_tbl[atom].name;
+  p = pl_atom_tbl[atom].name;
   if (*p < 'A' || *p > 'Z')
     return -1;
 
@@ -600,7 +600,7 @@ static void
 Exclude_A_Var_Number(int n)
 {
   if (n >= 0 && n < MAX_VAR_IN_TERM)
-    glob_dico_var[n] = 1;
+    pl_glob_dico_var[n] = 1;
 }
 
 
@@ -677,13 +677,13 @@ Bind_Variable(WamWord *adr, WamWord word)
   int i, j;
   char buff[16];
 
-  while (glob_dico_var[nb_to_try] && nb_to_try < MAX_VAR_IN_TERM)
+  while (pl_glob_dico_var[nb_to_try] && nb_to_try < MAX_VAR_IN_TERM)
     nb_to_try++;
 
   if (BIND_WITH_NUMBERVAR)
     {
-      Get_Structure(atom_dollar_var, 1, word);
-      Unify_Integer(nb_to_try++);
+      Pl_Get_Structure(atom_dollar_var, 1, word);
+      Pl_Unify_Integer(nb_to_try++);
       return;
     }
 
@@ -698,6 +698,6 @@ Bind_Variable(WamWord *adr, WamWord word)
   else
     buff[1] = '\0';
 
-  Get_Structure(atom_dollar_varname, 1, word);
-  Unify_Atom(Create_Allocate_Atom(buff));
+  Pl_Get_Structure(atom_dollar_varname, 1, word);
+  Pl_Unify_Atom(Pl_Create_Allocate_Atom(buff));
 }

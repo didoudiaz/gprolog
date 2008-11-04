@@ -31,7 +31,7 @@
 
 fd_all_different(L) :-
 	set_bip_name(fd_all_different, 1),
-	'$call_c_test'('Fd_All_Different_1'(L, L)).
+	'$call_c_test'('Pl_Fd_All_Different_1'(L, L)).
 
 
 
@@ -41,35 +41,35 @@ fd_element(I, List, V) :-
 
 
 '$fd_element'(I, List, V) :-
-	fd_tell(fd_element(I, List, V)).
+	fd_tell(pl_fd_element(I, List, V)).
 
 	
 
 
 fd_element_var(I, List, V) :-
 	set_bip_name(fd_element_var, 3),
-	fd_tell(fd_element_var(I, List, V)).
+	fd_tell(pl_fd_element_var(I, List, V)).
 
 
 
 
 fd_atmost(N, List, V) :-
 	set_bip_name(fd_atmost, 3),
-	fd_tell(fd_atmost(N, List, V)).
+	fd_tell(pl_fd_atmost(N, List, V)).
 
 
 
 
 fd_atleast(N, List, V) :-
 	set_bip_name(fd_atleast, 3),
-	fd_tell(fd_atleast(N, List, V)).
+	fd_tell(pl_fd_atleast(N, List, V)).
 
 
 
 
 fd_exactly(N, List, V) :-
 	set_bip_name(fd_exactly, 3),
-	fd_tell(fd_exactly(N, List, V)).
+	fd_tell(pl_fd_exactly(N, List, V)).
 
 
 

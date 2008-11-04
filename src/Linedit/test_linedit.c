@@ -43,7 +43,7 @@
 #include "linedit.h"
 
 
-#define printf LE_Printf
+#define printf Pl_LE_Printf
 
 
 /*---------------------------------*
@@ -78,13 +78,13 @@ Ctrl_C_Manager(int from_callback)
   int nb, max_lg, is_last;
 
   printf("\nCATCHING CTRL+C prompt length: %d   current pos: %d\n",
-	 LE_Get_Prompt_Length(), LE_Get_Current_Position());
+	 Pl_LE_Get_Prompt_Length(), Pl_LE_Get_Current_Position());
 
   printf("e: exit, c: continue, C: completions, w: current word: ");
   fflush(stdout);
 
 
-  c = LE_Get_Key(1, 1);
+  c = Pl_LE_Get_Key(1, 1);
   printf("\n");
 
   switch (c)
@@ -93,19 +93,19 @@ Ctrl_C_Manager(int from_callback)
       exit(0);
 
     case 'w':
-      LE_Get_Current_Word(prefix);
+      Pl_LE_Get_Current_Word(prefix);
       printf("current word=<%s>\n", prefix);
       break;
 
     case 'C':
       printf("Enter a prefix:");
-      LE_Gets(prefix);
-      if ((str = LE_Compl_Init_Match(prefix, &nb, &max_lg)) == NULL)
+      Pl_LE_Gets(prefix);
+      if ((str = Pl_LE_Compl_Init_Match(prefix, &nb, &max_lg)) == NULL)
 	printf("no matching\n");
       else
 	{
 	  printf("common=<%s> nb=%d max_lg=%d\n", str, nb, max_lg);
-	  while ((str = LE_Compl_Find_Match(&is_last)) != NULL)
+	  while ((str = Pl_LE_Compl_Find_Match(&is_last)) != NULL)
 	    printf("matching: <%s>\n", str);
 	}
       break;
@@ -157,7 +157,7 @@ main(int argc, char *argv[])
 #endif
 
 #if 1
-  Install_Ctrl_C_Handler(Ctrl_C_Manager);
+  Pl_Install_Ctrl_C_Handler(Ctrl_C_Manager);
 #endif
 
   Set_Test_Locale();
@@ -166,7 +166,7 @@ main(int argc, char *argv[])
     tempo = atoi(argv[1]);
 
   sep[0] = '\n';
-  strcpy(sep + 1, LE_Get_Separators());
+  strcpy(sep + 1, Pl_LE_Get_Separators());
 
   printf("enter lines (EOF to finish)\n");
 
@@ -197,23 +197,23 @@ main(int argc, char *argv[])
 #endif
 #if 0
       printf("enter a line:");
-      if (LE_Gets(line) == NULL)
+      if (Pl_LE_Gets(line) == NULL)
 #else
-      if (LE_FGets(line, MAX_SIZE, "enter a line:", 1) == NULL)
+      if (Pl_LE_FGets(line, MAX_SIZE, "enter a line:", 1) == NULL)
 #endif
 	break;
       printf("Line:(%s) len:%d\n", line, strlen(line));
       for (p = line; (p = strtok(p, sep)) != NULL; p = NULL)
 	{
 	  printf("adding word (%s) for completion\n", p);
-	  LE_Compl_Add_Word(strdup(p), strlen(p));
+	  Pl_LE_Compl_Add_Word(strdup(p), strlen(p));
 	}
     }
 
   printf("End of testing\n");
 
   ret_val = 12;
-  if (le_hook_exit_process)
-    (*le_hook_exit_process) (ret_val);
+  if (pl_le_hook_exit_process)
+    (*pl_le_hook_exit_process) (ret_val);
   return ret_val;
 }

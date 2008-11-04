@@ -31,63 +31,63 @@
 
 LE #= RE :-
 	set_bip_name(#=, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(0)),
-	'$call_c_test'('Fd_Eq_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(0)),
+	'$call_c_test'('Pl_Fd_Eq_2'(LE, RE)).
 
 LE #\= RE :-
 	set_bip_name(#\=, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(0)),
-	'$call_c_test'('Fd_Neq_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(0)),
+	'$call_c_test'('Pl_Fd_Neq_2'(LE, RE)).
 
 LE #< RE :-
 	set_bip_name(#<, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(0)),
-	'$call_c_test'('Fd_Lt_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(0)),
+	'$call_c_test'('Pl_Fd_Lt_2'(LE, RE)).
 
 LE #=< RE :-
 	set_bip_name(#=<, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(0)),
-	'$call_c_test'('Fd_Lte_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(0)),
+	'$call_c_test'('Pl_Fd_Lte_2'(LE, RE)).
 
 LE #> RE :-
 	set_bip_name(#>, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(0)),
-	'$call_c_test'('Fd_Lt_2'(RE, LE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(0)),
+	'$call_c_test'('Pl_Fd_Lt_2'(RE, LE)).
 
 LE #>= RE :-
 	set_bip_name(#>=, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(0)),
-	'$call_c_test'('Fd_Lte_2'(RE, LE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(0)),
+	'$call_c_test'('Pl_Fd_Lte_2'(RE, LE)).
 
 
 
 
 LE #=# RE :-
 	set_bip_name(#=, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(1)),
-	'$call_c_test'('Fd_Eq_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(1)),
+	'$call_c_test'('Pl_Fd_Eq_2'(LE, RE)).
 
 LE #\=# RE :-
 	set_bip_name(#\=, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(1)),
-	'$call_c_test'('Fd_Neq_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(1)),
+	'$call_c_test'('Pl_Fd_Neq_2'(LE, RE)).
 
 LE #<# RE :-
 	set_bip_name(#<, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(1)),
-	'$call_c_test'('Fd_Lt_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(1)),
+	'$call_c_test'('Pl_Fd_Lt_2'(LE, RE)).
 
 LE #=<# RE :-
 	set_bip_name(#=<, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(1)),
-	'$call_c_test'('Fd_Lte_2'(LE, RE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(1)),
+	'$call_c_test'('Pl_Fd_Lte_2'(LE, RE)).
 
 LE #># RE :-
 	set_bip_name(#>, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(1)),
-	'$call_c_test'('Fd_Lt_2'(RE, LE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(1)),
+	'$call_c_test'('Pl_Fd_Lt_2'(RE, LE)).
 
 LE #>=# RE :-
 	set_bip_name(#>=, 2),
-	'$call_c'('Fd_Set_Full_Ac_Flag_1'(1)),
-	'$call_c_test'('Fd_Lte_2'(RE, LE)).
+	'$call_c'('Pl_Fd_Set_Full_Ac_Flag_1'(1)),
+	'$call_c_test'('Pl_Fd_Lte_2'(RE, LE)).

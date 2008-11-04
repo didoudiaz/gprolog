@@ -38,24 +38,24 @@
 
 #ifdef IF_NO_FD_FILE
 
-void (*fd_init_solver) ();	/* overwritten by FD if present */
-void (*fd_reset_solver) ();
+void (*pl_fd_init_solver) ();	/* overwritten by FD if present */
+void (*pl_fd_reset_solver) ();
 
-Bool (*fd_unify_with_integer) ();
-Bool (*fd_unify_with_fd_var) ();
-int (*fd_variable_size) ();
-int (*fd_copy_variable) ();
-char *(*fd_variable_to_string) ();
+Bool (*pl_fd_unify_with_integer) ();
+Bool (*pl_fd_unify_with_fd_var) ();
+int (*pl_fd_variable_size) ();
+int (*pl_fd_copy_variable) ();
+char *(*pl_fd_variable_to_string) ();
 
 #else
 
-extern void (*fd_init_solver) ();
-extern void (*fd_reset_solver) ();
-extern Bool (*fd_unify_with_integer) ();
-extern Bool (*fd_unify_with_fd_var) ();
-extern int (*fd_variable_size) ();
-extern int (*fd_copy_variable) ();
-extern char *(*fd_variable_to_string) ();
+extern void (*pl_fd_init_solver) ();
+extern void (*pl_fd_reset_solver) ();
+extern Bool (*pl_fd_unify_with_integer) ();
+extern Bool (*pl_fd_unify_with_fd_var) ();
+extern int (*pl_fd_variable_size) ();
+extern int (*pl_fd_copy_variable) ();
+extern char *(*pl_fd_variable_to_string) ();
 
 #endif
 
@@ -66,16 +66,16 @@ extern char *(*fd_variable_to_string) ();
  * Function Prototypes             *
  *---------------------------------*/
 
-void Fd_Init_Solver(void);
+void Pl_Fd_Init_Solver(void);
 
-void Fd_Reset_Solver(void);
+void Pl_Fd_Reset_Solver(void);
 
-#define Fd_Unify_With_Integer(f, n) ((*fd_unify_with_integer)(f, n))
+#define Fd_Unify_With_Integer(f, n) ((*pl_fd_unify_with_integer)(f, n))
 
-#define Fd_Unify_With_Fd_Var(f1, f2)((*fd_unify_with_fd_var)(f1, f2))
+#define Fd_Unify_With_Fd_Var(f1, f2)((*pl_fd_unify_with_fd_var)(f1, f2))
 
-#define Fd_Variable_Size(f)         ((*fd_variable_size)(f))
+#define Fd_Variable_Size(f)         ((*pl_fd_variable_size)(f))
 
-#define Fd_Copy_Variable(dst_adr, f)((*fd_copy_variable)(dst_adr, f))
+#define Fd_Copy_Variable(dst_adr, f)((*pl_fd_copy_variable)(dst_adr, f))
 
-#define Fd_Variable_To_String(f)    ((*fd_variable_to_string)(f))
+#define Fd_Variable_To_String(f)    ((*pl_fd_variable_to_string)(f))

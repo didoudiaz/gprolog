@@ -220,17 +220,17 @@ do {                             \
 
 
 /*-------------------------------------------------------------------------*
- * LE_GETS                                                                 *
+ * PL_LE_GETS                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Gets(char *str)
+Pl_LE_Gets(char *str)
 {
   int l;
   int big_size = ((unsigned) -1) >> 1;
 
 
-  if ((str = LE_FGets(str, big_size, NULL, 0)) != NULL)
+  if ((str = Pl_LE_FGets(str, big_size, NULL, 0)) != NULL)
     {
       l = strlen(str) - 1;	/* for gets remove last \n */
       if (l >= 0 && str[l] == '\n')
@@ -244,11 +244,11 @@ LE_Gets(char *str)
 
 
 /*-------------------------------------------------------------------------*
- * LE_FGETS                                                                *
+ * PL_LE_FGETS                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_FGets(char *str, int size, char *prompt, int display_prompt)
+Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 {
   char *pos = str;
   char *end = str;
@@ -262,19 +262,19 @@ LE_FGets(char *str, int size, char *prompt, int display_prompt)
   int tab_count = 0;
   int count_bracket[3];
 
-  LE_Initialize();
+  Pl_LE_Initialize();
 
   size--;			/* -1 for '\0' */
 
   prompt_length = (prompt && display_prompt) ? strlen(prompt) : 0;
 
-  LE_Open_Terminal();
+  Pl_LE_Open_Terminal();
   global_str = str;
 
 #ifdef TREAT_BUFFERED_CHARS	/* treat buffered lines (for paste) */
   while (KBD_IS_NOT_EMPTY)
     {
-      if (end - str >= size || ((c = LE_Get_Char()) == '\n') ||
+      if (end - str >= size || ((c = Pl_LE_Get_Char()) == '\n') ||
 	  c == '\r')
 	{
 	  RE_DISPLAY_LINE;
@@ -302,23 +302,23 @@ LE_FGets(char *str, int size, char *prompt, int display_prompt)
       global_pos = pos;
       global_end = end;
 
-      c = LE_Get_Char();
+      c = Pl_LE_Get_Char();
     one_char:
       *end = ' ';		/* to allow for separator test */
 
-      if (LE_Is_Interrupt_Key(c))
+      if (Pl_LE_Is_Interrupt_Key(c))
 	{			/* save global vars for reentrancy */
 	  int save_prompt_length = prompt_length;
 
 	  FORWD(end - pos, pos); /* go to EOL to avoid multi-line */
 				/* truncation on the output */
-	  LE_Close_Terminal();
+	  Pl_LE_Close_Terminal();
 	  c = *end;
 	  *end = '\0';		/* to allow the handler to use/test str */
-	  if ((ctrl_c_ret_val = Emit_Ctrl_C()) != 0)
+	  if ((ctrl_c_ret_val = Pl_Emit_Ctrl_C()) != 0)
 	    return (char *) -2;
 
-	  LE_Open_Terminal();
+	  Pl_LE_Open_Terminal();
 	  *end = c;
 
 	  global_str = str;	/* restore global vars for reentrancy */
@@ -711,7 +711,7 @@ LE_FGets(char *str, int size, char *prompt, int display_prompt)
 	    {
 	      n = c;
 	      EMIT_BEEP;
-	      c = LE_Get_Char();
+	      c = Pl_LE_Get_Char();
 	      if (c != n)
 		goto one_char;
 	      goto display_help;
@@ -794,13 +794,17 @@ LE_FGets(char *str, int size, char *prompt, int display_prompt)
 	  continue;
 	}
     error:
+#ifndef _WIN32
       EMIT_BEEP;
+#else
+      ;
+#endif
     }
 
 finish:
   NewLn();
 
-  LE_Close_Terminal();
+  Pl_LE_Close_Terminal();
 
   return str;
 }
@@ -851,11 +855,11 @@ New_Char(int c, char *str, int size, char **p_pos, char **p_end)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_PROMPT_LENGTH                                                    *
+ * PL_LE_GET_PROMPT_LENGTH                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Get_Prompt_Length(void)
+Pl_LE_Get_Prompt_Length(void)
 {
   return prompt_length;
 }
@@ -864,11 +868,11 @@ LE_Get_Prompt_Length(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_CURRENT_POSITION                                                 *
+ * PL_LE_GET_CURRENT_POSITION                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Get_Current_Position(void)
+Pl_LE_Get_Current_Position(void)
 {
   return global_pos - global_str;
 }
@@ -877,11 +881,11 @@ LE_Get_Current_Position(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_CURRENT_WORD                                                     *
+ * PL_LE_GET_CURRENT_WORD                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Get_Current_Word(char *word)
+Pl_LE_Get_Current_Word(char *word)
 {
   char *str = global_str;
   char *pos = global_pos;
@@ -904,11 +908,11 @@ LE_Get_Current_Word(char *word)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_SEPARATORS                                                       *
+ * PL_LE_GET_SEPARATORS                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Get_Separators(void)
+Pl_LE_Get_Separators(void)
 {
   return separators;
 }
@@ -917,11 +921,11 @@ LE_Get_Separators(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_SET_SEPARATORS                                                       *
+ * PL_LE_SET_SEPARATORS                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Set_Separators(char *sep_str)
+Pl_LE_Set_Separators(char *sep_str)
 {
   return strcpy(separators, sep_str);
 }
@@ -930,11 +934,11 @@ LE_Set_Separators(char *sep_str)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_CTRL_C_RETURN_VALUE                                              *
+ * PL_LE_GET_CTRL_C_RETURN_VALUE                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 long
-LE_Get_Ctrl_C_Return_Value(void)
+Pl_LE_Get_Ctrl_C_Return_Value(void)
 {
   return ctrl_c_ret_val;
 }
@@ -1076,11 +1080,11 @@ History_Get_Line(char *str, int hist_no)
 
 
 /*-------------------------------------------------------------------------*
- * LE_COMPL_ADD_WORD                                                       *
+ * PL_LE_COMPL_ADD_WORD                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Compl_Add_Word(char *word, int word_length)
+Pl_LE_Compl_Add_Word(char *word, int word_length)
 {
   CompNode **p;
   CompNode *q;
@@ -1111,11 +1115,11 @@ LE_Compl_Add_Word(char *word, int word_length)
 
 
 /*-------------------------------------------------------------------------*
- * LE_COMPL_DEL_WORD                                                       *
+ * PL_LE_COMPL_DEL_WORD                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Compl_Del_Word(char *word)
+Pl_LE_Compl_Del_Word(char *word)
 {
   CompNode **p;
   CompNode *q;
@@ -1142,11 +1146,11 @@ LE_Compl_Del_Word(char *word)
 
 
 /*-------------------------------------------------------------------------*
- * LE_COMPL_INIT_MATCH                                                     *
+ * PL_LE_COMPL_INIT_MATCH                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg)
+Pl_LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg)
 {
   int prefix_length, rest_length;
   char *str;
@@ -1172,11 +1176,11 @@ LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg)
 
 
 /*-------------------------------------------------------------------------*
- * LE_COMPL_FIND_MATCH                                                     *
+ * PL_LE_COMPL_FIND_MATCH                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-LE_Compl_Find_Match(int *is_last)
+Pl_LE_Compl_Find_Match(int *is_last)
 {
   char *str;
 
@@ -1305,7 +1309,7 @@ Completion_Print_All(void)
     {
       sprintf(buff, "Show all %d possibilities (y/n) ? ", comp_nb_match);
       DISPL_STR(buff);
-      c = LE_Get_Char();
+      c = Pl_LE_Get_Char();
       NewLn();
       if (c != 'y')
 	return;
@@ -1396,25 +1400,25 @@ Display_Help(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_KEY                                                              *
+ * PL_LE_GET_KEY                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Get_Key(int echo, int catch_ctrl_c)
+Pl_LE_Get_Key(int echo, int catch_ctrl_c)
 {
   int c;
 
-  LE_Initialize();
+  Pl_LE_Initialize();
   prompt_length = 0;
 
 start:
-  LE_Open_Terminal();
+  Pl_LE_Open_Terminal();
 
-  c = LE_Get_Char();
-  if (catch_ctrl_c && LE_Is_Interrupt_Key(c))
+  c = Pl_LE_Get_Char();
+  if (catch_ctrl_c && Pl_LE_Is_Interrupt_Key(c))
     {
-      LE_Close_Terminal();
-      if ((ctrl_c_ret_val = Emit_Ctrl_C()) != 0)
+      Pl_LE_Close_Terminal();
+      if ((ctrl_c_ret_val = Pl_Emit_Ctrl_C()) != 0)
 	return -2;
       goto start;
     }
@@ -1425,7 +1429,7 @@ start:
   if (echo && (unsigned) c <= 255 && isprint(c))
     PUT_CHAR(c);
 
-  LE_Close_Terminal();
+  Pl_LE_Close_Terminal();
 
   return c;
 }
@@ -1434,17 +1438,17 @@ start:
 
 
 /*-------------------------------------------------------------------------*
- * LE_PRINTF                                                               *
+ * PL_LE_PRINTF                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Printf(char *format, ...)
+Pl_LE_Printf(char *format, ...)
 {
   va_list arg_ptr;
   char buff[1024];
   int ret;
 
-  LE_Initialize();
+  Pl_LE_Initialize();
 
   va_start(arg_ptr, format);
   ret = vsprintf(buff, format, arg_ptr);

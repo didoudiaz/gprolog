@@ -64,11 +64,11 @@ static double Arg_Float(WamWord **lst_adr);
 
 
 /*-------------------------------------------------------------------------*
- * FORMAT_3                                                                *
+ * PL_FORMAT_3                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
+Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 {
   WamWord word, tag_mask;
   int stm;
@@ -78,36 +78,36 @@ Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? stm_output : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
-  pstm = stm_tbl[stm];
+    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+  pstm = pl_stm_tbl[stm];
 
-  last_output_sora = sora_word;
-  Check_Stream_Type(stm, TRUE, FALSE);
+  pl_last_output_sora = sora_word;
+  Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
   DEREF(format_word, word, tag_mask);
 
   if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
-    str = atom_tbl[UnTag_ATM(word)].name;
+    str = pl_atom_tbl[UnTag_ATM(word)].name;
   else
     {
-      strcpy(buff, Rd_Codes_Check(format_word));
+      strcpy(buff, Pl_Rd_Codes_Check(format_word));
       str = buff;
     }
 
-  Format(stm_tbl[stm], str, &args_word);
+  Format(pl_stm_tbl[stm], str, &args_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FORMAT_2                                                                *
+ * PL_FORMAT_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Format_2(WamWord format_word, WamWord args_word)
+Pl_Format_2(WamWord format_word, WamWord args_word)
 {
-  Format_3(NOT_A_WAM_WORD, format_word, args_word);
+  Pl_Format_3(NOT_A_WAM_WORD, format_word, args_word);
 }
 
 
@@ -148,7 +148,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	    {
 	      if (format[1] == '%')
 		{
-		  Stream_Putc('%', pstm);
+		  Pl_Stream_Putc('%', pstm);
 		  format += 2;
 		  continue;
 		}
@@ -174,12 +174,12 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		  if (n != IMPOSS)
 		    {
 		      if (n1 != IMPOSS)
-			Stream_Printf(pstm, buff, n, n1, generic);
+			Pl_Stream_Printf(pstm, buff, n, n1, generic);
 		      else
-			Stream_Printf(pstm, buff, n, generic);
+			Pl_Stream_Printf(pstm, buff, n, generic);
 		    }
 		  else
-		    Stream_Printf(pstm, buff, generic);
+		    Pl_Stream_Printf(pstm, buff, generic);
 		}
 	      else
 		{
@@ -187,19 +187,19 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		  if (n != IMPOSS)
 		    {
 		      if (n1 != IMPOSS)
-			Stream_Printf(pstm, buff, n, n1, d);
+			Pl_Stream_Printf(pstm, buff, n, n1, d);
 		      else
-			Stream_Printf(pstm, buff, n, d);
+			Pl_Stream_Printf(pstm, buff, n, d);
 		    }
 		  else
-		    Stream_Printf(pstm, buff, d);
+		    Pl_Stream_Printf(pstm, buff, d);
 		}
 	      continue;
 	    }
 
 	  if (*format != '~')
 	    {
-	      Stream_Putc(*format, pstm);
+	      Pl_Stream_Putc(*format, pstm);
 	      format++;
 	      continue;
 	    }
@@ -224,18 +224,18 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	    case 'a':
 	      p = Arg_Atom(&lst_adr);
 	      if (has_n)
-		Stream_Printf(pstm, "%*s", -n, p);
+		Pl_Stream_Printf(pstm, "%*s", -n, p);
 	      else
-		Stream_Puts(p, pstm);
+		Pl_Stream_Puts(p, pstm);
 	      break;
 
 	    case 'c':
 	      x = Arg_Integer(&lst_adr);
 	      if (!Is_Valid_Code(x))
-		Pl_Err_Representation(representation_character_code);
+		Pl_Err_Representation(pl_representation_character_code);
 
 	      do
-		Stream_Putc(x, pstm);
+		Pl_Stream_Putc(x, pstm);
 	      while (--n > 0);
 	      break;
 
@@ -252,7 +252,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      else
 		sprintf(buff, "%%%c", (char) x);
 
-	      Stream_Printf(pstm, buff, d);
+	      Pl_Stream_Printf(pstm, buff, d);
 	      break;
 
 	    case 'd':
@@ -261,13 +261,13 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 
 	      if (n == 0 && *format == 'd')
 		{
-		  Stream_Printf(pstm, "%ld", x);
+		  Pl_Stream_Printf(pstm, "%ld", x);
 		  break;
 		}
 
 	      if (x < 0)
 		{
-		  Stream_Putc('-', pstm);
+		  Pl_Stream_Putc('-', pstm);
 		  x = -x;
 		}
 
@@ -275,10 +275,10 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      lg = strlen(buff) - n;
 	      if (lg <= 0)
 		{
-		  Stream_Puts("0.", pstm);
+		  Pl_Stream_Puts("0.", pstm);
 		  for (i = 0; i < -lg; i++)
-		    Stream_Putc('0', pstm);
-		  Stream_Printf(pstm, "%ld", x);
+		    Pl_Stream_Putc('0', pstm);
+		  Pl_Stream_Printf(pstm, "%ld", x);
 		  break;
 		}
 
@@ -291,11 +291,11 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      for (p = buff, i = 0; *p; p++, i++)
 		{
 		  if (i == lg)
-		    Stream_Putc('.', pstm), stop = -1;
+		    Pl_Stream_Putc('.', pstm), stop = -1;
 
 		  if (i == stop)
-		    Stream_Putc(',', pstm), stop += 3;
-		  Stream_Putc(*p, pstm);
+		    Pl_Stream_Putc(',', pstm), stop += 3;
+		  Pl_Stream_Putc(*p, pstm);
 		}
 	      break;
 
@@ -310,7 +310,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 
 	      if (x < 0)
 		{
-		  Stream_Putc('-', pstm);
+		  Pl_Stream_Putc('-', pstm);
 		  x = -x;
 		}
 
@@ -324,21 +324,21 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		  *p = (i < 10) ? i + '0' : i + k;
 		}
 	      while (x);
-	      Stream_Puts(p, pstm);
+	      Pl_Stream_Puts(p, pstm);
 	      break;
 
 	    case 's':
 	    case 'S':
 	      word = Read_Arg(&lst_adr);
 	      if (*format == 's')
-		p = Rd_Codes_Check(word);
+		p = Pl_Rd_Codes_Check(word);
 	      else
-		p = Rd_Chars_Check(word);
+		p = Pl_Rd_Chars_Check(word);
 
 	      if (has_n)
-		Stream_Printf(pstm, "%-*.*s", n, n, p);
+		Pl_Stream_Printf(pstm, "%-*.*s", n, n, p);
 	      else
-		Stream_Printf(pstm, "%s", p);
+		Pl_Stream_Printf(pstm, "%s", p);
 	      break;
 
 	    case 'i':
@@ -349,30 +349,30 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 
 	    case 'k':
 	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC,
+	      Pl_Write_Term(pstm, -1, MAX_PREC,
 			 WRITE_IGNORE_OP | WRITE_QUOTED, word);
 	      break;
 
 	    case 'q':
 	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+	      Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
 			 WRITE_NAME_VARS | WRITE_QUOTED, word);
 	      break;
 
 	    case 'p':		/* only work if print.pl is linked */
 	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+	      Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
 			 WRITE_NAME_VARS | WRITE_PORTRAYED, word);
 	      break;
 
 	    case 'w':
 	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+	      Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
 			 WRITE_NAME_VARS, word);
 	      break;
 
 	    case '~':
-	      Stream_Putc('~', pstm);
+	      Pl_Stream_Putc('~', pstm);
 	      break;
 
 	    case 'N':
@@ -380,7 +380,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		break;
 	    case 'n':
 	      do
-		Stream_Putc('\n', pstm);
+		Pl_Stream_Putc('\n', pstm);
 	      while (--n > 0);
 	      break;
 
@@ -392,7 +392,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      continue;
 
 	    default:
-	      Pl_Err_Domain(domain_format_control_sequence,
+	      Pl_Err_Domain(pl_domain_format_control_sequence,
 			    Tag_ATM(ATOM_CHAR(*format)));
 	    }
 	  format++;
@@ -424,9 +424,9 @@ Read_Arg(WamWord **lst_adr)
 	Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
-	Pl_Err_Domain(domain_non_empty_list, word);
+	Pl_Err_Domain(pl_domain_non_empty_list, word);
 
-      Pl_Err_Type(type_list, word);
+      Pl_Err_Type(pl_type_list, word);
     }
   
   adr = UnTag_LST(word);
@@ -451,7 +451,7 @@ Arg_Atom(WamWord **lst_adr)
 
   word = Read_Arg(lst_adr);
 
-  return atom_tbl[Rd_Atom_Check(word)].name;
+  return pl_atom_tbl[Pl_Rd_Atom_Check(word)].name;
 }
 
 
@@ -468,8 +468,8 @@ Arg_Integer(WamWord **lst_adr)
 
   word = Read_Arg(lst_adr);
 
-  Math_Load_Value(word, &word);
-  return Rd_Integer_Check(word);
+  Pl_Math_Load_Value(word, &word);
+  return Pl_Rd_Integer_Check(word);
 }
 
 
@@ -486,6 +486,6 @@ Arg_Float(WamWord **lst_adr)
 
   word = Read_Arg(lst_adr);
 
-  Math_Load_Value(word, &word);
-  return Rd_Number_Check(word);
+  Pl_Math_Load_Value(word, &word);
+  return Pl_Rd_Number_Check(word);
 }

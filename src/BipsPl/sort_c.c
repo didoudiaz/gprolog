@@ -75,11 +75,11 @@ Sort_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * SORT_LIST_2                                                             *
+ * PL_SORT_LIST_2                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Sort_List_2(WamWord list1_word, WamWord list2_word)
+Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
 {
   WamWord *arg;
   int n;
@@ -87,34 +87,34 @@ Sort_List_2(WamWord list1_word, WamWord list2_word)
 
   sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=sort0/2, 2=keysort/2 */
 
-  Check_For_Un_List(list2_word);
+  Pl_Check_For_Un_List(list2_word);
 
   arg = H;			/* array in the heap */
-  n = Rd_Proper_List_Check(list1_word, arg);
+  n = Pl_Rd_Proper_List_Check(list1_word, arg);
 
   if (n == 0)
-    return Un_Atom(atom_nil, list2_word);
+    return Pl_Un_Atom(ATOM_NIL, list2_word);
 
   if (n == 1)
-    return Unify(list1_word, list2_word);
+    return Pl_Unify(list1_word, list2_word);
 
   n = Merge_Sort(arg, arg + n, n, sort_type,
-		 (sort_type != 2) ? Term_Compare : Keysort_Cmp);
+		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
 
   /* n can have changed here (if dup removed) */
 
-  return Unify(Mk_Proper_List(n, arg), list2_word);
+  return Pl_Unify(Pl_Mk_Proper_List(n, arg), list2_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SORT_LIST_1                                                             *
+ * PL_SORT_LIST_1                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sort_List_1(WamWord list_word)
+Pl_Sort_List_1(WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *adr, *arg, *prev;
@@ -124,13 +124,13 @@ Sort_List_1(WamWord list_word)
   sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=sort0/1, 2=keysort/1 */
 
   arg = H;
-  n = Rd_Proper_List_Check(list_word, arg);
+  n = Pl_Rd_Proper_List_Check(list_word, arg);
 
   if (n <= 1)
     return;
 
   n = Merge_Sort(arg, arg + n, n, sort_type,
-		 (sort_type != 2) ? Term_Compare : Keysort_Cmp);
+		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
   /* n can have changed here (if dup removed) */
   /* update in-place the list */
   do
@@ -176,7 +176,7 @@ Keysort_Cmp(WamWord u_word, WamWord v_word)
 	v_word = Arg(adr, 0);
     }
 
-  return Term_Compare(u_word, v_word);
+  return Pl_Term_Compare(u_word, v_word);
 }
 
 
