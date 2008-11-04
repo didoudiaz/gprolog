@@ -2,7 +2,7 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : foreign facility test                                           *
- * File  : for_ex_c.c                                                      *
+ * File  : examp_c.c                                                       *
  * Descr.: test file - C part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
@@ -21,6 +21,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.  *
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
+
+/* $Id$ */
 
 #include <string.h>
 

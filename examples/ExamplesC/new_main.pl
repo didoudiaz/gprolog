@@ -2,7 +2,7 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : foreign facility test                                           *
- * File  : for_main.pl                                                     *
+ * File  : new_main.pl                                                     *
  * Descr.: test file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
@@ -21,6 +21,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.  *
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
+
+/* $Id$ */
 
 parent(bob,mary).
 parent(jane,mary).

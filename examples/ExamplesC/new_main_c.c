@@ -2,7 +2,7 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : foreign facility test                                           *
- * File  : for_main_c.c                                                    *
+ * File  : new_main_c.c                                                    *
  * Descr.: test file - C part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
@@ -22,6 +22,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+ 
 #include <stdio.h>
 #include <string.h>
 

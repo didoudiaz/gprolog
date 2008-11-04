@@ -194,7 +194,7 @@ A list is treated as a compound term (whose principal functor is
 \texttt{'.'/2}).
 
 The portability of the order of variables is not guaranteed (in the ISO
-reference the oder of variables is system dependent).
+reference the order of variables is system dependent).
 
 \subsubsection{\texttt{(==)/2} - term identical,
                \texttt{({\bs}==)/2} - term not identical, \\
@@ -253,6 +253,7 @@ or equal to \texttt{Term2}.
 ISO predicates.
 
 \subsubsection{\texttt{compare/3}}
+\label{compare/3} 
    \AddPBD{compare/3}
 
 \begin{TemplatesOneCol}
@@ -290,6 +291,7 @@ GNU Prolog predicate.
 \subsection{Term processing}
 
 \subsubsection{\texttt{functor/3}}
+\label{functor/3}
    \AddPBD{functor/3}
 
 \begin{TemplatesOneCol}
@@ -350,6 +352,7 @@ atom and \texttt{Arity} is an integer $>$ 0}
 ISO predicate.
 
 \subsubsection{\texttt{arg/3}}
+\label{arg/3}
    \AddPBD{arg/3}
 
 \begin{TemplatesOneCol}
@@ -386,6 +389,7 @@ arg(+integer, +compound\_term, ?term)
 ISO predicate.
 
 \subsubsection{\texttt{(=..)/2} - univ}
+\label{(=..)/2}
    \AddPBD{(=..)/2}
 
 \begin{TemplatesOneCol}
@@ -1607,7 +1611,7 @@ This predicate is re-executable on backtracking.
 corresponds to all variables occurring in \texttt{Goal} but not in
 \texttt{Template}. It is sometimes useful to exclude some additional
 variables of \texttt{Goal}. For that, \texttt{bagof/3} recognizes a goal of
-the form \texttt{T\^{}Goal} and exclude all variables occuring in \texttt{T}
+the form \texttt{T\^{}Goal} and exclude all variables occurring in \texttt{T}
 from the free variable set. \texttt{(\^{})/2} can be viewed as an
 \emph{existential quantifier} (the logical reading of \texttt{X\^{}Goal}
 being ``there exists an \texttt{X} such that \texttt{Goal} is true''). The
@@ -1754,7 +1758,7 @@ specified at open time or using \IdxPB{add\_stream\_mirror/2}
 \RefSP{add-stream-mirror/2}. Then, all characters/bytes read from/written to
 the stream are also written on each mirror stream.  The association
 automatically ends when either the stream or the mirror stream is closed. It
-is also possible to explicitely remove a mirror stream using
+is also possible to explicitly remove a mirror stream using
 \IdxPB{remove\_stream\_mirror/2}
 \RefSP{remove-stream-mirror/2}.
 
@@ -1954,7 +1958,7 @@ stream. Several aliases can be defined for a same stream.
 
 \item \IdxPOD[mirror]{mirror(Mirror)}: specifies the stream associated with
 the stream-term or alias \texttt{Mirror} is a mirror for the stream. By
-default no mirro is attached to the stream. Several mirrors can be defined
+default no mirror is attached to the stream. Several mirrors can be defined
 for a same stream.
 
 \item \IdxPOD[buffering]{buffering(none}/\texttt{line}/\texttt{block)}:
@@ -2027,7 +2031,7 @@ variable nor a stream-option}
 \ErrTerm{existence\_error(stream, M)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
-\texttt{mirror(M)} and \texttt{M} iis an input stream}
+\texttt{mirror(M)} and \texttt{M} is an input stream}
 \ErrTerm{permission\_error(output, stream, M)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
@@ -2746,8 +2750,8 @@ the stream-term or alias \texttt{Mirror} as a new mirror to the stream
 associated with the stream-term or alias \texttt{SorA}. After this, all
 characters (or bytes) read from (or written to) \texttt{SorA} are also
 written to \texttt{Mirror}. This mirroring occurs until \texttt{Mirror} is
-explicitely removed using \IdxPB{remove\_stream\_mirror/2}
-\RefSP{remove-stream-mirror/2} or implicitely when \texttt{Mirror} is closed.
+explicitly removed using \IdxPB{remove\_stream\_mirror/2}
+\RefSP{remove-stream-mirror/2} or implicitly when \texttt{Mirror} is closed.
 Several mirror streams can be associated with a same stream. If \texttt{Mirror}
 represents the same stream as \texttt{SorA} or if \texttt{Mirror} is already
 a mirror for \texttt{SorA}, no mirror is added.
@@ -3139,7 +3143,7 @@ open\_output\_codes\_stream(-stream)
 \texttt{open\_output\_atom\_stream(Stream)} unifies \texttt{Stream} with the
 stream-term which is associated with a new output text-stream. All characters
 written to this stream are collected and will be returned as an atom when
-the stream is closed by \texttt{close\_ouput\_atom\_stream/2}
+the stream is closed by \texttt{close\_output\_atom\_stream/2}
 \RefSP{close-output-atom-stream/2}.
 
 \texttt{open\_output\_chars\_stream(Stream)} is similar to
@@ -6836,7 +6840,7 @@ of the variable is read.
 by an atom. 
 
 If the variable contains an array, an index (ranging from 0) can be provided
-using a compound term whose principal functor is the correponding atom and
+using a compound term whose principal functor is the corresponding atom and
 the argument is the index. In case of a multi-dimensional array, each index
 is given as the arguments of the compound term.
 
@@ -6924,14 +6928,14 @@ definitions).
 
 \end{itemize}
 
-An array can be extended explicitely using a compound term with principal
+An array can be extended explicitly using a compound term with principal
 functor \IdxPGD{g\_array\_extend} which accept the same 3 forms detailed
 above. In that case, the existing elements of the array are not
 initialized. If \texttt{g\_array\_extend} is used with an object which is not
 an array it is similar to \texttt{g\_array}.
 
 Finally, an array can be \textit{automatically} expanded when needed. The
-programmer does not need to explicitely control the expansion of an automatic
+programmer does not need to explicitly control the expansion of an automatic
 array. An array is expanded as soon as an index is outside the current size
 of this array. Such an array is defined using a compound term with principal
 functor \IdxPGD{g\_array\_auto}:
@@ -7700,6 +7704,7 @@ other Prolog systems. When turned off the following relaxations apply:
 ISO predicate. All ISO flags are implemented.
 
 \subsubsection{\texttt{current\_prolog\_flag/2}}
+\label{current-prolog-flag/2}
    \AddPBD{current\_prolog\_flag/2}
 
 \begin{TemplatesOneCol}
@@ -9058,7 +9063,7 @@ alias) of the machine.
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Hostname} is neither a variable nor an atom}
+\ErrCond{\texttt{HostName} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, HostName)}
 
 \ErrCond{an operating system error occurs and the value of the
