@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.1 (Nov 4 2008)
 % file    : read_file.pl
-% date    : 11 10 2008
-% time    : 13:6:41
+% date    : 1 22 2009
+% time    : 17:3:11
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/read_file.pl').
@@ -1232,7 +1232,7 @@ predicate(handle_directive/2,450,static,private,user,[
     execute(handle_directive/3)]).
 
 
-predicate(foreign_get_options/1,569,static,private,user,[
+predicate(foreign_get_options/1,573,static,private,user,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -1259,7 +1259,7 @@ label(4),
     execute(foreign_get_options/1)]).
 
 
-predicate(foreign_get_options1/1,576,static,private,user,[
+predicate(foreign_get_options1/1,580,static,private,user,[
     switch_on_term(3,fail,fail,fail,1),
 
 label(1),
@@ -1357,7 +1357,7 @@ label(14),
     proceed]).
 
 
-predicate('$foreign_get_options1/1_$aux1'/1,580,static,private,user,[
+predicate('$foreign_get_options1/1_$aux1'/1,584,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1385,7 +1385,7 @@ label(7),
     proceed]).
 
 
-predicate(foreign_check_types/4,610,static,private,user,[
+predicate(foreign_check_types/4,614,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     get_nil(3),
@@ -1426,7 +1426,7 @@ label(1),
     execute(foreign_check_types/4)]).
 
 
-predicate('$foreign_check_types/4_$aux1'/3,613,static,private,user,[
+predicate('$foreign_check_types/4_$aux1'/3,617,static,private,user,[
     switch_on_term(2,9,fail,fail,1),
 
 label(1),
@@ -1469,7 +1469,7 @@ label(9),
     proceed]).
 
 
-predicate(foreign_check_arg/1,631,static,private,user,[
+predicate(foreign_check_arg/1,635,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1588,7 +1588,7 @@ label(33),
     proceed]).
 
 
-predicate(handle_initialization/3,658,static,private,user,[
+predicate(handle_initialization/3,662,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -1617,7 +1617,7 @@ label(5),
     execute(assertz/1)]).
 
 
-predicate(exec_directive/1,667,static,private,user,[
+predicate(exec_directive/1,671,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -1642,7 +1642,7 @@ label(1),
     execute(warn/2)]).
 
 
-predicate(exec_directive_exception/2,673,static,private,user,[
+predicate(exec_directive_exception/2,677,static,private,user,[
     get_variable(x(2),1),
     put_list(1),
     unify_local_value(x(0)),
@@ -1653,7 +1653,7 @@ predicate(exec_directive_exception/2,673,static,private,user,[
     execute(warn/2)]).
 
 
-predicate(used_bips_via_call/0,678,static,private,user,[
+predicate(used_bips_via_call/0,682,static,private,user,[
     allocate(0),
     put_void(0),
     put_void(1),
@@ -1671,7 +1671,7 @@ predicate(used_bips_via_call/0,678,static,private,user,[
     execute(expand_term/2)]).
 
 
-predicate(add_empty_dyn/2,687,static,private,user,[
+predicate(add_empty_dyn/2,691,static,private,user,[
     load_cut_level(2),
     switch_on_term(2,3,fail,5,1),
 
@@ -1734,7 +1734,7 @@ label(9),
     execute(assertz/1)]).
 
 
-predicate(add_ensure_linked/1,706,static,private,user,[
+predicate(add_ensure_linked/1,710,static,private,user,[
     load_cut_level(1),
     switch_on_term(3,4,fail,6,1),
 
@@ -1812,7 +1812,7 @@ label(12),
     execute(assertz/1)]).
 
 
-predicate(set_flag_for_preds/2,728,static,private,user,[
+predicate(set_flag_for_preds/2,732,static,private,user,[
     load_cut_level(2),
     switch_on_term(2,3,fail,5,1),
 
@@ -1876,7 +1876,7 @@ label(9),
     execute('$set_flag_for_preds/2_$aux1'/4)]).
 
 
-predicate('$set_flag_for_preds/2_$aux1'/4,741,static,private,user,[
+predicate('$set_flag_for_preds/2_$aux1'/4,745,static,private,user,[
     load_cut_level(4),
     try_me_else(1),
     allocate(3),
@@ -1917,7 +1917,7 @@ label(1),
     execute(set_pred_info/3)]).
 
 
-predicate('$set_flag_for_preds/2_$aux2'/3,741,static,private,user,[
+predicate('$set_flag_for_preds/2_$aux2'/3,745,static,private,user,[
     try_me_else(6),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -1945,7 +1945,7 @@ label(6),
     proceed]).
 
 
-predicate(define_predicate/2,758,static,private,user,[
+predicate(define_predicate/2,762,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -2006,7 +2006,7 @@ label(4),
     proceed]).
 
 
-predicate(flag_bit/2,778,static,private,user,[
+predicate(flag_bit/2,782,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2069,7 +2069,7 @@ label(15),
     proceed]).
 
 
-predicate(set_pred_info/3,789,static,private,user,[
+predicate(set_pred_info/3,793,static,private,user,[
     load_cut_level(3),
     allocate(5),
     get_variable(y(0),1),
@@ -2095,7 +2095,7 @@ predicate(set_pred_info/3,789,static,private,user,[
     execute(assertz/1)]).
 
 
-predicate('$set_pred_info/3_$aux1'/3,789,static,private,user,[
+predicate('$set_pred_info/3_$aux1'/3,793,static,private,user,[
     try_me_else(1),
     get_variable(x(3),0),
     put_structure(pred_info/3,0),
@@ -2110,7 +2110,7 @@ label(1),
     proceed]).
 
 
-predicate(unset_pred_info/3,800,static,private,user,[
+predicate(unset_pred_info/3,804,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(5),
@@ -2143,7 +2143,7 @@ label(1),
     proceed]).
 
 
-predicate(test_pred_info/3,811,static,private,user,[
+predicate(test_pred_info/3,815,static,private,user,[
     allocate(4),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -2166,7 +2166,7 @@ predicate(test_pred_info/3,811,static,private,user,[
     proceed]).
 
 
-predicate(check_predicate/2,819,static,private,user,[
+predicate(check_predicate/2,823,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -2260,7 +2260,7 @@ label(4),
     proceed]).
 
 
-predicate(control_construct/2,843,static,private,user,[
+predicate(control_construct/2,847,static,private,user,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2339,7 +2339,7 @@ label(19),
     proceed]).
 
 
-predicate(suspicious_predicate/2,853,static,private,user,[
+predicate(suspicious_predicate/2,857,static,private,user,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -2456,7 +2456,7 @@ label(28),
     proceed]).
 
 
-predicate(warn/2,871,static,private,user,[
+predicate(warn/2,875,static,private,user,[
     put_value(x(0),2),
     put_value(x(1),3),
     put_atom(warning,0),
@@ -2464,7 +2464,7 @@ predicate(warn/2,871,static,private,user,[
     execute(disp_msg/4)]).
 
 
-predicate(error/2,877,static,private,user,[
+predicate(error/2,881,static,private,user,[
     load_cut_level(2),
     allocate(1),
     get_variable(y(0),2),
@@ -2480,7 +2480,7 @@ predicate(error/2,877,static,private,user,[
     execute(abort/0)]).
 
 
-predicate('$error/2_$aux1'/1,877,static,private,user,[
+predicate('$error/2_$aux1'/1,881,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -2495,7 +2495,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_msg/4,889,static,private,user,[
+predicate(disp_msg/4,893,static,private,user,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2521,7 +2521,7 @@ predicate(disp_msg/4,889,static,private,user,[
     execute(nl/1)]).
 
 
-predicate('$disp_msg/4_$aux1'/2,889,static,private,user,[
+predicate('$disp_msg/4_$aux1'/2,893,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(2),
@@ -2546,7 +2546,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_file_name/2,906,static,private,user,[
+predicate(disp_file_name/2,910,static,private,user,[
     load_cut_level(2),
     switch_on_term(1,2,fail,4,fail),
 
@@ -2583,7 +2583,7 @@ label(4),
     execute(format/2)]).
 
 
-predicate(disp_lines/1,916,static,private,user,[
+predicate(disp_lines/1,920,static,private,user,[
     load_cut_level(1),
     switch_on_term(3,fail,fail,fail,1),
 
@@ -2624,7 +2624,7 @@ label(6),
     execute(format/2)]).
 
 
-predicate(disp_column/1,925,static,private,user,[
+predicate(disp_column/1,929,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     math_fast_load_value(x(0),2),
@@ -2643,7 +2643,7 @@ label(1),
     execute(write/1)]).
 
 
-predicate(exception/1,937,static,private,user,[
+predicate(exception/1,941,static,private,user,[
     load_cut_level(1),
     try_me_else(9),
     switch_on_term(3,fail,fail,fail,1),
@@ -2833,9 +2833,7 @@ label(15),
 label(16),
     get_atom(multifile,0),
     cut(x(3)),
-    put_atom('multifile directive not supported - directive ignored',0),
-    put_nil(1),
-    execute(warn/2),
+    execute('$handle_directive/3_$aux4'/0),
 
 label(17),
     retry_me_else(19),
@@ -2929,7 +2927,7 @@ label(26),
     unify_value(y(0)),
     unify_value(y(1)),
     call(exec_directive/1),
-    call('$handle_directive/3_$aux4'/0),
+    call('$handle_directive/3_$aux5'/0),
     put_atom(system,0),
     put_structure(set_prolog_flag/2,1),
     unify_value(y(0)),
@@ -3003,7 +3001,7 @@ label(34),
     call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     put_value(y(3),0),
     put_value(y(4),1),
-    call('$handle_directive/3_$aux5'/2),
+    call('$handle_directive/3_$aux6'/2),
     put_value(y(3),0),
     put_value(y(4),1),
     call(define_predicate/2),
@@ -3087,7 +3085,7 @@ label(35),
     execute(warn/2)]).
 
 
-predicate('$handle_directive/3_$aux5'/2,540,static,private,user,[
+predicate('$handle_directive/3_$aux6'/2,544,static,private,user,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -3114,7 +3112,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_directive/3_$aux4'/0,518,static,private,user,[
+predicate('$handle_directive/3_$aux5'/0,522,static,private,user,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -3134,6 +3132,22 @@ label(1),
     put_atom(singl_warn,0),
     put_atom(t,1),
     call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    proceed]).
+
+
+predicate('$handle_directive/3_$aux4'/0,496,static,private,user,[
+    load_cut_level(0),
+    try_me_else(1),
+    put_atom(mult_warn,1),
+    put_atom(t,2),
+    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    cut(x(0)),
+    put_atom('multifile directive not supported - directive ignored',0),
+    put_nil(1),
+    execute(warn/2),
+
+label(1),
+    trust_me_else_fail,
     proceed]).
 
 

@@ -136,6 +136,8 @@ Flag_Initializer(void)
   atom_flag_tbl[FLAG_MAX_ATOM] = Pl_Create_Atom("max_atom");
   atom_flag_tbl[FLAG_MAX_UNGET] = Pl_Create_Atom("max_unget");
   atom_flag_tbl[FLAG_SINGLETON_WARNING] = Pl_Create_Atom("singleton_warning");
+  atom_flag_tbl[FLAG_SUSPICIOUS_WARNING] = Pl_Create_Atom("suspicious_warning");
+  atom_flag_tbl[FLAG_MULTIFILE_WARNING] = Pl_Create_Atom("multifile_warning");
   atom_flag_tbl[FLAG_STRICT_ISO] = Pl_Create_Atom("strict_iso");
 
   atom_flag_tbl[FLAG_PROLOG_NAME] = Pl_Create_Atom("prolog_name");
@@ -166,6 +168,8 @@ Flag_Initializer(void)
   atom_prolog[3] = Pl_Create_Atom(PROLOG_COPYRIGHT);
 
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
+  Flag_Value(FLAG_SUSPICIOUS_WARNING) = 1;
+  Flag_Value(FLAG_MULTIFILE_WARNING) = 1;
   Flag_Value(FLAG_STRICT_ISO) = 1;
 
   Flag_Value(FLAG_DOUBLE_QUOTES) = FLAG_AS_CODES;
@@ -235,6 +239,8 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_CHAR_CONVERSION:
     case FLAG_DEBUG:
     case FLAG_SINGLETON_WARNING:
+    case FLAG_SUSPICIOUS_WARNING:
+    case FLAG_MULTIFILE_WARNING:
     case FLAG_STRICT_ISO:
       if (tag_mask != TAG_ATM_MASK || (atom != atom_on && atom != atom_off))
 	goto err_value;
@@ -436,6 +442,8 @@ Unif_Flag(int i, WamWord value_word)
     case FLAG_CHAR_CONVERSION:
     case FLAG_DEBUG:
     case FLAG_SINGLETON_WARNING:
+    case FLAG_SUSPICIOUS_WARNING:
+    case FLAG_MULTIFILE_WARNING:
     case FLAG_STRICT_ISO:
       atom = (Flag_Value(i)) ? atom_on : atom_off;
       break;
@@ -765,6 +773,12 @@ Pl_Write_Pl_State_File(WamWord file_word)
   i = Flag_Value(FLAG_SINGLETON_WARNING);
   fwrite(&i, sizeof(i), 1, f);
 
+  i = Flag_Value(FLAG_SUSPICIOUS_WARNING);
+  fwrite(&i, sizeof(i), 1, f);
+
+  i = Flag_Value(FLAG_MULTIFILE_WARNING);
+  fwrite(&i, sizeof(i), 1, f);
+
   i = SYS_VAR_SAY_GETC;
   fwrite(&i, sizeof(i), 1, f);
 
@@ -832,6 +846,12 @@ Pl_Read_Pl_State_File(WamWord file_word)
 
   fread(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_SINGLETON_WARNING) = i;
+
+  fread(&i, sizeof(i), 1, f);
+  Flag_Value(FLAG_SUSPICIOUS_WARNING) = i;
+
+  fread(&i, sizeof(i), 1, f);
+  Flag_Value(FLAG_MULTIFILE_WARNING) = i;
 
   fread(&i, sizeof(i), 1, f);
   SYS_VAR_SAY_GETC = i;

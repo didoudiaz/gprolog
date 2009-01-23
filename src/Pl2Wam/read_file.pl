@@ -495,7 +495,11 @@ handle_directive(ensure_linked, DLst, _) :-
 
 handle_directive(multifile, _, _) :-
 	!,
-	warn('multifile directive not supported - directive ignored', []).
+	(   g_read(mult_warn, t) ->
+	    warn('multifile directive not supported - directive ignored', [])
+	;
+	    true
+	).
 
 handle_directive(ensure_loaded, _, _) :-
 	!,

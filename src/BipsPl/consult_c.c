@@ -57,8 +57,6 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 {
   char *tmp_file = Pl_Rd_String_Check(tmp_file_word);
   char *pl_file = Pl_Rd_String_Check(pl_file_word);
-  char *singl_warn = (Flag_Value(FLAG_SINGLETON_WARNING)) ? NULL
-    : "--no-singl-warn";
   StmInf *pstm_o = pl_stm_tbl[pl_stm_top_level_output];
   StmInf *pstm_i = pl_stm_tbl[pl_stm_top_level_input];
   int pid;
@@ -70,7 +68,16 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   int save_use_le_prompt;
   char *arg[] = { "pl2wam", "-w", "--compile-msg", "--no-redef-error",
 		  "--pl-state", tmp_file, "-o", tmp_file, pl_file,
-		  singl_warn, NULL };
+		  NULL, NULL, NULL, NULL };  /* 3 warnings + 1 for terminal NULL */
+  int warn_i = sizeof(arg) / sizeof(arg[0]) - 4; /* the 4 NULL */
+
+
+#define ADD_WARN(flag, opt_str)  if (!Flag_Value(flag))  arg[warn_i++] = opt_str
+
+  ADD_WARN(FLAG_SUSPICIOUS_WARNING, "--no-susp-warn");
+  ADD_WARN(FLAG_SINGLETON_WARNING, "--no-singl-warn");
+  ADD_WARN(FLAG_MULTIFILE_WARNING, "--no-mult-warn");
+
 
   save = SYS_VAR_SAY_GETC;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
