@@ -1,4 +1,40 @@
-Fri May 18 13:06:58 CEST 2007
+Fri Jan 23 12:16:18 CET 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* add gplc option --no-mult-warn
+	* add prolog flags suspicious_warning, multifile_warning
+
+Mon Nov  3 14:54:25 CEST 2008 <Daniel.Diaz@univ-paris1.fr>
+
+	* detect integer underflow/overflow in the parser
+	* fix a memory leak in catch/3
+
+Mon Oct 20 16:53:37 CEST 2008 <Daniel.Diaz@univ-paris1.fr>
+
+	* increase limits (MAX_VAR_NAME_LENGTH=1024 and MAX_VAR_IN_TERM=10240)
+	* add PL_INT_LOWEST_VALUE and PL_INT_GREATEST_VALUE to gprolog.h
+
+Fri Oct 17 12:09:37 CEST 2008 <Daniel.Diaz@univ-paris1.fr>
+
+	* prefix all global symbols, constants and types with Pl_ PL_ Pl
+	* fix a bug in the byte-code due to new max number of atoms
+	* provide a minimal gprolog.h
+	* detect if struct sigcontext needs asm/sigcontext.h on linux
+
+Wed Oct  1 15:48:45 CEST 2008 <Daniel.Diaz@univ-paris1.fr>
+
+	* modify gplc: --c-compiler also sets linker and --linker added
+
+Tue Sep 30 15:12:00 CEST 2008 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to x86_64/bsd - many thanks to:
+	  David Holland <dholland@netbsd.org>
+	* fix problem using ebx as global reg (bug in gcc 4.3.2)
+	* fix a bug in is/2 with [X] (X should only be an integer)
+	* fix a bug with atoms '/*' '*/' and '%' (were not quoted)
+	* increase maximum number of atoms to 1048576 (2^20)
+	* increase default stack sizes (16Mb for heap, 8Mb for others)
+
+Fri May 18 13:06:58 CEST 2007 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix stack alignment for x86_64/Solaris
 

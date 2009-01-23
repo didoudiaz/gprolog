@@ -1,5 +1,24 @@
 Change in GNU Prolog version 1.3.1:
 
+* add gplc option --no-mult-warn
+* add prolog flags suspicious_warning, multifile_warning
+* detect integer underflow/overflow in the parser
+* fix a memory leak in catch/3
+* increase limits (MAX_VAR_NAME_LENGTH=1024 and MAX_VAR_IN_TERM=10240)
+* add PL_INT_LOWEST_VALUE and PL_INT_GREATEST_VALUE to gprolog.h
+* prefix all global symbols, constants and types with Pl_ PL_ Pl
+* fix a bug in the byte-code due to new max number of atoms
+* provide a minimal gprolog.h
+* detect if struct sigcontext needs asm/sigcontext.h on linux
+* modify gplc: --c-compiler also sets linker and --linker added
+* port to x86_64/bsd - many thanks to:
+  David Holland <dholland@netbsd.org>
+* fix problem using ebx as global reg (bug in gcc 4.3.2)
+* fix a bug in is/2 with [X] (X should only be an integer)
+* fix a bug with atoms '/*' '*/' and '%' (were not quoted)
+* increase maximum number of atoms to 1048576 (2^20)
+* increase default stack sizes (16Mb for heap, 8Mb for others)
+* fix stack alignment for x86_64/Solaris
 * include patch from Paul Eggert <eggert@cs.ucla.edu> for sparc/solaris8
 * port to x86_64/Solaris - many thanks to:
   Scott L. Burson <Scott@coral8.com>

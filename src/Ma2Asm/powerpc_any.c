@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Darwin (MacOsX) on PowerPC           *
  * Author: Daniel Diaz and Lindsey Spratt                                  *
  *                                                                         *
- * Copyright (C) 1999-2008 Daniel Diaz                                     *
+ * Copyright (C) 1999-2009 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
