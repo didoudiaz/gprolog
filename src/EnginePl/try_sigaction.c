@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : configuration                                                   *
- * File  : pl_config.c                                                     *
- * Descr.: C Compiler options and WAM Configuration                        *
+ * File  : try_sigaction.c                                                 *
+ * Descr.: Detection of working sigaction                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2009 Daniel Diaz                                     *
