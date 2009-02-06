@@ -72,7 +72,8 @@ Main_Wrapper(int argc, char *argv[])
     {
       printf("\nEnter a name (or 'end' to finish): ");
       fflush(stdout);
-      scanf("%s", str);
+      if (scanf("%s", str))	/* avoid gcc warning warn_unused_result */
+	;
 
       if (strcmp(str, "end") == 0)
 	break;
