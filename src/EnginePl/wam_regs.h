@@ -17,3 +17,5 @@
 #define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+7)*8)
 
 #define CFLAGS_REGS		"-ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15 "
+
+#define HAVE_WORKING_SIGACTION 1

@@ -14,7 +14,7 @@ OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
           if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
 
-all: wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
+all: wam_regs.h cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ $(LIBNAME)
 
 
 $(LIBNAME): $(OBJLIB)
@@ -51,6 +51,9 @@ gp_config.h:
 
 cpp_headers@EXE_SUFFIX@: cpp_headers.c
 	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
+
+try_sigaction@EXE_SUFFIX@: try_sigaction.c
+	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@try_sigaction@EXE_SUFFIX@ try_sigaction.c
 
 
 
@@ -92,7 +95,7 @@ if_no_fd@OBJ_SUFFIX@: if_no_fd.h if_no_fd.c
 
 
 clean:
-	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ *@OBJ_SUFFIX@ $(LIBNAME)
+	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ $(LIBNAME)
 
 distclean: clean clean-test_oc
 	rm -f wam_archi.h wam_regs.h gp_config.h

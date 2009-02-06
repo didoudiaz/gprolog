@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.3.1:
 
+* add working sigaction detection to detect fault addr (e.g. Mac OS X)
 * add gplc option --no-mult-warn
 * add prolog flags suspicious_warning, multifile_warning
 * detect integer underflow/overflow in the parser

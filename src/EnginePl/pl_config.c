@@ -136,6 +136,8 @@ void Generate_Tags(FILE *f, FILE *g);
 
 void Generate_Stacks(FILE *f, FILE *g);
 
+int Detect_Sigaction(void);
+
 void Pl_Fatal_Error(char *format, ...);
 
 
@@ -251,6 +253,11 @@ main(void)
   Generate_Archi();
 
   Write_C_Compiler_Info();
+
+
+#ifdef __unix__
+  printf("Working sigaction : %s\n", (Detect_Sigaction()) ? "Yes" : "No");
+#endif
 
 #if 0
   fprintf(fg_c, "/* end of automatically generated part */\n");
@@ -1131,6 +1138,28 @@ Generate_Stacks(FILE *f, FILE *g)
 
 
   fprintf(g, "\n\n   /*--- End Stack Generation ---*/\n\n");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DETECT_SIGACTION                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Detect_Sigaction(void)
+{
+  if (system("make try_sigaction 2>/dev/null 1>&2"))
+    return 0;
+  
+  if (system("./try_sigaction") != 0)
+    return 0;
+
+
+  fprintf(fw_r, "\n#define HAVE_WORKING_SIGACTION 1\n");
+
+  return 1;
 }
 
 

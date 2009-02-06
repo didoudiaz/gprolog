@@ -2,28 +2,21 @@
 #include <stdlib.h>
 #include <signal.h>
 
-typedef long WamWord;
-
-
+#define BAD_ADDR  0xFEA4F
 
 void
 SIGSEGV_Handler(int sig, siginfo_t * sip)
 {
-  WamWord *addr = (WamWord *) sip->si_addr;
+  long addr = (long) sip->si_addr;
 
-  printf("Segmentation Violation at: %p\n", addr);
-  exit(1);
+  exit ((addr == BAD_ADDR) ? 0 : 1);
 }
 
 
 
-main()
+int
+main(int argc, char *argv[])
 {
-  long *x;
-
-#if 0
-  signal(SIGSEGV, (void (*)()) SIGSEGV_Handler);
-#else
   struct sigaction act;
 
   act.sa_handler = NULL;
@@ -32,9 +25,8 @@ main()
   act.sa_flags = SA_SIGINFO;
 
   sigaction(SIGSEGV, &act, NULL);
-#endif
 
-  x = (long *) 0xFEA4F124;
-  *x = 12;
+  * (long *) BAD_ADDR = 128;
 
+  return 1;
 }

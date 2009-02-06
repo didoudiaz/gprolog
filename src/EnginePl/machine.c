@@ -388,8 +388,10 @@ Pl_M_Allocate_Stacks(void)
       addr += page_size;
     }
 
-#if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
+#if defined(HAVE_WORKING_SIGACTION) || \
+  defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
   defined(M_ix86_sco) || defined(M_x86_64)
+
   {
     struct sigaction act;
 
@@ -398,6 +400,9 @@ Pl_M_Allocate_Stacks(void)
     act.sa_flags = SA_SIGINFO;
 
     sigaction(SIGSEGV, &act, NULL);
+#ifdef M_darwin
+    sigaction(SIGBUS, &act, NULL);
+#endif
   }
 
 #elif !defined(_WIN32) && !defined(__CYGWIN__)
@@ -438,13 +443,14 @@ Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
  * SIGSEGV_HANDLER                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-#if defined(M_sparc_sunos)
+#if defined(HAVE_WORKING_SIGACTION) || \
+  defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
+void
+SIGSEGV_Handler(int sig, siginfo_t *sip)
+
+#elif defined(M_sparc_sunos)
 static void
 SIGSEGV_Handler(int sig, int code, int scp, WamWord *addr)
-
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
-void
-SIGSEGV_Handler(int sig, siginfo_t * sip)
 
 #elif defined(M_alpha_osf)
 static void
@@ -494,7 +500,12 @@ static void
 SIGSEGV_Handler(int sig)
 #endif
 {
-#if defined(M_alpha_osf)
+#if defined(HAVE_WORKING_SIGACTION) || \
+  defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
+
+  WamWord *addr = (WamWord *) sip->si_addr;
+
+#elif defined(M_alpha_osf)
 
   WamWord *addr = (WamWord *) (scp->sc_traparg_a0);
 
@@ -504,9 +515,6 @@ SIGSEGV_Handler(int sig)
 
   /* WamWord *addr=(WamWord *) (scp.sc_traparg_a0); */
 
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
-
-  WamWord *addr = (WamWord *) sip->si_addr;
 
 #elif defined(M_ix86_linux)
 
@@ -1027,7 +1035,8 @@ Pl_M_Get_Working_Dir(void)
 {
   static char cur_work_dir[MAXPATHLEN];
 
-  getcwd(cur_work_dir, sizeof(cur_work_dir) - 1);
+  if (getcwd(cur_work_dir, sizeof(cur_work_dir) - 1) == NULL)
+    strcpy(cur_work_dir, ".");
   return cur_work_dir;
 }
 

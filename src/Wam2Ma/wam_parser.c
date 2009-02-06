@@ -599,7 +599,9 @@ Scanner(int complex_atom)
       if (*cur_line_p != '\0' && *cur_line_p != '%')
 	break;
 
-      fgets(cur_line_str, sizeof(cur_line_str), file_in);
+      if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */
+	;
+
       if (feof(file_in))
 	return 0;
 

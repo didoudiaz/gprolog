@@ -725,6 +725,12 @@ Pl_Set_Current_B_1(WamWord b_word)
  * PL_WRITE_PL_STATE_FILE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
+
+/* these macros are to avoid gcc warning warn_unused_result */
+#define FWRITE(b, sz, n, f) if (fwrite(b, sz, n, f) != n) ; 
+#define FREAD(b, sz, n, f)  if (fread(b, sz, n, f) != n) ; 
+
+
 Bool
 Pl_Write_Pl_State_File(WamWord file_word)
 {
@@ -747,7 +753,7 @@ Pl_Write_Pl_State_File(WamWord file_word)
   Os_Test_Error(f == NULL);
 
   i = Pl_Hash_Nb_Elements(pl_oper_tbl);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   for (oper = (OperInf *) Pl_Hash_First(pl_oper_tbl, &scan); oper;
        oper = (OperInf *) Pl_Hash_Next(&scan))
@@ -757,42 +763,42 @@ Pl_Write_Pl_State_File(WamWord file_word)
       sf_op.left = oper->left;
       sf_op.right = oper->right;
       sf_op.length = pl_atom_tbl[Atom_Of_Oper(oper->a_t)].prop.length;
-      fwrite(&sf_op, sizeof(sf_op), 1, f);
-      fwrite(pl_atom_tbl[Atom_Of_Oper(oper->a_t)].name, sf_op.length, 1, f);
+      FWRITE(&sf_op, sizeof(sf_op), 1, f);
+      FWRITE(pl_atom_tbl[Atom_Of_Oper(oper->a_t)].name, sf_op.length, 1, f);
     }
 
   i = Flag_Value(FLAG_DOUBLE_QUOTES);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   i = Flag_Value(FLAG_BACK_QUOTES);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   i = Flag_Value(FLAG_CHAR_CONVERSION);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   i = Flag_Value(FLAG_SINGLETON_WARNING);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   i = Flag_Value(FLAG_SUSPICIOUS_WARNING);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   i = Flag_Value(FLAG_MULTIFILE_WARNING);
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   i = SYS_VAR_SAY_GETC;
-  fwrite(&i, sizeof(i), 1, f);
+  FWRITE(&i, sizeof(i), 1, f);
 
   for (c = 0; c < 256; c++)
     if (pl_char_conv[c] != c)
       {
 	cv[0] = c;
 	cv[1] = pl_char_conv[c];
-	fwrite(&cv, 2, 1, f);
+	FWRITE(&cv, 2, 1, f);
       }
 
   cv[0] = 0;
   cv[1] = 0;
-  fwrite(&cv, 2, 1, f);
+  FWRITE(&cv, 2, 1, f);
 
   fclose(f);
   return TRUE;
@@ -824,41 +830,41 @@ Pl_Read_Pl_State_File(WamWord file_word)
 
   Pl_Hash_Delete_All(pl_oper_tbl);
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
 
   while (i--)
     {
-      fread(&sf_op, sizeof(sf_op), 1, f);
-      fread(pl_glob_buff, sf_op.length, 1, f);
+      FREAD(&sf_op, sizeof(sf_op), 1, f);
+      FREAD(pl_glob_buff, sf_op.length, 1, f);
       pl_glob_buff[sf_op.length] = '\0';
       Pl_Create_Oper(Pl_Create_Allocate_Atom(pl_glob_buff),
 		  sf_op.type, sf_op.prec, sf_op.left, sf_op.right);
     }
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_DOUBLE_QUOTES) = i;
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_BACK_QUOTES) = i;
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_CHAR_CONVERSION) = i;
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_SINGLETON_WARNING) = i;
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_SUSPICIOUS_WARNING) = i;
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_MULTIFILE_WARNING) = i;
 
-  fread(&i, sizeof(i), 1, f);
+  FREAD(&i, sizeof(i), 1, f);
   SYS_VAR_SAY_GETC = i;
 
   for (;;)
     {
-      fread(&cv, 2, 1, f);
+      FREAD(&cv, 2, 1, f);
       c = cv[0];
       if (c == 0 && cv[1] == 0)
 	break;
