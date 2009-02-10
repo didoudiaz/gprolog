@@ -14,7 +14,7 @@ OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
           if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
 
-all: wam_regs.h cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ $(LIBNAME)
+all: wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
 
 
 $(LIBNAME): $(OBJLIB)

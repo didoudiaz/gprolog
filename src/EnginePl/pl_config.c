@@ -255,7 +255,7 @@ main(void)
   Write_C_Compiler_Info();
 
 
-#ifdef __unix__
+#if defined(__unix__) && !defined(__CYGWIN__)
   printf("Working sigaction : %s\n", (Detect_Sigaction()) ? "Yes" : "No");
 #endif
 

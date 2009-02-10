@@ -641,6 +641,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 #if WORD_SIZE == 32
 	  nb_word = 3;
 	  w2 = (unsigned) (pred->codep);
+	  w3 = 0;		/* to avoid MSVC warning */
 #else
 	  nb_word = 4;
 	  pu.p = (int *) (pred->codep);
