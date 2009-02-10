@@ -82,6 +82,9 @@ ability to execute and create a Makefile used by make.
 Refer to www.mingw.org for more information (how to get MinGW/MSYS and all
 needed tools).
 
+NB: if you want to share the same home as in cygwin set HOME variable in
+/etc/profile (juste before the test if [ -z "$HOME" ]...)
+
 NB: if you want your .bash_profile to be executed, add this line at the end
 of /etc/profile (in c:\msys\1.0\etc):
 if [ -f "$HOME/.bash_profile" ]; then source "$HOME/.bash_profile"; fi
