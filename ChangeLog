@@ -1,3 +1,7 @@
+Tue Mar 10 17:14:36 CET 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug with top-level options --entry-goal and --query-goal
+
 Fri Feb  6 11:02:57 CET 2009 <Daniel.Diaz@univ-paris1.fr>
 
 	* add working sigaction detection to detect fault addr (e.g. Mac OS X)

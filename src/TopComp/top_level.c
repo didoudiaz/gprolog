@@ -28,6 +28,8 @@
 #include <string.h>
 
 #include "../EnginePl/engine_pl.h"
+#include "../BipsPl/c_supp.h"
+#include "../BipsPl/inl_protos.h"
 #include "copying.c"
 
 
