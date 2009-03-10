@@ -4,7 +4,7 @@
 
 # if you change here the version also change it in PROLOG_VERSION below
 
-AC_INIT(gprolog, 1.3.1, bug-prolog@gnu.org)
+AC_INIT(gprolog, 1.3.2, bug-prolog@gnu.org)
 AC_PREREQ(2.52)
 # AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -16,8 +16,8 @@ AC_CONFIG_SRCDIR(SETVARS)
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.3.1'
-PROLOG_DATE='Feb 10 2009'
+PROLOG_VERSION='1.3.2'
+PROLOG_DATE='Mar 10 2009'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2009 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
