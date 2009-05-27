@@ -42,8 +42,8 @@ langford(N, L) :-
 	fd_all_different(UV),
 	set_cstr(U, V, 1),
 	symetric(N, N2, UV),
-%       fd_labelingff(U),
-	fd_labeling(U, [value_method(random), variable_method(random)]),
+%	fd_labeling(U, [variable_method(random), value_method(random)]), % sometimes much better
+	fd_labeling(U, [variable_method(ff), value_method(max)]),
 	decode(1, N, UV, L).
 
 
