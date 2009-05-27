@@ -31,147 +31,159 @@
 /*-------------------------------------------------------------------------*/
 
 
-q:-	write('N ?'), read_integer(N), statistics(runtime,_),
-	square(N,Xs,Ys,Ss), statistics(runtime,[_,Y]),
-	write(x(Xs)), nl, write(y(Ys)), nl, write(s(Ss)), nl,
-	write('time : '), write(Y), nl.
+q :-
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	square(N, Xs, Ys, Ss),
+	statistics(runtime, [_, Y]),
+	write(x(Xs)),
+	nl,
+	write(y(Ys)),
+	nl,
+	write(s(Ss)),
+	nl,
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-problem(1,32,33,[18,15,14,10,9,8,7,4,1]).
-problem(2,65,47,[25,24,23,22,19,17,11,6,5,3]).
-problem(3,112,112,
-        [50,42,37,35,33,29,27,25,24,19,18,17,16,15,11,9,8,7,6,4,2]).
-problem(4,175,175,
-	[81,64,56,55,51,43,39,38,35,33,31,30,29,20,18,16,14,9,8,5,4,3,2,1]).
-problem(5,479,479,
-	[175,174,164,160,155,150,140,130,86,77,68,60,52,44,43,35,29,28,26,24,23,17,6,5]).
-problem(6,655,655,
-	[288,246,216,215,194,193,173,152,151,86,84,83,65,57,54,53,51,40,31,26,25,21,15,14,10]).
+problem(1, 32, 33, [18, 15, 14, 10, 9, 8, 7, 4, 1]).
+problem(2, 65, 47, [25, 24, 23, 22, 19, 17, 11, 6, 5, 3]).
+problem(3, 112, 112, [50, 42, 37, 35, 33, 29, 27, 25, 24, 19, 18, 17, 16, 15, 11, 9, 8, 7, 6, 4, 2]).
+problem(4, 175, 175, [81, 64, 56, 55, 51, 43, 39, 38, 35, 33, 31, 30, 29, 20, 18, 16, 14, 9, 8, 5, 4, 3, 2, 1]).
+problem(5, 479, 479, [175, 174, 164, 160, 155, 150, 140, 130, 86, 77, 68, 60, 52, 44, 43, 35, 29, 28, 26, 24, 23, 17, 6, 5]).
+problem(6, 655, 655, [288, 246, 216, 215, 194, 193, 173, 152, 151, 86, 84, 83, 65, 57, 54, 53, 51, 40, 31, 26, 25, 21, 15, 14, 10]).
 
 
 
 
 
 
-square(P,Xs,Ys,Ss):-
-	gen(P,Xs,Ys,Ss,SX,SY),
-	(SX>=SY -> MaxS=SX
-                ;  MaxS=SY),
+square(P, Xs, Ys, Ss) :-
+	gen(P, Xs, Ys, Ss, SX, SY),
+	(   SX >= SY ->
+	    MaxS = SX
+	;   MaxS = SY
+	),
 	fd_set_vector_max(MaxS),
-	no_overlap(Xs,Ys,Ss),
-	cap(Xs,Ss,SX,SY),
-	cap(Ys,Ss,SY,SX),
+	no_overlap(Xs, Ys, Ss),
+	cap(Xs, Ss, SX, SY),
+	cap(Ys, Ss, SY, SX),
 	label(Xs),
 	label(Ys).
 
 
 
 
-gen(P,Xs,Ys,Ss,SX,SY):-
-	problem(P,SX,SY,Ss),
-	gen_coords(Ss,Xs,Ys,SX,SY).
+gen(P, Xs, Ys, Ss, SX, SY) :-
+	problem(P, SX, SY, Ss),
+	gen_coords(Ss, Xs, Ys, SX, SY).
 
 
 
 
-gen_coords([],[],[],_,_).
+gen_coords([], [], [], _, _).
 
-gen_coords([S|Ss],[X|Xs],[Y|Ys],SX,SY):-
-	X #=< SX-S,
-	Y #=< SY-S,
-	gen_coords(Ss,Xs,Ys,SX,SY).
-
-
-
-
-
-no_overlap([],[],[]).
-
-no_overlap([X|Xs],[Y|Ys],[S|Ss]):-
-	no_overlap1(Xs,Ys,Ss,X,Y,S),
-	no_overlap(Xs,Ys,Ss).
-
-
-
-
-no_overlap1([],[],[],_,_,_).
-
-no_overlap1([X2|Xs],[Y2|Ys],[S2|Ss],X1,Y1,S1):-
-	X1+S1 #=< X2 #\/ X1 #>= X2+S2 #\/ Y1+S1 #=< Y2 #\/ Y1 #>= Y2+S2,
-	no_overlap1(Xs,Ys,Ss,X1,Y1,S1).
+gen_coords([S|Ss], [X|Xs], [Y|Ys], SX, SY) :-
+	X #=< SX - S,
+	Y #=< SY - S,
+	gen_coords(Ss, Xs, Ys, SX, SY).
 
 
 
 
 
-cap(Xs,Ss,SX,SY):-
-	cap1(0,SX,SY,Xs,Ss).
+no_overlap([], [], []).
 
-
-cap1(P,SX,SY,Xs,Ss):-
-	(P < SX -> sum_of_squares_with(Xs,Ss,P,SY),
-   	           P1 is P+1,
-		   cap1(P1,SX,SY,Xs,Ss)
-                ;
-                   true).
+no_overlap([X|Xs], [Y|Ys], [S|Ss]) :-
+	no_overlap1(Xs, Ys, Ss, X, Y, S),
+	no_overlap(Xs, Ys, Ss).
 
 
 
 
-sum_of_squares_with([],[],_,0).
+no_overlap1([], [], [], _, _, _).
 
-sum_of_squares_with([X|Xs],[S|Ss],P,Sum):-
-	point_used_by_square_iff_b(P,X,S,B),
-	Sum #= S*B+Sum1,
-	sum_of_squares_with(Xs,Ss,P,Sum1).
+no_overlap1([X2|Xs], [Y2|Ys], [S2|Ss], X1, Y1, S1) :-
+	X1 + S1 #=< X2 #\/ X1 #>= X2 + S2 #\/ Y1 + S1 #=< Y2 #\/ Y1 #>= Y2 + S2,
+	no_overlap1(Xs, Ys, Ss, X1, Y1, S1).
+
+
+
+
+
+cap(Xs, Ss, SX, SY) :-
+	cap1(0, SX, SY, Xs, Ss).
+
+
+cap1(P, SX, SY, Xs, Ss) :-
+	(   P < SX ->
+	    sum_of_squares_with(Xs, Ss, P, SY),
+	    P1 is P + 1,
+	    cap1(P1, SX, SY, Xs, Ss)
+	;   true
+	).
+
+
+
+
+sum_of_squares_with([], [], _, 0).
+
+sum_of_squares_with([X|Xs], [S|Ss], P, Sum) :-
+	point_used_by_square_iff_b(P, X, S, B),
+	Sum #= S * B + Sum1,
+	sum_of_squares_with(Xs, Ss, P, Sum1).
 
 
 
 
 	% X<=P<X+S <=> B     P and S are ground
 
-point_used_by_square_iff_b(P,X,S,B):-
-	B #<=> X #=< P #/\ P #< X+S.
+point_used_by_square_iff_b(P, X, S, B) :-
+	B #<=> X #=< P #/\ P #< X + S.
 
 
 
 label([]).
 
-label([X|Xs]):-
-	list_min([X|Xs],Min),
-	select_square([X|Xs],Min,Rest),
+label([X|Xs]) :-
+	list_min([X|Xs], Min),
+	select_square([X|Xs], Min, Rest),
 	label(Rest).
 
 
 
 
-list_min([X|Xs],Min):-
-	fd_min(X,Min1),
-	list_min1(Xs,Min1,Min).
+list_min([X|Xs], Min) :-
+	fd_min(X, Min1),
+	list_min1(Xs, Min1, Min).
 
 
 
 
-list_min1([],M,M).
+list_min1([], M, M).
 
-list_min1([X|Xs],M1,M):-
-	fd_min(X,M2),
-	(M1=<M2 -> M3=M1
-                ;  M3=M2),
-	list_min1(Xs,M3,M).
-
-
-
-
-select_square([X|Xs],X,Xs).
-
-select_square([X|Xs],Min,[X|Rest]):-
-	X#>Min,
-	select_square(Xs,Min,Rest).
+list_min1([X|Xs], M1, M) :-
+	fd_min(X, M2),
+	(   M1 =< M2 ->
+	    M3 = M1
+	;   M3 = M2
+	),
+	list_min1(Xs, M3, M).
 
 
 
 
-:- initialization(q).
+select_square([X|Xs], X, Xs).
+
+select_square([X|Xs], Min, [X|Rest]) :-
+	X #> Min,
+	select_square(Xs, Min, Rest).
+
+
+
+
+:-	initialization(q).

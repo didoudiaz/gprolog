@@ -28,42 +28,47 @@
 /*       [0,0,0,0,1,0,0,0]]                                                */
 /*-------------------------------------------------------------------------*/
 
-q:-	write('N ?'), read_integer(N),
-	statistics(runtime,_),
-	(bqueens(N,A), 
-         write(A), nl %,
-%	 fail
-	   ; 
-	 write('No more solutions'), nl),
-	statistics(runtime,[_,Y]),
-	write('time : '), write(Y), nl.
+q :-
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	(   bqueens(N, A),
+	    write(A),
+	    nl                                                             %,
+%        fail
+	;   write('No more solutions'),
+	    nl
+	),
+	statistics(runtime, [_, Y]),
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-bqueens(N,A):-
-	create_array(N,N,A),
-	for_each_line(A,only1),
-	for_each_column(A,only1),
-	for_each_diagonal(A,N,N,atmost1),
-	!,
+bqueens(N, A) :-
+	create_array(N, N, A),
+	for_each_line(A, only1),
+	for_each_column(A, only1),
+	for_each_diagonal(A, N, N, atmost1), !,
 	array_labeling(A).
 
 
 
 
 
-:- include(array).
+:-	include(array).
 
 % interface with for_each_... procedures
 
-array_prog(only1,L):-
+array_prog(only1, L) :-
 	fd_only_one(L).
 
-array_prog(atmost1,L):-
+array_prog(atmost1, L) :-
 	fd_at_most_one(L).
 
 
 
 
-:- initialization(q).
+:-	initialization(q).

@@ -54,80 +54,85 @@
 /*-------------------------------------------------------------------------*/
 
 
-q:-	write('N ?'), read_integer(N),
-	statistics(runtime,_),
-	partit(N,A,B), statistics(runtime,[_,Y]),
-	write(sol(A,B)), nl,
-	write('time : '), write(Y), nl.
+q :-
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	partit(N, A, B),
+	statistics(runtime, [_, Y]),
+	write(sol(A, B)),
+	nl,
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-partit(N,A,B):-
+partit(N, A, B) :-
 	fd_set_vector_max(N),
-	N2 is N//2,
-	length(A,N2),
-	fd_domain(A,1,N),
-	length(B,N2),
-	fd_domain(B,1,N),
-	merge_and_reverse(A,B,[],L),                 % best order for label
+	N2 is N // 2,
+	length(A, N2),
+	fd_domain(A, 1, N),
+	length(B, N2),
+	fd_domain(B, 1, N),
+	merge_and_reverse(A, B, [], L),                % best order for label
 	fd_all_different(L),
-	no_duplicate(A,B),                           % redundant constraint 1
-	half_sums(N,HS1,HS2),                        % redundant constraint 2
-	sums(A,HS1,HS2),
-	sums(B,HS1,HS2),
-	fd_labeling(L,[value_method(max)]).              % best value heuristics
+	no_duplicate(A, B),                          % redundant constraint 1
+	half_sums(N, HS1, HS2),                      % redundant constraint 2
+	sums(A, HS1, HS2),
+	sums(B, HS1, HS2),
+	fd_labeling(L, [value_method(max)]).          % best value heuristics
 
 
 
-merge_and_reverse([],_,Acc,Acc).
+merge_and_reverse([], _, Acc, Acc).
 
-merge_and_reverse([X1|L1],[X2|L2],Acc,L):-
-	merge_and_reverse(L1,L2,[X2,X1|Acc],L).
-
-
-
-sums([],0,0).
-
-sums([X|L],S1,S2):-
-	sums(L,T1,T2),
-	X**2#=X2,
-	S1#=X+T1,
-	S2#=X2+T2.
+merge_and_reverse([X1|L1], [X2|L2], Acc, L) :-
+	merge_and_reverse(L1, L2, [X2, X1|Acc], L).
 
 
 
+sums([], 0, 0).
 
-no_duplicate(A,B):-
+sums([X|L], S1, S2) :-
+	sums(L, T1, T2),
+	X ** 2 #= X2,
+	S1 #= X + T1,
+	S2 #= X2 + T2.
+
+
+
+
+no_duplicate(A, B) :-
 	ascending_order(A),
 	ascending_order(B),
-	A=[X1|_],
-	B=[X2|_],
+	A = [X1|_],
+	B = [X2|_],
 	X2 #> X1.
 
 
 
 
-ascending_order([X|L]):-
-	ascending_order(L,X).
+ascending_order([X|L]) :-
+	ascending_order(L, X).
 
 
-ascending_order([],_).
+ascending_order([], _).
 
-ascending_order([Y|L],X):-
+ascending_order([Y|L], X) :-
 	Y #> X,
-	ascending_order(L,Y).
+	ascending_order(L, Y).
 
 
 
-half_sums(N,HS1,HS2):-
-	S1  is N*(N+1)//2,
-	S2  is S1*(2*N+1)//3,
-	HS1 is S1//2,           
-	HS2 is S2//2.
+half_sums(N, HS1, HS2) :-
+	S1 is N * (N + 1) // 2,
+	S2 is S1 * (2 * N + 1) // 3,
+	HS1 is S1 // 2,
+	HS2 is S2 // 2 .
 
 
 
 
-:- initialization(q).
-
+:-	initialization(q).

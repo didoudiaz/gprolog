@@ -16,15 +16,23 @@
 /* N=11 [11,5,8,1,3,1,10,5,3,9,7,8,11,2,6,4,2,10,7,9,4,6]                  */
 /*-------------------------------------------------------------------------*/
 
-q:-	write('N ?'), read_integer(N),
-	statistics(runtime,_),
-	langford(N, L), statistics(runtime, [_, Y]),
-	write(L), nl,
-	write('time : '), write(Y), nl.
+q :-
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	langford(N, L),
+	statistics(runtime, [_, Y]),
+	write(L),
+	nl,
+	write('time : '),
+	write(Y),
+	nl.
 
 
 langford(N, L) :-
-	(N mod 4 =:= 0 ; N mod 4 =:= 3), !,
+	(   N mod 4 =:= 0
+	;   N mod 4 =:= 3
+	), !,
 	length(U, N),
 	length(V, N),
 	append(U, V, UV),
@@ -34,8 +42,8 @@ langford(N, L) :-
 	fd_all_different(UV),
 	set_cstr(U, V, 1),
 	symetric(N, N2, UV),
-%	fd_labelingff(U),
-	fd_labeling(U,[value_method(random), variable_method(random)]),
+%       fd_labelingff(U),
+	fd_labeling(U, [value_method(random), variable_method(random)]),
 	decode(1, N, UV, L).
 
 
@@ -43,7 +51,7 @@ set_cstr([], [], _).
 
 set_cstr([X|U], [Y|V], I) :-
 	I1 is I + 1,
-	Y - X #= I1,	% also avoid some symetries since enforces X < Y
+	Y - X #= I1,         % also avoid some symetries since enforces X < Y
 	set_cstr(U, V, I1).
 
 
@@ -62,11 +70,10 @@ decode(I, N, UV, [Z1|L]) :-
 	nth(Z, UV, I),
 	(   Z > N ->
 	    Z1 is Z - N
-	;
-	    Z1 = Z
+	;   Z1 = Z
 	),
 	decode(I1, N, UV, L).
 
 
 
-:- initialization(q).
+:-	initialization(q).

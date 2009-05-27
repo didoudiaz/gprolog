@@ -49,69 +49,74 @@
 /*     [7777,325,2527525]                                                  */
 /*-------------------------------------------------------------------------*/
 
-q:-     get_fd_labeling(Lab), 
-	write('M ?'), read_integer(M),
-	write('N ?'), read_integer(N),
-        statistics(runtime,_),
-        (gardner(M,N,L,Lab),
-         write(L), nl, 
-         fail
-           ;
-         true),
-        statistics(runtime,[_,Y]),
-        write('time : '), write(Y), nl.
+q :-
+	get_fd_labeling(Lab),
+	write('M ?'),
+	read_integer(M),
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	(   gardner(M, N, L, Lab),
+	    write(L),
+	    nl,
+	    fail
+	;   true
+	),
+	statistics(runtime, [_, Y]),
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
-gardner(M,N,L,Lab):-
-	MN is M+N,
-	length(LX,M),
-	length(LY,N),
-	length(LZ,MN),
-	nb(LX,X),
-	nb(LY,Y),
-	nb(LZ,Z),
-	X*Y #= Z,
-	L=[X,Y,Z],
-	append(LX,LY,LXY),
-	append(LXY,LZ,LXYZ),
-        lab(Lab,LXYZ).
+gardner(M, N, L, Lab) :-
+	MN is M + N,
+	length(LX, M),
+	length(LY, N),
+	length(LZ, MN),
+	nb(LX, X),
+	nb(LY, Y),
+	nb(LZ, Z),
+	X * Y #= Z,
+	L = [X, Y, Z],
+	append(LX, LY, LXY),
+	append(LXY, LZ, LXYZ),
+	lab(Lab, LXYZ).
 
 
 
-nb(LX,X):-
-	fd_domain(LX,[2,3,5,7]),
-	nb(LX,0,X).
+nb(LX, X) :-
+	fd_domain(LX, [2, 3, 5, 7]),
+	nb(LX, 0, X).
 
-nb([],N,N).
+nb([], N, N).
 
-nb([X|L],I,N):-
-	I1 #= X+I*10,
-	nb(L,I1,N).
-
-
-
-lab(normal,L):-  
-        fd_labeling(L).
-
-lab(ff,L):-
-        fd_labelingff(L).
+nb([X|L], I, N) :-
+	I1 #= X + I * 10,
+	nb(L, I1, N).
 
 
 
+lab(normal, L) :-
+	fd_labeling(L).
 
-get_fd_labeling(Lab):- 
-        argument_counter(C),
-        get_labeling1(C,Lab).
-
-
-get_labeling1(1,normal).
-
-get_labeling1(2,Lab):-
-        argument_value(1,Lab).
+lab(ff, L) :-
+	fd_labelingff(L).
 
 
 
 
-:- initialization(q).
+get_fd_labeling(Lab) :-
+	argument_counter(C),
+	get_labeling1(C, Lab).
 
+
+get_labeling1(1, normal).
+
+get_labeling1(2, Lab) :-
+	argument_value(1, Lab).
+
+
+
+
+:-	initialization(q).

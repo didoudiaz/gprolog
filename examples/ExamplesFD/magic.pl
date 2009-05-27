@@ -31,68 +31,77 @@
 /* N=7  [3,2,1,1,0,0,0]   (for N>=7  [N-4,2,1,<N-7 0's>,1,0,0,0])          */
 /*-------------------------------------------------------------------------*/
 
-q:-	get_fd_labeling(Lab), write('N ?'), read_integer(N),
-	statistics(runtime,_),
-	magic(N,L,Lab), statistics(runtime,[_,Y]),
-	write(L), nl,
-	write('time : '), write(Y), nl.
+q :-
+	get_fd_labeling(Lab),
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	magic(N, L, Lab),
+	statistics(runtime, [_, Y]),
+	write(L),
+	nl,
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-magic(N,L,Lab):-
+magic(N, L, Lab) :-
 	fd_set_vector_max(N),
-	length(L,N),
-	fd_domain(L,0,N),
-	constraints(L,L,0,N,N),
-	lab(Lab,L).
+	length(L, N),
+	fd_domain(L, 0, N),
+	constraints(L, L, 0, N, N),
+	lab(Lab, L).
 
 
 
 
-constraints([],_,_,0,0).
+constraints([], _, _, 0, 0).
 
-constraints([X|Xs],L,I,S,S2):-
-	sum(L,I,X),
-	I1 is I+1,
-	S1+X#=S,                                     % redundant constraint 1
-	(I=0 -> S3=S2
-	     ;  I*X+S3#=S2),                         % redundant constraint 2
-	constraints(Xs,L,I1,S1,S3).
-
-
-
-
-sum([],_,0).
-
-sum([X|Xs],I,S):-
-	sum(Xs,I,S1),
-	X#=I #<=> B,
-	S #= B+S1.
+constraints([X|Xs], L, I, S, S2) :-
+	sum(L, I, X),
+	I1 is I + 1,
+	S1 + X #= S,                                 % redundant constraint 1
+	(   I = 0 ->
+	    S3 = S2
+	;   I * X + S3 #= S2
+	),                                           % redundant constraint 2
+	constraints(Xs, L, I1, S1, S3).
 
 
 
 
-lab(normal,L):-
+sum([], _, 0).
+
+sum([X|Xs], I, S) :-
+	sum(Xs, I, S1),
+	X #= I #<=> B,
+	S #= B + S1.
+
+
+
+
+lab(normal, L) :-
 	fd_labeling(L).
 
-lab(ff,L):-
+lab(ff, L) :-
 	fd_labelingff(L).
 
 
 
 
-get_fd_labeling(Lab):-
+get_fd_labeling(Lab) :-
 	argument_counter(C),
-	get_labeling1(C,Lab).
+	get_labeling1(C, Lab).
 
 
-get_labeling1(1,normal).
+get_labeling1(1, normal).
 
-get_labeling1(2,Lab):-
-	argument_value(1,Lab).
-
-
+get_labeling1(2, Lab) :-
+	argument_value(1, Lab).
 
 
-:- initialization(q).
+
+
+:-	initialization(q).

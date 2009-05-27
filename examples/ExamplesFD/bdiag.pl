@@ -37,81 +37,87 @@
 /* N=3 [0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]                                     */
 /*-------------------------------------------------------------------------*/
 
-q:-	statistics(runtime,_), write('N ?'), read_integer(N),
-	Z is 1<<N-1,
-	bdiag(N,0,0,Z,0,0,Ds,F), statistics(runtime,[_,Y]),
-	write(s(F,Ds)), nl,
-	write('time : '), write(Y), nl.
+q :-
+	statistics(runtime, _),
+	write('N ?'),
+	read_integer(N),
+	Z is 1 << N - 1,
+	bdiag(N, 0, 0, Z, 0, 0, Ds, F),
+	statistics(runtime, [_, Y]),
+	write(s(F, Ds)),
+	nl,
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-bdiag(N,X,Y,Z,C1,C,Ds,F):-
-	N5 is N*5,
+bdiag(N, X, Y, Z, C1, C, Ds, F) :-
+	N5 is N * 5,
 	F #=< N5,
-	nadder(N,X,Y,Z,C1,C,Ds),
-        TN is 1<<N,
-	X+Y+C1 #\= Z+TN*C,
-	sum(Ds,F),
-	fd_minimize(fd_labeling(Ds),F).
+	nadder(N, X, Y, Z, C1, C, Ds),
+	TN is 1 << N,
+	X + Y + C1 #\= Z + TN * C,
+	sum(Ds, F),
+	fd_minimize(fd_labeling(Ds), F).
 %	fd_labeling([F|Ds]).
 
 
 
 
-sum([],0).
-sum([X|Xs],S):-
+sum([], 0).
+sum([X|Xs], S) :-
 	S #= X + S1,
-	sum(Xs,S1).
+	sum(Xs, S1).
 
 
 
 
-nadder(N,X,Y,Z,C1,C,Ds):-
-	bits(N,X,Xs),
-	bits(N,Y,Ys),
-	bits(N,Z,Zs),
-	adder(Xs,Ys,Zs,C1,C,Ds).
+nadder(N, X, Y, Z, C1, C, Ds) :-
+	bits(N, X, Xs),
+	bits(N, Y, Ys),
+	bits(N, Z, Zs),
+	adder(Xs, Ys, Zs, C1, C, Ds).
 
 
 
 
-bits(N,X,Xs):-
-	length(Xs,N),
-	bits1(Xs,0,N,X).
+bits(N, X, Xs) :-
+	length(Xs, N),
+	bits1(Xs, 0, N, X).
 
 
 
 
-bits1([],N,N,0).
+bits1([], N, N, 0).
 
-bits1([Xi|Xs1],I,N,X):-
+bits1([Xi|Xs1], I, N, X) :-
 	I < N,
-	X #= Xi * 2**I + X1,
+	X #= Xi * 2 ** I + X1,
 	I1 is I + 1,
-	bits1(Xs1,I1,N,X1).
+	bits1(Xs1, I1, N, X1).
 
 
 
 
-adder([],[],[],C,C,[]).
+adder([], [], [], C, C, []).
 
-adder([X|Xs],[Y|Ys],[Z|Zs],C1,C,[D0,D1,D2,D3,D4|Ds]):-
-	fullAdder(X,Y,C1,Z,C2,D0,D1,D2,D3,D4),
-	adder(Xs,Ys,Zs,C2,C,Ds).
-
-
+adder([X|Xs], [Y|Ys], [Z|Zs], C1, C, [D0, D1, D2, D3, D4|Ds]) :-
+	fullAdder(X, Y, C1, Z, C2, D0, D1, D2, D3, D4),
+	adder(Xs, Ys, Zs, C2, C, Ds).
 
 
-fullAdder(X,Y,C1,Z,C,D0,D1,D2,D3,D4):-
-	#\ D0 #==> (U1 #<=> X  #/\ Y),
+
+
+fullAdder(X, Y, C1, Z, C, D0, D1, D2, D3, D4) :-
+	#\ D0 #==> (U1 #<=> X #/\ Y),
 	#\ D1 #==> (U2 #<=> U3 #/\ C1),
-	#\ D2 #==> (C  #<=> U1 #\/ U2),
-	#\ D3 #==> (U3 #<=> X  ## Y),
-	#\ D4 #==> (Z  #<=> U3 ## C1).
+	#\ D2 #==> (C #<=> U1 #\/ U2),
+	#\ D3 #==> (U3 #<=> X ## Y),
+	#\ D4 #==> (Z #<=> U3 ## C1).
 
 
 
 
-:- initialization(q).
-
+:-	initialization(q).

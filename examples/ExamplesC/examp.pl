@@ -24,15 +24,15 @@
 
  /* $Id$ */
  
-:- foreign(first_occurrence(+string,+char,-positive)).
+:- foreign(first_occurrence(+string, +char, -positive)).
 
-:- foreign(occurrence(+string,+char,-positive),[choice_size(1)]).
+:- foreign(occurrence(+string, +char, -positive), [choice_size(1)]).
 
-:- foreign(occurrence2(+string,+char,-positive),[choice_size(1)]).
+:- foreign(occurrence2(+string, +char, -positive), [choice_size(1)]).
 
-:- foreign(char_ascii(?char,?code)).
+:- foreign(char_ascii(?char, ?code)).
 
-:- foreign(char_ascii2(?char,?code)).
+:- foreign(char_ascii2(?char, ?code)).
 
 :- foreign(my_call(term)).
 

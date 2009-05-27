@@ -20,62 +20,67 @@
 /*       [1,0,0],[0,0,1],[0,1,0],[0,1,0],[0,0,1]] (first solution)         */
 /*-------------------------------------------------------------------------*/
 
-q:-	write('N ?'), read_integer(N),
-	statistics(runtime,_),
-	(schur(N,A),
-	 write(A), nl, 
-	 fail 
-	   ;
-	 write('No more solutions'), nl),
-	statistics(runtime,[_,Y]),
-	write('time : '), write(Y), nl.
+q :-
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	(   schur(N, A),
+	    write(A),
+	    nl,
+	    fail
+	;   write('No more solutions'),
+	    nl
+	),
+	statistics(runtime, [_, Y]),
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-schur(N,A):-
-	create_array(N,3,A),
-	for_each_line(A,only1),
-	pair_constraints(A,A),
-	!,
+schur(N, A) :-
+	create_array(N, 3, A),
+	for_each_line(A, only1),
+	pair_constraints(A, A), !,
 	array_labeling(A).
 
 
 
 
-pair_constraints([],_):-
+pair_constraints([], _) :-
 	!.
 
-pair_constraints([_],_):-
+pair_constraints([_], _) :-
 	!.
 
-pair_constraints([_,[K1,K2,K3]|A2],[[I1,I2,I3]|A1]):-
-	#\ (I1 #/\ K1),
-	#\ (I2 #/\ K2),
-	#\ (I3 #/\ K3),
-	triplet_constraints(A2,A1,[I1,I2,I3]),
-	pair_constraints(A2,A1).
+pair_constraints([_, [K1, K2, K3]|A2], [[I1, I2, I3]|A1]) :-
+	#\  (I1 #/\ K1),
+	#\  (I2 #/\ K2),
+	#\  (I3 #/\ K3),
+	triplet_constraints(A2, A1, [I1, I2, I3]),
+	pair_constraints(A2, A1).
 
 
 
 
-triplet_constraints([],_,_).
+triplet_constraints([], _, _).
 
-triplet_constraints([[K1,K2,K3]|A2],[[J1,J2,J3]|A1],[I1,I2,I3]):-
-	#\ (I1 #/\ J1 #/\ K1),
-	#\ (I2 #/\ J2 #/\ K2),
-	#\ (I3 #/\ J3 #/\ K3),
-	triplet_constraints(A2,A1,[I1,I2,I3]).
+triplet_constraints([[K1, K2, K3]|A2], [[J1, J2, J3]|A1], [I1, I2, I3]) :-
+	#\  (I1 #/\ J1 #/\ K1),
+	#\  (I2 #/\ J2 #/\ K2),
+	#\  (I3 #/\ J3 #/\ K3),
+	triplet_constraints(A2, A1, [I1, I2, I3]).
 
 
 
-:- include(array).
+:-	include(array).
 
 % interface with for_each_... procedures
 
-array_prog(only1,L):-
+array_prog(only1, L) :-
 	fd_only_one(L).
 
 
 
-:- initialization(q).
+:-	initialization(q).

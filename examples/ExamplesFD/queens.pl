@@ -17,35 +17,42 @@
 /*-------------------------------------------------------------------------*/
 
 
-q:-	get_fd_labeling(Lab), write('N ?'), read_integer(N),
-	statistics(runtime,_),
-	queens(N,L,Lab), statistics(runtime,[_,Y]),
-	write(L), nl,
-	write('time : '), write(Y), nl.
+q :-
+	get_fd_labeling(Lab),
+	write('N ?'),
+	read_integer(N),
+	statistics(runtime, _),
+	queens(N, L, Lab),
+	statistics(runtime, [_, Y]),
+	write(L),
+	nl,
+	write('time : '),
+	write(Y),
+	nl.
 
 
 
 
-queens(N,L,Lab):-
+queens(N, L, Lab) :-
 	fd_set_vector_max(N),
-	length(L,N),
-	fd_domain(L,1,N),
+	length(L, N),
+	fd_domain(L, 1, N),
 	safe(L),
-	lab(Lab,L).
+	lab(Lab, L).
 
 
 
 
 safe([]).
 
-safe([X|L]):-
-	noattack(L,X,1),
+safe([X|L]) :-
+	noattack(L, X, 1),
 	safe(L).
 
 
 
 
-noattack([],_,_).
+noattack([], _, _).
 
 /*
 % faster than the original PVH's version 
@@ -56,15 +63,15 @@ noattack([Y|L],X,I):-
 	diff(X,Y,I).
 */
 
-noattack([Y|L],X,I):-
-	diff(X,Y,I),
-	I1 is I+1,
-	noattack(L,X,I1).
+noattack([Y|L], X, I) :-
+	diff(X, Y, I),
+	I1 is I + 1,
+	noattack(L, X, I1).
 
 
 
-diff(X,Y,I):-
-	fd_tell(diff(X,Y,I)).
+diff(X, Y, I) :-
+	fd_tell(diff(X, Y, I)).
 
 /*
 diff(X,Y,I):-
@@ -73,24 +80,24 @@ diff(X,Y,I):-
 	X+I#\=Y.
 */
 
-lab(normal,L):-  
+lab(normal, L) :-
 	fd_labeling(L).
 
-lab(ff,L):-
+lab(ff, L) :-
 	fd_labelingff(L).
 
 
 
 
-get_fd_labeling(Lab):- 
+get_fd_labeling(Lab) :-
 	argument_counter(C),
-	get_labeling1(C,Lab).
+	get_labeling1(C, Lab).
 
 
-get_labeling1(1,normal).
+get_labeling1(1, normal).
 
-get_labeling1(2,Lab):-
-	argument_value(1,Lab).
+get_labeling1(2, Lab) :-
+	argument_value(1, Lab).
 
 
-:- initialization(q).
+:-	initialization(q).
