@@ -7,6 +7,8 @@
 /* Adapted by     : Daniel Diaz for GNU Prolog                             */
 /* Date           : May 2009                                               */
 /*                                                                         */
+/* Find sequence of N different values in 0 .. N-1 such that the distance  */
+/* between 2 consecutive values are all distinct.                          */
 /* Solution:                                                               */
 /* N=8  [0,7,1,6,2,5,3,4]                                                  */
 /* N=14 [0,13,1,12,2,11,3,10,4,9,5,8,6,7]                                  */
@@ -49,7 +51,7 @@ interval(N, L) :-
 	D1 #> D2,
 	
 	% the labeling of LD speeds up a lot if just the first solution is wanted (else remove it)
-	fd_labeling(LD, [variable_method(ff), value_method(max)]),
+	fd_labeling(LD, [value_method(max)]),
 
 	% the labeling (useless if only the first solution is wanted, labeling of LD is enough)
 	fd_labeling(L, [variable_method(ff), value_method(middle)]).
@@ -62,7 +64,6 @@ mk_dist([], _, []).
 mk_dist([Y|L], X, [D|LD]) :-
 	D #= dist(X, Y),
 	mk_dist(L, Y, LD).
-
 
 
 :-	initialization(q).
