@@ -8,7 +8,7 @@
 /*                                                                         */
 /* The problem L(K,N) is to arrange K sets of numbers 1 to N, so that each */
 /* appearance of the number M is M numbers on from the last. We here solve */
-/* LL(2,N). The problem admits a solution if N is of the form 4k or 4k-1.  */
+/* L(2,N). The problem admits a solution if N is of the form 4k or 4k-1.   */
 /*                                                                         */
 /* Solution:                                                               */
 /* N=4  [4,1,3,1,2,4,3,2]                                                  */
