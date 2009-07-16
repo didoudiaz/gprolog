@@ -1380,7 +1380,7 @@ Display_Help(void)
   L("  -F, --fd-to-c               stop after producing C file(s) from FD file(s)");
   L("  -c, --object                stop after producing object file(s)");
   L("  --temp-dir PATH             use PATH as directory for temporary files");
-  L("  --no-del-temp-files          do not delete temporary files");
+  L("  --no-del-temp-files         do not delete temporary files");
   L("  --no-decode-hexa            do not decode hexadecimal predicate names");
   L("  -v, --verbose               print executed commands");
   L("  -h, --help                  print this help and exit");
