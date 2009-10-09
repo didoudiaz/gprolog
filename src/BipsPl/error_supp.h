@@ -45,8 +45,8 @@ int pl_type_callable;
 int pl_type_character;
 int pl_type_compound;
 int pl_type_evaluable;
-int pl_type_float;			/* for arithmetic */
-int pl_type_boolean;		/* for setarg/4 */
+int pl_type_float;				/* for arithmetic */
+int pl_type_boolean;				/* for setarg/4 */
 int pl_type_in_byte;
 int pl_type_in_character;
 int pl_type_integer;
@@ -54,9 +54,10 @@ int pl_type_list;
 int pl_type_number;
 int pl_type_predicate_indicator;
 int pl_type_variable;
-int pl_type_fd_variable;		/* for FD */
-int pl_type_fd_evaluable;		/* for FD */
-int pl_type_fd_bool_evaluable;	/* for FD */
+int pl_type_pair;
+int pl_type_fd_variable;			/* for FD */
+int pl_type_fd_evaluable;			/* for FD */
+int pl_type_fd_bool_evaluable;			/* for FD */
 
 
 int pl_domain_character_code_list;
@@ -76,24 +77,24 @@ int pl_domain_stream_or_alias;
 int pl_domain_stream_position;
 int pl_domain_stream_property;
 int pl_domain_write_option;
-int pl_domain_term_stream_or_alias;	/* for term_streams */
-int pl_domain_g_array_index;	/* for g_vars */
-int pl_domain_g_argument_selector;	/* for g_vars */
-int pl_domain_stream_seek_method;	/* for seek/4 */
-int pl_domain_format_control_sequence;	/* for format/2-3 */
-int pl_domain_os_path;		/* for absolute_file_name/2 */
-int pl_domain_os_file_permission;	/* for file_permission/2 */
-int pl_domain_selectable_item;	/* for select_read/3 */
-int pl_domain_date_time;		/* for os_interf */
+int pl_domain_term_stream_or_alias;		/* for term_streams */
+int pl_domain_g_array_index;			/* for g_vars */
+int pl_domain_g_argument_selector;		/* for g_vars */
+int pl_domain_stream_seek_method;		/* for seek/4 */
+int pl_domain_format_control_sequence;		/* for format/2-3 */
+int pl_domain_os_path;				/* for absolute_file_name/2 */
+int pl_domain_os_file_permission;		/* for file_permission/2 */
+int pl_domain_selectable_item;			/* for select_read/3 */
+int pl_domain_date_time;			/* for os_interf */
 #ifndef NO_USE_SOCKETS
-int pl_domain_socket_domain;	/* for sockets */
-int pl_domain_socket_address;	/* for sockets */
+int pl_domain_socket_domain;			/* for sockets */
+int pl_domain_socket_address;			/* for sockets */
 #endif
 
 int pl_existence_procedure;
 int pl_existence_source_sink;
 int pl_existence_stream;
-int pl_existence_sr_descriptor;	/* for source reader */
+int pl_existence_sr_descriptor;			/* for source reader */
 
 int pl_permission_operation_access;
 int pl_permission_operation_close;
@@ -122,8 +123,7 @@ int pl_representation_in_character_code;
 int pl_representation_max_arity;
 int pl_representation_max_integer;
 int pl_representation_min_integer;
-int pl_representation_too_many_variables;
-				/* for Pl_Copy_Term(),... */
+int pl_representation_too_many_variables;	/* for Pl_Copy_Term(),... */
 
 int pl_evluation_float_overflow;
 int pl_evluation_int_overflow;
@@ -132,8 +132,8 @@ int pl_evluation_underflow;
 int pl_evluation_zero_divisor;
 
 
-int pl_resource_print_object_not_linked; /* for print and format */
-int pl_resource_too_big_fd_constraint; /* for FD */
+int pl_resource_print_object_not_linked; 	/* for print and format */
+int pl_resource_too_big_fd_constraint; 		/* for FD */
 
 
 #else
@@ -146,8 +146,8 @@ extern int pl_type_callable;
 extern int pl_type_character;
 extern int pl_type_compound;
 extern int pl_type_evaluable;
-extern int pl_type_float;		/* for arithmetic */
-extern int pl_type_boolean;	/* for setarg/4 */
+extern int pl_type_float;			/* for arithmetic */
+extern int pl_type_boolean;			/* for setarg/4 */
 extern int pl_type_in_byte;
 extern int pl_type_in_character;
 extern int pl_type_integer;
@@ -155,9 +155,10 @@ extern int pl_type_list;
 extern int pl_type_number;
 extern int pl_type_predicate_indicator;
 extern int pl_type_variable;
-extern int pl_type_fd_variable;	/* for FD */
-extern int pl_type_fd_evaluable;	/* for FD */
-extern int pl_type_fd_bool_evaluable;	/* for FD */
+extern int pl_type_pair;
+extern int pl_type_fd_variable;			/* for FD */
+extern int pl_type_fd_evaluable;		/* for FD */
+extern int pl_type_fd_bool_evaluable;		/* for FD */
 
 
 extern int pl_domain_character_code_list;
@@ -178,24 +179,24 @@ extern int pl_domain_stream_position;
 extern int pl_domain_stream_property;
 extern int pl_domain_write_option;
 extern int pl_domain_term_stream_or_alias;	/* for term_streams */
-extern int pl_domain_g_array_index;	/* for g_vars */
+extern int pl_domain_g_array_index;		/* for g_vars */
 extern int pl_domain_g_argument_selector;	/* for g_vars */
 extern int pl_domain_stream_seek_method;	/* for seek/4 */
 extern int pl_domain_format_control_sequence;	/* for format/2-3 */
-extern int pl_domain_os_path;	/* for absolute_file_name/2 */
-extern int pl_domain_os_file_permission; /* for file_permission/2 */
-extern int pl_domain_selectable_item; /* for select_read/3 */
-extern int pl_domain_date_time;	/* for os_interf */
+extern int pl_domain_os_path;			/* for absolute_file_name/2 */
+extern int pl_domain_os_file_permission; 	/* for file_permission/2 */
+extern int pl_domain_selectable_item; 		/* for select_read/3 */
+extern int pl_domain_date_time;			/* for os_interf */
 #ifndef NO_USE_SOCKETS
-extern int pl_domain_socket_domain; /* for sockets */
-extern int pl_domain_socket_address; /* for sockets */
+extern int pl_domain_socket_domain; 		/* for sockets */
+extern int pl_domain_socket_address; 		/* for sockets */
 #endif
 
 
 extern int pl_existence_procedure;
 extern int pl_existence_source_sink;
 extern int pl_existence_stream;
-extern int pl_existence_sr_descriptor; /* for source reader */
+extern int pl_existence_sr_descriptor; 		/* for source reader */
 
 
 extern int pl_permission_operation_access;
@@ -225,8 +226,7 @@ extern int pl_representation_in_character_code;
 extern int pl_representation_max_arity;
 extern int pl_representation_max_integer;
 extern int pl_representation_min_integer;
-extern int pl_representation_too_many_variables;
-				/* for Pl_Copy_Term(),... */
+extern int pl_representation_too_many_variables;/* for Pl_Copy_Term(),... */
 
 
 extern int pl_evluation_float_overflow;
@@ -236,9 +236,9 @@ extern int pl_evluation_underflow;
 extern int pl_evluation_zero_divisor;
 
 
-extern int resource_too_many_open_streams; /* for streams */
+extern int resource_too_many_open_streams; 	/* for streams */
 extern int pl_resource_print_object_not_linked; /* for print and format */
-extern int pl_resource_too_big_fd_constraint; /* for FD */
+extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 
 #endif
 

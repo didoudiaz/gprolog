@@ -169,6 +169,56 @@ Pl_Blt_Non_Generic_Var(WamWord x)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_BLT_GROUND                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool FC
+Pl_Blt_Ground(WamWord start_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  int arity;
+
+ terminal_rec:
+  DEREF(start_word, word, tag_mask);
+
+  if (Tag_Is_Generic_Var(tag_mask))
+    return FALSE;
+
+  if (tag_mask == TAG_LST_MASK)
+    {
+      adr = UnTag_LST(word);
+      if (!Pl_Blt_Ground(Car(adr)))
+	return FALSE;
+
+      start_word = Cdr(adr);
+      goto terminal_rec;
+    }
+  
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_LST(word);
+      arity = Arity(adr);
+
+      adr = &Arg(adr, 0);
+      while(--arity > 0)
+	{
+	  if (!Pl_Blt_Ground(*adr++))
+	    return FALSE;
+
+	}
+
+      start_word = *adr;
+      goto terminal_rec;
+    }
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_BLT_LIST                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/

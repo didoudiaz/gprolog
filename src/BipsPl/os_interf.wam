@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : os_interf.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 11:13:40
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').
@@ -111,7 +111,7 @@ predicate(file_property/2,99,static,private,built_in,[
 
 predicate('$check_file_prop'/1,107,static,private,built_in,[
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
@@ -503,7 +503,7 @@ predicate(exec/5,274,static,private,built_in,[
 predicate('$exec/5_$aux1'/1,274,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     put_value(x(0),1),
     put_atom(variable,0),
@@ -595,7 +595,7 @@ predicate(fork_prolog/1,313,static,private,built_in,[
 predicate('$fork_prolog/1_$aux1'/1,313,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     put_value(x(0),1),
     put_atom(variable,0),

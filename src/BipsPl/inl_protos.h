@@ -60,6 +60,8 @@ Bool FC Pl_Blt_Compound(WamWord x);
 
 Bool FC Pl_Blt_Callable(WamWord x);
 
+Bool FC Pl_Blt_Ground(WamWord x);
+
 Bool FC Pl_Blt_Fd_Var(WamWord x);
 
 Bool FC Pl_Blt_Non_Fd_Var(WamWord x);
@@ -178,9 +180,22 @@ WamWord FC Pl_Fct_Fast_Shl(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Fast_Shr(WamWord x, WamWord y);
 
+WamWord FC Pl_Fct_Fast_LSB(WamWord x);
+
+WamWord FC Pl_Fct_Fast_MSB(WamWord x);
+
+WamWord FC Pl_Fct_Fast_Popcount(WamWord x);
+
 WamWord FC Pl_Fct_Fast_Abs(WamWord x);
 
 WamWord FC Pl_Fct_Fast_Sign(WamWord x);
+
+WamWord FC Pl_Fct_Fast_GCD(WamWord b, WamWord x);
+
+WamWord FC Pl_Fct_Fast_Log_Radix(WamWord b, WamWord x);
+
+
+
 
 WamWord FC Pl_Fct_Neg(WamWord x);
 
@@ -216,19 +231,33 @@ WamWord FC Pl_Fct_Shr(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Abs(WamWord x);
 
+WamWord FC Pl_Fct_LSB(WamWord x);
+
+WamWord FC Pl_Fct_MSB(WamWord x);
+
+WamWord FC Pl_Fct_Popcount(WamWord x);
+
 WamWord FC Pl_Fct_Sign(WamWord x);
 
 
+
+WamWord FC Pl_Fct_GCD(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Min(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Max(WamWord x, WamWord y);
 
+WamWord FC Pl_Fct_Integer_Pow(WamWord x, WamWord y);
+
 WamWord FC Pl_Fct_Pow(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Sqrt(WamWord x);
 
+WamWord FC Pl_Fct_Tan(WamWord x);
+
 WamWord FC Pl_Fct_Atan(WamWord x);
+
+WamWord FC Pl_Fct_Atan2(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Cos(WamWord x);
 
@@ -238,9 +267,25 @@ WamWord FC Pl_Fct_Sin(WamWord x);
 
 WamWord FC Pl_Fct_Asin(WamWord x);
 
+WamWord FC Pl_Fct_Tanh(WamWord x);
+
+WamWord FC Pl_Fct_Atanh(WamWord x);
+
+WamWord FC Pl_Fct_Cosh(WamWord x);
+
+WamWord FC Pl_Fct_Acosh(WamWord x);
+
+WamWord FC Pl_Fct_Sinh(WamWord x);
+
+WamWord FC Pl_Fct_Asinh(WamWord x);
+
 WamWord FC Pl_Fct_Exp(WamWord x);
 
 WamWord FC Pl_Fct_Log(WamWord x);
+
+WamWord FC Pl_Fct_Log10(WamWord x);
+
+WamWord FC Pl_Fct_Log_Radix(WamWord b, WamWord x);
 
 WamWord FC Pl_Fct_Float(WamWord x);
 
@@ -257,6 +302,15 @@ WamWord FC Pl_Fct_Float_Fract_Part(WamWord x);
 WamWord FC Pl_Fct_Float_Integ_Part(WamWord x);
 
 WamWord FC Pl_Fct_Identity(WamWord x);
+
+WamWord FC Pl_Fct_PI(void);
+
+WamWord FC Pl_Fct_E(void);
+
+WamWord FC Pl_Fct_Epsilon(void);
+
+
+
 
 Bool FC Pl_Blt_Fast_Eq(WamWord x, WamWord y);
 

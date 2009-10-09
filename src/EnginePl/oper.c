@@ -118,6 +118,7 @@ Pl_Init_Oper(void)
   ADD_OPER(500, YFX, "-");
   ADD_OPER(500, YFX, "/\\");
   ADD_OPER(500, YFX, "\\/");
+  ADD_OPER(500, YFX, "><");
 
   ADD_OPER(400, YFX, "*");
   ADD_OPER(400, YFX, "/");

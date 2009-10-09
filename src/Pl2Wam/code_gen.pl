@@ -511,6 +511,9 @@ load_math_expr(flt(N), Reg, WamNext, WamMath) :-
 load_math_expr(stc(F, N, LArg), Reg, WamNext, WamMath) :-
 	load_math_expr1(F, N, LArg, Reg, WamNext, WamMath).
 
+load_math_expr(atm(F), Reg, WamNext, WamMath) :-
+	load_math_expr1(F, 0, [], Reg, WamNext, WamMath).
+
 load_math_expr(X, _, _, _) :-
 	error('unknown expression in arithmetic expression (~q)', [X]).
 
@@ -554,66 +557,88 @@ load_math_arg_lst([Arg|LArg], [x(Reg)|LReg], WamNext, WamMath) :-
 
 
 
-fast_exp_functor_name(-, 1, 'Fct_Fast_Neg').
-fast_exp_functor_name(inc, 1, 'Fct_Fast_Inc').
-fast_exp_functor_name(dec, 1, 'Fct_Fast_Dec').
-fast_exp_functor_name(+, 2, 'Fct_Fast_Add').
-fast_exp_functor_name(-, 2, 'Fct_Fast_Sub').
-fast_exp_functor_name(*, 2, 'Fct_Fast_Mul').
-fast_exp_functor_name(//, 2, 'Fct_Fast_Div').
-fast_exp_functor_name(rem, 2, 'Fct_Fast_Rem').
-fast_exp_functor_name(mod, 2, 'Fct_Fast_Mod').
-fast_exp_functor_name(/\, 2, 'Fct_Fast_And').
-fast_exp_functor_name(\/, 2, 'Fct_Fast_Or').
-fast_exp_functor_name(^, 2, 'Fct_Fast_Xor').
-fast_exp_functor_name(\, 1, 'Fct_Fast_Not').
-fast_exp_functor_name(<<, 2, 'Fct_Fast_Shl').
-fast_exp_functor_name(>>, 2, 'Fct_Fast_Shr').
-fast_exp_functor_name(abs, 1, 'Fct_Fast_Abs').
-fast_exp_functor_name(sign, 1, 'Fct_Fast_Sign').
+fast_exp_functor_name(-, 1, 'Pl_Fct_Fast_Neg').
+fast_exp_functor_name(inc, 1, 'Pl_Fct_Fast_Inc').
+fast_exp_functor_name(dec, 1, 'Pl_Fct_Fast_Dec').
+fast_exp_functor_name(+, 2, 'Pl_Fct_Fast_Add').
+fast_exp_functor_name(-, 2, 'Pl_Fct_Fast_Sub').
+fast_exp_functor_name(*, 2, 'Pl_Fct_Fast_Mul').
+fast_exp_functor_name(//, 2, 'Pl_Fct_Fast_Div').
+fast_exp_functor_name(rem, 2, 'Pl_Fct_Fast_Rem').
+fast_exp_functor_name(mod, 2, 'Pl_Fct_Fast_Mod').
+fast_exp_functor_name(/\, 2, 'Pl_Fct_Fast_And').
+fast_exp_functor_name(\/, 2, 'Pl_Fct_Fast_Or').
+fast_exp_functor_name(><, 2, 'Pl_Fct_Fast_Xor').
+fast_exp_functor_name(\, 1, 'Pl_Fct_Fast_Not').
+fast_exp_functor_name(<<, 2, 'Pl_Fct_Fast_Shl').
+fast_exp_functor_name(>>, 2, 'Pl_Fct_Fast_Shr').
+fast_exp_functor_name(lsb, 1, 'Pl_Fct_Fast_LSB').
+fast_exp_functor_name(msb, 1, 'Pl_Fct_Fast_MSB').
+fast_exp_functor_name(popcount, 1, 'Pl_Fct_Fast_Popcount').
+fast_exp_functor_name(abs, 1, 'Pl_Fct_Fast_Abs').
+fast_exp_functor_name(sign, 1, 'Pl_Fct_Fast_Sign').
+fast_exp_functor_name(gcd, 2, 'Pl_Fct_Fast_GCD').
+fast_exp_functor_name(^, 2, 'Pl_Fct_Fast_Integer_Pow').
 
 
 
+math_exp_functor_name(-, 1, 'Pl_Fct_Neg').
+math_exp_functor_name(inc, 1, 'Pl_Fct_Inc').
+math_exp_functor_name(dec, 1, 'Pl_Fct_Dec').
+math_exp_functor_name(+, 2, 'Pl_Fct_Add').
+math_exp_functor_name(-, 2, 'Pl_Fct_Sub').
+math_exp_functor_name(*, 2, 'Pl_Fct_Mul').
+math_exp_functor_name(//, 2, 'Pl_Fct_Div').
+math_exp_functor_name(/, 2, 'Pl_Fct_Float_Div').
+math_exp_functor_name(rem, 2, 'Pl_Fct_Rem').
+math_exp_functor_name(mod, 2, 'Pl_Fct_Mod').
+math_exp_functor_name(/\, 2, 'Pl_Fct_And').
+math_exp_functor_name(\/, 2, 'Pl_Fct_Or').
+math_exp_functor_name(><, 2, 'Pl_Fct_Xor').
+math_exp_functor_name(\, 1, 'Pl_Fct_Not').
+math_exp_functor_name(<<, 2, 'Pl_Fct_Shl').
+math_exp_functor_name(>>, 2, 'Pl_Fct_Shr').
+math_exp_functor_name(lsb, 1, 'Pl_Fct_LSB').
+math_exp_functor_name(msb, 1, 'Pl_Fct_MSB').
+math_exp_functor_name(popcount, 1, 'Pl_Fct_Popcount').
+math_exp_functor_name(abs, 1, 'Pl_Fct_Abs').
+math_exp_functor_name(sign, 1, 'Pl_Fct_Sign').
 
-math_exp_functor_name(-, 1, 'Fct_Neg').
-math_exp_functor_name(inc, 1, 'Fct_Inc').
-math_exp_functor_name(dec, 1, 'Fct_Dec').
-math_exp_functor_name(+, 2, 'Fct_Add').
-math_exp_functor_name(-, 2, 'Fct_Sub').
-math_exp_functor_name(*, 2, 'Fct_Mul').
-math_exp_functor_name(//, 2, 'Fct_Div').
-math_exp_functor_name(/, 2, 'Fct_Float_Div').
-math_exp_functor_name(rem, 2, 'Fct_Rem').
-math_exp_functor_name(mod, 2, 'Fct_Mod').
-math_exp_functor_name(/\, 2, 'Fct_And').
-math_exp_functor_name(\/, 2, 'Fct_Or').
-math_exp_functor_name(^, 2, 'Fct_Xor').
-math_exp_functor_name(\, 1, 'Fct_Not').
-math_exp_functor_name(<<, 2, 'Fct_Shl').
-math_exp_functor_name(>>, 2, 'Fct_Shr').
-math_exp_functor_name(abs, 1, 'Fct_Abs').
-math_exp_functor_name(sign, 1, 'Fct_Sign').
-
-math_exp_functor_name(min, 2, 'Fct_Min').
-math_exp_functor_name(max, 2, 'Fct_Max').
-math_exp_functor_name(**, 2, 'Fct_Pow').
-math_exp_functor_name(sqrt, 1, 'Fct_Sqrt').
-math_exp_functor_name(atan, 1, 'Fct_Atan').
-math_exp_functor_name(cos, 1, 'Fct_Cos').
-math_exp_functor_name(acos, 1, 'Fct_Acos').
-math_exp_functor_name(sin, 1, 'Fct_Sin').
-math_exp_functor_name(asin, 1, 'Fct_Asin').
-math_exp_functor_name(exp, 1, 'Fct_Exp').
-math_exp_functor_name(log, 1, 'Fct_Log').
-math_exp_functor_name(float, 1, 'Fct_Float').
-math_exp_functor_name(ceiling, 1, 'Fct_Ceiling').
-math_exp_functor_name(floor, 1, 'Fct_Floor').
-math_exp_functor_name(round, 1, 'Fct_Round').
-math_exp_functor_name(truncate, 1, 'Fct_Truncate').
-math_exp_functor_name(float_fractional_part, 1, 'Fct_Float_Fract_Part').
-math_exp_functor_name(float_integer_part, 1, 'Fct_Float_Integ_Part').
+math_exp_functor_name(gcd, 2, 'Pl_Fct_GCD').
+math_exp_functor_name(min, 2, 'Pl_Fct_Min').
+math_exp_functor_name(max, 2, 'Pl_Fct_Max').
+math_exp_functor_name(^, 2, 'Pl_Fct_Integer_Pow').
+math_exp_functor_name(**, 2, 'Pl_Fct_Pow').
+math_exp_functor_name(sqrt, 1, 'Pl_Fct_Sqrt').
+math_exp_functor_name(tan, 1, 'Pl_Fct_Tan').
+math_exp_functor_name(atan, 1, 'Pl_Fct_Atan').
+math_exp_functor_name(atan, 2, 'Pl_Fct_Atan2').
+math_exp_functor_name(cos, 1, 'Pl_Fct_Cos').
+math_exp_functor_name(acos, 1, 'Pl_Fct_Acos').
+math_exp_functor_name(sin, 1, 'Pl_Fct_Sin').
+math_exp_functor_name(asin, 1, 'Pl_Fct_Asin').
+math_exp_functor_name(tanh, 1, 'Pl_Fct_Tanh').
+math_exp_functor_name(atanh, 1, 'Pl_Fct_Atanh').
+math_exp_functor_name(cosh, 1, 'Pl_Fct_Cosh').
+math_exp_functor_name(acosh, 1, 'Pl_Fct_Acosh').
+math_exp_functor_name(sinh, 1, 'Pl_Fct_Sinh').
+math_exp_functor_name(asinh, 1, 'Pl_Fct_Asinh').
+math_exp_functor_name(exp, 1, 'Pl_Fct_Exp').
+math_exp_functor_name(log, 1, 'Pl_Fct_Log').
+math_exp_functor_name(log10, 1, 'Pl_Fct_Log10').
+math_exp_functor_name(log, 2, 'Pl_Fct_Log_Radix').
+math_exp_functor_name(float, 1, 'Pl_Fct_Float').
+math_exp_functor_name(ceiling, 1, 'Pl_Fct_Ceiling').
+math_exp_functor_name(floor, 1, 'Pl_Fct_Floor').
+math_exp_functor_name(round, 1, 'Pl_Fct_Round').
+math_exp_functor_name(truncate, 1, 'Pl_Fct_Truncate').
+math_exp_functor_name(float_fractional_part, 1, 'Pl_Fct_Float_Fract_Part').
+math_exp_functor_name(float_integer_part, 1, 'Pl_Fct_Float_Integ_Part').
 
 
+math_exp_functor_name(pi, 0, 'Pl_Fct_PI').
+math_exp_functor_name(e, 0, 'Pl_Fct_E').
+math_exp_functor_name(epsilon, 0, 'Pl_Fct_Epsilon').
 
 
 gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-
@@ -626,19 +651,19 @@ gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-
 
 
 
-fast_cmp_functor_name(=:=, 'Blt_Fast_Eq').
-fast_cmp_functor_name(=\=, 'Blt_Fast_Neq').
-fast_cmp_functor_name(<, 'Blt_Fast_Lt').
-fast_cmp_functor_name(=<, 'Blt_Fast_Lte').
-fast_cmp_functor_name(>, 'Blt_Fast_Gt').
-fast_cmp_functor_name(>=, 'Blt_Fast_Gte').
+fast_cmp_functor_name(=:=, 'Pl_Blt_Fast_Eq').
+fast_cmp_functor_name(=\=, 'Pl_Blt_Fast_Neq').
+fast_cmp_functor_name(<, 'Pl_Blt_Fast_Lt').
+fast_cmp_functor_name(=<, 'Pl_Blt_Fast_Lte').
+fast_cmp_functor_name(>, 'Pl_Blt_Fast_Gt').
+fast_cmp_functor_name(>=, 'Pl_Blt_Fast_Gte').
 
-math_cmp_functor_name(=:=, 'Blt_Eq').
-math_cmp_functor_name(=\=, 'Blt_Neq').
-math_cmp_functor_name(<, 'Blt_Lt').
-math_cmp_functor_name(=<, 'Blt_Lte').
-math_cmp_functor_name(>, 'Blt_Gt').
-math_cmp_functor_name(>=, 'Blt_Gte').
+math_cmp_functor_name(=:=, 'Pl_Blt_Eq').
+math_cmp_functor_name(=\=, 'Pl_Blt_Neq').
+math_cmp_functor_name(<, 'Pl_Blt_Lt').
+math_cmp_functor_name(=<, 'Pl_Blt_Lte').
+math_cmp_functor_name(>, 'Pl_Blt_Gt').
+math_cmp_functor_name(>=, 'Pl_Blt_Gte').
 
 
 
@@ -710,51 +735,52 @@ gen_inline_pred(F, N, LArg, WamNext, WamCallC) :-
 
 
 
-c_fct_name(var, 1, 'Blt_Var', bool).
-c_fct_name(nonvar, 1, 'Blt_Non_Var', bool).
-c_fct_name(atom, 1, 'Blt_Atom', bool).
-c_fct_name(integer, 1, 'Blt_Integer', bool).
-c_fct_name(float, 1, 'Blt_Float', bool).
-c_fct_name(number, 1, 'Blt_Number', bool).
-c_fct_name(atomic, 1, 'Blt_Atomic', bool).
-c_fct_name(compound, 1, 'Blt_Compound', bool).
-c_fct_name(callable, 1, 'Blt_Callable', bool).
-c_fct_name(list, 1, 'Blt_List', bool).
-c_fct_name(partial_list, 1, 'Blt_Partial_List', bool).
-c_fct_name(list_or_partial_list, 1, 'Blt_List_Or_Partial_List', bool).
+c_fct_name(var, 1, 'Pl_Blt_Var', bool).
+c_fct_name(nonvar, 1, 'Pl_Blt_Non_Var', bool).
+c_fct_name(atom, 1, 'Pl_Blt_Atom', bool).
+c_fct_name(integer, 1, 'Pl_Blt_Integer', bool).
+c_fct_name(float, 1, 'Pl_Blt_Float', bool).
+c_fct_name(number, 1, 'Pl_Blt_Number', bool).
+c_fct_name(atomic, 1, 'Pl_Blt_Atomic', bool).
+c_fct_name(compound, 1, 'Pl_Blt_Compound', bool).
+c_fct_name(callable, 1, 'Pl_Blt_Callable', bool).
+c_fct_name(ground, 1, 'Pl_Blt_Ground', bool).
+c_fct_name(list, 1, 'Pl_Blt_List', bool).
+c_fct_name(partial_list, 1, 'Pl_Blt_Partial_List', bool).
+c_fct_name(list_or_partial_list, 1, 'Pl_Blt_List_Or_Partial_List', bool).
 
-c_fct_name(fd_var, 1, 'Blt_Fd_Var', bool).
-c_fct_name(non_fd_var, 1, 'Blt_Non_Fd_Var', bool).
-c_fct_name(generic_var, 1, 'Blt_Generic_Var', bool).
-c_fct_name(non_generic_var, 1, 'Blt_Non_Generic_Var', bool).
+c_fct_name(fd_var, 1, 'Pl_Blt_Fd_Var', bool).
+c_fct_name(non_fd_var, 1, 'Pl_Blt_Non_Fd_Var', bool).
+c_fct_name(generic_var, 1, 'Pl_Blt_Generic_Var', bool).
+c_fct_name(non_generic_var, 1, 'Pl_Blt_Non_Generic_Var', bool).
 
 
-c_fct_name(arg, 3, 'Blt_Arg', bool).
-c_fct_name(functor, 3, 'Blt_Functor', bool).
-c_fct_name(compare, 3, 'Blt_Compare', bool).
-c_fct_name(=.., 2, 'Blt_Univ', bool).
+c_fct_name(arg, 3, 'Pl_Blt_Arg', bool).
+c_fct_name(functor, 3, 'Pl_Blt_Functor', bool).
+c_fct_name(compare, 3, 'Pl_Blt_Compare', bool).
+c_fct_name(=.., 2, 'Pl_Blt_Univ', bool).
 
-c_fct_name(==, 2, 'Blt_Term_Eq', bool).
-c_fct_name(\==, 2, 'Blt_Term_Neq', bool).
-c_fct_name(@<, 2, 'Blt_Term_Lt', bool).
-c_fct_name(@=<, 2, 'Blt_Term_Lte', bool).
-c_fct_name(@>, 2, 'Blt_Term_Gt', bool).
-c_fct_name(@>=, 2, 'Blt_Term_Gte', bool).
+c_fct_name(==, 2, 'Pl_Blt_Term_Eq', bool).
+c_fct_name(\==, 2, 'Pl_Blt_Term_Neq', bool).
+c_fct_name(@<, 2, 'Pl_Blt_Term_Lt', bool).
+c_fct_name(@=<, 2, 'Pl_Blt_Term_Lte', bool).
+c_fct_name(@>, 2, 'Pl_Blt_Term_Gt', bool).
+c_fct_name(@>=, 2, 'Pl_Blt_Term_Gte', bool).
 
-c_fct_name(g_assign, 2, 'Blt_G_Assign', void).
-c_fct_name(g_assignb, 2, 'Blt_G_Assignb', void).
-c_fct_name(g_link, 2, 'Blt_G_Link', void).
-c_fct_name(g_read, 2, 'Blt_G_Read', bool).
-c_fct_name(g_array_size, 2, 'Blt_G_Array_Size', bool).
-c_fct_name(g_inc, 1, 'Blt_G_Inc', void).
-c_fct_name(g_inco, 2, 'Blt_G_Inco', bool).
-c_fct_name(g_inc, 2, 'Blt_G_Inc_2', bool).
-c_fct_name(g_inc, 3, 'Blt_G_Inc_3', bool).
-c_fct_name(g_dec, 1, 'Blt_G_Dec', void).
-c_fct_name(g_deco, 2, 'Blt_G_Deco', bool).
-c_fct_name(g_dec, 2, 'Blt_G_Dec_2', bool).
-c_fct_name(g_dec, 3, 'Blt_G_Dec_3', bool).
-c_fct_name(g_set_bit, 2, 'Blt_G_Set_Bit', void).
-c_fct_name(g_reset_bit, 2, 'Blt_G_Reset_Bit', void).
-c_fct_name(g_test_set_bit, 2, 'Blt_G_Test_Set_Bit', bool).
-c_fct_name(g_test_reset_bit, 2, 'Blt_G_Test_Reset_Bit', bool).
+c_fct_name(g_assign, 2, 'Pl_Blt_G_Assign', void).
+c_fct_name(g_assignb, 2, 'Pl_Blt_G_Assignb', void).
+c_fct_name(g_link, 2, 'Pl_Blt_G_Link', void).
+c_fct_name(g_read, 2, 'Pl_Blt_G_Read', bool).
+c_fct_name(g_array_size, 2, 'Pl_Blt_G_Array_Size', bool).
+c_fct_name(g_inc, 1, 'Pl_Blt_G_Inc', void).
+c_fct_name(g_inco, 2, 'Pl_Blt_G_Inco', bool).
+c_fct_name(g_inc, 2, 'Pl_Blt_G_Inc_2', bool).
+c_fct_name(g_inc, 3, 'Pl_Blt_G_Inc_3', bool).
+c_fct_name(g_dec, 1, 'Pl_Blt_G_Dec', void).
+c_fct_name(g_deco, 2, 'Pl_Blt_G_Deco', bool).
+c_fct_name(g_dec, 2, 'Pl_Blt_G_Dec_2', bool).
+c_fct_name(g_dec, 3, 'Pl_Blt_G_Dec_3', bool).
+c_fct_name(g_set_bit, 2, 'Pl_Blt_G_Set_Bit', void).
+c_fct_name(g_reset_bit, 2, 'Pl_Blt_G_Reset_Bit', void).
+c_fct_name(g_test_set_bit, 2, 'Pl_Blt_G_Test_Set_Bit', bool).
+c_fct_name(g_test_reset_bit, 2, 'Pl_Blt_G_Test_Reset_Bit', bool).

@@ -501,6 +501,10 @@ handle_directive(multifile, _, _) :-
 	    true
 	).
 
+handle_directive(encoding, _, _) :-
+	!,
+	warn('encoding directive not supported - directive ignored', []).
+
 handle_directive(ensure_loaded, _, _) :-
 	!,
 	warn('ensure_loaded directive not supported - directive ignored', []).

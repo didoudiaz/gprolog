@@ -107,68 +107,6 @@
 
 
 /*-------------------------------------------------------------------------*
- * PL_LEAST_SIGNIFICANT_BIT                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Pl_Least_Significant_Bit(VecWord x)
-{
-  int bit = 0;
-
-#if WORD_SIZE == 64
-  if (x << 32 == 0)
-    bit += 32, x >>= 32;
-#endif
-
-  if (x << (WORD_SIZE - 32 + 16) == 0)
-    bit += 16, x >>= 16;
-  if (x << (WORD_SIZE - 32 + 16 + 8) == 0)
-    bit += 8, x >>= 8;
-  if (x << (WORD_SIZE - 32 + 16 + 8 + 4) == 0)
-    bit += 4, x >>= 4;
-  if (x << (WORD_SIZE - 32 + 16 + 8 + 4 + 2) == 0)
-    bit += 2, x >>= 2;
-  if (x << (WORD_SIZE - 32 + 16 + 8 + 4 + 2 + 1) == 0)
-    bit += 1;
-
-  return bit;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_MOST_SIGNIFICANT_BIT                                                 *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Pl_Most_Significant_Bit(VecWord x)
-{
-  int bit = WORD_SIZE - 1;
-
-#if WORD_SIZE == 64
-  if (x >> 32 == 0)
-    bit -= 32, x <<= 32;
-#endif
-
-  if (x >> (WORD_SIZE - 32 + 16) == 0)
-    bit -= 16, x <<= 16;
-  if (x >> (WORD_SIZE - 32 + 16 + 8) == 0)
-    bit -= 8, x <<= 8;
-  if (x >> (WORD_SIZE - 32 + 16 + 8 + 4) == 0)
-    bit -= 4, x <<= 4;
-  if (x >> (WORD_SIZE - 32 + 16 + 8 + 4 + 2) == 0)
-    bit -= 2, x <<= 2;
-  if (x >> (WORD_SIZE - 32 + 16 + 8 + 4 + 2 + 1) == 0)
-    bit -= 1;
-
-  return bit;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * PL_DEFINE_VECTOR_SIZE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -225,41 +163,12 @@ Pl_Vector_From_Interval(Vector vec, int min, int max)
 int
 Pl_Vector_Nb_Elem(Vector vec)
 {
-  static int nb_bits_in_byte[256] =
-    { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3,
-    4, 2, 3, 3, 4, 3, 4, 4, 5,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5,
-    3, 4, 4, 5, 4, 5, 5, 6,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5,
-    3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-    4, 5, 5, 6, 5, 6, 6, 7,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5,
-    3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-    4, 5, 5, 6, 5, 6, 6, 7,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-    4, 5, 5, 6, 5, 6, 6, 7,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7,
-    5, 6, 6, 7, 6, 7, 7, 8
-  };
   register Vector end = vec + pl_vec_size;
-  register VecWord vec_word;
   register int nb_elem = 0;
 
   do
     {
-      vec_word = *vec;
-      nb_elem += nb_bits_in_byte[vec_word & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 8) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 16) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 24) & 0xFF];
-#if WORD_SIZE == 64
-      nb_elem += nb_bits_in_byte[(vec_word >> 32) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 40) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 48) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 56) & 0xFF];
-#endif
+      nb_elem += Pl_Count_Set_Bits(*vec++);
       vec++;
     }
   while (vec < end);

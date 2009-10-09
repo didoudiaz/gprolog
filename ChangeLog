@@ -1,3 +1,26 @@
+Fri Oct  9 14:40:11 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* add evaluable functors: (a)sinh/1, (a)cosh/1, (a)tanh/1
+	* add evaluable functors: epsilon/0, lsb/1, msb/1, popcount/1
+
+Thu Oct  8 17:26:36 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix compilation problem under Mac OS X Snow Leopard (force 32-bits mode)
+
+Wed Oct  7 16:14:16 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* add evaluable functiors: log/2, gcd/2, tan/1, atan/2, pi/0, e/0
+	* add built-in ground/1
+	* rename built-in sort0 as msort 
+	* add new error detection for keysort
+
+Tue Oct  6 12:47:32 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* accept (but ignore) directive encoding/1
+	* add >< operator (bitwise XOR) ^/2 becomes integer exponentiation
+	* improve randomize/0 (more different values on consecutive calls)
+	* relax the lexer to also accept 0'' (ISO requieres 0''' or 0'\')
+
 Tue Mar 10 17:14:36 CET 2009 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with top-level options --entry-goal and --query-goal

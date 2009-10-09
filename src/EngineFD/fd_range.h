@@ -81,10 +81,6 @@ Range;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Pl_Least_Significant_Bit(VecWord x);
-
-int Pl_Most_Significant_Bit(VecWord x);
-
 void Pl_Define_Vector_Size(int max_val);
 
 void Pl_Vector_From_Interval(Vector vec, int min, int max);

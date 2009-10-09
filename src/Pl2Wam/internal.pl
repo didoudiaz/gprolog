@@ -253,6 +253,8 @@ inline_predicate(compound, 1, t).
 
 inline_predicate(callable, 1, t).
 
+inline_predicate(ground, 1, t).
+
 inline_predicate(list, 1, t).
 
 inline_predicate(partial_list, 1, t).

@@ -46,6 +46,7 @@
 #include <unistd.h>
 #include <sys/param.h>
 #include <sys/time.h>
+#include <sys/times.h>
 #include <sys/resource.h>
 #ifdef __CYGWIN__
 #include <sys/cygwin.h>
@@ -252,7 +253,7 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
 
 
 
-
+#if TAG_SIZE_HIGH > 0
 /*-------------------------------------------------------------------------*
  * VIRTUAL_MEM_FREE                                                        *
  *                                                                         *
@@ -276,7 +277,7 @@ Virtual_Mem_Free(WamWord *addr, int length)
   
 #endif
 }
-
+#endif	/* TAG_SIZE_HIGH > 0 */
 
 
 
@@ -828,6 +829,7 @@ Pl_M_Real_Time(void)
 void
 Pl_M_Randomize(void)
 {
+  static int count = 0;
 #if defined(_WIN32) || defined(__CYGWIN__)
   int seed = GetTickCount();
 #else
@@ -835,9 +837,12 @@ Pl_M_Randomize(void)
   int seed;
 
   gettimeofday(&tv, NULL);
-  seed = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+  seed = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 #endif
-  seed = (seed ^ getpid()) & 0xFFFFFF;
+  count = (count + rand()) % 0xFFFF;
+  seed = seed ^ (getpid() << (seed & 0xFF));
+  seed *= count;
+  seed = seed & 0xFFFFFF;
 
   Pl_M_Set_Seed(seed);
 }
@@ -903,7 +908,7 @@ Pl_M_Random_Float(double n)
 /*-------------------------------------------------------------------------*
  * PL_M_HOST_NAME_FROM_NAME                                                *
  *                                                                         *
- * if host_name==NULL use current host name.                               *
+ * if host_name == NULL use current host name.                             *
  *-------------------------------------------------------------------------*/
 char *
 Pl_M_Host_Name_From_Name(char *host_name)

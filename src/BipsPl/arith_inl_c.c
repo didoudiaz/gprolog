@@ -38,6 +38,16 @@
 #endif
 
 
+/* Difference between 1.0 and the minimum double greater than 1.0 */
+#ifndef DBL_EPSILON 
+
+#ifdef __DBL_EPSILON__
+#define DBL_EPSILON __DBL_EPSILON__
+#else
+#define DBL_EPSILON 2.2204460492503131e-16  /* C double (64 bits IEEE encoding) */
+#endif
+
+#endif
 
 
 /*---------------------------------*
@@ -69,6 +79,9 @@ ArithInf;
 
 static char *arith_tbl;
 
+static int atom_pi;
+static int atom_e;
+static int atom_epsilon;
 
 
 
@@ -116,24 +129,39 @@ Arith_Initializer(void)
   ADD_ARITH_OPER("mod", 2, Pl_Fct_Mod);
   ADD_ARITH_OPER("/\\", 2, Pl_Fct_And);
   ADD_ARITH_OPER("\\/", 2, Pl_Fct_Or);
-  ADD_ARITH_OPER("^", 2, Pl_Fct_Xor);
+  ADD_ARITH_OPER("><", 2, Pl_Fct_Xor);
   ADD_ARITH_OPER("\\", 1, Pl_Fct_Not);
   ADD_ARITH_OPER("<<", 2, Pl_Fct_Shl);
   ADD_ARITH_OPER(">>", 2, Pl_Fct_Shr);
+  ADD_ARITH_OPER("lsb", 1, Pl_Fct_LSB);
+  ADD_ARITH_OPER("msb", 1, Pl_Fct_MSB);
+  ADD_ARITH_OPER("popcount", 1, Pl_Fct_Popcount);
   ADD_ARITH_OPER("abs", 1, Pl_Fct_Abs);
   ADD_ARITH_OPER("sign", 1, Pl_Fct_Sign);
 
+  ADD_ARITH_OPER("gcd", 2, Pl_Fct_GCD);
   ADD_ARITH_OPER("min", 2, Pl_Fct_Min);
   ADD_ARITH_OPER("max", 2, Pl_Fct_Max);
+  ADD_ARITH_OPER("^", 2, Pl_Fct_Integer_Pow);
   ADD_ARITH_OPER("**", 2, Pl_Fct_Pow);
   ADD_ARITH_OPER("sqrt", 1, Pl_Fct_Sqrt);
+  ADD_ARITH_OPER("tan", 1, Pl_Fct_Tan);
   ADD_ARITH_OPER("atan", 1, Pl_Fct_Atan);
+  ADD_ARITH_OPER("atan", 2, Pl_Fct_Atan2);
   ADD_ARITH_OPER("cos", 1, Pl_Fct_Cos);
   ADD_ARITH_OPER("acos", 1, Pl_Fct_Acos);
   ADD_ARITH_OPER("sin", 1, Pl_Fct_Sin);
   ADD_ARITH_OPER("asin", 1, Pl_Fct_Asin);
+  ADD_ARITH_OPER("tanh", 1, Pl_Fct_Tanh);
+  ADD_ARITH_OPER("atanh", 1, Pl_Fct_Atanh);
+  ADD_ARITH_OPER("cosh", 1, Pl_Fct_Cosh);
+  ADD_ARITH_OPER("acosh", 1, Pl_Fct_Acosh);
+  ADD_ARITH_OPER("sinh", 1, Pl_Fct_Sinh);
+  ADD_ARITH_OPER("asinh", 1, Pl_Fct_Asinh);
   ADD_ARITH_OPER("exp", 1, Pl_Fct_Exp);
   ADD_ARITH_OPER("log", 1, Pl_Fct_Log);
+  ADD_ARITH_OPER("log10", 1, Pl_Fct_Log10);
+  ADD_ARITH_OPER("log", 2, Pl_Fct_Log_Radix);
   ADD_ARITH_OPER("float", 1, Pl_Fct_Float);
   ADD_ARITH_OPER("ceiling", 1, Pl_Fct_Ceiling);
   ADD_ARITH_OPER("floor", 1, Pl_Fct_Floor);
@@ -143,6 +171,10 @@ Arith_Initializer(void)
   ADD_ARITH_OPER("float_integer_part", 1, Pl_Fct_Float_Integ_Part);
 
   ADD_ARITH_OPER("rem", 2, Pl_Fct_Rem);
+
+  atom_pi = Pl_Create_Atom("pi");
+  atom_e = Pl_Create_Atom("e");
+  atom_epsilon = Pl_Create_Atom("epsilon");
 }
 
 
@@ -247,6 +279,7 @@ Load_Math_Expression(WamWord exp)
   WamWord *adr;
   WamWord *lst_adr;
   ArithInf *arith;
+  int atom;
 
   DEREF(exp, word, tag_mask);
 
@@ -300,6 +333,16 @@ Load_Math_Expression(WamWord exp)
 
   if (tag_mask == TAG_ATM_MASK)
     {
+      atom = UnTag_ATM(word);
+      if (atom == atom_pi)
+	return Pl_Fct_PI();
+
+      if (atom == atom_e)
+	return Pl_Fct_E();
+
+      if (atom == atom_epsilon)
+	return Pl_Fct_Epsilon();
+
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
       Pl_Unify_Value(exp);
       Pl_Unify_Integer(0);		/* then type_error */
@@ -348,6 +391,8 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 #define DInteg(x)    (((x) > 0) ? floor(x) : ceil(x))
 
 #define DFract(x)    ((x) - DInteg(x))
+
+#define Log_Radix(b, x)  (log(x) / log(b))
 
 
 #define X_and_Y_are_INT(x, y)  Tag_Is_INT(x & y)
@@ -526,6 +571,7 @@ Pl_Fct_Fast_Not(WamWord x)
   return Tag_INT(~vx);
 }
 
+
 WamWord FC
 Pl_Fct_Fast_Shl(WamWord x, WamWord y)
 {
@@ -543,6 +589,27 @@ Pl_Fct_Fast_Shr(WamWord x, WamWord y)
 }
 
 WamWord FC
+Pl_Fct_Fast_LSB(WamWord x)
+{
+  long vx = UnTag_INT(x);
+  return Tag_INT((vx == 0) ? -1 : Pl_Least_Significant_Bit(vx));
+}
+
+WamWord FC
+Pl_Fct_Fast_MSB(WamWord x)
+{
+  long vx = UnTag_INT(x);
+  return Tag_INT((vx == 0) ? -1 : Pl_Most_Significant_Bit(vx));
+}
+
+WamWord FC
+Pl_Fct_Fast_Popcount(WamWord x)
+{
+  long vx = UnTag_INT(x);
+  return Tag_INT(Pl_Count_Set_Bits(vx));
+}
+
+WamWord FC
 Pl_Fct_Fast_Abs(WamWord x)
 {
   long vx = UnTag_INT(x);
@@ -554,6 +621,39 @@ Pl_Fct_Fast_Sign(WamWord x)
 {
   long vx = UnTag_INT(x);
   return (vx < 0) ? Tag_INT(-1) : (vx == 0) ? Tag_INT(0) : Tag_INT(1);
+}
+
+WamWord FC
+Pl_Fct_Fast_GCD(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+
+  if (vx < 0)
+    vx = -vx;
+
+  if (vy < 0)
+    vy = -vy;
+
+  while(vy != 0)
+    {
+      long r = vx % vy;
+      vx = vy;
+      vy = r;
+    }
+  return Tag_INT(vx);
+}
+
+
+
+
+WamWord FC
+Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  long p = (long) pow(vx, vy);
+  return Tag_INT(p);
 }
 
 
@@ -657,6 +757,24 @@ Pl_Fct_Shr(WamWord x, WamWord y)
 }
 
 WamWord FC
+Pl_Fct_LSB(WamWord x)
+{
+  ItoI(x, Pl_Fct_Fast_LSB);
+}
+
+WamWord FC
+Pl_Fct_MSB(WamWord x)
+{
+  ItoI(x, Pl_Fct_Fast_MSB);
+}
+
+WamWord FC
+Pl_Fct_Popcount(WamWord x)
+{
+  ItoI(x, Pl_Fct_Fast_Popcount);
+}
+
+WamWord FC
 Pl_Fct_Abs(WamWord x)
 {
   IFtoIF(x, fabs, Pl_Fct_Fast_Abs);
@@ -667,6 +785,15 @@ Pl_Fct_Sign(WamWord x)
 {
   IFtoIF(x, DSign, Pl_Fct_Fast_Sign);
 }
+
+
+WamWord FC
+Pl_Fct_GCD(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_GCD);
+}
+
+
 
 WamWord FC
 Pl_Fct_Min(WamWord x, WamWord y)
@@ -699,6 +826,14 @@ Pl_Fct_Max(WamWord x, WamWord y)
 }
 
 WamWord FC
+Pl_Fct_Integer_Pow(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_Integer_Pow);
+}
+
+
+
+WamWord FC
 Pl_Fct_Pow(WamWord x, WamWord y)
 {
   IFxIFtoF(x, y, pow);
@@ -711,9 +846,21 @@ Pl_Fct_Sqrt(WamWord x)
 }
 
 WamWord FC
+Pl_Fct_Tan(WamWord x)
+{
+  IFtoF(x, tan);
+}
+
+WamWord FC
 Pl_Fct_Atan(WamWord x)
 {
   IFtoF(x, atan);
+}
+
+WamWord FC
+Pl_Fct_Atan2(WamWord x, WamWord y)
+{
+  IFxIFtoF(x, y, atan2);
 }
 
 WamWord FC
@@ -741,6 +888,42 @@ Pl_Fct_Asin(WamWord x)
 }
 
 WamWord FC
+Pl_Fct_Tanh(WamWord x)
+{
+  IFtoF(x, tanh);
+}
+
+WamWord FC
+Pl_Fct_Atanh(WamWord x)
+{
+  IFtoF(x, atanh);
+}
+
+WamWord FC
+Pl_Fct_Cosh(WamWord x)
+{
+  IFtoF(x, cosh);
+}
+
+WamWord FC
+Pl_Fct_Acosh(WamWord x)
+{
+  IFtoF(x, acosh);
+}
+
+WamWord FC
+Pl_Fct_Sinh(WamWord x)
+{
+  IFtoF(x, sinh);
+}
+
+WamWord FC
+Pl_Fct_Asinh(WamWord x)
+{
+  IFtoF(x, asinh);
+}
+
+WamWord FC
 Pl_Fct_Exp(WamWord x)
 {
   IFtoF(x, exp);
@@ -750,6 +933,18 @@ WamWord FC
 Pl_Fct_Log(WamWord x)
 {
   IFtoF(x, log);
+}
+
+WamWord FC
+Pl_Fct_Log10(WamWord x)
+{
+  IFtoF(x, log10);
+}
+
+WamWord FC
+Pl_Fct_Log_Radix(WamWord b, WamWord x)
+{
+  IFxIFtoF(b, x, Log_Radix);
 }
 
 WamWord FC
@@ -795,10 +990,34 @@ Pl_Fct_Float_Integ_Part(WamWord x)
 }
 
 WamWord FC
+Pl_Fct_PI(void)
+{
+  return Make_Tagged_Float(M_PI);
+}
+
+
+WamWord FC
+Pl_Fct_E(void)
+{
+  return Make_Tagged_Float(M_E);
+}
+
+
+WamWord FC
+Pl_Fct_Epsilon(void)
+{
+  return Make_Tagged_Float(DBL_EPSILON);
+}
+
+
+WamWord FC
 Pl_Fct_Identity(WamWord x)
 {
   return x;
 }				/* for meta-call */
+
+
+
 
 
 	  /* Mathematic Comparisons */

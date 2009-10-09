@@ -56,6 +56,9 @@ compound(X) :-
 callable(X) :-
 	callable(X).
 
+ground(X) :-
+	ground(X).
+
 list(X) :-
 	list(X).
 

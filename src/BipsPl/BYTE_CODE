@@ -1,7 +1,8 @@
+Here is the detail of the byte-code encoding 
+(given for 32-bits machines, for 64-bits, i16 becomes i48, i24 becomes, i56,...)
+
      format 1 (see BC1_...)	| i16     | i8 | op8|
-     format 2 (see BC1_...)	| i24          | op8|
-
-
+     format 2 (see BC2_...)	| i24          | op8|
 
 
 

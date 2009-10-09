@@ -84,6 +84,6 @@ static long obj_chain_start = (long) OBJ_CTOR;
 
 
 
-#if defined(_MSC_VER) || defined(M_ix86_darwin)
+#if defined(_MSC_VER) || defined(M_darwin)
 #define OBJ_CHAIN_REVERSE_ORDER
 #endif

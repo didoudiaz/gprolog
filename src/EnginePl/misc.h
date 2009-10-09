@@ -68,3 +68,32 @@ void Pl_Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);
 void Pl_Exit_With_Value(int ret_val);
 
 void Pl_Fatal_Error(char *format, ...);
+
+
+
+/* NB: for LSB/MSB the result is undefined if x == 0 */
+
+#ifdef __GNUC__
+
+#define Pl_Least_Significant_Bit(x)   (__builtin_ctzl(x))
+
+#define Pl_Most_Significant_Bit(x)    (WORD_SIZE - 1 - __builtin_clzl(x))
+
+#define Pl_Count_Set_Bits(x)          (__builtin_popcountl(x))
+
+
+#else /* !__GNUC__ */
+
+#define Pl_Least_Significant_Bit(x)   Pl_LSB(x)
+
+#define Pl_Most_Significant_Bit(x)    Pl_MSB(x)
+
+#define Pl_Count_Set_Bits(x)          Pl_Popcount(x)
+
+int Pl_LSB(long x);
+
+int Pl_MSB(long x);
+
+int Pl_Popcount(long x);
+
+#endif /* !__GNUC__ */

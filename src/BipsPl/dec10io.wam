@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : dec10io.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 11:13:40
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/dec10io.pl').
@@ -92,7 +92,7 @@ label(12),
     put_value(y(0),0),
     get_structure('$stream'/1,0),
     unify_variable(x(0)),
-    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     put_value(y(0),0),
     call(current_stream/1),
     put_value(y(0),0),
@@ -142,7 +142,7 @@ predicate(see/1,61,static,private,built_in,[
     put_atom(see,1),
     put_integer(1,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(y(0)),
     put_variable(y(1),1),
     call('$see/1_$aux1'/2),
@@ -239,7 +239,7 @@ predicate(tell/1,95,static,private,built_in,[
     put_atom(tell,1),
     put_integer(1,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(y(0)),
     put_variable(y(1),1),
     call('$tell/1_$aux1'/2),
@@ -336,7 +336,7 @@ predicate(append/1,128,static,private,built_in,[
     put_atom(append,1),
     put_integer(1,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(y(0)),
     put_variable(y(1),1),
     call('$append/1_$aux1'/2),
@@ -407,7 +407,7 @@ predicate('$get/1_$aux1'/2,150,static,private,built_in,[
     call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     math_load_value(x(0),0),
     put_integer(32,3),
-    call_c('Blt_Lte',[fast_call,boolean],[x(0),x(3)]),
+    call_c('Pl_Blt_Lte',[fast_call,boolean],[x(0),x(3)]),
     cut(x(2)),
     put_value(x(1),0),
     execute(get/1),
@@ -448,13 +448,13 @@ predicate(skip/1,164,static,private,built_in,[
 predicate('$check_in_character_code'/1,174,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
 label(1),
     retry_me_else(2),
-    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$$check_in_character_code/1_$aux1'/1),
 
@@ -473,13 +473,13 @@ predicate('$$check_in_character_code/1_$aux1'/1,177,static,private,built_in,[
     call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),2),
     put_integer(-1,3),
-    call_c('Blt_Gte',[fast_call,boolean],[x(2),x(3)]),
+    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(2),x(3)]),
     put_atom(=<,2),
     put_integer(2,3),
     call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
     put_integer(255,2),
-    call_c('Blt_Lte',[fast_call,boolean],[x(0),x(2)]),
+    call_c('Pl_Blt_Lte',[fast_call,boolean],[x(0),x(2)]),
     cut(x(1)),
     proceed,
 

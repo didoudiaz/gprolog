@@ -12,6 +12,7 @@
                \texttt{atomic/1}, \\
                \texttt{compound/1},
                \texttt{callable/1},
+               \texttt{ground/1},
                \texttt{list/1},
                \texttt{partial\_list/1},
                \texttt{list\_or\_partial\_list/1}}
@@ -25,6 +26,7 @@
    \AddPBD{atomic/1}
    \AddPBD{compound/1}
    \AddPBD{callable/1}
+   \AddPBD{ground/1}
    \AddPBD{list/1}
    \AddPBD{partial\_list/1}
    \AddPBD{list\_or\_partial\_list/1}
@@ -39,6 +41,7 @@ number(?term)\\
 atomic(?term)\\               
 compound(?term)\\              
 callable(?term)\\            
+ground(?term)\\            
 list(?term)\\                 
 partial\_list(?term)\\      
 list\_or\_partial\_list(?term)
@@ -75,6 +78,8 @@ structure).
 
 \texttt{callable(Term)} succeeds if \texttt{Term} is currently
 instantiated to a callable term, i.e. an atom or a compound term.
+
+\texttt{ground(Term)} succeeds if \texttt{Term} is a ground term.
 
 \texttt{list(Term)} succeeds if \texttt{Term} is currently instantiated
 to a list, i.e. the atom \texttt{[]} (empty list) or a term with principal
@@ -739,30 +744,37 @@ an integer or a floating point number. The following table details the
 components of an arithmetic expression, how they are evaluated, the types
 expected/returned and if they are ISO or an extension:
 
-\begin{tabular}{|l|L{7.4cm}|c|c|}
-\hline
 
-Expression & Result = \textit{eval}(Expression) & Signature & ISO \\
+\newpage
+\tablehead{\hline Expression & Result = \textit{eval}(Expression) & Signature & ISO \\\hline\hline}
 
-\hline\hline
-
-Variable & must be bound to a non-variable expression \texttt{E}. 
-\linebreak
-           The result is \textit{eval}(\texttt{E})
-         & IF $\rightarrow$ IF & Y \\
-         
+\begin{supertabular}{|l|L{7.5cm}|c|c|}
+%HEVEA\hline Expression & Result = \textit{eval}(Expression) & Signature & ISO \\\hline\hline
+a variable & bound to an expression \texttt{E}, result is \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & Y \\
 
 \hline
 
-integer number & this number & I $\rightarrow$ I & Y \\
+an integer number & this number & I & Y \\
 
 \hline
 
-floating point number & this number & F $\rightarrow$ F & Y \\
+a floating point number & this number & F & Y \\
 
 \hline
 
-\texttt{+ E} & \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & N \\
+\texttt{pi} & the value of $\pi = 3.141592...$ & F & rev \\
+
+\hline
+
+\texttt{e} & the value of $e = 2.718281...$ & F & rev \\
+
+\hline
+
+\texttt{epsilon} & difference between 1.0 and minimum float $>$ 1.0 & F & rev \\
+
+\hline
+
+\texttt{+ E} & \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & rev \\
 
 \hline
 
@@ -826,7 +838,7 @@ $\lfloor$\textit{eval}(\texttt{E1}) / \textit{eval}(\texttt{E2})$\rfloor$
 
 \hline
 
-\texttt{E1 \^{} E2} & \textit{eval}(\texttt{E1}) bitwise\_xor
+\texttt{E1 >< E2} & \textit{eval}(\texttt{E1}) bitwise\_xor
 \textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & N \\
 
 \hline
@@ -846,6 +858,21 @@ I & Y \\
 
 \hline
 
+\texttt{lsb(E)} & least significant bit (from 0) of \textit{eval}(\texttt{E}) or -1 & I
+$\rightarrow$ I & N \\
+
+\hline
+
+\texttt{msb(E)} & most significant bit (from 0) of \textit{eval}(\texttt{E}) or -1 & I
+$\rightarrow$ I & N \\
+
+\hline
+
+\texttt{popcount(E)} & number of 1-bits in \textit{eval}(\texttt{E}) & I
+$\rightarrow$ I & N \\
+
+\hline
+
 \texttt{abs(E)} & absolute value of \textit{eval}(\texttt{E}) & IF
 $\rightarrow$ IF & Y \\
 
@@ -857,12 +884,22 @@ $\rightarrow$ IF & Y \\
 \hline
 
 \texttt{min(E1,E2)} & minimal value between \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & N \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & rev \\
 
 \hline
 
 \texttt{max(E1,E2)} & maximal value between \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & N \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & rev \\
+
+\hline
+
+\texttt{gcd(E1,E2)} & greatest common divisor of \textit{eval}(\texttt{E1}) and
+\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & rev \\
+
+\hline
+
+\texttt{E1 \^{} E2}  & \textit{eval}(\texttt{E1}) raised to the power of
+\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & rev \\
 
 \hline
 
@@ -876,8 +913,19 @@ $\rightarrow$ F & Y \\
 
 \hline
 
+\texttt{tan(E)} & tangent of \textit{eval}(\texttt{E}) & IF
+$\rightarrow$ F & rev \\
+
+\hline
+
 \texttt{atan(E)} & arc tangent of \textit{eval}(\texttt{E}) & IF
 $\rightarrow$ F & Y \\
+
+\hline
+
+\texttt{atan(Y,X)} & principal value of arc tangent
+of \textit{eval}(\texttt{Y}) / \textit{eval}(\texttt{X}) using both signs for the quadrant & IF
+$\rightarrow$ F & rev \\
 
 \hline
 
@@ -886,8 +934,8 @@ Y \\
 
 \hline
 
-\texttt{acos(E)} & arc cosine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F &
-N \\
+\texttt{acos(E)} & arc cosine of \textit{eval}(\texttt{E}) & IF, IF $\rightarrow$ F &
+rev \\
 
 \hline
 
@@ -895,7 +943,35 @@ N \\
 
 \hline
 
-\texttt{asin(E)} & arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & N \\
+\texttt{asin(E)} & arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & rev \\
+
+\hline
+
+\texttt{tanh(E)} & hyperbolic tangent of \textit{eval}(\texttt{E}) & IF
+$\rightarrow$ F & rev \\
+
+\hline
+
+\texttt{atanh(E)} & hyperbolic arc tangent of \textit{eval}(\texttt{E}) & IF
+$\rightarrow$ F & rev \\
+
+\hline
+
+\texttt{cosh(E)} & hyperbolic cosine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F &
+rev \\
+
+\hline
+
+\texttt{acosh(E)} & hyperbolic arc cosine of \textit{eval}(\texttt{E}) & IF, IF $\rightarrow$ F &
+rev \\
+
+\hline
+
+\texttt{sinh(E)} & hyperbolic sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & rev \\
+
+\hline
+
+\texttt{asinh(E)} & hyperbolic arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & rev \\
 
 \hline
 
@@ -904,8 +980,18 @@ IF $\rightarrow$ F & Y \\
 
 \hline
 
-\texttt{log(E)} & natural logarithms of \textit{eval}(\texttt{E}) & IF
+\texttt{log(E)} & natural logarithm of \textit{eval}(\texttt{E}) & IF
 $\rightarrow$ F & Y \\
+
+\hline
+
+\texttt{log10(E)} & base 10 logarithm of \textit{eval}(\texttt{E}) & IF
+$\rightarrow$ F & rev \\
+
+\hline
+
+\texttt{log(R, E)} & base \textit{eval}(\texttt{R}) logarithm of \textit{eval}(\texttt{E})  & F, IF
+$\rightarrow$ F & rev \\
 
 \hline
 
@@ -943,7 +1029,7 @@ of \textit{eval}(\texttt{E}) & F $\rightarrow$ F & Y \\
 \textit{eval}(\texttt{E}) & F $\rightarrow$ F & Y \\
 
 \hline
-\end{tabular}
+\end{supertabular}
 
 The meaning of the signature field is as follows:
 
@@ -6739,25 +6825,25 @@ sum of all the elements in \texttt{List}.
 GNU Prolog predicate.
 
 \subsubsection{\texttt{sort/2},
-               \texttt{sort0/2},
+               \texttt{msort/2},
                \texttt{keysort/2}
                \texttt{sort/1},
-               \texttt{sort0/1},
+               \texttt{msort/1},
                \texttt{keysort/1}}
 \label{sort/2}
    \AddPBD{sort/2}
-   \AddPBD{sort0/2}
+   \AddPBD{msort/2}
    \AddPBD{keysort/2}
    \AddPBD{sort/1}
-   \AddPBD{sort0/1}
+   \AddPBD{msort/1}
    \AddPBD{keysort/1}
 
 \begin{TemplatesOneCol}
 sort(+list, ?list)\\
-sort0(+list, ?list)\\
+msort(+list, ?list)\\
 keysort(+list, ?list)\\
 sort(+list)\\
-sort0(+list)\\
+msort(+list)\\
 keysort(+list)
 
 \end{TemplatesOneCol}
@@ -6768,19 +6854,19 @@ keysort(+list)
 sorted list corresponding to \texttt{List1} where duplicate elements are
 merged.
 
-\texttt{sort0/2} is similar to \texttt{sort/2} except that duplicate elements
+\texttt{msort/2} is similar to \texttt{sort/2} except that duplicate elements
 are not merged.
 
 \texttt{keysort(List1, List2)} succeeds if \texttt{List2} is the
 sorted list of \texttt{List1} according to the keys. The list \texttt{List1}
-consists of items of the form \texttt{Key-Value}. These items are sorted
+consists of pairs (items of the form \texttt{Key-Value}). These items are sorted
 according to the value of \texttt{Key} yielding the \texttt{List2}. Duplicate
 keys are not merged. This predicate is stable, i.e. if \texttt{K-A} occurs
 before \texttt{K-B} in the input, then \texttt{K-A} will occur before
 \texttt{K-B} in the output.
 
-\texttt{sort/1}, \texttt{sort0/1} and \texttt{keysort/1} are similar to
-\texttt{sort/2}, \texttt{sort0/2} and \texttt{keysort/2} but achieve a sort
+\texttt{sort/1}, \texttt{msort/1} and \texttt{keysort/1} are similar to
+\texttt{sort/2}, \texttt{msort/2} and \texttt{keysort/2} but achieve a sort
 in-place destructing the original \texttt{List1} (this in-place assignment is
 not undone at backtracking). The sorted list occupies the same memory space
 as the original list (saving thus memory consumption).
@@ -6801,6 +6887,12 @@ These predicates refer to the standard ordering of terms
 
 \ErrCond{\texttt{List2} is neither a partial list nor a list}
 \ErrTerm{type\_error(list, List2)}
+
+\ErrCond{for \texttt{keysort/2}: an element of \texttt{List1} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List1} is neither a varible nor a pair}
+\ErrTerm{type\_error(pair, E)}
 
 \end{PlErrors}
 

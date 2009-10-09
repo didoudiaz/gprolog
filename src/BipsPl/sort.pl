@@ -37,9 +37,9 @@ sort(List1, List2) :-
 
 
 
-sort0(List1, List2) :-
-	set_bip_name(sort0, 2),
-	'$sys_var_write'(0, 1),                                   % 1 = sort0
+msort(List1, List2) :-
+	set_bip_name(msort, 2),
+	'$sys_var_write'(0, 1),                                   % 1 = msort
 	'$call_c_test'('Pl_Sort_List_2'(List1, List2)).
 
 
@@ -61,9 +61,9 @@ sort(List) :-
 
 
 
-sort0(List) :-
-	set_bip_name(sort0, 1),
-	'$sys_var_write'(0, 1),                                   % 1 = sort0
+msort(List) :-
+	set_bip_name(msort, 1),
+	'$sys_var_write'(0, 1),                                   % 1 = msort
 	'$call_c'('Pl_Sort_List_1'(List)).
 
 

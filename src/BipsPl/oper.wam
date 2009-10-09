@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : oper.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 11:13:40
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/oper.pl').
@@ -33,7 +33,7 @@ predicate('$op/3_$aux1'/3,31,static,private,built_in,[
     try_me_else(1),
     get_variable(x(4),2),
     get_variable(x(2),0),
-    call_c('Blt_Atom',[fast_call,boolean],[x(2)]),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(2)]),
     cut(x(3)),
     put_value(x(1),0),
     put_value(x(4),1),

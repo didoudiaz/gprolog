@@ -344,9 +344,15 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       c = Scan_Quoted_Char(pstm, TRUE, '\'', FALSE);
       if (c == -1)		/* <character> is ' */
 	{
-	  pl_token.line = pstm->line_count + 1;
-	  pl_token.col = pstm->line_pos + 1;
-	  err_msg = "quote character expected here";
+#if 0 /* STRICT ISO does not allow 0'' one should write 0''' or 0'\' relax this */
+	    {
+	      pl_token.line = pstm->line_count + 1;
+	      pl_token.col = pstm->line_pos + 1;
+	      err_msg = "quote character expected here";
+	    }
+#else
+	    c = '\'';
+#endif
 	}
 
       if (c == -2 || c == -3)

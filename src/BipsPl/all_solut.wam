@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : all_solut.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 11:13:40
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_solut.pl').
@@ -116,7 +116,7 @@ label(1),
     call('$findall'/4),
     put_value(y(0),0),
     put_nil(1),
-    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(1),0),
     put_value(y(0),1),
     deallocate,

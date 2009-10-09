@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : term_inl.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 11:13:40
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
@@ -12,52 +12,52 @@ predicate('$use_term_inl'/0,29,static,private,built_in,[
 
 
 predicate(compare/3,32,static,private,built_in,[
-    call_c('Blt_Compare',[fast_call,boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Blt_Compare',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate((==)/2,36,static,private,built_in,[
-    call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((\==)/2,39,static,private,built_in,[
-    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@<)/2,42,static,private,built_in,[
-    call_c('Blt_Term_Lt',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Lt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@=<)/2,45,static,private,built_in,[
-    call_c('Blt_Term_Lte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Lte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@>)/2,48,static,private,built_in,[
-    call_c('Blt_Term_Gt',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Gt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate((@>=)/2,51,static,private,built_in,[
-    call_c('Blt_Term_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Gte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(arg/3,57,static,private,built_in,[
-    call_c('Blt_Arg',[fast_call,boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Blt_Arg',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(functor/3,63,static,private,built_in,[
-    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate((=..)/2,69,static,private,built_in,[
-    call_c('Blt_Univ',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 

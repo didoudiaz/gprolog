@@ -1872,7 +1872,7 @@ F_call_c(ArgVal arg[])
 
   Inst_Printf("call_c", NULL);
   if (fast_call)
-    fputs(FAST "Pl_", file_out);
+    fputs(FAST "", file_out);
 
   fprintf(file_out, "%s(", fct_name);
 

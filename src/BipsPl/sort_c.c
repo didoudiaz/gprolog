@@ -85,12 +85,32 @@ Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
   int n;
   int sort_type;
 
-  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=sort0/2, 2=keysort/2 */
+  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=msort/2, 2=keysort/2 */
 
   Pl_Check_For_Un_List(list2_word);
 
   arg = H;			/* array in the heap */
   n = Pl_Rd_Proper_List_Check(list1_word, arg);
+  if (sort_type == 2)
+    {
+      WamWord word, tag_mask;
+      WamWord *p = arg;
+      int n0 = n;
+
+      while(n0-- > 0)
+	{
+	  DEREF(*p, word, tag_mask);
+	  *p++ = word;		/* store dereferenced words in the array */
+
+	  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
+	    {
+	      if (tag_mask == TAG_REF_MASK)
+		Pl_Err_Instantiation();
+
+	      Pl_Err_Type(pl_type_pair, word);
+	    }
+	}
+    }
 
   if (n == 0)
     return Pl_Un_Atom(ATOM_NIL, list2_word);
@@ -121,10 +141,31 @@ Pl_Sort_List_1(WamWord list_word)
   int n;
   int sort_type;
 
-  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=sort0/1, 2=keysort/1 */
+  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=msort/1, 2=keysort/1 */
 
   arg = H;
   n = Pl_Rd_Proper_List_Check(list_word, arg);
+  if (sort_type == 2)
+    {
+      WamWord word, tag_mask;
+      WamWord *p = arg;
+      int n0 = n;
+
+      while(n0-- > 0)
+	{
+	  DEREF(*p, word, tag_mask);
+	  *p++ = word;		/* store dereferenced words in the array */
+
+	  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
+	    {
+	      if (tag_mask == TAG_REF_MASK)
+		Pl_Err_Instantiation();
+
+	      Pl_Err_Type(pl_type_pair, word);
+	    }
+	}
+    }
+
 
   if (n <= 1)
     return;
@@ -155,27 +196,11 @@ Pl_Sort_List_1(WamWord list_word)
 static long
 Keysort_Cmp(WamWord u_word, WamWord v_word)
 {
-  WamWord word, tag_mask;
-  WamWord *adr;
-
-  DEREF(u_word, word, tag_mask);
-  u_word = word;
-  if (tag_mask == TAG_STC_MASK)
-    {
-      adr = UnTag_STC(u_word);
-      if (Functor_And_Arity(adr) == minus_2)
-	u_word = Arg(adr, 0);
-    }
+  /* here we know that u_word and v_word are dereferenced (and are pairs) */
+ 
+  u_word = Arg(UnTag_STC(u_word), 0);
+  v_word = Arg(UnTag_STC(v_word), 0);
   
-  DEREF(v_word, word, tag_mask);
-  v_word = word;
-  if (tag_mask == TAG_STC_MASK)
-    {
-      adr = UnTag_STC(v_word);
-      if (Functor_And_Arity(adr) == minus_2)
-	v_word = Arg(adr, 0);
-    }
-
   return Pl_Term_Compare(u_word, v_word);
 }
 

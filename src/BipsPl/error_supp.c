@@ -133,6 +133,7 @@ Error_Supp_Initializer(void)
   pl_type_number = Pl_Create_Atom("number");
   pl_type_predicate_indicator = Pl_Create_Atom("predicate_indicator");
   pl_type_variable = Pl_Create_Atom("variable");
+  pl_type_pair = Pl_Create_Atom("pair");
   if (pl_fd_init_solver)		/* FD solver linked */
     {
       pl_type_fd_variable = Pl_Create_Atom("fd_variable"); /* for FD */

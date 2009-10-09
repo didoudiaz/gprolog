@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : sort.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 15:43:23
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/sort.pl').
@@ -28,11 +28,11 @@ predicate(sort/2,32,static,private,built_in,[
     proceed]).
 
 
-predicate(sort0/2,40,static,private,built_in,[
+predicate(msort/2,40,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(sort0,0),
+    put_atom(msort,0),
     put_integer(2,1),
     call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),
@@ -77,10 +77,10 @@ predicate(sort/1,56,static,private,built_in,[
     proceed]).
 
 
-predicate(sort0/1,64,static,private,built_in,[
+predicate(msort/1,64,static,private,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    put_atom(sort0,0),
+    put_atom(msort,0),
     put_integer(1,1),
     call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_integer(0,0),

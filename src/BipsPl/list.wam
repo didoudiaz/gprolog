@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.1 (Feb 10 2009)
+% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : list.pl
-% date    : 2 10 2009
-% time    : 13:54:39
+% date    : 10 7 2009
+% time    : 11:13:40
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/list.pl').
@@ -145,7 +145,7 @@ label(5),
     get_list(0),
     unify_variable(x(4)),
     unify_variable(x(0)),
-    call_c('Blt_Term_Eq',[fast_call,boolean],[x(4),x(1)]),
+    call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(4),x(1)]),
     cut(x(3)),
     execute(delete/3),
 
@@ -322,14 +322,14 @@ predicate(length/2,145,static,private,built_in,[
     try_me_else(1),
     get_variable(x(3),1),
     get_variable(x(1),0),
-    call_c('Blt_Integer',[fast_call,boolean],[x(3)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(3)]),
     cut(x(2)),
     put_atom(>=,0),
     put_integer(2,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
     math_load_value(x(3),0),
     put_integer(0,2),
-    call_c('Blt_Gte',[fast_call,boolean],[x(0),x(2)]),
+    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(2)]),
     put_value(x(3),0),
     execute('$make_list'/2),
 
@@ -362,7 +362,7 @@ label(4),
     put_integer(2,4),
     call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     math_load_value(x(1),1),
-    call_c('Fct_Inc',[fast_call,x(1)],[x(1)]),
+    call_c('Pl_Fct_Inc',[fast_call,x(1)],[x(1)]),
     execute('$length'/3)]).
 
 
@@ -383,27 +383,27 @@ label(1),
     put_integer(2,3),
     call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
     math_load_value(x(0),0),
-    call_c('Fct_Dec',[fast_call,x(0)],[x(0)]),
+    call_c('Pl_Fct_Dec',[fast_call,x(0)],[x(0)]),
     execute('$make_list'/2)]).
 
 
 predicate(nth/3,173,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
-    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     cut(x(3)),
     put_atom(>=,3),
     put_integer(2,4),
     call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     math_load_value(x(0),3),
     put_integer(1,4),
-    call_c('Blt_Gte',[fast_call,boolean],[x(3),x(4)]),
+    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(3),x(4)]),
     execute('$nth1'/3),
 
 label(1),
     trust_me_else_fail,
     get_variable(x(3),0),
-    call_c('Blt_Var',[fast_call,boolean],[x(3)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(3)]),
     put_value(x(1),0),
     put_value(x(2),1),
     put_integer(1,2),
@@ -429,7 +429,7 @@ label(1),
     put_integer(2,4),
     call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
     math_load_value(x(0),0),
-    call_c('Fct_Dec',[fast_call,x(0)],[x(0)]),
+    call_c('Pl_Fct_Dec',[fast_call,x(0)],[x(0)]),
     execute('$nth1'/3)]).
 
 
@@ -461,7 +461,7 @@ label(5),
     put_integer(2,5),
     call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
     math_load_value(x(2),2),
-    call_c('Fct_Inc',[fast_call,x(2)],[x(2)]),
+    call_c('Pl_Fct_Inc',[fast_call,x(2)],[x(2)]),
     execute('$nth2'/4)]).
 
 
@@ -501,7 +501,7 @@ label(5),
     call_c('Pl_Set_Bip_Name_2',[],[x(5),x(6)]),
     math_load_value(x(4),4),
     math_load_value(x(1),5),
-    call_c('Blt_Lte',[fast_call,boolean],[x(4),x(5)]),
+    call_c('Pl_Blt_Lte',[fast_call,boolean],[x(4),x(5)]),
     cut(x(3)),
     execute('$max_list1'/3),
 
@@ -551,7 +551,7 @@ label(5),
     call_c('Pl_Set_Bip_Name_2',[],[x(5),x(6)]),
     math_load_value(x(4),4),
     math_load_value(x(1),5),
-    call_c('Blt_Gte',[fast_call,boolean],[x(4),x(5)]),
+    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(4),x(5)]),
     cut(x(3)),
     execute('$min_list1'/3),
 
@@ -594,5 +594,5 @@ label(4),
     call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
     math_load_value(x(3),3),
     math_load_value(x(1),1),
-    call_c('Fct_Add',[fast_call,x(1)],[x(3),x(1)]),
+    call_c('Pl_Fct_Add',[fast_call,x(1)],[x(3),x(1)]),
     execute('$sum_list1'/3)]).
