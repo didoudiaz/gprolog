@@ -148,21 +148,14 @@ BCWord;
 typedef union
 {
   double d;
-  unsigned u[2];
-}
-DblUns;
-
-
 #if WORD_SIZE == 64
-
-typedef union
-{
   int *p;
+  long l;
+#endif
   unsigned u[2];
 }
-PtrUns;
+C64To32;
 
-#endif
 
 
 
@@ -250,30 +243,11 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define BC2_Int(w)                 ((w).t2.i24)
 
-#define Fit_In_16bits(n)           ((unsigned) (n) < (1<<16))
+#define Fit_In_16bits(n)           ((unsigned long) (n) < (1 << 16))
 
-#define Fit_In_24bits(n)           ((unsigned) (n) < (1<<24))
+#define Fit_In_24bits(n)           ((unsigned long) (n) < (1 << 24))
 
 #define Op_In_Tbl(str, op)  BC_Op(*p) = op; BC2_Atom(*p) = Pl_Create_Atom(str); p++
-
-#if WORD_SIZE == 32
-
-#define Compute_Branch_Adr(bc, codep)   \
-{                                       \
-  codep = (WamCont) (bc->word); bc++;   \
-}
-
-#else
-
-#define Compute_Branch_Adr(bc, codep)     \
-{                                         \
-  PtrUns pu;                              \
-  pu.u[0] = (unsigned) (bc->word); bc++;  \
-  pu.u[1] = (unsigned) (bc->word); bc++;  \
-  codep = (WamCont) (pu.p);               \
-}
-
-#endif
 
 
 
@@ -498,12 +472,10 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   int size_bc;
   BCWord w;			/* code-op word */
   unsigned w1, w2, w3;		/* additional words */
+  long l;
   int nb_word;
-  DblUns du;
+  C64To32 cv;
 
-#if WORD_SIZE == 64
-  PtrUns pu;
-#endif
   PredInf *pred;
 
   arg_adr = Pl_Rd_Callable_Check(inst_word, &func, &arity);
@@ -549,13 +521,21 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 
     case GET_INTEGER:
     case PUT_INTEGER:
-      w1 = Pl_Rd_Integer(*arg_adr++);
-      if (Fit_In_16bits(w1))
-	BC1_Int(w) = w1;
+      l = Pl_Rd_Integer(*arg_adr++);
+      if (Fit_In_16bits(l))
+	BC1_Atom(w) = l;
       else
 	{
 	  op++;
+#if WORD_SIZE == 32
+	  w1 = l;
 	  nb_word = 2;
+#else
+	  cv.l = l;
+	  w1 = cv.u[0];
+	  w2 = cv.u[1];
+	  nb_word = 3;
+#endif
 	}
       BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
       break;
@@ -563,10 +543,10 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case GET_FLOAT:
     case PUT_FLOAT:
       nb_word = 3;
-      du.d = Pl_Rd_Float(*arg_adr++);
+      cv.d = Pl_Rd_Float(*arg_adr++);
       BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
-      w1 = du.u[0];
-      w2 = du.u[1];
+      w1 = cv.u[0];
+      w2 = cv.u[1];
       break;
 
     case GET_NIL:
@@ -608,13 +588,21 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       break;
 
     case UNIFY_INTEGER:
-      w1 = Pl_Rd_Integer(*arg_adr++);
-      if (Fit_In_24bits(w1))
-	BC2_Int(w) = w1;
+      l = Pl_Rd_Integer(*arg_adr++);
+      if (Fit_In_24bits(l))
+	BC2_Int(w) = l;
       else
 	{
 	  op++;
+#if WORD_SIZE == 32
+	  w1 = l;
 	  nb_word = 2;
+#else
+	  cv.l = l;
+	  w1 = cv.u[0];
+	  w2 = cv.u[1];
+	  nb_word = 3;
+#endif
 	}
       break;
 
@@ -644,9 +632,9 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 	  w3 = 0;		/* to avoid MSVC warning */
 #else
 	  nb_word = 4;
-	  pu.p = (int *) (pred->codep);
-	  w2 = pu.u[0];
-	  w3 = pu.u[1];
+	  cv.p = (int *) (pred->codep);
+	  w2 = cv.u[0];
+	  w3 = cv.u[1];
 #endif
 	}
       else
@@ -919,10 +907,11 @@ BC_Emulate_Byte_Code(BCWord *bc)
   BCWord w;
   int x0, x, y;
   int w1;
+  long l;
   WamCont codep;
   int func, arity;
   PredInf *pred;
-  DblUns du;
+  C64To32 cv;
 
 
 bc_loop:
@@ -977,19 +966,27 @@ bc_loop:
 
     case GET_INTEGER_BIG:
       x0 = BC1_X0(w);
-      w1 = bc->word;
+#if WORD_SIZE == 32
+      l = bc->word;
       bc++;
-      if (!Pl_Get_Integer(w1, X(x0)))
+#else
+      cv.u[0] = bc->word;
+      bc++;
+      cv.u[1] = bc->word;
+      bc++;
+      l = cv.l;
+#endif
+      if (!Pl_Get_Integer(l, X(x0)))
 	goto fail;
       goto bc_loop;
 
     case GET_FLOAT:
       x0 = BC1_X0(w);
-      du.u[0] = bc->word;
+      cv.u[0] = bc->word;
       bc++;
-      du.u[1] = bc->word;
+      cv.u[1] = bc->word;
       bc++;
-      if (!Pl_Get_Float(du.d, X(x0)))
+      if (!Pl_Get_Float(cv.d, X(x0)))
 	goto fail;
       goto bc_loop;
 
@@ -1069,18 +1066,26 @@ bc_loop:
 
     case PUT_INTEGER_BIG:
       x0 = BC1_X0(w);
-      w1 = bc->word;
+#if WORD_SIZE == 32
+      l = bc->word;
       bc++;
-      X(x0) = Pl_Put_Integer(w1);
+#else
+      cv.u[0] = bc->word;
+      bc++;
+      cv.u[1] = bc->word;
+      bc++;
+      l = cv.l;
+#endif
+      X(x0) = Pl_Put_Integer(l);
       goto bc_loop;
 
     case PUT_FLOAT:
       x0 = BC1_X0(w);
-      du.u[0] = bc->word;
+      cv.u[0] = bc->word;
       bc++;
-      du.u[1] = bc->word;
+      cv.u[1] = bc->word;
       bc++;
-      X(x0) = Pl_Put_Float(du.d);
+      X(x0) = Pl_Put_Float(cv.d);
       goto bc_loop;
 
     case PUT_NIL:
@@ -1169,9 +1174,17 @@ bc_loop:
       goto bc_loop;
 
     case UNIFY_INTEGER_BIG:
-      w1 = bc->word;
+#if WORD_SIZE == 32
+      l = bc->word;
       bc++;
-      if (!Pl_Unify_Integer(w1))
+#else
+      cv.u[0] = bc->word;
+      bc++;
+      cv.u[1] = bc->word;
+      bc++;
+      l = cv.l;
+#endif
+      if (!Pl_Unify_Integer(l))
 	goto fail;
       goto bc_loop;
 
@@ -1240,7 +1253,16 @@ bc_loop:
       arity = BC2_Arity(w);
       func = bc->word;
       bc++;      
-      Compute_Branch_Adr(bc, codep);
+#if WORD_SIZE == 32
+      codep = (WamCont) (bc->word); 
+      bc++;
+#else
+      cv.u[0] = bc->word; 
+      bc++;
+      cv.u[1] = bc->word; 
+      bc++;
+      codep = (WamCont) (cv.p);
+#endif
       BCI = (WamWord) bc | debug_call;
       CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
       if (pl_debug_call_code != NULL && debug_call)
@@ -1254,7 +1276,16 @@ bc_loop:
       arity = BC2_Arity(w);
       func = bc->word;
       bc++;      
-      Compute_Branch_Adr(bc, codep);
+#if WORD_SIZE == 32
+      codep = (WamCont) (bc->word); 
+      bc++;
+#else
+      cv.u[0] = bc->word; 
+      bc++;
+      cv.u[1] = bc->word; 
+      bc++;
+      codep = (WamCont) (cv.p);
+#endif
       if (pl_debug_call_code != NULL && debug_call)
 	{
 	  Prep_Debug_Call(func, arity, 0, 0);
