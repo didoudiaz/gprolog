@@ -176,6 +176,7 @@ Init_Stream_Supp(void)
 
   pl_atom_user_input = Pl_Create_Atom("user_input");
   pl_atom_user_output = Pl_Create_Atom("user_output");
+  pl_atom_user_error = Pl_Create_Atom("user_error");
 
   pl_atom_top_level_input = Pl_Create_Atom("top_level_input");
   pl_atom_top_level_output = Pl_Create_Atom("top_level_output");
@@ -247,9 +248,26 @@ Init_Stream_Supp(void)
   if (pl_le_hook_flush && isatty(1))
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
-
   Pl_Add_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout);
   pl_stm_output = pl_stm_stdout;
+
+
+
+  pl_stm_stderr = Pl_Add_Stream_For_Stdio_Desc(stderr, pl_atom_user_error,
+					 STREAM_MODE_WRITE, TRUE);
+
+#if !defined(NO_USE_LINEDIT) && defined(_WIN32)
+		/* ok for both GUI and console EOM<->ANSI conversion */
+  pstm = pl_stm_tbl[pl_stm_stderr];
+  pstm->prop.buffering = STREAM_BUFFERING_LINE;
+  if (pl_le_hook_put_char && isatty(2))
+    pstm->fct_putc = (StmFct) pl_le_hook_put_char;
+
+  if (pl_le_hook_flush && isatty(2))
+    pstm->fct_flush = (StmFct) pl_le_hook_flush;
+#endif
+  Pl_Add_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr);
+  pl_stm_error = pl_stm_stderr;
 
   pl_stm_top_level_input = pl_stm_debugger_input = pl_stm_input;
   pl_stm_top_level_output = pl_stm_debugger_output = pl_stm_output;
@@ -740,7 +758,7 @@ Pl_Set_Stream_Buffering(int stm)
     }
 
 #ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
-  if (pstm->file == (long) stdout && pl_le_hook_set_line_buffering)
+  if ((pstm->file == (long) stdout || pstm->file == (long) stderr) && pl_le_hook_set_line_buffering)
     (*pl_le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif

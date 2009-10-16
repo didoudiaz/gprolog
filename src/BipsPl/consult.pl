@@ -298,10 +298,10 @@ listing(PI) :-
 '$listing_one'(PI) :-
 	'$get_pred_indic'(PI, N, A),
 	functor(H, N, A),
-	nl(top_level_output),
+	nl,
 	'$clause'(H, B, 2),
-	portray_clause(top_level_output, (H :- B)),
-	nl(top_level_output),
+	portray_clause((H :- B)),
+	nl,
 	fail.
 
 '$listing_one'(_).

@@ -1,3 +1,10 @@
+Mon Oct 12 17:30:11 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug on large ints in the byte-code for 64-bits machine
+	* fix a bug with call/2-N
+	* change listing/0-1 printing stream: now it is current_output
+	* add a new stream alias: user_error associated to stderr
+
 Fri Oct  9 14:40:11 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
 
 	* add evaluable functors: (a)sinh/1, (a)cosh/1, (a)tanh/1

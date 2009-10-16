@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : sockets.pl
-% date    : 10 7 2009
-% time    : 11:13:41
+% date    : 10 13 2009
+% time    : 15:9:19
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/sockets.pl').

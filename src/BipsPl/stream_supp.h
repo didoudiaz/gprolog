@@ -189,9 +189,11 @@ WamWord pl_last_output_sora;
 
 int pl_stm_stdin;
 int pl_stm_stdout;
+int pl_stm_stderr;
 
 int pl_stm_input;
 int pl_stm_output;
+int pl_stm_error;
 
 int pl_stm_top_level_input;
 int pl_stm_top_level_output;
@@ -205,6 +207,7 @@ int pl_atom_stream;
 
 int pl_atom_user_input;
 int pl_atom_user_output;
+int pl_atom_user_error;
 
 int pl_atom_top_level_input;
 int pl_atom_top_level_output;
@@ -253,9 +256,11 @@ extern WamWord pl_last_output_sora;
 
 extern int pl_stm_stdin;
 extern int pl_stm_stdout;
+extern int pl_stm_stderr;
 
 extern int pl_stm_input;
 extern int pl_stm_output;
+extern int pl_stm_error;
 
 extern int pl_stm_top_level_input;
 extern int pl_stm_top_level_output;

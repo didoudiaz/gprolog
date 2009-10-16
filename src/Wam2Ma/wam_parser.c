@@ -705,6 +705,11 @@ Scanner(int complex_atom)
 	    }
 	  while (strchr("#$&*+-./:<=>?@\\^~", *cur_line_p));
 	  *p = '\0';
+	  if (*str_val == '-' && str_val[1] == '\0' && isdigit(*cur_line_p)) /* negative number */
+	    {
+	      cur_line_p--;
+	      goto number;
+	    }
 	  return ATOM;
 	}
 
@@ -716,7 +721,7 @@ Scanner(int complex_atom)
 	}
     }
 
-
+ number:
   i = strtol(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;

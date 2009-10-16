@@ -21,6 +21,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.  *
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
+#include <string.h>
 
 /* $Id$ */
 
@@ -77,11 +78,11 @@ Call_Args_Initializer(void)
  * CALL_CLOSURE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static WamCont
-Call_Closure(int atom_bip, int arity_rest)
+WamCont
+Pl_Call_Closure(int atom_bip, int arity_rest)
 {
   int call_info;
-  int func, arity0, arity;
+  int func, arity_clos, arity;
   WamWord *arg_adr;
   PredInf *pred;
   WamWord *w;
@@ -90,12 +91,12 @@ Call_Closure(int atom_bip, int arity_rest)
   Pl_Set_C_Bip_Name(pl_atom_tbl[atom_bip].name, 1 + arity_rest);
   if (atom_bip == atom_call_with_args) {
     func = Pl_Rd_Atom_Check(A(0));
-    arity0 = 0;
+    arity_clos = 0;
   } else {
-    arg_adr = Pl_Rd_Callable_Check(A(0), &func, &arity0);
+    arg_adr = Pl_Rd_Callable_Check(A(0), &func, &arity_clos);
   }
   
-  arity = arity0 + arity_rest;
+  arity = arity_clos + arity_rest;
   if (arity > MAX_ARITY)
     Pl_Err_Representation(pl_representation_max_arity);
 
@@ -109,7 +110,7 @@ Call_Closure(int atom_bip, int arity_rest)
 	  w = H;
 	  A(0) = Tag_STC(w);
 	  *w++ = Functor_Arity(func, arity);
-	  while(arity0-- > 0)
+	  while(arity_clos-- > 0)
 	    *w++ = *arg_adr++;
 	  for (i = 1; i <= arity_rest; i++)
 	    *w++ = A(i);
@@ -121,150 +122,27 @@ Call_Closure(int atom_bip, int arity_rest)
       return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
     }
 
+
+  /* arity = arity_clos + arity_rest */
+  /* the arity_clos args in the compound term   go in A(0)..A(arity_clos-1) */
+  /* the arity_rest args in A(1)..A(arity_rest) go in A(arity_clos)..A(arity-1) */
+
+  /* first copy the arity_rest args (to avoid the overwrite them copying closure args first) */
+  /* NB: if arity_clos == 0 then dst < src */
+  /*     if arity_clos == 1 then dst == src (optim) */
+  /*     if arity_clos >= 2 then dst > src */
+  /* we use memmove */
+
+  if (arity_clos != 1)		/* optim: no copy needed when closure has 1 arg */
+    memmove((void *) &A(arity_clos), &A(1), sizeof(WamWord) * arity_rest);
+  
+  /* then copy the arity_clos args */
   w = &A(0);
-  while(arity0-- > 0)
+  while(arity_clos-- > 0)
     *w++ = *arg_adr++;
-  for (i = 1; i <= arity_rest; i++)
-    *w++ = A(i);
 
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
   return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * CALL_WITH_ARGS_...                                                      *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-WamCont
-Pl_Call_With_Args_1(void)
-{
-  return Call_Closure(atom_call_with_args, 0);
-}
-
-WamCont
-Pl_Call_With_Args_2(void)
-{
-  return Call_Closure(atom_call_with_args, 1);
-}
-
-WamCont
-Pl_Call_With_Args_3(void)
-{
-  return Call_Closure(atom_call_with_args, 2);
-}
-
-WamCont
-Pl_Call_With_Args_4(void)
-{
-  return Call_Closure(atom_call_with_args, 3);
-}
-
-WamCont
-Pl_Call_With_Args_5(void)
-{
-  return Call_Closure(atom_call_with_args, 4);
-}
-
-WamCont
-Pl_Call_With_Args_6(void)
-{
-  return Call_Closure(atom_call_with_args, 5);
-}
-
-WamCont
-Pl_Call_With_Args_7(void)
-{
-  return Call_Closure(atom_call_with_args, 6);
-}
-
-WamCont
-Pl_Call_With_Args_8(void)
-{
-  return Call_Closure(atom_call_with_args, 7);
-}
-
-WamCont
-Pl_Call_With_Args_9(void)
-{
-  return Call_Closure(atom_call_with_args, 8);
-}
-
-WamCont
-Pl_Call_With_Args_10(void)
-{
-  return Call_Closure(atom_call_with_args, 9);
-}
-
-WamCont
-Pl_Call_With_Args_11(void)
-{
-  return Call_Closure(atom_call_with_args, 10);
-}
-
-
-WamCont
-Pl_Call_2(void)
-{
-  return Call_Closure(atom_call, 1);
-}
-
-WamCont
-Pl_Call_3(void)
-{
-  return Call_Closure(atom_call, 2);
-}
-
-WamCont
-Pl_Call_4(void)
-{
-  return Call_Closure(atom_call, 3);
-}
-
-
-WamCont
-Pl_Call_5(void)
-{
-  return Call_Closure(atom_call, 4);
-}
-
-WamCont
-Pl_Call_6(void)
-{
-  return Call_Closure(atom_call, 5);
-}
-
-WamCont
-Pl_Call_7(void)
-{
-  return Call_Closure(atom_call, 6);
-}
-
-WamCont
-Pl_Call_8(void)
-{
-  return Call_Closure(atom_call, 7);
-}
-
-WamCont
-Pl_Call_9(void)
-{
-  return Call_Closure(atom_call, 8);
-}
-
-WamCont
-Pl_Call_10(void)
-{
-  return Call_Closure(atom_call, 9);
-}
-
-
-WamCont
-Pl_Call_11(void)
-{
-  return Call_Closure(atom_call, 10);
 }

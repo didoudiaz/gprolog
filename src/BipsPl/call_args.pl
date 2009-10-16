@@ -30,71 +30,67 @@
 
 
 
-
 call_with_args(_F) :-
-	'$call_c_jump'('Pl_Call_With_Args_1').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 0), [jump, by_value]).
 
 call_with_args(_F, _A1) :-
-	'$call_c_jump'('Pl_Call_With_Args_2').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 1), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2) :-
-	'$call_c_jump'('Pl_Call_With_Args_3').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 2), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3) :-
-	'$call_c_jump'('Pl_Call_With_Args_4').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 3), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4) :-
-	'$call_c_jump'('Pl_Call_With_Args_5').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 4), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4, _A5) :-
-	'$call_c_jump'('Pl_Call_With_Args_6').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 5), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6) :-
-	'$call_c_jump'('Pl_Call_With_Args_7').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 6), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7) :-
-	'$call_c_jump'('Pl_Call_With_Args_8').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 7), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8) :-
-	'$call_c_jump'('Pl_Call_With_Args_9').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 8), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9) :-
-	'$call_c_jump'('Pl_Call_With_Args_10').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 9), [jump, by_value]).
 
 call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9, _A10) :-
-	'$call_c_jump'('Pl_Call_With_Args_11').
+	'$call_c'('Pl_Call_Closure'(call_with_args, 10), [jump, by_value]).
 
 
 
 call(_Closure, _A1) :-
-	'$call_c_jump'('Pl_Call_2').
+	'$call_c'('Pl_Call_Closure'(call, 1), [jump, by_value]).
 
 call(_Closure, _A1, _A2) :-
-	'$call_c_jump'('Pl_Call_3').
+	'$call_c'('Pl_Call_Closure'(call, 2), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3) :-
-	'$call_c_jump'('Pl_Call_4').
+	'$call_c'('Pl_Call_Closure'(call, 3), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4) :-
-	'$call_c_jump'('Pl_Call_5').
-
-call(_Closure, _A1, _A2, _A3, _A4) :-
-	'$call_c_jump'('Pl_Call_5').
+	'$call_c'('Pl_Call_Closure'(call, 4), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4, _A5) :-
-	'$call_c_jump'('Pl_Call_6').
+	'$call_c'('Pl_Call_Closure'(call, 5), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4, _A5, _A6) :-
-	'$call_c_jump'('Pl_Call_7').
+	'$call_c'('Pl_Call_Closure'(call, 6), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4, _A5, _A6, _A7) :-
-	'$call_c_jump'('Pl_Call_8').
+	'$call_c'('Pl_Call_Closure'(call, 7), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8) :-
-	'$call_c_jump'('Pl_Call_9').
+	'$call_c'('Pl_Call_Closure'(call, 8), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9) :-
-	'$call_c_jump'('Pl_Call_10').
+	'$call_c'('Pl_Call_Closure'(call, 9), [jump, by_value]).
 
 call(_Closure, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9, _A10) :-
-	'$call_c_jump'('Pl_Call_11').
+	'$call_c'('Pl_Call_Closure'(call, 10), [jump, by_value]).
