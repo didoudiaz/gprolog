@@ -1,6 +1,6 @@
 GPLC      = @GPLC@
 GPLCFLAGS = --fast-math
-PLS       = pl2wam.pl read_file.pl bip_list.pl syn_sugar.pl internal.pl \
+PLS       = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
             code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
             indexing.pl wam_emit.pl
 OBJS      = $(PLS:.pl=@OBJ_SUFFIX@)
@@ -19,7 +19,13 @@ WAMS      = $(PLS:.pl=.wam)
 
 pl2wam@EXE_SUFFIX@: $(OBJS)
 	[ ! -f  pl2wam@EXE_SUFFIX@ ] || cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
-	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib --min-bips $(OBJS)
+	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib-warn --no-top-level $(OBJS)
+
+# in stage 2 we simply re-link pl2wam since now the FD lib should be present
+stage2:
+	[ ! -f  pl2wam@EXE_SUFFIX@ ] || cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
+	rm -f  pl2wam@EXE_SUFFIX@
+	$(MAKE)
 
 
 clean:
@@ -35,14 +41,13 @@ clean-full: clean-wam clean
 
 
 distclean: clean
-	rm -f pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@ make_bip_list@EXE_SUFFIX@
+	rm -f pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
 
 
 
 
 pl2wam.wam:     pl2wam.pl
 read_file.wam:  read_file.pl
-bip_list.wam:   bip_list.pl
 syn_sugar.wam:  syn_sugar.pl
 internal.wam:   internal.pl
 code_gen.wam:   code_gen.pl
@@ -55,12 +60,6 @@ wam_emit.wam:   wam_emit.pl
 
 check:
 	@./check_boot -a && echo Bootstrap Prolog Compiler OK
-
-
-make_bip_list@EXE_SUFFIX@: make_bip_list.pl ../Bips??/[a-z]??*.pl
-	$(GPLC) -o make_bip_list@EXE_SUFFIX@ make_bip_list.pl
-	./make_bip_list@EXE_SUFFIX@ >bip_list.pl
-	make
 
 
 swi_pl2wam: swilib.pl $(PLS)
