@@ -178,6 +178,7 @@ int min_fd_bips = 0;
 int no_debugger = 0;
 int no_pl_lib = 0;
 int no_fd_lib = 0;
+int no_fd_lib_warn = 0;
 int strip = 0;
 
 int no_decode_hex = 0;
@@ -233,7 +234,7 @@ int Spawn_Decode_Hex(char *arg[]);
 
 void Delete_Temp_File(char *name);
 
-void Find_File(char *file, char *suff, char *file_path);
+int Find_File(char *file, char *suff, char *file_path, int ignore_error);
 
 void Pl_Fatal_Error(char *format, ...);
 
@@ -632,6 +633,14 @@ Link_Cmd(void)
   int has_gui_console = 0;
 
 
+  if (no_fd_lib == 0 && no_fd_lib_warn)
+    {
+      if (!Find_File(LIB_BIPS_FD, "", buff, 1) ||
+	  !Find_File(LIB_ENGINE_FD, "", buff + strlen(buff), 1))
+	no_fd_lib = min_fd_bips = 1;
+      *buff = '\0';
+    }
+
   if (file_name_out == NULL)
     file_name_out = "%p";	/* will reuse first file name */
 
@@ -671,52 +680,52 @@ Link_Cmd(void)
 
   if (!min_pl_bips)
     {
-      Find_File(OBJ_FILE_ALL_PL_BIPS, OBJ_SUFFIX, buff + strlen(buff));
+      Find_File(OBJ_FILE_ALL_PL_BIPS, OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
     }
 
 #ifndef NO_USE_FD_SOLVER
   if (!min_fd_bips)
     {
-      Find_File(OBJ_FILE_ALL_FD_BIPS, OBJ_SUFFIX, buff + strlen(buff));
+      Find_File(OBJ_FILE_ALL_FD_BIPS, OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
     }
 #endif
 
   if (!no_top_level)
     {
-      Find_File(OBJ_FILE_TOP_LEVEL, OBJ_SUFFIX, buff + strlen(buff));
+      Find_File(OBJ_FILE_TOP_LEVEL, OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
     }
 
   if (!no_debugger)
     {
-      Find_File(OBJ_FILE_DEBUGGER, OBJ_SUFFIX, buff + strlen(buff));
+      Find_File(OBJ_FILE_DEBUGGER, OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
     }
 
 #ifndef NO_USE_FD_SOLVER
   if (!no_fd_lib)
     {
-      Find_File(LIB_BIPS_FD, "", buff + strlen(buff));
+      Find_File(LIB_BIPS_FD, "", buff + strlen(buff), 0);
       strcat(buff, " ");
 
-      Find_File(LIB_ENGINE_FD, "", buff + strlen(buff));
+      Find_File(LIB_ENGINE_FD, "", buff + strlen(buff), 0);
       strcat(buff, " ");
     }
 #endif
 
   if (!no_pl_lib)
     {
-      Find_File(LIB_BIPS_PL, "", buff + strlen(buff));
+      Find_File(LIB_BIPS_PL, "", buff + strlen(buff), 0);
       strcat(buff, " ");
     }
 
-  Find_File(LIB_ENGINE_PL, "", buff + strlen(buff));
+  Find_File(LIB_ENGINE_PL, "", buff + strlen(buff), 0);
   strcat(buff, " ");
 
 #ifndef NO_USE_LINEDIT
-  Find_File(LIB_LINEDIT, "", buff + strlen(buff));
+  Find_File(LIB_LINEDIT, "", buff + strlen(buff), 0);
   strcat(buff, " ");
 #endif
 
@@ -724,7 +733,7 @@ Link_Cmd(void)
 
   if (!no_pl_lib && gui_console) 
     {    /* modify Linedit/Makefile.in to follow this list of ld objects */
-      Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff));
+      Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
       has_gui_console = 1;
     }
@@ -870,8 +879,8 @@ Delete_Temp_File(char *name)
  * FIND_FILE                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-Find_File(char *file, char *suff, char *file_path)
+int
+Find_File(char *file, char *suff, char *file_path, int ignore_error)
 {
   char name[MAXPATHLEN];
   char **pdev;
@@ -882,7 +891,7 @@ Find_File(char *file, char *suff, char *file_path)
       sprintf(file_path, "%s" DIR_SEP_S "lib" DIR_SEP_S "%s", start_path,
 	      name);
       if (access(file_path, F_OK) == 0)
-	return;
+	return 1;
     }
   else
     for (pdev = devel_dir; *pdev; pdev++)
@@ -890,10 +899,13 @@ Find_File(char *file, char *suff, char *file_path)
 	sprintf(file_path, "%s" DIR_SEP_S "%s" DIR_SEP_S "%s", start_path,
 		*pdev, name);
 	if (access(file_path, F_OK) == 0)
-	  return;
+	  return 1;
       }
 
-  Pl_Fatal_Error("cannot locate file %s", name);
+
+  if (!ignore_error)
+    Pl_Fatal_Error("cannot locate file %s", name);
+  return 0;
 }
 
 
@@ -1263,6 +1275,13 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--no-fd-lib-warn"))
+	    {
+	      Record_Link_Warn_Option(i);
+	      no_fd_lib_warn = 1;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "-s") || Check_Arg(i, "--strip"))
 	    {
 	      Record_Link_Warn_Option(i);
@@ -1435,6 +1454,7 @@ Display_Help(void)
   L("  --min-size                  same as: --min-bips --strip");
   L("  --no-pl-lib                 do not look for the Prolog and FD libraries (maintenance only)");
   L("  --no-fd-lib                 do not look for the FD library (maintenance only)");
+  L("  --no-fd-lib-warn            do not warn about inexistent FD library (maintenance only)");
   L("  -s, --strip                 strip the executable");
   L("  -L OPTION                   pass OPTION to the linker");
   L("");

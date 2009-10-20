@@ -45,6 +45,7 @@ all:
 	(cd EnginePl; $(MAKE) config)
 	. ./SETVARS;for i in $(SUB_DIRS);do (cd $$i; $(MAKE)) || exit 1; done;\
 	(cd TopComp; $(MAKE) $(TOP_LEVEL)@EXE_SUFFIX@)
+	(cd Pl2Wam; $(MAKE) stage2)
 
 
 # --- INSTALL --- #
