@@ -5699,6 +5699,7 @@ to be enclosed in curly brackets).
 
 \subsubsection{\texttt{expand\_term/2},
                \texttt{term\_expansion/2}}
+\label{expand-term/2}
    \AddPBD{expand\_term/2}
 
 \begin{TemplatesOneCol}
@@ -7576,6 +7577,46 @@ Y \\
 
 \IdxPFD{prolog\_copyright} & an atom &  copyright message of the Prolog
 system & N \\ 
+
+\hline
+
+\IdxPFD{dialect} & an atom & fixed to \texttt{gprolog} & N \\ 
+
+\hline
+
+\IdxPFD{home} & an atom & GNU Prolog home directory & N \\ 
+
+\hline
+
+\IdxPFD{host\_os} & an atom & Operating System identifier & N \\ 
+
+\hline
+
+\IdxPFD{host\_vendor} & an atom & Operating System vendor & N \\ 
+
+\hline
+
+\IdxPFD{host\_cpu} & an atom & processor identifier & N \\ 
+
+\hline
+
+\IdxPFD{host} & an atom & a combination of the OS-vendor-cpu & N \\ 
+
+\hline
+
+\IdxPFD{arch} & an atom & a combination of the OS-cpu & N \\ 
+
+\hline
+
+\IdxPFD{version} & an integer & $Major * 10000 + Minor * 100 + Patch$ & N \\ 
+
+\hline
+
+\IdxPFD{version\_data} & an structure & \texttt{gprolog(Major,Minor,Patch,Extra)} & N \\ 
+
+\hline
+
+\IdxPFD{unix} & \texttt{true} / \texttt{false} & \texttt{true} if the underlying OS is unix-like & N \\ 
 
 \hline
 \end{tabular}

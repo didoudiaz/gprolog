@@ -34,6 +34,8 @@
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
+#else
+#include <sys/param.h>
 #endif
 
 #define ENGINE_FILE
@@ -43,6 +45,9 @@
 #ifndef NO_USE_LINEDIT
 #include "../Linedit/linedit.h"
 #endif
+
+#include "../TopComp/prolog_path.c"
+
 
 
 /*---------------------------------*
@@ -109,10 +114,15 @@ Pl_Start_Prolog(int argc, char *argv[])
   setlocale(LC_ALL, "");
   setlocale(LC_NUMERIC, "C");	/* make sure floats come out right... */
 
-  Pl_Init_Machine();
-
   pl_os_argc = argc;
   pl_os_argv = argv;
+
+  pl_home = Get_Prolog_Path(argv[0], &pl_devel_mode);
+  if (pl_home == NULL)
+    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s",
+		   PROLOG_NAME, ENV_VARIABLE);
+
+  Pl_Init_Machine();
 
   Set_Line_Buf(stdout);
   Set_Line_Buf(stderr);

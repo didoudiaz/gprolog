@@ -33,13 +33,13 @@
 #define FLAG_C_FILE
 
 #include "engine_pl.h"
+#include "gprolog_cst.h"
 #include "bips_pl.h"
 
 #ifndef _WIN32
 #include <unistd.h>
 extern char **environ;
 #endif
-
 
 
 
@@ -88,7 +88,10 @@ static int atom_chars_no_escape;
 static int atom_codes_no_escape;
 static int atom_atom_no_escape;
 
-static int atom_prolog[4];
+static int atom_the_dialect;
+static int atom_the_home;
+
+static int atom_prolog[10];
 
 
 
@@ -118,11 +121,13 @@ Prolog_Prototype(ENVIRON_ALT, 0);
 static void
 Flag_Initializer(void)
 {
+  char *p;
+  int devel_mode;
+
   atom_flag_tbl[FLAG_BOUNDED] = Pl_Create_Atom("bounded");
   atom_flag_tbl[FLAG_MAX_INTEGER] = Pl_Create_Atom("max_integer");
   atom_flag_tbl[FLAG_MIN_INTEGER] = Pl_Create_Atom("min_integer");
-  atom_flag_tbl[FLAG_ROUNDING_FCT] =
-    Pl_Create_Atom("integer_rounding_function");
+  atom_flag_tbl[FLAG_ROUNDING_FCT] = Pl_Create_Atom("integer_rounding_function");
 
   atom_flag_tbl[FLAG_CHAR_CONVERSION] = Pl_Create_Atom("char_conversion");
   atom_flag_tbl[FLAG_DEBUG] = Pl_Create_Atom("debug");
@@ -144,7 +149,19 @@ Flag_Initializer(void)
   atom_flag_tbl[FLAG_PROLOG_VERSION] = Pl_Create_Atom("prolog_version");
   atom_flag_tbl[FLAG_PROLOG_DATE] = Pl_Create_Atom("prolog_date");
   atom_flag_tbl[FLAG_PROLOG_COPYRIGHT] = Pl_Create_Atom("prolog_copyright");
+  atom_flag_tbl[FLAG_DIALECT] = Pl_Create_Atom("dialect");
+  atom_flag_tbl[FLAG_HOME] = Pl_Create_Atom("home");
+  atom_flag_tbl[FLAG_HOST_OS] = Pl_Create_Atom("host_os");
+  atom_flag_tbl[FLAG_HOST_VENDOR] = Pl_Create_Atom("host_vendor");
+  atom_flag_tbl[FLAG_HOST_CPU] = Pl_Create_Atom("host_cpu");
+  atom_flag_tbl[FLAG_HOST] = Pl_Create_Atom("host");
+  atom_flag_tbl[FLAG_ARCH] = Pl_Create_Atom("arch");
 
+  atom_flag_tbl[FLAG_VERSION] = Pl_Create_Atom("version");
+  atom_flag_tbl[FLAG_VERSION_DATA] = Pl_Create_Atom("version_data");
+  atom_flag_tbl[FLAG_UNIX] = Pl_Create_Atom("unix");
+
+  atom_flag_tbl[FLAG_ARGV] = Pl_Create_Atom("argv");
 
   atom_down = Pl_Create_Atom("down");
   atom_toward_zero = Pl_Create_Atom("toward_zero");
@@ -162,10 +179,22 @@ Flag_Initializer(void)
   atom_codes_no_escape = Pl_Create_Atom("codes_no_escape");
   atom_atom_no_escape = Pl_Create_Atom("atom_no_escape");
 
+  atom_the_dialect = Pl_Create_Atom(PROLOG_DIALECT);
+
+  atom_the_home = Pl_Create_Atom(pl_home);
+  
   atom_prolog[0] = Pl_Create_Atom(PROLOG_NAME);
   atom_prolog[1] = Pl_Create_Atom(PROLOG_VERSION);
   atom_prolog[2] = Pl_Create_Atom(PROLOG_DATE);
   atom_prolog[3] = Pl_Create_Atom(PROLOG_COPYRIGHT);
+  atom_prolog[4] = atom_the_dialect;
+  atom_prolog[5] = atom_the_home;
+  atom_prolog[6] = Pl_Create_Atom(M_OS);
+  atom_prolog[7] = Pl_Create_Atom(M_CPU);
+  atom_prolog[8] = Pl_Create_Atom(M_VENDOR);
+  atom_prolog[9] = Pl_Create_Atom(M_CPU "-" M_VENDOR "-" M_OS);
+  atom_prolog[10] = Pl_Create_Atom(M_CPU "-" M_OS);
+
 
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_SUSPICIOUS_WARNING) = 1;
@@ -193,6 +222,7 @@ Bool
 Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord term;
   int atom;
   int i;
@@ -216,6 +246,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   switch (i)
     {
     case FLAG_BOUNDED:
+    case FLAG_UNIX:
       if (tag_mask != TAG_ATM_MASK ||
 	  (atom != pl_atom_true && atom != pl_atom_false))
 	goto err_value;
@@ -226,6 +257,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_MAX_ARITY:
     case FLAG_MAX_ATOM:
     case FLAG_MAX_UNGET:
+    case FLAG_VERSION:
       if (tag_mask != TAG_INT_MASK)
 	goto err_value;
       goto err_perm;
@@ -306,7 +338,23 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_PROLOG_VERSION:
     case FLAG_PROLOG_DATE:
     case FLAG_PROLOG_COPYRIGHT:
+    case FLAG_DIALECT:
+    case FLAG_HOME:
+    case FLAG_HOST_OS:
+    case FLAG_HOST_VENDOR:
+    case FLAG_HOST_CPU:
+    case FLAG_HOST:
+    case FLAG_ARCH:
       if (tag_mask != TAG_ATM_MASK)
+	goto err_value;
+      goto err_perm;
+
+
+    case FLAG_VERSION_DATA:
+      if (tag_mask != TAG_STC_MASK)
+	goto err_value;
+      adr = UnTag_STC(word);
+      if (Functor(adr) != atom_the_dialect || Arity(adr) != 4)
 	goto err_value;
       goto err_perm;
     }
@@ -452,6 +500,14 @@ Unif_Flag(int i, WamWord value_word)
       n = MAX_ARITY;
       break;
 
+    case FLAG_MAX_ATOM:
+      n = MAX_ATOM;
+      break;
+
+    case FLAG_MAX_UNGET:
+      n = STREAM_PB_SIZE;
+      break;
+
     case FLAG_UNKNOWN:
     case FLAG_SYNTAX_ERROR:
     case FLAG_OS_ERROR:
@@ -505,22 +561,50 @@ Unif_Flag(int i, WamWord value_word)
     case FLAG_PROLOG_VERSION:
     case FLAG_PROLOG_DATE:
     case FLAG_PROLOG_COPYRIGHT:
+    case FLAG_DIALECT:
+    case FLAG_HOME:
+    case FLAG_HOST_OS:
+    case FLAG_HOST_CPU:
+    case FLAG_HOST_VENDOR:
+    case FLAG_HOST:
+    case FLAG_ARCH:
       atom = atom_prolog[i - FLAG_PROLOG_NAME];
       break;
 
-    case FLAG_MAX_ATOM:
-      n = MAX_ATOM;
+    case FLAG_VERSION:
+      n = __GPROLOG_VERSION__;
       break;
 
-    case FLAG_MAX_UNGET:
-      n = STREAM_PB_SIZE;
+    case FLAG_VERSION_DATA:
+      return Pl_Get_Structure(atom_the_dialect, 4, value_word) &&
+	Pl_Unify_Integer(__GPROLOG__) && 
+	Pl_Unify_Integer(__GPROLOG_MINOR__) &&
+	Pl_Unify_Integer(__GPROLOG_PATCHLEVEL__) &&
+	Pl_Unify_Nil();
+
+    case FLAG_UNIX:
+#if defined(__unix__) || defined(__CYGWIN__) || defined(unix)
+      atom = pl_atom_true;
+#else
+      atom = pl_atom_false;
+#endif
       break;
+
+    case FLAG_ARGV:
+      for (i = 0; i < pl_os_argc; i++)
+	{
+	  if (!Pl_Get_List(value_word) || !Pl_Unify_Atom(Pl_Create_Atom(pl_os_argv[i])))
+	    return FALSE;
+
+	  value_word = Pl_Unify_Variable();
+	}
+      return Pl_Get_Nil(value_word);
     }
 
   if (atom < 0)
     return Pl_Get_Integer(n, value_word);
 
- return Pl_Get_Atom(atom, value_word);
+  return Pl_Get_Atom(atom, value_word);
 }
 
 

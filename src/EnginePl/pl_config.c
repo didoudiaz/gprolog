@@ -295,6 +295,7 @@ Write_GProlog_Cst(void)
 
   fputc('\n', fg_c);
 
+  fprintf(fg_c, "#define __GNU_PROLOG__        \t%d\n", major);
   fprintf(fg_c, "#define __GPROLOG__           \t%d\n", major);
   fprintf(fg_c, "#define __GPROLOG_MINOR__     \t%d\n", minor);
   fprintf(fg_c, "#define __GPROLOG_PATCHLEVEL__\t%d\n", patch_level);
@@ -303,6 +304,7 @@ Write_GProlog_Cst(void)
 
   fputc('\n', fg_c);
 
+  fprintf(fg_c, "#define PROLOG_DIALECT  \t\"" PROLOG_DIALECT "\"\n");
   fprintf(fg_c, "#define PROLOG_NAME     \t\"" PROLOG_NAME "\"\n");
   fprintf(fg_c, "#define PROLOG_VERSION  \t\"" PROLOG_VERSION "\"\n");
   fprintf(fg_c, "#define PROLOG_DATE     \t\"" PROLOG_DATE "\"\n");

@@ -60,6 +60,9 @@
 int pl_os_argc;
 char **pl_os_argv;
 
+char *pl_home;
+int pl_devel_mode;
+
 char pl_glob_buff[10240];
 
 long *pl_base_fl;			/* overwritten by foreign if present */
@@ -71,6 +74,9 @@ int pl_use_gui;
 
 extern int pl_os_argc;
 extern char **pl_os_argv;
+
+extern char *pl_home;
+extern int pl_devel_mode;
 
 extern char pl_glob_buff[];
 

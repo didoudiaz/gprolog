@@ -239,6 +239,40 @@ See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 
 ISO directive.
 
+\subsubsection{\texttt{if/1}, \texttt{else/0}, \texttt{endif/0}, \texttt{elif/1} }
+   \AddDiD{if/1}
+   \AddDiD{else/0}
+   \AddDiD{endif/0}
+   \AddDiD{elif/1}
+
+\begin{TemplatesOneCol}
+if(+callable\_term) \\
+else\\
+endif\\
+elif(+callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+These directives are for conditional compilation.  
+
+\texttt{if(Goal)} compile subsequent code only if \texttt{Goal}
+succeeds. \texttt{Goal} is first processed by \texttt{expand\_term/2}
+\RefSP{expand-term/2}.  If \texttt{Goal} raises an exception it is printed
+and \texttt{Goal} fails.
+
+\texttt{else} introduces the \textit{else} part.
+
+\texttt{endif} terminates a conditional compilation part.
+
+\texttt{elif(Goal)} is a shorthand for \texttt{:- else. :- if(Goal). $\ldots$ :- endif}.
+
+\Portability
+
+GNU Prolog directive. Also in SWI and YAP.
+
+
 \subsubsection{\texttt{ensure\_loaded/1}}
    \AddDiD{ensure\_loaded/1}
 

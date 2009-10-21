@@ -189,7 +189,7 @@
 
 /* Constant definitions */
 
-#define PROLOG_NAME1               any
+#define PROLOG_DIALECT               any
 #define PROLOG_NAME                any
 #define PROLOG_VERSION             any
 #define PROLOG_DATE                any

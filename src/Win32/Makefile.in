@@ -1,4 +1,4 @@
-NAME         = @PROLOG_NAME1@
+NAME         = @PROLOG_DIALECT@
 VERSION      = @PROLOG_VERSION@
 PKG_NAME     = @PKG_NAME@
 CC           = @CC@ @CFLAGS_MACHINE@
