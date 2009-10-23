@@ -59,6 +59,9 @@ callable(X) :-
 ground(X) :-
 	ground(X).
 
+is_list(X) :-
+	is_list(X).
+
 list(X) :-
 	list(X).
 

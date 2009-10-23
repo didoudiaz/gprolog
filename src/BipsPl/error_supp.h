@@ -251,6 +251,8 @@ extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 
 void Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word);
 
+void Pl_Set_Bip_Name_Untagged_2(int func, int arity);
+
 void Pl_Set_C_Bip_Name(char *func_str, int arity);
 
 void Pl_Unset_C_Bip_Name(void);

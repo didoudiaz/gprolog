@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : control.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:29:43
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/control.pl').
@@ -38,17 +38,13 @@ predicate(halt/0,53,static,private,built_in,[
 
 
 predicate(halt/1,59,static,private,built_in,[
-    put_atom(halt,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[halt,1]),
     call_c('Pl_Halt_1',[],[x(0)]),
     proceed]).
 
 
 predicate(for/3,67,static,private,built_in,[
-    put_atom(for,3),
-    put_integer(3,4),
-    call_c('Pl_Set_Bip_Name_2',[],[x(3),x(4)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[for,3]),
     call_c('Pl_For_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 

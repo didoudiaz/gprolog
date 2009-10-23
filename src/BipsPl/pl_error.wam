@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : pl_error.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:32:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pl_error.pl').
@@ -104,8 +104,6 @@ predicate('$pl_error'/1,73,static,private,built_in,[
 
 
 predicate(syntax_error_info/4,80,static,private,built_in,[
-    put_atom(syntax_error_info,4),
-    put_integer(4,5),
-    call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[syntax_error_info,4]),
     call_c('Pl_Syntax_Error_Info_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

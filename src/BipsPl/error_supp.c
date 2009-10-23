@@ -232,7 +232,6 @@ Error_Supp_Initializer(void)
 
 
 
-
 /*-------------------------------------------------------------------------*
  * PL_SET_BIP_NAME_2                                                       *
  *                                                                         *
@@ -250,6 +249,19 @@ Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word)
   c_bip_func_str = NULL;
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SET_BIP_NAME_UNTAGGED_2                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void 
+Pl_Set_Bip_Name_Untagged_2(int func, int arity)
+{
+  cur_bip_func = func;
+  cur_bip_arity = arity;
+}
 
 
 

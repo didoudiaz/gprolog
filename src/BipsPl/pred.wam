@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : pred.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:29:43
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
@@ -12,9 +12,7 @@ predicate('$use_pred'/0,29,static,private,built_in,[
 
 
 predicate(current_predicate/1,32,static,private,built_in,[
-    put_atom(current_predicate,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_predicate,1]),
     execute('$current_predicate'/1)]).
 
 
@@ -45,9 +43,7 @@ predicate(predicate_property/2,54,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(predicate_property,0),
-    put_integer(2,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[predicate_property,2]),
     put_value(y(0),0),
     call('$current_predicate_bips'/1),
     put_value(y(0),0),

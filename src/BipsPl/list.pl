@@ -169,31 +169,30 @@ length(L, N) :-
 
 
 
-
 nth(N, L, X) :-
 	integer(N), !,
-	N >= 1,
-	'$nth1'(N, L, X).
+	N1 is N - 1,
+	'$call_c_test'('Pl_Nth0_3'(N1, L, X)).
 
-nth(N, L, X) :-
+
+nth(N, L, X, Rest) :-
 	var(N),
-	'$nth2'(L, X, 1, N).
+	'$nth1_gener'(L, X, 1, N, Rest).
 
 
-'$nth1'(1, [X|_], X) :-
+'$nth1_find'(1, [X|Rest], X, Rest) :-
 	!.
 
-'$nth1'(N, [_|T], X) :-
+'$nth1_find'(N, [Y|T], X, [Y|Rest]) :-
 	N1 is N - 1,
-	'$nth1'(N1, T, X).
+	'$nth1_find'(N1, T, X, Rest).
 
 
-'$nth2'([X|_], X, N, N).
+'$nth1_gener'([X|Rest], X, N, N, Rest).
 
-'$nth2'([_|T], X, I, N) :-
+'$nth1_gener'([Y|T], X, I, N, [Y|Rest]) :-
 	I1 is I + 1,
-	'$nth2'(T, X, I1, N).
-
+	'$nth1_gener'(T, X, I1, N, Rest).
 
 
 
@@ -236,3 +235,21 @@ sum_list(L, Sum) :-
 '$sum_list1'([H|T], Sum0, Sum) :-
 	Sum1 is H + Sum0,
 	'$sum_list1'(T, Sum1, Sum).
+
+
+
+flatten(List, FlatList) :-
+        '$flatten'(List, [], FlatList0), !,
+        FlatList = FlatList0.
+
+'$flatten'(Var, Tl, [Var|Tl]) :-
+        var(Var), !.
+
+'$flatten'([], Tl, Tl) :- !.
+
+'$flatten'([Hd|Tl], Tail, List) :- !,
+        '$flatten'(Hd, FlatHeadTail, List),
+        '$flatten'(Tl, Tail, FlatHeadTail).
+
+'$flatten'(NonList, Tl, [NonList|Tl]).
+

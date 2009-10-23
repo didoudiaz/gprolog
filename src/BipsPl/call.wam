@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : call.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:29:43
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call.pl').
@@ -70,9 +70,7 @@ predicate(call_det/2,46,static,private,built_in,[
 predicate('$call_det/2_$aux2'/3,46,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
-    put_atom(>,4),
-    put_integer(2,5),
-    call_c('Pl_Set_Bip_Name_2',[],[x(4),x(5)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
@@ -95,9 +93,7 @@ predicate('$call_det/2_$aux1'/1,46,static,private,built_in,[
     put_atom(true,2),
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
     cut(x(1)),
-    put_atom(call,1),
-    put_integer(2,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[call,2]),
     put_value(x(0),1),
     put_atom(boolean,0),
     execute('$pl_err_type'/2),

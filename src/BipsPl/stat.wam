@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : stat.pl
-% date    : 10 20 2009
-% time    : 14:23:25
+% date    : 10 23 2009
+% time    : 12:29:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/stat.pl').
@@ -12,9 +12,7 @@ predicate('$use_stat'/0,29,static,private,built_in,[
 
 
 predicate(statistics/0,32,static,private,built_in,[
-    put_atom(statistics,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[statistics,0]),
     call_c('Pl_Statistics_0',[],[]),
     proceed]).
 
@@ -25,9 +23,7 @@ predicate(statistics/2,37,static,private,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    put_atom(statistics,0),
-    put_integer(2,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[statistics,2]),
     put_value(y(0),0),
     call('$check_stat_key'/1),
     cut(y(2)),
@@ -260,32 +256,24 @@ label(5),
 
 
 predicate(user_time/1,108,static,private,built_in,[
-    put_atom(user_time,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[user_time,1]),
     call_c('Pl_User_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(system_time/1,115,static,private,built_in,[
-    put_atom(system_time,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system_time,1]),
     call_c('Pl_System_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(cpu_time/1,122,static,private,built_in,[
-    put_atom(cpu_time,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[cpu_time,1]),
     call_c('Pl_Cpu_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(real_time/1,129,static,private,built_in,[
-    put_atom(real_time,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[real_time,1]),
     call_c('Pl_Real_Time_1',[boolean],[x(0)]),
     proceed]).

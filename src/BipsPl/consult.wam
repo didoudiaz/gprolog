@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : consult.pl
-% date    : 10 20 2009
-% time    : 14:23:25
+% date    : 10 23 2009
+% time    : 12:29:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/consult.pl').
@@ -24,9 +24,7 @@ predicate(consult/1,38,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(consult,0),
-    put_integer(1,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[consult,1]),
     put_value(y(0),0),
     call('$check_atom_or_atom_list'/1),
     cut(y(1)),
@@ -84,9 +82,7 @@ predicate('$consult2'/1,55,static,private,built_in,[
     put_atom(gplc,1),
     put_variable(y(1),2),
     call(temporary_file/3),
-    put_atom(consult,0),
-    put_integer(1,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[consult,1]),
     put_unsafe_value(y(1),0),
     put_unsafe_value(y(0),1),
     deallocate,
@@ -148,9 +144,7 @@ predicate('$$consult2/1_$aux3'/2,55,static,private,built_in,[
 
 label(1),
     trust_me_else_fail,
-    put_atom(consult,0),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[consult,1]),
     put_atom(source_sink,0),
     execute('$pl_err_existence'/2)]).
 
@@ -265,9 +259,7 @@ label(7),
     put_atom('$ctr',1),
     put_variable(x(0),2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    put_atom(is,1),
-    put_integer(2,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
     math_load_value(x(0),1),
     call_c('Pl_Fct_Inc',[fast_call,x(2)],[x(1)]),
     put_atom('$ctr',1),
@@ -484,9 +476,7 @@ predicate(load/1,179,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(load,0),
-    put_integer(1,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[load,1]),
     put_value(y(0),0),
     call('$check_atom_or_atom_list'/1),
     cut(y(1)),
@@ -550,9 +540,7 @@ predicate('$load2'/1,196,static,private,built_in,[
     call_c('Pl_Absolute_File_Name_2',[boolean],[x(1),x(2)]),
     put_value(y(2),1),
     call('$$load2/1_$aux2'/2),
-    put_atom(load,0),
-    put_integer(1,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[load,1]),
     put_unsafe_value(y(2),0),
     deallocate,
     execute('$load_file'/1)]).
@@ -570,9 +558,7 @@ predicate('$$load2/1_$aux2'/2,196,static,private,built_in,[
 
 label(1),
     trust_me_else_fail,
-    put_atom(load,0),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[load,1]),
     put_atom(source_sink,0),
     execute('$pl_err_existence'/2)]).
 
@@ -661,9 +647,7 @@ predicate('$add_clause_term_and_bc'/2,248,static,private,built_in,[
 
 
 predicate(listing/0,261,static,private,built_in,[
-    put_atom(listing,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[listing,0]),
     put_void(0),
     execute('$listing_all'/1)]).
 
@@ -671,9 +655,7 @@ predicate(listing/0,261,static,private,built_in,[
 predicate(listing/1,267,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    put_atom(listing,2),
-    put_integer(1,3),
-    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[listing,1]),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),

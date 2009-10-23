@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : debugger.pl
-% date    : 10 20 2009
-% time    : 14:23:25
+% date    : 10 23 2009
+% time    : 12:29:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/debugger.pl').
@@ -63,25 +63,19 @@ predicate('$debug_switch_on'/1,47,static,private,built_in,[
 
 
 predicate(wam_debug/0,60,static,private,built_in,[
-    put_atom(wam_debug,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[wam_debug,0]),
     call_c('Pl_Debug_Wam',[],[]),
     proceed]).
 
 
 predicate(notrace/0,67,static,private,built_in,[
-    put_atom(notrace,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[notrace,0]),
     execute(nodebug/0)]).
 
 
 predicate(nodebug/0,74,static,private,built_in,[
     allocate(0),
-    put_atom(nodebug,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nodebug,0]),
     call('$debug_switch_off'/0),
     deallocate,
     execute('$show_debugger_mode'/0)]).
@@ -89,9 +83,7 @@ predicate(nodebug/0,74,static,private,built_in,[
 
 predicate(trace/0,80,static,private,built_in,[
     allocate(0),
-    put_atom(trace,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[trace,0]),
     put_atom(trace,0),
     call('$debug_switch_on'/1),
     deallocate,
@@ -100,9 +92,7 @@ predicate(trace/0,80,static,private,built_in,[
 
 predicate(debug/0,86,static,private,built_in,[
     allocate(0),
-    put_atom(debug,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debug,0]),
     put_atom(debug,0),
     call('$debug_switch_on'/1),
     deallocate,
@@ -166,9 +156,7 @@ label(7),
 
 predicate(debugging/0,114,static,private,built_in,[
     allocate(0),
-    put_atom(debugging,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debugging,0]),
     call('$show_debugger_mode'/0),
     call('$show_leashing_info'/0),
     call('$show_undefined_action'/0),
@@ -179,9 +167,7 @@ predicate(debugging/0,114,static,private,built_in,[
 predicate(leash/1,124,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    put_atom(leash,2),
-    put_integer(1,3),
-    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[leash,1]),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
@@ -501,9 +487,7 @@ label(7),
 predicate(spypoint_condition/3,237,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
-    put_atom(spypoint_condition,1),
-    put_integer(3,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spypoint_condition,3]),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(3)),
     execute('$pl_err_instantiation'/0),
@@ -585,9 +569,7 @@ label(1),
 predicate(spy/1,266,static,private,built_in,[
     try_me_else(1),
     allocate(1),
-    put_atom(spy,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spy,1]),
     put_variable(y(0),1),
     call('$debug_list_of_pred'/2),
     put_value(y(0),0),
@@ -610,9 +592,7 @@ label(1),
 predicate(nospy/1,280,static,private,built_in,[
     try_me_else(1),
     allocate(1),
-    put_atom(nospy,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospy,1]),
     put_variable(y(0),1),
     call('$debug_list_of_pred'/2),
     put_value(y(0),0),
@@ -627,9 +607,7 @@ label(1),
 predicate(nospyall/0,291,static,private,built_in,[
     try_me_else(1),
     allocate(0),
-    put_atom(nospyall,0),
-    put_integer(0,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospyall,0]),
     put_structure('$debug_spy_point'/3,0),
     unify_void(3),
     call(retractall/1),

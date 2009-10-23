@@ -2,8 +2,8 @@
  * GNU Prolog                                                              * 
  *                                                                         * 
  * Part  : Prolog buit-in predicates                                       * 
- * File  : pl_error.pl                                                     * 
- * Descr.: Prolog error management                                         * 
+ * File  : list_c.c                                                        * 
+ * Descr.: list library  - C part                                          *
  * Author: Daniel Diaz                                                     * 
  *                                                                         * 
  * Copyright (C) 1999-2009 Daniel Diaz                                     * 
@@ -24,59 +24,54 @@
 
 /* $Id$ */
 
-:-	built_in.
-
-
-set_bip_name(Name, Arity) :-  % it is an inline predicate
-	set_bip_name(Name, Arity).
-
-current_bip_name(Name, Arity) :-
-	'$call_c_test'('Pl_Current_Bip_Name_2'(Name, Arity)).
+#include "engine_pl.h"
+#include "bips_pl.h"
 
 
 
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
-'$pl_err_instantiation' :-
-	'$pl_error'(instantiation_error).
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-'$pl_err_type'(Type, T) :-
-	'$pl_error'(type_error(Type, T)).
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
 
-'$pl_err_domain'(Dom, T) :-
-	'$pl_error'(domain_error(Dom, T)).
-
-'$pl_err_existence'(Object, T) :-
-	'$pl_error'(existence_error(Object, T)).
-
-'$pl_err_permission'(Oper, Perm, T) :-
-	'$pl_error'(permission_error(Oper, Perm, T)).
-
-'$pl_err_representation'(Flag) :-
-	'$pl_error'(representation_error(Flag)).
-
-'$pl_err_evaluation'(Error) :-
-	'$pl_error'(evaluation_error(Error)).
-
-'$pl_err_resource'(Flag) :-
-	'$pl_error'(resource_error(Flag)).
-
-'$pl_err_syntax'(T) :-
-	'$pl_error'(syntax_error(T)).
-
-'$pl_err_system'(T) :-
-	'$pl_error'(system_error(T)).
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
 
+/*-------------------------------------------------------------------------*
+ * Pl_NTH0_3                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Nth0_3(WamWord n_word, WamWord list_word, WamWord res_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  int n = Pl_Rd_Integer(n_word);
 
+  if (n < 0)
+    return FALSE;
 
+  for(;;)
+    {
+      DEREF(list_word, word, tag_mask);
+      if (tag_mask != TAG_LST_MASK)
+	return FALSE;
 
-'$pl_error'(Msg) :-
-	'$call_c'('Pl_Context_Error_1'(ContextAtom)),
-	throw(error(Msg, ContextAtom)).
+      adr = UnTag_LST(word);
 
+      if (n == 0)
+	return Pl_Unify(Car(adr), res_word);
 
-
-
-syntax_error_info(FileName, Line, Char, Msg) :-
-	set_bip_name(syntax_error_info, 4),
-	'$call_c_test'('Pl_Syntax_Error_Info_4'(FileName, Line, Char, Msg)).
+      n--;
+      list_word = Cdr(adr);
+    }
+}

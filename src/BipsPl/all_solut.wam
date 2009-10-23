@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : all_solut.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:29:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_solut.pl').
@@ -90,7 +90,7 @@ predicate('$bagof'/4,56,static,private,built_in,[
     call('$store_solutions'/4),
     put_value(y(1),0),
     put_integer(3,1),
-    call(set_bip_name/2),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(3),0),
     put_integer(1,1),
     put_variable(y(4),2),
@@ -186,11 +186,6 @@ predicate('$group_solutions_alt'/0,93,static,private,built_in,[
 
 
 predicate('$check_list_arg'/2,101,static,private,built_in,[
-    allocate(1),
-    get_variable(y(0),0),
-    put_value(x(1),0),
-    put_integer(3,1),
-    call(set_bip_name/2),
-    put_value(y(0),0),
-    deallocate,
+    put_integer(3,2),
+    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).

@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : assert.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:29:43
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').
@@ -12,18 +12,14 @@ predicate('$use_assert'/0,29,static,private,built_in,[
 
 
 predicate(asserta/1,32,static,private,built_in,[
-    put_atom(asserta,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[asserta,1]),
     put_integer(1,1),
     put_integer(1,2),
     execute('$assert'/3)]).
 
 
 predicate(assertz/1,39,static,private,built_in,[
-    put_atom(assertz,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[assertz,1]),
     put_integer(0,1),
     put_integer(1,2),
     execute('$assert'/3)]).
@@ -55,9 +51,7 @@ label(1),
 
 predicate(retract/1,57,static,private,built_in,[
     allocate(2),
-    put_atom(retract,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retract,1]),
     put_variable(y(0),1),
     put_variable(y(1),2),
     call('$get_head_and_body'/3),
@@ -75,9 +69,7 @@ predicate('$retract'/2,63,static,private,built_in,[
 predicate(retractall/1,69,static,private,built_in,[
     load_cut_level(1),
     try_me_else(1),
-    put_atom(retractall,2),
-    put_integer(1,3),
-    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retractall,1]),
     call_c('Pl_Retractall_If_Empty_Head_1',[boolean],[x(0)]),
     cut(x(1)),
     proceed,
@@ -103,9 +95,7 @@ predicate(clause/2,87,static,private,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(clause,0),
-    put_integer(2,1),
-    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[clause,2]),
     put_value(y(0),0),
     call('$check_head'/1),
     put_value(y(0),0),
@@ -132,9 +122,7 @@ predicate('$setarg_in_last_found'/2,102,static,private,built_in,[
 
 
 predicate(abolish/1,107,static,private,built_in,[
-    put_atom(abolish,1),
-    put_integer(1,2),
-    call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[abolish,1]),
     call_c('Pl_Abolish_1',[],[x(0)]),
     proceed]).
 

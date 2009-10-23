@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : type_inl.pl
-% date    : 10 20 2009
-% time    : 14:23:24
+% date    : 10 23 2009
+% time    : 12:29:44
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/type_inl.pl').
@@ -61,36 +61,41 @@ predicate(ground/1,59,static,private,built_in,[
     proceed]).
 
 
-predicate(list/1,62,static,private,built_in,[
+predicate(is_list/1,62,static,private,built_in,[
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(partial_list/1,65,static,private,built_in,[
+predicate(list/1,65,static,private,built_in,[
+    call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
+    proceed]).
+
+
+predicate(partial_list/1,68,static,private,built_in,[
     call_c('Pl_Blt_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(list_or_partial_list/1,68,static,private,built_in,[
+predicate(list_or_partial_list/1,71,static,private,built_in,[
     call_c('Pl_Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(fd_var/1,74,static,private,built_in_fd,[
+predicate(fd_var/1,77,static,private,built_in_fd,[
     call_c('Pl_Blt_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(non_fd_var/1,77,static,private,built_in_fd,[
+predicate(non_fd_var/1,80,static,private,built_in_fd,[
     call_c('Pl_Blt_Non_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(generic_var/1,80,static,private,built_in_fd,[
+predicate(generic_var/1,83,static,private,built_in_fd,[
     call_c('Pl_Blt_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(non_generic_var/1,83,static,private,built_in_fd,[
+predicate(non_generic_var/1,86,static,private,built_in_fd,[
     call_c('Pl_Blt_Non_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).
