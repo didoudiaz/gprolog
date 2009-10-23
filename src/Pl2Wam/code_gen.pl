@@ -745,6 +745,7 @@ c_fct_name(atomic, 1, 'Pl_Blt_Atomic', bool).
 c_fct_name(compound, 1, 'Pl_Blt_Compound', bool).
 c_fct_name(callable, 1, 'Pl_Blt_Callable', bool).
 c_fct_name(ground, 1, 'Pl_Blt_Ground', bool).
+c_fct_name(is_list, 1, 'Pl_Blt_List', bool).
 c_fct_name(list, 1, 'Pl_Blt_List', bool).
 c_fct_name(partial_list, 1, 'Pl_Blt_Partial_List', bool).
 c_fct_name(list_or_partial_list, 1, 'Pl_Blt_List_Or_Partial_List', bool).

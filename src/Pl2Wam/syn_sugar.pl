@@ -192,15 +192,12 @@ pred_rewriting(fd_tell(X), T) :-                          % FD transformation
 
 pred_rewriting(set_bip_name(Name, Arity), Pred1) :-
 	g_read(inline, t),      % also if byte code since implies --no-inline
-	nonvar(Name),
-	nonvar(Arity),
-	(   atom(Name)
-	;   error('set_bip_name/2 inline: atom expected instead of ~q', [Name])
+	(   atom(Name), integer(Arity) ->	    
+	    CallC = '$call_c'('Pl_Set_Bip_Name_Untagged_2'(Name, Arity), [by_value])
+	;
+	    CallC = '$call_c'('Pl_Set_Bip_Name_2'(Name, Arity))
 	),
-	(   integer(Arity)
-	;   error('set_bip_name/2 inline: integer expected instead of ~q', [Arity])
-	),
-	pred_rewriting('$call_c'('Pl_Set_Bip_Name_2'(Name, Arity)), Pred1).
+	pred_rewriting(CallC, Pred1).
 
 pred_rewriting(Pred, Pred1) :-                     % math define current bip
 	g_read(inline, t),      % also if byte code since implies --no-inline
@@ -209,7 +206,7 @@ pred_rewriting(Pred, Pred1) :-                     % math define current bip
 	(   F = (is)
 	;   math_cmp_functor_name(F, _)
 	),					            % see code_gen.pl
-	pred_rewriting('$call_c'('Pl_Set_Bip_Name_2'(F, 2)), T),
+	pred_rewriting(set_bip_name(F, 2), T),
 	Pred1 = (T, Pred).
 
 

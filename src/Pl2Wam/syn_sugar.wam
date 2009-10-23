@@ -1,7 +1,7 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : syn_sugar.pl
-% date    : 10 20 2009
-% time    : 14:23:23
+% date    : 10 23 2009
+% time    : 12:29:54
 
 
 file_name('/home/diaz/GP/src/src/Pl2Wam/syn_sugar.pl').
@@ -632,27 +632,18 @@ label(4),
     trust_me_else_fail,
 
 label(5),
-    allocate(3),
+    allocate(2),
+    get_variable(y(0),1),
     get_structure(set_bip_name/2,0),
-    unify_variable(y(0)),
-    unify_variable(y(1)),
-    get_variable(y(2),1),
-    put_atom(inline,0),
-    put_atom(t,1),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
-    put_value(y(0),0),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
-    put_value(y(1),0),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
-    put_value(y(0),0),
-    call('$pred_rewriting/2_$aux1'/1),
-    put_value(y(1),0),
-    call('$pred_rewriting/2_$aux2'/1),
-    put_structure('$call_c'/1,0),
-    unify_structure('Pl_Set_Bip_Name_2'/2),
-    unify_value(y(0)),
-    unify_value(y(1)),
-    put_value(y(2),1),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    put_atom(inline,2),
+    put_atom(t,3),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(3)]),
+    put_variable(y(1),2),
+    call('$pred_rewriting/2_$aux1'/3),
+    put_unsafe_value(y(1),0),
+    put_value(y(0),1),
     deallocate,
     execute(pred_rewriting/2),
 
@@ -672,9 +663,8 @@ label(6),
     put_integer(2,2),
     call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     put_value(y(2),0),
-    call('$pred_rewriting/2_$aux3'/1),
-    put_structure('$call_c'/1,0),
-    unify_structure('Pl_Set_Bip_Name_2'/2),
+    call('$pred_rewriting/2_$aux2'/1),
+    put_structure(set_bip_name/2,0),
     unify_local_value(y(2)),
     unify_integer(2),
     put_variable(y(3),1),
@@ -780,7 +770,7 @@ label(17),
     proceed]).
 
 
-predicate('$pred_rewriting/2_$aux3'/1,205,static,private,user,[
+predicate('$pred_rewriting/2_$aux2'/1,202,static,private,user,[
     try_me_else(1),
     get_atom(is,0),
     proceed,
@@ -791,35 +781,32 @@ label(1),
     execute(math_cmp_functor_name/2)]).
 
 
-predicate('$pred_rewriting/2_$aux2'/1,193,static,private,user,[
-    try_me_else(1),
-    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    put_list(1),
-    unify_local_value(x(0)),
-    unify_nil,
-    put_atom('set_bip_name/2 inline: integer expected instead of ~q',0),
-    execute(error/2)]).
-
-
-predicate('$pred_rewriting/2_$aux1'/1,193,static,private,user,[
+predicate('$pred_rewriting/2_$aux1'/3,193,static,private,user,[
+    load_cut_level(3),
     try_me_else(1),
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(1)]),
+    cut(x(3)),
+    get_structure('$call_c'/2,2),
+    unify_variable(x(2)),
+    unify_list,
+    unify_atom(by_value),
+    unify_nil,
+    get_structure('Pl_Set_Bip_Name_Untagged_2'/2,2),
+    unify_local_value(x(0)),
+    unify_local_value(x(1)),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    put_list(1),
+    get_structure('$call_c'/1,2),
+    unify_structure('Pl_Set_Bip_Name_2'/2),
     unify_local_value(x(0)),
-    unify_nil,
-    put_atom('set_bip_name/2 inline: atom expected instead of ~q',0),
-    execute(error/2)]).
+    unify_local_value(x(1)),
+    proceed]).
 
 
-predicate(test_c_call_allowed/1,250,static,private,user,[
+predicate(test_c_call_allowed/1,247,static,private,user,[
     load_cut_level(1),
     try_me_else(1),
     put_atom(call_c,0),
@@ -837,7 +824,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(not_dangerous_c_call/1,260,static,private,user,[
+predicate(not_dangerous_c_call/1,257,static,private,user,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -861,7 +848,7 @@ label(4),
     execute(not_dangerous_c_call/1)]).
 
 
-predicate(add_wrapper_to_dyn_clause/4,270,static,private,user,[
+predicate(add_wrapper_to_dyn_clause/4,267,static,private,user,[
     allocate(5),
     get_variable(y(0),1),
     get_structure((+)/2,2),
@@ -889,7 +876,7 @@ predicate(add_wrapper_to_dyn_clause/4,270,static,private,user,[
     execute(assertz/1)]).
 
 
-predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,270,static,private,user,[
+predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,267,static,private,user,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
@@ -912,7 +899,7 @@ label(1),
     execute(head_wrapper/3)]).
 
 
-predicate(head_wrapper/3,280,static,private,user,[
+predicate(head_wrapper/3,277,static,private,user,[
     put_list(4),
     unify_void(1),
     unify_variable(x(3)),
