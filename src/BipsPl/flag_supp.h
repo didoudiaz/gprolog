@@ -57,9 +57,9 @@ enum
   FLAG_PROLOG_COPYRIGHT,
   FLAG_DIALECT,
   FLAG_HOME,
-  FLAG_HOST_OS,
-  FLAG_HOST_VENDOR,
   FLAG_HOST_CPU,
+  FLAG_HOST_VENDOR,
+  FLAG_HOST_OS,
   FLAG_HOST,
   FLAG_ARCH,
 
@@ -163,6 +163,6 @@ Bool Pl_Write_Pl_State_File(WamWord file_word);
  *                                                                         *
  *  20: permanent: should stream fcts emit a char before calling fgetc ?   *
  *                                                                         *
- * 100..199: free for users (who know pl_sys_var[] exists !)                  *
+ * 100..199: free for users (who know pl_sys_var[] exists !)               *
  * 200..: some prolog flag values.                                         *
  *-------------------------------------------------------------------------*/

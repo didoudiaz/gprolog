@@ -25,6 +25,18 @@
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 
+/* Define if you have the fgetc function */
+#undef HAVE_FGETC
+
+/* Define if you have the asinh function */
+#undef HAVE_SINH
+
+/* Define if you have the acosh function */
+#undef HAVE_ACOSH
+
+/* Define if you have the atanh function */
+#undef HAVE_ATANH
+
 /* Define if you have sys/ioctl_compat.h */
 #undef HAVE_SYS_IOCTL_COMPAT_H
 
@@ -189,7 +201,7 @@
 
 /* Constant definitions */
 
-#define PROLOG_DIALECT               any
+#define PROLOG_DIALECT             any
 #define PROLOG_NAME                any
 #define PROLOG_VERSION             any
 #define PROLOG_DATE                any

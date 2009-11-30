@@ -28,29 +28,53 @@
 
 '$use_list'.
 
-
+/*
 append([], L, L).
 
-append([H|T1], List, [H|T2]) :-
+append([H|T1], List, [H|T2]) :- 
 	append(T1, List, T2).
+*/
+
+append(L1, L2, L3) :-
+	'$call_c_test'('Pl_Append_3'(L1, L2, L3)).
+
+
+'$append_alt' :-       % used by C code to create a choice-point
+        '$call_c_test'('Pl_Append_Alt_0').
 
 
 
 
+/*
 member(X, [H|T]) :-
-	(   X = H
+	(   X = H,
 	;   member(X, T)
 	).
+*/
+
+member(_X, _L) :-
+	'$call_c_test'('Pl_Member_2').
+
+'$member_alt' :-       % used by C code to create a choice-point
+        '$call_c_test'('Pl_Member_Alt_0').
 
 
-memberchk(X, [H|T]) :-
-	(   X = H, !
-	;   memberchk(X, T)
-	).
+
+
+/*
+memberchk(X, L) :-
+        (   X = H, !
+        ;   memberchk(X, T)
+        ).
+
+*/
+
+memberchk(X, L) :-
+	'$call_c_test'('Pl_Memberchk_2'(X, L)).
 
 
 
-
+/*
 reverse([], []).
 
 reverse([H|T], L) :-
@@ -61,9 +85,17 @@ reverse([H|T], L) :-
 
 '$reverse1'([H|T], L, L1) :-
 	'$reverse1'(T, L, [H|L1]).
+*/
 
 
+reverse(L1, L2) :-
+	'$call_c_test'('Pl_Reverse_2'(L1, L2)).
+	
+'$reverse_alt' :-       % used by C code to create a choice-point
+        '$call_c_test'('Pl_Reverse_Alt_0').
 
+
+	
 
 delete([], _, []).
 
@@ -142,57 +174,99 @@ last([H|T], X) :-
 
 
 
+/*
 length(L, N) :-
-	integer(N), !,
-	N >= 0,
-	'$make_list'(N, L).
+        integer(N), !,
+        N >= 0,
+        '$make_list'(N, L).
 
 length(L, N) :-
-	'$length'(L, 0, N).
+        '$length'(L, 0, N).
 
 
 '$length'([], N, N).
 
 '$length'([_|L], M, N) :-
-	M1 is M + 1,
-	'$length'(L, M1, N).
-
-
-
+        M1 is M + 1,
+        '$length'(L, M1, N).
 
 '$make_list'(0, []) :-
-	!.
+        !.
 
 '$make_list'(N, [_|L]) :-
-	N1 is N - 1,
-	'$make_list'(N1, L).
+        N1 is N - 1,
+        '$make_list'(N1, L).
+*/
 
+
+
+length(L, N) :-
+	'$call_c_test'('Pl_Length_2'(L, N)).
+
+
+'$length_alt' :-       % used by C code to create a choice-point
+        '$call_c'('Pl_Length_Alt_0').
+
+
+
+
+
+/*
+nth(N, L, X) :-
+	integer(N), !,
+	N >= 1,
+	'$nth1'(N, L, X).
+
+nth(N, L, X) :-
+	var(N),
+	'$nth2'(L, X, 1, N).
+
+
+'$nth1'(1, [X|_], X) :-
+	!.
+
+'$nth1'(N, [_|T], X) :-
+	N1 is N - 1,
+	'$nth1'(N1, T, X).
+
+
+'$nth2'([X|_], X, N, N).
+
+'$nth2'([_|T], X, I, N) :-
+	I1 is I + 1,
+	'$nth2'(T, X, I1, N).
+*/
 
 
 nth(N, L, X) :-
+	nth1(N, L, X).
+
+nth1(N, L, X) :-
 	integer(N), !,
-	N1 is N - 1,
-	'$call_c_test'('Pl_Nth0_3'(N1, L, X)).
+	'$call_c'('Pl_Nth0_3'(N, L, X, 1), [boolean, by_value]).
 
-
-nth(N, L, X, Rest) :-
+nth1(N, L, X) :-
 	var(N),
-	'$nth1_gener'(L, X, 1, N, Rest).
+	'$nth_gener'(L, X, 1, N).
 
 
-'$nth1_find'(1, [X|Rest], X, Rest) :-
-	!.
+nth0(N, L, X) :-
+	integer(N), !,
+	'$call_c'('Pl_Nth0_3'(N, L, X, 0), [boolean, by_value]).
 
-'$nth1_find'(N, [Y|T], X, [Y|Rest]) :-
-	N1 is N - 1,
-	'$nth1_find'(N1, T, X, Rest).
+nth0(N, L, X) :-
+	var(N),
+	'$nth_gener'(L, X, 0, N).
 
 
-'$nth1_gener'([X|Rest], X, N, N, Rest).
 
-'$nth1_gener'([Y|T], X, I, N, [Y|Rest]) :-
+'$nth_gener'([X|_], X, N, N).
+
+'$nth_gener'([_|L], X, I, N) :-
 	I1 is I + 1,
-	'$nth1_gener'(T, X, I1, N, Rest).
+	'$nth_gener'(L, X, I1, N).
+
+
 
 
 

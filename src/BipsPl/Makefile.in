@@ -54,7 +54,7 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
 	  g_var_inl@OBJ_SUFFIX@ g_var_inl_c@OBJ_SUFFIX@ \
           all_solut@OBJ_SUFFIX@ all_solut_c@OBJ_SUFFIX@ \
           sort@OBJ_SUFFIX@ sort_c@OBJ_SUFFIX@ \
-          list@OBJ_SUFFIX@ \
+          list@OBJ_SUFFIX@ list_c@OBJ_SUFFIX@ \
           stat@OBJ_SUFFIX@ stat_c@OBJ_SUFFIX@ \
           stream@OBJ_SUFFIX@ stream_c@OBJ_SUFFIX@ \
           file@OBJ_SUFFIX@ file_c@OBJ_SUFFIX@ \
@@ -173,11 +173,8 @@ utils.wam:       utils.pl
 write.wam:       write.pl
 src_rdr.wam:   	 src_rdr.pl
 
-PLS=$(shell echo [a-z][a-z]*.pl)
-WAMS=$(PLS:.pl=.wam)
-
 check:
-	@../Pl2Wam/check_boot -a && echo Bootstrap Prolog Bips OK
+	@../Pl2Wam/check_boot -a [a-z][a-z]*.wam && echo Bootstrap Prolog Bips OK
 
 
 

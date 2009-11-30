@@ -27,7 +27,6 @@
 #include <stdio.h>
 
 #include "pl_params.h"
-#include "arch_dep.h"
 #include "gp_config.h"
 #include "obj_chain.h"
 

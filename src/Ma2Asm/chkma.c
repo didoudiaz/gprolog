@@ -1009,3 +1009,9 @@ Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
 }
 
 #endif
+
+
+void
+Pl_Fatal_Error(char *format, ...)
+{
+}

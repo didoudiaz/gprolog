@@ -309,7 +309,7 @@ Pl_Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
-  int i;
+  long i;
 
 
   DEREF(b_word, word, tag_mask);

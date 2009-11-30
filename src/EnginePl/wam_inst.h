@@ -358,6 +358,7 @@ double FC Pl_Obtain_Float(WamWord *adr);
 
 
 void FC Pl_Create_Choice_Point(CodePtr codep_alt, int arity);
+void FC Pl_Create_Choice_Point0(CodePtr codep_alt);
 void FC Pl_Create_Choice_Point1(CodePtr codep_alt);
 void FC Pl_Create_Choice_Point2(CodePtr codep_alt);
 void FC Pl_Create_Choice_Point3(CodePtr codep_alt);
@@ -365,16 +366,25 @@ void FC Pl_Create_Choice_Point4(CodePtr codep_alt);
 
 
 void FC Pl_Update_Choice_Point(CodePtr codep_alt, int arity);
+void FC Pl_Update_Choice_Point0(CodePtr codep_alt);
 void FC Pl_Update_Choice_Point1(CodePtr codep_alt);
 void FC Pl_Update_Choice_Point2(CodePtr codep_alt);
 void FC Pl_Update_Choice_Point3(CodePtr codep_alt);
 void FC Pl_Update_Choice_Point4(CodePtr codep_alt);
 
 void FC Pl_Delete_Choice_Point(int arity);
+void FC Pl_Delete_Choice_Point0(void);
 void FC Pl_Delete_Choice_Point1(void);
 void FC Pl_Delete_Choice_Point2(void);
 void FC Pl_Delete_Choice_Point3(void);
 void FC Pl_Delete_Choice_Point4(void);
+
+
+void Pl_Defeasible_Open();
+void Pl_Defeasible_Undo();
+void Pl_Defeasible_Close(Bool undo_before);
+
+
 
 void FC Pl_Untrail(WamWord *low_adr);
 

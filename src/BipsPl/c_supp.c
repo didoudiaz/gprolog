@@ -69,7 +69,7 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
-    Pl_Err_Type(pl_type_integer, word);                                        \
+    Pl_Err_Type(pl_type_integer, word);                                     \
   if (tag_mask == TAG_INT_MASK && UnTag_INT(word)<0)                        \
     Pl_Err_Domain(pl_domain_not_less_than_zero, word)
 
@@ -106,7 +106,7 @@
   DEREF(start_word, word, tag_mask);                                        \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
-      (atom != pl_atom_true && atom != pl_atom_false)))                           \
+      (atom != pl_atom_true && atom != pl_atom_false)))                     \
      Pl_Err_Type(pl_type_boolean, word)
 
 
@@ -117,7 +117,7 @@
   DEREF(start_word, word, tag_mask);                                        \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
-      pl_atom_tbl[atom].prop.length != 1))                                     \
+      pl_atom_tbl[atom].prop.length != 1))                                  \
     Pl_Err_Type(pl_type_character, word)
 
 
@@ -128,17 +128,17 @@
   DEREF(start_word, word, tag_mask);                                        \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
-      (atom != pl_atom_end_of_file && pl_atom_tbl[atom].prop.length != 1)))       \
+      (atom != pl_atom_end_of_file && pl_atom_tbl[atom].prop.length != 1))) \
     Pl_Err_Type(pl_type_in_character, word)
 
 
 #define CHECK_FOR_UN_CODE                                                   \
   WamWord word, tag_mask;                                                   \
-  int c;                                                                    \
+  long c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
-    Pl_Err_Type(pl_type_integer, word);                                        \
+    Pl_Err_Type(pl_type_integer, word);                                     \
   c = UnTag_INT(word);                                                      \
   if (tag_mask == TAG_INT_MASK && !Is_Valid_Code(c))                        \
     Pl_Err_Representation(pl_representation_character_code)
@@ -146,11 +146,11 @@
 
 #define CHECK_FOR_UN_IN_CODE                                                \
   WamWord word, tag_mask;                                                   \
-  int c;                                                                    \
+  long c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
-    Pl_Err_Type(pl_type_integer, word);                                        \
+    Pl_Err_Type(pl_type_integer, word);                                     \
   c = UnTag_INT(word);                                                      \
   if (tag_mask == TAG_INT_MASK && c != -1 && !Is_Valid_Code(c))             \
     Pl_Err_Representation(pl_representation_in_character_code)
@@ -158,7 +158,7 @@
 
 #define CHECK_FOR_UN_BYTE                                                   \
   WamWord word, tag_mask;                                                   \
-  int c;                                                                    \
+  long c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   c = UnTag_INT(word);                                                      \
@@ -169,7 +169,7 @@
 
 #define CHECK_FOR_UN_IN_BYTE                                                \
   WamWord word, tag_mask;                                                   \
-  int c;                                                                    \
+  long c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   c = UnTag_INT(word);                                                      \
@@ -593,7 +593,7 @@ int
 Pl_Rd_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
-  int c;
+  long c;
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -630,7 +630,7 @@ int
 Pl_Rd_In_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
-  int c;
+  long c;
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)

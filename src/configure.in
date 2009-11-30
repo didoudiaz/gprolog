@@ -244,7 +244,7 @@ else
 
     case "$host" in
 	i*86*darwin10*)
-	    AS='as -arch i386'
+	    AS='as -arch i686'
         ;;
 	x86_64*solaris*)
 	    AS='gas --64'
@@ -437,7 +437,7 @@ else
     
     CFLAGS_MACHINE=
     case "$host" in
-        i*86*darwin10*)    CFLAGS_MACHINE='-m32';;
+        i*86*darwin10*)    CFLAGS_MACHINE='-march=i686 -m32';;
         mips*irix*)        CFLAGS_MACHINE='-march=4000';;
         *sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
         *sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
@@ -476,11 +476,12 @@ else
 
 fi
 
-CFLAGS=$CFLAGS_MACHINE
+SAVE_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS_MACHINE $CFLAGS"
 AC_CHECK_SIZEOF(long)
 AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
 AC_FUNC_MMAP 
-AC_CHECK_FUNCS(mprotect mallopt fgetc)
+AC_CHECK_FUNCS(mprotect mallopt fgetc atanh acosh asinh)
 
 
 # ********************
@@ -527,6 +528,7 @@ LDLIBS=`make_lib_list $LIB`
 LDGUILIBS=`make_lib_list $GUILIB`
 
 
+CFLAGS=$SAVE_CFLAGS
 
 
 # ***********************

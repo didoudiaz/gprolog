@@ -62,6 +62,11 @@
  * Global Variables                *
  *---------------------------------*/
 
+
+#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
+static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
+#endif
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -90,6 +95,18 @@ Pl_Set_Ctrl_C_Handler_0(void)
 
 
 
+/*-------------------------------------------------------------------------*
+ * CTRL_C_MANAGER                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void 
+Pl_Save_Regs_For_Signal(void)
+{
+  Save_Machine_Regs(buff_save_machine_regs);
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * CTRL_C_MANAGER                                                          *
@@ -103,7 +120,8 @@ Ctrl_C_Manager(int from_callback)
   int c;
   CodePtr to_execute;
 
-  Pl_Reset_Prolog_In_Signal();
+  //  Pl_Reset_Prolog_In_Signal();
+  Restore_Machine_Regs(buff_save_machine_regs);
 
 start:
   Pl_Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
@@ -136,8 +154,7 @@ start:
     case 'd':			/* debug */
       if (SYS_VAR_DEBUGGER)
 	{
-	  pred =
-	    Pl_Lookup_Pred(Pl_Create_Atom((c == 't') ? "trace" : "debug"), 0);
+	  pred = Pl_Lookup_Pred(Pl_Create_Atom((c == 't') ? "trace" : "debug"), 0);
 	  if (pred == NULL)
 	    Pl_Fatal_Error(ERR_DEBUGGER_NOT_FOUND);	/* should not occur */
 

@@ -235,7 +235,7 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 	{								   \
 	  Trail_Range_If_Necessary(fdv_adr);				   \
 	  Nb_Elem(fdv_adr) = nb_elem;					   \
-	  Pl_Range_Copy(r, range);						   \
+	  Pl_Range_Copy(r, range);				       	   \
 	}								   \
       else if (r->extra_cstr != (range)->extra_cstr)			   \
 	{								   \

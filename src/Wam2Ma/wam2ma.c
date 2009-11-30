@@ -344,24 +344,24 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%ld", cur_pred_no, (sl)
 
 
-#define CREATE_CHOICE_INST(l)                                               \
-  if (cur_arity >= 1 && cur_arity <= 4)                                     \
+#define CREATE_CHOICE_INST(l)                                                  \
+  if (cur_arity >= 0 && cur_arity <= 4)                                        \
     Inst_Printf("call_c", FAST "Pl_Create_Choice_Point%d(&%s)", cur_arity, l); \
-  else                                                                      \
+  else                                                                         \
     Inst_Printf("call_c", FAST "Pl_Create_Choice_Point(&%s,%d)", l, cur_arity)
 
 
-#define UPDATE_CHOICE_INST(l)                                               \
-  if (cur_arity >= 1 && cur_arity <= 4)                                     \
+#define UPDATE_CHOICE_INST(l)                                                  \
+  if (cur_arity >= 0 && cur_arity <= 4)                                        \
     Inst_Printf("call_c", FAST "Pl_Update_Choice_Point%d(&%s)", cur_arity, l); \
-  else                                                                      \
+  else                                                                         \
     Inst_Printf("call_c", FAST "Pl_Update_Choice_Point(&%s,%d)", l, cur_arity)
 
 
-#define DELETE_CHOICE_INST                                                  \
-  if (cur_arity >= 1 && cur_arity <= 4)                                     \
+#define DELETE_CHOICE_INST                                                     \
+  if (cur_arity >= 0 && cur_arity <= 4)                                        \
     Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point%d()", cur_arity);       \
-  else                                                                      \
+  else                                                                         \
     Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point(%d)", cur_arity)
 
 

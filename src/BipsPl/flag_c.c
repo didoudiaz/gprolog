@@ -121,9 +121,6 @@ Prolog_Prototype(ENVIRON_ALT, 0);
 static void
 Flag_Initializer(void)
 {
-  char *p;
-  int devel_mode;
-
   atom_flag_tbl[FLAG_BOUNDED] = Pl_Create_Atom("bounded");
   atom_flag_tbl[FLAG_MAX_INTEGER] = Pl_Create_Atom("max_integer");
   atom_flag_tbl[FLAG_MIN_INTEGER] = Pl_Create_Atom("min_integer");
@@ -181,7 +178,8 @@ Flag_Initializer(void)
 
   atom_the_dialect = Pl_Create_Atom(PROLOG_DIALECT);
 
-  atom_the_home = Pl_Create_Atom(pl_home);
+  atom_the_home = Pl_Create_Atom(pl_home ? pl_home : "");
+
   
   atom_prolog[0] = Pl_Create_Atom(PROLOG_NAME);
   atom_prolog[1] = Pl_Create_Atom(PROLOG_VERSION);
@@ -189,9 +187,9 @@ Flag_Initializer(void)
   atom_prolog[3] = Pl_Create_Atom(PROLOG_COPYRIGHT);
   atom_prolog[4] = atom_the_dialect;
   atom_prolog[5] = atom_the_home;
-  atom_prolog[6] = Pl_Create_Atom(M_OS);
-  atom_prolog[7] = Pl_Create_Atom(M_CPU);
-  atom_prolog[8] = Pl_Create_Atom(M_VENDOR);
+  atom_prolog[6] = Pl_Create_Atom(M_CPU);
+  atom_prolog[7] = Pl_Create_Atom(M_VENDOR);
+  atom_prolog[8] = Pl_Create_Atom(M_OS);
   atom_prolog[9] = Pl_Create_Atom(M_CPU "-" M_VENDOR "-" M_OS);
   atom_prolog[10] = Pl_Create_Atom(M_CPU "-" M_OS);
 
@@ -199,7 +197,7 @@ Flag_Initializer(void)
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_SUSPICIOUS_WARNING) = 1;
   Flag_Value(FLAG_MULTIFILE_WARNING) = 1;
-  Flag_Value(FLAG_STRICT_ISO) = 1;
+  Flag_Value(FLAG_STRICT_ISO) = 0;
 
   Flag_Value(FLAG_DOUBLE_QUOTES) = FLAG_AS_CODES;
   Flag_Value(FLAG_BACK_QUOTES) = FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK;

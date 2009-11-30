@@ -662,7 +662,7 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
   Bool same_init_value;
   WamWord init_word;
   WamWord lst_word;
-  int new_size, size;
+  long new_size, size;
   GVarElt *p;
   int i;
 
@@ -835,7 +835,7 @@ Get_Target_From_Gvar(WamWord gvar_word)
   GVarElt *p;
   int i, j, size;
   int new_size;
-  int index;
+  long index;
   GTarget *gt = &g_target;
 
 

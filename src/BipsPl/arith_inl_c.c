@@ -38,6 +38,17 @@
 #endif
 
 
+/* PI */
+
+#ifndef M_PI
+#define M_PI 3.1415926535897932384
+#endif
+
+
+#ifndef M_E
+#define M_E  2.7182818284590452354
+#endif
+
 /* Difference between 1.0 and the minimum double greater than 1.0 */
 #ifndef DBL_EPSILON 
 
@@ -97,9 +108,9 @@ static WamWord Load_Math_Expression(WamWord exp);
 
 
 
-#define ADD_ARITH_OPER(atom_str, arity, f)                      \
+#define ADD_ARITH_OPER(atom_str, arity, f)                         \
   arith_info.f_n = Functor_Arity(Pl_Create_Atom(atom_str), arity); \
-  arith_info.fct = f;                                           \
+  arith_info.fct = f;                                              \
   Pl_Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
 
 
@@ -412,9 +423,9 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 #define IxItoI(x, y, fast_op)                    \
   if (Tag_Is_FLT(x))		/* error case */ \
-    Pl_Err_Type(pl_type_integer, x);                \
+    Pl_Err_Type(pl_type_integer, x);             \
   if (Tag_Is_FLT(y))		/* error case */ \
-    Pl_Err_Type(pl_type_integer, y);                \
+    Pl_Err_Type(pl_type_integer, y);             \
   return fast_op(x, y)
 
 
@@ -427,7 +438,7 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 #define ItoI(x, fast_op)                         \
   if (Tag_Is_FLT(x))            /* error case */ \
-    Pl_Err_Type(pl_type_integer, x);                \
+    Pl_Err_Type(pl_type_integer, x);             \
   return fast_op(x)
 
 
@@ -440,9 +451,9 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 #define FtoI(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
-    Pl_Err_Type(pl_type_float, x);                  \
+    Pl_Err_Type(pl_type_float, x);               \
   else                                           \
-    d = Pl_Obtain_Float(UnTag_FLT(x));              \
+    d = Pl_Obtain_Float(UnTag_FLT(x));           \
   return Tag_INT((long) c_op(d))
 
 
@@ -450,9 +461,9 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 #define FtoF(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
-    Pl_Err_Type(pl_type_float, x);                  \
+    Pl_Err_Type(pl_type_float, x);               \
   else                                           \
-    d = Pl_Obtain_Float(UnTag_FLT(x));              \
+    d = Pl_Obtain_Float(UnTag_FLT(x));           \
   return Make_Tagged_Float(c_op(d))
 
 
@@ -896,7 +907,12 @@ Pl_Fct_Tanh(WamWord x)
 WamWord FC
 Pl_Fct_Atanh(WamWord x)
 {
+#ifdef HAVE_ATANH
   IFtoF(x, atanh);
+#else
+  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  return 0;			/* anything for the compiler */
+#endif
 }
 
 WamWord FC
@@ -908,7 +924,12 @@ Pl_Fct_Cosh(WamWord x)
 WamWord FC
 Pl_Fct_Acosh(WamWord x)
 {
+#ifdef HAVE_ACOSH
   IFtoF(x, acosh);
+#else
+  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  return 0;			/* anything for the compiler */
+#endif
 }
 
 WamWord FC
@@ -920,7 +941,12 @@ Pl_Fct_Sinh(WamWord x)
 WamWord FC
 Pl_Fct_Asinh(WamWord x)
 {
+#ifdef HAVE_ASINH
   IFtoF(x, asinh);
+#else
+  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  return 0;			/* anything for the compiler */
+#endif
 }
 
 WamWord FC

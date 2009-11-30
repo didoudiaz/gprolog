@@ -1,3 +1,16 @@
+Fri Nov 20 16:34:36 CET 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in read_from_codes/2 and number_codes/2
+	* improve speed of built-in predicates on list (append, member, reverse,...).
+
+Mon Nov 16 14:30:33 CET 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* improve CTRL+C handling under the top-level
+
+Thu Oct 22 11:11:02 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
+	
+	* add is_list/1 (same as list/1)
+
 Wed Oct 21 12:02:15 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
 
 	* add Prolog flags: dialect, home, host_os, host_vendor, host_cpu,

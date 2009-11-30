@@ -1244,7 +1244,7 @@ Pl_Obtain_Float(WamWord *adr)
 #define UPDATE_DELETE_COMMON_PART \
   WamWord *cur_B = B;             \
                                   \
-  Pl_Untrail(TRB(cur_B));            \
+  Pl_Untrail(TRB(cur_B));         \
                                   \
   CP = CPB(cur_B);                \
   BCI = BCIB(cur_B);              \
@@ -1278,6 +1278,15 @@ Pl_Create_Choice_Point(CodePtr codep_alt, int arity)
 
   for (i = 0; i < arity; i++)
     AB(cur_B, i) = A(i);
+}
+
+
+
+
+void FC
+Pl_Create_Choice_Point0(CodePtr codep_alt)
+{
+  CREATE_CHOICE_COMMON_PART(0);
 }
 
 
@@ -1353,6 +1362,15 @@ Pl_Update_Choice_Point(CodePtr codep_alt, int arity)
 
 
 void FC
+Pl_Update_Choice_Point0(CodePtr codep_alt)
+{
+  UPDATE_CHOICE_COMMON_PART;
+}
+
+
+
+
+void FC
 Pl_Update_Choice_Point1(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1421,6 +1439,15 @@ Pl_Delete_Choice_Point(int arity)
 
 
 void FC
+Pl_Delete_Choice_Point0(void)
+{
+  DELETE_CHOICE_COMMON_PART;
+}
+
+
+
+
+void FC
 Pl_Delete_Choice_Point1(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1465,6 +1492,48 @@ Pl_Delete_Choice_Point4(void)
   A(1) = AB(cur_B, 1);
   A(2) = AB(cur_B, 2);
   A(3) = AB(cur_B, 3);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DEFEASIBLE_OPEN                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Defeasible_Open()
+{
+  Pl_Create_Choice_Point0(NULL);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DEFEASIBLE_UNDO                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Defeasible_Undo()
+{
+  Pl_Update_Choice_Point0(NULL);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DEFEASIBLE_CLOSE                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Defeasible_Close(Bool success) 
+{
+  if (success)
+    Assign_B(BB(B));  /* like a cut */  
+  else
+    Pl_Delete_Choice_Point0();  /* untrail */
 }
 
 

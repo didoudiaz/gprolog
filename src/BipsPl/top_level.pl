@@ -77,7 +77,7 @@ break :-
 '$top_level_abort' :-
 	'$reinit_after_exception',
 	'$sys_var_read'(11, B),
-	format(top_level_output, 'execution aborted~n', []),
+	write(top_level_output, 'execution aborted\n'),
 	'$catch_sync_for_fail_at'(B).
 
 	
@@ -114,8 +114,10 @@ break :-
 
 '$top_level2' :-
 	repeat,
-	'$get_current_B'(B),
+	'$get_current_B'(B),   % the current choice-point
+%	'$sys_var_read'(7, B), % the last Handler created by catch/3 (what is better ???)
 	'$sys_var_write'(11, B),
+%write('top-level catcher'(B)), nl,
 	'$write_indicator',
 % current_prolog_flag(char_conversion, CharConv),
 % g_assign('$char_conv', CharConv),
@@ -152,6 +154,7 @@ break :-
 	    format(top_level_output, '~a~n', [Ok]),
 	    fail
 	).
+
 
 
 
@@ -208,7 +211,9 @@ break :-
 	g_assign('$debug_next', DebugMode),
 	g_assign('$all_solutions', f),
 	'$get_current_B'(B),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$call'(X, top_level, 0, true),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
 	'$set_query_vars_names'(QueryVars, ToDispVars),

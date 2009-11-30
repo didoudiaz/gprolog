@@ -176,7 +176,7 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   WamWord word, tag_mask;
   HashScan scan;
-  int prec;
+  long prec;
   int atom_specif;
   OperInf *oper;
   int atom;

@@ -118,9 +118,6 @@ Pl_Start_Prolog(int argc, char *argv[])
   pl_os_argv = argv;
 
   pl_home = Get_Prolog_Path(argv[0], &pl_devel_mode);
-  if (pl_home == NULL)
-    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s",
-		   PROLOG_NAME, ENV_VARIABLE);
 
   Pl_Init_Machine();
 

@@ -149,7 +149,7 @@ All_Solut_Initializer(void)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
-		 WamWord key_word)
+		    WamWord key_word)
 {
   WamWord gl_key_word;
   WamWord *save_H, *arg;
@@ -374,7 +374,7 @@ Pl_Store_Solution_1(WamWord term_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
-		    WamWord list_word)
+		       WamWord list_word)
 {
   int stop;
   int nb_sol;
@@ -393,6 +393,15 @@ Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
 
 
   H += 2 * nb_sol;
+
+  /* Since we start from the end to the beginning, if nb_sol is very big
+   * when the heap overflow triggers a SIGSEGV the handler will not detect
+   * that the heap is the culprit (and emits a simple Segmentation Violation 
+   * message). To avoid this we remain just after the end of the stack.
+   */
+  if (H > Global_Stack + Global_Size)
+    H =  Global_Stack + Global_Size;
+
   p = q = H;
 
   while (nb_sol--)
@@ -482,7 +491,7 @@ Link_Key_Var(WamWord *adr)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
-		  WamWord sol_word)
+		     WamWord sol_word)
 {
   WamWord word, tag_mask;
   WamWord key_word;

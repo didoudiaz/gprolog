@@ -44,7 +44,7 @@ SUB_DIRS_ALL   = TopComp EnginePl Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
 all:
 	(cd EnginePl; $(MAKE) config)
 	. ./SETVARS;for i in $(SUB_DIRS);do (cd $$i; $(MAKE)) || exit 1; done;\
-	(cd TopComp; $(MAKE) $(TOP_LEVEL)@EXE_SUFFIX@)
+	(cd TopComp; $(MAKE) $(TOP_LEVEL)@EXE_SUFFIX@) || exit 1;\
 	(cd Pl2Wam; $(MAKE) stage2)
 
 

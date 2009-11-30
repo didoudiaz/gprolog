@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.2 (Mar 10 2009)
+% compiler: GNU Prolog 1.3.2 (Nov 23 2009)
 % file    : list.pl
-% date    : 10 23 2009
-% time    : 12:42:23
+% date    : 11 23 2009
+% time    : 17:40:52
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/list.pl').
@@ -11,118 +11,42 @@ predicate('$use_list'/0,29,static,private,built_in,[
     proceed]).
 
 
-predicate(append/3,32,static,private,built_in,[
-    switch_on_term(1,2,fail,4,fail),
-
-label(1),
-    try_me_else(3),
-
-label(2),
-    get_nil(0),
-    get_value(x(2),1),
-    proceed,
-
-label(3),
-    trust_me_else_fail,
-
-label(4),
-    get_list(0),
-    unify_variable(x(3)),
-    unify_variable(x(0)),
-    get_list(2),
-    unify_value(x(3)),
-    unify_variable(x(2)),
-    execute(append/3)]).
+predicate(append/3,38,static,private,built_in,[
+    call_c('Pl_Append_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
 
 
-predicate(member/2,40,static,private,built_in,[
-    get_list(1),
-    unify_variable(x(1)),
-    unify_variable(x(2)),
-    execute('$member/2_$aux1'/3)]).
+predicate('$append_alt'/0,42,static,private,built_in,[
+    call_c('Pl_Append_Alt_0',[boolean],[]),
+    proceed]).
 
 
-predicate('$member/2_$aux1'/3,40,static,private,built_in,[
-    try_me_else(1),
-    get_value(x(1),0),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    put_value(x(2),1),
-    execute(member/2)]).
+predicate(member/2,55,static,private,built_in,[
+    call_c('Pl_Member_2',[boolean],[]),
+    proceed]).
 
 
-predicate(memberchk/2,46,static,private,built_in,[
-    load_cut_level(2),
-    get_list(1),
-    unify_variable(x(1)),
-    unify_variable(x(3)),
-    execute('$memberchk/2_$aux1'/4)]).
+predicate('$member_alt'/0,58,static,private,built_in,[
+    call_c('Pl_Member_Alt_0',[boolean],[]),
+    proceed]).
 
 
-predicate('$memberchk/2_$aux1'/4,46,static,private,built_in,[
-    try_me_else(1),
-    get_value(x(1),0),
-    cut(x(2)),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    put_value(x(3),1),
-    execute(memberchk/2)]).
+predicate(memberchk/2,72,static,private,built_in,[
+    call_c('Pl_Memberchk_2',[boolean],[x(0),x(1)]),
+    proceed]).
 
 
-predicate(reverse/2,54,static,private,built_in,[
-    switch_on_term(1,2,fail,4,fail),
-
-label(1),
-    try_me_else(3),
-
-label(2),
-    get_nil(0),
-    get_nil(1),
-    proceed,
-
-label(3),
-    trust_me_else_fail,
-
-label(4),
-    get_list(0),
-    unify_variable(x(3)),
-    unify_variable(x(0)),
-    put_list(2),
-    unify_value(x(3)),
-    unify_nil,
-    execute('$reverse1'/3)]).
+predicate(reverse/2,91,static,private,built_in,[
+    call_c('Pl_Reverse_2',[boolean],[x(0),x(1)]),
+    proceed]).
 
 
-predicate('$reverse1'/3,60,static,private,built_in,[
-    switch_on_term(1,2,fail,4,fail),
-
-label(1),
-    try_me_else(3),
-
-label(2),
-    get_nil(0),
-    get_value(x(2),1),
-    proceed,
-
-label(3),
-    trust_me_else_fail,
-
-label(4),
-    get_variable(x(3),2),
-    get_list(0),
-    unify_variable(x(4)),
-    unify_variable(x(0)),
-    put_list(2),
-    unify_value(x(4)),
-    unify_local_value(x(3)),
-    execute('$reverse1'/3)]).
+predicate('$reverse_alt'/0,94,static,private,built_in,[
+    call_c('Pl_Reverse_Alt_0',[boolean],[]),
+    proceed]).
 
 
-predicate(delete/3,68,static,private,built_in,[
+predicate(delete/3,100,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -162,7 +86,7 @@ label(7),
     execute(delete/3)]).
 
 
-predicate(select/3,81,static,private,built_in,[
+predicate(select/3,113,static,private,built_in,[
     try_me_else(1),
     get_list(1),
     unify_local_value(x(0)),
@@ -180,7 +104,7 @@ label(1),
     execute(select/3)]).
 
 
-predicate(permutation/2,90,static,private,built_in,[
+predicate(permutation/2,122,static,private,built_in,[
     try_me_else(1),
     get_nil(0),
     get_nil(1),
@@ -202,7 +126,7 @@ label(1),
     execute(permutation/2)]).
 
 
-predicate(prefix/2,100,static,private,built_in,[
+predicate(prefix/2,132,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -225,7 +149,7 @@ label(4),
     execute(prefix/2)]).
 
 
-predicate(suffix/2,108,static,private,built_in,[
+predicate(suffix/2,140,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     proceed,
@@ -238,7 +162,7 @@ label(1),
     execute(suffix/2)]).
 
 
-predicate(sublist/2,116,static,private,built_in,[
+predicate(sublist/2,148,static,private,built_in,[
     try_me_else(1),
     get_value(x(1),0),
     proceed,
@@ -252,7 +176,7 @@ label(1),
     execute('$sublist1'/3)]).
 
 
-predicate('$sublist1'/3,122,static,private,built_in,[
+predicate('$sublist1'/3,154,static,private,built_in,[
     try_me_else(1),
     get_value(x(2),0),
     proceed,
@@ -288,7 +212,7 @@ label(6),
     execute('$sublist1'/3)]).
 
 
-predicate(last/2,133,static,private,built_in,[
+predicate(last/2,165,static,private,built_in,[
     get_variable(x(2),1),
     get_list(0),
     unify_variable(x(1)),
@@ -296,7 +220,7 @@ predicate(last/2,133,static,private,built_in,[
     execute('$last1'/3)]).
 
 
-predicate('$last1'/3,136,static,private,built_in,[
+predicate('$last1'/3,168,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -317,116 +241,57 @@ label(4),
     execute('$last1'/3)]).
 
 
-predicate(length/2,145,static,private,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    get_variable(x(3),1),
-    get_variable(x(1),0),
-    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(3)]),
-    cut(x(2)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
-    math_load_value(x(3),0),
-    put_integer(0,2),
-    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(2)]),
-    put_value(x(3),0),
-    execute('$make_list'/2),
-
-label(1),
-    trust_me_else_fail,
-    put_value(x(1),2),
-    put_integer(0,1),
-    execute('$length'/3)]).
-
-
-predicate('$length'/3,154,static,private,built_in,[
-    switch_on_term(1,2,fail,4,fail),
-
-label(1),
-    try_me_else(3),
-
-label(2),
-    get_nil(0),
-    get_value(x(2),1),
-    proceed,
-
-label(3),
-    trust_me_else_fail,
-
-label(4),
-    get_list(0),
-    unify_void(1),
-    unify_variable(x(0)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
-    math_load_value(x(1),1),
-    call_c('Pl_Fct_Inc',[fast_call,x(1)],[x(1)]),
-    execute('$length'/3)]).
-
-
-predicate('$make_list'/2,163,static,private,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    get_integer(0,0),
-    get_nil(1),
-    cut(x(2)),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    get_list(1),
-    unify_void(1),
-    unify_variable(x(1)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
-    math_load_value(x(0),0),
-    call_c('Pl_Fct_Dec',[fast_call,x(0)],[x(0)]),
-    execute('$make_list'/2)]).
-
-
-predicate(nth/3,172,static,private,built_in,[
-    load_cut_level(3),
-    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
-    cut(x(3)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
-    math_load_value(x(0),0),
-    call_c('Pl_Fct_Dec',[fast_call,x(0)],[x(0)]),
-    call_c('Pl_Nth0_3',[boolean],[x(0),x(1),x(2)]),
+predicate(length/2,203,static,private,built_in,[
+    call_c('Pl_Length_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(nth/4,178,static,private,built_in,[
-    get_variable(x(4),3),
+predicate('$length_alt'/0,207,static,private,built_in,[
+    call_c('Pl_Length_Alt_0',[],[]),
+    proceed]).
+
+
+predicate(nth/3,241,static,private,built_in,[
+    execute(nth1/3)]).
+
+
+predicate(nth1/3,244,static,private,built_in,[
+    load_cut_level(3),
+    try_me_else(1),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    cut(x(3)),
+    call_c('Pl_Nth0_3',[boolean,by_value],[x(0),x(1),x(2),1]),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
     get_variable(x(3),0),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(3)]),
     put_value(x(1),0),
     put_value(x(2),1),
     put_integer(1,2),
-    execute('$nth1_gener'/5)]).
+    execute('$nth_gener'/4)]).
 
 
-predicate('$nth1_find'/4,183,static,private,built_in,[
-    load_cut_level(4),
+predicate(nth0/3,253,static,private,built_in,[
+    load_cut_level(3),
     try_me_else(1),
-    get_integer(1,0),
-    get_list(1),
-    unify_local_value(x(2)),
-    unify_local_value(x(3)),
-    cut(x(4)),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    cut(x(3)),
+    call_c('Pl_Nth0_3',[boolean,by_value],[x(0),x(1),x(2),0]),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    get_list(1),
-    unify_variable(x(4)),
-    unify_variable(x(1)),
-    get_list(3),
-    unify_value(x(4)),
-    unify_variable(x(3)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
-    math_load_value(x(0),0),
-    call_c('Pl_Fct_Dec',[fast_call,x(0)],[x(0)]),
-    execute('$nth1_find'/4)]).
+    get_variable(x(3),0),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(3)]),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    put_integer(0,2),
+    execute('$nth_gener'/4)]).
 
 
-predicate('$nth1_gener'/5,191,static,private,built_in,[
+predicate('$nth_gener'/4,263,static,private,built_in,[
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -440,7 +305,7 @@ label(3),
     get_value(x(3),2),
     get_list(0),
     unify_local_value(x(1)),
-    unify_local_value(x(4)),
+    unify_void(1),
     proceed,
 
 label(4),
@@ -448,18 +313,15 @@ label(4),
 
 label(5),
     get_list(0),
-    unify_variable(x(5)),
+    unify_void(1),
     unify_variable(x(0)),
-    get_list(4),
-    unify_value(x(5)),
-    unify_variable(x(4)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
     math_load_value(x(2),2),
     call_c('Pl_Fct_Inc',[fast_call,x(2)],[x(2)]),
-    execute('$nth1_gener'/5)]).
+    execute('$nth_gener'/4)]).
 
 
-predicate(max_list/2,199,static,private,built_in,[
+predicate(max_list/2,273,static,private,built_in,[
     get_variable(x(2),1),
     get_list(0),
     unify_variable(x(1)),
@@ -467,7 +329,7 @@ predicate(max_list/2,199,static,private,built_in,[
     execute('$max_list1'/3)]).
 
 
-predicate('$max_list1'/3,202,static,private,built_in,[
+predicate('$max_list1'/3,276,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -507,7 +369,7 @@ label(7),
     execute('$max_list1'/3)]).
 
 
-predicate(min_list/2,214,static,private,built_in,[
+predicate(min_list/2,288,static,private,built_in,[
     get_variable(x(2),1),
     get_list(0),
     unify_variable(x(1)),
@@ -515,7 +377,7 @@ predicate(min_list/2,214,static,private,built_in,[
     execute('$min_list1'/3)]).
 
 
-predicate('$min_list1'/3,217,static,private,built_in,[
+predicate('$min_list1'/3,291,static,private,built_in,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -555,13 +417,13 @@ label(7),
     execute('$min_list1'/3)]).
 
 
-predicate(sum_list/2,230,static,private,built_in,[
+predicate(sum_list/2,304,static,private,built_in,[
     put_value(x(1),2),
     put_integer(0,1),
     execute('$sum_list1'/3)]).
 
 
-predicate('$sum_list1'/3,233,static,private,built_in,[
+predicate('$sum_list1'/3,307,static,private,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -586,7 +448,7 @@ label(4),
     execute('$sum_list1'/3)]).
 
 
-predicate(flatten/2,241,static,private,built_in,[
+predicate(flatten/2,315,static,private,built_in,[
     load_cut_level(2),
     allocate(3),
     get_variable(y(0),1),
@@ -601,7 +463,7 @@ predicate(flatten/2,241,static,private,built_in,[
     proceed]).
 
 
-predicate('$flatten'/3,245,static,private,built_in,[
+predicate('$flatten'/3,319,static,private,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_list(2),

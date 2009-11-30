@@ -67,7 +67,7 @@ static Bool tok_present;
 
 static jmp_buf jumper;
 
-#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS>0
+#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
 static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
 #endif
 

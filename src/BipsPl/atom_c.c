@@ -277,7 +277,7 @@ Pl_Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
   AtomInf *patom;
   AtomInf *psub_atom = NULL;	/* only for the compiler */
   int length;
-  int b, l, a;
+  long b, l, a;
   int b1, l1, a1;
   Bool nondet;
   int mask = 0;
@@ -679,7 +679,7 @@ Pl_Number_Codes_2(WamWord number_word, WamWord codes_word)
   WamWord word, tag_mask;
   WamWord *lst_adr, list_word;
   char *str = pl_glob_buff;
-  int c;
+  long c;
 
   list_word = codes_word;
   for (;;)

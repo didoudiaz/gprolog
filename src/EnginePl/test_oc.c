@@ -8,8 +8,7 @@ int no;
 void
 Pl_Fatal_Error(char *msg)
 {
-  fprintf(stderr, msg);
-  fprintf(stderr, "\n");
+  fprintf(stderr, "%s\n", msg);
   exit(1);
 }
 

@@ -172,7 +172,7 @@ For MinGW (I suppose you are under MSYS and mingw is in /mingw):
 	cp /c/Program\ Files/HTML\ Help\ Workshop/include/* /mingw/include/.
 	cp /c/Program\ Files/HTML\ Help\ Workshop/lib/htmlhelp.lib /mingw/lib/libhtmlhelp.a
 
-Note: libhtmlhelp.a follows unix standards for libs. The lib prefix make is  possible 
+Note: libhtmlhelp.a follows unix standards for libs. The lib prefix make it possible 
 to use the gcc option -lhtmlhelp (linker option). The .a suffix can be replaced by .lib.
 
 Note: when building the GUI console a warning can be displayed by the linker

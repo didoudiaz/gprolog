@@ -37,6 +37,7 @@
 
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
+#include <sys/param.h>
 #endif
 
 #include "../EnginePl/gp_config.h"
@@ -67,8 +68,16 @@ static int Read_Write_Registry(int read, char *key_name, char *buff,
 static char *
 Get_Prolog_Path(char *argv0, int *devel_mode)
 {
+  static char *prolog_path_cache = NULL;
+  static int devel_mode_cache = 0;
   static char resolved[MAXPATHLEN];
   char *p;
+
+  if (prolog_path_cache != NULL)
+    {
+      *devel_mode = devel_mode_cache;
+      return prolog_path_cache;
+    }
 
   if ((p = getenv(ENV_VARIABLE)) != NULL)
     {
@@ -77,16 +86,15 @@ Get_Prolog_Path(char *argv0, int *devel_mode)
       fprintf(stderr, "Prolog path from " ENV_VARIABLE ": %s\n", resolved);
 #endif
       if ((p = Is_A_Valid_Root(resolved, devel_mode)) != NULL)
-	return p;
+	goto ok;
     }
 
-  if (argv0 != NULL && 
-      (p = Get_Prolog_Path_From_Exec(argv0, devel_mode)) != NULL)
+  if (argv0 != NULL && (p = Get_Prolog_Path_From_Exec(argv0, devel_mode)) != NULL)
     {
 #ifdef DEBUG
       fprintf(stderr, "Prolog path from argv[0]: %s\n", p);
 #endif
-      return p;
+      goto ok;
     }
 
 
@@ -98,7 +106,8 @@ Get_Prolog_Path(char *argv0, int *devel_mode)
 #ifdef DEBUG
 	  fprintf(stderr, "Prolog path from Registry: %s\n", resolved);
 #endif
-	  return Is_A_Valid_Root(resolved, devel_mode);
+	  if ((p = Is_A_Valid_Root(resolved, devel_mode)) == NULL)
+	    goto ok;
 	}
 #endif
       return NULL;
@@ -108,7 +117,14 @@ Get_Prolog_Path(char *argv0, int *devel_mode)
   fprintf(stderr, GPLC " found from PATH: %s\n", p);
 #endif
 
-  return Get_Prolog_Path_From_Exec(p, devel_mode);
+  if ((p = Get_Prolog_Path_From_Exec(p, devel_mode)) != NULL)
+    {
+    ok:
+      devel_mode_cache = *devel_mode;
+      prolog_path_cache = strdup(p);
+      return p;
+    }
+  return NULL;
 }
 
 

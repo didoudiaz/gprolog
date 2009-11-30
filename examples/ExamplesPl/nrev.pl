@@ -3,22 +3,23 @@
 
 
 nrev(ShowResult) :-
-	bench(250, ShowResult).
+	bench(2500, ShowResult).
 
 
 
 nrev([],[]).
 
 nrev([X|Rest],Ans):-
-	nrev(Rest,L), app(L,[X],Ans).
+	nrev(Rest,L),
+	append(L,[X],Ans).
 
 
 
 
-app([],L,L).
+my_append([],L,L).
 
-app([X|L1],L2,[X|L3]):-
-	app(L1,L2,L3).
+my_append([X|L1],L2,[X|L3]):-
+	my_append(L1,L2,L3).
 
 
 /* commented since it is defined in common.pl
@@ -93,7 +94,11 @@ repeat(N):-
 report(Count,T0,T1,T2) :-
 	Time1 is T1-T0,
 	Time2 is T2-T1,
-	Time  is Time2-Time1,		/* Time spent on nreving lists */
+        (Time2 =< Time1 ->
+	    Time = 1
+	;
+	    Time is Time2-Time1	/* Time spent on nreving lists */
+	),
         Lips is (496*Count*1000)//Time,
  	write(Lips), write(' lips for '), write(Count),
 	write(' iterations taking '), write(Time),

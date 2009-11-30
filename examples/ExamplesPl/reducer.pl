@@ -104,7 +104,7 @@ t_redex([_arg|tl], _y) :-
 % Arithmetic:
 t_redex([_y,_x|_op], _res) :-
 	atom(_op),
-	my_member(_op, ['+', '-', '*', '//', 'mod']),
+	member(_op, ['+', '-', '*', '//', 'mod']),
 	t_reduce(_x, _xres),
 	t_reduce(_y, _yres),
 	number(_xres), number(_yres),
@@ -113,7 +113,7 @@ t_redex([_y,_x|_op], _res) :-
 % Tests:
 t_redex([_y,_x|_test], _res) :-
 	atom(_test),
-	my_member(_test, ['<', '>', '=<', '>=', '=\\=', '=:=']),
+	member(_test, ['<', '>', '=<', '>=', '=\\=', '=:=']),
 	t_reduce(_x, _xres),
 	t_reduce(_y, _yres),
 	number(_xres), number(_yres),
@@ -131,7 +131,7 @@ t_redex([_y,_x|=], _res) :-
 % Arithmetic functions:
 t_redex([_x|_op], _res) :-
 	atom(_op),
-	my_member(_op, ['-']),
+	member(_op, ['-']),
 	t_reduce(_x, _xres),
 	number(_xres),
 	eval1(_op, _t, _xres).
@@ -140,11 +140,11 @@ t_redex([_x|_op], _res) :-
 % Assumes a fact t_def(_func,_def) in the database for every
 % defined function.
 t_redex(_in, _out) :-
-	my_append(_par,_func,_in),
+	append(_par,_func,_in),
 	atom(_func),
 	t_def(_func, _args, _expr),
 	t(_args, _expr, _def),
-	my_append(_par,_def,_out).
+	append(_par,_def,_out).
 
 % Basic arithmetic and relational operators:
 
@@ -288,8 +288,10 @@ listify_list(I, N, _Expr, [_LA|_LArgs]) :- I=<N, !,
 	I1 is I+1,
 	listify_list(I1, N, _Expr, _LArgs).
 
+
 my_member(X, [X|_]).
 my_member(X, [_|L]) :- my_member(X, L).
+
 
 my_append([], L, L).
 my_append([X|L1], L2, [X|L3]) :- my_append(L1, L2, L3).

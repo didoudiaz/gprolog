@@ -370,9 +370,9 @@ Compar_Inst_Code_Op(BCWord *p1, BCWord *p2)
  *-------------------------------------------------------------------------*/
 void
 Pl_BC_Start_Pred_7(WamWord func_word, WamWord arity_word,
-		WamWord pl_file_word, WamWord pl_line_word,
-		WamWord sta_dyn_word, WamWord pub_priv_word,
-		WamWord us_blp_bfd_word)
+		   WamWord pl_file_word, WamWord pl_line_word,
+		   WamWord sta_dyn_word, WamWord pub_priv_word,
+		   WamWord us_blp_bfd_word)
 {
   int func, arity;
   int pl_file, pl_line;

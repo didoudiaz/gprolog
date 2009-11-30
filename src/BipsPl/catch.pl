@@ -61,11 +61,11 @@
 	'$sys_var_write'(7, Handler).
 
 % for debug
-%'$catch_internal1'(_, _, _, _, _):-
-%        '$get_current_B'(B),
-%        '$sys_var_get'(8,Ball),
+% '$catch_internal1'(_, _, _, _, _):-
+%	'$get_current_B'(B),
+%	'$sys_var_get'(8, Ball),
 %	format('~N*** ~d catching throw(~w)~n', [B, Ball]),
-%        fail.
+%	fail.
 
 '$catch_internal1'(_, Catch, Recovery, CallInfo, Handler) :-
 	'$sys_var_write'(7, Handler), % after throw or fail
@@ -77,6 +77,8 @@
 
 
 '$catch_a_throw'(Ball, _, _, _, Handler) :-                       % for abort
+% for debug
+% write(catch(Ball, Handler)), nl,
 	nonvar(Ball),
 	Ball = '$catch_sync'(B), !,
 	(   Handler > B ->
@@ -84,9 +86,13 @@
 	;   '$catch_fail_now'(B)
 	).
 
-'$catch_a_throw'(Ball, Ball, Recovery, CallInfo, _) :-
-                                                     % normal throw - unifies
-	!,
+'$catch_a_throw'(Ball, Ball1, Recovery, CallInfo, _) :-          
+% for debug
+% write(catch1(Ball, Ball1, Recovery)), nl,
+	Ball = Ball1,
+% for debug
+% write(catch2(Ball, Ball1, Recovery)), nl,
+	!,                                           % normal throw - unifies
 	'$sys_var_put'(8, '$no_ball$'),
 	'$call_internal'(Recovery, CallInfo).
 
@@ -107,9 +113,11 @@
 
 '$catch_sync_for_fail_at'(B) :-
 	'$sys_var_read'(7, Handler),
+% for debug
+% write(catch_sync(Handler, B)), nl,
 	(   Handler > B ->
 	    throw('$catch_sync'(B))
-	;   '$catch_fail_now'(B)
+	;   '$catch_fail_now'(Handler)
 	).
 
 

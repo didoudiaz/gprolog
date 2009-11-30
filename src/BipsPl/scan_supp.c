@@ -483,7 +483,7 @@ Scan_Quoted(StmInf *pstm)
   /* error */
   *s = '\0';
 
-  if (err_msg)
+  if (err_msg != NULL)
     return;
 
   Unget_Last_Char;
@@ -697,6 +697,8 @@ Pl_Scan_Next_Atom(StmInf *pstm)
 {
   char *s;
 
+  err_msg = NULL;
+
   do
     Read_Next_Char(pstm, TRUE);
   while (c_type == LA);		/* layout character */
@@ -772,6 +774,8 @@ char *
 Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only)
 {
   Bool minus_op = FALSE;
+
+  err_msg = NULL;
 
   for (;;)
     {
