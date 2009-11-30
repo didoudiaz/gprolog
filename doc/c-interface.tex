@@ -68,6 +68,8 @@ In addition, \texttt{gprolog.h} defines a set of macros:
 
 \begin{itemize}
 
+\item \texttt{ \_\_GNU\_PROLOG\_\_} (as the major version).
+
 \item \texttt{ \_\_GPROLOG\_\_}, \texttt{\_\_GPROLOG\_MINOR\_\_} and
   \texttt{\_\_GPROLOG\_PATCHLEVEL\_\_}. Their values are the major version,
   minor version, and patch level of GNU Prolog, as integer constants. For
@@ -84,6 +86,9 @@ In addition, \texttt{gprolog.h} defines a set of macros:
 \item \texttt{\_\_GPROLOG\_VERSION\_\_}: the version as an integer defined as
   follows: $major * 10000 + minor * 100 + patch level$. For example: version
   1.3.2 will result in the value 10302.
+
+\item \texttt{PL\_PROLOG\_DIALECT}: a C constant string (generally
+  \texttt{"gprolog"}). Appeared in 1.3.2.
 
 \item \texttt{PL\_PROLOG\_NAME}: a C constant string (generally
   \texttt{"GNU Prolog"}).

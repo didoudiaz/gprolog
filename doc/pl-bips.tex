@@ -13,6 +13,7 @@
                \texttt{compound/1},
                \texttt{callable/1},
                \texttt{ground/1},
+               \texttt{is\_list/1},
                \texttt{list/1},
                \texttt{partial\_list/1},
                \texttt{list\_or\_partial\_list/1}}
@@ -27,6 +28,7 @@
    \AddPBD{compound/1}
    \AddPBD{callable/1}
    \AddPBD{ground/1}
+   \AddPBD{is\_list/1}
    \AddPBD{list/1}
    \AddPBD{partial\_list/1}
    \AddPBD{list\_or\_partial\_list/1}
@@ -42,6 +44,7 @@ atomic(?term)\\
 compound(?term)\\              
 callable(?term)\\            
 ground(?term)\\            
+is\_list(?term)\\                 
 list(?term)\\                 
 partial\_list(?term)\\      
 list\_or\_partial\_list(?term)
@@ -84,6 +87,9 @@ instantiated to a callable term, i.e. an atom or a compound term.
 \texttt{list(Term)} succeeds if \texttt{Term} is currently instantiated
 to a list, i.e. the atom \texttt{[]} (empty list) or a term with principal
 functor \texttt{'.'/2} and with second argument (the tail) a list.
+
+\texttt{is\_list(Term)} behaves like \texttt{list(Term)} (for compatibility
+purpose).
 
 \texttt{partial\_list(Term)} succeeds if \texttt{Term} is currently
 instantiated to a partial list, i.e. a variable or a term whose the main
