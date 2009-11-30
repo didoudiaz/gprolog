@@ -34,6 +34,6 @@ $(DLLNAME): $(OBJDLL) $(RESDLL)
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ *.res *.RES $(DLLNAME) *.lib *.exp *.EXP *.idb *.pdb
+	rm -f *@OBJ_SUFFIX@ *.res *.RES $(DLLNAME) *.lib *.exp *.EXP *.idb *.pdb *.ilk
 
 distclean: clean
