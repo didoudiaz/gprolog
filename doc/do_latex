@@ -1,0 +1,154 @@
+#!/bin/sh
+
+# Daniel Diaz 
+# LaTeX and PDF LaTeX compiler invocator
+# also executes makeindex and bibtex if needed
+# version 1.0
+# Fri Jan 24 16:33:11 CET 2003
+
+usage ()
+{
+    echo 'do_latex [OPTIONS] FILE'
+    echo
+    echo 'Options:'
+    echo '   -dvi      create a DVI file'
+    echo '   -pdf      create a PDF file'
+    echo '   -silent   redirect (pdf)latex output to /dev/null'
+    echo '   -trace    trace mode'
+    echo '   -h        this help'
+    exit 0
+}
+
+
+
+trace_msg ()
+
+{
+ test $trace = 1 && echo "$file: $*"
+}
+
+
+
+differ ()
+
+{
+ if diff $1 $2  >/dev/null 2>&1
+ then
+    false
+ else
+    true
+ fi
+}
+
+
+
+
+restore ()
+
+{
+ f=$1.$2
+ fp=$1.$type.$2
+
+ if test -f $fp; then
+    trace_msg "restoring: copying $fp to $f"
+    cp -a $fp $f
+ fi
+}
+ 
+
+
+save ()
+
+{
+ f=$1.$2
+ fp=$1.$type.$2
+
+ if test ! -f $f; then
+    return
+ fi
+
+ if test ! -f $fp || `differ $f $fp`; then
+    trace_msg "files $f and $fp differ - redo"
+    redo=1
+ fi
+
+ trace_msg "files $f and $fp are identical - moving $f to $fp"
+ mv $f $fp
+}
+
+
+one_cmd ()
+{
+ trace_msg "executing $1 $redir"
+ outfile=$base.$type
+ outfileerr=$base.err.$type
+ eval $1 $redir
+ err=$?
+ if test $err = 0; then
+    trace_msg "removing $outfileerr"
+    rm -f $outfileerr
+ else
+    trace_msg "compilation error (status=$err)"
+    if test -f $outfile; then
+	trace_msg "moving partial resulting file $outfile to $outfileerr"
+	mv $outfile $outfileerr
+    fi
+    exit $err
+ fi
+}
+
+compile ()
+{
+ base=`dirname $file`/`basename $file .tex`
+
+ for s in $suffixes; do
+    restore $base $s
+ done
+
+ one_cmd "$compiler $file"
+
+ if test -f $base.idx; then
+    one_cmd "makeindex $base.idx"
+ fi
+
+ redo=0
+ if fgrep -q '\bibdata{' $base.aux; then
+    one_cmd "bibtex $base"
+ fi
+
+ for s in $suffixes; do
+    save $base $s
+ done
+}
+
+
+
+suffixes='aux toc idx ind bbl'
+
+type=dvi
+compiler=latex
+redi=''
+trace=0
+file_list=''
+
+while test $# -gt 0 ; do
+    case $1 in
+	-dvi)     type=dvi; compiler=latex;;
+	-pdf)     type=pdf; compiler=pdflatex;;
+        -silent)  redir=">/dev/null";;
+	-trace)   trace=1;;
+	-h|-help) usage;;
+	-*)       echo "unrecognized option $1 - use -f for help"; exit 1;;
+	*)        file_list="$file_list $1";;
+    esac
+    shift
+done
+
+for file in $file_list; do
+    redo=1
+    while test $redo = 1; do
+       compile
+    done
+done
+exit 0
+
