@@ -30,7 +30,7 @@ $(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level.c
 
 clean:
 	-mv $(TOP_LEVEL)@EXE_SUFFIX@ $(TOP_LEVEL)0@EXE_SUFFIX@
-	rm -f *@OBJ_SUFFIX@ $(ALL_EXECS)
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(ALL_EXECS)
 
 distclean:
 	rm -f *@OBJ_SUFFIX@ $(ALL_EXECS) $(TOP_LEVEL)0@EXE_SUFFIX@

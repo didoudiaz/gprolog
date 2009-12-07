@@ -3387,6 +3387,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
   for ac_t in install-sh install.sh shtool; do
@@ -5158,7 +5159,7 @@ fi
 
 case "$WITH_EXAMPLES_DIR" in
     no) EXAMPLES_DIR=none;;
-    '') EXAMPLES_DIR=$INSTALL_DIR;;
+    '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
     *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
 if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then

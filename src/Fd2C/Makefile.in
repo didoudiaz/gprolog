@@ -16,6 +16,6 @@ fd2c@EXE_SUFFIX@: $(OBJS)
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ fd2c@EXE_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp fd2c@EXE_SUFFIX@
 
 distclean: clean

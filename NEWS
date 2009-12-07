@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.3.2:
 
+* group all examples under a new directory 'examples'
 * fix a bug in read_from_codes/2 and number_codes/2
 * improve speed of built-in predicates on list (append, member, reverse,...).
 * improve CTRL+C handling under the top-level

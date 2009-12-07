@@ -23,7 +23,7 @@ ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ ma2asm@EXE_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp ma2asm@EXE_SUFFIX@
 
 
 distclean: clean clean-chkma clean-extract_asm

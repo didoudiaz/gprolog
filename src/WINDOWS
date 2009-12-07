@@ -115,22 +115,32 @@ using cygwin1.dll) under cygwin and native win32 gcc under msys.
 ------------------------------------
 
 You need MSVC++. GNU Prolog has been tested with version 6.0 and Visual C++
-2005 Express Edition. The later is freely available from microsoft site:
-http://msdn.microsoft.com/vstudio/express/visualc/download/.
+2008 Express Edition (i.e. MSVC++ 9.0). The later is freely available from
+microsoft site: http://msdn.microsoft.com/vstudio/express/visualc/download/.
 
-Then install this SDK (or more recent version) : Microsoft Windows Server
-2003 R2 Platform SDK. You can install it from :
-http://www.microsoft.com/downloads/details.aspx?FamilyId=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en. 
+NB: with MSVC 6.0 or Visual C++ 2005 Express Edition it was also necessary to install
+this SDK (or more recent version) : Microsoft Windows Server 2003 R2 Platform
+SDK. You can install it from :
+http://www.microsoft.com/downloads/details.aspx?FamilyId=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en.
+
 If you chose to set up environement variables, MSVC++ is informed about new
-include/library directories. Else your can execute .bat provided with the MS
-compiler (e.g. vcvarvs32.bat or vsvar32.bat). Anyway, your PATH shoud contain
-the cl.exe command-line compiler, INCLUDE and LIB should be correctly set.
-NB: for MSVC6.0: its lib directory should appear before the lib directory of
-the SDK (else an error occurs when linking the GUI console).
+include/library directories. Else you can execute .bat provided with the MS
+compiler: e.g. vcvarvs32.bat or vsvar32.bat (in C:\Program Files\Microsoft
+Visual Studio 9.0\Common7\Tools). Anyway, your PATH shoud contain the cl.exe
+command-line compiler, INCLUDE and LIB should be correctly set.  NB: for
+MSVC6.0: its lib directory should appear before the lib directory of the SDK
+(else an error occurs when linking the GUI console).
 
 NB: recent cygwin include a /bin/link.exe command. Be sure it doesn't shadow
 the Microsoft linker (also called link.exe). The simplest way to solve it is
 to rename /bin/link.exe of cygwin.
+
+Finally, you need the MinGW assembler (called as.exe). Copy it under a
+directory inside your path (for instance in /bin) under the name mingw-as.exe.
+A version can be found at:
+
+http://gprolog.org/mingw-as.exe
+
 
 Once MSVC++ and the SDK are well installed use --with-msvc at configure time:
 
@@ -144,7 +154,8 @@ information. Even if compiled with the GUI it is possible to avoid it (and
 run in console mode) a Prolog program setting the environment variable
 LINEDIT to a string containing gui=no, e.g. (bash) export LINEDIT='gui=no', 
 (windows) SET LINEDIT=gui=no.
-	
+
+
 
 
 5) Using Microsoft HTML Help

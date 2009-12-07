@@ -698,7 +698,7 @@ Pl_Number_Codes_2(WamWord number_word, WamWord codes_word)
       if (tag_mask != TAG_INT_MASK || !Is_Valid_Code(c))
 	goto from_nb;
 
-      *str++ = c;
+      *str++ = (char) c;
       list_word = Cdr(lst_adr);
     }
 

@@ -47,13 +47,8 @@ int
 main(int argc, char *argv[])
 {
   char buff[1024];
-  char call[1024];
   int install;
   FILE *f;
-  int fd, l;
-  int file_size, size;
-  char *data, *p, *q;
-  char *newline;
 
   if (argc != 4)
     {
@@ -64,8 +59,6 @@ main(int argc, char *argv[])
   install = (argv[3][0] == 'i' || argv[3][0] == 'I');
 
   sprintf(buff, "%s\\gprologvars.bat", argv[1]);
-  sprintf(call, "call %s", buff);
-  l = strlen(call);
   if (install)
     {
       if ((f = fopen(buff, "wt")) == NULL)
@@ -77,85 +70,13 @@ main(int argc, char *argv[])
 	  gets(buff);
 	  return 1;
 	}
-      L("@echo off");
-      L("echo Setting environment for using GNU Prolog");
-      sprintf(buff, "PATH=%%PATH%%;\"%s\\bin\"", argv[2]);
-      L(buff);
+      fprintf(f, "@echo off\n");
+      fprintf(f, "echo Setting environment for using GNU Prolog\n");
+      fprintf(f, "PATH=%%PATH%%;\"%s\\bin\"\n", argv[2]);
       fclose(f);
     }
   else
     if (access(buff, 0) == 0 && unlink(buff) != 0)
       return 1;
-
-  sprintf(buff, "%s\\autoexec.bat", argv[1]);
-
-  if ((fd = open(buff, O_RDONLY | O_BINARY)) < 0)
-    return 0;
-  
-  file_size = (int) lseek(fd, 0, SEEK_END);
-  lseek(fd, 0, SEEK_SET);
-
-  data = (char *) malloc(file_size + l + 32);
-  if (data == NULL)
-    return 1;
- 
-  if (read(fd, data, file_size) != file_size)
-    return 1;
-      
-  close(fd);
-  data[file_size] = '\0';
-
-  q = strchr(data, '\r');
-  if (q != NULL && q[1] == '\n')
-    newline = "\r\n";
-  else
-    newline = "\n";
-
-  if (data[file_size - 1] != '\n')
-    strcpy(data + file_size, newline);
-
-  p = data;
-  for(;;)
-    {
-      if (strnicmp(p, call, l) != 0)
-	{
-	next_line:
-	  p = strchr(p, '\n');
-	  if (p == NULL)
-	    break;
-	  p++;
-	  continue;
-	}
-
-      q = p + l;
-      while(*q == ' ' || *q == '\t' || *q == '\r')
-	q++;
-      if (*q != '\n')
-	goto next_line;
-				/* here the call line is found */
-      if (install)
-	return 0;
-
-      q++;
-      memmove(p, q, strlen(q) + 1);  /* remove the line */
-				/* reconsider this line */
-    }
-
-  size = strlen(data);
-  if (install)
-    {
-      sprintf(data + size, "%s%s", call, newline);
-      size += l + strlen(newline);
-    }
-
-  if (file_size == size)
-    return 0;
-
-  if ((fd = open(buff, O_WRONLY | O_BINARY | O_TRUNC)) < 0)
-    return 1;
-
-  if (write(fd, data, size) < 0)
-    return 1;
-
-  return close(fd) != 0;
+  return 0;
 }

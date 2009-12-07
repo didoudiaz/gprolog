@@ -129,14 +129,14 @@ uninstall-html:
 install-examples:
 	if test $(EXAMPLES_DIR) != none; then \
 	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesPl; \
-	   (F=`cd ../ExamplesPl; echo $(EXPL_FILES)`; \
-	   for i in $$F; do $(INSTALL_DATA) ../ExamplesPl/$$i $(EXAMPLES_DIR)/ExamplesPl; done); \
+	   (F=`cd ../examples/ExamplesPl; echo $(EXPL_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../examples/ExamplesPl/$$i $(EXAMPLES_DIR)/ExamplesPl; done); \
 	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesC; \
-	   (F=`cd ../ExamplesC; echo $(EXC_FILES)`; \
-	   for i in $$F; do $(INSTALL_DATA) ../ExamplesC/$$i $(EXAMPLES_DIR)/ExamplesC; done); \
+	   (F=`cd ../examples/ExamplesC; echo $(EXC_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../examples/ExamplesC/$$i $(EXAMPLES_DIR)/ExamplesC; done); \
 	   ./mkinstalldirs $(EXAMPLES_DIR)/ExamplesFD; \
-	   (F=`cd ../ExamplesFD; echo $(EXFD_FILES)`; \
-	   for i in $$F; do $(INSTALL_DATA) ../ExamplesFD/$$i $(EXAMPLES_DIR)/ExamplesFD; done); \
+	   (F=`cd ../examples/ExamplesFD; echo $(EXFD_FILES)`; \
+	   for i in $$F; do $(INSTALL_DATA) ../examples/ExamplesFD/$$i $(EXAMPLES_DIR)/ExamplesFD; done); \
 	fi
 
 uninstall-examples:
@@ -184,7 +184,7 @@ distclean:
 
 # --- DISTRIBUTION --- #
 
-distdir=./$(PKG_NAME)
+distdir=$(PKG_NAME)
 
 dist: check_doc $(PKG_NAME).tar.gz
 
@@ -200,7 +200,7 @@ $(PKG_NAME).tar.gz:
 		subdir=`dirname $$f`; \
 		if test "$$subdir" = .; then :; else \
 		    test -d $(distdir)/$$subdir \
-		    || mkdir $(distdir)/$$subdir \
+		    || mkdir -p $(distdir)/$$subdir \
 	    	    || exit 1; \
 	    	    chmod 777 $(distdir)/$$subdir; \
 		fi; \

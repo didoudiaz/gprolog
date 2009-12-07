@@ -28,26 +28,26 @@ doc/html_node/[a-z][a-z]?*.css
 doc/html_node/README
 doc/html_node/hh_do_hhc_hhk
 
-ExamplesPl/Makefile
-ExamplesPl/README
-ExamplesPl/PROGS
-ExamplesPl/??*.pl
-ExamplesPl/YAP/[A-B,D-Z]*
-ExamplesPl/WAMCC/[A-B,D-Z]*
-ExamplesPl/SICSTUS/[A-B,D-Z]*
-ExamplesPl/CIAO/[A-B,D-Z]*
-ExamplesPl/BINPROLOG/[A-B,D-Z]*
-ExamplesPl/XSB/[A-B,D-Z]*
-ExamplesPl/SWI/[A-B,D-Z]*
+examples/ExamplesPl/Makefile
+examples/ExamplesPl/README
+examples/ExamplesPl/PROGS
+examples/ExamplesPl/??*.pl
+examples/ExamplesPl/YAP/[A-B,D-Z]*
+examples/ExamplesPl/WAMCC/[A-B,D-Z]*
+examples/ExamplesPl/SICSTUS/[A-B,D-Z]*
+examples/ExamplesPl/CIAO/[A-B,D-Z]*
+examples/ExamplesPl/BINPROLOG/[A-B,D-Z]*
+examples/ExamplesPl/XSB/[A-B,D-Z]*
+examples/ExamplesPl/SWI/[A-B,D-Z]*
 
-ExamplesC/README
-ExamplesC/Makefile
-ExamplesC/??*.pl
-ExamplesC/??*_c.c
+examples/ExamplesC/README
+examples/ExamplesC/Makefile
+examples/ExamplesC/??*.pl
+examples/ExamplesC/??*_c.c
 
-ExamplesFD/Makefile
-ExamplesFD/*.pl
-ExamplesFD/*.fd
+examples/ExamplesFD/Makefile
+examples/ExamplesFD/*.pl
+examples/ExamplesFD/*.fd
 
 src/.indent.pro
 src/Makefile.in

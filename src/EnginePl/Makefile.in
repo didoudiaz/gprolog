@@ -95,7 +95,7 @@ if_no_fd@OBJ_SUFFIX@: if_no_fd.h if_no_fd.c
 
 
 clean:
-	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ $(LIBNAME)
+	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 distclean: clean clean-test_oc
 	rm -f wam_archi.h wam_regs.h gp_config.h

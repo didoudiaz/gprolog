@@ -478,8 +478,7 @@ Pl_Length_Alt_0(void)
 Bool
 Pl_Nth0_3(WamWord n_word, WamWord list_word, WamWord res_word, int base)
 {
-  WamWord word, tag_mask;
-  WamWord *adr;
+  WamWord elem_word;
   long n = Pl_Rd_Integer(n_word) - base;
 
   if (n < 0)
@@ -487,17 +486,15 @@ Pl_Nth0_3(WamWord n_word, WamWord list_word, WamWord res_word, int base)
 
   for(;;)
     {
-      DEREF(list_word, word, tag_mask);
-      if (tag_mask != TAG_LST_MASK)
+      if (!Pl_Get_List(list_word))
 	return FALSE;
-
-      adr = UnTag_LST(word);
+      elem_word = Pl_Unify_Variable();
+      list_word = Pl_Unify_Variable();
 
       if (n == 0)
-	return Pl_Unify(Car(adr), res_word);
+	return Pl_Unify(elem_word, res_word);
 
       n--;
-      list_word = Cdr(adr);
     }
 }
 

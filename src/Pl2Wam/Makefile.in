@@ -30,7 +30,7 @@ stage2:
 
 clean:
 	[ ! -f  pl2wam@EXE_SUFFIX@ ] || mv pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
-	rm -f *@OBJ_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp 
 
 
 clean-wam:

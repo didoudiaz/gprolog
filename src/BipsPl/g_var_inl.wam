@@ -1,10 +1,10 @@
 % compiler: GNU Prolog 1.3.2 (Mar 10 2009)
 % file    : g_var_inl.pl
-% date    : 11 4 2009
-% time    : 18:34:16
+% date    : 12 2 2009
+% time    : 14:51:50
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/g_var_inl.pl').
+file_name('z:/GP/src/src/BipsPl/g_var_inl.pl').
 
 
 predicate('$use_g_var_inl'/0,29,static,private,built_in,[

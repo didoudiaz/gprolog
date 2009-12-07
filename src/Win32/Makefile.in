@@ -42,3 +42,4 @@ clean:
 	rm -rf create_bat@OBJ_SUFFIX@ create_bat@EXE_SUFFIX@ /tmp/$(PKG_NAME).tar.gz /tmp/$(PKG_NAME) $(TMPDIR)
 
 
+distclean: clean

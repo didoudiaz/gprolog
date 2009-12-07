@@ -32,16 +32,16 @@ Source: "lib\*.dll"; DestDir: "{app}\bin";  Flags: ignoreversion skipifsourcedoe
 Source: "include\*.*"; DestDir: "{app}\include";  Flags: ignoreversion 
 Source: "doc\*.*"; DestDir: "{app}\doc";  Flags: ignoreversion 
 Source: "doc\html_node\*.*"; DestDir: "{app}\doc\html_node";  Flags: ignoreversion 
-Source: "ExamplesPl\*.*"; DestDir: "{app}\ExamplesPl";  Flags: ignoreversion 
-Source: "ExamplesFD\*.*"; DestDir: "{app}\ExamplesFD";  Flags: ignoreversion 
-Source: "ExamplesC\*.*"; DestDir: "{app}\ExamplesC";  Flags: ignoreversion 
+Source: "examples\ExamplesPl\*.*"; DestDir: "{app}\examples\ExamplesPl";  Flags: ignoreversion 
+Source: "examples\ExamplesFD\*.*"; DestDir: "{app}\examples\ExamplesFD";  Flags: ignoreversion 
+Source: "examples\ExamplesC\*.*"; DestDir: "{app}\examples\ExamplesC";  Flags: ignoreversion 
 
 [INI]
 Filename: "{app}\gprolog.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.gprolog.org"
 
 [Icons]
 Name: "{group}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"
-Name: "{group}\Help"; Filename: "{app}\doc\manual.chm"
+Name: "{group}\Help"; Filename: "{app}\doc\gprolog.chm"
 Name: "{group}\Html Manual"; Filename: "{app}\doc\html_node\index.html"
 Name: "{group}\The GNU Prolog Web Site"; Filename: "{app}\gprolog.url"
 Name: "{group}\Uninstall GNU Prolog"; Filename: "{uninstallexe}"
@@ -53,7 +53,7 @@ Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "RootPath"; ValueData: "{app}"
 
 [Run]
-Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"" install"; Description: "Create {sd}\gprologvars.bat and update autoexec.bat"
+Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"" install"; Description: "Create {sd}\gprologvars.bat"
 Filename: "{app}\bin\gprolog.exe"; Description: "Launch GNU Prolog"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]

@@ -1,3 +1,7 @@
+Tue Dec  1 14:11:10 CET 2009 <Daniel.Diaz@univ-paris1.fr>
+
+	* group all examples under a new directory 'examples'
+
 Fri Nov 20 16:34:36 CET 2009 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in read_from_codes/2 and number_codes/2

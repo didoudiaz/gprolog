@@ -9,3 +9,4 @@ and some files needed to build a .chm :
    hh-mktoc.tex     used by the script to create .hhk
 
    hh-gprolog.hhp   a HTMLHelp project to build the .chm
+

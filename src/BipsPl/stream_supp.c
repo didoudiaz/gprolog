@@ -812,7 +812,7 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
 
  next_test:
 
-  if ((unsigned) stm > pl_stm_last_used || pl_stm_tbl[stm] == NULL)
+  if ((unsigned) stm > (unsigned) pl_stm_last_used || pl_stm_tbl[stm] == NULL)
     {
       if (test == STREAM_CHECK_VALID)
 	return -1;

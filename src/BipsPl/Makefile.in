@@ -95,7 +95,7 @@ $(LIBNAME): $(OBJLIB) no_sockets.wam sockets.wam \
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ $(LIBNAME)
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
 distclean: clean

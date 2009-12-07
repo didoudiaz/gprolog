@@ -16,6 +16,6 @@ wam2ma@EXE_SUFFIX@: wam2ma@OBJ_SUFFIX@ wam_parser@OBJ_SUFFIX@
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ wam2ma@EXE_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp wam2ma@EXE_SUFFIX@
 
 distclean: clean
