@@ -138,7 +138,8 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 	  l3_word = Cdr(adr);
 	}
 
-      return Pl_Get_Nil(l1_word); /* always succeeds */
+      Pl_Get_Nil(l1_word); /* always succeeds */
+      return Pl_Unify(l2_word, l3_word);
     }
 
   /* L1 is a var, L2 / L3 are not 2 proper lists, check L3 */
@@ -152,7 +153,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
       Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(APPEND_ALT, 0), 3);
     }
 
-  Pl_Get_Nil(l1_word);
+  Pl_Get_Nil(l1_word); /* always succeeds */
   return Pl_Unify(l2_word, l3_word);
 }
 
@@ -209,7 +210,8 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 	  l3_word = Cdr(adr);
 	}
 
-      return Pl_Get_Nil(l1_word); /* always succeeds */
+      Pl_Get_Nil(l1_word); /* always succeeds */
+      return Pl_Unify(l2_word, l3_word);
     }
 
   /* L1 is a var, L2 / L3 are not 2 proper lists, check L3 */
