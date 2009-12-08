@@ -11,8 +11,8 @@ AppUpdatesURL=http://www.gprolog.org
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
-SourceDir=\gprolog_win32
-OutputDir=
+SourceDir=C:\cygwin\tmp\gprolog_win32
+OutputDir=C:\cygwin\tmp
 OutputBaseFileName=setup-gprolog-1.3.2
 
 ; TO DO: create an association for .pl and .pro files

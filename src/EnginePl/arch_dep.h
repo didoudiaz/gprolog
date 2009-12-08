@@ -196,6 +196,8 @@ typedef struct _excp_lst
 
 #elif defined(_MSC_VER)
 
+#  pragma warning(disable:4733) /* we know what we are doing with SEH */
+
 #  define SEH_PUSH(new_handler)			\
 {						\
   excp_lst e;					\

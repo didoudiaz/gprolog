@@ -1,3 +1,5 @@
+dnl ## $Id$
+
 # *********************************
 # * autoconf configuration script *
 # *********************************
@@ -225,7 +227,7 @@ if test "$WITH_MSVC" != no; then
     CC_EXE_NAME_OPT='-Fe'
     AC_CHECK_PROGS(MINGWAS, mingw-as,no)
     if test "$MINGWAS" = no; then
-        AC_MSG_ERROR([mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/download/mingw-as.exe])
+        AC_MSG_ERROR([mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/mingw-as.exe])
     fi
     AS=mingw-as
     AR_RC='lib -nologo -out:'

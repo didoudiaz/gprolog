@@ -5,7 +5,9 @@
 # this script recreates gp-setup.iss.in from a gp-setup.iss
 # useful when modifying gp-setup.iss under Inno Setup interactive compiler
 
-# simply replace version number by @VERSION@
+# replace version number by @VERSION@
+# and temporary directory by @WIN_TMP_DIR@
+
 
 src=${1:-gp-setup.iss}
 dst=${2:-gp-setup.iss.in}
