@@ -13,7 +13,7 @@ DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
 SourceDir=C:\cygwin\tmp\gprolog_win32
 OutputDir=C:\cygwin\tmp
-OutputBaseFileName=setup-gprolog-1.3.2
+OutputBaseFileName=setup-gprolog-1.3.2-msvc-15.00
 
 ; TO DO: create an association for .pl and .pro files
 ; ChangesAssociations=yes

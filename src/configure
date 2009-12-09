@@ -639,6 +639,7 @@ LIB_FILES
 OBJ_FILES
 BIN_FILES
 TXT_FILES
+WIN_CC_VER
 WIN_CONF_OPT
 WIN_TMP_DIR
 EXAMPLES_DIR
@@ -2461,6 +2462,7 @@ LIB_BIPS_FD=libbips_fd
 
 
 
+
 # *******************
 # * package options *
 # *******************
@@ -2615,6 +2617,8 @@ if test "$WITH_MSVC" != no; then
     echo "using MSVC++ as C compiler"
     CC=cl
     WIN_CONF_OPT=--with-msvc
+#   NB: double [[ ]] for m4
+    WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([0-9]\{1,3\}\.[0-9]\{1,3\}\).*/\1/p'`
 fi
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
@@ -3534,7 +3538,7 @@ done
 test -n "$MINGWAS" || MINGWAS="no"
 
     if test "$MINGWAS" = no; then
-        as_fn_error "mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/download/mingw-as.exe" "$LINENO" 5
+        as_fn_error "mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/mingw-as.exe" "$LINENO" 5
     fi
     AS=mingw-as
     AR_RC='lib -nologo -out:'
@@ -3829,7 +3833,7 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 
 case "$host_os" in
     cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
-    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; WIN_CC_VER=mingw;;
 esac
 
 if test "$WITH_MSVC" != no; then

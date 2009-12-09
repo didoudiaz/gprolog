@@ -184,53 +184,54 @@ distclean:
 
 # --- DISTRIBUTION --- #
 
-distdir=$(PKG_NAME)
+distdir=/tmp
+distpath=$(distdir)/$(PKG_NAME)
 
 dist: check_doc $(PKG_NAME).tar.gz
 
 check_doc:
 	(cd ../doc; make all)
 
-$(PKG_NAME).tar.gz:
-	-rm -rf $(distdir)
-	mkdir $(distdir)
-	-chmod 777 $(distdir)
-	(while read f; do \
-	    if [ x$$f != x ]; then \
-		subdir=`dirname $$f`; \
-		if test "$$subdir" = .; then :; else \
-		    test -d $(distdir)/$$subdir \
-		    || mkdir -p $(distdir)/$$subdir \
-	    	    || exit 1; \
-	    	    chmod 777 $(distdir)/$$subdir; \
-		fi; \
-	        cp -pr ../$$f $(distdir)/$$subdir; \
-	    fi; \
-	 done <DISTRIB_FILES)
-	tar cf $(PKG_NAME).tar $(distdir)
+$(PKG_NAME).tar.gz: copy_dist_tree
+	(cd $(distdir); tar cf $(ROOT_DIR)/src/$(PKG_NAME).tar $(PKG_NAME))
 	gzip -f $(PKG_NAME).tar
-	-rm -rf $(distdir)
-	@banner="$(distdir).tar.gz is ready for distribution"; \
+	-rm -rf $(distpath)
+	@banner="$(PKG_NAME).tar.gz is ready for distribution"; \
 	dashes=`echo "$$banner" | sed s/./=/g`; \
 	echo "$$dashes"; \
 	echo "$$banner"; \
 	echo "$$dashes"
 
+
+# below we use 2 cd in case distpath is not an absolute path like '.'
+copy_dist_tree:
+	-rm -rf $(distpath)
+	mkdir -p $(distpath)
+	while read f;do files="$$files $$f"; done <DISTRIB_FILES; \
+	(cd ..;tar cf - $$files | (cd $(ROOT_DIR)/src;cd $(distpath); tar xf -))
+
+
 old$(PKG_NAME).tar.gz:
-	-rm -rf $(distdir)
-	mkdir $(distdir)
-	-chmod 777 $(distdir)
-	(while read f;do \
+	-rm -rf $(distpath)
+	mkdir $(distpath)
+	-chmod 777 $(distpath)
+	(while read f; do \
 	    if [ x$$f != x ]; then \
-	       files="$$files $$f"; \
+		subdir=`dirname $$f`; \
+		if test "$$subdir" = .; then :; else \
+		    test -d $(distpath)/$$subdir \
+		    || mkdir -p $(distpath)/$$subdir \
+	    	    || exit 1; \
+	    	    chmod 777 $(distpath)/$$subdir; \
+		fi; \
+	        cp -pr ../$$f $(distpath)/$$subdir; \
 	    fi; \
-	 done <DISTRIB_FILES; \
-	 cd $(ROOT_DIR); \
-	 tar cf - $$files | (cd $(ROOT_DIR)/src/$(distdir) ;  tar xf -))
-	tar cf $(PKG_NAME).tar $(distdir)
+	 done <DISTRIB_FILES)
+	tar cf $(PKG_NAME).tar $(distpath)
 	gzip -f $(PKG_NAME).tar
-	-rm -rf $(distdir)
-	@echo "distribution file: $(PKG_NAME).tar.gz"
-
-
-
+	-rm -rf $(distpath)
+	@banner="$(PKG_NAME).tar.gz is ready for distribution"; \
+	dashes=`echo "$$banner" | sed s/./=/g`; \
+	echo "$$dashes"; \
+	echo "$$banner"; \
+	echo "$$dashes"

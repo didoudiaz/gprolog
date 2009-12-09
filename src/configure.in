@@ -90,6 +90,7 @@ AC_SUBST(EXAMPLES_DIR)
 
 AC_SUBST(WIN_TMP_DIR)
 AC_SUBST(WIN_CONF_OPT)
+AC_SUBST(WIN_CC_VER)
 
 AC_SUBST(TXT_FILES)
 AC_SUBST(BIN_FILES)
@@ -209,6 +210,8 @@ if test "$WITH_MSVC" != no; then
     echo "using MSVC++ as C compiler"
     CC=cl
     WIN_CONF_OPT=--with-msvc
+#   NB: double [[ ]] for m4
+    WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
 fi
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
@@ -299,7 +302,7 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 
 case "$host_os" in
     cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
-    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; WIN_CC_VER=mingw;;
 esac
 
 if test "$WITH_MSVC" != no; then

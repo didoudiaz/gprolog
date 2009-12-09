@@ -15,10 +15,8 @@ TMPDIR=/tmp/gprolog_win32
 create_bat@EXE_SUFFIX@: create_bat.c
 	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@create_bat@EXE_SUFFIX@ create_bat.c
 
-compile: ../$(PKG_NAME).tar.gz
-	cp ../$(PKG_NAME).tar.gz /tmp
-	rm -rf /tmp/$(PKG_NAME)
-	(cd /tmp; tar xfz $(PKG_NAME).tar.gz)
+compile: 
+	(cd ..; make copy_dist_tree distdir=/tmp/)
 	compile_install "$(WIN_CONF_OPT)" /tmp/$(PKG_NAME)/src $(TMPDIR)
 
 compile-link:
