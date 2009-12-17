@@ -23,8 +23,13 @@ Cygwin is a Unix-like environment for Windows. It consists of two parts:
      substantial Linux API functionality.  
    - a collection of tools, which provide Linux look and feel.
 
-Refer to www.cygwin.com to properly install Cygwin. The resulting system is
-installed under something like c:\Cygwin.
+Refer to www.cygwin.com to properly install Cygwin. The resulting
+system is installed under something like c:\cygwin.
+
+NB: If you want to share a file system (Network Drive under Windows)
+and encounter some problems with permissions (e.g. for execute). You
+can add options for the mount of the remote directory. Add noacl,exec
+in the options for the mount point in /etc/fstab.
 
 You can set some variables in this .bat launching cygwin
 (c:\cygwin\cygwin.bat) since environment variables are inherited by the
@@ -41,6 +46,7 @@ can add something like "C:\Program Files\HTML Help Workshop" to your PATH in
 the .bat file (or '/cygdrive/c/Program Files/HTML Help Workshop' in your
 .bashrc file).
 
+
 Here is an example of .bat file launching bash in a text console:
 	@ECHO OFF
 	CALL c:\hhvars.bat
@@ -50,6 +56,12 @@ with hhvars.bat containing:
 	@ECHO OFF
 	ECHO Setting environment for using HTML Help Workshop.
 	PATH=%PATH%;C:\Program Files\HTML Help Workshop
+
+Here again it is also possible to set the PATH in .bashrc. Here is an
+example with Inno Setup and HTML Help Workshop:
+
+   PATH=$PATH:'/c/Program Files/Inno Setup 5'
+   PATH=$PATH:'/c/Program Files/HTML Help Workshop'
 
 
 Finally note that a pure Win32 native graphical version of Emacs exists for
@@ -65,6 +77,7 @@ instead of Cygwin (like what does MinGW/gcc). This is desirable for native
 Windows programs that don't need a UNIX emulation layer. This is not to be
 confused with MinGW (see below) whose gcc does not need cygwin1.dll to run
 (it is a pure Win32 port of gcc).
+
 
 
 

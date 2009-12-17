@@ -25,6 +25,6 @@ fi
 
 sed -e 's![0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}!@PROLOG_VERSION@!g' \
     -e "s!$tmp!@WIN_TMP_DIR@!g" \
-    -e 's!mingw!@WIN_CC_VER@!g' \
-    -e 's!msvc-[0-9]\{1,3}\.[0-9]\{1,3}!@WIN_CC_VER@!g' \
+    -e "s!mingw!@WIN_CC_VER@!g" \
+    -e "s!msvc-[0-9]\{1,3\}\.[0-9]\{1,3\}!@WIN_CC_VER@!g" \
     $src >$dst
