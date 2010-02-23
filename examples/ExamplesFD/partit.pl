@@ -26,7 +26,7 @@
 /*                                                                         */
 /*   - in order to avoid duplicate solutions (permutations) we impose      */
 /*     A1<A2<....<AN/2, B1<B2<...<BN/2 and A1<B1. This achieves much more  */
-/*     pruning than only fd_all_differents(A) and fd_all_differents(B).    */
+/*     pruning than only one fd_all_different constraint.                  */
 /*                                                                         */
 /*   - the half sums are known                                             */
 /*                              N                                          */
