@@ -14,13 +14,6 @@
 /*                                                                         */
 /* It seems there is a solution if N >= 8 and N is a multiple of 4.        */
 /*                                                                         */
-/* Generalization: finding a partition of 1,2...,N into 2 groups A and B:  */
-/*                                                                         */
-/*     Sum (k^p) = Sum l^p                                                 */
-/*   k in A      l in B                                                    */
-/*                                                                         */
-/* Condition a) is a special case where p=0, b) where p=1 and c) where p=2.*/
-/*                                                                         */
 /* Two redundant constraints are used:                                     */
 /*                                                                         */
 /*   - in order to avoid duplicate solutions (permutations) we impose      */
@@ -29,11 +22,24 @@
 /*                                                                         */
 /*   - the half sums are known                                             */
 /*                              N                                          */
-/*        Sum k^1 = Sum l^1 = (Sum i) / 2 = N*(N+1) / 4                    */
+/*        Sum k^1 = Sum l^1 = (Sum i) / 2 = N*(N+1) / 2 / 2                */
 /*       k in A    l in B      i=1                                         */
 /*                              N                                          */
-/*        Sum k^2 = Sum l^2 = (Sum i^2)/2 = N*(N+1)*(2*N+1) / 12           */
+/*        Sum k^2 = Sum l^2 = (Sum i^2)/2 = N*(N+1)*(2*N+1) / 6 / 2        */
 /*       k in A    l in B      i=1                                         */
+/*                                                                         */
+/* The labeling heuristics consists in placing the biggest missing value   */
+/* (from N to 1). If only one solution is needed, it is better for first   */
+/* to put this value in the group which has the smallest sum (of already   */
+/* placed values). If all solutions are wanted this is not relevant and    */
+/* add an little overhead.                                                 */
+/*                                                                         */
+/* Generalization: finding a partition of 1,2...,N into 2 groups A and B:  */
+/*                                                                         */
+/*     Sum (x^k) = Sum y^k                                                 */
+/*   x in A      y in B                                                    */
+/*                                                                         */
+/* Condition a) is a special case where k=0, b) where k=1 and c) where k=2.*/
 /*                                                                         */
 /* Solution:                                                               */
 /*                                                                         */
@@ -67,37 +73,35 @@ q :-
 
 
 partit(N, A, B) :-
-	N2 is N // 2,
-	length(A, N2),
-	fd_domain(A, 1, N),
-	length(B, N2),
-	fd_domain(B, 1, N),
-	no_duplicate(A, B),
-	half_sums(N, HS1, HS2),
-	sums(A, HS1, HS2),
-	sums(B, HS1, HS2),	% redundant but more efficient
+	init_group(N, A),
+	init_group(N, B),
+	A = [1|_],		% fix 1 as the first value of the group A
+	cstr_pow(1, N, A, B),
+	cstr_pow(2, N, A, B),
+%	cstr_pow(3, N, A, B),	% uncomment to add ^3 constraints
+%	cstr_pow(4, N, A, B),	% uncomment to add ^4 constraints
 	reverse(A, AR),
 	reverse(B, BR),
-	enum(N, 0, 0, AR, BR).
-
-
-sums([], 0, 0).
-
-sums([X|L], S1, S2) :-
-	sums(L, T1, T2),
-	X ** 2 #= X2,
-	S1 #= X + T1,
-	S2 #= X2 + T2.
+	enum_one(N, 0, 0, AR, BR).   % better if only one solution is wanted
+%	enum_all(N, AR, BR).	% a bit better if all solutions are wanted
 
 
 
+compute_and_check_half_sum(_N, _P, S, HS) :-
+	S mod 2 =:= 0, !,
+	HS is S // 2.
 
-no_duplicate(A, B) :-
-	ascending_order(A),
-	ascending_order(B),	% redundant but more efficient
-	A = [1|_].
+compute_and_check_half_sum(N, P, S, _) :-
+	format('failure since sum of power ~d until ~d = ~d is odd (half-sum is not integer)~n', [P, N, S]),
+	fail.
 
 
+
+init_group(N, L) :-
+	compute_and_check_half_sum(N, 0, N, N2),
+	length(L, N2),
+	fd_domain(L, 1, N),
+	ascending_order(L).
 
 
 
@@ -113,43 +117,80 @@ ascending_order([Y|L], X) :-
 
 
 
-half_sums(N, HS1, HS2) :-
-	S1 is N * (N + 1) // 2,
-	S2 is S1 * (2 * N + 1) // 3,
-	HS1 is S1 // 2,
-	HS2 is S2 // 2 .
+cstr_pow(P, N, A, B) :-
+	sum_power(P, N, S),
+	compute_and_check_half_sum(N, P, S, HS),
+	cstr_pow(A, P, HS),
+	cstr_pow(B, P, HS).
 
 
 
-/* the labeling heuristics consists in placing the biggest missing value
- * (from N to 1) in the group which has the smallest sum first */
+cstr_pow([], _, 0).
+
+cstr_pow([X|L], P, S) :-
+	X ** P #= XP,
+	S #= XP + S1,
+	cstr_pow(L, P, S1).
 
 
-enum(N, SumA, SumB, A, B) :-
-	N > 1, !,
-	(   SumA < SumB ->
-	    (   enum1(N, SumA, SumB, A, B)  % in A then (at backtracking) in B
-	    ;
-		enum1(N, SumB, SumA, B, A)
-	    )
-	;
-	    (   enum1(N, SumB, SumA, B, A)  % in B then (at backtracking) in A
-	    ;
-		enum1(N, SumA, SumB, A, B)
-	    )
-	).
-
-enum(_, _, _, _, _).
 
 
-enum1(N, SumA, SumB, [N|A], B) :-
+/* Known sums of powers
+ * sum of n first integers: s1(n) = n * (n+1) / 2
+ * sum of n first squares : s2(n) = n * (n+1) * (2*n+1)/ 6
+ * sum of n first cubes   : s3(n) = n^2 * (n+1)^2 / 4 = s1(n)^2
+ * sum of n fisrt pow 4   : s4(n) = n * (n+1) * (6*n^3 + 9*n^2 + n - 1 ) / 30 
+ */
+
+
+sum_power(1, N, S) :-
+	S is N * (N + 1) // 2.
+
+sum_power(2, N, S) :-
+	S is  N * (N + 1) * (2 * N + 1) // 6.
+
+sum_power(3, N, S) :-
+	sum_power(1, N, S2),
+	S is S2 * S2.
+
+sum_power(4, N, S) :-
+	S is N * (N+1) * (6*N^3 + 9*N^2 + N - 1) // 30.
+
+
+
+/* The labeling heuristics consists in placing the biggest missing value (from N to 1) */
+
+
+enum_all(1, _, _) :-
+	!.
+
+enum_all(N, [N|A], B) :-
+	N1 is N - 1,
+	enum_all(N1, A, B).
+
+enum_all(N, A, [N|B]) :-
+	N1 is N - 1,
+	enum_all(N1, A, B).
+
+/* If only one solution is wanted, it is better to first try to put the biggest missing value
+ * in the group which has the smallest sum (of already placed values). */
+
+enum_one(1, _, _, _, _) :-
+	!.
+
+enum_one(N, SumA, SumB, A, B) :-
+	SumA > SumB, !,
+	enum_one(N, SumB, SumA, B, A).
+
+enum_one(N, SumA, SumB, [N|A], B) :- 		% in A first (which has the smallest sum) then...
 	SumA1 is SumA + N,
 	N1 is N - 1,
-	enum(N1, SumA, SumB, A, B).
+	enum_one(N1, SumA1, SumB, A, B).
 
-
-
-
+enum_one(N, SumA, SumB, A, [N|B]) :- 		% in B at backtracking
+	SumB1 is SumB + N,
+	N1 is N - 1,
+	enum_one(N1, SumA, SumB1, A, B).
 
 
 :-	initialization(q).
