@@ -194,3 +194,72 @@ enum_one(N, SumA, SumB, A, [N|B]) :- 		% in B at backtracking
 
 
 :-	initialization(q).
+
+
+
+
+%%% to compute the number of solutions
+
+
+all(N) :-
+	g_assign(nb,0),
+	user_time(T0),
+	all(N, T0).
+
+
+all(N, T0) :-
+	partit(N, _, _),
+	g_inc(nb, NB),
+	NB mod 100000 =:= 0,
+	show_time(NB, T0),
+	fail.
+
+
+all(N, T0) :-	
+	g_read(nb, NB),
+	format('final for partit(~d): ', [N]),
+	show_time(NB, T0).
+
+
+
+show_time(NB, T0) :-
+	user_time(T1),
+	T is (T1 - T0),
+	format('~d solutions in ', [NB]),
+	disp_time(T),
+	TA is T / NB,
+	write(' - avrage '),
+	disp_time(TA),
+	write(' / solution'),
+	nl.
+
+
+disp_time(T) :-
+	disp_time([86400000-d,3600000-h,60000-m,1000-s,1-ms],
+		  T, nothing_yet_displayed).
+
+
+
+
+disp_time([], T, nothing_yet_displayed) :-
+	!,
+	format('%.3f ms', [T]).
+
+disp_time([], _, _).
+
+
+disp_time([M-_|LM], T, nothing_yet_displayed) :-
+	T < M, !,
+	disp_time(LM, T, nothing_yet_displayed).
+
+disp_time([M-U|LM], T, _) :-
+	N is truncate(T / M),
+	T1 is T - (N * M),
+	format(' ~d~a', [N, U]),
+	disp_time(LM, T1, something_is_displayed).
+
+	
+	
+					  
+
+
