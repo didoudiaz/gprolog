@@ -210,14 +210,14 @@ all(N) :-
 all(N, T0) :-
 	partit(N, _, _),
 	g_inc(nb, NB),
-	NB mod 100000 =:= 0,
+	NB mod 100000 =:= 0,	% adapt this to have more or less displayed lines
 	show_time(NB, T0),
 	fail.
 
 
 all(N, T0) :-	
 	g_read(nb, NB),
-	format('final for partit(~d): ', [N]),
+	format('\nfinal for partit ~d:\n\n', [N]),
 	show_time(NB, T0).
 
 
@@ -225,16 +225,17 @@ all(N, T0) :-
 show_time(NB, T0) :-
 	user_time(T1),
 	T is (T1 - T0),
-	format('~d solutions in ', [NB]),
+	format('%10d solutions in ', [NB]),
 	disp_time(T),
 	TA is T / NB,
-	write(' - avrage '),
+	write('\n           average      '),
 	disp_time(TA),
-	write(' / solution'),
-	nl.
+	write(' / sol\n').
 
 
 disp_time(T) :-
+	T1 is T / 1000,
+	format('%20.6f secs =', [T1]),
 	disp_time([86400000-d,3600000-h,60000-m,1000-s,1-ms],
 		  T, nothing_yet_displayed).
 
@@ -243,7 +244,7 @@ disp_time(T) :-
 
 disp_time([], T, nothing_yet_displayed) :-
 	!,
-	format('%.3f ms', [T]).
+	format(' %.3f ms', [T]).
 
 disp_time([], _, _).
 
