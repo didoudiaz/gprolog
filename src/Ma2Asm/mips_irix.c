@@ -6,7 +6,7 @@
  * Descr.: translation file for IRIX on MIPS                               *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2009 Daniel Diaz                                     *
+ * Copyright (C) 1999-2010 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *

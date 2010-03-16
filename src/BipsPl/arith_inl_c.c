@@ -6,7 +6,7 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2009 Daniel Diaz                                     *
+ * Copyright (C) 1999-2010 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -448,10 +448,16 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 
 
+       /* FtoI is ONLY used for rounding functions */
 #define FtoI(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
-    Pl_Err_Type(pl_type_float, x);               \
+    {                                            \
+      if (Flag_Value(FLAG_STRICT_ISO))           \
+         Pl_Err_Type(pl_type_float, x);          \
+      else                                       \
+         return x;                               \
+    }						 \
   else                                           \
     d = Pl_Obtain_Float(UnTag_FLT(x));           \
   return Tag_INT((long) c_op(d))

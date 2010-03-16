@@ -1,3 +1,8 @@
+Tue Mar 16 11:35:32 CET 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* allow rounding functions to accept an integer is strict_iso is off
+
+
 Tue Dec  1 14:11:10 CET 2009 <Daniel.Diaz@univ-paris1.fr>
 
 	* group all examples under a new directory 'examples'
