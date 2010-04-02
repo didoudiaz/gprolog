@@ -9,15 +9,15 @@
  * Copyright (C) 1999-2010 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 3, or any later version.*
  *                                                                         *
  * GNU Prolog is distributed in the hope that it will be useful, but       *
  * WITHOUT ANY WARRANTY; without even the implied warranty of              *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
+ * You should have received a copy of the GNU Lesser General Public License*
  * with this program; if not, write to the Free Software Foundation, Inc.  *
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
  *-------------------------------------------------------------------------*/
@@ -91,7 +91,7 @@ static int atom_atom_no_escape;
 static int atom_the_dialect;
 static int atom_the_home;
 
-static int atom_prolog[10];
+static int atom_prolog[11];
 
 
 
@@ -180,7 +180,6 @@ Flag_Initializer(void)
 
   atom_the_home = Pl_Create_Atom(pl_home ? pl_home : "");
 
-  
   atom_prolog[0] = Pl_Create_Atom(PROLOG_NAME);
   atom_prolog[1] = Pl_Create_Atom(PROLOG_VERSION);
   atom_prolog[2] = Pl_Create_Atom(PROLOG_DATE);
@@ -192,7 +191,6 @@ Flag_Initializer(void)
   atom_prolog[8] = Pl_Create_Atom(M_OS);
   atom_prolog[9] = Pl_Create_Atom(M_CPU "-" M_VENDOR "-" M_OS);
   atom_prolog[10] = Pl_Create_Atom(M_CPU "-" M_OS);
-
 
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_SUSPICIOUS_WARNING) = 1;

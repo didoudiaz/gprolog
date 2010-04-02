@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.3.2:
 
+* GNU Prolog is now licensed under LGPL
 * allow rounding functions to accept an integer is strict_iso is off
 * group all examples under a new directory 'examples'
 * fix a bug in read_from_codes/2 and number_codes/2

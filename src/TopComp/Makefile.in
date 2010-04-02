@@ -1,6 +1,7 @@
 TOP_LEVEL       = @TOP_LEVEL@
 TOP_LEVEL_FLAGS = @TOP_LEVEL_FLAGS@
 GPLC            = @GPLC@
+CFLAGS          = @CFLAGS@
 HEXGPLC         = @HEXGPLC@
 CC              = @CC@ @CFLAGS_MACHINE@
 CFLAGS          = @CFLAGS@
@@ -24,7 +25,7 @@ $(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c
 all: $(ALL_EXECS)
 
 $(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level.c
-	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ top_level.c
+	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ -C '$(CFLAGS)' top_level.c
 
 
 

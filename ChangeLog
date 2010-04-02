@@ -1,3 +1,8 @@
+Fri Mar 31 15:52:42 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* GNU Prolog is now licensed under LGPL
+
+
 Tue Mar 16 11:35:32 CET 2010 <Daniel.Diaz@univ-paris1.fr>
 
 	* allow rounding functions to accept an integer is strict_iso is off

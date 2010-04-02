@@ -2,7 +2,7 @@
                                 ==========
 
 			      by Daniel Diaz
-			   Daniel.Diaz@inria.fr
+			   Daniel.Diaz@univ-paris1.fr
 
 
 INTRODUCTION
@@ -181,9 +181,8 @@ subject line.
 COPYING
 *******
 
-Because the basic GNU Prolog libraries are released under the GNU
-General Public License (GNU GPL), any program recommended for use with
-them must be free software and released under a GPL-compatible free
-software license, so that the combination can be (as a whole) under
-the GNU GPL as well.  For a list of some GPL-compatible free software
-licenses, see http://www.gnu.org/philosophy/license-list.html.
+Since version 1.3.2 GNU Prolog is released under the GNU Lesser General
+Public License (LGPL). See http://www.gnu.org/licenses/lgpl.html for more
+information.
+
+Older versions were released under the GNU General Public License (GPL).
