@@ -216,9 +216,11 @@
 \makeatother
 %END LATEX
 
-
+\ifpdf
+\def\OneUrl#1{\href{#1}{#1}}
+\else
 \def\OneUrl#1{\ahrefurl{\texttt{#1}}}
-
+\fi
 
 
 % Define a section without no and include it in the TOC
