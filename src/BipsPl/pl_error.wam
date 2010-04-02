@@ -1,7 +1,7 @@
-% compiler: GNU Prolog 1.3.2 (Mar 30 2010)
+% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
 % file    : pl_error.pl
-% date    : 3 30 2010
-% time    : 11:1:31
+% date    : 4 2 2010
+% time    : 16:2:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pl_error.pl').
