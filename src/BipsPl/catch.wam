@@ -1,29 +1,27 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : catch.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/catch.pl').
 
 
-predicate('$use_catch'/0,29,static,private,built_in,[
+predicate('$use_catch'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$catch'/6,35,static,private,built_in,[
+predicate('$catch'/6,35,static,private,monofile,built_in,[
     call_c('Pl_Save_Call_Info_3',[],[x(3),x(4),x(5)]),
     put_integer(0,3),
     execute('$catch1'/4)]).
 
 
-predicate('$catch1'/4,39,static,private,built_in,[
+predicate('$catch1'/4,39,static,private,monofile,built_in,[
     put_integer(3,4),
     call_c('Pl_Load_Call_Info_Arg_1',[],[x(4)]),
     execute('$catch_internal'/4)]).
 
 
-predicate('$catch_internal'/4,44,static,private,built_in,[
+predicate('$catch_internal'/4,44,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -44,7 +42,7 @@ predicate('$catch_internal'/4,44,static,private,built_in,[
     execute('$catch_internal1'/5)]).
 
 
-predicate('$catch_internal1'/5,50,static,private,built_in,[
+predicate('$catch_internal1'/5,50,static,private,monofile,built_in,[
     load_cut_level(5),
     try_me_else(1),
     allocate(6),
@@ -96,7 +94,7 @@ label(1),
     execute('$catch_a_throw'/5)]).
 
 
-predicate('$$catch_internal1/5_$aux1'/3,50,static,private,built_in,[
+predicate('$$catch_internal1/5_$aux1'/3,50,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
@@ -113,7 +111,7 @@ label(1),
     proceed]).
 
 
-predicate('$catch_a_throw'/5,79,static,private,built_in,[
+predicate('$catch_a_throw'/5,79,static,private,monofile,built_in,[
     load_cut_level(5),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
@@ -143,7 +141,7 @@ label(2),
     execute('$unwind'/1)]).
 
 
-predicate('$$catch_a_throw/5_$aux1'/2,79,static,private,built_in,[
+predicate('$$catch_a_throw/5_$aux1'/2,79,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
@@ -161,7 +159,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$trail_handler'/1,105,static,private,built_in,[
+predicate('$trail_handler'/1,105,static,private,monofile,built_in,[
     try_me_else(1),
     proceed,
 
@@ -174,7 +172,7 @@ label(1),
     fail]).
 
 
-predicate('$catch_sync_for_fail_at'/1,114,static,private,built_in,[
+predicate('$catch_sync_for_fail_at'/1,114,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -186,7 +184,7 @@ predicate('$catch_sync_for_fail_at'/1,114,static,private,built_in,[
     execute('$$catch_sync_for_fail_at/1_$aux1'/2)]).
 
 
-predicate('$$catch_sync_for_fail_at/1_$aux1'/2,114,static,private,built_in,[
+predicate('$$catch_sync_for_fail_at/1_$aux1'/2,114,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
@@ -206,7 +204,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$catch_fail_now'/1,126,static,private,built_in,[
+predicate('$catch_fail_now'/1,126,static,private,monofile,built_in,[
     allocate(0),
     call('$set_current_B'/1),
     fail]).

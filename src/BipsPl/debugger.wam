@@ -1,13 +1,11 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : debugger.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/debugger.pl').
 
 
-predicate('$init_debugger'/0,29,static,private,built_in,[
+predicate('$init_debugger'/0,29,static,private,monofile,built_in,[
     allocate(0),
     put_integer(13,0),
     put_integer(1,1),
@@ -21,7 +19,7 @@ predicate('$init_debugger'/0,29,static,private,built_in,[
     execute('$debug_switch_off'/0)]).
 
 
-predicate('$debug_switch_off'/0,38,static,private,built_in,[
+predicate('$debug_switch_off'/0,38,static,private,monofile,built_in,[
     put_atom('$debug_mode',0),
     put_atom(nodebug,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
@@ -38,7 +36,7 @@ predicate('$debug_switch_off'/0,38,static,private,built_in,[
     proceed]).
 
 
-predicate('$debug_switch_on'/1,47,static,private,built_in,[
+predicate('$debug_switch_on'/1,47,static,private,monofile,built_in,[
     allocate(1),
     put_atom('$debug_mode',1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(0)]),
@@ -62,18 +60,18 @@ predicate('$debug_switch_on'/1,47,static,private,built_in,[
     proceed]).
 
 
-predicate(wam_debug/0,60,static,private,built_in,[
+predicate(wam_debug/0,60,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[wam_debug,0]),
     call_c('Pl_Debug_Wam',[],[]),
     proceed]).
 
 
-predicate(notrace/0,67,static,private,built_in,[
+predicate(notrace/0,67,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[notrace,0]),
     execute(nodebug/0)]).
 
 
-predicate(nodebug/0,74,static,private,built_in,[
+predicate(nodebug/0,74,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nodebug,0]),
     call('$debug_switch_off'/0),
@@ -81,7 +79,7 @@ predicate(nodebug/0,74,static,private,built_in,[
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(trace/0,80,static,private,built_in,[
+predicate(trace/0,80,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[trace,0]),
     put_atom(trace,0),
@@ -90,7 +88,7 @@ predicate(trace/0,80,static,private,built_in,[
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(debug/0,86,static,private,built_in,[
+predicate(debug/0,86,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debug,0]),
     put_atom(debug,0),
@@ -99,7 +97,7 @@ predicate(debug/0,86,static,private,built_in,[
     execute('$show_debugger_mode'/0)]).
 
 
-predicate('$show_debugger_mode'/0,94,static,private,built_in,[
+predicate('$show_debugger_mode'/0,94,static,private,monofile,built_in,[
     allocate(0),
     put_atom('$debug_mode',1),
     put_variable(x(0),2),
@@ -110,7 +108,7 @@ predicate('$show_debugger_mode'/0,94,static,private,built_in,[
     execute(nl/1)]).
 
 
-predicate('$show_debugger_mode1'/1,100,static,private,built_in,[
+predicate('$show_debugger_mode1'/1,100,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -154,7 +152,7 @@ label(7),
     execute(write/2)]).
 
 
-predicate(debugging/0,114,static,private,built_in,[
+predicate(debugging/0,114,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debugging,0]),
     call('$show_debugger_mode'/0),
@@ -164,7 +162,7 @@ predicate(debugging/0,114,static,private,built_in,[
     execute('$show_spy_points'/0)]).
 
 
-predicate(leash/1,124,static,private,built_in,[
+predicate(leash/1,124,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[leash,1]),
@@ -268,7 +266,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$leash_make_mask'/2,157,static,private,built_in,[
+predicate('$leash_make_mask'/2,157,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -301,7 +299,7 @@ label(4),
     proceed]).
 
 
-predicate('$show_leashing_info'/0,167,static,private,built_in,[
+predicate('$show_leashing_info'/0,167,static,private,monofile,built_in,[
     allocate(0),
     put_atom('$debug_leash',1),
     put_variable(x(0),2),
@@ -312,7 +310,7 @@ predicate('$show_leashing_info'/0,167,static,private,built_in,[
     execute(nl/1)]).
 
 
-predicate('$show_leashing_info1'/1,173,static,private,built_in,[
+predicate('$show_leashing_info1'/1,173,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     get_integer(0,0),
@@ -339,7 +337,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate('$show_leashing_info2'/1,184,static,private,built_in,[
+predicate('$show_leashing_info2'/1,184,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -372,7 +370,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_is_not_leashed'/1,197,static,private,built_in,[
+predicate('$debug_is_not_leashed'/1,197,static,private,monofile,built_in,[
     allocate(2),
     put_atom('$debug_leash',1),
     put_variable(y(0),2),
@@ -388,7 +386,7 @@ predicate('$debug_is_not_leashed'/1,197,static,private,built_in,[
     proceed]).
 
 
-predicate('$debug_port_mask'/2,205,static,private,built_in,[
+predicate('$debug_port_mask'/2,205,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -435,7 +433,7 @@ label(11),
     proceed]).
 
 
-predicate('$show_undefined_action'/0,218,static,private,built_in,[
+predicate('$show_undefined_action'/0,218,static,private,monofile,built_in,[
     allocate(1),
     put_atom(unknown,0),
     put_variable(y(0),1),
@@ -450,7 +448,7 @@ predicate('$show_undefined_action'/0,218,static,private,built_in,[
     execute(nl/1)]).
 
 
-predicate('$show_undefined_action1'/1,225,static,private,built_in,[
+predicate('$show_undefined_action1'/1,225,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -484,7 +482,7 @@ label(7),
     execute(write/2)]).
 
 
-predicate(spypoint_condition/3,237,static,private,built_in,[
+predicate(spypoint_condition/3,237,static,private,monofile,built_in,[
     load_cut_level(3),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spypoint_condition,3]),
@@ -505,7 +503,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$spypoint_condition1'/3,250,static,private,built_in,[
+predicate('$spypoint_condition1'/3,250,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     get_variable(x(4),2),
@@ -522,7 +520,7 @@ label(1),
     proceed]).
 
 
-predicate('$$spypoint_condition1/3_$aux1'/5,250,static,private,built_in,[
+predicate('$$spypoint_condition1/3_$aux1'/5,250,static,private,monofile,local,[
     load_cut_level(5),
     try_me_else(1),
     allocate(6),
@@ -566,7 +564,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(spy/1,266,static,private,built_in,[
+predicate(spy/1,266,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spy,1]),
@@ -589,7 +587,7 @@ label(1),
     proceed]).
 
 
-predicate(nospy/1,280,static,private,built_in,[
+predicate(nospy/1,280,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospy,1]),
@@ -604,7 +602,7 @@ label(1),
     proceed]).
 
 
-predicate(nospyall/0,291,static,private,built_in,[
+predicate(nospyall/0,291,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospyall,0]),
@@ -623,7 +621,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_spy_set'/2,303,static,private,built_in,[
+predicate('$debug_spy_set'/2,303,static,private,monofile,built_in,[
     load_cut_level(2),
     switch_on_term(1,2,fail,4,fail),
 
@@ -673,7 +671,7 @@ label(4),
     execute('$debug_spy_set'/2)]).
 
 
-predicate('$$debug_spy_set/2_$aux1'/3,305,static,private,built_in,[
+predicate('$$debug_spy_set/2_$aux1'/3,305,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -697,7 +695,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_spy_reset'/1,317,static,private,built_in,[
+predicate('$debug_spy_reset'/1,317,static,private,monofile,built_in,[
     load_cut_level(1),
     switch_on_term(1,2,fail,4,fail),
 
@@ -740,7 +738,7 @@ label(4),
     execute('$debug_spy_reset'/1)]).
 
 
-predicate('$$debug_spy_reset/1_$aux1'/3,319,static,private,built_in,[
+predicate('$$debug_spy_reset/1_$aux1'/3,319,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -764,7 +762,7 @@ label(1),
     proceed]).
 
 
-predicate('$has_spy_point'/2,330,static,private,built_in,[
+predicate('$has_spy_point'/2,330,static,private,monofile,built_in,[
     load_cut_level(2),
     allocate(1),
     get_variable(y(0),2),
@@ -782,7 +780,7 @@ predicate('$has_spy_point'/2,330,static,private,built_in,[
     proceed]).
 
 
-predicate('$has_no_spy_point'/1,335,static,private,built_in,[
+predicate('$has_no_spy_point'/1,335,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -804,7 +802,7 @@ label(1),
     proceed]).
 
 
-predicate('$spy_test_condition'/3,345,static,private,built_in,[
+predicate('$spy_test_condition'/3,345,static,private,monofile,built_in,[
     load_cut_level(3),
     get_structure(c/3,2),
     unify_local_value(x(0)),
@@ -814,7 +812,7 @@ predicate('$spy_test_condition'/3,345,static,private,built_in,[
     execute('$$spy_test_condition/3_$aux1'/2)]).
 
 
-predicate('$$spy_test_condition/3_$aux1'/2,345,static,private,built_in,[
+predicate('$$spy_test_condition/3_$aux1'/2,345,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -834,7 +832,7 @@ label(1),
     proceed]).
 
 
-predicate('$show_spy_points'/0,354,static,private,built_in,[
+predicate('$show_spy_points'/0,354,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     put_atom(debugger_output,0),
@@ -863,7 +861,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_list_of_pred'/2,366,static,private,built_in,[
+predicate('$debug_list_of_pred'/2,366,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -959,7 +957,7 @@ label(9),
     execute('$debug_list_of_pred1'/4)]).
 
 
-predicate('$debug_list_of_pred1'/4,394,static,private,built_in,[
+predicate('$debug_list_of_pred1'/4,394,static,private,monofile,built_in,[
     load_cut_level(4),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -1023,7 +1021,7 @@ label(3),
     execute('$$debug_list_of_pred1/4_$aux2'/5)]).
 
 
-predicate('$$debug_list_of_pred1/4_$aux2'/5,406,static,private,built_in,[
+predicate('$$debug_list_of_pred1/4_$aux2'/5,406,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),4),
@@ -1047,7 +1045,7 @@ label(1),
     proceed]).
 
 
-predicate('$$debug_list_of_pred1/4_$aux3'/4,406,static,private,built_in,[
+predicate('$$debug_list_of_pred1/4_$aux3'/4,406,static,private,monofile,local,[
     try_me_else(1),
     get_value(x(1),0),
     get_value(x(0),2),
@@ -1068,7 +1066,7 @@ label(2),
     proceed]).
 
 
-predicate('$$debug_list_of_pred1/4_$aux1'/4,406,static,private,built_in,[
+predicate('$$debug_list_of_pred1/4_$aux1'/4,406,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -1104,7 +1102,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_call'/2,444,static,private,built_in,[
+predicate('$debug_call'/2,444,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(23),
     switch_on_term(3,1,fail,fail,2),
@@ -1254,7 +1252,7 @@ label(23),
     execute('$debug_call1'/8)]).
 
 
-predicate('$$debug_call/2_$aux1'/2,476,static,private,built_in,[
+predicate('$$debug_call/2_$aux1'/2,476,static,private,monofile,local,[
     load_cut_level(2),
     switch_on_term(1,2,fail,4,fail),
 
@@ -1281,7 +1279,7 @@ label(4),
     proceed]).
 
 
-predicate('$debug_call1'/8,499,static,private,built_in,[
+predicate('$debug_call1'/8,499,static,private,monofile,built_in,[
     load_cut_level(8),
     try_me_else(1),
     allocate(10),
@@ -1365,7 +1363,7 @@ label(2),
     execute('$debug_call'/2)]).
 
 
-predicate('$$debug_call1/8_$aux1'/3,499,static,private,built_in,[
+predicate('$$debug_call1/8_$aux1'/3,499,static,private,monofile,local,[
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),1),
@@ -1378,7 +1376,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_call_port'/5,529,static,private,built_in,[
+predicate('$debug_call_port'/5,529,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1400,7 +1398,7 @@ predicate('$debug_call_port'/5,529,static,private,built_in,[
     execute('$$debug_call_port/5_$aux1'/3)]).
 
 
-predicate('$$debug_call_port/5_$aux1'/3,529,static,private,built_in,[
+predicate('$$debug_call_port/5_$aux1'/3,529,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     put_atom('',4),
@@ -1416,7 +1414,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_end_call'/6,541,static,private,built_in,[
+predicate('$debug_end_call'/6,541,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),4),
@@ -1437,7 +1435,7 @@ label(1),
     fail]).
 
 
-predicate('$debug_exception_port'/5,552,static,private,built_in,[
+predicate('$debug_exception_port'/5,552,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),4),
     put_atom('$debug_ball',4),
@@ -1453,7 +1451,7 @@ predicate('$debug_exception_port'/5,552,static,private,built_in,[
     execute('$throw'/4)]).
 
 
-predicate('$debug_port'/5,562,static,private,built_in,[
+predicate('$debug_port'/5,562,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1472,7 +1470,7 @@ predicate('$debug_port'/5,562,static,private,built_in,[
     execute('$debug_port1'/6)]).
 
 
-predicate('$debug_port1'/6,567,static,private,built_in,[
+predicate('$debug_port1'/6,567,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     call('$debug_port2'/6),
@@ -1487,7 +1485,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_port2'/6,578,static,private,built_in,[
+predicate('$debug_port2'/6,578,static,private,monofile,built_in,[
     load_cut_level(6),
     try_me_else(1),
     allocate(1),
@@ -1508,7 +1506,7 @@ label(1),
     execute('$debug_port_prompt'/6)]).
 
 
-predicate('$debug_port_ignore'/4,588,static,private,built_in,[
+predicate('$debug_port_ignore'/4,588,static,private,monofile,built_in,[
     load_cut_level(4),
     switch_on_term(4,1,fail,fail,3),
 
@@ -1602,7 +1600,7 @@ label(15),
     proceed]).
 
 
-predicate('$$debug_port_ignore/4_$aux3'/3,609,static,private,built_in,[
+predicate('$$debug_port_ignore/4_$aux3'/3,609,static,private,monofile,local,[
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),1),
@@ -1616,7 +1614,7 @@ label(1),
     proceed]).
 
 
-predicate('$$debug_port_ignore/4_$aux2'/5,600,static,private,built_in,[
+predicate('$$debug_port_ignore/4_$aux2'/5,600,static,private,monofile,local,[
     load_cut_level(5),
     try_me_else(1),
     get_value(x(1),0),
@@ -1634,7 +1632,7 @@ label(1),
     proceed]).
 
 
-predicate('$$debug_port_ignore/4_$aux1'/3,593,static,private,built_in,[
+predicate('$$debug_port_ignore/4_$aux1'/3,593,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -1648,7 +1646,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_port_prompt'/6,619,static,private,built_in,[
+predicate('$debug_port_prompt'/6,619,static,private,monofile,built_in,[
     load_cut_level(6),
     allocate(7),
     get_variable(y(0),0),
@@ -1678,7 +1676,7 @@ predicate('$debug_port_prompt'/6,619,static,private,built_in,[
     proceed]).
 
 
-predicate('$$debug_port_prompt/6_$aux1'/5,619,static,private,built_in,[
+predicate('$$debug_port_prompt/6_$aux1'/5,619,static,private,monofile,local,[
     load_cut_level(5),
     try_me_else(1),
     allocate(2),
@@ -1712,7 +1710,7 @@ label(1),
     execute('$debug_exec_cmd'/6)]).
 
 
-predicate('$debug_read_cmd'/1,633,static,private,built_in,[
+predicate('$debug_read_cmd'/1,633,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(debugger_output,0),
@@ -1739,7 +1737,7 @@ predicate('$debug_read_cmd'/1,633,static,private,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_read_integer'/1,645,static,private,built_in,[
+predicate('$debug_read_integer'/1,645,static,private,monofile,built_in,[
     load_cut_level(1),
     allocate(1),
     get_variable(y(0),1),
@@ -1755,7 +1753,7 @@ predicate('$debug_read_integer'/1,645,static,private,built_in,[
     proceed]).
 
 
-predicate('$debug_exec_cmd'/6,653,static,private,built_in,[
+predicate('$debug_exec_cmd'/6,653,static,private,monofile,built_in,[
     load_cut_level(6),
     try_me_else(1),
     allocate(1),
@@ -2246,7 +2244,7 @@ label(66),
     fail]).
 
 
-predicate('$$debug_exec_cmd/6_$aux6'/1,802,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux6'/1,802,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -2277,7 +2275,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux5'/3,781,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux5'/3,781,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(4),
@@ -2307,7 +2305,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux7'/3,781,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux7'/3,781,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
@@ -2336,7 +2334,7 @@ label(1),
     execute(nl/1)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux4'/2,752,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux4'/2,752,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(5),
@@ -2376,7 +2374,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux3'/2,735,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux3'/2,735,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -2407,7 +2405,7 @@ label(1),
     fail]).
 
 
-predicate('$$debug_exec_cmd/6_$aux2'/1,718,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux2'/1,718,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     get_atom(exception,0),
@@ -2433,7 +2431,7 @@ label(1),
     execute(nl/1)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux1'/1,665,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux1'/1,665,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2461,7 +2459,7 @@ label(7),
     proceed]).
 
 
-predicate('$debug_write_goal'/4,841,static,private,built_in,[
+predicate('$debug_write_goal'/4,841,static,private,monofile,built_in,[
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2503,7 +2501,7 @@ predicate('$debug_write_goal'/4,841,static,private,built_in,[
     execute(write_term/3)]).
 
 
-predicate('$$debug_write_goal/4_$aux1'/2,841,static,private,built_in,[
+predicate('$$debug_write_goal/4_$aux1'/2,841,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(2),
@@ -2522,7 +2520,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_port_pretty'/2,855,static,private,built_in,[
+predicate('$debug_port_pretty'/2,855,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2577,7 +2575,7 @@ label(13),
     proceed]).
 
 
-predicate('$debug_disp_anc_lst'/1,870,static,private,built_in,[
+predicate('$debug_disp_anc_lst'/1,870,static,private,monofile,built_in,[
     allocate(1),
     get_list(0),
     unify_variable(x(0)),
@@ -2594,7 +2592,7 @@ predicate('$debug_disp_anc_lst'/1,870,static,private,built_in,[
     execute('$debug_disp_anc_lst1'/1)]).
 
 
-predicate('$debug_disp_anc_lst1'/1,876,static,private,built_in,[
+predicate('$debug_disp_anc_lst1'/1,876,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2626,7 +2624,7 @@ label(4),
     execute('$debug_write_goal'/4)]).
 
 
-predicate('$debug_disp_alternatives'/2,885,static,private,built_in,[
+predicate('$debug_disp_alternatives'/2,885,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2645,7 +2643,7 @@ predicate('$debug_disp_alternatives'/2,885,static,private,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_disp_alternatives1'/2,892,static,private,built_in,[
+predicate('$debug_disp_alternatives1'/2,892,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2682,7 +2680,7 @@ label(4),
     execute('$debug_disp_alt'/2)]).
 
 
-predicate('$debug_disp_alt'/2,900,static,private,built_in,[
+predicate('$debug_disp_alt'/2,900,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_value(x(1),0),
@@ -2717,7 +2715,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_disp_alt1'/3,910,static,private,built_in,[
+predicate('$debug_disp_alt1'/3,910,static,private,monofile,built_in,[
     try_me_else(1),
     execute('$debug_is_debug_predicate'/1),
 
@@ -2799,7 +2797,7 @@ label(9),
     execute('$debug_disp_alt2'/1)]).
 
 
-predicate('$$debug_disp_alt1/3_$aux1'/2,925,static,private,built_in,[
+predicate('$$debug_disp_alt1/3_$aux1'/2,925,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -2824,7 +2822,7 @@ label(1),
     execute('$debug_disp_alt2'/1)]).
 
 
-predicate('$$debug_disp_alt1/3_$aux2'/3,925,static,private,built_in,[
+predicate('$$debug_disp_alt1/3_$aux2'/3,925,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -2855,7 +2853,7 @@ label(1),
     execute('$debug_check_bip'/2)]).
 
 
-predicate('$debug_disp_alt2'/1,941,static,private,built_in,[
+predicate('$debug_disp_alt2'/1,941,static,private,monofile,built_in,[
     put_list(2),
     unify_local_value(x(0)),
     unify_nil,
@@ -2864,7 +2862,7 @@ predicate('$debug_disp_alt2'/1,941,static,private,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_is_debug_predicate'/1,947,static,private,built_in,[
+predicate('$debug_is_debug_predicate'/1,947,static,private,monofile,built_in,[
     put_integer(0,1),
     put_integer(7,2),
     put_void(3),
@@ -2872,7 +2870,7 @@ predicate('$debug_is_debug_predicate'/1,947,static,private,built_in,[
     execute(sub_atom/5)]).
 
 
-predicate('$debug_check_bip'/2,953,static,private,built_in,[
+predicate('$debug_check_bip'/2,953,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -2897,7 +2895,7 @@ label(1),
     execute(predicate_property/2)]).
 
 
-predicate('$debug_disp_help'/0,962,static,private,built_in,[
+predicate('$debug_disp_help'/0,962,static,private,monofile,built_in,[
     allocate(0),
     put_atom(debugger_output,0),
     put_atom('Debugging commands:~n~n',1),
@@ -2960,11 +2958,11 @@ predicate('$debug_disp_help'/0,962,static,private,built_in,[
     execute(nl/1)]).
 
 
-predicate('$choice_point_info'/4,983,static,private,built_in,[
+predicate('$choice_point_info'/4,983,static,private,monofile,built_in,[
     call_c('Pl_Choice_Point_Info_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$choice_point_arg'/3,987,static,private,built_in,[
+predicate('$choice_point_arg'/3,987,static,private,monofile,built_in,[
     call_c('Pl_Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
     proceed]).

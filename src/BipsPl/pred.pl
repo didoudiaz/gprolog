@@ -82,6 +82,10 @@ predicate_property(PI, Property) :-
 
 '$check_pred_prop'(public).
 
+'$check_pred_prop'(monofile).
+
+'$check_pred_prop'(multifile).
+
 '$check_pred_prop'(user).
 
 '$check_pred_prop'(built_in).
@@ -111,6 +115,12 @@ predicate_property(PI, Property) :-
 
 '$predicate_property2'(public, PI) :-
 	'$call_c_test'('Pl_Pred_Prop_Public_1'(PI)).
+
+'$predicate_property2'(monofile, PI) :-
+	'$call_c_test'('Pl_Pred_Prop_Monofile_1'(PI)).
+
+'$predicate_property2'(multifile, PI) :-
+	'$call_c_test'('Pl_Pred_Prop_Multifile_1'(PI)).
 
 '$predicate_property2'(user, PI) :-
 	'$call_c_test'('Pl_Pred_Prop_User_1'(PI)).

@@ -1,13 +1,11 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : utils.pl
-% date    : 4 2 2010
-% time    : 16:2:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/utils.pl').
 
 
-predicate('$term_to_goal'/3,30,static,private,built_in,[
+predicate('$term_to_goal'/3,30,static,private,monofile,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -32,7 +30,7 @@ label(1),
     proceed]).
 
 
-predicate('$term_to_goal1'/2,40,static,private,built_in,[
+predicate('$term_to_goal1'/2,40,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -49,7 +47,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$term_to_goal2'/2,47,static,private,built_in,[
+predicate('$term_to_goal2'/2,47,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),0),
@@ -132,7 +130,7 @@ label(9),
     proceed]).
 
 
-predicate('$$term_to_goal2/2_$aux1'/3,47,static,private,built_in,[
+predicate('$$term_to_goal2/2_$aux1'/3,47,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     get_atom(none,0),
@@ -149,7 +147,7 @@ label(1),
     proceed]).
 
 
-predicate('$check_list'/1,81,static,private,built_in,[
+predicate('$check_list'/1,81,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
@@ -169,7 +167,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_list_or_partial_list'/1,94,static,private,built_in,[
+predicate('$check_list_or_partial_list'/1,94,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
@@ -183,7 +181,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_atom_or_atom_list'/1,103,static,private,built_in,[
+predicate('$check_atom_or_atom_list'/1,103,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
@@ -200,7 +198,7 @@ label(1),
     proceed]).
 
 
-predicate('$check_atom_or_atom_list1'/1,110,static,private,built_in,[
+predicate('$check_atom_or_atom_list1'/1,110,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -236,7 +234,7 @@ label(6),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_atom_or_atom_list2'/1,124,static,private,built_in,[
+predicate('$check_atom_or_atom_list2'/1,124,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
@@ -256,7 +254,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$get_head_and_body'/3,137,static,private,built_in,[
+predicate('$get_head_and_body'/3,137,static,private,monofile,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_structure((:-)/2,0),
@@ -274,7 +272,7 @@ label(1),
     execute('$check_head'/1)]).
 
 
-predicate('$check_head'/1,147,static,private,built_in,[
+predicate('$check_head'/1,147,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -286,7 +284,7 @@ label(1),
     execute('$$check_head/1_$aux1'/1)]).
 
 
-predicate('$$check_head/1_$aux1'/1,151,static,private,built_in,[
+predicate('$$check_head/1_$aux1'/1,151,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
@@ -300,6 +298,6 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$get_pred_indic'/3,160,static,private,built_in,[
+predicate('$get_pred_indic'/3,160,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

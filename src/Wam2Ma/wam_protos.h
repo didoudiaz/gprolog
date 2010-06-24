@@ -43,14 +43,16 @@
 
 void Source_Line(int line_no, char *cmt);
 
-void Prolog_File_Name(char *pl_file);
 
-void New_Predicate(char *functor, int arity, int pl_line,
-		   int dynamic, int public, int built_in, int built_in_fd);
 
-void New_Directive(int pl_line, int system);
+void F_file_name(ArgVal arg[]);
 
-void Ensure_Linked(ArgVal arg[]);
+void F_predicate(ArgVal arg[]);
+
+void F_directive(ArgVal arg[]);
+
+void F_ensure_linked(ArgVal arg[]);
+
 
 
 
@@ -89,6 +91,8 @@ void F_put_nil(ArgVal arg[]);
 void F_put_list(ArgVal arg[]);
 
 void F_put_structure(ArgVal arg[]);
+
+void F_put_meta_term(ArgVal arg[]);
 
 void F_math_load_value(ArgVal arg[]);
 

@@ -43,7 +43,7 @@
 
 #define MAX_ARGS                   1024
 
-#define HEXGPLC_VERSION            "1.0"
+#define HEXGPLC_VERSION            "1.1"
 
 
 
@@ -56,8 +56,10 @@
  * Global Variables                *
  *---------------------------------*/
 
+
 int encode = 0;
 int strict = 1;
+int quote = 1;
 int enclose = 1;
 int decode_aux = 0;
 int cmd_line = 0;
@@ -160,42 +162,11 @@ One_File(FILE *f)
 void
 One_Line(char *str)
 {
-  int n;
-  char *p;
-
-#define Is_Sep(c) (c == '\0' || isspace(c) || strchr("'\"", c))
 
   if (encode)
-    {
-      while (*str)
-	{
-	  if (Is_Sep(*str))
-	    {
-	      putchar(*str++);
-	      continue;
-	    }
-
-	  putchar('X');
-	  while (*str && !Is_Sep(*str))
-	    {
-	      if (*str == '/')
-		{
-		  n = strtol(str + 1, &p, 10);
-		  if (n >= 0 && n < 1024 && Is_Sep(*p))
-		    {
-		      str = p;
-		      printf("_%d", n);
-		      break;
-		    }
-		}
-	      printf("%2X", (unsigned) (unsigned char) *str);
-	      str++;
-	    }
-	}
-      return;
-    }
-
-  fputs(Decode_Hexa(str, format, strict, decode_aux), stdout);
+    fputs(Encode_Hexa_Line(str, format, strict), stdout);
+  else
+    fputs(Decode_Hexa_Line(str, format, strict, quote, decode_aux), stdout);
 }
 
 
@@ -220,9 +191,33 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--decode"))
+	    {
+	      encode = 0;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--relax"))
 	    {
 	      strict = 0;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--strict"))
+	    {
+	      strict = 1;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--quote"))
+	    {
+	      quote = 1;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--no-quote"))
+	    {
+	      quote = 0;
 	      continue;
 	    }
 
@@ -285,7 +280,7 @@ Parse_Arguments(int argc, char *argv[])
 	    }
 
 	  Pl_Fatal_Error("unknown option %s - try %s --help", argv[i],
-		      HEXGPLC);
+			 HEXGPLC);
 	}
 
       arg[nb_arg++] = argv[i];
@@ -326,14 +321,18 @@ Display_Help(void)
   fprintf(stderr, "Usage: %s [OPTION]... [FILE...]", HEXGPLC);
   L(" ");
   L("Options:");
-  L("  --encode                    encoding mode (default is decoding)");
-  L("  --relax                     decode also predicate names (not only predicate indicators)");
-  L("  --printf FORMAT             pass encoded/decoded string to printf with FORMAT");
+  L("  --decode                    decoding mode (default)");
+  L("  --encode                    encoding mode");
+  L("  --relax                     encode/decode also predicate names (not only predicate indicators)");
+  L("  --strict                    encode/decode only predicate indicators (default)");
+  L("  --quote                     quote decoded predicate names (as done by writeq)");
+  L("  --no-quote                  do not quote decoded predicate names");
+  L("  --printf FORMAT             pass encoded/decoded strings to printf with FORMAT");
   L("  --aux-father                decode auxiliary predicate as its father");
   L("  --aux-father2               decode auxiliary predicate as its father + auxiliary number");
   L("  --cmd-line                  command-line mode: encode/decode each argument of the command-line");
-  L("  -H                          shortcut for --cmd-line --encode");
-  L("  -P                          shortcut for --cmd-line --relax");
+  L("  -H                          shortcut for --cmd-line --encode --relax");
+  L("  -P                          shortcut for --cmd-line --decode --relax --quote");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
 }

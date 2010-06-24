@@ -72,7 +72,7 @@ static int Detect_Oper_Specif(OperInf *oper);
 
 
 
-#define CURRENT_OP_ALT             X2463757272656E745F6F705F616C74
+#define CURRENT_OP_ALT             X1_2463757272656E745F6F705F616C74
 
 Prolog_Prototype(CURRENT_OP_ALT, 0);
 

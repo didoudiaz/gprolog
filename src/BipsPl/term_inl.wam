@@ -1,86 +1,84 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : term_inl.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
 
 
-predicate('$use_term_inl'/0,29,static,private,built_in,[
+predicate('$use_term_inl'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(compare/3,32,static,private,built_in,[
+predicate(compare/3,32,static,private,monofile,built_in,[
     call_c('Pl_Blt_Compare',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate((==)/2,36,static,private,built_in,[
+predicate((==)/2,36,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((\==)/2,39,static,private,built_in,[
+predicate((\==)/2,39,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@<)/2,42,static,private,built_in,[
+predicate((@<)/2,42,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Lt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@=<)/2,45,static,private,built_in,[
+predicate((@=<)/2,45,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Lte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@>)/2,48,static,private,built_in,[
+predicate((@>)/2,48,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Gt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@>=)/2,51,static,private,built_in,[
+predicate((@>=)/2,51,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Gte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(arg/3,57,static,private,built_in,[
+predicate(arg/3,57,static,private,monofile,built_in,[
     call_c('Pl_Blt_Arg',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(functor/3,63,static,private,built_in,[
+predicate(functor/3,63,static,private,monofile,built_in,[
     call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate((=..)/2,69,static,private,built_in,[
+predicate((=..)/2,69,static,private,monofile,built_in,[
     call_c('Pl_Blt_Univ',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(copy_term/2,75,static,private,built_in,[
+predicate(copy_term/2,75,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[copy_term,2]),
     call_c('Pl_Copy_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(setarg/3,82,static,private,built_in,[
+predicate(setarg/3,82,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[setarg,3]),
     put_atom(true,3),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(setarg/4,87,static,private,built_in,[
+predicate(setarg/4,87,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[setarg,4]),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(term_ref/2,94,static,private,built_in,[
+predicate(term_ref/2,94,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_ref,2]),
     call_c('Pl_Term_Ref_2',[boolean],[x(0),x(1)]),
     proceed]).

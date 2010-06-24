@@ -141,9 +141,9 @@ static Bool Help(void);
 
 
 
-#define INIT_DEBUGGER              X24696E69745F6465627567676572
+#define INIT_DEBUGGER              X1_24696E69745F6465627567676572
 
-#define DEBUG_CALL                 X2464656275675F63616C6C
+#define DEBUG_CALL                 X1_2464656275675F63616C6C
 
 Prolog_Prototype(INIT_DEBUGGER, 0);
 Prolog_Prototype(DEBUG_CALL, 2);

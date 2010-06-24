@@ -59,18 +59,19 @@ static Bool Retract_Alt(DynCInf *clause, WamWord *w);
 
 
 /*-------------------------------------------------------------------------*
- * PL_ASSERT_4                                                             *
+ * PL_ASSERT_5                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Assert_4(WamWord head_word, WamWord body_word,
-	 WamWord asserta_word, WamWord check_perm_word)
+Pl_Assert_5(WamWord head_word, WamWord body_word,
+	    WamWord asserta_word, WamWord check_perm_word, WamWord pl_file_word)
 {
   Bool asserta = Pl_Rd_Integer(asserta_word);
   Bool check_perm = Pl_Rd_Integer(check_perm_word);
+  int pl_file = Pl_Rd_Atom(pl_file_word);
   
   last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta,
-				   check_perm);
+				      check_perm, pl_file);
 }
 
 
@@ -140,8 +141,8 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
   w[1] = body_word;
 
   clause = Pl_Scan_Dynamic_Pred(-1, 0, (DynPInf *) (pred->dyn), word,
-			     (ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2,
-			     w);
+				(ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2,
+				w);
   if (clause == NULL)
     return FALSE;
 
@@ -227,8 +228,8 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   w[1] = body_word;
 
   clause = Pl_Scan_Dynamic_Pred(-1, 0, (DynPInf *) (pred->dyn), word,
-			     (ScanFct) Retract_Alt, DYN_ALT_FCT_FOR_TEST, 2,
-			     w);
+				(ScanFct) Retract_Alt, DYN_ALT_FCT_FOR_TEST, 2,
+				w);
   if (clause == NULL)
     return FALSE;
 
@@ -356,7 +357,7 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
     }
 
   if (ret)
-    Pl_Update_Dynamic_Pred(func, arity, 1);
+    Pl_Update_Dynamic_Pred(func, arity, 1, -1);
 
   return ret;
 }
@@ -375,7 +376,7 @@ Pl_Abolish_1(WamWord pred_indic_word)
 
   func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
 
-  Pl_Update_Dynamic_Pred(func, arity, 3);
+  Pl_Update_Dynamic_Pred(func, arity, 3, -1);
 }
 
 
@@ -393,5 +394,5 @@ Pl_Remove_Predicate_2(WamWord name_word, WamWord arity_word)
   func = Pl_Rd_Atom_Check(name_word);
   arity = Pl_Rd_Integer_Check(arity_word);
 
-  Pl_Update_Dynamic_Pred(func, arity, 2);
+  Pl_Update_Dynamic_Pred(func, arity, 2, -1);
 }

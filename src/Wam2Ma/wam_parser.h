@@ -39,8 +39,10 @@ typedef enum
   FLOAT,			/* a double */
   X_Y,				/* x(X) or y(Y) */
   F_N,				/* a ATOM / INTEGER */
+  MP_N,				/* a [ATOM :] ATOM / INTEGER (optional module qualif) */
   LABEL,			/* a label */
-  ANY				/* ATOM or INTEGER or F_N or FLOAT or X_Y */
+  ANY,				/* ATOM or INTEGER or F_N or FLOAT or X_Y */
+  LIST_INST                     /* a list of instructions */
 }
 ArgTyp;
 

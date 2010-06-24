@@ -52,9 +52,9 @@ normalize_cuts(Body, Body2) :-
 	).
 
 
-normalize_cuts1(X, VarCut, P) :-
+normalize_cuts1(X, CutVar, P) :-
 	var(X),
-	normalize_cuts1(call(X), VarCut, P).
+	normalize_cuts1(call(X), CutVar, P).
 
 normalize_cuts1((If ; R), CutVar, Body) :-
 	nonvar(If),
@@ -78,7 +78,18 @@ normalize_cuts1((P ; Q), CutVar, (P1 ; Q1)) :-
 	normalize_cuts1(P, CutVar, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
+normalize_cuts1(M:G, CutVar, Body) :-
+	check_module_name(M, true),
+	normalize_cuts1(G, CutVar, G1),
+	distrib_module_qualif(G1, M, G2),
+	(   G2 = M3:_, var(M3) ->
+	    normalize_cuts1(call(G2), CutVar, Body)
+	;
+	    Body = G2
+	).
+
 normalize_cuts1(call(G), _, '$call'(G, Func, Arity, true)) :-
+%	get_module_of_cur_pred(Module), % then use a '$call'(G, Module, Func, Arity, true)
 	cur_pred_without_aux(Func, Arity).
 
 normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity, true)) :-
@@ -87,11 +98,46 @@ normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity, true)) :-
 normalize_cuts1(throw(B), _, '$throw'(B, Func, Arity, true)) :-
 	cur_pred_without_aux(Func, Arity).
 
-normalize_cuts1(P, _, P) :-
+normalize_cuts1(P, _, P1) :-
 	(   callable(P) ->
-	    true
+	    meta_pred_rewriting(P, P1)
 	;   error('body goal is not callable (~q)', [P])
 	).
+
+
+
+
+distrib_module_qualif((P ; Q), M, (P1 ; Q1)) :-
+	!,
+	distrib_module_qualif(P, M, P1),
+	distrib_module_qualif(Q, M, Q1).
+
+distrib_module_qualif((P -> Q), M, (P1 -> Q1)) :-
+	!,
+	distrib_module_qualif(P, M, P1),
+	distrib_module_qualif(Q, M, Q1).
+
+distrib_module_qualif((P , Q), M, (P1 , Q1)) :-
+	!,
+	distrib_module_qualif(P, M, P1),
+	distrib_module_qualif(Q, M, Q1).
+
+distrib_module_qualif(M:G, _, G1) :-
+	!,
+	check_module_name(M, true),
+	distrib_module_qualif(G, M, G1).
+
+distrib_module_qualif(!, _, !) :-
+	!.
+
+distrib_module_qualif(P, M, M:P).
+
+distrib_module_qualif_goal(G, _, G) :-
+	nonvar(G),
+	G = M:_, !,		% already qualifed with a module
+	check_module_name(M, true).
+
+distrib_module_qualif_goal(G, M, M:G).
 
 
 
@@ -277,3 +323,46 @@ add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName) :-
 head_wrapper(Head, AuxName, Head1) :-
 	Head =.. [_|LArgs],
 	Head1 =.. [AuxName|LArgs].
+
+
+
+	% meta_predicate rewriting
+
+meta_pred_rewriting(P1, P2) :-
+	nonvar(P1),
+	functor(P1, Pred, N),
+	clause(meta_pred(Pred, N, MetaDecl), _), !,
+	functor(P2, Pred, N),
+	meta_pred_rewrite_args(1, N, P1, MetaDecl, P2).
+
+meta_pred_rewriting(P, P).
+
+
+
+
+meta_pred_rewrite_args(I, N, P1, MetaDecl, P2) :-
+	I =< N, !,
+	arg(I, P1, A1),
+	arg(I, P2, A2),
+	arg(I, MetaDecl, Spec),
+	meta_pred_rewrite_arg(Spec, A1, A2),
+	I1 is I + 1,
+	meta_pred_rewrite_args(I1, N, P1, MetaDecl, P2).
+
+meta_pred_rewrite_args(_, _, _, _, _).
+
+
+
+
+meta_pred_rewrite_arg(Spec, A, A) :-
+	var(Spec), !.
+
+meta_pred_rewrite_arg(:, A1, A2) :-
+	!,
+	meta_pred_rewrite_arg(0, A1, A2).
+
+meta_pred_rewrite_arg(Spec, A1, '$mt'(Module, A1)) :-
+	integer(Spec), !,
+	get_module_of_cur_pred(Module).
+
+meta_pred_rewrite_arg(_, A, A).

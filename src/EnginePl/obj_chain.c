@@ -118,9 +118,11 @@ static void Accumulate_Objects(void);
 #endif
 
 #ifndef OBJ_CHAIN_REVERSE_ORDER
-#define FOR_EACH_OBJ   for(i = 0; i < nb_obj; i++)
+#define FOR_EACH_OBJ_FROM_LAST_TO_FIRST   for(i = 0; i < nb_obj; i++)
+#define FOR_EACH_OBJ_FROM_FIRST_TO_LAST   for(i = nb_obj; --i >= 0; )
 #else
-#define FOR_EACH_OBJ   for(i = nb_obj; --i >= 0; )
+#define FOR_EACH_OBJ_FROM_LAST_TO_FIRST   for(i = nb_obj; --i >= 0; )
+#define FOR_EACH_OBJ_FROM_FIRST_TO_LAST   for(i = 0; i < nb_obj; i++)
 #endif
 
 /*-------------------------------------------------------------------------*
@@ -136,7 +138,7 @@ Pl_Find_Linked_Objects(void)
   Accumulate_Objects();
 #endif
 
-  FOR_EACH_OBJ			/* call Obj Init functions */
+  FOR_EACH_OBJ_FROM_LAST_TO_FIRST			/* call Obj Init functions */
     {
       if (obj_tbl[i].fct_obj_init != NULL) {
 #ifdef DEBUG
@@ -146,7 +148,7 @@ Pl_Find_Linked_Objects(void)
 	(*(obj_tbl[i].fct_obj_init)) ();
       }
     }
-  FOR_EACH_OBJ			/* call Exec System functions */
+  FOR_EACH_OBJ_FROM_FIRST_TO_LAST			/* call Exec System functions */
     {
       if (obj_tbl[i].fct_exec_system != NULL) {
 #ifdef DEBUG
@@ -157,7 +159,7 @@ Pl_Find_Linked_Objects(void)
       }
     }
 
-  FOR_EACH_OBJ			/* call Exec User functions */
+  FOR_EACH_OBJ_FROM_LAST_TO_FIRST			/* call Exec User functions */
     {
       if (obj_tbl[i].fct_exec_user != NULL) {
 #ifdef DEBUG

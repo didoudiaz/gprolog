@@ -71,9 +71,9 @@ static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
  * Function Prototypes             *
  *---------------------------------*/
 
-#define ABORT                      X61626F7274
+#define ABORT                      X0_abort
 
-#define BREAK                      X627265616B
+#define BREAK                      X0_break
 
 Prolog_Prototype(ABORT, 0);
 Prolog_Prototype(BREAK, 0);

@@ -211,7 +211,7 @@ void Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word);
 #define Interf_Body(interf) ((interf) ? "module" : "body")
 
 
-#define SR_CURRENT_DESC_ALT        X2473725F63757272656E745F64657363726970746F725F616C74
+#define SR_CURRENT_DESC_ALT        X1_2473725F63757272656E745F64657363726970746F725F616C74
 
 Prolog_Prototype(SR_CURRENT_DESC_ALT, 0);
 

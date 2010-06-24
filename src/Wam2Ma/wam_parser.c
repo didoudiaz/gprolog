@@ -62,7 +62,7 @@ typedef struct
   int nb_args;
   ArgTyp arg_type[MAX_FCT_ARITY];
 }
-InstInf;
+ParseInf;
 
 
 
@@ -71,7 +71,17 @@ InstInf;
  * Global Variables                *
  *---------------------------------*/
 
-InstInf inst[] = {
+ParseInf decl[] = {
+  {"file_name", F_file_name, 1, {ATOM}},
+  {"directive", F_directive, 3, {INTEGER, ATOM, LIST_INST}},
+  {"predicate", F_predicate, 7, {MP_N, INTEGER, ATOM, ATOM, ATOM, ATOM, LIST_INST}},
+  {"ensure_linked", F_ensure_linked, 1, {L1(MP_N)}},
+  {NULL, NULL, 0, {0}}
+};
+
+
+
+ParseInf inst[] = {
   {"get_variable", F_get_variable, 2, {X_Y, INTEGER}},
   {"get_value", F_get_value, 2, {X_Y, INTEGER}},
   {"get_atom", F_get_atom, 2, {ATOM, INTEGER}},
@@ -79,7 +89,7 @@ InstInf inst[] = {
   {"get_float", F_get_float, 2, {FLOAT, INTEGER}},
   {"get_nil", F_get_nil, 1, {INTEGER}},
   {"get_list", F_get_list, 1, {INTEGER}},
-  {"get_structure", F_get_structure, 2, {F_N, INTEGER,}},
+  {"get_structure", F_get_structure, 2, {F_N, INTEGER}},
 
   {"put_variable", F_put_variable, 2, {X_Y, INTEGER}},
   {"put_void", F_put_void, 1, {INTEGER}},
@@ -90,7 +100,8 @@ InstInf inst[] = {
   {"put_float", F_put_float, 2, {FLOAT, INTEGER}},
   {"put_nil", F_put_nil, 1, {INTEGER}},
   {"put_list", F_put_list, 1, {INTEGER}},
-  {"put_structure", F_put_structure, 2, {F_N, INTEGER,}},
+  {"put_structure", F_put_structure, 2, {F_N, INTEGER}},
+  {"put_meta_term", F_put_meta_term, 2, {ATOM, INTEGER}},
   {"math_load_value", F_math_load_value, 2, {X_Y, INTEGER}},
   {"math_fast_load_value", F_math_fast_load_value, 2, {X_Y, INTEGER}},
 
@@ -107,8 +118,8 @@ InstInf inst[] = {
   {"allocate", F_allocate, 1, {INTEGER}},
   {"deallocate", F_deallocate, 0, {0}},
 
-  {"call", F_call, 1, {F_N,}},
-  {"execute", F_execute, 1, {F_N,}},
+  {"call", F_call, 1, {MP_N}},
+  {"execute", F_execute, 1, {MP_N}},
   {"proceed", F_proceed, 0, {0}},
   {"fail", F_fail, 0, {0}},
 
@@ -171,7 +182,7 @@ double dbl_val;
 
 static void Parser(void);
 
-static void Read_Instruction(void);
+static int Parse_And_Treat_Decl_Or_Inst(ParseInf *in);
 
 static void Read_Argument(ArgTyp arg_type, ArgVal **top);
 
@@ -225,119 +236,10 @@ Parse_Wam_File(char *file_name_in, int comment)
 static void
 Parser(void)
 {
-  int k;
-  char *name;
-  int arity;
-  int inside_directive;
-  int dynamic, public, built_in, built_in_fd;
-  int system;
-  ArgVal *top;
-
-  while ((k = Scanner(0)) != 0)	/* end of file */
+  for(;;)
     {
-      if (k != ATOM)
-	{
-	top_error:
-	  Syntax_Error("file_name, predicate, directive "
-		       "or ensure_linked expected");
-	}
-
-      if (strcmp(str_val, "file_name") == 0)
-	{
-	  Read_Token('(');
-	  Read_Token(ATOM);
-	  Read_Token(')');
-	  Read_Token('.');
-	  Prolog_File_Name(strdup(str_val));
-	  continue;
-	}
-
-      if (strcmp(str_val, "ensure_linked") == 0)
-	{
-	  top = arg;
-	  Read_Token('(');
-	  Read_Argument(L1(F_N), &top);
-	  Read_Token(')');
-	  Read_Token('.');
-	  Ensure_Linked(arg);
-	  continue;
-	}
-
-      inside_directive = system = dynamic = public = built_in =
-	built_in_fd = 0;
-
-      if (strcmp(str_val, "directive") == 0)
-	inside_directive = 1;
-      else if (strcmp(str_val, "predicate") != 0)
-	goto top_error;
-
-      Read_Token('(');
-      if (!inside_directive)
-	{
-	  Read_Token(ATOM);
-	  Read_Token('/'), Read_Token(INTEGER);
-	  name = strdup(str_val);
-	  arity = int_val;
-	  Read_Token(',');
-
-	  Read_Token(INTEGER);	/* pl_line */
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "dynamic") == 0)
-	    dynamic = 1;
-	  else if (strcmp(str_val, "static") != 0)
-	    Syntax_Error("static or dynamic expected");
-
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "public") == 0)
-	    public = 1;
-	  else if (strcmp(str_val, "private") != 0)
-	    Syntax_Error("public or private expected");
-
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "built_in") == 0)
-	    built_in = 1;
-	  else if (strcmp(str_val, "built_in_fd") == 0)
-	    built_in_fd = 1;
-	  else if (strcmp(str_val, "user") != 0)
-	    Syntax_Error("user, built_in or built_in_fd expected");
-
-	  Read_Token(',');
-
-	  New_Predicate(name, arity, int_val, dynamic, public,
-			built_in, built_in_fd);
-	}
-      else
-	{
-	  Read_Token(INTEGER);	/* pl_line */
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "system") == 0)
-	    system = 1;
-	  else if (strcmp(str_val, "user") != 0)
-	    Syntax_Error("user or system expected");
-
-	  Read_Token(',');
-	  New_Directive(int_val, system);
-	}
-
-      Read_Token('[');
-      for (;;)
-	{
-	  Read_Instruction();
-	  k = Scanner(0);
-	  if (k == ']')
-	    break;
-	  if (k != ',')
-	    Syntax_Error("] or , expected");
-	}
-      Read_Token(')');
+      if (!Parse_And_Treat_Decl_Or_Inst(decl)) /* end of file */
+	break;
       Read_Token('.');
     }
 }
@@ -346,25 +248,29 @@ Parser(void)
 
 
 /*-------------------------------------------------------------------------*
- * READ_INSTRUCTION                                                        *
+ * READ_DECL_OR_INST                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Read_Instruction(void)
+static int
+Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 {
-  InstInf *in;
+  ParseInf *in = what;
   ArgVal *top = arg;
-  int i;
+  int i, k;
+  int fct_called = 0;
 
-  if (Scanner(0) != ATOM)
-    Syntax_Error("wam instruction expected");
+  k = Scanner(0);
+  if (k == 0 && what == decl)			/* end of file */
+    return 0;
 
-  for (in = inst; in->keyword; in++)
-    if (strcmp(str_val, in->keyword) == 0)
-      break;
+  if (k != ATOM)
+    Syntax_Error((what == decl) ? "wam declaration expected" : "wam instruction expected");
 
+  for(in = what; in->keyword && strcmp(str_val, in->keyword) != 0; in++)
+    ;
+  
   if (in->keyword == NULL)
-    Syntax_Error("unknown wam instruction");
+    Syntax_Error((what == decl) ? "unknown wam declaration" : "unknown wam instruction");
 
   if (in->nb_args)
     {
@@ -374,12 +280,32 @@ Read_Instruction(void)
 	  if (i > 0)
 	    Read_Token(',');
 
-	  Read_Argument(in->arg_type[i], &top);
+	  if (in->arg_type[i] == LIST_INST)
+	    {
+	      (*in->fct) (arg);
+	      fct_called = 1;
+
+	      Read_Token('[');
+	      for (;;)
+		{
+		  Parse_And_Treat_Decl_Or_Inst(inst); /* only works because LIST_INST is the last argument */
+		  k = Scanner(0);
+		  if (k == ']')
+		    break;
+		  if (k != ',')
+		    Syntax_Error("] or , expected");
+		}
+	    }
+	  else
+	    Read_Argument(in->arg_type[i], &top);
 	}
       Read_Token(')');
     }
 
-  (*in->fct) (arg);
+  if (!fct_called)
+    (*in->fct) (arg);
+
+  return 1;
 }
 
 
@@ -395,6 +321,8 @@ Read_Instruction(void)
  * FLOAT     : the associated (double)                                     *
  * X_Y       : the (int) associated to the var no (Y vars from 5000)       *
  * F_N       : the loading of ATOM (F) and the loading of INTEGER (N)      *
+ * MP_N      : the loading of ATOM (M) or NULL (no module) followed by F_N *
+ *             the loading of ATOM (F) and the loading of INTEGER (N)      *
  * LABEL     : the associated (int) or -1 for 'fail'                       *
  * ANY       : the type of the arg (an INTEGER) and the loading of arg     *
  * L1(T)     : an (int) n associated to the number of elements and         *
@@ -448,6 +376,27 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       Read_Argument(INTEGER, top);
       return;
 
+    case MP_N:
+      Read_Token(ATOM);
+      k = Scanner(0);
+      if (k == ':') 
+	{
+	  Add_Arg(*top, char *, strdup(str_val));
+	  Read_Token(ATOM);
+	  Add_Arg(*top, char *, strdup(str_val));
+	  Read_Token('/');
+	} 
+      else if (k == '/')
+	{
+	  Add_Arg(*top, char *, NULL);
+	  Add_Arg(*top, char *, strdup(str_val));
+	}
+      else
+	Syntax_Error("/ or : expected");
+
+      Read_Argument(INTEGER, top);
+      return;
+
     case LABEL:
       k = Scanner(0);
       if (k != INTEGER)
@@ -490,6 +439,10 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	  Read_Argument(INTEGER, top);
 	  Add_Arg(top1, long, F_N);
 	}
+      return;
+
+    case LIST_INST:		/* should not occur */
+      fprintf(stderr, "BAD Read_Argument(LIST_INST) !!!\n");
       return;
     }
 
@@ -705,11 +658,6 @@ Scanner(int complex_atom)
 	    }
 	  while (strchr("#$&*+-./:<=>?@\\^~", *cur_line_p));
 	  *p = '\0';
-	  if (*str_val == '-' && str_val[1] == '\0' && isdigit(*cur_line_p)) /* negative number */
-	    {
-	      cur_line_p--;
-	      goto number;
-	    }
 	  return ATOM;
 	}
 
@@ -721,7 +669,7 @@ Scanner(int complex_atom)
 	}
     }
 
- number:
+
   i = strtol(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;

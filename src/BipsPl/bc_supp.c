@@ -173,6 +173,7 @@ static int bc_nb_block;
 
 static int atom_dynamic;
 static int atom_public;
+static int atom_multifile;
 static int atom_built_in;
 static int atom_built_in_fd;
 static int atom_fail;
@@ -216,9 +217,9 @@ static void Prep_Debug_Call(int func, int arity, int caller_func,
 
 
 
-#define BC_EMULATE_CONT            X2462635F656D756C6174655F636F6E74
+#define BC_EMULATE_CONT            X1_2462635F656D756C6174655F636F6E74
 
-#define CALL_INTERNAL_WITH_CUT     X2463616C6C5F696E7465726E616C5F776974685F637574
+#define CALL_INTERNAL_WITH_CUT     X1_2463616C6C5F696E7465726E616C5F776974685F637574
 
 Prolog_Prototype(BC_EMULATE_CONT, 0);
 Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
@@ -313,6 +314,7 @@ Byte_Code_Initializer(void)
 
   atom_dynamic = Pl_Create_Atom("dynamic");
   atom_public = Pl_Create_Atom("public");
+  atom_multifile = Pl_Create_Atom("multifile");
   atom_built_in = Pl_Create_Atom("built_in");
   atom_built_in_fd = Pl_Create_Atom("built_in_fd");
   atom_fail = Pl_Create_Atom("fail");
@@ -369,15 +371,16 @@ Compar_Inst_Code_Op(BCWord *p1, BCWord *p2)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_BC_Start_Pred_7(WamWord func_word, WamWord arity_word,
+Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
 		   WamWord pl_file_word, WamWord pl_line_word,
 		   WamWord sta_dyn_word, WamWord pub_priv_word,
-		   WamWord us_blp_bfd_word)
+		   WamWord mono_multi_word, WamWord us_blp_bfd_word)
 {
   int func, arity;
   int pl_file, pl_line;
   int prop = 0;
   int atom;
+  int multi = 0;
   PredInf *pred;
 
   func = Pl_Rd_Atom_Check(func_word);
@@ -390,6 +393,12 @@ Pl_BC_Start_Pred_7(WamWord func_word, WamWord arity_word,
   else if (Pl_Rd_Atom_Check(pub_priv_word) == atom_public)
     prop = MASK_PRED_PUBLIC;
 
+  if (Pl_Rd_Atom_Check(mono_multi_word) == atom_multifile)
+    {
+      prop |= MASK_PRED_MULTIFILE;
+      multi = 1;
+    }
+
   atom = Pl_Rd_Atom_Check(us_blp_bfd_word);
   if (atom == atom_built_in)
     prop |= MASK_PRED_BUILTIN;
@@ -397,14 +406,19 @@ Pl_BC_Start_Pred_7(WamWord func_word, WamWord arity_word,
     prop |= MASK_PRED_BUILTIN_FD;
 
 
-  pred = Pl_Update_Dynamic_Pred(func, arity, 0);
+  pred = Pl_Update_Dynamic_Pred(func, arity, 0, (multi) ? pl_file : -1);
   if (pred == NULL)
     pred = Pl_Create_Pred(func, arity, pl_file, pl_line, prop, NULL);
   else
     {
-      pred->pl_file = pl_file;
-      pred->pl_line = pl_line;
-      pred->prop = prop;
+      if (multi)
+	pred->prop |= prop;
+      else
+	{
+	  pred->pl_file = pl_file;
+	  pred->pl_line = pl_line;
+	  pred->prop = prop;
+	}
     }
 
 #if 1
@@ -455,6 +469,30 @@ Pl_BC_Stop_Emit_0(void)
   for (i = 0; i < pl_byte_len; i++)
     pl_byte_code[i] = bc[i].word;
 }
+
+
+
+
+#define ASSEMBLE_INST(bc_sp, op, nb_word, w, w1, w2, w3)	\
+  BC_Op(w) = op;						\
+  *bc_sp++ = w;							\
+  if (nb_word >= 2)						\
+    {								\
+      bc_sp->word = w1;						\
+      bc_sp++;							\
+								\
+      if (nb_word >= 3)						\
+	{							\
+	  bc_sp->word = w2;					\
+	  bc_sp++;						\
+	  if (nb_word >= 4)					\
+	    {							\
+	      bc_sp->word = w3;					\
+	      bc_sp++;						\
+	    }							\
+	}							\
+    }
+
 
 
 
@@ -645,25 +683,8 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       break;
     }
 
-  BC_Op(w) = op;
 
-  *bc_sp++ = w;
-  if (nb_word >= 2)
-    {
-      bc_sp->word = w1;
-      bc_sp++;
-
-      if (nb_word >= 3)
-	{
-	  bc_sp->word = w2;
-	  bc_sp++;
-	  if (nb_word >= 4)
-	    {
-	      bc_sp->word = w3;
-	      bc_sp++;
-	    }
-	}
-    }
+  ASSEMBLE_INST(bc_sp, op, nb_word, w, w1, w2, w3);
 
 
 #ifdef DEBUG
@@ -687,6 +708,41 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   Pl_Write_Simple(inst_word);
   DBGPRINTF("\n");
 #endif
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BC_EMIT_INST_EXECUTE_NATIVE                                          *
+ *                                                                         *
+ * This function is called by the compiled code for dynamic or multifile   *
+ * predicate. Each clause has been compiled to native code (aux pred).     *
+ * We here create a call to this clause.                                   *
+ * This function is called between Pl_BC_Start_Emit_0 and Pl_BC_Stop_Emit_0*
+ * the buffer always bc has enough room for our 3 or 4 words.              *
+ *-------------------------------------------------------------------------*/
+void
+Pl_BC_Emit_Inst_Execute_Native(int func, int arity, long *codep)
+{
+  BCWord w;			/* code-op word */
+  unsigned w1, w2, w3;		/* additional words */
+  int nb_word;
+  C64To32 cv;
+
+  w1 = func;
+  BC2_Arity(w) = arity;
+#if WORD_SIZE == 32
+  nb_word = 3;
+  w2 = (unsigned) codep;
+  w3 = 0;		/* to avoid MSVC warning */
+#else
+  nb_word = 4;
+  cv.p = (int *) codep;
+  w2 = cv.u[0];
+  w3 = cv.u[1];
+#endif
+
+  ASSEMBLE_INST(bc_sp, EXECUTE_NATIVE, nb_word, w, w1, w2, w3);
 }
 
 
@@ -872,7 +928,7 @@ BC_Emulate_Clause(DynCInf *clause)
   int func, arity;
   int i;
 
-  bc = (BCWord *) clause->pl_byte_code;
+  bc = (BCWord *) clause->byte_code;
 
   if (bc)			/* emulated code */
     return BC_Emulate_Byte_Code(bc);

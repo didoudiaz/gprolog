@@ -152,8 +152,7 @@ Pl_Dcg_Trans_Body_4(WamWord dcg_body_word, WamWord in_word, WamWord out_word,
   in_word = Pl_Globalize_If_In_Local(in_word); 
   out_word = Pl_Globalize_If_In_Local(out_word);
 
-  return Pl_Unify(body_word,
-	       Dcg_Body(dcg_body_word, FALSE, in_word, out_word, NULL));
+  return Pl_Unify(body_word, Dcg_Body(dcg_body_word, FALSE, in_word, out_word, NULL));
 }
 
 

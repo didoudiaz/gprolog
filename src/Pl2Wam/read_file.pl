@@ -79,6 +79,13 @@
  * ensure_linked(Pred,N):                                                  *
  *    asserted for each Pred/N occuring in a :- ensure_linked directive.   *
  *                                                                         *
+ * module_export(Pred,N,Module):                                           *
+ *    asserted for each imported Pred/N from Module.                       *
+ *    asserted for each exported Pred/N from Module.                       *
+ *                                                                         *
+ * meta_pred(Pred,N,MetaDecl):                                             *
+ *    asserted for each meta_predicate declaration.                        *
+ *                                                                         *
  * Buffers for executable directive management (with assert/retract):      *
  *                                                                         *
  * buff_exe_system(SrcDirec)                                               *
@@ -115,6 +122,10 @@ read_file_init(PlFile) :-
 	retractall(empty_dyn_pred(_, _, _)),
 	retractall(ensure_linked(_, _)),
 	retractall(pred_info(_, _, _)),
+	retractall(module_export(_, _, _)),
+	retractall(meta_pred(_, _, _)),
+	g_assign(module, user),
+	g_assign(module_already_seen, f),
 	g_assign(default_kind, user),
 	g_assign(reading_dyn_pred, f),
 	g_assign(eof_reached, f),
@@ -186,7 +197,7 @@ read_predicate(Pred, N, LSrcCl) :-
 
 
 read_predicate_next(Pred, N, LSrcCl) :-
-	test_pred_info(dyn, Pred, N), !,
+	(test_pred_info(dyn, Pred, N) ; test_pred_info(multi, Pred, N)), !,
 	LSrcCl = [Where + _|_],
 	add_dyn_interf_clause(Pred, N, Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N),
@@ -285,8 +296,7 @@ group_clauses_by_pred(Pred, N, SrcCl, [SrcCl|LSrcCl1]) :-
 
 
 add_dyn_interf_clause(Pred, N, _) :-
-	clause(buff_dyn_interf_clause(Pred, N, _), true),  % already asserted
-	                                                  !.
+	clause(buff_dyn_interf_clause(Pred, N, _), true), !.  % already asserted
 
 add_dyn_interf_clause(Pred, N, Where) :-
 	create_dyn_interf_clause(Pred, N, Where, SrcCl),
@@ -316,8 +326,9 @@ create_exe_clauses_for_dyn_pred([], _, _).
 
 create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
+	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	handle_initialization(system, '$add_clause_term_and_bc'(Cl, [execute(AuxName / N)]), Where),
+	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
 
@@ -326,8 +337,12 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 create_exe_clauses_for_pub_pred([]).
 
 create_exe_clauses_for_pub_pred([Where + Cl|LSrcCl]) :-
-	handle_initialization(system, '$add_clause_term'(Cl), Where),
+	get_file_name(Where, PlFile),
+	handle_initialization(system, '$add_clause_term'(Cl, PlFile), Where),
 	create_exe_clauses_for_pub_pred(LSrcCl).
+
+
+get_file_name([PlFile * _|_] + _, PlFile).
 
 
 
@@ -451,6 +466,8 @@ get_next_clause1(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	;   error('head is not a callable (~q)', [Head])
 	),
 	functor(Head, Pred, N),
+	check_head_is_module_free(Head),
+	check_module_clash(Pred, N),
 	check_predicate(Pred, N),
 	display_singletons(SingNames, Pred / N).
 
@@ -526,6 +543,11 @@ handle_directive(dynamic, DLst, Where) :-
 	set_flag_for_preds(DLst, pub),
 	add_empty_dyn(DLst, Where).
 
+handle_directive(multifile, DLst, _) :-
+	!,
+	DLst \== [],
+	set_flag_for_preds(DLst, multi).
+
 handle_directive(discontiguous, DLst, _) :-
 	!,
 	DLst \== [],
@@ -553,14 +575,6 @@ handle_directive(ensure_linked, DLst, _) :-
 	    warn('ensure_linked directive ignored in byte-code compilation mode', [])
 	;   DLst \== [],
 	    add_ensure_linked(DLst)
-	).
-
-handle_directive(multifile, _, _) :-
-	!,
-	(   g_read(mult_warn, t) ->
-	    warn('multifile directive not supported - directive ignored', [])
-	;
-	    true
 	).
 
 handle_directive(encoding, _, _) :-
@@ -597,6 +611,33 @@ handle_directive(set_prolog_flag, [X, Y], Where) :-
 handle_directive(initialization, [Body], Where) :-
 	!,
 	handle_initialization(user, Body, Where).
+
+
+handle_directive(module, [Module, DLst], _) :-
+	!,
+	(   g_read(module_already_seen, f) ->
+	    check_module_name(Module, false),
+	    g_assign(module_already_seen, t),
+	    g_assign(module, Module),
+	    add_module_export_info(DLst, Module)
+	;
+	    error('directive module/2 already declared', [])
+	).
+
+handle_directive(use_module, [Module, DLst], _) :-
+	!,
+	check_module_name(Module, false),
+	add_module_export_info(DLst, Module).
+
+handle_directive(meta_predicate, [MetaDecl], _) :-
+	!,
+	(   callable(MetaDecl) ->
+	    functor(MetaDecl, Pred, N),
+	    set_flag_for_preds(Pred/N, meta),
+	    assertz(meta_pred(Pred, N, MetaDecl))
+	;
+	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
+	).
 
 handle_directive(foreign, [Template], Where) :-
 	!,
@@ -794,6 +835,100 @@ add_ensure_linked(Pred / N) :-
 
 
 
+add_module_export_info([], _) :-
+	!.
+
+add_module_export_info([P1|P2], Module) :-
+	!,
+	add_module_export_info(P1, Module),
+	add_module_export_info(P2, Module).
+
+add_module_export_info((P1, P2), Module) :-
+	!,
+	add_module_export_info(P1, Module),
+	add_module_export_info(P2, Module).
+
+add_module_export_info(Pred / N, _) :-
+	clause(module_export(Pred, N, Module1), true), !,
+	error('predicate ~w already exported from module ~w', [Pred/N, Module1]).
+
+add_module_export_info(Pred / N, Module) :-
+	assertz(module_export(Pred, N, Module)),
+	(   test_pred_info(def, Pred, N) ->
+	    check_module_clash(Pred, N)
+	;
+	    true
+	).
+
+
+check_module_name(Module, true) :-
+	var(Module), !.
+
+check_module_name(Module, _) :-
+	atom(Module), !.
+
+check_module_name(Module, _) :-
+	error('invalid module name (~q) should be an atom', [Module]).
+
+/*
+check_module_name(Module, _) :-
+	atom(Module),
+	\+ atom_property(Module, needs_quotes), !.
+
+check_module_name(Module, _) :-
+	error('invalid module name (~q) should only containts lower chars', [Module]).
+*/
+
+
+
+check_head_is_module_free(Module:Head) :-
+	!,
+	error('module qualification is not allowed for the head of a clause (~w)', [Module:Head]).
+
+check_head_is_module_free(_).
+	
+
+	
+
+check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
+	clause(module_export(Pred, N, Module), true),
+	g_read(module, Module1),
+	Module \== Module1, !,
+	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
+
+check_module_clash(_, _).
+
+
+
+	
+
+get_owner_module(Pred, N, Module) :-
+	clause(module_export(Pred, N, Module), true),
+	Module \== system, !.
+
+get_owner_module(_, _, _).
+
+
+
+is_exported(Pred, N) :-
+	clause(module_export(Pred, N, _), true), !.
+
+	
+
+
+get_module_of_cur_pred(Module) :-
+	cur_pred(Pred, N),
+	(   test_pred_info(bpl, Pred, N) ->
+	    Module = system
+	;   test_pred_info(bfd, Pred, N) ->
+	    Module = system
+	;	    
+	    g_read(module, Module)
+	).
+
+
+
+
 set_flag_for_preds([], _) :-
 	!.
 
@@ -851,6 +986,8 @@ flag_bit(bpl, 3).
 flag_bit(bfd, 4).
 flag_bit(discontig, 5).
 flag_bit(cut, 6).
+flag_bit(meta, 7).
+flag_bit(multi, 8).
 
 
 
@@ -928,6 +1065,7 @@ control_construct(throw, 1).
 
 suspicious_predicate(',', 2).
 suspicious_predicate(;, 2).
+suspicious_predicate(:, 2).
 suspicious_predicate(->, 2).
 suspicious_predicate(!, 0).
 suspicious_predicate(:-, 1).

@@ -832,10 +832,10 @@ Spawn_Decode_Hex(char *arg[])
 	break;
 
 #ifndef DEBUG
-      fputs(Decode_Hexa(buff, "predicate(%s)", 1, 1), stderr);
+      fputs(Decode_Hexa_Line(buff, "predicate(%s)", 1, 1, 1), stderr);
 #else
       fprintf(stderr, "piped line:%s",
-	      Decode_Hexa(buff, "predicate(%s)", 1, 1));
+	      Decode_Hexa_Line(buff, "predicate(%s)", 1, 1, 1));
 #endif
     }
 
@@ -1093,7 +1093,6 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--no-susp-warn") ||
 	      Check_Arg(i, "--no-singl-warn") ||
-	      Check_Arg(i, "--no-mult-warn") ||
 	      Check_Arg(i, "--no-redef-error") ||
 	      Check_Arg(i, "--foreign-only") ||
               Check_Arg(i, "--no-call-c") ||
@@ -1409,7 +1408,6 @@ Display_Help(void)
   L("  --pl-state FILE             read FILE to set the initial Prolog state");
   L("  --no-susp-warn              do not show warnings for suspicious predicates");
   L("  --no-singl-warn             do not show warnings for named singleton variables");
-  L("  --no-mult-warn              do not show warnings for multifile directives");
   L("  --no-redef-error            do not show errors for built-in redefinitions");
   L("  --foreign-only              only compile foreign/1-2 directives");
   L("  --no-call-c                 do not allow the use of fd_tell, '$call_c',...");

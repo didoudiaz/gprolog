@@ -49,7 +49,7 @@ extern int pl_byte_len;
 
 				/* defined as this to avoid to force the   */
 				/* inclusion of bc_supp.o if not needed    */
-				/* (dynam_supp.c uses pl_byte_code)           */
+				/* (dynam_supp.c uses pl_byte_code)        */
 unsigned *pl_byte_code;
 
 
@@ -59,3 +59,9 @@ unsigned *pl_byte_code;
  *---------------------------------*/
 
 WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
+
+void Pl_BC_Start_Emit_0(void);
+void Pl_BC_Stop_Emit_0(void);
+void Pl_BC_Emit_Inst_1(WamWord inst_word);
+void Pl_BC_Emit_Inst_Execute_Native(int func, int arity, long *codep);
+

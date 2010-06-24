@@ -29,7 +29,11 @@
 '$use_expand'.
 
 
-expand_term(T1, T3) :-                                    % must be steadfast
+
+% all these must be steadfast (must work correctly if its output
+% variable is already instantiated to the output value)
+
+expand_term(T1, T3) :-                     
 	'$expand_term1'(T1, T2),
 	T2 = T3.
 
@@ -66,6 +70,11 @@ phrase(DcgBody, In, Out) :-
 
 '$phrase'(DcgBody, In, Out, Arity) :-
 	set_bip_name(phrase, Arity),
+        (   var(DcgBody) -> 
+	    '$pl_err_instantiation'
+	;
+	    true
+	),	
 	'$check_list_or_partial_list'(In),
 	'$check_list_or_partial_list'(Out),
 	'$dcg_trans_body'(DcgBody, In, Out, Body),

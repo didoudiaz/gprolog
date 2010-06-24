@@ -49,7 +49,7 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-#define CURRENT_PREDICATE_ALT   X2463757272656E745F7072656469636174655F616C74
+#define CURRENT_PREDICATE_ALT   X1_2463757272656E745F7072656469636174655F616C74
 
 Prolog_Prototype(CURRENT_PREDICATE_ALT, 0);
 
@@ -274,6 +274,48 @@ Pl_Pred_Prop_Public_1(WamWord pred_indic_word)
     return FALSE;
 
   return (pred->prop & MASK_PRED_PUBLIC) != 0;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PRED_PROP_MONOFILE_1                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Pred_Prop_Monofile_1(WamWord pred_indic_word)
+{
+  int func, arity;
+  PredInf *pred;
+
+  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+
+  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+    return FALSE;
+
+  return (pred->prop & MASK_PRED_MULTIFILE) == 0;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PRED_PROP_MULTIFILE_1                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Pred_Prop_Multifile_1(WamWord pred_indic_word)
+{
+  int func, arity;
+  PredInf *pred;
+
+  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+
+  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+    return FALSE;
+
+  return (pred->prop & MASK_PRED_MULTIFILE) != 0;
 }
 
 

@@ -1,13 +1,14 @@
-\newif\ifpdf
-\ifx\pdfoutput\undefined
-   \pdffalse % we are not running PDFLaTeX
-\else 
-   \ifnum\pdfoutput=0
-      \pdffalse  % we are not running PDFLaTeX
-   \else
-      \pdfoutput=1 \pdftrue  % we are running PDFLaTeX
-   \fi
-\fi
+% replaced by usepackage{ifpdf}
+%\newif\ifpdf
+%\ifx\pdfoutput\undefined
+%   \pdffalse % we are not running PDFLaTeX
+%\else 
+%   \ifnum\pdfoutput=0
+%      \pdffalse  % we are not running PDFLaTeX
+%   \else
+%      \pdfoutput=1 \pdftrue  % we are running PDFLaTeX
+%   \fi
+%\fi
 
 \documentclass[twoside]{article}
 
@@ -22,6 +23,9 @@
 \usepackage{supertabular}
 %\usepackage{longtable}
 
+\usepackage{ifpdf}
+%HEVEA \pdffalse
+
 \ifpdf
 	\usepackage[pdftex]{graphicx}
 	\usepackage[pdftex=true]{hyperref}
@@ -35,5 +39,3 @@
 	\usepackage[dvips]{graphics}
 	\usepackage{epsfig}
 \fi
-
-

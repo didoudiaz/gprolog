@@ -31,25 +31,25 @@
 
 asserta(C) :-
 	set_bip_name(asserta, 1),
-	'$assert'(C, 1, 1).
+	'$assert'(C, 1, 1, '').
 
 
 
 
 assertz(C) :-
 	set_bip_name(assertz, 1),
-	'$assert'(C, 0, 1).
+	'$assert'(C, 0, 1, '').
 
 
 
 
-'$assert'(C, Asserta, CheckPerm) :-
+'$assert'(C, Asserta, CheckPerm, FileName) :-
 	'$get_head_and_body'(C, H, B),
 	'$term_to_goal'(B, none, B1),
-	'$call_c'('Pl_Assert_4'(H, B1, Asserta, CheckPerm)),
+	'$call_c'('Pl_Assert_5'(H, B1, Asserta, CheckPerm, FileName)),
 	fail.
 
-'$assert'(_, _, _).
+'$assert'(_, _, _, _).
 
 
 

@@ -1,45 +1,43 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : pred.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
 
 
-predicate('$use_pred'/0,29,static,private,built_in,[
+predicate('$use_pred'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(current_predicate/1,32,static,private,built_in,[
+predicate(current_predicate/1,32,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_predicate,1]),
     execute('$current_predicate'/1)]).
 
 
-predicate('$current_predicate'/1,36,static,private,built_in,[
+predicate('$current_predicate'/1,36,static,private,monofile,built_in,[
     put_integer(0,1),
     call_c('Pl_Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_predicate_bips'/1,40,static,private,built_in,[
+predicate('$current_predicate_bips'/1,40,static,private,monofile,built_in,[
     put_integer(1,1),
     call_c('Pl_Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_predicate_any'/1,44,static,private,built_in,[
+predicate('$current_predicate_any'/1,44,static,private,monofile,built_in,[
     put_integer(2,1),
     call_c('Pl_Current_Predicate_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_predicate_alt'/0,48,static,private,built_in,[
+predicate('$current_predicate_alt'/0,48,static,private,monofile,built_in,[
     call_c('Pl_Current_Predicate_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(predicate_property/2,54,static,private,built_in,[
+predicate(predicate_property/2,54,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -52,7 +50,7 @@ predicate(predicate_property/2,54,static,private,built_in,[
     execute('$predicate_property1'/2)]).
 
 
-predicate('$predicate_property_any'/2,60,static,private,built_in,[
+predicate('$predicate_property_any'/2,60,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -64,7 +62,7 @@ predicate('$predicate_property_any'/2,60,static,private,built_in,[
     execute('$predicate_property1'/2)]).
 
 
-predicate('$predicate_property1'/2,67,static,private,built_in,[
+predicate('$predicate_property1'/2,67,static,private,monofile,built_in,[
     load_cut_level(2),
     allocate(3),
     get_variable(y(0),0),
@@ -79,20 +77,20 @@ predicate('$predicate_property1'/2,67,static,private,built_in,[
     execute('$predicate_property2'/2)]).
 
 
-predicate('$check_pred_prop'/1,74,static,private,built_in,[
+predicate('$check_pred_prop'/1,74,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
-    retry_me_else(24),
+    retry_me_else(28),
     switch_on_term(4,2,fail,fail,3),
 
 label(2),
-    switch_on_atom([(static,5),(dynamic,7),(private,9),(public,11),(user,13),(built_in,15),(built_in_fd,17),(native_code,19)]),
+    switch_on_atom([(static,5),(dynamic,7),(private,9),(public,11),(monofile,13),(multifile,15),(user,17),(built_in,19),(built_in_fd,21),(native_code,23)]),
 
 label(3),
-    switch_on_structure([(prolog_file/1,21),(prolog_line/1,23)]),
+    switch_on_structure([(prolog_file/1,25),(prolog_line/1,27)]),
 
 label(4),
     try_me_else(6),
@@ -126,61 +124,75 @@ label(12),
     retry_me_else(14),
 
 label(13),
-    get_atom(user,0),
+    get_atom(monofile,0),
     proceed,
 
 label(14),
     retry_me_else(16),
 
 label(15),
-    get_atom(built_in,0),
+    get_atom(multifile,0),
     proceed,
 
 label(16),
     retry_me_else(18),
 
 label(17),
-    get_atom(built_in_fd,0),
+    get_atom(user,0),
     proceed,
 
 label(18),
     retry_me_else(20),
 
 label(19),
-    get_atom(native_code,0),
+    get_atom(built_in,0),
     proceed,
 
 label(20),
     retry_me_else(22),
 
 label(21),
+    get_atom(built_in_fd,0),
+    proceed,
+
+label(22),
+    retry_me_else(24),
+
+label(23),
+    get_atom(native_code,0),
+    proceed,
+
+label(24),
+    retry_me_else(26),
+
+label(25),
     get_structure(prolog_file/1,0),
     unify_void(1),
     proceed,
 
-label(22),
+label(26),
     trust_me_else_fail,
 
-label(23),
+label(27),
     get_structure(prolog_line/1,0),
     unify_void(1),
     proceed,
 
-label(24),
+label(28),
     trust_me_else_fail,
     put_value(x(0),1),
     put_atom(predicate_property,0),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$predicate_property2'/2,103,static,private,built_in,[
+predicate('$predicate_property2'/2,107,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
-    switch_on_atom([(static,4),(dynamic,6),(private,8),(public,10),(user,12),(built_in,14),(built_in_fd,16),(native_code,18)]),
+    switch_on_atom([(static,4),(dynamic,6),(private,8),(public,10),(monofile,12),(multifile,14),(user,16),(built_in,18),(built_in_fd,20),(native_code,22)]),
 
 label(2),
-    switch_on_structure([(prolog_file/1,20),(prolog_line/1,22)]),
+    switch_on_structure([(prolog_file/1,24),(prolog_line/1,26)]),
 
 label(3),
     try_me_else(5),
@@ -218,78 +230,94 @@ label(11),
     retry_me_else(13),
 
 label(12),
-    get_atom(user,0),
-    call_c('Pl_Pred_Prop_User_1',[boolean],[x(1)]),
+    get_atom(monofile,0),
+    call_c('Pl_Pred_Prop_Monofile_1',[boolean],[x(1)]),
     proceed,
 
 label(13),
     retry_me_else(15),
 
 label(14),
-    get_atom(built_in,0),
-    call_c('Pl_Pred_Prop_Built_In_1',[boolean],[x(1)]),
+    get_atom(multifile,0),
+    call_c('Pl_Pred_Prop_Multifile_1',[boolean],[x(1)]),
     proceed,
 
 label(15),
     retry_me_else(17),
 
 label(16),
-    get_atom(built_in_fd,0),
-    call_c('Pl_Pred_Prop_Built_In_Fd_1',[boolean],[x(1)]),
+    get_atom(user,0),
+    call_c('Pl_Pred_Prop_User_1',[boolean],[x(1)]),
     proceed,
 
 label(17),
     retry_me_else(19),
 
 label(18),
-    get_atom(native_code,0),
-    call_c('Pl_Pred_Prop_Native_Code_1',[boolean],[x(1)]),
+    get_atom(built_in,0),
+    call_c('Pl_Pred_Prop_Built_In_1',[boolean],[x(1)]),
     proceed,
 
 label(19),
     retry_me_else(21),
 
 label(20),
+    get_atom(built_in_fd,0),
+    call_c('Pl_Pred_Prop_Built_In_Fd_1',[boolean],[x(1)]),
+    proceed,
+
+label(21),
+    retry_me_else(23),
+
+label(22),
+    get_atom(native_code,0),
+    call_c('Pl_Pred_Prop_Native_Code_1',[boolean],[x(1)]),
+    proceed,
+
+label(23),
+    retry_me_else(25),
+
+label(24),
     get_structure(prolog_file/1,0),
     unify_variable(x(0)),
     call_c('Pl_Pred_Prop_Prolog_File_2',[boolean],[x(1),x(0)]),
     proceed,
 
-label(21),
+label(25),
     trust_me_else_fail,
 
-label(22),
+label(26),
     get_structure(prolog_line/1,0),
     unify_variable(x(0)),
     call_c('Pl_Pred_Prop_Prolog_Line_2',[boolean],[x(1),x(0)]),
     proceed]).
 
 
-predicate('$get_predicate_file_info'/3,136,static,private,built_in,[
+predicate('$get_predicate_file_info'/3,146,static,private,monofile,built_in,[
     call_c('Pl_Get_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$set_predicate_file_info'/3,142,static,private,built_in,[
+predicate('$set_predicate_file_info'/3,152,static,private,monofile,built_in,[
     call_c('Pl_Set_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$aux_name'/1,148,static,private,built_in,[
+predicate('$aux_name'/1,158,static,private,monofile,built_in,[
     call_c('Pl_Aux_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate('$father_of_aux_name'/3,154,static,private,built_in,[
+predicate('$father_of_aux_name'/3,164,static,private,monofile,built_in,[
     call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$pred_without_aux'/4,160,static,private,built_in,[
+predicate('$pred_without_aux'/4,170,static,private,monofile,built_in,[
     call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$make_aux_name'/4,166,static,private,built_in,[
+predicate('$make_aux_name'/4,176,static,private,monofile,built_in,[
     call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

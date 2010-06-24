@@ -1,29 +1,27 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : print.pl
-% date    : 4 2 2010
-% time    : 16:2:4
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/print.pl').
 
 
-predicate('$use_print'/0,29,static,private,built_in,[
+predicate('$use_print'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(print/1,32,static,private,built_in,[
+predicate(print/1,32,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print,1]),
     call_c('Pl_Print_1',[],[x(0)]),
     proceed]).
 
 
-predicate(print/2,36,static,private,built_in,[
+predicate(print/2,36,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print,2]),
     call_c('Pl_Print_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$try_portray'/1,43,static,private,built_in,[
+predicate('$try_portray'/1,43,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
@@ -65,7 +63,7 @@ label(1),
     proceed]).
 
 
-predicate(get_print_stream/1,56,static,private,built_in,[
+predicate(get_print_stream/1,56,static,private,monofile,built_in,[
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_print_stream,1]),
     put_variable(y(0),1),

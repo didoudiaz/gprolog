@@ -27,9 +27,11 @@
 /*-------------------------------------------------------------------------*
  * predicate internal format: (I(t)=internal format of t)                  *
  *                                                                         *
- * I(p(Arg1, ..., ArgN))= p(NoPred, Pred/N, [I(Arg1), ..., I(ArgN)])       *
+ * I(p(Arg1,..., ArgN)): p(NoPred, Module, Pred/N, [I(Arg1), ..., I(ArgN)])*
  *                                                                         *
  * NoPred : predicate number = corresponding chunk number                  *
+ *                                                                         *
+ * Module: module qualification or module owned if export (a variable else)*
  *                                                                         *
  * Pred/N : predicate/arity                                                *
  *                                                                         *
@@ -65,7 +67,8 @@ internal_format(Head, Body, Head1, Body1, NbChunk, NbY) :-
 
 
 format_head(Head, DicoVar, Head1) :-
-	format_pred(Head, 0, DicoVar, Head1, _).
+	g_read(module, Module),	% not really necessary since Module info in p(...) is never used
+	format_pred(Module:Head, 0, DicoVar, Head1, _).
 
 
 
@@ -100,8 +103,13 @@ format_body1(Pred, NoPred, DicoVar, StartChunk, LNext, [Pred1|LNext], NoPred1, S
           % to save CP (and X regs in Y regs if needed).
           % Other '$call_c' are considered as inlined.
 
-format_pred(Pred, NoPred, DicoVar, p(NoPred, F / N, ArgLst1), InlinePred) :-
+format_pred(Module:Pred, NoPred, DicoVar, p(NoPred, Module, FN, ArgLst), InlinePred) :-
+	!,
+	format_pred(Pred, NoPred, DicoVar, p(NoPred, _, FN, ArgLst), InlinePred).
+
+format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F / N, ArgLst1), InlinePred) :-
 	functor(Pred, F, N),
+	get_owner_module(F, N, Module),
 	Pred =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1),
 	(   (   inline_predicate(F, N)

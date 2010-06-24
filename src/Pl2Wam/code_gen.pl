@@ -32,7 +32,7 @@ code_generation(Head, Body, NbChunk, NbY, WamHead) :-
 
 
 
-generate_head(p(_, _ / N, LArg), NbChunk, NbY, WamNext, WamHead) :-
+generate_head(p(_, _, _ / N, LArg), NbChunk, NbY, WamNext, WamHead) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_head_arg_lst(LArg, LReg, LArg1, LReg1)
@@ -62,18 +62,18 @@ reorder_head_arg_lst(LArg, LReg, LArg1, LReg1) :-
 
 generate_body([], _, [proceed]).
 
-generate_body([p(NoPred, Pred / N, LArg)|Body], NbChunk, WamPred) :-
+generate_body([p(NoPred, Module, Pred / N, LArg)|Body], NbChunk, WamPred) :-
 	(   NoPred = NbChunk ->
 	    g_assign(last_pred, t)
 	;   true
 	),
-	generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred).
+	generate_body1(Pred, N, Module, LArg, NoPred, Body, NbChunk, WamPred).
 
 
-generate_body1(fail, 0, _, _, _, _, [fail]) :-
+generate_body1(fail, 0, _, _, _, _, _, [fail]) :-
 	!.
 
-generate_body1('$call_c', 2, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
+generate_body1('$call_c', 2, _, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	!,
 	(   Arg = atm(Name),
 	    LStcArg = []
@@ -95,7 +95,7 @@ generate_body1('$call_c', 2, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	    generate_body(Body, NbChunk, WamBody)
 	).
 
-generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
+generate_body1(Pred, N, _, LArg, NoPred, Body, NbChunk, WamPred) :-
 	inline_predicate(Pred, N),
 	!,
 	gen_inline_pred(Pred, N, LArg, WamBody, WamPred), !,
@@ -107,7 +107,7 @@ generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
 	;   generate_body(Body, NbChunk, WamBody)
 	).
 
-generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamLArg) :-
+generate_body1(Pred, N, Module, LArg, NoPred, Body, NbChunk, WamLArg) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_body_arg_lst(LArg, LReg, LArg1, LReg1)
@@ -115,14 +115,25 @@ generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamLArg) :-
 	    LReg1 = LReg
 	),
 	gen_load_arg_lst(LArg1, LReg1, WamCallExecute, WamLArg),
+	qualif_with_module(Module, Pred, N, MPredN),
 	(   Body = [] ->
 	    (   NoPred > 1 ->
-	        WamCallExecute = [deallocate, execute(Pred / N)]
-	    ;   WamCallExecute = [execute(Pred / N)]
+	        WamCallExecute = [deallocate, execute(MPredN)]
+	    ;   WamCallExecute = [execute(MPredN)]
 	    )
-	;   WamCallExecute = [call(Pred / N)|WamBody],
+	;   WamCallExecute = [call(MPredN)|WamBody],
 	    generate_body(Body, NbChunk, WamBody)
 	).
+
+
+
+qualif_with_module(Module, Pred, N, Module:Pred/N) :-
+	nonvar(Module),
+	Module \== system,
+	Module \== user, !.
+
+qualif_with_module(_, Pred, N, Pred/N).
+
 
 
 
@@ -265,6 +276,12 @@ gen_load_arg(flt(N), Reg, WamNext, [put_float(N, Reg)|WamNext]).
 
 gen_load_arg(nil, Reg, WamNext, [put_nil(Reg)|WamNext]).
 
+gen_load_arg(stc('$mt', 2, [atm(Module), Goal]), Reg, WamNext, WamInst) :-
+	!,
+	gen_load_arg(Goal, Reg, WamMT, WamInst),
+	WamMT = [put_meta_term(Module, Reg)|WamNext].
+	
+
 gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
 	(   F = '.',
 	    N = 2 ->
@@ -288,7 +305,8 @@ flat_stc_arg_lst([StcArg|LStcArg], HB, [StcArg|LStcArg1], LArgAux, LRegAux) :-
 
 flat_stc_arg_lst([StcArg], HB, [stc(F, N, LStcArg1)], LArgAux, LRegAux) :-
 	g_read(opt_last_subterm, t),     % last subterm unif stc optimization
-	StcArg = stc(F, N, LStcArg), !,
+	StcArg = stc(F, N, LStcArg),
+	( F \== '$mt' ; N \== 3 ), !,
 	flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux).
 
 flat_stc_arg_lst([StcArg|LStcArg], HB, [V|LStcArg1], [StcArg|LArgAux], [X|LRegAux]) :-

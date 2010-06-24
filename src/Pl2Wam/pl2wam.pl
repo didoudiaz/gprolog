@@ -24,6 +24,11 @@
 
 /* $Id$ */
 
+pl2wam(Arg) :-
+	atom(Arg),
+	Arg \== [], !,			% to call easily inder top-level
+	pl2wam([Arg]).
+
 pl2wam(LArg) :-
 	catch(pl2wam1(LArg), Err, exception(Err)).
 
@@ -254,7 +259,6 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(native_code, t),
 	g_assign(susp_warn, t),
 	g_assign(singl_warn, t),
-	g_assign(mult_warn, t),
 	g_assign(redef_error, t),
 	g_assign(foreign_only, f),
 	g_assign(call_c, t),
@@ -329,9 +333,6 @@ cmd_line_arg1('--no-susp-warn', LArg, LArg) :-
 
 cmd_line_arg1('--no-singl-warn', LArg, LArg) :-
 	g_assign(singl_warn, f).
-
-cmd_line_arg1('--no-mult-warn', LArg, LArg) :-
-	g_assign(mult_warn, f).
 
 cmd_line_arg1('--no-redef-error', LArg, LArg) :-
 	g_assign(redef_error, f).
@@ -448,7 +449,6 @@ h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-ca
 h('  --pl-state FILE             read FILE to set the initial Prolog state').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').
-h('  --no-mult-warn              do not show warnings for multifile directives').
 h('  --no-redef-error            do not show errors for built-in redefinitions').
 h('  --foreign-only              only compile foreign/1-2 directives').
 h('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...').

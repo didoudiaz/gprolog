@@ -1,17 +1,15 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : expand.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/expand.pl').
 
 
-predicate('$use_expand'/0,29,static,private,built_in,[
+predicate('$use_expand'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(expand_term/2,32,static,private,built_in,[
+predicate(expand_term/2,36,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),1),
     put_variable(y(1),1),
@@ -22,7 +20,7 @@ predicate(expand_term/2,32,static,private,built_in,[
     proceed]).
 
 
-predicate('$expand_term1'/2,36,static,private,built_in,[
+predicate('$expand_term1'/2,40,static,private,monofile,built_in,[
     load_cut_level(2),
     allocate(1),
     get_variable(y(0),2),
@@ -32,7 +30,7 @@ predicate('$expand_term1'/2,36,static,private,built_in,[
     proceed]).
 
 
-predicate('$$expand_term1/2_$aux1'/2,36,static,private,built_in,[
+predicate('$$expand_term1/2_$aux1'/2,40,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     get_value(x(0),1),
@@ -53,7 +51,7 @@ label(3),
     proceed]).
 
 
-predicate('$call_term_expansion'/2,48,static,private,built_in,[
+predicate('$call_term_expansion'/2,52,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -71,18 +69,18 @@ predicate('$call_term_expansion'/2,48,static,private,built_in,[
     execute('$call'/4)]).
 
 
-predicate(phrase/2,55,static,private,built_in,[
+predicate(phrase/2,59,static,private,monofile,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(phrase/3,61,static,private,built_in,[
+predicate(phrase/3,65,static,private,monofile,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate('$phrase'/4,67,static,private,built_in,[
+predicate('$phrase'/4,71,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -91,6 +89,8 @@ predicate('$phrase'/4,67,static,private,built_in,[
     put_atom(phrase,0),
     put_value(y(3),1),
     call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    put_value(y(0),0),
+    call('$$phrase/4_$aux1'/1),
     put_value(y(1),0),
     call('$check_list_or_partial_list'/1),
     put_value(y(2),0),
@@ -108,11 +108,23 @@ predicate('$phrase'/4,67,static,private,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$dcg_trans_rule'/2,77,static,private,built_in,[
+predicate('$$phrase/4_$aux1'/1,71,static,private,monofile,local,[
+    load_cut_level(1),
+    try_me_else(1),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$dcg_trans_rule'/2,86,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,83,static,private,built_in,[
+predicate('$dcg_trans_body'/4,92,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

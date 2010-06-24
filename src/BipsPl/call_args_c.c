@@ -53,7 +53,7 @@ static int atom_call;
  * Function Prototypes             *
  *---------------------------------*/
 
-#define CALL_INTERNAL              X2463616C6C5F696E7465726E616C
+#define CALL_INTERNAL              X1_2463616C6C5F696E7465726E616C
 
 Prolog_Prototype(CALL_INTERNAL, 2);
 

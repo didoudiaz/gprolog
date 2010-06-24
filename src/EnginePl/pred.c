@@ -39,6 +39,12 @@
  * Constants                       *
  *---------------------------------*/
 
+#define ERR_MULTIFILE_PROP         "multifile predicate %s/%d not declared consistently\n    in  %s\n    and %s"
+
+
+
+
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -75,7 +81,7 @@ Pl_Init_Pred(void)
  *-------------------------------------------------------------------------*/
 PredInf * FC
 Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
-	    long *codep)
+	       long *codep)
 {
   PredInf pred_info;
   PredInf *pred;
@@ -96,6 +102,18 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
 
   Pl_Extend_Table_If_Needed(&pl_pred_tbl);
   pred = (PredInf *) Pl_Hash_Insert(pl_pred_tbl, (char *) &pred_info, FALSE);
+
+  if (prop != pred->prop)	/* predicate exists - occurs for multifile pred */
+    {
+      Pl_Fatal_Error(ERR_MULTIFILE_PROP, pl_atom_tbl[func].name, arity, 
+		     pl_atom_tbl[pred->pl_file].name, pl_atom_tbl[pl_file].name);
+      pred->prop = prop;
+    }
+
+#if 1				/* for multifile record the first file where it appears */
+  pred->pl_file = pl_file;
+  pred->pl_line = pl_line;
+#endif
 
   return pred;
 }

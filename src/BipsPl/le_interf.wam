@@ -1,50 +1,48 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : le_interf.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/le_interf.pl').
 
 
-predicate('$use_le_interf'/0,29,static,private,built_in,[
+predicate('$use_le_interf'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(get_linedit_prompt/1,32,static,private,built_in,[
+predicate(get_linedit_prompt/1,32,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_linedit_prompt,1]),
     call_c('Pl_Get_Linedit_Prompt_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate('$get_linedit_prompt'/1,39,static,private,built_in,[
+predicate('$get_linedit_prompt'/1,39,static,private,monofile,built_in,[
     call_c('Pl_Get_Linedit_Prompt_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(set_linedit_prompt/1,45,static,private,built_in,[
+predicate(set_linedit_prompt/1,45,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_linedit_prompt,1]),
     call_c('Pl_Set_Linedit_Prompt_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$set_linedit_prompt'/1,52,static,private,built_in,[
+predicate('$set_linedit_prompt'/1,52,static,private,monofile,built_in,[
     call_c('Pl_Set_Linedit_Prompt_1',[],[x(0)]),
     proceed]).
 
 
-predicate(add_linedit_completion/1,58,static,private,built_in,[
+predicate(add_linedit_completion/1,58,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[add_linedit_completion,1]),
     call_c('Pl_Add_Linedit_Completion_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(find_linedit_completion/2,65,static,private,built_in,[
+predicate(find_linedit_completion/2,65,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[find_linedit_completion,2]),
     call_c('Pl_Find_Linedit_Completion_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$find_linedit_completion_alt'/0,71,static,private,built_in,[
+predicate('$find_linedit_completion_alt'/0,71,static,private,monofile,built_in,[
     call_c('Pl_Find_Linedit_Completion_Alt_0',[boolean],[]),
     proceed]).

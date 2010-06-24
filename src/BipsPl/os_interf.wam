@@ -1,77 +1,75 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : os_interf.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').
 
 
-predicate('$use_os_interf'/0,29,static,private,built_in,[
+predicate('$use_os_interf'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(make_directory/1,32,static,private,built_in,[
+predicate(make_directory/1,32,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[make_directory,1]),
     call_c('Pl_Make_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(delete_directory/1,39,static,private,built_in,[
+predicate(delete_directory/1,39,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[delete_directory,2]),
     call_c('Pl_Delete_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(working_directory/1,46,static,private,built_in,[
+predicate(working_directory/1,46,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[working_directory,1]),
     call_c('Pl_Working_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(change_directory/1,53,static,private,built_in,[
+predicate(change_directory/1,53,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[change_directory,1]),
     call_c('Pl_Change_Directory_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(directory_files/2,59,static,private,built_in,[
+predicate(directory_files/2,59,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[directory_files,2]),
     call_c('Pl_Directory_Files_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(rename_file/2,66,static,private,built_in,[
+predicate(rename_file/2,66,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[rename_file,2]),
     call_c('Pl_Rename_File_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(unlink/1,73,static,private,built_in,[
+predicate(unlink/1,73,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unlink,2]),
     call_c('Pl_Unlink_1',[],[x(0)]),
     proceed]).
 
 
-predicate(delete_file/1,80,static,private,built_in,[
+predicate(delete_file/1,80,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[delete_file,2]),
     call_c('Pl_Delete_File_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(file_exists/1,87,static,private,built_in,[
+predicate(file_exists/1,87,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[file_exists,1]),
     call_c('Pl_File_Exists_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(file_permission/2,92,static,private,built_in,[
+predicate(file_permission/2,92,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[file_permission,2]),
     call_c('Pl_File_Permission_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(file_property/2,99,static,private,built_in,[
+predicate(file_property/2,99,static,private,monofile,built_in,[
     load_cut_level(2),
     allocate(3),
     get_variable(y(0),0),
@@ -87,7 +85,7 @@ predicate(file_property/2,99,static,private,built_in,[
     execute('$file_prop'/2)]).
 
 
-predicate('$check_file_prop'/1,107,static,private,built_in,[
+predicate('$check_file_prop'/1,107,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -170,7 +168,7 @@ label(19),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$file_prop'/2,132,static,private,built_in,[
+predicate('$file_prop'/2,132,static,private,monofile,built_in,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -273,7 +271,7 @@ label(17),
     proceed]).
 
 
-predicate('$file_prop_perm'/2,161,static,private,built_in,[
+predicate('$file_prop_perm'/2,161,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -316,43 +314,43 @@ label(9),
     execute(file_permission/2)]).
 
 
-predicate(temporary_name/2,176,static,private,built_in,[
+predicate(temporary_name/2,176,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[temporary_name,2]),
     call_c('Pl_Temporary_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(temporary_file/3,183,static,private,built_in,[
+predicate(temporary_file/3,183,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[temporary_file,3]),
     call_c('Pl_Temporary_File_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(date_time/1,190,static,private,built_in,[
+predicate(date_time/1,190,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[date_time,1]),
     call_c('Pl_Date_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(host_name/1,197,static,private,built_in,[
+predicate(host_name/1,197,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[host_name,1]),
     call_c('Pl_Host_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(os_version/1,204,static,private,built_in,[
+predicate(os_version/1,204,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[os_version,1]),
     call_c('Pl_Os_Version_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(architecture/1,211,static,private,built_in,[
+predicate(architecture/1,211,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[architecture,1]),
     call_c('Pl_Architecture_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(shell/0,218,static,private,built_in,[
+predicate(shell/0,218,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[shell,0]),
     put_atom('',0),
     put_integer(0,1),
@@ -360,52 +358,52 @@ predicate(shell/0,218,static,private,built_in,[
     proceed]).
 
 
-predicate(shell/1,222,static,private,built_in,[
+predicate(shell/1,222,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[shell,1]),
     put_integer(0,1),
     call_c('Pl_Shell_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(shell/2,226,static,private,built_in,[
+predicate(shell/2,226,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[shell,2]),
     call_c('Pl_Shell_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system/1,233,static,private,built_in,[
+predicate(system/1,233,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system,1]),
     put_integer(0,1),
     call_c('Pl_System_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system/2,237,static,private,built_in,[
+predicate(system/2,237,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system,2]),
     call_c('Pl_System_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(spawn/2,244,static,private,built_in,[
+predicate(spawn/2,244,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spawn,2]),
     put_integer(0,2),
     call_c('Pl_Spawn_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(spawn/3,248,static,private,built_in,[
+predicate(spawn/3,248,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spawn,3]),
     call_c('Pl_Spawn_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(sleep/1,255,static,private,built_in,[
+predicate(sleep/1,255,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sleep,1]),
     call_c('Pl_Sleep_1',[],[x(0)]),
     proceed]).
 
 
-predicate(popen/3,262,static,private,built_in,[
+predicate(popen/3,262,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -421,7 +419,7 @@ predicate(popen/3,262,static,private,built_in,[
     proceed]).
 
 
-predicate(exec/5,274,static,private,built_in,[
+predicate(exec/5,274,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -446,7 +444,7 @@ predicate(exec/5,274,static,private,built_in,[
     execute('$exec'/5)]).
 
 
-predicate('$exec/5_$aux1'/1,274,static,private,built_in,[
+predicate('$exec/5_$aux1'/1,274,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
@@ -460,7 +458,7 @@ label(1),
     proceed]).
 
 
-predicate(exec/4,286,static,private,built_in,[
+predicate(exec/4,286,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -479,7 +477,7 @@ predicate(exec/4,286,static,private,built_in,[
     execute('$exec'/5)]).
 
 
-predicate('$exec'/5,294,static,private,built_in,[
+predicate('$exec'/5,294,static,private,monofile,built_in,[
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -504,7 +502,7 @@ predicate('$exec'/5,294,static,private,built_in,[
     proceed]).
 
 
-predicate(create_pipe/2,304,static,private,built_in,[
+predicate(create_pipe/2,304,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[create_pipe,2]),
@@ -520,7 +518,7 @@ predicate(create_pipe/2,304,static,private,built_in,[
     proceed]).
 
 
-predicate(fork_prolog/1,313,static,private,built_in,[
+predicate(fork_prolog/1,313,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[fork_prolog,1]),
@@ -532,7 +530,7 @@ predicate(fork_prolog/1,313,static,private,built_in,[
     proceed]).
 
 
-predicate('$fork_prolog/1_$aux1'/1,313,static,private,built_in,[
+predicate('$fork_prolog/1_$aux1'/1,313,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
@@ -546,25 +544,25 @@ label(1),
     proceed]).
 
 
-predicate(select/5,324,static,private,built_in,[
+predicate(select/5,324,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[select,5]),
     call_c('Pl_Select_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(prolog_pid/1,331,static,private,built_in,[
+predicate(prolog_pid/1,331,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_pid,1]),
     call_c('Pl_Prolog_Pid_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(send_signal/2,338,static,private,built_in,[
+predicate(send_signal/2,338,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[send_signal,2]),
     call_c('Pl_Send_Signal_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(wait/2,345,static,private,built_in,[
+predicate(wait/2,345,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[wait,2]),
     call_c('Pl_Wait_2',[boolean],[x(0),x(1)]),
     proceed]).

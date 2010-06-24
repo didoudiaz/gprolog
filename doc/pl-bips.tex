@@ -1571,6 +1571,10 @@ are not found. This predicate is re-executable on backtracking.
 
 \item \IdxPPD{public}: if the procedure is public.
 
+\item \IdxPPD{monofile}: if the procedure is monofile.
+
+\item \IdxPPD{multifile}: if the procedure is multifile.
+
 \item \IdxPPD{user}: if the procedure is a user-defined procedure.
 
 \item \IdxPPD{built\_in}: if the procedure is a Prolog built-in predicate.
@@ -5773,6 +5777,12 @@ phrase has been found.
 
 \begin{PlErrors}
 
+\ErrCond{\texttt{Phrase} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Phrase} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Phrase)}
+
 \ErrCond{\texttt{List} is neither a list nor a partial list}
 \ErrTerm{type\_error(list, List)}
 
@@ -5855,25 +5865,32 @@ the shell with the return code \texttt{Status}.
 \texttt{stop/0}, \texttt{top\_level/0} and \texttt{break/0} are GNU Prolog
 predicates.
 
-\subsubsection{\texttt{once/1}, \texttt{({\bs}+)/1} - not provable,
+\subsubsection{\texttt{false/0}, \texttt{once/1}, \texttt{({\bs}+)/1} - not provable,
                \texttt{call/2-11}, 
-	       \texttt{call\_with\_args/1-11}, \texttt{call\_det/2}}
+	       \texttt{call\_with\_args/1-11}, \texttt{call\_det/2}, \texttt{forall/2}}
+   \AddPBD{false/0}
    \AddPBD{once/1}
    \AddPBD{({\bs}+)/1}
    \AddPBD{call/2-11}
    \AddPBD{call\_with\_args/1-11}
    \AddPBD{call\_det/2}
+   \AddPBD{forall/2}
 
 \begin{TemplatesOneCol}
+false\\
 once(+callable\_term)\\
 {\bs}+(+callable\_term) \\
 call(+callable\_term, +term,\ldots, +term)\\
 call\_with\_args(+atom, +term,\ldots, +term)\\
-call\_det(+callable\_term, ?boolean)
+call\_det(+callable\_term, ?boolean) \\
+forall(+callable\_term, +callable\_term)
 
 \end{TemplatesOneCol}
 
 \Description
+
+\texttt{false} always fails and enforces backtracking. It is equivalent to the
+\IdxCC{fail/0} control construct \RefSP{true/0}.
 
 \texttt{once(Goal)} succeeds if \texttt{call(Goal)} succeeds. However
 \texttt{once/1} is not re-executable on backtracking since all alternatives
@@ -5897,14 +5914,19 @@ succeeds and unifies \texttt{Deterministic} with \texttt{true} if
 \texttt{Goal} has not created any choice-points, with \texttt{false}
 otherwise.
 
+\texttt{forall(Condition, Action)} succeeds if for all alternative bindings of
+\texttt{Condition}, \texttt{Action} can be proven. 
+It is equivalent to \texttt{{\bs}+ (Condition, {\bs}+ Action)}.
+
+
 \texttt{{\bs}+} is a predefined prefix operator \RefSP{op/3:(Term-input/output)}.
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Goal} is a variable}
+\ErrCond{\texttt{Goal} (or \texttt{Condition} or \texttt{Action}) is a variable}
 \ErrTerm{instantiation\_error}
 
-\ErrCond{\texttt{Goal} is neither a variable nor a callable term}
+\ErrCond{\texttt{Goal} (or \texttt{Condition} or \texttt{Action}) is neither a variable nor a callable term}
 \ErrTerm{type\_error(callable, Goal)}
 
 \ErrCond{The predicate indicator \texttt{Pred} of \texttt{Goal} does not
@@ -5928,7 +5950,7 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 \Portability
 
-\texttt{once/1} and \texttt{({\bs}+)/1} are ISO predicates, \texttt{call/2-11}, \texttt{call\_with\_args/1-11} and \texttt{call\_det/2} are GNU Prolog predicates.
+\texttt{once/1} and \texttt{({\bs}+)/1} are ISO predicates, \texttt{call/2-11}, \texttt{call\_with\_args/1-11}, \texttt{call\_det/2} and \texttt{forall/2} are GNU Prolog predicates.
 
 \subsubsection{\texttt{repeat/0}}
    \AddPBD{repeat/0}

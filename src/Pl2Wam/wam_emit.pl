@@ -37,6 +37,7 @@
  * get_nil(A)                               put_nil(A)                     *
  * get_list(A)                              put_list(A)                    *
  * get_structure(F/N, A)                    put_structure(F/N, A)          *
+ *                                          hide_meta_term(A)              *
  *                                                                         *
  *                                          math_load_value(V, A)          *
  *                                          math_fast_load_value(V, A)     *
@@ -97,12 +98,8 @@ emit_code_init(WamFile0, PlFile0) :-
 	g_assign(cur_pl_file, ''),
 	prolog_name(Name),
 	prolog_version(Version),
-	prolog_date(Date),
-	date_time(dt(Yr, Mh, Dy, Hr, Me, Sd)),
-	format(Stream, '%% compiler: ~a ~a (~a)~n', [Name, Version, Date]),
-	format(Stream, '%% file    : ~a~n', [PlFile]),
-	format(Stream, '%% date    : ~d ~d ~d~n', [Mh, Dy, Yr]),
-	format(Stream, '%% time    : ~d:~d:~d~n', [Hr, Me, Sd]).
+	format(Stream, '%% compiler: ~a ~a~n', [Name, Version]),
+	format(Stream, '%% file    : ~a~n', [PlFile]).
 
 
 
@@ -166,13 +163,40 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	    PubPriv = public
 	;   PubPriv = private
 	),
-	(   test_pred_info(bpl, Pred, N) ->
-	    UsBplBfd = built_in
-	;   test_pred_info(bfd, Pred, N) ->
-	    UsBplBfd = built_in_fd
-	;   UsBplBfd = user
+	(   test_pred_info(multi, Pred, N) ->
+	    MonoMulti = multifile
+	;   MonoMulti = monofile
 	),
-	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,', [Pred / N, PlLine, StaDyn, PubPriv, UsBplBfd]).
+	g_read(module, Module0),
+	export_type(Pred, N, Module0, _Module, ExportBplBfd),
+  		% MODULES: then add Module:Pred/N instead of Pred/N in the next line
+	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,~a,',
+	       [Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
+
+
+
+export_type(Pred, _, Module, Module, local) :-
+	'$aux_name'(Pred), !.
+
+export_type(Pred, N, Module, Module, local) :-
+	test_pred_info(multi, Pred, N), !.
+
+export_type(Pred, N, _, system, built_in) :-
+	test_pred_info(bpl, Pred, N), !.
+
+export_type(Pred, N, _, system, built_in_fd) :-
+	test_pred_info(bfd, Pred, N), !.
+
+export_type(Pred, N, system, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
+	is_exported(Pred, N), !.
+
+export_type(_, _, Module, Module, global) :-
+	g_read(module_already_seen, f), !.
+
+export_type(Pred, N, Module, Module, global) :-
+	is_exported(Pred, N), !.
+
+export_type(_, _, Module, Module, local).
 
 
 

@@ -103,13 +103,14 @@ multifile(+predicate\_indicator\_sequence)
 
 \Description
 
-\texttt{multifile(Pred)} is not supported by GNU Prolog.
-When such a directive is encountered it is simply ignored. All clauses for a
-given predicate must reside in a single file.
+\texttt{multifile(Pred)} specifies that the procedure whose predicate
+indicator is \texttt{Pred} is a multifle procedure (the clauses of
+\texttt{Pred} can reside in several source files). This directive is only
+supported by GNU Prolog since version 1.4.0.
 
 \Portability
 
-ISO directive. Not supported.
+ISO directive.
 
 \subsubsection{\texttt{discontiguous/1}}
    \AddDiD{discontiguous/1}

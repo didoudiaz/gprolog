@@ -112,6 +112,8 @@ static void Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause,
 
 static void Erase_All(DynPInf *dyn);
 
+static void Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file);
+
 static void Clean_Erased_Clauses(void);
 
 static void Unlink_Clause(DynCInf *clause);
@@ -138,9 +140,9 @@ static void Check_Chain(D2ChHdr *p, int index_no);
 
 
 
-#define SCAN_DYN_TEST_ALT          X247363616E5F64796E5F746573745F616C74
+#define SCAN_DYN_TEST_ALT          X1_247363616E5F64796E5F746573745F616C74
 
-#define SCAN_DYN_JUMP_ALT          X247363616E5F64796E5F6A756D705F616C74
+#define SCAN_DYN_JUMP_ALT          X1_247363616E5F64796E5F6A756D705F616C74
 
 Prolog_Prototype(SCAN_DYN_TEST_ALT, 0);
 Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
@@ -184,7 +186,7 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  * must ensure that subsequent retracted clause must be selected and all   *
  * subsequent added clause must be ignored.                                *
  * For added clause we use the count_z value when the selection starts (cf.*
- * stop_cl_no). A clause is ignored it its clause number (cl_no) is >= to  *
+ * stop_cl_no). A clause is ignored if its clause number (cl_no) is >= to  *
  * stop_cl_no.                                                             *
  * For retracted clause we use a stamp incremented at each selection. When *
  * a clause is retracted its erase_stamp is set to the current stamp. Then *
@@ -198,6 +200,9 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  * reached. Then the local stack is scanned to detect all predicates with  *
  * selections and to mark them. All erased clauses of a predicate which is *
  * not marked are physically destroyed (free).                             *
+ *                                                                         *
+ * pl_file is the file name of its definition (or -1). Used for multifile  *
+ * predicates by consult/1 (see Pl_Update_Dynamic_Pred).
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
@@ -206,7 +211,7 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *-------------------------------------------------------------------------*/
 DynCInf *
 Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
-		   Bool check_perm)
+		      Bool check_perm, int pl_file)
 {
   WamWord word;
   WamWord *first_arg_adr;
@@ -248,6 +253,9 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 			pl_permission_type_static_procedure, word);
     }
 
+  if (pl_file == pl_atom_void)
+    pl_file = -1;
+
   dyn = (DynPInf *) (pred->dyn);
   if (dyn == NULL)		/* dynamic info not yet allocated ? */
     dyn = Alloc_Init_Dyn_Info(pred, arity);
@@ -279,13 +287,14 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 
   clause->dyn = dyn;
   clause->cl_no = (asserta) ? dyn->count_a-- : dyn->count_z++;
+  clause->pl_file = pl_file;
   clause->erase_stamp = DYN_STAMP_NONE;
   clause->next_erased_cl = NULL;
   clause->term_size = size;
 
   Pl_Copy_Term(&clause->term_word, &lst_h_b);
 
-  clause->pl_byte_code = pl_byte_code;
+  clause->byte_code = pl_byte_code;
   pl_byte_code = NULL;
 
 
@@ -541,6 +550,36 @@ Pl_Delete_Dynamic_Clause(DynCInf *clause)
 
 
 /*-------------------------------------------------------------------------*
+ * ERASE_ALL_CLAUSES_OF_FILE                                               *
+ *                                                                         *
+ * This function is called to erase all clauses associated to a given file *
+ * (this is for consult/1 on a multifile pred).                            *
+ *-------------------------------------------------------------------------*/
+static void
+Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
+{
+  Bool first;
+  DynCInf *clause;
+
+  if (dyn == NULL)
+    return;
+
+  for (clause = dyn->seq_chain.first; clause; 
+       clause = clause->seq_chain.next)
+    {
+      if (clause->erase_stamp == DYN_STAMP_NONE && clause->pl_file == pl_file)
+	Pl_Delete_Dynamic_Clause(clause);
+    }
+
+#if 0
+  Clean_Erased_Clauses();
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * ERASE_ALL                                                               *
  *                                                                         *
  * This function is called to erase all clauses and, when possible, to free*
@@ -573,6 +612,7 @@ Erase_All(DynPInf *dyn)
 
   Clean_Erased_Clauses();
 }
+
 
 
 
@@ -714,8 +754,8 @@ Unlink_Clause(DynCInf *clause)
 static void
 Free_Clause(DynCInf *clause)
 {
-  if (clause->pl_byte_code)
-    Free(clause->pl_byte_code);
+  if (clause->byte_code)
+    Free(clause->byte_code);
 
   Free(clause);
 }
@@ -733,10 +773,14 @@ Free_Clause(DynCInf *clause)
  *             2 for '$remove_predicate'/2                                 *
  *             3 for abolish/1                                             *
  *                                                                         *
+ * pl_file_for_multi is for consulting a multifle pred defined in this file*
+ *    (else pl_file_for_multi = -1). In this case, and if a previous       *
+ *    predicate exists, only the clauses defined in this file are removed. *
+ *                                                                         *
  * returns a pointer to associated pred or NULL if it does not exist.      *
  *-------------------------------------------------------------------------*/
 PredInf *
-Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do)
+Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi)
 {
   WamWord word;
   PredInf *pred;
@@ -754,8 +798,15 @@ Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do)
 			pl_permission_type_static_procedure, word);
     }
 
-  Erase_All((DynPInf *) (pred->dyn));
-  pred->dyn = NULL;
+  if (pl_file_for_multi >= 0 && (pred->prop & MASK_PRED_MULTIFILE))
+    {
+      Erase_All_Clauses_Of_File((DynPInf *) (pred->dyn), pl_file_for_multi);
+    }
+  else
+    {
+      Erase_All((DynPInf *) (pred->dyn));
+      pred->dyn = NULL;
+    }
 
   if ((what_to_do & 2))
     {
@@ -798,9 +849,9 @@ Get_Scan_Choice_Point(WamWord *b)
  *-------------------------------------------------------------------------*/
 DynCInf *
 Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
-		  DynPInf *dyn, WamWord first_arg_word,
-		  ScanFct alt_fct, int alt_fct_type,
-		  int alt_info_size, WamWord *alt_info)
+		     DynPInf *dyn, WamWord first_arg_word,
+		     ScanFct alt_fct, int alt_fct_type,
+		     int alt_info_size, WamWord *alt_info)
 {
   int index_no;
   long key;

@@ -1,17 +1,15 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : sort.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/sort.pl').
 
 
-predicate('$use_sort'/0,29,static,private,built_in,[
+predicate('$use_sort'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(sort/2,32,static,private,built_in,[
+predicate(sort/2,32,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -26,7 +24,7 @@ predicate(sort/2,32,static,private,built_in,[
     proceed]).
 
 
-predicate(msort/2,40,static,private,built_in,[
+predicate(msort/2,40,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -41,7 +39,7 @@ predicate(msort/2,40,static,private,built_in,[
     proceed]).
 
 
-predicate(keysort/2,48,static,private,built_in,[
+predicate(keysort/2,48,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -56,7 +54,7 @@ predicate(keysort/2,48,static,private,built_in,[
     proceed]).
 
 
-predicate(sort/1,56,static,private,built_in,[
+predicate(sort/1,56,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sort,1]),
@@ -69,7 +67,7 @@ predicate(sort/1,56,static,private,built_in,[
     proceed]).
 
 
-predicate(msort/1,64,static,private,built_in,[
+predicate(msort/1,64,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[msort,1]),
@@ -82,7 +80,7 @@ predicate(msort/1,64,static,private,built_in,[
     proceed]).
 
 
-predicate(keysort/1,72,static,private,built_in,[
+predicate(keysort/1,72,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[keysort,1]),

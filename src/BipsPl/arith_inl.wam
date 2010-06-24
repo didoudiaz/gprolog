@@ -1,24 +1,22 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : arith_inl.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/arith_inl.pl').
 
 
-predicate('$use_arith_inl'/0,29,static,private,built_in,[
+predicate('$use_arith_inl'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate((is)/2,32,static,private,built_in,[
+predicate((is)/2,32,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
     math_load_value(x(1),1),
     get_value(x(0),1),
     proceed]).
 
 
-predicate((=:=)/2,35,static,private,built_in,[
+predicate((=:=)/2,35,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=:=,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
@@ -26,7 +24,7 @@ predicate((=:=)/2,35,static,private,built_in,[
     proceed]).
 
 
-predicate((=\=)/2,38,static,private,built_in,[
+predicate((=\=)/2,38,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=\=,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
@@ -34,7 +32,7 @@ predicate((=\=)/2,38,static,private,built_in,[
     proceed]).
 
 
-predicate((<)/2,41,static,private,built_in,[
+predicate((<)/2,41,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[<,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
@@ -42,7 +40,7 @@ predicate((<)/2,41,static,private,built_in,[
     proceed]).
 
 
-predicate((=<)/2,44,static,private,built_in,[
+predicate((=<)/2,44,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=<,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
@@ -50,7 +48,7 @@ predicate((=<)/2,44,static,private,built_in,[
     proceed]).
 
 
-predicate((>)/2,47,static,private,built_in,[
+predicate((>)/2,47,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
@@ -58,7 +56,7 @@ predicate((>)/2,47,static,private,built_in,[
     proceed]).
 
 
-predicate((>=)/2,50,static,private,built_in,[
+predicate((>=)/2,50,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
@@ -66,6 +64,6 @@ predicate((>=)/2,50,static,private,built_in,[
     proceed]).
 
 
-predicate('$arith_eval'/2,54,static,private,built_in,[
+predicate('$arith_eval'/2,54,static,private,monofile,built_in,[
     call_c('Pl_Arith_Eval_2',[],[x(0),x(1)]),
     proceed]).

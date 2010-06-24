@@ -42,7 +42,6 @@ once(Goal) :-
 
 
 
-
 call_det(Goal, Deterministic) :-
 	(   nonvar(Deterministic),
 	    Deterministic \== false,
@@ -148,3 +147,19 @@ call_det(Goal, Deterministic) :-
 
 '$call_from_debugger'(Goal, CallInfo) :-
 	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_3'(Goal, CallInfo, 0)).
+
+
+
+false :-
+	fail.
+
+
+forall(Condition, Action) :-
+	'$not'((Condition, '$not'(Action, forall, 2)), forall, 2).
+
+
+'$not'(Goal, Func, Arity) :-
+	(   '$call'(Goal, Func, Arity, true) ->
+	    fail
+	;   true
+	).

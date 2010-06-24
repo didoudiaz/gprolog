@@ -41,6 +41,7 @@
 #include "wam_protos.h"
 #include "bt_string.c"
 #include "../TopComp/copying.c"
+#include "../TopComp/decode_hexa.c"
 
 #ifdef FC_USED_TO_COMPILE_CORE
 #define FAST "fast "
@@ -141,8 +142,10 @@ typedef struct predinf *PredP;
 
 typedef struct predinf
 {
+  BTNode *module;		/* not NULL */
   BTNode *functor;
   int arity;
+  char *hexa;
   int line_no;
   int prop;
   BTNode *pl_file;
@@ -167,7 +170,6 @@ Direct;
 
 
 
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
@@ -181,7 +183,6 @@ FILE *file_out;
 BTString bt_atom;
 BTString bt_tagged_atom;
 BTString bt_tagged_f_n;
-
 
 BTNode *cur_pl_file;
 
@@ -211,15 +212,10 @@ char *foreign_tbl[FOREIGN_TBL_SIZE];
  * Function Prototypes             *
  *---------------------------------*/
 
+SwtTbl *Create_Switch_Table(int type, int nb_elem);
+
 void Init_Foreign_Table(void);
 
-void Parse_Arguments(int argc, char *argv[]);
-
-void Display_Help(void);
-
-char *Compute_Hexa(char *str, char *hexa);
-
-void Make_Native_Hexa_Symbol(Pred *p, char *buff);
 
 void Emit_Obj_Initializer(void);
 
@@ -237,42 +233,26 @@ void Label_Printf(char *label, ...) GCCPRINTF(1);
 
 void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
 
-SwtTbl *Create_Switch_Table(int type, int nb_elem);
+
+void Parse_Arguments(int argc, char *argv[]);
+
+void Display_Help(void);
 
 
 
-#define Check_Arg(i, str)      (strncmp(argv[i], str, strlen(argv[i]))==0)
+
+#define Check_Arg(i, str)      (strncmp(argv[i], str, strlen(argv[i])) == 0)
 
 
 
 #define DEF_STR(str)          char *str
 
-#define DEF_ATOM(atom)        BTNode *atom; char *str_##atom
-
-#define DEF_PRED(hexa)        char *hexa = buff_hexa; char *str_##hexa
-
-#define DEF_INTEGER(n)        long n
-
-#define DEF_FLOAT(n)          double n
-
-#define DEF_X_Y(xy)           long xy; char c
-
-#define DEF_F_N_0(atom, n)    DEF_ATOM(atom); DEF_INTEGER(n)
-#define DEF_F_N_1(atom, n)    DEF_STR(str_##atom); DEF_INTEGER(n); int f_n_no
-
-#ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-#define DEF_F_N(atom, n)      DEF_F_N_1(atom, n)
-#else
-#define DEF_F_N(atom, n)      DEF_F_N_0(atom, n)
-#endif
-
-#define DEF_P_N(hexa, n)      DEF_PRED(hexa); DEF_INTEGER(n)
-
-#define DEF_LABEL(l)          char l[MAX_LABEL_LENGTH]; long val_##l
-
-
-
 #define LOAD_STR(str)         Get_Arg(top, char *, str)
+
+
+
+
+#define DEF_ATOM(atom)        BTNode *atom; char *str_##atom
 
 #define LOAD_ATOM_T(atom, t)  Get_Arg(top, char *, str_##atom); \
                               atom = BT_String_Add(&t, str_##atom)
@@ -286,15 +266,38 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #define LOAD_ATOM(atom)       LOAD_ATOM_0(atom)
 #endif
 
-#define LOAD_PRED(hexa)       Get_Arg(top, char *, str_##hexa); \
-                              Compute_Hexa(str_##hexa, buff_hexa)
+
+
+
+#define DEF_INTEGER(n)        long n
 
 #define LOAD_INTEGER(n)       Get_Arg(top, long, n)
 
+
+
+#define DEF_FLOAT(n)          double n
+
 #define LOAD_FLOAT(n)         Get_Arg(top, double, n)
+
+
+
+
+#define DEF_X_Y(xy)           long xy; char c
 
 #define LOAD_X_Y(xy)          Get_Arg(top, long, xy); \
                               if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
+
+
+
+
+#define DEF_F_N_0(atom, n)    DEF_ATOM(atom); DEF_INTEGER(n)
+#define DEF_F_N_1(atom, n)    DEF_STR(str_##atom); DEF_INTEGER(n); int f_n_no
+
+#ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
+#define DEF_F_N(atom, n)      DEF_F_N_1(atom, n)
+#else
+#define DEF_F_N(atom, n)      DEF_F_N_0(atom, n)
+#endif
 
 #define LOAD_F_N_0(atom, n)   LOAD_ATOM_0(atom); LOAD_INTEGER(n)
 #define LOAD_F_N_1(atom, n)   LOAD_STR(str_##atom); LOAD_INTEGER(n);\
@@ -306,34 +309,46 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #define LOAD_F_N(atom, n)     LOAD_F_N_0(atom, n)
 #endif
 
-#define LOAD_P_N(hexa, n)     LOAD_PRED(hexa); LOAD_INTEGER(n)
+
+
+
+#define DEF_MP_N(m, p, n)     DEF_STR(m); DEF_STR(p); DEF_INTEGER(n)
+
+#define LOAD_MP_N(m, p, n)    LOAD_STR(m); LOAD_STR(p); LOAD_INTEGER(n)
+
+
+
+#define DEF_LABEL(l)          char l[MAX_LABEL_LENGTH]; long val_##l
 
 #define LOAD_LABEL(l)         Get_Arg(top, long, val_##l); \
                               if (val_##l==-1) strcpy(l, "0"); \
                               else sprintf(l, FORMAT_LABEL(val_##l))
 
-#define Args0                 ArgVal *top=arg
 
-#define Args1(a1)             ArgVal *top=arg; DEF_##a1; \
+
+
+#define Args0                 ArgVal *top = arg
+
+#define Args1(a1)             ArgVal *top = arg; DEF_##a1; \
                               LOAD_##a1
 
-#define Args2(a1, a2)         ArgVal *top=arg; DEF_##a1; DEF_##a2; \
+#define Args2(a1, a2)         ArgVal *top = arg; DEF_##a1; DEF_##a2; \
                               LOAD_##a1; LOAD_##a2
 
-#define Args3(a1, a2, a3)     ArgVal *top=arg; DEF_##a1; DEF_##a2; DEF_##a3;\
+#define Args3(a1, a2, a3)     ArgVal *top = arg; DEF_##a1; DEF_##a2; DEF_##a3;\
                               LOAD_##a1; LOAD_##a2; LOAD_##a3
 
-#define Args4(a1, a2, a3, a4) ArgVal *top=arg; \
+#define Args4(a1, a2, a3, a4) ArgVal *top = arg; \
                               DEF_##a1; DEF_##a2; DEF_##a3; DEF_##a4; \
                               LOAD_##a1; LOAD_##a2; LOAD_##a3; LOAD_##a4
 
 #define Args5(a1, a2, a3, a4, a5) \
-                              ArgVal *top=arg; \
+                              ArgVal *top = arg; \
                               DEF_##a1; DEF_##a2; DEF_##a3; DEF_##a4; DEF_##a5; \
                               LOAD_##a1; LOAD_##a2; LOAD_##a3; LOAD_##a4; LOAD_##a5
 
 #define Args6(a1, a2, a3, a4, a5, a6) \
-                              ArgVal *top=arg; \
+                              ArgVal *top = arg; \
                               DEF_##a1; DEF_##a2; DEF_##a3; DEF_##a4; DEF_##a5; DEF_##a6; \
                               LOAD_##a1; LOAD_##a2; LOAD_##a3; LOAD_##a4; LOAD_##a5; LOAD_##a6
 
@@ -344,24 +359,24 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%ld", cur_pred_no, (sl)
 
 
-#define CREATE_CHOICE_INST(l)                                                  \
-  if (cur_arity >= 0 && cur_arity <= 4)                                        \
+#define CREATE_CHOICE_INST(l)                                               \
+  if (cur_arity >= 1 && cur_arity <= 4)                                     \
     Inst_Printf("call_c", FAST "Pl_Create_Choice_Point%d(&%s)", cur_arity, l); \
-  else                                                                         \
+  else                                                                      \
     Inst_Printf("call_c", FAST "Pl_Create_Choice_Point(&%s,%d)", l, cur_arity)
 
 
-#define UPDATE_CHOICE_INST(l)                                                  \
-  if (cur_arity >= 0 && cur_arity <= 4)                                        \
+#define UPDATE_CHOICE_INST(l)                                               \
+  if (cur_arity >= 1 && cur_arity <= 4)                                     \
     Inst_Printf("call_c", FAST "Pl_Update_Choice_Point%d(&%s)", cur_arity, l); \
-  else                                                                         \
+  else                                                                      \
     Inst_Printf("call_c", FAST "Pl_Update_Choice_Point(&%s,%d)", l, cur_arity)
 
 
-#define DELETE_CHOICE_INST                                                     \
-  if (cur_arity >= 0 && cur_arity <= 4)                                        \
+#define DELETE_CHOICE_INST                                                  \
+  if (cur_arity >= 1 && cur_arity <= 4)                                     \
     Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point%d()", cur_arity);       \
-  else                                                                         \
+  else                                                                      \
     Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point(%d)", cur_arity)
 
 
@@ -414,286 +429,6 @@ main(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
- * COMPUTE_HEXA                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Compute_Hexa(char *str, char *hexa)
-{
-  *hexa++ = 'X';
-
-  while (*str)
-    {
-      sprintf(hexa, "%02X", (unsigned) (unsigned char) *str);
-      str++;
-      hexa += 2;
-    }
-
-  *hexa = '\0';
-  return hexa;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * MAKE_NATIVE_HEXA_SYMBOL                                                 *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Make_Native_Hexa_Symbol(Pred *p, char *buff)
-{
-  buff = Compute_Hexa(p->functor->str, buff);
-  sprintf(buff, "_%d", p->arity);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * EMIT_OBJ_INITIALIZER                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_Obj_Initializer(void)
-{
-  SwtTbl *t;
-  Pred *p;
-  int i, j;
-  char l[MAX_LABEL_LENGTH];
-  char *q;
-
-  Label_Printf("\n");
-
-  if (bt_atom.nb_elem)
-    Label_Printf("long local at(%d)", bt_atom.nb_elem);
-
-  if (bt_tagged_atom.nb_elem)
-    Label_Printf("long local ta(%d)", bt_tagged_atom.nb_elem);
-
-  if (bt_tagged_f_n.nb_elem)
-    Label_Printf("long local fn(%d)", bt_tagged_f_n.nb_elem);
-
-  if (nb_swt_tbl)
-    Label_Printf("long local st(%d)", nb_swt_tbl);
-
-  Label_Printf("\n");
-
-  Label_Printf("c_code  initializer Object_Initializer\n");
-  Inst_Printf("call_c", "Pl_New_Object(&Prolog_Object_Initializer,&System_Directives,&User_Directives)");
-  Inst_Printf("c_ret", "");
-  Label_Printf("\n");
-
-  Label_Printf("c_code  local Prolog_Object_Initializer\n");
-
-#ifdef DEBUG
-  Inst_Printf("call_c", "printf(\"executing init obj of %s\\n\")", file_name_in);
-#endif
-
-  BT_String_List(&bt_atom, Emit_One_Atom);
-  BT_String_List(&bt_tagged_atom, Emit_One_Atom_Tagged);
-  BT_String_List(&bt_tagged_f_n, Emit_One_F_N_Tagged);
-
-  cur_pred_no = 0;
-  for (p = dummy_pred_start.next; p; p = p->next)
-    {
-      fputc('\n', file_out);
-
-      if (!(p->prop & MASK_PRED_DYNAMIC))
-	{
-	  q = buff_hexa;
-	  *q++ = '&';
-	  Make_Native_Hexa_Symbol(p, q);
-	}
-      else
-	strcpy(buff_hexa, "0");
-
-      Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),%d,at(%d),%d,%d,%s)",
-		  p->functor->no, p->arity, p->pl_file->no, p->pl_line,
-		  p->prop, buff_hexa);
-      
-
-      cur_pred_no++;		/* for FORMAT_LABEL */
-
-      for (i = 0; i < 3; i++)
-	for (t = p->swt_tbl[i]; t != NULL; t = t->next)
-	  {
-	    Inst_Printf("call_c", FAST "Pl_Create_Swt_Table(%d)", t->nb_elem);
-	    Inst_Printf("move_ret", "st(%d)", t->tbl_no);
-
-	    switch (i)
-	      {
-	      case TBL_ATM:
-		for (j = 0; j < t->nb_elem; j++)
-		  {
-		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
-		    Inst_Printf("call_c", FAST
-				"Pl_Create_Swt_Atm_Element(st(%d),%d,at(%d),&%s)",
-				t->tbl_no, t->nb_elem,
-				(t->elem[j].atom)->no, l);
-		  }
-		break;
-#ifdef SWT_INT_NO_OPT
-	      case TBL_INT:
-		for (j = 0; j < t->nb_elem; j++)
-		  {
-		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
-		    Inst_Printf("call_c", FAST
-				"Pl_Create_Swt_Int_Element(st(%d),%d,%ld,&%s)",
-				t->tbl_no, t->nb_elem, t->elem[j].n, l);
-		  }
-		break;
-#endif
-	      default:
-		for (j = 0; j < t->nb_elem; j++)
-		  {
-		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
-		    Inst_Printf("call_c", FAST
-				"Pl_Create_Swt_Stc_Element(st(%d),%d,at(%d),%ld,&%s)",
-				t->tbl_no, t->nb_elem,
-				(t->elem[j].atom)->no, t->elem[j].n, l);
-		  }
-	      }
-	  }
-    }
-
-  Inst_Printf("c_ret", "");
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * EMIT_EXEC_DIRECTIVES                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_Exec_Directives(void)
-{
-  int i;
-  Direct *p;
-
-  fputc('\n', file_out);
-  Label_Printf("c_code  local System_Directives\n");
-
-  i = 0;
-  for (p = dummy_direct_start.next; p; p = p->next)
-    {
-      i++;
-      if (!p->system)
-	continue;
-
-#ifdef DEBUG
-      { static int flag = 0;
-	if (!flag)
-	  Inst_Printf("call_c", "printf(\"executing syst directives of %s\\n\")", file_name_in);
-	flag = 1;
-      }
-#endif
-      Inst_Printf("call_c", "Pl_Execute_Directive(at(%d),%d,%d,&directive_%d)",
-		  p->pl_file->no, p->pl_line, 1, i);
-    }
-
-  Inst_Printf("c_ret", "");
-
-  fputc('\n', file_out);
-  Label_Printf("c_code  local User_Directives\n");
-
-
-  i = 0;
-  for (p = dummy_direct_start.next; p; p = p->next)
-    {
-      i++;
-      if (p->system)
-	continue;
-
-#ifdef DEBUG
-      { static int flag = 0;
-	if (!flag)
-	  Inst_Printf("call_c", "printf(\"executing user directives of %s\\n\")", file_name_in);
-	flag = 1;
-      }
-#endif
-      Inst_Printf("call_c", "Pl_Execute_Directive(at(%d),%d,%d,&directive_%d)",
-		  p->pl_file->no, p->pl_line, 0, i);
-    }
-
-  Inst_Printf("c_ret", "");
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * EMIT_ONE_ATOM                                                           *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_One_Atom(int no, char *str)
-{
-  Inst_Printf("call_c", "Pl_Create_Atom(\"%s\")", str);
-  Inst_Printf("move_ret", "at(%d)", no);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * EMIT_ONE_ATOM_TAGGED                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_One_Atom_Tagged(int no, char *str)
-{
-  Inst_Printf("call_c", FAST "Pl_Create_Atom_Tagged(\"%s\")", str);
-  Inst_Printf("move_ret", "ta(%d)", no);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ADD_F_N_TAGGED                                                          *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Add_F_N_Tagged(char *atom, int n)
-{
-  int l = strlen(atom);
-
-  atom = (char *) realloc(atom, l + 5 + 1);
-  sprintf(atom + l, "/%d", n);
-
-  return BT_String_Add(&bt_tagged_f_n, atom)->no;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * EMIT_ONE_F_N_TAGGED                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_One_F_N_Tagged(int no, char *str)
-{
-  int n;
-  char *p = str + strlen(str) - 1;
-
-  for(p = str + strlen(str) - 1; *p != '/'; p--)
-    ;
-
-  n = atoi(p+1);
-  *p = '\0';
-
-  Inst_Printf("call_c", FAST "Pl_Create_Functor_Arity_Tagged(\"%s\",%d)", str, n);
-  Inst_Printf("move_ret", "fn(%d)", no);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * SOURCE_LINE                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -707,60 +442,106 @@ Source_Line(int line_no, char *cmt)
 
 
 /*-------------------------------------------------------------------------*
- * PROLOG_FILE_NAME                                                        *
+ * F_FILE_NAME                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Prolog_File_Name(char *pl_file)
+F_file_name(ArgVal arg[])
 {
+  Args1(STR(pl_file));
+
   cur_pl_file = BT_String_Add(&bt_atom, pl_file);
 }
 
 
 
-
 /*-------------------------------------------------------------------------*
- * NEW_PREDICATE                                                           *
+ * F_PREDICATE                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-New_Predicate(char *functor, int arity, int pl_line, int dynamic,
-	      int public, int built_in, int built_in_fd)
+F_predicate(ArgVal arg[])
 {
-  BTNode *atom;
+  Args6(MP_N(module, functor, arity), INTEGER(pl_line), 
+	STR(static_dynamic), STR(public_private), STR(mono_multi), STR(built_in_local_global));
+  BTNode *atom_module = NULL;
+  BTNode *atom_functor;
+  int module_user_system = 0;
   int prop;
+  int local_symbol = 0;
 
-  atom = BT_String_Add(&bt_atom, functor);
+  if (cur_pl_file == NULL)
+    Syntax_Error("file_name declaration missing");
+
+  atom_functor = BT_String_Add(&bt_atom, functor);
 
   cur_arity = arity;
   cur_sub_label = 0;
 
-  if (dynamic)
+  if (strcmp(static_dynamic, "dynamic") == 0)
     prop = MASK_PRED_DYNAMIC;
-  else
+  else if (strcmp(static_dynamic, "static") == 0)
     prop = MASK_PRED_NATIVE_CODE;
+  else
+    Syntax_Error("static or dynamic expected");
 
-  if (public)
+  if (strcmp(public_private, "public") == 0)
     prop |= MASK_PRED_PUBLIC;
+  else if (strcmp(public_private, "private") != 0)
+    Syntax_Error("public or private expected");
 
-  if (built_in)
+  if (strcmp(mono_multi, "monofile") == 0)
+    ;
+  else if (strcmp(mono_multi, "multifile") == 0)
+    {
+      prop |= MASK_PRED_MULTIFILE;
+      prop &= ~MASK_PRED_NATIVE_CODE; /* if multifile it needs to be emulated */
+    }
+  else
+    Syntax_Error("multifile or multifile expected");
+
+
+
+    local_symbol = 0;
+  if (strcmp(built_in_local_global, "built_in") == 0)
     prop |= MASK_PRED_BUILTIN;
-
-  if (built_in_fd)
+  else if (strcmp(built_in_local_global, "built_in_fd") == 0)
     prop |= MASK_PRED_BUILTIN_FD;
+  else if (strcmp(built_in_local_global, "local") == 0)
+    local_symbol = 1;
+  else if (strcmp(built_in_local_global, "user") != 0 &&
+	   strcmp(built_in_local_global, "global") != 0)
+    Syntax_Error("built_in, built_in_fd, local or global (or user) expected");
+  /* 'user' is accepted for compatibility as 'global' - no longer generated */
 
+
+  if (!local_symbol)
+    prop |= MASK_PRED_EXPORTED;
 
   cur_pred_no++;
 
   cur_pred = (Pred *) malloc(sizeof(Pred));
   if (cur_pred == NULL)
     {
-      fprintf(stderr, "Cannot allocate memory for predicate #%d\n",
-	      cur_pred_no);
+      fprintf(stderr, "Cannot allocate memory for predicate #%d (%s/%ld)\n",
+	      cur_pred_no, functor, arity);
       exit(1);
     }
 
-  cur_pred->functor = atom;
+  if (module == NULL || *module == '\0') /* 'module' should be given in the future */
+    {
+      if (prop & MASK_PRED_BUILTIN || prop & MASK_PRED_BUILTIN_FD)
+	module = "system";
+      else
+	module = "user";
+    }
+  atom_module = BT_String_Add(&bt_atom, module);
+  if (strcmp(module, "user") == 0 || strcmp(module, "system") == 0)
+    module_user_system = 1;
+
+
+  cur_pred->module = atom_module;
+  cur_pred->functor = atom_functor;
   cur_pred->arity = arity;
   cur_pred->pl_file = cur_pl_file;
   cur_pred->pl_line = pl_line;
@@ -774,24 +555,48 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
   pred_end = cur_pred;
 
   if (comment)
-    Label_Printf("\n\n; *** Predicate: %s/%d (%s:%d)",
-		 functor, arity, cur_pl_file->str, pl_line);
+    {
+      Label_Printf("\n\n; *** Predicate: %s:%s/%d (%s:%d)",
+		   module, functor, arity, cur_pl_file->str, pl_line);
+    }
 
-  Make_Native_Hexa_Symbol(cur_pred, buff_hexa);
-  Label_Printf("\n\npl_code global %s", buff_hexa);
+  /* do not qualif with module in Encode_Hexa if:
+   *    - it is not an exported predicate (i.e. it is a local_symbol)
+   *    - it owns to module 'user' or 'system'
+   */
+
+  Encode_Hexa((local_symbol || module_user_system) ? NULL : module, functor, arity, buff_hexa + 1);
+  *buff_hexa = '&';
+  cur_pred->hexa = strdup(buff_hexa);
+
+  Label_Printf("\n\npl_code %s %s", (local_symbol) ? "local" : "global", buff_hexa + 1);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * NEW_DIRECTIVE                                                           *
+ * F_DIRECTIVE                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-New_Directive(int pl_line, int system)
+F_directive(ArgVal arg[])
 {
+  Args2(INTEGER(pl_line), STR(user_system));
   Direct *p;
+  int system;
+
+  if (cur_pl_file == NULL)
+    Syntax_Error("file_name declaration missing");
+
+
+  if (strcmp(user_system, "system") == 0)
+    system = 1;
+  else if (strcmp(user_system, "user") == 0)
+    system = 0;
+  else
+    Syntax_Error("user or system expected");
+
 
   cur_direct_no++;
   p = (Direct *) malloc(sizeof(Direct));
@@ -821,68 +626,22 @@ New_Directive(int pl_line, int system)
 
 
 /*-------------------------------------------------------------------------*
- * ENSURE_LINKED                                                           *
+ * F_ENSURE_LINKED                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Ensure_Linked(ArgVal arg[])
+F_ensure_linked(ArgVal arg[])
 {
-  DEF_PRED(hexa);
-  DEF_INTEGER(n);
+  DEF_MP_N(m, p, n);
   Args1(INTEGER(nb_elem));
 
   Label_Printf("\n\npl_code local ensure_linked");
   while (nb_elem--)
     {
-      LOAD_PRED(hexa);
-      LOAD_INTEGER(n);
-      Inst_Printf("pl_jump", "%s_%ld", hexa, n);
+      LOAD_MP_N(m, p, n);
+      Encode_Hexa(m, p, n, buff_hexa);
+      Inst_Printf("pl_jump", buff_hexa);
     }
-
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * LABEL_PRINTF                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Label_Printf(char *label, ...)
-{
-  va_list arg_ptr;
-
-  va_start(arg_ptr, label);
-
-  vfprintf(file_out, label, arg_ptr);
-
-  va_end(arg_ptr);
-  fputc('\n', file_out);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * INST_PRINTF                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Inst_Printf(char *op, char *operands, ...)
-{
-  va_list arg_ptr;
-
-  va_start(arg_ptr, operands);
-
-  fprintf(file_out, "\t%-10s ", op);
-  if (operands)
-    {
-      vfprintf(file_out, operands, arg_ptr);
-      fputc('\n', file_out);
-    }
-
-  va_end(arg_ptr);
 }
 
 
@@ -1192,6 +951,24 @@ F_put_structure(ArgVal arg[])
 
 
 /*-------------------------------------------------------------------------*
+ * F_PUT_META_TERM                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_put_meta_term(ArgVal arg[])
+{
+  Args2(ATOM(module), INTEGER(a));
+#ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %ld)", module->no, a);
+#else
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %ld)", module->no, a);
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * F_MATH_LOAD_VALUE                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1285,7 +1062,7 @@ F_unify_local_value(ArgVal arg[])
 void
 F_unify_atom(ArgVal arg[])
 {
-  Args1(ATOM(atom));
+  Args1(ATOM(atom));  
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Unify_Atom_Tagged(ta(%d))", atom->no);
 #else
@@ -1397,9 +1174,11 @@ F_deallocate(ArgVal arg[])
 void
 F_call(ArgVal arg[])
 {
-  Args1(P_N(hexa, n));
+  Args1(MP_N(m, p, n));
 
-  Inst_Printf("pl_call", "%s_%ld", hexa, n);
+  Encode_Hexa(m, p, n, buff_hexa);
+
+  Inst_Printf("pl_call", buff_hexa);
 }
 
 
@@ -1412,9 +1191,11 @@ F_call(ArgVal arg[])
 void
 F_execute(ArgVal arg[])
 {
-  Args1(P_N(hexa, n));
+  Args1(MP_N(m, p, n));
 
-  Inst_Printf("pl_jump", "%s_%ld", hexa, n);
+  Encode_Hexa(m, p, n, buff_hexa);
+
+  Inst_Printf("pl_jump", buff_hexa);
 }
 
 
@@ -1816,7 +1597,7 @@ F_cut(ArgVal arg[])
  *    - set_cp (set CP before the call at the next instruction)            *
  *    - fast_call (use a fact call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
- *   W= atom or integer or double or x(X) or y(Y) or  &,x(X) or &,y(Y)     *
+ *   W= atom  &,fun,arity  integer  double  x(X)  y(Y)  &,x(X)  &,y(Y)     *
  *-------------------------------------------------------------------------*/
 void
 F_call_c(ArgVal arg[])
@@ -1826,7 +1607,7 @@ F_call_c(ArgVal arg[])
   int tagged = 0;
   int set_cp = 0;
   char *str;
-  int adr_of_xy;
+  int adr_of;
   long ret_xy;
   char ret_c;
   int i;
@@ -1834,6 +1615,8 @@ F_call_c(ArgVal arg[])
   DEF_STR(c_option);
   DEF_INTEGER(arg_type);
   DEF_ATOM(atom);
+  DEF_STR(aux_functor);
+  DEF_INTEGER(aux_arity);
   DEF_INTEGER(n);
   DEF_FLOAT(n1);
   DEF_X_Y(xy);
@@ -1851,7 +1634,7 @@ F_call_c(ArgVal arg[])
 	  ret_c = c;
 	  continue;
 	}
-				/* else should be ATOM */
+      /* else should be ATOM */
       LOAD_STR(c_option);
       if (strcmp(c_option, "boolean") == 0)
 	ret = 1;
@@ -1877,7 +1660,7 @@ F_call_c(ArgVal arg[])
   fprintf(file_out, "%s(", fct_name);
 
   i = 0;
-  adr_of_xy = 0;
+  adr_of = 0;
   goto write_a_arg;
   while(i < nb_elem)
     {
@@ -1887,18 +1670,31 @@ F_call_c(ArgVal arg[])
       LOAD_INTEGER(arg_type);
       switch(arg_type)
 	{
-	case ATOM:		/* detect & x(X) or & y(Y) */
+	case ATOM:		/* detect  &,func,arity   &,x(X)   &,y(Y) */
 	  str = *((char **) top);
-	  if (*str == '&' && str[1] == '\0' && i < nb_elem - 1 &&
-	      *(long *) (top+1) == X_Y)
+	  if (*str == '&' && str[1] == '\0')
 	    {
-	      adr_of_xy = 1;
-	      i++;
-	      top++;
-	      goto write_a_arg;
+	      if ((i < nb_elem - 1 && *(long *) (top+1) == X_Y) ||
+		  (i < nb_elem - 2 && *(long *) (top+1) == ATOM && *(long *) (top+3) == INTEGER))
+		{
+		  adr_of = 1;
+		  i++;
+		  top++;
+		  goto write_a_arg;
+		}
 	    }
 
-	  if (tagged)
+	  if (adr_of)
+	    {
+	      LOAD_STR(aux_functor);
+	      i++;
+	      top++;
+	      LOAD_INTEGER(aux_arity);
+	      Encode_Hexa(NULL, aux_functor, aux_arity, buff_hexa);
+	      fprintf(file_out, "&%s", buff_hexa);
+	      adr_of = 0;
+	    } 
+	  else if (tagged)
 	    {
 	      LOAD_ATOM_1(atom);
 	      fprintf(file_out, "ta(%d)", atom->no);
@@ -1922,10 +1718,10 @@ F_call_c(ArgVal arg[])
 
 	case X_Y:
 	  LOAD_X_Y(xy);
-	  if (adr_of_xy)
+	  if (adr_of)
 	    {
 	      fprintf(file_out, "&");
-	      adr_of_xy = 0;
+	      adr_of = 0;
 	    }
 	  fprintf(file_out, "%c(%ld)", c, xy);
 	  break;
@@ -2167,6 +1963,300 @@ F_foreign_call_c(ArgVal arg[])
       Inst_Printf("call_c", "Pl_Foreign_Jump_Ret(FL(%d))", NB_OF_X_REGS - 1);
       Inst_Printf("jump_ret", "");
     }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_OBJ_INITIALIZER                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_Obj_Initializer(void)
+{
+  SwtTbl *t;
+  Pred *p;
+  int i, j;
+  char l[MAX_LABEL_LENGTH];
+  char *q;
+
+  Label_Printf("\n");
+
+  if (bt_atom.nb_elem)
+    Label_Printf("long local at(%d)", bt_atom.nb_elem);
+
+  if (bt_tagged_atom.nb_elem)
+    Label_Printf("long local ta(%d)", bt_tagged_atom.nb_elem);
+
+  if (bt_tagged_f_n.nb_elem)
+    Label_Printf("long local fn(%d)", bt_tagged_f_n.nb_elem);
+
+  if (nb_swt_tbl)
+    Label_Printf("long local st(%d)", nb_swt_tbl);
+
+  Label_Printf("\n");
+
+  Label_Printf("c_code  initializer Object_Initializer\n");
+  Inst_Printf("call_c", "Pl_New_Object(&Prolog_Object_Initializer,&System_Directives,&User_Directives)");
+  Inst_Printf("c_ret", "");
+  Label_Printf("\n");
+
+  Label_Printf("c_code  local Prolog_Object_Initializer\n");
+
+#ifdef DEBUG
+  Inst_Printf("call_c", "printf(\"executing init obj of %s\\n\")", file_name_in);
+#endif
+
+  BT_String_List(&bt_atom, Emit_One_Atom);
+  BT_String_List(&bt_tagged_atom, Emit_One_Atom_Tagged);
+  BT_String_List(&bt_tagged_f_n, Emit_One_F_N_Tagged);
+
+  cur_pred_no = 0;
+  for (p = dummy_pred_start.next; p; p = p->next)
+    {
+      fputc('\n', file_out);
+
+      if (p->prop & MASK_PRED_NATIVE_CODE)
+	q = p->hexa;
+      else
+	q = "0";
+
+#if 0  /* uncomment this to support modules */
+      Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),at(%d),%d,at(%d),%d,%d,%s)",
+		  p->module->no, p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		  p->prop, q);
+#else
+      Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),%d,at(%d),%d,%d,%s)",
+		  p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		  p->prop, q);
+#endif 
+
+      cur_pred_no++;		/* for FORMAT_LABEL */
+
+      for (i = 0; i < 3; i++)
+	for (t = p->swt_tbl[i]; t != NULL; t = t->next)
+	  {
+	    Inst_Printf("call_c", FAST "Pl_Create_Swt_Table(%d)", t->nb_elem);
+	    Inst_Printf("move_ret", "st(%d)", t->tbl_no);
+
+	    switch (i)
+	      {
+	      case TBL_ATM:
+		for (j = 0; j < t->nb_elem; j++)
+		  {
+		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
+		    Inst_Printf("call_c", FAST
+				"Pl_Create_Swt_Atm_Element(st(%d),%d,at(%d),&%s)",
+				t->tbl_no, t->nb_elem,
+				(t->elem[j].atom)->no, l);
+		  }
+		break;
+#ifdef SWT_INT_NO_OPT
+	      case TBL_INT:
+		for (j = 0; j < t->nb_elem; j++)
+		  {
+		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
+		    Inst_Printf("call_c", FAST
+				"Pl_Create_Swt_Int_Element(st(%d),%d,%ld,&%s)",
+				t->tbl_no, t->nb_elem, t->elem[j].n, l);
+		  }
+		break;
+#endif
+	      default:
+		for (j = 0; j < t->nb_elem; j++)
+		  {
+		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
+		    Inst_Printf("call_c", FAST
+				"Pl_Create_Swt_Stc_Element(st(%d),%d,at(%d),%ld,&%s)",
+				t->tbl_no, t->nb_elem,
+				(t->elem[j].atom)->no, t->elem[j].n, l);
+		  }
+	      }
+	  }
+    }
+
+  Inst_Printf("c_ret", "");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_EXEC_DIRECTIVES                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_Exec_Directives(void)
+{
+  int i;
+  Direct *p;
+
+  fputc('\n', file_out);
+  Label_Printf("c_code  local System_Directives\n");
+
+  i = 0;
+  for (p = dummy_direct_start.next; p; p = p->next)
+    {
+      i++;
+      if (!p->system)
+	continue;
+
+#ifdef DEBUG
+      { static int flag = 0;
+	if (!flag)
+	  Inst_Printf("call_c", "printf(\"executing syst directives of %s\\n\")", file_name_in);
+	flag = 1;
+      }
+#endif
+      Inst_Printf("call_c", "Pl_Execute_Directive(at(%d),%d,%d,&directive_%d)",
+		  p->pl_file->no, p->pl_line, 1, i);
+    }
+
+  Inst_Printf("c_ret", "");
+
+  fputc('\n', file_out);
+  Label_Printf("c_code  local User_Directives\n");
+
+
+  i = 0;
+  for (p = dummy_direct_start.next; p; p = p->next)
+    {
+      i++;
+      if (p->system)
+	continue;
+
+#ifdef DEBUG
+      { static int flag = 0;
+	if (!flag)
+	  Inst_Printf("call_c", "printf(\"executing user directives of %s\\n\")", file_name_in);
+	flag = 1;
+      }
+#endif
+      Inst_Printf("call_c", "Pl_Execute_Directive(at(%d),%d,%d,&directive_%d)",
+		  p->pl_file->no, p->pl_line, 0, i);
+    }
+
+  Inst_Printf("c_ret", "");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_ONE_ATOM                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_One_Atom(int no, char *str)
+{
+  Inst_Printf("call_c", "Pl_Create_Atom(\"%s\")", str);
+  Inst_Printf("move_ret", "at(%d)", no);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_ONE_ATOM_TAGGED                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_One_Atom_Tagged(int no, char *str)
+{
+  BTNode *atom = BT_String_Lookup(&bt_atom, str);
+  
+  if (atom)			/* optim: reuse the atom to avoid re-hashing */
+    Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->no);
+  else
+    Inst_Printf("call_c", FAST "Pl_Create_Atom_Tagged(\"%s\")", str);
+
+  Inst_Printf("move_ret", "ta(%d)", no);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ADD_F_N_TAGGED                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Add_F_N_Tagged(char *atom, int n)
+{
+  int l = strlen(atom);
+
+  atom = (char *) realloc(atom, l + 5 + 1);
+  sprintf(atom + l, "/%d", n);
+
+  return BT_String_Add(&bt_tagged_f_n, atom)->no;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EMIT_ONE_F_N_TAGGED                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_One_F_N_Tagged(int no, char *str)
+{
+  int n;
+  char *p = str + strlen(str) - 1;
+
+  for(p = str + strlen(str) - 1; *p != '/'; p--)
+    ;
+
+  n = atoi(p+1);
+  *p = '\0';
+
+  Inst_Printf("call_c", FAST "Pl_Create_Functor_Arity_Tagged(\"%s\",%d)", str, n);
+  Inst_Printf("move_ret", "fn(%d)", no);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL_PRINTF                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Label_Printf(char *label, ...)
+{
+  va_list arg_ptr;
+
+  va_start(arg_ptr, label);
+
+  vfprintf(file_out, label, arg_ptr);
+
+  va_end(arg_ptr);
+  fputc('\n', file_out);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INST_PRINTF                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Inst_Printf(char *op, char *operands, ...)
+{
+  va_list arg_ptr;
+
+  va_start(arg_ptr, operands);
+
+  fprintf(file_out, "\t%-10s ", op);
+  if (operands)
+    {
+      vfprintf(file_out, operands, arg_ptr);
+      fputc('\n', file_out);
+    }
+
+  va_end(arg_ptr);
 }
 
 

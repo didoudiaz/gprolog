@@ -1,17 +1,15 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : control.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/control.pl').
 
 
-predicate('$use_control'/0,29,static,private,built_in,[
+predicate('$use_control'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(repeat/0,34,static,private,built_in,[
+predicate(repeat/0,34,static,private,monofile,built_in,[
     try_me_else(1),
     proceed,
 
@@ -20,35 +18,35 @@ label(1),
     execute(repeat/0)]).
 
 
-predicate(abort/0,42,static,private,built_in,[
+predicate(abort/0,42,static,private,monofile,built_in,[
     put_integer(1,0),
     call_c('Pl_Halt_If_No_Top_Level_1',[jump],[x(0)]),
     proceed]).
 
 
-predicate(stop/0,46,static,private,built_in,[
+predicate(stop/0,46,static,private,monofile,built_in,[
     put_integer(0,0),
     call_c('Pl_Halt_If_No_Top_Level_1',[jump],[x(0)]),
     proceed]).
 
 
-predicate(halt/0,53,static,private,built_in,[
+predicate(halt/0,53,static,private,monofile,built_in,[
     put_integer(0,0),
     execute(halt/1)]).
 
 
-predicate(halt/1,59,static,private,built_in,[
+predicate(halt/1,59,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[halt,1]),
     call_c('Pl_Halt_1',[],[x(0)]),
     proceed]).
 
 
-predicate(for/3,67,static,private,built_in,[
+predicate(for/3,67,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[for,3]),
     call_c('Pl_For_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$for_alt'/0,72,static,private,built_in,[
+predicate('$for_alt'/0,72,static,private,monofile,built_in,[
     call_c('Pl_For_Alt_0',[],[]),
     proceed]).

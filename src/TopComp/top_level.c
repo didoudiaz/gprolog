@@ -57,8 +57,8 @@ static void Display_Help(void);
 #define Check_Arg(i, str)  (strncmp(argv[i], str, strlen(argv[i])) == 0)
 
 
-#define EXEC_CMD_LINE_GOAL  X24657865635F636D645F6C696E655F676F616C
-#define PREDICATE_TOP_LEVEL X746F705F6C6576656C
+#define EXEC_CMD_LINE_GOAL  X1_24657865635F636D645F6C696E655F676F616C
+#define PREDICATE_TOP_LEVEL X0_top_level
 
 Prolog_Prototype(PREDICATE_TOP_LEVEL, 0);
 Prolog_Prototype(EXEC_CMD_LINE_GOAL, 1);

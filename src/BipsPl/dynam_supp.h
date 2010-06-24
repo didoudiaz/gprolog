@@ -68,9 +68,10 @@ typedef struct dyncinf		/* Dynamic clause information     */
   D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
   char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
+  int pl_file;			/* file name of its definition    */
   DynStamp erase_stamp;		/* FFF...F if not erased or stamp */
   DynCInfP next_erased_cl;	/* pointer to next erased clause  */
-  unsigned *pl_byte_code;		/* bc pointer (NULL=interpreted)  */
+  unsigned *byte_code;		/* bc pointer (NULL=interpreted)  */
   int term_size;		/* size of the term of the clause */
   WamWord term_word;		/* clause [Head|Body]=<LST,adr+1> */
   WamWord head_word;		/* adr+1 = Car = clause term Head */
@@ -119,11 +120,11 @@ DynPInf;
  *---------------------------------*/
 
 DynCInf *Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
-			    Bool asserta, Bool check_perm);
+			       Bool asserta, Bool check_perm, int pl_file);
 
 void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 
-PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do);
+PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi);
 
 DynCInf *Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 			   DynPInf *dyn, WamWord first_arg_word,

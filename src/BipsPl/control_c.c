@@ -46,7 +46,7 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-#define FOR_ALT                    X24666F725F616C74
+#define FOR_ALT                    X1_24666F725F616C74
 
 Prolog_Prototype(FOR_ALT, 0);
 

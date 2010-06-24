@@ -54,6 +54,21 @@
 /*                                                                         */
 /* N=24 A=[1,3,6,8,10,11,14,15,18,19,22,23]                                */
 /*      B=[2,4,5,7,9,12,13,16,17,20,21,24]                                 */
+/*                                                                         */
+/* Computing all solutions                                                 */
+/*                                                                         */
+/* N=8            1 solutions in      0.00 secs = 0ms                      */
+/* N=12           1 solutions in      0.00 secs = 0ms                      */
+/* N=16           7 solutions in      0.01 secs = 10ms                     */
+/* N=20          24 solutions in      0.01 secs = 10ms                     */
+/* N=24         296 solutions in      0.03 secs = 30ms                     */
+/* N=28        1443 solutions in      0.35 secs = 350ms                    */
+/* N=32       17444 solutions in      3.51 secs = 3s 510ms                 */
+/* N=36      138905 solutions in     35.86 secs = 35s 860ms                */
+/* N=40     1581207 solutions in    385.07 secs = 6m 25s 70ms              */
+/* N=44    14762400 solutions in   4222.02 secs = 1h 10m 22s 20ms          */
+/* N=48   176977514 solutions in  48276.96 secs = 13h 24m 36s 960ms        */
+/* N=52  1850331835 solutions in 552017.03 secs = 6d 9h 20m 17s 30ms       */
 /*-------------------------------------------------------------------------*/
 
 

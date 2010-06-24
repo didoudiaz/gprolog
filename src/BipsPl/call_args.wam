@@ -1,116 +1,114 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : call_args.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call_args.pl').
 
 
-predicate('$use_call_args'/0,29,static,private,built_in,[
+predicate('$use_call_args'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(call_with_args/1,33,static,private,built_in,[
+predicate(call_with_args/1,33,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,0]),
     proceed]).
 
 
-predicate(call_with_args/2,36,static,private,built_in,[
+predicate(call_with_args/2,36,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,1]),
     proceed]).
 
 
-predicate(call_with_args/3,39,static,private,built_in,[
+predicate(call_with_args/3,39,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,2]),
     proceed]).
 
 
-predicate(call_with_args/4,42,static,private,built_in,[
+predicate(call_with_args/4,42,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,3]),
     proceed]).
 
 
-predicate(call_with_args/5,45,static,private,built_in,[
+predicate(call_with_args/5,45,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,4]),
     proceed]).
 
 
-predicate(call_with_args/6,48,static,private,built_in,[
+predicate(call_with_args/6,48,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,5]),
     proceed]).
 
 
-predicate(call_with_args/7,51,static,private,built_in,[
+predicate(call_with_args/7,51,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,6]),
     proceed]).
 
 
-predicate(call_with_args/8,54,static,private,built_in,[
+predicate(call_with_args/8,54,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,7]),
     proceed]).
 
 
-predicate(call_with_args/9,57,static,private,built_in,[
+predicate(call_with_args/9,57,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,8]),
     proceed]).
 
 
-predicate(call_with_args/10,60,static,private,built_in,[
+predicate(call_with_args/10,60,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,9]),
     proceed]).
 
 
-predicate(call_with_args/11,63,static,private,built_in,[
+predicate(call_with_args/11,63,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,10]),
     proceed]).
 
 
-predicate(call/2,68,static,private,built_in,[
+predicate(call/2,68,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,1]),
     proceed]).
 
 
-predicate(call/3,71,static,private,built_in,[
+predicate(call/3,71,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,2]),
     proceed]).
 
 
-predicate(call/4,74,static,private,built_in,[
+predicate(call/4,74,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,3]),
     proceed]).
 
 
-predicate(call/5,77,static,private,built_in,[
+predicate(call/5,77,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,4]),
     proceed]).
 
 
-predicate(call/6,80,static,private,built_in,[
+predicate(call/6,80,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,5]),
     proceed]).
 
 
-predicate(call/7,83,static,private,built_in,[
+predicate(call/7,83,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,6]),
     proceed]).
 
 
-predicate(call/8,86,static,private,built_in,[
+predicate(call/8,86,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,7]),
     proceed]).
 
 
-predicate(call/9,89,static,private,built_in,[
+predicate(call/9,89,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,8]),
     proceed]).
 
 
-predicate(call/10,92,static,private,built_in,[
+predicate(call/10,92,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,9]),
     proceed]).
 
 
-predicate(call/11,95,static,private,built_in,[
+predicate(call/11,95,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,10]),
     proceed]).

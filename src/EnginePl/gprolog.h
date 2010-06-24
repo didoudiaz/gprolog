@@ -626,6 +626,9 @@ void Pl_Os_Error(void);
 
 
 
+void Pl_Write_Simple(PlTerm term);
+
+
 
 void Pl_Exec_Continuation(int func, int arity, PlTerm *arg_adr);
 

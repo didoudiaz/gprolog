@@ -1,29 +1,27 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : file.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/file.pl').
 
 
-predicate('$use_file'/0,29,static,private,built_in,[
+predicate('$use_file'/0,29,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(absolute_file_name/2,32,static,private,built_in,[
+predicate(absolute_file_name/2,32,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[absolute_file_name,2]),
     call_c('Pl_Absolute_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(decompose_file_name/4,39,static,private,built_in,[
+predicate(decompose_file_name/4,39,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[decompose_file_name,4]),
     call_c('Pl_Decompose_File_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(prolog_file_name/2,46,static,private,built_in,[
+predicate(prolog_file_name/2,46,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_name,2]),
     call_c('Pl_Prolog_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).

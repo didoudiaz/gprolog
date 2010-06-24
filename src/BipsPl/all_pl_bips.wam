@@ -1,13 +1,11 @@
-% compiler: GNU Prolog 1.4.0 (Apr 2 2010)
+% compiler: GNU Prolog 1.4.0
 % file    : all_pl_bips.pl
-% date    : 4 2 2010
-% time    : 16:2:5
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/all_pl_bips.pl').
 
 
-predicate('$use_all_pl_bips'/0,27,static,private,user,[
+predicate('$use_all_pl_bips'/0,27,static,private,monofile,global,[
     allocate(0),
     call('$use_control'/0),
     call('$use_call'/0),

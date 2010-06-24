@@ -118,12 +118,16 @@ consult(File) :-
 	).
 
 
-'$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, UsBplBfd, NbCl), Stream) :-
+'$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream) :-
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(PI, PlFile, PlLine),
-	'$check_owner_files'(PI, PlFile, PlLine),
+	(   MonoMulti = multifile, '$predicate_property_any'(PI, multifile) ->
+	    true
+	;
+	    '$check_owner_files'(PI, PlFile, PlLine)
+	),
 	PI = Pred / N,
-	'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd),
+	'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd),
 	g_assign('$ctr', 0),
 	repeat,
 	g_read('$ctr', Ctr),
@@ -132,7 +136,7 @@ consult(File) :-
 	(   Ctr = NbCl ->
 	    true
 	;   read(Stream, clause(Cl, WamCl)),
-	    '$add_clause_term_and_bc'(Cl, WamCl),
+	    '$add_clause_term_and_bc'(Cl, PlFile, WamCl),
 	    fail
 	), !.
 
@@ -211,8 +215,8 @@ load(File) :-
 
 
 
-'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd) :-
-	'$call_c'('Pl_BC_Start_Pred_7'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, UsBplBfd)).
+'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd) :-
+	'$call_c'('Pl_BC_Start_Pred_8'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd)).
 
 
 '$bc_start_emit' :-
@@ -239,19 +243,17 @@ load(File) :-
 
 
 
-'$add_clause_term'(Cl) :-
-	'$assert'(Cl, 0, 0).
+'$add_clause_term'(Cl, PlFile) :-
+	'$assert'(Cl, 0, 0, PlFile).
 
 
 
 
-'$add_clause_term_and_bc'(Cl, WamCl) :-
+'$add_clause_term_and_bc'(Cl, PlFile, WamCl) :-
 	'$bc_start_emit',
 	'$bc_emit'(WamCl),
 	'$bc_stop_emit',
-	'$add_clause_term'(Cl).
-
-
+	'$add_clause_term'(Cl, PlFile).
 
 
 
