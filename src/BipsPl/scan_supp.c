@@ -266,9 +266,34 @@ start_scan:
 	  pl_token.type = TOKEN_IMMEDIAT_OPEN;
 	  break;
 	}
-
       pl_token.type = TOKEN_PUNCTUATION;
       pl_token.punct = c;
+
+#if 0
+      if (c == '[')
+	{
+	  Read_Next_Char(pstm, TRUE);
+	  if (c == ']')
+	    {
+	      pl_token.type = TOKEN_NAME;
+	      strcpy(pl_token.name, "[]");
+	      break;
+	    }
+	  Unget_Last_Char;
+	}
+
+      if (c == '{')
+	{
+	  Read_Next_Char(pstm, TRUE);
+	  if (c == '}')
+	    {
+	      pl_token.type = TOKEN_NAME;
+	      strcpy(pl_token.name, "{}");
+	      break;
+	    }
+	  Unget_Last_Char;
+	}
+#endif
       break;
 
     case SC:			/* solo character */

@@ -558,7 +558,6 @@ Pl_Delete_Dynamic_Clause(DynCInf *clause)
 static void
 Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
 {
-  Bool first;
   DynCInf *clause;
 
   if (dyn == NULL)

@@ -110,8 +110,8 @@ static void Parse_Error(char *err_msg);
 
 #define Update_Last_Read_Position		\
 {						\
-  pl_last_read_line = pl_token.line;			\
-  pl_last_read_col = pl_token.col;			\
+  pl_last_read_line = pl_token.line;		\
+  pl_last_read_col = pl_token.col;		\
 }
 
 

@@ -245,7 +245,7 @@ predicate(length/2,203,static,private,monofile,built_in,[
 
 
 predicate('$length_alt'/0,207,static,private,monofile,built_in,[
-    call_c('Pl_Length_Alt_0',[],[]),
+    call_c('Pl_Length_Alt_0',[boolean],[]),
     proceed]).
 
 

@@ -84,6 +84,8 @@ Pl_Init_Oper(void)
 
   ADD_OPER(1200, FX, ":-");
 
+  ADD_OPER(1105, XFY, "|");
+
   ADD_OPER(1100, XFY, ";");
 
   ADD_OPER(1050, XFY, "->");
@@ -129,7 +131,6 @@ Pl_Init_Oper(void)
   ADD_OPER(400, YFX, ">>");
 
   ADD_OPER(200, XFY, "**");
-
   ADD_OPER(200, XFY, "^");
 
   ADD_OPER(200, FY, "+");

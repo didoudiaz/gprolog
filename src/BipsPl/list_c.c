@@ -443,7 +443,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
  * PL_LENGTH_ALT_0                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+Bool
 Pl_Length_Alt_0(void)
 {
   WamWord list_word, n_word;
@@ -457,17 +457,18 @@ Pl_Length_Alt_0(void)
   
   AB(B, 3) = Tag_INT(i);
   
-  Pl_Get_Integer(i + len, n_word);
+  Pl_Get_Integer(i + len, n_word); /* always succeed */
 
   do
     {
-      Pl_Get_List(list_word);
+      if (!Pl_Get_List(list_word))
+	return FALSE;
       Pl_Unify_Void(1);
       list_word = Pl_Unify_Variable();
       
     }
   while(--i);
-  Pl_Get_Nil(list_word);
+  return Pl_Get_Nil(list_word);
 }
 
 

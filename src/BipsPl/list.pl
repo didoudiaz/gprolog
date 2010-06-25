@@ -205,7 +205,7 @@ length(L, N) :-
 
 
 '$length_alt' :-       % used by C code to create a choice-point
-        '$call_c'('Pl_Length_Alt_0').
+        '$call_c_test'('Pl_Length_Alt_0').
 
 
 
