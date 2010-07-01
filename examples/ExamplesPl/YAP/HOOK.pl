@@ -1,3 +1,5 @@
+:- use_module(library(lists)).
+
 % hook file for YAP Prolog
 
 % Count is passed on the command line as -- Count
