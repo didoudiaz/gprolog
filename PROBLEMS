@@ -1,3 +1,13 @@
+If your installation does not work (compilation is ok but when running the
+system fails) you can try to recompile the whole system with --disable-regs
+(after make distclean).
+
+If this fails, try to recompile the whole system with --with-c-flags=debug and --disable-regs
+
+If this installation works with -O and not -O2 (or higher) it can be due to
+strict-aliasing. Try compiling with --with-c-flags='-O2 -fno-strict-aliasing'.
+
+
 sparc/sunos:
  	under SunOs <= 4.1.2 even if the processor is a supersparc, the gcc
 	option -msupersparc cannot be used in CFLAGS_MACHINE. The configure

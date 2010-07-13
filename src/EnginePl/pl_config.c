@@ -201,6 +201,7 @@ main(void)
 	 "No"
 #endif
     );
+
   printf("Use piped consult : %s\n",
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
 	 "Yes"
@@ -208,6 +209,7 @@ main(void)
 	 "No"
 #endif
     );
+
 #ifdef _WIN32
   printf("Use GUI console   : %s\n",
 #ifdef W32_GUI_CONSOLE
@@ -217,6 +219,7 @@ main(void)
 #endif
     );
 #endif
+
   printf("Use sockets       : %s\n",
 #ifndef NO_USE_SOCKETS
 	 "Yes"
@@ -224,6 +227,7 @@ main(void)
 	 "No"
 #endif
     );
+
   printf("Use FD solver     : %s\n",
 #ifndef NO_USE_FD_SOLVER
 	 "Yes"
@@ -231,6 +235,12 @@ main(void)
 	 "No"
 #endif
     );
+
+#if defined(__unix__) && !defined(__CYGWIN__)
+  printf("Working sigaction : %s\n", (Detect_Sigaction()) ? "Yes" : "No");
+#endif
+
+
 #ifdef COULD_COMPILE_FOR_FC
   printf("Use fast call     : %s\n",
 #ifndef NO_USE_FAST_CALL
@@ -240,6 +250,7 @@ main(void)
 #endif
     );
 #endif
+
   printf("Use machine regs. : %s\n",
 #ifndef NO_USE_REGS
 	 "Yes"
@@ -254,10 +265,6 @@ main(void)
 
   Write_C_Compiler_Info();
 
-
-#if defined(__unix__) && !defined(__CYGWIN__)
-  printf("Working sigaction : %s\n", (Detect_Sigaction()) ? "Yes" : "No");
-#endif
 
 #if 0
   fprintf(fg_c, "/* end of automatically generated part */\n");

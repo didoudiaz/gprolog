@@ -298,7 +298,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
     case TOKEN_BACK_QUOTED:	/* undefined in ISO */
       flag_value = (pl_token.type == TOKEN_STRING) ? 
 	Flag_Value(FLAG_DOUBLE_QUOTES) :
-	Flag_Value(FLAG_BACK_QUOTES);
+      Flag_Value(FLAG_BACK_QUOTES);
 
       flag_value &= FLAG_AS_PART_MASK;
       if (flag_value == FLAG_AS_ATOM)
@@ -404,16 +404,24 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
     {
       Read_Next_Token(comma_is_punct);
 
-      if (pl_token.type != TOKEN_NAME)
-	break;
-
-      atom = Pl_Create_Allocate_Atom(pl_token.name);
-      if ((oper = Pl_Lookup_Oper(atom, INFIX)))
+#if 1 /* to allow | to be unquoted if it is an infix operator with prec > 1000 */
+      if (pl_token.type == TOKEN_PUNCTUATION && pl_token.punct == '|' && 
+	  (oper = Pl_Lookup_Oper(atom = ATOM_CHAR('|'), INFIX)) && oper->prec > 1000)
 	infix_op = TRUE;
-      else if ((oper = Pl_Lookup_Oper(atom, POSTFIX)))
-	infix_op = FALSE;
       else
-	break;
+#endif
+	{
+	  if (pl_token.type != TOKEN_NAME)
+	    break;
+
+	  atom = Pl_Create_Allocate_Atom(pl_token.name);
+	  if ((oper = Pl_Lookup_Oper(atom, INFIX)))
+	    infix_op = TRUE;
+	  else if ((oper = Pl_Lookup_Oper(atom, POSTFIX)))
+	    infix_op = FALSE;
+	  else
+	    break;
+	}
 
       if (left_is_op)
 	Parse_Error("previous operator needs brackets");

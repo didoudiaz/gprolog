@@ -1,3 +1,19 @@
+Tue Jul 13 16:19:42 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* add infix operator '|' (and allow it to be unquoted in read/write)
+	* improve top-level variables display adding () when needed
+
+Fri Jun 25 11:10:43 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in length/2 (length(L,L) now loops)
+
+Thu Jun 24 10:17:04 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* support the ISO multifile/1 directive
+	* add built-ins false/0 and forall/2
+	* detect an instantation_error in phrase/2-3
+
+
 Fri Mar 31 15:52:42 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
 
 	* GNU Prolog is now licensed under LGPL
@@ -5,7 +21,7 @@ Fri Mar 31 15:52:42 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
 
 Tue Mar 16 11:35:32 CET 2010 <Daniel.Diaz@univ-paris1.fr>
 
-	* allow rounding functions to accept an integer is strict_iso is off
+	* allow rounding functions to accept an integer if strict_iso is off
 
 
 Tue Dec  1 14:11:10 CET 2009 <Daniel.Diaz@univ-paris1.fr>
@@ -52,7 +68,7 @@ Thu Oct  8 17:26:36 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
 
 Wed Oct  7 16:14:16 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
 
-	* add evaluable functiors: log/2, gcd/2, tan/1, atan/2, pi/0, e/0
+	* add evaluable functors: log/2, gcd/2, tan/1, atan/2, pi/0, e/0
 	* add built-in ground/1
 	* rename built-in sort0 as msort 
 	* add new error detection for keysort
@@ -62,7 +78,7 @@ Tue Oct  6 12:47:32 CEST 2009 <Daniel.Diaz@univ-paris1.fr>
 	* accept (but ignore) directive encoding/1
 	* add >< operator (bitwise XOR) ^/2 becomes integer exponentiation
 	* improve randomize/0 (more different values on consecutive calls)
-	* relax the lexer to also accept 0'' (ISO requieres 0''' or 0'\')
+	* relax the lexer to also accept 0'' (ISO requires 0''' or 0'\')
 
 Tue Mar 10 17:14:36 CET 2009 <Daniel.Diaz@univ-paris1.fr>
 

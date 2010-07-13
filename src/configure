@@ -2371,7 +2371,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION='1.4.0'
-PROLOG_DATE='Jun 24 2010'
+PROLOG_DATE='Jul 13 2010'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2010 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT

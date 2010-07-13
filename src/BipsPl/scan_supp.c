@@ -269,7 +269,7 @@ start_scan:
       pl_token.type = TOKEN_PUNCTUATION;
       pl_token.punct = c;
 
-#if 0
+#if 0  /* to return [] and {} as a token (else [ is a token and ] is another token) */
       if (c == '[')
 	{
 	  Read_Next_Char(pstm, TRUE);

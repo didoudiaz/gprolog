@@ -850,33 +850,44 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
-      if (functor == ATOM_CHAR(','))
+#if 1 /* to show | unquoted if it is an infix operator with prec > 1000 */
+      if (functor == ATOM_CHAR('|') && oper->prec > 1000)
 	{
-	  Out_Char(',');
+	  if (space_args)
+	    Out_Space();
+	  Out_Char('|');
 	  if (space_args)
 	    Out_Space();
 	}
       else
-	{
-	  surround_space = FALSE;
-
-	  if (pl_atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
-	      pl_atom_tbl[functor].prop.type == OTHER_ATOM ||
-	      (space_args 
-#ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
-	       && oper->left != oper->prec && oper->right != oper->prec
 #endif
-	       ))
-	    {
-	      surround_space = TRUE;
+	if (functor == ATOM_CHAR(','))
+	  {
+	    Out_Char(',');
+	    if (space_args)
 	      Out_Space();
-	    }
+	  }
+	else
+	  {
+	    surround_space = FALSE;
 
-	  Show_Atom(GENERAL_TERM, functor);
+	    if (pl_atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
+		pl_atom_tbl[functor].prop.type == OTHER_ATOM ||
+		(space_args 
+#ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
+		 && oper->left != oper->prec && oper->right != oper->prec
+#endif
+		 ))
+	      {
+		surround_space = TRUE;
+		Out_Space();
+	      }
 
-	  if (surround_space)
-	    Out_Space();
-	}
+	    Show_Atom(GENERAL_TERM, functor);
+
+	    if (surround_space)
+	      Out_Space();
+	  }
 
       Show_Term(depth, oper->right, INSIDE_ANY_OP, Arg(stc_adr, 1));
 
@@ -888,7 +899,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
 
 
-functional:			/* functional notation */
+ functional:			/* functional notation */
 
   Show_Atom(GENERAL_TERM, functor);
   Out_Char('(');

@@ -265,15 +265,17 @@ break :-
 	).
 
 '$write_solution'(ToDispVars, _, _) :-
-	'$write_solution1'(ToDispVars).
+	( current_op(Prior, xfx, =) ; Prior = 700), !,
+	Prior1 is Prior - 1,
+	'$write_solution1'(ToDispVars, Prior1).
 
 
-'$write_solution1'([]).
+'$write_solution1'([], _).
 
-'$write_solution1'([Name = Value|ToDispVars]) :-
+'$write_solution1'([Name = Value|ToDispVars], Prior) :-
 	format(top_level_output, '~n~a = ', [Name]),
-	write_term(top_level_output, Value, [quoted(true), numbervars(false)]),
-	'$write_solution1'(ToDispVars).
+	write_term(top_level_output, Value, [quoted(true), numbervars(false), priority(Prior)]),
+	'$write_solution1'(ToDispVars, Prior).
 
 
 
