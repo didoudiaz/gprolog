@@ -153,11 +153,12 @@ Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
 
       patom3 = pl_atom_tbl + UnTag_ATM(atom3_word);
       l = patom3->prop.length - patom1->prop.length;
+      if (l < 0 || strncmp(patom1->name, patom3->name, patom1->prop.length) != 0)
+	return FALSE;
       MALLOC_STR(l);
       strcpy(str, patom3->name + patom1->prop.length);
 
-      return strncmp(patom1->name, patom3->name, patom1->prop.length) == 0
-	&& Pl_Get_Atom(Create_Malloc_Atom(str), atom2_word);
+      return Pl_Get_Atom(Create_Malloc_Atom(str), atom2_word);
     }
 
   if (tag2 == TAG_ATM_MASK)	/* here tag1 == REF */
@@ -165,13 +166,14 @@ Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
       patom2 = pl_atom_tbl + UnTag_ATM(atom2_word);
       patom3 = pl_atom_tbl + UnTag_ATM(atom3_word);
       l = patom3->prop.length - patom2->prop.length;
+      if (l < 0 || strncmp(patom2->name, patom3->name + l, patom2->prop.length) != 0)
+	return FALSE;
+
       MALLOC_STR(l);
       strncpy(str, patom3->name, l);
       str[l] = '\0';
 
-      return strncmp(patom2->name, patom3->name + l,
-		     patom2->prop.length) == 0
-	&& Pl_Get_Atom(Create_Malloc_Atom(str), atom1_word);
+      return Pl_Get_Atom(Create_Malloc_Atom(str), atom1_word);
     }
 
   /* A1 and A2 are variables: non deterministic case */
