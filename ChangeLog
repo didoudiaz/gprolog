@@ -1,3 +1,7 @@
+Mon Oct 25 10:39:51 CEST 2010
+
+	* fix a memory leak in atom_concat/3 (in case of failure)
+
 Tue Jul 13 16:19:42 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
 
 	* add infix operator '|' (and allow it to be unquoted in read/write)

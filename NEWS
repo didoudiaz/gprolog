@@ -1,6 +1,7 @@
 Change in GNU Prolog version 1.4.0:
 
 * GNU Prolog is now licensed under LGPL
+* fix a memory leak in atom_concat/3 (in case of failure)
 * add infix operator '|' (and allow it to be unquoted in read/write)
 * improve top-level variables display adding () when needed
 * support the ISO multifile/1 directive	
