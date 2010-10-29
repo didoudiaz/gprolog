@@ -48,7 +48,7 @@ magsq(N, A) :-
 	array_elem(A, 1, N, X1N),
 	array_elem(A, N, 1, XN1),
 	array_elem(A, N, N, XNN),
-	X11 #< X1N,
+	X11 #< X1N,	% 4 symmetry breaking constraints
 	X11 #< XN1,
 	X11 #< XNN,
 	XN1 #> X1N,
