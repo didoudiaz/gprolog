@@ -1589,6 +1589,30 @@ predicate has been read.
 \item \IdxPPD[prolog\_line]{prolog\_line(Line)}: line number of the source
 file.
 
+\item \IdxPPD[meta\_predicate]{meta\_predicate(Head)}: if the predicate is a
+  meta-predicate unify \texttt{Head} with the head-pattern. The head-pattern
+  is a compound term with the same name and arity as the predicate where each
+  argument of the term is a meta argument specifier as follows:
+
+\BL
+
+\begin{description}
+
+\item [integer \texttt{N}] the argument is a term that is used to reference a
+  predicate with \texttt{N} more arguments than the given argument term (e.g. \texttt{call(0)}).
+
+\item [\texttt{:}] the argument is module sensitive, but does not directly
+  refer to a predicate (e.g. \texttt{consult(:)}).
+
+\item [\texttt{-}] the argument is not module sensitive and unbound on entry. 
+
+
+\item [\texttt{?}] the argument is not module sensitive and the mode is unspecified. 
+
+\item [\texttt{+}] the argument is not module sensitive and bound (i.e., nonvar) on entry. 
+
+\end{description}
+
 \end{itemize}
 
 \begin{PlErrors}
@@ -3303,6 +3327,18 @@ character code list stream.
 
 \ErrCond{\texttt{Codes} is neither a partial list nor a list}
 \ErrTerm{type\_error(list, Codes)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Chars} list is neither a
+variable nor a character}
+\ErrTerm{type\_error(character, E)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Codes} list is neither a
+variable nor an integer}
+\ErrTerm{type\_error(integer, E)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Codes} list is an integer but
+not a character code}
+\ErrTerm{representation\_error(character\_code)}
 
 \ErrCond{\texttt{SorA} is neither a variable nor a stream-term or alias}
 \ErrTerm{domain\_error(stream\_or\_alias, SorA)}
@@ -5341,6 +5377,9 @@ character list which is then unified with the first argument \texttt{Chars}.
 \ErrCond{\texttt{Chars} is neither a partial list nor a list}
 \ErrTerm{type\_error(list, Chars)}
 
+\ErrCond{An element \texttt{E} of the list \texttt{Chars} is neither a
+  variable nor a one-char atom} \ErrTerm{type\_error(character, E)}
+
 \ErrCond{see associated predicate errors}
 \ErrTermRm{\RefSP{write-term/3} and \RefSP{format/3}}
 
@@ -5397,6 +5436,12 @@ character code list which is then unified with the first argument
 
 \ErrCond{\texttt{Codes} is neither a partial list nor a list}
 \ErrTerm{type\_error(list, Codes)}
+
+\ErrCond{An element \texttt{E} of the list \texttt{Codes} is neither a
+  variable nor an integer} \ErrTerm{type\_error(integer, E)}
+
+\ErrCond{An element \texttt{E} of the list \texttt{Codes} is an integer but
+  not a character code} \ErrTerm{representation\_error(character\_code)}
 
 \ErrCond{see associated predicate errors}
 \ErrTermRm{\RefSP{write-term/3} and \RefSP{format/3}}
@@ -6258,17 +6303,14 @@ is a partial list or a list with an element which is a variable}
 \ErrCond{\texttt{Codes} is neither a list nor a partial list}
 \ErrTerm{type\_error(list, Codes)}
 
-\ErrCond{\texttt{Atom} is a variable and an element \texttt{E} of the list
-\texttt{Chars} is neither a variable nor a one-char atom}
-\ErrTerm{type\_error(character, E)}
+\ErrCond{An element \texttt{E} of the list \texttt{Chars} is neither a
+  variable nor a one-char atom} \ErrTerm{type\_error(character, E)}
 
-\ErrCond{\texttt{Atom} is a variable and an element \texttt{E} of the list
-\texttt{Codes} is neither a variable nor an integer}
-\ErrTerm{type\_error(integer, E)}
+\ErrCond{An element \texttt{E} of the list \texttt{Codes} is neither a
+  variable nor an integer} \ErrTerm{type\_error(integer, E)}
 
-\ErrCond{\texttt{Atom} is a variable and an element \texttt{E} of the list
-\texttt{Codes} is an integer but not a character code}
-\ErrTerm{representation\_error(character\_code)}
+\ErrCond{An element \texttt{E} of the list \texttt{Codes} is an integer but
+  not a character code} \ErrTerm{representation\_error(character\_code)}
 
 \end{PlErrors}
 
@@ -6329,25 +6371,20 @@ variable}
 \ErrCond{\texttt{Atom} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, Atom)}
 
-\ErrCond{\texttt{Number} is a variable and \texttt{Chars} is neither a list
-nor a partial list}
+\ErrCond{\texttt{Chars} is neither a list nor a partial list}
 \ErrTerm{type\_error(list, Chars)}
 
-\ErrCond{\texttt{Number} is a variable and \texttt{Codes} is neither a list
-nor a partial list}
+\ErrCond{\texttt{Codes} is neither a list nor a partial list}
 \ErrTerm{type\_error(list, Codes)}
 
-\ErrCond{\texttt{Number} is a variable and an element \texttt{E} of the list
-\texttt{Chars} is neither a variable nor a one-char atom}
-\ErrTerm{type\_error(character, E)}
+\ErrCond{An element \texttt{E} of the list \texttt{Chars} is neither a
+  variable nor a one-char atom} \ErrTerm{type\_error(character, E)}
 
-\ErrCond{\texttt{Number} is a variable and an element \texttt{E} of the list
-\texttt{Codes} is neither a variable nor an integer}
-\ErrTerm{type\_error(integer, E)}
+\ErrCond{An element \texttt{E} of the list \texttt{Codes} is neither a
+  variable nor an integer} \ErrTerm{type\_error(integer, E)}
 
-\ErrCond{\texttt{Number} is a variable and an element \texttt{E} of the list
-\texttt{Codes} is an integer but not a character code}
-\ErrTerm{representation\_error(character\_code)}
+\ErrCond{An element \texttt{E} of the list \texttt{Codes} is an integer but
+  not a character code} \ErrTerm{representation\_error(character\_code)}
 
 \ErrCond{\texttt{Number} is a variable, \texttt{Atom} (or \texttt{Chars} or
 \texttt{Codes}) cannot be parsed as a number and the value of the
