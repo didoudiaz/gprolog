@@ -185,8 +185,8 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
   if (jmp_val == 0)
     {
       term = Parse_Term(MAX_PREC, GENERAL_TERM, COMMA_ANY);
-      Read_Next_Token(COMMA_ANY);
 
+      Read_Next_Token(COMMA_ANY);
       if (term == NOT_A_WAM_WORD)
 	{
 	  if (pl_token.type == TOKEN_END_OF_FILE)
@@ -195,7 +195,10 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
 	      goto finish;
 	    }
 	  else
-	    Parse_Error("expression expected");
+	    {
+	      /* Unget_Token; */ /* useless if followed by Parse_Error */
+	      Parse_Error("expression expected");
+	    }
 	}
 
       if (parse_end_of_term == PARSE_END_OF_TERM_DOT)
@@ -204,7 +207,7 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
 	    goto finish;
 	  else
 	    {
-	      Unget_Token;
+	      /* Unget_Token; */ /* useless if followed by Parse_Error */
 	      Parse_Error(". or operator expected after expression");
 	    }
 	}
@@ -213,7 +216,7 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
 	goto finish;
       else
 	{
-	  Unget_Token;
+          /* Unget_Token; */ /* useless if followed by Parse_Error */
 	  Parse_Error("eof or operator expected after expression");
 	}
     }
@@ -223,7 +226,7 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
       term = NOT_A_WAM_WORD;
     }
 
-finish:
+ finish:
   pl_use_le_prompt = save_use_le_prompt;
   return term;
 }
@@ -350,24 +353,24 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	  break;
 	}
 
+      /* test if it is a negative number */
+      if (pl_token.name[0] == '-' && pl_token.name[1] == '\0' && isdigit(Pl_Scan_Peek_Char(pstm_i, TRUE)))
+	{
+	  Read_Next_Token(COMMA_ANY);
+	  if (pl_token.type == TOKEN_INTEGER)
+	    {
+	      if (pl_token.int_num > -INT_LOWEST_VALUE)
+		Parse_Error("integer underflow (exceeds min_integer)");
+	      term = Pl_Put_Integer(-pl_token.int_num);
+	    }
+	  else
+	    term = Pl_Put_Float(-pl_token.float_num);
+	  break;
+	}
+
       /* maybe a prefix operator */
       if ((oper = Pl_Lookup_Oper(atom, PREFIX)) && cur_prec >= oper->prec)
-	{			/* negative number */
-	  if (pl_token.name[0] == '-' && pl_token.name[1] == '\0' &&
-	      isdigit(Pl_Scan_Peek_Char(pstm_i, TRUE)))
-	    {
-	      Read_Next_Token(COMMA_ANY);
-	      if (pl_token.type == TOKEN_INTEGER)
-		{
-		  if (pl_token.int_num > -INT_LOWEST_VALUE)
-		    Parse_Error("integer underflow (exceeds min_integer)");
-		  term = Pl_Put_Integer(-pl_token.int_num);
-		}
-	      else
-		term = Pl_Put_Float(-pl_token.float_num);
-	      break;
-	    }
-
+	{
 	  /* try a prefix operator */
 	  cur_left = oper->prec;
 	  term = Parse_Term(oper->right, TRYING_PREFIX, comma_is_punct);
@@ -406,7 +409,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 
 #if 1 /* to allow | to be unquoted if it is an infix operator with prec > 1000 */
       if (pl_token.type == TOKEN_PUNCTUATION && pl_token.punct == '|' && 
-	  (oper = Pl_Lookup_Oper(atom = ATOM_CHAR('|'), INFIX)) && oper->prec > 1000)
+	  (oper = Pl_Lookup_Oper(atom = ATOM_CHAR('|'), INFIX)) && oper->prec > 1000 && cur_prec >= oper->prec)
 	infix_op = TRUE;
       else
 #endif
@@ -572,13 +575,12 @@ Parse_List(Bool can_be_empty)
 
   switch (pl_token.punct)
     {
-    case ',':			/* [X,[...]] */
+    case ',':			/* [X,Y...] */
       cdr_word = Parse_List(FALSE);
       break;
 
     case '|':			/* [X|Y] */
-      cdr_word =
-	Parse_Term(MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, COMMA_ANY);
+      cdr_word = Parse_Term(MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, COMMA_ANY);
       if (cdr_word == NOT_A_WAM_WORD)
 	Parse_Error("expression expected in list");
 
@@ -682,9 +684,10 @@ static void
 Parse_Error(char *err_msg)
 {
   Pl_Set_Last_Syntax_Error(pl_atom_tbl[pstm_i->atom_file_name].name,
-			pl_token.line, pl_token.col, err_msg);
+			   pl_token.line, pl_token.col, err_msg);
 
-  Pl_Recover_After_Error(pstm_i);
+  if (pl_token.type != TOKEN_FULL_STOP)
+    Pl_Recover_After_Error(pstm_i);
 
   Save_Machine_Regs(buff_save_machine_regs);
   longjmp(jumper, 1);
@@ -788,7 +791,7 @@ Pl_Read_Token(StmInf *pstm)
   if ((err_msg = Pl_Scan_Token(pstm, FALSE)) != NULL)
     {
       Pl_Set_Last_Syntax_Error(pl_atom_tbl[pstm->atom_file_name].name,
-			    pl_token.line, pl_token.col, err_msg);
+			       pl_token.line, pl_token.col, err_msg);
       return NOT_A_WAM_WORD;
     }
 

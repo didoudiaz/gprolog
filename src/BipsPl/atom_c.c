@@ -655,13 +655,13 @@ from_nb:
   if (tag_mask == TAG_INT_MASK)
     {
       sprintf(pl_glob_buff, "%ld", UnTag_INT(word));
-      return Pl_Un_Chars(pl_glob_buff, chars_word);
+      return Pl_Un_Chars_Check(pl_glob_buff, chars_word);
     }
 
   if (tag_mask != TAG_REF_MASK)
     {
       str = Pl_Float_To_String(Pl_Rd_Number_Check(word));
-      return Pl_Un_Chars(str, chars_word);
+      return Pl_Un_Chars_Check(str, chars_word);
     }
 
   Pl_Rd_Chars_Check(chars_word);	/* only to raise the correct error */
@@ -712,13 +712,13 @@ from_nb:
   if (tag_mask == TAG_INT_MASK)
     {
       sprintf(pl_glob_buff, "%ld", UnTag_INT(word));
-      return Pl_Un_Codes(pl_glob_buff, codes_word);
+      return Pl_Un_Codes_Check(pl_glob_buff, codes_word);
     }
 
   if (tag_mask != TAG_REF_MASK)
     {
       str = Pl_Float_To_String(Pl_Rd_Number_Check(word));
-      return Pl_Un_Codes(str, codes_word);
+      return Pl_Un_Codes_Check(str, codes_word);
     }
 
   Pl_Rd_Codes_Check(codes_word);	/* only to raise the correct error */

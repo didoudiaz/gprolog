@@ -393,7 +393,7 @@ Context_Error_String(void)
  *-------------------------------------------------------------------------*/
 void
 Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
-		      char *err_msg)
+			 char *err_msg)
 {
   last_err_file = file_name;
   last_err_line = err_line;

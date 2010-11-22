@@ -448,12 +448,28 @@ Pl_Pred_Prop_Prolog_Line_2(WamWord pred_indic_word, WamWord pl_line_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_GET_PRED_INDICATOR_3                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Pred_Indicator_3(WamWord pred_indic_word, WamWord func_word, WamWord arity_word)
+{
+  int func, arity;
+
+  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+  return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_GET_PREDICATE_FILE_INFO_3                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Get_Predicate_File_Info_3(WamWord pred_indic_word,
-			  WamWord pl_file_word, WamWord pl_line_word)
+			     WamWord pl_file_word, WamWord pl_line_word)
 {
   int func, arity;
   PredInf *pred;
@@ -479,7 +495,7 @@ Pl_Get_Predicate_File_Info_3(WamWord pred_indic_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Set_Predicate_File_Info_3(WamWord pred_indic_word,
-			  WamWord pl_file_word, WamWord pl_line_word)
+			     WamWord pl_file_word, WamWord pl_line_word)
 {
   int func, arity;
   int pl_file, pl_line;
@@ -527,7 +543,7 @@ Pl_Aux_Name_1(WamWord name_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Father_Of_Aux_Name_3(WamWord name_word, WamWord father_name_word,
-		     WamWord father_arity_word)
+			WamWord father_arity_word)
 {
   int func, father_func, father_arity;
 
@@ -550,7 +566,7 @@ Pl_Father_Of_Aux_Name_3(WamWord name_word, WamWord father_name_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Pred_Without_Aux_4(WamWord name_word, WamWord arity_word,
-		   WamWord name1_word, WamWord arity1_word)
+		      WamWord name1_word, WamWord arity1_word)
 {
   int func, arity;
   int func1, arity1;
@@ -575,7 +591,7 @@ Pl_Pred_Without_Aux_4(WamWord name_word, WamWord arity_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Make_Aux_Name_4(WamWord name_word, WamWord arity_word,
-		WamWord aux_nb_word, WamWord aux_name_word)
+		   WamWord aux_nb_word, WamWord aux_name_word)
 {
   int func, arity;
   int aux_nb;

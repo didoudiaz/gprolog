@@ -1354,7 +1354,28 @@ Pl_Check_For_Un_In_Byte(WamWord start_word)
 void
 Pl_Check_For_Un_Chars(WamWord start_word)
 {
-  Pl_Check_For_Un_List(start_word);
+  WamWord word, tag_mask;
+  WamWord save_start_word;
+  WamWord *lst_adr;
+
+  save_start_word = start_word;
+
+  for (;;)
+    {
+      DEREF(start_word, word, tag_mask);
+
+      if (tag_mask == TAG_REF_MASK || word == NIL_WORD)
+	return;
+
+      if (tag_mask != TAG_LST_MASK)
+	Pl_Err_Type(pl_type_list, save_start_word);
+
+      lst_adr = UnTag_LST(word);
+
+      Pl_Check_For_Un_Char(Car(lst_adr));
+
+      start_word = Cdr(lst_adr);
+    }
 }
 
 
@@ -1380,7 +1401,28 @@ Pl_Check_For_Un_String(WamWord start_word)
 void
 Pl_Check_For_Un_Codes(WamWord start_word)
 {
-  Pl_Check_For_Un_List(start_word);
+  WamWord word, tag_mask;
+  WamWord save_start_word;
+  WamWord *lst_adr;
+
+  save_start_word = start_word;
+
+  for (;;)
+    {
+      DEREF(start_word, word, tag_mask);
+
+      if (tag_mask == TAG_REF_MASK || word == NIL_WORD)
+	return;
+
+      if (tag_mask != TAG_LST_MASK)
+	Pl_Err_Type(pl_type_list, save_start_word);
+
+      lst_adr = UnTag_LST(word);
+
+      Pl_Check_For_Un_Code(Car(lst_adr));
+
+      start_word = Cdr(lst_adr);
+    }
 }
 
 
@@ -1821,7 +1863,11 @@ Pl_Un_String(char *value, WamWord start_word)
 Bool
 Pl_Un_Chars_Check(char *str, WamWord start_word)
 {
+#if 0
   Pl_Check_For_Un_List(start_word);
+#else
+  Pl_Check_For_Un_Chars(start_word);
+#endif
 
   return Pl_Un_Chars(str, start_word);
 }
@@ -1857,7 +1903,11 @@ Pl_Un_Chars(char *str, WamWord start_word)
 Bool
 Pl_Un_Codes_Check(char *str, WamWord start_word)
 {
+#if 0
   Pl_Check_For_Un_List(start_word);
+#else
+  Pl_Check_For_Un_Codes(start_word);
+#endif
 
   return Pl_Un_Codes(str, start_word);
 }

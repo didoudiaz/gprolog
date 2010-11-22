@@ -19,7 +19,7 @@ AC_CONFIG_SRCDIR(SETVARS)
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION='1.4.0'
-PROLOG_DATE='Oct 25 2010'
+PROLOG_DATE='Nov 17 2010'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2010 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT
@@ -473,6 +473,11 @@ else
 #    case "$host" in
 #       i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
 #    esac
+
+    case "$host" in
+       i*86*linux*) CFLAGS_MACHINE="$CFLAGS_MACHINE -fno-strict-aliasing";;
+    esac
+
 
 
 # For MacOsX - try to avoid this (activate only for fast library fix)

@@ -27,7 +27,7 @@ INSTALL_DATA   = @INSTALL_DATA@
 
 TOP_LEVEL      = @TOP_LEVEL@
 
-LN_S           = @LN_S@
+LN_S           = @LN_S@ -f
 RANLIB         = @RANLIB@
 
 LE_DIRS        = Linedit

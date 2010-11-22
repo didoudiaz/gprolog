@@ -149,15 +149,18 @@ Pl_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
       type = left = right = 0;	/* only for the compiler */
     }
 
-  if (type != PREFIX
-      && Check_Oper(atom_op, (type == POSTFIX) ? INFIX : POSTFIX))
-    Pl_Err_Permission(pl_permission_operation_create, pl_permission_type_operator,
+  if ((type != PREFIX && Check_Oper(atom_op, (type == POSTFIX) ? INFIX : POSTFIX)) || /* infix + postfix invalid */
+      (atom_op == ATOM_CHAR('|') && (type != INFIX || prec <= 1000))) /* | no infix or prec <= 1000 */
+    Pl_Err_Permission(pl_permission_operation_create, 
+		      pl_permission_type_operator,
 		      oper_word);
+
 
   if (atom_op == ATOM_CHAR(','))
     Pl_Err_Permission(pl_permission_operation_modify,
-		      pl_permission_type_operator, oper_word);
-
+		      pl_permission_type_operator, 
+		      oper_word);
+  
   if (prec > 0)
     Pl_Create_Oper(atom_op, type, prec, left, right);
   else

@@ -316,8 +316,11 @@ Pl_Create_Atom(char *name)
       prop.needs_quote = 
 	(lg == 1 && *name == '.') || 
 	(lg == 1 && *name == '%') || 
-	(lg == 2 && name[0] == '/' && name[1] == '*') ||
-	(lg == 2 && name[0] == '*' && name[1] == '/');
+	(lg >= 2 && name[0] == '/' && name[1] == '*') 
+#if 0				/* this one does not need quotes it seems */
+	|| (lg == 2 && name[0] == '*' && name[1] == '/')
+#endif
+	;
       goto finish;
     }
 
