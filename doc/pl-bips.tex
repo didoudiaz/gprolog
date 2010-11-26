@@ -5050,7 +5050,9 @@ variable nor an atom}
 \ErrTerm{permission\_error(modify, operator, ',')}
 
 \ErrCond{\texttt{OpSpecifier} is a specifier such that \texttt{Operator}
-would have a postfix and an infix definition.}
+would have a postfix and an infix definition. Or \texttt{Operator} or an
+element of the \texttt{Operator} list is \texttt{|} and it would have a
+prefix or a postfix definition or its \texttt{Priority} would be $\leq$ 1100.}  
 \ErrTerm{permission\_error(create, operator, Operator)}
 
 \end{PlErrors}
