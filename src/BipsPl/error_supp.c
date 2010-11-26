@@ -410,7 +410,7 @@ Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Syntax_Error_Info_4(WamWord file_name_word,
-		    WamWord line_word, WamWord char_word, WamWord msg_word)
+		       WamWord line_word, WamWord char_word, WamWord msg_word)
 {
   Pl_Check_For_Un_Atom(file_name_word);
   Pl_Check_For_Un_Integer(line_word);
