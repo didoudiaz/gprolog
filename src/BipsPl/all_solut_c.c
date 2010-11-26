@@ -90,17 +90,17 @@ static long *next_key_var_ptr;
  * Function Prototypes             *
  *---------------------------------*/
 
-static void Bound_Var(WamWord *adr);
+static Bool Bound_Var(WamWord *adr);
 
 static WamWord Existential_Variables(WamWord start_word);
 
-static void Free_Var(WamWord *adr);
+static Bool Free_Var(WamWord *adr);
 
 
 
 static void Handle_Key_Variables(WamWord start_word);
 
-static void Link_Key_Var(WamWord *adr);
+static Bool Link_Key_Var(WamWord *adr);
 
 
 
@@ -205,19 +205,20 @@ Pl_Recover_Generator_1(WamWord gen1_word)
  * BOUND_VAR                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Bound_Var(WamWord *adr)
 {
   long *p;
 
   for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
     if (*p == (long) adr)
-      return;
+      return TRUE;
 
   if (bound_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
   *bound_var_ptr++ = (long) adr;
+  return TRUE;
 }
 
 
@@ -255,7 +256,7 @@ Existential_Variables(WamWord start_word)
  * FREE_VAR                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Free_Var(WamWord *adr)
 {
   long *p;
@@ -263,15 +264,16 @@ Free_Var(WamWord *adr)
 
   for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
     if (*p == (long) adr)
-      return;
+      return TRUE;
 
   word = Tag_REF(adr);	/* if an FDV for a Dont_Separate_Tag */
 
   for (p = free_var_base; p < H; p++)
     if (*p == word)
-      return;
+      return TRUE;
 
   *H++ = word;
+  return TRUE;
 }
 
 
@@ -452,26 +454,27 @@ Handle_Key_Variables(WamWord start_word)
  * LINK_KEY_VAR                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Link_Key_Var(WamWord *adr)
 {
   long *p;
 
   for (p = pl_glob_dico_var; p < key_var_ptr; p++)
     if (*p == (long) adr)
-      return;
+      return TRUE;
 
   if (next_key_var_ptr < save_key_var_ptr)
     {		      /* same as Pl_Unify(Tag_REF(adr), *next_key_var_ptr++) */
       *adr = *(WamWord *) (*next_key_var_ptr);
       next_key_var_ptr++;
-      return;
+      return TRUE;
     }
 
   if (key_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
   *key_var_ptr++ = (long) adr;
+  return TRUE;
 }
 
 
@@ -506,8 +509,7 @@ Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
       A(0) = word;
       A(1) = gl_key_word;
       A(2) = sol_word;
-      Pl_Create_Choice_Point((CodePtr)
-			  Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 3);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 3);
     }
 
   Pl_Unify(key_word, gl_key_word);
@@ -528,8 +530,7 @@ Pl_Group_Solutions_Alt_0(void)
   WamWord word;
   WamWord key_word;
 
-  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0),
-		      0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 0);
 
   all_sol_word = AB(B, 0);
   gl_key_word = AB(B, 1);

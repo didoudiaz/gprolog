@@ -42,10 +42,19 @@
  * Global Variables                *
  *---------------------------------*/
 
+static long *var_ptr;
+static long *base_var_ptr;
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+static Bool Collect_Variable(WamWord *adr);
+
+static Bool Check_Variable(WamWord *adr, WamWord var_word);
+
+
+
 
 	  /* Term comparison inlines */
 
@@ -526,4 +535,152 @@ Pl_Term_Ref_2(WamWord term_word, WamWord ref_word)
   ref = Global_Offset(adr);
 
   return Pl_Un_Positive_Check(ref, ref_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_TERM_VARIABLES_3                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Term_Variables_3(WamWord start_word, WamWord list_word, WamWord tail_word)
+{
+  /* only check if no Tail since if there is no vars in Term 
+   * then List = Tail and Tail can be any term */
+
+  if (tail_word == NOT_A_WAM_WORD) 
+    Pl_Check_For_Un_List(list_word);
+
+  var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores variables */
+
+  Pl_Treat_Vars_Of_Term(start_word, TRUE, Collect_Variable);
+
+  while (--var_ptr >= pl_glob_dico_var)
+    {
+      if (!Pl_Get_List(list_word) || !Pl_Unify_Value(*var_ptr))
+	return FALSE;
+      list_word = Pl_Unify_Variable();
+    }
+
+  if (tail_word == NOT_A_WAM_WORD)
+    return Pl_Get_Nil(list_word);
+
+  return Pl_Unify(list_word, tail_word);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_TERM_VARIABLES_2                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Term_Variables_2(WamWord start_word, WamWord list_word)
+{
+  return Pl_Term_Variables_3(start_word, list_word, NOT_A_WAM_WORD);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * COLLECT_VARIABLE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool
+Collect_Variable(WamWord *adr)
+{
+  long *p;
+
+  for (p = pl_glob_dico_var; p < var_ptr; p++)
+    if (*p == (long) adr)	/* already present */
+      return TRUE;
+
+  if (var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
+    Pl_Err_Representation(pl_representation_too_many_variables);
+
+  *var_ptr++ = (long) adr;
+
+  return TRUE;
+}
+
+  
+
+/*-------------------------------------------------------------------------*
+ * PL_SUBSUMES_TERM_2                                                      *
+ *                                                                         *
+ * mostly implements:                                                      *
+ *                                                                         *
+ * subsumes_term(Generic, Specific) :-                                     *
+ * 	\+ \+ subsumes(Generic, Specific).                                 *
+ *                                                                         *
+ * subsumes(General, Specific) :-                                          *
+ * 	term_variables(Specific, SVars),                                   *
+ * 	unify_with_occurs_check(General, Specific),                        *
+ * 	term_variables(SVars, SVars2),                                     *
+ * 	SVars == SVars2.                                                   *
+ *                                                                         *
+ * TODO: what to do with FD vars ? (a var subsumes a FD var, what else ?)  *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Subsumes_Term_2(WamWord general_word, WamWord specific_word)
+{
+  Bool ret = FALSE;;
+
+  Pl_Defeasible_Open();
+
+  base_var_ptr = var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores variables */
+
+
+  Pl_Treat_Vars_Of_Term(specific_word, TRUE, Collect_Variable); 
+
+  /* TODO: improve FD vars (possible ?) */
+
+  ret = Pl_Unify_Occurs_Check(general_word, specific_word) &&
+    Pl_Treat_Vars_Of_Term(specific_word, TRUE, Check_Variable) && 
+    base_var_ptr == var_ptr;
+
+  Pl_Defeasible_Close(FALSE);	/* undo bindings */
+  return ret;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CHECK_VARIABLE                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool
+Check_Variable(WamWord *adr, WamWord var_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr1;
+  long *p;
+
+  if (Tag_Of(var_word) == FDV)	/* improve FDV */
+    return FALSE;
+
+  for (p = pl_glob_dico_var; p < base_var_ptr; p++) /* check if already found until now */
+    if (*p == (long) adr)	/* test if already present (thus well dereferenced) */
+      return TRUE;
+
+  if (base_var_ptr >= var_ptr)
+    return FALSE; 			/* not found */
+
+  /* check if Specific has been modified (also deref which is important) */
+
+  DEREF(*base_var_ptr, word, tag_mask);
+  if (Tag_Of(word) != REF)	/* TODO: treat FD vars */
+    return FALSE;		/* specific has been instantiated - no longer a var */
+  
+  adr1 = UnTag_REF(word); /* save dereferenced adr */
+
+  if (adr1 != adr) /*  check if it is the current variable */
+    return FALSE;  /* not ok */
+
+  *base_var_ptr = (long) adr1;	/* replace adr by dereferenced adr */
+  base_var_ptr++;
+  return TRUE;
 }

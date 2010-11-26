@@ -469,6 +469,63 @@ term \texttt{T} which is a renamed copy of \texttt{Term1}.
 
 ISO predicate.
 
+\subsubsection{\texttt{term\_variables/2},
+		\texttt{term\_variables/3}}
+   \AddPBD{term\_variables/2}
+   \AddPBD{term\_variables/3}
+
+\label{term_variables/2-3}
+
+\begin{TemplatesOneCol}
+term\_variables(?term, ?list)\\
+term\_variables(?term, ?list, ?list)\\
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{term\_variables(Term, List)} succeeds if \texttt{List} unifies with a
+list of variables (including FD variables), each sharing with a unique
+variable of \texttt{Term}. The variables in \texttt{List} are ordered in
+order of appearance traversing \texttt{Term} depth-first and left-to-right.
+
+\texttt{term\_variables(Term, List, Tail)} is a difference-list version of the above predicate, i.e. \texttt{Tail} is the tail of the variable-list \texttt{List}.
+
+\begin{PlErrors}
+
+\ErrCond{in \texttt{term\_variables/2} \texttt{List} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, List)}
+
+\end{PlErrors}
+
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{subsumes\_term/2}}
+   \AddPBD{subsumes\_term/2}
+
+\begin{TemplatesOneCol}
+subsumes\_term(?term, ?term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{subsumes\_term(General, Specific)} succeeds if \texttt{Generic} can
+be made equivalent to \texttt{Specific} by only binding variables in
+\texttt{Generic}. The current implementation performs the unification (with
+occurs check) and ensures that the variable set of \texttt{Specific} is not
+changed by the unification (which is then undone). Note that this predicate
+fails in the presence of FD variables in \texttt{Specific}.
+
+\PlErrorsNone
+
+\Portability
+
+GNU Prolog predicate.
+
 \subsubsection{\texttt{setarg/4},
                \texttt{setarg/3}}
    \AddPBD{setarg/4}
@@ -667,6 +724,9 @@ of \texttt{Term} is bound to \texttt{'\$VAR'(N)} where \texttt{From $\leq$}
 
 
 \texttt{numbervars(Term)} is equivalent to \texttt{numbervars(Term, 0, \_)}.
+
+See also \texttt{term\_variables} \RefSP{term_variables/2-3} which returns the set of variables of a
+term.
 
 \begin{PlErrors}
 

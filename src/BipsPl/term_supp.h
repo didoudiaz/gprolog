@@ -67,8 +67,8 @@ Bool Is_Partial_List(WamWord start_word);
 
 Bool Is_List_Or_Partial(WamWord start_word);
 
-void Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,
-			void (*fct) ());
+Bool Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,
+			   Bool (*fct) ());
 
 int Pl_List_Length(WamWord start_word);
 
@@ -79,4 +79,4 @@ void Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr);
 void Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 
 int Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
-		       int *arity);
+			  int *arity);

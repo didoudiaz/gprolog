@@ -82,3 +82,21 @@ predicate(term_ref/2,94,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_ref,2]),
     call_c('Pl_Term_Ref_2',[boolean],[x(0),x(1)]),
     proceed]).
+
+
+predicate(term_variables/2,100,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_variables,2]),
+    call_c('Pl_Term_Variables_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(term_variables/3,105,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_variables,3]),
+    call_c('Pl_Term_Variables_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(subsumes_term/2,111,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[subsumes_term,2]),
+    call_c('Pl_Subsumes_Term_2',[boolean],[x(0),x(1)]),
+    proceed]).

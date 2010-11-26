@@ -70,7 +70,7 @@ Term =.. List :-
 	Term =.. List.
 
 
-
+/* these are not inlined but put here for practical reasons */
 
 copy_term(T1, T2) :-
 	set_bip_name(copy_term, 2),
@@ -94,3 +94,22 @@ setarg(ArgNo, Term, NewValue, Undo) :-
 term_ref(Term, Ref) :-
 	set_bip_name(term_ref, 2),
 	'$call_c_test'('Pl_Term_Ref_2'(Term, Ref)).
+
+
+
+term_variables(Term, List) :-
+	set_bip_name(term_variables, 2),
+	'$call_c_test'('Pl_Term_Variables_2'(Term, List)).
+
+
+term_variables(Term, List, Tail) :-
+	set_bip_name(term_variables, 3),
+	'$call_c_test'('Pl_Term_Variables_3'(Term, List, Tail)).
+
+
+
+subsumes_term(General, Specific) :-
+	set_bip_name(subsumes_term, 2),
+	'$call_c_test'('Pl_Subsumes_Term_2'(General, Specific)).
+
+	

@@ -92,7 +92,7 @@ static void Show_Body(StmInf *pstm, int level, int context, WamWord body_word);
 
 static void Start_Line(StmInf *pstm, int level, char c_before);
 
-static void Collect_Singleton(WamWord *adr);
+static Bool Collect_Singleton(WamWord *adr);
 
 static int Var_Name_To_Var_Number(int atom);
 
@@ -100,7 +100,7 @@ static void Exclude_A_Var_Number(int n);
 
 static void Collect_Excluded_Rec(WamWord start_word);
 
-static void Bind_Variable(WamWord *adr, WamWord word);
+static Bool Bind_Variable(WamWord *adr, WamWord word);
 
 
 
@@ -418,7 +418,7 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
  * COLLECT_SINGLETON                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Collect_Singleton(WamWord *adr)
 {
   long *p;
@@ -431,7 +431,7 @@ Collect_Singleton(WamWord *adr)
 	    *p |= 1;
 	    nb_singl_var--;
 	  }
-	return;
+	return TRUE;
       }
 
   if (singl_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
@@ -439,6 +439,7 @@ Collect_Singleton(WamWord *adr)
 
   *singl_var_ptr++ = (long) adr;
   nb_singl_var++;
+  return TRUE;
 }
 
 
@@ -515,7 +516,7 @@ Pl_Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
-		 WamWord from_word, WamWord next_word)
+		    WamWord from_word, WamWord next_word)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -671,7 +672,7 @@ Collect_Excluded_Rec(WamWord start_word)
  * BIND_VARIABLE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Bind_Variable(WamWord *adr, WamWord word)
 {
   int i, j;
@@ -684,7 +685,7 @@ Bind_Variable(WamWord *adr, WamWord word)
     {
       Pl_Get_Structure(atom_dollar_var, 1, word);
       Pl_Unify_Integer(nb_to_try++);
-      return;
+      return TRUE;
     }
 
   i = nb_to_try % 26;
@@ -700,4 +701,6 @@ Bind_Variable(WamWord *adr, WamWord word)
 
   Pl_Get_Structure(atom_dollar_varname, 1, word);
   Pl_Unify_Atom(Pl_Create_Allocate_Atom(buff));
+
+  return TRUE;
 }

@@ -369,15 +369,17 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       c = Scan_Quoted_Char(pstm, TRUE, '\'', FALSE);
       if (c == -1)		/* <character> is ' */
 	{
-#if 1 /* STRICT ISO does not allow 0'' one should write 0''' or 0'\' #if 0 to relax this */
-	  {
-	    pl_token.line = pstm->line_count + 1;
-	    pl_token.col = pstm->line_pos + 1;
-	    err_msg = "quote character expected here";
-	  }
-#else
+		/* STRICT ISO does not allow 0'' one should write 0''' or 0'\' */
+	  if (Flag_Value(FLAG_STRICT_ISO))
+	    {
+	      pl_token.line = pstm->line_count + 1;
+	      pl_token.col = pstm->line_pos + 1;
+	      err_msg = "quote character expected here";
+	      return;
+	    }
+	  else
+
 	  c = '\'';
-#endif
 	}
 
       if (c < 0) 		/* \ followed by \n   EOF   \n    other error */

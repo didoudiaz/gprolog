@@ -169,8 +169,8 @@ Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
  *                                                                         *
  * Call fct for each variable found in a term.                             *
  *-------------------------------------------------------------------------*/
-void
-Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, void (*fct) ())
+Bool
+Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, Bool (*fct) ())
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -183,20 +183,23 @@ terminal_rec:
   switch (Tag_Of(word))
     {
     case REF:
-      (*fct) (UnTag_REF(word), word);
+      if (!(*fct) (UnTag_REF(word), word))
+	return FALSE;
       break;
 
 #ifndef NO_USE_FD_SOLVER
     case FDV:
       if (generic_var)
-	(*fct) (UnTag_FDV(word), word);
+	if (!(*fct) (UnTag_FDV(word), word))
+	  return FALSE;
       break;
 #endif
 
     case LST:
       adr = UnTag_LST(word);
       adr = &Car(adr);
-      Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct);
+      if (!Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct))
+	return FALSE;
 
       start_word = *adr;
       goto terminal_rec;
@@ -206,11 +209,14 @@ terminal_rec:
       i = Arity(adr);
       adr = &Arg(adr, 0);
       while (--i)
-	Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct);
+	if (!Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct))
+	  return FALSE;
 
       start_word = *adr;
       goto terminal_rec;
     }
+
+  return TRUE;
 }
 
 
