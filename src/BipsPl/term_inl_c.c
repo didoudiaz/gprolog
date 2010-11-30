@@ -547,6 +547,8 @@ Pl_Term_Ref_2(WamWord term_word, WamWord ref_word)
 Bool
 Pl_Term_Variables_3(WamWord start_word, WamWord list_word, WamWord tail_word)
 {
+  long *p;
+
   /* only check if no Tail since if there is no vars in Term 
    * then List = Tail and Tail can be any term */
 
@@ -557,9 +559,9 @@ Pl_Term_Variables_3(WamWord start_word, WamWord list_word, WamWord tail_word)
 
   Pl_Treat_Vars_Of_Term(start_word, TRUE, Collect_Variable);
 
-  while (--var_ptr >= pl_glob_dico_var)
+  for(p = pl_glob_dico_var; p < var_ptr; p++)
     {
-      if (!Pl_Get_List(list_word) || !Pl_Unify_Value(*var_ptr))
+      if (!Pl_Get_List(list_word) || !Pl_Unify_Value(*p))
 	return FALSE;
       list_word = Pl_Unify_Variable();
     }

@@ -107,7 +107,7 @@ extern int pl_type_integer;
 extern int pl_type_list;
 extern int pl_type_number;
 extern int pl_type_predicate_indicator;
-extern int pl_type_variable;
+extern int pl_type_variable;	/* deprecated: new code should emit an uninstantiation_error */
 extern int pl_type_fd_variable;
 extern int pl_type_fd_evaluable;
 extern int pl_type_fd_bool_evaluable;
@@ -706,7 +706,8 @@ typedef PlFIOArg FIOArg;
 #define type_list pl_type_list
 #define type_number pl_type_number
 #define type_predicate_indicator pl_type_predicate_indicator
-#define type_variable pl_type_variable
+#define type_variable pl_type_variable /* deprecated: new code should emit an uninstantiation_error */
+
 #define type_fd_variable pl_type_fd_variable
 #define type_fd_evaluable pl_type_fd_evaluable
 #define type_fd_bool_evaluable pl_type_fd_bool_evaluable

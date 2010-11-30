@@ -449,9 +449,7 @@ predicate('$exec/5_$aux1'/1,274,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
-    put_value(x(0),1),
-    put_atom(variable,0),
-    execute('$pl_err_type'/2),
+    execute('$pl_err_uninstantiation'/1),
 
 label(1),
     trust_me_else_fail,
@@ -535,9 +533,7 @@ predicate('$fork_prolog/1_$aux1'/1,313,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
-    put_value(x(0),1),
-    put_atom(variable,0),
-    execute('$pl_err_type'/2),
+    execute('$pl_err_uninstantiation'/1),
 
 label(1),
     trust_me_else_fail,

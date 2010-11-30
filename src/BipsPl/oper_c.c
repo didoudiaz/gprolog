@@ -150,7 +150,8 @@ Pl_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
     }
 
   if ((type != PREFIX && Check_Oper(atom_op, (type == POSTFIX) ? INFIX : POSTFIX)) || /* infix + postfix invalid */
-      (atom_op == ATOM_CHAR('|') && (type != INFIX || prec <= 1000))) /* | no infix or prec <= 1000 */
+      (atom_op == ATOM_CHAR('|') && (type != INFIX || prec <= 1000)) || /* | no infix or prec <= 1000 */
+      (atom_op == ATOM_NIL || atom_op == pl_atom_curly_brackets)) /* [] or {} forbidden */
     Pl_Err_Permission(pl_permission_operation_create, 
 		      pl_permission_type_operator,
 		      oper_word);

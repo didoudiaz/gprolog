@@ -53,7 +53,7 @@
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
    if (tag_mask != TAG_REF_MASK)                                            \
-     Pl_Err_Type(pl_type_variable, word)
+     Pl_Err_Uninstantiation(word)
 
 
 #define CHECK_FOR_UN_INTEGER                                                \

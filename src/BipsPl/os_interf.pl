@@ -274,7 +274,7 @@ popen(Cmd, Mode, Stream) :-
 exec(Cmd, StreamIn, StreamOut, StreamErr, Pid) :-
 	set_bip_name(exec, 5),
 	(   nonvar(Pid) ->
-	    '$pl_err_type'(variable, Pid)
+	    '$pl_err_uninstantiation'(Pid)
 	;   true
 	),
 	'$sys_var_write'(0, 0),
@@ -313,7 +313,7 @@ create_pipe(StreamIn, StreamOut) :-
 fork_prolog(Pid) :-
 	set_bip_name(fork_prolog, 1),
 	(   nonvar(Pid) ->
-	    '$pl_err_type'(variable, Pid)
+	    '$pl_err_uninstantiation'(Pid)
 	;   true
 	),
 	'$call_c_test'('Pl_Fork_Prolog_1'(Pid)).

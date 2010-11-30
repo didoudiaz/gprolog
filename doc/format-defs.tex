@@ -328,11 +328,22 @@ variable while an instantiated argument was expected.
 The system predicate \texttt{'\$pl\_err\_instantiation'} raises this
 error in the current error context \RefSP{General-format-and-error-context}.
 
+\subsubsection{Uninstantiation error}
+\label{Uninstantiation-error}
+An uninstantiation Error when an argument or one of its components is not a
+variable, and a variable or a component as variable is required. 
+\Param{ErrorTerm} has the following form:
+\texttt{uninstantiation\_error(\Param{Culprit})} where \Param{Culprit} is the argument or one
+of its components which caused the error.
+
+The system predicate \texttt{'\$pl\_err\_uninstantiation'(Culprit)} raises this
+error in the current error context \RefSP{General-format-and-error-context}.
+
 \subsubsection{Type error}
 \label{Type-error}
 A type error occurs when the type of an argument or one of its components is
 not the expected type (but not a variable). \Param{ErrorTerm} has
-the following form: \texttt{type\_error(\Param{Type}, Culprit)} where
+the following form: \texttt{type\_error(\Param{Type}, \Param{Culprit})} where
 \Param{Type} is the expected type and \Param{Culprit}
 the argument which caused the error. \Param{Type} is one of:
 
@@ -376,7 +387,7 @@ the argument which caused the error. \Param{Type} is one of:
 
 \item \texttt{predicate\_indicator}
 
-\item \texttt{variable}
+%\item \texttt{variable}  
 
 \end{ItemizeThreeCols}
 

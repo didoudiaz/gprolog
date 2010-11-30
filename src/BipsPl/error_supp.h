@@ -53,7 +53,7 @@ int pl_type_integer;
 int pl_type_list;
 int pl_type_number;
 int pl_type_predicate_indicator;
-int pl_type_variable;
+int pl_type_variable; /* deprecated: new code should emit an uninstantiation_error */
 int pl_type_pair;
 int pl_type_fd_variable;			/* for FD */
 int pl_type_fd_evaluable;			/* for FD */
@@ -154,7 +154,7 @@ extern int pl_type_integer;
 extern int pl_type_list;
 extern int pl_type_number;
 extern int pl_type_predicate_indicator;
-extern int pl_type_variable;
+extern int pl_type_variable;  /* deprecated: new code should emit an uninstantiation_error */
 extern int pl_type_pair;
 extern int pl_type_fd_variable;			/* for FD */
 extern int pl_type_fd_evaluable;		/* for FD */
@@ -269,6 +269,8 @@ void Pl_Unknown_Pred_Error(int func, int arity);
 void Pl_Os_Error(void);
 
 void Pl_Err_Instantiation(void);
+
+void Pl_Err_Uninstantiation(WamWord term);
 
 void Pl_Err_Type(int atom_type, WamWord term);
 

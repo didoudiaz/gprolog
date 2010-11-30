@@ -168,6 +168,8 @@ WamWord FC Pl_Fct_Fast_Rem(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Fast_Mod(WamWord x, WamWord y);
 
+WamWord FC Pl_Fct_Fast_Div2(WamWord x, WamWord y);
+
 WamWord FC Pl_Fct_Fast_And(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Fast_Or(WamWord x, WamWord y);
@@ -216,6 +218,8 @@ WamWord FC Pl_Fct_Float_Div(WamWord x, WamWord y);
 WamWord FC Pl_Fct_Rem(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Mod(WamWord x, WamWord y);
+
+WamWord FC Pl_Fct_Div2(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_And(WamWord x, WamWord y);
 

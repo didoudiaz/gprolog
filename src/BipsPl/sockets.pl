@@ -77,7 +77,7 @@ socket_accept(Socket, Client, StreamIn, StreamOut) :-
 	set_bip_name(socket_accept, 4),
 	(   var(Client) ->
 	    true
-	;   '$pl_err_type'(variable, Client)
+	;   '$pl_err_uninstantiation'(Client)
 	),
 	'$get_open_stm'(StreamIn, StmIn),
 	'$get_open_stm'(StreamOut, StmOut),

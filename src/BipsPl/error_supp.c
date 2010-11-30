@@ -76,6 +76,8 @@ static char *Context_Error_String(void);
 
 #define PL_ERR_INSTANTIATION       X1_24706C5F6572725F696E7374616E74696174696F6E
 
+#define PL_ERR_UNINSTANTIATION     X1_24706C5F6572725F756E696E7374616E74696174696F6E
+
 #define PL_ERR_TYPE                X1_24706C5F6572725F74797065
 
 #define PL_ERR_DOMAIN              X1_24706C5F6572725F646F6D61696E
@@ -97,6 +99,7 @@ static char *Context_Error_String(void);
 
 
 Prolog_Prototype(PL_ERR_INSTANTIATION, 0);
+Prolog_Prototype(PL_ERR_UNINSTANTIATION, 1);
 Prolog_Prototype(PL_ERR_TYPE, 2);
 Prolog_Prototype(PL_ERR_DOMAIN, 2);
 Prolog_Prototype(PL_ERR_EXISTENCE, 2);
@@ -132,7 +135,7 @@ Error_Supp_Initializer(void)
   pl_type_list = Pl_Create_Atom("list");
   pl_type_number = Pl_Create_Atom("number");
   pl_type_predicate_indicator = Pl_Create_Atom("predicate_indicator");
-  pl_type_variable = Pl_Create_Atom("variable");
+  pl_type_variable = Pl_Create_Atom("variable"); /* deprecated: new code should emit an uninstantiation_error */
   pl_type_pair = Pl_Create_Atom("pair");
   if (pl_fd_init_solver)		/* FD solver linked */
     {
@@ -513,6 +516,21 @@ Pl_Err_Instantiation(void)
 {
   Update_Cur_From_C_Bip();
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_INSTANTIATION, 0));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ERR_UNINSTANTIATION                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Err_Uninstantiation(WamWord term)
+{
+  Update_Cur_From_C_Bip();
+  A(0) = term;
+  Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_UNINSTANTIATION, 1));
 }
 
 

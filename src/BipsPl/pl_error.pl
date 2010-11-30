@@ -39,6 +39,9 @@ current_bip_name(Name, Arity) :-
 '$pl_err_instantiation' :-
 	'$pl_error'(instantiation_error).
 
+'$pl_err_uninstantiation'(T) :-
+	'$pl_error'(uninstantiation_error(T)).
+
 '$pl_err_type'(Type, T) :-
 	'$pl_error'(type_error(Type, T)).
 

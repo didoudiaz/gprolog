@@ -584,9 +584,10 @@ fast_exp_functor_name(*, 2, 'Pl_Fct_Fast_Mul').
 fast_exp_functor_name(//, 2, 'Pl_Fct_Fast_Div').
 fast_exp_functor_name(rem, 2, 'Pl_Fct_Fast_Rem').
 fast_exp_functor_name(mod, 2, 'Pl_Fct_Fast_Mod').
+fast_exp_functor_name(div, 2, 'Pl_Fct_Fast_Div2').
 fast_exp_functor_name(/\, 2, 'Pl_Fct_Fast_And').
 fast_exp_functor_name(\/, 2, 'Pl_Fct_Fast_Or').
-fast_exp_functor_name(><, 2, 'Pl_Fct_Fast_Xor').
+fast_exp_functor_name(xor, 2, 'Pl_Fct_Fast_Xor').
 fast_exp_functor_name(\, 1, 'Pl_Fct_Fast_Not').
 fast_exp_functor_name(<<, 2, 'Pl_Fct_Fast_Shl').
 fast_exp_functor_name(>>, 2, 'Pl_Fct_Fast_Shr').
@@ -610,9 +611,10 @@ math_exp_functor_name(//, 2, 'Pl_Fct_Div').
 math_exp_functor_name(/, 2, 'Pl_Fct_Float_Div').
 math_exp_functor_name(rem, 2, 'Pl_Fct_Rem').
 math_exp_functor_name(mod, 2, 'Pl_Fct_Mod').
+math_exp_functor_name(div, 2, 'Pl_Fct_Div2').
 math_exp_functor_name(/\, 2, 'Pl_Fct_And').
 math_exp_functor_name(\/, 2, 'Pl_Fct_Or').
-math_exp_functor_name(><, 2, 'Pl_Fct_Xor').
+math_exp_functor_name(xor, 2, 'Pl_Fct_Xor').
 math_exp_functor_name(\, 1, 'Pl_Fct_Not').
 math_exp_functor_name(<<, 2, 'Pl_Fct_Shl').
 math_exp_functor_name(>>, 2, 'Pl_Fct_Shr').
@@ -630,7 +632,7 @@ math_exp_functor_name(**, 2, 'Pl_Fct_Pow').
 math_exp_functor_name(sqrt, 1, 'Pl_Fct_Sqrt').
 math_exp_functor_name(tan, 1, 'Pl_Fct_Tan').
 math_exp_functor_name(atan, 1, 'Pl_Fct_Atan').
-math_exp_functor_name(atan, 2, 'Pl_Fct_Atan2').
+math_exp_functor_name(atan2, 2, 'Pl_Fct_Atan2').
 math_exp_functor_name(cos, 1, 'Pl_Fct_Cos').
 math_exp_functor_name(acos, 1, 'Pl_Fct_Acos').
 math_exp_functor_name(sin, 1, 'Pl_Fct_Sin').

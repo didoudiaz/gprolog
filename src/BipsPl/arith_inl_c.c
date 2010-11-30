@@ -137,10 +137,12 @@ Arith_Initializer(void)
   ADD_ARITH_OPER("*", 2, Pl_Fct_Mul);
   ADD_ARITH_OPER("//", 2, Pl_Fct_Div);
   ADD_ARITH_OPER("/", 2, Pl_Fct_Float_Div);
+  ADD_ARITH_OPER("rem", 2, Pl_Fct_Rem);
   ADD_ARITH_OPER("mod", 2, Pl_Fct_Mod);
+  ADD_ARITH_OPER("div", 2, Pl_Fct_Div2);
   ADD_ARITH_OPER("/\\", 2, Pl_Fct_And);
   ADD_ARITH_OPER("\\/", 2, Pl_Fct_Or);
-  ADD_ARITH_OPER("><", 2, Pl_Fct_Xor);
+  ADD_ARITH_OPER("xor", 2, Pl_Fct_Xor);
   ADD_ARITH_OPER("\\", 1, Pl_Fct_Not);
   ADD_ARITH_OPER("<<", 2, Pl_Fct_Shl);
   ADD_ARITH_OPER(">>", 2, Pl_Fct_Shr);
@@ -158,7 +160,7 @@ Arith_Initializer(void)
   ADD_ARITH_OPER("sqrt", 1, Pl_Fct_Sqrt);
   ADD_ARITH_OPER("tan", 1, Pl_Fct_Tan);
   ADD_ARITH_OPER("atan", 1, Pl_Fct_Atan);
-  ADD_ARITH_OPER("atan", 2, Pl_Fct_Atan2);
+  ADD_ARITH_OPER("atan2", 2, Pl_Fct_Atan2);
   ADD_ARITH_OPER("cos", 1, Pl_Fct_Cos);
   ADD_ARITH_OPER("acos", 1, Pl_Fct_Acos);
   ADD_ARITH_OPER("sin", 1, Pl_Fct_Sin);
@@ -180,8 +182,6 @@ Arith_Initializer(void)
   ADD_ARITH_OPER("truncate", 1, Pl_Fct_Truncate);
   ADD_ARITH_OPER("float_fractional_part", 1, Pl_Fct_Float_Fract_Part);
   ADD_ARITH_OPER("float_integer_part", 1, Pl_Fct_Float_Integ_Part);
-
-  ADD_ARITH_OPER("rem", 2, Pl_Fct_Rem);
 
   atom_pi = Pl_Create_Atom("pi");
   atom_e = Pl_Create_Atom("e");
@@ -564,6 +564,26 @@ Pl_Fct_Fast_Mod(WamWord x, WamWord y)
 }
 
 WamWord FC
+Pl_Fct_Fast_Div2(WamWord x, WamWord y)
+{
+  long vx = UnTag_INT(x);
+  long vy = UnTag_INT(y);
+  long m;
+
+  if (vy == 0)
+    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+
+  m = vx % vy;
+
+  if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
+    m += vy;
+
+  m = (vx - m) / vy;
+
+  return Tag_INT(m);
+}
+
+WamWord FC
 Pl_Fct_Fast_And(WamWord x, WamWord y)
 {
   return x & y;
@@ -735,6 +755,12 @@ WamWord FC
 Pl_Fct_Mod(WamWord x, WamWord y)
 {
   IxItoI(x, y, Pl_Fct_Fast_Mod);
+}
+
+WamWord FC
+Pl_Fct_Div2(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_Div2);
 }
 
 WamWord FC

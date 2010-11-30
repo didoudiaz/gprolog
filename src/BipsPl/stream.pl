@@ -128,7 +128,7 @@ open(SourceSink, Mode, Stream, Options) :-
 
 '$get_open_stm'(Stream, Stm) :-
 	(   nonvar(Stream) ->
-	    '$pl_err_type'(variable, Stream)
+	    '$pl_err_uninstantiation'(Stream)
 	;   Stream = '$stream'(Stm)
 	).
 

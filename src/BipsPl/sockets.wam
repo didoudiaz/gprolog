@@ -107,9 +107,7 @@ predicate('$socket_accept/4_$aux1'/1,76,static,private,monofile,local,[
 
 label(1),
     trust_me_else_fail,
-    put_value(x(0),1),
-    put_atom(variable,0),
-    execute('$pl_err_type'/2)]).
+    execute('$pl_err_uninstantiation'/1)]).
 
 
 predicate('$assoc_socket_streams'/3,89,static,private,monofile,built_in,[

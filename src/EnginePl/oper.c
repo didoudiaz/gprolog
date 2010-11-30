@@ -120,17 +120,17 @@ Pl_Init_Oper(void)
   ADD_OPER(500, YFX, "-");
   ADD_OPER(500, YFX, "/\\");
   ADD_OPER(500, YFX, "\\/");
-  ADD_OPER(500, YFX, "><");
 
   ADD_OPER(400, YFX, "*");
   ADD_OPER(400, YFX, "/");
   ADD_OPER(400, YFX, "//");
   ADD_OPER(400, YFX, "rem");
   ADD_OPER(400, YFX, "mod");
+  ADD_OPER(400, YFX, "div");
   ADD_OPER(400, YFX, "<<");
   ADD_OPER(400, YFX, ">>");
 
-  ADD_OPER(200, XFY, "**");
+  ADD_OPER(200, XFX, "**");
   ADD_OPER(200, XFY, "^");
 
   ADD_OPER(200, FY, "+");
