@@ -55,6 +55,7 @@
 #define popen                      _popen
 #define pclose                     _pclose
 #define getpid                     _getpid
+#define tempnam                    _tempnam
 #define strcasecmp                 stricmp
 #define strncasecmp                strnicmp
 #define unlink                     _unlink

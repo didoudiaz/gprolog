@@ -1,4 +1,24 @@
-Mon Oct 25 10:39:51 CEST 2010
+Mon Nov 29 15:48:25 CET 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* rename evaluable functor atan/2 as atan2/2 and >< as xor
+	* add evaluable functor div/2
+	* detect op/3 error cases for | [] {}
+	* replace type_error(variable, X) by uninstantiation_error(X) (e.g. open/3-4)
+
+Fri Nov 26 12:00:32 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* add built-in term_variables/2-3 and subsumes_term/2
+
+Mon Nov 22 17:12:58 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* add some type tests on chars and codes (in number_chars/2, number_codes/2,..)
+
+Wed Nov 17 15:43:38 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix some little bugs in the parser
+	* add meta_predicate property to predicate_property/2
+
+Mon Oct 25 10:39:51 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a memory leak in atom_concat/3 (in case of failure)
 

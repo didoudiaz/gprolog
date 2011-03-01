@@ -1,6 +1,14 @@
 Change in GNU Prolog version 1.4.0:
 
 * GNU Prolog is now licensed under LGPL
+* rename evaluable functor atan/2 as atan2/2 and >< as xor
+* add evaluable functor div/2
+* detect op/3 error cases for | [] {}
+* replace type_error(variable, X) by uninstantiation_error(X) (e.g. open/3-4)
+* add built-in term_variables/2-3 and subsumes_term/2
+* add some type tests on chars and codes (in number_chars/2, number_codes/2,..)
+* fix some little bugs in the parser
+* add meta_predicate property to predicate_property/2
 * fix a memory leak in atom_concat/3 (in case of failure)
 * add infix operator '|' (and allow it to be unquoted in read/write)
 * improve top-level variables display adding () when needed
@@ -23,14 +31,14 @@ Change in GNU Prolog version 1.4.0:
 * add evaluable functors: (a)sinh/1, (a)cosh/1, (a)tanh/1
 * add evaluable functors: epsilon/0, lsb/1, msb/1, popcount/1
 * fix compilation problem under Mac OS X Snow Leopard (force 32-bits mode)
-* add evaluable functors: log/2, gcd/2, tan/1, atan/2, pi/0, e/0
+* add evaluable functors: log/2, gcd/2, tan/1, atan2/2, pi/0, e/0
 * add built-in ground/1
 * rename built-in sort0 as msort 
 * add new error detection for keysort
 * accept (but ignore) directive encoding/1
-* add >< operator (bitwise XOR) ^/2 becomes integer exponentiation
+* add xor/2 (bitwise XOR) ^/2 becomes integer exponentiation
 * improve randomize/0 (more different values on consecutive calls)
-* relax the lexer to also accept 0'' (ISO requires 0''' or 0'\')
+* relax the lexer to also accept 0'' (ISO requires 0''' or 0'\') is strict_iso is off
 * fix a bug with top-level options --entry-goal and --query-goal
 
 Change in GNU Prolog version 1.3.1:

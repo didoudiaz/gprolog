@@ -900,6 +900,8 @@ Pl_M_Tempnam(char *dir, char *pfx)
 #else
 
   errno = 0;
+  if (dir == NULL && getenv("TMP") == NULL) /* under Win32, _tempnam checks TMP */
+    dir = "./";
   return tempnam(dir, pfx);
 
 #endif

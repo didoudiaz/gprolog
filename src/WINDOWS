@@ -128,23 +128,34 @@ using cygwin1.dll) under cygwin and native win32 gcc under msys.
 ------------------------------------
 
 You need MSVC++. GNU Prolog has been tested with version 6.0 and Visual C++
-2008 Express Edition (i.e. MSVC++ 9.0). The later is freely available from
-microsoft site: http://msdn.microsoft.com/vstudio/express/visualc/download/.
+2010 Express Edition (i.e. MSVC++ 9.0). The later is freely available from
+microsoft site: http://www.microsoft.com/express/Downloads/#2010-Visual-CPP
 
-NB: with MSVC 6.0 or Visual C++ 2005 Express Edition it was also necessary to install
-this SDK (or more recent version) : Microsoft Windows Server 2003 R2 Platform
-SDK. You can install it from :
-http://www.microsoft.com/downloads/details.aspx?FamilyId=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en.
+It is also necessary to install this SDK (or more recent version) : 
+Microsoft Windows SDK for Windows 7 and .NET Framework 4 from
+http://www.microsoft.com/downloads/dlx/en-us/listdetailsview.aspx?FamilyID=6b6c21d2-2006-4afa-9702-529fa782d63b
 
-If you chose to set up environement variables, MSVC++ is informed about new
-include/library directories. Else you can execute .bat provided with the MS
-compiler: e.g. vcvarvs32.bat or vsvar32.bat (in C:\Program Files\Microsoft
-Visual Studio 9.0\Common7\Tools). Anyway, your PATH shoud contain the cl.exe
-command-line compiler, INCLUDE and LIB should be correctly set.  NB: for
-MSVC6.0: its lib directory should appear before the lib directory of the SDK
-(else an error occurs when linking the GUI console).
+Once installed, you have to launch cygwin with the correct PATH,
+INCLUDE, LIB environment variables. There is a .bat file provided with
+the MS compiler e.g. vcvarvs32.bat or vsvar32.bat or vcvarsall.bat
+(e.g. C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools or
+C:\Program Files\Microsoft Visual Studio 10.0\VC). Anyway, your PATH
+shoud contain the cl.exe command-line compiler, INCLUDE and LIB should
+be correctly set. NB: for MSVC6.0: its lib directory should appear
+before the lib directory of the SDK (else an error occurs when linking
+the GUI console). 
 
-NB: recent cygwin include a /bin/link.exe command. Be sure it doesn't shadow
+One way to lauch a cygwin (or MSYS) shell with correct environment
+variables is to launch a DOS promp window and to execute the vcvarsall.bat (or better to execute the Visual Studio Command Prompt (from the Windows Start Menu).
+Then execute cygwin (generally using c:\cygwin\cygwin.bat). 
+
+You can also modify the cygwin\cygwin.bat script to include a line
+executing vcvarsall.bat:
+ CALL "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" 
+just before executing the bash command.
+
+
+NB: cygwin include a /bin/link.exe command. Be sure it doesn't shadow
 the Microsoft linker (also called link.exe). The simplest way to solve it is
 to rename /bin/link.exe of cygwin.
 

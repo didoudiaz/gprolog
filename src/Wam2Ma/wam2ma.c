@@ -462,13 +462,14 @@ F_file_name(ArgVal arg[])
 void
 F_predicate(ArgVal arg[])
 {
-  Args6(MP_N(module, functor, arity), INTEGER(pl_line), 
-	STR(static_dynamic), STR(public_private), STR(mono_multi), STR(built_in_local_global));
   BTNode *atom_module = NULL;
   BTNode *atom_functor;
   int module_user_system = 0;
   int prop;
-  int local_symbol = 0;
+  int local_symbol = 0;	
+	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
+  Args6(MP_N(module, functor, arity), INTEGER(pl_line), 
+	STR(static_dynamic), STR(public_private), STR(mono_multi), STR(built_in_local_global));
 
   if (cur_pl_file == NULL)
     Syntax_Error("file_name declaration missing");
@@ -582,9 +583,10 @@ F_predicate(ArgVal arg[])
 void
 F_directive(ArgVal arg[])
 {
-  Args2(INTEGER(pl_line), STR(user_system));
   Direct *p;
   int system;
+	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
+  Args2(INTEGER(pl_line), STR(user_system));
 
   if (cur_pl_file == NULL)
     Syntax_Error("file_name declaration missing");
