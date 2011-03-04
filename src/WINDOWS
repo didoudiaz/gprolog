@@ -131,19 +131,22 @@ You need MSVC++. GNU Prolog has been tested with version 6.0 and Visual C++
 2010 Express Edition (i.e. MSVC++ 9.0). The later is freely available from
 microsoft site: http://www.microsoft.com/express/Downloads/#2010-Visual-CPP
 
-It is also necessary to install this SDK (or more recent version) : 
-Microsoft Windows SDK for Windows 7 and .NET Framework 4 from
+NB: with previous MSVC version it was also necessary to install this SDK (or more
+recent version) : Microsoft Windows SDK for Windows 7 and .NET Framework 4
+from
 http://www.microsoft.com/downloads/dlx/en-us/listdetailsview.aspx?FamilyID=6b6c21d2-2006-4afa-9702-529fa782d63b
 
-Once installed, you have to launch cygwin with the correct PATH,
-INCLUDE, LIB environment variables. There is a .bat file provided with
-the MS compiler e.g. vcvarvs32.bat or vsvar32.bat or vcvarsall.bat
-(e.g. C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools or
-C:\Program Files\Microsoft Visual Studio 10.0\VC). Anyway, your PATH
-shoud contain the cl.exe command-line compiler, INCLUDE and LIB should
-be correctly set. NB: for MSVC6.0: its lib directory should appear
-before the lib directory of the SDK (else an error occurs when linking
-the GUI console). 
+Once installed, you have to launch cygwin with the correct PATH, INCLUDE, LIB
+environment variables. There is a .bat file provided with the MS compiler
+e.g. vcvarsall.bat (or older versions: vcvarvs32.bat or vsvar32.bat)
+e.g. C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools or (or older
+C:\Program Files\Microsoft Visual Studio 10.0\VC).  Anyway, your PATH shoud
+contain the cl.exe command-line compiler, INCLUDE and LIB should be correctly
+set. NB: for MSVC6.0: its lib directory should appear before the lib
+directory of the SDK (else an error occurs when linking the GUI console).
+See also: http://msdn.microsoft.com/en-us/library/f2ccy3wt%28v=VS.100%29.aspx
+
+
 
 One way to lauch a cygwin (or MSYS) shell with correct environment
 variables is to launch a DOS promp window and to execute the vcvarsall.bat (or better to execute the Visual Studio Command Prompt (from the Windows Start Menu).
@@ -184,6 +187,8 @@ LINEDIT to a string containing gui=no, e.g. (bash) export LINEDIT='gui=no',
 
 5) Using Microsoft HTML Help
 ----------------------------
+
+NB: This is useless in recent MS Visual Studio 2010 Express
 
 If you compile under native Win32 with the GUI Console (see above), you can
 have a direct access to the GNU Prolog manual (with contextual help, index,
