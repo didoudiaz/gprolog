@@ -6,20 +6,33 @@
  * Descr.: symbolic constraints management - C part                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -49,7 +62,7 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static Bool Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
+static Bool Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
 				 WamWord save_list_word);
 
 
@@ -82,7 +95,7 @@ Pl_Fd_All_Different_1(WamWord list_word, WamWord save_list_word)
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK &&
       tag_mask != TAG_FDV_MASK)
     Pl_Err_Type(pl_type_fd_variable, word);
-  
+
   return Fd_All_Different_Rec(Cdr(lst_adr), tag_mask, word, save_list_word) &&
     Pl_Fd_All_Different_1(Cdr(lst_adr), save_list_word);
 }
@@ -95,7 +108,7 @@ Pl_Fd_All_Different_1(WamWord list_word, WamWord save_list_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
+Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
 		     WamWord save_list_word)
 {
   WamWord word, tag_mask;
@@ -106,13 +119,13 @@ Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
   DEREF(list_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
-  
+
   if (word == NIL_WORD)
     return TRUE;
 
   if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(pl_type_list, save_list_word);
-  
+
   lst_adr = UnTag_LST(word);
   DEREF(Car(lst_adr), word, tag_mask);
 
@@ -121,7 +134,7 @@ Fd_All_Different_Rec(WamWord list_word, long x_tag, WamWord x_word,
     Pl_Err_Type(pl_type_fd_variable, word);
 
   if (x_tag == TAG_INT_MASK)
-    ret = (tag_mask == TAG_INT_MASK) ? x_word != word : 
+    ret = (tag_mask == TAG_INT_MASK) ? x_word != word :
              pl_x_neq_c(word, x_word);
   else
     ret = (tag_mask == TAG_INT_MASK) ? pl_x_neq_c(x_word, word) :
@@ -282,14 +295,14 @@ void
 Pl_Fd_Element_Var_V_To_I(Range *i, Range *v, WamWord **l)
 {
   WamWord *fdv_adr;
-  long n;
+  PlLong n;
   int j;
 
   Vector_Allocate(i->vec);
   Pl_Vector_Empty(i->vec);
   /* when V or L changes -> update I */
 
-  n = (long) *l;
+  n = (PlLong) *l;
 
   for (j = 1; j <= n; j++)
     {
@@ -331,7 +344,7 @@ Pl_Fd_Atmost(int n, WamWord **array, int v)
 {
   WamWord **p;
   WamWord word = Tag_INT(v);
-  long size = (long) array[0];
+  PlLong size = (PlLong) array[0];
   int nb = 0;
   int i;
 
@@ -374,7 +387,7 @@ Bool
 Pl_Fd_Atleast(int n, WamWord **array, int v)
 {
   WamWord **p;
-  long size = (long) array[0];
+  PlLong size = (PlLong) array[0];
   int nb = size;
   int i;
 
@@ -419,7 +432,7 @@ Pl_Fd_Exactly(int n, WamWord **array, int v)
 {
   WamWord **p;
   WamWord word = Tag_INT(v);
-  long size = (long) array[0];
+  PlLong size = (PlLong) array[0];
   int nb1 = 0, nb2 = size;
   int i;
 

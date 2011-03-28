@@ -6,20 +6,33 @@
  * Descr.: translation file for Linux/Cygwin/mingw32/... on intel x86      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -36,9 +49,9 @@
  * an error will occur (generally Bus Error).
  * Just before calling a function %esp is 16bytes aligned, %esp = 0x...0
  * (4 low bits = 0). The call instruction pushes the return address, so at
- * the entry of a function, %esp is 0x...c. Gcc then adjusts (via subl) 
+ * the entry of a function, %esp is 0x...c. Gcc then adjusts (via subl)
  * %esp to be 0x...0 before calling a function. We mimic the same modifying
- * Call_Compiled to force %esp to be 0x...0 when arriving in a Prolog code. 
+ * Call_Compiled to force %esp to be 0x...0 when arriving in a Prolog code.
  * So a Prolog code can call C functions safely.
  * When a Prolog code finishes it returns into C inside Call_Prolog_Success
  * or Call_Prolog_Fail. In both functions we re-adjust the stack (gcc thinks
@@ -129,7 +142,7 @@ static char *Off_Reg_Bank(int offset);
 
 
 
-#ifdef M_ix86_darwin 
+#ifdef M_ix86_darwin
 
 #define DARWIN_PB_REG "%ebp"	/* PIC BASE (PB) customization */
 int load_pb_reg = 0;
@@ -229,13 +242,13 @@ Asm_Stop(void)
 #endif
 
 #ifdef M_ix86_darwin
-  if (bt_non_lazy.nb_elem) 
+  if (bt_non_lazy.nb_elem)
     {
       Inst_Printf(".section __IMPORT,__pointers,non_lazy_symbol_pointers", "");
       BT_String_List(&bt_non_lazy, Emit_Non_Lazy);
     }
 
-  if (bt_stub.nb_elem) 
+  if (bt_stub.nb_elem)
     {
       Inst_Printf(".section __IMPORT,__jump_table,symbol_stubs,self_modifying_code+pure_instructions,5", "");
 
@@ -546,7 +559,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words, 
+Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 	     char **p_inline)
 {
 #ifndef FC_USED_TO_COMPILE_CORE
@@ -588,7 +601,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 /* In GCC 3, the 3 first args are passed via registers if they are
  * ints (recall: 1 double = 2 ints). So if the 2 first args are
  * double (4 ints) nothing is passed in registers.
- * In GCC 4, the 3 first int args are passed in register whatever 
+ * In GCC 4, the 3 first int args are passed in register whatever
  * the previous arg types.
  */
 
@@ -607,11 +620,11 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
   sprintf(r, "%d(%%esp)", stack_offset * 4);	\
   stack_offset++;				\
   r_aux = (eax_used_as_fc_reg) ? "%esi" : "%eax";
-  
+
 
 #define AFTER_ARG				\
 }
-    
+
 
 
 
@@ -621,7 +634,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Int(int offset, long int_val)
+Call_C_Arg_Int(int offset, PlLong int_val)
 {
   BEFORE_ARG;
 
@@ -710,8 +723,8 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
 
   Load_PB_Reg();
   is_a_long = Get_Long_Infos(name, &global, &vtype, &value);
-    
-  if ((is_a_long && global && vtype != INITIAL_VALUE) || 
+
+  if ((is_a_long && global && vtype != INITIAL_VALUE) ||
       (!is_a_long && !Is_Code_Defined(name))) /* external code */
     {
       BT_String_Add(&bt_non_lazy, name); /* strdup done by parser */
@@ -807,10 +820,10 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
     Inst_Printf("leal", "%d(%s),%s", Y_OFFSET(index), asm_reg_e, r_aux);
   else
     Inst_Printf("movl", "%d(%s),%s", Y_OFFSET(index), asm_reg_e, r_aux);
-  
+
   if (!r_eq_r_aux)
     Inst_Printf("movl", "%s,%s", r_aux, r);
-  
+
   AFTER_ARG;
 
   return 1;
@@ -1017,7 +1030,7 @@ Move_Ret_To_Foreign_D(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Cmp_Ret_And_Int(long int_val)
+Cmp_Ret_And_Int(PlLong int_val)
 {
   if (int_val == 0)
     Inst_Printf("testl", "%%eax,%%eax");
@@ -1146,7 +1159,7 @@ Dico_Long_Start(int nb_longs)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, long value)
+Dico_Long(char *name, int global, VType vtype, PlLong value)
 {
   switch (vtype)
     {

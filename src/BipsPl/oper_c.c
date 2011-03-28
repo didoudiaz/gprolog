@@ -6,20 +6,33 @@
  * Descr.: operator management - C part                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -150,18 +163,18 @@ Pl_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
     }
 
   if ((type != PREFIX && Check_Oper(atom_op, (type == POSTFIX) ? INFIX : POSTFIX)) || /* infix + postfix invalid */
-      (atom_op == ATOM_CHAR('|') && (type != INFIX || prec <= 1000)) || /* | no infix or prec <= 1000 */
+      (atom_op == ATOM_CHAR('|') && (type != INFIX || (prec > 0 && prec <= 1000))) || /* | no infix or prec <= 1000 */
       (atom_op == ATOM_NIL || atom_op == pl_atom_curly_brackets)) /* [] or {} forbidden */
-    Pl_Err_Permission(pl_permission_operation_create, 
+    Pl_Err_Permission(pl_permission_operation_create,
 		      pl_permission_type_operator,
 		      oper_word);
 
 
   if (atom_op == ATOM_CHAR(','))
     Pl_Err_Permission(pl_permission_operation_modify,
-		      pl_permission_type_operator, 
+		      pl_permission_type_operator,
 		      oper_word);
-  
+
   if (prec > 0)
     Pl_Create_Oper(atom_op, type, prec, left, right);
   else
@@ -180,7 +193,7 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   WamWord word, tag_mask;
   HashScan scan;
-  long prec;
+  PlLong prec;
   int atom_specif;
   OperInf *oper;
   int atom;
@@ -195,7 +208,7 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 
   DEREF(prec_word, word, tag_mask);
   prec = UnTag_INT(word);
-  if (tag_mask != TAG_REF_MASK && 
+  if (tag_mask != TAG_REF_MASK &&
       (tag_mask != TAG_INT_MASK || prec < 0 || prec > MAX_PREC))
     Pl_Err_Domain(pl_domain_operator_priority, word);
   prec_word = word;

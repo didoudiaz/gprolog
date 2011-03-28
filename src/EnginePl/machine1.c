@@ -6,20 +6,33 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -238,7 +251,7 @@ Get_Windows_OS_Name(char *buff)
 		    buff += sprintf(buff, "Server ");
 		}
 
-	      else		// Windows NT 4.0 
+	      else		// Windows NT 4.0
 		{
 		  if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
 		    buff += sprintf(buff, "Server 4.0, Enterprise Edition ");
@@ -494,10 +507,16 @@ Pl_M_Spawn(char *arg[])
   _flushall();
 #endif
 
+  // printf("COMMAND: <%s>\n", arg[0]);
   if (arg[1] == (char *) 1)
     arg = Pl_M_Cmd_Line_To_Argv(arg[0], NULL);
 
-  return spawnvp(_P_WAIT, arg[0], (const char *const *) arg);
+  /*
+  int i;
+  for(i = 0; arg[i] != NULL; i++)
+    printf("Arg :%d: <%s>\n", i, arg[i]);
+  */
+  return spawnvp(_P_WAIT, arg[0], (char *const *) arg);
 #endif
 }
 
@@ -680,20 +699,23 @@ err:
 
   if (f_in &&
       (*f_in =
-       fdopen(_open_osfhandle((long) pipe_in_w, _O_TEXT), "wt")) == NULL)
+       fdopen(_open_osfhandle((PlLong) pipe_in_w, _O_TEXT), "wt")) == NULL)
     goto err;
 
   if (f_out &&
       (*f_out =
-       fdopen(_open_osfhandle((long) pipe_out_r, _O_TEXT), "rt")) == NULL)
+       fdopen(_open_osfhandle((PlLong) pipe_out_r, _O_TEXT), "rt")) == NULL)
     goto err;
 
   if (f_err && f_err != f_out &&
       (*f_err =
-       fdopen(_open_osfhandle((long) pipe_err_r, _O_TEXT), "rt")) == NULL)
+       fdopen(_open_osfhandle((PlLong) pipe_err_r, _O_TEXT), "rt")) == NULL)
     goto err;
 
-  return (detach) ? 0 : (int) pi.hProcess;
+  //  return (detach) ? 0 : (int) pi.hProcess;
+  //JAT: Changed to use id rather than handle because of fixed bitness
+  //OpenProcess function may be needed else where to get handle back
+  return (detach) ? 0 : pi.dwProcessId;
 
 err:
   return -1;
@@ -734,11 +756,13 @@ Pl_M_Get_Status(int pid)
 
 #elif defined(_WIN32)
 
-  WaitForSingleObject((HANDLE) pid, INFINITE);
-  if (!GetExitCodeProcess((HANDLE) pid, (LPDWORD) &status))
+  // JAT: See above
+  HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
+  WaitForSingleObject(phandle, INFINITE);
+  if (!GetExitCodeProcess(phandle, (LPDWORD) &status))
     status = -2;
 
-  CloseHandle((HANDLE) pid);
+  CloseHandle(phandle);
 #endif
 
   return status;
@@ -759,7 +783,7 @@ Pl_M_Mktemp(char *tmpl)
 				/* this code comes from glibc */
   int len;
   char *XXXXXX;
-  static unsigned long value;
+  static PlULong value;
   int count;
   struct stat buf;
   static const char letters[] =
@@ -779,11 +803,11 @@ Pl_M_Mktemp(char *tmpl)
   /* This is where the Xs start.  */
   XXXXXX = &tmpl[len - 6];
 
-  value += (unsigned long) time(NULL) ^ getpid();
+  value += (PlULong) time(NULL) ^ getpid();
 
   for (count = 0; count < TMP_MAX; value += 7777, ++count)
     {
-      unsigned long v = value;
+      PlULong v = value;
 
       /* Fill in the random bits.  */
       XXXXXX[0] = letters[v % 62];
@@ -858,7 +882,7 @@ Pl_M_Tempnam(char *dir, char *pfx)
       if (plen > 5)
         plen = 5;
     }
- 
+
   d = getenv("TMPDIR");
   if (d != NULL && Dir_Exists(d))
     dir = d;
@@ -879,11 +903,11 @@ Pl_M_Tempnam(char *dir, char *pfx)
           return NULL;
         }
     }
- 
+
   dlen = strlen(dir);
   while (dlen > 1 && dir[dlen - 1] == '/')
     dlen--;                     /* remove trailing slashes */
- 
+
   /* check we have room for "${dir}/${pfx}XXXXXX\0" */
   if (MAXPATHLEN < dlen + 1 + plen + 6 + 1)
     {
@@ -1074,7 +1098,7 @@ main(int argc, char *argv[])
   COMMAND;
   pid = Pl_M_Spawn_Redirect(arg, 0, &i, NULL, NULL);
   CHECK(pid);
-    
+
   CDE_INPUT;
   STAT(pid);
 #endif

@@ -6,20 +6,33 @@
  * Descr.: hexadecimal decoding                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -44,8 +57,8 @@
  *     4 (10 0) : MODULE is encoded        PRED is not encoded
  *     5 (10 1) : MODULE is encoded        PRED is encoded
  *
- * Where E(STR) = 
- *  - STR (not encoded) if STR only contains letters, digits or _ 
+ * Where E(STR) =
+ *  - STR (not encoded) if STR only contains letters, digits or _
  *    but does not contain the substring __ and does not begin/end with _
  *    regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
  *  - an hexa representation (encoded) of each character of the string
@@ -59,7 +72,7 @@ static char pl_escape_char[] = "\a\b\f\n\r\t\v";
 
 
 
-/* for encoding: we do not use isalpha to avoid problems with localization 
+/* for encoding: we do not use isalpha to avoid problems with localization
  * an accent-letter is not a valid C/asm identifier
  */
 
@@ -96,7 +109,7 @@ Encode_Hexa(char *module, char *pred, int arity, char *str)
 {
   int module_encode = (module == NULL || *module == '\0') ? 0 : String_Needs_Encoding(module) + 1;
   int pred_encode = String_Needs_Encoding(pred);
-  
+
 
   *str++ = 'X';
   *str++ = '0' + ((module_encode << 1) | pred_encode);
@@ -109,7 +122,7 @@ Encode_Hexa(char *module, char *pred, int arity, char *str)
       *str++ = '_';
       *str++ = '_';
     }
-  
+
   if (pred_encode == 0)
     str += sprintf(str, "%s", pred);
   else
@@ -157,7 +170,7 @@ Encode_Hexa_Line(char *str, char *format, int strict)
 
 
       p = Parse_Atom(src, buff);
-      if (p == NULL) 
+      if (p == NULL)
 	{
 	  *dst++ = *src++;
 	  continue;
@@ -169,7 +182,7 @@ Encode_Hexa_Line(char *str, char *format, int strict)
 	  pred = buff + strlen(module) + 1;
 	  q = p + 1;
 	  p = Parse_Atom(q, pred);
-	  if (p == NULL) 
+	  if (p == NULL)
 	    {
 	      while(src < q)
 		*dst++ = *src++;
@@ -181,10 +194,10 @@ Encode_Hexa_Line(char *str, char *format, int strict)
 	  module = NULL;
 	  pred = buff;
 	}
-      
-      arity = strtol(p + 1, &q, 10); /* we suppose *p = '/' */
 
-      if (*pred == '\0' || (*p != '/' && strict) || 
+      arity = strtoll(p + 1, &q, 10); /* we suppose *p = '/' */
+
+      if (*pred == '\0' || (*p != '/' && strict) ||
 	  (*p == '/' && (arity < 0 || arity > 1024 || isalnum(*q) || *q == '_')))
 	{
 	  while(src < q)
@@ -198,12 +211,12 @@ Encode_Hexa_Line(char *str, char *format, int strict)
 	  src = p;
 	}
       else
-	src = q; 
+	src = q;
 
       free_in_buff = pred + strlen(pred) + 1;
-      
+
       Encode_Hexa(module, pred, arity, free_in_buff);
-      
+
       dst += sprintf(dst, format, free_in_buff);
     }
 
@@ -249,7 +262,7 @@ int String_Needs_Encoding(char *str)
 static char *
 Encode_String(char *str, char *buff)
 {
-  while(*str) 
+  while(*str)
     {
       sprintf(buff, "%02X", (unsigned) (unsigned char) *str);
       str++;
@@ -288,7 +301,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   int module_encode;
   int pred_encode;
   char *p, *q;
-  
+
   if (*str++ != 'X' || *str < '0' || *str >= '5')
     return NULL;
 
@@ -303,7 +316,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
       *module = '\0';
   else
     {
-      str = (module_encode == 1) ? 
+      str = (module_encode == 1) ?
 	Copy_Not_Encoded_String(str, module) :
 	Decode_String(str, module);
 
@@ -324,7 +337,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   *arity = -1;
   if (*str == '_' && str[1] == '_') /*  the arity */
     {
-      *arity = strtoul(str + 2, &p, 10); /* +2 to skip '__' */
+      *arity = strtoull(str + 2, &p, 10); /* +2 to skip '__' */
       if (p == str + 2)
 	*arity = -1;
       str = p;
@@ -341,9 +354,9 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   *aux_no = -1;
   if (decode_aux && *pred == '$' && (p = strstr(pred, AUX_STR)) != NULL)
     {
-      n = strtol(p + sizeof(AUX_STR) - 1, &q, 10);
+      n = strtoll(p + sizeof(AUX_STR) - 1, &q, 10);
       if (*q == '\0')
-	{	  
+	{
 	  while(--p > pred && isdigit(*p)) /* search for arity of the father pred */
 	    ;
 
@@ -351,7 +364,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
 	    {
 	      *aux_no = n;
 	      *p = '\0';
-	      *arity = strtol(p + 1, &p, 10);
+	      *arity = strtoll(p + 1, &p, 10);
 	      p = pred;
 	      do
 		*p = p[1];
@@ -361,7 +374,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
     }
 
   if (quote)
-    Quote_If_Needed(pred);  
+    Quote_If_Needed(pred);
 
   return str;
 }
@@ -414,12 +427,12 @@ Decode_Hexa_Line(char *str, char *format, int strict, int quote, int decode_aux)
 
 	  if (arity >= 0)
 	    n += sprintf(module + n, "/%d", arity);
-	  
+
 	  if (decode_aux == 2 && aux_no >= 0)
 	    n += sprintf(module + n, "(aux %d)", aux_no);
 
 	  dst += sprintf(dst, format, module);
-	} 
+	}
       else
 	*dst++ = *src++;
     }
@@ -492,14 +505,14 @@ Decode_String(char *str, char *buff)
  * QUOTE_IF_NEEDED                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void 
+static void
 Quote_If_Needed(char *str)
 {
   static char buff[2048];
   char *p;
   char *q, *r;
-  
-  
+
+
   if (islower(*str))
     {
       for(p = str; isalnum(*p) || *p == '_'; p++)
@@ -509,7 +522,7 @@ Quote_If_Needed(char *str)
 	return;
     }
 
-  
+
   p = str;
   q = buff;
 
@@ -586,7 +599,7 @@ Parse_Atom(char *src, char *dst)
 		}
 	      else
 		i = 8;
-	      i = strtol(src, &p, i);       /* stop on the closing \ */
+	      i = strtoll(src, &p, i);       /* stop on the closing \ */
 	      if (p == src || !isxdigit(*src) || *p != '\\')  /* isxdigit test is for sign */
 		return NULL;
 	      *dst++ = (char) i;
@@ -600,7 +613,7 @@ Parse_Atom(char *src, char *dst)
       src++;
     }
   else
-    { 
+    {
       if (!isalpha(*src) && *src != '_' && *src != '$')
 	return NULL;
 

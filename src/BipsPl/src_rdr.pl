@@ -6,20 +6,33 @@
  * Descr.: Prolog source file reader                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -74,11 +87,11 @@ sr_open(FileOrStream, D, Options) :-
 
 
           % option mask in sys_var[0]:
-          %   
-          % include         in b1/b0        treat/pass        
-          % op              in b3/b2          0 / 0 = kill   
-          % set_prolog_flag in b5/b4  code:   0 / 1 = ignore 
-          % char_conversion in b7/b6          1 / 0 = hide   
+          %
+          % include         in b1/b0        treat/pass
+          % op              in b3/b2          0 / 0 = kill
+          % set_prolog_flag in b5/b4  code:   0 / 1 = ignore
+          % char_conversion in b7/b6          1 / 0 = hide
           % module          in b9/b8          1 / 1 = reflect
 	  %
           % restart         in b16 (0/1)
@@ -165,7 +178,7 @@ sr_open(FileOrStream, D, Options) :-
 
 
 	  % '$sr_treat_pass_no'(Name, Arity, SubMaskPos)
-	
+
 '$sr_treat_pass_no'(include, 1, 0).
 '$sr_treat_pass_no'(op, 3, 1).
 '$sr_treat_pass_no'(set_prolog_flag, 2, 2).
@@ -195,7 +208,7 @@ sr_open(FileOrStream, D, Options) :-
 	 '$sys_var_set_bit'(0, BitTreat).
 
 
-	
+
 
 '$sr_open_new_prolog_file'(File) :-
 	'$call_c'('Pl_Prolog_File_Name_2'(File, File1)),
@@ -260,7 +273,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	%% '$sr_treat_term'(Term, SRError) handles a read term
 	%% It can fail to enforce backtracking and next term reading.
 	%% Warning: Term can be a variable - should not be altered.
-	
+
 '$sr_treat_term'(Term, SRError) :-
 	Term == end_of_file,
 	!,			% cut to backtrack to repeat
@@ -362,7 +375,7 @@ sr_read_term(D, Term, Options, SRError) :-
 '$sr_op_type'(xf, postfix).
 '$sr_op_type'(yf, postfix).
 
-	
+
 
 
 '$sr_start_module'(ModuleName, ModulePart, SRError) :-

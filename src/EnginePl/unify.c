@@ -6,20 +6,33 @@
  * Descr.: unification part                                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -136,7 +149,7 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 #ifndef NO_USE_FD_SOLVER
   if (v_tag_mask == TAG_INT_MASK && u_tag_mask == TAG_FDV_MASK)
     return Fd_Unify_With_Integer(UnTag_FDV(u_word), UnTag_INT(v_word));
-     
+
   if (v_tag_mask == TAG_FDV_MASK)
     {
       v_adr = UnTag_FDV(v_word);
@@ -146,13 +159,13 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 
       if (u_tag_mask != v_tag_mask) /* i.e. TAG_FDV_MASK */
 	return FALSE;
-      
+
       return Fd_Unify_With_Fd_Var(UnTag_FDV(u_word), v_adr);
     }
 #endif
 
   if (v_tag_mask == TAG_FLT_MASK)
-    return (u_tag_mask == v_tag_mask && 
+    return (u_tag_mask == v_tag_mask &&
 	    Pl_Obtain_Float(UnTag_FLT(u_word)) ==
 	    Pl_Obtain_Float(UnTag_FLT(v_word)));
 

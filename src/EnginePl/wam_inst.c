@@ -6,20 +6,33 @@
  * Descr.: WAM instruction implementation                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.            *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -58,7 +71,7 @@ DblInt;
  * Function Prototypes             *
  *---------------------------------*/
 
-static SwtInf *Locate_Swt_Element(SwtTbl t, int size, long key);
+static SwtInf *Locate_Swt_Element(SwtTbl t, int size, PlLong key);
 
 
 
@@ -126,7 +139,7 @@ void FC
 Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
 		       CodePtr codep)
 {
-  long key = Functor_Arity(func, arity);
+  PlLong key = Functor_Arity(func, arity);
 
   SwtInf *swt = Locate_Swt_Element(t, size, key);
 
@@ -141,7 +154,7 @@ Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static SwtInf *
-Locate_Swt_Element(SwtTbl t, int size, long key)
+Locate_Swt_Element(SwtTbl t, int size, PlLong key)
 {
   int n;
   SwtInf *swt, *endt;
@@ -151,7 +164,7 @@ Locate_Swt_Element(SwtTbl t, int size, long key)
 #if 1
   n = key % size;
 #else
-  n = (key ^ ((unsigned long) key >> 16)) % size;
+  n = (key ^ ((PlULong) key >> 16)) % size;
 #endif
 				/* here either the key is in the table */
 				/* or there is at least one free cell. */
@@ -242,7 +255,7 @@ Pl_Get_Integer_Tagged(WamWord w, WamWord start_word)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Get_Integer(long n, WamWord start_word)
+Pl_Get_Integer(PlLong n, WamWord start_word)
 {
   return Pl_Get_Integer_Tagged(Tag_INT(n), start_word);
 }
@@ -491,7 +504,7 @@ Pl_Put_Integer_Tagged(WamWord w)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 WamWord FC
-Pl_Put_Integer(long n)
+Pl_Put_Integer(PlLong n)
 {
   return Tag_INT(n);
 }
@@ -772,7 +785,7 @@ Pl_Unify_Integer_Tagged(WamWord w)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Unify_Integer(long n)
+Pl_Unify_Integer(PlLong n)
 {
   return Pl_Unify_Integer_Tagged(Tag_INT(n));
 }
@@ -1094,7 +1107,7 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
 {
   SwtInf *swt;
 
-  swt = Locate_Swt_Element(t, size, (long) UnTag_ATM(A(0)));
+  swt = Locate_Swt_Element(t, size, (PlLong) UnTag_ATM(A(0)));
 
   return (swt->codep) ? swt->codep : ALTB(B);
 }
@@ -1111,7 +1124,7 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-long FC
+PlLong FC
 Pl_Switch_On_Integer(void)
 {
   return UnTag_INT(A(0));

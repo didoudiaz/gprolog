@@ -1,14 +1,14 @@
-/*-------------------------------------------------------------------------* 
- * Prolog To Wam Compiler                INRIA Rocquencourt - CLoE Project * 
- * C Run-time                                           Daniel Diaz - 1994 * 
- *                                                                         * 
- * Machine Dependent Features - Header file                                * 
- *                                                                         * 
- * machine.h                                                               * 
+/*-------------------------------------------------------------------------*
+ * Prolog To Wam Compiler                INRIA Rocquencourt - CLoE Project *
+ * C Run-time                                           Daniel Diaz - 1994 *
+ *                                                                         *
+ * Machine Dependent Features - Header file                                *
+ *                                                                         *
+ * machine.h                                                               *
  *-------------------------------------------------------------------------*/
 
-/*---------------------------------* 
- * Asm Labels, Symbols and Gotos   * 
+/*---------------------------------*
+ * Asm Labels, Symbols and Gotos   *
  *---------------------------------*/
 
 #if defined(M_sony_news) || defined(M_ultrix_dec) || defined(M_alpha_osf) ||\
@@ -81,8 +81,8 @@
 
 
 
-/*---------------------------------* 
- * WAM                             * 
+/*---------------------------------*
+ * WAM                             *
  *---------------------------------*/
 
 #if 0

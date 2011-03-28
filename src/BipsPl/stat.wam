@@ -5,17 +5,17 @@
 file_name('/home/diaz/GP/src/src/BipsPl/stat.pl').
 
 
-predicate('$use_stat'/0,29,static,private,monofile,built_in,[
+predicate('$use_stat'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(statistics/0,32,static,private,monofile,built_in,[
+predicate(statistics/0,45,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[statistics,0]),
     call_c('Pl_Statistics_0',[],[]),
     proceed]).
 
 
-predicate(statistics/2,37,static,private,monofile,built_in,[
+predicate(statistics/2,50,static,private,monofile,built_in,[
     load_cut_level(2),
     allocate(5),
     get_variable(y(0),0),
@@ -36,7 +36,7 @@ predicate(statistics/2,37,static,private,monofile,built_in,[
     execute('$stat'/3)]).
 
 
-predicate('$statistics/2_$aux1'/3,37,static,private,monofile,local,[
+predicate('$statistics/2_$aux1'/3,50,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     get_list(0),
@@ -54,7 +54,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$check_stat_key'/1,49,static,private,monofile,built_in,[
+predicate('$check_stat_key'/1,62,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -136,7 +136,7 @@ label(21),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$stat'/3,75,static,private,monofile,built_in,[
+predicate('$stat'/3,88,static,private,monofile,built_in,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -214,7 +214,7 @@ label(16),
     proceed]).
 
 
-predicate('$$stat/3_$aux1'/2,75,static,private,monofile,local,[
+predicate('$$stat/3_$aux1'/2,88,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(1),
@@ -232,7 +232,7 @@ label(1),
     proceed]).
 
 
-predicate('$$stat/3_$aux2'/1,75,static,private,monofile,local,[
+predicate('$$stat/3_$aux2'/1,88,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -253,25 +253,25 @@ label(5),
     proceed]).
 
 
-predicate(user_time/1,108,static,private,monofile,built_in,[
+predicate(user_time/1,121,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[user_time,1]),
     call_c('Pl_User_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system_time/1,115,static,private,monofile,built_in,[
+predicate(system_time/1,128,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system_time,1]),
     call_c('Pl_System_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(cpu_time/1,122,static,private,monofile,built_in,[
+predicate(cpu_time/1,135,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[cpu_time,1]),
     call_c('Pl_Cpu_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(real_time/1,129,static,private,monofile,built_in,[
+predicate(real_time/1,142,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[real_time,1]),
     call_c('Pl_Real_Time_1',[boolean],[x(0)]),
     proceed]).

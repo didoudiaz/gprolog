@@ -5,173 +5,173 @@
 file_name('/home/diaz/GP/src/src/BipsPl/char_io.pl').
 
 
-predicate('$use_char_io'/0,29,static,private,monofile,built_in,[
+predicate('$use_char_io'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(get_key/1,32,static,private,monofile,built_in,[
+predicate(get_key/1,45,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key,1]),
     call_c('Pl_Get_Key_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(get_key/2,36,static,private,monofile,built_in,[
+predicate(get_key/2,49,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key,2]),
     call_c('Pl_Get_Key_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(get_key_no_echo/1,41,static,private,monofile,built_in,[
+predicate(get_key_no_echo/1,54,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key_no_echo,1]),
     call_c('Pl_Get_Key_No_Echo_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(get_key_no_echo/2,45,static,private,monofile,built_in,[
+predicate(get_key_no_echo/2,58,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key_no_echo,2]),
     call_c('Pl_Get_Key_No_Echo_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(get_char/1,54,static,private,monofile,built_in,[
+predicate(get_char/1,67,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_char,1]),
     call_c('Pl_Get_Char_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(get_char/2,58,static,private,monofile,built_in,[
+predicate(get_char/2,71,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_char,2]),
     call_c('Pl_Get_Char_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(get_code/1,65,static,private,monofile,built_in,[
+predicate(get_code/1,78,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_code,1]),
     call_c('Pl_Get_Code_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(get_code/2,69,static,private,monofile,built_in,[
+predicate(get_code/2,82,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_code,2]),
     call_c('Pl_Get_Code_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(get_byte/1,76,static,private,monofile,built_in,[
+predicate(get_byte/1,89,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_byte,1]),
     call_c('Pl_Get_Byte_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(get_byte/2,80,static,private,monofile,built_in,[
+predicate(get_byte/2,93,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_byte,2]),
     call_c('Pl_Get_Byte_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(unget_char/1,90,static,private,monofile,built_in,[
+predicate(unget_char/1,103,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_char,1]),
     call_c('Pl_Unget_Char_1',[],[x(0)]),
     proceed]).
 
 
-predicate(unget_char/2,94,static,private,monofile,built_in,[
+predicate(unget_char/2,107,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_char,2]),
     call_c('Pl_Unget_Char_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(unget_code/1,101,static,private,monofile,built_in,[
+predicate(unget_code/1,114,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_code,1]),
     call_c('Pl_Unget_Code_1',[],[x(0)]),
     proceed]).
 
 
-predicate(unget_code/2,105,static,private,monofile,built_in,[
+predicate(unget_code/2,118,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_code,2]),
     call_c('Pl_Unget_Code_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(unget_byte/1,112,static,private,monofile,built_in,[
+predicate(unget_byte/1,125,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_byte,1]),
     call_c('Pl_Unget_Byte_1',[],[x(0)]),
     proceed]).
 
 
-predicate(unget_byte/2,116,static,private,monofile,built_in,[
+predicate(unget_byte/2,129,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_byte,2]),
     call_c('Pl_Unget_Byte_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(peek_char/1,125,static,private,monofile,built_in,[
+predicate(peek_char/1,138,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_char,1]),
     call_c('Pl_Peek_Char_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(peek_char/2,129,static,private,monofile,built_in,[
+predicate(peek_char/2,142,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_char,2]),
     call_c('Pl_Peek_Char_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(peek_code/1,136,static,private,monofile,built_in,[
+predicate(peek_code/1,149,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_code,1]),
     call_c('Pl_Peek_Code_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(peek_code/2,140,static,private,monofile,built_in,[
+predicate(peek_code/2,153,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_code,2]),
     call_c('Pl_Peek_Code_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(peek_byte/1,147,static,private,monofile,built_in,[
+predicate(peek_byte/1,160,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_byte,1]),
     call_c('Pl_Peek_Byte_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(peek_byte/2,151,static,private,monofile,built_in,[
+predicate(peek_byte/2,164,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_byte,2]),
     call_c('Pl_Peek_Byte_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(put_char/1,160,static,private,monofile,built_in,[
+predicate(put_char/1,173,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_char,1]),
     call_c('Pl_Put_Char_1',[],[x(0)]),
     proceed]).
 
 
-predicate(put_char/2,164,static,private,monofile,built_in,[
+predicate(put_char/2,177,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_char,2]),
     call_c('Pl_Put_Char_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(put_code/1,171,static,private,monofile,built_in,[
+predicate(put_code/1,184,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_code,1]),
     call_c('Pl_Put_Code_1',[],[x(0)]),
     proceed]).
 
 
-predicate(put_code/2,175,static,private,monofile,built_in,[
+predicate(put_code/2,188,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_code,2]),
     call_c('Pl_Put_Code_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(put_byte/1,182,static,private,monofile,built_in,[
+predicate(put_byte/1,195,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_byte,1]),
     call_c('Pl_Put_Byte_1',[],[x(0)]),
     proceed]).
 
 
-predicate(put_byte/2,186,static,private,monofile,built_in,[
+predicate(put_byte/2,199,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_byte,2]),
     call_c('Pl_Put_Byte_2',[],[x(0),x(1)]),
     proceed]).

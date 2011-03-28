@@ -6,20 +6,33 @@
  * Descr.: sort management - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -53,10 +66,10 @@ static WamWord minus_2;
  * Function Prototypes             *
  *---------------------------------*/
 
-static long Keysort_Cmp(WamWord u_word, WamWord v_word);
+static PlLong Keysort_Cmp(WamWord u_word, WamWord v_word);
 
 static int Merge_Sort(WamWord *base, WamWord *aux, int n,
-		      Bool keep_dup, long (*cmp) ());
+		      Bool keep_dup, PlLong (*cmp) ());
 
 
 
@@ -193,14 +206,14 @@ Pl_Sort_List_1(WamWord list_word)
  * KEYSORT_CMP                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Keysort_Cmp(WamWord u_word, WamWord v_word)
 {
   /* here we know that u_word and v_word are dereferenced (and are pairs) */
- 
+
   u_word = Arg(UnTag_STC(u_word), 0);
   v_word = Arg(UnTag_STC(v_word), 0);
-  
+
   return Pl_Term_Compare(u_word, v_word);
 }
 
@@ -215,7 +228,7 @@ Keysort_Cmp(WamWord u_word, WamWord v_word)
  * elements of the array (2 WamWords) and classically returns <0, 0, >0.   *
  *-------------------------------------------------------------------------*/
 static int
-Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, long (*cmp) ())
+Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, PlLong (*cmp) ())
 {
   WamWord *l1, *l2;
   int n1, n2;

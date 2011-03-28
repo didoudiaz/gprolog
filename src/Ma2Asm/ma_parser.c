@@ -6,20 +6,33 @@
  * Descr.: mini-assembler parser                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -122,7 +135,7 @@ char *cur_line_p;
 char *beg_last_token;
 
 char str_val[MAX_STR_LEN];
-long int_val;
+PlLong int_val;
 double dbl_val;
 
 
@@ -173,11 +186,11 @@ Parse_Ma_File(char *file_name_in, int comment)
       return 0;
     }
 
-  for(i = 1; i <= nb_passes; i++) 
+  for(i = 1; i <= nb_passes; i++)
     {
-      if (i == 2 && fseek(file_in, 0, SEEK_SET) == -1) 
+      if (i == 2 && fseek(file_in, 0, SEEK_SET) == -1)
 	{
-	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", 
+	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n",
 		  file_name_in);
 	  return 0;
 	}
@@ -186,7 +199,7 @@ Parse_Ma_File(char *file_name_in, int comment)
 
       if ((ret_val = setjmp(jumper)) == 0)
 	Parser(i, nb_passes);
-  
+
       if (ret_val != 0)
 	return 0;
     }
@@ -251,7 +264,7 @@ Parser(int pass_no, int nb_passes)
 	  Read_Token(IDENTIFIER);
 	  if (Pre_Pass())
 	    Decl_Code(strdup(str_val), 1, global);
-	  else 
+	  else
 	    {
 	      Code_Start(str_val, 1, global);
 	      reload_e = 1;
@@ -662,7 +675,7 @@ static int
 Scanner(void)
 {
   char *p, *p1;
-  long i;
+  PlLong i;
   double d;
   double strtod();
 
@@ -675,7 +688,7 @@ Scanner(void)
       if (*cur_line_p != '\0' && *cur_line_p != ';')
 	break;
 
-      if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */ 
+      if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */
 	;
       if (feof(file_in))
 	return 0;
@@ -753,7 +766,7 @@ Scanner(void)
       return IDENTIFIER;
     }
 
-  i = strtol(cur_line_p, &p, 0);
+  i = strtoll(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;
   d = strtod(cur_line_p, &p1);

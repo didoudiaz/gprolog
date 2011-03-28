@@ -6,20 +6,33 @@
  * Descr.: FD instruction implementation                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -59,8 +72,8 @@ static WamWord *TP;
 
 static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
-static unsigned long always_date = -1;	/* must be always > DATE */
-static unsigned long never_date = 0;	/* must be always < DATE */
+static PlULong always_date = -1;	/* must be always > DATE */
+static PlULong never_date = 0;	/* must be always < DATE */
 
 void (*pl_fd_init_solver) () = Pl_Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
 void (*pl_fd_reset_solver) () = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
@@ -317,10 +330,10 @@ Pl_Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
 
   if (tag_mask == TAG_INT_MASK)
     return Pl_Fd_New_Int_Variable(UnTag_INT(word));
-  
+
   if (tag_mask == TAG_FDV_MASK)
     return UnTag_FDV(word);
-  
+
   Pl_Err_Type(pl_type_fd_variable, word);
   return NULL;
 }
@@ -396,7 +409,7 @@ Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
   for (;;)
     {
       DEREF(list_word, word, tag_mask);
-      
+
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
@@ -629,7 +642,7 @@ Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Pl_Fd_Create_C_Frame(long (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
+Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
 		  Bool optim2)
 {
   WamWord *CF = CS;
@@ -784,6 +797,8 @@ Pl_Fd_Before_Add_Cstr(void)
 {
   TP = dummy_fd_var;
   DATE++;
+  if (DATE < 0)
+    DATE = 1;
 }
 
 
@@ -1070,10 +1085,10 @@ Pl_Fd_After_Add_Cstr(void)
   WamWord *chain_adr;
   WamWord *CF;
   WamWord *BP;
-  unsigned long date = DATE;
-  unsigned long *pdate;
+  PlULong date = DATE;
+  PlULong *pdate;
   WamWord *AF;
-  long (*fct) ();
+  PlLong (*fct) ();
 
   if (TP == dummy_fd_var)
     return TRUE;
@@ -1099,7 +1114,7 @@ Pl_Fd_After_Add_Cstr(void)
 
 #if 1
 		/* optim #2 */
-		pdate = (unsigned long *) Optim_Pointer(CF);
+		pdate = (PlULong *) Optim_Pointer(CF);
 		if (*pdate < date)
 		  continue;
 #endif
@@ -1107,12 +1122,12 @@ Pl_Fd_After_Add_Cstr(void)
 		fct = Cstr_Address(CF);
 		AF = AF_Pointer(CF);
 
-		fct = (long (*)()) (*fct) (AF);
+		fct = (PlLong (*)()) (*fct) (AF);
 
-		if (fct == (long (*)()) FALSE)
+		if (fct == (PlLong (*)()) FALSE)
 		  return FALSE;
 #if 1				/* FD switch */
-		if (fct != (long (*)()) TRUE)	/* FD switch case triggered */
+		if (fct != (PlLong (*)()) TRUE)	/* FD switch case triggered */
 		  {
 		    if ((*fct) (AF) == FALSE)
 		      return FALSE;
@@ -1263,7 +1278,7 @@ Pl_Fd_Check_For_Bool_Var(WamWord x_word)
     }
 
   if (tag_mask == TAG_INT_MASK)
-    return (unsigned long) (UnTag_INT(word)) <= 1;
+    return (PlULong) (UnTag_INT(word)) <= 1;
 
   if (tag_mask != TAG_FDV_MASK)
     Pl_Err_Type(pl_type_fd_variable, word);
@@ -1283,15 +1298,15 @@ Pl_Fd_Check_For_Bool_Var(WamWord x_word)
 
   if (!Pl_Range_Test_Value(Range(fdv_adr), 1))
     return Pl_Fd_Unify_With_Integer0(fdv_adr, 0);
-  
+
 
 				/* Check Bool == X in 0..1 */
   Pl_Fd_Before_Add_Cstr();
-  
+
   if (Is_Sparse(Range(fdv_adr)))
     {
       Range_Init_Interval(&range, 0, 1);
-      
+
       if (!Pl_Fd_Tell_Range_Range(fdv_adr, &range))
 	return FALSE;
     }

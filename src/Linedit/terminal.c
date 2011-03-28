@@ -6,20 +6,33 @@
  * Descr.: basic terminal operations                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -92,7 +105,9 @@ typedef struct termio TermIO;
 
 static int pl_use_gui = 1;
 static int use_ansi = 1;
-static int fd_in = 0;		/* not changed */
+#if defined(__unix__) || defined(__CYGWIN__)
+static int fd_in = 0;           /* not changed */
+#endif
 static int fd_out = -1;
 
 #if defined(__unix__) || defined(__CYGWIN__)
@@ -206,13 +221,13 @@ Pl_LE_Initialize(void)
 
 #elif defined(_WIN32)
 
-  if (pl_le_hook_put_char == Pl_LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)    /* DOS console mode */
     {
       h_stdin = GetStdHandle(STD_INPUT_HANDLE);
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
     }
 
-  interrupt_key = KEY_CTRL('C');	/* WIN32: interrupt = CTRL+C */
+  interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
 
 #endif
 
@@ -236,7 +251,7 @@ Parse_Env_Var(void)
 
   if (strstr(p, "gui=no") != NULL)
     pl_use_gui = 0;
-      
+
   if (strstr(p, "ansi=no") != NULL)
     use_ansi = 0;
 
@@ -245,18 +260,18 @@ Parse_Env_Var(void)
       p += 4;
 
       if (isdigit(*p))
-	fd_out = strtol(p, NULL, 10);
+        fd_out = strtol(p, NULL, 10);
       else
-	{
-	  char buff[1024];
-	  char *q = buff;
+        {
+          char buff[1024];
+          char *q = buff;
 
-	  while(*p && isprint(*p) && !isspace(*p))
-	    *q++ = *p++;
+          while(*p && isprint(*p) && !isspace(*p))
+            *q++ = *p++;
 
-	  *q = '\0';
-	  fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
-	}
+          *q = '\0';
+          fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
+        }
     }
 }
 
@@ -272,7 +287,7 @@ Parse_Env_Var(void)
 static void
 Choose_Fd_Out(void)
 {
-  int fd[3] = { 1, 0, 2 };	/* order fd list to try to find a tty */
+  int fd[3] = { 1, 0, 2 };      /* order fd list to try to find a tty */
   int i, try;
   int mask;
   char *p;
@@ -282,17 +297,17 @@ Choose_Fd_Out(void)
       try = fd[i];
 
       if (!isatty(try))
-	continue;
+        continue;
 
       mask = fcntl(try, F_GETFL);
       if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
-	{
-	  fd_out = try;
-	  break;
-	}
+        {
+          fd_out = try;
+          break;
+        }
 
       if ((p = ttyname(try)) != NULL)
-	fd_out = open(p, O_WRONLY);
+        fd_out = open(p, O_WRONLY);
     }
 
   if (fd_out < 0)
@@ -338,7 +353,7 @@ Pl_LE_Open_Terminal(void)
 
 #elif defined(_WIN32)
 
-  if (pl_le_hook_put_char == Pl_LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)    /* DOS console mode */
     {
       h_stdin = GetStdHandle(STD_INPUT_HANDLE);
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -346,7 +361,7 @@ Pl_LE_Open_Terminal(void)
       SetConsoleMode(h_stdin, im & ~ENABLE_PROCESSED_INPUT);
     }
 
-  interrupt_key = KEY_CTRL('C');	/* WIN32: interrupt = CTRL+C */
+  interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
 
 #endif
 }
@@ -371,7 +386,7 @@ Pl_LE_Close_Terminal(void)
 
 #elif defined(_WIN32)
 
-  if (pl_le_hook_put_char == Pl_LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)    /* DOS console mode */
     SetConsoleMode(h_stdin, im);
 
 #endif
@@ -396,10 +411,10 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
   new->c_oflag = OPOST | ONLCR;
   new->c_lflag &= ~(ICANON | ECHO | ECHONL);
 
-  new->c_cc[VMIN] = 1;		/* MIN # of chars */
-  new->c_cc[VTIME] = 1;		/* TIME */
+  new->c_cc[VMIN] = 1;          /* MIN # of chars */
+  new->c_cc[VTIME] = 1;         /* TIME */
 
-  new->c_cc[VINTR] = -1;	/* deactivate SIGINT signal */
+  new->c_cc[VINTR] = -1;        /* deactivate SIGINT signal */
 }
 
 #endif
@@ -554,30 +569,30 @@ Pl_LE_Put_Char(int c)
       char buf[20];
 
       switch(c)
-	{
-	case '\b':
-	  if (pos == 0)
-	    {
-	      pos = nb_cols - 1;
-	      sprintf(buf, "\033[A\033[%dC", pos);
-	      if (write(fd_out, buf, strlen(buf))) /* to avoidgcc warning warn_unused_result */
-		;
-	      return;
-	    }
-	  pos--;
-	  break;
+        {
+        case '\b':
+          if (pos == 0)
+            {
+              pos = nb_cols - 1;
+              sprintf(buf, "\033[A\033[%dC", pos);
+              if (write(fd_out, buf, strlen(buf))) /* to avoidgcc warning warn_unused_result */
+                ;
+              return;
+            }
+          pos--;
+          break;
 
-	case '\a':
-	  break;
+        case '\a':
+          break;
 
-	case '\n':
-	  pos = 0;
-	  break;
+        case '\n':
+          pos = 0;
+          break;
 
-	default:
-	  if (++pos > nb_cols)
-	    pos = 1;
-	}
+        default:
+          if (++pos > nb_cols)
+            pos = 1;
+        }
     }
 
   c0 = c;
@@ -591,7 +606,7 @@ Pl_LE_Put_Char(int c)
   if (c != '\b')
     {
 #ifdef WIN32_CONVERT_OEM_ASCII
-      unsigned char buff[2];
+      char buff[2];
 
       buff[0] = c;
       buff[1] = '\0';
@@ -637,25 +652,25 @@ Pl_LE_Get_Char(void)
 
       esc_c = GET_CHAR0;
 #if defined(__unix__) || defined(__CYGWIN__)
-      if (esc_c == '[' || esc_c == 'O')	/* keyboard ANSI ESC sequence */
-	{
-	  if ((c = GET_CHAR0) == '[')
-	    c = GET_CHAR0;
+      if (esc_c == '[' || esc_c == 'O') /* keyboard ANSI ESC sequence */
+        {
+          if ((c = GET_CHAR0) == '[')
+            c = GET_CHAR0;
           if (isdigit(c))
-	    {
-	      esc_c = c;
-	      c = 0;
-	      while (esc_c != '~')
-		{
-		  c = c * 10 + esc_c - '0';
-		  esc_c = GET_CHAR0;
-		}
-	    }
-	  c = (1 << 8) | c;
-	}
+            {
+              esc_c = c;
+              c = 0;
+              while (esc_c != '~')
+                {
+                  c = c * 10 + esc_c - '0';
+                  esc_c = GET_CHAR0;
+                }
+            }
+          c = (1 << 8) | c;
+        }
       else
 #endif
-	c = KEY_ESC(esc_c);
+        c = KEY_ESC(esc_c);
     }
 
   return c;
@@ -684,7 +699,7 @@ LE_Get_Char0(void)
   DWORD nb;
   int c;
 
-read_char:
+ read_char:
   if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &nb))
     return -1;
 
@@ -692,29 +707,29 @@ read_char:
     {
     case KEY_EVENT:
       if (!ir.Event.KeyEvent.bKeyDown)
-	goto read_char;
+        goto read_char;
       c = ir.Event.KeyEvent.uChar.AsciiChar & 0xff;
       if (c == 0 || c == 0xe0)
-	{
-	  c = ir.Event.KeyEvent.wVirtualKeyCode;
-	  if (c < 0x15 || c > 0x87)	/* e.g. CTRL key alone */
-	    goto read_char;
-	  if (ir.Event.KeyEvent.dwControlKeyState &
-	      (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED))
-	    c = (2 << 8) | c;
-	  else
-	    c = (1 << 8) | c;
-	}
+        {
+          c = ir.Event.KeyEvent.wVirtualKeyCode;
+          if (c < 0x15 || c > 0x87)     /* e.g. CTRL key alone */
+            goto read_char;
+          if (ir.Event.KeyEvent.dwControlKeyState &
+              (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED))
+            c = (2 << 8) | c;
+          else
+            c = (1 << 8) | c;
+        }
 #ifdef WIN32_CONVERT_OEM_ASCII
       else
-	{
-	  unsigned char buff[2];
+        {
+          char buff[2];
 
-	  buff[0] = c;
-	  buff[1] = '\0';
-	  OemToChar(buff, buff);
-	  c = buff[0];
-	}
+          buff[0] = c;
+          buff[1] = '\0';
+          OemToChar(buff, buff);
+          c = buff[0];
+        }
 #endif
       break;
 

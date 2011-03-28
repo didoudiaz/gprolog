@@ -6,20 +6,33 @@
  * Descr.: term (inline) management - C part                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -42,8 +55,8 @@
  * Global Variables                *
  *---------------------------------*/
 
-static long *var_ptr;
-static long *base_var_ptr;
+static PlLong *var_ptr;
+static PlLong *base_var_ptr;
 
 /*---------------------------------*
  * Function Prototypes             *
@@ -231,7 +244,7 @@ Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK && 
+  if (tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK &&
       tag_mask != TAG_FLT_MASK)
     Pl_Err_Type(pl_type_atomic, functor_word);
 
@@ -318,7 +331,7 @@ Pl_Blt_Univ(WamWord term_word, WamWord list_word)
       adr = UnTag_FDV(word);
       car_word = Tag_REF(adr);	/* since Dont_Separate_Tag */
       lst_length = 1 + 0;
-    } 
+    }
 #endif
   else				/* TAG_ATM/INT/FLT_MASK */
     {
@@ -448,7 +461,7 @@ Pl_Copy_Term_2(WamWord u_word, WamWord v_word)
   static WamWord fix_bug;
 
   size = Pl_Term_Size(u_word);
-  fix_bug = u_word;	
+  fix_bug = u_word;
   Pl_Copy_Term(H, &fix_bug);
   word = *H;
   H += size;
@@ -547,12 +560,12 @@ Pl_Term_Ref_2(WamWord term_word, WamWord ref_word)
 Bool
 Pl_Term_Variables_3(WamWord start_word, WamWord list_word, WamWord tail_word)
 {
-  long *p;
+  PlLong *p;
 
-  /* only check if no Tail since if there is no vars in Term 
+  /* only check if no Tail since if there is no vars in Term
    * then List = Tail and Tail can be any term */
 
-  if (tail_word == NOT_A_WAM_WORD) 
+  if (tail_word == NOT_A_WAM_WORD)
     Pl_Check_For_Un_List(list_word);
 
   var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores variables */
@@ -593,21 +606,21 @@ Pl_Term_Variables_2(WamWord start_word, WamWord list_word)
 static Bool
 Collect_Variable(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
 
   for (p = pl_glob_dico_var; p < var_ptr; p++)
-    if (*p == (long) adr)	/* already present */
+    if (*p == (PlLong) adr)	/* already present */
       return TRUE;
 
   if (var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *var_ptr++ = (long) adr;
+  *var_ptr++ = (PlLong) adr;
 
   return TRUE;
 }
 
-  
+
 
 /*-------------------------------------------------------------------------*
  * PL_SUBSUMES_TERM_2                                                      *
@@ -635,12 +648,12 @@ Pl_Subsumes_Term_2(WamWord general_word, WamWord specific_word)
   base_var_ptr = var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores variables */
 
 
-  Pl_Treat_Vars_Of_Term(specific_word, TRUE, Collect_Variable); 
+  Pl_Treat_Vars_Of_Term(specific_word, TRUE, Collect_Variable);
 
   /* TODO: improve FD vars (possible ?) */
 
   ret = Pl_Unify_Occurs_Check(general_word, specific_word) &&
-    Pl_Treat_Vars_Of_Term(specific_word, TRUE, Check_Variable) && 
+    Pl_Treat_Vars_Of_Term(specific_word, TRUE, Check_Variable) &&
     base_var_ptr == var_ptr;
 
   Pl_Defeasible_Close(FALSE);	/* undo bindings */
@@ -659,13 +672,13 @@ Check_Variable(WamWord *adr, WamWord var_word)
 {
   WamWord word, tag_mask;
   WamWord *adr1;
-  long *p;
+  PlLong *p;
 
   if (Tag_Of(var_word) == FDV)	/* improve FDV */
     return FALSE;
 
   for (p = pl_glob_dico_var; p < base_var_ptr; p++) /* check if already found until now */
-    if (*p == (long) adr)	/* test if already present (thus well dereferenced) */
+    if (*p == (PlLong) adr)	/* test if already present (thus well dereferenced) */
       return TRUE;
 
   if (base_var_ptr >= var_ptr)
@@ -676,13 +689,13 @@ Check_Variable(WamWord *adr, WamWord var_word)
   DEREF(*base_var_ptr, word, tag_mask);
   if (Tag_Of(word) != REF)	/* TODO: treat FD vars */
     return FALSE;		/* specific has been instantiated - no longer a var */
-  
+
   adr1 = UnTag_REF(word); /* save dereferenced adr */
 
   if (adr1 != adr) /*  check if it is the current variable */
     return FALSE;  /* not ok */
 
-  *base_var_ptr = (long) adr1;	/* replace adr by dereferenced adr */
+  *base_var_ptr = (PlLong) adr1;	/* replace adr by dereferenced adr */
   base_var_ptr++;
   return TRUE;
 }

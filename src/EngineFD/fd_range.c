@@ -6,20 +6,33 @@
  * Descr.: FD Range Implementation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -44,11 +57,11 @@
  * INTERVAL_MAX_INTEGER: an integer constant corresponding to the greatest *
  *                       value for intervals (i.e. 0..INTERVAL_MAX_INTEGER)*
  *                                                                         *
- * pl_vec_max_integer     : an integer variable corresponding to the greatest *
- *                       value for vectors   (i.e. 0..pl_vec_max_integer).    *
- * pl_vec_size            : an integer variable corresponding to the size of a*
- *                       vector in words (i.e. pl_vec_max_integer/WORD_SIZE)  *
- *                       (see Pl_Define_Vector_Size() function).              *
+ * pl_vec_max_integer  : an integer variable corresponding to the greatest *
+ *                       value for vectors   (i.e. 0..pl_vec_max_integer). *
+ * pl_vec_size         : an integer variable corresponding to the size of a*
+ *                       vector in words(i.e. pl_vec_max_integer/WORD_SIZE)*
+ *                       (see Pl_Define_Vector_Size() function).           *
  *                                                                         *
  * RANGE_TOP_STACK     : a long * variable corresponding to the top of the *
  *                       stack where are allocated the bit-vectors.        *
@@ -60,7 +73,7 @@
  *                                                                         *
  * The following macros can be redefined:                                  *
  *                                                                         *
- * WORD_SIZE           : a constant defining sizeof(long) in bits (32/64). *
+ * WORD_SIZE           : a constant defining sizeof(void*) in bits (32/64).*
  *-------------------------------------------------------------------------*/
 
 
@@ -228,7 +241,7 @@ Pl_Vector_Next_After(Vector vec, int n)
 
       start = vec + word_no;
 
-      word = (bit_no == WORD_SIZE) ? 0 : *start & ~((1L << bit_no) - 1);
+      word = (bit_no == WORD_SIZE) ? 0 : *start & ~(((PlLong)1 << bit_no) - 1);
     }
   else				/* n < 0 find first */
     {
@@ -280,7 +293,7 @@ Pl_Vector_Next_Before(Vector vec, int n)
 
       end = vec + word_no;
 
-      word = *end & ((1L << bit_no) - 1);
+      word = *end & (((PlLong)1 << bit_no) - 1);
     }
   else				/* n > pl_vec_max_integer find last */
     {

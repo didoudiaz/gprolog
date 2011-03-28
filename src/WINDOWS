@@ -1,4 +1,6 @@
-			Windows installation instructions
+			Windows compilation/installation instructions
+                         Daniel Diaz
+
 
 This file describes how to compile GNU Prolog on Windows machines.
 There are actually 3 ports:
@@ -144,7 +146,7 @@ C:\Program Files\Microsoft Visual Studio 10.0\VC).  Anyway, your PATH shoud
 contain the cl.exe command-line compiler, INCLUDE and LIB should be correctly
 set. NB: for MSVC6.0: its lib directory should appear before the lib
 directory of the SDK (else an error occurs when linking the GUI console).
-See also: http://msdn.microsoft.com/en-us/library/f2ccy3wt%28v=VS.100%29.aspx
+See also: http://msdn.microsoft.com/en-us/library/f2ccy3wt%28v=VS.100%29.aspx 
 
 
 

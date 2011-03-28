@@ -5,13 +5,13 @@
 file_name('/home/diaz/GP/src/src/BipsPl/no_le_interf.pl').
 
 
-predicate('$use_le_interf'/0,29,static,private,monofile,built_in,[
+predicate('$use_le_interf'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$get_linedit_prompt'/1,32,static,private,monofile,built_in,[
+predicate('$get_linedit_prompt'/1,45,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$set_linedit_prompt'/1,34,static,private,monofile,built_in,[
+predicate('$set_linedit_prompt'/1,47,static,private,monofile,built_in,[
     proceed]).

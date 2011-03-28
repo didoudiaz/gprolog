@@ -6,20 +6,33 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -30,15 +43,16 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"		/* ensure __unix__ defined if not Win32 */
+#include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#include <windows.h>		/* warning: windows.h defines _WIN32 */
+#include <windows.h>            /* warning: windows.h defines _WIN32 */
 #endif
 
 #if defined(__unix__) || defined(__CYGWIN__)
@@ -56,8 +70,8 @@
 #include <direct.h>
 #endif
 
-#include "engine_pl.h"		/* before netdb.h which declares a function */
-			 /* gcc cannot define a global reg var after a fct */
+#include "engine_pl.h"          /* before netdb.h which declares a function */
+                         /* gcc cannot define a global reg var after a fct */
 
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
@@ -92,22 +106,22 @@
 
 
 
-	  /* Error Messages */
+          /* Error Messages */
 
 #define ERR_STACKS_ALLOCATION      "Memory allocation fault"
 
 #define ERR_CANNOT_OPEN_DEV0       "Cannot open /dev/zero : %s"
 #define ERR_CANNOT_UNMAP           "unmap failed : %s"
 
-#define ERR_CANNOT_FREE        	   "VirtualFree failed : %lu"
-#define ERR_CANNOT_PROTECT         "VirtualProtect failed : %lu"
+#define ERR_CANNOT_FREE            "VirtualFree failed : %" PL_FMT_u
+#define ERR_CANNOT_PROTECT         "VirtualProtect failed : %" PL_FMT_u
 
 #define ERR_CANNOT_EXEC_GETCWD     "cannot execute getcwd"
 
 
-#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, environment variable used: %s)"
+#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, reached: %d Kb, environment variable used: %s)"
 
-#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb - fixed size)"
+#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb, reached: %d Kb - fixed size)"
 
 
 
@@ -120,9 +134,9 @@
  * Global Variables                *
  *---------------------------------*/
 
-static long start_user_time = 0;
-static long start_system_time = 0;
-static long start_real_time = 0;
+static PlLong start_user_time = 0;
+static PlLong start_system_time = 0;
+static PlLong start_real_time = 0;
 
 static int cur_seed = 1;
 
@@ -213,7 +227,7 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
 #if defined(_WIN32) || defined(__CYGWIN__)
 
   addr = (WamWord *) VirtualAlloc(addr, length,
-				  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+                                  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 #elif defined(HAVE_MMAP)
 
@@ -228,16 +242,16 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
 #endif /* !MAP_ANON */
 
   addr = (WamWord *) mmap((void *) addr, length, PROT_READ | PROT_WRITE,
-			  MAP_PRIVATE
+                          MAP_PRIVATE
 #ifdef MMAP_NEEDS_FIXED
-			  | MAP_FIXED
+                          | MAP_FIXED
 #endif
 #ifdef MAP_ANON
-			  | MAP_ANON, -1,
+                          | MAP_ANON, -1,
 #else
-			  , fd,
+                          , fd,
 #endif /* !MAP_ANON */
-			  0);
+                          0);
 
   if (addr == (WamWord *) -1)
     addr = NULL;
@@ -271,13 +285,13 @@ Virtual_Mem_Free(WamWord *addr, int length)
   if (munmap((void *) addr, length) == -1)
     Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
 
-#else 
+#else
 
   Free(addr);
-  
+
 #endif
 }
-#endif	/* TAG_SIZE_HIGH > 0 */
+#endif  /* TAG_SIZE_HIGH > 0 */
 
 
 
@@ -288,7 +302,7 @@ Virtual_Mem_Free(WamWord *addr, int length)
 static void
 Virtual_Mem_Protect(WamWord *addr, int length)
 {
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
   DWORD old_prot;
 
   if (!VirtualProtect(addr, length, PAGE_NOACCESS, &old_prot))
@@ -305,7 +319,8 @@ Virtual_Mem_Protect(WamWord *addr, int length)
 #else
 
   addr[0] = M_MAGIC1;
-  addr[1] = M_MAGIC2;		/* and rest (addr[1...]) should be 0 */
+  addr[1] = M_MAGIC2;           /* and rest (addr[2...]) should be 0 */
+  addr[8] = 0;
 
 #endif
 }
@@ -325,7 +340,7 @@ Pl_M_Allocate_Stacks(void)
   int i;
   WamWord *addr_to_try[] = {
 #ifndef MMAP_NEEDS_FIXED
-    NULL, 
+    NULL,
 #endif
 #ifdef M_MMAP_HIGH_ADR1
     (WamWord *) M_MMAP_HIGH_ADR1,
@@ -355,10 +370,10 @@ Pl_M_Allocate_Stacks(void)
       DBGPRINTF("trying at high addr: %p --> ", addr);
 #endif
       if (addr)
-	{
-	  addr = (WamWord *) Round_Down((long) addr, getpagesize());
-	  addr -= length;
-	}
+        {
+          addr = (WamWord *) Round_Down((PlLong) addr, getpagesize());
+          addr -= length;
+        }
 #ifdef DEBUG
       DBGPRINTF("base: %p length: %d\n", addr, length);
 #endif
@@ -367,14 +382,14 @@ Pl_M_Allocate_Stacks(void)
       DBGPRINTF("obtaining: %p\n", addr);
 #endif
 #if TAG_SIZE_HIGH > 0
-      if (addr && (((unsigned long) (addr) + length) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
-	{
+      if (addr && (((PlULong) (addr) + length) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
+        {
 #ifdef DEBUG
-	  DBGPRINTF("  -> invalid high bits addr\n");
+          DBGPRINTF("  -> invalid high bits addr\n");
 #endif
-	  Virtual_Mem_Free(addr, length);
-	  addr = NULL;
-	}
+          Virtual_Mem_Free(addr, length);
+          addr = NULL;
+        }
 #endif /* TAG_SIZE_HIGH > 0 */
     }
 
@@ -391,7 +406,7 @@ Pl_M_Allocate_Stacks(void)
 
 #if defined(HAVE_WORKING_SIGACTION) || \
   defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-  defined(M_ix86_sco) || defined(M_x86_64)
+  defined(M_ix86_sco) || defined(M_x86_64_solaris)
 
   {
     struct sigaction act;
@@ -406,7 +421,7 @@ Pl_M_Allocate_Stacks(void)
 #endif
   }
 
-#elif !defined(_WIN32) && !defined(__CYGWIN__)
+#elif !defined(USE_SEH)
   signal(SIGSEGV, (void (*)()) SIGSEGV_Handler);
 #endif
 }
@@ -414,24 +429,24 @@ Pl_M_Allocate_Stacks(void)
 
 
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
 
 /*-------------------------------------------------------------------------*
  * WIN32_SEH_HANDLER                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 EXCEPT_DISPOSITION
-Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame, 
-		  CONTEXT *context_rec, void *dispatcher_cxt)
+Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
+                  CONTEXT *context_rec, void *dispatcher_cxt)
 {
   WamWord *addr;
-  
+
   if (excp_rec->ExceptionFlags)
     return ExceptContinueSearch; /* unwind and others */
 
   if (excp_rec->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
     return ExceptContinueSearch;
-  
+
   addr = (WamWord *) excp_rec->ExceptionInformation[1];
   SIGSEGV_Handler(addr);
   return ExceptContinueExecution;
@@ -464,7 +479,7 @@ SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 #include <asm/sigcontext.h>
 #endif
 
-#if 0				/* old linux */
+#if 0                           /* old linux */
 static void
 SIGSEGV_Handler(int sig, struct sigcontext_struct scp)
 #else
@@ -512,7 +527,7 @@ SIGSEGV_Handler(int sig)
 
 #elif defined(M_alpha_linux)
 
-  WamWord *addr = (WamWord *) (scp.sc_fp_trigger_inst);	/* why this one? */
+  WamWord *addr = (WamWord *) (scp.sc_fp_trigger_inst); /* why this one? */
 
   /* WamWord *addr=(WamWord *) (scp.sc_traparg_a0); */
 
@@ -541,10 +556,10 @@ SIGSEGV_Handler(int sig)
 
   WamWord *addr = scp->sc_regs[16];
 
-#elif defined(_WIN32)
-				/* addr passed as argument */
+#elif defined(USE_SEH)
+                                /* addr passed as argument */
 #else
-				/* cannot detect fault addr */
+                                /* cannot detect fault addr */
 #warning SIGSEGV_Handler does not know how to detect fault addr - use magic numbers
 
 #define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
@@ -561,7 +576,7 @@ SIGSEGV_Handler(int sig)
   int i;
 
 #ifdef DEBUG
-  DBGPRINTF("BAD ADDRESS:%lx\n", (long) addr);
+  DBGPRINTF("BAD ADDRESS:%" PL_FMT_x "\n", (PlLong) addr);
 #endif
 
   i = NB_OF_STACKS - 1;
@@ -569,12 +584,12 @@ SIGSEGV_Handler(int sig)
     while (i >= 0)
       {
 #ifdef DEBUG
-	DBGPRINTF("STACK[%d].stack + size: %lx\n",
-		  i, (long) (pl_stk_tbl[i].stack + pl_stk_tbl[i].size));
+        DBGPRINTF("STACK[%d].stack + size: %" PL_FMT_x "\n",
+                  i, (PlLong) (pl_stk_tbl[i].stack + pl_stk_tbl[i].size));
 #endif
-	if (addr >= pl_stk_tbl[i].stack + pl_stk_tbl[i].size)
-	  Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
-	i--;
+        if (addr >= pl_stk_tbl[i].stack + pl_stk_tbl[i].size)
+          Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
+        i--;
       }
 #endif /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
 
@@ -601,29 +616,36 @@ M_Check_Magic_Words(void)
   int i, err = 0;
   WamWord *end, *top;
   char *msg;
+  char *sever;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
       if (pl_stk_tbl[i].size == 0)
-	continue;
+        continue;
 
       end = pl_stk_tbl[i].stack + pl_stk_tbl[i].size;
+      top = Stack_Top(i);
 #ifdef DEBUG
-      DBGPRINTF("stack: %s start: %p  end: %p  top: %p\n", pl_stk_tbl[i].name, 
-		pl_stk_tbl[i].stack, end, Stack_Top(i));
+      DBGPRINTF("stack: %s start: %p  end: %p  top: %p\n", pl_stk_tbl[i].name,
+                pl_stk_tbl[i].stack, end, top);
 #endif
-      if ((end[0] != M_MAGIC1 || end[1] != M_MAGIC2 || end[8] != 0)
-	  || (top = Stack_Top(i)) >= end)
-	{
-	  err++;
-	  msg = Stack_Overflow_Err_Msg(i);
+      sever = NULL;
+      if (end[0] != M_MAGIC1 || end[1] != M_MAGIC2 || end[8] != 0)
+        sever = "Probable Error";
+      else if (top < pl_stk_tbl[i].stack || top >= end)
+        sever = "Possible Error";
+
+      if (sever)
+        {
+          err++;
+          msg = Stack_Overflow_Err_Msg(i);
 #ifndef NO_USE_LINEDIT
-	  if (pl_le_hook_message_box)
-	    (*pl_le_hook_message_box)("Possible Error", msg, 0);
-	  else
+          if (pl_le_hook_message_box)
+            (*pl_le_hook_message_box)(sever, msg, 0);
+          else
 #endif
-	    fprintf(stderr, "Possible Error: %s\n", msg);
-	}
+            fprintf(stderr, "%s: %s\n", sever, msg);
+        }
     }
   if (err)
     Pl_Exit_With_Value(1);
@@ -643,17 +665,19 @@ Stack_Overflow_Err_Msg(int stk_nb)
   InfStack *s = pl_stk_tbl + stk_nb;
   char *var = s->env_var_name;
   int size = s->size;
+  int usage = Stack_Top(stk_nb) - s->stack;
   static char msg[256];
 
   if (s->stack == Global_Stack)
-    size += REG_BANK_SIZE;	/* see Init_Engine */
+    size += REG_BANK_SIZE;      /* see Init_Engine */
 
   size = Wam_Words_To_KBytes(size);
+  usage = Wam_Words_To_KBytes(usage);
 
   if (pl_fixed_sizes || var[0] == '\0')
-    sprintf(msg, ERR_STACK_OVERFLOW_NO_ENV, s->name, size);
+    sprintf(msg, ERR_STACK_OVERFLOW_NO_ENV, s->name, size, usage);
   else
-    sprintf(msg, ERR_STACK_OVERFLOW_ENV, s->name, size, var);
+    sprintf(msg, ERR_STACK_OVERFLOW_ENV, s->name, size, usage, var);
 
   return msg;
 }
@@ -692,21 +716,15 @@ Pl_M_Sys_Err_String(int err_no)
 
 
 
-#if 0
-#define ULL unsigned long long
-#else
-#define ULL unsigned __int64
-#endif
-
 /*-------------------------------------------------------------------------*/
 /* M_USER_TIME                                                             */
 /*                                                                         */
 /* returns the user time used since the start of the process (in ms).      */
 /*-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_M_User_Time(void)
 {
-  long user_time;
+  PlLong user_time;
 
 #if defined(__unix__) && !defined(__CYGWIN__)
   struct rusage rsr_usage;
@@ -721,11 +739,11 @@ Pl_M_User_Time(void)
 
   /* Success on Windows NT */
   if (GetProcessTimes(GetCurrentProcess(),
-		      &creat_t, &exit_t, &kernel_t, &user_t))
-    user_time = (long) (((ULL) user_t.dwHighDateTime << 32) +
-			(ULL) user_t.dwLowDateTime) / 10000;
-  else				/* not implemented on Windows 95/98 */
-    user_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
+                      &creat_t, &exit_t, &kernel_t, &user_t))
+    user_time = (PlLong) (((PlULong) user_t.dwHighDateTime << 32) +
+                        (PlULong) user_t.dwLowDateTime) / 10000;
+  else                          /* not implemented on Windows 95/98 */
+    user_time = (PlLong) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
 #else
 
@@ -745,10 +763,10 @@ Pl_M_User_Time(void)
  *                                                                         *
  * returns the system time used since the start of the process (in ms).    *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_M_System_Time(void)
 {
-  long system_time;
+  PlLong system_time;
 
 #if defined(__unix__) && !defined(__CYGWIN__)
   struct rusage rsr_usage;
@@ -763,10 +781,10 @@ Pl_M_System_Time(void)
 
   /* Success on Windows NT */
   if (GetProcessTimes(GetCurrentProcess(),
-		      &creat_t, &exit_t, &kernel_t, &user_t))
-    system_time = (long) (((ULL) kernel_t.dwHighDateTime << 32) +
-			  (ULL) kernel_t.dwLowDateTime) / 10000;
-  else				/* not implemented on Windows 95/98 */
+                      &creat_t, &exit_t, &kernel_t, &user_t))
+    system_time = (PlLong) (((PlULong) kernel_t.dwHighDateTime << 32) +
+                          (PlULong) kernel_t.dwLowDateTime) / 10000;
+  else                          /* not implemented on Windows 95/98 */
     system_time = 0;
 
 #else
@@ -787,10 +805,10 @@ Pl_M_System_Time(void)
  *                                                                         *
  * returns the real time used since the start of the process (in ms).      *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_M_Real_Time(void)
 {
-  long real_time;
+  PlLong real_time;
 
 #if defined(__unix__) && !defined(__CYGWIN__)
   struct timeval tv;
@@ -800,7 +818,7 @@ Pl_M_Real_Time(void)
 
 #elif defined(_WIN32) || defined(__CYGWIN__)
 
-  real_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
+  real_time = (PlLong) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
 #else
 
@@ -921,25 +939,25 @@ Pl_M_Host_Name_From_Name(char *host_name)
 
   if (host_name == NULL)
     {
-      long length = sizeof(buff);
+      PlLong length = sizeof(buff);
       host_name = buff;
 #if defined(_WIN32) && !defined(__CYGWIN__) && defined(NO_USE_SOCKETS)
       if (GetComputerName(buff, &length) == 0)
 #else
       if (gethostname(buff, length))
 #endif
-	{
-	  strcpy(buff, "unknown host name");
-	  goto finish;
-	}
+        {
+          strcpy(buff, "unknown host name");
+          goto finish;
+        }
     }
 
-  if (strchr(host_name, '.') != NULL)	/* qualified name */
+  if (strchr(host_name, '.') != NULL)   /* qualified name */
     goto finish;
 
 #ifdef INET_MANAGEMENT
 
-  host_entry = gethostbyname(host_name);	/* use name server */
+  host_entry = gethostbyname(host_name);        /* use name server */
   if (host_entry == NULL)
     goto finish;
 
@@ -1063,75 +1081,75 @@ Pl_M_Absolute_Path_Name(char *src)
   char c;
 
   dst = buff[res];
-  while ((*dst++ = *src))	/* expand $VARNAME and %VARNAME% (Win32) */
+  while ((*dst++ = *src))       /* expand $VARNAME and %VARNAME% (Win32) */
     {
       c = *src++;
       if (c == '$'
 #if defined(_WIN32) || defined(__CYGWIN__)
-	  || c == '%'
+          || c == '%'
 #endif
-	)
-	{
-	  p = dst;
-	  while (isalnum(*src))
-	    *dst++ = *src++;
+        )
+        {
+          p = dst;
+          while (isalnum(*src))
+            *dst++ = *src++;
 #if defined(_WIN32) || defined(__CYGWIN__)
-	  if (c == '%' && *src != '%')
-	    continue;
+          if (c == '%' && *src != '%')
+            continue;
 #endif
-	  *dst = '\0';
-	  q = getenv(p);
-	  if (q)
-	    {
-	      p--;
-	      strcpy(p, q);
-	      dst = p + strlen(p);
+          *dst = '\0';
+          q = getenv(p);
+          if (q)
+            {
+              p--;
+              strcpy(p, q);
+              dst = p + strlen(p);
 #if defined(_WIN32) || defined(__CYGWIN__)
-	      if (c == '%')
-		src++;
+              if (c == '%')
+                src++;
 #endif
-	    }
+            }
 #if defined(_WIN32) || defined(__CYGWIN__)
-	  else if (c == '%')
-	    *dst++ = *src++;
+          else if (c == '%')
+            *dst++ = *src++;
 #endif
-	}
+        }
     }
   *dst = '\0';
 
   if (buff[res][0] == '~')
     {
-      if (buff[res][1] == DIR_SEP_C || buff[res][1] == '\0')	/* ~/... cf $HOME */
-	{
-	  if ((p = getenv("HOME")) == NULL && (p = getenv("HOMEPATH")) == NULL)
-	    return NULL;
+      if (buff[res][1] == DIR_SEP_C || buff[res][1] == '\0')    /* ~/... cf $HOME */
+        {
+          if ((p = getenv("HOME")) == NULL && (p = getenv("HOMEPATH")) == NULL)
+            return NULL;
 
-	  sprintf(buff[1 - res], "%s/%s", p, buff[res] + 1);
-	  res = 1 - res;
-	}
+          sprintf(buff[1 - res], "%s/%s", p, buff[res] + 1);
+          res = 1 - res;
+        }
 #if defined(__unix__) || defined(__CYGWIN__)
-      else			/* ~user/... read passwd */
-	{
-	  struct passwd *pw;
+      else                      /* ~user/... read passwd */
+        {
+          struct passwd *pw;
 
-	  p = buff[res] + 1;
-	  while (*p && *p != '/')
-	    p++;
+          p = buff[res] + 1;
+          while (*p && *p != '/')
+            p++;
 
-	  buff[res][0] = *p;
-	  *p = '\0';
-	  if ((pw = getpwnam(buff[res] + 1)) == NULL)
-	    return NULL;
+          buff[res][0] = *p;
+          *p = '\0';
+          if ((pw = getpwnam(buff[res] + 1)) == NULL)
+            return NULL;
 
-	  *p = buff[res][0];
+          *p = buff[res][0];
 
-	  sprintf(buff[1 - res], "%s/%s", pw->pw_dir, p);
-	  res = 1 - res;
-	}
+          sprintf(buff[1 - res], "%s/%s", pw->pw_dir, p);
+          res = 1 - res;
+        }
 #endif
     }
 
-  if (strcmp(buff[res], "user") == 0)	/* prolog special file 'user' */
+  if (strcmp(buff[res], "user") == 0)   /* prolog special file 'user' */
     return buff[res];
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -1140,7 +1158,7 @@ Pl_M_Absolute_Path_Name(char *src)
     return NULL;
 
   res = 1 - res;
-  for (dst = buff[res]; *dst; dst++)	/* \ becomes / */
+  for (dst = buff[res]; *dst; dst++)    /* \ becomes / */
     if (*dst == '\\')
       *dst = '/';
 
@@ -1155,7 +1173,7 @@ Pl_M_Absolute_Path_Name(char *src)
 
 #endif
 
-  if (buff[res][0] != '/')	/* add current directory */
+  if (buff[res][0] != '/')      /* add current directory */
     {
       sprintf(buff[1 - res], "%s/%s", Pl_M_Get_Working_Dir(), buff[res]);
       res = 1 - res;
@@ -1168,48 +1186,48 @@ Pl_M_Absolute_Path_Name(char *src)
   while ((*dst++ = *src))
     {
       if (*src++ != '/')
-	continue;
+        continue;
 
     collapse:
-      while (*src == '/')	/* collapse /////... as / */
-	src++;
+      while (*src == '/')       /* collapse /////... as / */
+        src++;
 
       if (*src != '.')
-	continue;
+        continue;
 
-      if (src[1] == '/' || src[1] == '\0')	/* /./ removed */
-	{
-	  src++;
-	  goto collapse;
-	}
+      if (src[1] == '/' || src[1] == '\0')      /* /./ removed */
+        {
+          src++;
+          goto collapse;
+        }
 
       if (src[1] != '.' || (src[2] != '/' && src[2] != '\0'))
-	continue;
+        continue;
       /* case /../ */
       src += 2;
       p = dst - 2;
       while (p >= buff[res] && *p != '/')
-	p--;
+        p--;
 
       if (p < buff[res])
-	return NULL;
+        return NULL;
 
       dst = p;
     }
 
-  dst--;			/* dst points the \0 */
+  dst--;                        /* dst points the \0 */
 
 #endif
 
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#define MIN_PREFIX 3		/* win32 minimal path c:\  */
+#define MIN_PREFIX 3            /* win32 minimal path c:\  */
 #else
-#define MIN_PREFIX 1		/* unix  minimal path /    */
+#define MIN_PREFIX 1            /* unix  minimal path /    */
 #endif
 
   if (dst - buff[res] > MIN_PREFIX && (dst[-1] == '/' || dst[-1] == '\\'))
-    dst[-1] = '\0';		/* remove last / or \ */
+    dst[-1] = '\0';             /* remove last / or \ */
 
   return buff[res];
 }

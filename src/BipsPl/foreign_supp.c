@@ -6,20 +6,33 @@
  * Descr.: foreign interface support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -53,10 +66,10 @@
  * Global Variables                *
  *---------------------------------*/
 
-long pl_foreign_long[NB_OF_X_REGS];
+PlLong pl_foreign_long[NB_OF_X_REGS];
 double pl_foreign_double[NB_OF_X_REGS];
 
-long *pl_base_fl = pl_foreign_long;	/* overwrite var of engine.c */
+PlLong *pl_base_fl = pl_foreign_long;	/* overwrite var of engine.c */
 double *pl_base_fd = pl_foreign_double;	/* overwrite var of engine.c */
 
 static PlFIOArg fio_arg_array[NB_OF_X_REGS];
@@ -160,7 +173,7 @@ Pl_Foreign_Jump_Ret(CodePtr codep)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PlFIOArg *
-Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, long (*rd_fct) (),
+Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
 		  int fio_arg_index)
 {
   WamWord word, tag_mask;
@@ -171,7 +184,7 @@ Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, long (*rd_fct) (),
   fa->is_var = fa->unify = (tag_mask == TAG_REF_MASK);
 
   if (rd_fct == NULL)
-    fa->value.l = (long) word;
+    fa->value.l = (PlLong) word;
   else if (!fa->is_var)
     {
       if (arg_long)
@@ -415,7 +428,7 @@ Pl_Get_Exception(void)
  * PL_NO_MORE_CHOICE                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void 
+void
 Pl_No_More_Choice(void)
 {
   Delete_Last_Choice_Point();

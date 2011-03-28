@@ -6,20 +6,33 @@
  * Descr.: translation file for Linux on AMD x86-64                        *
  * Author: Gwenole Beauchesne                                              *
  *                                                                         *
- * Copyright (C) 2002 Gwenole Beauchesne                                   *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -28,17 +41,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <inttypes.h>
 
 
-/* For M_x86_64_linux/solaris: an important point is that C stack must be 
+/* For M_x86_64_linux/solaris: an important point is that C stack must be
  * aligned on 16 bytes else some problems occurs with double.
  * If this is not done and if the called function performs a movaps %xmm0,xx
  * an error will occur.
  * Just before calling a function %rsp is 16bytes aligned, %rsp = 0x...0
  * (4 low bits = 0). The callq instruction pushes the return address, so at
- * the entry of a function, %rsp is 0x...8. Gcc then adjusts (via subq) 
+ * the entry of a function, %rsp is 0x...8. Gcc then adjusts (via subq)
  * %rsp to be 0x...0 before calling a function. We mimic the same modifying
- * Call_Compiled to force %rsp to be 0x...0 when arriving in a Prolog code. 
+ * Call_Compiled to force %rsp to be 0x...0 when arriving in a Prolog code.
  * So a Prolog code can call C functions safely.
  * When a Prolog code finishes it returns into C inside Call_Prolog_Success
  * or Call_Prolog_Fail. In both functions we re-adjust the stack (gcc thinks
@@ -86,6 +100,17 @@ char asm_reg_cp[20];
 
 int w_label = 0;
 
+#ifdef _WIN32
+#define MAX_PR_ARGS 4
+static int pr_arg_no;
+static const char *gpr_arg[MAX_PR_ARGS] = {
+  "%rcx", "%rdx", "%r8", "%r9"
+};
+
+static const char *fpr_arg[MAX_PR_ARGS] = {
+  "%xmm0", "%xmm1", "%xmm2", "%xmm3"
+};
+#else
 #define MAX_GPR_ARGS 6
 static int gpr_arg_no;
 static const char *gpr_arg[MAX_GPR_ARGS] = {
@@ -99,7 +124,7 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
   "%xmm0", "%xmm1", "%xmm2", "%xmm3",
   "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 };
-
+#endif
 	  /* variables for ma_parser.c / ma2asm.c */
 
 char *comment_prefix = "#";
@@ -223,7 +248,9 @@ Code_Start(char *label, int prolog, int global)
 
   Label_Printf("");
   Inst_Printf(".align", "16");
+#if defined(M_x86_64_linux) || defined(M_x86_64_bsd) || defined(M_x86_64_sco)
   Inst_Printf(".type", "%s,@function", label);
+#endif
 
   if (global)
     Inst_Printf(".globl", "%s", label);
@@ -443,13 +470,55 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words, 
+Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 	     char **p_inline)
 {
+#ifdef _WIN32
+  pr_arg_no = 0;
+#else
   gpr_arg_no = 0;
   fpr_arg_no = 0;
+#endif
 }
 
+#ifdef _WIN32
+#define BEFORE_ARG						\
+{								\
+  char r[10], *r_aux;						\
+  int r_eq_r_aux = 0;						\
+								\
+  if (pr_arg_no < MAX_PR_ARGS)				\
+    {								\
+      strcpy(r, gpr_arg[pr_arg_no++]);				\
+      r_aux = r;						\
+      r_eq_r_aux = 1;						\
+    }								\
+  else								\
+    {								\
+      int nwords = offset;				\
+								\
+      sprintf(r, "%d(%%rsp)", nwords * 8);			\
+      r_aux = "%rax";						\
+    }
+#define BEFORE_FPR_ARG						\
+{								\
+  char r[10], *r_aux;						\
+  int r_eq_r_aux = 0;						\
+								\
+  if (pr_arg_no < MAX_PR_ARGS)				\
+    {								\
+      strcpy(r, fpr_arg[pr_arg_no++]);				\
+      r_aux = r;						\
+      r_eq_r_aux = 1;						\
+    }								\
+  else								\
+    {								\
+      int nwords = offset;				\
+								\
+      sprintf(r, "%d(%%rsp)", nwords * 8);			\
+      r_aux = "%xmm8";						\
+    }
+#else
 #define BEFORE_ARG						\
 {								\
   char r[10], *r_aux;						\
@@ -469,10 +538,6 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
       r_aux = "%rax";						\
     }
 
-
-#define AFTER_ARG						\
-}
-
 #define BEFORE_FPR_ARG						\
 {								\
   char r[10], *r_aux;						\
@@ -491,6 +556,10 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
       sprintf(r, "%d(%%rsp)", nwords * 8);			\
       r_aux = "%xmm8";						\
     }
+#endif
+
+#define AFTER_ARG						\
+}
 
 #define AFTER_FPR_ARG						\
 }
@@ -501,15 +570,15 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Int(int offset, long int_val)
+Call_C_Arg_Int(int offset, PlLong int_val)
 {
   BEFORE_ARG;
 
   if (LITTLE_INT(int_val))
-    Inst_Printf("movq", "$%ld,%s", int_val, r);
+    Inst_Printf("movq", "$%" PL_FMT_d ",%s", int_val, r);
   else
     {
-      Inst_Printf("movabsq", "$%ld,%s", int_val, r_aux);
+      Inst_Printf("movabsq", "$%" PL_FMT_d ",%s", int_val, r_aux);
       if (!r_eq_r_aux)
 	Inst_Printf("movq", "%s,%s", r_aux, r);
     }
@@ -531,7 +600,9 @@ Call_C_Arg_Double(int offset, double dbl_val)
 
   dbl_tbl[nb_dbl++] = dbl_val;
 
-  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, dbl_lc_no++, r);
+  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, dbl_lc_no++, r_aux);
+  if (!r_eq_r_aux)
+    Inst_Printf("movq", "%s,%s", r_aux, r);
 
   AFTER_FPR_ARG;
 
@@ -566,7 +637,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Inst_Printf("movq", "$%s+%d,%s", name, index * 8, r);
+    Inst_Printf("movq", "$" "%s+%d,%s", name, index * 8, r);
   else
     {
       Inst_Printf("movq", "%s+%d(%%rip),%s", name, index * 8, r_aux);
@@ -751,7 +822,7 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
-  Inst_Printf("movq", "%%rax,%s+%d(%%rip)", name, index * 8);
+  Inst_Printf("movq", "%%rax," "%s+%d(%%rip)", name, index * 8);
 }
 
 
@@ -790,7 +861,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("movq", "%%rax, pl_foreign_long+%d(%%rip)", index * 8);
+  Inst_Printf("movq", "%%rax," "pl_foreign_long+%d(%%rip)", index * 8);
 }
 
 
@@ -803,7 +874,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("movsd", "%%xmm0, pl_foreign_double+%d(%%rip)", index * 8);
+  Inst_Printf("movsd", "%%xmm0," "pl_foreign_double+%d(%%rip)", index * 8);
 }
 
 
@@ -814,18 +885,18 @@ Move_Ret_To_Foreign_D(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Cmp_Ret_And_Int(long int_val)
+Cmp_Ret_And_Int(PlLong int_val)
 {
   if (int_val == 0)
     Inst_Printf("testq", "%%rax,%%rax");
   else if (LITTLE_INT(int_val))
-    Inst_Printf("cmpq", "$%ld,%%rax", int_val);
+    Inst_Printf("cmpq", "$%" PL_FMT_d ",%%rax", int_val);
   else
     {
       /* %rdx is second integral return value. At this stage, it is
          bound to be dead since we only deal with primitive object
          types.  */
-      Inst_Printf("movabsq", "$%ld,%%rdx", int_val);
+      Inst_Printf("movabsq", "$%" PL_FMT_d ",%%rdx", int_val);
       Inst_Printf("cmpq", "%%rdx,%%rax", int_val);
     }
 }
@@ -926,23 +997,29 @@ Dico_Long_Start(int nb_longs)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, long value)
+Dico_Long(char *name, int global, VType vtype, PlLong value)
 {
   switch (vtype)
     {
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
+#if defined(M_x86_64_linux) || defined(M_x86_64_sco) || \
+    defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
       if (!global)
 	Inst_Printf(".local", "%s", name);
-      Inst_Printf(".comm", "%s,%ld,8", name, value * 8);
+      Inst_Printf(".comm", "%s,%" PL_FMT_d ",8", name, value * 8);
+#else
+      if (!global)
+	Inst_Printf(".lcomm", "%s,%" PL_FMT_d, name, value * 8);
+#endif
       break;
 
     case INITIAL_VALUE:
       if (global)
 	Inst_Printf(".globl", "%s", name);
       Label_Printf("%s:", name);
-      Inst_Printf(".quad", "%ld", value);
+      Inst_Printf(".quad", "%" PL_FMT_d, value);
       break;
     }
 }
@@ -970,7 +1047,11 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
+#if defined( __CYGWIN__) || defined (_WIN32)
+  Inst_Printf(".section", ".ctors,\"aw\"");
+#else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
+#endif
   Inst_Printf(".align", "8");
   Inst_Printf(".quad", "%s", initializer_fct);
 }

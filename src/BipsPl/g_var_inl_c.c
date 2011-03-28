@@ -6,20 +6,33 @@
  * Descr.: global variable (inline) management - C part                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -127,15 +140,15 @@ static WamWord *Get_Term_Addr_From_Target(GTarget *gt);
 
 static WamWord *Get_Int_Addr_From_Gvar(WamWord gvar_word);
 
-static long Get_Int_From_Gvar(WamWord gvar_word);
+static PlLong Get_Int_From_Gvar(WamWord gvar_word);
 
-static long Get_Int_From_Word(WamWord start_word);
+static PlLong Get_Int_From_Word(WamWord start_word);
 
 static void G_Free_Element(GVarElt *g_elem, Bool reinit_undo);
 
 static void G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem);
 
-static void G_Trail_For_Backtrack(GVarElt *g_elem, int save_size, 
+static void G_Trail_For_Backtrack(GVarElt *g_elem, int save_size,
 				  WamWord save_val);
 
 static void G_Untrail(int n, WamWord *arg_frame);
@@ -146,7 +159,7 @@ static Bool G_Read_Element(GVarElt *g_elem, WamWord gval_word);
 
 static Bool G_Array_Size(WamWord gvar_word, WamWord size_word);
 
-static Bool G_Inc_Dec(WamWord gvar_word, int inc, 
+static Bool G_Inc_Dec(WamWord gvar_word, int inc,
 		      WamWord old_word, WamWord new_word);
 
 static void G_Set_Bit(WamWord gvar_word, WamWord bit_word);
@@ -576,7 +589,7 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
 
   if (!backtrack)
     G_Free_Element(g_elem, TRUE);
-  
+
   if (!copy || tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
     {				/* a link */
       if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
@@ -654,7 +667,7 @@ G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op, 
+G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
 	       Bool backtrack, Bool copy)
 {
   WamWord word, tag_mask;
@@ -662,17 +675,17 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
   Bool same_init_value;
   WamWord init_word;
   WamWord lst_word;
-  long new_size, size;
+  PlLong new_size, size;
   GVarElt *p;
   int i;
 
   arity = Arity(stc_adr);
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);
-  new_size = (tag_mask == TAG_LST_MASK) ? Pl_List_Length(word) : 
+  new_size = (tag_mask == TAG_LST_MASK) ? Pl_List_Length(word) :
     UnTag_INT(word);
 
-  if (!(new_size > 0 && ((tag_mask == TAG_INT_MASK && arity <= 2) || 
+  if (!(new_size > 0 && ((tag_mask == TAG_INT_MASK && arity <= 2) ||
 			 (tag_mask == TAG_LST_MASK && arity == 1))))
     Pl_Err_Domain(pl_domain_g_array_index, Tag_STC(stc_adr));
 
@@ -729,7 +742,7 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
       p->undo = NULL;
       G_Assign_Element(p++, init_word, FALSE, copy);
     }
-  
+
   if (array_op == G_ARRAY_AUTO)
     {
       if (!same_init_value)
@@ -835,7 +848,7 @@ Get_Target_From_Gvar(WamWord gvar_word)
   GVarElt *p;
   int i, j, size;
   int new_size;
-  long index;
+  PlLong index;
   GTarget *gt = &g_target;
 
 
@@ -977,7 +990,7 @@ static WamWord *
 Get_Term_Addr_From_Target(GTarget *gt)
 {
   GVarElt *g_elem = gt->g_elem;
-  
+
   if (gt->g_arg)
     return gt->g_arg;
 
@@ -1023,7 +1036,7 @@ Get_Int_Addr_From_Gvar(WamWord gvar_word)
  * GET_INT_FROM_GVAR                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Get_Int_From_Gvar(WamWord gvar_word)
 {
   return *Get_Int_Addr_From_Gvar(gvar_word);
@@ -1036,7 +1049,7 @@ Get_Int_From_Gvar(WamWord gvar_word)
  * GET_INT_FROM_WORD                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Get_Int_From_Word(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -1317,7 +1330,7 @@ static Bool
 G_Inc_Dec(WamWord gvar_word, int inc, WamWord old_word, WamWord new_word)
 {
   WamWord *adr;
-  long old, new;
+  PlLong old, new;
 
   if (old_word != NOT_A_WAM_WORD)
     Pl_Check_For_Un_Integer(old_word);
@@ -1330,7 +1343,7 @@ G_Inc_Dec(WamWord gvar_word, int inc, WamWord old_word, WamWord new_word)
 
   old = UnTag_INT(*adr);
   new = old + inc;
-  
+
   if (old_word != NOT_A_WAM_WORD && !Pl_Get_Integer(old, old_word))
     return FALSE;
 
@@ -1354,7 +1367,7 @@ G_Set_Bit(WamWord gvar_word, WamWord bit_word)
 {
   WamWord *adr;
   int bit = Pl_Rd_Positive_Check(bit_word) % VALUE_SIZE;
-  unsigned long mask;
+  PlULong mask;
 
   adr = Get_Int_Addr_From_Gvar(gvar_word);
   mask = 1 << (bit + TAG_SIZE_LOW);
@@ -1373,7 +1386,7 @@ G_Reset_Bit(WamWord gvar_word, WamWord bit_word)
 {
   WamWord *adr;
   int bit = Pl_Rd_Positive_Check(bit_word) % VALUE_SIZE;
-  unsigned long mask;
+  PlULong mask;
 
   adr = Get_Int_Addr_From_Gvar(gvar_word);
   mask = 1 << (bit + TAG_SIZE_LOW);
@@ -1391,7 +1404,7 @@ static Bool
 G_Test_Set_Bit(WamWord gvar_word, WamWord bit_word)
 {
   int bit = Pl_Rd_Positive_Check(bit_word) % VALUE_SIZE;
-  unsigned long val, mask;
+  PlULong val, mask;
 
   val = Get_Int_From_Gvar(gvar_word);
   mask = 1 << (bit + TAG_SIZE_LOW);
@@ -1409,7 +1422,7 @@ static Bool
 G_Test_Reset_Bit(WamWord gvar_word, WamWord bit_word)
 {
   int bit = Pl_Rd_Positive_Check(bit_word) % VALUE_SIZE;
-  unsigned long mask, val;
+  PlULong mask, val;
 
   val = Get_Int_From_Gvar(gvar_word);
   mask = 1 << (bit + TAG_SIZE_LOW);

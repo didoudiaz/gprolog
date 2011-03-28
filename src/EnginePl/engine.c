@@ -6,20 +6,33 @@
  * Descr.: general engine                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -34,6 +47,8 @@
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
+#define READ_REGISTRY_ONLY
+#include "../TopComp/prolog_path.c"
 #else
 #include <sys/param.h>
 #endif
@@ -112,7 +127,7 @@ Pl_Start_Prolog(int argc, char *argv[])
   char *p;
 
   setlocale(LC_ALL, "");
-  setlocale(LC_NUMERIC, "C");	/* make sure floats come out right... */
+  setlocale(LC_NUMERIC, "C");   /* make sure floats come out right... */
 
   pl_os_argc = argc;
   pl_os_argv = argv;
@@ -127,24 +142,32 @@ Pl_Start_Prolog(int argc, char *argv[])
   for (i = 0; i < NB_OF_STACKS; i++)
     {
       if (pl_fd_init_solver == NULL && strcmp(pl_stk_tbl[i].name, "cstr") == 0)
-	{			/* FD solver not linked */
-	  pl_stk_tbl[i].size = 0;
-	  continue;
-	}
+        {                       /* FD solver not linked */
+          pl_stk_tbl[i].size = 0;
+          continue;
+        }
 
-      if ((pl_stk_tbl[i].size = KBytes_To_Wam_Words(*(pl_stk_tbl[i].p_def_size)))
-	  == 0)
-	pl_stk_tbl[i].size = pl_stk_tbl[i].default_size;
+      if ((pl_stk_tbl[i].size = KBytes_To_Wam_Words(*(pl_stk_tbl[i].p_def_size))) == 0)
+        pl_stk_tbl[i].size = pl_stk_tbl[i].default_size;
 
       if (!pl_fixed_sizes && *pl_stk_tbl[i].env_var_name)
-	{
-	  p = (char *) getenv(pl_stk_tbl[i].env_var_name);
-	  if (p && *p)
-	    {
-	      sscanf(p, "%d", &x);
-	      pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
-	    }
-	}
+        {
+          p = (char *) getenv(pl_stk_tbl[i].env_var_name);
+          if (p && *p)
+            {
+              sscanf(p, "%d", &x);
+              pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
+            }
+        }
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+      if (!pl_fixed_sizes && *pl_stk_tbl[i].env_var_name)
+        {
+          DWORD x;
+          if (Read_Windows_Registry(pl_stk_tbl[i].env_var_name, REG_DWORD, &x, sizeof(x)))
+            pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
+        }
+#endif
     }
 
   Pl_M_Allocate_Stacks();
@@ -193,7 +216,7 @@ Pl_Stop_Prolog(void)
 {
 #ifdef DEREF_STATS
   double d = (double) chain_len / (double) nb_deref;
-  fprintf(stderr, "Deref: nb: %ld  avg len = %g\n", nb_deref, d);
+  fprintf(stderr, "Deref: nb: %" PL_FMT_d "  avg len = %g\n", nb_deref, d);
 #endif
   Restore_Machine_Regs(init_buff_regs);
 }
@@ -327,11 +350,11 @@ Pl_Call_Prolog(CodePtr codep)
 
   CP = Adjust_CP(Call_Prolog_Success);
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
   SEH_PUSH(Win32_SEH_Handler);
 #endif
   ok = Call_Next(codep);
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
   SEH_POP;
 #endif
 

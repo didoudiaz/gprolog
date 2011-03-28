@@ -18,7 +18,7 @@ all: wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
 
 
 $(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME) 
+	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
 	$(RANLIB) $(LIBNAME)
 
@@ -39,7 +39,7 @@ pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h wam_archi.def
 	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
 
 
-wam_regs.h: pl_config@EXE_SUFFIX@ machine.h wam_archi.def 
+wam_regs.h: pl_config@EXE_SUFFIX@ machine.h wam_archi.def
 	./pl_config@EXE_SUFFIX@
 	(cd ../TopComp; $(MAKE) $(GPLC)@EXE_SUFFIX@)
 
@@ -60,11 +60,11 @@ try_sigaction@EXE_SUFFIX@: try_sigaction.c
 # General core
 
 
-machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h 
+machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h
 
 mem_alloc@OBJ_SUFFIX@: mem_alloc.c
 
-misc@OBJ_SUFFIX@: misc.h misc.c machine.h 
+misc@OBJ_SUFFIX@: misc.h misc.c machine.h
 
 hash@OBJ_SUFFIX@: hash.h hash.c
 
@@ -81,7 +81,7 @@ obj_chain@OBJ_SUFFIX@: obj_chain.h obj_chain.c
 engine1@OBJ_SUFFIX@: engine1.c
 	$(GPLC) -c engine1.c
 
-engine@OBJ_SUFFIX@: engine.h engine.c 
+engine@OBJ_SUFFIX@: engine.h engine.c
 
 wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c
 
@@ -120,6 +120,6 @@ test_oc@EXE_SUFFIX@: obj_chain.c obj_chain.h test_oc.c test_oc_defs.h
 	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. test_oc_m[1-5].c
 	rm -f test_oc_m* test_oc*@OBJ_SUFFIX@
 
-clean-test_oc: 
+clean-test_oc:
 	rm -f test_oc@EXE_SUFFIX@ test_oc_m*
 

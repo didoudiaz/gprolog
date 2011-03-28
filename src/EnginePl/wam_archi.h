@@ -6,32 +6,46 @@
  * Descr.: Wam architecture definition - description file                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+
+#include "pl_long.h"
 
 /*---------------------------------*
  * Register Descriptions           *
  *---------------------------------*/
 
+typedef intptr_t WamWord;       /* a WamWord can store a ptr (32/64 bits) */
 
-typedef long WamWord;		/* a wamword is a long (32/64 bits) */
+typedef void (*CodePtr) ();     /* a code pointer is a ptr to fct */
 
-typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
-
-typedef CodePtr WamCont;	/* a continuation is a code pointer */
+typedef CodePtr WamCont;        /* a continuation is a code pointer */
 
 #ifndef ONLY_TAG_PART
 
@@ -204,18 +218,18 @@ extern char *pl_reg_tbl[];
 #define TAG_SIZE_LOW 		3
 #define TAG_SIZE_HIGH		0
 #define VALUE_SIZE   		61
-#define TAG_MASK     		0x7UL
-#define VALUE_MASK   		0xfffffffffffffff8UL
-#define Tag_Mask_Of(w)		((unsigned long) (w) & (TAG_MASK))
-#define Tag_From_Tag_Mask(w) 	(((unsigned long) (w) >> 61) | ((w) & 7))
+#define TAG_MASK     		(PlULong)0x7
+#define VALUE_MASK   		(PlULong)0xfffffffffffffff8
+#define Tag_Mask_Of(w)		((PlLong) (w) & (TAG_MASK))
+#define Tag_From_Tag_Mask(w) 	(((PlULong) (w) >> 61) | ((w) & 7))
 #define Tag_Of(w)     		Tag_Mask_Of(w)
-#define TAG_REF_MASK		0UL
-#define TAG_LST_MASK		0x1UL
-#define TAG_STC_MASK		0x2UL
-#define TAG_ATM_MASK		0x3UL
-#define TAG_FLT_MASK		0x4UL
-#define TAG_FDV_MASK		0x5UL
-#define TAG_INT_MASK		0x7UL
+#define TAG_REF_MASK		(PlULong)0
+#define TAG_LST_MASK		(PlULong)0x1
+#define TAG_STC_MASK		(PlULong)0x2
+#define TAG_ATM_MASK		(PlULong)0x3
+#define TAG_FLT_MASK		(PlULong)0x4
+#define TAG_FDV_MASK		(PlULong)0x5
+#define TAG_INT_MASK		(PlULong)0x7
 
 #define NB_OF_TAGS       	7
 #define REF        		0 
@@ -228,11 +242,11 @@ extern char *pl_reg_tbl[];
 
 	/* General Tag/UnTag macros */
 
-#define Tag_Long_Int(tm, v)  	((((unsigned long) ((v) << 3)) >> 0) | (tm))
-#define Tag_Short_Uns(tm, v)	(((unsigned long) (v) << 3) + (tm))
-#define Tag_Address(tm, v)  	((unsigned long) (v) + (tm))
+#define Tag_Long_Int(tm, v)  	((((PlLong) ((v) << 3)) >> 0) | (tm))
+#define Tag_Short_Uns(tm, v)	(((PlLong) (v) << 3) + (tm))
+#define Tag_Address(tm, v)  	((PlLong) (v) + (tm))
 
-#define UnTag_Long_Int(w)    	((long) ((w) << 0) >> 3)
+#define UnTag_Long_Int(w)    	((PlLong) ((w) << 0) >> 3)
 #define UnTag_Short_Uns(w)	UnTag_Long_Int(w)
 #define UnTag_Address(w)  	((WamWord *) ((w) & VALUE_MASK))
 
@@ -246,12 +260,12 @@ extern char *pl_reg_tbl[];
 #define Tag_ATM(v)  		Tag_Short_Uns(TAG_ATM_MASK, v)
 #define Tag_FLT(v)  		Tag_Address(TAG_FLT_MASK, v)
 #define Tag_FDV(v)  		Tag_Address(TAG_FDV_MASK, v)
-#define Tag_INT(v)  		(((unsigned long) (v) << 3) | TAG_MASK)
+#define Tag_INT(v)  		(((PlULong) (v) << 3) | TAG_MASK)
 
 #define UnTag_REF(w)  		((WamWord *) (w))
 #define UnTag_LST(w)  		UnTag_Address(w)
 #define UnTag_STC(w)  		UnTag_Address(w)
-#define UnTag_ATM(w)  		((unsigned long) (w) >> 3)
+#define UnTag_ATM(w)  		((PlULong) (w) >> 3)
 #define UnTag_FLT(w)  		UnTag_Address(w)
 #define UnTag_FDV(w)  		UnTag_Address(w)
 #define UnTag_INT(w)  		UnTag_Long_Int(w)
@@ -276,7 +290,7 @@ typedef struct
   char *name;
   TypTag type;
   int value;
-  long tag_mask;
+  PlLong tag_mask;
 }InfTag;
 
 
@@ -284,13 +298,13 @@ typedef struct
 
 InfTag pl_tag_tbl[] =
 {
-  { "REF", ADDRESS, 0, 0UL },
-  { "LST", ADDRESS, 1, 0x1UL },
-  { "STC", ADDRESS, 2, 0x2UL },
-  { "ATM", SHORT_UNS, 3, 0x3UL },
-  { "FLT", ADDRESS, 4, 0x4UL },
-  { "FDV", ADDRESS, 5, 0x5UL },
-  { "INT", LONG_INT, 7, 0x7UL }
+  { "REF", ADDRESS, 0, 0},
+  { "LST", ADDRESS, 1, 1},
+  { "STC", ADDRESS, 2, 2},
+  { "ATM", SHORT_UNS, 3, 3},
+  { "FLT", ADDRESS, 4, 4},
+  { "FDV", ADDRESS, 5, 5},
+  { "INT", LONG_INT, 7, 7}
 };
 
 #else
@@ -322,71 +336,7 @@ extern InfTag pl_tag_tbl[];
 
    /*--- Begin Stack Generation ---*/
 
-#define NB_OF_STACKS 		4
-
-#define Trail_Stack       	(pl_stk_tbl[0].stack)
-#define Trail_Size        	(pl_stk_tbl[0].size)
-#define Trail_Offset(adr) 	((WamWord *)(adr) - Trail_Stack)
-#define Trail_Used_Size   	Trail_Offset(TR)
-
-#define Cstr_Stack       	(pl_stk_tbl[1].stack)
-#define Cstr_Size        	(pl_stk_tbl[1].size)
-#define Cstr_Offset(adr) 	((WamWord *)(adr) - Cstr_Stack)
-#define Cstr_Used_Size   	Cstr_Offset(CS)
-
-#define Global_Stack       	(pl_stk_tbl[2].stack)
-#define Global_Size        	(pl_stk_tbl[2].size)
-#define Global_Offset(adr) 	((WamWord *)(adr) - Global_Stack)
-#define Global_Used_Size   	Global_Offset(H)
-
-#define Local_Stack       	(pl_stk_tbl[3].stack)
-#define Local_Size        	(pl_stk_tbl[3].size)
-#define Local_Offset(adr) 	((WamWord *)(adr) - Local_Stack)
-#define Local_Used_Size   	Local_Offset(Local_Top)
-
-
-#define Stack_Top(s)       	(((s) == 0) ? TR : ((s) == 1) ? CS : ((s) == 2) ? H : Local_Top)
-
-typedef struct
-{
-  char *name;
-  char *env_var_name;
-  long *p_def_size;
-  int default_size; 	/* in WamWords */
-  int size;         	/* in WamWords */
-  WamWord *stack;
-}InfStack;
-
-
-#ifdef ENGINE_FILE
-
-    /* these variables can be overwritten by top_comp.c (see stack size file) */
-long pl_def_trail_size;
-long pl_def_cstr_size;
-long pl_def_global_size;
-long pl_def_local_size;
-long pl_fixed_sizes;
-
-InfStack pl_stk_tbl[] =
-{
- { "trail", "TRAILSZ", &pl_def_trail_size, 1048576, 0, NULL },
- { "cstr", "CSTRSZ", &pl_def_cstr_size, 1048576, 0, NULL },
- { "global", "GLOBALSZ", &pl_def_global_size, 2097152, 0, NULL },
- { "local", "LOCALSZ", &pl_def_local_size, 1048576, 0, NULL }
-};
-
-#else
-
-extern long pl_def_trail_size;
-extern long pl_def_cstr_size;
-extern long pl_def_global_size;
-extern long pl_def_local_size;
-extern long pl_fixed_sizes;
-
-
-extern InfStack pl_stk_tbl[];
-
-#endif
+#include "wam_stacks.h"
 
 
    /*--- End Stack Generation ---*/

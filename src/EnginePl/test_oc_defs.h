@@ -6,11 +6,11 @@
 #include "obj_chain.h"
 
 static char name[32];
-                 
+
 int no;
 int previous;
 
-static void Init_Tables()  
+static void Init_Tables()
 {
   if (previous == 0)
     previous = 10000000;
@@ -28,5 +28,5 @@ static void Init_Tables()
   previous = no;
   no = OBJ_NO;
   sprintf(name, "object #%d", OBJ_NO);
-  printf("object <%s> found  &name:%p\n", name, &name); 
+  printf("object <%s> found  &name:%p\n", name, &name);
 }

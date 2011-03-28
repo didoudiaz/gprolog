@@ -6,20 +6,33 @@
  * Descr.: mathematical predicate management - FD part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -32,16 +45,16 @@
 
 
 
-/*-------------------------------------------------------------------------* 
- * EQUAL (LINEAR)                                                          * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * EQUAL (LINEAR)                                                          *
+ *                                                                         *
  * NB: pl_x_eq_c(fdv X, int C) is defined as a function in math_supp.c to  *
-*  avoid A Frame creation.                                                 * 
+*  avoid A Frame creation.                                                 *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -63,8 +76,8 @@ pl_x_plus_c_eq_y(fdv X, int C, fdv Y)
 }
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
@@ -88,14 +101,14 @@ pl_x_plus_c_eq_y_F(fdv X, int C, fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * DIFFERENT (LINEAR)                                                      * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * DIFFERENT (LINEAR)                                                      *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -128,14 +141,14 @@ pl_x_plus_c_neq_y(fdv X, int C, fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * LESS THAN (LINEAR)                                                      * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * LESS THAN (LINEAR)                                                      *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -149,14 +162,14 @@ pl_x_lt_y(fdv X, fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * LESS THAN OR EQUAL TO (LINEAR)                                          * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * LESS THAN OR EQUAL TO (LINEAR)                                          *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -189,14 +202,14 @@ pl_x_plus_c_lte_y(fdv X, int C, fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * GREATER THAN OR EQUAL TO (LINEAR)                                       * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * GREATER THAN OR EQUAL TO (LINEAR)                                       *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -219,15 +232,15 @@ pl_x_plus_c_gte_y(fdv X, int C, fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * OTHER EQUAL (LINEAR)                                                    * 
- *                                                                         * 
- * NB: used to split large equations introducing intermediate variables.   * 
+/*-------------------------------------------------------------------------*
+ * OTHER EQUAL (LINEAR)                                                    *
+ *                                                                         *
+ * NB: used to split large equations introducing intermediate variables.   *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -289,7 +302,7 @@ pl_x_plus_y_plus_z_eq_t(fdv X, fdv Y, fdv Z, fdv T)
 pl_ax_plus_y_plus_z_eq_t(int A, fdv X, fdv Y, fdv Z, fdv T)
 
 {
- start X in (min(T) - max(Y) - max(Z)) /> A .. 
+ start X in (min(T) - max(Y) - max(Z)) /> A ..
             (max(T) - min(Y) - min(Z)) /< A
  start Y in min(T) - A*max(X) - max(Z) .. max(T) - A*min(X) - min(Z)
  start Z in min(T) - A*max(X) - max(Y) .. max(T) - A*min(X) - min(Y)
@@ -302,17 +315,17 @@ pl_ax_plus_y_plus_z_eq_t(int A, fdv X, fdv Y, fdv Z, fdv T)
 pl_ax_plus_by_plus_z_eq_t(int A, fdv X, int B, fdv Y, fdv Z, fdv T)
 
 {
- start X in (min(T) - B*max(Y) - max(Z)) /> A .. 
+ start X in (min(T) - B*max(Y) - max(Z)) /> A ..
             (max(T) - B*min(Y) - min(Z)) /< A
- start Y in (min(T) - A*max(X) - max(Z)) /> B .. 
+ start Y in (min(T) - A*max(X) - max(Z)) /> B ..
             (max(T) - A*min(X) - min(Z)) /< B
  start Z in min(T) - A*max(X) - B*max(Y) .. max(T) - A*min(X) - B*min(Y)
  start T in A*min(X) + B*min(Y) + min(Z) .. A*max(X) + B*max(Y) + max(Z)
 }
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
@@ -395,14 +408,14 @@ pl_ax_plus_by_plus_z_eq_t_F(int A, fdv X, int B, fdv Y, fdv Z, fdv T)
 
 
 
-/*-------------------------------------------------------------------------* 
- * POWER and X * Y                                                         * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * POWER and X * Y                                                         *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -460,8 +473,8 @@ pl_xy_eq_z(fdv X, fdv Y, fdv Z)
 
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 pl_a_power_n_eq_y_F(int A, fdv N, fdv Y)                         /* here A >= 2 */
@@ -518,14 +531,14 @@ pl_xy_eq_z_F(fdv X, fdv Y, fdv Z)
 
 
 
-/*-------------------------------------------------------------------------* 
- * MINIMUM                                                                 * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * MINIMUM                                                                 *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -543,8 +556,8 @@ pl_min_x_y_eq_z(fdv X, fdv Y, fdv Z)
 
  wait_switch
 	case min(Y)>max(Z)                                /* case : Y != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -552,8 +565,8 @@ pl_min_x_y_eq_z(fdv X, fdv Y, fdv Z)
 		start X in min(Z) .. max(Z)
 
 	case min(X)>max(Z)                                /* case : X != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -586,8 +599,8 @@ pl_min_x_a_eq_z(fdv X, int A, fdv Z)
 
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
@@ -604,8 +617,8 @@ pl_min_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
 
  wait_switch
 	case Pl_Range_Test_Null_Inter(dom(Y), dom(Z))         /* case : Y != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -613,8 +626,8 @@ pl_min_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
 		start X in dom(Z)
 
 	case Pl_Range_Test_Null_Inter(dom(X), dom(Z))         /* case : X != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -648,14 +661,14 @@ pl_min_x_a_eq_z_F(fdv X, int A, fdv Z)
 
 
 
-/*-------------------------------------------------------------------------* 
- * MAXIMUM                                                                 * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * MAXIMUM                                                                 *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -665,7 +678,7 @@ pl_max_x_y_eq_z(fdv X, fdv Y, fdv Z)
  start (c1) Z in 0 .. math_max(max(X), max(Y))             /* Z <= max(X, Y) */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)  
+ start (c3) X in 0      .. max(Z)
 
  start (c4) Z in min(Y) .. max_integer                           /* Z >= Y */
  start (c5) Y in 0      .. max(Z)
@@ -673,8 +686,8 @@ pl_max_x_y_eq_z(fdv X, fdv Y, fdv Z)
 
  wait_switch
 	case max(Y)<min(Z)                                /* case : Y != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -682,8 +695,8 @@ pl_max_x_y_eq_z(fdv X, fdv Y, fdv Z)
 		start X in min(Z) .. max(Z)
 
 	case max(X)<min(Z)                                /* case : X != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -700,7 +713,7 @@ pl_max_x_a_eq_z(fdv X, int A, fdv Z)
  start (c1) Z in 0 .. math_max(max(X), A)                  /* Z <= max(X, A) */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)  
+ start (c3) X in 0      .. max(Z)
 
  start      Z in A .. max_integer                                /* Z >= A */
 
@@ -715,8 +728,8 @@ pl_max_x_a_eq_z(fdv X, int A, fdv Z)
 }
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
@@ -726,7 +739,7 @@ pl_max_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
  start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)  
+ start (c3) X in 0      .. max(Z)
 
  start (c4) Z in min(Y) .. max_integer                           /* Z >= Y */
  start (c5) Y in 0      .. max(Z)
@@ -734,8 +747,8 @@ pl_max_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
 
  wait_switch
 	case Pl_Range_Test_Null_Inter(dom(Y), dom(Z))         /* case : Y != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -743,8 +756,8 @@ pl_max_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
 		start X in dom(Z)
 
 	case Pl_Range_Test_Null_Inter(dom(X), dom(Z))         /* case : X != Z */
-		stop c1 
-		stop c2 
+		stop c1
+		stop c2
 		stop c3
 		stop c4
 		stop c5
@@ -761,7 +774,7 @@ pl_max_x_a_eq_z_F(fdv X, int A, fdv Z)
  start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)  
+ start (c3) X in 0      .. max(Z)
 
  start      Z in A .. max_integer                                /* Z >= A */
 
@@ -778,14 +791,14 @@ pl_max_x_a_eq_z_F(fdv X, int A, fdv Z)
 
 
 
-/*-------------------------------------------------------------------------* 
- * ABSOLUTE VALUE                                                          * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * ABSOLUTE VALUE                                                          *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -820,8 +833,8 @@ pl_abs_x_minus_y_eq_z(fdv X, fdv Y, fdv Z)
 }
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
@@ -908,14 +921,14 @@ pl_abs_x_minus_a_eq_z_F(fdv X, int A, fdv Z)
 
 
 
-/*-------------------------------------------------------------------------* 
- * EUCLIDIAN DIVISION WITH REMAINDER                                       * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * EUCLIDIAN DIVISION WITH REMAINDER                                       *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
@@ -972,8 +985,8 @@ pl_quot_rem_x_a_r_eq_z(fdv X, int A, fdv R, fdv Z)               /* X = Z*A+R */
 }
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 

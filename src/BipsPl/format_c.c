@@ -6,20 +6,33 @@
  * Descr.: formatted output management - C part                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -27,6 +40,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -56,7 +70,7 @@ static WamWord Read_Arg(WamWord **lst_adr);
 
 static char *Arg_Atom(WamWord **lst_adr);
 
-static long Arg_Integer(WamWord **lst_adr);
+static PlLong Arg_Integer(WamWord **lst_adr);
 
 static double Arg_Float(WamWord **lst_adr);
 
@@ -125,10 +139,10 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 {
   WamWord word;
   Bool has_n;
-  long generic;
-  long n, n1;
+  PlLong generic;
+  PlLong n, n1;
   char *p;
-  long x;
+  PlLong x;
   double d;
   int lg, stop;
   int i, k;
@@ -169,7 +183,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      *p = '\0';
 	      if (strchr("eEfgG", p[-1]) == NULL)
 		{
-		  generic = (p[-1] == 's') ? (long) Arg_Atom(&lst_adr)
+		  generic = (p[-1] == 's') ? (PlLong) Arg_Atom(&lst_adr)
 		    : Arg_Integer(&lst_adr);
 		  if (n != IMPOSS)
 		    {
@@ -213,7 +227,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	  else
 	    {
 	      p = format;
-	      n = strtol(format, &format, 10);
+	      n = strtoll(format, &format, 10);
 	      has_n = (format != p);
 	    }
 
@@ -248,7 +262,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 	      d = Arg_Float(&lst_adr);
 
 	      if (has_n)
-		sprintf(buff, "%%.%ld%c", n, (char) x);
+		sprintf(buff, "%%.%" PL_FMT_d "%c", n, (char) x);
 	      else
 		sprintf(buff, "%%%c", (char) x);
 
@@ -261,7 +275,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 
 	      if (n == 0 && *format == 'd')
 		{
-		  Pl_Stream_Printf(pstm, "%ld", x);
+		  Pl_Stream_Printf(pstm, "%" PL_FMT_d, x);
 		  break;
 		}
 
@@ -271,14 +285,14 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 		  x = -x;
 		}
 
-	      sprintf(buff, "%ld", x);
+	      sprintf(buff, "%" PL_FMT_d, x);
 	      lg = strlen(buff) - n;
 	      if (lg <= 0)
 		{
 		  Pl_Stream_Puts("0.", pstm);
 		  for (i = 0; i < -lg; i++)
 		    Pl_Stream_Putc('0', pstm);
-		  Pl_Stream_Printf(pstm, "%ld", x);
+		  Pl_Stream_Printf(pstm, "%" PL_FMT_d, x);
 		  break;
 		}
 
@@ -428,7 +442,7 @@ Read_Arg(WamWord **lst_adr)
 
       Pl_Err_Type(pl_type_list, word);
     }
-  
+
   adr = UnTag_LST(word);
   car_word = Car(adr);
   *lst_adr = &Cdr(adr);
@@ -461,7 +475,7 @@ Arg_Atom(WamWord **lst_adr)
  * ARG_INTEGER                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Arg_Integer(WamWord **lst_adr)
 {
   WamWord word;

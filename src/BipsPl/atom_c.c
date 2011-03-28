@@ -6,20 +6,33 @@
  * Descr.: atom manipulation management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -27,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -279,7 +293,7 @@ Pl_Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
   AtomInf *patom;
   AtomInf *psub_atom = NULL;	/* only for the compiler */
   int length;
-  long b, l, a;
+  PlLong b, l, a;
   int b1, l1, a1;
   Bool nondet;
   int mask = 0;
@@ -603,7 +617,7 @@ Pl_Number_Atom_2(WamWord number_word, WamWord atom_word)
   DEREF(number_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      sprintf(pl_glob_buff, "%ld", UnTag_INT(word));
+      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(word));
       return Pl_Un_String_Check(pl_glob_buff, atom_word);
     }
 
@@ -654,7 +668,7 @@ from_nb:
   DEREF(number_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      sprintf(pl_glob_buff, "%ld", UnTag_INT(word));
+      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(word));
       return Pl_Un_Chars_Check(pl_glob_buff, chars_word);
     }
 
@@ -681,7 +695,7 @@ Pl_Number_Codes_2(WamWord number_word, WamWord codes_word)
   WamWord word, tag_mask;
   WamWord *lst_adr, list_word;
   char *str = pl_glob_buff;
-  long c;
+  PlLong c;
 
   list_word = codes_word;
   for (;;)
@@ -711,7 +725,7 @@ from_nb:
   DEREF(number_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      sprintf(pl_glob_buff, "%ld", UnTag_INT(word));
+      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(word));
       return Pl_Un_Codes_Check(pl_glob_buff, codes_word);
     }
 

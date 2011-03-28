@@ -1,25 +1,38 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : top_level.pl                                                    * 
- * Descr.: top Level                                                       * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2010 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU Lesser General Public License as published   * 
- * by the Free Software Foundation; either version 3, or any later version.* 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU Lesser General Public License* 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : top_level.pl                                                    *
+ * Descr.: top Level                                                       *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -80,7 +93,7 @@ break :-
 	write(top_level_output, 'execution aborted\n'),
 	'$catch_sync_for_fail_at'(B).
 
-	
+
 
 
 '$top_level_stop' :-
@@ -194,7 +207,7 @@ break :-
 	g_assign('$cmd_line_query_goal', LGoal),
 	!,
 	Prompt = '| ?- ',
-	(   '$sys_var_read'(12, 1) -> 
+	(   '$sys_var_read'(12, 1) ->
 	    write(top_level_output, Prompt)
 	;   true),
 	format(top_level_output, '~a.~n', [Goal]),
@@ -250,7 +263,7 @@ break :-
 	    sub_atom(Name1, 0, 1, _, '_')),
 	!,
 	'$remove_underscore_vars'(ToDispVars, ToDispVars1).
-	
+
 '$remove_underscore_vars'([X|ToDispVars], [X|ToDispVars1]) :-
 	'$remove_underscore_vars'(ToDispVars, ToDispVars1).
 
@@ -317,7 +330,7 @@ break :-
 '$exec_cmd_line_entry_goals'(_).		% can be another term than []
 
 
-						
+
 
 '$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
 	(   '$catch'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), 'command-line', -1, false) ->

@@ -6,20 +6,33 @@
  * Descr.: Wam architecture definition - description file                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /*---------------------------------*
@@ -175,9 +188,9 @@ extern char *reg_tbl[];
 #define VALUE_SIZE   		29
 #define TAG_MASK     		0x80000003UL
 #define VALUE_MASK   		0x7ffffffcUL
-#define Tag_Mask_Of(w)		((unsigned long) (w) & (TAG_MASK))
-#define Tag_From_Tag_Mask(w) 	(((unsigned long) (w) >> 29) | ((w) & 3))
-#define Tag_Of(w)     		((((unsigned long) (w) >> 31) << 2) | ((w) & 3))
+#define Tag_Mask_Of(w)		((uintptr_t) (w) & (TAG_MASK))
+#define Tag_From_Tag_Mask(w) 	(((uintptr_t) (w) >> 29) | ((w) & 3))
+#define Tag_Of(w)     		((((uintptr_t) (w) >> 31) << 2) | ((w) & 3))
 #define TAG_REF_MASK		0UL
 #define TAG_LST_MASK		0x1UL
 #define TAG_STC_MASK		0x2UL
@@ -187,19 +200,19 @@ extern char *reg_tbl[];
 #define TAG_INT_MASK		0x80000003UL
 
 #define NB_OF_TAGS       	7
-#define REF        		0 
-#define LST        		1 
-#define STC        		2 
-#define ATM        		3 
-#define FLT        		4 
-#define FDV        		5 
-#define INT        		7 
+#define REF        		0
+#define LST        		1
+#define STC        		2
+#define ATM        		3
+#define FLT        		4
+#define FDV        		5
+#define INT        		7
 
 	/* General Tag/UnTag macros */
 
-#define Tag_Long_Int(tm, v)  	((((unsigned long) ((v) << 3)) >> 1) | (tm))
-#define Tag_Short_Uns(tm, v)	(((unsigned long) (v) << 2) + (tm))
-#define Tag_Address(tm, v)  	((unsigned long) (v) + (tm))
+#define Tag_Long_Int(tm, v)  	((((uintptr_t) ((v) << 3)) >> 1) | (tm))
+#define Tag_Short_Uns(tm, v)	(((uintptr_t) (v) << 2) + (tm))
+#define Tag_Address(tm, v)  	((uintptr_t) (v) + (tm))
 
 #define UnTag_Long_Int(w)    	((long) ((w) << 1) >> 3)
 #define UnTag_Short_Uns(w)	UnTag_Long_Int(w)
@@ -215,12 +228,12 @@ extern char *reg_tbl[];
 #define Tag_ATM(v)  		Tag_Short_Uns(TAG_ATM_MASK, v)
 #define Tag_FLT(v)  		Tag_Address(TAG_FLT_MASK, v)
 #define Tag_FDV(v)  		Tag_Address(TAG_FDV_MASK, v)
-#define Tag_INT(v)  		(((unsigned long) (v) << 2) | TAG_MASK)
+#define Tag_INT(v)  		(((uintptr_t) (v) << 2) | TAG_MASK)
 
 #define UnTag_REF(w)  		((WamWord *) (w))
 #define UnTag_LST(w)  		UnTag_Address(w)
 #define UnTag_STC(w)  		UnTag_Address(w)
-#define UnTag_ATM(w)  		((unsigned long) (w) >> 2)
+#define UnTag_ATM(w)  		((uintptr_t) (w) >> 2)
 #define UnTag_FLT(w)  		UnTag_Address(w)
 #define UnTag_FDV(w)  		UnTag_Address(w)
 #define UnTag_INT(w)  		UnTag_Long_Int(w)

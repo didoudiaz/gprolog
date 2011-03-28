@@ -25,16 +25,16 @@ OutputBaseFileName=setup-gprolog-1.4.0-
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4
 
 [Files]
-Source: "*.*"; DestDir: "{app}";  Flags: ignoreversion 
-Source: "bin\*.*"; DestDir: "{app}\bin";  Flags: ignoreversion 
-Source: "lib\*.*"; DestDir: "{app}\lib";  Flags: ignoreversion 
+Source: "*.*"; DestDir: "{app}";  Flags: ignoreversion
+Source: "bin\*.*"; DestDir: "{app}\bin";  Flags: ignoreversion
+Source: "lib\*.*"; DestDir: "{app}\lib";  Flags: ignoreversion
 Source: "lib\*.dll"; DestDir: "{app}\bin";  Flags: ignoreversion skipifsourcedoesntexist
-Source: "include\*.*"; DestDir: "{app}\include";  Flags: ignoreversion 
-Source: "doc\*.*"; DestDir: "{app}\doc";  Flags: ignoreversion 
-Source: "doc\html_node\*.*"; DestDir: "{app}\doc\html_node";  Flags: ignoreversion 
-Source: "examples\ExamplesPl\*.*"; DestDir: "{app}\examples\ExamplesPl";  Flags: ignoreversion 
-Source: "examples\ExamplesFD\*.*"; DestDir: "{app}\examples\ExamplesFD";  Flags: ignoreversion 
-Source: "examples\ExamplesC\*.*"; DestDir: "{app}\examples\ExamplesC";  Flags: ignoreversion 
+Source: "include\*.*"; DestDir: "{app}\include";  Flags: ignoreversion
+Source: "doc\*.*"; DestDir: "{app}\doc";  Flags: ignoreversion
+Source: "doc\html_node\*.*"; DestDir: "{app}\doc\html_node";  Flags: ignoreversion
+Source: "examples\ExamplesPl\*.*"; DestDir: "{app}\examples\ExamplesPl";  Flags: ignoreversion
+Source: "examples\ExamplesFD\*.*"; DestDir: "{app}\examples\ExamplesFD";  Flags: ignoreversion
+Source: "examples\ExamplesC\*.*"; DestDir: "{app}\examples\ExamplesC";  Flags: ignoreversion
 
 [INI]
 Filename: "{app}\gprolog.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.gprolog.org"

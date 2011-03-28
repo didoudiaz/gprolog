@@ -6,26 +6,40 @@
  * Descr.: test file for MA translation                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #ifndef FAST  /* see Makefile */
 #define FC /* define FC to force arch_dep.h to no use FC */
@@ -71,24 +85,24 @@
 
 /* these 4 lines are get from foreign_supp.c */
 
-long pl_foreign_long[NB_OF_X_REGS];
+PlLong pl_foreign_long[NB_OF_X_REGS];
 double pl_foreign_double[NB_OF_X_REGS];
-long *base_fl = pl_foreign_long;	  /* overwrite var of engine.c */
+PlLong *base_fl = pl_foreign_long;	  /* overwrite var of engine.c */
 double *base_fd = pl_foreign_double; /* overwrite var of engine.c */
 
 
 WamWord stack[4096];
 
 int initialised = 0;
-long x;
-long ret;
-long swt[] = { 0, 4, 15, 4095, 123456, 2456789, -1 };
-long i;
+PlLong x;
+PlLong ret;
+PlLong swt[] = { 0, 4, 15, 4095, 123456, 2456789, -1 };
+PlLong i;
 
-long MA_ARRAY[5000];
-long MA_GLOBAL_VAR1;
-long MA_GLOBAL_VAR2;
-long MA_LOCAL_VAR2;		/* should not be the same as in check_ma.ma */
+PlLong MA_ARRAY[5000];
+PlLong MA_GLOBAL_VAR1;
+PlLong MA_GLOBAL_VAR2;
+PlLong MA_LOCAL_VAR2;		/* should not be the same as in check_ma.ma */
 
 
 #if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
@@ -129,6 +143,9 @@ void ma_test_arg_int(void);
 
 void test_arg_double(void);
 void ma_test_arg_double(void);
+
+void test_arg_mixed(void);
+void ma_test_arg_mixed(void);
 
 void test_arg_string(void);
 void ma_test_arg_string(void);
@@ -189,6 +206,7 @@ void (*tbl[]) () =
   test_move_y_x,
   test_arg_int,
   test_arg_double,
+  test_arg_mixed,
   test_arg_string,
   test_arg_mem_l,
   test_arg_x,
@@ -203,7 +221,7 @@ void (*tbl[]) () =
   test_move_ret_y,
   test_move_ret_fl,
   test_move_ret_fd,
-  test_switch_ret, 
+  test_switch_ret,
   NULL
 };
 
@@ -257,10 +275,10 @@ main(int argc, char *argv[])
   B = stack;
 #endif
   E = B + 1024;
-  printf("pl_reg_bank=&X(0):%#lx   B:%#lx   E:%#lx  &Y(0):%#lx\n",
-	 (long) pl_reg_bank, (long) B, (long) E, (long) &Y(E, 0));
+  printf("pl_reg_bank=&X(0):%#" PL_FMT_x "   B:%#" PL_FMT_x "   E:%#" PL_FMT_x "  &Y(0):%#" PL_FMT_x "\n",
+	 (PlULong) pl_reg_bank, (PlULong) B, (PlULong) E, (PlULong) &Y(E, 0));
 
-  printf("stack:%#lx\n", (long) stack);
+  printf("stack:%#" PL_FMT_x "\n", (PlULong) stack);
   while (tbl[i++])
     {
       printf("test %d: ", i);
@@ -282,10 +300,10 @@ Init_CP(WamCont p)
   CP = Adjust_CP(p);
 }
 
-				/* can be called by MA code to print a long */
-void Write_Long(long x)
+				/* can be called by MA code to print a PlLong */
+void Write_Long(PlLong x)
 {
-  printf("\nValue x: %#lx\n", x);
+  printf("\nValue x: %#" PL_FMT_x "\n", x);
 }
 
 
@@ -335,14 +353,14 @@ Call_Pl(void (*code) (), int must_succeed)
 }
 
 
-void 
+void
 Initializer(void)
 {
   initialised = 1;
 }
 
 
-void 
+void
 test_initializer(void)
 {
 #ifdef _MSC_VER
@@ -357,7 +375,7 @@ test_initializer(void)
 void
 test_declaration(void)
 {
-  long *adr = MA_ARRAY + 5000;
+  PlLong *adr = MA_ARRAY + 5000;
   int i;
 
   printf("long local/global ...\n");
@@ -520,6 +538,31 @@ test_arg_double1(double a, double b, double c)
 
 
 
+// JAT: rumour that fast call (default on x86_64) allows only 4 params in regs,
+// no matter what type: new test required
+void test_arg_mixed(void)
+{
+  printf("call_c(mixed)...\n");
+  x = 0;
+  Call_Pl(ma_test_arg_mixed, 1);
+  if (x != 1)
+    error();
+}
+
+
+void FC
+test_arg_mixed1(int ai, double a, double b, int bi, int ci, double c, int di)
+{
+  /*  printf("Results: a %g, ai %d, b %g, bi %d, c %g, ci %d, di %d\n",	 a, ai, b, bi, c, ci, di); */
+  if (a != 12.456 || b != -1.3e-102 || c != -3.141593 ||
+      ai != -19 || bi != 365 || ci != 987654321 || di != -110101)
+    error();
+  x++;
+}
+
+
+
+
 void
 test_arg_string(void)
 {
@@ -559,9 +602,12 @@ test_arg_mem_l(void)
 
 
 void FC
-test_arg_mem_l1(long a, long b, long *c, long d, long e, long *f)
+test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f)
 {
-  if (a != 128 || b != 12345 || c != (long *) test_arg_mem_l
+  // JAT: needed more detail here
+  /*  printf("Results: a %" PL_FMT_d ", b %" PL_FMT_d ", c %p (test_arg_m_l %p), d %" PL_FMT_d " (MA_ARRAY[0] %" PL_FMT_d "), e %" PL_FMT_d " (MA_ARRAY[4097] %" PL_FMT_d "), f %p (&MA_ARRAY[4500] %p)\n",
+      a,b,c,test_arg_mem_l,d,MA_ARRAY[0],e,MA_ARRAY[4097],f,&MA_ARRAY[4500]); */
+  if (a != 128 || b != 12345 || c != (PlLong *) test_arg_mem_l
       || d != MA_ARRAY[0] || e != MA_ARRAY[4097] || f != &MA_ARRAY[4500])
     error();
   x++;
@@ -633,7 +679,7 @@ test_arg_fl_array(void)
 
 
 void FC
-test_arg_fl_array1(long a, long b, long *c, long *d)
+test_arg_fl_array1(PlLong a, PlLong b, PlLong *c, PlLong *d)
 {
 #ifdef DEBUG
   printf("a=%d b=%d c=%x e=%x (fl=%x fl+56=%x)\n",
@@ -697,7 +743,7 @@ test_call_c_lot_args(void)
 void FC
 test_call_c_lot_args1(WamWord n0, WamWord n1, WamWord n2, WamWord n3,
 		      WamWord n4, WamWord n5,
-		      void (*a) (), long b, int c, int d, double e, char *f,
+		      void (*a) (), PlLong b, int c, int d, double e, char *f,
 		      WamWord g, WamWord *h, WamWord i, WamWord *j,
 		      WamWord k, WamWord *l, WamWord m, WamWord *n, double o)
 {
@@ -724,8 +770,8 @@ test_jump_ret(void)
 }
 
 
-long FC
-test_jump_ret1(long addr)
+PlLong FC
+test_jump_ret1(PlLong addr)
 {
 #ifdef DEBUG
   extern void ma_test_jump_ret1();
@@ -791,7 +837,7 @@ test_move_ret_mem(void)
 }
 
 
-long FC
+PlLong FC
 test_move_ret_mem1(void)
 {
   x++;
@@ -816,7 +862,7 @@ test_move_ret_x(void)
 }
 
 
-long FC
+PlLong FC
 test_move_ret_x1(void)
 {
   x++;
@@ -841,7 +887,7 @@ test_move_ret_y(void)
 }
 
 
-long FC
+PlLong FC
 test_move_ret_y1(void)
 {
   x++;
@@ -866,7 +912,7 @@ test_move_ret_fl(void)
 }
 
 
-long FC
+PlLong FC
 test_move_ret_fl1(void)
 {
   x++;
@@ -914,7 +960,7 @@ test_switch_ret(void)
 }
 
 
-long FC
+PlLong FC
 test_switch_ret1(void)
 {
   return swt[i];
@@ -999,7 +1045,7 @@ Is_Win32_SEGV(void *exp)
   return 0;
 }
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ifdef USE_SEH /* (defined(_WIN32) || defined(__CYGWIN__)) && !defined(M_x86_64)*/
 
 EXCEPT_DISPOSITION
 Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
@@ -1007,7 +1053,6 @@ Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
 {
   return 0;
 }
-
 #endif
 
 

@@ -1,6 +1,8 @@
 #include <signal.h>
 #include <stdio.h>
 #include <windows.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #if defined(__GNUC__) || defined(__LCC__)
 
@@ -18,7 +20,7 @@ typedef struct _excp_lst
   struct _excp_lst *chain;
   EXCEPTION_DISPOSITION (*handler)();
 } excp_lst;
-  
+
 
 #ifdef __GNUC__
 
@@ -29,7 +31,7 @@ typedef struct _excp_lst
   asm("movl %%fs:0,%0" : "=r" (e.chain));	\
   asm("movl %0,%%fs:0" : : "r" (&e));
 
- 
+
 #  define SEH_POP				\
   asm("movl %0,%%fs:0" : : "r" (e.chain));	\
 }
@@ -55,7 +57,7 @@ typedef struct _excp_lst
 }
 
 #elif defined(__LCC__)
- /* below in movl %eax,%e and movel %e,%eax %e should be %e.chain the lcc asm 
+ /* below in movl %eax,%e and movel %e,%eax %e should be %e.chain the lcc asm
     does not support it. Here %e works since chain is the 1st field */
 #  define SEH_PUSH(new_handler)			\
 {						\
@@ -82,17 +84,17 @@ typedef struct _excp_lst
 #endif
 
 
-long *fault_addr;
+PlLong *fault_addr;
 
 EXCEPTION_DISPOSITION
-ExceptionWrapper(EXCEPTION_RECORD *excp_rec, void *establisher_frame, 
+ExceptionWrapper(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
 		 CONTEXT *context_rec, void *dispatcher_cxt)
 {
   if (excp_rec->ExceptionFlags)
     return ExceptionContinueSearch; /* unwind and others */
 
   if (excp_rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
-    fault_addr = (long *) excp_rec->ExceptionInformation[1];
+    fault_addr = (PlLong *) excp_rec->ExceptionInformation[1];
 
   printf("addr:%p\n", fault_addr);
   /* exit(1); */
@@ -108,24 +110,24 @@ SIGSEGV_Handler(int sig)
 }
 
 EXCEPTION_DISPOSITION
-ExceptionHandler(EXCEPTION_RECORD *excp_rec, void *establisher_frame, 
+ExceptionHandler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
 		 CONTEXT *context_rec, void *dispatcher_cxt)
 {
   char *addr;
   DWORD old_prot;
-  
+
   if (excp_rec->ExceptionFlags)
     return ExceptionContinueSearch; /* unwind and others */
 
   if (excp_rec->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
     return ExceptionContinueSearch;
-  
+
   addr = (char *) excp_rec->ExceptionInformation[1];
 
   printf("access violation at addr:%p - unprotect this page and retry\n", addr);
   if (!VirtualProtect(addr, 4096, PAGE_READWRITE, &old_prot))
     {
-      printf("In Handler VirtualProtect failed: %lu", GetLastError());
+      printf("In Handler VirtualProtect failed: %" PL_FMT_u "\n", GetLastError());
       return ExceptionContinueSearch;
     }
 
@@ -138,10 +140,10 @@ int
 main()
 {
 #if 0
-  long *x;
+  PlLong *x;
   SEH_PUSH(ExceptionWrapper);
   signal(SIGSEGV, (void (*)(int)) SIGSEGV_Handler);
-  x = (long *) 0xffff040;
+  x = (PlLong *) 0xffff040;
   *x = 12 / bar;		/* set bar to 1 to test div by 0 exception */
   SEH_POP;
 #else
@@ -153,13 +155,13 @@ main()
 			       PAGE_READWRITE);
   if (addr == NULL)
     {
-      printf("VirtualAlloc failed : %lu", GetLastError());
+      printf("VirtualAlloc failed : %" PL_FMT_u "\n", GetLastError());
       return 1;
     }
 
   if (!VirtualProtect(addr + 4096, page_size, PAGE_NOACCESS, &old_prot))
     {
-      printf("VirtualProtect failed : %lu", GetLastError());
+      printf("VirtualProtect failed : %" PL_FMT_u "\n", GetLastError());
       return 1;
     }
   SEH_PUSH(ExceptionHandler);

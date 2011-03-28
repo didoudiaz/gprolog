@@ -6,20 +6,33 @@
  * Descr.: Prolog source file reader - C part                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -323,7 +336,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	    stm = pl_stm_input;
 #else
 	  {
-	    stm = Pl_Add_Stream(0, (long) 0, pl_stm_tbl[pl_stm_input]->prop,
+	    stm = Pl_Add_Stream(0, (PlLong) 0, pl_stm_tbl[pl_stm_input]->prop,
 		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 	    *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_input];
 	  }
@@ -335,11 +348,11 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	      if (stm < 0)
 		{
 		  if (errno == ENOENT || errno == ENOTDIR)
-		    Pl_Err_Existence(pl_existence_source_sink, 
+		    Pl_Err_Existence(pl_existence_source_sink,
 				     file_name_word);
 		  else
 		    Pl_Err_Permission(pl_permission_operation_open,
-				      pl_permission_type_source_sink, 
+				      pl_permission_type_source_sink,
 				      file_name_word);
 		}
 	    }
@@ -385,7 +398,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
   else
     file = sr->next_to_reread;
 
-  
+
   file->eof_reached = FALSE;
   file->parent_file = sr->file_top;
   if (sr->file_top)
@@ -432,7 +445,7 @@ Pl_SR_Close_1(WamWord desc_word)
   Common_Clean(sr, FALSE);
 
   sr->in_use = FALSE;
-  
+
   while(sr_last_used >= 0 && !sr_tbl[sr_last_used].in_use)
     sr_last_used--;
 }
@@ -531,7 +544,7 @@ Pl_SR_New_Pass_1(WamWord desc_word)
 	  if (file != sr->file_first || sr->close_master_at_end)
 	    Pl_Close_Stm(file->stm, TRUE);
 	  Pl_Close_Stm(file->tmp_stm, TRUE); /* close mirror file */
-	  file->stm = Pl_Add_Stream_For_Stdio_File(file->tmp_path, 
+	  file->stm = Pl_Add_Stream_For_Stdio_File(file->tmp_path,
 						STREAM_MODE_READ, TRUE);
 	  file->reposition = TRUE;
 	}
@@ -552,7 +565,7 @@ Pl_SR_New_Pass_1(WamWord desc_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_SR_Add_Directive_7(WamWord type_word, 
+Pl_SR_Add_Directive_7(WamWord type_word,
 		   WamWord d1_word, WamWord d2_word, WamWord d3_word,
 		   WamWord u1_word, WamWord u2_word, WamWord u3_word)
 {
@@ -825,7 +838,7 @@ Pl_SR_Start_Module_3(WamWord module_name_word, WamWord interface_word,
       m->b_atom_file_def = sr->file_top->atom_file_name;
       m->b_line_def = sr->cur_l1;
     }
-  
+
   sr->cur_module = m;
   sr->interface = interface;
 
@@ -867,7 +880,7 @@ Pl_SR_Stop_Module_3(WamWord module_name_word, WamWord interface_word,
   if (interface != sr->interface || atom_module_name != m->atom_module_name)
     {
       sprintf(pl_glob_buff, "directive mismatch wrt %s:%d - replaced by end_%s(%s)",
-	      (sr->interface) ? 
+	      (sr->interface) ?
 	      pl_atom_tbl[m->i_atom_file_def].name :
 	      pl_atom_tbl[m->b_atom_file_def].name,
 	      (sr->interface) ? m->i_line_def : m->b_line_def,
@@ -1015,7 +1028,7 @@ Pl_SR_Get_Stm_2(WamWord desc_word, WamWord stm_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_SR_Get_Module_3(WamWord desc_word, WamWord module_name_word, 
+Pl_SR_Get_Module_3(WamWord desc_word, WamWord module_name_word,
 		WamWord interface_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
@@ -1032,7 +1045,7 @@ Pl_SR_Get_Module_3(WamWord desc_word, WamWord module_name_word,
 
   if (sr->interface)
     return Pl_Un_String("interface", interface_word);
-  
+
   return Pl_Un_String("body", interface_word);
 }
 
@@ -1140,7 +1153,7 @@ Pl_SR_Get_Include_Stream_List_2(WamWord desc_word, WamWord list_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word, 
+Pl_SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word,
 		       WamWord lines_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
@@ -1171,11 +1184,11 @@ Pl_SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_SR_Get_Error_Counters_3(WamWord desc_word, WamWord errors_word, 
+Pl_SR_Get_Error_Counters_3(WamWord desc_word, WamWord errors_word,
 			WamWord warnings_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
-  
+
   Pl_Check_For_Un_Integer(errors_word);
   Pl_Check_For_Un_Integer(warnings_word);
 
@@ -1191,13 +1204,13 @@ Pl_SR_Get_Error_Counters_3(WamWord desc_word, WamWord errors_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_SR_Set_Error_Counters_3(WamWord desc_word, WamWord errors_word, 
+Pl_SR_Set_Error_Counters_3(WamWord desc_word, WamWord errors_word,
 			WamWord warnings_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
   int errors = Pl_Rd_Integer_Check(errors_word);
   int warnings = Pl_Rd_Integer_Check(warnings_word);
-  
+
   sr->error_count = errors;
   sr->warning_count = warnings;
 }
@@ -1233,13 +1246,13 @@ Get_Descriptor(WamWord desc_word, Bool accept_none)
     {
       DEREF(desc_word, word, tag_mask);
       atom = UnTag_ATM(word);
-      if (tag_mask == TAG_ATM_MASK && 
+      if (tag_mask == TAG_ATM_MASK &&
 	  strcmp(pl_atom_tbl[atom].name, "none") == 0)
 	{
 	  cur_sr = NULL;
 	  return cur_sr;
 	}
-      
+
     }
   desc = Pl_Rd_Integer_Check(desc_word);
 
@@ -1318,7 +1331,7 @@ Pl_SR_Write_Message_6(WamWord desc_word,
 
   l1 = Pl_Rd_Integer_Check(l1_word);
   l2c = Pl_Rd_Integer_Check(l2c_word);
-  
+
   pstm = Write_Location(sora_word, NOT_A_WAM_WORD, atom_file_name, l1, l2c);
   Write_Message_Text(pstm, sora_word, type_word, format_word, args_word);
 }
@@ -1331,7 +1344,7 @@ Pl_SR_Write_Message_6(WamWord desc_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word, 
+Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word,
 		   WamWord file_name_word,
 		   WamWord l1_word, WamWord l2c_word,
 		   WamWord type_word, WamWord format_word, WamWord args_word)
@@ -1344,7 +1357,7 @@ Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word,
 
   if (!Pl_Blt_List(list_word))
     Pl_Err_Type(pl_type_list, list_word);
-  
+
   if (sr)
     {
       sora_word = sr->out_sora_word;
@@ -1358,7 +1371,7 @@ Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word,
   atom_file_name = Pl_Rd_Atom_Check(file_name_word);
   l1 = Pl_Rd_Integer_Check(l1_word);
   l2c = Pl_Rd_Integer_Check(l2c_word);
-  
+
   pstm = Write_Location(sora_word, list_word, atom_file_name, l1, l2c);
   Write_Message_Text(pstm, sora_word, type_word, format_word, args_word);
 }
@@ -1406,7 +1419,7 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
       else
 	if (file == NULL)
 	  break;
-	
+
 
       if (first)
 	{
@@ -1426,7 +1439,7 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
 	}
       else
 	{
-	  Pl_Stream_Printf(pstm, "%s:%d", 
+	  Pl_Stream_Printf(pstm, "%s:%d",
 			pl_atom_tbl[file->atom_file_name].name,
 			file->include_line);
 	  file = file->parent_file;
@@ -1487,5 +1500,5 @@ Write_Message_Text(StmInf *pstm, WamWord sora_word,
 	}
     }
 				/* accepts sora_word = NOT_A_WAM_WORD */
-  Pl_Format_3(sora_word, format_word, args_word); 
+  Pl_Format_3(sora_word, format_word, args_word);
 }

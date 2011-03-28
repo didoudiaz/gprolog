@@ -5,11 +5,11 @@
 file_name('/home/diaz/GP/src/src/BipsPl/dec10io.pl').
 
 
-predicate('$use_dec10io'/0,29,static,private,monofile,built_in,[
+predicate('$use_dec10io'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$find_existing_stream'/3,33,static,private,monofile,built_in,[
+predicate('$find_existing_stream'/3,46,static,private,monofile,built_in,[
     load_cut_level(3),
     try_me_else(11),
     switch_on_term(3,1,fail,fail,fail),
@@ -99,7 +99,7 @@ label(12),
     execute(stream_property/2)]).
 
 
-predicate('$$find_existing_stream/3_$aux1'/3,41,static,private,monofile,local,[
+predicate('$$find_existing_stream/3_$aux1'/3,54,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(4),
@@ -132,7 +132,7 @@ label(1),
     fail]).
 
 
-predicate(see/1,61,static,private,monofile,built_in,[
+predicate(see/1,74,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -152,7 +152,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$see/1_$aux1'/2,61,static,private,monofile,local,[
+predicate('$see/1_$aux1'/2,74,static,private,monofile,local,[
     try_me_else(1),
     put_atom(input,2),
     execute('$find_existing_stream'/3),
@@ -176,7 +176,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(seeing/1,77,static,private,monofile,built_in,[
+predicate(seeing/1,90,static,private,monofile,built_in,[
     load_cut_level(1),
     allocate(3),
     get_variable(y(0),0),
@@ -193,7 +193,7 @@ predicate(seeing/1,77,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(seen/0,85,static,private,monofile,built_in,[
+predicate(seen/0,98,static,private,monofile,built_in,[
     load_cut_level(0),
     allocate(2),
     get_variable(y(0),0),
@@ -209,7 +209,7 @@ predicate(seen/0,85,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$seen/0_$aux1'/1,85,static,private,monofile,local,[
+predicate('$seen/0_$aux1'/1,98,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_void(0),
@@ -221,7 +221,7 @@ label(1),
     proceed]).
 
 
-predicate(tell/1,95,static,private,monofile,built_in,[
+predicate(tell/1,108,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -241,7 +241,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$tell/1_$aux1'/2,95,static,private,monofile,local,[
+predicate('$tell/1_$aux1'/2,108,static,private,monofile,local,[
     try_me_else(1),
     put_atom(output,2),
     execute('$find_existing_stream'/3),
@@ -265,7 +265,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(telling/1,111,static,private,monofile,built_in,[
+predicate(telling/1,124,static,private,monofile,built_in,[
     load_cut_level(1),
     allocate(3),
     get_variable(y(0),0),
@@ -282,7 +282,7 @@ predicate(telling/1,111,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(told/0,119,static,private,monofile,built_in,[
+predicate(told/0,132,static,private,monofile,built_in,[
     load_cut_level(0),
     allocate(2),
     get_variable(y(0),0),
@@ -298,7 +298,7 @@ predicate(told/0,119,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$told/0_$aux1'/1,119,static,private,monofile,local,[
+predicate('$told/0_$aux1'/1,132,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_void(0),
@@ -310,7 +310,7 @@ label(1),
     proceed]).
 
 
-predicate(append/1,128,static,private,monofile,built_in,[
+predicate(append/1,141,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -330,7 +330,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$append/1_$aux1'/2,128,static,private,monofile,local,[
+predicate('$append/1_$aux1'/2,141,static,private,monofile,local,[
     try_me_else(1),
     put_atom(output,2),
     execute('$find_existing_stream'/3),
@@ -354,13 +354,13 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(get0/1,144,static,private,monofile,built_in,[
+predicate(get0/1,157,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get0,1]),
     call_c('Pl_Get_Code_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(get/1,150,static,private,monofile,built_in,[
+predicate(get/1,163,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get,1]),
@@ -373,7 +373,7 @@ predicate(get/1,150,static,private,monofile,built_in,[
     execute('$get/1_$aux1'/2)]).
 
 
-predicate('$get/1_$aux1'/2,150,static,private,monofile,local,[
+predicate('$get/1_$aux1'/2,163,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=<,2]),
@@ -390,13 +390,13 @@ label(1),
     proceed]).
 
 
-predicate(put/1,159,static,private,monofile,built_in,[
+predicate(put/1,172,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put,1]),
     call_c('Pl_Put_Code_1',[],[x(0)]),
     proceed]).
 
 
-predicate(skip/1,164,static,private,monofile,built_in,[
+predicate(skip/1,177,static,private,monofile,built_in,[
     load_cut_level(1),
     allocate(2),
     get_variable(y(0),0),
@@ -413,7 +413,7 @@ predicate(skip/1,164,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$check_in_character_code'/1,174,static,private,monofile,built_in,[
+predicate('$check_in_character_code'/1,187,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -433,7 +433,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$$check_in_character_code/1_$aux1'/1,177,static,private,monofile,local,[
+predicate('$$check_in_character_code/1_$aux1'/1,190,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
@@ -453,7 +453,7 @@ label(1),
     execute('$pl_err_representation'/1)]).
 
 
-predicate(tab/1,189,static,private,monofile,built_in,[
+predicate(tab/1,202,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[tab,1]),

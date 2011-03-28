@@ -6,20 +6,33 @@
  * Descr.: architecture dependent features - Header file                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -35,7 +48,7 @@
  * 2) The POSIX name for this item is deprecated
  *    solution: #define _CRT_NONSTDC_NO_DEPRECATE 1
  * However, these defines only work if they are before any #include <...>
- * So: pass to cl: -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE 
+ * So: pass to cl: -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE
  * or deactivate the warning with the following pragma. We do both !
  */
 
@@ -56,8 +69,8 @@
 #define pclose                     _pclose
 #define getpid                     _getpid
 #define tempnam                    _tempnam
-#define strcasecmp                 stricmp
-#define strncasecmp                strnicmp
+//#define strcasecmp                 stricmp
+//#define strncasecmp                strnicmp
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
@@ -136,7 +149,7 @@
 
 #define COULD_COMPILE_FOR_FC
 #ifdef __GNUC__
-#define FC_MAX_ARGS_IN_REGS 3	
+#define FC_MAX_ARGS_IN_REGS 3
 #define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
 #define FC_ATTRIB __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
 #elif 0  /* under MSVC++ we can use __fastcall convention (#elif 1 if wanted) */
@@ -164,7 +177,11 @@
 
 /* Win32 SEH macros */
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32) && !defined(_WIN64) || defined(__CYGWIN__)
+#define USE_SEH 1
+#endif
+
+#if defined(USE_SEH)
 				/* from MSVC++ windows.h + renaming */
 typedef enum {
     ExceptContinueExecution,
@@ -178,10 +195,9 @@ typedef struct _excp_lst
   struct _excp_lst *chain;
   EXCEPT_DISPOSITION (*handler)();
 } excp_lst;
-  
+
 
 #ifdef __GNUC__
-
 #  define SEH_PUSH(new_handler)			\
 {						\
   excp_lst e;					\
@@ -190,7 +206,7 @@ typedef struct _excp_lst
   asm("movl %%fs:0,%0" : "=r" (e.chain));	\
   asm("movl %0,%%fs:0" : : "r" (&e));
 
- 
+
 #  define SEH_POP				\
   asm("movl %0,%%fs:0" : : "r" (e.chain));	\
 }
@@ -219,7 +235,7 @@ typedef struct _excp_lst
 }
 
 #elif defined(__LCC__)
- /* below in movl %eax,%e and movel %e,%eax %e should be %e.chain the lcc asm 
+ /* below in movl %eax,%e and movel %e,%eax %e should be %e.chain the lcc asm
     does not support it. Here %e works since chain is the 1st field */
 #  define SEH_PUSH(new_handler)			\
 {						\
@@ -246,7 +262,7 @@ typedef struct _excp_lst
 
 #endif
 
-#endif /* defined(_WIN32) || defined(__CYGWIN__) */
+#endif /* defined(USE_SEH) */
 
 #endif /* !_ARCH_DEP_H */
 

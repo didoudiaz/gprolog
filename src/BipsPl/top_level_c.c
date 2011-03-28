@@ -6,20 +6,33 @@
  * Descr.: top Level - C part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -78,7 +91,7 @@ static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
 Prolog_Prototype(ABORT, 0);
 Prolog_Prototype(BREAK, 0);
 
-static long Ctrl_C_Manager(int from_callback);
+static PlLong Ctrl_C_Manager(int from_callback);
 
 
 
@@ -99,7 +112,7 @@ Pl_Set_Ctrl_C_Handler_0(void)
  * CTRL_C_MANAGER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void 
+void
 Pl_Save_Regs_For_Signal(void)
 {
   Save_Machine_Regs(buff_save_machine_regs);
@@ -112,7 +125,7 @@ Pl_Save_Regs_For_Signal(void)
  * CTRL_C_MANAGER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Ctrl_C_Manager(int from_callback)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_top_level_output];
@@ -135,7 +148,7 @@ start:
     case 'a':			/* abort */
       to_execute = Prolog_Predicate(ABORT, 0);
       if (from_callback)
-	return (long) to_execute;
+	return (PlLong) to_execute;
       Pl_Execute_A_Continuation(to_execute);
       break;
 

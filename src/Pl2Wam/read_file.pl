@@ -6,20 +6,33 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -385,7 +398,7 @@ get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 	    ;
 		error('endif directive expected', [])
 	    )
-	
+
 	;   get_next_clause(Pred, N, SrcCl)
 	).
 
@@ -886,9 +899,9 @@ check_head_is_module_free(Module:Head) :-
 	error('module qualification is not allowed for the head of a clause (~w)', [Module:Head]).
 
 check_head_is_module_free(_).
-	
 
-	
+
+
 
 check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
 	clause(module_export(Pred, N, Module), true),
@@ -900,7 +913,7 @@ check_module_clash(_, _).
 
 
 
-	
+
 
 get_owner_module(Pred, N, Module) :-
 	clause(module_export(Pred, N, Module), true),
@@ -913,7 +926,7 @@ get_owner_module(_, _, _).
 is_exported(Pred, N) :-
 	clause(module_export(Pred, N, _), true), !.
 
-	
+
 
 
 get_module_of_cur_pred(Module) :-
@@ -922,7 +935,7 @@ get_module_of_cur_pred(Module) :-
 	    Module = system
 	;   test_pred_info(bfd, Pred, N) ->
 	    Module = system
-	;	    
+	;
 	    g_read(module, Module)
 	).
 

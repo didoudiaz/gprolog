@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : scan_supp.h                                                     *
- * Descr.: scanner support - header file                                   *
+ * Part  : Win32 GUI console                                               *
+ * File  : w32gc_interf.c                                                  *
+ * Descr.: line editor <--> GUICons interface                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2011 Daniel Diaz                                     *
@@ -37,86 +37,21 @@
 
 /* $Id$ */
 
-/*---------------------------------*
- * Constants                       *
- *---------------------------------*/
+#ifndef _W32GC_INTERF_H
+#define _W32GC_INTERF_H
 
-#define SCAN_BIG_BUFFER            10240
-
-
-
-
-/*---------------------------------*
- * Type Definitions                *
- *---------------------------------*/
-
-typedef enum
-{
-  TOKEN_VARIABLE,
-  TOKEN_INTEGER,
-  TOKEN_FLOAT,
-  TOKEN_NAME,
-  TOKEN_STRING,
-  TOKEN_BACK_QUOTED,
-  TOKEN_PUNCTUATION,
-  TOKEN_IMMEDIAT_OPEN,
-  TOKEN_FULL_STOP,
-  TOKEN_END_OF_FILE,
-  TOKEN_EXTENDED
-}
-TypTok;
-
-
-
-
-typedef struct
-{
-  TypTok type;
-  char name[SCAN_BIG_BUFFER];	/* for VARIABLE NAME STRING BACK_QUOTED */
-  int punct;			/* for PUNCTUATION                      */
-  PlLong int_num;		/* for INTEGER                          */
-  double float_num;		/* for FLOAT                            */
-  int line;			/* source line of the pl_token          */
-  int col;			/* source column of the pl_token        */
-}
-TokInf;
-
-
-
-
-/*---------------------------------*
- * Global Variables                *
- *---------------------------------*/
-
-#ifdef SCAN_SUPP_FILE
-
-TokInf pl_token;
-
-#else
-
-extern TokInf pl_token;
-
+#if 1         /* comment if you dont want to activate stack sizes dialog box */
+#define GUI_CONSOLE_WITH_STACK_SIZES
 #endif
 
+typedef enum {
+  QUERY_STACK_GET_NB_OF_STACKS,
+  QUERY_STACK_HAS_FIXED_SIZES,
+  QUERY_STACK_GET_NAME,
+  QUERY_STACK_GET_DESC,
+  QUERY_STACK_GET_ENV_VAR_NAME,
+  QUERY_STACK_GET_DEFAULT_SIZE,
+  QUERY_STACK_GET_SIZE
+}QueryStackCmd;
 
-
-
-/*---------------------------------*
- * Function Prototypes             *
- *---------------------------------*/
-
-int Pl_Scan_Peek_Char(StmInf *pstm, Bool convert);
-
-
-
-char *Pl_Scan_Token(StmInf *pstm, Bool comma_is_punct);
-
-
-
-void Pl_Recover_After_Error(StmInf *pstm);
-
-
-
-char *Pl_Scan_Next_Atom(StmInf *pstm);
-
-char *Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only);
+#endif  /* !_W32GC_INTERF_H */

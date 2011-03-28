@@ -6,20 +6,33 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -314,7 +327,7 @@ Pl_Prop_And_Stdio_Mode(int mode, Bool text, char *open_str)
       prop.output = TRUE;
       *open_str++ = 'a';
     }
-      
+
   prop.text = text;
   prop.reposition = TRUE;
   prop.eof_action = STREAM_EOF_ACTION_EOF_CODE;
@@ -349,7 +362,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
   if (isatty(fileno(f)))
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
-  return Pl_Add_Stream(atom_path, (long) f, prop,
+  return Pl_Add_Stream(atom_path, (PlLong) f, prop,
 		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
@@ -366,7 +379,7 @@ Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
   FILE *f;
   char open_str[10];
   int atom_path;
-  
+
   Pl_Prop_And_Stdio_Mode(mode, text, open_str); /* only for open_str */
 
   if ((f = fopen(path, open_str)) == NULL)
@@ -387,7 +400,7 @@ Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Init_Stream_Struct(int atom_file_name, long file, StmProp prop,
+Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
 		   StmFct fct_getc, StmFct fct_putc,
 		   StmFct fct_flush, StmFct fct_close,
 		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
@@ -429,7 +442,7 @@ Init_Stream_Struct(int atom_file_name, long file, StmProp prop,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Add_Stream(int atom_file_name, long file, StmProp prop,
+Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 	   StmFct fct_getc, StmFct fct_putc,
 	   StmFct fct_flush, StmFct fct_close,
 	   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
@@ -594,7 +607,7 @@ Pl_Add_Mirror_To_Stream(int stm, int m_stm)
   StmInf *pstm = pl_stm_tbl[stm];
   StmInf *m_pstm = pl_stm_tbl[m_stm];
   StmLst *m;
-  
+
   if (stm == m_stm)
     return;
 
@@ -647,7 +660,7 @@ Update_Mirrors_To_Del_Stream(int stm)
   StmInf *pstm = pl_stm_tbl[stm];
   StmInf *m_pstm;
   StmLst *m, *m1;
-  
+
   m = pstm->mirror;
   while(m)
     {
@@ -657,7 +670,7 @@ Update_Mirrors_To_Del_Stream(int stm)
       Free(m1);
       Remove_In_Stream_List(stm, &m_pstm->mirror_of);
     }
-  
+
   m = pstm->mirror_of;
   while(m)
     {
@@ -758,7 +771,7 @@ Pl_Set_Stream_Buffering(int stm)
     }
 
 #ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
-  if ((pstm->file == (long) stdout || pstm->file == (long) stderr) && pl_le_hook_set_line_buffering)
+  if ((pstm->file == (PlLong) stdout || pstm->file == (PlLong) stderr) && pl_le_hook_set_line_buffering)
     (*pl_le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif
@@ -800,7 +813,7 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
       DEREF(Arg(stc_adr, 0), word, tag_mask1);
       stm = UnTag_INT(word);
 
-      if (Functor_And_Arity(stc_adr) == stream_1 && 
+      if (Functor_And_Arity(stc_adr) == stream_1 &&
 	  tag_mask1 == TAG_INT_MASK)
 	goto next_test;
     }
@@ -954,7 +967,7 @@ Pl_Stdio_Set_Buffering(FILE *f, int buffering)
       buff_flag = _IOFBF;
       break;
     }
-  
+
   setvbuf(f, NULL, buff_flag, BUFSIZ);
 }
 
@@ -1048,7 +1061,7 @@ TTY_Getc(void)
 
 				/* tty_ptr must remain NULL for reentrancy */
       SAVE_FOR_REENTRANCY;
-      tty_buff = Pl_LE_FGets(tty_buff, TTY_BUFFER_SIZE, pl_le_prompt, 
+      tty_buff = Pl_LE_FGets(tty_buff, TTY_BUFFER_SIZE, pl_le_prompt,
 			  pl_use_le_prompt);
       pl_use_le_prompt = 0;
       RESTORE_FOR_REENTRANCY;
@@ -1056,7 +1069,7 @@ TTY_Getc(void)
 
       if (LE_Interrupted_By_Ctrl_C(tty_buff))
 	Pl_Execute_A_Continuation((CodePtr) Pl_LE_Get_Ctrl_C_Return_Value());
-	
+
 
       if (tty_buff == NULL)
 	{
@@ -1084,7 +1097,7 @@ TTY_Getc(void)
 
   return c;
 }
- 
+
 
 
 
@@ -1198,7 +1211,7 @@ Basic_Call_Fct_Getc(StmInf *pstm)
   int c;
   StmLst *m;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
-  if (SYS_VAR_SAY_GETC && pstm->file == (long) stdin)
+  if (SYS_VAR_SAY_GETC && pstm->file == (PlLong) stdin)
     /* could also test pstm->fct_getc == fgetc */
     {
       putchar(CHAR_TO_EMIT_WHEN_CHAR);
@@ -1210,7 +1223,7 @@ Basic_Call_Fct_Getc(StmInf *pstm)
   if (c != EOF)
     for (m = pstm->mirror; m ; m = m->next)
       Pl_Stream_Putc(c, pl_stm_tbl[m->stm]);
- 
+
   return c;
 }
 
@@ -1243,7 +1256,7 @@ int
 Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 {
   int c;
-  long file = pstm->file;
+  PlLong file = pstm->file;
   Bool simulate;
 
 #ifndef NO_USE_LINEDIT
@@ -1271,7 +1284,7 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
       Stop_Protect_Regs_For_Signal;
     }
 
-  
+
   if (simulate && c != '\n')
     {
       while (Basic_Call_Fct_Getc(pstm) >= ' ')
@@ -1302,7 +1315,7 @@ int
 Pl_Stream_Getc(StmInf *pstm)
 {
   int c;
-  long file = pstm->file;
+  PlLong file = pstm->file;
 
   Before_Reading(pstm, file);
 
@@ -1370,7 +1383,7 @@ int
 Pl_Stream_Peekc(StmInf *pstm)
 {
   int c;
-  long file = pstm->file;
+  PlLong file = pstm->file;
 
 
   Before_Reading(pstm, file);
@@ -1531,7 +1544,7 @@ Pl_Stream_Printf(StmInf *pstm, char *format, ...)
 void
 Pl_Stream_Flush(StmInf *pstm)
 {
-  long file = pstm->file;
+  PlLong file = pstm->file;
 
   if (pstm->prop.output && pstm->fct_flush != STREAM_FCT_UNDEFINED)
     (*pstm->fct_flush) (file);
@@ -1547,7 +1560,7 @@ Pl_Stream_Flush(StmInf *pstm)
 int
 Pl_Stream_Close(StmInf *pstm)
 {
-  long file = pstm->file;
+  PlLong file = pstm->file;
   int ret = 0;
 
   if (pstm->fct_close != STREAM_FCT_UNDEFINED)
@@ -1592,7 +1605,7 @@ void
 Pl_Stream_Get_Position(StmInf *pstm, int *offset, int *char_count,
 		    int *line_count, int *line_pos)
 {
-  long file = pstm->file;
+  PlLong file = pstm->file;
 
   *offset = 0;
   if (pstm->prop.reposition && pstm->fct_tell != STREAM_FCT_UNDEFINED)
@@ -1632,10 +1645,10 @@ int
 Pl_Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
 		    int line_count, int line_pos)
 {
-  long file = pstm->file;
+  PlLong file = pstm->file;
   int x;
 
-  x = (*pstm->fct_seek) (file, (long) offset, whence);
+  x = (*pstm->fct_seek) (file, (PlLong) offset, whence);
   if (x != 0)
     return x;
 
@@ -1671,7 +1684,7 @@ Pl_Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
 int
 Pl_Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos)
 {
-  long file = pstm->file;
+  PlLong file = pstm->file;
   int x;
   int *p;
   int c;
@@ -1685,7 +1698,7 @@ Pl_Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos)
   if (offset < 0)
     return offset;
 
-  x = (*pstm->fct_seek) (file, (long) 0, SEEK_SET);
+  x = (*pstm->fct_seek) (file, (PlLong) 0, SEEK_SET);
   if (x != 0)
     return x;
 
@@ -1738,7 +1751,7 @@ err:
   pstm->line_pos = save_line_pos;
   pstm->pb_char.nb_elems = save_char_nb_elems;
 
-  x = (*pstm->fct_seek) (file, (long) offset, SEEK_SET);
+  x = (*pstm->fct_seek) (file, (PlLong) offset, SEEK_SET);
   if (x != 0)
     return x;
 
@@ -1812,9 +1825,9 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
   stm = Find_Free_Stream();
   pstm = pl_stm_tbl[stm];
 
-  Init_Stream_Struct(atom_constant_term_stream, (long) str_stream, prop,
+  Init_Stream_Struct(atom_constant_term_stream, (PlLong) str_stream, prop,
 		     (StmFct) Str_Stream_Getc, (StmFct) Str_Stream_Putc,
-		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED, 
+		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
 		     STREAM_FCT_UNDEFINED, pstm);
 

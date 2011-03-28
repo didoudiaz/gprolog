@@ -6,20 +6,33 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -51,6 +64,8 @@
 
 #include "decode_hexa.c"
 #include "copying.c"
+
+#define READ_REGISTRY_ONLY
 #include "prolog_path.c"
 
 #include "../EnginePl/machine1.c"
@@ -731,7 +746,7 @@ Link_Cmd(void)
 
   strcat(buff, LDLIBS " ");
 
-  if (!no_pl_lib && gui_console) 
+  if (!no_pl_lib && gui_console)
     {    /* modify Linedit/Makefile.in to follow this list of ld objects */
       Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
@@ -1029,7 +1044,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--inline-asm") || 
+	  if (Check_Arg(i, "--inline-asm") ||
 	      Check_Arg(i, "--full-inline-asm"))
 	    {
 	      Add_Last_Option(cmd_ma2asm.opt);
@@ -1155,7 +1170,7 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_local_size = strtol(argv[i], &q, 10);
+	      pl_def_local_size = strtoll(argv[i], &q, 10);
 	      if (*q || pl_def_local_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
@@ -1168,7 +1183,7 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_global_size = strtol(argv[i], &q, 10);
+	      pl_def_global_size = strtoll(argv[i], &q, 10);
 	      if (*q || pl_def_global_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
@@ -1181,7 +1196,7 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_trail_size = strtol(argv[i], &q, 10);
+	      pl_def_trail_size = strtoll(argv[i], &q, 10);
 	      if (*q || pl_def_trail_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
@@ -1194,7 +1209,7 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_cstr_size = strtol(argv[i], &q, 10);
+	      pl_def_cstr_size = strtoll(argv[i], &q, 10);
 	      if (*q || pl_def_cstr_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);

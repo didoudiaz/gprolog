@@ -6,20 +6,33 @@
  * Descr.: Ctrl+C management                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -28,6 +41,7 @@
 
 #include <stdio.h>
 #include <signal.h>
+
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
 #endif
@@ -53,9 +67,9 @@
  * Global Variables                *
  *---------------------------------*/
 
-static long (*ctrl_c_handler) ();
+static PlLong (*ctrl_c_handler) ();
 static int from_callback;
-static long ret_val;
+static PlLong ret_val;
 static int inside_ctrl_c;
 
 #ifdef WIN32_CONSOLE_CTRL_HANDLER
@@ -125,7 +139,7 @@ Wrapper_Handler(int sig)
  * PL_EMIT_CTRL_C                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_Emit_Ctrl_C(void)
 {
   from_callback = 1;
@@ -172,7 +186,7 @@ Pl_Emit_Ctrl_C(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Install_Ctrl_C_Handler(long (*handler) (int))
+Pl_Install_Ctrl_C_Handler(PlLong (*handler) (int))
 {
   ctrl_c_handler = handler;
 #ifdef WIN32_CONSOLE_CTRL_HANDLER

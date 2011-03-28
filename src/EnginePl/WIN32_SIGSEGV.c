@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 int
 getpagesize(void)
@@ -12,7 +14,7 @@ getpagesize(void)
 }
 
 
-long *fault_addr;
+PlLong *fault_addr;
 
 int
 Is_Win32_SEGV(LPEXCEPTION_POINTERS err)
@@ -22,13 +24,13 @@ Is_Win32_SEGV(LPEXCEPTION_POINTERS err)
   if (per->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
     return EXCEPTION_CONTINUE_SEARCH;
 
-  fault_addr = (long *) (per->ExceptionInformation[1]);
+  fault_addr = (PlLong *) (per->ExceptionInformation[1]);
   return EXCEPTION_EXECUTE_HANDLER;
 }
 
 main(int argc, char *argv[])
 {
-  long *addr = NULL;
+  PlLong *addr = NULL;
   int i;
   DWORD old_prot;
 
@@ -37,7 +39,7 @@ main(int argc, char *argv[])
   printf("Page Size:%d bytes\n", getpagesize());
 
   if (argc > 1)
-    addr = (long *) strtoul(argv[1], NULL, 16);
+    addr = (PlLong *) strtoull(argv[1], NULL, 16);
 
   printf("TRYING at %#x\n", addr);
 
@@ -45,13 +47,13 @@ main(int argc, char *argv[])
     VirtualAlloc(addr, 4096 * 2, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
   if (addr == NULL)
     {
-      printf("ERROR Alloc %lu\n", GetLastError());
+      printf("ERROR Alloc %" PL_FMT_u "\n", GetLastError());
       exit(1);
     }
 
   if (!VirtualProtect(addr + 1024, 4096, PAGE_NOACCESS, &old_prot))
     {
-      printf("ERROR protect %lu\n", GetLastError());
+      printf("ERROR protect %" PL_FMT_u "\n", GetLastError());
       exit(1);
     }
 
@@ -59,7 +61,7 @@ main(int argc, char *argv[])
 
   _try
   {
-    long *a = (long *) 0x12345678;
+    PlLong *a = (PlLong *) 0x12345678;
 
     *a = 12;
   }

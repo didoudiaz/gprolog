@@ -6,23 +6,38 @@
  * Descr.: code generation - header file                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
+
+#include "../EnginePl/pl_long.h"
 
 #if 0
 #define CHECK_PRINTF_ARGS
@@ -87,7 +102,7 @@ void Switch_Ret(int nb_swt, SwtInf swt[]);
 
 void Decl_Code(char *name, int prolog, int global);
 
-void Decl_Long(char *name, int global, VType vtype, long value);
+void Decl_Long(char *name, int global, VType vtype, PlLong value);
 
 
 
@@ -148,10 +163,10 @@ void Move_To_Reg_X(int index);
 
 void Move_To_Reg_Y(int index);
 
-void Call_C_Start(char *fct_name, int fc, int nb_args, 
+void Call_C_Start(char *fct_name, int fc, int nb_args,
 		  int nb_args_in_words, char **p_inline);
 
-int Call_C_Arg_Int(int offset, long int_val);
+int Call_C_Arg_Int(int offset, PlLong int_val);
 
 int Call_C_Arg_Double(int offset, double dbl_val);
 
@@ -187,7 +202,7 @@ void Move_Ret_To_Foreign_L(int index);
 
 void Move_Ret_To_Foreign_D(int index);
 
-void Cmp_Ret_And_Int(long int_val);
+void Cmp_Ret_And_Int(PlLong int_val);
 
 void Jump_If_Equal(char *label);
 
@@ -203,7 +218,7 @@ void Dico_String_Stop(int nb);
 
 void Dico_Long_Start(int nb);
 
-void Dico_Long(char *name, int global, VType vtype, long value);
+void Dico_Long(char *name, int global, VType vtype, PlLong value);
 
 void Dico_Long_Stop(int nb);
 
@@ -216,8 +231,8 @@ void Data_Stop(char *initializer_fct);
 
 #define INL_ACCESS_NAME(p)  (p[0])
 #define INL_ACCESS_NEXT(p)  (p[1])
-#define INL_ACCESS_LEVEL(p) (long) (p[2])
-#define INL_ACCESS_INFO(p)  (long) (p[3])
+#define INL_ACCESS_LEVEL(p) (PlLong) (p[2])
+#define INL_ACCESS_INFO(p)  (PlLong) (p[3])
 
 #define INL_NEXT            ((char *) (0))
 #define INL_LEVEL(x)        ((char *) (x))

@@ -20,11 +20,11 @@ all: $(LIBNAME)
 $(LIBNAME): $(OBJLIB)
 	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
-	$(RANLIB) $(LIBNAME)	
+	$(RANLIB) $(LIBNAME)
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME) 
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
 distclean: clean

@@ -6,20 +6,33 @@
  * Descr.: dynamic predicate support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -102,12 +115,12 @@ static int size_of_erased = 0;
 
 static DynPInf *Alloc_Init_Dyn_Info(PredInf *pred, int arity);
 
-static int Index_From_First_Arg(WamWord first_arg_word, long *key);
+static int Index_From_First_Arg(WamWord first_arg_word, PlLong *key);
 
-static void Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, 
+static void Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain,
 			  Bool asserta);
 
-static void Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, 
+static void Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause,
 			       Bool in_seq_chain);
 
 static void Erase_All(DynPInf *dyn);
@@ -218,7 +231,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   int func, arity;
   PredInf *pred;
   int index_no;
-  long key;
+  PlLong key;
   DynCInf *clause;
   DynPInf *dyn;
   char **p_ind_htbl;
@@ -271,7 +284,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   Pl_Write_Simple(head_word);
   DBGPRINTF("\tbody: ");
   Pl_Write_Simple(body_word);
-  DBGPRINTF("\nByte Code at :%p\n", (long) pl_byte_code);
+  DBGPRINTF("\nByte Code at :%p\n", pl_byte_code);
 #endif
 
 
@@ -380,7 +393,7 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
   dyn->first_erased_cl = NULL;
   dyn->next_dyn_with_erase = NULL;
 
-  pred->dyn = (long *) dyn;
+  pred->dyn = (PlLong *) dyn;
 
   return dyn;
 }
@@ -393,7 +406,7 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Index_From_First_Arg(WamWord first_arg_word, long *key)
+Index_From_First_Arg(WamWord first_arg_word, PlLong *key)
 {
   WamWord word, tag_mask;
   int index_no;
@@ -416,7 +429,7 @@ Index_From_First_Arg(WamWord first_arg_word, long *key)
 
     case ATM:
       index_no = ATM_INDEX;
-      *key = (long) UnTag_ATM(word);
+      *key = (PlLong) UnTag_ATM(word);
       break;
 
     case FLT:
@@ -429,7 +442,7 @@ Index_From_First_Arg(WamWord first_arg_word, long *key)
 
     default:			/* tag==STC */
       index_no = STC_INDEX;
-      *key = (long) Functor_And_Arity(UnTag_STC(word));
+      *key = (PlLong) Functor_And_Arity(UnTag_STC(word));
       break;
     }
 
@@ -490,7 +503,7 @@ Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain)
   D2ChCell *cell = (in_seq_chain) ? &clause->seq_chain : &clause->ind_chain;
   DynCInf *prev = cell->prev;
   DynCInf *next = cell->next;
-  
+
   if (prev == NULL)		/* first cell ? */
     hdr->first = next;
   else
@@ -563,7 +576,7 @@ Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
   if (dyn == NULL)
     return;
 
-  for (clause = dyn->seq_chain.first; clause; 
+  for (clause = dyn->seq_chain.first; clause;
        clause = clause->seq_chain.next)
     {
       if (clause->erase_stamp == DYN_STAMP_NONE && clause->pl_file == pl_file)
@@ -602,7 +615,7 @@ Erase_All(DynPInf *dyn)
       first_dyn_with_erase = dyn;
     }
 
-  for (clause = dyn->seq_chain.first; clause; 
+  for (clause = dyn->seq_chain.first; clause;
        clause = clause->seq_chain.next)
     {
       if (clause->erase_stamp == DYN_STAMP_NONE)
@@ -641,7 +654,7 @@ Clean_Erased_Clauses(void)
 
       if (dyn->first_erased_cl)	/* we must keep it - free impossible */
 	dyn->first_erased_cl = (DynCInf *)
-	  ((unsigned long) (dyn->first_erased_cl) | 1);	/* mark it */
+	  ((PlULong) (dyn->first_erased_cl) | 1);	/* mark it */
     }
 
 
@@ -649,10 +662,10 @@ Clean_Erased_Clauses(void)
   for (dyn = first_dyn_with_erase; dyn; dyn = dyn1)
     {
       dyn1 = dyn->next_dyn_with_erase;
-      if ((long) (dyn->first_erased_cl) & 1)	/* marked ? */
+      if ((PlLong) (dyn->first_erased_cl) & 1)	/* marked ? */
 	{			/* cannot free it */
 	  dyn->first_erased_cl = (DynCInf *)
-	    ((unsigned long) (dyn->first_erased_cl) & (~1));
+	    ((PlULong) (dyn->first_erased_cl) & (~1));
 	  prev = &(dyn->next_dyn_with_erase);
 	  continue;
 	}
@@ -724,7 +737,7 @@ static void
 Unlink_Clause(DynCInf *clause)
 {
   DynPInf *dyn = clause->dyn;
-  long *p_key;
+  PlLong *p_key;
   DSwtInf swt_info;
 
   Remove_From_2Chain(&dyn->seq_chain, clause, TRUE);
@@ -734,10 +747,10 @@ Unlink_Clause(DynCInf *clause)
   if (clause->p_ind_htbl && clause->ind_chain.prev == NULL &&
       clause->ind_chain.next == NULL)
     {
-      p_key = (long *) ((char *) clause->p_ind_hdr -
+      p_key = (PlLong *) ((char *) clause->p_ind_hdr -
 	((char *) &(swt_info.ind_chain) - (char *) &(swt_info.key)));
 #ifdef DEBUG1
-      DBGPRINTF("Removing last ind key in a hash table  (%ld)\n", *p_key);
+      DBGPRINTF("Removing last ind key in a hash table  (%" PL_FMT_d ")\n", *p_key);
 #endif
       Pl_Hash_Delete(*clause->p_ind_htbl, *p_key);
     }
@@ -853,7 +866,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 		     int alt_info_size, WamWord *alt_info)
 {
   int index_no;
-  long key;
+  PlLong key;
   char **p_ind_htbl;
   DSwtInf *swt;
   DynScan scan;
@@ -902,13 +915,13 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
     case STC_INDEX:
       p_ind_htbl = &(dyn->stc_htbl);
       break;
- 
+
     }
 
   if (p_ind_htbl)
     {
       scan.xxx_is_seq_chain = FALSE;
-      if (*p_ind_htbl && 
+      if (*p_ind_htbl &&
 	  (swt = (DSwtInf *) Pl_Hash_Find(*p_ind_htbl, key)) != NULL)
 	scan.xxx_ind_chain = swt->ind_chain.first;
       else
@@ -959,12 +972,12 @@ Scan_Dynamic_Pred_Next(DynScan *scan)
 {
   DynCInf *xxx_ind_chain, *var_ind_chain;
   DynCInf *xxx_clause, *var_clause;
-  long xxx_nb, var_nb;
+  PlLong xxx_nb, var_nb;
   DynCInf *clause;
 
 #ifdef DEBUG
-  DBGPRINTF("Looking for next clause stamp:%ld",
-	    (long) (scan->erase_stamp));
+  DBGPRINTF("Looking for next clause stamp:%" PL_FMT_d,
+	    (PlLong) (scan->erase_stamp));
   Check_Dynamic_Clauses(scan->dyn);
 #endif
 
@@ -1024,7 +1037,7 @@ start:
  * PL_SCAN_DYNAMIC_PRED_ALT_0                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_Scan_Dynamic_Pred_Alt_0(void)
 {
   WamWord *alt_info;
@@ -1107,11 +1120,11 @@ static void
 Check_Dynamic_Clauses(DynPInf *dyn)
 {
   DBGPRINTF("\nFirst dyn with erase:%p\n",
-	    (long) first_dyn_with_erase);
+	    first_dyn_with_erase);
   DBGPRINTF("Dyn:%p  arity:%d  count_a:%d  count_z:%d  "
 	    "1st erased:%p  next dyn with erase:%p\n",
-	    (long) dyn, dyn->arity, dyn->count_a, dyn->count_z, 
-	    (long) dyn->first_erased_cl, (long) dyn->next_dyn_with_erase);
+	    dyn, dyn->arity, dyn->count_a, dyn->count_z,
+	    dyn->first_erased_cl, dyn->next_dyn_with_erase);
 
   Check_Chain(&dyn->seq_chain, NO_INDEX);
   Check_Chain(&dyn->var_ind_chain, VAR_INDEX);
@@ -1160,7 +1173,7 @@ Check_Hash(char *t, int index_no)
 	DBGPRINTF("val <%s>\n", pl_atom_tbl[swt->key].name);
 
       if (index_no == INT_INDEX)
-	DBGPRINTF("val <%ld>\n", swt->key);
+	DBGPRINTF("val <%" PL_FMT_d ">\n", swt->key);
 
       if (index_no == STC_INDEX)
 	DBGPRINTF("val <%s/%d>\n", pl_atom_tbl[Functor_Of(swt->key)].name,
@@ -1216,14 +1229,14 @@ Check_Chain(D2ChHdr *hdr, int index_no)
 	}
 
       DBGPRINTF(" %3d  %3d  %p  %p <-> %p  ",
-		clause->cl_no, clause->term_size, (long) clause,
-		(long) clause_b, (long) clause_f);
+		clause->cl_no, clause->term_size, clause,
+		clause_b, clause_f);
       Pl_Write_Simple(clause->head_word);
       DBGPRINTF(":-");
       Pl_Write_Simple(clause->body_word);
       if (clause->erase_stamp != DYN_STAMP_NONE)
-	DBGPRINTF("  erased at:%ld   next erased: %p",
-		  clause->erase_stamp, (long) (clause->next_erased_cl));
+	DBGPRINTF("  erased at:%" PL_FMT_d "   next erased: %p",
+		  clause->erase_stamp, (clause->next_erased_cl));
       DBGPRINTF("\n");
     }
 }

@@ -6,20 +6,33 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.            *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -112,9 +125,9 @@
 #define TRAIL_TAG_NAMES            {"TUV", "TOV", "TMV", "TFC"}
 
 
-#define Trail_Tag_Value(t, v)      ((unsigned long) (v) | (t))
-#define Trail_Tag_Of(w)            ((unsigned long) (w) & 0x3)
-#define Trail_Value_Of(w)          ((unsigned long) (w) & (~0x3))
+#define Trail_Tag_Value(t, v)      ((PlULong) (v) | (t))
+#define Trail_Tag_Of(w)            ((PlULong) (w) & 0x3)
+#define Trail_Value_Of(w)          ((PlULong) (w) & (~0x3))
 
 
 
@@ -153,8 +166,8 @@
 
 	  /* Integer */
 
-#define INT_GREATEST_VALUE         ((long) ((1L<<(WORD_SIZE-TAG_SIZE-1))-1))
-#define INT_LOWEST_VALUE           ((long) ((-INT_GREATEST_VALUE)-1))
+#define INT_GREATEST_VALUE         (((PlLong)1<<(WORD_SIZE-TAG_SIZE-1))-1)
+#define INT_LOWEST_VALUE           ((-INT_GREATEST_VALUE)-1)
 
 
 
@@ -215,8 +228,8 @@
 
 #ifdef M_sparc
 
-#define Adjust_CP(cp)              ((WamCont) ((unsigned long) (cp) - 8))
-#define UnAdjust_CP(cp)            ((WamCont) ((unsigned long) (cp) + 8))
+#define Adjust_CP(cp)              ((WamCont) ((PlULong) (cp) - 8))
+#define UnAdjust_CP(cp)            ((WamCont) ((PlULong) (cp) + 8))
 
 #else
 
@@ -234,7 +247,7 @@
 
 typedef struct			/* Switch item information         */
 {				/* ------------------------------- */
-  long key;			/* key: atm, int (if no_opt), f/n  */
+  PlLong key;			/* key: atm, int (if no_opt), f/n  */
   CodePtr codep;		/* compiled code pointer if static */
 }
 SwtInf;
@@ -267,7 +280,7 @@ Bool FC Pl_Get_Atom(int atom, WamWord start_word);
 
 Bool FC Pl_Get_Integer_Tagged(WamWord w, WamWord start_word);
 
-Bool FC Pl_Get_Integer(long n, WamWord start_word);
+Bool FC Pl_Get_Integer(PlLong n, WamWord start_word);
 
 Bool FC Pl_Get_Float(double n, WamWord start_word);
 
@@ -291,7 +304,7 @@ WamWord FC Pl_Put_Atom(int atom);
 
 WamWord FC Pl_Put_Integer_Tagged(WamWord w);
 
-WamWord FC Pl_Put_Integer(long n);
+WamWord FC Pl_Put_Integer(PlLong n);
 
 WamWord FC Pl_Put_Float(double n);
 
@@ -317,7 +330,7 @@ Bool FC Pl_Unify_Atom(int atom);
 
 Bool FC Pl_Unify_Integer_Tagged(WamWord w);
 
-Bool FC Pl_Unify_Integer(long n);
+Bool FC Pl_Unify_Integer(PlLong n);
 
 Bool FC Pl_Unify_Nil(void);
 
@@ -344,7 +357,7 @@ CodePtr FC Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
 
 CodePtr FC Pl_Switch_On_Atom(SwtTbl t, int size);
 
-long FC Pl_Switch_On_Integer(void);
+PlLong FC Pl_Switch_On_Integer(void);
 
 CodePtr FC Pl_Switch_On_Structure(SwtTbl t, int size);
 
@@ -411,8 +424,8 @@ Bool FC Pl_Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
 #endif
 
 #ifdef DEREF_STATS
-long nb_deref;
-long chain_len;
+PlLong nb_deref;
+PlLong chain_len;
 #define DEREF_COUNT(x)  x++
 #else
 #define DEREF_COUNT(x)
@@ -554,8 +567,8 @@ long chain_len;
 #define Mem_Word_Cpy(dst, src, nb)		\
   do						\
     {						\
-      register long *s = (long *) (src);	\
-      register long *d = (long *) (dst);	\
+      register PlLong *s = (PlLong *) (src);	\
+      register PlLong *d = (PlLong *) (dst);	\
       register int counter = (nb);		\
 						\
       do					\

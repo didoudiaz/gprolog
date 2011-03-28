@@ -6,20 +6,33 @@
  * Descr.: stream selection and control management - C part                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -224,7 +237,7 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 
   text = mask & 1;
   mask >>= 1;
-  
+
   atom = Pl_Rd_Atom_Check(mode_word);
   if (atom == pl_atom_read)
     mode = STREAM_MODE_READ;
@@ -812,7 +825,7 @@ Pl_Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
 #ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
-  if (pl_stm_tbl[stm]->file == (long) stdout && pl_le_hook_get_line_buffering)
+  if (pl_stm_tbl[stm]->file == (PlLong) stdout && pl_le_hook_get_line_buffering)
     {
       if ((*pl_le_hook_get_line_buffering)())
 	pl_stm_tbl[stm]->prop.buffering = STREAM_BUFFERING_LINE;
@@ -1115,7 +1128,7 @@ Pl_Stream_Position_2(WamWord sora_word, WamWord position_word)
       if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)
 	goto dom_error;
     }
-  
+
   for (i = 0; i < 4; i++)
     if (!Pl_Get_Integer(p[i], p_word[i]))
       return FALSE;
@@ -1151,7 +1164,7 @@ Pl_Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
   DEREF(position_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
-  
+
   if (!Pl_Get_Structure(pl_atom_stream_position, 4, position_word))
   dom_error:
     Pl_Err_Domain(pl_domain_stream_position, position_word);

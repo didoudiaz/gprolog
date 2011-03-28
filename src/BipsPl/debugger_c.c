@@ -6,26 +6,40 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
 
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <signal.h>
 #include <setjmp.h>
 
@@ -124,7 +138,7 @@ static Bool Backtrack(void);
 
 static WamWord *Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name);
 
-static long Read_An_Integer(int arg_nb);
+static PlLong Read_An_Integer(int arg_nb);
 
 static void Print_Bank_Name_Offset(char *prefix, char *bank_name, int offset);
 
@@ -134,7 +148,7 @@ static void Modify_Wam_Word(WamWord *word_adr);
 
 static WamWord *Detect_Stack(WamWord *adr, char **stack_name);
 
-static PredInf *Detect_Pred_From_Code(long *codep);
+static PredInf *Detect_Pred_From_Code(PlLong *codep);
 
 static Bool Help(void);
 
@@ -172,7 +186,7 @@ static void
 My_System_Directives(void)
 {
   Pl_Call_Prolog(Prolog_Predicate(INIT_DEBUGGER, 0));
-  
+
   Pl_Set_Heap_Actual_Start(H);	/* changed to store global info */
 }
 
@@ -217,7 +231,7 @@ Pl_Remove_One_Choice_Point_1(WamWord b_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
-   
+
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
@@ -309,7 +323,7 @@ Pl_Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
-  long i;
+  PlLong i;
 
 
   DEREF(b_word, word, tag_mask);
@@ -324,14 +338,14 @@ Pl_Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 
 
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
 
 /*-------------------------------------------------------------------------*
  * DEBUGGER_SEH_HANDLER                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static EXCEPT_DISPOSITION
-Debugger_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame, 
+Debugger_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
 		     CONTEXT *context_rec, void *dispatcher_cxt)
 {
   if (excp_rec->ExceptionFlags)
@@ -373,14 +387,14 @@ Pl_Debug_Wam(void)
 
   Pl_Stream_Printf(pstm_o, "Welcome to the WAM debugger - experts only\n");
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
   SEH_PUSH(Debugger_SEH_Handler);
 #endif
 
   ret = setjmp(dbg_jumper);
   if (ret == 0)
     {
-#if !(defined(_WIN32) || defined(__CYGWIN__))
+#if !defined(USE_SEH)
       signal(SIGSEGV, Debugger_Signal_Handler);
 #endif
     }
@@ -403,7 +417,7 @@ Pl_Debug_Wam(void)
       if (command)
 	(*command) ();
     }
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(USE_SEH)
   SEH_POP;
 #endif
 }
@@ -544,7 +558,7 @@ Write_Data_Modify(void)
 static Bool
 What(void)
 {
-  long *adr;
+  PlLong *adr;
   WamWord *adr1;
   char *stack_name;
   PredInf *pred;
@@ -557,9 +571,9 @@ What(void)
       return FALSE;
     }
 
-  adr = (long *) Read_An_Integer(1);
+  adr = (PlLong *) Read_An_Integer(1);
 
-  Pl_Stream_Printf(pstm_o, " %#lx = ", (long) adr);
+  Pl_Stream_Printf(pstm_o, " %#" PL_FMT_x " = ", (PlLong) adr);
   if ((adr1 = Detect_Stack(adr, &stack_name)) != NULL)
     {
       Print_Bank_Name_Offset("", stack_name, adr - adr1);
@@ -605,7 +619,7 @@ Where(void)
 
       Print_Bank_Name_Offset((adr == reg_copy) ? pl_reg_tbl[offset] : "",
 			     bank_name, offset);
-      Pl_Stream_Printf(pstm_o, " at %#lx\n", (long) (adr + offset));
+      Pl_Stream_Printf(pstm_o, " at %#" PL_FMT_x "\n", (PlLong) (adr + offset));
     }
 
   return FALSE;
@@ -731,7 +745,7 @@ Backtrack(void)
       Detect_Stack(B, &stack_name);
       for (adr = B; adr > Local_Stack + 10; adr = BB(adr))
 	{
-	  pred = Detect_Pred_From_Code((long *) ALTB(adr));
+	  pred = Detect_Pred_From_Code((PlLong *) ALTB(adr));
 
 	  func = Functor_Of(pred->f_n);
 	  arity = Arity_Of(pred->f_n);
@@ -766,7 +780,7 @@ Backtrack(void)
       adr += offset;
     }
 
-  pred = Detect_Pred_From_Code((long *) ALTB(adr));
+  pred = Detect_Pred_From_Code((PlLong *) ALTB(adr));
 
   func = Functor_Of(pred->f_n);
   arity = Arity_Of(pred->f_n);
@@ -861,13 +875,13 @@ Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name)
  * READ_AN_INTEGER                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Read_An_Integer(int arg_nb)
 {
   char *p;
-  long val = 0;
+  PlLong val = 0;
 
-  val = strtol(read_arg[arg_nb], &p, 0);
+  val = strtoll(read_arg[arg_nb], &p, 0);
   if (*p)
     Pl_Stream_Printf(pstm_o, "Incorrect integer\n");
 
@@ -918,8 +932,8 @@ Print_Wam_Word(WamWord *word_adr)
   int arity;
   int i;
 
-  Pl_Stream_Printf(pstm_o, "%#*lx  %*ld  ", HEXADECIMAL_LENGTH, (long) word,
-		DECIMAL_LENGTH, (long) word);
+  Pl_Stream_Printf(pstm_o, "%#*" PL_FMT_x "  %*" PL_FMT_d "  ", HEXADECIMAL_LENGTH, (PlLong) word,
+		DECIMAL_LENGTH, (PlLong) word);
 
   if ((adr = Detect_Stack((WamWord *) word, &stack_name)) != NULL)
     Print_Bank_Name_Offset("", stack_name, (WamWord *) word - adr);
@@ -938,22 +952,22 @@ Print_Wam_Word(WamWord *word_adr)
       {
       case LONG_INT:
 	value = (WamWord) UnTag_Long_Int(word);
-	Pl_Stream_Printf(pstm_o, "%s,%*ld", pl_tag_tbl[i].name,
-		      VALUE_PART_LENGTH, (long) value);
+	Pl_Stream_Printf(pstm_o, "%s,%*" PL_FMT_d, pl_tag_tbl[i].name,
+		      VALUE_PART_LENGTH, (PlLong) value);
 	break;
 
       case SHORT_UNS:
 	value = (WamWord) UnTag_Short_Uns(word);
 	if (tag == ATM && value >= 0 && value < MAX_ATOM &&
 	    pl_atom_tbl[value].name != NULL)
-	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%ld)",
+	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%" PL_FMT_d,
 			VALUE_PART_LENGTH, pl_atom_tbl[value].name,
-			(long) value);
+			(PlLong) value);
 	else if (tag == ATM)
 	  tag = -1;
 	else
-	  Pl_Stream_Printf(pstm_o, "%s,%*lu", pl_tag_tbl[i].name,
-			VALUE_PART_LENGTH, (long) value);
+	  Pl_Stream_Printf(pstm_o, "%s,%*" PL_FMT_u, pl_tag_tbl[i].name,
+			VALUE_PART_LENGTH, (PlLong) value);
 	break;
 
       case ADDRESS:
@@ -982,8 +996,8 @@ Print_Wam_Word(WamWord *word_adr)
       value = Trail_Value_Of(word);
 
       if (tag == TFC)
-	Pl_Stream_Printf(pstm_o, "%s,%#*lx", trail_tag_name[tag],
-		      VALUE_PART_LENGTH, (long) value);
+	Pl_Stream_Printf(pstm_o, "%s,%#*" PL_FMT_x, trail_tag_name[tag],
+		      VALUE_PART_LENGTH, (PlLong) value);
       else
 	if (tag < NB_OF_TRAIL_TAGS &&
 	    (adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL &&
@@ -1030,7 +1044,7 @@ Modify_Wam_Word(WamWord *word_adr)
     {
       Pl_Stream_Printf(pstm_o, "\n");
 
-      if (Pl_Stream_Gets_Prompt("New value: ", pstm_o, 
+      if (Pl_Stream_Gets_Prompt("New value: ", pstm_o,
 			     str, sizeof(str), pstm_i) == NULL ||
 	  *str == '\0' || *str == '\n')
 	break;
@@ -1047,7 +1061,7 @@ Modify_Wam_Word(WamWord *word_adr)
       /* integer */
       if (nb_read_arg == 1 && *read_arg[0] >= '0' && *read_arg[0] <= '9')
 	{
-	  word = strtol(read_arg[0], &p, 0);
+	  word = strtoll(read_arg[0], &p, 0);
 	  if (*p == '\0')
 	    {
 	      *word_adr = word;
@@ -1080,7 +1094,7 @@ Modify_Wam_Word(WamWord *word_adr)
 	  switch (pl_tag_tbl[i].type)
 	    {
 	    case LONG_INT:
-	      word = strtol(read_arg[1], &p, 0);
+	      word = strtoll(read_arg[1], &p, 0);
 	      if (*p != '\0')
 		goto err;
 
@@ -1088,14 +1102,14 @@ Modify_Wam_Word(WamWord *word_adr)
 	      return;
 
 	    case SHORT_UNS:
-	      word = strtol(read_arg[1], &p, 0);
+	      word = strtoll(read_arg[1], &p, 0);
 	      if (*p == '\0')
 		j = Read_An_Integer(1);
 	      else if (strcmp(read_arg[0], "ATM") == 0)
 		  j = Pl_Create_Allocate_Atom(comma + 1);
 	      else
 		goto err;
-	      
+
 	      *word_adr = Tag_Short_Uns(pl_tag_tbl[i].tag_mask, j);
 	      return;
 
@@ -1127,13 +1141,13 @@ Modify_Wam_Word(WamWord *word_adr)
       /* functor/arity */
     functor_arity:
       *slash = '\0';
-      i = strtol(slash + 1, &p, 0);
+      i = strtoll(slash + 1, &p, 0);
       if (*p != '\0' || i < 1 || i > MAX_ARITY)
 	goto err;
 
-      word = strtol(read_arg[0], &p, 0);
+      word = strtoll(read_arg[0], &p, 0);
       if (*p != '\0')
-	word = (long) Pl_Create_Allocate_Atom(read_arg[0]);
+	word = (PlLong) Pl_Create_Allocate_Atom(read_arg[0]);
       else if (word < 0 || word >= MAX_ATOM)
 	goto err;
 
@@ -1177,12 +1191,12 @@ Detect_Stack(WamWord *adr, char **stack_name)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static PredInf *
-Detect_Pred_From_Code(long *codep)
+Detect_Pred_From_Code(PlLong *codep)
 {
   HashScan scan;
   PredInf *pred;
   PredInf *last_pred = NULL;
-  long dist, d;
+  PlLong dist, d;
 
   for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
        pred = (PredInf *) Pl_Hash_Next(&scan))

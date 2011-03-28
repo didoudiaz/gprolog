@@ -6,20 +6,33 @@
  * Descr.: Prolog flag and system variable management - C Part             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -463,7 +476,7 @@ static Bool
 Unif_Flag(int i, WamWord value_word)
 {
   int atom = -1;
-  long n;
+  PlLong n;
 
   switch (i)
     {
@@ -573,7 +586,7 @@ Unif_Flag(int i, WamWord value_word)
 
     case FLAG_VERSION_DATA:
       return Pl_Get_Structure(atom_the_dialect, 4, value_word) &&
-	Pl_Unify_Integer(__GPROLOG__) && 
+	Pl_Unify_Integer(__GPROLOG__) &&
 	Pl_Unify_Integer(__GPROLOG_MINOR__) &&
 	Pl_Unify_Integer(__GPROLOG_PATCHLEVEL__) &&
 	Pl_Unify_Nil();
@@ -793,7 +806,7 @@ void
 Pl_Set_Current_B_1(WamWord b_word)
 {
   WamWord word, tag_mask;
-  
+
   DEREF(b_word, word, tag_mask);
   Pl_Cut(word);
 }
@@ -807,8 +820,8 @@ Pl_Set_Current_B_1(WamWord b_word)
  *-------------------------------------------------------------------------*/
 
 /* these macros are to avoid gcc warning warn_unused_result */
-#define FWRITE(b, sz, n, f) if (fwrite(b, sz, n, f) != n) ; 
-#define FREAD(b, sz, n, f)  if (fread(b, sz, n, f) != n) ; 
+#define FWRITE(b, sz, n, f) if (fwrite(b, sz, n, f) != n) ;
+#define FREAD(b, sz, n, f)  if (fread(b, sz, n, f) != n) ;
 
 
 Bool

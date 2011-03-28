@@ -6,32 +6,46 @@
  * Descr.: Wam architecture definition - description file                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+
+#include "pl_long.h"
 
 /*---------------------------------*
  * Register Descriptions           *
  *---------------------------------*/
 
+typedef intptr_t WamWord;       /* a WamWord can store a ptr (32/64 bits) */
 
-typedef long WamWord;		/* a wamword is a long (32/64 bits) */
+typedef void (*CodePtr) ();     /* a code pointer is a ptr to fct */
 
-typedef void (*CodePtr) ();	/* a code pointer is a ptr to fct */
-
-typedef CodePtr WamCont;	/* a continuation is a code pointer */
+typedef CodePtr WamCont;        /* a continuation is a code pointer */
 
 #ifndef ONLY_TAG_PART
 
@@ -45,24 +59,24 @@ typedef WamWord *WamWordP;
 
 @filler NB_OF_X_REGS
 
-@reg 4 WamCont  CP		/* Continuation pointer */
+@reg 4 WamCont  CP              /* Continuation pointer */
 
-@reg 4 WamWordP E		/* Last environment pointer */
+@reg 4 WamWordP E               /* Last environment pointer */
 
-@reg 2 WamWordP B		/* Last choice point pointer */
+@reg 2 WamWordP B               /* Last choice point pointer */
 
-@reg 3 WamWordP H		/* Top of the heap */
-@reg 3 WamWordP HB1		/* copy of HB(B) */
+@reg 3 WamWordP H               /* Top of the heap */
+@reg 3 WamWordP HB1             /* copy of HB(B) */
 
-@reg 1 WamWordP TR		/* Top of the trail */
-@reg 5 WamWordP S		/* Unification pointer */
+@reg 1 WamWordP TR              /* Top of the trail */
+@reg 5 WamWordP S               /* Unification pointer */
 
-@reg 9 WamWord  STAMP		/* Choice point stamp (for FD) */
-@reg 4 WamWordP CS		/* Top of the constraint stack */
+@reg 9 WamWord  STAMP           /* Choice point stamp (for FD) */
+@reg 4 WamWordP CS              /* Top of the constraint stack */
 
-@reg 9 WamWord  BCI		/* Byte-code info */
+@reg 9 WamWord  BCI             /* Byte-code info */
 
-@reg 9 WamWordP LSSA		/* Local stack start address */
+@reg 9 WamWordP LSSA            /* Local stack start address */
 
 
 @end regs
@@ -77,16 +91,16 @@ typedef WamWord *WamWordP;
 
 @begin tags
 
-@tag REF address 0		/* Reference */
-@tag LST address 1		/* List */
-@tag STC address 2		/* Structure */
+@tag REF address 0              /* Reference */
+@tag LST address 1              /* List */
+@tag STC address 2              /* Structure */
 
-@tag ATM short_uns 3		/* Atom */
+@tag ATM short_uns 3            /* Atom */
 
-@tag FLT address 4		/* Float */
-@tag FDV address 5		/* Finite Domain Variable */
+@tag FLT address 4              /* Float */
+@tag FDV address 5              /* Finite Domain Variable */
 
-@tag INT long_int 7		/* Integer */
+@tag INT long_int 7             /* Integer */
 
 @end tags
 
@@ -107,10 +121,10 @@ typedef WamWord *WamWordP;
 
 @begin stacks
 
-@stack trail   8192 TR		/* Trail  stack */
-@stack cstr    8192 CS		/* Constraint stack */
-@stack global 16384 H		/* Global stack */
-@stack local   8192 Local_Top	/* Local  stack (after global) */
+@stack trail  "Trail Stack (undo)"        16384 TR          /* Trail  stack */
+@stack cstr   "Cstr Stack (constraints)"  16384 CS          /* Constraint stack */
+@stack global "Global Stack (heap)"       32768 H           /* Global stack */
+@stack local  "Local Stack (control)"     16384 Local_Top   /* Local  stack (after global) */
 
 @end stacks
 

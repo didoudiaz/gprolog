@@ -1,0 +1,54 @@
+			Windows 64 compilation/installation instructions
+                         Daniel Diaz
+
+
+NB: Please read the WINDOWS file first !
+
+This file only documents the 64 bits specific part.
+
+The preliminar port to Win64 has been done in Jan 2011 by
+Jasper Taylor <jasper@simulistics.com>. Many thanks to him !
+I have then added some finishing touches.
+
+I have tested it under x86-64/Windows 7. I use cygwin as compilation
+environment (see file WINDOWS). I used mingw-w64 which delivers a complete
+toolchain (runtime, headers, and libs) for developing 64 bit (x64), as well
+as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
+from http://mingw-w64.sourceforge.net/ or, for cygwin, with the cygwin setup.exe 
+utility (selecting the mingw package).
+
+With the gywin package things are installed in:
+
+   /usr/x86_64-w64-mingw32/  and in  /usr/i686-w64-mingw32/
+      bin
+      lib
+      lib64
+      sys-root
+      sys-root/mingw
+      sys-root/mingw/bin
+      sys-root/mingw/include
+      sys-root/mingw/lib
+
+
+Configuration
+-------------
+
+Open a cygwin shell and go to GNU Prolog source directory:
+
+type 
+    ./configure --host=x86_64-w64-mingw32
+
+then
+    make
+    make check
+    make install
+
+
+LIMITATIONS
+-----------
+
+Currently hardware detection of stack overflows does not work 
+(SEH is not yet implemented in mingw64).
+
+
+

@@ -6,20 +6,33 @@
  * Descr.: byte-code support                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -150,7 +163,7 @@ typedef union
   double d;
 #if WORD_SIZE == 64
   int *p;
-  long l;
+  PlLong l;
 #endif
   unsigned u[2];
 }
@@ -244,9 +257,9 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define BC2_Int(w)                 ((w).t2.i24)
 
-#define Fit_In_16bits(n)           ((unsigned long) (n) < (1 << 16))
+#define Fit_In_16bits(n)           ((PlULong) (n) < (1 << 16))
 
-#define Fit_In_24bits(n)           ((unsigned long) (n) < (1 << 24))
+#define Fit_In_24bits(n)           ((PlULong) (n) < (1 << 24))
 
 #define Op_In_Tbl(str, op)  BC_Op(*p) = op; BC2_Atom(*p) = Pl_Create_Atom(str); p++
 
@@ -510,7 +523,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   int size_bc;
   BCWord w;			/* code-op word */
   unsigned w1, w2, w3;		/* additional words */
-  long l;
+  PlLong l;
   int nb_word;
   C64To32 cv;
 
@@ -722,12 +735,14 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
  * the buffer always bc has enough room for our 3 or 4 words.              *
  *-------------------------------------------------------------------------*/
 void
-Pl_BC_Emit_Inst_Execute_Native(int func, int arity, long *codep)
+Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
 {
   BCWord w;			/* code-op word */
   unsigned w1, w2, w3;		/* additional words */
   int nb_word;
+#if WORD_SIZE == 64
   C64To32 cv;
+#endif
 
   w1 = func;
   BC2_Arity(w) = arity;
@@ -815,7 +830,7 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
 
   debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
 
-  if (pl_debug_call_code != NULL && debug_call && 
+  if (pl_debug_call_code != NULL && debug_call &&
       (first_call_word & (1 << TAG_SIZE_LOW)))
     {
       A(0) = pred_word;
@@ -866,7 +881,7 @@ start:
   A(arity + 1) = debug_call;
 
   clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-			     (long (*)()) BC_Emulate_Pred_Alt,
+			     (PlLong (*)()) BC_Emulate_Pred_Alt,
 			     DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
   if (clause == NULL)
     goto fail;
@@ -963,7 +978,7 @@ BC_Emulate_Byte_Code(BCWord *bc)
   BCWord w;
   int x0, x, y;
   int w1;
-  long l;
+  PlLong l;
   WamCont codep;
   int func, arity;
   PredInf *pred;
@@ -1308,14 +1323,14 @@ bc_loop:
     case CALL_NATIVE:
       arity = BC2_Arity(w);
       func = bc->word;
-      bc++;      
+      bc++;
 #if WORD_SIZE == 32
-      codep = (WamCont) (bc->word); 
+      codep = (WamCont) (bc->word);
       bc++;
 #else
-      cv.u[0] = bc->word; 
+      cv.u[0] = bc->word;
       bc++;
-      cv.u[1] = bc->word; 
+      cv.u[1] = bc->word;
       bc++;
       codep = (WamCont) (cv.p);
 #endif
@@ -1331,14 +1346,14 @@ bc_loop:
     case EXECUTE_NATIVE:
       arity = BC2_Arity(w);
       func = bc->word;
-      bc++;      
+      bc++;
 #if WORD_SIZE == 32
-      codep = (WamCont) (bc->word); 
+      codep = (WamCont) (bc->word);
       bc++;
 #else
-      cv.u[0] = bc->word; 
+      cv.u[0] = bc->word;
       bc++;
-      cv.u[1] = bc->word; 
+      cv.u[1] = bc->word;
       bc++;
       codep = (WamCont) (cv.p);
 #endif

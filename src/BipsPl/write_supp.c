@@ -6,26 +6,40 @@
  * Descr.: write term support                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
 
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #define OBJ_INIT Write_Supp_Initializer
 
@@ -118,7 +132,7 @@ static void Show_Global_Var(WamWord *adr);
 
 static void Show_Atom(int context, int atom);
 
-static void Show_Integer(long x);
+static void Show_Integer(PlLong x);
 
 #ifndef NO_USE_FD_SOLVER
 static void Show_Fd_Variable(WamWord *fdv_adr);
@@ -542,11 +556,11 @@ Show_Atom(int context, int atom)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Show_Integer(long x)
+Show_Integer(PlLong x)
 {
   char str[32];
 
-  sprintf(str, "%ld", x);
+  sprintf(str, "%" PL_FMT_d, x);
   Out_String(str);
 
   pl_last_writing = W_NUMBER;
@@ -675,7 +689,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       if (Try_Portray(word))
 	return;
 
-      Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, 
+      Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM,
 		     UnTag_STC(word));
       break;
     }
@@ -873,7 +887,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
 	    if (pl_atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
 		pl_atom_tbl[functor].prop.type == OTHER_ATOM ||
-		(space_args 
+		(space_args
 #ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
 		 && oper->left != oper->prec && oper->right != oper->prec
 #endif

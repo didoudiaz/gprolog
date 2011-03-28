@@ -6,20 +6,33 @@
  * Descr.: FD variable values management - C part                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -184,7 +197,7 @@ Pl_Fd_Domain_2(WamWord list_word, WamWord r_word)
 
 
   DEREF(list_word, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK || 
+  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK ||
       tag_mask == TAG_FDV_MASK)
     return pl_fd_domain_r(word, r_word);
 
@@ -424,7 +437,7 @@ Pl_Indomain_Max_Alt_0(void)
 
   if (cur != end)
     {
-#if 0 /* the following data is unchanged */ 
+#if 0 /* the following data is unchanged */
       AB(B, 0) = (WamWord) fdv_adr;
       AB(B, 1) = (WamWord) range;
       AB(B, 2) = end;
@@ -819,7 +832,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
   WamWord **array;
   WamWord **p, **end;
   CmpFct cmp_meth;
-  long n;
+  PlLong n;
   int i;
   WamWord *fdv_adr;
   WamWord **res_elem = NULL;
@@ -832,7 +845,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
 
   array = (WamWord **) (Cstr_Stack + Pl_Rd_Integer_Check(sel_array_word));
 
-  n = (long) array[0];
+  n = (PlLong) array[0];
   if (n == 0)
     return FALSE;
 

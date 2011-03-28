@@ -6,20 +6,33 @@
  * Descr.: pass 3: code generation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -280,7 +293,7 @@ gen_load_arg(stc('$mt', 2, [atm(Module), Goal]), Reg, WamNext, WamInst) :-
 	!,
 	gen_load_arg(Goal, Reg, WamMT, WamInst),
 	WamMT = [put_meta_term(Module, Reg)|WamNext].
-	
+
 
 gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
 	(   F = '.',
@@ -438,8 +451,16 @@ gen_inline_pred(=, 2, [Arg1, Arg2], WamNext, WamEqual) :-
 equal(Arg1, Arg2, WamNext, WamNext) :-
 	Arg1 == Arg2.
 
+equal(var(x(Reg), Info), _, WamNext, WamNext) :-
+        var(Info),              % is this test useful ? i do not think so. void ==> var(Info) ?
+        Reg == void.
+
+equal(_, var(x(Reg), Info), WamNext, WamNext) :-
+        var(Info),              % is this test useful ? i do not think so
+        Reg == void.
+
 equal(var(VarName, Info), var(VarName, Info), WamNext, WamNext) :-
-	var(Info).
+        var(Info).
 
 equal(var(VarName1, Info1), Arg2, WamNext, WamEqual) :-
 	(   VarName1 = x(Reg1) ->
@@ -483,11 +504,17 @@ equal_lst([Arg1|LArg1], [Arg2|LArg2], WamNext, WamEqual) :-
 
 
 inline_unif_reg_term(Info, Reg, Arg, WamNext, WamUnif) :-
-	(   var(Info) ->
-	    Info = in_heap,
-	    gen_load_arg(Arg, Reg, WamNext, WamUnif)
-	;   gen_unif_arg(Arg, Reg, WamNext, WamUnif)
-	).
+        (   var(Info) ->
+            gen_load_arg(Arg, Reg, WamNext, WamUnif1),
+            (   var(Info) -> % if Info=in_heap then Reg appeared in Arg this we have an occurs check
+                Info = in_heap, % like in p :- A = f(A), write(A).
+                WamUnif = WamUnif1
+            ;
+                warn('explicit unification will fail due to cycli term (occurs check)', []),
+                WamUnif = [fail|WamNext]
+            )
+        ;   gen_unif_arg(Arg, Reg, WamNext, WamUnif)
+        ).
 
 
 

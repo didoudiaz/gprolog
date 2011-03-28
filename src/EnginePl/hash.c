@@ -6,20 +6,33 @@
  * Descr.: hash table management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -61,7 +74,7 @@ typedef struct hash_node *HashNode;
 struct hash_node
 {
   HashNode next;
-  long key;
+  PlLong key;
   /* the rest of the elem comes here */
 };
 
@@ -75,7 +88,7 @@ struct hash_node
  * Function Prototypes             *
  *---------------------------------*/
 
-static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
+static HashNode *Hash_Locate(HashNode *t, int tbl_size, PlLong key);
 
 
 
@@ -91,7 +104,7 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
 
 
 
-#define Hash_Function(k, size)     ((unsigned long) (k) % (size))
+#define Hash_Function(k, size)     ((PlULong) (k) % (size))
 
 
 
@@ -100,7 +113,7 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
  * A hash table consists of a header (tbl_size, elem_size, nb_elem) and a  *
  * table of tbl_size pointers to nodes.                                    *
  * Each node records a pointer to the next node, and a user element whose  *
- * size is elem_size. Each element must begin with the key (a long).       *
+ * size is elem_size. Each element must begin with the key (a PlLong).       *
  *-------------------------------------------------------------------------*/
 
 
@@ -250,7 +263,7 @@ Pl_Hash_Insert(char *tbl, char *elem, int replace)
   int tbl_size = Tbl_Size(tbl);
   int elem_size = Elem_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
-  long key = *(long *) elem;
+  PlLong key = *(PlLong *) elem;
   HashNode *prev;
   HashNode p;
 
@@ -260,7 +273,7 @@ Pl_Hash_Insert(char *tbl, char *elem, int replace)
   if (p == NULL)		/* the key does not exist */
     {
       p =
-	(HashNode) Malloc(sizeof(struct hash_node) - sizeof(long) +
+	(HashNode) Malloc(sizeof(struct hash_node) - sizeof(PlLong) +
 			  elem_size);
 #ifdef USE_ALONE
       if (p == NULL)
@@ -288,7 +301,7 @@ finish:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_Hash_Find(char *tbl, long key)
+Pl_Hash_Find(char *tbl, PlLong key)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -312,7 +325,7 @@ Pl_Hash_Find(char *tbl, long key)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_Hash_Delete(char *tbl, long key)
+Pl_Hash_Delete(char *tbl, PlLong key)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -342,7 +355,7 @@ Pl_Hash_Delete(char *tbl, long key)
  * to the key (if the pointer is NULL the key is not in the table).        *
  *-------------------------------------------------------------------------*/
 static HashNode *
-Hash_Locate(HashNode *t, int tbl_size, long key)
+Hash_Locate(HashNode *t, int tbl_size, PlLong key)
 {
   int n = Hash_Function(key, tbl_size);
   HashNode p;
@@ -477,7 +490,7 @@ Hash_Check_Table(char *tbl)
       printf("Hash Code:%d\n", t - Hsh_Table(tbl));
 
       for (p = *t; p; p = p->next, i++)
-	printf("\tadr:%#x  key:%ld\n", (int) p, p->key);
+	printf("\tadr:%#x  key:%" PL_FMT_d "\n", (int) p, p->key);
     }
   while (++t < endt);
 
@@ -489,7 +502,7 @@ Hash_Check_Table(char *tbl)
 
 typedef struct
 {
-  long key;
+  PlLong key;
   int info1;
   int info2;
 }
@@ -508,7 +521,7 @@ main(void)
 {
   char *t;
   int size;
-  long key;
+  PlLong key;
   Elem elem, *p;
   HashScan scan;
   int c;
@@ -538,7 +551,7 @@ main(void)
       if (c <= 4)
 	{
 	  printf("Key:");
-	  scanf("%ld", &key);
+	  scanf("%" PL_FMT_d "", &key);
 	  getchar();
 	  elem.key = key;
 	}
@@ -550,7 +563,7 @@ main(void)
 	case 2:
 	  elem.info1 = key * i * 10;
 	  elem.info2 = key * i * 100;
-	  printf("passed value: Key:%ld  Info1:%d  Info2:%d\n",
+	  printf("passed value: Key:%" PL_FMT_d "  Info1:%d  Info2:%d\n",
 		 elem.key, elem.info1, elem.info2);
 	  p = (Elem *) Pl_Hash_Insert(t, (char *) &elem, c - 1);
 	  break;
@@ -573,8 +586,8 @@ main(void)
 	  for (p = (Elem *) Pl_Hash_First(t, &scan); p;
 	       p = (Elem *) Pl_Hash_Next(&scan))
 	    {
-	      printf("adr: %#lx  (Key:%ld  Info1:%d  Info2:%d)\n",
-		     (long) p, p->key, p->info1, p->info2);
+	      printf("adr: %#" PL_FMT_x "  (Key:%" PL_FMT_d "  Info1:%d  Info2:%d)\n",
+		     (PlLong) p, p->key, p->info1, p->info2);
 	      k++;
 	    }
 	  if (k != Pl_Hash_Nb_Elements(t))
@@ -601,8 +614,8 @@ main(void)
 	  if (p == NULL)
 	    printf("returned value: NULL\n");
 	  else
-	    printf("returned value: %#lx  (Key:%ld  Info1:%d  Info2:%d)\n",
-		   (long) p, p->key, p->info1, p->info2);
+	    printf("returned value: %#" PL_FMT_x "  (Key:%" PL_FMT_d "  Info1:%d  Info2:%d)\n",
+		   (PlLong) p, p->key, p->info1, p->info2);
 	}
 
       printf("Nb Elements:%d\n", Pl_Hash_Nb_Elements(t));

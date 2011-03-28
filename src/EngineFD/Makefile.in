@@ -15,7 +15,7 @@ OBJLIB  = fd_inst@OBJ_SUFFIX@ fd_range@OBJ_SUFFIX@  fd_unify@OBJ_SUFFIX@
 
 
 $(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME) 
+	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
 	$(RANLIB) $(LIBNAME)
 
@@ -40,5 +40,5 @@ fd_unify@OBJ_SUFFIX@: fd_unify.fd
 clean:
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
- 
+
 distclean: clean

@@ -5,95 +5,95 @@
 file_name('/home/diaz/GP/src/src/BipsPl/type_inl.pl').
 
 
-predicate('$use_type_inl'/0,29,static,private,monofile,built_in,[
+predicate('$use_type_inl'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(var/1,32,static,private,monofile,built_in,[
+predicate(var/1,45,static,private,monofile,built_in,[
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(nonvar/1,35,static,private,monofile,built_in,[
+predicate(nonvar/1,48,static,private,monofile,built_in,[
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(atom/1,38,static,private,monofile,built_in,[
+predicate(atom/1,51,static,private,monofile,built_in,[
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(integer/1,41,static,private,monofile,built_in,[
+predicate(integer/1,54,static,private,monofile,built_in,[
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(float/1,44,static,private,monofile,built_in,[
+predicate(float/1,57,static,private,monofile,built_in,[
     call_c('Pl_Blt_Float',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(number/1,47,static,private,monofile,built_in,[
+predicate(number/1,60,static,private,monofile,built_in,[
     call_c('Pl_Blt_Number',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(atomic/1,50,static,private,monofile,built_in,[
+predicate(atomic/1,63,static,private,monofile,built_in,[
     call_c('Pl_Blt_Atomic',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(compound/1,53,static,private,monofile,built_in,[
+predicate(compound/1,66,static,private,monofile,built_in,[
     call_c('Pl_Blt_Compound',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(callable/1,56,static,private,monofile,built_in,[
+predicate(callable/1,69,static,private,monofile,built_in,[
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(ground/1,59,static,private,monofile,built_in,[
+predicate(ground/1,72,static,private,monofile,built_in,[
     call_c('Pl_Blt_Ground',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(is_list/1,62,static,private,monofile,built_in,[
+predicate(is_list/1,75,static,private,monofile,built_in,[
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(list/1,65,static,private,monofile,built_in,[
+predicate(list/1,78,static,private,monofile,built_in,[
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(partial_list/1,68,static,private,monofile,built_in,[
+predicate(partial_list/1,81,static,private,monofile,built_in,[
     call_c('Pl_Blt_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(list_or_partial_list/1,71,static,private,monofile,built_in,[
+predicate(list_or_partial_list/1,84,static,private,monofile,built_in,[
     call_c('Pl_Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(fd_var/1,77,static,private,monofile,built_in_fd,[
+predicate(fd_var/1,90,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(non_fd_var/1,80,static,private,monofile,built_in_fd,[
+predicate(non_fd_var/1,93,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Non_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(generic_var/1,83,static,private,monofile,built_in_fd,[
+predicate(generic_var/1,96,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(non_generic_var/1,86,static,private,monofile,built_in_fd,[
+predicate(non_generic_var/1,99,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Non_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).

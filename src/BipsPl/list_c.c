@@ -1,25 +1,38 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : list_c.c                                                        * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : list_c.c                                                        *
  * Descr.: list library  - C part                                          *
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2010 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU Lesser General Public License as published   * 
- * by the Free Software Foundation; either version 3, or any later version.* 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU Lesser General Public License* 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               * 
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -72,19 +85,19 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
   WamWord *next_H;
 
 
-  for(;;) 
+  for(;;)
     {
       DEREF(l1_word, word, tag_mask);
       if (tag_mask != TAG_LST_MASK)
 	break;
-      
+
       adr = UnTag_LST(word);
 
       DEREF(l3_word, word, tag_mask);
       if (tag_mask == TAG_REF_MASK) /* as soon as L3 is a var, create the result and unify with L3 at the end only */
 	{
 	  result_word = Tag_LST(H);
-	  do {      
+	  do {
 	    next_H = H + 2;
 	    *H++ = Car(adr);
 	    *H++ = Tag_LST(next_H);
@@ -92,7 +105,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 	    l1_word = Cdr(adr);
 
 	    DEREF(l1_word, word, tag_mask);
-	    adr = UnTag_LST(word);	  
+	    adr = UnTag_LST(word);
 	  } while(tag_mask == TAG_LST_MASK);
 	  next_H = H - 1;
 	  *next_H = Make_Self_Ref(next_H);
@@ -121,7 +134,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 
   /* L1 is a var, let's see L2 and L3 */
 
-  if ((len2 = Pl_List_Length(l2_word)) >= 0 && 
+  if ((len2 = Pl_List_Length(l2_word)) >= 0 &&
       (len3 = Pl_List_Length(l3_word)) >= 0)
     {		/* deterministic: L1 is the prefix of L3 with len = len3 - len2 */
       if ((len1 = len3 - len2) < 0)
@@ -170,12 +183,12 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
   WamWord *adr;
   int len1, len2, len3;
 
-  for(;;) 
+  for(;;)
     {
       DEREF(l1_word, word, tag_mask);
       if (tag_mask != TAG_LST_MASK)
 	break;
-      
+
       adr = UnTag_LST(word);
       if (!Pl_Get_List(l3_word) || !Pl_Unify_Value(Car(adr)))
 	return FALSE;
@@ -193,7 +206,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 
   /* L1 is a var, let's see L2 and L3 */
 
-  if ((len2 = Pl_List_Length(l2_word)) >= 0 && 
+  if ((len2 = Pl_List_Length(l2_word)) >= 0 &&
       (len3 = Pl_List_Length(l3_word)) >= 0)
     {		/* deterministic: L1 is the prefix of L3 with len = len3 - len2 */
       if ((len1 = len3 - len2) < 0)
@@ -283,7 +296,7 @@ Pl_Member_2(void)
 
   head_word = Pl_Unify_Variable();
   A(1) = Pl_Unify_Variable();
-  
+
   Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(MEMBER_ALT, 0), 2);
 
   for(;;)
@@ -294,7 +307,7 @@ Pl_Member_2(void)
 
       if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK)
 	{
-	  Assign_B(BB(B));  /* cut (if failure faster then Pl_Delete_Choice_Point() */  
+	  Assign_B(BB(B));  /* cut (if failure faster then Pl_Delete_Choice_Point() */
 	  return ok;
 	}
 
@@ -375,7 +388,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
-  long n, len = 0;
+  PlLong n, len = 0;
 
   DEREF(n_word, word, tag_mask);
   n_word = word;
@@ -418,7 +431,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
 	return FALSE;
 
       len++;
-      if ((unsigned long) n < (unsigned long) len)
+      if ((PlULong) n < (PlULong) len)
 	return FALSE;
 
       adr = UnTag_LST(word);
@@ -454,9 +467,9 @@ Pl_Length_Alt_0(void)
   n_word = AB(B, 1);
   len = UnTag_INT(AB(B, 2));
   i =  UnTag_INT(AB(B, 3)) + 1;
-  
+
   AB(B, 3) = Tag_INT(i);
-  
+
   Pl_Get_Integer(i + len, n_word); /* always succeed */
 
   do
@@ -465,7 +478,7 @@ Pl_Length_Alt_0(void)
 	return FALSE;
       Pl_Unify_Void(1);
       list_word = Pl_Unify_Variable();
-      
+
     }
   while(--i);
   return Pl_Get_Nil(list_word);
@@ -482,7 +495,7 @@ Bool
 Pl_Nth0_3(WamWord n_word, WamWord list_word, WamWord res_word, int base)
 {
   WamWord elem_word;
-  long n = Pl_Rd_Integer(n_word) - base;
+  PlLong n = Pl_Rd_Integer(n_word) - base;
 
   if (n < 0)
     return FALSE;
@@ -516,12 +529,12 @@ Pl_Reverse_2(WamWord l1_word, WamWord l2_word)
   WamWord x_word;
   WamWord result_word = NIL_WORD;
 
-  for(;;) 
+  for(;;)
     {
       DEREF(l1_word, word, tag_mask);
       if (tag_mask != TAG_LST_MASK)
 	break;
-      
+
       adr = UnTag_LST(word);
       word = Tag_LST(H);
       *H++ = Car(adr);
@@ -554,7 +567,7 @@ Pl_Reverse_2(WamWord l1_word, WamWord l2_word)
 	  *H++ = x_word;
 	  *H++ = result_word;
 	  result_word = word;
-	  
+
 	  len1++;
 	}
     }

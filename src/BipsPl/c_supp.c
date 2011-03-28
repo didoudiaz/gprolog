@@ -6,20 +6,33 @@
  * Descr.: C interface support                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -134,7 +147,7 @@
 
 #define CHECK_FOR_UN_CODE                                                   \
   WamWord word, tag_mask;                                                   \
-  long c;                                                                   \
+  PlLong c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
@@ -146,7 +159,7 @@
 
 #define CHECK_FOR_UN_IN_CODE                                                \
   WamWord word, tag_mask;                                                   \
-  long c;                                                                   \
+  PlLong c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
@@ -158,7 +171,7 @@
 
 #define CHECK_FOR_UN_BYTE                                                   \
   WamWord word, tag_mask;                                                   \
-  long c;                                                                   \
+  PlLong c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   c = UnTag_INT(word);                                                      \
@@ -169,7 +182,7 @@
 
 #define CHECK_FOR_UN_IN_BYTE                                                \
   WamWord word, tag_mask;                                                   \
-  long c;                                                                   \
+  PlLong c;                                                                   \
                                                                             \
   DEREF(start_word, word, tag_mask);                                        \
   c = UnTag_INT(word);                                                      \
@@ -202,7 +215,7 @@
  * PL_RD_INTEGER_CHECK                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_Rd_Integer_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -224,7 +237,7 @@ Pl_Rd_Integer_Check(WamWord start_word)
  * PL_RD_INTEGER                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_Rd_Integer(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -241,10 +254,10 @@ Pl_Rd_Integer(WamWord start_word)
  * PL_RD_POSITIVE_CHECK                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_Rd_Positive_Check(WamWord start_word)
 {
-  long n = Pl_Rd_Integer_Check(start_word);
+  PlLong n = Pl_Rd_Integer_Check(start_word);
 
   if (n < 0)
     Pl_Err_Domain(pl_domain_not_less_than_zero, start_word);
@@ -259,7 +272,7 @@ Pl_Rd_Positive_Check(WamWord start_word)
  * PL_RD_POSITIVE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-long
+PlLong
 Pl_Rd_Positive(WamWord start_word)
 {
   return Pl_Rd_Integer(start_word);
@@ -493,7 +506,7 @@ Pl_Rd_In_Char_Check(WamWord start_word)
     Pl_Err_Instantiation();
 
   atom = UnTag_ATM(word);
-  if (tag_mask != TAG_ATM_MASK || 
+  if (tag_mask != TAG_ATM_MASK ||
       (atom != pl_atom_end_of_file && pl_atom_tbl[atom].prop.length != 1))
     Pl_Err_Type(pl_type_in_character, word);
 
@@ -593,7 +606,7 @@ int
 Pl_Rd_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
-  long c;
+  PlLong c;
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -630,7 +643,7 @@ int
 Pl_Rd_In_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
-  long c;
+  PlLong c;
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -1486,7 +1499,7 @@ Pl_Check_For_Un_Variable(WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Un_Integer_Check(long value, WamWord start_word)
+Pl_Un_Integer_Check(PlLong value, WamWord start_word)
 {
   CHECK_FOR_UN_INTEGER;
 
@@ -1501,7 +1514,7 @@ Pl_Un_Integer_Check(long value, WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Un_Integer(long value, WamWord start_word)
+Pl_Un_Integer(PlLong value, WamWord start_word)
 {
   return Pl_Get_Integer(value, start_word);
 }
@@ -1514,7 +1527,7 @@ Pl_Un_Integer(long value, WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Un_Positive_Check(long value, WamWord start_word)
+Pl_Un_Positive_Check(PlLong value, WamWord start_word)
 {
   CHECK_FOR_UN_POSITIVE;
 
@@ -1529,7 +1542,7 @@ Pl_Un_Positive_Check(long value, WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Un_Positive(long value, WamWord start_word)
+Pl_Un_Positive(PlLong value, WamWord start_word)
 {
   return Pl_Get_Integer(value, start_word);
 }
@@ -1572,11 +1585,11 @@ Pl_Un_Float(double value, WamWord start_word)
 Bool
 Pl_Un_Number_Check(double value, WamWord start_word)
 {
-  long n;
+  PlLong n;
 
   CHECK_FOR_UN_NUMBER;
 
-  n = (long) value;
+  n = (PlLong) value;
 
   return (n == value) ? Pl_Get_Integer(n, word) : Pl_Get_Float(value, word);
 }
@@ -1591,9 +1604,9 @@ Pl_Un_Number_Check(double value, WamWord start_word)
 Bool
 Pl_Un_Number(double value, WamWord start_word)
 {
-  long n;
+  PlLong n;
 
-  n = (long) value;
+  n = (PlLong) value;
 
   return (n == value) ? Pl_Get_Integer(n, start_word) :
     Pl_Get_Float(value, start_word);
@@ -2144,7 +2157,7 @@ Pl_Un_Term(WamWord term_word, WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Mk_Integer(long value)
+Pl_Mk_Integer(PlLong value)
 {
   return Pl_Put_Integer(value);
 }
@@ -2157,7 +2170,7 @@ Pl_Mk_Integer(long value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Mk_Positive(long value)
+Pl_Mk_Positive(PlLong value)
 {
   return Pl_Put_Integer(value);
 }
@@ -2187,7 +2200,7 @@ Pl_Mk_Number(double value)
 {
   int n;
 
-  n = (long) value;
+  n = (PlLong) value;
 
   if (n == value)
     return Pl_Put_Integer(n);

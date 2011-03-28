@@ -5,7 +5,7 @@
 file_name('/home/diaz/GP/src/src/Pl2Wam/internal.pl').
 
 
-predicate(internal_format/6,61,static,private,monofile,global,[
+predicate(internal_format/6,74,static,private,monofile,global,[
     allocate(5),
     get_variable(y(0),1),
     get_variable(y(1),3),
@@ -25,7 +25,7 @@ predicate(internal_format/6,61,static,private,monofile,global,[
     execute(classif_vars/3)]).
 
 
-predicate(format_head/3,69,static,private,monofile,global,[
+predicate(format_head/3,82,static,private,monofile,global,[
     get_variable(x(3),2),
     get_variable(x(2),0),
     put_atom(module,0),
@@ -40,7 +40,7 @@ predicate(format_head/3,69,static,private,monofile,global,[
     execute(format_pred/5)]).
 
 
-predicate(format_body/4,76,static,private,monofile,global,[
+predicate(format_body/4,89,static,private,monofile,global,[
     get_variable(x(5),2),
     put_value(x(1),2),
     put_value(x(3),6),
@@ -51,7 +51,7 @@ predicate(format_body/4,76,static,private,monofile,global,[
     execute(format_body1/8)]).
 
 
-predicate(format_body1/8,79,static,private,monofile,global,[
+predicate(format_body1/8,92,static,private,monofile,global,[
     load_cut_level(8),
     try_me_else(5),
     switch_on_term(1,4,fail,fail,2),
@@ -122,7 +122,7 @@ label(5),
     execute('$format_body1/8_$aux2'/2)]).
 
 
-predicate('$format_body1/8_$aux2'/2,87,static,private,monofile,local,[
+predicate('$format_body1/8_$aux2'/2,100,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     get_atom(t,0),
@@ -136,7 +136,7 @@ label(1),
     proceed]).
 
 
-predicate('$format_body1/8_$aux1'/3,87,static,private,monofile,local,[
+predicate('$format_body1/8_$aux1'/3,100,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     get_atom(t,0),
@@ -152,7 +152,7 @@ label(1),
     proceed]).
 
 
-predicate(format_pred/5,106,static,private,monofile,global,[
+predicate(format_pred/5,119,static,private,monofile,global,[
     load_cut_level(5),
     try_me_else(1),
     get_structure((:)/2,0),
@@ -210,7 +210,7 @@ label(1),
     execute('$format_pred/5_$aux1'/4)]).
 
 
-predicate('$format_pred/5_$aux1'/4,110,static,private,monofile,local,[
+predicate('$format_pred/5_$aux1'/4,123,static,private,monofile,local,[
     load_cut_level(4),
     try_me_else(1),
     allocate(2),
@@ -229,7 +229,7 @@ label(1),
     proceed]).
 
 
-predicate('$format_pred/5_$aux2'/3,110,static,private,monofile,local,[
+predicate('$format_pred/5_$aux2'/3,123,static,private,monofile,local,[
     try_me_else(1),
     execute(inline_predicate/2),
 
@@ -245,7 +245,7 @@ label(1),
     execute(not_dangerous_c_call/1)]).
 
 
-predicate(format_arg_lst/4,128,static,private,monofile,global,[
+predicate(format_arg_lst/4,141,static,private,monofile,global,[
     load_cut_level(4),
     switch_on_term(1,2,fail,4,fail),
 
@@ -283,7 +283,7 @@ label(4),
     execute(format_arg_lst/4)]).
 
 
-predicate(format_arg/4,137,static,private,monofile,global,[
+predicate(format_arg/4,150,static,private,monofile,global,[
     try_me_else(1),
     get_variable(x(4),2),
     get_variable(x(2),1),
@@ -340,7 +340,7 @@ label(6),
     execute(format_arg_lst/4)]).
 
 
-predicate(no_internal_transf/2,170,static,private,monofile,global,[
+predicate(no_internal_transf/2,183,static,private,monofile,global,[
     put_atom('$no_internal_tranf$',2),
     put_integer(1,3),
     call_c('Pl_Blt_Functor',[fast_call,boolean],[x(1),x(2),x(3)]),
@@ -349,7 +349,7 @@ predicate(no_internal_transf/2,170,static,private,monofile,global,[
     proceed]).
 
 
-predicate(add_var_to_dico/4,184,static,private,monofile,global,[
+predicate(add_var_to_dico/4,197,static,private,monofile,global,[
     load_cut_level(4),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -405,7 +405,7 @@ label(6),
     execute(add_var_to_dico/4)]).
 
 
-predicate('$add_var_to_dico/4_$aux1'/3,189,static,private,monofile,local,[
+predicate('$add_var_to_dico/4_$aux1'/3,202,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -423,7 +423,7 @@ label(1),
     proceed]).
 
 
-predicate(classif_vars/3,206,static,private,monofile,global,[
+predicate(classif_vars/3,219,static,private,monofile,global,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 
@@ -484,7 +484,7 @@ label(7),
     execute(classif_vars/3)]).
 
 
-predicate('$classif_vars/3_$aux1'/2,209,static,private,monofile,local,[
+predicate('$classif_vars/3_$aux1'/2,222,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -500,14 +500,14 @@ label(1),
     proceed]).
 
 
-predicate(inline_predicate/2,228,static,private,monofile,global,[
+predicate(inline_predicate/2,241,static,private,monofile,global,[
     put_atom(inline,3),
     put_variable(x(2),4),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(3),x(4)]),
     execute(inline_predicate/3)]).
 
 
-predicate(inline_predicate/3,235,static,private,monofile,global,[
+predicate(inline_predicate/3,248,static,private,monofile,global,[
     switch_on_term(4,1,fail,fail,fail),
 
 label(1),

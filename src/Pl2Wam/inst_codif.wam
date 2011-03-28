@@ -5,7 +5,7 @@
 file_name('/home/diaz/GP/src/src/Pl2Wam/inst_codif.pl').
 
 
-predicate(alias_stop_instruction/1,29,static,private,monofile,global,[
+predicate(alias_stop_instruction/1,42,static,private,monofile,global,[
     load_cut_level(1),
     allocate(1),
     get_variable(x(2),0),
@@ -20,7 +20,7 @@ predicate(alias_stop_instruction/1,29,static,private,monofile,global,[
     proceed]).
 
 
-predicate('$alias_stop_instruction/1_$aux1'/2,29,static,private,monofile,local,[
+predicate('$alias_stop_instruction/1_$aux1'/2,42,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -51,7 +51,7 @@ label(7),
     execute('$alias_stop_instruction/1_$aux2'/1)]).
 
 
-predicate('$alias_stop_instruction/1_$aux2'/1,29,static,private,monofile,local,[
+predicate('$alias_stop_instruction/1_$aux2'/1,42,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_atom(jump,0),
@@ -64,7 +64,7 @@ label(1),
     execute(memberchk/2)]).
 
 
-predicate(codification/2,43,static,private,monofile,global,[
+predicate(codification/2,56,static,private,monofile,global,[
     load_cut_level(2),
     allocate(1),
     get_variable(y(0),2),
@@ -74,7 +74,7 @@ predicate(codification/2,43,static,private,monofile,global,[
     proceed]).
 
 
-predicate(codif/2,47,static,private,monofile,global,[
+predicate(codif/2,60,static,private,monofile,global,[
     load_cut_level(2),
     try_me_else(78),
     switch_on_term(8,fail,fail,fail,1),
@@ -650,7 +650,7 @@ label(78),
     proceed]).
 
 
-predicate('$codif/2_$aux3'/2,117,static,private,monofile,local,[
+predicate('$codif/2_$aux3'/2,130,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -676,7 +676,7 @@ label(1),
     proceed]).
 
 
-predicate('$codif/2_$aux2'/2,109,static,private,monofile,local,[
+predicate('$codif/2_$aux2'/2,122,static,private,monofile,local,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -703,7 +703,7 @@ label(5),
     proceed]).
 
 
-predicate('$codif/2_$aux1'/2,105,static,private,monofile,local,[
+predicate('$codif/2_$aux1'/2,118,static,private,monofile,local,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -730,7 +730,7 @@ label(5),
     proceed]).
 
 
-predicate(lst_r_for_call_execute/3,134,static,private,monofile,global,[
+predicate(lst_r_for_call_execute/3,147,static,private,monofile,global,[
     try_me_else(1),
     get_nil(2),
     get_value(x(1),0),
@@ -748,7 +748,7 @@ label(1),
     execute(lst_r_for_call_execute/3)]).
 
 
-predicate(lst_rw_for_foreign_c_call/3,143,static,private,monofile,global,[
+predicate(lst_rw_for_foreign_c_call/3,156,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -780,7 +780,7 @@ label(4),
     execute(lst_rw_for_foreign_c_call/3)]).
 
 
-predicate(lst_rw_for_c_call/3,151,static,private,monofile,global,[
+predicate(lst_rw_for_c_call/3,164,static,private,monofile,global,[
     load_cut_level(3),
     switch_on_term(2,3,fail,1,fail),
 

@@ -6,20 +6,33 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -319,7 +332,7 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
   char *name;
 
 #ifdef _WIN32
-  long h;
+  PlLong h;
   struct _finddata_t d;
   static char buff[MAXPATHLEN];
 #else
@@ -725,12 +738,12 @@ Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
 {
   char *template;
   char *path_name;
- 
+
   template = Get_Path_Name(template_word);
- 
+
   path_name = Pl_M_Mktemp(template);
   Os_Test_Error(path_name == NULL);
- 
+
   return path_name && Pl_Un_String_Check(path_name, path_name_word);
 }
 
@@ -748,20 +761,20 @@ Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
   char *dir;
   char *prefix;
   char *path_name;
- 
+
   dir = Pl_Rd_String_Check(dir_word);
   if (*dir == '\0')
     dir = NULL;
   else
     dir = Get_Path_Name(dir_word);
- 
+
   prefix = Pl_Rd_String_Check(prefix_word);
   if (*prefix == '\0')
     prefix = NULL;
- 
+
   path_name = Pl_M_Tempnam(dir, prefix);
   Os_Test_Error(path_name == NULL);
- 
+
   return path_name && Pl_Un_String_Check(path_name, path_name_word);
 }
 
@@ -858,9 +871,9 @@ Pl_Sleep_1(WamWord seconds_word)
 
   Sleep(ms);
 #else
-  long us;
+  PlLong us;
 
-  us = (long) (Pl_Rd_Number_Check(seconds_word) * 1000000);
+  us = (PlLong) (Pl_Rd_Number_Check(seconds_word) * 1000000);
 
   if (us < 0)
     Pl_Err_Domain(pl_domain_not_less_than_zero, seconds_word);
@@ -953,7 +966,7 @@ Pl_Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
 
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_list_word);
-      
+
       lst_adr = UnTag_LST(word);
 
       *p++ = Pl_Rd_String_Check(Car(lst_adr));
@@ -1190,8 +1203,8 @@ Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
     p = NULL;
   else
     {
-      t.tv_sec = (long) (time_out / 1000);
-      t.tv_usec = (long) (fmod(time_out, 1000) * 1000);
+      t.tv_sec = (PlLong) (time_out / 1000);
+      t.tv_usec = (PlLong) (fmod(time_out, 1000) * 1000);
       p = &t;
     }
 

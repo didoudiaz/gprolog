@@ -1,25 +1,38 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : catch.pl                                                        * 
- * Descr.: exception management (catch)                                    * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2010 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU Lesser General Public License as published   * 
- * by the Free Software Foundation; either version 3, or any later version.* 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU Lesser General Public License* 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : catch.pl                                                        *
+ * Descr.: exception management (catch)                                    *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -35,7 +48,7 @@
 '$catch'(Goal, Catch, Recovery, Func, Arity, DebugCall) :-
 	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
 	'$catch1'(Goal, Catch, Recovery, 0).
-	
+
 '$catch1'(Goal, Catch, Recovery, CallInfo) :-
 	'$call_c'('Pl_Load_Call_Info_Arg_1'(3)),   % to ensure CallInfo is deref
 	'$catch_internal'(Goal, Catch, Recovery, CallInfo).
@@ -86,7 +99,7 @@
 	;   '$catch_fail_now'(B)
 	).
 
-'$catch_a_throw'(Ball, Ball1, Recovery, CallInfo, _) :-          
+'$catch_a_throw'(Ball, Ball1, Recovery, CallInfo, _) :-
 % for debug
 % write(catch1(Ball, Ball1, Recovery)), nl,
 	Ball = Ball1,

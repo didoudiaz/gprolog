@@ -5,29 +5,29 @@
 file_name('/home/diaz/GP/src/src/BipsPl/sockets.pl').
 
 
-predicate('$use_sockets'/0,29,static,private,monofile,built_in,[
+predicate('$use_sockets'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(socket/2,32,static,private,monofile,built_in,[
+predicate(socket/2,45,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket,2]),
     call_c('Pl_Socket_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(socket_close/1,39,static,private,monofile,built_in,[
+predicate(socket_close/1,52,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_close,1]),
     call_c('Pl_Socket_Close_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(socket_bind/2,46,static,private,monofile,built_in,[
+predicate(socket_bind/2,59,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_bind,2]),
     call_c('Pl_Socket_Bind_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(socket_connect/4,53,static,private,monofile,built_in,[
+predicate(socket_connect/4,66,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -48,13 +48,13 @@ predicate(socket_connect/4,53,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(socket_listen/2,62,static,private,monofile,built_in,[
+predicate(socket_listen/2,75,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_listen,2]),
     call_c('Pl_Socket_Listen_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(socket_accept/3,69,static,private,monofile,built_in,[
+predicate(socket_accept/3,82,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -74,7 +74,7 @@ predicate(socket_accept/3,69,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(socket_accept/4,76,static,private,monofile,built_in,[
+predicate(socket_accept/4,89,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -98,7 +98,7 @@ predicate(socket_accept/4,76,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$socket_accept/4_$aux1'/1,76,static,private,monofile,local,[
+predicate('$socket_accept/4_$aux1'/1,89,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
@@ -110,7 +110,7 @@ label(1),
     execute('$pl_err_uninstantiation'/1)]).
 
 
-predicate('$assoc_socket_streams'/3,89,static,private,monofile,built_in,[
+predicate('$assoc_socket_streams'/3,102,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -129,7 +129,7 @@ predicate('$assoc_socket_streams'/3,89,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(hostname_address/2,98,static,private,monofile,built_in,[
+predicate(hostname_address/2,111,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[hostname_address,2]),
     call_c('Pl_Hostname_Address_2',[boolean],[x(0),x(1)]),
     proceed]).

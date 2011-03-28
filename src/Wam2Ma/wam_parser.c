@@ -6,20 +6,33 @@
  * Descr.: parser                                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -29,6 +42,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include <setjmp.h>
 #include <locale.h>
 
@@ -36,6 +50,7 @@
 #include "wam_parser.h"
 #include "wam_protos.h"
 
+#include "../EnginePl/pl_long.h"
 
 
 
@@ -143,7 +158,7 @@ ParseInf inst[] = {
 
   {"call_c", F_call_c, 3, {ATOM, L1(ANY), L1(ANY)}},
 
-  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER, 
+  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER,
 					   L2(ATOM, ATOM)}},
 
   {NULL, NULL, 0, {0}}
@@ -170,7 +185,7 @@ char *cur_line_p;
 char *beg_last_token;
 
 char str_val[MAX_STR_LEN];
-long int_val;
+PlLong int_val;
 double dbl_val;
 
 
@@ -268,7 +283,7 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 
   for(in = what; in->keyword && strcmp(str_val, in->keyword) != 0; in++)
     ;
-  
+
   if (in->keyword == NULL)
     Syntax_Error((what == decl) ? "unknown wam declaration" : "unknown wam instruction");
 
@@ -347,7 +362,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
     case INTEGER:
       Read_Token(INTEGER);
     load_integer:
-      Add_Arg(*top, long, int_val);
+      Add_Arg(*top, PlLong, int_val);
       return;
 
     case FLOAT:
@@ -365,9 +380,9 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       Read_Token(INTEGER);
       Read_Token(')');
       if (*str_val == 'x')
-	Add_Arg(*top, long, int_val);
+	Add_Arg(*top, PlLong, int_val);
       else
-	Add_Arg(*top, long, 5000 + int_val);
+	Add_Arg(*top, PlLong, 5000 + int_val);
       return;
 
     case F_N:
@@ -379,13 +394,13 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
     case MP_N:
       Read_Token(ATOM);
       k = Scanner(0);
-      if (k == ':') 
+      if (k == ':')
 	{
 	  Add_Arg(*top, char *, strdup(str_val));
 	  Read_Token(ATOM);
 	  Add_Arg(*top, char *, strdup(str_val));
 	  Read_Token('/');
-	} 
+	}
       else if (k == '/')
 	{
 	  Add_Arg(*top, char *, NULL);
@@ -406,13 +421,13 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	  else
 	    int_val = -1;
 	}
-      Add_Arg(*top, long, int_val);
+      Add_Arg(*top, PlLong, int_val);
       return;
 
     case ANY:
       t1 = Scanner(1);
       top1 = *top;		/* to update type if needed */
-      Add_Arg(*top, long, t1);
+      Add_Arg(*top, PlLong, t1);
 
       if (t1 == INTEGER)
 	goto load_integer;
@@ -428,7 +443,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' &&
 	  Peek_Char(0) == '(')
 	{
-	  Add_Arg(top1, long, X_Y);
+	  Add_Arg(top1, PlLong, X_Y);
 	  goto load_x_y;
 	}
 
@@ -437,7 +452,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	{
 	  Read_Token('/');
 	  Read_Argument(INTEGER, top);
-	  Add_Arg(top1, long, F_N);
+	  Add_Arg(top1, PlLong, F_N);
 	}
       return;
 
@@ -450,7 +465,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
   DECODE_L2(arg_type, t1, t2);
 
   top1 = *top;
-  Add_Arg(*top, long, 0);	/* reserve space for counter */
+  Add_Arg(*top, PlLong, 0);	/* reserve space for counter */
 
   n = 0;
   k = Scanner(1);
@@ -479,7 +494,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       if (k != ',')
 	Syntax_Error("] or , expected");
     }
-  Add_Arg(top1, long, n);
+  Add_Arg(top1, PlLong, n);
 }
 
 
@@ -539,7 +554,7 @@ static int
 Scanner(int complex_atom)
 {
   char *p, *p1;
-  long i;
+  PlLong i;
   double d;
   double strtod();
 
@@ -613,9 +628,9 @@ Scanner(int complex_atom)
 		    }
 		  else
 		    i = 8;
-		  i = strtol(cur_line_p, &p1, i);	/* stop on the closing \ */
+		  i = strtoll(cur_line_p, &p1, i);	/* stop on the closing \ */
 		  cur_line_p = p1 + 1;
-		  sprintf(p, "%03lo", i);
+		  sprintf(p, "%03" PL_FMT_o, i);
 		  p += 3;
 		}
 	    }
@@ -670,7 +685,7 @@ Scanner(int complex_atom)
     }
 
 
-  i = strtol(cur_line_p, &p, 0);
+  i = strtoll(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;
   d = strtod(cur_line_p, &p1);

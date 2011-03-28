@@ -6,20 +6,33 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -29,12 +42,12 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "ma_parser.h"
-#include "ma_protos.h"
-
 #include "../EnginePl/gp_config.h"
 #include "../Wam2Ma/bt_string.c"
 #include "../TopComp/copying.c"
+
+#include "ma_parser.h"
+#include "ma_protos.h"
 
 
 
@@ -59,7 +72,7 @@ typedef struct
 {
   int global;
   VType vtype;			/* NONE, INITIAL_VALUE, ARRAY_SZIE */
-  long value;
+  PlLong value;
 }
 LongInf;
 
@@ -313,7 +326,7 @@ Call_C(char *fct_name, int fc, int nb_args, int nb_args_in_words, ArgInf arg[])
     }
   else
     Call_C_Invoke(fct_name, fc, nb_args, nb_args_in_words);
-  
+
   if (p_inline && comment)
     Label_Printf("\t\t%s code after inlining (Call_C_Stop)", comment_prefix);
   Call_C_Stop(fct_name, nb_args, p_inline);
@@ -382,22 +395,22 @@ Find_Inline_Data(char *fct_name)
  *-------------------------------------------------------------------------*/
 void
 Emit_Inline_Data(char **p_inline)
-    
+
 {
   char **p = p_inline;
-  unsigned long l;
+  PlULong l;
   static int nb_inlined = 0;	/* a global variable */
 
   nb_inlined++;
 
   for(p += 4; *p != INL_END_FUNC; p++)
     {
-      l = (unsigned long) *p;
+      l = (PlULong) *p;
       if (l < 1024)		/* label definition */
 	Label_Printf("%s%d_%d:", local_symb_prefix, nb_inlined, l);
       else
 	{
-	  l = (unsigned long) p[1];
+	  l = (PlULong) p[1];
 	  if (l < 1024)
 	    Inst_Printf(p[0], "%s%d_%d", local_symb_prefix, nb_inlined, l);
 	  else
@@ -502,7 +515,7 @@ Switch_Cmp_Int(SwtInf *c1, SwtInf *c2)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Decl_Long(char *name, int global, VType vtype, long value)
+Decl_Long(char *name, int global, VType vtype, PlLong value)
 {
   LongInf *p;
 

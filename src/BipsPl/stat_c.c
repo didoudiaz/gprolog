@@ -6,20 +6,33 @@
  * Descr.: statistics predicate management - C part                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -42,10 +55,10 @@
  * Global Variables                *
  *---------------------------------*/
 
-static long last_user_time = 0;
-static long last_system_time = 0;
-static long last_cpu_time = 0;
-static long last_real_time = 0;
+static PlLong last_user_time = 0;
+static PlLong last_system_time = 0;
+static PlLong last_cpu_time = 0;
+static PlLong last_real_time = 0;
 
 
 
@@ -68,7 +81,7 @@ Pl_Statistics_0(void)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_stdout];
   int used, free;
-  long t[4], l[4];
+  PlLong t[4], l[4];
   static char *n[4] = { "user", "system", "cpu", "real" };
   int i;
 
@@ -125,7 +138,7 @@ Pl_Statistics_0(void)
 Bool
 Pl_Statistics_User_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
-  long user_time;
+  PlLong user_time;
   int since_start, since_last;
 
   user_time = Pl_M_User_Time();
@@ -147,7 +160,7 @@ Pl_Statistics_User_Time_2(WamWord since_start_word, WamWord since_last_word)
 Bool
 Pl_Statistics_System_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
-  long system_time;
+  PlLong system_time;
   int since_start, since_last;
 
   system_time = Pl_M_System_Time();
@@ -169,7 +182,7 @@ Pl_Statistics_System_Time_2(WamWord since_start_word, WamWord since_last_word)
 Bool
 Pl_Statistics_Cpu_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
-  long cpu_time;
+  PlLong cpu_time;
   int since_start, since_last;
 
   cpu_time = Pl_M_User_Time() + Pl_M_System_Time();
@@ -191,7 +204,7 @@ Pl_Statistics_Cpu_Time_2(WamWord since_start_word, WamWord since_last_word)
 Bool
 Pl_Statistics_Real_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
-  long real_time;
+  PlLong real_time;
   int since_start, since_last;
 
   real_time = Pl_M_Real_Time();

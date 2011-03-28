@@ -159,7 +159,7 @@ check:
 
 # --- CLEAN --- #
 
-RUN_PL_DIRS = EnginePl BipsPl 
+RUN_PL_DIRS = EnginePl BipsPl
 RUN_FD_DIRS = EngineFD BipsFD
 RUN_SUB_DIRS= $(RUN_PL_DIRS) $(RUN_PL_DIRS)
 

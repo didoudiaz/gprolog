@@ -20,9 +20,9 @@
 #define YY(k) Y(E,k)
 extern unsigned var;
 extern void *label;
-long v1[100];
-static long v2[100];
-extern long v3[100];
+intptr_t v1[100];
+static intptr_t v2[100];
+extern intptr_t v3[100];
 
 void foo();
 void foo1();
@@ -30,7 +30,7 @@ void pl_call1();
 
 int x, y;
 
-extern long pl_foreign_long[];
+extern intptr_t pl_foreign_long[];
 extern double pl_foreign_double[];
 
 
@@ -220,7 +220,7 @@ void
 TRANS_jump_ret()
 {
 #if defined(M_ix86_win32)
-  register long adr = (long) bar(12, "toto");
+  register intptr_t adr = (intptr_t) bar(12, "toto");
 
   _asm
   {
@@ -374,16 +374,16 @@ TRANS_dico_string()
 
 
 /* to define Dico_Long_Start() + Dico_Long() + Dico_Long_Stop()         */
-/* see definitions of longs in the asm file produced (global/not global)*/
+/* see definitions of intptr_ts in the asm file produced (global/not global)*/
 
-static long var_long_static_uninit;
-static long var_long_static_init0;
-static long var_long_static_init100 = 100;
-long var_long_common_unint;
-long var_long_common_init128 = 128;
+static intptr_t var_long_static_uninit;
+static intptr_t var_long_static_init0;
+static intptr_t var_long_static_init100 = 100;
+intptr_t var_long_common_unint;
+intptr_t var_long_common_init128 = 128;
 
-static long var_array_static128[128];
-long var_array_common128[128];
+static intptr_t var_array_static128[128];
+intptr_t var_array_common128[128];
 
 /* to define Data_Start() + Data_Stop */
 /* between obj_chain_start and obj_chain_stop */

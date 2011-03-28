@@ -6,20 +6,33 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -28,6 +41,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <inttypes.h>
 #include <locale.h>
 
 #include "../EnginePl/gp_config.h"
@@ -110,8 +124,8 @@
 typedef struct swt_elt
 {
   BTNode *atom;
-  long n;
-  long label;
+  PlLong n;
+  PlLong label;
 }
 SwtElt;
 
@@ -199,7 +213,7 @@ int nb_swt_tbl = 0;
 Pred *cur_pred;
 int cur_pred_no = 0;
 int cur_arity;
-long cur_sub_label;
+PlLong cur_sub_label;
 
 int cur_direct_no = 0;
 
@@ -269,9 +283,9 @@ void Display_Help(void);
 
 
 
-#define DEF_INTEGER(n)        long n
+#define DEF_INTEGER(n)        PlLong n
 
-#define LOAD_INTEGER(n)       Get_Arg(top, long, n)
+#define LOAD_INTEGER(n)       Get_Arg(top, PlLong, n)
 
 
 
@@ -282,9 +296,9 @@ void Display_Help(void);
 
 
 
-#define DEF_X_Y(xy)           long xy; char c
+#define DEF_X_Y(xy)           PlLong xy; char c
 
-#define LOAD_X_Y(xy)          Get_Arg(top, long, xy); \
+#define LOAD_X_Y(xy)          Get_Arg(top, PlLong, xy); \
                               if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
 
 
@@ -318,9 +332,9 @@ void Display_Help(void);
 
 
 
-#define DEF_LABEL(l)          char l[MAX_LABEL_LENGTH]; long val_##l
+#define DEF_LABEL(l)          char l[MAX_LABEL_LENGTH]; PlLong val_##l
 
-#define LOAD_LABEL(l)         Get_Arg(top, long, val_##l); \
+#define LOAD_LABEL(l)         Get_Arg(top, PlLong, val_##l); \
                               if (val_##l==-1) strcpy(l, "0"); \
                               else sprintf(l, FORMAT_LABEL(val_##l))
 
@@ -354,9 +368,9 @@ void Display_Help(void);
 
 
 
-#define FORMAT_LABEL(l)       "Lpred%d_%ld", cur_pred_no, (l)
+#define FORMAT_LABEL(l)       "Lpred%d_%" PL_FMT_d, cur_pred_no, (l)
 
-#define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%ld", cur_pred_no, (sl)
+#define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%" PL_FMT_d, cur_pred_no, (sl)
 
 
 #define CREATE_CHOICE_INST(l)                                               \
@@ -466,9 +480,9 @@ F_predicate(ArgVal arg[])
   BTNode *atom_functor;
   int module_user_system = 0;
   int prop;
-  int local_symbol = 0;	
+  int local_symbol = 0;
 	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
-  Args6(MP_N(module, functor, arity), INTEGER(pl_line), 
+  Args6(MP_N(module, functor, arity), INTEGER(pl_line),
 	STR(static_dynamic), STR(public_private), STR(mono_multi), STR(built_in_local_global));
 
   if (cur_pl_file == NULL)
@@ -524,7 +538,7 @@ F_predicate(ArgVal arg[])
   cur_pred = (Pred *) malloc(sizeof(Pred));
   if (cur_pred == NULL)
     {
-      fprintf(stderr, "Cannot allocate memory for predicate #%d (%s/%ld)\n",
+      fprintf(stderr, "Cannot allocate memory for predicate #%d (%s/%" PL_FMT_d ")\n",
 	      cur_pred_no, functor, arity);
       exit(1);
     }
@@ -657,7 +671,7 @@ void
 F_get_variable(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("move", "X(%ld),%c(%ld)", a, c, xy);
+  Inst_Printf("move", "X(%" PL_FMT_d "),%c(%" PL_FMT_d ")", a, c, xy);
 }
 
 
@@ -671,7 +685,7 @@ void
 F_get_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Unify(%c(%ld),X(%ld))", c, xy, a);
+  Inst_Printf("call_c", FAST "Pl_Unify(%c(%" PL_FMT_d "),X(%" PL_FMT_d "))", c, xy, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -687,9 +701,9 @@ F_get_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Get_Atom_Tagged(ta(%d),X(%ld))", atom->no, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Atom_Tagged(ta(%d),X(%" PL_FMT_d "))", atom->no, a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Get_Atom(at(%d),X(%ld))", atom->no, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Atom(at(%d),X(%" PL_FMT_d "))", atom->no, a);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -706,9 +720,9 @@ F_get_integer(ArgVal arg[])
 {
   Args2(INTEGER(n), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Get_Integer_Tagged(%ld,X(%ld))", Tag_INT(n), a);
+  Inst_Printf("call_c", FAST "Pl_Get_Integer_Tagged(%" PL_FMT_d ",X(%" PL_FMT_d "))", Tag_INT(n), a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Get_Integer(%ld,X(%ld))", n, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Integer(%" PL_FMT_d ",X(%" PL_FMT_d "))", n, a);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -724,7 +738,7 @@ void
 F_get_float(ArgVal arg[])
 {
   Args2(FLOAT(n), INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Get_Float(%1.20e,X(%ld))", n, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Float(%1.20e,X(%" PL_FMT_d "))", n, a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -739,7 +753,7 @@ void
 F_get_nil(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Get_Nil(X(%ld))", a);
+  Inst_Printf("call_c", FAST "Pl_Get_Nil(X(%" PL_FMT_d "))", a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -754,7 +768,7 @@ void
 F_get_list(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Get_List(X(%ld))", a);
+  Inst_Printf("call_c", FAST "Pl_Get_List(X(%" PL_FMT_d "))", a);
   Inst_Printf("fail_ret", "");
 }
 
@@ -770,10 +784,10 @@ F_get_structure(ArgVal arg[])
 {
   Args2(F_N(atom, n), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Get_Structure_Tagged(fn(%d),X(%ld))", f_n_no,
+  Inst_Printf("call_c", FAST "Pl_Get_Structure_Tagged(fn(%d),X(%" PL_FMT_d "))", f_n_no,
 	      a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Get_Structure(at(%d),%ld,X(%ld))", atom->no,
+  Inst_Printf("call_c", FAST "Pl_Get_Structure(at(%d),%" PL_FMT_d ",X(%" PL_FMT_d "))", atom->no,
 	      n, a);
 #endif
   Inst_Printf("fail_ret", "");
@@ -793,13 +807,13 @@ F_put_variable(ArgVal arg[])
   if (c == 'X')
     {
       Inst_Printf("call_c", FAST "Pl_Put_X_Variable()");
-      Inst_Printf("move_ret", "X(%ld)", a);
-      Inst_Printf("move", "X(%ld),X(%ld)", a, xy);
+      Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
+      Inst_Printf("move", "X(%" PL_FMT_d "),X(%" PL_FMT_d ")", a, xy);
     }
   else
     {
-      Inst_Printf("call_c", FAST "Pl_Put_Y_Variable(&Y(%ld))", xy);
-      Inst_Printf("move_ret", "X(%ld)", a);
+      Inst_Printf("call_c", FAST "Pl_Put_Y_Variable(&Y(%" PL_FMT_d "))", xy);
+      Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
     }
 }
 
@@ -815,7 +829,7 @@ F_put_void(ArgVal arg[])
 {
   Args1(INTEGER(a));
   Inst_Printf("call_c", FAST "Pl_Put_X_Variable()");
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -829,7 +843,7 @@ void
 F_put_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("move", "%c(%ld),X(%ld)", c, xy, a);
+  Inst_Printf("move", "%c(%" PL_FMT_d "),X(%" PL_FMT_d ")", c, xy, a);
 }
 
 
@@ -843,8 +857,8 @@ void
 F_put_unsafe_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Put_Unsafe_Value(%c(%ld))", c, xy);
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("call_c", FAST "Pl_Put_Unsafe_Value(%c(%" PL_FMT_d "))", c, xy);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -863,7 +877,7 @@ F_put_atom(ArgVal arg[])
 #else
   Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->no);
 #endif
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -878,11 +892,11 @@ F_put_integer(ArgVal arg[])
 {
   Args2(INTEGER(n), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Integer_Tagged(%ld)", Tag_INT(n));
+  Inst_Printf("call_c", FAST "Pl_Put_Integer_Tagged(%" PL_FMT_d ")", Tag_INT(n));
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Integer(%ld)", n);
+  Inst_Printf("call_c", FAST "Pl_Put_Integer(%" PL_FMT_d ")", n);
 #endif
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -897,7 +911,7 @@ F_put_float(ArgVal arg[])
 {
   Args2(FLOAT(n), INTEGER(a));
   Inst_Printf("call_c", FAST "Pl_Put_Float(%1.20e)", n);
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -912,7 +926,7 @@ F_put_nil(ArgVal arg[])
 {
   Args1(INTEGER(a));
   Inst_Printf("call_c", FAST "Pl_Put_Nil()");
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -927,7 +941,7 @@ F_put_list(ArgVal arg[])
 {
   Args1(INTEGER(a));
   Inst_Printf("call_c", FAST "Pl_Put_List()");
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -944,9 +958,9 @@ F_put_structure(ArgVal arg[])
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Put_Structure_Tagged(fn(%d))", f_n_no);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Structure(at(%d),%ld)", atom->no, n);
+  Inst_Printf("call_c", FAST "Pl_Put_Structure(at(%d),%" PL_FMT_d ")", atom->no, n);
 #endif
-  Inst_Printf("move_ret", "X(%ld)", a);
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -961,9 +975,9 @@ F_put_meta_term(ArgVal arg[])
 {
   Args2(ATOM(module), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %ld)", module->no, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %" PL_FMT_d ")", module->no, a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %ld)", module->no, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %" PL_FMT_d ")", module->no, a);
 #endif
 }
 
@@ -978,7 +992,7 @@ void
 F_math_load_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Math_Load_Value(%c(%ld),&X(%ld))", c, xy, a);
+  Inst_Printf("call_c", FAST "Pl_Math_Load_Value(%c(%" PL_FMT_d "),&X(%" PL_FMT_d "))", c, xy, a);
 }
 
 
@@ -992,7 +1006,7 @@ void
 F_math_fast_load_value(ArgVal arg[])
 {
   Args2(X_Y(xy), INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Math_Fast_Load_Value(%c(%ld),&X(%ld))", c, xy, a);
+  Inst_Printf("call_c", FAST "Pl_Math_Fast_Load_Value(%c(%" PL_FMT_d "),&X(%" PL_FMT_d "))", c, xy, a);
 }
 
 
@@ -1007,7 +1021,7 @@ F_unify_variable(ArgVal arg[])
 {
   Args1(X_Y(xy));
   Inst_Printf("call_c", FAST "Pl_Unify_Variable()");
-  Inst_Printf("move_ret", "%c(%ld)", c, xy);
+  Inst_Printf("move_ret", "%c(%" PL_FMT_d ")", c, xy);
 }
 
 
@@ -1021,7 +1035,7 @@ void
 F_unify_void(ArgVal arg[])
 {
   Args1(INTEGER(n));
-  Inst_Printf("call_c", FAST "Pl_Unify_Void(%ld)", n);
+  Inst_Printf("call_c", FAST "Pl_Unify_Void(%" PL_FMT_d ")", n);
 }
 
 
@@ -1035,7 +1049,7 @@ void
 F_unify_value(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", FAST "Pl_Unify_Value(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Pl_Unify_Value(%c(%" PL_FMT_d "))", c, xy);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1050,7 +1064,7 @@ void
 F_unify_local_value(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", FAST "Pl_Unify_Local_Value(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Pl_Unify_Local_Value(%c(%" PL_FMT_d "))", c, xy);
   Inst_Printf("fail_ret", "");
 }
 
@@ -1064,7 +1078,7 @@ F_unify_local_value(ArgVal arg[])
 void
 F_unify_atom(ArgVal arg[])
 {
-  Args1(ATOM(atom));  
+  Args1(ATOM(atom));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Unify_Atom_Tagged(ta(%d))", atom->no);
 #else
@@ -1085,9 +1099,9 @@ F_unify_integer(ArgVal arg[])
 {
   Args1(INTEGER(n));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Unify_Integer_Tagged(%ld)", Tag_INT(n));
+  Inst_Printf("call_c", FAST "Pl_Unify_Integer_Tagged(%" PL_FMT_d ")", Tag_INT(n));
 #else
-  Inst_Printf("call_c", FAST "Pl_Unify_Integer(%ld)", n);
+  Inst_Printf("call_c", FAST "Pl_Unify_Integer(%" PL_FMT_d ")", n);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -1134,7 +1148,7 @@ F_unify_structure(ArgVal arg[])
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Unify_Structure_Tagged(fn(%d))", f_n_no);
 #else
-  Inst_Printf("call_c", FAST "Pl_Unify_Structure(at(%d),%ld)", atom->no, n);
+  Inst_Printf("call_c", FAST "Pl_Unify_Structure(at(%d),%" PL_FMT_d ")", atom->no, n);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -1150,7 +1164,7 @@ void
 F_allocate(ArgVal arg[])
 {
   Args1(INTEGER(n));
-  Inst_Printf("call_c", FAST "Pl_Allocate(%ld)", n);
+  Inst_Printf("call_c", FAST "Pl_Allocate(%" PL_FMT_d ")", n);
 }
 
 
@@ -1416,7 +1430,7 @@ F_switch_on_integer(ArgVal arg[])
     {
       LOAD_INTEGER(n);
       LOAD_LABEL(l);
-      fprintf(file_out, "%c%ld=%s", c, n, l);
+      fprintf(file_out, "%c%" PL_FMT_d "=%s", c, n, l);
       c = ',';
     }
   fprintf(file_out, ")\n");
@@ -1569,7 +1583,7 @@ void
 F_load_cut_level(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Load_Cut_Level(&X(%ld))", a);
+  Inst_Printf("call_c", FAST "Pl_Load_Cut_Level(&X(%" PL_FMT_d "))", a);
   cur_arity = a + 1;		/* to save X(a) in choice-points */
 }
 
@@ -1584,7 +1598,7 @@ void
 F_cut(ArgVal arg[])
 {
   Args1(X_Y(xy));
-  Inst_Printf("call_c", FAST "Pl_Cut(%c(%ld))", c, xy);
+  Inst_Printf("call_c", FAST "Pl_Cut(%c(%" PL_FMT_d "))", c, xy);
 }
 
 
@@ -1610,7 +1624,7 @@ F_call_c(ArgVal arg[])
   int set_cp = 0;
   char *str;
   int adr_of;
-  long ret_xy;
+  PlLong ret_xy;
   char ret_c;
   int i;
 
@@ -1676,8 +1690,8 @@ F_call_c(ArgVal arg[])
 	  str = *((char **) top);
 	  if (*str == '&' && str[1] == '\0')
 	    {
-	      if ((i < nb_elem - 1 && *(long *) (top+1) == X_Y) ||
-		  (i < nb_elem - 2 && *(long *) (top+1) == ATOM && *(long *) (top+3) == INTEGER))
+	      if ((i < nb_elem - 1 && *(PlLong *) (top+1) == X_Y) ||
+		  (i < nb_elem - 2 && *(PlLong *) (top+1) == ATOM && *(PlLong *) (top+3) == INTEGER))
 		{
 		  adr_of = 1;
 		  i++;
@@ -1695,7 +1709,7 @@ F_call_c(ArgVal arg[])
 	      Encode_Hexa(NULL, aux_functor, aux_arity, buff_hexa);
 	      fprintf(file_out, "&%s", buff_hexa);
 	      adr_of = 0;
-	    } 
+	    }
 	  else if (tagged)
 	    {
 	      LOAD_ATOM_1(atom);
@@ -1710,7 +1724,7 @@ F_call_c(ArgVal arg[])
 
 	case INTEGER:
 	  LOAD_INTEGER(n);
-	  fprintf(file_out, "%ld", (tagged) ? Tag_INT(n) : n);
+	  fprintf(file_out, "%" PL_FMT_d, (tagged) ? Tag_INT(n) : n);
 	  break;
 
 	case FLOAT:
@@ -1725,7 +1739,7 @@ F_call_c(ArgVal arg[])
 	      fprintf(file_out, "&");
 	      adr_of = 0;
 	    }
-	  fprintf(file_out, "%c(%ld)", c, xy);
+	  fprintf(file_out, "%c(%" PL_FMT_d ")", c, xy);
 	  break;
 
 	case F_N:
@@ -1739,7 +1753,7 @@ F_call_c(ArgVal arg[])
 	    {
 	      DEF_F_N_0(atom, n);
 	      LOAD_F_N_0(atom, n);
-	      fprintf(file_out, "at(%d),%ld", atom->no, n);
+	      fprintf(file_out, "at(%d),%" PL_FMT_d "", atom->no, n);
 	    }
 	  break;
 	}
@@ -1752,7 +1766,7 @@ F_call_c(ArgVal arg[])
   else if (ret == 2)
     Inst_Printf("jump_ret", "");
   else if (ret == 3)
-    Inst_Printf("move_ret", "%c(%ld)", ret_c, ret_xy);
+    Inst_Printf("move_ret", "%c(%" PL_FMT_d ")", ret_c, ret_xy);
 
   if (set_cp)
     Inst_Printf("here_cp", "");
@@ -1825,7 +1839,7 @@ F_foreign_call_c(ArgVal arg[])
 	mode[i] =  FOREIGN_MODE_OUT;
       else if (strcmp(str_mode, "in_out") == 0)
 	mode[i] =  FOREIGN_MODE_IN_OUT;
-	  
+
       j = 0;
       for (;;)
 	if (strcasecmp(foreign_tbl[j], str_type) == 0)
@@ -1844,16 +1858,16 @@ F_foreign_call_c(ArgVal arg[])
 
   if (chc_size >= 0)
     {
-      sprintf(l, FORMAT_LABEL(1L));
-      Inst_Printf("call_c", "Pl_Foreign_Create_Choice(&%s,%d,%ld)",
+      sprintf(l, FORMAT_LABEL((PlLong)1));
+      Inst_Printf("call_c", "Pl_Foreign_Create_Choice(&%s,%d,%" PL_FMT_d ")",
 		  l, cur_arity, chc_size);
       Label_Printf("%s:", l);
-      Inst_Printf("call_c", "Pl_Foreign_Update_Choice(&%s,%d,%ld)",
+      Inst_Printf("call_c", "Pl_Foreign_Update_Choice(&%s,%d,%" PL_FMT_d ")",
 		  l, cur_arity, chc_size);
     }
 
   if (*bip_name || bip_arity != -2)
-    Inst_Printf("call_c", "Pl_Set_C_Bip_Name(\"%s\",%ld)",
+    Inst_Printf("call_c", "Pl_Set_C_Bip_Name(\"%s\",%" PL_FMT_d ")",
 		bip_name, bip_arity);
 
   for (i = 0; i < nb_elem; i++)
@@ -2032,7 +2046,7 @@ Emit_Obj_Initializer(void)
       Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),%d,at(%d),%d,%d,%s)",
 		  p->functor->no, p->arity, p->pl_file->no, p->pl_line,
 		  p->prop, q);
-#endif 
+#endif
 
       cur_pred_no++;		/* for FORMAT_LABEL */
 
@@ -2060,7 +2074,7 @@ Emit_Obj_Initializer(void)
 		  {
 		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
 		    Inst_Printf("call_c", FAST
-				"Pl_Create_Swt_Int_Element(st(%d),%d,%ld,&%s)",
+				"Pl_Create_Swt_Int_Element(st(%d),%d,%" PL_FMT_d ",&%s)",
 				t->tbl_no, t->nb_elem, t->elem[j].n, l);
 		  }
 		break;
@@ -2070,7 +2084,7 @@ Emit_Obj_Initializer(void)
 		  {
 		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
 		    Inst_Printf("call_c", FAST
-				"Pl_Create_Swt_Stc_Element(st(%d),%d,at(%d),%ld,&%s)",
+				"Pl_Create_Swt_Stc_Element(st(%d),%d,at(%d),%" PL_FMT_d ",&%s)",
 				t->tbl_no, t->nb_elem,
 				(t->elem[j].atom)->no, t->elem[j].n, l);
 		  }
@@ -2167,7 +2181,7 @@ void
 Emit_One_Atom_Tagged(int no, char *str)
 {
   BTNode *atom = BT_String_Lookup(&bt_atom, str);
-  
+
   if (atom)			/* optim: reuse the atom to avoid re-hashing */
     Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->no);
   else

@@ -6,20 +6,33 @@
  * Descr.: all solution collector management - C part                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -71,7 +84,7 @@ static WamWord new_gen_word;
 
 
 
-static long *bound_var_ptr;
+static PlLong *bound_var_ptr;
 static WamWord *free_var_base;
 
 
@@ -79,9 +92,9 @@ static WamWord *free_var_base;
 static OneSol dummy = { NULL, 0, 0 };
 static OneSol *sol = &dummy;
 
-static long *key_var_ptr;
-static long *save_key_var_ptr;
-static long *next_key_var_ptr;
+static PlLong *key_var_ptr;
+static PlLong *save_key_var_ptr;
+static PlLong *next_key_var_ptr;
 
 
 
@@ -208,16 +221,16 @@ Pl_Recover_Generator_1(WamWord gen1_word)
 static Bool
 Bound_Var(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
 
   for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
-    if (*p == (long) adr)
+    if (*p == (PlLong) adr)
       return TRUE;
 
   if (bound_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *bound_var_ptr++ = (long) adr;
+  *bound_var_ptr++ = (PlLong) adr;
   return TRUE;
 }
 
@@ -235,7 +248,7 @@ Existential_Variables(WamWord start_word)
   WamWord *adr;
 
   DEREF(start_word, word, tag_mask);
-  
+
   if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(word);
@@ -259,11 +272,11 @@ Existential_Variables(WamWord start_word)
 static Bool
 Free_Var(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
   WamWord word;
 
   for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
-    if (*p == (long) adr)
+    if (*p == (PlLong) adr)
       return TRUE;
 
   word = Tag_REF(adr);	/* if an FDV for a Dont_Separate_Tag */
@@ -362,7 +375,7 @@ Pl_Store_Solution_1(WamWord term_word)
   s->prev = sol;
   s->sol_no = sol->sol_no + 1;
   s->term_size = size;
-  fix_bug = term_word;	
+  fix_bug = term_word;
   Pl_Copy_Term(&s->term_word, &fix_bug);
   sol = s;
 }
@@ -398,7 +411,7 @@ Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
 
   /* Since we start from the end to the beginning, if nb_sol is very big
    * when the heap overflow triggers a SIGSEGV the handler will not detect
-   * that the heap is the culprit (and emits a simple Segmentation Violation 
+   * that the heap is the culprit (and emits a simple Segmentation Violation
    * message). To avoid this we remain just after the end of the stack.
    */
   if (H > Global_Stack + Global_Size)
@@ -457,10 +470,10 @@ Handle_Key_Variables(WamWord start_word)
 static Bool
 Link_Key_Var(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
 
   for (p = pl_glob_dico_var; p < key_var_ptr; p++)
-    if (*p == (long) adr)
+    if (*p == (PlLong) adr)
       return TRUE;
 
   if (next_key_var_ptr < save_key_var_ptr)
@@ -473,7 +486,7 @@ Link_Key_Var(WamWord *adr)
   if (key_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *key_var_ptr++ = (long) adr;
+  *key_var_ptr++ = (PlLong) adr;
   return TRUE;
 }
 
@@ -502,7 +515,7 @@ Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
   DEREF(all_sol_word, word, tag_mask);
   if (word == NIL_WORD)
     return FALSE;
-  
+
   word = Group(all_sol_word, gl_key_word, &key_word);
   if (word != NOT_A_WAM_WORD)
     {

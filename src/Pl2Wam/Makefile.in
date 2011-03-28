@@ -1,5 +1,6 @@
 GPLC      = @GPLC@
 GPLCFLAGS = --fast-math
+CFLAGS = @CFLAGS@
 PLS       = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
             code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
             indexing.pl wam_emit.pl
@@ -30,7 +31,7 @@ stage2:
 
 clean:
 	[ ! -f  pl2wam@EXE_SUFFIX@ ] || mv pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
-	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp 
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp
 
 
 clean-wam:
@@ -63,7 +64,7 @@ check:
 
 
 swi_pl2wam: swilib.pl $(PLS)
-	pl -o swi_pl2wam_main -c swilib.pl $(PLS) 
+	pl -o swi_pl2wam_main -c swilib.pl $(PLS)
 	echo "#!/bin/sh" >swi_pl2wam
 	echo 'swi_pl2wam_main -g go -t halt -- $$*' >>swi_pl2wam
 	chmod a+x swi_pl2wam

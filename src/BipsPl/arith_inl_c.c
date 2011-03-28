@@ -6,20 +6,33 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -50,7 +63,7 @@
 #endif
 
 /* Difference between 1.0 and the minimum double greater than 1.0 */
-#ifndef DBL_EPSILON 
+#ifndef DBL_EPSILON
 
 #ifdef __DBL_EPSILON__
 #define DBL_EPSILON __DBL_EPSILON__
@@ -272,7 +285,7 @@ Make_Tagged_Float(double d)
 static double
 To_Double(WamWord x)
 {
-  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) : 
+  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) :
     Pl_Obtain_Float(UnTag_FLT(x));
 }
 
@@ -312,7 +325,7 @@ Load_Math_Expression(WamWord exp)
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
-      if (tag_mask != TAG_INT_MASK) 
+      if (tag_mask != TAG_INT_MASK)
 	{
 	  Pl_Err_Type(pl_type_integer, word);
 	}
@@ -331,7 +344,7 @@ Load_Math_Expression(WamWord exp)
 	  Pl_Unify_Integer(Arity(adr));
 	  Pl_Err_Type(pl_type_evaluable, word);
 	}
-      
+
       if (Arity(adr) == 1)
 	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)));
 
@@ -460,7 +473,7 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
     }						 \
   else                                           \
     d = Pl_Obtain_Float(UnTag_FLT(x));           \
-  return Tag_INT((long) c_op(d))
+  return Tag_INT((PlLong) c_op(d))
 
 
 
@@ -479,53 +492,53 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 WamWord FC
 Pl_Fct_Fast_Neg(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(-vx);
 }
 
 WamWord FC
 Pl_Fct_Fast_Inc(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(vx + 1);
 }
 
 WamWord FC
 Pl_Fct_Fast_Dec(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(vx - 1);
 }
 
 WamWord FC
 Pl_Fct_Fast_Add(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx + vy);
 }
 
 WamWord FC
 Pl_Fct_Fast_Sub(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx - vy);
 }
 
 WamWord FC
 Pl_Fct_Fast_Mul(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx * vy);
 }
 
 WamWord FC
 Pl_Fct_Fast_Div(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
     Pl_Err_Evaluation(pl_evluation_zero_divisor);
@@ -536,8 +549,8 @@ Pl_Fct_Fast_Div(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Fast_Rem(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
     Pl_Err_Evaluation(pl_evluation_zero_divisor);
@@ -548,9 +561,9 @@ Pl_Fct_Fast_Rem(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Fast_Mod(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
-  long m;
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  PlLong m;
 
   if (vy == 0)
     Pl_Err_Evaluation(pl_evluation_zero_divisor);
@@ -566,9 +579,9 @@ Pl_Fct_Fast_Mod(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Fast_Div2(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
-  long m;
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  PlLong m;
 
   if (vy == 0)
     Pl_Err_Evaluation(pl_evluation_zero_divisor);
@@ -604,7 +617,7 @@ Pl_Fct_Fast_Xor(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Fast_Not(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(~vx);
 }
 
@@ -612,59 +625,59 @@ Pl_Fct_Fast_Not(WamWord x)
 WamWord FC
 Pl_Fct_Fast_Shl(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx << vy);
 }
 
 WamWord FC
 Pl_Fct_Fast_Shr(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx >> vy);
 }
 
 WamWord FC
 Pl_Fct_Fast_LSB(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT((vx == 0) ? -1 : Pl_Least_Significant_Bit(vx));
 }
 
 WamWord FC
 Pl_Fct_Fast_MSB(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT((vx == 0) ? -1 : Pl_Most_Significant_Bit(vx));
 }
 
 WamWord FC
 Pl_Fct_Fast_Popcount(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(Pl_Count_Set_Bits(vx));
 }
 
 WamWord FC
 Pl_Fct_Fast_Abs(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return (vx < 0) ? Tag_INT(-vx) : x;
 }
 
 WamWord FC
 Pl_Fct_Fast_Sign(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return (vx < 0) ? Tag_INT(-1) : (vx == 0) ? Tag_INT(0) : Tag_INT(1);
 }
 
 WamWord FC
 Pl_Fct_Fast_GCD(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
 
   if (vx < 0)
     vx = -vx;
@@ -674,7 +687,7 @@ Pl_Fct_Fast_GCD(WamWord x, WamWord y)
 
   while(vy != 0)
     {
-      long r = vx % vy;
+      PlLong r = vx % vy;
       vx = vy;
       vy = r;
     }
@@ -687,9 +700,9 @@ Pl_Fct_Fast_GCD(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
-  long p = (long) pow(vx, vy);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  PlLong p = (PlLong) pow(vx, vy);
   return Tag_INT(p);
 }
 
@@ -1103,32 +1116,32 @@ Pl_Blt_Fast_Neq(WamWord x, WamWord y)
 Bool FC
 Pl_Blt_Fast_Lt(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx < vy;
 }
 
 Bool FC
 Pl_Blt_Fast_Lte(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx <= vy;
 }
 
 Bool FC
 Pl_Blt_Fast_Gt(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx > vy;
 }
 
 Bool FC
 Pl_Blt_Fast_Gte(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx >= vy;
 }
 

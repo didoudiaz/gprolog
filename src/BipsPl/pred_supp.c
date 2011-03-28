@@ -6,20 +6,33 @@
  * Descr.: predicate management support                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -112,7 +125,7 @@ Pl_Father_Pred_Of_Aux(int func, int *father_arity)
 
   l = p - pl_atom_tbl[func].name;
 
-  *father_arity = strtol(p + 1, NULL, 10);
+  *father_arity = strtoll(p + 1, NULL, 10);
   strcpy(pl_glob_buff, pl_atom_tbl[func].name + 1);	/* skip 1st $ */
   pl_glob_buff[l - 1] = '\0';
 
@@ -166,7 +179,7 @@ Pl_Make_Aux_Name(int func, int arity, int aux_nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Emit_BC_Execute_Wrapper(int func, int arity, long *codep)
+Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)
 {
   Pl_BC_Start_Emit_0();
   Pl_BC_Emit_Inst_Execute_Native(func, arity, codep);

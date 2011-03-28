@@ -6,25 +6,40 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
 
 #ifndef _GPROLOG_H
+
+#include <stdint.h>
 
 #define _GPROLOG_H
 #ifdef __cplusplus
@@ -32,12 +47,16 @@ extern "C" {
 #endif
 
 /*
- * Since gprolog 1.3.1 all public names are prefixed with Pl_, PL_ or pl_
+ * Since GNU Prolog 1.4.0 C types 'long' have been replaced by PlLong
+ * to work on X86_64/Windows (where long are 32-bits and not 64-bits).
+ * New foreign code should use PlLong instead of long.
+ *
+ * Since GNU Prolog 1.3.1 all public names are prefixed with Pl_, PL_ or pl_
  * so you should avoid these prefixes.
  * The names of C functions used in the foreign interface have been
- * renamed to start with the Pl_ prefix. To keeb a bacward compatibility
+ * renamed to start with the Pl_ prefix. To keep a bacward compatibility
  * with foreign code developed with gprolog < 1.3.1 macros are defined
- * for old names. 
+ * for old names.
  * These macros can be deactivated if __GPROLOG_FOREIGN_STRICT__ is defined.
  *
  * #define __GPROLOG_FOREIGN_STRICT__
@@ -73,7 +92,7 @@ typedef struct
   PlBool unify;
   union
   {
-    long l;
+    PlLong l;
     char *s;
     double d;
   }
@@ -82,7 +101,11 @@ typedef struct
 PlFIOArg;
 
 
-typedef long PlTerm;
+#define __PL_LONG_TYPE__
+typedef intptr_t PlLong;
+
+#define __PL_TERM_TYPE__
+typedef intptr_t PlTerm;
 
 
 /*---------------------------------*
@@ -246,13 +269,13 @@ PlBool Pl_Unif_With_Occurs_Check(PlTerm term1, PlTerm term2);
 
 
 
-long Pl_Rd_Integer_Check(PlTerm term);
+PlLong Pl_Rd_Integer_Check(PlTerm term);
 
-long Pl_Rd_Integer(PlTerm term);
+PlLong Pl_Rd_Integer(PlTerm term);
 
-long Pl_Rd_Positive_Check(PlTerm term);
+PlLong Pl_Rd_Positive_Check(PlTerm term);
 
-long Pl_Rd_Positive(PlTerm term);
+PlLong Pl_Rd_Positive(PlTerm term);
 
 double Pl_Rd_Float_Check(PlTerm term);
 
@@ -372,13 +395,13 @@ void Pl_Check_For_Un_Variable(PlTerm term);
 
 
 
-PlBool Pl_Un_Integer_Check(long value, PlTerm term);
+PlBool Pl_Un_Integer_Check(PlLong value, PlTerm term);
 
-PlBool Pl_Un_Integer(long value, PlTerm term);
+PlBool Pl_Un_Integer(PlLong value, PlTerm term);
 
-PlBool Pl_Un_Positive_Check(long value, PlTerm term);
+PlBool Pl_Un_Positive_Check(PlLong value, PlTerm term);
 
-PlBool Pl_Un_Positive(long value, PlTerm term);
+PlBool Pl_Un_Positive(PlLong value, PlTerm term);
 
 PlBool Pl_Un_Float_Check(double value, PlTerm term);
 
@@ -454,9 +477,9 @@ PlBool Pl_Un_Term(PlTerm term_word, PlTerm term);
 
 
 
-PlTerm Pl_Mk_Integer(long value);
+PlTerm Pl_Mk_Integer(PlLong value);
 
-PlTerm Pl_Mk_Positive(long value);
+PlTerm Pl_Mk_Positive(PlLong value);
 
 PlTerm Pl_Mk_Float(double value);
 
@@ -501,7 +524,7 @@ int Pl_Type_Of_Term(PlTerm term);
 
 int Pl_List_Length(PlTerm list);
 
-long Pl_Term_Compare(PlTerm term1, PlTerm term2);
+PlLong Pl_Term_Compare(PlTerm term1, PlTerm term2);
 
 
 
@@ -807,13 +830,13 @@ typedef PlFIOArg FIOArg;
 #define No_More_Choice()        Pl_No_More_Choice()
 
 
-#define Atom_Name(a)            Pl_Atom_Name(a)	       
-			                              
-#define Atom_Length(a)	        Pl_Atom_Length(a)	       
-			                              
-#define Atom_Needs_Quote(a)     Pl_Atom_Needs_Quote(a)    
-			                              
-#define Atom_Needs_Scan(a)      Pl_Atom_Needs_Scan(a)     
+#define Atom_Name(a)            Pl_Atom_Name(a)
+
+#define Atom_Length(a)	        Pl_Atom_Length(a)
+
+#define Atom_Needs_Quote(a)     Pl_Atom_Needs_Quote(a)
+
+#define Atom_Needs_Scan(a)      Pl_Atom_Needs_Scan(a)
 
 #define Is_Valid_Atom(a)        Pl_Is_Valid_Atom(a)
 

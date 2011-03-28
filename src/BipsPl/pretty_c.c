@@ -6,20 +6,33 @@
  * Descr.: pretty print clause management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -69,7 +82,7 @@ static WamWord dollar_var_1;
 static WamWord dollar_varname_1;
 static WamWord equal_2;
 
-static long *singl_var_ptr;
+static PlLong *singl_var_ptr;
 static int nb_singl_var;
 
 static int nb_to_try;
@@ -282,7 +295,7 @@ static void
 Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
 {
   WamWord arg_word[2];
-  static 
+  static
     int prec[] = { 1200 - 1, 1000 - 1, 1000, 1100 - 1, 1100, 1050 - 1, 1050 };
 
 
@@ -421,10 +434,10 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
 static Bool
 Collect_Singleton(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
 
   for (p = pl_glob_dico_var; p < singl_var_ptr; p++)
-    if ((*p & ~1) == (long) adr)	/* not a singleton */
+    if ((*p & ~1) == (PlLong) adr)	/* not a singleton */
       {
 	if ((*p & 1) == 0)	/* not yet marked - mark it */
 	  {
@@ -437,7 +450,7 @@ Collect_Singleton(WamWord *adr)
   if (singl_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *singl_var_ptr++ = (long) adr;
+  *singl_var_ptr++ = (PlLong) adr;
   nb_singl_var++;
   return TRUE;
 }
@@ -581,7 +594,7 @@ Var_Name_To_Var_Number(int atom)
   if (*p < 'A' || *p > 'Z')
     return -1;
 
-  n = strtol(p + 1, &q, 10);
+  n = strtoll(p + 1, &q, 10);
   if (*q)
     return -1;
 
@@ -622,7 +635,7 @@ Collect_Excluded_Rec(WamWord start_word)
  terminal_rec:
 
   DEREF(start_word, word, tag_mask);
-  
+
   if (tag_mask == TAG_LST_MASK)
     {
       adr = UnTag_LST(word);

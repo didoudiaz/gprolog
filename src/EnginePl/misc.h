@@ -6,20 +6,33 @@
  * Descr.: miscellaneous operations - header file                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -73,7 +86,7 @@ void Pl_Fatal_Error(char *format, ...);
 
 /* NB: for LSB/MSB the result is undefined if x == 0 */
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && SIZEOF_LONG == SIZEOF_PTR
 
 #define Pl_Least_Significant_Bit(x)   (__builtin_ctzl(x))
 
@@ -82,7 +95,7 @@ void Pl_Fatal_Error(char *format, ...);
 #define Pl_Count_Set_Bits(x)          (__builtin_popcountl(x))
 
 
-#else /* !__GNUC__ */
+#else /* !__GNUC__ || SIZEOF_LONG != SIZEOF_PTR */
 
 #define Pl_Least_Significant_Bit(x)   Pl_LSB(x)
 
@@ -90,10 +103,10 @@ void Pl_Fatal_Error(char *format, ...);
 
 #define Pl_Count_Set_Bits(x)          Pl_Popcount(x)
 
-int Pl_LSB(long x);
+int Pl_LSB(PlLong x);
 
-int Pl_MSB(long x);
+int Pl_MSB(PlLong x);
 
-int Pl_Popcount(long x);
+int Pl_Popcount(PlLong x);
 
 #endif /* !__GNUC__ */

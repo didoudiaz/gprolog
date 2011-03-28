@@ -6,20 +6,33 @@
  * Descr.: pass 2: internal format transformation                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -41,7 +54,7 @@
  *          VarName = x(NoX) temporary                                     *
  *                    (here NoX is unbound or = void if var is singleton)  *
  *                    y(NoY) permanent (NoY is assigned here)              *
- *          Info    = in_heap: the variable is stored in the heap          *
+ *          Info    = in_heap       : the var is stored in the heap        *
  *                    unsafe        : the var refers current environment   *
  *                    not_in_cur_env: the var does not reside in the       *
  *                                    current environment                  *
@@ -98,7 +111,7 @@ format_body1(Pred, NoPred, DicoVar, StartChunk, LNext, [Pred1|LNext], NoPred1, S
 
 
           % NB: a dangerous '$call_c' (e.g. with jump) is not considered as
-          % inlined to enforce the end of its chunk. If something comes 
+          % inlined to enforce the end of its chunk. If something comes
           % after this '$call_c' an environment will be created (allocate)
           % to save CP (and X regs in Y regs if needed).
           % Other '$call_c' are considered as inlined.
@@ -164,7 +177,7 @@ format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
           % creates a term T1 equivalent to T which will not be transformed
           % in the internal format. This can only by used for arguments of
           % inlined predicates and requires T is ground.
-          %          
+          %
           % NB: do not use T1 = '$no_internal_transf$'(T) for bootstrapping.
 
 no_internal_transf(T, T1) :-

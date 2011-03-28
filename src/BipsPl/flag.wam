@@ -5,118 +5,118 @@
 file_name('/home/diaz/GP/src/src/BipsPl/flag.pl').
 
 
-predicate('$use_flag'/0,29,static,private,monofile,built_in,[
+predicate('$use_flag'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(set_prolog_flag/2,32,static,private,monofile,built_in,[
+predicate(set_prolog_flag/2,45,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_prolog_flag,2]),
     call_c('Pl_Set_Prolog_Flag_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(current_prolog_flag/2,39,static,private,monofile,built_in,[
+predicate(current_prolog_flag/2,52,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_prolog_flag,2]),
     call_c('Pl_Current_Prolog_Flag_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_prolog_flag_alt'/0,46,static,private,monofile,built_in,[
+predicate('$current_prolog_flag_alt'/0,59,static,private,monofile,built_in,[
     call_c('Pl_Current_Prolog_Flag_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$sys_var_write'/2,52,static,private,monofile,built_in,[
+predicate('$sys_var_write'/2,65,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Write_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$sys_var_read'/2,55,static,private,monofile,built_in,[
+predicate('$sys_var_read'/2,68,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Read_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$sys_var_inc'/1,62,static,private,monofile,built_in,[
+predicate('$sys_var_inc'/1,75,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Inc_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$sys_var_dec'/1,65,static,private,monofile,built_in,[
+predicate('$sys_var_dec'/1,78,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Dec_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$sys_var_set_bit'/2,71,static,private,monofile,built_in,[
+predicate('$sys_var_set_bit'/2,84,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Set_Bit_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$sys_var_reset_bit'/2,74,static,private,monofile,built_in,[
+predicate('$sys_var_reset_bit'/2,87,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Reset_Bit_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$sys_var_get_bit'/3,77,static,private,monofile,built_in,[
+predicate('$sys_var_get_bit'/3,90,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Get_Bit_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$sys_var_put'/2,83,static,private,monofile,built_in,[
+predicate('$sys_var_put'/2,96,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Put_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$sys_var_get'/2,86,static,private,monofile,built_in,[
+predicate('$sys_var_get'/2,99,static,private,monofile,built_in,[
     call_c('Pl_Sys_Var_Get_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$get_current_B'/1,92,static,private,monofile,built_in,[
+predicate('$get_current_B'/1,105,static,private,monofile,built_in,[
     call_c('Pl_Get_Current_B_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$set_current_B'/1,95,static,private,monofile,built_in,[
+predicate('$set_current_B'/1,108,static,private,monofile,built_in,[
     call_c('Pl_Set_Current_B_1',[],[x(0)]),
     proceed]).
 
 
-predicate(write_pl_state_file/1,101,static,private,monofile,built_in,[
+predicate(write_pl_state_file/1,114,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_pl_state_file,1]),
     call_c('Pl_Write_Pl_State_File',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(read_pl_state_file/1,108,static,private,monofile,built_in,[
+predicate(read_pl_state_file/1,121,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_pl_state_file,1]),
     call_c('Pl_Read_Pl_State_File',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(argument_counter/1,115,static,private,monofile,built_in,[
+predicate(argument_counter/1,128,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_counter,1]),
     call_c('Pl_Argument_Counter_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(argument_value/2,122,static,private,monofile,built_in,[
+predicate(argument_value/2,135,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_value,2]),
     call_c('Pl_Argument_Value_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(argument_list/1,129,static,private,monofile,built_in,[
+predicate(argument_list/1,142,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_list,1]),
     call_c('Pl_Argument_List_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(environ/2,134,static,private,monofile,built_in,[
+predicate(environ/2,147,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[environ,2]),
     call_c('Pl_Environ_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$environ_alt'/0,139,static,private,monofile,built_in,[
+predicate('$environ_alt'/0,152,static,private,monofile,built_in,[
     call_c('Pl_Environ_Alt_0',[boolean],[]),
     proceed]).
