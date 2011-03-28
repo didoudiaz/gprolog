@@ -8,7 +8,7 @@
 \setlength{\textheight}{24cm}
 
 % spacing lengths (note that we should define our own itemize environment
-% customizing the sizes with the second argument {decls} 
+% customizing the sizes with the second argument {decls}
 % cf. p112 of the LaTeX book or p59-62 of the Companion book
 
 \setlength{\parindent}{0cm}
@@ -280,7 +280,7 @@
    % 3=text to add at the end of the index term (suffix)
 
 \newcommand{\TxtIndT}[3]%
-   {\ifthenelse{\equal{#2}{!*!}}% 
+   {\ifthenelse{\equal{#2}{!*!}}%
        {\TxtIndZT{#1}{#1}{#1#3}}%
        {\TxtIndZT{#1}{#2}{#2#3}}}
 
@@ -295,7 +295,7 @@
        {\TxtIndZD{#1}{#2}{#2#3}}}%
 
 \newcommand{\TxtInd}[3]%
-   {\ifthenelse{\equal{#2}{!*!}} 
+   {\ifthenelse{\equal{#2}{!*!}}
        {\TxtIndZ{#1}{#1}{#1#3}}%
        {\TxtIndZ{#1}{#2}{#2#3}}}
 

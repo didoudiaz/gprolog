@@ -50,7 +50,7 @@ programs, to list them, to execute them and to debug them. The
 \IdxKD{--init-goal}  \Param{GOAL} & execute \Param{GOAL} before top\_level/0 \\
 \IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside top\_level/0 \\
 \IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for top\_level/0 \\
- 
+
 \IdxKD{--help} & print a help and exit \\
 
 \IdxKD{--version} & print version number and exit \\
@@ -67,7 +67,7 @@ itself, i.e. to execute the built-in predicate
 \begin{verbatim}
 GNU Prolog 1.3.1
 By Daniel Diaz
-Copyright (C) 1999-2010 Daniel Diaz
+Copyright (C) 1999-2011 Daniel Diaz
 | ?-
 \end{verbatim}
 \end{Code}
@@ -100,7 +100,7 @@ executed before entering \texttt{top\_level/0}.
 \item The \texttt{--entry-goal} option executes the \Param{GOAL} at the
 entry of \texttt{top\_level/0} just after the banner is displayed.
 
-\item The \texttt{--query-goal} option executes the \Param{GOAL} as if the 
+\item The \texttt{--query-goal} option executes the \Param{GOAL} as if the
 user has typed in.
 
 \end{itemize}
@@ -128,7 +128,7 @@ controlled using the \IdxPF{back\_quotes} \Idx{Prolog flag} \RefSP{set-prolog-fl
 Since the Prolog argument list is created when the whole command-line is
 parsed, if a \texttt{--init-goal} option uses \texttt{argument\_value/2} or
 \texttt{argument\_list/1} it will obtained the original command-line
-arguments (i.e. including all recognized arguments). 
+arguments (i.e. including all recognized arguments).
 
 Here is an example of using execution goal options:
 
@@ -144,7 +144,7 @@ will produce the following:
 before
 GNU Prolog 1.3.1
 By Daniel Diaz
-Copyright (C) 1999-2010 Daniel Diaz
+Copyright (C) 1999-2011 Daniel Diaz
 inside
 | ?- append([a,b],[c,d],X).
 
@@ -184,7 +184,7 @@ Here is an example of execution of a query (``find the lists \texttt{X} and
 \begin{CodeTwoCols}
 \One{| ?- append(X,Y,[a,b,c]).}
 \SkipLine
-\One{X = []} 
+\One{X = []}
 \Two{Y = [a,b,c] ? ;}{(here the user presses \texttt{;} to compute another
 solution)}
 \SkipLine
@@ -238,7 +238,7 @@ variables are bound to new brand variable names. When a query variable name
 \texttt{X} appears as the value of another query variable \texttt{Y} it is
 because \texttt{X} is itself not instantiated otherwise the value of
 \texttt{X} is displayed. In such a case, nothing is output for \texttt{X}
-itself (since it is a variable). Example: 
+itself (since it is a variable). Example:
 
 \begin{CodeTwoCols}
 \One{| ?- X=f(A,B,\_,A), A=k.}
@@ -325,7 +325,7 @@ To consult a program use the built-in predicate \IdxPB{consult/1}
 \texttt{user} to specify the terminal. This allows the user to directly input
 the predicates from the terminal. In that case the input shall be terminated
 by the end-of-file key sequence (\texttt{Ctl-D}) or its term representation:
-\texttt{end\_of\_file.} A shorthand for 
+\texttt{end\_of\_file.} A shorthand for
 \texttt{consult(}\Param{FILE}\texttt{)} is
 \texttt{[}\Param{FILE}\texttt{]}. Example:
 
@@ -368,7 +368,7 @@ for \Param{P} it is removed (i.e. all clauses defining
 redefined. Note that only consulted predicates can be redefined. If
 \Param{P} is a native-code predicate, trying to redefine it will
 produce an error at load-time: the predicate redefinition will be ignored
-and the following message displayed: 
+and the following message displayed:
 
 \OneLine{native code procedure \Param{P} cannot be redefined}
 
@@ -620,7 +620,7 @@ Example:
 
 \begin{CodeTwoCols}
 \Two{| ?- argu} {(here the user presses \texttt{Tab} to complete the word)}
-\Two{| ?- argument\_}{(\texttt{linedit} completes \texttt{argu} with 
+\Two{| ?- argument\_}{(\texttt{linedit} completes \texttt{argu} with
 \texttt{argument\_} and emits a beep)}
 \Two{}{(the user presses again \texttt{Tab} to see all possible completions)}
 \Two{argument\_counter}{(\texttt{linedit} shows 3 possible completions)}
@@ -630,7 +630,7 @@ Example:
 \SkipLine
 \Two{| ?- argument\_c}{(to select \texttt{argument\_counter} the user presses
 \texttt{c} and \texttt{Tab})}
-\Two{| ?- argument\_counter}{(\texttt{linedit} completes with 
+\Two{| ?- argument\_counter}{(\texttt{linedit} completes with
 \texttt{argument\_counter})}
 \end{CodeTwoCols}
 
@@ -658,26 +658,30 @@ name  & size (Kb) & variable    & \\
 
 \hline\hline
 
-\texttt{local} & 8192 & \texttt{LOCALSZ} & control stack (environments
+\texttt{local} & 16384 & \texttt{LOCALSZ} & control stack (environments
 and choice-points) \\
 
 \hline
 
-\texttt{global} & 16384 & \texttt{GLOBALSZ} & heap (compound terms)
+\texttt{global} & 32768 & \texttt{GLOBALSZ} & heap (compound terms)
 \\
 
 \hline
 
-\texttt{trail} & 8192 & \texttt{TRAILSZ} & conditional bindings (bindings
+\texttt{trail} & 16384 & \texttt{TRAILSZ} & conditional bindings (bindings
 to undo at backtracking) \\
 
 \hline
 
-\texttt{cstr} & 8192 & \texttt{CSTRSZ} & finite domain constraint stack
+\texttt{cstr} & 16384 & \texttt{CSTRSZ} & finite domain constraint stack
 (FD variables and constraints) \\
 
 \hline
 \end{tabular}
+
+In addition, under Windows (since version 1.4.0), registry keys are consulted
+(key names are the same as environment names). The keys are stored in
+\texttt{HKEY\_CURRENT\_USER{\bs}Software{\bs}GnuProlog{\bs}}.
 
 If the size of a stack is too small an overflow will occur during the
 execution. In that case GNU Prolog emits the following error message before
@@ -1073,7 +1077,7 @@ earlier syntax error (e.g. \texttt{-} instead of \texttt{\_}. This can be
 deactivated by specifying \texttt{--no-susp-warn}. Finally, the compiler
 warns when a singleton variable has a name (i.e. not the generic anonymous
 name \texttt{\_}). This can be deactivated specifying
-\texttt{--no-singl-warn}. 
+\texttt{--no-singl-warn}.
 
 Predicate names are encoded with an hexadecimal representation. This is
 explained in more detail later \RefSP{The-hexadecimal-predicate-name-encoding}. By default the error messages from the linker (e.g. multiple
@@ -1306,7 +1310,7 @@ also take into account simple predicate names (the arity can be omitted). It
 is possible to format the output of an encoded/decoded string using
 \texttt{--printf \Param{FORMAT}} in that case each string
 \Param{S} is passed to the C \texttt{printf(3)} function as
-\texttt{printf(\Param{FORMAT},\Param{S})}. 
+\texttt{printf(\Param{FORMAT},\Param{S})}.
 
 Auxiliary predicates are generated by the Prolog to WAM compiler when
 simplifying some control constructs like \texttt{';'/2} present in the body
@@ -1327,7 +1331,7 @@ a file name but a string that must be encoded (or decoded). This is useful to
 encode/decode a particular string. For this reason the option \texttt{-H}
 (encode to hexadecimal) and \texttt{-P} (decode to Prolog) are provided as
 shorthand.  Then, to obtain the hexadecimal representation of a predicate
-\Param{P} use: 
+\Param{P} use:
 
 \OneLine{\% hexgplc -H \Param{P}}
 

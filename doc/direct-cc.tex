@@ -44,7 +44,7 @@ file.
 
 If there is no clause for \texttt{Pred} in the source file, \texttt{Pred}
 exists however as an empty predicate (this means that
-\texttt{current\_predicate(Pred)} succeeds). 
+\texttt{current\_predicate(Pred)} succeeds).
 
 In order to allow multiple definitions, \texttt{Pred} can also be a list of
 predicate indicators or a sequence of predicate indicators using
@@ -256,7 +256,7 @@ elif(+callable\_term)
 
 \Description
 
-These directives are for conditional compilation.  
+These directives are for conditional compilation.
 
 \texttt{if(Goal)} compile subsequent code only if \texttt{Goal}
 succeeds. \texttt{Goal} is first processed by \texttt{expand\_term/2}
@@ -507,7 +507,7 @@ call(+callable\_term)
 \texttt{call(Goal)} executes \texttt{Goal}. \texttt{call/1} succeeds if
 \texttt{Goal} represents a goal which is true. When \texttt{Goal} contains a
 cut symbol \IdxCC["!/0]{!} \RefSP{true/0} as a subgoal, the effect of
-\texttt{!} does not extend outside \texttt{Goal}. 
+\texttt{!} does not extend outside \texttt{Goal}.
 
 \begin{PlErrors}
 
@@ -547,7 +547,7 @@ throw(+nonvar)
 \texttt{catch/3}. If however, during the execution of \texttt{Goal}, there
 is a call to \texttt{throw(Ball)}, the current flow of control is
 interrupted, and control returns to a call of \texttt{catch/3} that is being
-executed. This can happen in one of two ways: 
+executed. This can happen in one of two ways:
 
 \begin{itemize}
 
@@ -596,7 +596,7 @@ any call of \texttt{catch/3}, a system error message is displayed and
 When \texttt{catch/3} calls \texttt{Recovery} it uses \texttt{call/1}
 \RefSP{call/1}, an \texttt{instantiation\_error}, a \texttt{type\_error}
 or an \texttt{existence\_error} can then occur depending on
-\texttt{Recovery}. 
+\texttt{Recovery}.
 
 \Portability
 

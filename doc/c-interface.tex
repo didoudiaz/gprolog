@@ -47,7 +47,7 @@ integer and the constants \texttt{PL\_FALSE} (i.e. 0) and \texttt{PL\_TRUE}
 (i.e. 1).
 
 
-\textbf{New in GNU Prolog 1.3.1 and backward compatibility issues}: in 
+\textbf{New in GNU Prolog 1.3.1 and backward compatibility issues}: in
 GNU Prolog 1.3.1 the API has been modified to protect namespace. The name of
 public functions, macros, variables and types are now prefixed
 with \texttt{Pl\_}, \texttt{PL\_} or \texttt{pl\_}. All these prefixes should
@@ -127,7 +127,7 @@ is provided. Finally it is also possible to write non-deterministic C code.
    \AddDiD{foreign/2}
    \AddDiD{foreign/1}
 
-\texttt{foreign/2} directive \RefSP{foreign/2} declares a C function interface. 
+\texttt{foreign/2} directive \RefSP{foreign/2} declares a C function interface.
 The general form is \texttt{foreign(Template, Options)} which defines an
 interface predicate whose prototype is \texttt{Template} according to the
 options given by \texttt{Options}. \texttt{Template} is a callable term
@@ -543,7 +543,7 @@ of the function is the next starting position in \texttt{A} to search for
 
 In the prolog file \texttt{examp.pl}:
 
-\OneLine{:- foreign(occurrence(+string, +char, -positive), 
+\OneLine{:- foreign(occurrence(+string, +char, -positive),
 [choice\_size(1)]).}
 
 In the C file \texttt{examp\_c.c}:
@@ -608,7 +608,7 @@ a behavior for the predicate \texttt{occurrence2/3}.
 
 In the prolog file \texttt{examp.pl}:
 
-\OneLine{:- foreign(occurrence2(+string, +char, -positive), 
+\OneLine{:- foreign(occurrence2(+string, +char, -positive),
 [choice\_size(1)]).}
 
 In the C file \texttt{examp\_c.c}:
@@ -743,7 +743,7 @@ no
 \label{Introduction:(Manipulating-Prolog-terms)}
 In the following we presents a set of functions to manipulate Prolog terms.
 For simple foreign terms the functions manipulate simple C types
-\RefSP{foreign/2-directive}. 
+\RefSP{foreign/2-directive}.
 
 Functions managing lists handle an array of 2 elements (of type
 \texttt{PlTerm}) containing the terms corresponding to the head and the tail
@@ -792,7 +792,7 @@ int     Pl_Atom_End_Of_File    (void)
 
 The function \texttt{Pl\_Atom\_Name(atom)} returns the internal string of
 \texttt{atom} (this string should not be modified). The function
-\texttt{Pl\_Atom\_Length(atom)} returns the length (of the name) of 
+\texttt{Pl\_Atom\_Length(atom)} returns the length (of the name) of
 \texttt{atom}.
 
 The function \texttt{Pl\_Atom\_Needs\_Scan(atom)} indicates if the canonical
@@ -1363,7 +1363,7 @@ The following function raises a syntax error \RefSP{Syntax-error}:
 \OneLine{void Pl\_Err\_Syntax(int atom\_error)}
 
 \texttt{atom\_error} is (the internal key of) the atom associated with the
-error. There is no predefined syntax error atoms. 
+error. There is no predefined syntax error atoms.
 
 \SPart{Example}: a \texttt{/} is expected:
 \texttt{Pl\_Err\_Syntax(Pl\_Create\_Atom("/ expected"))}.
@@ -1390,7 +1390,7 @@ The following function raises a system error (4.3.11, page *):
 \OneLine{void Pl\_Err\_System(int atom\_error)}
 
 \texttt{atom\_error} is (the internal key of) the atom associated with the
-error. There is no predefined system error atoms. 
+error. There is no predefined system error atoms.
 
 \SPart{Example}: an invalid pathname is given:
 \texttt{Pl\_Err\_System(Pl\_Create\_Atom("invalid path name"))}.
@@ -1399,7 +1399,7 @@ The following function emits a system error associated with an operating
 system error according to the value of the \IdxPF{os\_error}
 \Idx{Prolog flag} \RefSP{set-prolog-flag/2}. This function can then return (if the value of the flag is either \texttt{warning} or \texttt{fail}).
 In that case the calling function should fail (e.g. returning
-\texttt{PL\_FALSE}). 
+\texttt{PL\_FALSE}).
 
 The following function uses the value of the \texttt{errno} C library
 variable (basically it calls \texttt{Pl\_Err\_System} with the result
@@ -1574,7 +1574,7 @@ Examples of use:
 When \texttt{my\_call(1)} is called an error is raised due to the use of
 \texttt{Pl\_Rd\_Callable\_Check()}. However the error raised by
 \texttt{my\_call(call(1))} is ignored and \texttt{PL\_FALSE} (i.e. a failure) is
-returned by the foreign function. 
+returned by the foreign function.
 
 To really simulate the behavior of \texttt{call/1} when an exception
 is recovered it should be re-raised to be captured by an earlier
@@ -1615,7 +1615,7 @@ The following code propagates the error raised by \texttt{call/1}.
 \One{{\lb}exception:~error(type\_error(callable,1),my\_call/1){\rb}}
 \end{CodeTwoCols}
 
-Finally note that a simpler way to define \texttt{my\_call/1} is to use 
+Finally note that a simpler way to define \texttt{my\_call/1} is to use
 \texttt{Pl\_Exec\_Continuation()} as follows:
 
 \begin{Indentation}
@@ -1787,7 +1787,7 @@ good idea to always use a wrapper function as shown above.
 
 \subsubsection{Example: asking for ancestors}
 
-In this example we use the following Prolog code (in a file called 
+In this example we use the following Prolog code (in a file called
 \texttt{new\_main.pl}):
 
 \begin{Indentation}

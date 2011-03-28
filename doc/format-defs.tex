@@ -269,7 +269,7 @@ built-in predicate or an atom giving general context information.
 
 Using exceptions allows the user both to recover an error using
 \IdxPB{catch/3} \RefSP{catch/3} and to raise an error using
-\IdxPB{throw/1} \RefSP{catch/3}. 
+\IdxPB{throw/1} \RefSP{catch/3}.
 
 To illustrate how to write error cases, let us write a predicate
 \texttt{my\_pred(X)} where \texttt{X} must be an integer:
@@ -331,7 +331,7 @@ error in the current error context \RefSP{General-format-and-error-context}.
 \subsubsection{Uninstantiation error}
 \label{Uninstantiation-error}
 An uninstantiation Error when an argument or one of its components is not a
-variable, and a variable or a component as variable is required. 
+variable, and a variable or a component as variable is required.
 \Param{ErrorTerm} has the following form:
 \texttt{uninstantiation\_error(\Param{Culprit})} where \Param{Culprit} is the argument or one
 of its components which caused the error.
@@ -387,7 +387,7 @@ the argument which caused the error. \Param{Type} is one of:
 
 \item \texttt{predicate\_indicator}
 
-%\item \texttt{variable}  
+%\item \texttt{variable}
 
 \end{ItemizeThreeCols}
 
@@ -593,7 +593,7 @@ is the name of the reached limit. \Param{Limit} is one of:
 The errors \texttt{max\_integer} and \texttt{min\_integer} are not currently
 implemented.
 
-The system predicate \texttt{'\$pl\_err\_representation'(Limit)} raises this 
+The system predicate \texttt{'\$pl\_err\_representation'(Limit)} raises this
 error in the current error context \RefSP{General-format-and-error-context}.
 
 \subsubsection{Evaluation error}

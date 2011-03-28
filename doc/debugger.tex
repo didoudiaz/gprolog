@@ -41,7 +41,7 @@ box is associated with one invocation of a given predicate. In particular, a
 recursive predicate will give raise to a box for each invocation of the
 predicate with different entries/exits in the control flow. Since this might
 get confusing for the user, the debugger associates with each box a unique
-identifier (i.e. the invocation number). 
+identifier (i.e. the invocation number).
 
 \subsection{Debugging predicates}
 
@@ -106,7 +106,7 @@ exception]}
 \end{itemize}
 
 When an unleashed port is encountered the debugger continues to show the
-associated goal but does not stop the execution to prompt the user. 
+associated goal but does not stop the execution to prompt the user.
 
 \subsubsection{Spy-points}
 \label{Spy-points}
@@ -145,7 +145,7 @@ is \texttt{Name} and arity is between \texttt{A1} and \texttt{A2}.
 
 \end{itemize}
 
-It is not possible to set a spy-point on an undefined predicate. 
+It is not possible to set a spy-point on an undefined predicate.
 
 The following predicate is used to remove one or several spy-points:
 
@@ -154,11 +154,11 @@ predicates.
 
 \texttt{nospyall/0} removes all spy-points:
 
-It is also possible to define conditional spy-points. 
+It is also possible to define conditional spy-points.
 
 \texttt{spypoint\_condition(Goal, Port, Test)} sets a
 conditional spy-point on the predicate for \texttt{Goal}. When the debugger
-reaches a conditional spy-point it only shows the associated goal if the 
+reaches a conditional spy-point it only shows the associated goal if the
 following conditions are verified:
 
 \begin{itemize}
@@ -173,7 +173,7 @@ following conditions are verified:
 
 \subsection{Debugging messages}
 We here described which information is displayed by the debugger when it
-shows a goal. The basic format is as follows: 
+shows a goal. The basic format is as follows:
 
 \OneLine{\Param{S N M Port}:~\Param{Goal} ?}
 
@@ -236,7 +236,7 @@ until a port is reached for that invocation number \\
 \texttt{r} & retry & try to restart the invocation of the current goal by
 failing until reaching the invocation of the goal. The state of
 execution is the same as when the goal was initially invoked (except when
-using side-effect predicates) \\ 
+using side-effect predicates) \\
 
 \hline
 
@@ -313,7 +313,7 @@ indicator. Uses \IdxDB{spypoint\_condition/3} \RefSP{Spy-points} \\
 
 \hline
 
-\texttt{L} & listing & list all the clauses associated with the current 
+\texttt{L} & listing & list all the clauses associated with the current
 predicate. Uses \IdxPB{listing/1} \RefSP{listing/1} \\
 
 \hline
@@ -432,7 +432,7 @@ is either:
 \begin{itemize}
 
 \item \texttt{reg}: WAM general register (stack pointers, continuation,
-...). 
+...).
 
 \item \texttt{x}: WAM X register (temporary variables, i.e. arguments).
 

@@ -40,13 +40,13 @@ atom(?term)\\
 integer(?term)\\
 float(?term)\\
 number(?term)\\
-atomic(?term)\\               
-compound(?term)\\              
-callable(?term)\\            
-ground(?term)\\            
-is\_list(?term)\\                 
-list(?term)\\                 
-partial\_list(?term)\\      
+atomic(?term)\\
+compound(?term)\\
+callable(?term)\\
+ground(?term)\\
+is\_list(?term)\\
+list(?term)\\
+partial\_list(?term)\\
 list\_or\_partial\_list(?term)
 
 \end{TemplatesTwoCols}
@@ -164,7 +164,7 @@ ISO predicate.
 \Description
 
 \texttt{Term1 {\bs}= Term2} succeeds if \texttt{Term1} and \texttt{Term2}
-are not unifiable (no occurs check is done). 
+are not unifiable (no occurs check is done).
 
 \texttt{{\bs}=} is a predefined infix operator \RefSP{op/3:(Term-input/output)}.
 
@@ -190,11 +190,11 @@ greatest):
 \item finite domain variables \RefSP{Finite-Domain-variables}, oldest
 first.
 
-\item floating point numbers, in numeric order. 
+\item floating point numbers, in numeric order.
 
-\item integers, in numeric order. 
+\item integers, in numeric order.
 
-\item atoms, in alphabetical (i.e. character code) order. 
+\item atoms, in alphabetical (i.e. character code) order.
 
 \item compound terms, ordered first by arity, then by the name of the
 principal functor and by the arguments in left-to-right order.
@@ -213,7 +213,7 @@ reference the order of variables is system dependent).
                \texttt{(@={\lt})/2} - term less than or equal to, \\
                \texttt{(@{\gt})/2} - term greater than,
                \texttt{(@{\gt}=)/2} - term greater than or equal to}
-\label{(==)/2} 
+\label{(==)/2}
    \AddPBD{(==)/2}
    \AddPBD{({\bs}==)/2}
    \AddPBD{("@{\lt})/2}
@@ -237,7 +237,7 @@ These predicates compare two terms according to the standard total ordering
 of terms \RefSP{Standard-total-ordering-of-terms}.
 
 \texttt{Term1 == Term2} succeeds if \texttt{Term1} and \texttt{Term2} are
-equal. 
+equal.
 
 \texttt{Term1 {\bs}== Term2} succeeds if \texttt{Term1} and
 \texttt{Term2} are different.
@@ -264,7 +264,7 @@ or equal to \texttt{Term2}.
 ISO predicates.
 
 \subsubsection{\texttt{compare/3}}
-\label{compare/3} 
+\label{compare/3}
    \AddPBD{compare/3}
 
 \begin{TemplatesOneCol}
@@ -663,7 +663,7 @@ numbervars(?term)
 \Description
 
 \texttt{bind\_variables(Term, Options)} binds each variable appearing in
-\texttt{Term} according to the options given by \texttt{Options}. 
+\texttt{Term} according to the options given by \texttt{Options}.
 
 \SPart{Variable binding options}: \texttt{Options} is a list of variable
 binding options. If this list contains contradictory options, the rightmost
@@ -691,7 +691,7 @@ is \texttt{0}.
 
 \item \IdxPOD[next]{next(Next)}: when \texttt{bind\_variables/2} succeeds,
 \texttt{Next} is unified with the (last integer \texttt{N})+1 used
-to bind the variables of \texttt{Term}. 
+to bind the variables of \texttt{Term}.
 
 \item \IdxPOD[exclude]{exclude(List)}: collects all variable names appearing
 in \texttt{List} to avoid a clash when binding a variable of \texttt{Term}.
@@ -738,7 +738,7 @@ term.
 \ErrTerm{type\_error(list, Options)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is neither a
-variable nor a variable binding option} 
+variable nor a variable binding option}
 \ErrTerm{domain\_error(var\_binding\_option, E)}
 
 \ErrCond{\texttt{From} is a variable}
@@ -1171,7 +1171,7 @@ the most common case, two additional evaluable functors (\texttt{(div)/2} and
 the GNU Prolog compiler can generate faster code when invoked with the
 \IdxK{--fast-math} option \RefSP{Using-the-compiler}. In this mode only
 integer operations are allowed and a variable in an expression must be bound
-at evaluation time to an integer. No type checking is done. 
+at evaluation time to an integer. No type checking is done.
 
 \begin{PlErrors}
 
@@ -1236,7 +1236,7 @@ ISO predicate.
                \texttt{(={\lt})/2} - arithmetic less than or equal to, \\
                \texttt{({\gt})/2} - arithmetic greater than,
                \texttt{({\gt}=)/2} - arithmetic greater than or equal to}
-\label{(=:=)/2} 
+\label{(=:=)/2}
    \AddPBD{(=:=)/2}
    \AddPBD{(={\bs}=)/2}
    \AddPBD{({\lt})/2}
@@ -1300,7 +1300,7 @@ static by default unless a \IdxDi{dynamic/1} directive precedes its
 definition \RefSP{dynamic/1}. Adding a clause to a non-existent procedure
 creates a dynamic procedure. The clauses of a dynamic procedure can be
 altered (e.g. using \texttt{asserta/1}), the clauses of a static procedure
-cannot be altered. 
+cannot be altered.
 
 \SPart{Private and public procedures}: each procedure is either public or
 private. A dynamic procedure is always public. Each built-in predicate is
@@ -1342,7 +1342,7 @@ procedure.
 \texttt{assertz(Clause)} acts like \texttt{asserta/1} except that the clause
 is added at the end of all existing clauses of the concerned predicate.
 
-\SPart{Converting a term \texttt{Clause} to a clause \texttt{Clause1}:} 
+\SPart{Converting a term \texttt{Clause} to a clause \texttt{Clause1}:}
 
 \begin{itemize}
 
@@ -1485,7 +1485,7 @@ clause(+head, ?callable\_term)
 \texttt{clause(Head, Body)} succeeds if there exists a clause in the
 database that unifies with \texttt{Head :- Body}. The predicate in question
 must be a public procedure \RefSP{Introduction:(Dynamic-clause-management)}. Clauses are delivered from the first to the last. This
-predicate is re-executable on backtracking. 
+predicate is re-executable on backtracking.
 
 \begin{PlErrors}
 
@@ -1625,7 +1625,7 @@ predicate\_property(?predicate\_indicator, ?predicate\_property)
 \texttt{predicate\_property(Pred, Property)} succeeds if there
 exists a predicate indicator of a defined procedure that unifies with
 \texttt{Pred} and if \texttt{Property} unifies with one of the properties of
-the procedure. All user defined procedures and built-in predicates are 
+the procedure. All user defined procedures and built-in predicates are
 found. Internal system procedures whose name begins with \texttt{'\$'}
 are not found. This predicate is re-executable on backtracking.
 
@@ -1674,12 +1674,12 @@ file.
 \item [\texttt{:}] the argument is module sensitive, but does not directly
   refer to a predicate (e.g. \texttt{consult(:)}).
 
-\item [\texttt{-}] the argument is not module sensitive and unbound on entry. 
+\item [\texttt{-}] the argument is not module sensitive and unbound on entry.
 
 
-\item [\texttt{?}] the argument is not module sensitive and the mode is unspecified. 
+\item [\texttt{?}] the argument is not module sensitive and the mode is unspecified.
 
-\item [\texttt{+}] the argument is not module sensitive and bound (i.e., nonvar) on entry. 
+\item [\texttt{+}] the argument is not module sensitive and bound (i.e., nonvar) on entry.
 
 \end{description}
 
@@ -1730,7 +1730,7 @@ GNU Prolog predicate.
 \label{Introduction:(All-solutions)}
 It is sometimes useful to collect all solutions for a goal. This can be done
 by repeatedly backtracking and gradually building the list of solutions. The
-following built-in predicates are provided to automate this process. 
+following built-in predicates are provided to automate this process.
 
 The built-in predicates described in this section invoke \texttt{call/1}
 \RefSP{call/1} on the argument \texttt{Goal}. When efficiency is crucial
@@ -1849,7 +1849,7 @@ A stream provides a logical view of a source/sink.
 
 \SPart{Sources and sinks}: a program can output results to a sink or input
 data from a source. A source/sink may be a file (regular file, terminal,
-device,\ldots), a constant term, a pipe, a socket,\ldots 
+device,\ldots), a constant term, a pipe, a socket,\ldots
 
 \SPart{Associating a stream to a source/sink}: to manipulate a source/sink
 it must be associated with a stream. This provides a logical and uniform view
@@ -1896,7 +1896,7 @@ predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
 \IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change them.
 When the current input stream is closed, the standard input stream becomes
 the current input stream. When the current output stream is closed, the
-standard output stream becomes the current output stream. 
+standard output stream becomes the current output stream.
 
 \SPart{Text streams and binary streams}: a text stream is a sequence of
 characters. A text stream is also regarded as a sequence of lines where each
@@ -2097,7 +2097,7 @@ are:
 \begin{itemize}
 
 \item \IdxPMD{read}: the source/sink is a source and must already exist.
-Input starts at the beginning of the source. 
+Input starts at the beginning of the source.
 
 \item \IdxPMD{write}: the source/sink is a sink. If the sink already exists
 then it is emptied else an empty sink is created. Output starts at the
@@ -2213,7 +2213,7 @@ variable nor a stream-option}
 \ErrTerm{permission\_error(open, source\_sink, SourceSink)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
-\texttt{alias(A)} and \texttt{A} is already associated with an open stream} 
+\texttt{alias(A)} and \texttt{A} is already associated with an open stream}
 \ErrTerm{permission\_error(open, source\_sink, alias(A))}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
@@ -2225,7 +2225,7 @@ variable nor a stream-option}
 \ErrTerm{permission\_error(output, stream, M)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is
-\texttt{reposition(true)} and it is not possible to reposition this stream} 
+\texttt{reposition(true)} and it is not possible to reposition this stream}
 \ErrTerm{permission\_error(open, source\_sink, reposition(true))}
 
 \end{PlErrors}
@@ -2291,7 +2291,7 @@ to reclaim resources. The default value is \texttt{false}.
 \ErrTerm{domain\_error(stream\_or\_alias, SorA)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Options} list is neither a
-variable nor a close-option} 
+variable nor a close-option}
 \ErrTerm{domain\_error(close\_option, E)}
 
 \ErrCond{\texttt{SorA} is not associated with an open stream}
@@ -2393,7 +2393,7 @@ predicate is re-executable on backtracking.
 
 \begin{itemize}
 
-\item \IdxPPD[file\_name]{file\_name(F)}: the name of the connected 
+\item \IdxPPD[file\_name]{file\_name(F)}: the name of the connected
 source/sink.
 
 \item \IdxPPD[mode]{mode(M)}: \texttt{M} is the open mode (\texttt{read},
@@ -2405,7 +2405,7 @@ source/sink.
 
 \item \IdxPPD[alias]{alias(A)}: \texttt{A} is an alias of the stream.
 
-\item \IdxPPD[mirror]{mirror(M)}: \texttt{M} is a mirror stream of the 
+\item \IdxPPD[mirror]{mirror(M)}: \texttt{M} is a mirror stream of the
 stream.
 
 \item \IdxPPD[type]{type(T)}: \texttt{T} is the type of the stream
@@ -2885,7 +2885,7 @@ to the stream associated with the stream-term or alias \texttt{SorA}.
 \ErrCond{\texttt{SorA} is not associated with an open stream}
 \ErrTerm{existence\_error(stream, SorA)}
 
-\ErrCond{\texttt{Alias} is already associated with an open stream} 
+\ErrCond{\texttt{Alias} is already associated with an open stream}
 \ErrTerm{permission\_error(add\_alias, source\_sink, alias(Alias))}
 
 \end{PlErrors}
@@ -3263,7 +3263,7 @@ not a character code}
 GNU Prolog predicates.
 
 \subsubsection{\texttt{close\_input\_atom\_stream/1},
-               \texttt{close\_input\_chars\_stream/1}, \\ 
+               \texttt{close\_input\_chars\_stream/1}, \\
                \texttt{close\_input\_codes\_stream/1}}
    \AddPBD{close\_input\_atom\_stream/1}
    \AddPBD{close\_input\_chars\_stream/1}
@@ -3313,8 +3313,8 @@ constant term stream.}
 
 GNU Prolog predicates.
 
-\subsubsection{\texttt{open\_output\_atom\_stream/1}, 
-               \texttt{open\_output\_chars\_stream/1}, \\ 
+\subsubsection{\texttt{open\_output\_atom\_stream/1},
+               \texttt{open\_output\_chars\_stream/1}, \\
                \texttt{open\_output\_codes\_stream/1}}
 \label{open-output-atom-stream/1}
    \AddPBD{open\_output\_atom\_stream/1}
@@ -3436,7 +3436,7 @@ returned as character to indicate the end-of-file. \texttt{-1} is returned
 as character code to indicate the end-of-file.
 
 \subsubsection{\texttt{get\_char/2},
-               \texttt{get\_char/1}, 
+               \texttt{get\_char/1},
                \texttt{get\_code/1},
                \texttt{get\_code/2}}
 \label{get-char/2}
@@ -3529,13 +3529,13 @@ stream-term or alias \texttt{SorA}. It is intended to read a single key from
 the keyboard (thus \texttt{SorA} should refer to current input stream). No
 buffering is performed (a character is read as soon as available) and
 function keys can also be read (in that case, \texttt{Code} is an integer $>$
-255). The read character is echoed if it is printable. 
+255). The read character is echoed if it is printable.
 
 This facility is only possible if the \IdxK{linedit} facility has been
 installed \RefSP{The-line-editor} otherwise \texttt{get\_key/2} behaves
 similarly to \IdxPB{get\_code/2} \RefSP{get-char/2} (the code of the first
 character is returned) but also pumps remaining characters until a character
-$<$ space (0x20) is read (in particular RETURN). The same behavior 
+$<$ space (0x20) is read (in particular RETURN). The same behavior
 occurs if \texttt{SorA} does not refer to the current input stream or if
 this stream is not attached to a terminal.
 
@@ -3957,7 +3957,7 @@ put\_byte(+byte)
 \Description
 
 \texttt{put\_byte(SorA, Byte)} writes \texttt{Byte} onto the stream
-associated with the stream-term or alias \texttt{SorA}. 
+associated with the stream-term or alias \texttt{SorA}.
 
 \texttt{put\_byte/1} applies to the current output stream.
 
@@ -4131,9 +4131,9 @@ as a syntax error. The read options \texttt{syntax\_error/1} and
 \texttt{end\_of\_term/1} are GNU Prolog extensions.
 
 \subsubsection{\texttt{read\_atom/2},
-               \texttt{read\_atom/1}, 
+               \texttt{read\_atom/1},
                \texttt{read\_integer/2},
-               \texttt{read\_integer/1}, \\ 
+               \texttt{read\_integer/1}, \\
                \texttt{read\_number/2},
                \texttt{read\_number/1}}
 \label{read-atom/2}
@@ -4245,7 +4245,7 @@ stream-term or alias \texttt{SorA}.
 is read.
 
 \item \IdxPTD[string]{string(A)}: a string (double quoted item) is read whose
-characters forms the atom \texttt{A}. 
+characters forms the atom \texttt{A}.
 
 \item \IdxPTD[punct]{punct(P)}: a punctuation character \texttt{P} is read
 (\texttt{P} is a one-character atom in \texttt{()[]{\lb}|{\rb}}, the atom
@@ -4467,7 +4467,7 @@ compound terms. \texttt{N} is an integer specifying the depth. The output of
 a term whose depth is greater than \texttt{N} gives rise to the output of
 \texttt{...} (3 dots). By default there is no depth limit.
 
-\item \IdxPOD[priority]{priority(N)}: specifies the starting priority 
+\item \IdxPOD[priority]{priority(N)}: specifies the starting priority
 to output the term. This option controls if \texttt{Term} should be enclosed
 in brackets. \texttt{N} is a positive integer $\leq$ 1200. By default
 \texttt{N} = 1200.
@@ -4480,7 +4480,7 @@ where \texttt{N} is an integer is output as a variable name consisting of a
 capital letter possibly followed by an integer. The capital letter is the
 \texttt{(I+1)}\emph{th} letter of the alphabet and the integer is
 \texttt{J}, where \texttt{I = N mod 26} and \texttt{J = N // 26}. The
-integer \texttt{J} is omitted if it is zero. For example: 
+integer \texttt{J} is omitted if it is zero. For example:
 
 \begin{CodeTwoCols}[2cm]
 \Two{'\$VAR'(0)}{is written as \texttt{A}}
@@ -4606,15 +4606,15 @@ code. \texttt{N} is the number of times to print the character (default: 1)\\
 \texttt{ \~{}Nf}
 \linebreak
 \texttt{\~{}Ne \~{}NE \~{}Ng \~{}NG}
-               &  float expression & pass the argument \texttt{Arg} and 
+               &  float expression & pass the argument \texttt{Arg} and
                                      \texttt{N} to the C \texttt{printf()}
-                                     function as: 
+                                     function as:
 \linebreak
-                               if \texttt{N} is not specified 
+                               if \texttt{N} is not specified
                                \texttt{printf("\%f",Arg)} else
                                \texttt{printf("\%.Nf",Arg)}.
 \linebreak
-Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE}, \texttt{\~{}Ng} and \texttt{\~{}NG} \\ 
+Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE}, \texttt{\~{}Ng} and \texttt{\~{}NG} \\
 
 \hline
 
@@ -4632,7 +4632,7 @@ decimal point \\
 
 \texttt{\~{}Nr} & integer expression & print the argument according to the
 radix \texttt{N}. 2 $\leq$ \texttt{N} $\leq$ 36 (default: 8). The letters
-\texttt{a-z} denote digits $>$ 9 \\ 
+\texttt{a-z} denote digits $>$ 9 \\
 
 \hline
 
@@ -4641,7 +4641,7 @@ that the letters \texttt{A-Z} denote digits $>$ 9 \\
 
 \hline
 
-\texttt{\~{}Ns} & character code list & print exactly \texttt{N} characters 
+\texttt{\~{}Ns} & character code list & print exactly \texttt{N} characters
 (default: the length of the list) \\
 
 \hline
@@ -4763,7 +4763,7 @@ variable nor character code while a character code was expected}
 
 \Portability
 
-GNU Prolog predicates. 
+GNU Prolog predicates.
 
 \subsubsection{\texttt{portray\_clause/2},
                \texttt{portray\_clause/1}}
@@ -5077,7 +5077,7 @@ would have a postfix and an infix definition. }
 
 \Portability
 
-ISO predicate. 
+ISO predicate.
 
 The ISO reference implies that if a program calls \texttt{current\_op/3},
 then modifies an operator definition by calling \texttt{op/3} and backtracks
@@ -5102,21 +5102,21 @@ on backtracking.
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Priority} is neither a variable nor an operator priority} 
+\ErrCond{\texttt{Priority} is neither a variable nor an operator priority}
 \ErrTerm{domain\_error(operator\_priority, Priority)}
 
 \ErrCond{\texttt{OpSpecifier} is neither a variable nor an operator
 specifier}
 \ErrTerm{domain\_error(operator\_specifier, OpSpecifier)}
 
-\ErrCond{\texttt{Operator} is neither a variable nor an atom} 
+\ErrCond{\texttt{Operator} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, Operator)}
 
 \end{PlErrors}
 
 \Portability
 
-ISO predicate. 
+ISO predicate.
 
 \subsubsection{\texttt{char\_conversion/2}}
 \label{char-conversion/2}
@@ -5168,7 +5168,7 @@ behavior, the ISO reference instead defines a
 \texttt{representation\_error(character)} in this case. This seems to be an
 error of the ISO reference since, for many other built-in predicates
 accepting a character (e.g. \texttt{char\_code/2}, \texttt{put\_char/2}), a
-\texttt{type\_error} is raised. 
+\texttt{type\_error} is raised.
 
 The ISO reference implies that if a program calls
 \texttt{current\_char\_conversion/2}, then modifies the character mapping by
@@ -5360,9 +5360,9 @@ GNU Prolog predicates.
                \texttt{write\_to\_atom/2},
                \texttt{writeq\_to\_atom/2}, \\
                \texttt{write\_canonical\_to\_atom/2},
-               \texttt{display\_to\_atom/2}, 
+               \texttt{display\_to\_atom/2},
                \texttt{print\_to\_atom/2}, \\
-               \texttt{format\_to\_atom/3}} 
+               \texttt{format\_to\_atom/3}}
    \AddPBD{write\_term\_to\_atom/3}
    \AddPBD{write\_to\_atom/2}
    \AddPBD{writeq\_to\_atom/2}
@@ -5414,10 +5414,10 @@ GNU Prolog predicates.
 \subsubsection{\texttt{write\_term\_to\_chars/3},
                \texttt{write\_to\_chars/2},
                \texttt{writeq\_to\_chars/2}, \\
-               \texttt{write\_canonical\_to\_chars/2}, 
+               \texttt{write\_canonical\_to\_chars/2},
                \texttt{display\_to\_chars/2},
                \texttt{print\_to\_chars/2}, \\
-               \texttt{format\_to\_chars/3}} 
+               \texttt{format\_to\_chars/3}}
    \AddPBD{write\_term\_to\_chars/3}
    \AddPBD{write\_to\_chars/2}
    \AddPBD{writeq\_to\_chars/2}
@@ -5616,12 +5616,12 @@ telling(?source\_sink)
 with the name of the current input file, if it was opened by
 \texttt{see/1}; else with the current input stream-term, if this is not
 \IdxPK{user\_input}, otherwise with
-\IdxPK{user}. 
+\IdxPK{user}.
 
 \texttt{telling(FileName)} succeeds if \texttt{FileName} unifies with the
 name of the current output file, if it was opened by \texttt{tell/1} or
 \texttt{append/1}; else with the current output stream-term, if this is not
-\IdxPK{user\_output}, otherwise with \IdxPK{user}. 
+\IdxPK{user\_output}, otherwise with \IdxPK{user}.
 
 \PlErrorsNone
 
@@ -5868,7 +5868,7 @@ steps are as follows:
 \end{itemize}
 
 \texttt{term\_expansion(Term1, Term2)} is a hook predicate allowing the user
-to define a specific transformation. 
+to define a specific transformation.
 
 The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically calls
 \texttt{expand\_term/2} on each \texttt{Term1} read in. However, in the
@@ -5899,7 +5899,7 @@ phrase(?term, ?list)
 \texttt{phrase(Phrase, List, Remainder)} succeeds if the list
 \texttt{List} is in the language defined by the grammar rule body
 \texttt{Phrase}. \texttt{Remainder} is what remains of the list after a
-phrase has been found. 
+phrase has been found.
 
 \texttt{phrase(Phrase, List)} is equivalent to
 \texttt{phrase(Phrase, List, [])}.
@@ -5995,7 +5995,7 @@ the shell with the return code \texttt{Status}.
 predicates.
 
 \subsubsection{\texttt{false/0}, \texttt{once/1}, \texttt{({\bs}+)/1} - not provable,
-               \texttt{call/2-11}, 
+               \texttt{call/2-11},
 	       \texttt{call\_with\_args/1-11}, \texttt{call\_det/2}, \texttt{forall/2}}
    \AddPBD{false/0}
    \AddPBD{once/1}
@@ -6029,13 +6029,13 @@ of \texttt{Goal} are cut. \texttt{once(Goal)} is equivalent to
 \texttt{{\bs}+ Goal} succeeds if \texttt{call(Goal)} fails and fails
 otherwise. This built-in predicate gives negation by failure.
 
-\texttt{call(Closure, Arg1,\ldots, ArgN)} calls the goal \texttt{call(Goal)} 
+\texttt{call(Closure, Arg1,\ldots, ArgN)} calls the goal \texttt{call(Goal)}
 where \texttt{Goal} is constructed by appending \texttt{Arg1,\ldots, ArgN}
 ($1 \leq \texttt{N} \leq 10$) additional arguments to the arguments (if any)
 of \texttt{Closure}.
 
-\texttt{call\_with\_args(Functor, Arg1,\ldots, ArgN)} calls the goal 
-whose functor is \texttt{Functor} and whose arguments are 
+\texttt{call\_with\_args(Functor, Arg1,\ldots, ArgN)} calls the goal
+whose functor is \texttt{Functor} and whose arguments are
 \texttt{Arg1},\ldots, \texttt{ArgN} ($0 \leq \texttt{N} \leq 10$).
 
 \texttt{call\_det(Goal, Deterministic)} succeeds if \texttt{call(Goal)}
@@ -6044,7 +6044,7 @@ succeeds and unifies \texttt{Deterministic} with \texttt{true} if
 otherwise.
 
 \texttt{forall(Condition, Action)} succeeds if for all alternative bindings of
-\texttt{Condition}, \texttt{Action} can be proven. 
+\texttt{Condition}, \texttt{Action} can be proven.
 It is equivalent to \texttt{{\bs}+ (Condition, {\bs}+ Action)}.
 
 
@@ -6104,7 +6104,7 @@ any working storage consumed since the call to \texttt{repeat/0}.
 
 \Portability
 
-ISO predicate. 
+ISO predicate.
 
 \subsubsection{\texttt{for/3}}
    \AddPBD{for/3}
@@ -6118,7 +6118,7 @@ for(?integer, +integer, +integer)
 
 \texttt{for(Counter, Lower, Upper)} generates an sequence of backtracking
 choices instantiating \texttt{Counter} to the values \texttt{Lower},
-\texttt{Lower+1},\ldots, \texttt{Upper}. 
+\texttt{Lower+1},\ldots, \texttt{Upper}.
 
 \begin{PlErrors}
 
@@ -7025,7 +7025,7 @@ The time complexity of these sorts is $O(N~log~N)$, $N$ being the length of
 the list to sort.
 
 These predicates refer to the standard ordering of terms
-\RefSP{Standard-total-ordering-of-terms}. 
+\RefSP{Standard-total-ordering-of-terms}.
 
 \begin{PlErrors}
 
@@ -7078,8 +7078,8 @@ When a link to a term is associated with a global variable, the reference to
 this term is stored and thus the original term is returned when the content
 of the variable is read.
 
-\SPart{Global variable naming convention}: a global variable is referenced 
-by an atom. 
+\SPart{Global variable naming convention}: a global variable is referenced
+by an atom.
 
 If the variable contains an array, an index (ranging from 0) can be provided
 using a compound term whose principal functor is the corresponding atom and
@@ -7105,7 +7105,7 @@ variable and its syntax is as follows:
                  &     & \Param{atom}\texttt{(}\Param{Integer}\texttt{,}\ldots\texttt{,}\Param{Integer}\texttt{)} & element of an array \\
                  &     & \Param{GVarName}\texttt{-}\Param{Integer} & sub-term selection \\
 \Param{Integer}  & ::= & \Param{integer} & immediate value \\
-                 &     & \Param{GVarName} & indirect value 
+                 &     & \Param{GVarName} & indirect value
 \end{tabular}
 \end{Indentation}
 
@@ -7154,7 +7154,7 @@ size.  There are 3 forms for the term \texttt{g\_array}:
 
 \begin{itemize}
 
-\item \texttt{g\_array(Size)}: if \texttt{Size} is an integer $>$ 0 then 
+\item \texttt{g\_array(Size)}: if \texttt{Size} is an integer $>$ 0 then
 defines an array of \texttt{Size} elements which are all initialized with
 the integer \texttt{0}.
 
@@ -7166,7 +7166,7 @@ arrays.
 \item \texttt{g\_array(List)}: as above if \texttt{List} is a list of length
 \texttt{Size} except that the elements of the array are initialized
 according to the elements of \texttt{List} (which can contain other array
-definitions). 
+definitions).
 
 \end{itemize}
 
@@ -7251,7 +7251,7 @@ See common errors detailed in the introduction \RefSP{Global-variables}
 
 \begin{PlErrorsNoTitle}
 
-\ErrCond{\texttt{GVarName} contains an argument selector and the assignment 
+\ErrCond{\texttt{GVarName} contains an argument selector and the assignment
 is backtrackable}
 \ErrTerm{domain\_error(g\_argument\_selector, GVarName)}
 
@@ -7347,10 +7347,10 @@ g\_dec(+callable\_term)
 integer assigned to \texttt{GVarName}, increments \texttt{GVarName} and
 then unifies \texttt{New} with the incremented value.
 
-\texttt{g\_inc(GVarName, New)} is equivalent to 
+\texttt{g\_inc(GVarName, New)} is equivalent to
 \texttt{g\_inc(GVarName, \_, New)}.
 
-\texttt{g\_inco(GVarName, Old)} is equivalent to 
+\texttt{g\_inco(GVarName, Old)} is equivalent to
 \texttt{g\_inc(GVarName, Old, \_)}.
 
 \texttt{g\_inc(GVarName)} is equivalent to \texttt{g\_inc(GVarName, \_, \_)}.
@@ -7402,9 +7402,9 @@ g\_test\_reset\_bit(+callable\_term, +integer)
 
 \Description
 
-\texttt{g\_set\_bit(GVarName, Bit)} sets to 1 the bit number specified by 
+\texttt{g\_set\_bit(GVarName, Bit)} sets to 1 the bit number specified by
 \texttt{Bit} of the integer assigned to \texttt{GVarName} to 1. Bit numbers
-range from 0 to the maximum number allowed for integers (this is architecture dependent). If \texttt{Bit} is greater than this limit, 
+range from 0 to the maximum number allowed for integers (this is architecture dependent). If \texttt{Bit} is greater than this limit,
 the modulo with this limit is taken.
 
 \texttt{g\_reset\_bit(GVarName, Bit)} is similar to \texttt{g\_set\_bit/2} but
@@ -7467,12 +7467,12 @@ whereas \texttt{g\_assignb/2} undoes it.
 
 \begin{Code}
 \begin{tabular}{@{}p{6cm}@{\quad}l@{}}
-test(Old) :-                 & testb(Old) :- \\                  
-~~~~~~~~g\_assign(x,1),      & ~~~~~~~~g\_assign(x,1), \\        
-~~~~~~~~(~~~g\_read(x, Old), & ~~~~~~~~(~~~g\_read(x, Old), \\   
+test(Old) :-                 & testb(Old) :- \\
+~~~~~~~~g\_assign(x,1),      & ~~~~~~~~g\_assign(x,1), \\
+~~~~~~~~(~~~g\_read(x, Old), & ~~~~~~~~(~~~g\_read(x, Old), \\
 ~~~~~~~~~~~~\textit{g\_assign}(x, 2)  & ~~~~~~~~~~~~\textit{g\_assignb}(x, 2) \\
-~~~~~~~~;~~~g\_read(x,~Old), & ~~~~~~~~;~~~g\_read(x, Old), \\   
-~~~~~~~~~~~~g\_assign(x, 3)  & ~~~~~~~~~~~~g\_assign(x, 3) \\    
+~~~~~~~~;~~~g\_read(x,~Old), & ~~~~~~~~;~~~g\_read(x, Old), \\
+~~~~~~~~~~~~g\_assign(x, 3)  & ~~~~~~~~~~~~g\_assign(x, 3) \\
 ~~~~~~~~).                   & ~~~~~~~~).                  \\
 \end{tabular}
 \end{Code}
@@ -7481,7 +7481,7 @@ The query \texttt{test(Old)} will succeed unifying \texttt{Old} with
 \texttt{1} and on backtracking with \texttt{2} (i.e. the assignment of the
 value \texttt{2} has not been undone). The query \texttt{testb(Old)} will
 succeed unifying \texttt{Old} with \texttt{1} and on backtracking with
-\texttt{1} (i.e. the assignment of the value \texttt{2} has been undone). 
+\texttt{1} (i.e. the assignment of the value \texttt{2} has been undone).
 
 \SPart{Difference between \texttt{g\_assign/2} and \texttt{g\_link/2}}:
 \texttt{g\_assign/2} (and \texttt{g\_assignb/2}) creates a copy of the term
@@ -7492,7 +7492,7 @@ predicates.
 \begin{Code}
 \begin{tabular}{@{}p{6cm}@{\quad}l@{}}
 test(B) :-                           & test(B) :-                \\
-~~~~~~~~\textit{g\_assign}(b, f(X)), & ~~~~~~~~\textit{g\_link}(b, f(X)), \\ 
+~~~~~~~~\textit{g\_assign}(b, f(X)), & ~~~~~~~~\textit{g\_link}(b, f(X)), \\
 ~~~~~~~~X = 12,                      & ~~~~~~~~X = 12,           \\
 ~~~~~~~~g\_read(b, B).               & ~~~~~~~~g\_read(b, B).    \\
 \end{tabular}
@@ -7501,7 +7501,7 @@ test(B) :-                           & test(B) :-                \\
 The query \texttt{test(B)} will succeed unifying \texttt{B} with
 \texttt{f(\_)} (\texttt{g\_assign/2} assigns a copy of the value). The query
 \texttt{test(B)} will succeed unifying \texttt{B} with \texttt{f(12)}
-(\texttt{g\_link/2} assigns a pointer to the term). 
+(\texttt{g\_link/2} assigns a pointer to the term).
 
 \SPart{Simple array definition}: here are some queries to show how arrays
 can be handled:
@@ -7603,11 +7603,11 @@ X = g_array([10,20,30,4,5,6])
 
 X = g_array([0,foo,0])
 
-| ?- g_assign(t(5), bar), g_read(t,X).                              
+| ?- g_assign(t(5), bar), g_read(t,X).
 
 X = g_array([0,foo,0,0,0,bar,0,0])
 
-| ?- g_assign(t, g_array_auto(2, g_array(2))), g_assign(t(1,1), foo), 
+| ?- g_assign(t, g_array_auto(2, g_array(2))), g_assign(t(1,1), foo),
      g_read(t,X).
 
 X = g_array([g_array([0,0]),g_array([0,foo])])
@@ -7619,7 +7619,7 @@ X = g_array([g_array([0,0]),g_array([0,foo]),g_array([0,0]),g_array([bar,0])])
 | ?- g_assign(t(3,4), bar), g_read(t,X).
 uncaught exception: error(domain_error(g_array_index,t(3,4)),g_assign/2)
 
-| ?- g_assign(t, g_array_auto(2, g_array_auto(2))), g_assign(t(1,1), foo), 
+| ?- g_assign(t, g_array_auto(2, g_array_auto(2))), g_assign(t(1,1), foo),
      g_read(t,X).
 
 X = g_array([g_array([0,0]),g_array([0,foo])])
@@ -7638,7 +7638,7 @@ X = g_array([g_array([null,null]),g_array([null,null]),
 \end{verbatim}
 \end{Indentation}
 
-\subsection{Prolog state} 
+\subsection{Prolog state}
 
 \subsubsection{\texttt{set\_prolog\_flag/2}}
 \label{set-prolog-flag/2}
@@ -7689,7 +7689,7 @@ bounded ? & Y \\
 
 \IdxPFD{integer\_rounding\_function} & \texttt{toward\_zero}
 \linebreak
-                                       \texttt{down} & 
+                                       \texttt{down} &
    \texttt{\textit{rnd}(X)} = integer part of \texttt{X}
    \linebreak
    \texttt{\textit{rnd}(X)} = $\lfloor$\texttt{X$\rfloor$}
@@ -7725,47 +7725,47 @@ Y \\
 \hline
 
 \IdxPFD{prolog\_copyright} & an atom &  copyright message of the Prolog
-system & N \\ 
+system & N \\
 
 \hline
 
-\IdxPFD{dialect} & an atom & fixed to \texttt{gprolog} & N \\ 
+\IdxPFD{dialect} & an atom & fixed to \texttt{gprolog} & N \\
 
 \hline
 
-\IdxPFD{home} & an atom & GNU Prolog home directory & N \\ 
+\IdxPFD{home} & an atom & GNU Prolog home directory & N \\
 
 \hline
 
-\IdxPFD{host\_os} & an atom & Operating System identifier & N \\ 
+\IdxPFD{host\_os} & an atom & Operating System identifier & N \\
 
 \hline
 
-\IdxPFD{host\_vendor} & an atom & Operating System vendor & N \\ 
+\IdxPFD{host\_vendor} & an atom & Operating System vendor & N \\
 
 \hline
 
-\IdxPFD{host\_cpu} & an atom & processor identifier & N \\ 
+\IdxPFD{host\_cpu} & an atom & processor identifier & N \\
 
 \hline
 
-\IdxPFD{host} & an atom & a combination of the OS-vendor-cpu & N \\ 
+\IdxPFD{host} & an atom & a combination of the OS-vendor-cpu & N \\
 
 \hline
 
-\IdxPFD{arch} & an atom & a combination of the OS-cpu & N \\ 
+\IdxPFD{arch} & an atom & a combination of the OS-cpu & N \\
 
 \hline
 
-\IdxPFD{version} & an integer & $Major * 10000 + Minor * 100 + Patch$ & N \\ 
+\IdxPFD{version} & an integer & $Major * 10000 + Minor * 100 + Patch$ & N \\
 
 \hline
 
-\IdxPFD{version\_data} & an structure & \texttt{gprolog(Major,Minor,Patch,Extra)} & N \\ 
+\IdxPFD{version\_data} & a structure & \texttt{gprolog(Major,Minor,Patch,Extra)} & N \\
 
 \hline
 
-\IdxPFD{unix} & \texttt{true} / \texttt{false} & \texttt{true} if the underlying OS is unix-like & N \\ 
+\IdxPFD{unix} & \texttt{true} / \texttt{false} & \texttt{true} if the underlying OS is unix-like & N \\
 
 \hline
 \end{tabular}
@@ -7790,17 +7790,17 @@ activated ? & Y \\
 \hline
 
 \IdxPFD{singleton\_warning} & \texttt{\underline{on}} / \texttt{off} & warn
-about named singleton variables ? & N \\ 
+about named singleton variables ? & N \\
 
 \hline
 
 \IdxPFD{suspicious\_warning} & \texttt{\underline{on}} / \texttt{off} & warn
-about suspicious predicate ? & N \\ 
+about suspicious predicate ? & N \\
 
 \hline
 
 \IdxPFD{multifile\_warning} & \texttt{\underline{on}} / \texttt{off} & warn
-about unsupported multifile directive ? & N \\ 
+about unsupported multifile directive ? & N \\
 
 \hline
 
@@ -8278,7 +8278,7 @@ listing
 predicate indicator is \texttt{Pred}. \texttt{Pred} can also be a single
 atom in which case all predicates whose name is \texttt{Pred} are listed (of
 any arity). This predicate uses \IdxPB{portray\_clause/2}
-\RefSP{portray-clause/2} to output the clauses. 
+\RefSP{portray-clause/2} to output the clauses.
 
 \texttt{listing} lists all clauses of all consulted predicates.
 
@@ -8589,10 +8589,10 @@ many \texttt{/../} consecutive sub-strings (i.e. parent directory relative
 references). Finally if \texttt{File1} is \IdxPK{user} then \texttt{File2}
 is also unified with \texttt{user} to allow this predicate to be called on
 Prolog file names (since \texttt{user} in DEC-10 input/output predicates
-denotes the current input/output stream). 
+denotes the current input/output stream).
 
 Most predicates using a file name implicitly call this predicate to obtain
-the desired file, e.g. \texttt{open/4}. 
+the desired file, e.g. \texttt{open/4}.
 
 \begin{PlErrors}
 
@@ -8629,7 +8629,7 @@ the pathname \texttt{File} and extracts the \texttt{Directory} part
 (characters before the last \texttt{/}), the \texttt{Prefix} part
 (characters after the last \texttt{/} and before the last \texttt{.} or
 until the end if there is no suffix) and the \texttt{Suffix} part
-(characters from the last \texttt{.} to the end of the string). 
+(characters from the last \texttt{.} to the end of the string).
 
 \begin{PlErrors}
 
@@ -8847,7 +8847,7 @@ change\_directory(+atom)
 \Description
 
 \texttt{make\_directory(PathName)} creates the directory whose pathname is
-\texttt{PathName}. 
+\texttt{PathName}.
 
 \texttt{delete\_directory(PathName)} removes the directory whose pathname is
 \texttt{PathName}.
@@ -8891,7 +8891,7 @@ working\_directory(?atom)
 \Description
 
 \texttt{working\_directory(PathName)} succeeds if \texttt{PathName} is the
-pathname of the current directory. 
+pathname of the current directory.
 
 \begin{PlErrors}
 
@@ -9056,7 +9056,7 @@ file\_exists(+atom)
 permissions include \texttt{Permission}.
 
 \SPart{File permissions}: \texttt{Permission} can be a single permission or
-a list of permissions. A permission is an atom among: 
+a list of permissions. A permission is an atom among:
 
 \begin{itemize}
 
@@ -9146,7 +9146,7 @@ the real file name of \texttt{PathName} (follows symbolic links).
 
 \item \IdxPPD[type]{type(Type)}: \texttt{Type} is the type of
   \texttt{PathName}. Possible values are: \IdxPXD{regular},
-  \IdxPXD{directory}, \IdxPXD{fifo}, \IdxPXD{socket}, 
+  \IdxPXD{directory}, \IdxPXD{fifo}, \IdxPXD{socket},
 \IdxPXD{character\_device}, \IdxPXD{block\_device} or \IdxPXD{unknown}.
 
 \item \IdxPPD[size]{size(Size)}: \texttt{Size} is the size (in bytes) of
@@ -9984,7 +9984,7 @@ This set of predicates provides a way to manipulate sockets. The predicates
 are straightforward interfaces to the corresponding BSD-type socket
 functions. This facility is available if the sockets part of GNU Prolog has
 been installed. A reader familiar with BSD sockets will understand them
-immediately otherwise a study of sockets is needed. 
+immediately otherwise a study of sockets is needed.
 
 The domain is either the atom \texttt{'AF\_INET'} or \texttt{'AF\_UNIX'}
 corresponding to the same domains in BSD-type sockets.
@@ -9992,7 +9992,7 @@ corresponding to the same domains in BSD-type sockets.
 An address is either of the form \texttt{'AF\_INET'(HostName, Port)} or
 \texttt{'AF\_UNIX'(SocketName)}. \texttt{HostName} is an atom denoting a
 machine name, \texttt{Port} is a port number and \texttt{SocketName} is an
-atom denoting a socket. 
+atom denoting a socket.
 
 By default, streams associated with sockets are \texttt{block} buffered. The
 predicate \IdxPB{set\_stream\_buffering/2} \RefSP{set-stream-buffering/2}

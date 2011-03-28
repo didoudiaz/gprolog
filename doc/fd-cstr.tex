@@ -89,20 +89,20 @@ Example 1 (\texttt{vector\_max} = \texttt{127}):
 \hline
 
 Constraint on \texttt{X} & Domain of \texttt{X} & \texttt{extra\_cstr}
-& Lost values \\ 
+& Lost values \\
 
 \hline\hline
 
-\texttt{X \#={\lt} 512} & \texttt{0..512} & \texttt{off} & none \\ 
+\texttt{X \#={\lt} 512} & \texttt{0..512} & \texttt{off} & none \\
 
 \hline
 
 \texttt{X \#{\bs}= 10} & \texttt{0..9:11..127} & \texttt{on} &
-\texttt{128..512} \\ 
+\texttt{128..512} \\
 
 \hline
 
-\texttt{X \#={\lt} 100} & \texttt{0..9:11..100} & \texttt{off} & none \\ 
+\texttt{X \#={\lt} 100} & \texttt{0..9:11..100} & \texttt{off} & none \\
 
 \hline
 \end{tabular}
@@ -118,21 +118,21 @@ Example 2:
 \hline
 
 Constraint on \texttt{X} & Domain of \texttt{X} & \texttt{extra\_cstr}
-& Lost values \\ 
+& Lost values \\
 
 \hline
 
-\texttt{X \#={\lt} 512} & \texttt{0..512} & \texttt{off} & none \\ 
+\texttt{X \#={\lt} 512} & \texttt{0..512} & \texttt{off} & none \\
 
 \hline
 
 \texttt{X \#{\bs}= 10} & \texttt{0..9:11..127} & \texttt{on} &
-\texttt{128..512} \\ 
+\texttt{128..512} \\
 
 \hline
 
 \texttt{X \#{\gt}= 256} & \texttt{Warning: Vector too small\ldots} &
-\texttt{on} & \texttt{128..512} \\ 
+\texttt{on} & \texttt{128..512} \\
 
 \hline
 \end{tabular}
@@ -344,7 +344,7 @@ GNU Prolog predicate.
 
 \subsection{Type testing}
 
-\subsubsection{\texttt{fd\_var/1}, \texttt{non\_fd\_var/1}, 
+\subsubsection{\texttt{fd\_var/1}, \texttt{non\_fd\_var/1},
                \texttt{generic\_var/1},
                \texttt{non\_generic\_var/1}}
    \AddFBD{fd\_var/1}
@@ -859,7 +859,7 @@ or 1) nor an FD boolean functor nor reified constraint}
 \ErrTerm{resource\_error(too\_big\_fd\_constraint)}
 
 \ErrCond{a sub-expression is an invalid reified constraint}
-\ErrTermRm{an arithmetic constraint error \RefSP{FD-arithmetic-expressions}} 
+\ErrTermRm{an arithmetic constraint error \RefSP{FD-arithmetic-expressions}}
 
 \end{PlErrors}
 
