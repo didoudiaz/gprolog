@@ -1,5 +1,5 @@
 % generated: 19 November 1989
-% option(s): 
+% option(s):
 %
 %  chat_parser
 %
@@ -40,7 +40,7 @@ string([what,are,the,countries,from,which,a,river,flows,
 
 %  determinate_say
 
-determinate_say(X,Y) :- 
+determinate_say(X,Y) :-
    say(X,Y), !.
 
 
@@ -886,7 +886,7 @@ word(Word) :- loc_pred(Word,_).
 '`'(there).
 '`'(of).
 '`'('`').		% use ` instead of ' to help assembler
-'`'(',').	
+'`'(',').
 '`'(s).
 '`'(than).
 '`'(at).

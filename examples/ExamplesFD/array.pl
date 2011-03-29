@@ -11,7 +11,7 @@
 	% create_array(NL,NC,A)
 	%     NL: nb of lines   NC:nb of columns   A:array
 	%     creates an array (with unbound variables)
- 
+
 create_array(NL, NC, A) :-
 	create_array1(0, NL, NC, A), !.
 
@@ -52,7 +52,7 @@ array_values([L|A], Values) :-
 	% for_each_line(A,P)
 	%     A:array   P: program atom
 	%     calls: array_prog(P,L) for each line L (L is a list)
- 
+
 for_each_line([], _).
 
 for_each_line([L|A], P) :-
@@ -65,7 +65,7 @@ for_each_line([L|A], P) :-
 	% for_each_column(A,P)
 	%     A:array   P: program atom
 	%     calls:  array_prog(P,L) for each column L (L is a list)
- 
+
 for_each_column([[]|_], _) :-
 	!.
 
@@ -86,10 +86,10 @@ create_column([[X|L]|A], [X|C], [L|A1]) :-
 
 
 	% for_each_diagonal(A,NL,NC,P)
-	%     A:array   NL: nb of lines   
+	%     A:array   NL: nb of lines
 	%     NC:nb of columns   P: program atom
 	%     calls:  array_prog(P,D) for each diagonal D (D is a list)
- 
+
 for_each_diagonal(A, NL, NC, P) :-
 	NbDiag is 2 * (NL + NC - 1),            % numbered from 0 to NbDiag-1
 	create_lst_diagonal(0, NbDiag, LD),
@@ -148,7 +148,7 @@ add_in_lst_diagonal(K, NoDiag, X, [D|LD], [D|LD1]) :-
 	%     A:array   N: nb of lines/columns (must be a square)
 	%     P: program atom
 	%     calls:  array_prog(P,D) for each diagonal D (D is a list)
- 
+
 
 for_each_big_diagonal(A, N, P) :-
 	big_diags(A, 0, N, D1, D2),

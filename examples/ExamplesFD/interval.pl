@@ -46,18 +46,20 @@ interval(N, L) :-
 	fd_domain(LD, 1, N1),
 	fd_all_different(L),
 	fd_all_different(LD),
-	
+
 	% avoid mirror symmetry
 	L = [X, Y|_],
 	X #< Y,
-	
+	X #> 0,
+
 	% avoid dual solution (symmetry)
 	LD = [D1|_],
 	last(LD, D2),
 	D1 #> D2,
-	
+
 	% the labeling of LD speeds up a lot if just the first solution is wanted (else remove it)
-	fd_labeling(LD, [value_method(max), backtracks(B)]), write(B), nl,
+	fd_labeling(LD, [value_method(max), backtracks(_B)]),
+	%write(_B), nl,
 
 	% the labeling (useless if only the first solution is wanted, labeling of LD is enough)
 	fd_labeling(L, [variable_method(ff), value_method(middle)]).

@@ -1,5 +1,5 @@
 % generated: 8 March 1990
-% option(s): 
+% option(s):
 %
 %   meta_qsort
 %
@@ -8,17 +8,17 @@
 %   meta-interpret Warren benchmark qsort
 %
 % For any meta-variable ~X~, interpret(~X~) behaves as if
-%   
+%
 %  interpret(~X~):- ~X~.
-%  
+%
 %  Thus, for example, interpret((foo(X), bar(X), !)) behaves as if
-%  
+%
 %  interpret((foo(X), bar(X), !)):- foo(X), bar(X), !.
-%  
+%
 %  Note that though ~X~ may contain cuts, those cuts cannot escape from
 %  interpret(~X~) to effect the parent goal; interpret(!) is equivalent
 %  to true.
-%  
+%
 %  Cuts inside ~X~ are executed according to the rule that conjunction,
 %  disjunction, and if-then-else are transparent to cuts, and any other
 %  form is transparent to cuts if and only if it can be macro-expanded
@@ -37,44 +37,44 @@ meta_qsort(ShowResult) :-
 
 interpret(Goal):-
 	interpret(Goal, Rest),
-	(nonvar(Rest), !, interpret(Rest) 
-             ; 
+	(nonvar(Rest), !, interpret(Rest)
+             ;
 	 true).
 
 
 interpret(G, _):-
-	var(G), 
+	var(G),
 	!,
 	fail.
 
-interpret((A, B), Rest):- 
+interpret((A, B), Rest):-
 	!,
 	interpret(A, Rest0),
 	(nonvar(Rest0) -> Rest = (Rest0, B)
                         ; interpret(B, Rest)).
 
-interpret((A ; B), Rest):- 
+interpret((A ; B), Rest):-
 	!,
 	interpret_disjunction(A, B, Rest).
 
-interpret((A -> B), Rest):- 
+interpret((A -> B), Rest):-
 	!,
 	interpret_disjunction((A -> B), fail, Rest).
 
-interpret(\+A, Rest):- 
+interpret(\+A, Rest):-
 	!,
 	interpret_disjunction((A -> fail), true, Rest).
 
-interpret(!, true):- 
+interpret(!, true):-
 	!.
 
 interpret(G, _):-
-	integer(G), 
+	integer(G),
 	!,
 	fail.
 
 interpret(G, _):-
-	is_built_in(G), 
+	is_built_in(G),
 	!,
 	interpret_built_in(G).
 
@@ -83,7 +83,7 @@ interpret(G, _):-
 	interpret(Body).
 
 interpret_disjunction((A -> B), _, Rest):-
-	interpret(A, Rest0), 
+	interpret(A, Rest0),
 	!,
 	(nonvar(Rest0) -> Rest = (Rest0 -> B)
 	               ; interpret(B, Rest)).

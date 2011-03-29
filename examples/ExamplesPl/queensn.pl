@@ -8,7 +8,7 @@ queensn(ShowResult) :-
 
 
 
-q8(R) :-	
+q8(R) :-
 	q([1,2,3,4,5,6,7,8], R).
 
 q10(R) :-
@@ -16,7 +16,7 @@ q10(R) :-
 
 
 q(L,C):-
-	perm(L,P), 
+	perm(L,P),
 	pair(L,P,C),
 	safe([],C).
 
@@ -26,13 +26,13 @@ q(L,C):-
 perm([],[]).
 
 perm(Xs,[Z|Zs]):-
-	sel(Z,Xs,Ys), 
+	sel(Z,Xs,Ys),
 	perm(Ys,Zs).
 
 
 
 
-sel(X,[X|Xs],Xs).    
+sel(X,[X|Xs],Xs).
 
 sel(X,[Y|Ys],[Y|Zs]):-
 	sel(X,Ys,Zs).
@@ -67,7 +67,7 @@ test([R|S],Q):-
 
 
 nd(p(C1,R1),p(C2,R2)):-
-	C  is C1-C2, 
+	C  is C1-C2,
 	R  is R1-R2, C=\=R,
 	NR is R2-R1, C=\=NR.
 

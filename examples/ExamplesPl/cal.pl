@@ -20,7 +20,7 @@ cal(ShowResult):-
 	day_of_week(1993,4,9,Day),
 	(   ShowResult = true ->
 	    write('April 9, 1993 is: '),
-	    write(Day), 
+	    write(Day),
 	    write(' fools_days = '), write(N), nl
 	;   true),
 	empty_loop(N),
@@ -87,7 +87,7 @@ compute_it(Year,Day,Key,LeapC,DayOfWeek):-
 	YearInCentury is Year - Century * 100,
 	DOW0 is (Century * 5 + Century // 4 +
 	         YearInCentury + YearInCentury // 4 +
-	         Day + Key) 
+	         Day + Key)
 	         mod 7,
 	leap_year(Year,DOW0,LeapC,DayOfWeek).
 

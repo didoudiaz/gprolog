@@ -1,5 +1,5 @@
 % generated: 10 November 1989
-% option(s): 
+% option(s):
 %
 %   (queens) queens_8
 %
@@ -19,7 +19,7 @@
 %   the observation that any solution of the problem has exactly one queen
 %   in each column.
 %
-%   The program distinguishes symmetric solutions.  For example, 
+%   The program distinguishes symmetric solutions.  For example,
 %
 %   ?- queens(4, Qs).
 %
@@ -61,7 +61,7 @@ not_attack(Xs,X):-
 not_attack([],_,_).
 
 not_attack([Y|Ys],X,N):-
-	X =\= Y+N, 
+	X =\= Y+N,
 	X =\= Y-N,
 	N1 is N+1,
 	not_attack(Ys,X,N1).

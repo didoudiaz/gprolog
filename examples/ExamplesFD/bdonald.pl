@@ -120,7 +120,7 @@ dcb_add(CI, [X3, X2, X1, X0], [Y3, Y2, Y1, Y0], [Z3, Z2, Z1, Z0], CO) :-
 	full_add(D2, I2, Hex, Z2, D3),
 	half_add(D3, I3, Z3, D4),
 	C4 #\/ D4 #<=> CO.
-	
+
 
 
 

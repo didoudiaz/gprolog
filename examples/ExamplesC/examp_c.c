@@ -6,20 +6,33 @@
  * Descr.: test file - C part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2010 Daniel Diaz                                     *
+ * Copyright (C) 1999-2011 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU Lesser General Public License as published   *
- * by the Free Software Foundation; either version 3, or any later version.*
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU Lesser General Public License*
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 /* $Id$ */
@@ -53,7 +66,7 @@
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PlBool
-first_occurrence(char *str, long c, long *pos)
+first_occurrence(char *str, PlLong c, PlLong *pos)
 {
   char *p;
 
@@ -62,7 +75,7 @@ first_occurrence(char *str, long c, long *pos)
     return PL_FALSE;		/* fail */
 
   *pos = p - str;		/* set the output argument */
-  return PL_TRUE;			/* succeed */
+  return PL_TRUE;		/* succeed */
 }
 
 
@@ -73,26 +86,26 @@ first_occurrence(char *str, long c, long *pos)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PlBool
-occurrence(char *str, long c, long *pos)
+occurrence(char *str, PlLong c, PlLong *pos)
 {
   char **info_pos;
   char *p;
 
   info_pos = Pl_Get_Choice_Buffer(char **); /* recover the buffer */
 
-  if (Pl_Get_Choice_Counter() == 0)	/* first invocation ? */
+  if (Pl_Get_Choice_Counter() == 0) /* first invocation ? */
     *info_pos = str;
 
   p = strchr(*info_pos, c);
   if (p == NULL)		/* C does not appear */
     {
-      Pl_No_More_Choice();		/* remove choice-point */
+      Pl_No_More_Choice();	/* remove choice-point */
       return PL_FALSE;		/* fail */
     }
 
   *pos = p - str;		/* set the output argument */
   *info_pos = p + 1;		/* update next starting pos */
-  return PL_TRUE;			/* succeed */
+  return PL_TRUE;		/* succeed */
 }
 
 
@@ -103,7 +116,7 @@ occurrence(char *str, long c, long *pos)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PlBool
-occurrence2(char *str, long c, long *pos)
+occurrence2(char *str, PlLong c, PlLong *pos)
 {
   char **info_pos;
   char *p;
@@ -116,7 +129,7 @@ occurrence2(char *str, long c, long *pos)
       if (p == NULL)		/* C does not appear at all */
 	{
 	  Pl_No_More_Choice();	/* remove choice-point */
-	  return PL_FALSE;		/* fail */
+	  return PL_FALSE;	/* fail */
 	}
 
       *info_pos = p;
@@ -126,11 +139,11 @@ occurrence2(char *str, long c, long *pos)
 
   p = strchr(*info_pos + 1, c);
   if (p == NULL)		/* no more occurrence */
-    Pl_No_More_Choice();		/* remove choice-point */
+    Pl_No_More_Choice();	/* remove choice-point */
   else
     *info_pos = p;		/* else update next solution */
 
-  return PL_TRUE;			/* succeed */
+  return PL_TRUE;		/* succeed */
 }
 
 
@@ -154,7 +167,7 @@ char_ascii(PlFIOArg *c, PlFIOArg *ascii)
     Pl_Err_Instantiation();	/* emit instantiation_error */
 
   c->value.l = ascii->value.l;	/* set Char */
-  return PL_TRUE;			/* succeed */
+  return PL_TRUE;		/* succeed */
 }
 
 

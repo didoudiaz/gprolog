@@ -23,7 +23,7 @@ my_append([X|L1],L2,[X|L3]):-
 
 
 /* commented since it is defined in common.pl
-get_cpu_time(T) :- 
+get_cpu_time(T) :-
 	statistics(runtime,[T|_]).
 */
 
@@ -74,8 +74,8 @@ data(X):-
 data([],0).
 
 data([a|Y],N):-
-	N > 0, 
-	N1 is N-1, 
+	N > 0,
+	N1 is N-1,
 	data(Y,N1).
 
 
@@ -84,8 +84,8 @@ data([a|Y],N):-
 repeat(_N).
 
 repeat(N):-
-	N > 1, 
-	N1 is N-1, 
+	N > 1,
+	N1 is N-1,
 	repeat(N1).
 
 

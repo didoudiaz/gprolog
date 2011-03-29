@@ -131,7 +131,7 @@ srq(L, Lab) :-
 
 
 
-	
+
 lab(normal, L) :-
 	fd_labeling(L).
 

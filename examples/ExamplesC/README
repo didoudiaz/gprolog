@@ -14,18 +14,21 @@ WINDOWS
 -------
 
 In Microsoft Windows if you intend to use the gplc compiler as described in
-the documentation you need to ascertain the following conditions are
+the documentation you need to be certain the following conditions are
 met:
 
-   - for the port compiled with MS Visual C++ (tested with version
-     6.0) you'll need to have NASM (the Netwide Assembler available at
-     http://nasm.sourceforge.net/) installed and the 'cl' compiler
-     (used mainly as linker by GNU Prolog) available in your session
-     path.
+   - for the port compiled with MS Visual C++ you need the 'cl' compiler
+     (must be available from your PATH).
 
-   - for the ports compiled either with MinGW or Cygwin, the gcc
-     toolchain must be installed and available in your session
-     path.
+   - for the port compiled with MinGW you need the MinGW gcc toolchain
+     (must be available from your PATH).
+
+   - For any version you need the MinGW assembler (called as.exe). 
+     Copy it under a directory somewhere inside your PATH under the 
+     name mingw-as.exe.
+     A version can be found at: http://gprolog.org/mingw-as.exe
+
+It is a good idea to read src/WNIDOWS (maybe src/WINDOWS64) file before.
 
 Observing these needs you'll also will be able to do the mixed
 language programming, as the examples included in the ExamplesC

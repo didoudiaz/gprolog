@@ -154,7 +154,7 @@ cstr_pow([X|L], P, S) :-
  * sum of n first integers: s1(n) = n * (n+1) / 2
  * sum of n first squares : s2(n) = n * (n+1) * (2*n+1)/ 6
  * sum of n first cubes   : s3(n) = n^2 * (n+1)^2 / 4 = s1(n)^2
- * sum of n fisrt pow 4   : s4(n) = n * (n+1) * (6*n^3 + 9*n^2 + n - 1 ) / 30 
+ * sum of n fisrt pow 4   : s4(n) = n * (n+1) * (6*n^3 + 9*n^2 + n - 1 ) / 30
  */
 
 
@@ -230,7 +230,7 @@ all(N, T0) :-
 	fail.
 
 
-all(N, T0) :-	
+all(N, T0) :-
 	g_read(nb, NB),
 	format('\nfinal for partit ~d:\n\n', [N]),
 	show_time(NB, T0).
@@ -274,8 +274,8 @@ disp_time([M-U|LM], T, _) :-
 	format(' ~d~a', [N, U]),
 	disp_time(LM, T1, something_is_displayed).
 
-	
-	
-					  
+
+
+
 
 

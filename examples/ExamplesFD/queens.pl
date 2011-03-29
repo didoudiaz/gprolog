@@ -55,7 +55,7 @@ safe([X|L]) :-
 noattack([], _, _).
 
 /*
-% faster than the original PVH's version 
+% faster than the original PVH's version
 
 noattack([Y|L],X,I):-
 	I1 is I+1,

@@ -18,7 +18,7 @@ tak_gvar(ShowResult) :-
 	    write(tak(18,12,6)=R), nl
 	;   true).
 
-init_tak_array:- 
+init_tak_array:-
 	g_assign(tak,g_array_auto(20,g_array_auto(20,g_array_auto(20,null)))).
 
 

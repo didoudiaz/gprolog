@@ -3,7 +3,7 @@
 q :-
 	(   get_count(Count)
         ;   Count = 1
-        ), 
+        ),
 	!,
 	do_bench(Count).
 
