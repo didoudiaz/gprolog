@@ -1,8 +1,8 @@
-			Windows 64 compilation/installation instructions
+	Windows 64 compilation/installation instructions
                          Daniel Diaz
 
 
-NB: Please read the WINDOWS file first !
+NB: Please read the src/WINDOWS file first !
 
 This file only documents the 64 bits specific part.
 
@@ -17,7 +17,7 @@ as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
 from http://mingw-w64.sourceforge.net/ or, for cygwin, with the cygwin setup.exe 
 utility (selecting the mingw package).
 
-With the gywin package things are installed in:
+With the cygwin package things are installed in:
 
    /usr/x86_64-w64-mingw32/  and in  /usr/i686-w64-mingw32/
       bin
@@ -29,6 +29,15 @@ With the gywin package things are installed in:
       sys-root/mingw/include
       sys-root/mingw/lib
 
+the toolchain executables are all prefixed with:
+
+   x86_64-w64-mingw32 (e.g. x86_64-w64-mingw32-gcc.exe) 
+
+and with
+
+   i686-w64-mingw32 (e.g. i686-w64-mingw32-gcc.exe)
+
+
 
 Configuration
 -------------
@@ -37,6 +46,9 @@ Open a cygwin shell and go to GNU Prolog source directory:
 
 type 
     ./configure --host=x86_64-w64-mingw32
+
+NB: with this configuration all needed tools (gcc, ar, ...) are first searched 
+prefixed with x86_64-w64-mingw32 (as provided by the cygwin package).
 
 then
     make
