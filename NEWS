@@ -1,6 +1,13 @@
 Change in GNU Prolog version 1.4.0:
 
-* GNU Prolog is now licensed under LGPL
+* GNU Prolog is now licensed under LGPL or GPL
+* port to x86_64/MinGW - many thanks to:
+  Jasper Taylor <jasper@simulistics.com>
+* add a configure option to control Windows HtmlHelp 
+  --disable-htmlhelp or --enable-htmlhelp[=static/dynamic]
+* improve a lot (and fix some bugs in) the Windows GUI Console
+* increase default stack sizes (32Mb for heap, 16Mb for others)
+* fix a bug in the compiler (bad unification with singleton variable)
 * rename evaluable functor atan/2 as atan2/2 and >< as xor
 * add evaluable functor div/2
 * detect op/3 error cases for | [] {}
