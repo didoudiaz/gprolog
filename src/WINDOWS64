@@ -35,14 +35,14 @@ the toolchain executables are all prefixed with:
 
 and with
 
-   i686-w64-mingw32 (e.g. i686-w64-mingw32-gcc.exe)
+   i686-w64-mingw32   (e.g. i686-w64-mingw32-gcc.exe)
 
 
 
 Configuration
 -------------
 
-Open a cygwin shell and go to GNU Prolog source directory:
+Open a Cygwin shell and go to GNU Prolog source directory:
 
 type 
     ./configure --host=x86_64-w64-mingw32
