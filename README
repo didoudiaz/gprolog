@@ -9,12 +9,12 @@ INTRODUCTION
 ************
 
 GNU Prolog is a native Prolog compiler with constraint solving over finite
-domains (FD) developed by Daniel Diaz (http://loco.inria.fr/~diaz).
+domains (FD) developed by Daniel Diaz (http://cri-dist.univ-paris1.fr/diaz/)
 Last information can be found at http://www.gnu.org/software/prolog
 or better at http://www.gprolog.org.
 
 A lot of work has been devoted to the ISO compatibility. GNU Prolog is very
-close to the ISO standard (http://www.logic-programming.org/prolog_std.html).
+close to the ISO standard.
 
 Here are some features of GNU Prolog:
 
@@ -74,6 +74,7 @@ GNU Prolog is currently ported to the following architectures:
    - ix86 / Darwin (Mac OS X)
    - x86_64 / GNU/Linux
    - x86_64 / Solaris
+   - x86_64 / Win64 using MinGW64 (see file src/WINDOWS64)
    - PowerPC / GNU/Linux
    - PowerPC / Darwin (Mac OS X)
    - PowerPC / NetBSD

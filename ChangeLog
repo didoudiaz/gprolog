@@ -1,8 +1,8 @@
 Tue Mar 29 11:26:42 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 
 	* GNU Prolog is now licensed under LGPL or GLP
-	* port to x86_64/MinGW - many thanks to:
-	  Jasper Taylor <jasper@simulistics.com>
+	* port to x86_64/MinGW64 - many thanks to:
+	  Jasper Taylor <jasper@simulistics.com> (see src/WINDOWS64)
 	* add a configure option to control Windows HtmlHelp 
 	  --disable-htmlhelp or --enable-htmlhelp[=static/dynamic]
 	* improve a lot (and fix some bugs in) the Windows GUI Console

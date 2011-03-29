@@ -2,7 +2,7 @@ Change in GNU Prolog version 1.4.0:
 
 * GNU Prolog is now licensed under LGPL or GPL
 * port to x86_64/MinGW - many thanks to:
-  Jasper Taylor <jasper@simulistics.com>
+  Jasper Taylor <jasper@simulistics.com> (see src/WINDOWS64)
 * add a configure option to control Windows HtmlHelp 
   --disable-htmlhelp or --enable-htmlhelp[=static/dynamic]
 * improve a lot (and fix some bugs in) the Windows GUI Console
