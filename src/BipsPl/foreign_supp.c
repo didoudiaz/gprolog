@@ -174,7 +174,7 @@ Pl_Foreign_Jump_Ret(CodePtr codep)
  *-------------------------------------------------------------------------*/
 PlFIOArg *
 Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
-		  int fio_arg_index)
+		     int fio_arg_index)
 {
   WamWord word, tag_mask;
   PlFIOArg *fa = fio_arg_array + fio_arg_index;
@@ -209,7 +209,7 @@ Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
-		  WamWord start_word)
+		     WamWord start_word)
 {
   if (!fa->unify)
     return TRUE;
