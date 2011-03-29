@@ -42,9 +42,23 @@ option required to specify an additional include directory
 
 \OneLine{\% gplc -C -I\textrm{include\_dir ...}}
 
-The file \texttt{gprolog.h} declares the C boolean type \texttt{PlBool} as an
-integer and the constants \texttt{PL\_FALSE} (i.e. 0) and \texttt{PL\_TRUE}
+The file \texttt{gprolog.h} declares the following C types:
+
+\begin{itemize}
+
+\item \texttt{PlBool} as an integer and the constants \texttt{PL\_FALSE} (i.e. 0) and \texttt{PL\_TRUE}
 (i.e. 1).
+
+\item \texttt{PlLong} as an integer able to store a pointer (equivalent to
+  \texttt{intptr\_t}). This type appeared in GNU Prolog 1.4.0 in replacement
+  of \texttt{long} to support Windows 64 bits (where the \texttt{long} type is only
+  32 bits). This type is used to handle integer types.
+
+\item \texttt{PlULong} same as \texttt{PlLong} but unsigned (same as \texttt{uintptr\_t}).
+
+\item \texttt{PlTerm} same as \texttt{intptr\_t}. This type is used to store general Prolog terms.
+
+\end{itemize}
 
 
 \textbf{New in GNU Prolog 1.3.1 and backward compatibility issues}: in
@@ -94,14 +108,13 @@ In addition, \texttt{gprolog.h} defines a set of macros:
   \texttt{"GNU Prolog"}).
 
 \item \texttt{PL\_PROLOG\_VERSION}: a C constant string associated to the
-  version (e.g. \texttt{"1.3.1"}).
+  version (e.g. \texttt{"1.4.0"}).
 
 \item \texttt{PL\_PROLOG\_DATE}: a C constant string associated with the date
-  of this version (e.g. \texttt{"Oct 10 2008"}.
+  of this version (e.g. \texttt{"Mar 29 2011"}.
 
 \item \texttt{PL\_PROLOG\_COPYRIGHT}: a C constant string associated with the
-  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2010 Daniel
-    Diaz"}.
+  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2011 Daniel Diaz"}.
 
 \end{itemize}
 
@@ -208,11 +221,11 @@ Foreign type & Prolog type & C type & Description of the C type \\
 
 \hline\hline
 
-\texttt{integer} & integer & \texttt{long} & value of the integer \\
+\texttt{integer} & integer & \texttt{PlLong} & value of the integer \\
 
 \hline
 
-\texttt{positive} & positive integer & \texttt{long} & value of the integer
+\texttt{positive} & positive integer & \texttt{PlLong} & value of the integer
 \\
 
 \hline
@@ -226,40 +239,40 @@ floating point number \\
 
 \hline
 
-\texttt{atom} & atom & \texttt{int} & internal key of the atom \\
+\texttt{atom} & atom & \texttt{PlLong} & internal key of the atom \\
 
 \hline
 
-\texttt{boolean} & boolean & \texttt{int} & value of the boolean
+\texttt{boolean} & boolean & \texttt{PlLong} & value of the boolean
 (0=\texttt{false}, 1=\texttt{true}) \\
 
 \hline
 
-\texttt{char} & character & \texttt{int} & value of (the code of) the
+\texttt{char} & character & \texttt{PlLong} & value of (the code of) the
 character \\
 
 \hline
 
-\texttt{code} & character code & \texttt{int} & value of the character-code
+\texttt{code} & character code & \texttt{PlLong} & value of the character-code
 \\
 
 \hline
 
-\texttt{byte} & byte & \texttt{int} & value of the byte \\
+\texttt{byte} & byte & \texttt{PlLong} & value of the byte \\
 
 \hline
 
-\texttt{in\_char} & in-character & \texttt{int} & value of the character or
+\texttt{in\_char} & in-character & \texttt{PlLong} & value of the character or
 \texttt{-1} for end-of-file \\
 
 \hline
 
-\texttt{in\_code} & in-character code & \texttt{int} & value of the
+\texttt{in\_code} & in-character code & \texttt{PlLong} & value of the
 character-code or \texttt{-1} for end-of-file \\
 
 \hline
 
-\texttt{in\_byte} & in-byte & \texttt{int} & value of the byte or
+\texttt{in\_byte} & in-byte & \texttt{PlLong} & value of the byte or
 \texttt{-1} for the end-of-file \\
 
 \hline
@@ -293,8 +306,9 @@ writing of the C function.
 \SPart{Complex foreign type}: type foreign type \texttt{term} refers to any
 Prolog term (e.g. lists, structures\ldots). When such an type is
 specified the argument is passed to the C function as a \texttt{PlTerm}
-(GNU Prolog C type equivalent to a \texttt{long}). Several functions are
-provided to manipulate \texttt{PlTerm} variables \RefSP{Manipulating-Prolog-terms}. Since the original term is passed to the function it is
+(GNU Prolog C type equivalent to a \texttt{PlLong}). Several functions are
+provided to manipulate \texttt{PlTerm} variables \RefSP{Manipulating-Prolog-terms}. 
+Since the original term is passed to the function it is
 possible to read its value or to unify it. So the meaning of the mode symbol
 is less significant. For this reason it is possible to omit the mode symbol.
 In that case \texttt{term} is equivalent to \texttt{+term}.
@@ -334,7 +348,7 @@ raised.
 \texttt{domain\_error(not\_less\_than\_zero, Arg)} is raised.
 
 \item otherwise the value of \texttt{Arg} is passed to the C is passed to
-the C function as an integer (\texttt{long}).
+the C function as an integer (\texttt{PlLong}).
 
 \end{itemize}
 
@@ -362,7 +376,7 @@ is handled as follows:
 \item if \texttt{Arg} is an integer $<$ 0 a
 \texttt{domain\_error(not\_less\_than\_zero, Arg)} is raised.
 
-\item otherwise a pointer to an integer (\texttt{long} \texttt{*}) is passed
+\item otherwise a pointer to an integer (\texttt{PlLong} \texttt{*}) is passed
 to the C function. If the function returns \texttt{PL\_TRUE} the integer stored
 at this location is unified with \texttt{Arg}.
 
@@ -388,7 +402,7 @@ typedef struct
      PlBool unify;
      union
         {
-         long   l;
+         PlLong l;
          char  *s;
          double d;
         }value;
@@ -406,7 +420,7 @@ non-variable argument will not) but it can be modified by the C function.
 The field \texttt{value} stores the value of the argument. It is declared as
 a C \texttt{union} since there are several kinds of value types. The field
 \texttt{s} is used for C strings, \texttt{d} for C doubles and \texttt{l}
-otherwise (\texttt{int}, \texttt{long}, \texttt{PlTerm}). if \texttt{is\_var}
+otherwise (\texttt{int}, \texttt{PlLong}, \texttt{PlTerm}). if \texttt{is\_var}
 is \texttt{PL\_FALSE} then \texttt{value} contains the input value of the
 argument with the same conventions as for input arguments
 \RefSP{Input-arguments}.  At the exit of the function, if unify is
@@ -452,7 +466,7 @@ the function. The interface maintains a buffer to record such an
 information. The size of this buffer is given by
 \IdxPO[choice\_size]{choice\_size(N)} when using \texttt{foreign/2}
 \RefSP{foreign/2-directive}. This size is the number of (consecutive)
-\texttt{long}\emph{s} needed by the C function. Inside the function it is
+\texttt{PlLong}\emph{s} needed by the C function. Inside the function it is
 possible to call the following functions/macros:
 
 \begin{Indentation}
@@ -494,7 +508,7 @@ In the C file \texttt{examp\_c.c}:
 #include <gprolog.h>
 
 PlBool
-first_occurrence(char *str, long c, long *pos)
+first_occurrence(char *str, PlLong c, PlLong *pos)
 {
   char *p;
 
@@ -554,7 +568,7 @@ In the C file \texttt{examp\_c.c}:
 #include <gprolog.h>
 
 PlBool
-occurrence(char *str, long c, long *pos)
+occurrence(char *str, PlLong c, PlLong *pos)
 {
   char **info_pos;
   char *p;
@@ -619,7 +633,7 @@ In the C file \texttt{examp\_c.c}:
 #include <gprolog.h>
 
 PlBool
-occurrence2(char *str, long c, long *pos)
+occurrence2(char *str, PlLong c, PlLong *pos)
 {
   char **info_pos;
   char *p;
@@ -673,7 +687,7 @@ in both directions the character \texttt{Char} and its character-code
 
 In the prolog file \texttt{examp.pl}:
 
-\OneLine{:- foreign(char\_ascii(?char, ?code), [fct\_name('Char\_Ascii')]).}
+\OneLine{:- foreign(char\_ascii(?char, ?code)).}
 
 In the C file \texttt{examp\_c.c}:
 
@@ -835,8 +849,8 @@ interface when an input argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-long    Pl_Rd_Integer_Check  (PlTerm term)
-long    Pl_Rd_Positive_Check (PlTerm term)
+PlLong  Pl_Rd_Integer_Check  (PlTerm term)
+PlLong  Pl_Rd_Positive_Check (PlTerm term)
 double  Pl_Rd_Float_Check    (PlTerm term)
 double  Pl_Rd_Number_Check   (PlTerm term)
 int     Pl_Rd_Atom_Check     (PlTerm term)
@@ -889,8 +903,8 @@ interface when an output argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-PlBool Pl_Un_Integer_Check (long n,          PlTerm term)
-PlBool Pl_Un_Positive_Check(long n,          PlTerm term)
+PlBool Pl_Un_Integer_Check (PlLong n,          PlTerm term)
+PlBool Pl_Un_Positive_Check(PlLong n,          PlTerm term)
 PlBool Pl_Un_Float_Check   (double n,        PlTerm term)
 PlBool Pl_Un_Number_Check  (double n,        PlTerm term)
 PlBool Pl_Un_Atom_Check    (int atom,        PlTerm term)
@@ -1016,8 +1030,8 @@ a \texttt{PlTerm} containing the created term.
 
 \begin{Indentation}
 \begin{verbatim}
-PlTerm Pl_Mk_Integer (long n)
-PlTerm Pl_Mk_Positive(long n)
+PlTerm Pl_Mk_Integer (PlLong n)
+PlTerm Pl_Mk_Positive(PlLong n)
 PlTerm Pl_Mk_Float   (double n)
 PlTerm Pl_Mk_Number  (double n)
 PlTerm Pl_Mk_Atom    (int atom)
@@ -1078,7 +1092,7 @@ PlBool Pl_Builtin_Non_Fd_Var          (PlTerm term)
 PlBool Pl_Builtin_Generic_Var         (PlTerm term)
 PlBool Pl_Builtin_Non_Generic_Var     (PlTerm term)
 int    Pl_Type_Of_Term                (PlTerm term)
-long   Pl_List_Length                 (PlTerm list)
+PlLong   Pl_List_Length                 (PlTerm list)
 \end{verbatim}
 \end{Indentation}
 
@@ -1132,7 +1146,7 @@ are equal and a positive integer otherwise:
 
 \begin{Indentation}
 \begin{verbatim}
-long Term_Compare(PlTerm term1, PlTerm term2)
+PlLong Term_Compare(PlTerm term1, PlTerm term2)
 \end{verbatim}
 \end{Indentation}
 
