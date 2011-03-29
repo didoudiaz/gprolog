@@ -2,6 +2,8 @@
 
 #include "gp_config.h"
 
+
+#define HAVE_WORKING_SIGACTION 1
 #define MAP_REG_BANK		"r12"
 
 #define MAP_REG_TR        	"r13"

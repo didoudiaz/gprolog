@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include "pl_long.h"
+
 #define BAD_ADDR  0xFEA4F
 
 void
