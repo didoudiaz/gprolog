@@ -81,7 +81,7 @@ static WamWord **query_stack_top = query_stack;
 static WamWord *goal_H;
 
 WamWord *pl_query_top_b;		/* overwrite var of throw_c.c */
-WamWord pl_query_exception;	/* overwrite var of throw_c.c */
+WamWord pl_query_exception;		/* overwrite var of throw_c.c */
 
 
 
