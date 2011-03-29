@@ -86,6 +86,10 @@ extern "C" {
 
 typedef enum { PL_FALSE, PL_TRUE } PlBool;
 
+typedef intptr_t PlLong;
+
+typedef intptr_t PlTerm;
+
 typedef struct
 {
   PlBool is_var;
@@ -99,13 +103,6 @@ typedef struct
   value;
 }
 PlFIOArg;
-
-
-#define __PL_LONG_TYPE__
-typedef intptr_t PlLong;
-
-#define __PL_TERM_TYPE__
-typedef intptr_t PlTerm;
 
 
 /*---------------------------------*

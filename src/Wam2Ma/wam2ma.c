@@ -1884,8 +1884,7 @@ F_foreign_call_c(ArgVal arg[])
 	case FOREIGN_MODE_IN:
 	  if (n != FOREIGN_TYPE_TERM)
 	    {
-	      Inst_Printf("call_c", "Pl_Rd_%s_Check(X(%d))",
-			  foreign_tbl[n], i);
+	      Inst_Printf("call_c", "Pl_Rd_%s_Check(X(%d))", foreign_tbl[n], i);
 	      Inst_Printf("move_ret", "F%c(%d)", c, i);
 
 	      if (s_dup)
