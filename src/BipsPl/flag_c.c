@@ -211,7 +211,12 @@ Flag_Initializer(void)
   Flag_Value(FLAG_STRICT_ISO) = 0;
 
   Flag_Value(FLAG_DOUBLE_QUOTES) = FLAG_AS_CODES;
-  Flag_Value(FLAG_BACK_QUOTES) = FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK;
+
+  /* DON'T CHANGE this FLAG_BACK_QUOTES default: NO_ESCAPE is useful under
+   * Windows when assoc .pl to gprolog (see InnoSetup) and avoid \
+   * to be misinterpreted in pathnames (e.g. c:\foo\bar).
+   */
+  Flag_Value(FLAG_BACK_QUOTES) = FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK; 
 
 #ifndef NO_USE_LINEDIT
   SYS_VAR_LINEDIT = 1;

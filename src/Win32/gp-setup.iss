@@ -11,12 +11,11 @@ AppUpdatesURL=http://www.gprolog.org
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
-SourceDir=\gprolog_win32
-OutputDir=
-OutputBaseFileName=setup-gprolog-1.4.0-
+SourceDir=C:\cygwin\tmp\gprolog_win32
+OutputDir=C:\cygwin\tmp
+OutputBaseFileName=setup-gprolog-1.4.0-msvc-x64
 
-; TO DO: create an association for .pl and .pro files
-; ChangesAssociations=yes
+ChangesAssociations=yes
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
@@ -52,14 +51,21 @@ Name: "{userdesktop}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"; MinVersion:
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version"; ValueData: "1.4.0"
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "RootPath"; ValueData: "{app}"
 
+; create an association for .pl and .pro files
+
+Root: HKCR; Subkey: ".pl"; ValueType: string; ValueName: ""; ValueData: "PrologFile"; Flags: uninsdeletevalue
+Root: HKCR; Subkey: ".pro"; ValueType: string; ValueName: ""; ValueData: "PrologFile"; Flags: uninsdeletevalue
+Root: HKCR; Subkey: "PrologFile"; ValueType: string; ValueName: ""; ValueData: "Prolog File"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "PrologFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bin\gprolog.exe,0"
+Root: HKCR; Subkey: "PrologFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\gprolog.exe"" --entry-goal ""consult(`%1`)"""
+
+
 [Run]
-Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"" install"; Description: "Create {sd}\gprologvars.bat"
+Filename: "{app}\bin\create_bat.exe"; Parameters: """{app}"""; Description: "Create {app}\gprologvars.bat"
 Filename: "{app}\bin\gprolog.exe"; Description: "Launch GNU Prolog"; Flags: nowait postinstall skipifsilent
 
-[UninstallRun]
-Filename: "{app}\bin\create_bat.exe"; Parameters: """{sd}"" ""{app}"" uninstall"
-
 [UninstallDelete]
+Type: files; Name: "{app}\gprologvars.bat"
 Type: files; Name: "{app}\gprolog.url"
 
 

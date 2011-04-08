@@ -42,6 +42,8 @@
 
 WamWord *pl_ensure_reserved;
 
+#if !(defined(M_x86_64) && defined(_MSC_VER))/* see file eng1-x86_64_win.s */
+
 
 /*-------------------------------------------------------------------------*
  * Call_Compiled invokes a Prolog code.                                    *
@@ -58,12 +60,13 @@ WamWord *pl_ensure_reserved;
  *                                                                         *
  * This functions is in a separate file for historical reasons. In versions*
  * <= 1.2.4, this file was compiled without any C compiler optimization to *
- * ensure reserved_stack_space was not removed but the C compiler. In order*
+ * ensure reserved_stack_space was not removed by the C compiler. In order *
  * to use ebp under ix86 it must be compiled with -fomit-frame-pointer. The*
  * simpliest way was to use the same C compiler invocation but adding a    *
  * global variable to ensure the stack is not removed.                     *
  *-------------------------------------------------------------------------*/
 
+static long x;
 void
 Pl_Call_Compiled(CodePtr codep)
 {
@@ -84,7 +87,7 @@ Pl_Call_Compiled(CodePtr codep)
   register WamWord *rb asm("%ebx") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && defined(M_ix86)
 
   _asm mov ebx, pl_reg_bank
 
@@ -113,11 +116,6 @@ Pl_Call_Compiled(CodePtr codep)
   register WamWord *rb asm("%l0") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_x86_64)
-
-  register WamWord *rb asm("%r12") = pl_reg_bank;
-  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
-
 #endif
 
 #endif
@@ -126,11 +124,11 @@ Pl_Call_Compiled(CodePtr codep)
 #if defined(M_ix86_darwin)	/* see comment in Ma2Asm/ix86_any.c */
   asm("andl $0xfffffff0,%esp");
   asm("addl $4,%esp");
-#elif defined(M_x86_64)		/* see comment in Ma2Asm/x86_64_any.c */
+#elif defined(M_x86_64) && !defined(_MSC_VER)		/* see comment in Ma2Asm/x86_64_any.c */
   asm("andq $0xfffffffffffffff0,%rsp");
   asm("addq $8,%rsp");
 #endif
 
   (*codep) ();
-
 }
+#endif

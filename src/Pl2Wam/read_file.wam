@@ -2,7 +2,7 @@
 % file    : read_file.pl
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/read_file.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/Pl2Wam/read_file.pl').
 
 
 predicate(read_file_init/1,128,static,private,monofile,global,[

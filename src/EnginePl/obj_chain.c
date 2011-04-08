@@ -226,6 +226,10 @@ Accumulate_Objects(void) {
 void
 Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ())
 {
+#ifdef DEBUG
+  DBGPRINTF("\n--> Pl_New_Object  obj_init:%p  exec_sys:%p   exec_user:%p\n",
+            fct_obj_init, fct_exec_system, fct_exec_user);
+#endif
   obj_tbl[nb_obj].fct_obj_init = fct_obj_init;
   obj_tbl[nb_obj].fct_exec_system = fct_exec_system;
   obj_tbl[nb_obj].fct_exec_user = fct_exec_user;

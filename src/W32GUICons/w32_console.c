@@ -46,6 +46,13 @@
 #include "w32gc_interf.h"          /* only to know Query_Stack() cmd constants */
 #include "../TopComp/prolog_path.c"
 
+#define GUI_VERSION   "1.1"
+
+#define ADDITIONAL_INFORMATION                    \
+  "Windows GUI Console version " GUI_VERSION "\n" \
+  "By Jacob Navia and Daniel Diaz\n\n"
+#include "../TopComp/copying.c"
+
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
@@ -59,25 +66,25 @@
 #ifdef WITH_HTMLHELP
 
 /* HtmlHelp is used to display the doc (.chm file)
-*
-* 1) HtmlHelp can be statically linked (needs htmlhelp.lib or libhtmlhelp.a)
-* Recent versions of the lib are compiled with security options and needs
-* external check functions. The link errors are:
-*
-* libhtmlhelp.a: undefined reference to `__GSHandlerCheck'
-* libhtmlhelp.a: undefined reference to `__security_check_cookie'
-*
-* __GSHandlerCheck: due to the use MSVC /GS option (enable security check)
-* Some people solved this linking with a MSVC gshandler.obj but I could not
-* find it.
-*
-* __security_check_cookie: see http://support.microsoft.com/kb/894573
-* However, I could never find a valide bufferoverflowu.lib.
-* The solution consists in a set of fake (dummy) functions.
-*
-* 2) HtmlHelp can be dynamically loaded. This avoid the link with the lib
-* but needs hhctrl.ocx at runtime.
-*/
+ *
+ * 1) HtmlHelp can be statically linked (needs htmlhelp.lib or libhtmlhelp.a)
+ * Recent versions of the lib are compiled with security options and needs
+ * external check functions. The link errors are:
+ *
+ * libhtmlhelp.a: undefined reference to `__GSHandlerCheck'
+ * libhtmlhelp.a: undefined reference to `__security_check_cookie'
+ *
+ * __GSHandlerCheck: due to the use MSVC /GS option (enable security check)
+ * Some people solved this linking with a MSVC gshandler.obj but I could not
+ * find it.
+ *
+ * __security_check_cookie: see http://support.microsoft.com/kb/894573
+ * However, I could never find a valide bufferoverflowu.lib.
+ * The solution consists in a set of fake (dummy) functions.
+ *
+ * 2) HtmlHelp can be dynamically loaded. This avoid the link with the lib
+ * but needs hhctrl.ocx at runtime.
+ */
 
 #ifdef __GNUC__ /* ignore MSVC extensions present in htmlhelp.h */
 #  define __in
@@ -115,24 +122,10 @@ unsigned* __security_cookie;
 
 
 /*---------------------------------*
-* Constants                       *
-*---------------------------------*/
-
-#define GUI_VERSION                "1.1"
+ * Constants                       *
+ *---------------------------------*/
 
 #define EDIT_FIELD_SIZE            64000  /* 0 does not work ! why ? */
-
-#define ABOUT_TEXT \
-        PROLOG_NAME " version " PROLOG_VERSION "\n" \
-        "By Daniel Diaz\n\n" \
-        "Windows GUI Console version " GUI_VERSION "\n" \
-        "By Jacob Navia and Daniel Diaz\n\n" \
-        PROLOG_COPYRIGHT "\n\n" \
-        "http://www.gprolog.org\n\n" \
-        PROLOG_NAME " comes with ABSOLUTELY NO WARRANTY.\n" \
-        "You may redistribute copies of " PROLOG_NAME " under the\n" \
-        "terms of the GNU Lesser General Public License."
-
 
 #define FIX_TAB                    1    // replace \t by ESC+tab
 #define FIX_CR                     2    // remove \r
@@ -143,23 +136,47 @@ unsigned* __security_cookie;
 
 
 /*---------------------------------*
-* Type Definitions                *
-*---------------------------------*/
+ * Type Definitions                *
+ *---------------------------------*/
 
 
 /*---------------------------------*
-* Global Variables                *
-*---------------------------------*/
+ * Global Variables                *
+ *---------------------------------*/
 
 static char *(*fct_get_separators)();
 static int (*fct_get_prompt_length)();
 static PlLong (*fct_query_stack)();
 
-static unsigned int queue[60000];
+static unsigned int queue[EDIT_FIELD_SIZE];
 static int queue_start, queue_end;
 static CRITICAL_SECTION cs_queue;
 static HANDLE event_window_is_ready;
 static HANDLE event_char_in_queue;
+
+#define Queue_Is_Empty() (queue_start == queue_end)
+
+#define Enqueue(c)                                      \
+  do                                                    \
+    {                                                   \
+      queue[queue_end] = c;                             \
+      queue_end = (queue_end + 1) % sizeof(queue);      \
+      if (queue_end == queue_start)                     \
+        queue_start = (queue_start + 1) % sizeof(queue);\
+    }                                                   \
+  while(0)
+
+
+#define Dequeue(c)                                      \
+  do                                                    \
+    {                                                   \
+      c = queue[queue_start];                           \
+      queue_start = (queue_start + 1) % sizeof(queue);  \
+    }                                                   \
+  while(0)
+
+
+
 
 
 static HWND hwndMain;           // Main window handle (same as hwnd in most fct)
@@ -184,7 +201,7 @@ static int win_width = CW_USEDEFAULT;
 static int win_height = CW_USEDEFAULT;
 
 static int copy_on_sel = 1;     // default: automatically copy the selection
-static int wrap_mode = 0;            // default: no word wrapping (line break if line > width)
+static int wrap_mode = 0;       // default: no word wrapping (line break if line > width)
 static int line_buffering = 1;  // default: line buffered
 static int beep_on_error = 0;   // default: no beep
 static char wr_buffer[10240];   // when full a flush occurs (size does not matter)
@@ -198,8 +215,8 @@ static char buff_pathname[MAX_PATH];
 
 
 /*---------------------------------*
-* Function Prototypes             *
-*---------------------------------*/
+ * Function Prototypes             *
+ *---------------------------------*/
 
 static int CallMain(void *unused);
 
@@ -309,6 +326,8 @@ static void Show_Text_Console(int show);
 #define KEY_ESC(x)                 ((2<<8) | ((x)|0x20))
 
 
+
+
 /*<---------------------------------------------------------------------->*/
 #ifdef __LCC__
 #define DllMain LibMain
@@ -397,7 +416,7 @@ static int
 StartWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
   MSG msg;
-  HANDLE hAccelTable;
+  HACCEL hAccelTable;
 
   hInst = hInstance;
 
@@ -608,7 +627,7 @@ MainWndProc_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
       break;
 
     case IDM_ABOUT:
-      MessageBox(hwndMain, ABOUT_TEXT, "About GNU Prolog", MB_OK | MB_ICONINFORMATION);
+      MessageBox(hwndMain, Mk_Copying_Message(NULL), "About GNU Prolog", MB_OK | MB_ICONINFORMATION);
       break;
     }
 }
@@ -755,8 +774,11 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
         }
     }
 
-  if (msg == WM_RBUTTONUP)      /* deactivate right buttom */
-    return 0;
+  if (msg == WM_RBUTTONUP)      /* deactivate right buttom (replace by paste) */
+    {
+      Add_Clipboard_To_Queue();
+      return 0;
+    }
 
   if (msg == WM_MBUTTONUP)      /* middle buttom = paste*/
     {
@@ -1152,6 +1174,7 @@ Change_Directory(void)
   Add_String_To_Queue("change_directory('", 0);
   Add_String_To_Queue(p, FIX_TAB | FIX_CR | FIX_BACKSLASH | FIX_QUOTE);
   Add_String_To_Queue("').\n", 0);
+
 #ifdef DEBUG
   SetCurrentDirectory(p);
 #endif
@@ -1161,21 +1184,23 @@ Change_Directory(void)
 static void
 Insert_File_Name(void)
 {
-        char *p = Get_Selected_File_Name("Pick a file name...", NULL,
-                "Prolog Files (.pl .pro),*.pl;*.pro,All Files,*.*");
+  char *p = Get_Selected_File_Name("Pick a file name...", NULL,
+                                   "Prolog Files (.pl .pro),*.pl;*.pro,All Files,*.*");
 
-        if (p == NULL)
-                return;
+  if (p == NULL)
+    return;
 
-        Add_Char_To_Queue('\'');
-        Add_String_To_Queue(p, FIX_TAB | FIX_CR | FIX_BACKSLASH | FIX_QUOTE);
-        Add_Char_To_Queue('\'');
+  Add_Char_To_Queue('\'');
+  Add_String_To_Queue(p, FIX_TAB | FIX_CR | FIX_BACKSLASH | FIX_QUOTE);
+  Add_Char_To_Queue('\'');
 }
 
 static char *
 Get_Selected_File_Name(char *title, char *default_ext, char *filter)
 {
   char tmp_filter[128], *p;
+  static char cwd[MAX_PATH];
+  static char last_cwd[MAX_PATH];
   OPENFILENAME ofn;
 
   for(p = tmp_filter; *filter; filter++, p++) {
@@ -1184,6 +1209,11 @@ Get_Selected_File_Name(char *title, char *default_ext, char *filter)
       *p = '\0';
   }
   *p++ = '\0'; *p = '\0';
+
+  if (GetCurrentDirectory(sizeof(cwd), cwd) == 0 && strcmp(cwd, last_cwd) != 0)
+    strcpy(last_cwd, cwd);
+  else
+    strcpy(cwd, ".");
 
   memset(&ofn,0,sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
@@ -1195,7 +1225,7 @@ Get_Selected_File_Name(char *title, char *default_ext, char *filter)
   ofn.nMaxFile = sizeof(buff_pathname);
   ofn.lpstrTitle = title;
   ofn.lpstrDefExt = default_ext;
-  ofn.lpstrInitialDir = ".";
+  ofn.lpstrInitialDir = cwd;
   *buff_pathname = '\0';
   ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_PATHMUSTEXIST ;
   return GetOpenFileName(&ofn) ? buff_pathname : NULL;
@@ -1384,7 +1414,7 @@ Add_Clipboard_To_Queue(void)
 
       if (hClipData)
         {
-          char *str = GlobalLock(hClipData);
+          char *str = (char *) GlobalLock(hClipData);
 
           if (str)
             Add_String_To_Queue(str, FIX_TAB | FIX_CR);
@@ -1415,15 +1445,9 @@ Add_String_To_Queue(char *str, int mask_fix)
         c = '/';
 
       if (c == '\'' && (mask_fix & FIX_QUOTE))
-        {
-          queue[queue_end++] = '\'';
-          if (queue_end >= sizeof(queue))
-            queue_end = 0;
-        }
+        Enqueue('\'');
 
-      queue[queue_end++] = c;
-      if (queue_end >= sizeof(queue))
-        queue_end = 0;
+      Enqueue(c);
     }
   LeaveCriticalSection(&cs_queue);
   SetEvent(event_char_in_queue);
@@ -1434,9 +1458,7 @@ static void
 Add_Char_To_Queue(int c)
 {
   EnterCriticalSection(&cs_queue);
-  queue[queue_end++] = c;
-  if (queue_end >= sizeof(queue))
-    queue_end = 0;
+  Enqueue(c);
   LeaveCriticalSection(&cs_queue);
   SetEvent(event_char_in_queue);
 }
@@ -1445,7 +1467,7 @@ Add_Char_To_Queue(int c)
 DLLEXPORT int
 W32GC_Kbd_Is_Not_Empty()
 {
-  return queue_start != queue_end;
+  return !Queue_Is_Empty();
 }
 
 DLLEXPORT int
@@ -1458,16 +1480,13 @@ W32GC_Get_Char0()
   Flush_Buffer();               /* synchronize output and posit */
 
   last_is_read = 1;
-  while (queue_start == queue_end)
+  while (Queue_Is_Empty())
     {
       WaitForSingleObject(event_char_in_queue, INFINITE);
     }
 
   EnterCriticalSection(&cs_queue);
-  result = queue[queue_start];
-  queue_start++;
-  if (queue_start >= sizeof(queue))
-    queue_start = 0;
+  Dequeue(result);
   LeaveCriticalSection(&cs_queue);
 
   in_get_char = 0;

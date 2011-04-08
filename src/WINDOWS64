@@ -32,11 +32,32 @@ With the cygwin package things are installed in:
 the toolchain executables are all prefixed with:
 
    x86_64-w64-mingw32 (e.g. x86_64-w64-mingw32-gcc.exe) 
+   to produce 64 bits objs/execs/libs/...
 
-and with
+and with 
 
    i686-w64-mingw32   (e.g. i686-w64-mingw32-gcc.exe)
+   to produce 32 bits objs/execs/libs/...
 
+Strictly speaking i686-... are not needed here (since we are interested in 64 bits)
+
+To use HtmlHelp you maybe need to copy:
+
+   the header file:
+
+   htmlhtlp.h  in /usr/x86_64-w64-mingw32/sys-root/mingw/include/htmlhelp.h
+   htmlhtlp.h  in /usr/i686-w64-mingw32/sys-root/mingw/include/htmlhelp.h
+
+
+   the lib (beware to copy the adequate version of the lib 32 != 64)
+
+   copy + rename the 64 bits version of Htmlhelp.lib as
+   /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
+   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64)
+
+   copy + rename the 32 bits version of Htmlhelp.lib as
+   /usr/i686-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
+   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/)
 
 
 Configuration

@@ -46,7 +46,7 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifdef M_ix86_win32
+#ifdef _MSC_VER
 #define rint(x)  (floor((x) + (double) 0.5))
 #endif
 

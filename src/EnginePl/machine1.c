@@ -507,15 +507,18 @@ Pl_M_Spawn(char *arg[])
   _flushall();
 #endif
 
-  // printf("COMMAND: <%s>\n", arg[0]);
+  /*  printf("COMMAND: <%s>\n", arg[0]); */
   if (arg[1] == (char *) 1)
     arg = Pl_M_Cmd_Line_To_Argv(arg[0], NULL);
-
   /*
-  int i;
-  for(i = 0; arg[i] != NULL; i++)
-    printf("Arg :%d: <%s>\n", i, arg[i]);
+  {
+    int i;
+    for(i = 0; arg[i] != NULL; i++)
+      printf("Arg :%d: <%s>\n", i, arg[i]);
+  }
   */
+  
+
   return spawnvp(_P_WAIT, arg[0], (char *const *) arg);
 #endif
 }

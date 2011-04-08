@@ -23,9 +23,10 @@ pl2wam@EXE_SUFFIX@: $(OBJS)
 	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib-warn --no-top-level $(OBJS)
 
 # in stage 2 we simply re-link pl2wam since now the FD lib should be present
+# (needed to test FD built-in redefinitions via predicate_property)
 stage2:
 	[ ! -f  pl2wam@EXE_SUFFIX@ ] || cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
-	rm -f  pl2wam@EXE_SUFFIX@
+	rm -rf  pl2wam@EXE_SUFFIX@
 	$(MAKE)
 
 

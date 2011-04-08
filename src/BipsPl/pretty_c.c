@@ -594,7 +594,7 @@ Var_Name_To_Var_Number(int atom)
   if (*p < 'A' || *p > 'Z')
     return -1;
 
-  n = strtoll(p + 1, &q, 10);
+  n = strtol(p + 1, &q, 10);
   if (*q)
     return -1;
 

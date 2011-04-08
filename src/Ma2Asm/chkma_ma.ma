@@ -98,7 +98,7 @@ pl_code global ma_test_arg_int
 	pl_ret
 
 pl_code global ma_test_arg_double
-	call_c fast test_arg_double1(12.456,-1.3e-102,-3.141593)
+	call_c fast test_arg_double1(12.456,-1.3e-102,-3.141593,12.456,-1.3e-102,-3.141593)
 	pl_ret
 
 pl_code global ma_test_arg_mixed

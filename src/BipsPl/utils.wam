@@ -2,7 +2,7 @@
 % file    : utils.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/utils.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/utils.pl').
 
 
 predicate('$term_to_goal'/3,43,static,private,monofile,built_in,[

@@ -607,7 +607,7 @@ INSTALL_PROGRAM
 SET_MAKE
 AR
 RANLIB
-MINGWAS
+WIN_AS_FOUND
 host_os
 host_vendor
 host_cpu
@@ -631,6 +631,7 @@ LIB_LINEDIT
 DLL_W32GUICONS
 MAKE_SOCKETS_OBJS
 MAKE_LE_INTERF_OBJS
+MAKE_ENGINE1_SRC
 MAKE_FD_DIRS
 MAKE_W32GC_DIRS
 MAKE_LE_DIRS
@@ -655,13 +656,14 @@ INSTALL_DIR
 PKG_NAME
 ROOT_DIR1
 ROOT_DIR
-LD_DLL_NAME_OPT
+LD_DLL_OPT
 LD_OUT_NAME_OPT
 LD
 RC_OUT_NAME_OPT
 RCFLAGS
 RC
 STRIP
+ASFLAGS
 AS
 AR_SEP
 AR_RC
@@ -2474,6 +2476,8 @@ LIB_BIPS_FD=libbips_fd
 
 
 
+
+
 # *******************
 # * package options *
 # *******************
@@ -2634,8 +2638,6 @@ if test "$WITH_MSVC" != no; then
     echo "using MSVC++ as C compiler"
     CC=cl
     WIN_CONF_OPT=--with-msvc
-#   NB: double [[ ]] for m4
-    WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([0-9]\{1,3\}\.[0-9]\{1,3\}\).*/\1/p'`
 fi
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
@@ -3533,24 +3535,92 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
 
+# determine if MinGW and Windows path associated to posix path /tmp
+# needs AC_CANONICAL_HOST
+
+case "$host_os" in
+    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; MINGW=yes; WIN_CC_VER=mingw;;
+esac
+
+# customize MSVC
+
+MAKE_ENGINE1_SRC='engine1.c'
 
 if test "$WITH_MSVC" != no; then
+
+#   NB: double [[ ]] for m4
+#   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
+   WIN_CC_VER=msvc
+
+
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cl.exe producing 32-bit or 64-bit executables" >&5
+$as_echo_n "checking for cl.exe producing 32-bit or 64-bit executables... " >&6; }
+
+if test "$cross_compiling" = yes; then :
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: can't test in cross-compiling" >&5
+$as_echo "can't test in cross-compiling" >&6; }
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+int main() { return sizeof(void *) != 8; }
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: 64-bit mode (x86_64)" >&5
+$as_echo "64-bit mode (x86_64)" >&6; }
+        cl_mode=64
+else
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: 32-bit mode (x86)" >&5
+$as_echo "32-bit mode (x86)" >&6; }
+        cl_mode=32
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+    if test $cl_mode = 32; then
+        WITH_MSVC=32
+        host_cpu=i686
+        host_os=win32
+        AS=mingw-as
+        ASFLAGS=
+    else
+        WITH_MSVC=64
+        host_cpu=x86_64
+        host_os=win64
+        AS=yasm-win64
+        ASFLAGS='-f win64 -p gas'
+        MAKE_ENGINE1_SRC='eng1-x86_64_win.s'
+    fi
+    host_vendor=microsoft
+
+    host=$host_cpu-$host_vendor-$host_os
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for actual host system type..." >&5
+$as_echo_n "checking for actual host system type...... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $host" >&5
+$as_echo "$host" >&6; }
+
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.obj'
     LIB_SUFFIX='.lib'
     CC_OBJ_NAME_OPT='-Fo'
     CC_EXE_NAME_OPT='-Fe'
-    for ac_prog in mingw-as
+    for ac_prog in $AS
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if test "${ac_cv_prog_MINGWAS+set}" = set; then :
+if test "${ac_cv_prog_WIN_AS_FOUND+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
-  if test -n "$MINGWAS"; then
-  ac_cv_prog_MINGWAS="$MINGWAS" # Let the user override the test.
+  if test -n "$WIN_AS_FOUND"; then
+  ac_cv_prog_WIN_AS_FOUND="$WIN_AS_FOUND" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -3559,7 +3629,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_MINGWAS="$ac_prog"
+    ac_cv_prog_WIN_AS_FOUND="$ac_prog"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3569,24 +3639,23 @@ IFS=$as_save_IFS
 
 fi
 fi
-MINGWAS=$ac_cv_prog_MINGWAS
-if test -n "$MINGWAS"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MINGWAS" >&5
-$as_echo "$MINGWAS" >&6; }
+WIN_AS_FOUND=$ac_cv_prog_WIN_AS_FOUND
+if test -n "$WIN_AS_FOUND"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $WIN_AS_FOUND" >&5
+$as_echo "$WIN_AS_FOUND" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
 
 
-  test -n "$MINGWAS" && break
+  test -n "$WIN_AS_FOUND" && break
 done
-test -n "$MINGWAS" || MINGWAS="no"
+test -n "$WIN_AS_FOUND" || WIN_AS_FOUND="no"
 
-    if test "$MINGWAS" = no; then
-        as_fn_error $? "mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/mingw-as.exe" "$LINENO" 5
+    if test "$WIN_AS_FOUND" = no; then
+        as_fn_error $? "$AS.exe is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/$AS.exe" "$LINENO" 5
     fi
-    AS=mingw-as
     AR_RC='lib -nologo -out:'
     AR_SEP=''
     STRIP=:
@@ -3594,28 +3663,32 @@ test -n "$MINGWAS" || MINGWAS="no"
     RC=rc
     RCFLAGS=''
     RC_OUT_NAME_OPT='-fo'
-    LD=link
-    LD_OUT_NAME_OPT='-out:'
-    LD_DLL_NAME_OPT='-dll'
+#   uset this directly invokes MS link.exe (instead of using cl.exe)
+#    LD=link
+#    LD_OUT_NAME_OPT='-out:'
+#    LD_DLL_OPT='-dll'
+
+#   invokes cl.exe
+    LD=$CC
+    LD_OUT_NAME_OPT='-Fe'
+    LD_DLL_OPT='-link -dll'
+
+
 else
+
     if test "$GCC" != yes; then
         as_fn_error $? "gcc is required (or MSVC++ under Windows)" "$LINENO" 5
     fi
 
+    AS=as
     case "$host" in
-	i*86*darwin10*)
-	    AS='as -arch i686'
-        ;;
-	x86_64*solaris*)
-	    AS='gas --64'
-        ;;
-	*)
-	    if test "$with_gas" = yes; then
-		AS=gas
-	    else
-	      if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}as", so it can be a program name with args.
-set dummy ${ac_tool_prefix}as; ac_word=$2
+        i*86*darwin10*)  ASFLAGS='-arch i686';;
+        x86_64*solaris*) AS=gas; ASFLAGS='--64';;
+        *)               if test "$with_gas" = yes; then AS=gas; fi;;
+    esac
+    if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}$AS", so it can be a program name with args.
+set dummy ${ac_tool_prefix}$AS; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if test "${ac_cv_prog_AS+set}" = set; then :
@@ -3631,7 +3704,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_AS="${ac_tool_prefix}as"
+    ac_cv_prog_AS="${ac_tool_prefix}$AS"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3654,8 +3727,8 @@ fi
 fi
 if test -z "$ac_cv_prog_AS"; then
   ac_ct_AS=$AS
-  # Extract the first word of "as", so it can be a program name with args.
-set dummy as; ac_word=$2
+  # Extract the first word of "$AS", so it can be a program name with args.
+set dummy $AS; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if test "${ac_cv_prog_ac_ct_AS+set}" = set; then :
@@ -3671,7 +3744,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_ac_ct_AS="as"
+    ac_cv_prog_ac_ct_AS="$AS"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3705,9 +3778,6 @@ else
   AS="$ac_cv_prog_AS"
 fi
 
-	    fi
-        ;;
-    esac
     if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ranlib; ac_word=$2
@@ -3901,7 +3971,7 @@ fi
     RC_OUT_NAME_OPT='-o '
     LD=$CC
     LD_OUT_NAME_OPT='-o '
-    LD_DLL_NAME_OPT='-shared'
+    LD_DLL_OPT='-shared'
     if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ar", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ar; ac_word=$2
@@ -4090,6 +4160,8 @@ fi
 
 fi
 
+# RCFLAGS="$RCFLAGS -l 0x409"
+
 EXE_SUFFIX=$EXEEXT
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 $as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
@@ -4240,111 +4312,114 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 # * host detection and features *
 # *******************************
 
-# determine windows path associated to posix path /tmp
+WINDOWS=no
 
-case "$host_os" in
-    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
-    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; WIN_CC_VER=mingw;;
+case "$host" in
+    mips*irix*)      $as_echo "#define M_mips 1" >>confdefs.h
+    $as_echo "#define M_irix 1" >>confdefs.h
+    $as_echo "#define M_mips_irix 1" >>confdefs.h
+;;
+    sparc*sunos*)    $as_echo "#define M_sparc 1" >>confdefs.h
+   $as_echo "#define M_sunos 1" >>confdefs.h
+   $as_echo "#define M_sparc_sunos 1" >>confdefs.h
+;;
+    sparc*solaris*)  $as_echo "#define M_sparc 1" >>confdefs.h
+   $as_echo "#define M_solaris 1" >>confdefs.h
+ $as_echo "#define M_sparc_solaris 1" >>confdefs.h
+;;
+    sparc*bsd*)      $as_echo "#define M_sparc 1" >>confdefs.h
+   $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_sparc_bsd 1" >>confdefs.h
+;;
+    alpha*osf*)      $as_echo "#define M_alpha 1" >>confdefs.h
+   $as_echo "#define M_osf 1" >>confdefs.h
+     $as_echo "#define M_alpha_osf 1" >>confdefs.h
+;;
+    alpha*linux*)    $as_echo "#define M_alpha 1" >>confdefs.h
+   $as_echo "#define M_linux 1" >>confdefs.h
+   $as_echo "#define M_alpha_linux 1" >>confdefs.h
+;;
+    x86_64*linux*)   $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_linux 1" >>confdefs.h
+   $as_echo "#define M_x86_64_linux 1" >>confdefs.h
+;;
+    x86_64*bsd*)     $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_x86_64_bsd 1" >>confdefs.h
+;;
+    x86_64*solaris*) $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_solaris 1" >>confdefs.h
+ $as_echo "#define M_x86_64_solaris 1" >>confdefs.h
+;;
+    x86_64*mingw*)   $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_win64 1" >>confdefs.h
+   $as_echo "#define M_x86_64_win64 1" >>confdefs.h
+ WINDOWS=64;;
+    x86_64*win64*)   $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_win64 1" >>confdefs.h
+   $as_echo "#define M_x86_64_win64 1" >>confdefs.h
+ WINDOWS=64;;
+    i*86*linux*)     $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_linux 1" >>confdefs.h
+   $as_echo "#define M_ix86_linux 1" >>confdefs.h
+;;
+    i*86*solaris*)   $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_solaris 1" >>confdefs.h
+ $as_echo "#define M_ix86_solaris 1" >>confdefs.h
+;;
+    i*86*sco*)       $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_sco 1" >>confdefs.h
+     $as_echo "#define M_ix86_sco 1" >>confdefs.h
+;;
+    i*86*bsd*)       $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_ix86_bsd 1" >>confdefs.h
+;;
+    i*86*cygwin*)    $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_cygwin 1" >>confdefs.h
+  $as_echo "#define M_ix86_cygwin 1" >>confdefs.h
+;;
+    i*86*mingw*)     $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_win32 1" >>confdefs.h
+   $as_echo "#define M_ix86_win32 1" >>confdefs.h
+   WINDOWS=32;;
+    i*86*win32*)     $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_win32 1" >>confdefs.h
+   $as_echo "#define M_ix86_win32 1" >>confdefs.h
+   WINDOWS=32;;
+    i*86*darwin*)    $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_darwin 1" >>confdefs.h
+  $as_echo "#define M_ix86_darwin 1" >>confdefs.h
+;;
+    powerpc*linux*)  $as_echo "#define M_powerpc 1" >>confdefs.h
+ $as_echo "#define M_linux 1" >>confdefs.h
+   $as_echo "#define M_powerpc_linux 1" >>confdefs.h
+;;
+    powerpc*darwin*) $as_echo "#define M_powerpc 1" >>confdefs.h
+ $as_echo "#define M_darwin 1" >>confdefs.h
+  $as_echo "#define M_powerpc_darwin 1" >>confdefs.h
+;;
+    powerpc*bsd*)    $as_echo "#define M_powerpc 1" >>confdefs.h
+ $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_powerpc_bsd 1" >>confdefs.h
+;;
+
+    *)               as_fn_error $? "unsupported architecture" "$LINENO" 5
 esac
 
-if test "$WITH_MSVC" != no; then
+# M_win64 ==> M_win32
 
-    $as_echo "#define M_ix86 1" >>confdefs.h
-
-    $as_echo "#define M_win32 1" >>confdefs.h
-
-    $as_echo "#define M_ix86_win32 1" >>confdefs.h
-
-    host_vendor=Microsoft
-    host_os=win32
-    WIN32=yes
-
-else
-
-    WIN32=no
-    case "$host_cpu" in
-        mips*)          $as_echo "#define M_mips 1" >>confdefs.h
-;;
-        alpha*)         $as_echo "#define M_alpha 1" >>confdefs.h
-;;
-        sparc*)         $as_echo "#define M_sparc 1" >>confdefs.h
-;;
-        x86_64)         $as_echo "#define M_x86_64 1" >>confdefs.h
-;;
-        i*86)           $as_echo "#define M_ix86 1" >>confdefs.h
-;;
-        powerpc*|ppc*)  $as_echo "#define M_powerpc 1" >>confdefs.h
-;;
-    esac
-
-    case "$host_os" in
-        *osf*)          $as_echo "#define M_osf 1" >>confdefs.h
-;;
-        irix*)          $as_echo "#define M_irix 1" >>confdefs.h
-;;
-        sunos*)         $as_echo "#define M_sunos 1" >>confdefs.h
-;;
-        solaris*)       $as_echo "#define M_solaris 1" >>confdefs.h
-;;
-        linux*)         $as_echo "#define M_linux 1" >>confdefs.h
-;;
-        cygwin*)        $as_echo "#define M_cygwin 1" >>confdefs.h
-;;
-        mingw*)         $as_echo "#define M_mingw 1" >>confdefs.h
- MINGW=yes; WIN32=yes;;
-        *sco*)          $as_echo "#define M_sco 1" >>confdefs.h
-;;
-        *bsd*)          $as_echo "#define M_bsd 1" >>confdefs.h
-;;
-        *darwin*)       $as_echo "#define M_darwin 1" >>confdefs.h
-;;
-    esac
-
-    case "$host" in
-        mips*irix*)      $as_echo "#define M_mips_irix 1" >>confdefs.h
-;;
-        sparc*sunos*)    $as_echo "#define M_sparc_sunos 1" >>confdefs.h
-;;
-        sparc*solaris*)  $as_echo "#define M_sparc_solaris 1" >>confdefs.h
-;;
-        sparc*bsd*)      $as_echo "#define M_sparc_bsd 1" >>confdefs.h
-;;
-        alpha*osf*)      $as_echo "#define M_alpha_osf 1" >>confdefs.h
-;;
-        alpha*linux*)    $as_echo "#define M_alpha_linux 1" >>confdefs.h
-;;
-        x86_64*linux*)   $as_echo "#define M_x86_64_linux 1" >>confdefs.h
-;;
-        x86_64*bsd*)     $as_echo "#define M_x86_64_bsd 1" >>confdefs.h
-;;
-        x86_64*solaris*) $as_echo "#define M_x86_64_solaris 1" >>confdefs.h
-;;
-        x86_64*mingw*)   $as_echo "#define M_x86_64_mingw 1" >>confdefs.h
-;;
-        i*86*linux*)     $as_echo "#define M_ix86_linux 1" >>confdefs.h
-;;
-        i*86*solaris*)   $as_echo "#define M_ix86_solaris 1" >>confdefs.h
-;;
-        i*86*sco*)       $as_echo "#define M_ix86_sco 1" >>confdefs.h
-;;
-        i*86*bsd*)       $as_echo "#define M_ix86_bsd 1" >>confdefs.h
-;;
-        i*86*cygwin*)    $as_echo "#define M_ix86_cygwin 1" >>confdefs.h
-;;
-        i*86*mingw*)     $as_echo "#define M_ix86_mingw 1" >>confdefs.h
-;;
-        i*86*darwin*)    $as_echo "#define M_ix86_darwin 1" >>confdefs.h
-;;
-        powerpc*linux*)  $as_echo "#define M_powerpc_linux 1" >>confdefs.h
-;;
-        powerpc*darwin*) $as_echo "#define M_powerpc_darwin 1" >>confdefs.h
-;;
-        powerpc*bsd*)    $as_echo "#define M_powerpc_bsd 1" >>confdefs.h
-;;
-        *)               as_fn_error $? "unsupported architecture" "$LINENO" 5
-    esac
+if test "$WINDOWS" = 64; then
+   $as_echo "#define M_win32 1" >>confdefs.h
 
 fi
+
+
+case "$WINDOWS" in
+    32) WIN_CC_VER="$WIN_CC_VER-x86";;
+    64) WIN_CC_VER="$WIN_CC_VER-x64";;
+esac
+
 
 # -------------------
 # Check for socklen_t
@@ -4352,7 +4427,6 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for socklen_t" >&5
 $as_echo_n "checking for socklen_t... " >&6; }
-
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sys/types.h>
@@ -4494,7 +4568,7 @@ esac
 if test "$WITH_MSVC" != no; then
 
     case "$WITH_C_FLAGS" in
-        debug) CFLAGS='-W3 -ZI -EHsc';;
+        debug) CFLAGS='-W3 -Zi -EHsc';;
         no)    CFLAGS='';;
         yes)   CFLAGS='-O2 -EHsc';;
         *)     CFLAGS="$WITH_C_FLAGS";;
@@ -4514,7 +4588,7 @@ else
 
 # -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
     if test "$MINGW-$WITH_C_FLAGS" = yes-yes; then
-	CFLAGS='-O3'
+        CFLAGS='-O3'
     fi
 
     CFLAGS_PREFIX_REG='-ffixed-%s'
@@ -4557,7 +4631,6 @@ else
     case "$host" in
        i*86*linux*) CFLAGS_MACHINE="$CFLAGS_MACHINE -fno-strict-aliasing";;
     esac
-
 
 
 # For MacOsX - try to avoid this (activate only for fast library fix)
@@ -5279,7 +5352,7 @@ make_lib_list()
     echo $list
 }
 
-if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WIN32" = no \)
+if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WINDOWS" = no \)
 then
     $as_echo "#define NO_USE_GUI_CONSOLE 1" >>confdefs.h
  USE_GUI_CONSOLE=no
@@ -5287,16 +5360,16 @@ fi
 
 if test "$USE_GUI_CONSOLE" != yes
 then
-	WITH_HTMLHELP=no
+    WITH_HTMLHELP=no
 fi
 
-if test $WIN32 = yes; then
+if test "$WINDOWS" != no; then
     LIB='advapi32 user32'
     GUILIB='kernel32 user32 gdi32 comdlg32 advapi32 comctl32 shell32 ole32 winmm'
 # winmm is for the sound PlaySound in the GUI
 # other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
     case "$WITH_HTMLHELP" in
-       static) $as_echo "#define WITH_HTMLHELP 1" >>confdefs.h
+       static)  $as_echo "#define WITH_HTMLHELP 1" >>confdefs.h
  GUILIB="$GUILIB htmlhelp";;
        dynamic) $as_echo "#define WITH_HTMLHELP 2" >>confdefs.h
 ;;
@@ -5500,6 +5573,10 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 cat >>confdefs.h <<_ACEOF
+#define ASFLAGS "$ASFLAGS"
+_ACEOF
+
+cat >>confdefs.h <<_ACEOF
 #define STRIP "$STRIP"
 _ACEOF
 
@@ -5674,7 +5751,7 @@ echo "--> Examples:           $EXAMPLES_DIR"
 
 
 if test "$IN_PLACE" = no; then
-    TXT_FILES='COPYING VERSION NEWS ChangeLog'
+    TXT_FILES='README COPYING VERSION NEWS ChangeLog'
 else
     TXT_FILES=
 fi
@@ -7067,7 +7144,4 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-
-
-
 

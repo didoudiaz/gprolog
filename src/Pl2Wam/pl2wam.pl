@@ -430,7 +430,8 @@ display_copying :-
 	nl,
 	format('~a comes with ABSOLUTELY NO WARRANTY.~n', [Name]),
 	format('You may redistribute copies of ~a~n', [Name]),
-	format('under the terms of the GNU Lesser General Public License.~n', []),
+	format('under the terms of the GNU Lesser General Public License~n', []),
+	format('or of the terms of the GNU General Public License (or both in parallel)~n', []),
 	format('For more information about these matters, see the files named COPYING.~n', []).
 
 

@@ -2,7 +2,7 @@
 % file    : term_inl.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/term_inl.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/term_inl.pl').
 
 
 predicate('$use_term_inl'/0,42,static,private,monofile,built_in,[

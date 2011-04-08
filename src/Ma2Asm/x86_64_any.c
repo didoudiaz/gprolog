@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <inttypes.h>
 
 
 /* For M_x86_64_linux/solaris: an important point is that C stack must be
@@ -125,7 +124,7 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
   "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 };
 #endif
-	  /* variables for ma_parser.c / ma2asm.c */
+          /* variables for ma_parser.c / ma2asm.c */
 
 char *comment_prefix = "#";
 char *local_symb_prefix = ".L";
@@ -236,9 +235,11 @@ Code_Start(char *label, int prolog, int global)
     {
       union
       {
-	double d;
-	unsigned int w[2];
-      } dbl = { .d = dbl_tbl[i] };
+        double d;
+        unsigned int w[2];
+      } dbl;
+
+      dbl.d = dbl_tbl[i];
 
       Label_Printf("%s%d:", DOUBLE_PREFIX, x++);
       Inst_Printf(".long", "%d", dbl.w[0]);
@@ -471,7 +472,7 @@ Move_To_Reg_Y(int index)
  *-------------------------------------------------------------------------*/
 void
 Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+             char **p_inline)
 {
 #ifdef _WIN32
   pr_arg_no = 0;
@@ -482,86 +483,88 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 }
 
 #ifdef _WIN32
-#define BEFORE_ARG						\
-{								\
-  char r[10], *r_aux;						\
-  int r_eq_r_aux = 0;						\
-								\
-  if (pr_arg_no < MAX_PR_ARGS)				\
-    {								\
-      strcpy(r, gpr_arg[pr_arg_no++]);				\
-      r_aux = r;						\
-      r_eq_r_aux = 1;						\
-    }								\
-  else								\
-    {								\
-      int nwords = offset;				\
-								\
-      sprintf(r, "%d(%%rsp)", nwords * 8);			\
-      r_aux = "%rax";						\
-    }
-#define BEFORE_FPR_ARG						\
-{								\
-  char r[10], *r_aux;						\
-  int r_eq_r_aux = 0;						\
-								\
-  if (pr_arg_no < MAX_PR_ARGS)				\
-    {								\
-      strcpy(r, fpr_arg[pr_arg_no++]);				\
-      r_aux = r;						\
-      r_eq_r_aux = 1;						\
-    }								\
-  else								\
-    {								\
-      int nwords = offset;				\
-								\
-      sprintf(r, "%d(%%rsp)", nwords * 8);			\
-      r_aux = "%xmm8";						\
-    }
-#else
-#define BEFORE_ARG						\
-{								\
-  char r[10], *r_aux;						\
-  int r_eq_r_aux = 0;						\
-								\
-  if (gpr_arg_no < MAX_GPR_ARGS)				\
-    {								\
-      strcpy(r, gpr_arg[gpr_arg_no++]);				\
-      r_aux = r;						\
-      r_eq_r_aux = 1;						\
-    }								\
-  else								\
-    {								\
-      int nwords = offset - gpr_arg_no - fpr_arg_no;		\
-								\
-      sprintf(r, "%d(%%rsp)", nwords * 8);			\
-      r_aux = "%rax";						\
+#define BEFORE_ARG                                      \
+{                                                       \
+  char r[10], *r_aux;                                   \
+  int r_eq_r_aux = 0;                                   \
+                                                        \
+  if (pr_arg_no < MAX_PR_ARGS)                          \
+    {                                                   \
+      strcpy(r, gpr_arg[pr_arg_no++]);                  \
+      r_aux = r;                                        \
+      r_eq_r_aux = 1;                                   \
+    }                                                   \
+  else                                                  \
+    {                                                   \
+      int nwords = offset;                              \
+                                                        \
+      sprintf(r, "%d(%%rsp)", nwords * 8);              \
+      r_aux = "%rax";                                   \
     }
 
-#define BEFORE_FPR_ARG						\
-{								\
-  char r[10], *r_aux;						\
-  int r_eq_r_aux = 0;						\
-								\
-  if (fpr_arg_no < MAX_FPR_ARGS)				\
-    {								\
-      strcpy(r, fpr_arg[fpr_arg_no++]);				\
-      r_aux = r;						\
-      r_eq_r_aux = 1;						\
-    }								\
-  else								\
-    {								\
-      int nwords = offset - gpr_arg_no - fpr_arg_no;		\
-								\
-      sprintf(r, "%d(%%rsp)", nwords * 8);			\
-      r_aux = "%xmm8";						\
+#define BEFORE_FPR_ARG                                  \
+{                                                       \
+  char r[10], *r_aux;                                   \
+  int r_eq_r_aux = 0;                                   \
+                                                        \
+  if (pr_arg_no < MAX_PR_ARGS)                          \
+    {                                                   \
+      strcpy(r, fpr_arg[pr_arg_no++]);                  \
+      r_aux = r;                                        \
+      r_eq_r_aux = 1;                                   \
+    }                                                   \
+  else                                                  \
+    {                                                   \
+      int nwords = offset;                              \
+                                                        \
+      sprintf(r, "%d(%%rsp)", nwords * 8);              \
+      r_aux = "%xmm8";                                  \
+    }
+#else
+
+#define BEFORE_ARG                                      \
+{                                                       \
+  char r[10], *r_aux;                                   \
+  int r_eq_r_aux = 0;                                   \
+                                                        \
+  if (gpr_arg_no < MAX_GPR_ARGS)                        \
+    {                                                   \
+      strcpy(r, gpr_arg[gpr_arg_no++]);                 \
+      r_aux = r;                                        \
+      r_eq_r_aux = 1;                                   \
+    }                                                   \
+  else                                                  \
+    {                                                   \
+      int nwords = offset - gpr_arg_no - fpr_arg_no;    \
+                                                        \
+      sprintf(r, "%d(%%rsp)", nwords * 8);              \
+      r_aux = "%rax";                                   \
+    }
+
+#define BEFORE_FPR_ARG                                  \
+{                                                       \
+  char r[10], *r_aux;                                   \
+  int r_eq_r_aux = 0;                                   \
+                                                        \
+  if (fpr_arg_no < MAX_FPR_ARGS)                        \
+    {                                                   \
+      strcpy(r, fpr_arg[fpr_arg_no++]);                 \
+      r_aux = r;                                        \
+      r_eq_r_aux = 1;                                   \
+    }                                                   \
+  else                                                  \
+    {                                                   \
+      int nwords = offset - gpr_arg_no - fpr_arg_no;    \
+                                                        \
+      sprintf(r, "%d(%%rsp)", nwords * 8);              \
+      r_aux = "%xmm8";                                  \
     }
 #endif
 
-#define AFTER_ARG						\
+#define AFTER_ARG                                       \
 }
 
-#define AFTER_FPR_ARG						\
+#define AFTER_FPR_ARG                                   \
 }
 
 
@@ -580,7 +583,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
     {
       Inst_Printf("movabsq", "$%" PL_FMT_d ",%s", int_val, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s,%s", r_aux, r);
+        Inst_Printf("movq", "%s,%s", r_aux, r);
     }
 
   AFTER_ARG;
@@ -642,7 +645,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
     {
       Inst_Printf("movq", "%s+%d(%%rip),%s", name, index * 8, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s,%s", r_aux, r);
+        Inst_Printf("movq", "%s,%s", r_aux, r);
     }
 
   AFTER_ARG;
@@ -663,14 +666,14 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
   if (adr_of)
     {
       if (!r_eq_r_aux && index == 0)
-	{
+        {
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
-	  Inst_Printf("movq", "$%s,%s", ASM_REG_BANK, r);
+          Inst_Printf("movq", "$%s,%s", ASM_REG_BANK, r);
 #else
-	  Inst_Printf("movq", "%s,%s", ASM_REG_BANK, r);
+          Inst_Printf("movq", "%s,%s", ASM_REG_BANK, r);
 #endif
-	  goto finish;
-	}
+          goto finish;
+        }
       Inst_Printf("leaq", "%s,%s", Off_Reg_Bank(index * 8), r_aux);
     }
   else
@@ -680,7 +683,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
     Inst_Printf("movq", "%s,%s", r_aux, r);
 
 finish:
-  ;				/* gcc3 does not like use of label at end of compound statement */
+  ;                             /* gcc3 does not like use of label at end of compound statement */
   AFTER_ARG;
 
   return 1;
@@ -725,7 +728,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
     {
       Inst_Printf("movq", "pl_foreign_long+%d(%%rip),%s", index * 8, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s, %s", r_aux, r);
+        Inst_Printf("movq", "%s, %s", r_aux, r);
     }
 
   AFTER_ARG;
@@ -834,7 +837,7 @@ Move_Ret_To_Mem_L(char *name, int index)
  *-------------------------------------------------------------------------*/
 void
 Move_Ret_To_Reg_X(int index)
-{				/* similar to Move_To_Reg_X */
+{                               /* similar to Move_To_Reg_X */
   Inst_Printf("movq", "%%rax,%s", Off_Reg_Bank(index * 8));
 }
 
@@ -847,7 +850,7 @@ Move_Ret_To_Reg_X(int index)
  *-------------------------------------------------------------------------*/
 void
 Move_Ret_To_Reg_Y(int index)
-{				/* similar to Move_To_Reg_Y */
+{                               /* similar to Move_To_Reg_Y */
   Inst_Printf("movq", "%%rax,%d(%s)", Y_OFFSET(index), asm_reg_e);
 }
 
@@ -1002,22 +1005,22 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
   switch (vtype)
     {
     case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+      value = 1;                /* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
 #if defined(M_x86_64_linux) || defined(M_x86_64_sco) || \
     defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
       if (!global)
-	Inst_Printf(".local", "%s", name);
+        Inst_Printf(".local", "%s", name);
       Inst_Printf(".comm", "%s,%" PL_FMT_d ",8", name, value * 8);
 #else
       if (!global)
-	Inst_Printf(".lcomm", "%s,%" PL_FMT_d, name, value * 8);
+        Inst_Printf(".lcomm", "%s,%" PL_FMT_d, name, value * 8);
 #endif
       break;
 
     case INITIAL_VALUE:
       if (global)
-	Inst_Printf(".globl", "%s", name);
+        Inst_Printf(".globl", "%s", name);
       Label_Printf("%s:", name);
       Inst_Printf(".quad", "%" PL_FMT_d, value);
       break;
@@ -1047,7 +1050,9 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-#if defined( __CYGWIN__) || defined (_WIN32)
+#ifdef _MSC_VER
+  Inst_Printf(".section", ".GPLC$m");
+#elif defined( __CYGWIN__) || defined (_WIN32)
   Inst_Printf(".section", ".ctors,\"aw\"");
 #else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");

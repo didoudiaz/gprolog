@@ -366,12 +366,12 @@ Scan_Number(StmInf *pstm, Bool integer_only)
   *p = '\0';
 
 
-  /* if case of an underflow/overflow strtoll() returns LONG_MIN/LONG_MAX and
+  /* if case of an underflow/overflow strtol() returns LONG_MIN/LONG_MAX and
    * sets errno to ERANGE. We dont test it because LONG_MIN is < INT_LOWEST_VALUE
    * and LONG_MAX is > INT_GREATEST_VALUE. We will detect it at return from
    * this function.
    */
-  pl_token.int_num = strtoll(pl_token.name, &p, 10);
+  pl_token.int_num = Str_To_PlLong(pl_token.name, &p, 10);
 
   if (lg != 1 || pl_token.int_num != 0 || strchr("'box", c) == NULL)
     goto push_back;
@@ -419,7 +419,7 @@ Scan_Number(StmInf *pstm, Bool integer_only)
     }
   *p = '\0';
 
-  pl_token.int_num = strtoll(pl_token.name, &p, radix);
+  pl_token.int_num = Str_To_PlLong(pl_token.name, &p, radix);
   goto push_back;
 
 

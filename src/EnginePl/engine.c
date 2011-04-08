@@ -82,7 +82,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-void (*pl_init_stream_supp)();	/* overwritten by foreign if present */
+void (*pl_init_stream_supp)();  /* overwritten by foreign if present */
 
 #if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
 static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
@@ -96,7 +96,7 @@ static int nb_user_directives = 0;
 static jmp_buf *p_jumper;
 static WamWord *p_buff_save;
 
-static CodePtr cont_jmp;	/* we use a global var to support DEC alpha */
+static CodePtr cont_jmp;        /* we use a global var to support DEC alpha */
 
 
 
@@ -111,7 +111,7 @@ static void Call_Prolog_Success(void);
 
 static Bool Call_Next(CodePtr codep);
 
-void Pl_Call_Compiled(CodePtr codep);	/* defined in engine1.c */
+void Pl_Call_Compiled(CodePtr codep);   /* defined in engine1.c */
 
 
 
@@ -233,14 +233,14 @@ void
 Pl_Reset_Prolog(void)
 {
   E = B = LSSA = Local_Stack;
-  H = heap_actual_start;	/* restart after needed global terms */
+  H = heap_actual_start;        /* restart after needed global terms */
   TR = Trail_Stack;
   CP = NULL;
   STAMP = 0;
   CS = Cstr_Stack;
-  BCI = 0;			/* BCI only needed for byte-code (cf. bips prolog) */
+  BCI = 0;                      /* BCI only needed for byte-code (cf. bips prolog) */
 
-  Pl_Create_Choice_Point(Call_Prolog_Fail, 0);	/* 1st choice point */
+  Pl_Create_Choice_Point(Call_Prolog_Fail, 0);  /* 1st choice point */
 
   Pl_Fd_Reset_Solver();
 }
@@ -290,8 +290,8 @@ Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system, CodePtr proc)
 
   if (!Pl_Call_Prolog(proc))
     fprintf(stderr,
-	    ERR_DIRECTIVE_FAILED, pl_atom_tbl[pl_file].name, pl_line,
-	    (is_system) ? "system" : "user");
+            ERR_DIRECTIVE_FAILED, pl_atom_tbl[pl_file].name, pl_line,
+            (is_system) ? "system" : "user");
 
   Pl_Reset_Prolog();
 }
@@ -346,7 +346,7 @@ Pl_Call_Prolog(CodePtr codep)
   WamCont save_ALTB = ALTB(query_b);
   Bool ok;
 
-  ALTB(query_b) = (CodePtr) Call_Prolog_Fail;	/* modify choice point */
+  ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
 
   CP = Adjust_CP(Call_Prolog_Success);
 
@@ -358,8 +358,8 @@ Pl_Call_Prolog(CodePtr codep)
   SEH_POP;
 #endif
 
-  CP = save_CP;			/* restore continuation */
-  ALTB(query_b) = save_ALTB;	/* restore choice point */
+  CP = save_CP;                 /* restore continuation */
+  ALTB(query_b) = save_ALTB;    /* restore choice point */
 
   return ok;
 }
@@ -379,15 +379,15 @@ Pl_Call_Prolog_Next_Sol(WamWord *query_b)
   WamCont save_ALTB = ALTB(query_b);
   Bool ok;
 
-  ALTB(query_b) = (CodePtr) Call_Prolog_Fail;	/* modify choice point */
+  ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
 
-  CP = Adjust_CP(Call_Prolog_Success);	/* should be useless since */
+  CP = Adjust_CP(Call_Prolog_Success);  /* should be useless since */
   /* alternative will restore CP */
 
   ok = Call_Next(ALTB(B));
 
-  CP = save_CP;			/* restore continuation */
-  ALTB(query_b) = save_ALTB;	/* restore choice point */
+  CP = save_CP;                 /* restore continuation */
+  ALTB(query_b) = save_ALTB;    /* restore choice point */
 
   return ok;
 }
@@ -435,7 +435,7 @@ Call_Next(CodePtr codep)
   jmp_buf *old_jumper = p_jumper;
   jmp_buf new_jumper;
   WamWord *old_buff_save = p_buff_save;
-  WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS + 1];	/* +1 if = 0 */
+  WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS + 1];  /* +1 if = 0 */
 #if 0
   WamWord buff_save_all_regs[NB_OF_REGS];
 #endif
@@ -452,17 +452,17 @@ Call_Next(CodePtr codep)
 
   Restore_Machine_Regs(buff_save_machine_regs);
 
-  if (jmp_val == 0)		/* normal call to codep */
+  if (jmp_val == 0)             /* normal call to codep */
     Pl_Call_Compiled(codep);
 
-  if (jmp_val == 3)		/* return with a continuation in jmp_val */
+  if (jmp_val == 3)             /* return with a continuation in jmp_val */
     Pl_Call_Compiled(cont_jmp);
 
-				/* normal return */
+                                /* normal return */
   p_jumper = old_jumper;
   p_buff_save = old_buff_save;
 
-  if (jmp_val < 0)		/* false: restore WAM registers */
+  if (jmp_val < 0)              /* false: restore WAM registers */
     {
 #if 0
       Restore_All_Regs(buff_save_all_regs);
@@ -470,23 +470,24 @@ Call_Next(CodePtr codep)
       return FALSE;
     }
 
-  return jmp_val;		/* 1 (TRUE) or 3 (exception) */
+  return jmp_val;               /* 1 (TRUE) or 3 (exception) */
 }
 
 
 
 
-	  /*------------------------------------------------------------*
+          /*------------------------------------------------------------*
            * Call_Prolog_Fail: Prolog continuation after failure.       *
            * Return in Call_Next with a longjmp (value -1)              *
            *------------------------------------------------------------*/
+#if 1//!(defined(M_x86_64) && defined(_MSC_VER))/* see file engine_asm.s */
 
 static void
 Call_Prolog_Fail(void)
 {
-#ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
+#ifdef M_ix86_darwin            /* see comment in Ma2Asm/ix86_any.c */
   asm("subl $4,%esp");
-#elif defined(M_x86_64) 	/* see comment in Ma2Asm/x86_64_any.c */
+#elif defined(M_x86_64) && !defined(_MSC_VER)   /* see comment in Ma2Asm/x86_64_any.c */
   asm("subq $8,%rsp");
 #endif
   Save_Machine_Regs(p_buff_save);
@@ -496,7 +497,7 @@ Call_Prolog_Fail(void)
 
 
 
-	  /*------------------------------------------------------------*
+          /*------------------------------------------------------------*
            * Call_Prolog_Success: Prolog continuation after success.    *
            * Return in Call_Next with a longjmp (value 1)               *
            *------------------------------------------------------------*/
@@ -504,19 +505,18 @@ Call_Prolog_Fail(void)
 static void
 Call_Prolog_Success(void)
 {
-#ifdef M_ix86_darwin		/* see comment in Ma2Asm/ix86_any.c */
+#ifdef M_ix86_darwin            /* see comment in Ma2Asm/ix86_any.c */
   asm("subl $4,%esp");
-#elif defined(M_x86_64) 	/* see comment in Ma2Asm/x86_64_any.c */
+#elif defined(M_x86_64) && !defined(_MSC_VER)   /* see comment in Ma2Asm/x86_64_any.c */
   asm("subq $8,%rsp");
 #endif
   Save_Machine_Regs(p_buff_save);
   longjmp(*p_jumper, 1);
 }
 
+#endif
 
-
-
-	  /*------------------------------------------------------------*
+          /*------------------------------------------------------------*
            * Exit_With_Exception:                                       *
            * Similar to a success but Call_Prolog returns 2 instead of 1*
            * (i.e. TRUE)                                                *
@@ -533,7 +533,7 @@ Pl_Exit_With_Exception(void)
 
 
 
-	  /*------------------------------------------------------------*
+          /*------------------------------------------------------------*
            * Execute_A_Continuation:                                    *
            * Similar to a nested Call_Prolog but faster, and if a fail  *
            * occurs it is normally handled by the prolog engine, i.e.   *

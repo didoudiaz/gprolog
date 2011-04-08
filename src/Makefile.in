@@ -33,19 +33,18 @@ RANLIB         = @RANLIB@
 LE_DIRS        = Linedit
 W32GC_DIRS     = W32GUICons
 FD_DIRS        = Fd2C EngineFD BipsFD
-SUB_DIRS       = TopComp EnginePl Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
+SUB_DIRS       = EnginePl TopComp Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
                  BipsPl Pl2Wam @MAKE_FD_DIRS@
-SUB_DIRS_ALL   = TopComp EnginePl Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
+SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
                  BipsPl Pl2Wam $(FD_DIRS)
 
 
 # --- COMPILE --- #
 
 all:
-	(cd EnginePl; $(MAKE) config)
 	. ./SETVARS;for i in $(SUB_DIRS);do (cd $$i; $(MAKE)) || exit 1; done;\
-	(cd TopComp; $(MAKE) $(TOP_LEVEL)@EXE_SUFFIX@) || exit 1;\
-	(cd Pl2Wam; $(MAKE) stage2)
+	(cd TopComp; $(MAKE) top-level) || exit 1;\
+	(cd Pl2wam; $(MAKE) stage2)
 
 
 # --- INSTALL --- #

@@ -43,18 +43,11 @@
 #include <io.h>
 #include <fcntl.h>
 
-#if defined(__unix__) || defined(__CYGWIN__)
-#include <unistd.h>
-#endif
-
-#define L(msg)  fprintf(f, "%s\n", msg)
 
 /*-------------------------------------------------------------------------*
  * MAIN                                                                    *
  *                                                                         *
- * argv[1]: the system drive                                               *
- * argv[2]: the GNU Prolog root path                                       *
- * argv[3]: i(nstall) or u(ninstall)                                       *
+ * argv[1]: the GNU Prolog root path                                       *
  *-------------------------------------------------------------------------*/
 int
 main(int argc, char *argv[])
@@ -63,33 +56,25 @@ main(int argc, char *argv[])
   int install;
   FILE *f;
 
-  if (argc != 4)
+  if (argc != 2)
     {
-      fprintf(stderr, "Usage: %s SYSTEM_DRIVE GPROLOG_PATH INSTALL/UNINSTALL\n", argv[0]);
+      fprintf(stderr, "Usage: %s GPROLOG_PATH\n", argv[0]);
       return 1;
     }
-
-  install = (argv[3][0] == 'i' || argv[3][0] == 'I');
 
   sprintf(buff, "%s\\gprologvars.bat", argv[1]);
-  if (install)
+  if ((f = fopen(buff, "wt")) == NULL)
     {
-      if ((f = fopen(buff, "wt")) == NULL)
-	{
-	  perror(buff);
-	  fprintf(stderr, "If needed, add %s\\bin to your PATH - press RETURN\n",
-		  argv[2]);
-	  fflush(stderr);
-	  gets(buff);
-	  return 1;
-	}
-      fprintf(f, "@echo off\n");
-      fprintf(f, "echo Setting environment for using GNU Prolog\n");
-      fprintf(f, "PATH=%%PATH%%;\"%s\\bin\"\n", argv[2]);
-      fclose(f);
-    }
-  else
-    if (access(buff, 0) == 0 && unlink(buff) != 0)
+      perror(buff);
+      fprintf(stderr, "If needed, add %s\\bin to your PATH - press RETURN\n", argv[1]);
+      fflush(stderr);
+      gets(buff);
       return 1;
+    }
+  fprintf(f, "@echo off\n");
+  fprintf(f, "echo Setting environment for using GNU Prolog\n");
+  fprintf(f, "PATH=%%PATH%%;\"%s\\bin\"\n", argv[1]);
+  fclose(f);
+
   return 0;
 }

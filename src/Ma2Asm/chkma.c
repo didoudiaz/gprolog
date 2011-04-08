@@ -39,7 +39,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
 
 #ifndef FAST  /* see Makefile */
 #define FC /* define FC to force arch_dep.h to no use FC */
@@ -225,6 +224,8 @@ void (*tbl[]) () =
   NULL
 };
 
+#define PRINTRET void *adr = _AddressOfReturnAddress(); printf("adr return: %p\n", adr)
+
 
 /*-------------------------------------------------------------------------*
  * MAIN                                                                    *
@@ -279,6 +280,9 @@ main(int argc, char *argv[])
 	 (PlULong) pl_reg_bank, (PlULong) B, (PlULong) E, (PlULong) &Y(E, 0));
 
   printf("stack:%#" PL_FMT_x "\n", (PlULong) stack);
+
+
+  //  { PlLong *disp_stack(); printf("rsp : %p\n", disp_stack()); }
   while (tbl[i++])
     {
       printf("test %d: ", i);
@@ -290,7 +294,6 @@ main(int argc, char *argv[])
   printf("MA checks suceeded\n");
   return 0;
 }
-
 
 
 
@@ -528,9 +531,11 @@ test_arg_double(void)
 
 
 void FC
-test_arg_double1(double a, double b, double c)
+test_arg_double1(double a, double b, double c, double d, double e, double f)
 {
-  if (a != 12.456 || b != -1.3e-102 || c != -3.141593)
+  static double loc_d; loc_d = a + c + f; // check some double alignment
+  if (a != 12.456 || b != -1.3e-102 || c != -3.141593 ||
+      d != 12.456 || e != -1.3e-102 || f != -3.141593)
     error();
   x++;
 }
@@ -553,7 +558,9 @@ void test_arg_mixed(void)
 void FC
 test_arg_mixed1(int ai, double a, double b, int bi, int ci, double c, int di)
 {
-  /*  printf("Results: a %g, ai %d, b %g, bi %d, c %g, ci %d, di %d\n",	 a, ai, b, bi, c, ci, di); */
+#ifdef DEBUG
+  printf("Results: ai %d, a %g, b %g, bi %d, c %g, ci %d, di %d\n", ai, a, b, bi, c, ci, di);
+#endif
   if (a != 12.456 || b != -1.3e-102 || c != -3.141593 ||
       ai != -19 || bi != 365 || ci != 987654321 || di != -110101)
     error();
@@ -605,8 +612,10 @@ void FC
 test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f)
 {
   // JAT: needed more detail here
-  /*  printf("Results: a %" PL_FMT_d ", b %" PL_FMT_d ", c %p (test_arg_m_l %p), d %" PL_FMT_d " (MA_ARRAY[0] %" PL_FMT_d "), e %" PL_FMT_d " (MA_ARRAY[4097] %" PL_FMT_d "), f %p (&MA_ARRAY[4500] %p)\n",
-      a,b,c,test_arg_mem_l,d,MA_ARRAY[0],e,MA_ARRAY[4097],f,&MA_ARRAY[4500]); */
+#ifdef DEBUG
+  printf("Results: a %" PL_FMT_d ", b %" PL_FMT_d ", c %p (test_arg_m_l %p), d %" PL_FMT_d " (MA_ARRAY[0] %" PL_FMT_d "), e %" PL_FMT_d " (MA_ARRAY[4097] %" PL_FMT_d "), f %p (&MA_ARRAY[4500] %p)\n",
+         a,b,c,test_arg_mem_l,d,MA_ARRAY[0],e,MA_ARRAY[4097],f,&MA_ARRAY[4500]);
+#endif
   if (a != 128 || b != 12345 || c != (PlLong *) test_arg_mem_l
       || d != MA_ARRAY[0] || e != MA_ARRAY[4097] || f != &MA_ARRAY[4500])
     error();

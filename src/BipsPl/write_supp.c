@@ -39,7 +39,6 @@
 
 #include <string.h>
 #include <ctype.h>
-#include <inttypes.h>
 
 #define OBJ_INIT Write_Supp_Initializer
 

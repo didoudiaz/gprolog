@@ -11,10 +11,10 @@ EXECS     = $(GPLC)@EXE_SUFFIX@ $(HEXGPLC)@EXE_SUFFIX@
 ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
 
 
-first:	$(EXECS)
+first: $(EXECS)
 
-$(GPLC)@EXE_SUFFIX@: top_comp.c ../EnginePl/wam_regs.h \
-         ../EnginePl/gp_config.h decode_hexa.c copying.c prolog_path.c
+$(GPLC)@EXE_SUFFIX@: top_comp.c copying.c ../EnginePl/wam_regs.h \
+         ../EnginePl/gp_config.h ../EnginePl/machine1.c decode_hexa.c copying.c prolog_path.c
 	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c $(LDLIBS)
 
 $(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c
@@ -23,6 +23,9 @@ $(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c
 
 
 all: $(ALL_EXECS)
+
+
+top-level: $(TOP_LEVEL)@EXE_SUFFIX@
 
 $(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level.c
 	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ -C '$(CFLAGS)' top_level.c

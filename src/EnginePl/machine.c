@@ -43,7 +43,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ctype.h>
-#include <inttypes.h>
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
@@ -422,7 +421,7 @@ Pl_M_Allocate_Stacks(void)
   }
 
 #elif !defined(USE_SEH)
-  signal(SIGSEGV, (void (*)()) SIGSEGV_Handler);
+  signal(SIGSEGV, (void (*)(int)) SIGSEGV_Handler);
 #endif
 }
 
@@ -560,7 +559,9 @@ SIGSEGV_Handler(int sig)
                                 /* addr passed as argument */
 #else
                                 /* cannot detect fault addr */
+#ifdef __GNUC__
 #warning SIGSEGV_Handler does not know how to detect fault addr - use magic numbers
+#endif
 
 #define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 
@@ -740,8 +741,8 @@ Pl_M_User_Time(void)
   /* Success on Windows NT */
   if (GetProcessTimes(GetCurrentProcess(),
                       &creat_t, &exit_t, &kernel_t, &user_t))
-    user_time = (PlLong) (((PlULong) user_t.dwHighDateTime << 32) +
-                        (PlULong) user_t.dwLowDateTime) / 10000;
+    user_time = (PlLong) (((__int64) user_t.dwHighDateTime << 32) +
+                        (__int64) user_t.dwLowDateTime) / 10000;
   else                          /* not implemented on Windows 95/98 */
     user_time = (PlLong) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
@@ -782,8 +783,8 @@ Pl_M_System_Time(void)
   /* Success on Windows NT */
   if (GetProcessTimes(GetCurrentProcess(),
                       &creat_t, &exit_t, &kernel_t, &user_t))
-    system_time = (PlLong) (((PlULong) kernel_t.dwHighDateTime << 32) +
-                          (PlULong) kernel_t.dwLowDateTime) / 10000;
+    system_time = (PlLong) (((__int64) kernel_t.dwHighDateTime << 32) +
+                          (__int64) kernel_t.dwLowDateTime) / 10000;
   else                          /* not implemented on Windows 95/98 */
     system_time = 0;
 

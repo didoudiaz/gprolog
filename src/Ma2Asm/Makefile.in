@@ -63,7 +63,7 @@ chkma_ma@OBJ_SUFFIX@: chkma_ma@ASM_SUFFIX@
 	$(GPLC) -c chkma_ma@ASM_SUFFIX@
 
 chkma@EXE_SUFFIX@: $(CHKMA_OBJS)
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@chkma@EXE_SUFFIX@ $(CHKMA_OBJS) $(LDLIBS)
+	$(GPLC) -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) --no-pl-lib
 
 clean-chkma:
 	rm -f chkma@OBJ_SUFFIX@ chkma_ma@ASM_SUFFIX@ chkma_ma@OBJ_SUFFIX@ chkma@EXE_SUFFIX@

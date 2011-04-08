@@ -2,7 +2,7 @@
 % file    : stream.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/stream.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/stream.pl').
 
 
 predicate('$use_stream'/0,42,static,private,monofile,built_in,[

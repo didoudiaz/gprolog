@@ -76,10 +76,10 @@ obj_chain@OBJ_SUFFIX@: obj_chain.h obj_chain.c
 
 # Prolog engine
 
-# engine1 should be compiled without optimizations
+# engine1.c should be compiled without optimizations (or else it is a .s)
 
-engine1@OBJ_SUFFIX@: engine1.c
-	$(GPLC) -c engine1.c
+engine1@OBJ_SUFFIX@: @MAKE_ENGINE1_SRC@
+	$(GPLC) -c -o engine1@OBJ_SUFFIX@ @MAKE_ENGINE1_SRC@
 
 engine@OBJ_SUFFIX@: engine.h engine.c
 

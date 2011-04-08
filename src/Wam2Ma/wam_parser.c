@@ -42,7 +42,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-#include <inttypes.h>
 #include <setjmp.h>
 #include <locale.h>
 
@@ -628,7 +627,7 @@ Scanner(int complex_atom)
 		    }
 		  else
 		    i = 8;
-		  i = strtoll(cur_line_p, &p1, i);	/* stop on the closing \ */
+		  i = strtol(cur_line_p, &p1, i);	/* stop on the closing \ */
 		  cur_line_p = p1 + 1;
 		  sprintf(p, "%03" PL_FMT_o, i);
 		  p += 3;
@@ -685,7 +684,7 @@ Scanner(int complex_atom)
     }
 
 
-  i = strtoll(cur_line_p, &p, 0);
+  i = Str_To_PlLong(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;
   d = strtod(cur_line_p, &p1);

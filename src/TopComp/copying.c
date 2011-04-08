@@ -40,26 +40,38 @@
 /* This file included by top_comp.c, wam2ma.c, ma2asm.c,... */
 
 
+/*-------------------------------------------------------------------------*
+ * MK_COPYING_MESSAGE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char *
+Mk_Copying_Message(char *sub_part)
+{
+  static char buff[256];
+  if (sub_part)
+    sprintf(buff, "%s (%s) %s\n", sub_part, PROLOG_NAME, PROLOG_VERSION);
+  else
+    sprintf(buff, "%s %s\n", PROLOG_NAME, PROLOG_VERSION);
+
+  strcat(buff, "By Daniel Diaz\n"
+#ifdef ADDITIONAL_INFORMATION
+         ADDITIONAL_INFORMATION
+#endif
+         PROLOG_COPYRIGHT "\n\n"
+         PROLOG_NAME " comes with ABSOLUTELY NO WARRANTY.\n"
+         "This is free software; see the source or the file\n"
+         "named COPYING for copying conditions.\n");
+  return buff;
+}
+
 
 
 /*-------------------------------------------------------------------------*
  * DISPLAY_COPYING                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+static void
 Display_Copying(char *sub_part)
 {
-  if (sub_part)
-    fprintf(stderr, "%s (%s) ", sub_part, PROLOG_NAME);
-  else
-    fprintf(stderr, "%s ", PROLOG_NAME);
-
-  fprintf(stderr, "%s\n", PROLOG_VERSION);
-  fprintf(stderr, "By Daniel Diaz\n");
-  fprintf(stderr, "%s\n", PROLOG_COPYRIGHT);
-  fprintf(stderr, "%s comes with ABSOLUTELY NO WARRANTY.\n", PROLOG_NAME);
-  fprintf(stderr, "You may redistribute copies of %s\n", PROLOG_NAME);
-  fprintf(stderr, "under the terms of the GNU Lesser General Public License.\n");
-  fprintf(stderr, "For more information about these matters, "
-	  "see the files named COPYING.\n");
+  fprintf(stderr, "%s", Mk_Copying_Message(sub_part));
 }

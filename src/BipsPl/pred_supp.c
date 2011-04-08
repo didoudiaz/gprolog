@@ -125,7 +125,7 @@ Pl_Father_Pred_Of_Aux(int func, int *father_arity)
 
   l = p - pl_atom_tbl[func].name;
 
-  *father_arity = strtoll(p + 1, NULL, 10);
+  *father_arity = strtol(p + 1, NULL, 10);
   strcpy(pl_glob_buff, pl_atom_tbl[func].name + 1);	/* skip 1st $ */
   pl_glob_buff[l - 1] = '\0';
 

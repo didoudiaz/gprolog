@@ -195,7 +195,7 @@ Encode_Hexa_Line(char *str, char *format, int strict)
 	  pred = buff;
 	}
 
-      arity = strtoll(p + 1, &q, 10); /* we suppose *p = '/' */
+      arity = strtol(p + 1, &q, 10); /* we suppose *p = '/' */
 
       if (*pred == '\0' || (*p != '/' && strict) ||
 	  (*p == '/' && (arity < 0 || arity > 1024 || isalnum(*q) || *q == '_')))
@@ -337,7 +337,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   *arity = -1;
   if (*str == '_' && str[1] == '_') /*  the arity */
     {
-      *arity = strtoull(str + 2, &p, 10); /* +2 to skip '__' */
+      *arity = strtoul(str + 2, &p, 10); /* +2 to skip '__' */
       if (p == str + 2)
 	*arity = -1;
       str = p;
@@ -354,7 +354,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   *aux_no = -1;
   if (decode_aux && *pred == '$' && (p = strstr(pred, AUX_STR)) != NULL)
     {
-      n = strtoll(p + sizeof(AUX_STR) - 1, &q, 10);
+      n = strtol(p + sizeof(AUX_STR) - 1, &q, 10);
       if (*q == '\0')
 	{
 	  while(--p > pred && isdigit(*p)) /* search for arity of the father pred */
@@ -364,7 +364,7 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
 	    {
 	      *aux_no = n;
 	      *p = '\0';
-	      *arity = strtoll(p + 1, &p, 10);
+	      *arity = strtol(p + 1, &p, 10);
 	      p = pred;
 	      do
 		*p = p[1];
@@ -599,7 +599,7 @@ Parse_Atom(char *src, char *dst)
 		}
 	      else
 		i = 8;
-	      i = strtoll(src, &p, i);       /* stop on the closing \ */
+	      i = strtol(src, &p, i);       /* stop on the closing \ */
 	      if (p == src || !isxdigit(*src) || *p != '\\')  /* isxdigit test is for sign */
 		return NULL;
 	      *dst++ = (char) i;

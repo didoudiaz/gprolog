@@ -39,7 +39,7 @@ main(int argc, char *argv[])
   printf("Page Size:%d bytes\n", getpagesize());
 
   if (argc > 1)
-    addr = (PlLong *) strtoull(argv[1], NULL, 16);
+    addr = (PlLong *) _strtoul(argv[1], NULL, 16);
 
   printf("TRYING at %#x\n", addr);
 

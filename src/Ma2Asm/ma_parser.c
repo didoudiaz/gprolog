@@ -766,7 +766,7 @@ Scanner(void)
       return IDENTIFIER;
     }
 
-  i = strtoll(cur_line_p, &p, 0);
+  i = Str_To_PlLong(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;
   d = strtod(cur_line_p, &p1);

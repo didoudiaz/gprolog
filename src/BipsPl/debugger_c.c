@@ -39,7 +39,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include <signal.h>
 #include <setjmp.h>
 
@@ -881,7 +880,7 @@ Read_An_Integer(int arg_nb)
   char *p;
   PlLong val = 0;
 
-  val = strtoll(read_arg[arg_nb], &p, 0);
+  val = Str_To_PlLong(read_arg[arg_nb], &p, 0);
   if (*p)
     Pl_Stream_Printf(pstm_o, "Incorrect integer\n");
 
@@ -1061,7 +1060,7 @@ Modify_Wam_Word(WamWord *word_adr)
       /* integer */
       if (nb_read_arg == 1 && *read_arg[0] >= '0' && *read_arg[0] <= '9')
 	{
-	  word = strtoll(read_arg[0], &p, 0);
+	  word = Str_To_PlLong(read_arg[0], &p, 0);
 	  if (*p == '\0')
 	    {
 	      *word_adr = word;
@@ -1094,7 +1093,7 @@ Modify_Wam_Word(WamWord *word_adr)
 	  switch (pl_tag_tbl[i].type)
 	    {
 	    case LONG_INT:
-	      word = strtoll(read_arg[1], &p, 0);
+	      word = Str_To_PlLong(read_arg[1], &p, 0);
 	      if (*p != '\0')
 		goto err;
 
@@ -1102,7 +1101,7 @@ Modify_Wam_Word(WamWord *word_adr)
 	      return;
 
 	    case SHORT_UNS:
-	      word = strtoll(read_arg[1], &p, 0);
+	      word = Str_To_PlLong(read_arg[1], &p, 0);
 	      if (*p == '\0')
 		j = Read_An_Integer(1);
 	      else if (strcmp(read_arg[0], "ATM") == 0)
@@ -1141,11 +1140,11 @@ Modify_Wam_Word(WamWord *word_adr)
       /* functor/arity */
     functor_arity:
       *slash = '\0';
-      i = strtoll(slash + 1, &p, 0);
+      i = strtol(slash + 1, &p, 0);
       if (*p != '\0' || i < 1 || i > MAX_ARITY)
 	goto err;
 
-      word = strtoll(read_arg[0], &p, 0);
+      word = Str_To_PlLong(read_arg[0], &p, 0);
       if (*p != '\0')
 	word = (PlLong) Pl_Create_Allocate_Atom(read_arg[0]);
       else if (word < 0 || word >= MAX_ATOM)

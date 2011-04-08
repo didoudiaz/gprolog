@@ -62,6 +62,9 @@
 /* Define if you have malloc.h */
 #undef HAVE_MALLOC_H
 
+/* Define if you have inttypes.h */
+#undef HAVE_INTTYPES_H
+
 /* Define if you have a working mmap system call */
 #undef HAVE_MMAP
 
@@ -143,6 +146,9 @@
 
 /* Define if the OS is a WIN32 */
 #undef M_win32
+
+/* Define if the OS is a WIN64 (in addition to M_win32) */
+#undef M_win64
 
 /* Define if the OS is a SCO */
 #undef M_sco
@@ -240,6 +246,7 @@
 #define LDFLAGS                    any
 #define LDLIBS                     any
 #define AS                         any
+#define ASFLAGS                    any
 #define STRIP                      any
 
 #define ASM_SUFFIX                 any

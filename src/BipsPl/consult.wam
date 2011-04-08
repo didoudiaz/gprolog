@@ -2,7 +2,7 @@
 % file    : consult.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/consult.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/consult.pl').
 
 
 predicate('$use_consult'/0,42,static,private,monofile,built_in,[

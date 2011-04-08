@@ -40,7 +40,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <inttypes.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"

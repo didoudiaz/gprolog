@@ -1,4 +1,4 @@
-# $Id$
+ $Id$
 
 # *********************************
 # * autoconf configuration script *
@@ -71,6 +71,7 @@ AC_SUBST(CC_EXE_NAME_OPT)
 AC_SUBST(AR_RC)
 AC_SUBST(AR_SEP)
 AC_SUBST(AS)
+AC_SUBST(ASFLAGS)
 AC_SUBST(STRIP)
 
 AC_SUBST(RC)
@@ -78,7 +79,7 @@ AC_SUBST(RCFLAGS)
 AC_SUBST(RC_OUT_NAME_OPT)
 AC_SUBST(LD)
 AC_SUBST(LD_OUT_NAME_OPT)
-AC_SUBST(LD_DLL_NAME_OPT)
+AC_SUBST(LD_DLL_OPT)
 
 AC_SUBST(ROOT_DIR)
 AC_SUBST(ROOT_DIR1)
@@ -108,6 +109,7 @@ AC_SUBST(MAKE_LE_DIRS)
 AC_SUBST(MAKE_W32GC_DIRS)
 AC_SUBST(MAKE_FD_DIRS)
 
+AC_SUBST(MAKE_ENGINE1_SRC)
 AC_SUBST(MAKE_LE_INTERF_OBJS)
 AC_SUBST(MAKE_SOCKETS_OBJS)
 
@@ -214,8 +216,6 @@ if test "$WITH_MSVC" != no; then
     echo "using MSVC++ as C compiler"
     CC=cl
     WIN_CONF_OPT=--with-msvc
-#   NB: double [[ ]] for m4
-    WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
 fi
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
@@ -225,18 +225,64 @@ AC_PROG_CC
 
 AC_CANONICAL_HOST
 
+# determine if MinGW and Windows path associated to posix path /tmp
+# needs AC_CANONICAL_HOST
+
+case "$host_os" in
+    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; MINGW=yes; WIN_CC_VER=mingw;;
+esac
+
+# customize MSVC
+
+MAKE_ENGINE1_SRC='engine1.c'
 
 if test "$WITH_MSVC" != no; then
+
+#   NB: double [[ ]] for m4
+#   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
+   WIN_CC_VER=msvc
+
+   dnl test if cl.exe runs in 32 or 64 bits (return 0 if in 64 bits)
+
+   AC_MSG_CHECKING(for cl.exe producing 32-bit or 64-bit executables)
+   AC_RUN_IFELSE([AC_LANG_SOURCE([[int main() { return sizeof(void *) != 8; }]])], [
+        AC_MSG_RESULT(64-bit mode (x86_64)) 
+        cl_mode=64], [
+        AC_MSG_RESULT(32-bit mode (x86))
+        cl_mode=32], [
+        AC_MSG_RESULT([can't test in cross-compiling])])
+
+    if test $cl_mode = 32; then
+        WITH_MSVC=32
+        host_cpu=i686
+        host_os=win32
+        AS=mingw-as
+        ASFLAGS=
+    else
+        WITH_MSVC=64
+        host_cpu=x86_64
+        host_os=win64
+        AS=yasm-win64
+        ASFLAGS='-f win64 -p gas'
+        MAKE_ENGINE1_SRC='eng1-x86_64_win.s'
+    fi
+    host_vendor=microsoft
+
+    host=$host_cpu-$host_vendor-$host_os
+
+    AC_MSG_CHECKING(for actual host system type...)
+    AC_MSG_RESULT($host)
+
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.obj'
     LIB_SUFFIX='.lib'
     CC_OBJ_NAME_OPT='-Fo'
     CC_EXE_NAME_OPT='-Fe'
-    AC_CHECK_PROGS(MINGWAS, mingw-as,no)
-    if test "$MINGWAS" = no; then
-        AC_MSG_ERROR([mingw-as.exe (MinGW as.exe) is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/mingw-as.exe])
+    AC_CHECK_PROGS(WIN_AS_FOUND, $AS,no)
+    if test "$WIN_AS_FOUND" = no; then
+        AC_MSG_ERROR([$AS.exe is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/$AS.exe])
     fi
-    AS=mingw-as
     AR_RC='lib -nologo -out:'
     AR_SEP=''
     STRIP=:
@@ -244,29 +290,30 @@ if test "$WITH_MSVC" != no; then
     RC=rc
     RCFLAGS=''
     RC_OUT_NAME_OPT='-fo'
-    LD=link
-    LD_OUT_NAME_OPT='-out:'
-    LD_DLL_NAME_OPT='-dll'
+#   uset this directly invokes MS link.exe (instead of using cl.exe)
+#    LD=link
+#    LD_OUT_NAME_OPT='-out:'
+#    LD_DLL_OPT='-dll'
+
+#   invokes cl.exe
+    LD=$CC
+    LD_OUT_NAME_OPT='-Fe'
+    LD_DLL_OPT='-link -dll'
+
+
 else
+
     if test "$GCC" != yes; then
         AC_MSG_ERROR([gcc is required (or MSVC++ under Windows)])
     fi
 
+    AS=as
     case "$host" in
-	i*86*darwin10*)
-	    AS='as -arch i686'
-        ;;
-	x86_64*solaris*)
-	    AS='gas --64'
-        ;;
-	*)
-	    if test "$with_gas" = yes; then
-		AS=gas
-	    else
-	      AC_CHECK_TOOL([AS],[as])
-	    fi
-        ;;
+        i*86*darwin10*)  ASFLAGS='-arch i686';;
+        x86_64*solaris*) AS=gas; ASFLAGS='--64';;
+        *)               if test "$with_gas" = yes; then AS=gas; fi;;
     esac
+    AC_CHECK_TOOL([AS],[$AS])
     AC_PROG_RANLIB
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.o'
@@ -278,12 +325,14 @@ else
     RC_OUT_NAME_OPT='-o '
     LD=$CC
     LD_OUT_NAME_OPT='-o '
-    LD_DLL_NAME_OPT='-shared'
+    LD_DLL_OPT='-shared'
     AC_CHECK_TOOL([AR],[ar])
     AR_RC="$AR rc "
     AR_SEP=' '
     AC_CHECK_TOOL([STRIP],[strip])
 fi
+
+# RCFLAGS="$RCFLAGS -l 0x409"
 
 EXE_SUFFIX=$EXEEXT
 AC_PROG_MAKE_SET
@@ -303,72 +352,47 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 # * host detection and features *
 # *******************************
 
-# determine windows path associated to posix path /tmp
+WINDOWS=no
 
-case "$host_os" in
-    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
-    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; WIN_CC_VER=mingw;;
+case "$host" in
+    mips*irix*)      AC_DEFINE(M_mips)    AC_DEFINE(M_irix)    AC_DEFINE(M_mips_irix);;
+    sparc*sunos*)    AC_DEFINE(M_sparc)   AC_DEFINE(M_sunos)   AC_DEFINE(M_sparc_sunos);;
+    sparc*solaris*)  AC_DEFINE(M_sparc)   AC_DEFINE(M_solaris) AC_DEFINE(M_sparc_solaris);;
+    sparc*bsd*)      AC_DEFINE(M_sparc)   AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc_bsd);;
+    alpha*osf*)      AC_DEFINE(M_alpha)   AC_DEFINE(M_osf)     AC_DEFINE(M_alpha_osf);;
+    alpha*linux*)    AC_DEFINE(M_alpha)   AC_DEFINE(M_linux)   AC_DEFINE(M_alpha_linux);;
+    x86_64*linux*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_linux)   AC_DEFINE(M_x86_64_linux);;
+    x86_64*bsd*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
+    x86_64*solaris*) AC_DEFINE(M_x86_64)  AC_DEFINE(M_solaris) AC_DEFINE(M_x86_64_solaris);;
+    x86_64*mingw*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    x86_64*win64*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    i*86*linux*)     AC_DEFINE(M_ix86)    AC_DEFINE(M_linux)   AC_DEFINE(M_ix86_linux);;
+    i*86*solaris*)   AC_DEFINE(M_ix86)    AC_DEFINE(M_solaris) AC_DEFINE(M_ix86_solaris);;
+    i*86*sco*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_sco)     AC_DEFINE(M_ix86_sco);;
+    i*86*bsd*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
+    i*86*cygwin*)    AC_DEFINE(M_ix86)    AC_DEFINE(M_cygwin)  AC_DEFINE(M_ix86_cygwin);;
+    i*86*mingw*)     AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
+    i*86*win32*)     AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
+    i*86*darwin*)    AC_DEFINE(M_ix86)    AC_DEFINE(M_darwin)  AC_DEFINE(M_ix86_darwin);;
+    powerpc*linux*)  AC_DEFINE(M_powerpc) AC_DEFINE(M_linux)   AC_DEFINE(M_powerpc_linux);;
+    powerpc*darwin*) AC_DEFINE(M_powerpc) AC_DEFINE(M_darwin)  AC_DEFINE(M_powerpc_darwin);;
+    powerpc*bsd*)    AC_DEFINE(M_powerpc) AC_DEFINE(M_bsd)     AC_DEFINE(M_powerpc_bsd);;
+
+    *)               AC_MSG_ERROR(unsupported architecture)
 esac
 
-if test "$WITH_MSVC" != no; then
+# M_win64 ==> M_win32
 
-    AC_DEFINE(M_ix86)
-    AC_DEFINE(M_win32)
-    AC_DEFINE(M_ix86_win32)
-    host_vendor=Microsoft
-    host_os=win32
-    WIN32=yes
-
-else
-
-    WIN32=no
-    case "$host_cpu" in
-        mips*)          AC_DEFINE(M_mips);;
-        alpha*)         AC_DEFINE(M_alpha);;
-        sparc*)         AC_DEFINE(M_sparc);;
-        x86_64)         AC_DEFINE(M_x86_64);;
-        i*86)           AC_DEFINE(M_ix86);;
-        powerpc*|ppc*)  AC_DEFINE(M_powerpc);;
-    esac
-
-    case "$host_os" in
-        *osf*)          AC_DEFINE(M_osf);;
-        irix*)          AC_DEFINE(M_irix);;
-        sunos*)         AC_DEFINE(M_sunos);;
-        solaris*)       AC_DEFINE(M_solaris);;
-        linux*)         AC_DEFINE(M_linux);;
-        cygwin*)        AC_DEFINE(M_cygwin);;
-        mingw*)         AC_DEFINE(M_mingw) MINGW=yes; WIN32=yes;;
-        *sco*)          AC_DEFINE(M_sco);;
-        *bsd*)          AC_DEFINE(M_bsd);;
-        *darwin*)       AC_DEFINE(M_darwin);;
-    esac
-
-    case "$host" in
-        mips*irix*)      AC_DEFINE(M_mips_irix);;
-        sparc*sunos*)    AC_DEFINE(M_sparc_sunos);;
-        sparc*solaris*)  AC_DEFINE(M_sparc_solaris);;
-        sparc*bsd*)      AC_DEFINE(M_sparc_bsd);;
-        alpha*osf*)      AC_DEFINE(M_alpha_osf);;
-        alpha*linux*)    AC_DEFINE(M_alpha_linux);;
-        x86_64*linux*)   AC_DEFINE(M_x86_64_linux);;
-        x86_64*bsd*)     AC_DEFINE(M_x86_64_bsd);;
-        x86_64*solaris*) AC_DEFINE(M_x86_64_solaris);;
-        x86_64*mingw*)   AC_DEFINE(M_x86_64_mingw);;
-        i*86*linux*)     AC_DEFINE(M_ix86_linux);;
-        i*86*solaris*)   AC_DEFINE(M_ix86_solaris);;
-        i*86*sco*)       AC_DEFINE(M_ix86_sco);;
-        i*86*bsd*)       AC_DEFINE(M_ix86_bsd);;
-        i*86*cygwin*)    AC_DEFINE(M_ix86_cygwin);;
-        i*86*mingw*)     AC_DEFINE(M_ix86_mingw);;
-        i*86*darwin*)    AC_DEFINE(M_ix86_darwin);;
-        powerpc*linux*)  AC_DEFINE(M_powerpc_linux);;
-        powerpc*darwin*) AC_DEFINE(M_powerpc_darwin);;
-        powerpc*bsd*)    AC_DEFINE(M_powerpc_bsd);;
-        *)               AC_MSG_ERROR(unsupported architecture)
-    esac
-
+if test "$WINDOWS" = 64; then
+   AC_DEFINE(M_win32)
 fi
+
+
+case "$WINDOWS" in
+    32) WIN_CC_VER="$WIN_CC_VER-x86";;
+    64) WIN_CC_VER="$WIN_CC_VER-x64";;
+esac
+
 
 # -------------------
 # Check for socklen_t
@@ -419,7 +443,7 @@ AC_C_INLINE
 if test "$WITH_MSVC" != no; then
 
     case "$WITH_C_FLAGS" in
-        debug) CFLAGS='-W3 -ZI -EHsc';;
+        debug) CFLAGS='-W3 -Zi -EHsc';;
         no)    CFLAGS='';;
         yes)   CFLAGS='-O2 -EHsc';;
         *)     CFLAGS="$WITH_C_FLAGS";;
@@ -439,7 +463,7 @@ else
 
 # -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
     if test "$MINGW-$WITH_C_FLAGS" = yes-yes; then
-	CFLAGS='-O3'
+        CFLAGS='-O3'
     fi
 
     CFLAGS_PREFIX_REG='-ffixed-%s'
@@ -483,7 +507,6 @@ else
     esac
 
 
-
 # For MacOsX - try to avoid this (activate only for fast library fix)
 #    case "$host" in
 #       powerpc*darwin*)        RANLIB="$RANLIB -c";;
@@ -519,23 +542,23 @@ make_lib_list()
     echo $list
 }
 
-if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WIN32" = no \)
+if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WINDOWS" = no \)
 then
     AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no
 fi
 
 if test "$USE_GUI_CONSOLE" != yes
 then
-	WITH_HTMLHELP=no
+    WITH_HTMLHELP=no
 fi
 
-if test $WIN32 = yes; then
+if test "$WINDOWS" != no; then
     LIB='advapi32 user32'
     GUILIB='kernel32 user32 gdi32 comdlg32 advapi32 comctl32 shell32 ole32 winmm'
 # winmm is for the sound PlaySound in the GUI
 # other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
     case "$WITH_HTMLHELP" in
-       static) AC_DEFINE(WITH_HTMLHELP, 1) GUILIB="$GUILIB htmlhelp";;
+       static)  AC_DEFINE(WITH_HTMLHELP, 1) GUILIB="$GUILIB htmlhelp";;
        dynamic) AC_DEFINE(WITH_HTMLHELP, 2);;
        *) WITH_HTMLHELP=no
     esac
@@ -590,6 +613,7 @@ AC_DEFINE_UNQUOTED(CFLAGS_MACHINE,   "$CFLAGS_MACHINE")
 AC_DEFINE_UNQUOTED(LDFLAGS,          "$LDFLAGS")
 AC_DEFINE_UNQUOTED(LDLIBS,           "$LDLIBS")
 AC_DEFINE_UNQUOTED(AS,               "$AS")
+AC_DEFINE_UNQUOTED(ASFLAGS,          "$ASFLAGS")
 AC_DEFINE_UNQUOTED(STRIP,            "$STRIP")
 
 AC_DEFINE_UNQUOTED(ASM_SUFFIX,       "$ASM_SUFFIX")
@@ -729,7 +753,7 @@ echo "--> Examples:           $EXAMPLES_DIR"
 
 
 if test "$IN_PLACE" = no; then
-    TXT_FILES='COPYING VERSION NEWS ChangeLog'
+    TXT_FILES='README COPYING VERSION NEWS ChangeLog'
 else
     TXT_FILES=
 fi
@@ -847,6 +871,3 @@ AC_CONFIG_FILES(Makefile
                 BipsFD/Makefile
                 $OTHER_MAKEFILES)
 AC_OUTPUT
-
-
-

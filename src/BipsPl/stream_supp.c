@@ -83,7 +83,7 @@ extern void clearerr(FILE *stream);
 
 #define TTY_BUFFER_SIZE            1024
 
-#define BIG_BUFFER                 2048
+#define BIG_BUFFER                 65535
 
 
 

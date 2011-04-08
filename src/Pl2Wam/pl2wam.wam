@@ -2,7 +2,7 @@
 % file    : pl2wam.pl
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
 
 
 predicate(pl2wam/1,40,static,private,monofile,global,[
@@ -1315,7 +1315,10 @@ predicate(display_copying/0,423,static,private,monofile,global,[
     unify_local_value(y(0)),
     unify_nil,
     call(format/2),
-    put_atom('under the terms of the GNU Lesser General Public License.~n',0),
+    put_atom('under the terms of the GNU Lesser General Public License~n',0),
+    put_nil(1),
+    call(format/2),
+    put_atom('or of the terms of the GNU General Public License (or both in parallel)~n',0),
     put_nil(1),
     call(format/2),
     put_atom('For more information about these matters, see the files named COPYING.~n',0),
@@ -1324,31 +1327,31 @@ predicate(display_copying/0,423,static,private,monofile,global,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,439,static,private,monofile,global,[
+predicate(prolog_name/1,440,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,442,static,private,monofile,global,[
+predicate(prolog_version/1,443,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,445,static,private,monofile,global,[
+predicate(prolog_date/1,446,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,448,static,private,monofile,global,[
+predicate(prolog_copyright/1,449,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,456,static,private,monofile,global,[
+predicate(h/1,457,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -1534,7 +1537,7 @@ label(52),
     proceed]).
 
 
-predicate(go/0,487,static,private,monofile,global,[
+predicate(go/0,488,static,private,monofile,global,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1543,5 +1546,5 @@ predicate(go/0,487,static,private,monofile,global,[
     execute(pl2wam/1)]).
 
 
-directive(491,user,[
+directive(492,user,[
     execute(go/0)]).

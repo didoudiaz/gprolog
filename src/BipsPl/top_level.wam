@@ -2,7 +2,7 @@
 % file    : top_level.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
+file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/top_level.pl').
 
 
 predicate(top_level/0,45,static,private,monofile,built_in,[

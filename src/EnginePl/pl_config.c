@@ -42,7 +42,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-#include <inttypes.h>
 
 #include "gp_config.h"
 #include "machine.h"
@@ -216,6 +215,8 @@ main(void)
   printf("C compiler        : %s\n", CC);
   printf("C flags           : %s\n", CFLAGS);
   printf("C flags machine   : %s\n", CFLAGS_MACHINE);
+  printf("Assembler         : %s\n", AS);
+  printf("Assembler flags   : %s\n", ASFLAGS);
   printf("Loader flags      : %s\n", LDFLAGS);
   printf("Loader libraries  : %s\n", LDLIBS);
   printf("Use line editor   : %s\n",

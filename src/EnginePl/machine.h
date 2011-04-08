@@ -134,7 +134,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #    define M_USED_REGS            {"15", "20", 0}
 
-#elif defined(M_x86_64)
+#elif defined(M_x86_64) && !defined(_MSC_VER) 
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 
@@ -148,6 +148,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #if defined(M_ix86) // && !defined(_WIN32) // && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
+
+
+//#if defined(_MSC_VER) && defined(M_x86_64)
+//#define NO_MACHINE_REG_FOR_REG_BANK
+//#endif
 
 
 

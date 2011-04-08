@@ -1470,7 +1470,7 @@ int
 Pl_LE_Printf(char *format, ...)
 {
   va_list arg_ptr;
-  char buff[1024];
+  static char buff[65535];
   int ret;
 
   Pl_LE_Initialize();

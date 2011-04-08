@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <inttypes.h>
 #include <locale.h>
 
 #include "../EnginePl/gp_config.h"

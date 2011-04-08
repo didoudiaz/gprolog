@@ -40,12 +40,60 @@
 
 #include <stdint.h>
 
+#include "gp_config.h"
+
 typedef intptr_t PlLong;
 typedef uintptr_t PlULong;
+
+#ifdef HAVE_INTTYPES_H
+
+#include <inttypes.h>
 
 #define PL_FMT_d  PRIdPTR
 #define PL_FMT_u  PRIuPTR
 #define PL_FMT_o  PRIoPTR
 #define PL_FMT_x  PRIxPTR
+
+#else  /* !HAVE_INTTYPES_H */
+
+#if SIZEOF_LONG == SIZEOF_VOIDP
+
+#  define __PL_FMT_PREFIX "l"
+
+#elif defined(_MSC_VER)
+
+#  define __PL_FMT_PREFIX "I64"
+
+#else
+
+#  define __PL_FMT_PREFIX "ll"
+
+#endif
+
+#define PL_FMT_d  __PL_FMT_PREFIX "d"
+#define PL_FMT_u  __PL_FMT_PREFIX "u"
+#define PL_FMT_o  __PL_FMT_PREFIX "o"
+#define PL_FMT_x  __PL_FMT_PREFIX "x"
+
+#endif /* !HAVE_INTTYPES_H */
+
+/* --- strtol / strtoul --- */
+
+#if SIZEOF_LONG == SIZEOF_VOIDP
+
+#  define Str_To_PlLong(__str, __end, __base)   strtol (__str, __end, __base)
+#  define Str_To_PlULong(__str, __end, __base)  strtoul(__str, __end, __base)
+
+#elif defined(__GNUC__)
+
+#  define Str_To_PlLong(__str, __end, __base)   strtoll (__str, __end, __base)
+#  define Str_To_PlULong(__str, __end, __base)  strtoull(__str, __end, __base)
+
+#else  /* MSVC */
+
+#  define Str_To_PlLong(__str, __end, __base)   _strtoi64 (__str, __end, __base)
+#  define Str_To_PlULong(__str, __end, __base)  _strtoui64(__str, __end, __base)
+
+#endif
 
 #endif	/* !_PL_LONG_H */

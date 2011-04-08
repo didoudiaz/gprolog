@@ -28,7 +28,7 @@ met:
      name mingw-as.exe.
      A version can be found at: http://gprolog.org/mingw-as.exe
 
-It is a good idea to read src/WNIDOWS (maybe src/WINDOWS64) file before.
+It is a good idea to read src/WNIDOWS (and maybe src/WINDOWS64) file before.
 
 Observing these needs you'll also will be able to do the mixed
 language programming, as the examples included in the ExamplesC

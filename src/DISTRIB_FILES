@@ -128,6 +128,7 @@ src/EnginePl/Makefile.in
 src/EnginePl/gp_config.h.in
 src/EnginePl/[a-z][a-z]?*.[ch]
 src/EnginePl/[a-z][a-z]?*.def
+src/EnginePl/eng1*.s
 src/EnginePl/*SIGSEGV.c
 
 src/EngineFD/Makefile.in
