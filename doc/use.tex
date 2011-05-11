@@ -48,6 +48,7 @@ programs, to list them, to execute them and to debug them. The
 
 \begin{CmdOptions}
 \IdxKD{--init-goal}  \Param{GOAL} & execute \Param{GOAL} before top\_level/0 \\
+\IdxKD{--consult-file} \Param{FILE} & consult \Param{FILE} inside top\_level/0 \\
 \IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside top\_level/0 \\
 \IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for top\_level/0 \\
 
@@ -65,7 +66,7 @@ itself, i.e. to execute the built-in predicate
 
 \begin{Code}
 \begin{verbatim}
-GNU Prolog 1.3.1
+GNU Prolog 1.4.0
 By Daniel Diaz
 Copyright (C) 1999-2011 Daniel Diaz
 | ?-
@@ -96,6 +97,10 @@ interaction with the user:
 \item The \texttt{--init-goal} option executes the \Param{GOAL} as soon as
 it is encountered (while the command-line is processed). \Param{GOAL} is thus
 executed before entering \texttt{top\_level/0}.
+
+\item The \texttt{--consult-file} option consults the \Param{FILE} at the
+entry of \texttt{top\_level/0} just after the banner is displayed. 
+\texttt{--consult-file} options are handled before \texttt{--consult-file} options.
 
 \item The \texttt{--entry-goal} option executes the \Param{GOAL} at the
 entry of \texttt{top\_level/0} just after the banner is displayed.
@@ -142,7 +147,7 @@ will produce the following:
 \begin{Code}
 \begin{verbatim}
 before
-GNU Prolog 1.3.1
+GNU Prolog 1.4.0
 By Daniel Diaz
 Copyright (C) 1999-2011 Daniel Diaz
 inside
@@ -381,6 +386,38 @@ of \Param{P} from the memory.
 
 Consulted predicates can be debugged using the Prolog debugger. Use the
 debugger predicate \IdxDB{trace/0} or \IdxDB{debug/0} \RefSP{Running-and-stopping-the-debugger} to activate the debugger.
+
+
+\subsubsection{Scripting Prolog}
+\label{Scripting-Prolog}
+Since version 1.4.0 it is possible to use a Prolog source file as a Unix
+script-file (\IdxD{shebang support}). A \IdxD{PrologScript} file should begin as follows:
+
+\begin{Code}
+\begin{verbatim}
+#!/usr/bin/gprolog --consult-file
+\end{verbatim}
+\end{Code}
+
+GNU Prolog will be invoked as
+
+\begin{Code}
+\begin{verbatim}
+/usr/bin/gprolog --consult-file FILE
+\end{verbatim}
+\end{Code}
+
+Then \texttt{FILE} will be consulted. In order to correctly deal with the
+\texttt{\#!} first line, \texttt{consult/1} treats as a comment a first line
+of a file which begins with \texttt{\#} (if you want to use a predicate name
+starting with a \texttt{\#}, simply skip a line before its definition).
+
+
+Remark: it is almost never possible to pass additionnal parameters
+(e.g. \texttt{query-goal}) this way since in most systems 
+the shebang implementation deliver all arguments (following
+\texttt{\#!/usr/bin/gprolog}) as a single string (which cannot then correctly
+be recognized by \texttt{gprolog}).
 
 \subsubsection{Interrupting a query}
 \label{Interrupting-a-query}
@@ -891,7 +928,7 @@ for temporary files \\
 
 \IdxKD{--no-del-temp} & do not delete temporary files \\
 
-\IdxKD{--no-decode-hexa} & do not decode hexadecimal predicate names \\
+\IdxKD{--no-demangling} & do not decode predicate names (name demangling) \\
 
 \IdxKD{-v}, \IdxKD{--verbose} & print executed commands \\
 
@@ -1079,13 +1116,15 @@ warns when a singleton variable has a name (i.e. not the generic anonymous
 name \texttt{\_}). This can be deactivated specifying
 \texttt{--no-singl-warn}.
 
-Predicate names are encoded with an hexadecimal representation. This is
-explained in more detail later \RefSP{The-hexadecimal-predicate-name-encoding}. By default the error messages from the linker (e.g. multiple
-definitions for a given predicate, reference to an undefined
-predicate,\ldots) are filtered to replace any hexadecimal representation
-by the real predicate name. Specifying the \texttt{--no-decode-hexa}
-prevents \IdxK{gplc} from filtering linker output messages and hexadecimal
-representations are then shown.
+Internally, predicate names are encoded to fit the syntax of (assembly)
+identifiers. For this GNU Prolog uses it own \Idx{name mangling} scheme. This
+is explained in more detail later \RefSP{Name-mangling-scheme}. By default
+the error messages from the linker (e.g. multiple definitions for a given
+predicate, reference to an undefined predicate,\ldots) are filtered to
+replace an internal name representation by the real predicate name
+(\Idx{demangling}). Specifying the \texttt{--no-demangling} prevents
+\IdxK{gplc} from filtering linker output messages (internal identifiers are
+then shown).
 
 When producing an executable it is possible to specify default stack sizes
 (using \texttt{--\Param{STACK\_NAME}-size}) and to prevent it from consulting
@@ -1232,39 +1271,85 @@ In conclusion, defining a particular top-level is nothing else but a
 particular case of the native-code compilation. It is simple to do and very
 useful in practice.
 
-\subsubsection{The hexadecimal predicate name encoding}
-\label{The-hexadecimal-predicate-name-encoding}
+\subsubsection{The name mangling scheme}
+\label{Name-mangling-scheme}
+
 When the GNU Prolog compiler compiles a Prolog source to an object file it
 has to associate a symbol to each predicate name. However, the syntax of
 symbols is restricted to identifiers: string containing only letters, digits
 or underscore characters. On the other hand, predicate names (i.e. atoms) can
 contain any character with quotes if necessary (e.g. \texttt{'x+y=z'} is a
-valid predicate name). The compiler has then to encode predicate names
-respecting the syntax of identifiers. To achieve this, GNU Prolog uses an
-hexadecimal representation where each predicate name is translated to a
-symbol beginning with an \texttt{X} followed by the hexadecimal notation of
-the code of each character of the name.
+valid predicate name). The compiler may thus have to encode predicate names
+respecting the syntax of identifiers. In addition, Prolog allows the user to
+define several predicates with the same name and different arities, for this
+GNU Prolog encodes predicate indicators (predicate name followed by the
+arity). Finally, to support modules in the future, the module name is also
+encoded.
 
-Example: \texttt{'x+y=z'} will be encoded as \texttt{X782B793D7A} since
-\texttt{78} is the hexadecimal representation of the code of \texttt{x},
+Since version 1.4.0, GNU Prolog adopts the following \IdxD{name mangling}
+scheme. A predicate indicator of the form
+[\Param{MODULE}\texttt{:}]\Param{PRED}\texttt{/}\Param{N} (where
+the \Param{MODULE} can be omitted) will give rise to an identifier of the
+following form:
+\texttt{X}\Param{K}\texttt{\_}[\textit{E(\Param{MODULE})}\texttt{\_\_}]\textit{E(\Param{PRED})}\texttt{\_\_a}\Param{N}
+where:
+
+\begin{description}
+
+\item \Param{K} is a digit in \texttt{0}..\texttt{5} storing coding information about \Param{MODULE} and \Param{PRED}. Possible values are:
+
+\begin{itemize}
+
+  \item \texttt{0}: no module present,             \Param{PRED} is not encoded
+  \item \texttt{1}: no module present,             \Param{PRED} is encoded
+  \item \texttt{2}: \Param{MODULE} is not encoded, \Param{PRED} is not encoded
+  \item \texttt{3}: \Param{MODULE} is not encoded, \Param{PRED} is encoded
+  \item \texttt{4}: \Param{MODULE} is encoded,     \Param{PRED} is not encoded
+  \item \texttt{5}: \Param{MODULE} is encoded,     \Param{PRED} is encoded
+
+\end{itemize}
+
+\item \textit{E(\Param{STR})} is a function to encode a string \Param{STR} which returns:
+
+\begin{itemize}
+
+  \item \Param{STR} itself (not encoded) if \Param{STR} only contains letters, digits or \texttt{\_} but does not contain the substring \texttt{\_\_} and does not begin nor end with \texttt{\_} (i.e. regexp: \texttt{[a-zA-Z0-9]([-]?[a-zA-Z0-9])*}).
+
+\item an hexadecimal representation of each character of the string otherwise. For example: \textit{E(}\texttt{x+y=z}\textit{)} returns \texttt{782B793D7A} since
+\texttt{78} is the hexadecimal representation of the ASCII code of \texttt{x},
 \texttt{2B} of the code of \texttt{+}, etc.
 
-Since Prolog allows the user to define several predicates with the same name
-but with a different arity GNU Prolog encodes predicate indicators (predicate
-name followed by the arity). The symbol associated with the predicate name is
-then followed by an underscore and by the decimal notation of the arity.
+\end{itemize}
 
-Example: \texttt{'x+y=z'/3} will be encoded as \texttt{X782B793D7A\_3}.
+\end{description}
 
-So, from the \Idx{mini-assembly} stage, each predicate indicator is replaced
-by its hexadecimal encoding. The knowledge of this encoding is normally not
-of interest for the user, i.e. the Prolog programmer. For this reason the
-GNU Prolog compiler hides this encoding. When an error occurs on a predicate
+Examples: 
+
+\begin{center}
+\begin{tabular}{l|l}
+
+Predicate indicator   & internal identifier \\
+\hline
+\texttt{father/2}     & \texttt{X0\_father\_\_a2} \\
+\texttt{'x+y=z'/3}    & \texttt{X1\_782B793D7A\_\_a3} \\
+\texttt{util:same/2}  & \texttt{X2\_util\_\_same\_\_a2} \\
+\texttt{util:same\_\_1/3} & \texttt{X3\_util\_\_73616D655F5F31\_\_a3} \\
+
+\end{tabular}
+\end{center}
+
+~\BL
+
+So, from the \Idx{mini-assembly} stage, each predicate indicator is handled
+via its name mangling identifier. The knowledge of this scheme is normally
+not of interest for the user, i.e. the Prolog programmer. For this reason the
+GNU Prolog compiler hides this mangling. When an error occurs on a predicate
 (undefined predicate, predicate with multiple definitions,\ldots) the
-compiler has to decode the symbol associated with the predicate indicator. For
-this \IdxK{gplc} filters each message emitted by the linker to locate and
-decode eventual predicate indicators. This filtering can be deactivated
-specifying \texttt{--no-decode-hexa} when invoking \IdxK{gplc} \RefSP{Using-the-compiler}.
+compiler has to decode the symbol associated with the predicate indicator
+(\IdxD{name demangling}). For this \IdxK{gplc} filters each message emitted
+by the linker to locate and decode eventual predicate indicators. This
+filtering can be deactivated specifying \texttt{--no-demangling} when
+invoking \IdxK{gplc} \RefSP{Using-the-compiler}.
 
 This filter is provided as an utility that can be invoked using the
 \IdxKD{hexgplc} command as follows:
@@ -1274,7 +1359,9 @@ This filter is provided as an utility that can be invoked using the
 \SPart{Options}:
 
 \begin{CmdOptions}
-\IdxKD{--encode} & encoding mode (default mode is decoding) \\
+\IdxKD{--decode} or \IdxKD{--demangling} & decoding mode (this is the default mode) \\
+
+\IdxKD{--encode} or \IdxKD{--mangling} & encoding mode \\
 
 \IdxKD{--relax} & decode also predicate names (not only predicate
 indicators) \\
@@ -1289,9 +1376,9 @@ auxiliary number \\
 
 \IdxKD{--cmd-line} & encode/decode each argument of the command-line \\
 
-\IdxKD{-H} & same as: \texttt{--cmd-line --encode} \\
+\IdxKD{-E} or \IdxKD{-M} & same as: \texttt{--cmd-line --encode --relax} \\
 
-\IdxKD{-P} & same as: \texttt{--cmd-line --relax} \\
+\IdxKD{-P} or \IdxKD{-D} & same as: \texttt{--cmd-line --decode --relax --quote} \\
 
 \IdxKD{--help} & print a help and exit \\
 
@@ -1302,8 +1389,8 @@ auxiliary number \\
 It is possible to give a prefix of an option if there is no ambiguity.
 
 Without arguments \texttt{hexgplc} runs in decoding mode reading its
-standard input and decoding each symbol corresponding to a predicate
-indicator. To use \texttt{hexgplc} in the encoding mode the
+standard input and decoding (demangling) each symbol corresponding to a predicate
+indicator. To use \texttt{hexgplc} in the encoding (mangling) mode the
 \texttt{--encode} option must be specified. By default \texttt{hexgplc} only
 decodes predicate indicators, this can be relaxed using \texttt{--relax} to
 also take into account simple predicate names (the arity can be omitted). It
@@ -1328,20 +1415,31 @@ If no file is specified, \texttt{hexgplc} processes its standard input
 otherwise each file is treated sequentially. Specifying the
 \texttt{--cmd-line} option informs \texttt{hexgplc} that each argument is not
 a file name but a string that must be encoded (or decoded). This is useful to
-encode/decode a particular string. For this reason the option \texttt{-H}
-(encode to hexadecimal) and \texttt{-P} (decode to Prolog) are provided as
-shorthand.  Then, to obtain the hexadecimal representation of a predicate
-\Param{P} use:
+encode/decode a particular string. For this reason the option \texttt{-E}
+(encode) and \texttt{-D} (decode) are provided as
+shorthand.  Then, to obtain the mangling representation of a predicate
+\Param{PRED} use:
 
-\OneLine{\% hexgplc -H \Param{P}}
+\OneLine{\% hexgplc -E \Param{PRED}}
 
-Example:
+NB: if \Param{PRED} is a complex atom it is necessary to quote it 
+(the quotes must be passed to \texttt{hexgplc}). Here is an example under bash:
 
 \begin{Indentation}
 \begin{verbatim}
-% hexgplc -H 'x+y=z'
-X782B793D7A
+% hexgplc -E \'x+y=z\'/3
+X1_782B793D7A__a3
 \end{verbatim}
 \end{Indentation}
+
+Or even more safely (using bash quotes to prevent bash from interpreting special characters):
+
+\begin{Indentation}
+\begin{verbatim}
+% hexgplc -E \''x+y=z'\'/3
+X1_782B793D7A__a3
+\end{verbatim}
+\end{Indentation}
+
 
 %HEVEA\cutend

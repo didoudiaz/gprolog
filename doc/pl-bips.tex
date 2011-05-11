@@ -8179,6 +8179,12 @@ The final file name of a file is computed using the predicates
 \texttt{[ File | Files ]}, i.e. \texttt{'.'(File, Files)} is
 equivalent to \texttt{consult([ File | Files ])}.
 
+Since version 1.4.0, with the introduction of \Idx{shebang support},
+\texttt{consult/1} ignores the first line of a Prolog source file which
+directly begins with \texttt{\#}. See
+\RefSP{Scripting-Prolog} for more information about
+shebang support and \Idx{PrologScript}.
+
 \begin{PlErrors}
 
 \ErrCond{\texttt{Files} is a partial list or a list with an element
