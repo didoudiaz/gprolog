@@ -2,7 +2,7 @@
 % file    : code_gen.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/Pl2Wam/code_gen.pl').
+file_name('/home/diaz/GP/src/src/Pl2Wam/code_gen.pl').
 
 
 predicate(code_generation/5,40,static,private,monofile,global,[

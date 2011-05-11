@@ -2,7 +2,7 @@
 % file    : pred.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/pred.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/pred.pl').
 
 
 predicate('$use_pred'/0,42,static,private,monofile,built_in,[

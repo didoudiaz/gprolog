@@ -11,9 +11,9 @@ AppUpdatesURL=http://www.gprolog.org
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
-SourceDir=C:\cygwin\tmp\gprolog_win32
-OutputDir=C:\cygwin\tmp
-OutputBaseFileName=setup-gprolog-1.4.0-msvc-x64
+SourceDir=\gprolog_win32
+OutputDir=
+OutputBaseFileName=setup-gprolog-1.4.0-
 
 ChangesAssociations=yes
 

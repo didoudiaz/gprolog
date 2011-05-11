@@ -102,8 +102,7 @@ pl_code global ma_test_arg_double
 	pl_ret
 
 pl_code global ma_test_arg_mixed
-	call_c fast test_arg_mixed1(-19, 12.456, -1.3e-102,
-	       	    			 365, 987654321, -3.141593, -110101)
+	call_c fast test_arg_mixed1(-19, 12.456, -1.3e-102,365, 987654321, -3.141593, -110101)
 	pl_ret
 
 pl_code global ma_test_arg_string

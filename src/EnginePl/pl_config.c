@@ -246,7 +246,7 @@ main(void)
 #endif
 
 #ifdef W32_GUI_CONSOLE
-  printf("Use HtmlHel in GUI: %s\n",
+  printf("Use HtmlHelp      : %s\n",
 #if defined(WITH_HTMLHELP) && WITH_HTMLHELP == 1
          "Yes (statically linked)"
 #elif defined(WITH_HTMLHELP) && WITH_HTMLHELP == 2

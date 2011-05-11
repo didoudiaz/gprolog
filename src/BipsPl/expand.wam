@@ -2,7 +2,7 @@
 % file    : expand.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/expand.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/expand.pl').
 
 
 predicate('$use_expand'/0,42,static,private,monofile,built_in,[

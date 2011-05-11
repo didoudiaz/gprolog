@@ -2,7 +2,7 @@
 % file    : file.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/file.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/file.pl').
 
 
 predicate('$use_file'/0,42,static,private,monofile,built_in,[

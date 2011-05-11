@@ -2,7 +2,7 @@
 % file    : print.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/print.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/print.pl').
 
 
 predicate('$use_print'/0,42,static,private,monofile,built_in,[

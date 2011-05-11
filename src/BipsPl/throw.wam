@@ -2,7 +2,7 @@
 % file    : throw.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/throw.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/throw.pl').
 
 
 predicate('$use_throw'/0,42,static,private,monofile,built_in,[

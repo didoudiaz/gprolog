@@ -2,7 +2,7 @@
 % file    : stat.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/stat.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/stat.pl').
 
 
 predicate('$use_stat'/0,42,static,private,monofile,built_in,[

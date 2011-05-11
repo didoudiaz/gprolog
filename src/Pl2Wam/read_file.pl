@@ -173,7 +173,14 @@ open_new_prolog_file(PlFile0) :-
 	;   open(PlFile, read, Stream)
 	),
 	g_read(open_file_stack, OpenFileStack),
-	g_assign(open_file_stack, [PlFile * Stream|OpenFileStack]).
+	g_assign(open_file_stack, [PlFile * Stream|OpenFileStack]),
+	(   peek_char(Stream, '#'), % ignore #! starting line (for shebang support)
+	    repeat,
+	    get_char(Stream, X),
+	    (X = '\n' ; X = end_of_file)
+	;
+	    true
+	).
 
 
 

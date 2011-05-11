@@ -41,11 +41,14 @@ SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
 
 # --- COMPILE --- #
 
-all:
+all: config
 	. ./SETVARS;for i in $(SUB_DIRS);do (cd $$i; $(MAKE)) || exit 1; done;\
 	(cd TopComp; $(MAKE) top-level) || exit 1;\
-	(cd Pl2wam; $(MAKE) stage2)
+	(cd Pl2Wam; $(MAKE) stage2)
 
+# config mainly creates gplc needed by other Makefiles (so we can use make -j)
+config:
+	cd EnginePl; $(MAKE) config
 
 # --- INSTALL --- #
 

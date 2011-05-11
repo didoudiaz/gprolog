@@ -2,7 +2,7 @@
 % file    : debugger.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/debugger.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/debugger.pl').
 
 
 predicate('$init_debugger'/0,42,static,private,monofile,built_in,[

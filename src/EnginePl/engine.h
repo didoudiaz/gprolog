@@ -50,7 +50,7 @@
  *---------------------------------*/
 
 
-#define cpp_recurs(p, n)           p##__##n
+#define cpp_recurs(p, n)           p##__a##n
 #define Prolog_Predicate(p, n)     cpp_recurs(p, n)
 
 #define Prolog_Prototype(p, n)     void Prolog_Predicate(p, n)()

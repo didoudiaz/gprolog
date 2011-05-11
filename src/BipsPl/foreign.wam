@@ -2,7 +2,7 @@
 % file    : foreign.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/foreign.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/foreign.pl').
 
 
 predicate('$force_foreign_link'/0,46,static,private,monofile,built_in,[

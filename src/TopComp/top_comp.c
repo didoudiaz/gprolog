@@ -1073,7 +1073,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--no-decode-hexa"))
+	  if (Check_Arg(i, "--no-decode-hexa") || Check_Arg(i, "--no-demangling"))
 	    {
 	      no_decode_hex = 1;
 	      continue;
@@ -1421,7 +1421,8 @@ Display_Help(void)
   L("  -c, --object                stop after producing object file(s)");
   L("  --temp-dir PATH             use PATH as directory for temporary files");
   L("  --no-del-temp-files         do not delete temporary files");
-  L("  --no-decode-hexa            do not decode hexadecimal predicate names");
+  L("  --no-demangling             do not decode hexadecimal predicate names");
+  L("  --no-decode-hexa            same as --no-demanling (deprecated)");
   L("  -v, --verbose               print executed commands");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");

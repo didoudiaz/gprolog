@@ -2,7 +2,7 @@
 % file    : write.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/write.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/write.pl').
 
 
 predicate('$use_write'/0,42,static,private,monofile,built_in,[
@@ -90,7 +90,7 @@ predicate(write_term/3,118,static,private,monofile,built_in,[
 predicate('$set_write_defaults'/0,127,static,private,monofile,built_in,[
     allocate(0),
     put_integer(0,0),
-    put_integer(12,1),
+    put_integer(0,1),
     call('$sys_var_write'/2),
     put_integer(1,0),
     put_integer(-1,1),

@@ -98,6 +98,8 @@ Main_Wrapper(int argc, char *argv[])
   char **new_argv;
   WamWord *entry_goal;
   int nb_entry_goal = 0;
+  WamWord *consult_file;
+  int nb_consult_file = 0;
   WamWord *query_goal;
   int nb_query_goal = 0;
   WamWord word;
@@ -108,6 +110,7 @@ Main_Wrapper(int argc, char *argv[])
   new_argv = (char **) Malloc(sizeof(char *) * (argc + 1));
   new_argv[new_argc++] = argv[0];
 
+  consult_file = (WamWord *) Malloc(sizeof(WamWord) * argc);
   entry_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
   query_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
 
@@ -135,6 +138,15 @@ Main_Wrapper(int argc, char *argv[])
 	      A(0) = Tag_ATM(Pl_Create_Atom(argv[i]));
 	      Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
 	      Pl_Reset_Prolog();
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--consult-file"))
+	    {
+	      if (++i >= argc)
+		Pl_Fatal_Error("File missing after --consult-file option");
+
+	      consult_file[nb_consult_file++] = Tag_ATM(Pl_Create_Atom(argv[i]));
 	      continue;
 	    }
 
@@ -174,6 +186,13 @@ Main_Wrapper(int argc, char *argv[])
   pl_os_argc = new_argc;
   pl_os_argv = new_argv;
 
+  if (nb_consult_file)
+    {
+      word = Pl_Mk_Proper_List(nb_consult_file, consult_file);
+      Pl_Blt_G_Assign(Tag_ATM(Pl_Create_Atom("$cmd_line_consult_file")), word);
+    }
+  Free(consult_file);
+
   if (nb_entry_goal)
     {
       word = Pl_Mk_Proper_List(nb_entry_goal, entry_goal);
@@ -212,9 +231,10 @@ Display_Help(void)
 {
   fprintf(stderr, "Usage: %s [OPTION]... \n", TOP_LEVEL);
   L("");
-  L("  --init-goal GOAL            execute GOAL before top_level/0");
-  L("  --entry-goal GOAL           execute GOAL inside top_level/0");
-  L("  --query-goal GOAL           execute GOAL as a query for top_level/0");
+  L("  --consult-file FILE         consult FILE inside the top_level/0");
+  L("  --init-goal    GOAL         execute GOAL before top_level/0");
+  L("  --entry-goal   GOAL         execute GOAL inside top_level/0");
+  L("  --query-goal   GOAL         execute GOAL as a query for top_level/0");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");

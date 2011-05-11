@@ -2,7 +2,7 @@
 % file    : atom.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/atom.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/atom.pl').
 
 
 predicate('$use_atom'/0,42,static,private,monofile,built_in,[

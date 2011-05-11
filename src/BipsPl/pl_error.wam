@@ -2,7 +2,7 @@
 % file    : pl_error.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/pl_error.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/pl_error.pl').
 
 
 predicate(set_bip_name/2,43,static,private,monofile,built_in,[

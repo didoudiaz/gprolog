@@ -883,6 +883,9 @@ Pl_Write_Pl_State_File(WamWord file_word)
   i = Flag_Value(FLAG_MULTIFILE_WARNING);
   FWRITE(&i, sizeof(i), 1, f);
 
+  i = Flag_Value(FLAG_STRICT_ISO);
+  FWRITE(&i, sizeof(i), 1, f);
+
   i = SYS_VAR_SAY_GETC;
   FWRITE(&i, sizeof(i), 1, f);
 
@@ -956,6 +959,9 @@ Pl_Read_Pl_State_File(WamWord file_word)
 
   FREAD(&i, sizeof(i), 1, f);
   Flag_Value(FLAG_MULTIFILE_WARNING) = i;
+
+  FREAD(&i, sizeof(i), 1, f);
+  Flag_Value(FLAG_STRICT_ISO) = i;
 
   FREAD(&i, sizeof(i), 1, f);
   SYS_VAR_SAY_GETC = i;

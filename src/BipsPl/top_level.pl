@@ -65,6 +65,8 @@ break :-
 	;   true
 	),
 	'$sys_var_inc'(10),
+	g_read('$cmd_line_consult_file', LFile),
+	'$exec_cmd_line_consult_files'(LFile),
 	g_read('$cmd_line_entry_goal', LGoal),
 	'$exec_cmd_line_entry_goals'(LGoal),
 	g_assign('$cmd_line_entry_goal', []),
@@ -318,6 +320,21 @@ break :-
 	write(top_level_output, 'Action (; for next solution, a for all solutions, RET to stop) ? '),
 	'$read_return'.
 
+
+
+/* interface with command-line option consulting files */
+
+'$exec_cmd_line_consult_files'([File|LFile]) :-
+	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+	nonvar(Err),
+	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+	fail.
+	
+'$exec_cmd_line_consult_files'([_|LFile]) :-
+	!,
+	'$exec_cmd_line_consult_files'(LFile).
+
+'$exec_cmd_line_consult_files'(_).		% can be another term than []
 
 
 /* interface with command-line options executing goals */

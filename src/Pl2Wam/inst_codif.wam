@@ -2,7 +2,7 @@
 % file    : inst_codif.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/Pl2Wam/inst_codif.pl').
+file_name('/home/diaz/GP/src/src/Pl2Wam/inst_codif.pl').
 
 
 predicate(alias_stop_instruction/1,42,static,private,monofile,global,[

@@ -125,7 +125,7 @@ write_term(SorA, Term, Options) :-
 
 
 '$set_write_defaults' :-
-	'$sys_var_write'(0, 12),                               % default mask
+	'$sys_var_write'(0, 0),                               % default mask
 	'$sys_var_write'(1, -1),
 	'$sys_var_write'(2, 1200).
 

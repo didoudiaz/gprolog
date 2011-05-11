@@ -2,7 +2,7 @@
 % file    : reg_alloc.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/Pl2Wam/reg_alloc.pl').
+file_name('/home/diaz/GP/src/src/Pl2Wam/reg_alloc.pl').
 
 
 predicate(allocate_registers/1,99,static,private,monofile,global,[

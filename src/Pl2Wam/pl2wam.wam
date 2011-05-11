@@ -2,7 +2,7 @@
 % file    : pl2wam.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
+file_name('/home/diaz/GP/src/src/Pl2Wam/pl2wam.pl').
 
 
 predicate(pl2wam/1,40,static,private,monofile,global,[

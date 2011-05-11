@@ -1,4 +1,4 @@
- /*-------------------------------------------------------------------------*
+/*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : configuration                                                   *
@@ -40,7 +40,7 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
-#if defined(_WIN32) && !defined(__GNUC__)
+#if defined(_WIN32) && !defined(__CYGWIN__)
 
 /* There are 2 kinds of MSVC warning C4996 one wants to remove:
  * 1) XXX was declared deprecated ... This function or variable may be unsafe
@@ -69,12 +69,14 @@
 #define pclose                     _pclose
 #define getpid                     _getpid
 #define tempnam                    _tempnam
-#define strcasecmp                 stricmp
-#define strncasecmp                strnicmp
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
+#ifdef _MSC_VER
+#define strcasecmp                 stricmp
+#define strncasecmp                strnicmp
 #define spawnvp                    _spawnvp
+#endif
 
 #ifndef F_OK
 #define F_OK                       00
@@ -85,7 +87,7 @@
 
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	           (((m)&_S_IFMT) == _S_IFDIR)
-#define	S_ISCHR(m)             (((m)&_S_IFMT) == _S_IFCHR)
+#define	S_ISCHR(m)                 (((m)&_S_IFMT) == _S_IFCHR)
 #define	S_ISFIFO(m)	           (((m)&_S_IFMT) == _S_IFIFO)
 #define	S_ISREG(m)	           (((m)&_S_IFMT) == _S_IFREG)
 #endif

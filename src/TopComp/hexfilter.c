@@ -198,13 +198,13 @@ Parse_Arguments(int argc, char *argv[])
     {
       if (*argv[i] == '-' && argv[i][1] != '\0')
 	{
-	  if (Check_Arg(i, "--encode"))
+	  if (Check_Arg(i, "--encode") || Check_Arg(i, "--mangling"))
 	    {
 	      encode = 1;
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--decode"))
+	  if (Check_Arg(i, "--decode") || Check_Arg(i, "--demangling"))
 	    {
 	      encode = 0;
 	      continue;
@@ -261,7 +261,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-H"))
+	  if (Check_Arg(i, "-E") || Check_Arg(i, "-M"))
 	    {
 	      encode = 1;
 	      cmd_line = 1;
@@ -269,7 +269,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-P"))
+	  if (Check_Arg(i, "-P") || Check_Arg(i, "-D"))
 	    {
 	      encode = 0;
 	      cmd_line = 1;
@@ -334,8 +334,10 @@ Display_Help(void)
   fprintf(stderr, "Usage: %s [OPTION]... [FILE...]", HEXGPLC);
   L(" ");
   L("Options:");
-  L("  --decode                    decoding mode (default)");
-  L("  --encode                    encoding mode");
+  L("  --mangling                  demangling mode (default)");
+  L("  --decode                    same as --demangling");
+  L("  --mangling                  mangling mode");
+  L("  --encode                    same as --mangling");
   L("  --relax                     encode/decode also predicate names (not only predicate indicators)");
   L("  --strict                    encode/decode only predicate indicators (default)");
   L("  --quote                     quote decoded predicate names (as done by writeq)");
@@ -344,8 +346,8 @@ Display_Help(void)
   L("  --aux-father                decode auxiliary predicate as its father");
   L("  --aux-father2               decode auxiliary predicate as its father + auxiliary number");
   L("  --cmd-line                  command-line mode: encode/decode each argument of the command-line");
-  L("  -H                          shortcut for --cmd-line --encode --relax");
-  L("  -P                          shortcut for --cmd-line --decode --relax --quote");
+  L("  -M or -H                    shortcut for --cmd-line --encode --relax");
+  L("  -D or -P                    shortcut for --cmd-line --decode --relax --quote");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
 }

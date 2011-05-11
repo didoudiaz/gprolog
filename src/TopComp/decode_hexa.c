@@ -44,9 +44,11 @@
 /* This file is included by top_comp.c, hexfilter.c and wam2ma.c */
 
 
-/* A [MODULE:]PRED/N will be encoded as
+/* Name Mangling (decoration). 
  *
- * XK_[E(MODULE)__]E(PRED)__N
+ * A [MODULE:]PRED/N will be encoded as
+ *
+ * XK_[E(MODULE)__]E(PRED)__aN
  *
  * K: an ASCII digit '0'-'5' storing coding information about MODULE and PRED
  *    associated integer (value on 3 bits):
@@ -62,6 +64,9 @@
  *    but does not contain the substring __ and does not begin/end with _
  *    regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
  *  - an hexa representation (encoded) of each character of the string
+ *
+ * NB: if this mangling schema is modified also modify macro 
+ *     Prolog_Prototype in engine.h
  */
 
 
@@ -129,7 +134,7 @@ Encode_Hexa(char *module, char *pred, int arity, char *str)
     str = Encode_String(pred, str);
 
   if (arity >= 0)
-    str += sprintf(str, "__%d", arity);
+    str += sprintf(str, "__a%d", arity);
 
   return str;
 }
@@ -255,6 +260,8 @@ int String_Needs_Encoding(char *str)
 }
 
 
+
+
 /*-------------------------------------------------------------------------*
  * ENCODE_STRING                                                           *
  *                                                                         *
@@ -335,10 +342,10 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
     return NULL;
 
   *arity = -1;
-  if (*str == '_' && str[1] == '_') /*  the arity */
+  if (*str == '_' && str[1] == '_' && str[2] == 'a') /*  the arity */
     {
-      *arity = strtoul(str + 2, &p, 10); /* +2 to skip '__' */
-      if (p == str + 2)
+      *arity = strtoul(str + 3, &p, 10); /* +3 to skip '__a' */
+      if (p == str + 3)
 	*arity = -1;
       str = p;
     }
@@ -462,6 +469,7 @@ Copy_Not_Encoded_String(char *str, char *buff)
 	  if (str[-1] == '_' || str[1] == '\0')
 	    {
 	      str--;
+	      buff--;
 	      break;
 	    }
 	}

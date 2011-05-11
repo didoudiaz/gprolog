@@ -87,7 +87,7 @@ Read_Windows_Registry(char *key_name, DWORD key_type, void *buff, DWORD buff_siz
 {
   DWORD dw_type;                                                \
 
- #define INIT_REGISTRY_ACCESS                                   \
+#define INIT_REGISTRY_ACCESS                                    \
   HKEY hkey_software, hkey_prolog;                              \
   DWORD disp;                                                   \
   int r;                                                        \
@@ -209,7 +209,7 @@ Get_Prolog_Path(char *argv0, int *devel_mode)
 
   if ((p = Search_Path(COMPILER_EXE)) == NULL)
     {
-#if defined(_WIN32) || defined(__CGYWIN__)
+#if defined(_WIN32) || defined(__CYGWIN__)
       if (Read_Windows_Registry("RootPath", REG_SZ, resolved, sizeof(resolved)) && *resolved)
         {
 #ifdef DEBUG

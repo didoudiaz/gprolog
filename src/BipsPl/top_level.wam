@@ -2,7 +2,7 @@
 % file    : top_level.pl
 
 
-file_name('C:/cygwin/home/diaz/GP/src/src/BipsPl/top_level.pl').
+file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').
 
 
 predicate(top_level/0,45,static,private,monofile,built_in,[
@@ -54,6 +54,10 @@ predicate(break/0,58,static,private,monofile,built_in,[
     call('$break/0_$aux1'/1),
     put_integer(10,0),
     call('$sys_var_inc'/1),
+    put_atom('$cmd_line_consult_file',1),
+    put_variable(x(0),2),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call('$exec_cmd_line_consult_files'/1),
     put_atom('$cmd_line_entry_goal',1),
     put_variable(x(0),2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
@@ -115,7 +119,7 @@ label(1),
     proceed]).
 
 
-predicate('$top_level1'/0,83,static,private,monofile,built_in,[
+predicate('$top_level1'/0,85,static,private,monofile,built_in,[
     load_cut_level(0),
     allocate(1),
     get_variable(y(0),0),
@@ -130,7 +134,7 @@ predicate('$top_level1'/0,83,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$top_level_abort'/0,90,static,private,monofile,built_in,[
+predicate('$top_level_abort'/0,92,static,private,monofile,built_in,[
     allocate(1),
     call('$reinit_after_exception'/0),
     put_integer(11,0),
@@ -144,7 +148,7 @@ predicate('$top_level_abort'/0,90,static,private,monofile,built_in,[
     execute('$catch_sync_for_fail_at'/1)]).
 
 
-predicate('$top_level_stop'/0,99,static,private,monofile,built_in,[
+predicate('$top_level_stop'/0,101,static,private,monofile,built_in,[
     allocate(1),
     call('$reinit_after_exception'/0),
     put_integer(11,0),
@@ -155,7 +159,7 @@ predicate('$top_level_stop'/0,99,static,private,monofile,built_in,[
     execute('$catch_sync_for_fail_at'/1)]).
 
 
-predicate('$top_level_exception'/1,107,static,private,monofile,built_in,[
+predicate('$top_level_exception'/1,109,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call('$reinit_after_exception'/0),
@@ -180,11 +184,11 @@ predicate('$top_level_exception'/1,107,static,private,monofile,built_in,[
     fail]).
 
 
-predicate('$reinit_after_exception'/0,116,static,private,monofile,built_in,[
+predicate('$reinit_after_exception'/0,118,static,private,monofile,built_in,[
     execute('$$reinit_after_exception/0_$aux1'/0)]).
 
 
-predicate('$$reinit_after_exception/0_$aux1'/0,116,static,private,monofile,local,[
+predicate('$$reinit_after_exception/0_$aux1'/0,118,static,private,monofile,local,[
     load_cut_level(0),
     try_me_else(1),
     allocate(1),
@@ -204,7 +208,7 @@ label(1),
     proceed]).
 
 
-predicate('$top_level2'/0,128,static,private,monofile,built_in,[
+predicate('$top_level2'/0,130,static,private,monofile,built_in,[
     load_cut_level(0),
     allocate(6),
     get_variable(y(0),0),
@@ -235,7 +239,7 @@ predicate('$top_level2'/0,128,static,private,monofile,built_in,[
     execute('$$top_level2/0_$aux3'/3)]).
 
 
-predicate('$$top_level2/0_$aux3'/3,128,static,private,monofile,local,[
+predicate('$$top_level2/0_$aux3'/3,130,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(1),
@@ -282,7 +286,7 @@ label(1),
     fail]).
 
 
-predicate('$$top_level2/0_$aux5'/1,128,static,private,monofile,local,[
+predicate('$$top_level2/0_$aux5'/1,130,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     get_integer(0,0),
@@ -299,7 +303,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$top_level2/0_$aux4'/3,128,static,private,monofile,local,[
+predicate('$$top_level2/0_$aux4'/3,130,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -318,7 +322,7 @@ label(1),
     proceed]).
 
 
-predicate('$$top_level2/0_$aux2'/1,128,static,private,monofile,local,[
+predicate('$$top_level2/0_$aux2'/1,130,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -337,7 +341,7 @@ label(1),
     proceed]).
 
 
-predicate('$$top_level2/0_$aux1'/2,128,static,private,monofile,local,[
+predicate('$$top_level2/0_$aux1'/2,130,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(3),
@@ -363,7 +367,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate('$write_indicator'/0,174,static,private,monofile,built_in,[
+predicate('$write_indicator'/0,176,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     put_atom('$debug_mode',1),
@@ -384,7 +388,7 @@ label(1),
     proceed]).
 
 
-predicate('$$write_indicator/0_$aux1'/2,174,static,private,monofile,local,[
+predicate('$$write_indicator/0_$aux1'/2,176,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     get_variable(x(3),1),
@@ -415,7 +419,7 @@ label(2),
     execute(format/3)]).
 
 
-predicate('$$write_indicator/0_$aux2'/2,174,static,private,monofile,local,[
+predicate('$$write_indicator/0_$aux2'/2,176,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     get_atom('',0),
@@ -439,7 +443,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$dbg_indicator'/2,195,static,private,monofile,built_in,[
+predicate('$dbg_indicator'/2,197,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -470,7 +474,7 @@ label(7),
     proceed]).
 
 
-predicate('$read_query'/2,204,static,private,monofile,built_in,[
+predicate('$read_query'/2,206,static,private,monofile,built_in,[
     load_cut_level(2),
     try_me_else(1),
     allocate(4),
@@ -522,7 +526,7 @@ label(1),
     execute(read_term/3)]).
 
 
-predicate('$$read_query/2_$aux1'/1,204,static,private,monofile,local,[
+predicate('$$read_query/2_$aux1'/1,206,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     allocate(2),
@@ -542,7 +546,7 @@ label(1),
     proceed]).
 
 
-predicate('$exec_query'/2,222,static,private,monofile,built_in,[
+predicate('$exec_query'/2,224,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -579,7 +583,7 @@ predicate('$exec_query'/2,222,static,private,monofile,built_in,[
     execute('$$exec_query/2_$aux1'/3)]).
 
 
-predicate('$$exec_query/2_$aux1'/3,222,static,private,monofile,local,[
+predicate('$$exec_query/2_$aux1'/3,224,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(2),
@@ -601,7 +605,7 @@ label(1),
     execute('$$exec_query/2_$aux2'/2)]).
 
 
-predicate('$$exec_query/2_$aux2'/2,222,static,private,monofile,local,[
+predicate('$$exec_query/2_$aux2'/2,224,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     allocate(0),
@@ -624,7 +628,7 @@ label(1),
     proceed]).
 
 
-predicate('$set_query_vars_names'/2,249,static,private,monofile,built_in,[
+predicate('$set_query_vars_names'/2,251,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -648,7 +652,7 @@ predicate('$set_query_vars_names'/2,249,static,private,monofile,built_in,[
     execute(bind_variables/2)]).
 
 
-predicate('$remove_underscore_vars'/2,258,static,private,monofile,built_in,[
+predicate('$remove_underscore_vars'/2,260,static,private,monofile,built_in,[
     load_cut_level(2),
     switch_on_term(2,3,fail,1,fail),
 
@@ -697,7 +701,7 @@ label(7),
     execute('$remove_underscore_vars'/2)]).
 
 
-predicate('$$remove_underscore_vars/2_$aux1'/2,260,static,private,monofile,local,[
+predicate('$$remove_underscore_vars/2_$aux1'/2,262,static,private,monofile,local,[
     try_me_else(1),
     put_integer(0,1),
     put_integer(1,2),
@@ -716,7 +720,7 @@ label(1),
     execute(sub_atom/5)]).
 
 
-predicate('$write_solution'/3,273,static,private,monofile,built_in,[
+predicate('$write_solution'/3,275,static,private,monofile,built_in,[
     load_cut_level(3),
     try_me_else(1),
     get_nil(0),
@@ -741,7 +745,7 @@ label(1),
     execute('$write_solution1'/2)]).
 
 
-predicate('$$write_solution/3_$aux2'/1,280,static,private,monofile,local,[
+predicate('$$write_solution/3_$aux2'/1,282,static,private,monofile,local,[
     try_me_else(1),
     put_atom(xfx,1),
     put_atom(=,2),
@@ -753,7 +757,7 @@ label(1),
     proceed]).
 
 
-predicate('$$write_solution/3_$aux1'/2,273,static,private,monofile,local,[
+predicate('$$write_solution/3_$aux1'/2,275,static,private,monofile,local,[
     load_cut_level(2),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
@@ -771,7 +775,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution1'/2,286,static,private,monofile,built_in,[
+predicate('$write_solution1'/2,288,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -821,7 +825,7 @@ label(4),
     execute('$write_solution1'/2)]).
 
 
-predicate('$read_return'/0,296,static,private,monofile,built_in,[
+predicate('$read_return'/0,298,static,private,monofile,built_in,[
     load_cut_level(0),
     allocate(2),
     get_variable(y(0),0),
@@ -837,7 +841,7 @@ predicate('$read_return'/0,296,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$read_return'/1,304,static,private,monofile,built_in,[
+predicate('$read_return'/1,306,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(10),
     switch_on_term(2,fail,1,fail,fail),
@@ -896,7 +900,58 @@ label(10),
     execute('$read_return'/0)]).
 
 
-predicate('$exec_cmd_line_entry_goals'/1,325,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_consult_files'/1,327,static,private,monofile,built_in,[
+    load_cut_level(1),
+    try_me_else(6),
+    switch_on_term(2,fail,fail,1,fail),
+
+label(1),
+    try(3),
+    trust(5),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    allocate(2),
+    get_list(0),
+    unify_variable(y(0)),
+    unify_void(1),
+    put_structure('$consult2'/1,0),
+    unify_value(y(0)),
+    put_structure(error/2,1),
+    unify_variable(y(1)),
+    unify_void(1),
+    put_atom(true,2),
+    put_atom(false,3),
+    call('$catch_internal'/4),
+    put_value(y(1),0),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    put_atom('~Nwarning: command-line consulting file ~q failed due to ~q~n',0),
+    put_list(1),
+    unify_value(y(0)),
+    unify_list,
+    unify_value(y(1)),
+    unify_nil,
+    call(format/2),
+    fail,
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_list(0),
+    unify_void(1),
+    unify_variable(x(0)),
+    cut(x(1)),
+    execute('$exec_cmd_line_consult_files'/1),
+
+label(6),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$exec_cmd_line_entry_goals'/1,342,static,private,monofile,built_in,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -914,11 +969,11 @@ label(1),
     proceed]).
 
 
-predicate('$exec_cmd_line_goal'/1,335,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_goal'/1,352,static,private,monofile,built_in,[
     execute('$$exec_cmd_line_goal/1_$aux1'/1)]).
 
 
-predicate('$$exec_cmd_line_goal/1_$aux1'/1,335,static,private,monofile,local,[
+predicate('$$exec_cmd_line_goal/1_$aux1'/1,352,static,private,monofile,local,[
     load_cut_level(1),
     try_me_else(1),
     allocate(1),
@@ -946,7 +1001,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate('$exec_cmd1'/1,341,static,private,monofile,built_in,[
+predicate('$exec_cmd1'/1,358,static,private,monofile,built_in,[
     allocate(1),
     put_variable(y(0),1),
     put_structure(end_of_term/1,3),
@@ -963,7 +1018,7 @@ predicate('$exec_cmd1'/1,341,static,private,monofile,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$exec_cmd_err'/2,346,static,private,monofile,built_in,[
+predicate('$exec_cmd_err'/2,363,static,private,monofile,built_in,[
     get_variable(x(2),1),
     put_list(1),
     unify_local_value(x(0)),
