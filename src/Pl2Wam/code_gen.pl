@@ -510,7 +510,7 @@ inline_unif_reg_term(Info, Reg, Arg, WamNext, WamUnif) :-
                 Info = in_heap, % like in p :- A = f(A), write(A).
                 WamUnif = WamUnif1
             ;
-                warn('explicit unification will fail due to cycli term (occurs check)', []),
+                warn('explicit unification will fail due to cyclic term (occurs check)', []),
                 WamUnif = [fail|WamNext]
             )
         ;   gen_unif_arg(Arg, Reg, WamNext, WamUnif)

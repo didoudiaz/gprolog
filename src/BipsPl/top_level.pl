@@ -109,7 +109,7 @@ break :-
 '$top_level_exception'(X) :-
 	'$reinit_after_exception',
 	format(top_level_output, '~Nuncaught exception: ', []),
-	write_term(top_level_output, X, [quoted(true), numbervars(false)]),
+	write_term(top_level_output, X, [quoted(true), numbervars(false), namevars(false)]),
 	nl(top_level_output),
 	fail.
 
@@ -289,7 +289,7 @@ break :-
 
 '$write_solution1'([Name = Value|ToDispVars], Prior) :-
 	format(top_level_output, '~n~a = ', [Name]),
-	write_term(top_level_output, Value, [quoted(true), numbervars(false), priority(Prior)]),
+	write_term(top_level_output, Value, [quoted(true), numbervars(false), namevars(true), priority(Prior)]),
 	'$write_solution1'(ToDispVars, Prior).
 
 
@@ -324,7 +324,7 @@ break :-
 
 /* interface with command-line option consulting files */
 
-'$exec_cmd_line_consult_files'([File|LFile]) :-
+'$exec_cmd_line_consult_files'([File|_LFile]) :-
 	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
 	nonvar(Err),
 	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
