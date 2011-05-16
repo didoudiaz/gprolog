@@ -73,6 +73,7 @@ typedef struct
 {
   TypTok type;
   char name[SCAN_BIG_BUFFER];	/* for VARIABLE NAME STRING BACK_QUOTED */
+  int quoted;                   /* for NAME: was it quoted ?            */
   int punct;			/* for PUNCTUATION                      */
   PlLong int_num;		/* for INTEGER                          */
   double float_num;		/* for FLOAT                            */

@@ -168,6 +168,7 @@ start_scan:
     }
 
 
+  pl_token.quoted = FALSE;
   pl_token.line = pstm->line_count + 1;
   pl_token.col = pstm->line_pos;
 
@@ -486,6 +487,7 @@ Scan_Quoted(StmInf *pstm)
   if (c_type == QT)
     {
       pl_token.type = TOKEN_NAME;
+      pl_token.quoted = TRUE;
       i = 0;
     }
   else if (c_type == DQ)
@@ -883,9 +885,19 @@ Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only)
   pl_token.col = pstm->line_pos;
 
 
-  if (c == '-' && isdigit(Pl_Scan_Peek_Char(pstm, FALSE)))	/* negative number */
+  if (c == '-'
+#ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
+      && isdigit(Pl_Scan_Peek_Char(pstm, FALSE))	/* negative number */
+#endif
+      )
     {
-      Read_Next_Char(pstm, TRUE);
+
+      for (;;)
+	{
+	  Read_Next_Char(pstm, TRUE);
+	  if (c_type != LA)		/* layout character */
+	    break;
+	}
       minus_op = TRUE;
     }
 

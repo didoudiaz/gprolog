@@ -77,6 +77,8 @@
 static StmInf *pstm_i;
 
 static Bool tok_present;
+static TokInf unget_tok;
+
 
 static jmp_buf jumper;
 
@@ -116,8 +118,15 @@ static int Lookup_In_Dico_Var(char *name);
 static void Parse_Error(char *err_msg);
 
 
+/* we simply save line/col (for error report) to avoid to 
+ * duplicate the entire token (with the big buffer for names).
+ * After Unget_Token it is possible to restore pl_token.line/col */
 
-#define Unget_Token           tok_present = TRUE
+#define Unget_Token				\
+do {						\
+  tok_present = TRUE;				\
+  unget_tok = pl_token;				\
+} while(0)
 
 
 
@@ -159,7 +168,24 @@ Read_Next_Token(Bool comma_is_punct)
   char *err_msg;
 
   if (tok_present)
-    tok_present = FALSE;
+    {
+      tok_present = FALSE;
+      pl_token = unget_tok;
+      if (comma_is_punct && pl_token.type == TOKEN_NAME &&  !pl_token.quoted &&
+	  pl_token.name[0] == ',' && pl_token.name[1] == '\0')
+	{
+	  pl_token.type = TOKEN_PUNCTUATION;
+	  pl_token.punct = ',';
+	}
+      else if (!comma_is_punct && pl_token.type == TOKEN_PUNCTUATION && 
+	       pl_token.punct == ',')
+	{
+	  pl_token.type = TOKEN_NAME;
+	  pl_token.quoted = FALSE;
+	  pl_token.name[0] = ',';
+	  pl_token.name[1] = '\0';
+	}
+    }
   else if ((err_msg = Pl_Scan_Token(pstm_i, comma_is_punct)) != NULL)
     Parse_Error(err_msg);
 }
@@ -367,19 +393,42 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	}
 
       /* test if it is a negative number */
-      if (pl_token.name[0] == '-' && pl_token.name[1] == '\0' && isdigit(Pl_Scan_Peek_Char(pstm_i, TRUE)))
+      if (pl_token.name[0] == '-' && pl_token.name[1] == '\0'
+#ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
+	  && isdigit(Pl_Scan_Peek_Char(pstm_i, TRUE))
+#endif
+	  )
 	{
+	  int save_line = pl_token.line;
+	  int save_col = pl_token.col;
+
 	  Read_Next_Token(COMMA_ANY);
 	  if (pl_token.type == TOKEN_INTEGER)
 	    {
 	      if (pl_token.int_num > -INT_LOWEST_VALUE)
 		Parse_Error("integer underflow (exceeds min_integer)");
 	      term = Pl_Put_Integer(-pl_token.int_num);
+	      break;
 	    }
-	  else
-	    term = Pl_Put_Float(-pl_token.float_num);
-	  break;
+	  
+	  if (pl_token.type == TOKEN_FLOAT)
+	    {
+	      term = Pl_Put_Float(-pl_token.float_num);
+	      break;
+	    }
+
+	  /* '-' not followed by a number, pushback this token */
+	  /* (cannot occur ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES) */
+
+	  Unget_Token;
+
+	  /* restore token */
+	  pl_token.type = TOKEN_NAME;
+	  strcpy(pl_token.name, "-");
+	  pl_token.line = save_line;
+	  pl_token.col = save_col;
 	}
+
 
       /* maybe a prefix operator */
       if ((oper = Pl_Lookup_Oper(atom, PREFIX)) && cur_prec >= oper->prec)

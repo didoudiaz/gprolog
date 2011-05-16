@@ -109,6 +109,7 @@ static Bool space_args;
 static Bool portrayed;
 
 static int last_prefix_op = W_NO_PREFIX_OP;
+static Bool *p_bracket_minus;
 
 
 
@@ -281,9 +282,21 @@ Need_Space(int c)
       space = FALSE;
     }
 
-  if (space || (c == '(' && last_prefix_op) ||
-      (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS))
+  if (space || (c == '(' && last_prefix_op))
     Pl_Stream_Putc(' ', pstm_o);
+  else if (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS)
+    {
+#ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
+      Pl_Stream_Putc(' ', pstm_o);
+#else
+      (*p_bracket_minus)++;
+      /* to show it is an operator notation we also display a space (not strictly necessary) */
+#if 1
+      Pl_Stream_Putc(' ', pstm_o); 
+#endif
+      Pl_Stream_Putc('(', pstm_o);
+#endif
+    }
 
   last_prefix_op = W_NO_PREFIX_OP;
   pl_last_writing = W_NOTHING;
@@ -806,12 +819,25 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	Out_Space();
       else
 	if (strcmp(pl_atom_tbl[functor].name, "-") == 0)
-	  last_prefix_op = W_PREFIX_OP_MINUS;
+	  {
+	    last_prefix_op = W_PREFIX_OP_MINUS;
+	    p_bracket_minus = &bracket;
+	  }
 
       Show_Term(depth, oper->right, INSIDE_ANY_OP, Arg(stc_adr, 0));
       last_prefix_op = W_NO_PREFIX_OP;
 
-      if (bracket)
+      /* Here we need a while(bracket--) instead of if(bracket) because
+       * in some cases with the minus op and additional bracket is needed.
+       * Example: with op(100, xfx, &) (recall the prec of - is 200). 
+       * The term ((-(1)) & b must be displayed as: (- (1)) & b
+       * Concerning the sub-term - (1), the first ( is emitted  10 lines above
+       * because the precedence of - (200) is > precedence of & (100).
+       * The second ( is emitted by Need_Space() because the argument of - begins 
+       * by a digit. At the return we have to close 2 ).
+       */
+
+      while (bracket--)	
 	Out_Char(')');
 
       return;

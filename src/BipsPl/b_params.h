@@ -42,3 +42,9 @@
 #define MAX_VAR_IN_TERM            10240
 
 #define MAX_SYS_VARS               256
+
+
+/* ISO DTC2 seems to allow layout chars between minus sign and the number */
+#if 0
+#define MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
+#endif
