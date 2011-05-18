@@ -81,7 +81,7 @@ Pl_Write_Term_2(WamWord sora_word, WamWord term_word)
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
   Pl_Write_Term(pstm, SYS_VAR_WRITE_DEPTH, SYS_VAR_WRITE_PREC,
-	     SYS_VAR_OPTION_MASK, term_word);
+		SYS_VAR_OPTION_MASK, term_word);
 }
 
 
