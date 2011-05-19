@@ -151,25 +151,28 @@ Options to control the location of other components:
 
 Options to control C compiler optimization flags:
 
-   --with-msvc             use MSVC++ compiler under Win32 (else use gcc)
+   --with-msvc                use MSVC++ compiler under Win32 (else use gcc)
 
-   --without-c-flags       do not use any optimization flag
-   --with-c-flags          use default C optimization flags
-   --with-c-flags=CFLAGS   use CFLAGS (instead of default optimization flags)
-   --with-c-flags=debug    use C debug flags (e.g. '-g -Wall' for gcc)
+   --without-c-flags          do not use any optimization flag
+   --with-c-flags             use default C optimization flags
+   --with-c-flags=CFLAGS      use CFLAGS (instead of default optimization flags)
+   --with-c-flags=debug       use C debug flags (e.g. '-g -Wall' for gcc)
 
    Default: --with-c-flags
 
 Options to control GNU features to include/exclude:
 
-   --disable-regs          do not use machine registers to optimize speed
-   --enable-ebp            use the ebp register on ix86 machines
-   --disable-fast-call     do not use fast call mechanism for ix86 processors
-   --disable-linedit       do not include line editor facility
-   --disable-piped-consult do not pipe stdin of pl2wam when consult/1
-   --disable-sockets       do not include sockets facility
-   --disable-fd-solver     do not include the finite domain constraint solver
-   --disable-gui-console   do not use a GUI console (only with MSVC++ or MinGW)
+   --disable-regs             do not use machine registers to optimize speed
+   --enable-ebp               use the ebp register on ix86 machines
+   --disable-fast-call        do not use fast call mechanism for ix86 processors
+   --disable-linedit          do not include line editor facility
+   --disable-piped-consult    do not pipe stdin of pl2wam when consult/1
+   --disable-sockets          do not include sockets facility
+   --disable-fd-solver        do not include the finite domain constraint solver
+   --disable-gui-console      do not use a GUI console (only with MSVC++ or MinGW)
+   --disable-htmlhelp         do not use HtmlHelp in the GUI Console
+   --enable-htmlhelp[=static] use HtmlHelp statically  linked (default)
+   --enable-htmlhelp=dynamic  use HtmlHelp dynamically linked
 
    Default: all features are included.
 
@@ -256,7 +259,7 @@ PL_PATH environment variable. If it is defined GNU Prolog uses this path. If
 you want to define it, simply set it to the value of INSTALL_DIR as follows:
 
 under sh/bash:  PL_PATH=/usr/local/gprolog-xxx; export PL_PATH
-under csh/tcsh:	setenv PL_PATH /usr/local/gprolog-xxx
+under csh/tcsh: setenv PL_PATH /usr/local/gprolog-xxx
 
 To summarize, by default you can avoid to define PATH and PL_PATH. If you 
 need to defines these variables it is a good idea to put them in your shell

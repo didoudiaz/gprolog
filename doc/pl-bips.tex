@@ -4434,14 +4434,13 @@ list notations are used. The default value is \texttt{false}.
 \texttt{true} a term of the form \texttt{'\$VAR'(N)}, where \texttt{N} is an
 integer, is output as a variable name (see below). If \texttt{false}
 such a term is output normally (according to the other options). The
-default value is
-\texttt{true}.
+default value is \texttt{false}.
 
 \item \IdxPOD[namevars]{namevars(true}/\texttt{false)}: if \texttt{true} a
 term of the form \texttt{'\$VARNAME'(Name)}, where \texttt{Name} is an atom,
 is output as a variable name (see below). If \texttt{false} such a term is
 output normally (according to the other options). The default value is
-\texttt{true}.
+\texttt{false}.
 
 \item \IdxPOD[space\_args]{space\_args(true}/\texttt{false)}: if
 \texttt{true} an extra space character is emitted after each comma
@@ -4499,18 +4498,20 @@ written as \texttt{A} (even in the presence of the \texttt{quoted(true)}
 option).
 
 \texttt{write(SorA, Term)} is equivalent to
-\texttt{write\_term(SorA, Term, [])}.
+\texttt{write\_term(SorA, Term, [numbervars(true), \\
+namevars(true)])}.
 
 \texttt{writeq(SorA, Term)} is equivalent to
-\texttt{write\_term(SorA, Term, [quoted(true)])}.
+\texttt{write\_term(SorA, Term, [quoted(true), \\
+numbervars(true), namevars(true)])}.
 
 \texttt{write\_canonical(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [quoted(true), \\
-ignore\_ops(true), numbervars(false)])}.
+ignore\_ops(true), numbervars(false), namevars(false)])}.
 
 \texttt{display(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [ignore\_ops(true), \\
-numbervars(false)])}.
+  numbervars(false), namevars(false)])}.
 
 \texttt{print(SorA, Term)} is equivalent to
 \texttt{write\_term(SorA, Term, [numbervars(false), \\

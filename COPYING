@@ -1,5 +1,36 @@
-             This file contains LGPL v3 and GPL v2
+                        GNU PROLOG LICENSE CONDITIONS
 
+
+GNU Prolog is free software. Since version 1.4.0, GNU Prolog distributed
+under a dual license: LGPL or GPL. So, you can redistribute it and/or modify
+it under the terms of either:
+
+  * the GNU Lesser General Public License (LGPL) as published by the Free
+    Software Foundation; either version 3 of the License, or (at your option)
+    any later version.
+
+or 
+
+  * the GNU General Public License (GPL) as published by the Free Software
+    Foundation; either version 2 of the License, or (at your option) any
+    later version.  
+
+or both in parallel (as here).
+
+GNU Prolog is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received copies of the GNU General Public License and the GNU
+Lesser General Public License along with this program. If not, see
+http://www.gnu.org/licenses/.
+
+Remark: versions of GNU Prolog prior to 1.4.0 were entirely released under
+the GNU General Public License (GPL).
+
+
+The rest of this file contains LGPL v3 and GPL v2
+
 ---------------------------------------------------------------------------
 		   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007

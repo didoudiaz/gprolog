@@ -1,13 +1,19 @@
-Tue Mar 29 11:26:42 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
+Wed May 11 13:07:32 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 
 	* GNU Prolog is now licensed under LGPL or GLP
 	* port to x86_64/MinGW64 - many thanks to:
 	  Jasper Taylor <jasper@simulistics.com> (see src/WINDOWS64)
+	* port to x86_64/MSVC (see src/WINDOWS64)
 	* add a configure option to control Windows HtmlHelp 
 	  --disable-htmlhelp or --enable-htmlhelp[=static/dynamic]
 	* improve a lot (and fix some bugs in) the Windows GUI Console
+	* change location of gprologvars.bat under Windows (in install directory)
 	* increase default stack sizes (32Mb for heap, 16Mb for others)
 	* fix a bug in the compiler (bad unification with singleton variable)
+	* fix a bug with strict_iso flag (was not passed to consult)
+	* add shebang support using #!/usr/bin/gprolog --consult-file
+	* modify the mangling scheme for future module support (see hexgplc)
+	* fix write_term default options (now numbervars(false) and namevars(false))
 
 Mon Nov 29 15:48:25 CET 2010 <Daniel.Diaz@univ-paris1.fr>
 
