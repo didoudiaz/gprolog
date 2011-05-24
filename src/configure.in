@@ -19,7 +19,7 @@ AC_CONFIG_SRCDIR(SETVARS)
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION='1.4.0'
-PROLOG_DATE='Apr 8 2011'
+PROLOG_DATE='May 24 2011'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2011 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT
@@ -258,7 +258,7 @@ if test "$WITH_MSVC" != no; then
         host_cpu=i686
         host_os=win32
         AS=mingw-as
-        ASFLAGS=
+        ASFLAGS='--32'
     else
         WITH_MSVC=64
         host_cpu=x86_64
@@ -306,14 +306,16 @@ else
     if test "$GCC" != yes; then
         AC_MSG_ERROR([gcc is required (or MSVC++ under Windows)])
     fi
-
-    AS=as
+dnl we use AS0 instead of AS else AC_CHECK_TOOL does not work 
+dnl (instead of testing a prefix like x86_64-w64-mingw32- it will
+dnl think the user wants to override the test)
+    AS0=as
     case "$host" in
         i*86*darwin10*)  ASFLAGS='-arch i686';;
-        x86_64*solaris*) AS=gas; ASFLAGS='--64';;
-        *)               if test "$with_gas" = yes; then AS=gas; fi;;
+        x86_64*solaris*) AS0=gas; ASFLAGS='--64';;
+        *)               if test "$with_gas" = yes; then AS0=gas; fi;;
     esac
-    AC_CHECK_TOOL([AS],[$AS])
+    AC_CHECK_TOOL([AS],[$AS0])
     AC_PROG_RANLIB
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.o'

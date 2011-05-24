@@ -2376,7 +2376,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION='1.4.0'
-PROLOG_DATE='Apr 8 2011'
+PROLOG_DATE='May 24 2011'
 PROLOG_COPYRIGHT='Copyright (C) 1999-2011 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT
@@ -3587,7 +3587,7 @@ fi
         host_cpu=i686
         host_os=win32
         AS=mingw-as
-        ASFLAGS=
+        ASFLAGS='--32'
     else
         WITH_MSVC=64
         host_cpu=x86_64
@@ -3679,16 +3679,15 @@ else
     if test "$GCC" != yes; then
         as_fn_error $? "gcc is required (or MSVC++ under Windows)" "$LINENO" 5
     fi
-
-    AS=as
+    AS0=as
     case "$host" in
         i*86*darwin10*)  ASFLAGS='-arch i686';;
-        x86_64*solaris*) AS=gas; ASFLAGS='--64';;
-        *)               if test "$with_gas" = yes; then AS=gas; fi;;
+        x86_64*solaris*) AS0=gas; ASFLAGS='--64';;
+        *)               if test "$with_gas" = yes; then AS0=gas; fi;;
     esac
     if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}$AS", so it can be a program name with args.
-set dummy ${ac_tool_prefix}$AS; ac_word=$2
+  # Extract the first word of "${ac_tool_prefix}$AS0", so it can be a program name with args.
+set dummy ${ac_tool_prefix}$AS0; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if test "${ac_cv_prog_AS+set}" = set; then :
@@ -3704,7 +3703,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_AS="${ac_tool_prefix}$AS"
+    ac_cv_prog_AS="${ac_tool_prefix}$AS0"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3727,8 +3726,8 @@ fi
 fi
 if test -z "$ac_cv_prog_AS"; then
   ac_ct_AS=$AS
-  # Extract the first word of "$AS", so it can be a program name with args.
-set dummy $AS; ac_word=$2
+  # Extract the first word of "$AS0", so it can be a program name with args.
+set dummy $AS0; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if test "${ac_cv_prog_ac_ct_AS+set}" = set; then :
@@ -3744,7 +3743,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_ac_ct_AS="$AS"
+    ac_cv_prog_ac_ct_AS="$AS0"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
