@@ -212,11 +212,21 @@ fi
 # * checks for programs *
 # ***********************
 
+if test "$host_alias" != ''; then
+    WIN_CONF_OPT="$WIN_CONF_OPT --host=$host_alias"
+fi
+
+if test "$build_alias" != ''; then
+    WIN_CONF_OPT="$WIN_CONF_OPT --build=$build_alias"
+fi
+
+
 if test "$WITH_MSVC" != no; then
     echo "using MSVC++ as C compiler"
     CC=cl
-    WIN_CONF_OPT=--with-msvc
+    WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc"
 fi
+
 
 # should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
 # cannot be put in the then and the else part !!! so repeat the test !
@@ -224,14 +234,23 @@ fi
 AC_PROG_CC
 
 AC_CANONICAL_HOST
+AC_CANONICAL_BUILD
 
 # determine if MinGW and Windows path associated to posix path /tmp
+# needs AC_CANONICAL_BUILD
+
+case "$build_os" in
+    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
+esac
+
+# determine if MinGW
 # needs AC_CANONICAL_HOST
 
 case "$host_os" in
-    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
-    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`; MINGW=yes; WIN_CC_VER=mingw;;
+    mingw*) MINGW=yes; WIN_CC_VER=mingw;;
 esac
+
 
 # customize MSVC
 

@@ -14,7 +14,6 @@ Change in GNU Prolog version 1.4.0:
 * add shebang support using #!/usr/bin/gprolog --consult-file
 * modify the mangling scheme for future module support (see hexgplc)
 * fix write_term default options (now numbervars(false) and namevars(false))
-
 * rename evaluable functor atan/2 as atan2/2 and >< as xor
 * add evaluable functor div/2
 * detect op/3 error cases for | [] {}
