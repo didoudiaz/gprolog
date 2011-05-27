@@ -382,7 +382,7 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       c = Scan_Quoted_Char(pstm, TRUE, '\'', FALSE);
       if (c == -1)		/* <character> is ' */
 	{
-		/* STRICT ISO does not allow 0'' one should write 0''' or 0'\' */
+	  /* STRICT ISO does not allow 0'' one should write 0''' or 0'\' */
 	  if (Flag_Value(FLAG_STRICT_ISO))
 	    {
 	      pl_token.line = pstm->line_count + 1;
@@ -391,11 +391,10 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 	      return;
 	    }
 	  else
-
-	  c = '\'';
+	    c = '\'';
 	}
 
-      if (c < 0) 		/* \ followed by \n   EOF   \n    other error */
+      if (c == -2) 		/* \ newline   EOF   newline   tab    other error */
 	{
 	  Unget_Last_Char;
 
@@ -517,20 +516,20 @@ Scan_Quoted(StmInf *pstm)
 	  return;
 	}
 
-      if (c == -2)		/* \ followed by \n */
+      if (c == -2)		/* \ followed by newline */
 	continue;
 
-      if (c == -3 || c == -4)		/* EOF or \n */
+      if (c == -3 || c == -4)	/* EOF   newline */
 	{
 	  pl_token.type = TOKEN_FULL_STOP; /* to stop immediately Pl_Recover_After_Error */
 	  *s = '\0';
 	  return;
 	}
 
-      if (c == -5)		/* other error */
+      if (c == -5 || c == -6)	/* tab or other error */
 	{
 	  error_found = TRUE;
-	  continue;
+	  continue;	        /* continue to try to catch the closing quote */
 	}
 
       if (!error_found)
@@ -541,7 +540,7 @@ Scan_Quoted(StmInf *pstm)
 
   *s = '\0';
 
-  if (err_msg != NULL)		/* this test should now always succed */
+  if (err_msg != NULL)		/* this test should now always succeed */
     return;
 
   /* thus this should never been used - to be checked */
@@ -615,7 +614,19 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 	  pl_token.col = pstm->line_pos + 1;
 	  err_msg = "unexpected newline";
 	}
-      return -4;		/* -4 means \n */
+      return -4;		/* -4 means newline */
+    }
+
+  if (c == '\t')
+    {
+      if (err_msg == NULL)
+	{
+	  Unget_Last_Char;
+	  pl_token.line = pstm->line_count + 1;
+	  pl_token.col = pstm->line_pos + 1;
+	  err_msg = "unexpected tab";
+	}
+      return -5;		/* -5 means tab */
     }
 
   if (c != '\\' || no_escape)
@@ -625,8 +636,8 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 
   Read_Next_Char(pstm, convert);
 
-  if (c == '\n')		/* \ followed by \n */
-    return -2;			/* -2 means \ \n */
+  if (c == '\n')		/* \ followed by newline */
+    return -2;			/* -2 means \ newline */
 
   if (strchr("\\'\"`", c))	/* \\ or \' or \" or \` */
     return c;
@@ -679,14 +690,14 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 	      err_msg = "\\ expected in \\constant\\ sequence";
 	    }
 
-	  /* pump until \ or closing quote or \n is found */
+	  /* pump until \ or closing quote or newline is found */
 	pump:
 	  while(c != '\\' && c != c0 && c != EOF && c != '\n')
 	    Read_Next_Char(pstm, convert);
 	  if (c == c0)
 	    Unget_Last_Char;	/* to be able to continue in the parent's loop */
 
-	  return -5;		/* -3 means other error */
+	  return -6;		/* -6 means other error */
 	}
 
       return (int) (unsigned char) x;
@@ -699,7 +710,7 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
       err_msg = "unknown escape sequence";
     }
 
-  return -5;		/* -5 means other error */
+  return -6;		/* -6 means other error */
 }
 
 
@@ -750,7 +761,7 @@ Pl_Recover_After_Error(StmInf *pstm)
 	    continue;
 	  /* escape sequence */
 	  Next_Char;
-	  if (c == '\n')	/* \ followed by \n */
+	  if (c == '\n')	/* \ followed by newline */
 	    continue;
 
 	  if (strchr("\\'\"`", c))	/* \\ or \' or \" or \`  " */
