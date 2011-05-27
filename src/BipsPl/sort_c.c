@@ -88,6 +88,47 @@ Sort_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
+ * CHK_PAIR                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Chk_Pair(WamWord start_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_STC_MASK || 
+      Functor_And_Arity(UnTag_STC(word)) != minus_2))
+    Pl_Err_Type(pl_type_pair, word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_PAIR                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Get_Pair(WamWord start_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
+    Pl_Err_Instantiation();
+
+  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
+    Pl_Err_Type(pl_type_pair, word);
+
+  return word;			/* store dereferenced words in the array */
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_SORT_LIST_2                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -100,29 +141,17 @@ Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
 
   sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=msort/2, 2=keysort/2 */
 
-  Pl_Check_For_Un_List(list2_word);
-
   arg = H;			/* array in the heap */
-  n = Pl_Rd_Proper_List_Check(list1_word, arg);
-  if (sort_type == 2)
+
+  if (sort_type != 2)
     {
-      WamWord word, tag_mask;
-      WamWord *p = arg;
-      int n0 = n;
-
-      while(n0-- > 0)
-	{
-	  DEREF(*p, word, tag_mask);
-	  *p++ = word;		/* store dereferenced words in the array */
-
-	  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
-	    {
-	      if (tag_mask == TAG_REF_MASK)
-		Pl_Err_Instantiation();
-
-	      Pl_Err_Type(pl_type_pair, word);
-	    }
-	}
+      Pl_Check_For_Un_List(list2_word);
+      n = Pl_Rd_Proper_List_Check(list1_word, arg);
+    }
+  else
+    {
+      Pl_Check_For_Un_List2(list2_word, Chk_Pair);
+      n = Pl_Rd_Proper_List_Check2(list1_word, arg, Get_Pair);
     }
 
   if (n == 0)
@@ -157,28 +186,15 @@ Pl_Sort_List_1(WamWord list_word)
   sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=msort/1, 2=keysort/1 */
 
   arg = H;
-  n = Pl_Rd_Proper_List_Check(list_word, arg);
-  if (sort_type == 2)
+
+  if (sort_type != 2)
     {
-      WamWord word, tag_mask;
-      WamWord *p = arg;
-      int n0 = n;
-
-      while(n0-- > 0)
-	{
-	  DEREF(*p, word, tag_mask);
-	  *p++ = word;		/* store dereferenced words in the array */
-
-	  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
-	    {
-	      if (tag_mask == TAG_REF_MASK)
-		Pl_Err_Instantiation();
-
-	      Pl_Err_Type(pl_type_pair, word);
-	    }
-	}
+      n = Pl_Rd_Proper_List_Check(list_word, arg);
     }
-
+  else
+    {
+      n = Pl_Rd_Proper_List_Check2(list_word, arg, Get_Pair);
+    }
 
   if (n <= 1)
     return;

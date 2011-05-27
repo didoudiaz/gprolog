@@ -127,6 +127,9 @@ WamWord *Pl_Rd_List(WamWord start_word);
 
 int Pl_Rd_Proper_List_Check(WamWord start_word, WamWord *arg);
 
+int Pl_Rd_Proper_List_Check2(WamWord start_word, WamWord *arg, 
+			     WamWord (*elt_fct)(WamWord start_word));
+
 int Pl_Rd_Proper_List(WamWord start_word, WamWord *arg);
 
 WamWord *Pl_Rd_Compound_Check(WamWord start_word, int *func, int *arity);
@@ -170,6 +173,9 @@ void Pl_Check_For_Un_Chars(WamWord start_word);
 void Pl_Check_For_Un_Codes(WamWord start_word);
 
 void Pl_Check_For_Un_List(WamWord start_word);
+
+void Pl_Check_For_Un_List2(WamWord start_word, 
+			   void (*elt_fct)(WamWord start_word));
 
 void Pl_Check_For_Un_Compound(WamWord start_word);
 

@@ -274,8 +274,8 @@ compare(?atom, +term, +term)
 
 \Description
 
-\texttt{compare(Result, Term1, Term2)} compares \texttt{Term1} and
-\texttt{Term2} according to the standard \RefSP{Standard-total-ordering-of-terms} and unifies \texttt{Result} with:
+\texttt{compare(Order, Term1, Term2)} compares \texttt{Term1} and
+\texttt{Term2} according to the standard \RefSP{Standard-total-ordering-of-terms} and unifies \texttt{Order} with:
 
 \begin{itemize}
 
@@ -290,8 +290,11 @@ compare(?atom, +term, +term)
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Result} is neither a variable nor an atom}
-\ErrTerm{type\_error(atom, Result)}
+\ErrCond{\texttt{Order} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, Order)}
+
+\ErrCond{\texttt{Order} is an atom but not \texttt{{\lt}}, \texttt{=} or \texttt{{\gt}}}
+\ErrTerm{domain\_error(order, Order)}
 
 \end{PlErrors}
 
@@ -7043,6 +7046,9 @@ These predicates refer to the standard ordering of terms
 \ErrTerm{instantiation\_error}
 
 \ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List1} is neither a varible nor a pair}
+\ErrTerm{type\_error(pair, E)}
+
+\ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List2} is neither a varible nor a pair}
 \ErrTerm{type\_error(pair, E)}
 
 \end{PlErrors}

@@ -240,7 +240,7 @@ break :-
 	    (   B1 > B ->
 	        g_read('$all_solutions', f),          % fail for previous 'a'
 	        write(top_level_output, ' ? '),
-	        '$read_return'                        % fail for ';' and  'a'
+	        '$read_return'                        % fail for ';' ' ' and  'a'
 	    ;   true
 	    )
 	).
@@ -303,16 +303,20 @@ break :-
 
 
 
-'$read_return'(10).
+'$read_return'(10).		% newline
 
-'$read_return'(13).
+'$read_return'(13).		% carriage-return
 
-'$read_return'(97) :-
+'$read_return'(97) :-		% 'a'
 	g_assign('$all_solutions', t), !,
 	fail.
 
-'$read_return'(59) :-
+'$read_return'(59) :-		% ';'
 	format(top_level_output, '~N', []), !,
+	fail.
+
+'$read_return'(32) :-		% ' ' (simulate a ';')
+	format(top_level_output, '\b;~N', []), !,
 	fail.
 
 '$read_return'(_) :-

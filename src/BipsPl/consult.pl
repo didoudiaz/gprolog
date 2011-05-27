@@ -316,7 +316,6 @@ listing(PI) :-
 	nl,
 	'$clause'(H, B, 2),
 	portray_clause((H :- B)),
-	nl,
 	fail.
 
 '$listing_one'(_).

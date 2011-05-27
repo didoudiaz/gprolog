@@ -169,6 +169,16 @@ Pl_Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
   c = (cmp < 0) ? '<' : (cmp == 0) ? '=' : '>';
 
   res = Pl_Un_Atom_Check(ATOM_CHAR(c), cmp_word);
+  if (!res)			/* check if it is one of < = > */
+    {
+      WamWord word, tag_mask;
+      char *s;
+
+      DEREF(cmp_word, word, tag_mask); /* we know it is an atom */
+      s = pl_atom_tbl[UnTag_ATM(word)].name;
+      if ((s[0] != '<' && s[0] != '=' && s[0] != '>') || s[1] != '\0')
+	Pl_Err_Domain(pl_domain_order, cmp_word);
+    }
 
   Pl_Unset_C_Bip_Name();
 

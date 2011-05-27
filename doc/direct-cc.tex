@@ -573,17 +573,6 @@ the stack keeps unwinding, looking for an earlier invocation of
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Goal} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{Goal} is neither a variable nor a callable term}
-\ErrTerm{type\_error(callable, Goal)}
-
-\ErrCond{The predicate indicator \texttt{Pred} of \texttt{Goal} does not
-correspond to an existing procedure and the value of the \texttt{unknown}
-Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
-\ErrTerm{existence\_error(procedure, Pred)}
-
 \ErrCond{\texttt{Ball} is a variable}
 \ErrTerm{instantiation\_error}
 
@@ -593,10 +582,10 @@ If \texttt{Ball} does not unify with the \texttt{Catcher} argument of
 any call of \texttt{catch/3}, a system error message is displayed and
 \texttt{throw/1} fails.
 
-When \texttt{catch/3} calls \texttt{Recovery} it uses \texttt{call/1}
+When \texttt{catch/3} calls \texttt{Goal} or \texttt{Recovery} it uses \texttt{call/1}
 \RefSP{call/1}, an \texttt{instantiation\_error}, a \texttt{type\_error}
 or an \texttt{existence\_error} can then occur depending on
-\texttt{Recovery}.
+\texttt{Goal} or \texttt{Recovery}.
 
 \Portability
 

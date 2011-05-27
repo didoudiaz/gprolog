@@ -174,6 +174,7 @@ Error_Supp_Initializer(void)
   pl_domain_stream_position = Pl_Create_Atom("stream_position");
   pl_domain_stream_property = Pl_Create_Atom("stream_property");
   pl_domain_write_option = Pl_Create_Atom("write_option");
+  pl_domain_order = Pl_Create_Atom("order");
   pl_domain_term_stream_or_alias = Pl_Create_Atom("term_stream_or_alias");
 				/* for term_streams */
   pl_domain_g_array_index = Pl_Create_Atom("g_array_index");/* for g_vars */

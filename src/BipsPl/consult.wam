@@ -764,7 +764,6 @@ label(1),
     unify_local_value(y(2)),
     unify_local_value(y(3)),
     call(portray_clause/1),
-    call(nl/0),
     fail,
 
 label(2),
