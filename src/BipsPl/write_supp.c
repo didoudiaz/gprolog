@@ -65,9 +65,10 @@
 
 #define W_NOTHING                  0	/* for pl_last_writing */
 #define W_NUMBER                   1
-#define W_IDENTIFIER               2
-#define W_QUOTED                   3
-#define W_GRAPHIC                  4
+#define W_NUMBER_0                 2    /* to avoid 0'f ' if 'f ' is an op (avoid 0'char) */
+#define W_IDENTIFIER               3
+#define W_QUOTED                   4
+#define W_GRAPHIC                  5
 
 
 
@@ -262,6 +263,12 @@ Need_Space(int c)
 
   switch (pl_last_writing)
     {
+    case W_NUMBER_0:
+      if (c_type == QT)
+	{
+	  space = TRUE;
+	  break;
+	} /* then in W_NUMBER */
     case W_NUMBER:
       space = (c_type & (UL | CL | SL | DI)) || c == '.';
       break;
@@ -575,7 +582,10 @@ Show_Integer(PlLong x)
   sprintf(str, "%" PL_FMT_d, x);
   Out_String(str);
 
-  pl_last_writing = W_NUMBER;
+  if (*str == '0' && str[1] == '\0')
+    pl_last_writing = W_NUMBER_0;
+  else
+    pl_last_writing = W_NUMBER;
 }
 
 
