@@ -529,6 +529,28 @@ fails in the presence of FD variables in \texttt{Specific}.
 
 GNU Prolog predicate.
 
+\subsubsection{\texttt{acyclic\_term/1}}
+   \AddPBD{acyclic\_term/1}
+
+\begin{TemplatesOneCol}
+acyclic\_term(?term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{acyclic\_term(Term)} succeeds if \texttt{Term} does not contain a
+cyclic (sub-)term. This predicate is provided for compatibility only. GNU
+Prolog does not support cyclic terms so the use of cyclic terms is not safe
+and the resulting behavior is undefined (most often this leads to an infinite
+loop and/or a system crash).
+
+\PlErrorsNone
+
+\Portability
+
+GNU Prolog predicate.
+
 \subsubsection{\texttt{setarg/4},
                \texttt{setarg/3}}
    \AddPBD{setarg/4}
@@ -4440,10 +4462,10 @@ such a term is output normally (according to the other options). The
 default value is \texttt{false}.
 
 \item \IdxPOD[namevars]{namevars(true}/\texttt{false)}: if \texttt{true} a
-term of the form \texttt{'\$VARNAME'(Name)}, where \texttt{Name} is an atom,
-is output as a variable name (see below). If \texttt{false} such a term is
-output normally (according to the other options). The default value is
-\texttt{false}.
+term of the form \texttt{'\$VARNAME'(Name)}, where \texttt{Name} is an atom 
+respecting the syntax of variable names, is output as a variable name (see
+below). If \texttt{false} such a term is output normally (according to the
+other options). The default value is \texttt{false}.
 
 \item \IdxPOD[space\_args]{space\_args(true}/\texttt{false)}: if
 \texttt{true} an extra space character is emitted after each comma
@@ -7968,12 +7990,14 @@ other Prolog systems. When turned off the following relaxations apply:
 
 \begin{itemize}
 
-\item a callable term can be given as a predicate indicator.
+\item a callable term can be given as a predicate indicator (used as prototype).
 
 \item built-in predicates are found by \texttt{current\_predicate/1}
 \RefSP{current-predicate/1}.
 
-\item the term parser (\texttt{read/1} and friends) is more indulgent.
+\item the term parser (\texttt{read/1} and friends) is more indulgent (0'' is accepted and returns 39).
+
+\item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor}, \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
 
 \end{itemize}
 

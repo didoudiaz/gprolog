@@ -47,10 +47,10 @@ programs, to list them, to execute them and to debug them. The
 \SPart{Options}:
 
 \begin{CmdOptions}
-\IdxKD{--init-goal}  \Param{GOAL} & execute \Param{GOAL} before top\_level/0 \\
-\IdxKD{--consult-file} \Param{FILE} & consult \Param{FILE} inside top\_level/0 \\
-\IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside top\_level/0 \\
-\IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for top\_level/0 \\
+\IdxKD{--init-goal}  \Param{GOAL} & execute \Param{GOAL} before entering the top-level \\
+\IdxKD{--consult-file} \Param{FILE} & consult \Param{FILE} inside the top-level \\
+\IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside the top-level \\
+\IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for the top-level \\
 
 \IdxKD{--help} & print a help and exit \\
 
@@ -106,7 +106,7 @@ entry of \texttt{top\_level/0} just after the banner is displayed.
 entry of \texttt{top\_level/0} just after the banner is displayed.
 
 \item The \texttt{--query-goal} option executes the \Param{GOAL} as if the
-user has typed in.
+user has typed in (under the top-level).
 
 \end{itemize}
 
