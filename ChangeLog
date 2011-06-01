@@ -1,4 +1,4 @@
-Fri May 27 13:20:32 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
+Wed Jun  1 10:13:30 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 
 	* GNU Prolog is now licensed under LGPL or GLP
 	* port to x86_64/MinGW64 - many thanks to:
@@ -9,6 +9,7 @@ Fri May 27 13:20:32 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 	* improve a lot (and fix some bugs in) the Windows GUI Console
 	* change location of gprologvars.bat under Windows (in install directory)
 	* increase default stack sizes (32Mb for heap, 16Mb for others)
+	* change the default setting for flag strict_iso: it is off now
 	* fix a bug in the compiler (bad unification with singleton variable)
 	* fix a bug with strict_iso flag (was not passed to consult)
 	* add shebang support using #!/usr/bin/gprolog --consult-file
@@ -18,6 +19,8 @@ Fri May 27 13:20:32 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 	* add additional errors to compare/3 and keysort/2
 	* accept space under the top-level (same as ;)
 	* modify portray_clause/1-2 to add a newline at the end of the output
+	* add acyclic_term/1 (compatibility only since GNU Prolog does not handle cyclic terms)
+	* fix write/1 to treat '$VARNAME'(Atom) as a var name only if Atom is a valid var name
 
 Mon Nov 29 15:48:25 CET 2010 <Daniel.Diaz@univ-paris1.fr>
 

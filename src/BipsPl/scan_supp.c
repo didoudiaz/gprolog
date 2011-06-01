@@ -385,6 +385,18 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 	  /* STRICT ISO does not allow 0'' one should write 0''' or 0'\' */
 	  if (Flag_Value(FLAG_STRICT_ISO))
 	    {
+
+	    /* do not emit an error since 0'' is valid if '' is a postif/infix op 
+	     * (this is the only case) - simply return the integer 0 
+	     */
+#if 1
+	      if (Check_Oper(pl_atom_void, INFIX) || Check_Oper(pl_atom_void, POSTFIX))
+		{
+		  Pl_Stream_Ungetc('\'', pstm);	/* push back last ' */
+		  Pl_Stream_Ungetc('\'', pstm); /* push back first ' */
+		  return;
+		}
+#endif
 	      pl_token.line = pstm->line_count + 1;
 	      pl_token.col = pstm->line_pos + 1;
 	      err_msg = "quote character expected here";

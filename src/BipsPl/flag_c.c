@@ -208,7 +208,7 @@ Flag_Initializer(void)
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_SUSPICIOUS_WARNING) = 1;
   Flag_Value(FLAG_MULTIFILE_WARNING) = 1;
-  Flag_Value(FLAG_STRICT_ISO) = 0;
+  Flag_Value(FLAG_STRICT_ISO) = 1;
 
   Flag_Value(FLAG_DOUBLE_QUOTES) = FLAG_AS_CODES;
 

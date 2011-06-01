@@ -231,10 +231,10 @@ Display_Help(void)
 {
   fprintf(stderr, "Usage: %s [OPTION]... \n", TOP_LEVEL);
   L("");
-  L("  --consult-file FILE         consult FILE inside the top_level/0");
-  L("  --init-goal    GOAL         execute GOAL before top_level/0");
-  L("  --entry-goal   GOAL         execute GOAL inside top_level/0");
-  L("  --query-goal   GOAL         execute GOAL as a query for top_level/0");
+  L("  --consult-file FILE         consult FILE inside the the top-level");
+  L("  --init-goal    GOAL         execute GOAL before entering the top-level");
+  L("  --entry-goal   GOAL         execute GOAL inside the top-level");
+  L("  --query-goal   GOAL         execute GOAL as a query for the top-level");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");
