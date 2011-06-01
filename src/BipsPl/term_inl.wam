@@ -100,3 +100,9 @@ predicate(subsumes_term/2,124,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[subsumes_term,2]),
     call_c('Pl_Subsumes_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
+
+
+predicate(acyclic_term/1,130,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[acyclic_term,1]),
+    call_c('Pl_Acyclic_Term_1',[boolean],[x(0)]),
+    proceed]).

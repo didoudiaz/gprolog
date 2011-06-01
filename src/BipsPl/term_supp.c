@@ -633,3 +633,64 @@ Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
 
   return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
 }
+
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ACYCLIC_TERM_1                                                       *
+ *                                                                         *
+ * This implementation is not very satisfactory because:                   *
+ * - it does not handle terminal recursion (useful for lists).             *
+ * - it does not take into account sharing.                                *
+ * However, it is simple and enough until a full support for cyclic term   *
+ * is implemented (at least in the unification).                           *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Acyclic_Term_1(WamWord start_word)
+
+#define MARK Tag_LST(0)
+
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  int arity;
+  Bool ret;
+
+  DEREF(start_word, word, tag_mask);
+
+  if (tag_mask == TAG_LST_MASK)
+    {
+      adr = UnTag_LST(word);
+      arity = 2;
+      adr = &Car(adr);
+    }
+  else if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+      arity = Arity(adr);
+      adr = &Arg(adr, 0);
+    }
+  else
+    return TRUE;
+
+
+  while (--arity >= 0)
+    {
+      word = *adr;
+      if (word == MARK)		/* marked = cyclic */
+	return FALSE;
+
+      *adr = MARK;		/* mark it */
+
+      ret = Pl_Acyclic_Term_1(word);
+      
+      *adr++ = word;		/* unmark it */
+      if (!ret)
+	return FALSE;
+    }
+
+  return TRUE;
+}

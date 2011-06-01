@@ -136,3 +136,5 @@ void Pl_Execute_A_Continuation(CodePtr codep);
 
 
 #define   Goto_Predicate(p, n)  ((*Prolog_Predicate(p, n))())
+
+void *Pl_Dummy_Ptr(void *p);

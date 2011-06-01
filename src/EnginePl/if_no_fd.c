@@ -105,10 +105,12 @@ Pl_Fd_Init_Solver(void)
 void
 Pl_Fd_Reset_Solver(void)
 {
-  if (pl_fd_reset_solver == NULL)	/* FD solver not linked */
+  void (*copy_of_pl_fd_reset_solver) () = Pl_Dummy_Ptr(pl_fd_reset_solver);
+
+  if (copy_of_pl_fd_reset_solver == NULL)	/* FD solver not linked */
     return;
 
-  (*pl_fd_reset_solver) ();
+  (*copy_of_pl_fd_reset_solver) ();
 }
 
 

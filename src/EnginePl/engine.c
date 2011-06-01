@@ -100,7 +100,6 @@ static CodePtr cont_jmp;        /* we use a global var to support DEC alpha */
 
 
 
-
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -125,6 +124,7 @@ Pl_Start_Prolog(int argc, char *argv[])
 {
   int i, x;
   char *p;
+  void (*copy_of_pl_init_stream_supp)() = Pl_Dummy_Ptr(pl_init_stream_supp);
 
   setlocale(LC_ALL, "");
   setlocale(LC_NUMERIC, "C");   /* make sure floats come out right... */
@@ -193,8 +193,8 @@ Pl_Start_Prolog(int argc, char *argv[])
 #endif
     pl_use_gui = 0;
 
-  if (pl_init_stream_supp)
-    (*pl_init_stream_supp)();
+  if (copy_of_pl_init_stream_supp)
+    (*copy_of_pl_init_stream_supp)();
 
   Pl_Reset_Prolog();
   Pl_Fd_Init_Solver();

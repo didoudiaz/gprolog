@@ -126,3 +126,7 @@ subsumes_term(General, Specific) :-
 	'$call_c_test'('Pl_Subsumes_Term_2'(General, Specific)).
 
 
+
+acyclic_term(X) :-
+	set_bip_name(acyclic_term, 1),
+	'$call_c_test'('Pl_Acyclic_Term_1'(X)).

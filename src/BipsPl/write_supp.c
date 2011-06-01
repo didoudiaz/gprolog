@@ -721,6 +721,33 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 
 
 /*-------------------------------------------------------------------------*
+ * IS_VALID_VAR_NAME                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool
+Is_Valid_Var_Name(char *str)
+
+{
+  int c_type;
+
+  c_type = pl_char_type[*str];
+  if ((c_type & (UL | CL)) == 0) /* neither underline nor capital letter */
+    return FALSE;
+
+  while(*++str != '\0')
+    {
+      c_type = pl_char_type[*str];
+      if ((c_type & (UL | CL | SL | DI)) == 0)
+	return FALSE;
+    }
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * SHOW_STRUCTURE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -738,6 +765,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   char str[32];
   Bool bracket;
   Bool surround_space;
+  char *p;
 
 
   depth--;
@@ -745,9 +773,10 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (name_vars && f_n == dollar_varname_1)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
-      if (tag_mask == TAG_ATM_MASK)
+      p = pl_atom_tbl[UnTag_ATM(word)].name;
+      if (tag_mask == TAG_ATM_MASK && Is_Valid_Var_Name(p))
 	{
-	  Out_String(pl_atom_tbl[UnTag_ATM(word)].name);
+	  Out_String(p);
 	  pl_last_writing = W_IDENTIFIER;
 	  return;
 	}
