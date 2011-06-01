@@ -1210,10 +1210,12 @@ Get_Selected_File_Name(char *title, char *default_ext, char *filter)
   }
   *p++ = '\0'; *p = '\0';
 
-  if (GetCurrentDirectory(sizeof(cwd), cwd) == 0 && strcmp(cwd, last_cwd) != 0)
+  if (GetCurrentDirectory(sizeof(cwd), cwd) != 0 && strcmp(cwd, last_cwd) != 0)
     strcpy(last_cwd, cwd);
   else
     strcpy(cwd, ".");
+
+  printf("USED DIRE: %s\n", cwd);
 
   memset(&ofn,0,sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
