@@ -157,7 +157,7 @@ Pl_Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Dcg_Trans_Body_4(WamWord dcg_body_word, WamWord in_word, WamWord out_word,
-		 WamWord body_word)
+		    WamWord body_word)
 {
   top = Local_Top;		/* use local stack for the stack */
   opt_term_unif = TRUE;
