@@ -351,7 +351,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
 	  return;
 	}
 
-      if (func == ATOM_CHAR(';') ||  ATOM_CHAR('|'))
+      if (func == ATOM_CHAR(';') || func == ATOM_CHAR('|'))
 	{
 	  w1 = Dcg_Body(*adr++, TRUE, in_word, out_word, NULL);
 	  w2 = Dcg_Body(*adr, TRUE, in_word, out_word, NULL);

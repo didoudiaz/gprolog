@@ -730,13 +730,13 @@ Is_Valid_Var_Name(char *str)
 {
   int c_type;
 
-  c_type = pl_char_type[*str];
+  c_type = pl_char_type[(unsigned) *str];
   if ((c_type & (UL | CL)) == 0) /* neither underline nor capital letter */
     return FALSE;
 
   while(*++str != '\0')
     {
-      c_type = pl_char_type[*str];
+      c_type = pl_char_type[(unsigned) *str];
       if ((c_type & (UL | CL | SL | DI)) == 0)
 	return FALSE;
     }
