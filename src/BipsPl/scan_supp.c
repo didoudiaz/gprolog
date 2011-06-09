@@ -406,10 +406,11 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 	    c = '\'';
 	}
 
-      if (c == -2) 		/* \ newline   EOF   newline   tab    other error */
+      if (c < 0) 		/* \ newline   EOF   newline   tab    other error */
 	{
 	  Unget_Last_Char;
 
+	  pl_token.type = TOKEN_FULL_STOP; /* to stop immediately Pl_Recover_After_Error */
 	  pl_token.line = pstm->line_count + 1;
 	  pl_token.col = pstm->line_pos + 1;
 	  err_msg = "character expected here";

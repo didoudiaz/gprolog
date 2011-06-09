@@ -625,7 +625,7 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
-		 WamWord arity_word)
+		    WamWord arity_word)
 {
   int func, arity;
 

@@ -129,8 +129,8 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
   A(3) = (WamWord) scan.endt;
   A(4) = (WamWord) scan.cur_t;
   A(5) = (WamWord) scan.cur_p;
-  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0),
-		      6);
+  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0), 6);
+
   return Pl_Get_Atom(Functor_Of(pred->f_n), name_word) &&
     Pl_Get_Integer(Arity_Of(pred->f_n), arity_word);
   /*
