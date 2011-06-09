@@ -81,8 +81,8 @@
 
 
 #define GENERAL_TERM               0
-#define INSIDE_LEFT_ASSOC_OP       2
 #define INSIDE_ANY_OP              1
+#define INSIDE_LEFT_ASSOC_OP       2
 
 
 
@@ -186,7 +186,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
 
   pl_last_writing = W_NOTHING;
 
-  Show_Term(depth, prec, GENERAL_TERM, term_word);
+  Show_Term(depth, prec, (prec >= 1200) ? GENERAL_TERM : INSIDE_ANY_OP, term_word);
 }
 
 
@@ -289,7 +289,7 @@ Need_Space(int c)
       space = FALSE;
     }
 
-  if (space || (c == '(' && last_prefix_op))
+  if (space || (c == '(' && last_prefix_op != W_NO_PREFIX_OP))
     Pl_Stream_Putc(' ', pstm_o);
   else if (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS)
     {
