@@ -101,8 +101,7 @@ Pl_Init_Pred(void)
 #ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
 
   int file = Pl_Create_Atom(__FILE__);
-  int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_BUILTIN | 
-    MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
+  int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
 
   Pl_Create_Pred(ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
   Pl_Create_Pred(ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
@@ -134,8 +133,8 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
   PlLong key = Functor_Arity(func, arity);
 
 
-  if (prop & MASK_PRED_BUILTIN_FD)
-    prop |= MASK_PRED_BUILTIN;	/* now an FD built-in is also a built-in */
+  if (prop & (MASK_PRED_BUILTIN_FD | MASK_PRED_CONTROL_CONSTRUCT))
+    prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
 
 #ifdef DEBUG
   DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity,

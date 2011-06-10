@@ -43,16 +43,16 @@
  *---------------------------------*/
 
 					  /* if modified -> modif wam2ma.c */
-#define MASK_PRED_NATIVE_CODE       1
-#define MASK_PRED_DYNAMIC           2
-#define MASK_PRED_PUBLIC            4
-#define MASK_PRED_BUILTIN           8
-#define MASK_PRED_BUILTIN_FD        16
-#define MASK_PRED_CONTROL_CONSTRUCT 32
-#define MASK_PRED_MULTIFILE         64
-#define MASK_PRED_EXPORTED          128	  /* not yet used - for future */
+#define MASK_PRED_NATIVE_CODE       1	  /* codep is set, except for control constructs */
+#define MASK_PRED_DYNAMIC           2	  /* dynamic or static */
+#define MASK_PRED_PUBLIC            4	  /* public or private */
+#define MASK_PRED_BUILTIN           8	  /* built-in (procedure provided by the system) */
+#define MASK_PRED_BUILTIN_FD        16	  /* FD built-in pred  (==> MASK_PRED_BUILTIN) */
+#define MASK_PRED_CONTROL_CONSTRUCT 32	  /* control_construct (==> MASK_PRED_BUILTIN) */
+#define MASK_PRED_MULTIFILE         64	  /* multifile or monofile */
+#define MASK_PRED_EXPORTED          128	  /* exported by module not yet used - for future */
 
-#define MASK_PRED_ANY_BUILTIN      (MASK_PRED_BUILTIN | MASK_PRED_BUILTIN_FD)
+
 
 
 
@@ -67,7 +67,7 @@ typedef struct			/* Predicate information          */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */
   PlLong *codep;		/* compiled code                  */
-  PlLong *dyn;		/* dynamic info (cf BipsPl)       */
+  PlLong *dyn;			/* dynamic info (cf BipsPl)       */
 }
 PredInf;
 
@@ -98,7 +98,7 @@ extern char *pl_pred_tbl;
 void Pl_Init_Pred(void);
 
 PredInf * FC Pl_Create_Pred(int func, int arity, int pl_file, int pl_line,
-		     int prop, PlLong *codep);
+			    int prop, PlLong *codep);
 
 PredInf * FC Pl_Lookup_Pred(int func, int arity);
 

@@ -51,18 +51,18 @@ pl2wam(LArg) :-
 pl2wam1(LArg) :-
 	cmd_line_args(LArg, PlFile, WamFile),
 	prolog_file_name(PlFile, PlFile1),
-	read_file_init(PlFile),
-	emit_code_init(WamFile, PlFile),
 	g_read(native_code, NativeCode),
 	compile_msg_start(PlFile1, NativeCode),
+	read_file_init(PlFile),
+	emit_code_init(WamFile, PlFile),
 	init_counters,
 	repeat,
 	read_predicate(Pred, N, LSrcCl),
 	add_counter(user_read_file, real_read_file),
-	(   LSrcCl = []                                   % [] at end of file
-	                ->
+	(   LSrcCl = [] ->	% [] at end of file
 	    !
-	;   read_file_error_nb(0),
+	;
+	    read_file_error_nb(0),
 	    compile_and_emit_pred(NativeCode, Pred, N, LSrcCl),
 	    fail
 	),
@@ -149,7 +149,8 @@ compile_msg_start(PlFile, NativeCode) :-
 	    Type = 'native code'
 	;   Type = 'byte code'
 	),
-	format('compiling ~a for ~a...~n', [PlFile, Type]).
+	format('compiling ~a for ~a...~n', [PlFile, Type]),
+	flush_output.
 
 
 

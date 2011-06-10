@@ -95,7 +95,7 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
 
 #define Pred_Is_Ok(pred, func, which_preds) \
   (which_preds == 2 || (pl_atom_tbl[func].name[0] != '$' && \
-   (which_preds == 1 || !(pred->prop & MASK_PRED_ANY_BUILTIN))))
+   (which_preds == 1 || !(pred->prop & MASK_PRED_BUILTIN))))
 
   if (func >= 0 && arity >= 0)
     {
@@ -349,7 +349,7 @@ Pl_Pred_Prop_User_1(WamWord pred_indic_word)
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
     return FALSE;
 
-  return (pred->prop & MASK_PRED_ANY_BUILTIN) == 0;
+  return (pred->prop & MASK_PRED_BUILTIN) == 0;
 }
 
 
