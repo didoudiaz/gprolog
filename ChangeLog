@@ -12,6 +12,7 @@ Fri Jun 10 15:59:42 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 	* change the default setting for flag strict_iso: it is off now
 	* add control constructs to the predicate table
 	* modify predicate_property/2 (built_in_fd ==> built_in, add control_construct)
+	  only accepts a Head (a callable) (no longer a predicate indicator)
 	* fix a bug in the compiler (bad unification with singleton variable)
 	* fix a bug with strict_iso flag (was not passed to consult)
 	* add shebang support using #!/usr/bin/gprolog --consult-file
