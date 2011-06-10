@@ -1,6 +1,6 @@
 Change in GNU Prolog version 1.4.0:
 
-* GNU Prolog is now licensed under LGPL or GPL
+* GNU Prolog is now licensed under a dual license LGPL or GPL
 * port to x86_64/MinGW - many thanks to:
   Jasper Taylor <jasper@simulistics.com> (see src/WINDOWS64)
 * port to x86_64/MSVC (see src/WINDOWS64)

@@ -1,6 +1,6 @@
 Wed Jun  1 10:13:30 CEST 2011 <Daniel.Diaz@univ-paris1.fr>
 
-	* GNU Prolog is now licensed under LGPL or GLP
+	* GNU Prolog is now licensed under a dual license LGPL or GLP
 	* port to x86_64/MinGW64 - many thanks to:
 	  Jasper Taylor <jasper@simulistics.com> (see src/WINDOWS64)
 	* port to x86_64/MSVC (see src/WINDOWS64)
