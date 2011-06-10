@@ -63,23 +63,48 @@ current_predicate(PI) :-
 
 
 
+/* From 1.4.0 predicate_property only accepts a Head which is a callable.
+ * In previous versions a predicate_indicator was expected, a callable was
+ * accepted iff strict_iso was off.
+ * This is no longer the case. We kept old version renamed '$predicate_property_pi'
+ */
 
-predicate_property(PI, Property) :-
+predicate_property(Head, Property) :-
 	set_bip_name(predicate_property, 2),
+	callable(Head), !,
+	functor(Head, F, N),
+	'$predicate_property1'(F, N, Property).
+
+predicate_property(Head, Property) :-
+	var(Head), !,
+	'$current_predicate_bips'(F/N),
+	functor(Head, F, N),
+	'$predicate_property1'(F, N, Property).
+
+predicate_property(Head, _) :-
+	'$pl_err_type'(callable, Head).
+
+
+
+
+
+'$predicate_property_pi'(PI, Property) :-
 	'$current_predicate_bips'(PI),
-	'$predicate_property1'(PI, Property).
+	PI = Func/Arity,
+	'$predicate_property1'(Func, Arity, Property).
 
 
-'$predicate_property_any'(PI, Property) :-
+'$predicate_property_pi_any'(PI, Property) :-
 	'$current_predicate_any'(PI),
-	'$predicate_property1'(PI, Property).
+	PI = Func/Arity,
+	'$predicate_property1'(Func, Arity, Property).
 
 
 
 
-'$predicate_property1'(PI, Property) :-
+'$predicate_property1'(Func, Arity, Property) :-
 	'$check_pred_prop'(Property), !,
-	'$predicate_property2'(Property, PI).
+	'$predicate_property2'(Property, Func, Arity).
 
 
 
@@ -121,52 +146,51 @@ predicate_property(PI, Property) :-
 
 
 
-'$predicate_property2'(static, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Static_1'(PI)).
+'$predicate_property2'(static, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Static_2'(Func, Arity)).
 
-'$predicate_property2'(dynamic, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Dynamic_1'(PI)).
+'$predicate_property2'(dynamic, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Dynamic_2'(Func, Arity)).
 
-'$predicate_property2'(private, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Private_1'(PI)).
+'$predicate_property2'(private, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Private_2'(Func, Arity)).
 
-'$predicate_property2'(public, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Public_1'(PI)).
+'$predicate_property2'(public, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Public_2'(Func, Arity)).
 
-'$predicate_property2'(monofile, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Monofile_1'(PI)).
+'$predicate_property2'(monofile, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Monofile_2'(Func, Arity)).
 
-'$predicate_property2'(multifile, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Multifile_1'(PI)).
+'$predicate_property2'(multifile, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Multifile_2'(Func, Arity)).
 
-'$predicate_property2'(user, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_User_1'(PI)).
+'$predicate_property2'(user, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_User_2'(Func, Arity)).
 
-'$predicate_property2'(built_in, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Built_In_1'(PI)).
+'$predicate_property2'(built_in, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Built_In_2'(Func, Arity)).
 
-'$predicate_property2'(built_in_fd, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Built_In_Fd_1'(PI)).
+'$predicate_property2'(built_in_fd, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Built_In_Fd_2'(Func, Arity)).
 
-'$predicate_property2'(control_construct, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Control_Construct_1'(PI)).
+'$predicate_property2'(control_construct, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Control_Construct_2'(Func, Arity)).
 
-'$predicate_property2'(native_code, PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Native_Code_1'(PI)).
+'$predicate_property2'(native_code, Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Native_Code_2'(Func, Arity)).
 
-'$predicate_property2'(prolog_file(PlFile), PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Prolog_File_2'(PI, PlFile)).
+'$predicate_property2'(prolog_file(PlFile), Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Prolog_File_3'(Func, Arity, PlFile)).
 
-'$predicate_property2'(prolog_line(PlLine), PI) :-
-	'$call_c_test'('Pl_Pred_Prop_Prolog_Line_2'(PI, PlLine)).
+'$predicate_property2'(prolog_line(PlLine), Func, Arity) :-
+	'$call_c_test'('Pl_Pred_Prop_Prolog_Line_3'(Func, Arity, PlLine)).
 
-'$predicate_property2'(meta_predicate(MetaPredTerm), PI) :-
-	'$get_pred_indicator'(PI, Func, Arity),
+'$predicate_property2'(meta_predicate(MetaPredTerm), Func, Arity) :-
 	'$prop_meta_pred'(Func, Arity, MetaPredTerm).
 
 
 
-% the control constructs (in case they are found by predicate_property/2)
+% the control constructs (they are now found by predicate_property/2)
 
 '$prop_meta_pred'(',', 2, ','(0,0)).
 '$prop_meta_pred'(;, 2, ;(0,0)).

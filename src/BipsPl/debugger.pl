@@ -796,7 +796,7 @@ nospyall.
 	functor(Goal, N, A),
 	PI = N / A,
 	(   '$current_predicate_any'(PI) ->
-	    (   '$predicate_property_any'(PI, native_code) ->
+	    (   '$predicate_property1'(N, A, native_code) ->
 	        format(debugger_output, 'native code predicate ~a/~d~n', [N, A])
 	    ;   listing(PI),
 	        nl(debugger_output)
@@ -937,14 +937,16 @@ nospyall.
 
 '$debug_disp_alt1'(N, A, _) :-                      % detect system predicate
 	sub_atom(N, 0, 1, _, $),
-	'$predicate_property_any'(N / A, native_code),
+	'$predicate_property1'(N, A, native_code),
 	(   (   sub_atom(N, 1, _, 4, N1),
 	        '$debug_check_bip'(N1, A1)
-	    ;   sub_atom(N, 1, _, 1, N1),
+	    ;
+		sub_atom(N, 1, _, 1, N1),
 	        '$debug_check_bip'(N1, A1)
 	    ) ->
 	    '$debug_disp_alt2'(N1 / A1)
-	;   '$debug_disp_alt2'('system predicate'(N / A))
+	;
+	    '$debug_disp_alt2'('system predicate'(N / A))
 	).
 
 '$debug_disp_alt1'(N, A, _) :-                             % normal predicate
@@ -964,10 +966,12 @@ nospyall.
 
 
 '$debug_check_bip'(N1, A1) :-
-	predicate_property(N1 / A1, built_in), !.
+	'$predicate_property1'(N1, A1, built_in).
 
+/* useless since now built_in_fd ==> built_in
 '$debug_check_bip'(N1, A1) :-
-	predicate_property(N1 / A1, built_in_fd).
+	'$predicate_property1'(N1, A1, built_in_fd).
+*/
 
 
 

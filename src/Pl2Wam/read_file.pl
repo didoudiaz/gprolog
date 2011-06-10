@@ -1066,10 +1066,10 @@ check_predicate(_, _).
 
 
 bip(F, N) :-
-	predicate_property(F/N, built_in), !.
+	'$predicate_property1'(F, N, built_in), !.
 /* no longer needed built_in_fd ==> built_in
 bip(F, N) :-
-	predicate_property(F/N, built_in_fd).
+	'$predicate_property1'(F, N, built_in_fd).
 */
 
 

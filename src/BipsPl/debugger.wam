@@ -2286,9 +2286,9 @@ predicate('$$debug_exec_cmd/6_$aux5'/3,794,static,private,monofile,local,[
     put_value(y(0),0),
     call('$current_predicate_any'/1),
     cut(y(3)),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    put_value(y(2),2),
+    put_value(y(1),0),
+    put_value(y(2),1),
+    put_value(y(0),2),
     deallocate,
     execute('$$debug_exec_cmd/6_$aux7'/3),
 
@@ -2309,11 +2309,13 @@ predicate('$$debug_exec_cmd/6_$aux7'/3,794,static,private,monofile,local,[
     load_cut_level(3),
     try_me_else(1),
     allocate(3),
-    get_variable(y(0),1),
-    get_variable(y(1),2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
     get_variable(y(2),3),
-    put_atom(native_code,1),
-    call('$predicate_property_any'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_atom(native_code,2),
+    call('$predicate_property1'/3),
     cut(y(2)),
     put_atom(debugger_output,0),
     put_atom('native code predicate ~a/~d~n',1),
@@ -2328,6 +2330,7 @@ predicate('$$debug_exec_cmd/6_$aux7'/3,794,static,private,monofile,local,[
 label(1),
     trust_me_else_fail,
     allocate(0),
+    put_value(x(2),0),
     call(listing/1),
     put_atom(debugger_output,0),
     deallocate,
@@ -2778,11 +2781,10 @@ label(8),
     put_void(3),
     put_atom($,4),
     call(sub_atom/5),
-    put_structure((/)/2,0),
-    unify_local_value(y(0)),
-    unify_local_value(y(1)),
-    put_atom(native_code,1),
-    call('$predicate_property_any'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_atom(native_code,2),
+    call('$predicate_property1'/3),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -2853,7 +2855,7 @@ label(1),
     execute('$debug_check_bip'/2)]).
 
 
-predicate('$debug_disp_alt2'/1,954,static,private,monofile,built_in,[
+predicate('$debug_disp_alt2'/1,956,static,private,monofile,built_in,[
     put_list(2),
     unify_local_value(x(0)),
     unify_nil,
@@ -2862,7 +2864,7 @@ predicate('$debug_disp_alt2'/1,954,static,private,monofile,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_is_debug_predicate'/1,960,static,private,monofile,built_in,[
+predicate('$debug_is_debug_predicate'/1,962,static,private,monofile,built_in,[
     put_integer(0,1),
     put_integer(7,2),
     put_void(3),
@@ -2870,32 +2872,12 @@ predicate('$debug_is_debug_predicate'/1,960,static,private,monofile,built_in,[
     execute(sub_atom/5)]).
 
 
-predicate('$debug_check_bip'/2,966,static,private,monofile,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    allocate(1),
-    get_variable(x(3),0),
-    get_variable(y(0),2),
-    put_structure((/)/2,0),
-    unify_local_value(x(3)),
-    unify_local_value(x(1)),
-    put_atom(built_in,1),
-    call(predicate_property/2),
-    cut(y(0)),
-    deallocate,
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    get_variable(x(2),0),
-    put_structure((/)/2,0),
-    unify_local_value(x(2)),
-    unify_local_value(x(1)),
-    put_atom(built_in_fd,1),
-    execute(predicate_property/2)]).
+predicate('$debug_check_bip'/2,968,static,private,monofile,built_in,[
+    put_atom(built_in,2),
+    execute('$predicate_property1'/3)]).
 
 
-predicate('$debug_disp_help'/0,975,static,private,monofile,built_in,[
+predicate('$debug_disp_help'/0,979,static,private,monofile,built_in,[
     allocate(0),
     put_atom(debugger_output,0),
     put_atom('Debugging commands:~n~n',1),
@@ -2958,11 +2940,11 @@ predicate('$debug_disp_help'/0,975,static,private,monofile,built_in,[
     execute(nl/1)]).
 
 
-predicate('$choice_point_info'/4,996,static,private,monofile,built_in,[
+predicate('$choice_point_info'/4,1000,static,private,monofile,built_in,[
     call_c('Pl_Choice_Point_Info_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$choice_point_arg'/3,1000,static,private,monofile,built_in,[
+predicate('$choice_point_arg'/3,1004,static,private,monofile,built_in,[
     call_c('Pl_Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
     proceed]).

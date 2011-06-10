@@ -132,14 +132,14 @@ consult(File) :-
 
 
 '$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream) :-
+	PI = Pred / N,
 	g_read('$pl_file', PlFile),
-	'$check_pred_type'(PI, PlFile, PlLine),
-	(   MonoMulti = multifile, '$predicate_property_any'(PI, multifile) ->
+	'$check_pred_type'(Pred, N, PlFile, PlLine),
+	(   MonoMulti = multifile, '$predicate_property1'(Pred, N, multifile) ->
 	    true
 	;
 	    '$check_owner_files'(PI, PlFile, PlLine)
 	),
-	PI = Pred / N,
 	'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd),
 	g_assign('$ctr', 0),
 	repeat,
@@ -164,16 +164,15 @@ consult(File) :-
 
 
 
-'$check_pred_type'(PI, PlFile, PlLine) :-
-	'$predicate_property_any'(PI, native_code), !,
-	PI = Name / _,
-	(   '$aux_name'(Name) ->
+'$check_pred_type'(Pred, N, PlFile, PlLine) :-
+	'$predicate_property1'(Pred, N, native_code), !,
+	(   '$aux_name'(Pred) ->
 	    true
-	;   format(top_level_output, 'error: ~a:~d: native code procedure ~q cannot be redefined (ignored)~n', [PlFile, PlLine, PI])
+	;   format(top_level_output, 'error: ~a:~d: native code procedure ~q cannot be redefined (ignored)~n', [PlFile, PlLine, Pred/N])
 	),
 	fail.
 
-'$check_pred_type'(_, _, _).
+'$check_pred_type'(_, _, _, _).
 
 
 
@@ -307,7 +306,7 @@ listing(PI) :-
 
 
 '$listing_one'(PI) :-
-	'$predicate_property_any'(PI, native_code), !,
+	'$predicate_property_pi_any'(PI, native_code), !,
 	true.
 
 '$listing_one'(PI) :-

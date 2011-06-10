@@ -43,7 +43,8 @@
 
 /* API
 
-set_prolog_flag(strict_iso, off), setof(Y:X,(predicate_property(X, prolog_file(F)), decompose_file_name(F, _, src_rdr, '.pl'), predicate_property(X, prolog_line(Y))), L), member(_:A, L), write(A), nl, fail.
+setof(Y:X,(predicate_property(X, prolog_file(F)), decompose_file_name(F, _, src_rdr, '.pl'), predicate_property(X, prolog_line(Y))), L), member(_:A, L), functor(A,Func,Arity), write(Func/Arity), nl, fail.
+
 
 sr_open/3
 sr_change_options/2

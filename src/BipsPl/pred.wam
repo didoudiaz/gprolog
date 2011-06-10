@@ -37,47 +37,97 @@ predicate('$current_predicate_alt'/0,61,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(predicate_property/2,67,static,private,monofile,built_in,[
+predicate(predicate_property/2,72,static,private,monofile,built_in,[
+    load_cut_level(2),
+    try_me_else(1),
+    get_variable(x(3),1),
+    get_variable(x(4),0),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[predicate_property,2]),
+    call_c('Pl_Blt_Callable',[fast_call,boolean],[x(4)]),
+    cut(x(2)),
+    put_variable(x(0),2),
+    put_variable(x(1),5),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(4),x(2),x(5)]),
+    put_value(x(3),2),
+    execute('$predicate_property1'/3),
+
+label(1),
+    retry_me_else(2),
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(2)),
+    put_structure((/)/2,0),
+    unify_variable(y(2)),
+    unify_variable(y(3)),
+    call('$current_predicate_bips'/1),
+    put_value(y(0),0),
+    put_value(y(2),1),
+    put_value(y(3),2),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    put_value(y(2),0),
+    put_value(y(3),1),
+    put_value(y(1),2),
+    deallocate,
+    execute('$predicate_property1'/3),
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(callable,0),
+    execute('$pl_err_type'/2)]).
+
+
+predicate('$predicate_property_pi'/2,91,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[predicate_property,2]),
     put_value(y(0),0),
     call('$current_predicate_bips'/1),
     put_value(y(0),0),
-    put_value(y(1),1),
+    get_structure((/)/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    put_value(y(1),2),
     deallocate,
-    execute('$predicate_property1'/2)]).
+    execute('$predicate_property1'/3)]).
 
 
-predicate('$predicate_property_any'/2,73,static,private,monofile,built_in,[
+predicate('$predicate_property_pi_any'/2,97,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_value(y(0),0),
     call('$current_predicate_any'/1),
     put_value(y(0),0),
-    put_value(y(1),1),
+    get_structure((/)/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    put_value(y(1),2),
     deallocate,
-    execute('$predicate_property1'/2)]).
+    execute('$predicate_property1'/3)]).
 
 
-predicate('$predicate_property1'/2,80,static,private,monofile,built_in,[
-    load_cut_level(2),
-    allocate(3),
+predicate('$predicate_property1'/3,105,static,private,monofile,built_in,[
+    load_cut_level(3),
+    allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    put_value(y(1),0),
+    get_variable(y(3),3),
+    put_value(y(2),0),
     call('$check_pred_prop'/1),
-    cut(y(2)),
-    put_value(y(1),0),
+    cut(y(3)),
+    put_value(y(2),0),
     put_value(y(0),1),
+    put_value(y(1),2),
     deallocate,
-    execute('$predicate_property2'/2)]).
+    execute('$predicate_property2'/3)]).
 
 
-predicate('$check_pred_prop'/1,87,static,private,monofile,built_in,[
+predicate('$check_pred_prop'/1,112,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -200,7 +250,7 @@ label(32),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$predicate_property2'/2,124,static,private,monofile,built_in,[
+predicate('$predicate_property2'/3,149,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -214,7 +264,7 @@ label(3),
 
 label(4),
     get_atom(static,0),
-    call_c('Pl_Pred_Prop_Static_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Static_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(5),
@@ -222,7 +272,7 @@ label(5),
 
 label(6),
     get_atom(dynamic,0),
-    call_c('Pl_Pred_Prop_Dynamic_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Dynamic_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(7),
@@ -230,7 +280,7 @@ label(7),
 
 label(8),
     get_atom(private,0),
-    call_c('Pl_Pred_Prop_Private_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Private_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(9),
@@ -238,7 +288,7 @@ label(9),
 
 label(10),
     get_atom(public,0),
-    call_c('Pl_Pred_Prop_Public_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Public_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(11),
@@ -246,7 +296,7 @@ label(11),
 
 label(12),
     get_atom(monofile,0),
-    call_c('Pl_Pred_Prop_Monofile_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Monofile_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(13),
@@ -254,7 +304,7 @@ label(13),
 
 label(14),
     get_atom(multifile,0),
-    call_c('Pl_Pred_Prop_Multifile_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Multifile_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(15),
@@ -262,7 +312,7 @@ label(15),
 
 label(16),
     get_atom(user,0),
-    call_c('Pl_Pred_Prop_User_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_User_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(17),
@@ -270,7 +320,7 @@ label(17),
 
 label(18),
     get_atom(built_in,0),
-    call_c('Pl_Pred_Prop_Built_In_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Built_In_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(19),
@@ -278,7 +328,7 @@ label(19),
 
 label(20),
     get_atom(built_in_fd,0),
-    call_c('Pl_Pred_Prop_Built_In_Fd_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Built_In_Fd_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(21),
@@ -286,7 +336,7 @@ label(21),
 
 label(22),
     get_atom(control_construct,0),
-    call_c('Pl_Pred_Prop_Control_Construct_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Control_Construct_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(23),
@@ -294,7 +344,7 @@ label(23),
 
 label(24),
     get_atom(native_code,0),
-    call_c('Pl_Pred_Prop_Native_Code_1',[boolean],[x(1)]),
+    call_c('Pl_Pred_Prop_Native_Code_2',[boolean],[x(1),x(2)]),
     proceed,
 
 label(25),
@@ -303,7 +353,7 @@ label(25),
 label(26),
     get_structure(prolog_file/1,0),
     unify_variable(x(0)),
-    call_c('Pl_Pred_Prop_Prolog_File_2',[boolean],[x(1),x(0)]),
+    call_c('Pl_Pred_Prop_Prolog_File_3',[boolean],[x(1),x(2),x(0)]),
     proceed,
 
 label(27),
@@ -312,28 +362,22 @@ label(27),
 label(28),
     get_structure(prolog_line/1,0),
     unify_variable(x(0)),
-    call_c('Pl_Pred_Prop_Prolog_Line_2',[boolean],[x(1),x(0)]),
+    call_c('Pl_Pred_Prop_Prolog_Line_3',[boolean],[x(1),x(2),x(0)]),
     proceed,
 
 label(29),
     trust_me_else_fail,
 
 label(30),
-    allocate(3),
+    get_variable(x(3),2),
     get_structure(meta_predicate/1,0),
-    unify_variable(y(0)),
+    unify_variable(x(2)),
     put_value(x(1),0),
-    put_variable(y(1),1),
-    put_variable(y(2),2),
-    call('$get_pred_indicator'/3),
-    put_unsafe_value(y(1),0),
-    put_unsafe_value(y(2),1),
-    put_value(y(0),2),
-    deallocate,
+    put_value(x(3),1),
     execute('$prop_meta_pred'/3)]).
 
 
-predicate('$prop_meta_pred'/3,171,static,private,monofile,built_in,[
+predicate('$prop_meta_pred'/3,195,static,private,monofile,built_in,[
     switch_on_term(5,1,fail,fail,fail),
 
 label(1),
@@ -1001,36 +1045,36 @@ label(104),
     proceed]).
 
 
-predicate('$get_pred_indicator'/3,229,static,private,monofile,built_in,[
+predicate('$get_pred_indicator'/3,253,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indicator_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$get_predicate_file_info'/3,235,static,private,monofile,built_in,[
+predicate('$get_predicate_file_info'/3,259,static,private,monofile,built_in,[
     call_c('Pl_Get_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$set_predicate_file_info'/3,241,static,private,monofile,built_in,[
+predicate('$set_predicate_file_info'/3,265,static,private,monofile,built_in,[
     call_c('Pl_Set_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$aux_name'/1,247,static,private,monofile,built_in,[
+predicate('$aux_name'/1,271,static,private,monofile,built_in,[
     call_c('Pl_Aux_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate('$father_of_aux_name'/3,253,static,private,monofile,built_in,[
+predicate('$father_of_aux_name'/3,277,static,private,monofile,built_in,[
     call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$pred_without_aux'/4,259,static,private,monofile,built_in,[
+predicate('$pred_without_aux'/4,283,static,private,monofile,built_in,[
     call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$make_aux_name'/4,265,static,private,monofile,built_in,[
+predicate('$make_aux_name'/4,289,static,private,monofile,built_in,[
     call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
