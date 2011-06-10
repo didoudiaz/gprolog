@@ -40,12 +40,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #define PRED_FILE
 
 #include "engine_pl.h"
 
 
+/* define if CC are added to the predicate table - see pred.c */
+#if 1
+#define ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
+#endif
 
 
 /*---------------------------------*
@@ -53,7 +56,6 @@
  *---------------------------------*/
 
 #define ERR_MULTIFILE_PROP         "multifile predicate %s/%d not declared consistently\n    in  %s\n    and %s"
-
 
 
 
@@ -81,6 +83,37 @@ void
 Pl_Init_Pred(void)
 {
   pl_pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+
+/* The following control constructs are defined as predicates ONLY to:
+ *
+ * - be found by current_predicate/1 (if strict_iso is off)
+ * - be found by predicate_property/2
+ * - prevent their redefinition (e.g. asserta/1 will raise a permission_error)
+ *
+ * NB: see ISO Core 1 Section 7.5 about what is a "procedure" 
+ * (bult-in predicates, control constructs or user defined predicates).
+ *
+ * Anyway, these predicates are NEVER called (see the compiler and call/1).
+ *
+ * This file is ALWAYS linked (see EnginePl/pred.c).
+ */
+
+#ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
+
+  int file = Pl_Create_Atom(__FILE__);
+  int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_BUILTIN | 
+    MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
+
+  Pl_Create_Pred(ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_true, 0, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
+#endif
 }
 
 
@@ -100,6 +133,9 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
   PredInf *pred;
   PlLong key = Functor_Arity(func, arity);
 
+
+  if (prop & MASK_PRED_BUILTIN_FD)
+    prop |= MASK_PRED_BUILTIN;	/* now an FD built-in is also a built-in */
 
 #ifdef DEBUG
   DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity,

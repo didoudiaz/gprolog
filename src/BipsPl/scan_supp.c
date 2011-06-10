@@ -740,6 +740,7 @@ Pl_Recover_After_Error(StmInf *pstm)
 {
   int c0;
   Bool convert;
+  Bool dot_found;
 
   if (pstm->eof_reached)
     return;
@@ -764,11 +765,24 @@ Pl_Recover_After_Error(StmInf *pstm)
       c0 = c;
       convert = (c_orig != '\'');
 
+      dot_found = FALSE;
       for (;;)
 	{
 	  Next_Char;
 	  if (c == c0)		/* detect end of pl_token - also for  '' or "" or `` */
 	    break;
+	  
+	  if (c == '.')
+	    dot_found = TRUE;
+	  else if ((c_type & (LA | CM)) == 0)
+	    dot_found = FALSE;
+
+	  if (c == '\n')	/* detect newline inside a quoted token: stop */
+	    {
+	      if (dot_found)	/* consider 'xxxx. followed by newline as a full stop */
+		return;
+	      break;		/* else break the quoted token traversal */
+	    }
 
 	  if (c != '\\')
 	    continue;
@@ -776,6 +790,9 @@ Pl_Recover_After_Error(StmInf *pstm)
 	  Next_Char;
 	  if (c == '\n')	/* \ followed by newline */
 	    continue;
+
+	  if (c == '.')
+	    dot_found = TRUE;
 
 	  if (strchr("\\'\"`", c))	/* \\ or \' or \" or \`  " */
 	    continue;

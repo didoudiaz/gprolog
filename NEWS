@@ -10,6 +10,8 @@ Change in GNU Prolog version 1.4.0:
 * change location of gprologvars.bat under Windows (in install directory)
 * increase default stack sizes (32Mb for heap, 16Mb for others)
 * change the default setting for flag strict_iso: it is off now
+* add control constructs to the predicate table
+* modify predicate_property/2 (built_in_fd ==> built_in, add control_construct)
 * fix a bug in the compiler (bad unification with singleton variable)
 * fix a bug with strict_iso flag (was not passed to consult)
 * add shebang support using #!/usr/bin/gprolog --consult-file

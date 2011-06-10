@@ -250,7 +250,8 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
   int bip_func, bip_arity;
 
   pred = Pl_Lookup_Pred(func, arity);
-  if (pred == NULL || !(pred->prop & MASK_PRED_NATIVE_CODE))
+  if (pred == NULL || !(pred->prop & MASK_PRED_NATIVE_CODE) || 
+      (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
     {
       if (arity == 0)
 	A(0) = Tag_ATM(func);

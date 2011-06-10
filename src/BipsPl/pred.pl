@@ -105,6 +105,8 @@ predicate_property(PI, Property) :-
 
 '$check_pred_prop'(built_in_fd).
 
+'$check_pred_prop'(control_construct).
+
 '$check_pred_prop'(native_code).
 
 '$check_pred_prop'(prolog_file(_)).
@@ -146,6 +148,9 @@ predicate_property(PI, Property) :-
 '$predicate_property2'(built_in_fd, PI) :-
 	'$call_c_test'('Pl_Pred_Prop_Built_In_Fd_1'(PI)).
 
+'$predicate_property2'(control_construct, PI) :-
+	'$call_c_test'('Pl_Pred_Prop_Control_Construct_1'(PI)).
+
 '$predicate_property2'(native_code, PI) :-
 	'$call_c_test'('Pl_Pred_Prop_Native_Code_1'(PI)).
 
@@ -160,6 +165,16 @@ predicate_property(PI, Property) :-
 	'$prop_meta_pred'(Func, Arity, MetaPredTerm).
 
 
+
+% the control constructs (in case they are found by predicate_property/2)
+
+'$prop_meta_pred'(',', 2, ','(0,0)).
+'$prop_meta_pred'(;, 2, ;(0,0)).
+'$prop_meta_pred'(->, 2, ->(0,0)).
+'$prop_meta_pred'(call, 0, call(0)).
+'$prop_meta_pred'(catch, 3, catch(0, ?, 0)).
+
+% the built-ins
 
 '$prop_meta_pred'(\+, 1, \+(0)).
 '$prop_meta_pred'(abolish, 1, abolish(:)).

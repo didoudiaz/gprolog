@@ -397,6 +397,31 @@ Pl_Pred_Prop_Built_In_Fd_1(WamWord pred_indic_word)
 
 
 
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PRED_PROP_CONTROL_CONSTRUCT_1                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Pred_Prop_Control_Construct_1(WamWord pred_indic_word)
+{
+  int func, arity;
+  PredInf *pred;
+
+  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+
+  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+    return FALSE;
+
+  return (pred->prop & MASK_PRED_CONTROL_CONSTRUCT) != 0;
+}
+
+
+
+
 /*-------------------------------------------------------------------------*
  * PL_PRED_PROP_NATIVE_CODE_1                                              *
  *                                                                         *

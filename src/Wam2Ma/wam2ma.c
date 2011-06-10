@@ -48,7 +48,7 @@
 #define ONLY_TAG_PART
 #include "../EnginePl/wam_archi.h"
 #include "../EnginePl/pl_params.h"
-#include "../BipsPl/pred_supp.h"
+#include "../EnginePl/pred.h"
 
 #include "wam_parser.h"
 #include "wam_protos.h"

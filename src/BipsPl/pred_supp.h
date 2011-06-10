@@ -41,20 +41,6 @@
  * Constants                       *
  *---------------------------------*/
 
-					  /* if modified -> modif wam2ma.c */
-#define MASK_PRED_NATIVE_CODE      1
-#define MASK_PRED_DYNAMIC          2
-#define MASK_PRED_PUBLIC           4
-#define MASK_PRED_BUILTIN          8
-#define MASK_PRED_BUILTIN_FD       16
-#define MASK_PRED_MULTIFILE        32
-#define MASK_PRED_EXPORTED         64 	  /* not yet used - for future */
-
-#define MASK_PRED_ANY_BUILTIN      (MASK_PRED_BUILTIN | MASK_PRED_BUILTIN_FD)
-
-
-
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/

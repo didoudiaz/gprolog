@@ -116,7 +116,8 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
 
   call_info = Call_Info(func, arity, 1);
 
-  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL || 
+      (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
     {
       if (arity > 0)
 	{
