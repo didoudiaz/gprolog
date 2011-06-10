@@ -1044,13 +1044,13 @@ test_pred_info(Flag, F, N) :-
 
 check_predicate(Pred, N) :-
 	g_read(redef_error, t),
-	bip(Pred, N), !,
-	error('redefining built-in predicate ~q', [Pred / N]).
+	control_construct(Pred, N), !,
+	error('redefining control construct ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	g_read(redef_error, t),
-	control_construct(Pred, N), !,
-	error('redefining control construct ~q', [Pred / N]).
+	bip(Pred, N), !,
+	error('redefining built-in predicate ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	g_read(susp_warn, t),
@@ -1067,10 +1067,10 @@ check_predicate(_, _).
 
 bip(F, N) :-
 	predicate_property(F/N, built_in), !.
-
+/* no longer needed built_in_fd ==> built_in
 bip(F, N) :-
 	predicate_property(F/N, built_in_fd).
-
+*/
 
 
 control_construct(',', 2).
@@ -1083,16 +1083,15 @@ control_construct(call, 1).
 control_construct(catch, 3).
 control_construct(throw, 1).
 
-suspicious_predicate(',', 2).
-suspicious_predicate(;, 2).
+%suspicious_predicate(',', 2).
+%suspicious_predicate(;, 2).
+%suspicious_predicate(->, 2).
+%suspicious_predicate(!, 0).
 suspicious_predicate(:, 2).
-suspicious_predicate(->, 2).
-suspicious_predicate(!, 0).
 suspicious_predicate(:-, 1).
 suspicious_predicate(:-, 2).
 suspicious_predicate(-->, 2).
-suspicious_predicate({}, X) :-
-	X < 2 .
+suspicious_predicate({}, X) :- X < 2.
 suspicious_predicate(+, 2).
 suspicious_predicate(-, 2).
 suspicious_predicate(*, 2).
