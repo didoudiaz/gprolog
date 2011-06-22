@@ -442,8 +442,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
   A(0) = list_word;
   A(1) = n_word;
   A(2) = Tag_INT(len);
-  A(3) = Tag_INT(0);
-  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(LENGTH_ALT, 0), 4);
+  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(LENGTH_ALT, 0), 3);
 
   Pl_Get_Nil(list_word);
   return Pl_Get_Integer(len, n_word); /* always TRUE */
@@ -460,28 +459,24 @@ Bool
 Pl_Length_Alt_0(void)
 {
   WamWord list_word, n_word;
-  int len, i;
+  int len;
 
-  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(LENGTH_ALT, 0), 0);
-  list_word = AB(B, 0);
-  n_word = AB(B, 1);
-  len = UnTag_INT(AB(B, 2));
-  i =  UnTag_INT(AB(B, 3)) + 1;
+  Pl_Delete_Choice_Point(3);
+  list_word = A(0);
+  n_word = A(1);
+  len = UnTag_INT(A(2)) + 1;
 
-  AB(B, 3) = Tag_INT(i);
+  Pl_Get_List(list_word);	/* always succeed */
+  Pl_Unify_Void(1);
+  list_word = Pl_Unify_Variable();
 
-  Pl_Get_Integer(i + len, n_word); /* always succeed */
+  A(0) = list_word;
+  /* A(1) = n_word; */
+  A(2) = Tag_INT(len);
+  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(LENGTH_ALT, 0), 3);
 
-  do
-    {
-      if (!Pl_Get_List(list_word))
-	return FALSE;
-      Pl_Unify_Void(1);
-      list_word = Pl_Unify_Variable();
-
-    }
-  while(--i);
-  return Pl_Get_Nil(list_word);
+  Pl_Get_Nil(list_word);
+  return Pl_Get_Integer(len, n_word); /* always TRUE */
 }
 
 
