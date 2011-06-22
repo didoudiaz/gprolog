@@ -1641,18 +1641,22 @@ ISO predicate.
    \AddPBD{predicate\_property/2}
 
 \begin{TemplatesOneCol}
-predicate\_property(?predicate\_indicator, ?predicate\_property)
+predicate\_property(?callable, ?predicate\_property)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{predicate\_property(Pred, Property)} succeeds if there
-exists a predicate indicator of a defined procedure that unifies with
-\texttt{Pred} and if \texttt{Property} unifies with one of the properties of
-the procedure. All user defined procedures and built-in predicates are
-found. Internal system procedures whose name begins with \texttt{'\$'}
-are not found. This predicate is re-executable on backtracking.
+\texttt{predicate\_property(Head, Property)} succeeds if \texttt{Head} refers
+to a predicate that has a property \texttt{Property}. All user defined
+procedures and built-in predicates are found. Internal system procedures
+whose name begins with \texttt{'\$'} are not found. This predicate is
+re-executable on backtracking.
+
+Since version 1.4.0, \texttt{predicate\_property/2} no longer accepts a
+predicate indicator. Control constructs are now returned. Properties
+\texttt{built\_in\_fd} and \texttt{control\_construct} now imply the property
+\texttt{built\_in}.
 
 \SPart{Predicate properties}:
 
@@ -1672,19 +1676,21 @@ are not found. This predicate is re-executable on backtracking.
 
 \item \IdxPPD{user}: if the procedure is a user-defined procedure.
 
-\item \IdxPPD{built\_in}: if the procedure is a Prolog built-in predicate.
+\item \IdxPPD{built\_in}: if the procedure is a built-in predicate or a control construct.
 
 \item \IdxPPD{built\_in\_fd}: if the procedure is an FD built-in predicate.
+
+\item \IdxPPD{control\_construct}: if the procedure is a control construct \RefSP{control-construct}.
 
 \item \IdxPPD{native\_code}: if the procedure is compiled in native code.
 
 \item \IdxPPD[prolog\_file]{prolog\_file(File)}: source file from which the
-predicate has been read.
+procedure has been read.
 
 \item \IdxPPD[prolog\_line]{prolog\_line(Line)}: line number of the source
 file.
 
-\item \IdxPPD[meta\_predicate]{meta\_predicate(Head)}: if the predicate is a
+\item \IdxPPD[meta\_predicate]{meta\_predicate(Head)}: if the procedure is a
   meta-predicate unify \texttt{Head} with the head-pattern. The head-pattern
   is a compound term with the same name and arity as the predicate where each
   argument of the term is a meta argument specifier as follows:
@@ -1712,24 +1718,8 @@ file.
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Pred} is neither a variable nor a predicate indicator}
-\ErrTerm{type\_error(predicate\_indicator, Pred)}
-
-\ErrCond{\texttt{Pred} is a term \texttt{Name/Arity} and \texttt{Arity} is
-neither a variable nor an integer}
-\ErrTerm{type\_error(integer, Arity)}
-
-\ErrCond{\texttt{Pred} is a term \texttt{Name/Arity} and \texttt{Name} is
-neither a variable nor an atom}
-\ErrTerm{type\_error(atom, Name)}
-
-\ErrCond{\texttt{Pred} is a term \texttt{Name/Arity} and \texttt{Arity} is
-an integer $<$ 0}
-\ErrTerm{domain\_error(not\_less\_than\_zero, Arity)}
-
-\ErrCond{\texttt{Pred} is a term \texttt{Name/Arity} and \texttt{Arity} is
-an integer $>$ \texttt{max\_arity} flag \RefSP{set-prolog-flag/2}}
-\ErrTerm{representation\_error(max\_arity)}
+\ErrCond{\texttt{Head} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Head)}
 
 \ErrCond{\texttt{Property} is neither a variable nor a predicate property
 term}
@@ -7989,8 +7979,6 @@ The \texttt{strict\_iso} flag is introduced to allow a compatibility with
 other Prolog systems. When turned off the following relaxations apply:
 
 \begin{itemize}
-
-\item a callable term can be given as a predicate indicator (used as prototype).
 
 \item built-in predicates are found by \texttt{current\_predicate/1}
 \RefSP{current-predicate/1}.
