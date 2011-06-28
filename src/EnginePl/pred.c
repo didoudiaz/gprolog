@@ -82,6 +82,13 @@
 void
 Pl_Init_Pred(void)
 {
+#ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
+
+  int file = Pl_Create_Atom(__FILE__);
+  int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
+
+#endif
+
   pl_pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
 
 /* The following control constructs are defined as predicates ONLY to:
@@ -100,9 +107,6 @@ Pl_Init_Pred(void)
 
 #ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
 
-  int file = Pl_Create_Atom(__FILE__);
-  int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
-
   Pl_Create_Pred(ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
   Pl_Create_Pred(ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
   Pl_Create_Pred(Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
@@ -112,6 +116,7 @@ Pl_Init_Pred(void)
   Pl_Create_Pred(Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL);
   Pl_Create_Pred(Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL);
   Pl_Create_Pred(Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
+
 #endif
 }
 
@@ -137,8 +142,7 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
     prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
 
 #ifdef DEBUG
-  DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity,
-	    prop);
+  DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity, prop);
 #endif
 
   pred_info.f_n = key;

@@ -356,3 +356,18 @@ Pl_Popcount(PlLong x)
   return n;
 }
 
+
+
+
+/*
+ * This is useful until the following gcc/ld-binutils bug is not fixed:
+ * 'Warning: alignment 8 of symbol `pl_init_stream_supp' in .../libbips_pl.a(stream_supp.o) 
+ * is smaller than 16 in .../libengine_pl.a(engine.o)' 
+ * same for `pl_fd_reset_solver'
+ */
+
+void *
+Pl_Dummy_Ptr(void *p)
+{
+  return p;
+}
