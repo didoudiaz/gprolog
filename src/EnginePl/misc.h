@@ -109,7 +109,7 @@ int Pl_MSB(PlLong x);
 
 int Pl_Popcount(PlLong x);
 
-#endif /* !__GNUC__ || SIZEOF_LONG != SIZEOF_PT */
+#endif /* !__GNUC__ || SIZEOF_LONG != SIZEOF_PTR */
 
 
 void *Pl_Dummy_Ptr(void *p);
