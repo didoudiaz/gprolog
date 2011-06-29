@@ -62,7 +62,7 @@ Thu Jun 24 10:17:04 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
 
 	* support the ISO multifile/1 directive
 	* add built-ins false/0 and forall/2
-	* detect an instantation_error in phrase/2-3
+	* detect an instantiation_error in phrase/2-3
 
 
 Fri Mar 31 15:52:42 CEST 2010 <Daniel.Diaz@univ-paris1.fr>
