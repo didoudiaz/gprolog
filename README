@@ -75,6 +75,7 @@ GNU Prolog is currently ported to the following architectures:
    - x86_64 / GNU/Linux
    - x86_64 / Solaris
    - x86_64 / Win64 using MinGW64 (see file src/WINDOWS64)
+   - x86_64 / Win64 using MSVC++  (see file src/WINDOWS64)
    - PowerPC / GNU/Linux
    - PowerPC / Darwin (Mac OS X)
    - PowerPC / NetBSD

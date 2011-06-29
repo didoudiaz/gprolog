@@ -9,7 +9,7 @@ Change in GNU Prolog version 1.4.0:
 * improve a lot (and fix some bugs in) the Windows GUI Console
 * change location of gprologvars.bat under Windows (in install directory)
 * increase default stack sizes (32Mb for heap, 16Mb for others)
-* change the default setting for flag strict_iso: it is off now
+* change the default setting for flag strict_iso: it is on now
 * add control constructs to the predicate table
 * modify predicate_property/2 (built_in_fd ==> built_in, add control_construct)
   only accepts a Head (a callable) (no longer a predicate indicator)
