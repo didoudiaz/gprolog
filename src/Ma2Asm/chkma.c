@@ -1069,3 +1069,9 @@ void
 Pl_Fatal_Error(char *format, ...)
 {
 }
+
+void *
+Pl_Dummy_Ptr(void *p) 
+{ 
+  return p;
+}
