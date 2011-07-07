@@ -510,7 +510,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Int(int offset, long int_val)
+Call_C_Arg_Int(int offset, PlLong int_val)
 {
   switch (offset)
     {
@@ -1125,7 +1125,7 @@ Move_Ret_To_Foreign_D(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Cmp_Ret_And_Int(long int_val)
+Cmp_Ret_And_Int(PlLong int_val)
 {
   Inst_Printf("li", "$24,%d", int_val);
   Inst_Printf("sub", "$12,$2,$24");	/* $2 - $24 -> $12 */
@@ -1238,7 +1238,7 @@ Dico_Long_Start(int nb_longs)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, long value)
+Dico_Long(char *name, int global, VType vtype, PlLong value)
 {
   switch (vtype)
     {
