@@ -109,6 +109,8 @@ static Bool name_vars;
 static Bool space_args;
 static Bool portrayed;
 
+static WamWord *name_number_above_H;
+
 static int last_prefix_op = W_NO_PREFIX_OP;
 static Bool *p_bracket_minus;
 
@@ -173,7 +175,8 @@ Write_Supp_Initializer(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
+Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H, 
+	      WamWord term_word)
 {
   pstm_o = pstm;
 
@@ -183,6 +186,8 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord term_word)
   name_vars = mask & WRITE_NAME_VARS;
   space_args = mask & WRITE_SPACE_ARGS;
   portrayed = mask & WRITE_PORTRAYED;
+
+  name_number_above_H = above_H;
 
   pl_last_writing = W_NOTHING;
 
@@ -201,8 +206,8 @@ Pl_Write_Simple(WamWord term_word)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_output];
 
-  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
-	     term_word);
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL,
+		term_word);
   /* like write/1 */
 }
 
@@ -770,7 +775,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   depth--;
 
-  if (name_vars && f_n == dollar_varname_1)
+  if (name_vars && f_n == dollar_varname_1 && stc_adr >= name_number_above_H)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       p = pl_atom_tbl[UnTag_ATM(word)].name;
@@ -782,7 +787,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	}
     }
 
-  if (number_vars && f_n == dollar_var_1)
+  if (number_vars && f_n == dollar_var_1 && stc_adr >= name_number_above_H)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       if (tag_mask == TAG_INT_MASK && (n = UnTag_INT(word)) >= 0)

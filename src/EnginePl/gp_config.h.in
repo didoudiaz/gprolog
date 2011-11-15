@@ -220,6 +220,9 @@
 /* Define if the system is a x86-64/mingw */
 #undef M_x86_64_mingw
 
+/* Define if the system is a x86-64/darwin */
+#undef M_x86_64_darwin
+
 
 
 /* Constant definitions */

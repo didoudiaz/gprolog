@@ -71,6 +71,7 @@ Pl_Write_Term_2(WamWord sora_word, WamWord term_word)
 {
   int stm;
   StmInf *pstm;
+  WamWord *above_H = NULL;
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
@@ -80,8 +81,15 @@ Pl_Write_Term_2(WamWord sora_word, WamWord term_word)
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
+  if (SYS_VAR_WRITE_ABOVE > 0)
+    {
+      WamWord *b = LSSA + SYS_VAR_WRITE_ABOVE; /* see Pl_Load_Cut_Level / Pl_Cut */
+      above_H = HB(b);
+    }
+
+
   Pl_Write_Term(pstm, SYS_VAR_WRITE_DEPTH, SYS_VAR_WRITE_PREC,
-		SYS_VAR_OPTION_MASK, term_word);
+		SYS_VAR_OPTION_MASK, above_H, term_word);
 }
 
 

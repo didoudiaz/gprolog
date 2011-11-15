@@ -127,7 +127,8 @@ write_term(SorA, Term, Options) :-
 '$set_write_defaults' :-
 	'$sys_var_write'(0, 0),                               % default mask
 	'$sys_var_write'(1, -1),
-	'$sys_var_write'(2, 1200).
+	'$sys_var_write'(2, 1200),
+	'$sys_var_write'(3, 0).
 
 
 
@@ -179,6 +180,10 @@ write_term(SorA, Term, Options) :-
 	;   X = true,
 	    '$sys_var_set_bit'(0, 3)
 	).
+
+'$get_write_options2'('$above'(X)) :- % "above" choice-point for numbervars/namevars
+	integer(X),
+	'$sys_var_write'(3, X).
 
 '$get_write_options2'(space_args(X)) :-
 	nonvar(X),

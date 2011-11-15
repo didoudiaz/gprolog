@@ -506,7 +506,7 @@ SIGSEGV_Handler(WamWord *addr)
 void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 
-#elif defined(M_x86_64_linux) || defined(M_x86_64_bsd)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_bsd) || defined(M_x86_64_darwin)
 void
 SIGSEGV_Handler(int sig, siginfo_t *sip, void *scp)
 
@@ -535,7 +535,7 @@ SIGSEGV_Handler(int sig)
 
   WamWord *addr = (WamWord *) scp.cr2;
 
-#elif defined(M_x86_64_linux) || defined(M_x86_64_bsd)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_bsd) || defined(M_x86_64_darwin)
 
   WamWord *addr = (WamWord *) sip->si_addr;
 

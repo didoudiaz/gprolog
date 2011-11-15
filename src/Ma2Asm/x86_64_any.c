@@ -70,14 +70,27 @@
  * Constants                       *
  *---------------------------------*/
 
+#ifdef M_x86_64_darwin
+
+#define STRING_PREFIX              "L_.str"
+#define DOUBLE_PREFIX              "LCPI"
+
+#define UN                         "_"
+#define DARWIN_REG_BANK            "%r12"
+
+#else
+
 #define STRING_PREFIX              ".LC"
 #define DOUBLE_PREFIX              ".LCD"
+
+#define UN
+
+#endif
 
 #define MAX_C_ARGS_IN_C_CODE       32 /* must be a multiple of 2 */
 #define RESERVED_STACK_SPACE       MAX_C_ARGS_IN_C_CODE * 8
 
 #define MAX_DOUBLES_IN_PRED        2048
-
 
 
 
@@ -127,7 +140,11 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
           /* variables for ma_parser.c / ma2asm.c */
 
 char *comment_prefix = "#";
+#ifdef M_x86_64_darwin
+char *local_symb_prefix = "L";
+#else
 char *local_symb_prefix = ".L";
+#endif
 int strings_need_null = 0;
 int call_c_reverse_args = 0;
 
@@ -176,7 +193,12 @@ Asm_Start(void)
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
 
+#ifdef M_x86_64_darwin
+  Inst_Printf(".section", "__TEXT,__text,regular,pure_instructions");
+  Inst_Printf(".align", "4, 0x90");
+#else
   Label_Printf(".text");
+#endif
 
   Label("fail");
   Pl_Fail();
@@ -194,10 +216,14 @@ Off_Reg_Bank(int offset)
 {
   static char str[20];
 
+#ifdef M_x86_64_darwin
+  sprintf(str, "%d(%" DARWIN_REG_BANK ")", offset);
+#else
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
   sprintf(str, ASM_REG_BANK "+%d", offset);
 #else
   sprintf(str, "%d(%s)", offset, ASM_REG_BANK);
+#endif
 #endif
 
   return str;
@@ -248,13 +274,17 @@ Code_Start(char *label, int prolog, int global)
   nb_dbl = 0;
 
   Label_Printf("");
+#ifdef M_x86_64_darwin
+  Inst_Printf(".align", "4, 0x90");
+#else
   Inst_Printf(".align", "16");
 #if defined(M_x86_64_linux) || defined(M_x86_64_bsd) || defined(M_x86_64_sco)
   Inst_Printf(".type", "%s,@function", label);
 #endif
+#endif
 
   if (global)
-    Inst_Printf(".globl", "%s", label);
+    Inst_Printf(".globl", UN "%s", label);
 
   Label(label);
 
@@ -291,7 +321,7 @@ void
 Label(char *label)
 {
   Label_Printf("");
-  Label_Printf("%s:", label);
+  Label_Printf(UN "%s:", label);
 }
 
 
@@ -319,7 +349,7 @@ Reload_E_In_Register(void)
 void
 Pl_Jump(char *label)
 {
-  Inst_Printf("jmp", "%s", label);
+  Inst_Printf("jmp", UN "%s", label);
 }
 
 
@@ -332,7 +362,12 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
+#ifdef M_x86_64_darwin
+  Inst_Printf("leaq", "Ltmp%d(%%rip),%%r10", w_label);
+  Inst_Printf("movq", "%%r10,%s", asm_reg_cp);
+#else
   Inst_Printf("movq", "$.Lcont%d,%s", w_label, asm_reg_cp);
+#endif
 }
 
 
@@ -345,7 +380,11 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
+#ifdef M_x86_64_darwin
+  Label_Printf("Ltmp%d:", w_label++);
+#else
   Label_Printf(".Lcont%d:", w_label++);
+#endif
 }
 
 
@@ -408,7 +447,7 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
-  Inst_Printf("jmp", "%s", label);
+  Inst_Printf("jmp", UN "%s", label);
 }
 
 
@@ -622,7 +661,13 @@ Call_C_Arg_String(int offset, int str_no)
 {
   BEFORE_ARG;
 
+#ifdef M_x86_64_darwin
+  Inst_Printf("leaq", "%s%d(%%rip),%s", STRING_PREFIX, str_no, r_aux);
+  if (!r_eq_r_aux)
+    Inst_Printf("movq", "%s,%s", r_aux, r);
+#else
   Inst_Printf("movq", "$%s%d,%s", STRING_PREFIX, str_no, r);
+#endif
 
   AFTER_ARG;
 
@@ -639,6 +684,18 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
+#ifdef M_x86_64_darwin
+  Inst_Printf("movq", "_%s@GOTPCREL(%%rip),%s", name, r_aux);
+  if (adr_of)
+    {
+      if (index != 0)
+        Inst_Printf("addq", "$%d,%s", index * 8, r_aux);
+    }
+  else
+    Inst_Printf("movq", "%d(%s),%s", index * 8, r_aux, r_aux);
+  if (!r_eq_r_aux)
+    Inst_Printf("movq", "%s,%s", r_aux, r);
+#else
   if (adr_of)
     Inst_Printf("movq", "$" "%s+%d,%s", name, index * 8, r);
   else
@@ -647,6 +704,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
       if (!r_eq_r_aux)
         Inst_Printf("movq", "%s,%s", r_aux, r);
     }
+#endif
 
   AFTER_ARG;
 
@@ -667,10 +725,14 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
     {
       if (!r_eq_r_aux && index == 0)
         {
+#ifdef M_x86_64_darwin
+          Inst_Printf("movq", "%" DARWIN_REG_BANK ",%s", r_aux);
+#else
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
           Inst_Printf("movq", "$%s,%s", ASM_REG_BANK, r);
 #else
           Inst_Printf("movq", "%s,%s", ASM_REG_BANK, r);
+#endif
 #endif
           goto finish;
         }
@@ -722,6 +784,18 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
 {
   BEFORE_ARG;
 
+#ifdef M_x86_64_darwin
+  Inst_Printf("movq", "_pl_foreign_long@GOTPCREL(%%rip), %s", r_aux);
+  if (adr_of)
+    {
+      if (index != 0)
+        Inst_Printf("addq", "$%d, %s", index * 8, r_aux);
+    }
+  else
+    Inst_Printf("movq", "%d(%s), %s", index * 8, r_aux, r_aux);
+  if (!r_eq_r_aux)
+    Inst_Printf("movq", "%s, %s", r_aux, r);
+#else
   if (adr_of)
     Inst_Printf("movq", "$pl_foreign_long+%d, %s", index * 8, r);
   else
@@ -730,6 +804,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
       if (!r_eq_r_aux)
         Inst_Printf("movq", "%s, %s", r_aux, r);
     }
+#endif
 
   AFTER_ARG;
 
@@ -747,14 +822,27 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
   if (adr_of)
     {
       BEFORE_ARG;
+#ifdef M_x86_64_darwin
+      Inst_Printf("movq", "_pl_foreign_double@GOTPCREL(%%rip), %s", r_aux);
+      if (index != 0)
+        Inst_Printf("addq", "$%d, %s", index * 8, r_aux);
+      if (!r_eq_r_aux)
+        Inst_Printf("movq", "%s, %s", r_aux, r);
+#else
       Inst_Printf("movq", "$pl_foreign_double+%d, %s", index * 8, r);
+#endif
       AFTER_ARG;
       return 1;
     }
 
   BEFORE_FPR_ARG;
 
+#ifdef M_x86_64_darwin
+  Inst_Printf("movq", "_pl_foreign_double@GOTPCREL(%%rip),%%r10");
+  Inst_Printf("movsd", "%d(%%r10), %s", index * 8, r_aux);
+#else
   Inst_Printf("movsd", "pl_foreign_double+%d(%%rip),%s", index * 8, r_aux);
+#endif
   if (!r_eq_r_aux)
     Inst_Printf("movsd", "%s, %s", r_aux, r);
 
@@ -771,7 +859,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 void
 Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
 {
-  Inst_Printf("call", "%s", fct_name);
+  Inst_Printf("call", UN "%s", fct_name);
 }
 
 
@@ -812,7 +900,7 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("test", "%%rax,%%rax");
-  Inst_Printf("je", "fail");
+  Inst_Printf("je", UN "fail");
 }
 
 
@@ -825,7 +913,12 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
+#ifdef M_x86_64_darwin
+  Inst_Printf("movq", "_%s@GOTPCREL(%%rip)," "%%r10", name);
+  Inst_Printf("movq", "%%rax," "%d(%%r10)", index * 8);
+#else
   Inst_Printf("movq", "%%rax," "%s+%d(%%rip)", name, index * 8);
+#endif
 }
 
 
@@ -864,7 +957,12 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
+#ifdef M_x86_64_darwin
+  Inst_Printf("movq", "_pl_foreign_long@GOTPCREL(%%rip)," "%%r10");
+  Inst_Printf("movq", "%%rax," "%d(%%r10)", index * 8);
+#else
   Inst_Printf("movq", "%%rax," "pl_foreign_long+%d(%%rip)", index * 8);
+#endif
 }
 
 
@@ -877,7 +975,12 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
+#ifdef M_x86_64_darwin
+  Inst_Printf("movq", "_pl_foreign_double@GOTPCREL(%%rip)," "%%r10");
+  Inst_Printf("movsd", "%%xmm0," "%d(%%r10)", index * 8);
+#else
   Inst_Printf("movsd", "%%xmm0," "pl_foreign_double+%d(%%rip)", index * 8);
+#endif
 }
 
 
@@ -914,7 +1017,7 @@ Cmp_Ret_And_Int(PlLong int_val)
 void
 Jump_If_Equal(char *label)
 {
-  Inst_Printf("je", "%s", label);
+  Inst_Printf("je", UN "%s", label);
 }
 
 
@@ -927,7 +1030,7 @@ Jump_If_Equal(char *label)
 void
 Jump_If_Greater(char *label)
 {
-  Inst_Printf("jg", "%s", label);
+  Inst_Printf("jg", UN "%s", label);
 }
 
 
@@ -955,7 +1058,11 @@ C_Ret(void)
 void
 Dico_String_Start(int nb_consts)
 {
+#ifdef M_x86_64_darwin
+  Inst_Printf(".section", "__TEXT,__cstring,cstring_literals");
+#else
   Label_Printf(".section\t.rodata");
+#endif
 }
 
 
@@ -967,7 +1074,11 @@ void
 Dico_String(int str_no, char *asciiz)
 {
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
+#ifdef M_x86_64_darwin
+  Inst_Printf(".asciz", "%s", asciiz);
+#else
   Inst_Printf(".string", "%s", asciiz);
+#endif
 }
 
 
@@ -990,8 +1101,13 @@ Dico_String_Stop(int nb_consts)
 void
 Dico_Long_Start(int nb_longs)
 {
+#ifdef M_x86_64_darwin
+  Inst_Printf(".section", "__DATA,__data");
+  Inst_Printf(".align", "3");
+#else
   Label_Printf(".data");
   Inst_Printf(".align", "16");
+#endif
 }
 
 
@@ -1007,21 +1123,29 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case NONE:
       value = 1;                /* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
+#ifdef M_x86_64_darwin
+      if (!global)
+        Label_Printf(".zerofill __DATA,__bss,_%s,%" PL_FMT_d ",3", name, value * 8);
+      else
+        Inst_Printf(".comm", "_%s,%" PL_FMT_d ",3", name, value * 8);
+#else
 #if defined(M_x86_64_linux) || defined(M_x86_64_sco) || \
     defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
       if (!global)
         Inst_Printf(".local", "%s", name);
-      Inst_Printf(".comm", "%s,%" PL_FMT_d ",8", name, value * 8);
 #else
       if (!global)
         Inst_Printf(".lcomm", "%s,%" PL_FMT_d, name, value * 8);
+      else
+#endif
+      Inst_Printf(".comm", "%s,%" PL_FMT_d ",8", name, value * 8);
 #endif
       break;
 
     case INITIAL_VALUE:
       if (global)
-        Inst_Printf(".globl", "%s", name);
-      Label_Printf("%s:", name);
+        Inst_Printf(".globl", UN "%s", name);
+      Label_Printf(UN "%s:", name);
       Inst_Printf(".quad", "%" PL_FMT_d, value);
       break;
     }
@@ -1035,6 +1159,9 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
 void
 Dico_Long_Stop(int nb_longs)
 {
+#ifdef M_x86_64_darwin
+  Label_Printf("\n\n.subsections_via_symbols");
+#endif
 }
 
 
@@ -1054,11 +1181,17 @@ Data_Start(char *initializer_fct)
   Inst_Printf(".section", ".GPLC$m");
 #elif defined( __CYGWIN__) || defined (_WIN32)
   Inst_Printf(".section", ".ctors,\"aw\"");
+#elif defined(M_x86_64_darwin)
+  Inst_Printf(".section", "__DATA,__mod_init_func,mod_init_funcs");
 #else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
 #endif
+#ifdef M_x86_64_darwin
+  Inst_Printf(".align", "3");
+#else
   Inst_Printf(".align", "8");
-  Inst_Printf(".quad", "%s", initializer_fct);
+#endif
+  Inst_Printf(".quad", UN "%s", initializer_fct);
 }
 
 

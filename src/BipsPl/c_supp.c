@@ -813,11 +813,8 @@ int
 Pl_Rd_Chars_Str(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
-  WamWord save_start_word;
   WamWord *lst_adr;
   int n = 0;
-
-  save_start_word = start_word;
 
   for (;;)
     {
@@ -891,11 +888,8 @@ int
 Pl_Rd_Codes_Str(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
-  WamWord save_start_word;
   WamWord *lst_adr;
   int n = 0;
-
-  save_start_word = start_word;
 
   for (;;)
     {
@@ -1061,11 +1055,8 @@ int
 Pl_Rd_Proper_List(WamWord start_word, WamWord *arg)
 {
   WamWord word, tag_mask;
-  WamWord save_start_word;
   WamWord *lst_adr;
   int n = 0;
-
-  save_start_word = start_word;
 
   for (;;)
     {

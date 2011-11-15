@@ -113,7 +113,9 @@ enum
 
 #define SYS_VAR_WRITE_PREC          (pl_sys_var[2])
 
-#define SYS_VAR_FD_BCKTS            (pl_sys_var[3])
+#define SYS_VAR_WRITE_ABOVE         (pl_sys_var[3])
+
+#define SYS_VAR_FD_BCKTS            (pl_sys_var[4])
 
 #define SYS_VAR_TOP_LEVEL           (pl_sys_var[10])
 #define SYS_VAR_LINEDIT             (pl_sys_var[12])
@@ -164,7 +166,8 @@ Bool Pl_Write_Pl_State_File(WamWord file_word);
  *   0: temporary (e.g. masks for option lists (open/read/write)).         *
  *   1: temporary (e.g. depth in write).                                   *
  *   2: temporary (e.g. reorder in FD labeling).                           *
- *   3: temporary (e.g. backtracks counter in FD labeling).                *
+ *   3: temporary (e.g. write '$above' limit).                             *
+ *   4: temporary (e.g. backtracks counter in FD labeling).                *
  *                                                                         *
  *   7: permanent catch handler.                                           *
  *   8: permanent catch ball.                                              *

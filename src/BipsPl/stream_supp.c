@@ -1566,7 +1566,7 @@ Pl_Stream_Close(StmInf *pstm)
   if (pstm->fct_close != STREAM_FCT_UNDEFINED)
     ret = (*pstm->fct_close) (file);
 
-  return 0;
+  return ret;
 }
 
 

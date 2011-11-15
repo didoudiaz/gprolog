@@ -194,7 +194,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 
   if (Check_Structure(term_word, atom_clause, 2, arg_word))
     {
-      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
+      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, NULL, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
       atom = UnTag_ATM(word);
       if (tag_mask != TAG_ATM_MASK || atom != pl_atom_true)
@@ -210,7 +210,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 
   if (Check_Structure(term_word, atom_dcg, 2, arg_word))
     {
-      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, arg_word[0]);
+      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, NULL, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
       atom = UnTag_ATM(word);
       if (tag_mask != TAG_ATM_MASK || atom != pl_atom_true)
@@ -233,7 +233,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
       return;
     }
 
-  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, term_word);
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, NULL, term_word);
   Pl_Write_A_Char(pstm, '.');
   Pl_Write_A_Char(pstm, '\n');
 }
@@ -359,7 +359,7 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
       return;
     }
 
-  Pl_Write_Term(pstm, -1, prec[context], WRITE_MASK, body_word);
+  Pl_Write_Term(pstm, -1, prec[context], WRITE_MASK, NULL, body_word);
 }
 
 

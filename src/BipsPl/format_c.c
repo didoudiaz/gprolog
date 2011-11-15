@@ -106,7 +106,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
       strcpy(buff, Pl_Rd_Codes_Check(format_word));
       str = buff;
     }
-  Format(pl_stm_tbl[stm], str, &args_word);
+  Format(pstm, str, &args_word);
 }
 
 
@@ -364,25 +364,25 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'k':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC,
-                            WRITE_IGNORE_OP | WRITE_QUOTED, word);
+                            WRITE_IGNORE_OP | WRITE_QUOTED, NULL, word);
               break;
 
             case 'q':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-                         WRITE_NAME_VARS | WRITE_QUOTED, word);
+			    WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
               break;
 
             case 'p':           /* only work if print.pl is linked */
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-                            WRITE_NAME_VARS | WRITE_PORTRAYED, word);
+                            WRITE_NAME_VARS | WRITE_PORTRAYED, NULL, word);
               break;
 
             case 'w':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-                            WRITE_NAME_VARS, word);
+                            WRITE_NAME_VARS, NULL, word);
               break;
 
             case '~':

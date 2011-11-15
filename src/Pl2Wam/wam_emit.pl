@@ -360,6 +360,13 @@ bc_emit_lst_clause([bc(Cl, WamCode)|LCompCl], Stream) :-
 
 
 
-bc_emit_prolog_term(Stream, X) :-
-	numbervars(X, 0, _),
-	write_term(Stream, X, [numbervars(true), ignore_ops(true), quoted(true)]).
+bc_emit_prolog_term(Stream, Term) :-
+	'$get_current_B'(B),
+	name_singleton_vars(Term),
+	bind_variables(Term, [exclude([Term])]),
+	write_term(Stream, Term, [numbervars(true), '$above'(B), ignore_ops(true), quoted(true)]),
+	fail.
+
+bc_emit_prolog_term(_, _).
+
+

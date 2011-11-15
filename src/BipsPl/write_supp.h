@@ -76,8 +76,8 @@ extern int pl_last_writing;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask,
-		WamWord term_word);
+void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
+		   WamWord term_word);
 
 void Pl_Write_Simple(WamWord term_word);
 

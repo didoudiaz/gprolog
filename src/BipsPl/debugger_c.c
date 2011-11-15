@@ -526,8 +526,8 @@ Write_Data_Modify(void)
 
 	  if (*read_arg[0] == 'w')
 	    Pl_Write_Term(pstm_o, -1,
-		       MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
-		       adr[offset]);
+			  MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL,
+			  adr[offset]);
 	  else
 	    {
 	      Print_Wam_Word(adr + offset);
@@ -754,7 +754,7 @@ Backtrack(void)
 	    {
 	      Pl_Stream_Printf(pstm_o, " for ");
 	      Pl_Write_Term(pstm_o, -1, MAX_PREC,
-			 WRITE_NUMBER_VARS | WRITE_NAME_VARS, AB(adr, 0));
+			    WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, AB(adr, 0));
 	    }
 
 	  Pl_Stream_Printf(pstm_o, "\n");
@@ -787,8 +787,8 @@ Backtrack(void)
   if (arity == 0 && strcmp(pl_atom_tbl[func].name, "$clause_alt") == 0)
     {
       Pl_Stream_Printf(pstm_o, " for ");
-      Pl_Write_Term(pstm_o, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
-		 AB(adr, 0));
+      Pl_Write_Term(pstm_o, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL,
+		    AB(adr, 0));
     }
   Pl_Stream_Printf(pstm_o, "\n");
 

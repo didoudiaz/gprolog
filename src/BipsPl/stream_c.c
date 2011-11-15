@@ -1052,8 +1052,7 @@ Pl_Current_Mirror_2(WamWord stm_word, WamWord m_stm_word)
       A(0) = stm;
       A(1) = m_stm_word;
       A(2) = (WamWord) m->next;
-      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_MIRROR_ALT, 0),
-			  3);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_MIRROR_ALT, 0), 3);
     }
 
   return Pl_Get_Integer(m->stm, m_stm_word);

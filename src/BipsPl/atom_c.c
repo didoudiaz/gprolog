@@ -266,14 +266,14 @@ Pl_Atom_Concat_Alt_0(void)
   if (tag_mask == TAG_INT_MASK)                                             \
     {                                                                       \
       if ((lg = UnTag_INT(word)) < 0)                                       \
-        Pl_Err_Domain(pl_domain_not_less_than_zero, word);                     \
+        Pl_Err_Domain(pl_domain_not_less_than_zero, word);                  \
       mask |= 1;                                                            \
     }                                                                       \
   else                                                                      \
     {                                                                       \
       lg = 0;                                                               \
       if (tag_mask != TAG_REF_MASK)                                         \
-        Pl_Err_Type(pl_type_integer, word);                                    \
+        Pl_Err_Type(pl_type_integer, word);                                 \
     }                                                                       \
   lg_word = word
 
@@ -984,17 +984,15 @@ Pl_Current_Atom_Alt_0(void)
  *-------------------------------------------------------------------------*/
 void
 Pl_Atom_Property_6(WamWord atom_word,
-		WamWord prefix_op_word, WamWord infix_op_word,
-		WamWord postfix_op_word,
-		WamWord needs_quote_word, WamWord needs_scan_word)
+		   WamWord prefix_op_word, WamWord infix_op_word,
+		   WamWord postfix_op_word,
+		   WamWord needs_quote_word, WamWord needs_scan_word)
 {
   WamWord word, tag_mask;
   int atom;
-  AtomInf *patom;
 
   DEREF(atom_word, word, tag_mask);
   atom = UnTag_ATM(word);
-  patom = pl_atom_tbl + atom;
 
   Pl_Get_Integer(Check_Oper(atom, PREFIX) != 0, prefix_op_word);
   Pl_Get_Integer(Check_Oper(atom, INFIX) != 0, infix_op_word);

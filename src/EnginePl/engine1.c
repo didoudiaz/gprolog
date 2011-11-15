@@ -118,6 +118,11 @@ Pl_Call_Compiled(CodePtr codep)
 
 #endif
 
+#elif defined(M_x86_64_darwin)
+
+  register WamWord *rb asm("%r12") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
 #endif
 
   pl_ensure_reserved = reserved_stack_space;
