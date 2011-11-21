@@ -360,11 +360,11 @@ bc_emit_lst_clause([bc(Cl, WamCode)|LCompCl], Stream) :-
 
 
 
-bc_emit_prolog_term(Stream, Term) :-
+bc_emit_prolog_term(Stream, Term) :- % create choice point for '$above'/1 write option
 	'$get_current_B'(B),
 	name_singleton_vars(Term),
 	bind_variables(Term, [exclude([Term])]),
-	write_term(Stream, Term, [numbervars(true), '$above'(B), ignore_ops(true), quoted(true)]),
+	write_term(Stream, Term, [numbervars(true), namevars(true), '$above'(B), ignore_ops(true), quoted(true)]),
 	fail.
 
 bc_emit_prolog_term(_, _).

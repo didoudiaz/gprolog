@@ -101,3 +101,8 @@ static PlLong obj_chain_start = (PlLong) OBJ_CTOR;
 #if defined(_MSC_VER) || defined(M_darwin)
 #define OBJ_CHAIN_REVERSE_ORDER
 #endif
+
+#if 0
+#define OBJ_CHAIN_REVERSE_ORDER
+#endif
+

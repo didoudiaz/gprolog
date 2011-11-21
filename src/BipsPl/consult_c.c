@@ -37,6 +37,7 @@
 
 /* $Id$ */
 
+#include <errno.h>
 #include <sys/types.h>
 
 #include "engine_pl.h"
@@ -105,8 +106,12 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 
   Pl_Flush_All_Streams();
   pid = Pl_M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
-  Os_Test_Error(pid == -1);
-  if (pid == -2)
+
+  /* If pl2wam is not found we get ENOENT under Windows. 
+   * Under Unix the information is only obtained at Pl_M_Get_Status(). */
+
+  Os_Test_Error(pid == -1 && errno != ENOENT); /* ENOENT is for Windows */
+  if (pid < 0)
     {
     error_pl2wam:
       Pl_Err_System(Pl_Create_Atom("error trying to execute pl2wam "

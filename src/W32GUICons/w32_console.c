@@ -1215,7 +1215,9 @@ Get_Selected_File_Name(char *title, char *default_ext, char *filter)
   else
     strcpy(cwd, ".");
 
-  printf("USED DIRE: %s\n", cwd);
+#if 0
+  printf("USED DIR: %s\n", cwd);
+#endif
 
   memset(&ofn,0,sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);

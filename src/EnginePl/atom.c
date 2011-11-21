@@ -189,17 +189,10 @@ Pl_Init_Atom(void)
   hash_weight_tbl['@'] = i;
   hash_inv_tbl[i] = '@';
 
-  for (c = 128; c < 256; c++) {
-    if (isalpha (c)) {
-      i++;
-      pl_char_type[c] = islower(c)? SL: CL;
-      hash_weight_tbl[c] = i;
-      hash_inv_tbl[i] = c;
+  for (c = 128; c < 256; c++) 
+    {
+      pl_char_type[c] = islower(c) ? SL : (isupper(c)) ? CL : EX;
     }
-    else {
-      pl_char_type[c] = EX;	/* extended char set */
-    }
-  }
 
   for (i = 0; i < 256; i++)	/* initial conv mapping = identity */
     pl_char_conv[i] = i;

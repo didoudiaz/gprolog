@@ -715,9 +715,10 @@ err:
        fdopen(_open_osfhandle((PlLong) pipe_err_r, _O_TEXT), "rt")) == NULL)
     goto err;
 
-  //  return (detach) ? 0 : (int) pi.hProcess;
-  //JAT: Changed to use id rather than handle because of fixed bitness
-  //OpenProcess function may be needed else where to get handle back
+  /* return (detach) ? 0 : (int) pi.hProcess;
+   * JAT: Changed to use id rather than handle (64 bits) because of fixed bitness
+   * OpenProcess function may be needed else where to get handle back
+   */
   return (detach) ? 0 : pi.dwProcessId;
 
 err:
@@ -738,7 +739,7 @@ unknown_err:
 int
 Pl_M_Get_Status(int pid)
 {
-  int status;
+  int status = 0;
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -759,11 +760,33 @@ Pl_M_Get_Status(int pid)
 
 #elif defined(_WIN32)
 
-  // JAT: See above
-  HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
-  WaitForSingleObject(phandle, INFINITE);
-  if (!GetExitCodeProcess(phandle, (LPDWORD) &status))
-    status = -2;
+  /* JAT: See above
+   * DD (bug XP/Vista) HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
+   */
+  HANDLE phandle = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, 1, pid);
+
+  if (phandle == 0)
+    {
+#ifdef DEBUG
+      printf("ERROR from OpenProcess: %d\n", (int) GetLastError());
+#endif
+      status = -2;
+      return status;
+    }
+  if (WaitForSingleObject(phandle, INFINITE) == WAIT_FAILED) 
+    {
+#ifdef DEBUG
+      printf("ERROR from WaitForSingleObject: %d\n", (int) GetLastError());
+#endif
+      status = -3;
+    } 
+  else if (!GetExitCodeProcess(phandle, (LPDWORD) &status))
+    {
+#ifdef DEBUG
+      printf("ERROR from GetExitCodeProcess: %d\n", (int) GetLastError());
+#endif
+      status = -4;
+    }
 
   CloseHandle(phandle);
 #endif

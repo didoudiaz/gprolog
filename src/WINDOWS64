@@ -68,8 +68,11 @@ Open a Cygwin shell and go to GNU Prolog source directory:
 type 
     ./configure --host=x86_64-w64-mingw32
 
+(or ./configure --host=i686-w64-mingw32 to build a 32 bits version)
+
+
 NB: with this configuration all needed tools (gcc, ar, ...) are first searched 
-prefixed with x86_64-w64-mingw32 (as provided by the cygwin package).
+prefixed with x86_64-w64-mingw32 (or i686-w64-mingw32) as provided by the cygwin package.
 
 then
     make
