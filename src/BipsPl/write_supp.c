@@ -523,6 +523,11 @@ Show_Atom(int context, int atom)
 	  break;
 
 	case OTHER_ATOM:
+	  if (prop.length == 0)
+            {
+              pl_last_writing = W_NOTHING;
+              break;
+            }
 	  c = pl_atom_tbl[atom].name[prop.length - 1];
 	  c_type = pl_char_type[c];
 	  if (c_type & (UL | CL | SL | DI))

@@ -43,8 +43,8 @@
 
 
 portray_clause(Term) :-
-	'$portray_clause'(Term, 1),
-	'$call_c'('Pl_Portray_Clause_1'(Term)),
+	'$portray_clause'(Term, 1, AboveB),
+	'$call_c'('Pl_Portray_Clause_2'(Term, AboveB)),
 	fail.
 
 portray_clause(_).
@@ -53,8 +53,8 @@ portray_clause(_).
 
 
 portray_clause(SorA, Term) :-
-	'$portray_clause'(Term, 2),
-	'$call_c'('Pl_Portray_Clause_2'(SorA, Term)),
+	'$portray_clause'(Term, 2, AboveB),
+	'$call_c'('Pl_Portray_Clause_2'(SorA, Term, AboveB)),
 	fail.
 
 portray_clause(_, _).
@@ -62,7 +62,8 @@ portray_clause(_, _).
 
 
 
-'$portray_clause'(Term, Arity) :-
+'$portray_clause'(Term, Arity, AboveB) :- % create choice point for '$above'/1 write option
+        '$get_current_B'(AboveB),	
 	set_bip_name(portray_clause, Arity),
 	(   var(Term) ->
 	    '$pl_err_instantiation'
@@ -76,6 +77,8 @@ portray_clause(_, _).
 	bind_variables(Term, [exclude([Term])]),
 	set_bip_name(portray_clause, Arity).
 
+'$portray_clause'(_, _, _) :-
+	fail.
 
 
 

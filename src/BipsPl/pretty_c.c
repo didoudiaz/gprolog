@@ -87,6 +87,8 @@ static int nb_singl_var;
 
 static int nb_to_try;
 
+static WamWord *above_H;
+
 
 
 
@@ -141,14 +143,15 @@ Pretty_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_PORTRAY_CLAUSE_2                                                     *
+ * PL_PORTRAY_CLAUSE_3                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Portray_Clause_2(WamWord sora_word, WamWord term_word)
+Pl_Portray_Clause_3(WamWord sora_word, WamWord term_word, WamWord above_word)
 {
   int stm;
   StmInf *pstm;
+  WamWord *b;
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
@@ -158,6 +161,9 @@ Pl_Portray_Clause_2(WamWord sora_word, WamWord term_word)
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
+  b = LSSA + Pl_Rd_Integer(above_word); /* see Pl_Load_Cut_Level / Pl_Cut */
+  above_H = HB(b);
+
   Portray_Clause(pstm, term_word);
 }
 
@@ -165,13 +171,13 @@ Pl_Portray_Clause_2(WamWord sora_word, WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_PORTRAY_CLAUSE_1                                                     *
+ * PL_PORTRAY_CLAUSE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Portray_Clause_1(WamWord term_word)
+Pl_Portray_Clause_2(WamWord term_word, WamWord above_word)
 {
-  Pl_Portray_Clause_2(NOT_A_WAM_WORD, term_word);
+  Pl_Portray_Clause_3(NOT_A_WAM_WORD, term_word, above_word);
 }
 
 
@@ -194,7 +200,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 
   if (Check_Structure(term_word, atom_clause, 2, arg_word))
     {
-      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, NULL, arg_word[0]);
+      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, above_H, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
       atom = UnTag_ATM(word);
       if (tag_mask != TAG_ATM_MASK || atom != pl_atom_true)
@@ -210,7 +216,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 
   if (Check_Structure(term_word, atom_dcg, 2, arg_word))
     {
-      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, NULL, arg_word[0]);
+      Pl_Write_Term(pstm, -1, 1200 - 1, WRITE_MASK, above_H, arg_word[0]);
       DEREF(arg_word[1], word, tag_mask);
       atom = UnTag_ATM(word);
       if (tag_mask != TAG_ATM_MASK || atom != pl_atom_true)
@@ -233,7 +239,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
       return;
     }
 
-  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, NULL, term_word);
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, above_H, term_word);
   Pl_Write_A_Char(pstm, '.');
   Pl_Write_A_Char(pstm, '\n');
 }
@@ -359,7 +365,7 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
       return;
     }
 
-  Pl_Write_Term(pstm, -1, prec[context], WRITE_MASK, NULL, body_word);
+  Pl_Write_Term(pstm, -1, prec[context], WRITE_MASK, above_H, body_word);
 }
 
 
