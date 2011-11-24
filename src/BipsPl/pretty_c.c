@@ -209,8 +209,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 	  Start_Line(pstm, 0, ' ');
 	  Show_Body(pstm, 0, GENERAL_BODY, arg_word[1]);
 	}
-      Pl_Write_A_Char(pstm, '.');
-      Pl_Write_A_Char(pstm, '\n');
+      Pl_Write_A_Full_Stop(pstm);
       return;
     }
 
@@ -225,8 +224,7 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 	  Start_Line(pstm, 0, ' ');
 	  Show_Body(pstm, 0, GENERAL_BODY, arg_word[1]);
 	}
-      Pl_Write_A_Char(pstm, '.');
-      Pl_Write_A_Char(pstm, '\n');
+      Pl_Write_A_Full_Stop(pstm);
       return;
     }
 
@@ -234,14 +232,12 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
     {
       Pl_Stream_Puts(":-\t", pstm);
       Show_Body(pstm, 0, GENERAL_BODY, arg_word[0]);
-      Pl_Write_A_Char(pstm, '.');
-      Pl_Write_A_Char(pstm, '\n');
+      Pl_Write_A_Full_Stop(pstm);
       return;
     }
 
   Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_MASK, above_H, term_word);
-  Pl_Write_A_Char(pstm, '.');
-  Pl_Write_A_Char(pstm, '\n');
+  Pl_Write_A_Full_Stop(pstm);
 }
 
 

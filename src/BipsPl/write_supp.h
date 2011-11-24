@@ -81,6 +81,8 @@ void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H
 
 void Pl_Write_Simple(WamWord term_word);
 
+void Pl_Write_A_Full_Stop(StmInf *pstm);
+
 void Pl_Write_A_Char(StmInf *pstm, int c);
 
 char *Pl_Float_To_String(double d);
