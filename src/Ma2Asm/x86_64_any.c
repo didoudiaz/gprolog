@@ -559,6 +559,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
       sprintf(r, "%d(%%rsp)", nwords * 8);              \
       r_aux = "%xmm8";                                  \
     }
+
 #else
 
 #define BEFORE_ARG                                      \
