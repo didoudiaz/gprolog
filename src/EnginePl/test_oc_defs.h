@@ -7,26 +7,47 @@
 
 static char name[32];
 
+int count;
+int mask;
+int errors;
+
 int no;
-int previous;
+int inc;
+
 
 static void Init_Tables()
 {
-  if (previous == 0)
-    previous = 10000000;
-  if (no == 0 && OBJ_NO == 1) {
-    printf("error: objects are initialised from 1st to last (should be from last to 1st)\n"
+  if (no == 0)			/* first object initialization */
+    {
+      if (OBJ_NO == 1) 
+	{
+	  printf("WARNING: it seems objects are initialized from first to last\n");
+	  printf("   better is from last to first, for this:\n   "
 #ifdef OBJ_CHAIN_REVERSE_ORDER
-	   "un"
+		 "un"
 #endif
-	   "define constant OBJ_CHAIN_REVERSE_ORDER in obj_chain.h\n");
-    exit(1);
-  }
-  if (OBJ_NO >= previous)
-    printf("warning: object %d found after object %d - it seems order of objects is not predictible\n", OBJ_NO, previous);
+		 "define constant OBJ_CHAIN_REVERSE_ORDER in obj_chain.h\n");
+	  //	  errors++;
+	  inc = 1;
+	}
+      else
+	inc = -1;
+    }
+  else
+    {
+      if (OBJ_NO != no + inc)
+	{
+	  printf("warning: object %d found while expecting object %d - it seems order of objects is not predictible\n", 
+		 OBJ_NO, no);
+	  errors++;
+	}
+    }
 
-  previous = no;
   no = OBJ_NO;
+
+  count++;
+  mask |= (1 << no);
+
   sprintf(name, "object #%d", OBJ_NO);
   printf("object <%s> found  &name:%p\n", name, &name);
 }

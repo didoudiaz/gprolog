@@ -3,7 +3,9 @@
 
 #include "obj_chain.h"
 
-int no;
+int count;
+int mask;
+int errors;
 
 void
 Pl_Fatal_Error(char *msg)
@@ -15,16 +17,26 @@ Pl_Fatal_Error(char *msg)
 int
 main()
 {
+  int i;
 #ifdef _MSC_VER
   setbuf(stdout, NULL);
   setbuf(stderr, NULL);
 #endif
-  puts("starting...");
+  printf("Obj_chain tests started...\n");
   Pl_Find_Linked_Objects();
-  if (no != 1) {
-    printf("error: all objects are not found (last #: %d instead of 1)", no);
-    exit(1);
-  }
-  puts("finished - OK !");
-  return 0;
+
+  printf("%d objects found\n", count);
+
+  for(i = 1; i <= count; i++)
+    if ((mask & (1 << i)) == 0)
+      {
+	printf("error: object %d is not initialized\n", i);
+	errors++;
+      }
+  if (errors == 0)
+    printf("Obj_chain tests succeded\n");
+  else
+    printf("Obj_chain tests failed: %d errors\n", errors);
+
+  return (errors != 0);
 }
