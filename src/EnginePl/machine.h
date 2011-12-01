@@ -134,7 +134,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #    define M_USED_REGS            {"15", "20", 0}
 
-#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(M_x86_64_darwin)
+#elif defined(M_x86_64) && !defined(_MSC_VER) //&& !defined(M_x86_64_darwin)
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 
@@ -149,12 +149,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
-
-#if defined(M_x86_64) && defined(M_x86_64_darwin)
-#define NO_MACHINE_REG_FOR_REG_BANK
-#endif
-
-#if defined(M_x86_64) && defined(NO_USE_REGS)
+/* M_x86_64_darwin needs a reg for pl_reg_bank (default is r12)
+ * else Ma2Asm produces code ending with the following error:
+ * '32-bit absolute addressing is not supported for x86-64'
+ */
+#if defined(M_x86_64) && defined(NO_USE_REGS) && !defined(M_x86_64_darwin)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 

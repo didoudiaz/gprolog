@@ -116,14 +116,14 @@ Pl_Call_Compiled(CodePtr codep)
   register WamWord *rb asm("%l0") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#endif
-
 #elif defined(M_x86_64_darwin)
 
   register WamWord *rb asm("%r12") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #endif
+
+#endif /* !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK) */
 
   pl_ensure_reserved = reserved_stack_space;
 #if defined(M_ix86_darwin)	/* see comment in Ma2Asm/ix86_any.c */

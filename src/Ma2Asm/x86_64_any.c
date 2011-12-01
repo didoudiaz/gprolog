@@ -4,7 +4,7 @@
  * Part  : mini-assembler to assembler translator                          *
  * File  : x86_64_any.c                                                    *
  * Descr.: translation file for Linux on AMD x86-64                        *
- * Author: Gwenole Beauchesne                                              *
+ * Author: Gwenole Beauchesne, Ozaki Kiichi and Daniel Diaz                *
  *                                                                         *
  * Copyright (C) 1999-2011 Daniel Diaz and Gwenole Beauchesne              *
  *                                                                         *
@@ -76,7 +76,6 @@
 #define DOUBLE_PREFIX              "LCPI"
 
 #define UN                         "_"
-#define DARWIN_REG_BANK            "%r12"
 
 #else
 
@@ -167,6 +166,12 @@ static char *Off_Reg_Bank(int offset);
 void
 Asm_Start(void)
 {
+
+/* M_x86_64_darwin needs a reg for pl_reg°bank (default is r12 see engine1.c)
+ * so NO_MACHINE_REG_FOR_REG_BANK is never set (see machine.h). Else this 
+ * error occurs '32-bit absolute addressing is not supported for x86-64'
+ */
+
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
 #define ASM_REG_BANK "pl_reg_bank"
 #elif defined(MAP_REG_BANK)
@@ -216,14 +221,10 @@ Off_Reg_Bank(int offset)
 {
   static char str[20];
 
-#ifdef M_x86_64_darwin
-  sprintf(str, "%d(%" DARWIN_REG_BANK ")", offset);
-#else
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
   sprintf(str, ASM_REG_BANK "+%d", offset);
 #else
   sprintf(str, "%d(%s)", offset, ASM_REG_BANK);
-#endif
 #endif
 
   return str;
@@ -726,14 +727,10 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
     {
       if (!r_eq_r_aux && index == 0)
         {
-#ifdef M_x86_64_darwin
-          Inst_Printf("movq", "%" DARWIN_REG_BANK ",%s", r_aux);
-#else
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
           Inst_Printf("movq", "$%s,%s", ASM_REG_BANK, r);
 #else
           Inst_Printf("movq", "%s,%s", ASM_REG_BANK, r);
-#endif
 #endif
           goto finish;
         }
