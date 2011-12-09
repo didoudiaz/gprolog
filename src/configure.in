@@ -331,8 +331,10 @@ dnl think the user wants to override the test)
     AS0=as
     case "$host" in
         i*86*darwin1*)   ASFLAGS='-arch i686';;
+        i*86*linux*)     ASFLAGS='--32';;
         x86_64*solaris*) AS0=gas; ASFLAGS='--64';;
         x86_64*darwin*)  ASFLAGS='-arch x86_64';;
+        x86_64*linux*)   ASFLAGS='--64';;
         *)               if test "$with_gas" = yes; then AS0=gas; fi;;
     esac
     AC_CHECK_TOOL([AS],[$AS0])
