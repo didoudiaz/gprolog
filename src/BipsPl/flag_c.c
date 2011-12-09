@@ -825,8 +825,8 @@ Pl_Set_Current_B_1(WamWord b_word)
  *-------------------------------------------------------------------------*/
 
 /* these macros are to avoid gcc warning warn_unused_result */
-#define FWRITE(b, sz, n, f) if (fwrite(b, sz, n, f) != n) ;
-#define FREAD(b, sz, n, f)  if (fread(b, sz, n, f) != n) ;
+#define FWRITE(b, sz, n, f) if (fwrite(b, sz, n, f) != n) {}
+#define FREAD(b, sz, n, f)  if (fread(b, sz, n, f) != n) {}
 
 
 Bool

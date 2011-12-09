@@ -567,7 +567,8 @@ Scanner(int complex_atom)
 	break;
 
       if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */
-	;
+	{
+	}
 
       if (feof(file_in))
 	return 0;

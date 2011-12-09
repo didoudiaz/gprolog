@@ -1874,7 +1874,7 @@ F_foreign_call_c(ArgVal arg[])
       n = type[i];
       c = F_Array_Letter(n);
 
-      s_dup = (mode[i] == FOREIGN_MODE_IN || FOREIGN_MODE_IN_OUT) &&
+      s_dup = (mode[i] == FOREIGN_MODE_IN || mode[i] == FOREIGN_MODE_IN_OUT) &&
 	(n == FOREIGN_TYPE_CHARS || n == FOREIGN_TYPE_CODES) &&
 	--nb_c_str != 0;
 

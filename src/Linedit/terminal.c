@@ -576,7 +576,10 @@ Pl_LE_Put_Char(int c)
               pos = nb_cols - 1;
               sprintf(buf, "\033[A\033[%dC", pos);
               if (write(fd_out, buf, strlen(buf))) /* to avoidgcc warning warn_unused_result */
-                ;
+		{
+		}
+
+
               return;
             }
           pos--;
@@ -594,10 +597,11 @@ Pl_LE_Put_Char(int c)
             pos = 1;
         }
     }
-
+ 
   c0 = c;
   if (write(fd_out, &c0, 1))  /* to avoid gcc warning warn_unused_result */
-    ;
+    {
+    }
 
 #elif defined(_WIN32)
 

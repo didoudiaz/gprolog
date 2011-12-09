@@ -849,7 +849,9 @@ Spawn_Decode_Hex(char *arg[])
   for (;;)
     {
       if (fgets(buff, sizeof(buff), f_out)) /* to avoid gcc warning warn_unused_result */
-	;
+	{
+	}
+
       if (feof(f_out))
 	break;
 
