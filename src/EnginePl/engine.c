@@ -41,9 +41,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
-#include <locale.h>
 
 #include "gp_config.h"
+#include "set_locale.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
@@ -126,8 +126,7 @@ Pl_Start_Prolog(int argc, char *argv[])
   char *p;
   void (*copy_of_pl_init_stream_supp)() = Pl_Dummy_Ptr(pl_init_stream_supp);
 
-  setlocale(LC_ALL, "");
-  setlocale(LC_NUMERIC, "C");   /* make sure floats come out right... */
+  Set_Locale();
 
   pl_os_argc = argc;
   pl_os_argv = argv;

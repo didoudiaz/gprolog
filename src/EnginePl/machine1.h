@@ -48,6 +48,8 @@
 #define M_OS_WINDOWS_NT            2
 
 
+#define M_ERROR_WIN32              -2 /* read GetLastError instead of errno */
+
 
 
 /*---------------------------------*

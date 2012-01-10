@@ -237,7 +237,7 @@ Virtual_Mem_Alloc(WamWord *addr, int length)
     fd = open("/dev/zero", 0);
 
   if (fd == -1)
-    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_M_Sys_Err_String(errno));
+    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_M_Sys_Err_String(-1));
 #endif /* !MAP_ANON */
 
   addr = (WamWord *) mmap((void *) addr, length, PROT_READ | PROT_WRITE,
@@ -282,7 +282,7 @@ Virtual_Mem_Free(WamWord *addr, int length)
 #elif defined(HAVE_MMAP)
 
   if (munmap((void *) addr, length) == -1)
-    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
+    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
 
 #else
 
@@ -313,7 +313,7 @@ Virtual_Mem_Protect(WamWord *addr, int length)
   if (mprotect((void *) addr, length, PROT_NONE) == -1)
 #endif
     if (munmap((void *) addr, length) == -1)
-      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
+      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
 
 #else
 
@@ -691,7 +691,7 @@ Stack_Overflow_Err_Msg(int stk_nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_M_Sys_Err_String(int err_no)
+Pl_M_Sys_Err_String(int ret_val)
 {
 #ifdef M_sparc_sunos
   extern char *sys_errlist[];
@@ -699,18 +699,40 @@ Pl_M_Sys_Err_String(int err_no)
 #endif
 
   char *str;
-  static char buff[32];
+  static char buff[64];
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if (ret_val == M_ERROR_WIN32)
+    {
+      int status =  GetLastError();
+
+      if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, status, 0, 
+			buff, sizeof(buff), NULL) == 0)
+	sprintf(buff, "Windows " UNKOWN_SYS_ERRNO, status);
+      else
+	{			/* windows adds a ".\r\n" at end - remove it */
+	  char *p = buff + strlen(buff);
+	  while (--p > buff && (isspace(*p) || *p == '.'))
+	    {
+	    }
+	  p[1] = '\0';
+	}
+
+      return buff;
+    }
+#endif
+
 
 #if defined(M_sparc_sunos)
-  str = (err_no >= 0 && err_no < sys_nerr) ? sys_errlist[err_no] : NULL;
+  str = (errno >= 0 && errno < sys_nerr) ? sys_errlist[errno] : NULL;
 #else
-  str = strerror(err_no);
+  str = strerror(errno);
 #endif
 
   if (str)
     return str;
 
-  sprintf(buff, UNKOWN_SYS_ERRNO, err_no);
+  sprintf(buff, UNKOWN_SYS_ERRNO, errno);
   return buff;
 }
 

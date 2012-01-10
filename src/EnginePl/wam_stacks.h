@@ -47,10 +47,10 @@ PlLong pl_fixed_sizes;
 
 InfStack pl_stk_tbl[] =
 {
- { "trail", "Trail Stack (undo)", "TRAILSZ", &pl_def_trail_size, 4194304, 0, NULL },
- { "cstr", "Cstr Stack (constraints)", "CSTRSZ", &pl_def_cstr_size, 4194304, 0, NULL },
- { "global", "Global Stack (heap)", "GLOBALSZ", &pl_def_global_size, 8388608, 0, NULL },
- { "local", "Local Stack (control)", "LOCALSZ", &pl_def_local_size, 4194304, 0, NULL }
+ { "trail", "Trail Stack (undo)", "TRAILSZ", &pl_def_trail_size, 2097152, 0, NULL },
+ { "cstr", "Cstr Stack (constraints)", "CSTRSZ", &pl_def_cstr_size, 2097152, 0, NULL },
+ { "global", "Global Stack (heap)", "GLOBALSZ", &pl_def_global_size, 4194304, 0, NULL },
+ { "local", "Local Stack (control)", "LOCALSZ", &pl_def_local_size, 2097152, 0, NULL }
 };
 
 #else

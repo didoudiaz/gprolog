@@ -35,6 +35,8 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+/* $Id$ */
+
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 
