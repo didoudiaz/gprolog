@@ -313,7 +313,8 @@ Pl_Change_Directory_1(WamWord path_name_word)
   path_name = Get_Path_Name(path_name_word);
 
   errno = -1;
-  Os_Test_Error(!Pl_M_Set_Working_Dir(path_name));
+  if (!Pl_M_Set_Working_Dir(path_name))
+    Os_Test_Error(-1);
   return TRUE;
 }
 
@@ -348,10 +349,10 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
 #ifdef _WIN32
   sprintf(buff, "%s\\*.*", path_name);
   h = _findfirst(buff, &d);	/* instead of Win32 FindFirstFile since uses errno */
-  Os_Test_Error(h == -1);
+  Os_Test_Error(h);
 #else
   dir = opendir(path_name);
-  Os_Test_Error(dir == NULL);
+  Os_Test_Error_Null(dir);
 #endif
 
 #ifdef _WIN32
@@ -463,7 +464,7 @@ Pl_File_Exists_1(WamWord path_name_word)
       if (errno == ENOENT || errno == ENOTDIR)
 	return FALSE;
 
-      Os_Test_Error(1);
+      Os_Test_Error(-1);
     }
 
   return TRUE;
@@ -492,7 +493,7 @@ Pl_File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 
   res = stat(path_name, &file_info);
   if (res == -1 && errno != ENOENT && errno != ENOTDIR)
-    Os_Test_Error(1);
+    Os_Test_Error(-1);
 
   mode = file_info.st_mode;
 
@@ -594,7 +595,7 @@ Pl_File_Prop_Real_File_Name_2(WamWord real_path_name_word,
 #ifndef _WIN32
   char real_path_name[MAXPATHLEN];
 
-  Os_Test_Error(realpath(path_name, real_path_name) == NULL);
+  Os_Test_Error_Null(realpath(path_name, real_path_name));
 #else
   char *real_path_name = path_name;
 #endif
@@ -742,7 +743,7 @@ Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
   template = Get_Path_Name(template_word);
 
   path_name = Pl_M_Mktemp(template);
-  Os_Test_Error(path_name == NULL);
+  Os_Test_Error_Null(path_name);
 
   return path_name && Pl_Un_String_Check(path_name, path_name_word);
 }
@@ -773,7 +774,7 @@ Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
     prefix = NULL;
 
   path_name = Pl_M_Tempnam(dir, prefix);
-  Os_Test_Error(path_name == NULL);
+  Os_Test_Error_Null(path_name);
 
   return path_name && Pl_Un_String_Check(path_name, path_name_word);
 }
@@ -980,8 +981,9 @@ Pl_Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
   Pl_Flush_All_Streams();
   status = Pl_M_Spawn(arg);
 
-  Os_Test_Error(status == -1);
-  if (status == -2)
+  if (status == -1)
+    Os_Test_Error(status);
+  else if (status == -2)
     {
       sprintf(err, "error trying to execute %s", arg[0]);
       Pl_Err_System(Pl_Create_Allocate_Atom(err));
@@ -1027,7 +1029,7 @@ Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
 
   Pl_Flush_All_Streams();
   f = popen(cmd, open_str);
-  Os_Test_Error(f == NULL);
+  Os_Test_Error_Null(f);
 
   sprintf(pl_glob_buff, "popen_stream('%.1024s')", cmd);
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
@@ -1046,7 +1048,7 @@ Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
-       WamWord stm_err_word, WamWord pid_word)
+	  WamWord stm_err_word, WamWord pid_word)
 {
   char *cmd;
   char **arg;
@@ -1055,17 +1057,22 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   int pid;
   int mask = SYS_VAR_OPTION_MASK;
   int atom;
-  char err[64];
+  char err[1024];
 
   cmd = Pl_Rd_String_Check(cmd_word);
   arg = Pl_M_Create_Shell_Command(cmd);
 
   Pl_Flush_All_Streams();
   pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, &f_err);
-  Os_Test_Error(pid == -1);
-  if (pid == -2)
+
+  /* If the command is not found we get ENOENT under Windows. 
+   * Under Unix the information is only obtained at Pl_M_Get_Status(). */
+
+  if (pid == -1 && errno != ENOENT)
+    Os_Test_Error(pid); /* ENOENT is for Windows */
+  if (pid < 0)
     {
-      sprintf(err, "error trying to execute %s", cmd);
+      sprintf(err, "error trying to execute %s (maybe not found)", cmd);
       Pl_Err_System(Pl_Create_Allocate_Atom(err));
       return FALSE;
     }
@@ -1121,14 +1128,14 @@ Pl_Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
   Os_Test_Error(pipe(p));
 #endif
 
-  Os_Test_Error((f_in = fdopen(p[0], "rt")) == NULL);
+  Os_Test_Error_Null((f_in = fdopen(p[0], "rt")));
   sprintf(pl_glob_buff, "pipe_stream_in");
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
   stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
   pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   Pl_Get_Integer(stm, stm_in_word);
 
-  Os_Test_Error((f_out = fdopen(p[1], "wt")) == NULL);
+  Os_Test_Error_Null((f_out = fdopen(p[1], "wt")));
   sprintf(pl_glob_buff, "pipe_stream_out");
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
   stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
@@ -1158,7 +1165,7 @@ Pl_Fork_Prolog_1(WamWord pid_word)
   int pid;
 
   pid = fork();
-  Os_Test_Error(pid == -1);
+  Os_Test_Error(pid);
 
   return Pl_Get_Integer(pid, pid_word);
 
@@ -1209,7 +1216,7 @@ Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
     }
 
 
-  Os_Test_Error(select(max + 1, &read_set, &write_set, NULL, p) < 0);
+  Os_Test_Error(select(max + 1, &read_set, &write_set, NULL, p));
 
 
   return Select_Init_Ready_List(reads_word, &read_set, ready_reads_word) &&
@@ -1267,7 +1274,7 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
       if (fd >= FD_SETSIZE)
 	{
 	  errno = EBADF;
-	  Os_Test_Error(1);
+	  Os_Test_Error(-1);
 	}
 #endif
 
@@ -1384,7 +1391,7 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
     if (pid != _getpid())
       {
 	errno = EINVAL;
-	ret = 1;
+	ret = -1;
       }
     else
       {
@@ -1417,14 +1424,8 @@ Pl_Wait_2(WamWord pid_word, WamWord status_word)
   pid = Pl_Rd_Integer_Check(pid_word);
   Pl_Check_For_Un_Integer(status_word);
 
-#ifdef _WIN32
-  Os_Test_Error(_cwait(&status, pid, _WAIT_CHILD) == -1);
-#else
-  Os_Test_Error(waitpid(pid, &status, 0) == -1);
-
-  if (WIFEXITED(status))
-    status = WEXITSTATUS(status);
-#endif
+  status  = Pl_M_Get_Status(pid);
+  Os_Test_Error(status);
 
   return Pl_Get_Integer(status, status_word);
 }

@@ -110,7 +110,8 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   /* If pl2wam is not found we get ENOENT under Windows. 
    * Under Unix the information is only obtained at Pl_M_Get_Status(). */
 
-  Os_Test_Error(pid == -1 && errno != ENOENT); /* ENOENT is for Windows */
+  if (pid == -1 && errno != ENOENT)
+    Os_Test_Error(pid); /* ENOENT is for Windows */
   if (pid < 0)
     {
     error_pl2wam:

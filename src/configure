@@ -5371,6 +5371,8 @@ done
 # * libraries to add *
 # ********************
 
+# -MD
+
 if test "$WITH_MSVC" != no; then
     LDFLAGS='-nologo -F8000000'
 fi

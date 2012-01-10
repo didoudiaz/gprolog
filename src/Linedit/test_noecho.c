@@ -38,14 +38,14 @@
 /* $Id$ */
 
 #include <stdio.h>
-#include <locale.h>
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "linedit.h"
-
 #define printf Pl_LE_Printf
 
+#include "../EnginePl/gp_config.h"
+
+#include "../EnginePl/set_locale.h"
 
 #include "../W32GUICons/w32gc_interf.h"
 #ifdef GUI_CONSOLE_WITH_STACK_SIZES       /* only to test GUI Console stack size dialog box */
@@ -54,6 +54,9 @@ typedef PlLong WamWord;
 #include "../EnginePl/wam_stacks.h"
 #endif
 
+#include "linedit.h"
+
+#include <windows.h>
 
 /*---------------------------------*
  * Constants                       *
@@ -83,7 +86,10 @@ main(int argc, char *argv[])
 {
   int c;
 
-  setlocale(LC_ALL, "");
+  Set_Locale();
+  /*  SetConsoleCP(1252);
+  SetConsoleOutputCP(1252);
+  */
 
   while ((c = Pl_LE_Get_Key(0, 1)) != EOF)
     {

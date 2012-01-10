@@ -1,9 +1,10 @@
-LIB_LINEDIT = @LIB_LINEDIT@
-CC          = @CC@ @CFLAGS_MACHINE@
-CFLAGS      = @CFLAGS@
-LDLIBS      = @LDLIBS@
-AR_RC       = @AR_RC@
-RANLIB      = @RANLIB@
+LIB_LINEDIT          = @LIB_LINEDIT@
+CC                   = @CC@ @CFLAGS_MACHINE@
+CFLAGS               = @CFLAGS@
+CFLAGS_UNSIGNED_CHAR = @CFLAGS_UNSIGNED_CHAR@
+LDLIBS               = @LDLIBS@
+AR_RC                = @AR_RC@
+RANLIB               = @RANLIB@
 
 LIBNAME = $(LIB_LINEDIT)
 OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@
@@ -14,7 +15,7 @@ OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@
 all: $(LIBNAME)
 
 .c@OBJ_SUFFIX@:
-	$(CC) -c $(CFLAGS) $*.c
+	$(CC) -c $(CFLAGS) $(CFLAGS_UNSIGNED_CHAR) $*.c
 
 
 $(LIBNAME): $(OBJLIB)

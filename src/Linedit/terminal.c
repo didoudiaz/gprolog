@@ -128,6 +128,10 @@ static HANDLE h_stdin;
 static HANDLE h_stdout;
 static DWORD im;
 
+static int code_page = 0;
+static int oem_put = 1;
+static int oem_get = 1;
+
 #endif
 
 static int interrupt_key;
@@ -244,16 +248,36 @@ Pl_LE_Initialize(void)
 static void
 Parse_Env_Var(void)
 {
-  char *p = getenv("LINEDIT");
+  char *p;
+  char buff[1024];
+  char *q;
 
+  p = getenv("LINEDIT");
   if (p == NULL)
     return;
 
-  if (strstr(p, "gui=no") != NULL)
+  if (strstr(p, "gui=n") != NULL)
     pl_use_gui = 0;
 
-  if (strstr(p, "ansi=no") != NULL)
+  if (strstr(p, "ansi=n") != NULL)
     use_ansi = 0;
+
+#ifdef _WIN32
+  if ((q = strstr(p, "cp=")) != NULL && isdigit(q[3]))
+    code_page = strtol(q + 3, NULL, 10), printf("cp read:%d\n", code_page);
+
+  if (strstr(p, "oem_put=n") != NULL)
+    oem_put = 0;
+
+  if (strstr(p, "oem_put=y") != NULL)
+    oem_put = 1;
+
+  if (strstr(p, "oem_get=n") != NULL)
+    oem_get = 0;
+
+  if (strstr(p, "oem_get=y") != NULL)
+    oem_get = 1;
+#endif
 
   if ((p = strstr(p, "out=")) != NULL)
     {
@@ -263,9 +287,6 @@ Parse_Env_Var(void)
         fd_out = strtol(p, NULL, 10);
       else
         {
-          char buff[1024];
-          char *q = buff;
-
           while(*p && isprint(*p) && !isspace(*p))
             *q++ = *p++;
 
@@ -359,6 +380,8 @@ Pl_LE_Open_Terminal(void)
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
       GetConsoleMode(h_stdin, &im);
       SetConsoleMode(h_stdin, im & ~ENABLE_PROCESSED_INPUT);
+      if (code_page && (!SetConsoleCP(code_page) || !SetConsoleOutputCP(code_page)))
+	  printf("warning: Setting console code page to %d failed (error: %d)\n", code_page, GetLastError());
     }
 
   interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
@@ -554,6 +577,7 @@ Pl_LE_Emit_Beep(void)
  */
 
 
+
 /*-------------------------------------------------------------------------*
  * PL_LE_PUT_CHAR                                                          *
  *                                                                         *
@@ -575,7 +599,7 @@ Pl_LE_Put_Char(int c)
             {
               pos = nb_cols - 1;
               sprintf(buf, "\033[A\033[%dC", pos);
-              if (write(fd_out, buf, strlen(buf))) /* to avoidgcc warning warn_unused_result */
+              if (write(fd_out, buf, strlen(buf))) /* to avoid gcc warning warn_unused_result */
 		{
 		}
 
@@ -609,15 +633,26 @@ Pl_LE_Put_Char(int c)
 
   if (c != '\b')
     {
-#ifdef WIN32_CONVERT_OEM_ASCII
-      char buff[2];
+      if (oem_put)
+	{
+	  char buff[2];
 
-      buff[0] = c;
-      buff[1] = '\0';
-      CharToOem(buff, buff);
-      c = buff[0];
-#endif
+	  buff[0] = c;
+	  buff[1] = '\0';
+	  CharToOem(buff, buff);
+	  c = buff[0];
+	}
+
+#if 0
       putch(c);
+#else  /* replacement of putch() same but a bit faster */
+      {
+	DWORD nb;
+	char c0 = (char) c;
+
+	WriteConsole(h_stdout, &c0, 1, &nb, NULL);
+      }
+#endif
       return;
     }
 
@@ -704,7 +739,7 @@ LE_Get_Char0(void)
   int c;
 
  read_char:
-  if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &nb))
+  if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &nb) || nb != 1)
     return -1;
 
   switch (ir.EventType)
@@ -724,17 +759,15 @@ LE_Get_Char0(void)
           else
             c = (1 << 8) | c;
         }
-#ifdef WIN32_CONVERT_OEM_ASCII
-      else
+      else if (oem_get)
         {
-          char buff[2];
-
+	  char buff[2];
+	  
           buff[0] = c;
           buff[1] = '\0';
           OemToChar(buff, buff);
           c = buff[0];
         }
-#endif
       break;
 
     case MOUSE_EVENT:
@@ -743,7 +776,7 @@ LE_Get_Char0(void)
     case FOCUS_EVENT:
       goto read_char;
       break;
-    }
+      }
 
   return c;
 

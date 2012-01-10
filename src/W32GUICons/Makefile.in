@@ -1,11 +1,12 @@
-DLL_W32GUICONS = @DLL_W32GUICONS@
-CC             = @CC@ @CFLAGS_MACHINE@
-CFLAGS         = @CFLAGS@ -I../EnginePl
-RC             = @RC@
-RCFLAGS        = @RCFLAGS@
-LD             = @LD@
-LDFLAGS        = @LDFLAGS@
-LDGUILIBS      = @LDGUILIBS@
+DLL_W32GUICONS       = @DLL_W32GUICONS@
+CC                   = @CC@ @CFLAGS_MACHINE@
+CFLAGS               = @CFLAGS@
+CFLAGS_UNSIGNED_CHAR = @CFLAGS_UNSIGNED_CHAR@
+RC                   = @RC@
+RCFLAGS              = @RCFLAGS@
+LD                   = @LD@
+LDFLAGS              = @LDFLAGS@
+LDGUILIBS            = @LDGUILIBS@
 
 
 DLLNAME = $(DLL_W32GUICONS)
@@ -17,10 +18,10 @@ RESDLL  = w32_console.res
 .SUFFIXES: @OBJ_SUFFIX@ .cpp .c .res .rc $(SUFFIXES)
 
 .cpp@OBJ_SUFFIX@:
-	$(CC) -c $(CFLAGS) $*.cpp
+	$(CC) -c $(CFLAGS) $(CFLAGS_UNSIGNED_CHAR) $*.cpp
 
 .c@OBJ_SUFFIX@:
-	$(CC) -c $(CFLAGS) $*.c
+	$(CC) -c $(CFLAGS) $(CFLAGS_UNSIGNED_CHAR) $*.c
 
 .rc.res:
 	$(RC) $(RCFLAGS) @RC_OUT_NAME_OPT@$*.res $*.rc

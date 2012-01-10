@@ -40,11 +40,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
 #include <time.h>
+
+#define printf Pl_LE_Printf
 
 #include "../EnginePl/gp_config.h"
 
+#include "../EnginePl/set_locale.h"
 
 #include "../W32GUICons/w32gc_interf.h" /* only to test GUI Console stack size dialog box */
 #ifdef GUI_CONSOLE_WITH_STACK_SIZES
@@ -65,7 +67,6 @@ typedef PlLong WamWord;
 #include "linedit.h"
 
 
-#define printf Pl_LE_Printf
 
 
 /*---------------------------------*
@@ -150,12 +151,19 @@ Set_Test_Locale(void)
   struct tm *thetime;
   char str[100];
 
-  setlocale(LC_ALL, "");
+  char c = 'é';
+
+  Set_Locale();
+
+  printf("Locale: %s\n", setlocale(LC_ALL, NULL));
+  printf("Is char 233 (= %c) an alpha ? %s\n", 233, (isalpha(233) ? "YES": "NO"));
+
   time(&ltime);
   thetime = gmtime(&ltime);
 
   strftime(str, 100, "%d (%A) %m (%B) %Y", thetime);
   printf("Date in current locale with strftime: %s\n", str);
+  printf("Float should be independent from locale pi: %f\n", 3.1415);
 }
 
 

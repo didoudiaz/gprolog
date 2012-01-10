@@ -553,6 +553,8 @@ AC_CHECK_FUNCS(mprotect mallopt fgetc atanh acosh asinh)
 # * libraries to add *
 # ********************
 
+# -MD 
+
 if test "$WITH_MSVC" != no; then
     LDFLAGS='-nologo -F8000000'
 fi

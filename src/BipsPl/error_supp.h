@@ -281,7 +281,7 @@ void Pl_Syntax_Error(int flag_value);
 
 void Pl_Unknown_Pred_Error(int func, int arity);
 
-void Pl_Os_Error(void);
+void Pl_Os_Error(int ret_val);
 
 void Pl_Err_Instantiation(void);
 
@@ -305,7 +305,22 @@ void Pl_Err_Syntax(int pl_atom_error);
 
 void Pl_Err_System(int pl_atom_error);
 
+#define Os_Test_Error_Null(tst)			\
+  do {						\
+    if ((tst) == NULL)				\
+      {						\
+	Pl_Os_Error(-1);			\
+	return FALSE;				\
+      }						\
+  } while(0)
 
 
-#define Os_Test_Error(tst)  \
-      do { if (tst) { Pl_Os_Error(); return FALSE; } } while(0)
+#define Os_Test_Error(tst)			\
+  do {						\
+    int _tst = (tst);				\
+    if (_tst < 0)				\
+      {						\
+	Pl_Os_Error(_tst);			\
+	return FALSE;				\
+      }						\
+  } while(0)

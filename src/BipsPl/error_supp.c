@@ -504,9 +504,9 @@ Pl_Unknown_Pred_Error(int func, int arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Os_Error(void)
+Pl_Os_Error(int ret_val)
 {
-  char *err_str = Pl_M_Sys_Err_String(errno);
+  char *err_str = Pl_M_Sys_Err_String(ret_val);
 
   if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_ERROR)
     Pl_Err_System(Pl_Create_Allocate_Atom(err_str));
@@ -514,8 +514,8 @@ Pl_Os_Error(void)
   Update_Cur_From_C_Bip();
   if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
-		  "warning: OS error: %s (from %s)\n",
-		  err_str, Context_Error_String());
+		     "warning: OS error: %s (from %s)\n",
+		     err_str, Context_Error_String());
 }
 
 

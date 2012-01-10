@@ -43,6 +43,8 @@
 #include <malloc.h>
 
 #include "../EnginePl/gp_config.h" /* only to know the value of WITH_HTMLHELP */
+#include "../EnginePl/set_locale.h"
+
 #include "w32gc_interf.h"          /* only to know Query_Stack() cmd constants */
 #include "../TopComp/prolog_path.c"
 
@@ -62,6 +64,10 @@
 
 #include "w32_resource.h"
 
+
+#ifdef _MSC_VER
+#define _STATIC_CPPLIB
+#endif
 
 #ifdef WITH_HTMLHELP
 
@@ -417,6 +423,12 @@ StartWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT 
 {
   MSG msg;
   HACCEL hAccelTable;
+
+  /* Reinit the locale in the DLL in case it has its own CRT
+   * (or else compile with MSVC option -MD)
+   */
+
+  Set_Locale();
 
   hInst = hInstance;
 
@@ -1626,42 +1638,41 @@ Flush_Buffer(void)
 
 
   n = wr_buffer_ptr - wr_buffer;
-  if (n == 0)
-    return;
-
-  /* the n chararacters have to be written from ec_start + posit to ec_start + posit + n - 1
-   * it is important to replacesel (not to insert) because linedit will rewrite all next
-   * chars in insert mode. Should be viewed as always in overwrite mode.
-   *
-   * Since we use the selection to replace chars, the selection should not be taken into
-   * account by other threads. This is the reason we protect the code with dont_use_selection
-   */
-
-  dont_use_selection = 1; // acquire selection
-
-  max_size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
-  text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
-
-  *wr_buffer_ptr = '\0';
-
-  end = ec_start + posit + n;
-
-  // check if enough space (reserve room of "\r\n")
-  if (end >= max_size) // else delete n and write n: nothing change !
+  if (n > 0)
     {
-      int line = SendMessage(hwndEditControl, EM_LINEFROMCHAR, end - max_size, 0);
-      int line_index = SendMessage(hwndEditControl, EM_LINEINDEX, line + 1, 0);
-      SendMessage(hwndEditControl, EM_SETSEL, 0, line_index);
-      SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer_ptr);  /* empty string to remove lines */
+      /* the n chararacters have to be written from ec_start + posit to ec_start + posit + n - 1
+       * it is important to replacesel (not to insert) because linedit will rewrite all next
+       * chars in insert mode. Should be viewed as always in overwrite mode.
+       *
+       * Since we use the selection to replace chars, the selection should not be taken into
+       * account by other threads. This is the reason we protect the code with dont_use_selection
+       */
+
+      dont_use_selection = 1; // acquire selection
+
+      max_size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
       text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
-      SendMessage(hwndEditControl, EM_SETSEL, text_size, text_size);
-      SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &ec_start, (WPARAM) &end); // re-init ec_start
+
+      *wr_buffer_ptr = '\0';
+
+      end = ec_start + posit + n;
+
+      // check if enough space (reserve room of "\r\n")
+      if (end >= max_size) // else delete n and write n: nothing change !
+	{
+	  int line = SendMessage(hwndEditControl, EM_LINEFROMCHAR, end - max_size, 0);
+	  int line_index = SendMessage(hwndEditControl, EM_LINEINDEX, line + 1, 0);
+	  SendMessage(hwndEditControl, EM_SETSEL, 0, line_index);
+	  SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer_ptr);  /* empty string to remove lines */
+	  text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
+	  SendMessage(hwndEditControl, EM_SETSEL, text_size, text_size);
+	  SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &ec_start, (WPARAM) &end); // re-init ec_start
+	}
+
+      SendMessage(hwndEditControl, EM_SETSEL, ec_start + posit, ec_start + posit + n);
+      SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer);
+      posit += n;
     }
-
-  SendMessage(hwndEditControl, EM_SETSEL, ec_start + posit, ec_start + posit + n);
-  SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer);
-  posit += n;
-
   Set_Caret_Position(posit);
 
   wr_buffer_ptr = wr_buffer;

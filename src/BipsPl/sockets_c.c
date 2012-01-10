@@ -137,7 +137,7 @@ Socket_Initializer(void)
   if (setsockopt(INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE,
 		 (char *)&optionValue,
 		 sizeof(optionValue)) == SOCKET_ERROR)
-    Pl_Os_Error();
+    Pl_Os_Error(-1);
 #endif
 }
 
@@ -179,14 +179,14 @@ Pl_Socket_2(WamWord domain_word, WamWord socket_word)
     sock = socket(AF_INET, SOCK_STREAM, proto);
 
 #ifdef _WIN32
-  Os_Test_Error(sock == INVALID_SOCKET);
+  Os_Test_Error(sock); /* NB: on error returns INVALID_SOCKET == -1 */
   /*
    * Windows (by default) causes sockets to be inherited
    * by child processes.  Turn this off.
    */
   SetHandleInformation((HANDLE) sock, HANDLE_FLAG_INHERIT, 0);
 #else
-  Os_Test_Error(sock == -1);
+  Os_Test_Error(sock);
 #endif
 
   return Pl_Get_Integer(sock, socket_word);
@@ -212,7 +212,7 @@ Pl_Socket_Close_1(WamWord socket_word)
   if (sock < 2)
     {
       errno = EBADF;
-      Os_Test_Error(1);
+      Os_Test_Error(-1);
     }
   else
 #ifndef _WIN32
@@ -285,8 +285,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
       adr_un.sun_family = AF_UNIX;
       strcpy(adr_un.sun_path, path_name);
       unlink(path_name);
-      Os_Test_Error(bind(sock, (struct sockaddr *) &adr_un, sizeof(adr_un))
-		    == -1);
+      Os_Test_Error(bind(sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
       return TRUE;
     }
 #endif
@@ -468,7 +467,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
 
   cli_sock = accept(sock, (struct sockaddr *) &adr_in, &l);
 
-  Os_Test_Error(cli_sock < 0);
+  Os_Test_Error(cli_sock);
 
   if (adr_in.sin_family == AF_INET)
     {
@@ -533,14 +532,14 @@ Create_Socket_Streams(int sock, char *stream_name,
 #ifdef _WIN32
   int r;
 
-  Os_Test_Error((fd = _open_osfhandle(sock, _O_BINARY | _O_RDWR | _O_BINARY)) == -1);
-  Os_Test_Error((r = dup(fd)) == -1);
-  Os_Test_Error((f_out = fdopen(fd, "w")) == NULL);
-  Os_Test_Error((f_in = fdopen(r, "r")) == NULL);
+  Os_Test_Error((fd = _open_osfhandle(sock, _O_BINARY | _O_RDWR | _O_BINARY)));
+  Os_Test_Error((r = dup(fd)));
+  Os_Test_Error_Null((f_out = fdopen(fd, "w")));
+  Os_Test_Error_Null((f_in = fdopen(r, "r")));
 #else
-  Os_Test_Error((fd = dup(sock)) < 0);
-  Os_Test_Error((f_in = fdopen(sock, "rt")) == NULL);
-  Os_Test_Error((f_out = fdopen(fd, "wt")) == NULL);
+  Os_Test_Error((fd = dup(sock)));
+  Os_Test_Error_Null((f_in = fdopen(sock, "rt")));
+  Os_Test_Error_Null((f_out = fdopen(fd, "wt")));
 #endif
 
   atom = Pl_Create_Allocate_Atom(stream_name);

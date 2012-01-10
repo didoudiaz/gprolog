@@ -848,7 +848,7 @@ Pl_Write_Pl_State_File(WamWord file_word)
   file = Pl_M_Absolute_Path_Name(file);
 
   f = fopen(file, "wb");
-  Os_Test_Error(f == NULL);
+  Os_Test_Error_Null(f);
 
   i = Pl_Hash_Nb_Elements(pl_oper_tbl);
   FWRITE(&i, sizeof(i), 1, f);
@@ -927,7 +927,7 @@ Pl_Read_Pl_State_File(WamWord file_word)
   file = Pl_M_Absolute_Path_Name(file);
 
   f = fopen(file, "rb");
-  Os_Test_Error(f == NULL);
+  Os_Test_Error_Null(f);
 
   Pl_Hash_Delete_All(pl_oper_tbl);
 
