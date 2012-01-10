@@ -563,7 +563,7 @@ PACKAGE_TARNAME='gprolog'
 PACKAGE_VERSION='1.4.1'
 PACKAGE_STRING='gprolog 1.4.1'
 PACKAGE_BUGREPORT='bug-prolog@gnu.org'
-PACKAGE_URL=''
+PACKAGE_URL='www.gprolog.org'
 
 ac_unique_file="SETVARS"
 # Factoring default headers for most tests.
@@ -1412,6 +1412,7 @@ Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
 
 Report bugs to <bug-prolog@gnu.org>.
+gprolog home page: <www.gprolog.org>.
 _ACEOF
 ac_status=$?
 fi
@@ -2384,8 +2385,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION='1.4.1'
-PROLOG_DATE='Dec 1 2011'
-PROLOG_COPYRIGHT='Copyright (C) 1999-2011 Daniel Diaz'
+PROLOG_DATE='Jan 10 2012'
+PROLOG_COPYRIGHT='Copyright (C) 1999-2012 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT
 GPLC=gplc
@@ -6468,7 +6469,8 @@ $config_files
 Configuration headers:
 $config_headers
 
-Report bugs to <bug-prolog@gnu.org>."
+Report bugs to <bug-prolog@gnu.org>.
+gprolog home page: <www.gprolog.org>."
 
 _ACEOF
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1

@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2011 Daniel Diaz                                     *
+ * Copyright (C) 1999-2012 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

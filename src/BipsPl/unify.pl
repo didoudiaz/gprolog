@@ -6,7 +6,7 @@
  * Descr.: unification management                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2011 Daniel Diaz                                     *
+ * Copyright (C) 1999-2012 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
