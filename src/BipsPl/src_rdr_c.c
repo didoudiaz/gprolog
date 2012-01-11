@@ -490,7 +490,7 @@ Common_Clean(SRInf *sr, Bool for_reread)
 	}
       m1 = m;
       m = m->next;
-      Free(m);
+      Free(m1);
     }
 
   if (for_reread)

@@ -94,7 +94,6 @@ Call_Args_Initializer(void)
 WamCont
 Pl_Call_Closure(int atom_bip, int arity_rest)
 {
-  int call_info;
   int func, arity_clos, arity;
   WamWord *arg_adr;
   PredInf *pred;
@@ -113,8 +112,6 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   if (arity > MAX_ARITY)
     Pl_Err_Representation(pl_representation_max_arity);
 
-
-  call_info = Call_Info(func, arity, 1);
 
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL || 
       (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))

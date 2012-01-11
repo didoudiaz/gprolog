@@ -4,22 +4,24 @@
 # * autoconf configuration script *
 # *********************************
 
-# if you change here the version also change it in PROLOG_VERSION below
-
 AC_INIT(gprolog, 1.4.1, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
 # AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
 
-
 # ***************************
 # * initial variable values *
 # ***************************
 
+pl_date()
+{
+    LC_ALL=C date '+%b %e %Y'
+}
+
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
-PROLOG_VERSION='1.4.1'
-PROLOG_DATE='Jan 10 2012'
+PROLOG_VERSION=$PACKAGE_VERSION
+PROLOG_DATE=`pl_date`
 PROLOG_COPYRIGHT='Copyright (C) 1999-2012 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT
@@ -552,8 +554,6 @@ AC_CHECK_FUNCS(mprotect mallopt fgetc atanh acosh asinh)
 # ********************
 # * libraries to add *
 # ********************
-
-# -MD 
 
 if test "$WITH_MSVC" != no; then
     LDFLAGS='-nologo -F8000000'

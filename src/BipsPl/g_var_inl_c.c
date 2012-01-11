@@ -843,16 +843,13 @@ Get_Target_From_Gvar(WamWord gvar_word)
   WamWord word1;
   int atom;
   int arity;
-  WamWord *arg_adr, *g_arg;
+  WamWord *arg_adr;
   GVarElt *g_elem, *g_end;
   GVarElt *p;
   int i, j, size;
   int new_size;
   PlLong index;
   GTarget *gt = &g_target;
-
-
-  g_arg = NULL;
 
   arg_adr = Pl_Rd_Callable_Check(gvar_word, &atom, &arity);
 

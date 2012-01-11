@@ -1049,7 +1049,7 @@ Pl_Current_Mirror_2(WamWord stm_word, WamWord m_stm_word)
 
   if (m->next != NULL) /* non deterministic case */
     {
-      A(0) = stm;
+      A(0) = stm;		/* useless in fact */
       A(1) = m_stm_word;
       A(2) = (WamWord) m->next;
       Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_MIRROR_ALT, 0), 3);
@@ -1068,13 +1068,13 @@ Pl_Current_Mirror_2(WamWord stm_word, WamWord m_stm_word)
 Bool
 Pl_Current_Mirror_Alt_0(void)
 {
-  int stm;
+  /*  int stm; */
   WamWord m_stm_word;
   StmLst *m;
 
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_MIRROR_ALT, 0), 0);
 
-  stm = AB(B, 0);
+  /*  stm = AB(B, 0); */
   m_stm_word = AB(B, 1);
   m = (StmLst *) AB(B, 2);
 

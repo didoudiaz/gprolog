@@ -649,8 +649,9 @@ Link_Cmd(void)
   static char file_out[MAXPATHLEN];
   static char buff[CMD_LINE_LENGTH];
   FileInf *f;
+#ifdef _MSC_VER
   int has_gui_console = 0;
-
+#endif
 
   if (no_fd_lib == 0 && no_fd_lib_warn)
     {
@@ -754,7 +755,9 @@ Link_Cmd(void)
     {    /* modify Linedit/Makefile.in to follow this list of ld objects */
       Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff), 0);
       strcat(buff, " ");
+#ifdef _MSC_VER
       has_gui_console = 1;
+#endif
     }
 
 #ifdef _MSC_VER
