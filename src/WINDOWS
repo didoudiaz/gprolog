@@ -190,9 +190,9 @@ to your PATH (see file hhvars.bat above).
 If you have the SDK (see above) the header file htmlhelp.h and the library
 htmlhel.lib are already present. Else copy them from the workshop directory.
 
-For MinGW (I suppose you are under MSYS and mingw is in /mingw):
-	cp /c/Program\ Files/HTML\ Help\ Workshop/include/* /mingw/include/.
-	cp /c/Program\ Files/HTML\ Help\ Workshop/lib/htmlhelp.lib /mingw/lib/libhtmlhelp.a
+For MinGW (I suppose you are under MSYS and mingw is in /c/MinGw):
+	cp /c/Program\ Files/HTML\ Help\ Workshop/include/* /c/MinGW/include/.
+	cp /c/Program\ Files/HTML\ Help\ Workshop/lib/htmlhelp.lib /c/MinGW/lib/libhtmlhelp.a
 
 Note: libhtmlhelp.a follows unix standards for libs. The lib prefix make it possible 
 to use the gcc option -lhtmlhelp (linker option). The .a suffix can be replaced by .lib.
