@@ -50,8 +50,8 @@
  * Constants                       *
  *---------------------------------*/
 
-#define BOOL_STACK_SIZE            1024
-#define VARS_STACK_SIZE            1024
+#define BOOL_STACK_SIZE            100000
+#define VARS_STACK_SIZE            100000
 
 
 #define NOT                        0
@@ -183,9 +183,9 @@ Bool Pl_Fd_Lte_2(WamWord le_word, WamWord re_word);
 #define BOOL_CSTR_2(f, a1, a2)                    	\
   do							\
     {							\
-      if (!Pl_Fd_Check_For_Bool_Var(a1))			\
+      if (!Pl_Fd_Check_For_Bool_Var(a1))		\
 	return FALSE;					\
-      if (!Pl_Fd_Check_For_Bool_Var(a2))			\
+      if (!Pl_Fd_Check_For_Bool_Var(a2))		\
 	return FALSE;					\
       PRIM_CSTR_2(f, a1, a2);				\
     }							\
@@ -195,9 +195,9 @@ Bool Pl_Fd_Lte_2(WamWord le_word, WamWord re_word);
 #define BOOL_CSTR_3(f, a1, a2, a3)                    	\
   do							\
     {							\
-      if (!Pl_Fd_Check_For_Bool_Var(a1))			\
+      if (!Pl_Fd_Check_For_Bool_Var(a1))		\
 	return FALSE;					\
-      if (!Pl_Fd_Check_For_Bool_Var(a2))			\
+      if (!Pl_Fd_Check_For_Bool_Var(a2))		\
 	return FALSE;					\
                                       /* a3 is OK */	\
       PRIM_CSTR_3(f, a1, a2, a3);			\
@@ -366,7 +366,7 @@ Pl_Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
  *        [2]: right math exp (tagged word)                                *
  *        [1]: left  math exp (tagged word)                                *
  *        [0]: operator (EQ, NEQ, LT, LTE, EQ_F, NEQ_F, LT_F, LTE_F)       *
- *             (GT, GTE, GT_F, and GTE_F becomes LT, LTE, GT_F and GTE_F)  *
+ *             (GT, GTE, GT_F, and GTE_F becomes LT, LTE, LT_F and LTE_F)  *
  *                                                                         *
  * These nodes are stored in a hybrid stack. NB: XOR same as NEQUIV        *
  *-------------------------------------------------------------------------*/
@@ -377,8 +377,14 @@ Simplify(int sign, WamWord e_word)
   WamWord *adr;
   WamWord f_n, le_word, re_word;
   int op, n;
-  WamWord *exp, l, r;
+  WamWord *exp, *sp1;
+  WamWord l, r;
 
+#ifdef DEBUG
+  printf("ENTERING %5ld: %2d: ", sp - stack, sign);
+  Pl_Write_Simple(e_word);
+  printf("\n");
+#endif
 
   exp = sp;
 
@@ -459,9 +465,8 @@ Simplify(int sign, WamWord e_word)
       Add_Fd_Variables(le_word);
       Add_Fd_Variables(re_word);
 
-      n = (op == GT || op == GT_F) ? op - 2 : (op == GTE
-					       || op ==
-					       GTE_F) ? op + 2 : op;
+      n = (op == GT || op == GT_F) ? op - 2 :
+	(op == GTE || op == GTE_F) ? op + 2 : op;
 
       *sp++ = n;
       *sp++ = (n == op) ? le_word : re_word;
@@ -472,35 +477,57 @@ Simplify(int sign, WamWord e_word)
   sp += 3;
   exp[0] = op;
   exp[1] = (WamWord) Simplify(1, le_word);
+  sp1 = sp;
   exp[2] = (WamWord) Simplify(1, re_word);
 
   l = *(WamWord *) (exp[1]);
   r = *(WamWord *) (exp[2]);
 
+  /* NB: beware when calling below Simplify() (while has been just called above)
+   * this can ran into stack overflow (N^2 space complexity). 
+   * Try to recover the stack before calling Simplify().
+   * Other stack recovery are less important (e.g. when only using exp[1]).
+   *
+   * In the following exp[] += sizeof(WamWord) is used to "skip" the NOT
+   * in a simplification (points to the next cell).
+   */
+
   switch (op)
     {
     case EQUIV:
       if (l == ZERO)		/* 0 <=> R is ~R */
-	return sp = exp, Simplify(-1, re_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, re_word);
+	}
 
       if (l == ONE)		/* 1 <=> R is R */
-	return (WamWord *) exp[2];
+	{
+	  return (WamWord *) exp[2];
+	}
 
       if (r == ZERO)		/* L <=> 0 is ~L */
-	return sp = exp, Simplify(-1, le_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, le_word);
+	}
 
       if (r == ONE)		/* L <=> 1 is L */
-	return (WamWord *) exp[1];
+	{
+	  sp = sp1;
+	  return (WamWord *) exp[1];
+	}
 
       if (l == NOT)		/* ~X <=> R is X <=> ~R */
 	{
-	  exp[1] += sizeof(WamWord);
+	  exp[1] += sizeof(WamWord); 
+	  sp = sp1;
 	  exp[2] = (WamWord) Simplify(-1, re_word);
 	  break;
 	}
 
       if (r == NOT)		/* L <=> ~X is ~L <=> X */
-	{
+	{			/* NB: cannot recover the stack */	  
 	  exp[1] = (WamWord) Simplify(-1, le_word);
 	  exp[2] += sizeof(WamWord);
 	  break;
@@ -509,16 +536,27 @@ Simplify(int sign, WamWord e_word)
 
     case NEQUIV:
       if (l == ZERO)		/* 0 ~<=> R is R */
-	return (WamWord *) exp[2];
+	{
+	  return (WamWord *) exp[2];
+	}
 
       if (l == ONE)		/* 1 ~<=> R is ~R */
-	return sp = exp, Simplify(-1, re_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, re_word);
+	}
 
       if (r == ZERO)		/* L ~<=> 0 is L */
-	return (WamWord *) exp[1];
+	{
+	  sp = sp1;
+	  return (WamWord *) exp[1];
+	}
 
       if (r == ONE)		/* L ~<=> 1 is ~L */
-	return sp = exp, Simplify(-1, le_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, le_word);
+	}
 
       if (l == NOT)		/* ~X ~<=> R is X <=> R */
 	{
@@ -537,13 +575,14 @@ Simplify(int sign, WamWord e_word)
       if (IsVar(l) && !IsVar(r)) /* X ~<=> R is X <=> ~R */
 	{
 	  exp[0] = EQUIV;
+	  sp = sp1;
 	  exp[2] = (WamWord) Simplify(-1, re_word);
 	  break;
 	}
 
       if (IsVar(r) && !IsVar(l)) /* L ~<=> X is L <=> ~X */
 	{
-	  exp[0] = EQUIV;
+	  exp[0] = EQUIV;	/* NB: cannot recover the stack */
 	  exp[1] = (WamWord) Simplify(-1, le_word);
 	  break;
 	}
@@ -558,7 +597,9 @@ Simplify(int sign, WamWord e_word)
 	}
 
       if (l == ONE)		/* 1 ==> R is R */
-	return (WamWord *) exp[2];
+	{
+	  return (WamWord *) exp[2];
+	}
 
       if (r == ZERO)		/* L ==> 0 is ~L */
 	return sp = exp, Simplify(-1, le_word);
@@ -587,10 +628,16 @@ Simplify(int sign, WamWord e_word)
 	}
 
       if (l == ONE)		/* 1 ~==> R is ~R */
-	return sp = exp, Simplify(-1, re_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, re_word);
+	}
 
       if (r == ZERO)		/* L ~==> 0 is L */
-	return (WamWord *) exp[1];
+	{
+	  sp = sp1;
+	  return (WamWord *) exp[1];
+	}
 
       if (l == NOT)		/* ~X ~==> R is X ~\/ R */
 	{
@@ -616,10 +663,15 @@ Simplify(int sign, WamWord e_word)
 	}
 
       if (l == ONE)		/* 1 /\ R is R */
-	return (WamWord *) exp[2];
+	{
+	  return (WamWord *) exp[2];
+	}
 
       if (r == ONE)		/* L /\ 1 is L */
-	return (WamWord *) exp[1];
+	{
+	  sp = sp1;
+	  return (WamWord *) exp[1];
+	}
 
       if (l == NOT)		/* ~X /\ R is R ~==> X */
 	{
@@ -647,10 +699,16 @@ Simplify(int sign, WamWord e_word)
 	}
 
       if (l == ONE)		/* 1 ~/\ R is ~R */
-	return sp = exp, Simplify(-1, re_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, re_word);
+	}
 
       if (r == ONE)		/* L ~/\ 1 is ~L */
-	return sp = exp, Simplify(-1, le_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, le_word);
+	}
 
       if (l == NOT)		/* ~X ~/\ R is R ==> X */
 	{
@@ -678,10 +736,15 @@ Simplify(int sign, WamWord e_word)
 	}
 
       if (l == ZERO)		/* 0 \/ R is R */
-	return (WamWord *) exp[2];
+	{
+	  return (WamWord *) exp[2];
+	}
 
       if (r == ZERO)		/* L \/ 0 is L */
-	return (WamWord *) exp[1];
+	{
+	  sp = sp1;
+	  return (WamWord *) exp[1];
+	}
 
       if (l == NOT)		/* ~X \/ R is X ==> R */
 	{
@@ -709,10 +772,16 @@ Simplify(int sign, WamWord e_word)
 	}
 
       if (l == ZERO)		/* 0 ~\/ R is ~R */
-	return sp = exp, Simplify(-1, re_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, re_word);
+	}
 
       if (r == ZERO)		/* L ~\/ 0 is ~L */
-	return sp = exp, Simplify(-1, le_word);
+	{
+	  sp = exp;
+	  return Simplify(-1, le_word);
+	}
 
       if (l == NOT)		/* ~X ~\/ R is X ~==> R */
 	{

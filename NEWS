@@ -1,9 +1,10 @@
 Change in GNU Prolog version 1.4.1:
 
+* increase size of FD internal stacks and fix memory leak
 * port to x86_64/Darwin (Mac OS X) - many thanks to:
   Ozaki Kiichi <gclient.gaap@gmail.com>
   Use ./configure --build=x86_64-apple-darwin --host=x86_64-apple-darwin
-* fix bug in x86_64 with --disable-regs
+* fix a bug in x86_64 with --disable-regs
 * fix a bug when consulting a file under Win XP/Vista 32 bits
 * fix a bug when consulting a file using '$VAR'(N) or '$VARNAME'(A)
 * fix a bug in new_atom/1-2 which returned duplicates

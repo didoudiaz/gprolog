@@ -61,10 +61,10 @@
  * Constants                       *
  *---------------------------------*/
 
-#define DELAY_CSTR_STACK_SIZE      128
-#define VARS_STACK_SIZE            1024
+#define DELAY_CSTR_STACK_SIZE      1000
+#define VARS_STACK_SIZE            100000
 
-#define MAX_MONOMS                 1024
+#define MAX_MONOMS                 2000
 
 #define MAX_COEF_FOR_SORT          100
 
@@ -584,7 +584,7 @@ Push_Delayed_Cstr(int cstr, WamWord a1, WamWord a2, WamWord a3)
   res_word = Make_Self_Ref(H);
   Global_Push(res_word);
 
-  if (delay_sp - delay_cstr_stack == DELAY_CSTR_STACK_SIZE)
+  if (delay_sp - delay_cstr_stack >= DELAY_CSTR_STACK_SIZE)
     Pl_Err_Resource(pl_resource_too_big_fd_constraint);
 
   delay_sp->cstr = cstr;
@@ -724,7 +724,7 @@ Normalize(WamWord e_word, int sign, Poly *p)
 
   if (tag_mask == TAG_REF_MASK)
     {
-      if (vars_sp - vars_tbl == VARS_STACK_SIZE)
+      if (vars_sp - vars_tbl >= VARS_STACK_SIZE)
 	Pl_Err_Resource(pl_resource_too_big_fd_constraint);
 
       *vars_sp++ = word;
