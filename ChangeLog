@@ -2,7 +2,6 @@ Mon Feb 20 19:12:04 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a regression bug in the FD solver about sparse domains
 
-
 Thu Feb 16 19:49:02 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* increase size of FD internal stacks and fix memory leak
