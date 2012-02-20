@@ -181,7 +181,7 @@ Pl_Vector_Nb_Elem(Vector vec)
 
   do
     {
-      nb_elem += Pl_Count_Set_Bits(*vec++);
+      nb_elem += Pl_Count_Set_Bits(*vec);
       vec++;
     }
   while (vec < end);
