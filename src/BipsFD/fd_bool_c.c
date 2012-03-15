@@ -1559,3 +1559,99 @@ Set_Lte(WamWord *exp, int result, WamWord *load_word)
   PRIM_CSTR_3(pl_truth_x_lte_y, l_word, r_word, *load_word);
   return TRUE;
 }
+
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_REIFIED_IN                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Reified_In(WamWord x_word, WamWord l_word, WamWord u_word, WamWord b_word)
+{
+  WamWord word, tag_mask;
+  WamWord b_tag_mask, x_tag_mask;
+  WamWord *adr, *fdv_adr;
+  int x;
+  int l = Pl_Rd_Integer_Check(l_word);
+  int u = Pl_Rd_Integer_Check(u_word);
+  int b = -1;			/* a var */
+  Range *r;
+  int x_min, x_max;
+ 
+
+  Bool pl_fd_domain(WamWord x_word, WamWord l_word, WamWord u_word);
+  Bool pl_fd_not_domain(WamWord x_word, WamWord l_word, WamWord u_word);
+
+
+  DEREF(x_word, word, tag_mask);
+  x_word = word;
+  x_tag_mask = tag_mask;
+
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_FDV_MASK && tag_mask != TAG_INT_MASK)
+    {
+    err_type_fd:
+      Pl_Err_Type(pl_type_fd_variable, word);
+      return FALSE;
+    }
+
+  DEREF(b_word, word, tag_mask);
+  b_word = word;
+  b_tag_mask = tag_mask;
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_FDV_MASK && tag_mask != TAG_INT_MASK)
+    goto err_type_fd;
+
+  if (x_tag_mask == TAG_INT_MASK)
+    {
+      x = UnTag_INT(x_word);
+      b = (x >= l) && (x <= u);
+    unif_b:
+      return Pl_Get_Integer(b, b_word);
+    }
+
+  if (b_tag_mask == TAG_INT_MASK)
+    {
+      b = UnTag_INT(b_word);
+      if (b == 0)
+	return pl_fd_not_domain(x_word, l_word, u_word);
+      return (b == 1) && pl_fd_domain(x_word, l_word, u_word);
+    }
+
+
+  if (x_tag_mask == TAG_REF_MASK) /* make an FD var */
+    {
+      adr = UnTag_REF(x_word);
+      fdv_adr = Pl_Fd_New_Variable();
+      Bind_UV(adr, Tag_REF(fdv_adr));
+    }
+  else
+    fdv_adr = UnTag_FDV(x_word);
+
+  r = Range(fdv_adr);
+
+  x_min = r->min;
+  x_max = r->max;
+
+  if (x_min >= l && x_max <= u)
+    {
+      b = 1;
+      goto unif_b;
+    }
+
+  if (l > u || x_max < l || x_min > u) /* NB: if L..U is empty then B = 0 */
+    {
+      b = 0;
+      goto unif_b;
+    }
+
+
+  if (!Pl_Fd_Check_For_Bool_Var(b_word))
+    return FALSE;
+
+  PRIM_CSTR_4(pl_truth_x_in_l_u, x_word, l_word, u_word, b_word);
+
+  return TRUE;
+}

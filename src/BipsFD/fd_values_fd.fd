@@ -37,15 +37,28 @@
 
 /* $Id$ */
 
-pl_fd_domain(fdv X,int L,int U)
+pl_fd_domain(fdv X, int L, int U)
 
 {
  start X in L .. U
 }
 
 
-pl_fd_domain_r(fdv X,range R)
+pl_fd_not_domain(fdv X, int L, int U)
+
+{
+ start X in ~(L .. U)
+}
+
+
+pl_fd_domain_r(fdv X, range R)
 
 {
  start X in R
+}
+
+pl_fd_not_domain_r(fdv X, range R)
+
+{
+ start X in ~R
 }

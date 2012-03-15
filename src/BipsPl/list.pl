@@ -340,3 +340,47 @@ flatten(List, FlatList) :-
 
 '$flatten'(NonList, Tl, [NonList|Tl]).
 
+
+
+
+
+maplist(Goal, List) :-
+        '$maplist'(List, Goal).
+
+'$maplist'([], _).
+
+'$maplist'([X|List], Goal) :-
+        call(Goal, X),
+        '$maplist'(List, Goal).
+
+
+maplist(Goal, List1, List2) :-
+        '$maplist'(List1, List2, Goal).
+
+'$maplist'([], [], _).
+
+'$maplist'([X1|List1], [X2|List2], Goal) :-
+        call(Goal, X1, X2),
+        '$maplist'(List1, List2, Goal).
+
+
+maplist(Goal, List1, List2, List3) :-
+        '$maplist'(List1, List2, List3, Goal).
+
+'$maplist'([], [], [], _).
+
+'$maplist'([X1|List1], [X2|List2], [X3|List3], Goal) :-
+        call(Goal, X1, X2, X3),
+        '$maplist'(List1, List2, List3, Goal).
+
+
+
+maplist(Goal, List1, List2, List3, List4) :-
+        '$maplist'(List1, List2, List3, List4, Goal).
+
+'$maplist'([], [], [], [], _).
+
+'$maplist'([X1|List1], [X2|List2], [X3|List3], [X4|List4], Goal) :-
+        call(Goal, X1, X2, X3, X4),
+        '$maplist'(List1, List2, List3, List4, Goal).
+

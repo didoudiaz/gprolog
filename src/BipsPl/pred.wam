@@ -378,45 +378,51 @@ label(30),
 
 
 predicate('$prop_meta_pred'/3,195,static,private,monofile,built_in,[
-    switch_on_term(5,1,fail,fail,fail),
+    switch_on_term(6,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([((','),6),((;),8),((->),10),(call,2),(catch,14),((\+),16),(abolish,18),(asserta,20),(assertz,22),(bagof,24),(call_det,46),(call_with_args,3),(clause,70),(consult,72),('.',74),(current_predicate,76),(findall,78),(forall,80),(nospy,82),(listing,84),(once,86),(phrase,4),(predicate_property,92),(retract,94),(retractall,96),(setof,98),(spy,100),(fd_minimize,102),(fd_maximize,104)]),
+    switch_on_atom([((','),7),((;),9),((->),11),(call,2),(catch,15),((\+),17),(abolish,19),(asserta,21),(assertz,23),(bagof,25),(call_det,47),(call_with_args,3),(clause,71),(consult,73),('.',75),(current_predicate,77),(findall,79),(forall,81),(maplist,4),(nospy,91),(listing,93),(once,95),(phrase,5),(predicate_property,101),(retract,103),(retractall,105),(setof,107),(spy,109),(fd_minimize,111),(fd_maximize,113)]),
 
 label(2),
-    try(12),
-    retry(26),
-    retry(28),
-    retry(30),
-    retry(32),
-    retry(34),
-    retry(36),
-    retry(38),
-    retry(40),
-    retry(42),
-    trust(44),
+    try(13),
+    retry(27),
+    retry(29),
+    retry(31),
+    retry(33),
+    retry(35),
+    retry(37),
+    retry(39),
+    retry(41),
+    retry(43),
+    trust(45),
 
 label(3),
-    try(48),
-    retry(50),
-    retry(52),
-    retry(54),
-    retry(56),
-    retry(58),
-    retry(60),
-    retry(62),
-    retry(64),
-    retry(66),
-    trust(68),
+    try(49),
+    retry(51),
+    retry(53),
+    retry(55),
+    retry(57),
+    retry(59),
+    retry(61),
+    retry(63),
+    retry(65),
+    retry(67),
+    trust(69),
 
 label(4),
-    try(88),
-    trust(90),
+    try(83),
+    retry(85),
+    retry(87),
+    trust(89),
 
 label(5),
-    try_me_else(7),
+    try(97),
+    trust(99),
 
 label(6),
+    try_me_else(8),
+
+label(7),
     get_atom(',',0),
     get_integer(2,1),
     get_structure((',')/2,2),
@@ -424,10 +430,10 @@ label(6),
     unify_integer(0),
     proceed,
 
-label(7),
-    retry_me_else(9),
-
 label(8),
+    retry_me_else(10),
+
+label(9),
     get_atom(;,0),
     get_integer(2,1),
     get_structure((;)/2,2),
@@ -435,10 +441,10 @@ label(8),
     unify_integer(0),
     proceed,
 
-label(9),
-    retry_me_else(11),
-
 label(10),
+    retry_me_else(12),
+
+label(11),
     get_atom(->,0),
     get_integer(2,1),
     get_structure((->)/2,2),
@@ -446,20 +452,20 @@ label(10),
     unify_integer(0),
     proceed,
 
-label(11),
-    retry_me_else(13),
-
 label(12),
+    retry_me_else(14),
+
+label(13),
     get_atom(call,0),
     get_integer(0,1),
     get_structure(call/1,2),
     unify_integer(0),
     proceed,
 
-label(13),
-    retry_me_else(15),
-
 label(14),
+    retry_me_else(16),
+
+label(15),
     get_atom(catch,0),
     get_integer(3,1),
     get_structure(catch/3,2),
@@ -468,50 +474,50 @@ label(14),
     unify_integer(0),
     proceed,
 
-label(15),
-    retry_me_else(17),
-
 label(16),
+    retry_me_else(18),
+
+label(17),
     get_atom(\+,0),
     get_integer(1,1),
     get_structure((\+)/1,2),
     unify_integer(0),
     proceed,
 
-label(17),
-    retry_me_else(19),
-
 label(18),
+    retry_me_else(20),
+
+label(19),
     get_atom(abolish,0),
     get_integer(1,1),
     get_structure(abolish/1,2),
     unify_atom(:),
     proceed,
 
-label(19),
-    retry_me_else(21),
-
 label(20),
+    retry_me_else(22),
+
+label(21),
     get_atom(asserta,0),
     get_integer(1,1),
     get_structure(asserta/1,2),
     unify_atom(:),
     proceed,
 
-label(21),
-    retry_me_else(23),
-
 label(22),
+    retry_me_else(24),
+
+label(23),
     get_atom(assertz,0),
     get_integer(1,1),
     get_structure(assertz/1,2),
     unify_atom(:),
     proceed,
 
-label(23),
-    retry_me_else(25),
-
 label(24),
+    retry_me_else(26),
+
+label(25),
     get_atom(bagof,0),
     get_integer(3,1),
     get_structure(bagof/3,2),
@@ -520,10 +526,10 @@ label(24),
     unify_atom(-),
     proceed,
 
-label(25),
-    retry_me_else(27),
-
 label(26),
+    retry_me_else(28),
+
+label(27),
     get_atom(call,0),
     get_integer(2,1),
     get_structure(call/2,2),
@@ -531,10 +537,10 @@ label(26),
     unify_atom(?),
     proceed,
 
-label(27),
-    retry_me_else(29),
-
 label(28),
+    retry_me_else(30),
+
+label(29),
     get_atom(call,0),
     get_integer(3,1),
     get_structure(call/3,2),
@@ -543,10 +549,10 @@ label(28),
     unify_atom(?),
     proceed,
 
-label(29),
-    retry_me_else(31),
-
 label(30),
+    retry_me_else(32),
+
+label(31),
     get_atom(call,0),
     get_integer(4,1),
     get_structure(call/4,2),
@@ -556,10 +562,10 @@ label(30),
     unify_atom(?),
     proceed,
 
-label(31),
-    retry_me_else(33),
-
 label(32),
+    retry_me_else(34),
+
+label(33),
     get_atom(call,0),
     get_integer(5,1),
     get_structure(call/5,2),
@@ -570,10 +576,10 @@ label(32),
     unify_atom(?),
     proceed,
 
-label(33),
-    retry_me_else(35),
-
 label(34),
+    retry_me_else(36),
+
+label(35),
     get_atom(call,0),
     get_integer(6,1),
     get_structure(call/6,2),
@@ -585,10 +591,10 @@ label(34),
     unify_atom(?),
     proceed,
 
-label(35),
-    retry_me_else(37),
-
 label(36),
+    retry_me_else(38),
+
+label(37),
     get_atom(call,0),
     get_integer(7,1),
     get_structure(call/7,2),
@@ -601,10 +607,10 @@ label(36),
     unify_atom(?),
     proceed,
 
-label(37),
-    retry_me_else(39),
-
 label(38),
+    retry_me_else(40),
+
+label(39),
     get_atom(call,0),
     get_integer(8,1),
     get_structure(call/8,2),
@@ -618,10 +624,10 @@ label(38),
     unify_atom(?),
     proceed,
 
-label(39),
-    retry_me_else(41),
-
 label(40),
+    retry_me_else(42),
+
+label(41),
     get_atom(call,0),
     get_integer(9,1),
     get_structure(call/9,2),
@@ -636,10 +642,10 @@ label(40),
     unify_atom(?),
     proceed,
 
-label(41),
-    retry_me_else(43),
-
 label(42),
+    retry_me_else(44),
+
+label(43),
     get_atom(call,0),
     get_integer(10,1),
     get_structure(call/10,2),
@@ -655,10 +661,10 @@ label(42),
     unify_atom(?),
     proceed,
 
-label(43),
-    retry_me_else(45),
-
 label(44),
+    retry_me_else(46),
+
+label(45),
     get_atom(call,0),
     get_integer(11,1),
     get_structure(call/11,2),
@@ -675,10 +681,10 @@ label(44),
     unify_atom(?),
     proceed,
 
-label(45),
-    retry_me_else(47),
-
 label(46),
+    retry_me_else(48),
+
+label(47),
     get_atom(call_det,0),
     get_integer(2,1),
     get_structure(call_det/2,2),
@@ -686,20 +692,20 @@ label(46),
     unify_atom(?),
     proceed,
 
-label(47),
-    retry_me_else(49),
-
 label(48),
+    retry_me_else(50),
+
+label(49),
     get_atom(call_with_args,0),
     get_integer(1,1),
     get_structure(call_with_args/1,2),
     unify_integer(1),
     proceed,
 
-label(49),
-    retry_me_else(51),
-
 label(50),
+    retry_me_else(52),
+
+label(51),
     get_atom(call_with_args,0),
     get_integer(2,1),
     get_structure(call_with_args/2,2),
@@ -707,10 +713,10 @@ label(50),
     unify_atom(?),
     proceed,
 
-label(51),
-    retry_me_else(53),
-
 label(52),
+    retry_me_else(54),
+
+label(53),
     get_atom(call_with_args,0),
     get_integer(3,1),
     get_structure(call_with_args/3,2),
@@ -719,10 +725,10 @@ label(52),
     unify_atom(?),
     proceed,
 
-label(53),
-    retry_me_else(55),
-
 label(54),
+    retry_me_else(56),
+
+label(55),
     get_atom(call_with_args,0),
     get_integer(4,1),
     get_structure(call_with_args/4,2),
@@ -732,10 +738,10 @@ label(54),
     unify_atom(?),
     proceed,
 
-label(55),
-    retry_me_else(57),
-
 label(56),
+    retry_me_else(58),
+
+label(57),
     get_atom(call_with_args,0),
     get_integer(5,1),
     get_structure(call_with_args/5,2),
@@ -746,10 +752,10 @@ label(56),
     unify_atom(?),
     proceed,
 
-label(57),
-    retry_me_else(59),
-
 label(58),
+    retry_me_else(60),
+
+label(59),
     get_atom(call_with_args,0),
     get_integer(6,1),
     get_structure(call_with_args/6,2),
@@ -761,10 +767,10 @@ label(58),
     unify_atom(?),
     proceed,
 
-label(59),
-    retry_me_else(61),
-
 label(60),
+    retry_me_else(62),
+
+label(61),
     get_atom(call_with_args,0),
     get_integer(7,1),
     get_structure(call_with_args/7,2),
@@ -777,10 +783,10 @@ label(60),
     unify_atom(?),
     proceed,
 
-label(61),
-    retry_me_else(63),
-
 label(62),
+    retry_me_else(64),
+
+label(63),
     get_atom(call_with_args,0),
     get_integer(8,1),
     get_structure(call_with_args/8,2),
@@ -794,10 +800,10 @@ label(62),
     unify_atom(?),
     proceed,
 
-label(63),
-    retry_me_else(65),
-
 label(64),
+    retry_me_else(66),
+
+label(65),
     get_atom(call_with_args,0),
     get_integer(9,1),
     get_structure(call_with_args/9,2),
@@ -812,10 +818,10 @@ label(64),
     unify_atom(?),
     proceed,
 
-label(65),
-    retry_me_else(67),
-
 label(66),
+    retry_me_else(68),
+
+label(67),
     get_atom(call_with_args,0),
     get_integer(10,1),
     get_structure(call_with_args/10,2),
@@ -831,10 +837,10 @@ label(66),
     unify_atom(?),
     proceed,
 
-label(67),
-    retry_me_else(69),
-
 label(68),
+    retry_me_else(70),
+
+label(69),
     get_atom(call_with_args,0),
     get_integer(11,1),
     get_structure(call_with_args/11,2),
@@ -851,10 +857,10 @@ label(68),
     unify_atom(?),
     proceed,
 
-label(69),
-    retry_me_else(71),
-
 label(70),
+    retry_me_else(72),
+
+label(71),
     get_atom(clause,0),
     get_integer(2,1),
     get_structure(clause/2,2),
@@ -862,20 +868,20 @@ label(70),
     unify_atom(?),
     proceed,
 
-label(71),
-    retry_me_else(73),
-
 label(72),
+    retry_me_else(74),
+
+label(73),
     get_atom(consult,0),
     get_integer(1,1),
     get_structure(consult/1,2),
     unify_atom(:),
     proceed,
 
-label(73),
-    retry_me_else(75),
-
 label(74),
+    retry_me_else(76),
+
+label(75),
     get_atom('.',0),
     get_integer(2,1),
     get_list(2),
@@ -883,20 +889,20 @@ label(74),
     unify_atom(+),
     proceed,
 
-label(75),
-    retry_me_else(77),
-
 label(76),
+    retry_me_else(78),
+
+label(77),
     get_atom(current_predicate,0),
     get_integer(1,1),
     get_structure(current_predicate/1,2),
     unify_atom(:),
     proceed,
 
-label(77),
-    retry_me_else(79),
-
 label(78),
+    retry_me_else(80),
+
+label(79),
     get_atom(findall,0),
     get_integer(3,1),
     get_structure(findall/3,2),
@@ -905,10 +911,10 @@ label(78),
     unify_atom(-),
     proceed,
 
-label(79),
-    retry_me_else(81),
-
 label(80),
+    retry_me_else(82),
+
+label(81),
     get_atom(forall,0),
     get_integer(2,1),
     get_structure(forall/2,2),
@@ -916,40 +922,90 @@ label(80),
     unify_integer(0),
     proceed,
 
-label(81),
-    retry_me_else(83),
-
 label(82),
+    retry_me_else(84),
+
+label(83),
+    get_atom(maplist,0),
+    get_integer(2,1),
+    get_structure(maplist/2,2),
+    unify_integer(1),
+    unify_atom(?),
+    proceed,
+
+label(84),
+    retry_me_else(86),
+
+label(85),
+    get_atom(maplist,0),
+    get_integer(3,1),
+    get_structure(maplist/3,2),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    proceed,
+
+label(86),
+    retry_me_else(88),
+
+label(87),
+    get_atom(maplist,0),
+    get_integer(4,1),
+    get_structure(maplist/4,2),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed,
+
+label(88),
+    retry_me_else(90),
+
+label(89),
+    get_atom(maplist,0),
+    get_integer(5,1),
+    get_structure(maplist/5,2),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed,
+
+label(90),
+    retry_me_else(92),
+
+label(91),
     get_atom(nospy,0),
     get_integer(1,1),
     get_structure(nospy/1,2),
     unify_atom(:),
     proceed,
 
-label(83),
-    retry_me_else(85),
+label(92),
+    retry_me_else(94),
 
-label(84),
+label(93),
     get_atom(listing,0),
     get_integer(1,1),
     get_structure(listing/1,2),
     unify_atom(:),
     proceed,
 
-label(85),
-    retry_me_else(87),
+label(94),
+    retry_me_else(96),
 
-label(86),
+label(95),
     get_atom(once,0),
     get_integer(1,1),
     get_structure(once/1,2),
     unify_integer(0),
     proceed,
 
-label(87),
-    retry_me_else(89),
+label(96),
+    retry_me_else(98),
 
-label(88),
+label(97),
     get_atom(phrase,0),
     get_integer(2,1),
     get_structure(phrase/2,2),
@@ -957,10 +1013,10 @@ label(88),
     unify_atom(?),
     proceed,
 
-label(89),
-    retry_me_else(91),
+label(98),
+    retry_me_else(100),
 
-label(90),
+label(99),
     get_atom(phrase,0),
     get_integer(3,1),
     get_structure(phrase/3,2),
@@ -969,10 +1025,10 @@ label(90),
     unify_atom(?),
     proceed,
 
-label(91),
-    retry_me_else(93),
+label(100),
+    retry_me_else(102),
 
-label(92),
+label(101),
     get_atom(predicate_property,0),
     get_integer(2,1),
     get_structure(predicate_property/2,2),
@@ -980,30 +1036,30 @@ label(92),
     unify_atom(?),
     proceed,
 
-label(93),
-    retry_me_else(95),
+label(102),
+    retry_me_else(104),
 
-label(94),
+label(103),
     get_atom(retract,0),
     get_integer(1,1),
     get_structure(retract/1,2),
     unify_atom(:),
     proceed,
 
-label(95),
-    retry_me_else(97),
+label(104),
+    retry_me_else(106),
 
-label(96),
+label(105),
     get_atom(retractall,0),
     get_integer(1,1),
     get_structure(retractall/1,2),
     unify_atom(:),
     proceed,
 
-label(97),
-    retry_me_else(99),
+label(106),
+    retry_me_else(108),
 
-label(98),
+label(107),
     get_atom(setof,0),
     get_integer(3,1),
     get_structure(setof/3,2),
@@ -1012,20 +1068,20 @@ label(98),
     unify_atom(-),
     proceed,
 
-label(99),
-    retry_me_else(101),
+label(108),
+    retry_me_else(110),
 
-label(100),
+label(109),
     get_atom(spy,0),
     get_integer(1,1),
     get_structure(spy/1,2),
     unify_atom(:),
     proceed,
 
-label(101),
-    retry_me_else(103),
+label(110),
+    retry_me_else(112),
 
-label(102),
+label(111),
     get_atom(fd_minimize,0),
     get_integer(2,1),
     get_structure(fd_minimize/2,2),
@@ -1033,10 +1089,10 @@ label(102),
     unify_atom(?),
     proceed,
 
-label(103),
+label(112),
     trust_me_else_fail,
 
-label(104),
+label(113),
     get_atom(fd_maximize,0),
     get_integer(2,1),
     get_structure(fd_maximize/2,2),
@@ -1045,36 +1101,36 @@ label(104),
     proceed]).
 
 
-predicate('$get_pred_indicator'/3,253,static,private,monofile,built_in,[
+predicate('$get_pred_indicator'/3,257,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indicator_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$get_predicate_file_info'/3,259,static,private,monofile,built_in,[
+predicate('$get_predicate_file_info'/3,263,static,private,monofile,built_in,[
     call_c('Pl_Get_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$set_predicate_file_info'/3,265,static,private,monofile,built_in,[
+predicate('$set_predicate_file_info'/3,269,static,private,monofile,built_in,[
     call_c('Pl_Set_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$aux_name'/1,271,static,private,monofile,built_in,[
+predicate('$aux_name'/1,275,static,private,monofile,built_in,[
     call_c('Pl_Aux_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate('$father_of_aux_name'/3,277,static,private,monofile,built_in,[
+predicate('$father_of_aux_name'/3,281,static,private,monofile,built_in,[
     call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$pred_without_aux'/4,283,static,private,monofile,built_in,[
+predicate('$pred_without_aux'/4,287,static,private,monofile,built_in,[
     call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$make_aux_name'/4,289,static,private,monofile,built_in,[
+predicate('$make_aux_name'/4,293,static,private,monofile,built_in,[
     call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

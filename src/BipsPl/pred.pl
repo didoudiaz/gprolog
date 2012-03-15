@@ -233,6 +233,10 @@ predicate_property(Head, _) :-
 '$prop_meta_pred'(current_predicate, 1, current_predicate(:)).
 '$prop_meta_pred'(findall, 3, findall(?, 0, -)).
 '$prop_meta_pred'(forall, 2, forall(0, 0)).
+'$prop_meta_pred'(maplist, 2, maplist(1, ?)).
+'$prop_meta_pred'(maplist, 3, maplist(2, ?, ?)).
+'$prop_meta_pred'(maplist, 4, maplist(3, ?, ?, ?)).
+'$prop_meta_pred'(maplist, 5, maplist(4, ?, ?, ?, ?)).
 '$prop_meta_pred'(nospy, 1, nospy(:)).
 %'$prop_meta_pred'(format, 2, format(+, :)).
 %'$prop_meta_pred'(format, 3, format(+, +, :)).

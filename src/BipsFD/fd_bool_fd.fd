@@ -38,12 +38,12 @@
 /* $Id$ */
 
 %{
-#define not(x)   (1 - (x))
-#define and(x, y) ((x) & (y))
-#define or(x, y)  ((x) | (y))
-#define xor(x, y) ((x) ^ (y))
-#define eqv(x, y) (not(xor(x, y)))
-#define impl(x, y)(not(x) | (y))
+#define not(x)     (1 - (x))
+#define and(x, y)  ((x) & (y))
+#define or(x, y)   ((x) | (y))
+#define xor(x, y)  ((x) ^ (y))
+#define eqv(x, y)  (not(xor(x, y)))
+#define impl(x, y) (not(x) | (y))
 %}
 
 
@@ -302,7 +302,7 @@ pl_truth_x_eq_c(fdv X, int C, fdv B)
         case min(B) == 1
                 start X in { C }
 
-        case min(X)>C || max(X) < C
+        case min(X) > C || max(X) < C
                 start B in { 0 }
 
         case min(X) == C && max(X) == C
@@ -324,7 +324,7 @@ pl_truth_x_eq_y(fdv X, fdv Y, fdv B)
                 start X in min(Y) .. max(Y)
                 start Y in min(X) .. max(X)
 
-        case min(X)>max(Y) || max(X) < min(Y)
+        case min(X) > max(Y) || max(X) < min(Y)
                 start B in { 0 }
 
         case min(X) == max(Y) && max(X) == min(Y)
@@ -346,7 +346,7 @@ pl_truth_x_plus_c_eq_y(fdv X, int C, fdv Y, fdv B)
                 start X in min(Y)-C .. max(Y)-C
                 start Y in min(X) + C .. max(X) + C
 
-        case min(X) + C>max(Y) || max(X) + C < min(Y)
+        case min(X) + C > max(Y) || max(X) + C < min(Y)
                 start B in { 0 }
 
         case min(X) + C == max(Y) && max(X) + C == min(Y)
@@ -446,7 +446,7 @@ pl_truth_x_neq_c(fdv X, int C, fdv B)
         case min(X) == C && max(X) == C
                 start B in { 0 }
 
-        case min(X)>C || max(X) < C
+        case min(X) > C || max(X) < C
                 start B in { 1 }
 }
 
@@ -468,7 +468,7 @@ pl_truth_x_neq_y(fdv X, fdv Y, fdv B)
         case min(X) == max(Y) && max(X) == min(Y)
                 start B in { 0 }
 
-        case min(X)>max(Y) || max(X) < min(Y)
+        case min(X) > max(Y) || max(X) < min(Y)
                 start B in { 1 }
 }
 
@@ -490,7 +490,7 @@ pl_truth_x_plus_c_neq_y(fdv X, int C, fdv Y, fdv B)
         case min(X) + C == max(Y) && max(X) + C == min(Y)
                 start B in { 0 }
 
-        case min(X) + C>max(Y) || max(X) + C < min(Y)
+        case min(X) + C > max(Y) || max(X) + C < min(Y)
                 start B in { 1 }
 }
 
@@ -619,7 +619,7 @@ pl_truth_x_lte_c(fdv X, int C, fdv B)
         case min(B) == 1
                 start X in 0 .. C
 
-        case min(X)>C
+        case min(X) > C
                 start B in { 0 }
 
         case max(X) <= C
@@ -641,7 +641,7 @@ pl_truth_x_lte_y(fdv X, fdv Y, fdv B)
                 start X in 0      .. max(Y)
                 start Y in min(X) .. max_integer
 
-        case min(X)>max(Y)
+        case min(X) > max(Y)
                 start B in { 0 }
 
         case max(X) <= min(Y)
@@ -720,5 +720,27 @@ pl_truth_x_plus_c_gte_y(fdv X, int C, fdv Y, fdv B)
                 start B in { 0 }
 
         case min(X) + C >= max(Y)
+                start B in { 1 }
+}
+
+
+
+
+
+
+pl_truth_x_in_l_u(fdv X, int L, int U, fdv B)
+
+{
+ wait_switch
+        case max(B) == 0
+                start X in ~ (L .. U)
+
+        case min(B) == 1
+                start X in L .. U
+
+        case min(X) > U || max(X) < L
+                start B in { 0 }
+
+        case min(X) >= L && max(X) <= U
                 start B in { 1 }
 }

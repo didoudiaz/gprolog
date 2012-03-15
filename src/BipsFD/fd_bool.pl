@@ -90,6 +90,15 @@ LE #\\/ RE :-
 
 
 
+	% Reified interval
+
+fd_reified_in(X, L, U, B) :-
+	set_bip_name(fd_reified_in, 4),
+	'$call_c_test'('Pl_Fd_Reified_In'(X, L, U, B)).
+
+
+
+
 
         % Symbolic boolean constraints
 

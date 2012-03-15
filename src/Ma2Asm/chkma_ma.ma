@@ -44,7 +44,7 @@ c_code  initializer Object_Initializer
 
 
 pl_code global ma_test_pl_jump_and_pl_ret
-	call_c Write_Long(&X(0))
+;	call_c Write_Long(&X(0))
 	pl_ret
 	pl_jump ma_test_ret
 

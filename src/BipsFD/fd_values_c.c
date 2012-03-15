@@ -133,9 +133,9 @@ Prolog_Prototype(EXTRA_CSTR_ALT, 0);
 
   /* defined in fd_values_fd.fd */
 
-Bool pl_fd_domain(WamWord list_word, WamWord l_word, WamWord u_word);
+Bool pl_fd_domain(WamWord x_word, WamWord l_word, WamWord u_word);
 
-Bool pl_fd_domain_r(WamWord list_word, WamWord r_word);
+Bool pl_fd_domain_r(WamWord x_word, WamWord r_word);
 
 
 
