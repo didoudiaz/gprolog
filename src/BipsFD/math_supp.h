@@ -313,6 +313,9 @@ Bool pl_truth_x_gte_c(WamWord x, WamWord c, WamWord b);
 
 Bool pl_truth_x_plus_c_gte_y(WamWord x, WamWord c, WamWord y, WamWord b);
 
+Bool pl_truth_x_in_l_u(WamWord x, WamWord l, WamWord u, WamWord b);
+
+
 
 
 #ifdef DEBUG
