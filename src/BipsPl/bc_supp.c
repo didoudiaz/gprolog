@@ -881,8 +881,8 @@ start:
   A(arity + 1) = debug_call;
 
   clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-			     (PlLong (*)()) BC_Emulate_Pred_Alt,
-			     DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
+				(PlLong (*)()) BC_Emulate_Pred_Alt,
+				DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
   if (clause == NULL)
     goto fail;
 
