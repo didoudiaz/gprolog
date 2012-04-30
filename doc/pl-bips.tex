@@ -105,7 +105,7 @@ currently instantiated to a list or a partial list.
 
 \texttt{var/1}, \texttt{nonvar/1}, \texttt{atom/1}, \texttt{integer/1},
 \texttt{float/1}, \texttt{number/1}, \texttt{atomic/1}, \texttt{compound/1}
-\texttt{callable/1} and \texttt{ground} are ISO predicates.
+\texttt{callable/1} and \texttt{ground/1} are ISO predicates.
 
 \texttt{list/1}, \texttt{partial\_list/1} and
 \texttt{list\_or\_partial\_list/1} are GNU Prolog predicates.
@@ -868,7 +868,7 @@ a floating point number & this number & F & Y \\
 
 \hline
 
-\texttt{+ E} & \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & N \\
+\texttt{+ E} & \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & Y \\
 
 \hline
 
@@ -999,7 +999,7 @@ $\rightarrow$ IF & Y \\
 \hline
 
 \texttt{E1 \^{} E2}  & \textit{eval}(\texttt{E1}) raised to the power of
-\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & Y \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ IF & Y \\
 
 \hline
 
@@ -1057,13 +1057,11 @@ $\rightarrow$ F & N \\
 
 \hline
 
-\texttt{cosh(E)} & hyperbolic cosine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F &
-rev \\
+\texttt{cosh(E)} & hyperbolic cosine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & N \\
 
 \hline
 
-\texttt{acosh(E)} & hyperbolic arc cosine of \textit{eval}(\texttt{E}) & IF, IF $\rightarrow$ F &
-rev \\
+\texttt{acosh(E)} & hyperbolic arc cosine of \textit{eval}(\texttt{E}) & IF, IF $\rightarrow$ F & N \\
 
 \hline
 
