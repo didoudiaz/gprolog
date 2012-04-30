@@ -763,6 +763,7 @@ GNU Prolog predicates.
 
 \subsubsection{Boolean FD expressions}
 \label{Boolean-FD-expressions}
+
 An boolean FD expression is a Prolog term built from integers (0 for false,
 1 for true), variables (Prolog or FD variables), partial AC arithmetic
 constraints \RefSP{Partial-AC:-(:=)/2}, full AC arithmetic constraints
@@ -860,6 +861,41 @@ or 1) nor an FD boolean functor nor reified constraint}
 
 \ErrCond{a sub-expression is an invalid reified constraint}
 \ErrTermRm{an arithmetic constraint error \RefSP{FD-arithmetic-expressions}}
+
+\end{PlErrors}
+
+
+
+\subsubsection{\texttt{fd\_reified\_in/4}}
+ \AddFBD{fd\_reified\_in/4}
+
+\begin{TemplatesOneCol}
+fd\_reified\_in(?fd\_variable, +integer, +integer, ?fd\_variable)
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_reified\_in(X, Lower, Upper, B)} captures the truth value of the constraint $\texttt{X} \in [\texttt{Lower}..\texttt{Upper}]$ in the boolean variable \texttt{B}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{X} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\ErrCond{\texttt{B} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, B)}
+
+\ErrCond{\texttt{Lower} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Lower} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Lower)}
+
+\ErrCond{\texttt{Upper} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Upper} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Upper)}
 
 \end{PlErrors}
 

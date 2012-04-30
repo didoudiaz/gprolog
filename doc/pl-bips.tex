@@ -105,7 +105,7 @@ currently instantiated to a list or a partial list.
 
 \texttt{var/1}, \texttt{nonvar/1}, \texttt{atom/1}, \texttt{integer/1},
 \texttt{float/1}, \texttt{number/1}, \texttt{atomic/1}, \texttt{compound/1}
-and \texttt{callable/1} are ISO predicates.
+\texttt{callable/1} and \texttt{ground} are ISO predicates.
 
 \texttt{list/1}, \texttt{partial\_list/1} and
 \texttt{list\_or\_partial\_list/1} are GNU Prolog predicates.
@@ -300,7 +300,7 @@ compare(?atom, +term, +term)
 
 \Portability
 
-GNU Prolog predicate.
+ISO predicate.
 
 \subsection{Term processing}
 
@@ -504,6 +504,7 @@ order of appearance traversing \texttt{Term} depth-first and left-to-right.
 
 \Portability
 
+\texttt{term\_variables/2} is an ISO Predicate. \texttt{term\_variables/3} is a 
 GNU Prolog predicate.
 
 \subsubsection{\texttt{subsumes\_term/2}}
@@ -516,9 +517,9 @@ subsumes\_term(?term, ?term)
 
 \Description
 
-\texttt{subsumes\_term(General, Specific)} succeeds if \texttt{Generic} can
-be made equivalent to \texttt{Specific} by only binding variables in
-\texttt{Generic}. The current implementation performs the unification (with
+\texttt{subsumes\_term(General, Specific)} succeeds if \texttt{General} can
+be made equivalent to \texttt{Specific} by binding variables in
+\texttt{General} leaving \texttt{Specific} unaffected. The current implementation performs the unification (with
 occurs check) and ensures that the variable set of \texttt{Specific} is not
 changed by the unification (which is then undone). Note that this predicate
 fails in the presence of FD variables in \texttt{Specific}.
@@ -527,7 +528,7 @@ fails in the presence of FD variables in \texttt{Specific}.
 
 \Portability
 
-GNU Prolog predicate.
+ISO predicate.
 
 \subsubsection{\texttt{acyclic\_term/1}}
    \AddPBD{acyclic\_term/1}
@@ -540,16 +541,18 @@ acyclic\_term(?term)
 \Description
 
 \texttt{acyclic\_term(Term)} succeeds if \texttt{Term} does not contain a
-cyclic (sub-)term. This predicate is provided for compatibility only. GNU
-Prolog does not support cyclic terms so the use of cyclic terms is not safe
-and the resulting behavior is undefined (most often this leads to an infinite
-loop and/or a system crash).
+cyclic (sub-)term. In this case, Term may be processed safely. If
+\texttt{acyclic\_term(Term)} fails, \texttt{Term} contains a cycle and
+processing Term is not safe, because GNU Prolog does not support the
+unification of cyclic terms but permits their creation. Cycles can be safely
+undone by failing over their creation. The use of \texttt{acyclic\_term/1}
+shall thus be reserved to protect critical predicates against cyclic terms.
 
 \PlErrorsNone
 
 \Portability
 
-GNU Prolog predicate.
+ISO predicate.
 
 \subsubsection{\texttt{setarg/4},
                \texttt{setarg/3}}
@@ -853,19 +856,19 @@ a floating point number & this number & F & Y \\
 
 \hline
 
-\texttt{pi} & the value of $\pi = 3.141592...$ & F & rev \\
+\texttt{pi} & the value of $\pi = 3.141592...$ & F & Y \\
 
 \hline
 
-\texttt{e} & the value of $e = 2.718281...$ & F & rev \\
+\texttt{e} & the value of $e = 2.718281...$ & F & N \\
 
 \hline
 
-\texttt{epsilon} & difference between 1.0 and minimum float $>$ 1.0 & F & rev \\
+\texttt{epsilon} & difference between 1.0 and minimum float $>$ 1.0 & F & N \\
 
 \hline
 
-\texttt{+ E} & \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & rev \\
+\texttt{+ E} & \textit{eval}(\texttt{E}) & IF $\rightarrow$ IF & N \\
 
 \hline
 
@@ -915,7 +918,7 @@ I & Y \\
 
 \texttt{E1 div E2} & $\lfloor$(\textit{eval}(\texttt{E1}) -
 \textit{eval}(\texttt{E1}) \texttt{mod} \textit{eval}(\texttt{E2})) /
-\textit{eval}(\texttt{E2})$\rfloor$ & I, I $\rightarrow$ I & N \\
+\textit{eval}(\texttt{E2})$\rfloor$ & I, I $\rightarrow$ I & Y \\
 
 \hline
 
@@ -936,7 +939,7 @@ I & Y \\
 \hline
 
 \texttt{xor(E1,E2)} & \textit{eval}(\texttt{E1}) bitwise\_xor
-\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & N \\
+\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & Y \\
 
 \hline
 
@@ -981,22 +984,22 @@ $\rightarrow$ IF & Y \\
 \hline
 
 \texttt{min(E1,E2)} & minimal value between \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & rev \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & Y \\
 
 \hline
 
 \texttt{max(E1,E2)} & maximal value between \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & rev \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & Y \\
 
 \hline
 
 \texttt{gcd(E1,E2)} & greatest common divisor of \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & rev \\
+\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & N \\
 
 \hline
 
 \texttt{E1 \^{} E2}  & \textit{eval}(\texttt{E1}) raised to the power of
-\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & rev \\
+\textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & Y \\
 
 \hline
 
@@ -1011,7 +1014,7 @@ $\rightarrow$ F & Y \\
 \hline
 
 \texttt{tan(E)} & tangent of \textit{eval}(\texttt{E}) & IF
-$\rightarrow$ F & rev \\
+$\rightarrow$ F & Y \\
 
 \hline
 
@@ -1022,7 +1025,7 @@ $\rightarrow$ F & Y \\
 
 \texttt{atan2(Y,X)} & principal value of arc tangent
 of \textit{eval}(\texttt{Y}) / \textit{eval}(\texttt{X}) using both signs for the quadrant & IF
-$\rightarrow$ F & rev \\
+$\rightarrow$ F & N \\
 
 \hline
 
@@ -1032,7 +1035,7 @@ Y \\
 \hline
 
 \texttt{acos(E)} & arc cosine of \textit{eval}(\texttt{E}) & IF, IF $\rightarrow$ F &
-rev \\
+Y \\
 
 \hline
 
@@ -1040,17 +1043,17 @@ rev \\
 
 \hline
 
-\texttt{asin(E)} & arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & rev \\
+\texttt{asin(E)} & arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & Y \\
 
 \hline
 
 \texttt{tanh(E)} & hyperbolic tangent of \textit{eval}(\texttt{E}) & IF
-$\rightarrow$ F & rev \\
+$\rightarrow$ F & N \\
 
 \hline
 
 \texttt{atanh(E)} & hyperbolic arc tangent of \textit{eval}(\texttt{E}) & IF
-$\rightarrow$ F & rev \\
+$\rightarrow$ F & N \\
 
 \hline
 
@@ -1064,11 +1067,11 @@ rev \\
 
 \hline
 
-\texttt{sinh(E)} & hyperbolic sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & rev \\
+\texttt{sinh(E)} & hyperbolic sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & N \\
 
 \hline
 
-\texttt{asinh(E)} & hyperbolic arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & rev \\
+\texttt{asinh(E)} & hyperbolic arc sine of \textit{eval}(\texttt{E}) & IF $\rightarrow$ F & N \\
 
 \hline
 
@@ -1083,12 +1086,12 @@ $\rightarrow$ F & Y \\
 \hline
 
 \texttt{log10(E)} & base 10 logarithm of \textit{eval}(\texttt{E}) & IF
-$\rightarrow$ F & rev \\
+$\rightarrow$ F & N \\
 
 \hline
 
 \texttt{log(R, E)} & base \textit{eval}(\texttt{R}) logarithm of \textit{eval}(\texttt{E})  & F, IF
-$\rightarrow$ F & rev \\
+$\rightarrow$ F & N \\
 
 \hline
 
@@ -1315,6 +1318,45 @@ Refer to the evaluation of an arithmetic expression for possible errors
 
 ISO predicates.
 
+
+
+\subsubsection{\texttt{succ/2}}
+   \AddPBD{succ/2}
+
+\begin{TemplatesOneCol}
+succ(+integer, ?integer) \\
+succ(-integer, +integer) 
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{succ(X, Y)} is true iff \texttt{Y} is the successor of the non-negative integer \texttt{X}. 
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{X} and \texttt{Y} are both variables}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{X} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, X)}
+
+\ErrCond{\texttt{Y} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Y)}
+
+\ErrCond{\texttt{X} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, X)}
+
+\ErrCond{\texttt{Y} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Y)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+
 \subsection{Dynamic clause management}
 
 \subsubsection{Introduction}
@@ -1495,7 +1537,7 @@ static procedure}
 
 \Portability
 
-GNU Prolog predicate.
+ISO predicate.
 
 \subsubsection{\texttt{clause/2}}
    \AddPBD{clause/2}
@@ -2247,7 +2289,7 @@ variable nor a stream-option}
 
 \Portability
 
-ISO predicates. The \texttt{mirror/1} and \texttt{buffering/1} stream options
+ISO predicates. The \texttt{mirror} and \texttt{buffering} stream options
 are GNU Prolog extensions.
 
 \subsubsection{\texttt{close/2},
@@ -4142,8 +4184,8 @@ ISO predicates. The ISO reference raises a
 the read term breaches an implementation defined limit specified by
 \texttt{Flag}. GNU Prolog detects neither \texttt{min\_integer} nor
 \texttt{max\_integer} violation and treats a \texttt{max\_arity} violation
-as a syntax error. The read options \texttt{syntax\_error/1} and
-\texttt{end\_of\_term/1} are GNU Prolog extensions.
+as a syntax error. The read options \texttt{syntax\_error} and
+\texttt{end\_of\_term} are GNU Prolog extensions.
 
 \subsubsection{\texttt{read\_atom/2},
                \texttt{read\_atom/1},
@@ -4380,7 +4422,8 @@ calling one of the following predicates: \IdxPB{read\_term/3},
 
 GNU Prolog predicate.
 
-\subsubsection{\texttt{write\_term/3},
+\subsubsection{
+\texttt{write\_term/3},
                \texttt{write\_term/2},
                \texttt{write/2},
                \texttt{write/1},
@@ -4456,6 +4499,15 @@ term of the form \texttt{'\$VARNAME'(Name)}, where \texttt{Name} is an atom
 respecting the syntax of variable names, is output as a variable name (see
 below). If \texttt{false} such a term is output normally (according to the
 other options). The default value is \texttt{false}.
+
+\item \IdxPOD[variable\_names]{variable\_names(VNL)}: \texttt{VNL} is
+a list of pairs \texttt{Name = Var} where \texttt{Var} is a
+variable and \texttt{Name} is the atom associated with the
+name of \texttt{Var}. Each variable \texttt{Var} is written as atom
+\texttt{Name} (with \texttt{quoted(false)}) iff a term 
+\texttt{Name = Var} is an element of the list \texttt{VNL}. If \texttt{Name}
+is not atom or does not respect the syntax of variable names the pair is
+ignored. If several pairs exist for the same variable name the first one applies.
 
 \item \IdxPOD[space\_args]{space\_args(true}/\texttt{false)}: if
 \texttt{true} an extra space character is emitted after each comma
@@ -4569,8 +4621,8 @@ variable nor a valid write-option}
 \Portability
 
 ISO predicates except \texttt{display/1-2} and \texttt{print/1-2} that
-are GNU Prolog predicates. \texttt{namevars/1}, \texttt{space\_args/1},
-\texttt{portrayed/1}, \texttt{max\_depth/1} and \texttt{priority/1}
+are GNU Prolog predicates. \texttt{namevars}, \texttt{variable\_names} \texttt{space\_args},
+\texttt{portrayed}, \texttt{max\_depth} and \texttt{priority}
 options are GNU Prolog extensions.
 
 \subsubsection{\texttt{format/3},
@@ -6095,7 +6147,9 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 \Portability
 
-\texttt{once/1} and \texttt{({\bs}+)/1} are ISO predicates, \texttt{call/2-11}, \texttt{call\_with\_args/1-11}, \texttt{call\_det/2} and \texttt{forall/2} are GNU Prolog predicates.
+\texttt{false/0}, \texttt{call/2-8}, \texttt{once/1} and \texttt{({\bs}+)/1}
+are ISO predicates. \texttt{call/9-11}, \texttt{call\_with\_args/1-11},
+\texttt{call\_det/2} and \texttt{forall/2} are GNU Prolog predicates.
 
 \subsubsection{\texttt{repeat/0}}
    \AddPBD{repeat/0}
@@ -6122,19 +6176,25 @@ any working storage consumed since the call to \texttt{repeat/0}.
 
 ISO predicate.
 
-\subsubsection{\texttt{for/3}}
+\subsubsection{\texttt{between/3}, \texttt{for/3}}
+   \AddPBD{between/3}
    \AddPBD{for/3}
 
 \begin{TemplatesOneCol}
+between(+integer, +integer, ?integer) \\
 for(?integer, +integer, +integer)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{for(Counter, Lower, Upper)} generates an sequence of backtracking
+\texttt{between(Lower, Upper, Counter)} generates an sequence of backtracking
 choices instantiating \texttt{Counter} to the values \texttt{Lower},
-\texttt{Lower+1},\ldots, \texttt{Upper}.
+\texttt{Lower+1},\ldots, \texttt{Upper}.  
+
+\texttt{for(Counter, Lower, Upper)} is equivalent to
+\texttt{between(Lower, Upper, Counter)}. This predicate is deprecated and new
+code should use \texttt{between/3}.
 
 \begin{PlErrors}
 
@@ -6931,9 +6991,12 @@ length(?list, ?integer)
 \texttt{length(List, Length)} succeeds if \texttt{Length} is the length of
 \texttt{List}.
 
-\PlErrorsNone
+\begin{PlErrors}
 
-\Portability
+\ErrCond{\texttt{Length} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Length)}
+
+\end{PlErrors}
 
 GNU Prolog predicate.
 
@@ -6985,6 +7048,39 @@ sum of all the elements in \texttt{List}.
 \RefSP{Evaluation-of-an-arithmetic-expression}.
 
 \PlErrorsNone
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{maplist/2-8}}
+   \AddPBD{maplist/2-8}
+
+\begin{TemplatesOneCol}
+maplist(+callable\_term, +list, \ldots, +list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{maplist(Goal, List)} succeeds if \texttt{Goal} can succesfully be
+applied on all elements of \texttt{List}.
+
+\texttt{maplist(Goal, List1, List2)} succeeds if \texttt{Goal} can succesfully be
+applied to all pairs of elements of \texttt{List1} and \texttt{List2}.
+
+\texttt{maplist(Goal, List1, List2, List3)} succeeds if \texttt{Goal} can succesfully be
+applied to all triples of elements of \texttt{List1}..\texttt{List3}.
+
+\texttt{maplist(Goal, List1, List2, \ldots, List$N$)} succeeds if \texttt{Goal} can succesfully be
+applied to all $N$-uples ($N \leq 8$) of elements of \texttt{List1}..\texttt{List$N$}.
+
+\begin{PlErrors}
+
+\ErrCond{an error occurs executing a directive}
+\ErrTermRm{see \texttt{call/1} errors \RefSP{call/1}}
+
+\end{PlErrors}
 
 \Portability
 
@@ -7057,17 +7153,20 @@ These predicates refer to the standard ordering of terms
 \ErrCond{for \texttt{keysort/2}: an element of \texttt{List1} is a variable}
 \ErrTerm{instantiation\_error}
 
-\ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List1} is neither a varible nor a pair}
+\ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List1} is neither a variable nor a pair}
 \ErrTerm{type\_error(pair, E)}
 
-\ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List2} is neither a varible nor a pair}
+\ErrCond{for \texttt{keysort/2}: an element \texttt{E} of \texttt{List2} is neither a variable nor a pair}
 \ErrTerm{type\_error(pair, E)}
 
 \end{PlErrors}
 
 \Portability
 
-GNU Prolog predicates.
+\texttt{sort/2} and \texttt{keysort/2} are ISO predicates.
+
+\texttt{sort/1}, \texttt{keysort/1} and \texttt{msort/1-2} are GNU Prolog predicates.
+
 
 \subsection{Global variables}
 
@@ -7983,7 +8082,9 @@ other Prolog systems. When turned off the following relaxations apply:
 \item built-in predicates are found by \texttt{current\_predicate/1}
 \RefSP{current-predicate/1}.
 
-\item the term parser (\texttt{read/1} and friends) is more indulgent (0'' is accepted and returns 39).
+\item the term parser (\texttt{read/1} and friends) is more indulgent, e.g. \texttt{0''} is
+  accepted and returns 39, the \Idx{escape sequence} \texttt{{\bs}s} (space) and
+  \texttt{{\bs}e} (escape) are accepted.
 
 \item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor}, \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
 
