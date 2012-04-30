@@ -67,12 +67,41 @@
 static WamWord *top;
 static Bool opt_term_unif;
 
+/* opt_term_unif: can we optimize equality between an in/out var and terminals ? */
+
 static int atom_clause;
 static int atom_phrase;
 static int atom_if;
+static int atom_neg;
 
 static WamWord dcg_2;
 
+
+/* OPT_EQUAL_BETWEEN_IN_OUT_VARS
+ *
+ * optimize equality between in/out vars by doing an unification.
+ * This occurs for ! or { Goal }.
+ *
+ * E.g.: a --> !,b. can give rise to:
+ *    a(A,B) :- !, A=A1, b(A1,B).   (not optimized)
+ *    a(A,B) :- !, b(A,B).          (optimized)
+ *
+ * Possible values for the macro: 0 = never, 1 = always, 2 = steadfast
+ *
+ * Steadfastness: since phrase/3 is steadfast, if phrase/3 is always invoked the above
+ * optimization can always be done. However, if the predicate (here a/2) is directly called
+ * the last argument should be a variable. The problem occurs if ! or { Goal } is the last element: 
+ *
+ * E.g.: a --> ! can give rise to 
+ *    a(A,B) :- !, A=B.             (not optimized but steadfast)
+ *    a(A,A) :- !.                  (optimized but not steadfast)
+ *
+ * E.g.: a --> { throw(foo) } can give rise to:
+ *    a(A,B) :- throw(foo), A=B.    (not optimized but steadfast)
+ *    a(A,A) :- throw(foo).         (optimized but not steadfast)
+ */
+
+#define OPT_EQUAL_BETWEEN_IN_OUT_VARS  2
 
 
 
@@ -87,11 +116,13 @@ static WamWord Dcg_Body(WamWord dcg_body_word, Bool for_alt,
 			WamWord in_word, WamWord out_word,
 			WamWord *end_lst_adr);
 
-static void Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word,
-			      WamWord out_word);
+static void Dcg_Body_On_Stack(WamWord dcg_body_word, Bool opt_equal_between_in_out_vars, 
+			      WamWord in_word, WamWord out_word);
 
 static void Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word,
 				   WamWord out_word);
+
+static WamWord Dcg_Compound1(int func, WamWord w1);
 
 static WamWord Dcg_Compound2(int func, WamWord w1, WamWord w2);
 
@@ -111,6 +142,7 @@ Expand_Initializer(void)
   atom_clause = Pl_Create_Atom(":-");
   atom_phrase = Pl_Create_Atom("phrase");
   atom_if = Pl_Create_Atom("->");
+  atom_neg = Pl_Create_Atom("\\+");
 
   dcg_2 = Functor_Arity(atom_dcg, 2);
 }
@@ -238,7 +270,9 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
   WamWord *save_H, *p;
   WamWord *save_top = top;
   Bool save_opt_term_unif = opt_term_unif;
+  Bool opt_equal_between_in_out_vars;
   WamWord *base;
+
 
   if (end_lst_adr)
     goto new_out_var;
@@ -253,7 +287,21 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
     new_out_word = out_word;
 
   base = top;
-  Dcg_Body_On_Stack(dcg_body_word, in_word, new_out_word);
+
+  /* for opt_equal_between_in_out_vars if steadfast is required: 
+   * iff last: do not opt (FALSE). Last iff end_lst_adr != NULL
+   */
+
+#if OPT_EQUAL_BETWEEN_IN_OUT_VARS == 0 		/* never */
+  opt_equal_between_in_out_vars = FALSE;
+#elif OPT_EQUAL_BETWEEN_IN_OUT_VARS == 1 	/* always */
+  opt_equal_between_in_out_vars = TRUE;
+#else  						/* steadfast */
+  opt_equal_between_in_out_vars = (end_lst_adr != NULL);
+#endif
+
+  Dcg_Body_On_Stack(dcg_body_word, opt_equal_between_in_out_vars, in_word, new_out_word);
+
   if (end_lst_adr)
     Dcg_Term_List_On_Stack(end_lst_adr, out_word, new_out_word);
   else if (in_alt)
@@ -296,7 +344,8 @@ finish:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
+Dcg_Body_On_Stack(WamWord dcg_body_word, Bool opt_equal_between_in_out_vars, 
+		  WamWord in_word, WamWord out_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -315,8 +364,13 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
 
   if (word == NIL_WORD)
     {
+      opt_equal_between_in_out_vars = TRUE; /* deactivate to not always optimize [] as unif */
     in_is_out:
-      Pl_Unify(in_word, out_word);
+      if (opt_equal_between_in_out_vars)
+	Pl_Unify(in_word, out_word);
+      else
+	*top++ = Dcg_Compound2(ATOM_CHAR('='), in_word, out_word);
+
       return;
     }
 
@@ -328,54 +382,62 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, WamWord in_word, WamWord out_word)
 
   adr = Pl_Rd_Callable_Check(word, &func, &arity);
 
-  if (arity != 2 || func != ATOM_CHAR(','))
-    opt_term_unif = FALSE;
-
-  if (arity == 2)
+  if (arity == 2 && func == ATOM_CHAR(','))
     {
-      if (func == ATOM_CHAR(','))
-	{
-	  word = Pl_Mk_Variable();
-	  Dcg_Body_On_Stack(*adr++, in_word, word);
-	  Dcg_Body_On_Stack(*adr, word, out_word);
-	  return;
-	}
+      word = Pl_Mk_Variable();
 
-      if (func == atom_if)
-	{
-	  word = Pl_Mk_Variable();
-	  w1 = Dcg_Body(*adr++, FALSE, in_word, word, NULL);
-	  w2 = Dcg_Body(*adr, FALSE, word, out_word, NULL);
+      Dcg_Body_On_Stack(*adr++, OPT_EQUAL_BETWEEN_IN_OUT_VARS != 0, in_word, word);
+      Dcg_Body_On_Stack(*adr, opt_equal_between_in_out_vars, word, out_word);
+      return;
+    }
 
-	  *top++ = Dcg_Compound2(func, w1, w2);
-	  return;
-	}
+  opt_term_unif = FALSE;      /* from here opt_term_unif = FALSE */
 
-      if (func == ATOM_CHAR(';') || func == ATOM_CHAR('|'))
-	{
-	  w1 = Dcg_Body(*adr++, TRUE, in_word, out_word, NULL);
-	  w2 = Dcg_Body(*adr, TRUE, in_word, out_word, NULL);
+  if (arity == 2 && func == atom_if)
+    {
+      word = Pl_Mk_Variable();
+      w1 = Dcg_Body(*adr++, FALSE, in_word, word, NULL);
+      w2 = Dcg_Body(*adr, FALSE, word, out_word, NULL);
 
-	  *top++ = Dcg_Compound2(ATOM_CHAR(';'), w1, w2);
-	  return;
-	}
+      *top++ = Dcg_Compound2(func, w1, w2);
+      return;
+    }
+
+  if (arity == 2 && (func == ATOM_CHAR(';') || func == ATOM_CHAR('|')))
+    {
+      w1 = Dcg_Body(*adr++, TRUE, in_word, out_word, NULL);
+      w2 = Dcg_Body(*adr, TRUE, in_word, out_word, NULL);
+
+      *top++ = Dcg_Compound2(ATOM_CHAR(';'), w1, w2);
+      return;
+    }
+
+  if (arity == 1 && func == atom_neg)
+    {
+      word = Pl_Mk_Variable();
+      w1 = Dcg_Body(*adr, FALSE, in_word, word, NULL);
+
+      *top++ = Dcg_Compound1(func, w1);
+
+      goto in_is_out;
     }
 
   if (arity == 0 && func == ATOM_CHAR('!'))
     {
       *top++ = dcg_body_word;
+
       goto in_is_out;
     }
 
   if (arity == 1 && func == pl_atom_curly_brackets)
     {
       *top++ = *adr;
+
       goto in_is_out;
     }
 
-
   /* other callable term = non terminal */
-non_term:
+ non_term:
   p = save_H = H;
   *p++ = Functor_Arity(func, arity + 2);
   while (arity--)
@@ -431,6 +493,25 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
       opt_term_unif = TRUE;
       *top++ = Dcg_Compound2(ATOM_CHAR('='), in_word, word);
     }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DCG_COMPOUND1                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Dcg_Compound1(int func, WamWord w1)
+{
+  WamWord *save_H, *p;
+
+  p = save_H = H;
+  *p++ = Functor_Arity(func, 1);
+  *p++ = w1;
+  H = p;
+  return Tag_STC(save_H);
 }
 
 

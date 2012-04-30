@@ -88,10 +88,11 @@ phrase(DcgBody, In, Out) :-
 	;
 	    true
 	),
-	'$check_list_or_partial_list'(In),
-	'$check_list_or_partial_list'(Out),
-	'$dcg_trans_body'(DcgBody, In, Out, Body),
-	'$call'(Body, phrase, Arity, true).
+	% '$check_list_or_partial_list'(In),
+	% '$check_list_or_partial_list'(Out),
+	'$dcg_trans_body'(DcgBody, In, Out1, Body),
+	'$call'(Body, phrase, Arity, true),
+	Out = Out1.
 
 
 

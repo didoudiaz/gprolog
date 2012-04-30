@@ -544,7 +544,7 @@ label(4),
     execute('$maplist'/2)]).
 
 
-predicate(maplist/3,357,static,private,monofile,built_in,[
+predicate(maplist/3,359,static,private,monofile,built_in,[
     get_variable(x(3),2),
     get_variable(x(2),0),
     put_value(x(1),0),
@@ -552,7 +552,7 @@ predicate(maplist/3,357,static,private,monofile,built_in,[
     execute('$maplist'/3)]).
 
 
-predicate('$maplist'/3,360,static,private,monofile,built_in,[
+predicate('$maplist'/3,362,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -585,7 +585,7 @@ label(4),
     execute('$maplist'/3)]).
 
 
-predicate(maplist/4,367,static,private,monofile,built_in,[
+predicate(maplist/4,371,static,private,monofile,built_in,[
     get_variable(x(4),3),
     get_variable(x(3),0),
     put_value(x(1),0),
@@ -594,7 +594,7 @@ predicate(maplist/4,367,static,private,monofile,built_in,[
     execute('$maplist'/4)]).
 
 
-predicate('$maplist'/4,370,static,private,monofile,built_in,[
+predicate('$maplist'/4,374,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -633,7 +633,7 @@ label(4),
     execute('$maplist'/4)]).
 
 
-predicate(maplist/5,378,static,private,monofile,built_in,[
+predicate(maplist/5,383,static,private,monofile,built_in,[
     get_variable(x(5),4),
     get_variable(x(4),0),
     put_value(x(1),0),
@@ -643,7 +643,7 @@ predicate(maplist/5,378,static,private,monofile,built_in,[
     execute('$maplist'/5)]).
 
 
-predicate('$maplist'/5,381,static,private,monofile,built_in,[
+predicate('$maplist'/5,386,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -686,3 +686,293 @@ label(4),
     put_value(y(4),4),
     deallocate,
     execute('$maplist'/5)]).
+
+
+predicate(maplist/6,395,static,private,monofile,built_in,[
+    get_variable(x(6),5),
+    get_variable(x(5),0),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    put_value(x(3),2),
+    put_value(x(4),3),
+    put_value(x(6),4),
+    execute('$maplist'/6)]).
+
+
+predicate('$maplist'/6,398,static,private,monofile,built_in,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    get_nil(1),
+    get_nil(2),
+    get_nil(3),
+    get_nil(4),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(6),
+    get_variable(y(5),5),
+    get_list(0),
+    unify_variable(x(8)),
+    unify_variable(y(0)),
+    get_list(1),
+    unify_variable(x(7)),
+    unify_variable(y(1)),
+    get_list(2),
+    unify_variable(x(6)),
+    unify_variable(y(2)),
+    get_list(3),
+    unify_variable(x(0)),
+    unify_variable(y(3)),
+    get_list(4),
+    unify_variable(x(5)),
+    unify_variable(y(4)),
+    put_value(x(8),1),
+    put_value(x(7),2),
+    put_value(x(6),3),
+    put_value(x(0),4),
+    put_value(y(5),0),
+    call(call/6),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_value(y(3),3),
+    put_value(y(4),4),
+    put_value(y(5),5),
+    deallocate,
+    execute('$maplist'/6)]).
+
+
+predicate(maplist/7,407,static,private,monofile,built_in,[
+    get_variable(x(7),6),
+    get_variable(x(6),0),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    put_value(x(3),2),
+    put_value(x(4),3),
+    put_value(x(5),4),
+    put_value(x(7),5),
+    execute('$maplist'/7)]).
+
+
+predicate('$maplist'/7,410,static,private,monofile,built_in,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    get_nil(1),
+    get_nil(2),
+    get_nil(3),
+    get_nil(4),
+    get_nil(5),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(7),
+    get_variable(y(6),6),
+    get_list(0),
+    unify_variable(x(10)),
+    unify_variable(y(0)),
+    get_list(1),
+    unify_variable(x(9)),
+    unify_variable(y(1)),
+    get_list(2),
+    unify_variable(x(8)),
+    unify_variable(y(2)),
+    get_list(3),
+    unify_variable(x(7)),
+    unify_variable(y(3)),
+    get_list(4),
+    unify_variable(x(0)),
+    unify_variable(y(4)),
+    get_list(5),
+    unify_variable(x(6)),
+    unify_variable(y(5)),
+    put_value(x(10),1),
+    put_value(x(9),2),
+    put_value(x(8),3),
+    put_value(x(7),4),
+    put_value(x(0),5),
+    put_value(y(6),0),
+    call(call/7),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_value(y(3),3),
+    put_value(y(4),4),
+    put_value(y(5),5),
+    put_value(y(6),6),
+    deallocate,
+    execute('$maplist'/7)]).
+
+
+predicate(maplist/8,419,static,private,monofile,built_in,[
+    get_variable(x(8),7),
+    get_variable(x(7),0),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    put_value(x(3),2),
+    put_value(x(4),3),
+    put_value(x(5),4),
+    put_value(x(6),5),
+    put_value(x(8),6),
+    execute('$maplist'/8)]).
+
+
+predicate('$maplist'/8,422,static,private,monofile,built_in,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    get_nil(1),
+    get_nil(2),
+    get_nil(3),
+    get_nil(4),
+    get_nil(5),
+    get_nil(6),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(8),
+    get_variable(y(7),7),
+    get_list(0),
+    unify_variable(x(12)),
+    unify_variable(y(0)),
+    get_list(1),
+    unify_variable(x(11)),
+    unify_variable(y(1)),
+    get_list(2),
+    unify_variable(x(10)),
+    unify_variable(y(2)),
+    get_list(3),
+    unify_variable(x(9)),
+    unify_variable(y(3)),
+    get_list(4),
+    unify_variable(x(8)),
+    unify_variable(y(4)),
+    get_list(5),
+    unify_variable(x(0)),
+    unify_variable(y(5)),
+    get_list(6),
+    unify_variable(x(7)),
+    unify_variable(y(6)),
+    put_value(x(12),1),
+    put_value(x(11),2),
+    put_value(x(10),3),
+    put_value(x(9),4),
+    put_value(x(8),5),
+    put_value(x(0),6),
+    put_value(y(7),0),
+    call(call/8),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_value(y(3),3),
+    put_value(y(4),4),
+    put_value(y(5),5),
+    put_value(y(6),6),
+    put_value(y(7),7),
+    deallocate,
+    execute('$maplist'/8)]).
+
+
+predicate(maplist/9,431,static,private,monofile,built_in,[
+    get_variable(x(9),8),
+    get_variable(x(8),0),
+    put_value(x(1),0),
+    put_value(x(2),1),
+    put_value(x(3),2),
+    put_value(x(4),3),
+    put_value(x(5),4),
+    put_value(x(6),5),
+    put_value(x(7),6),
+    put_value(x(9),7),
+    execute('$maplist'/9)]).
+
+
+predicate('$maplist'/9,434,static,private,monofile,built_in,[
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    get_nil(1),
+    get_nil(2),
+    get_nil(3),
+    get_nil(4),
+    get_nil(5),
+    get_nil(6),
+    get_nil(7),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(9),
+    get_variable(y(8),8),
+    get_list(0),
+    unify_variable(x(14)),
+    unify_variable(y(0)),
+    get_list(1),
+    unify_variable(x(13)),
+    unify_variable(y(1)),
+    get_list(2),
+    unify_variable(x(12)),
+    unify_variable(y(2)),
+    get_list(3),
+    unify_variable(x(11)),
+    unify_variable(y(3)),
+    get_list(4),
+    unify_variable(x(10)),
+    unify_variable(y(4)),
+    get_list(5),
+    unify_variable(x(9)),
+    unify_variable(y(5)),
+    get_list(6),
+    unify_variable(x(0)),
+    unify_variable(y(6)),
+    get_list(7),
+    unify_variable(x(8)),
+    unify_variable(y(7)),
+    put_value(x(14),1),
+    put_value(x(13),2),
+    put_value(x(12),3),
+    put_value(x(11),4),
+    put_value(x(10),5),
+    put_value(x(9),6),
+    put_value(x(0),7),
+    put_value(y(8),0),
+    call(call/9),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    put_value(y(3),3),
+    put_value(y(4),4),
+    put_value(y(5),5),
+    put_value(y(6),6),
+    put_value(y(7),7),
+    put_value(y(8),8),
+    deallocate,
+    execute('$maplist'/9)]).

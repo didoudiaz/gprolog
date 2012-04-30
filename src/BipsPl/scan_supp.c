@@ -658,6 +658,15 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
   if ((p = (char *) strchr(pl_escape_symbol, c)))	/* \a \b \f \n \r \t \v */
     return pl_escape_char[p - pl_escape_symbol];
 
+  if (!Flag_Value(FLAG_STRICT_ISO))
+    {
+      if (c == 's')		/* \s = space */
+	return ' ';
+
+      if (c == 'e')		/* ESCAPE */
+	return 27;
+    }
+
   if (c == 'x' || ('0' <= c && c <= '7'))	/* \xnn\ \nn\ */
     {
       if (c == 'x')

@@ -59,9 +59,9 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-#define FOR_ALT                    X1_24666F725F616C74
+#define BETWEEN_ALT                    X1_246265747765656E5F616C74
 
-Prolog_Prototype(FOR_ALT, 0);
+Prolog_Prototype(BETWEEN_ALT, 0);
 
 
 
@@ -106,14 +106,14 @@ Pl_Halt_1(WamWord exit_code_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_FOR_3                                                                *
+ * PL_BETWEEN_3                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_For_3(WamWord i_word, WamWord l_word, WamWord u_word)
+Pl_Between_3(WamWord l_word, WamWord u_word, WamWord i_word)
 {
   WamWord word, tag_mask;
-  int i, l, u;
+  PlLong l, u, i;
 
   l = Pl_Rd_Integer_Check(l_word);
   u = Pl_Rd_Integer_Check(u_word);
@@ -131,10 +131,10 @@ Pl_For_3(WamWord i_word, WamWord l_word, WamWord u_word)
 				/* here i_word is a variable */
   if (l < u)			/* non deterministic case */
     {
-      A(0) = i_word;
-      A(1) = l + 1;
-      A(2) = u;
-      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(FOR_ALT, 0), 3);
+      A(0) = l + 1;
+      A(1) = u;
+      A(2) = i_word;
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(BETWEEN_ALT, 0), 3);
     }
 
   return Pl_Get_Integer(l, i_word); /* always TRUE */
@@ -144,32 +144,30 @@ Pl_For_3(WamWord i_word, WamWord l_word, WamWord u_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_FOR_ALT_0                                                            *
+ * PL_BETWEEN_ALT_0                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_For_Alt_0(void)
+Pl_Between_Alt_0(void)
 {
+  PlLong l, u;
   WamWord i_word;
-  int l, u;
 
-  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(FOR_ALT, 0), 0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(BETWEEN_ALT, 0), 0);
 
-  i_word = AB(B, 0);
-  l = AB(B, 1);
-  u = AB(B, 2);
+  l = AB(B, 0);
+  u = AB(B, 1);
+  i_word = AB(B, 2);
 
   /* here i_word is a variable */
   if (l == u)
     Delete_Last_Choice_Point();
   else				/* non deterministic case */
     {
+      AB(B, 0) = l + 1;
 #if 0 /* the following data is unchanged */
-      AB(B,0)=i_word;
-#endif
-      AB(B, 1) = l + 1;
-#if 0 /* the following data is unchanged */
-      AB(B,2)=u;
+      AB(B, 1) = u;
+      AB(B, 2) = i_word;
 #endif
     }
 

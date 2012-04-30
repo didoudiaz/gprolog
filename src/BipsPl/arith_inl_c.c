@@ -390,6 +390,26 @@ Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 }
 
 
+/*-------------------------------------------------------------------------*
+ * PL_SUCC_2                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Succ_2(WamWord x_word, WamWord y_word)
+{
+  WamWord word, tag_mask;
+  PlLong x;
+
+  DEREF(x_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
+    return Pl_Un_Positive_Check(Pl_Rd_Positive_Check(word) + 1, y_word);
+
+  Pl_Check_For_Un_Positive(word);
+  x = Pl_Rd_Positive_Check(y_word) - 1;
+  return x >= 0 && Pl_Get_Integer(x, word);
+}
+
+
 
 
 	  /* Mathematic Operations */
@@ -884,7 +904,7 @@ Pl_Fct_Max(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Integer_Pow(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Pl_Fct_Fast_Integer_Pow);
+  IFxIFtoIF(x, y, pow, Pl_Fct_Fast_Integer_Pow);
 }
 
 

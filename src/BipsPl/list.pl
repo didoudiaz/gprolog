@@ -60,7 +60,7 @@ append(L1, L2, L3) :-
 
 /*
 member(X, [H|T]) :-
-	(   X = H,
+	(   X = H
 	;   member(X, T)
 	).
 */
@@ -354,33 +354,86 @@ maplist(Goal, List) :-
         '$maplist'(List, Goal).
 
 
-maplist(Goal, List1, List2) :-
-        '$maplist'(List1, List2, Goal).
+
+
+maplist(Goal, L1, L2) :-
+        '$maplist'(L1, L2, Goal).
 
 '$maplist'([], [], _).
 
-'$maplist'([X1|List1], [X2|List2], Goal) :-
+'$maplist'([X1|L1], [X2|L2], Goal) :-
         call(Goal, X1, X2),
-        '$maplist'(List1, List2, Goal).
+        '$maplist'(L1, L2, Goal).
 
 
-maplist(Goal, List1, List2, List3) :-
-        '$maplist'(List1, List2, List3, Goal).
+
+
+maplist(Goal, L1, L2, L3) :-
+        '$maplist'(L1, L2, L3, Goal).
 
 '$maplist'([], [], [], _).
 
-'$maplist'([X1|List1], [X2|List2], [X3|List3], Goal) :-
+'$maplist'([X1|L1], [X2|L2], [X3|L3], Goal) :-
         call(Goal, X1, X2, X3),
-        '$maplist'(List1, List2, List3, Goal).
+        '$maplist'(L1, L2, L3, Goal).
 
 
 
-maplist(Goal, List1, List2, List3, List4) :-
-        '$maplist'(List1, List2, List3, List4, Goal).
+
+maplist(Goal, L1, L2, L3, L4) :-
+        '$maplist'(L1, L2, L3, L4, Goal).
 
 '$maplist'([], [], [], [], _).
 
-'$maplist'([X1|List1], [X2|List2], [X3|List3], [X4|List4], Goal) :-
+'$maplist'([X1|L1], [X2|L2], [X3|L3], [X4|L4], Goal) :-
         call(Goal, X1, X2, X3, X4),
-        '$maplist'(List1, List2, List3, List4, Goal).
+        '$maplist'(L1, L2, L3, L4, Goal).
+
+
+
+
+maplist(Goal, L1, L2, L3, L4, L5) :-
+        '$maplist'(L1, L2, L3, L4, L5, Goal).
+
+'$maplist'([], [], [], [], [], _).
+
+'$maplist'([X1|L1], [X2|L2], [X3|L3], [X4|L4], [X5|L5], Goal) :-
+        call(Goal, X1, X2, X3, X4, X5),
+        '$maplist'(L1, L2, L3, L4, L5, Goal).
+
+
+
+
+maplist(Goal, L1, L2, L3, L4, L5, L6) :-
+        '$maplist'(L1, L2, L3, L4, L5, L6, Goal).
+
+'$maplist'([], [], [], [], [], [], _).
+
+'$maplist'([X1|L1], [X2|L2], [X3|L3], [X4|L4], [X5|L5], [X6|L6], Goal) :-
+        call(Goal, X1, X2, X3, X4, X5, X6),
+        '$maplist'(L1, L2, L3, L4, L5, L6, Goal).
+
+
+
+
+maplist(Goal, L1, L2, L3, L4, L5, L6, L7) :-
+        '$maplist'(L1, L2, L3, L4, L5, L6, L7, Goal).
+
+'$maplist'([], [], [], [], [], [], [], _).
+
+'$maplist'([X1|L1], [X2|L2], [X3|L3], [X4|L4], [X5|L5], [X6|L6], [X7|L7], Goal) :-
+        call(Goal, X1, X2, X3, X4, X5, X6, X7),
+        '$maplist'(L1, L2, L3, L4, L5, L6, L7, Goal).
+
+
+
+
+maplist(Goal, L1, L2, L3, L4, L5, L6, L7, L8) :-
+        '$maplist'(L1, L2, L3, L4, L5, L6, L7, L8, Goal).
+
+'$maplist'([], [], [], [], [], [], [], [], _).
+
+'$maplist'([X1|L1], [X2|L2], [X3|L3], [X4|L4], [X5|L5], [X6|L6], [X7|L7], [X8|L8], Goal) :-
+        call(Goal, X1, X2, X3, X4, X5, X6, X7, X8),
+        '$maplist'(L1, L2, L3, L4, L5, L6, L7, L8, Goal).
 

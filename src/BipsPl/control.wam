@@ -41,12 +41,18 @@ predicate(halt/1,72,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(for/3,80,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[for,3]),
-    call_c('Pl_For_3',[boolean],[x(0),x(1),x(2)]),
+predicate(between/3,80,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[between,3]),
+    call_c('Pl_Between_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$for_alt'/0,85,static,private,monofile,built_in,[
-    call_c('Pl_For_Alt_0',[],[]),
+predicate('$between_alt'/0,84,static,private,monofile,built_in,[
+    call_c('Pl_Between_Alt_0',[],[]),
+    proceed]).
+
+
+predicate(for/3,89,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[for,3]),
+    call_c('Pl_Between_3',[boolean],[x(1),x(2),x(0)]),
     proceed]).

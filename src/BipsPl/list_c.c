@@ -284,44 +284,56 @@ Pl_Append_Alt_0(void)
  *                                                                         *
  * To optimize, we don't pass arguments, we know they are in A(0) and A(1) *
  *-------------------------------------------------------------------------*/
+
+static Bool Pl_Member_3(void);
+
 Bool
 Pl_Member_2(void)
 {
-  WamWord word, tag_mask;
-  WamWord head_word;
-  Bool ok;
-
   if (!Pl_Get_List(A(1)))
     return FALSE;
 
-  head_word = Pl_Unify_Variable();
   A(1) = Pl_Unify_Variable();
+  A(2) = Pl_Unify_Variable();
 
-  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(MEMBER_ALT, 0), 2);
+  return Pl_Member_3();
+}
+
+static
+Bool Pl_Member_3(void)
+{
+  WamWord word, tag_mask;
+  Bool ok;
 
   for(;;)
     {
-      ok = Pl_Unify(A(0), head_word);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(MEMBER_ALT, 0), 3);
 
-      DEREF(A(1), word, tag_mask);
+      ok = Pl_Unify(A(0), A(1));
 
+      DEREF(A(2), word, tag_mask);
+#if 1
       if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK)
 	{
 	  Assign_B(BB(B));  /* cut (if failure faster then Pl_Delete_Choice_Point() */
 	  return ok;
 	}
-
+#endif
       if (ok)
 	{
-	  AB(B, 1) = word;
+	  AB(B, 2) = word;
 	  return ok;
 	}
 
-      Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(MEMBER_ALT, 0), 0);
-
-      Pl_Get_List(A(1));	/* always succeeds */
-      head_word = Pl_Unify_Variable();
+      Pl_Delete_Choice_Point(3);
+#if 0
+      if (!Pl_Get_List(A(2)))
+	return FALSE;
+#else
+      Pl_Get_List(A(2));	/* always succeeds */
+#endif
       A(1) = Pl_Unify_Variable();
+      A(2) = Pl_Unify_Variable();
     }
 }
 
@@ -335,8 +347,16 @@ Pl_Member_2(void)
 Bool
 Pl_Member_Alt_0(void)
 {
-  Pl_Delete_Choice_Point(2);
-  return Pl_Member_2();
+  Pl_Delete_Choice_Point(3);
+#if 0
+  if (!Pl_Get_List(A(2)))
+    return FALSE;
+#else
+  Pl_Get_List(A(2));	/* always succeeds */
+#endif
+  A(1) = Pl_Unify_Variable();
+  A(2) = Pl_Unify_Variable();
+  return Pl_Member_3();
 }
 
 
@@ -396,7 +416,13 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
     {
       n = UnTag_INT(word);
       if (n < 0)
-	return FALSE;
+	{
+#if 1
+	  Pl_Err_Domain(pl_domain_not_less_than_zero, word);
+#else
+	  return FALSE;
+#endif
+	}
     }
   else
     {

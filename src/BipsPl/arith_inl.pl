@@ -66,3 +66,9 @@ X >= Y :-
 
 '$arith_eval'(X, Y) :-
 	'$call_c'('Pl_Arith_Eval_2'(X, Y)).
+
+
+succ(X, Y) :-
+	set_bip_name(succ, 2),
+	'$call_c_test'('Pl_Succ_2'(X, Y)).
+

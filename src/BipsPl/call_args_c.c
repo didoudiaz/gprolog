@@ -113,6 +113,8 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
     Pl_Err_Representation(pl_representation_max_arity);
 
 
+  Pl_Unset_C_Bip_Name();
+
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL || 
       (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
     {

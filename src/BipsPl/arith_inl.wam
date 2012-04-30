@@ -67,3 +67,9 @@ predicate((>=)/2,63,static,private,monofile,built_in,[
 predicate('$arith_eval'/2,67,static,private,monofile,built_in,[
     call_c('Pl_Arith_Eval_2',[],[x(0),x(1)]),
     proceed]).
+
+
+predicate(succ/2,71,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[succ,2]),
+    call_c('Pl_Succ_2',[boolean],[x(0),x(1)]),
+    proceed]).

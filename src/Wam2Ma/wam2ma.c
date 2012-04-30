@@ -234,13 +234,13 @@ void Emit_Obj_Initializer(void);
 
 void Emit_Exec_Directives(void);
 
-void Emit_One_Atom(int no, char *str);
+void Emit_One_Atom(int no, char *str, void *info);
 
-void Emit_One_Atom_Tagged(int no, char *str);
+void Emit_One_Atom_Tagged(int no, char *str, void *info);
 
 int Add_F_N_Tagged(char *atom, int n);
 
-void Emit_One_F_N_Tagged(int no, char *str);
+void Emit_One_F_N_Tagged(int no, char *str, void *info);
 
 void Label_Printf(char *label, ...) GCCPRINTF(1);
 
@@ -2162,7 +2162,7 @@ Emit_Exec_Directives(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_One_Atom(int no, char *str)
+Emit_One_Atom(int no, char *str, void *info)
 {
   Inst_Printf("call_c", "Pl_Create_Atom(\"%s\")", str);
   Inst_Printf("move_ret", "at(%d)", no);
@@ -2176,7 +2176,7 @@ Emit_One_Atom(int no, char *str)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_One_Atom_Tagged(int no, char *str)
+Emit_One_Atom_Tagged(int no, char *str, void *info)
 {
   BTNode *atom = BT_String_Lookup(&bt_atom, str);
 
@@ -2214,7 +2214,7 @@ Add_F_N_Tagged(char *atom, int n)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_One_F_N_Tagged(int no, char *str)
+Emit_One_F_N_Tagged(int no, char *str, void *info)
 {
   int n;
   char *p = str + strlen(str) - 1;

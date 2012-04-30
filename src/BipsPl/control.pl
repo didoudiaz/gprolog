@@ -77,10 +77,15 @@ halt(X) :-
 
 
 
-for(I, L, U) :-
+between(L, U, X) :-
+	set_bip_name(between, 3),
+	'$call_c_test'('Pl_Between_3'(L, U, X)).
+
+'$between_alt' :-
+	'$call_c'('Pl_Between_Alt_0').
+
+
+
+for(X, L, U) :-			% deprecated: use between/3 instead
 	set_bip_name(for, 3),
-	'$call_c_test'('Pl_For_3'(I, L, U)).
-
-
-'$for_alt' :-
-	'$call_c'('Pl_For_Alt_0').
+	'$call_c_test'('Pl_Between_3'(L, U, X)).

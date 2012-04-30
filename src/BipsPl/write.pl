@@ -98,11 +98,11 @@ display(SorA, Term) :-
 
           % option mask in sys_var[0]: (see write_supp.h)
           %
-          %    b5         b4        b3         b2           b1         b0
-          %    0/1        0/1       0/1        0/1          0/1        0/1
-          % portrayed  space_args  namevars  numbervars  ignore_ops  quoted
-          %  0=false    0=false    0=false    0=false      0=false   0=false
-          %  1=true     1=true     1=true     1=true       1=true    1=true
+          %    b6          b5         b4        b3         b2           b1         b0
+          %    0/1         0/1        0/1       0/1        0/1          0/1        0/1
+          % var_names   portrayed  space_args  namevars  numbervars  ignore_ops  quoted
+          %  0=false     0=false    0=false    0=false    0=false      0=false   0=false
+          %  1=true      1=true     1=true     1=true     1=true       1=true    1=true
           %
           % max_depth in sys_var[1]
           % priority in sys_var[2]
@@ -112,15 +112,20 @@ write_term(Term, Options) :-
 	set_bip_name(write_term, 2),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Pl_Write_Term_1'(Term)).
+	'$call_c'('Pl_Write_Term_1'(Term)),
+	fail.
 
+write_term(_, _).
+	
 
 write_term(SorA, Term, Options) :-
 	set_bip_name(write_term, 3),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Pl_Write_Term_2'(SorA, Term)).
+	'$call_c'('Pl_Write_Term_2'(SorA, Term)),
+	fail.
 
+write_term(_, _, _).
 
 
 
@@ -135,7 +140,13 @@ write_term(SorA, Term, Options) :-
 
 '$get_write_options'(Options) :-
 	'$check_list'(Options),
-	'$get_write_options1'(Options).
+	'$get_write_options1'(Options),
+	(   '$sys_var_get_bit'(0, 6, 1) -> % variable_names ==> namevars
+	    '$sys_var_set_bit'(0, 3)
+	;
+	    true
+	).
+	    
 
 
 '$get_write_options1'([]).
@@ -201,6 +212,10 @@ write_term(SorA, Term, Options) :-
 	    '$sys_var_set_bit'(0, 5)
 	).
 
+'$get_write_options2'(variable_names(VarNames)) :-
+	'$sys_var_set_bit'(0, 6),
+	'$name_variables'(VarNames).
+
 '$get_write_options2'(max_depth(X)) :-
 	integer(X),
 	'$sys_var_write'(1, X).
@@ -212,6 +227,18 @@ write_term(SorA, Term, Options) :-
 '$get_write_options2'(X) :-
 	'$pl_err_domain'(write_option, X).
 
+
+
+'$name_variables'([]).
+
+'$name_variables'([Name = Var|VarNames]) :-
+	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true),
+	'$name_variables'(VarNames).
+
+
+
+'$is_valid_var_name'(Name) :-
+	'$call_c_test'('Pl_Is_Valid_Var_Name_1'(Name)).
 
 
 

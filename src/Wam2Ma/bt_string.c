@@ -55,7 +55,7 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static void BT_String_List_Rec(BTNode *bt_node, void (*fct) ());
+static void BT_String_List_Rec(BTNode *bt_node, BTStrLstFct fct);
 
 
 
@@ -142,7 +142,7 @@ BT_String_Lookup(BTString *bt_str, char *str)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-BT_String_List(BTString *bt_str, void (*fct) ())
+BT_String_List(BTString *bt_str, BTStrLstFct fct)
 {
   BT_String_List_Rec(bt_str->tree, fct);
 }
@@ -155,12 +155,12 @@ BT_String_List(BTString *bt_str, void (*fct) ())
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-BT_String_List_Rec(BTNode *bt_node, void (*fct) ())
+BT_String_List_Rec(BTNode *bt_node, BTStrLstFct fct)
 {
   if (bt_node == NULL)
     return;
 
   BT_String_List_Rec(bt_node->left, fct);
-  (*fct) (bt_node->no, bt_node->str, bt_node->info);
+  (*fct) (bt_node->no, bt_node->str, (void *) bt_node->info);
   BT_String_List_Rec(bt_node->right, fct);
 }

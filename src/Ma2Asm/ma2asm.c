@@ -114,7 +114,7 @@ char *initializer_fct = NULL;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Invoke_Dico_Long(int unused_no, char *name, LongInf *p);
+void Invoke_Dico_Long(int unused_no, char *name, void *info);
 
 void Init_Inline_Data(void);
 
@@ -189,7 +189,7 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_String_Start(n);
-      BT_String_List(&bt_string, Dico_String);
+      BT_String_List(&bt_string, (BTStrLstFct) Dico_String);
       Dico_String_Stop(n);
     }
 
@@ -219,8 +219,10 @@ main(int argc, char *argv[])
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Invoke_Dico_Long(int unused_no, char *name, LongInf *p)
+Invoke_Dico_Long(int unused_no, char *name, void *info)
 {
+  LongInf *p = (LongInf *) info;
+
   Dico_Long(name, p->global, p->vtype, p->value);
 }
 

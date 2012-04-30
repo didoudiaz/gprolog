@@ -67,7 +67,7 @@ typedef struct
 }
 BTString;
 
-
+typedef void (*BTStrLstFct) (int no, char *str, void *info);
 
 
 /*---------------------------------*
@@ -87,4 +87,4 @@ BTNode *BT_String_Add(BTString *bt_str, char *str);
 
 BTNode *BT_String_Lookup(BTString *bt_str, char *str);
 
-void BT_String_List(BTString *bt_str, void (*fct) ());
+void BT_String_List(BTString *bt_str, BTStrLstFct fct);

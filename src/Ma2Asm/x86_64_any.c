@@ -668,7 +668,9 @@ Call_C_Arg_String(int offset, int str_no)
   if (!r_eq_r_aux)
     Inst_Printf("movq", "%s,%s", r_aux, r);
 #else
-  Inst_Printf("movq", "$%s%d,%s", STRING_PREFIX, str_no, r);
+  Inst_Printf("movq", "$%s%d,%s", STRING_PREFIX, str_no, r_aux);
+  if (!r_eq_r_aux)
+    Inst_Printf("movq", "%s,%s", r_aux, r);
 #endif
 
   AFTER_ARG;
@@ -827,7 +829,9 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
       if (!r_eq_r_aux)
         Inst_Printf("movq", "%s, %s", r_aux, r);
 #else
-      Inst_Printf("movq", "$pl_foreign_double+%d, %s", index * 8, r);
+      Inst_Printf("movq", "$pl_foreign_double+%d, %s", index * 8, r_aux);
+      if (!r_eq_r_aux)
+        Inst_Printf("movq", "%s,%s", r_aux, r);
 #endif
       AFTER_ARG;
       return 1;

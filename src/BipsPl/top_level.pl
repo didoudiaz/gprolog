@@ -106,6 +106,15 @@ break :-
 
 
 
+'$top_level_exception'('$post_query_exception'(X)) :-
+	'$reinit_after_exception',
+	!,
+	format(top_level_output, '~Ntop-level exception: ', []),
+	write_term(top_level_output, X, [quoted(true), numbervars(false), namevars(false)]),
+	nl(top_level_output),
+	fail.
+	
+
 '$top_level_exception'(X) :-
 	'$reinit_after_exception',
 	format(top_level_output, '~Nuncaught exception: ', []),
@@ -231,6 +240,7 @@ break :-
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
+	'$catch_internal'('$set_query_vars_names'(QueryVars, ToDispVars), Err, throw('$post_query_exception'(Err)), false),
 	'$set_query_vars_names'(QueryVars, ToDispVars),
 	(   fail,                             % do not activate 'alt if vars'
 	    ToDispVars = [] ->

@@ -747,7 +747,6 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 
 
 
-
 /*-------------------------------------------------------------------------*
  * IS_VALID_VAR_NAME                                                       *
  *                                                                         *
@@ -770,6 +769,22 @@ Is_Valid_Var_Name(char *str)
     }
 
   return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_IS_VALID_VAR_NAME_1                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Is_Valid_Var_Name_1(WamWord name_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(name_word, word, tag_mask);
+  return (tag_mask == TAG_ATM_MASK) && Is_Valid_Var_Name(pl_atom_tbl[UnTag_ATM(word)].name);
 }
 
 
@@ -801,12 +816,15 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (name_vars && f_n == dollar_varname_1 && stc_adr >= name_number_above_H)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
-      p = pl_atom_tbl[UnTag_ATM(word)].name;
-      if (tag_mask == TAG_ATM_MASK && Is_Valid_Var_Name(p))
+      if (tag_mask == TAG_ATM_MASK)
 	{
-	  Out_String(p);
-	  pl_last_writing = W_IDENTIFIER;
-	  return;
+	  p = pl_atom_tbl[UnTag_ATM(word)].name;
+	  if (Is_Valid_Var_Name(p))
+	    {
+	      Out_String(p);
+	      pl_last_writing = W_IDENTIFIER;
+	      return;
+	    }
 	}
     }
 

@@ -390,6 +390,7 @@ Pl_Debug_Wam(void)
   SEH_PUSH(Debugger_SEH_Handler);
 #endif
 
+ restart:
   ret = setjmp(dbg_jumper);
   if (ret == 0)
     {
@@ -400,12 +401,12 @@ Pl_Debug_Wam(void)
   else
     {
       Pl_Stream_Printf(pstm_o, "ERROR from handler: %d (%#x)\n", ret, ret);
+      goto restart;
     }
 
   for (;;)
     {
-      if (Pl_Stream_Gets_Prompt(prompt, pstm_o,
-			     str, sizeof(str), pstm_i) == NULL)
+      if (Pl_Stream_Gets_Prompt(prompt, pstm_o, str, sizeof(str), pstm_i) == NULL)
 	break;
 
       Scan_Command(str);
