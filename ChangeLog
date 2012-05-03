@@ -1,6 +1,24 @@
+Thu May  3 16:42:00 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
+
+	* improve the top-level results in case of cyclic terms
+
+Mon Apr 30 17:52:46 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix arithmetic evaluable functor ^/2 to work with floats
+	* increase maximum number of variables in a term
+
+Thu Apr 26 11:29:44 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
+
+	* add write_term option variable_names
+	* add built-in predicates between/3 and succ/2
+	* fix bug in the DCG expander
+	* fix bug in member/2
+	* recognize escape sequence \s (space) and \e (escape) if strict_iso is off
+	* add error detection in length/2 if given length is negative
+
 Tue Mar 13 10:24:24 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
-	* add built-in predicates maplist/2-5
+	* add built-in predicates maplist/2-8
 
 Mon Feb 20 19:12:04 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
@@ -14,7 +32,6 @@ Tue Jan 10 18:23:09 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to x86_64/Darwin (Mac OS X) - many thanks to:
 	  Ozaki Kiichi <gclient.gaap@gmail.com>
-	  Use ./configure --build=x86_64-apple-darwin --host=x86_64-apple-darwin
 	* fix a bug in x86_64 with --disable-regs
 	* fix a bug when consulting a file under Win XP/Vista 32 bits
 	* fix a bug when consulting a file using '$VAR'(N) or '$VARNAME'(A)
@@ -816,6 +833,3 @@ Wed Mar 10 11:57:25 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 Mon Mar 8 20:39:25 MET 1999 <Daniel.Diaz@univ-paris1.fr>
 
 	* Calypso version 1.0-beta7 ready for internal use
-
-
-

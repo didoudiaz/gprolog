@@ -241,7 +241,7 @@ break :-
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
 	'$catch_internal'('$set_query_vars_names'(QueryVars, ToDispVars), Err, throw('$post_query_exception'(Err)), false),
-	'$set_query_vars_names'(QueryVars, ToDispVars),
+%	'$set_query_vars_names'(QueryVars, ToDispVars),
 	(   fail,                             % do not activate 'alt if vars'
 	    ToDispVars = [] ->
 	    true                              % no alt if only anonymous vars
@@ -298,8 +298,12 @@ break :-
 '$write_solution1'([], _).
 
 '$write_solution1'([Name = Value|ToDispVars], Prior) :-
-	format(top_level_output, '~n~a = ', [Name]),
-	write_term(top_level_output, Value, [quoted(true), numbervars(false), namevars(true), priority(Prior)]),
+	(   acyclic_term(Value) ->
+	    format(top_level_output, '~n~a = ', [Name]),
+	    write_term(top_level_output, Value, [quoted(true), numbervars(false), namevars(true), priority(Prior)])
+	;
+	    format(top_level_output, '~ncannot display cyclic term for ~a', [Name])
+	),
 	'$write_solution1'(ToDispVars, Prior).
 
 

@@ -93,3 +93,5 @@ void Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 
 int Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 			  int *arity);
+
+Bool Pl_Acyclic_Term_1(WamWord start_word);

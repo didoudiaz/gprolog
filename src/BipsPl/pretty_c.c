@@ -413,6 +413,9 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
   singl_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores singletons */
   nb_singl_var = 0;
 
+  if (!Pl_Acyclic_Term_1(start_word))
+    return;
+
   Pl_Treat_Vars_Of_Term(start_word, FALSE, Collect_Singleton);
 
   if (nb_singl_var == 0)
@@ -565,7 +568,8 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
       lst_adr = UnTag_LST(word);
 
       DEREF(Car(lst_adr), word, tag_mask);
-      Collect_Excluded_Rec(word);
+      if (Pl_Acyclic_Term_1(word))
+	Collect_Excluded_Rec(word);
 
       stc_adr = UnTag_STC(word);
       if (tag_mask == TAG_STC_MASK && Functor_And_Arity(stc_adr) == equal_2)
@@ -578,7 +582,8 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
       exclude_list_word = Cdr(lst_adr);
     }
 
-  Pl_Treat_Vars_Of_Term(term_word, FALSE, Bind_Variable);
+  if (Pl_Acyclic_Term_1(term_word))
+    Pl_Treat_Vars_Of_Term(term_word, FALSE, Bind_Variable);
 
   return Pl_Un_Integer_Check(nb_to_try, next_word);
 }

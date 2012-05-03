@@ -656,6 +656,7 @@ Pl_Acyclic_Term_1(WamWord start_word)
 
 {
   WamWord word, tag_mask;
+  WamWord word1;
   WamWord *adr;
   int arity;
   Bool ret;
@@ -680,17 +681,23 @@ Pl_Acyclic_Term_1(WamWord start_word)
 
   while (--arity >= 0)
     {
-      word = *adr;
-      if (word == MARK)		/* marked = cyclic */
+      word1 = *adr;
+      DEREF(word1, word, tag_mask);
+
+      if (word == MARK)	/* marked = cyclic */
 	return FALSE;
 
-      *adr = MARK;		/* mark it */
+      if (tag_mask == TAG_LST_MASK || tag_mask == TAG_STC_MASK)
+	{
+	  *adr = MARK;		/* mark it */
 
-      ret = Pl_Acyclic_Term_1(word);
+	  ret = Pl_Acyclic_Term_1(word1);
       
-      *adr++ = word;		/* unmark it */
-      if (!ret)
-	return FALSE;
+	  *adr = word;		/* unmark it */
+	  if (!ret)
+	    return FALSE;
+	}
+      adr++;
     }
 
   return TRUE;

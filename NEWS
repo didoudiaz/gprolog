@@ -1,11 +1,19 @@
 Change in GNU Prolog version 1.4.1:
 
+* improve the top-level results in case of cyclic terms
+* fix arithmetic evaluable functor ^/2 to work with floats
+* increase maximum number of variables in a term
+* add write_term option variable_names
+* add built-in predicates between/3 and succ/2
+* fix bug in the DCG expander
+* fix bug in member/2
+* recognize escape sequence \s (space) and \e (escape) if strict_iso is off
+* add error detection in length/2 if given length is negative
 * add built-in predicates maplist/2-5
 * fix a regression bug in the FD solver about sparse domains
 * increase size of FD internal stacks and fix memory leak
 * port to x86_64/Darwin (Mac OS X) - many thanks to:
   Ozaki Kiichi <gclient.gaap@gmail.com>
-  Use ./configure --build=x86_64-apple-darwin --host=x86_64-apple-darwin
 * fix a bug in x86_64 with --disable-regs
 * fix a bug when consulting a file under Win XP/Vista 32 bits
 * fix a bug when consulting a file using '$VAR'(N) or '$VARNAME'(A)
