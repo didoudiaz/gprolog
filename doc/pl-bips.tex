@@ -8715,6 +8715,16 @@ is also unified with \texttt{user} to allow this predicate to be called on
 Prolog file names (since \texttt{user} in DEC-10 input/output predicates
 denotes the current input/output stream).
 
+Under Windows the following applies: 
+\begin{itemize}
+\item an alternate recognized form for \texttt{\$\Param{VAR\_NAME}} is
+  \texttt{\%\Param{VAR\_NAME}\%}. 
+
+\item when \texttt{\~{}} is expanded, if the \texttt{HOME} variable is not defined, \texttt{\~{}} is expanded using \texttt{HOMEDIR} and
+  \texttt{HOMEPATH} (if \texttt{HOMEPATH} is not defined then \texttt{File1}
+  is an invalid pathname).
+\end{itemize}
+
 Most predicates using a file name implicitly call this predicate to obtain
 the desired file, e.g. \texttt{open/4}.
 
