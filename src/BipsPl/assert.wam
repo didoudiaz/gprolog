@@ -69,7 +69,8 @@ predicate('$retract'/2,76,static,private,monofile,built_in,[
 
 
 predicate(retractall/1,82,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retractall,1]),
     call_c('Pl_Retractall_If_Empty_Head_1',[boolean],[x(0)]),

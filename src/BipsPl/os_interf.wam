@@ -70,7 +70,8 @@ predicate(file_permission/2,105,static,private,monofile,built_in,[
 
 
 predicate(file_property/2,112,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -445,7 +446,8 @@ predicate(exec/5,287,static,private,monofile,built_in,[
 
 
 predicate('$exec/5_$aux1'/1,287,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -529,7 +531,8 @@ predicate(fork_prolog/1,326,static,private,monofile,built_in,[
 
 
 predicate('$fork_prolog/1_$aux1'/1,326,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),

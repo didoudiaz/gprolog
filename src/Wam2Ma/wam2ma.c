@@ -1575,15 +1575,38 @@ F_trust(ArgVal arg[])
 
 
 /*-------------------------------------------------------------------------*
- * F_LOAD_CUT_LEVEL                                                        *
+ * F_PRAGMA_ARITY                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-F_load_cut_level(ArgVal arg[])
+F_pragma_arity(ArgVal arg[])
 {
   Args1(INTEGER(a));
-  Inst_Printf("call_c", FAST "Pl_Load_Cut_Level(&X(%" PL_FMT_d "))", a);
-  cur_arity = a + 1;		/* to save X(a) in choice-points */
+
+  /* Used for for a pred/arity with cuts (not soft cuts).
+   * Since the cut level is stored in X(arity) we have to save it in choice-points
+   * This pragma adjusts the number of args to save in choice-points.
+   */
+
+  cur_arity = a;	
+
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_GET_CURRENT_CHOICE                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_get_current_choice(ArgVal arg[])
+{
+  Args1(X_Y(xy));
+
+  Inst_Printf("call_c", FAST "Pl_Get_Current_Choice()");
+  Inst_Printf("move_ret", "%c(%" PL_FMT_d ")", c, xy);
 }
 
 
@@ -1598,6 +1621,20 @@ F_cut(ArgVal arg[])
 {
   Args1(X_Y(xy));
   Inst_Printf("call_c", FAST "Pl_Cut(%c(%" PL_FMT_d "))", c, xy);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CUT                                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_soft_cut(ArgVal arg[])
+{
+  Args1(X_Y(xy));
+  Inst_Printf("call_c", FAST "Pl_Soft_Cut(%c(%" PL_FMT_d "))", c, xy);
 }
 
 

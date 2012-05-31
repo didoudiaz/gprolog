@@ -10,7 +10,8 @@ predicate('$use_call'/0,42,static,private,monofile,built_in,[
 
 
 predicate(once/1,46,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     allocate(1),
     get_variable(y(0),1),
     put_atom(once,1),
@@ -27,7 +28,8 @@ predicate((\+)/1,50,static,private,monofile,built_in,[
 
 
 predicate('$\\+/1_$aux1'/1,50,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),
@@ -66,7 +68,8 @@ predicate(call_det/2,58,static,private,monofile,built_in,[
 
 
 predicate('$call_det/2_$aux2'/3,58,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),
@@ -83,7 +86,8 @@ label(1),
 
 
 predicate('$call_det/2_$aux1'/1,58,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     put_atom(false,2),
@@ -132,7 +136,8 @@ predicate('$call_internal'/2,85,static,private,monofile,built_in,[
 
 
 predicate('$$call_internal/2_$aux1'/1,85,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -144,12 +149,14 @@ label(1),
 
 
 predicate('$call_internal1'/2,95,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     execute('$call_internal_with_cut'/3)]).
 
 
 predicate('$call_internal_with_cut'/3,102,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(21),
     switch_on_term(3,1,fail,fail,2),
 
@@ -276,7 +283,8 @@ label(21),
 
 
 predicate('$call_internal_or'/4,145,static,private,monofile,built_in,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_variable(x(6),3),
     get_variable(x(5),1),
@@ -354,7 +362,8 @@ predicate('$not'/3,174,static,private,monofile,built_in,[
 
 
 predicate('$$not/3_$aux1'/3,174,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),3),

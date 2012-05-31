@@ -83,7 +83,7 @@ Pl_Write_Term_2(WamWord sora_word, WamWord term_word)
 
   if (SYS_VAR_WRITE_ABOVE > 0)
     {
-      WamWord *b = LSSA + SYS_VAR_WRITE_ABOVE; /* see Pl_Load_Cut_Level / Pl_Cut */
+      WamWord *b = LSSA + SYS_VAR_WRITE_ABOVE; /* see Pl_Get_Current_Choice / Pl_Cut */
       above_H = HB(b);
     }
 

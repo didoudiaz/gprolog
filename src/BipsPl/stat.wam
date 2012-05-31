@@ -16,7 +16,8 @@ predicate(statistics/0,45,static,private,monofile,built_in,[
 
 
 predicate(statistics/2,50,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -37,7 +38,8 @@ predicate(statistics/2,50,static,private,monofile,built_in,[
 
 
 predicate('$statistics/2_$aux1'/3,50,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_list(0),
     unify_local_value(x(1)),
@@ -137,7 +139,8 @@ label(21),
 
 
 predicate('$stat'/3,88,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -215,7 +218,8 @@ label(16),
 
 
 predicate('$$stat/3_$aux1'/2,88,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),

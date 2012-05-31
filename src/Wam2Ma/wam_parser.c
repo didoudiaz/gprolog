@@ -152,8 +152,11 @@ ParseInf inst[] = {
   {"retry", F_retry, 1, {INTEGER}},
   {"trust", F_trust, 1, {INTEGER}},
 
-  {"load_cut_level", F_load_cut_level, 1, {INTEGER}},
+  {"pragma_arity", F_pragma_arity, 1, {INTEGER}},
+
+  {"get_current_choice", F_get_current_choice, 1, {X_Y}},
   {"cut", F_cut, 1, {X_Y}},
+  {"soft_cut", F_soft_cut, 1, {X_Y}},
 
   {"call_c", F_call_c, 3, {ATOM, L1(ANY), L1(ANY)}},
 

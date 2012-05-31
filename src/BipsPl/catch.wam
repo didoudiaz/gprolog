@@ -43,7 +43,8 @@ predicate('$catch_internal'/4,57,static,private,monofile,built_in,[
 
 
 predicate('$catch_internal1'/5,63,static,private,monofile,built_in,[
-    load_cut_level(5),
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     allocate(6),
     get_variable(y(0),0),
@@ -95,7 +96,8 @@ label(1),
 
 
 predicate('$$catch_internal1/5_$aux1'/3,63,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),
@@ -112,7 +114,8 @@ label(1),
 
 
 predicate('$catch_a_throw'/5,92,static,private,monofile,built_in,[
-    load_cut_level(5),
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     get_structure('$catch_sync'/1,0),
@@ -142,7 +145,8 @@ label(2),
 
 
 predicate('$$catch_a_throw/5_$aux1'/2,92,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),
@@ -185,7 +189,8 @@ predicate('$catch_sync_for_fail_at'/1,127,static,private,monofile,built_in,[
 
 
 predicate('$$catch_sync_for_fail_at/1_$aux1'/2,127,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),

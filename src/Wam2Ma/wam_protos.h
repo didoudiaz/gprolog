@@ -164,9 +164,13 @@ void F_retry(ArgVal arg[]);
 
 void F_trust(ArgVal arg[]);
 
-void F_load_cut_level(ArgVal arg[]);
+void F_pragma_arity(ArgVal arg[]);
+
+void F_get_current_choice(ArgVal arg[]);
 
 void F_cut(ArgVal arg[]);
+
+void F_soft_cut(ArgVal arg[]);
 
 void F_function(ArgVal arg[]);
 

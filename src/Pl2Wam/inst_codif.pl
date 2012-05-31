@@ -123,9 +123,11 @@ codif(execute(T), LCode) :-
 	( T = _ / N ; T = _:_/N ), !,
 	lst_r_for_call_execute(0, N, LCode).
 
-codif(load_cut_level(Tmp), [w(Tmp)]).
+codif(get_current_choice(x(Tmp)), [w(Tmp)]).
 
 codif(cut(x(Tmp)), [r(Tmp)]).
+
+codif(soft_cut(x(Tmp)), [r(Tmp)]).
 
 codif(call_c(_, LCOpt, LReg), LCode) :-
 	(   member(x(Tmp), LCOpt) ->

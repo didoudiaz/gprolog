@@ -709,9 +709,7 @@ Lookup_In_Dico_Var(char *name)
   if (name[0] != '_' || name[1] != '\0')
     {
       named = TRUE;
-      for (i = 0;
-	   i < pl_parse_nb_var && strcmp(name, pl_parse_dico_var[i].name) != 0;
-	   i++)
+      for (i = 0; i < pl_parse_nb_var && strcmp(name, pl_parse_dico_var[i].name) != 0; i++)
 	;
     }
   else

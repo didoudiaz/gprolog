@@ -102,6 +102,7 @@ Pl_Init_Oper(void)
   ADD_OPER(1100, XFY, ";");
 
   ADD_OPER(1050, XFY, "->");
+  ADD_OPER(1050, XFY, "*->");
 
   ADD_OPER(1000, XFY, ",");
 

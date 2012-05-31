@@ -73,5 +73,9 @@ Here is the instruction encoding
      PROCEED		   | ------------ | op |
      FAIL		   | ------------ | op |
      			    		     
+     GET_CURRENT_CHOICE_X  | x            | op |
+     GET_CURRENT_CHOICE_Y  | y            | op |
      CUT_X		   | x            | op |
      CUT_Y		   | y            | op |
+     SOFT_CUT_X		   | x            | op |
+     SOFT_CUT_Y		   | y            | op |

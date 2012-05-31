@@ -6,7 +6,8 @@ file_name('/home/diaz/GP/src/src/BipsPl/utils.pl').
 
 
 predicate('$term_to_goal'/3,43,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),3),
@@ -31,7 +32,8 @@ label(1),
 
 
 predicate('$term_to_goal1'/2,53,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),
@@ -48,7 +50,8 @@ label(1),
 
 
 predicate('$term_to_goal2'/2,60,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_variable(x(3),0),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(3)]),
@@ -131,7 +134,8 @@ label(9),
 
 
 predicate('$$term_to_goal2/2_$aux1'/3,60,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_atom(none,0),
     cut(x(3)),
@@ -148,7 +152,8 @@ label(1),
 
 
 predicate('$check_list'/1,94,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -168,7 +173,8 @@ label(2),
 
 
 predicate('$check_list_or_partial_list'/1,107,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -182,7 +188,8 @@ label(1),
 
 
 predicate('$check_atom_or_atom_list'/1,116,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -235,7 +242,8 @@ label(6),
 
 
 predicate('$check_atom_or_atom_list2'/1,137,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -255,7 +263,8 @@ label(2),
 
 
 predicate('$get_head_and_body'/3,150,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
@@ -273,7 +282,8 @@ label(1),
 
 
 predicate('$check_head'/1,160,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -285,7 +295,8 @@ label(1),
 
 
 predicate('$$check_head/1_$aux1'/1,164,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),

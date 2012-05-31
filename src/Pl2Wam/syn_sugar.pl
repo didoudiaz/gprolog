@@ -37,6 +37,7 @@
 
 /* $Id$ */
 
+
 syntactic_sugar_init_pred(Pred, _) :-
 	'$aux_name'(Pred), !.
 
@@ -65,19 +66,41 @@ normalize_cuts(Body, Body2) :-
 	).
 
 
+	/* NB: difference between cut and soft cut
+   	 * cut: a cut generates a '$get_cut_level'(V) followed by a '$cut'(V)
+	 *      '$get_cut_level'(V) will give rise to a copy from X(arity) to V
+	 *      (see code_gen.pl). The initialization of X(arity) is done once
+	 *      at the beginning of the predicate (before any choice-point creation)
+	 *      thus X(arity) is saved in choice-points. The initialization is
+	 *      done by a WAM instruction get_current_choice(x(Arity)) (indexing.pl)
+	 *
+	 * soft cut: give rise to a '$get_current_choice'(V) followed by a '$cut'(V)
+	 *      '$get_current_choice'(V) is translated as a WAM instruction
+	 *      get_current_choice(V).
+	 *
+	 * Thus, a cut points to the last choice-point to keep while a soft cut
+	 * points to the choice-point to kill.
+	 */
+
 normalize_cuts1(X, CutVar, P) :-
 	var(X),
 	normalize_cuts1(call(X), CutVar, P).
 
 normalize_cuts1((If ; R), CutVar, Body) :-
 	nonvar(If),
-	If = (P -> Q),
-	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; R1),
+	(   If = (P -> Q), Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; R1)
+	;
+	    If = (P *-> Q), Body = ('$get_current_choice'(CutVar1), P, '$soft_cut'(CutVar1), Q1 ; R1)
+	),
 	normalize_cuts1(Q, CutVar, Q1),
 	normalize_cuts1(R, CutVar, R1).
 
 normalize_cuts1((P -> Q), CutVar, Body) :-
 	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; fail),
+	normalize_cuts1(Q, CutVar, Q1).
+
+normalize_cuts1((P *-> Q), CutVar, (P1, Q1)) :- % P *-> Q alone (i.e. not inside a ;) is the same as P, Q
+	normalize_cuts1(P, CutVar, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
 normalize_cuts1(!, CutVar, '$cut'(CutVar)) :-

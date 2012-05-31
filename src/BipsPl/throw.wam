@@ -35,7 +35,8 @@ predicate('$throw_internal'/2,55,static,private,monofile,built_in,[
 
 
 predicate('$$throw_internal/2_$aux1'/2,55,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),

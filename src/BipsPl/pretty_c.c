@@ -74,6 +74,7 @@
 static int atom_clause;
 static int atom_dcg;
 static int atom_if;
+static int atom_soft_if;	/* soft-cut */
 
 static int atom_dollar_var;
 static int atom_dollar_varname;
@@ -130,6 +131,7 @@ Pretty_Initializer(void)
   atom_clause = Pl_Create_Atom(":-");
   atom_dcg = Pl_Create_Atom("-->");
   atom_if = Pl_Create_Atom("->");
+  atom_soft_if = Pl_Create_Atom("*->");
 
   atom_dollar_var = Pl_Create_Atom("$VAR");
   atom_dollar_varname = Pl_Create_Atom("$VARNAME");
@@ -161,7 +163,7 @@ Pl_Portray_Clause_3(WamWord sora_word, WamWord term_word, WamWord above_word)
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
-  b = LSSA + Pl_Rd_Integer(above_word); /* see Pl_Load_Cut_Level / Pl_Cut */
+  b = LSSA + Pl_Rd_Integer(above_word); /* see Pl_Get_Current_Choice / Pl_Cut */
   above_H = HB(b);
 
   Portray_Clause(pstm, term_word);
@@ -301,8 +303,8 @@ static void
 Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
 {
   WamWord arg_word[2];
-  static
-    int prec[] = { 1200 - 1, 1000 - 1, 1000, 1100 - 1, 1100, 1050 - 1, 1050 };
+  int soft_cut;
+  static int prec[] = { 1200 - 1, 1000 - 1, 1000, 1100 - 1, 1100, 1050 - 1, 1050 };
 
 
   if (Check_Structure(body_word, ATOM_CHAR(','), 2, arg_word))
@@ -339,7 +341,9 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
     }
 
 
-  if (Check_Structure(body_word, atom_if, 2, arg_word))
+  soft_cut = 0;
+  if (Check_Structure(body_word, atom_if, 2, arg_word) ||
+      (soft_cut = 1, Check_Structure(body_word, atom_soft_if, 2, arg_word)))
     {
       if (context != LEFT_OR && context != RIGHT_OR)
 	{
@@ -348,7 +352,7 @@ Show_Body(StmInf *pstm, int level, int context, WamWord body_word)
 	}
 
       Show_Body(pstm, level, LEFT_IF, arg_word[0]);
-      Pl_Stream_Puts(" ->", pstm);
+      Pl_Stream_Puts((soft_cut == 0) ? " ->" : " *-> ", pstm);
       Start_Line(pstm, level, ' ');
       Show_Body(pstm, level, RIGHT_IF, arg_word[1]);
 
@@ -410,11 +414,12 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
 {
   WamWord word;
 
+  if (!Pl_Acyclic_Term_1(start_word))
+    return;
+
   singl_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores singletons */
   nb_singl_var = 0;
 
-  if (!Pl_Acyclic_Term_1(start_word))
-    return;
 
   Pl_Treat_Vars_Of_Term(start_word, FALSE, Collect_Singleton);
 

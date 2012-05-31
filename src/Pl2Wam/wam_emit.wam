@@ -5,7 +5,7 @@
 file_name('/home/diaz/GP/src/src/Pl2Wam/wam_emit.pl').
 
 
-predicate(emit_code_init/2,103,static,private,monofile,global,[
+predicate(emit_code_init/2,104,static,private,monofile,global,[
     allocate(6),
     get_variable(y(0),0),
     put_value(x(1),0),
@@ -45,8 +45,9 @@ predicate(emit_code_init/2,103,static,private,monofile,global,[
     execute(format/3)]).
 
 
-predicate('$emit_code_init/2_$aux1'/2,103,static,private,monofile,local,[
-    load_cut_level(2),
+predicate('$emit_code_init/2_$aux1'/2,104,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_atom(user,0),
     cut(x(2)),
@@ -60,8 +61,9 @@ label(1),
     execute(open/3)]).
 
 
-predicate(emit_code_files/3,120,static,private,monofile,global,[
-    load_cut_level(3),
+predicate(emit_code_files/3,121,static,private,monofile,global,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(7),
     switch_on_term(3,1,fail,fail,fail),
 
@@ -110,8 +112,9 @@ label(7),
     proceed]).
 
 
-predicate('$emit_code_files/3_$aux2'/4,123,static,private,monofile,local,[
-    load_cut_level(4),
+predicate('$emit_code_files/3_$aux2'/4,124,static,private,monofile,local,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_atom('.pl',0),
     cut(x(4)),
@@ -137,8 +140,9 @@ label(1),
     execute(atom_concat/3)]).
 
 
-predicate('$emit_code_files/3_$aux1'/1,123,static,private,monofile,local,[
-    load_cut_level(1),
+predicate('$emit_code_files/3_$aux1'/1,124,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     put_atom(native_code,2),
     put_atom(t,3),
@@ -153,7 +157,7 @@ label(1),
     proceed]).
 
 
-predicate(emit_code_term/2,141,static,private,monofile,global,[
+predicate(emit_code_term/2,142,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),1),
     put_atom(streamwamfile,1),
@@ -170,7 +174,7 @@ predicate(emit_code_term/2,141,static,private,monofile,global,[
     execute(close/1)]).
 
 
-predicate(emit_code/5,150,static,private,monofile,global,[
+predicate(emit_code/5,151,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),4),
     put_atom(streamwamfile,4),
@@ -191,8 +195,9 @@ predicate(emit_code/5,150,static,private,monofile,global,[
     execute(nl/1)]).
 
 
-predicate(emit_pred_start/6,160,static,private,monofile,global,[
-    load_cut_level(6),
+predicate(emit_pred_start/6,161,static,private,monofile,global,[
+    pragma_arity(7),
+    get_current_choice(x(6)),
     try_me_else(1),
     allocate(5),
     get_integer(0,1),
@@ -269,8 +274,9 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$emit_pred_start/6_$aux4'/3,169,static,private,monofile,local,[
-    load_cut_level(3),
+predicate('$emit_pred_start/6_$aux4'/3,170,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -291,8 +297,9 @@ label(1),
     proceed]).
 
 
-predicate('$emit_pred_start/6_$aux3'/3,169,static,private,monofile,local,[
-    load_cut_level(3),
+predicate('$emit_pred_start/6_$aux3'/3,170,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -313,8 +320,9 @@ label(1),
     proceed]).
 
 
-predicate('$emit_pred_start/6_$aux2'/3,169,static,private,monofile,local,[
-    load_cut_level(3),
+predicate('$emit_pred_start/6_$aux2'/3,170,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -335,7 +343,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_pred_start/6_$aux1'/2,160,static,private,monofile,local,[
+predicate('$emit_pred_start/6_$aux1'/2,161,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -358,8 +366,9 @@ label(5),
     proceed]).
 
 
-predicate(export_type/5,191,static,private,monofile,global,[
-    load_cut_level(5),
+predicate(export_type/5,192,static,private,monofile,global,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     allocate(1),
     get_atom(local,4),
@@ -452,8 +461,9 @@ label(7),
     proceed]).
 
 
-predicate(emit_file_name_if_needed/2,217,static,private,monofile,global,[
-    load_cut_level(2),
+predicate(emit_file_name_if_needed/2,218,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     put_atom(cur_pl_file,1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(0)]),
@@ -477,8 +487,9 @@ label(1),
     proceed]).
 
 
-predicate(emit_wam_code/3,227,static,private,monofile,global,[
-    load_cut_level(3),
+predicate(emit_wam_code/3,228,static,private,monofile,global,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(5),
     switch_on_term(1,2,fail,4,fail),
 
@@ -579,8 +590,9 @@ label(8),
     execute(emit_one_inst/2)]).
 
 
-predicate('$emit_wam_code/3_$aux2'/2,251,static,private,monofile,local,[
-    load_cut_level(2),
+predicate('$emit_wam_code/3_$aux2'/2,252,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
@@ -594,8 +606,9 @@ label(1),
     proceed]).
 
 
-predicate('$emit_wam_code/3_$aux1'/2,241,static,private,monofile,local,[
-    load_cut_level(2),
+predicate('$emit_wam_code/3_$aux1'/2,242,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
@@ -609,8 +622,9 @@ label(1),
     proceed]).
 
 
-predicate(emit_one_inst/2,263,static,private,monofile,global,[
-    load_cut_level(2),
+predicate(emit_one_inst/2,264,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_variable(x(3),1),
     get_variable(x(1),0),
@@ -641,8 +655,9 @@ label(1),
     execute(write/2)]).
 
 
-predicate(emit_args/4,273,static,private,monofile,global,[
-    load_cut_level(4),
+predicate(emit_args/4,274,static,private,monofile,global,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_value(x(1),0),
     cut(x(4)),
@@ -674,8 +689,9 @@ label(1),
     execute(emit_args/4)]).
 
 
-predicate('$emit_args/4_$aux1'/2,276,static,private,monofile,local,[
-    load_cut_level(2),
+predicate('$emit_args/4_$aux1'/2,277,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_integer(1,0),
     cut(x(2)),
@@ -690,8 +706,9 @@ label(1),
     execute(put_char/2)]).
 
 
-predicate(emit_one_arg/2,286,static,private,monofile,global,[
-    load_cut_level(2),
+predicate(emit_one_arg/2,287,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(6),
     get_list(0),
@@ -738,7 +755,7 @@ label(1),
     execute(writeq/2)]).
 
 
-predicate(emit_list/3,301,static,private,monofile,global,[
+predicate(emit_list/3,302,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -787,8 +804,9 @@ label(4),
     execute(emit_list/3)]).
 
 
-predicate(emit_ensure_linked/0,312,static,private,monofile,global,[
-    load_cut_level(0),
+predicate(emit_ensure_linked/0,313,static,private,monofile,global,[
+    pragma_arity(1),
+    get_current_choice(x(0)),
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -823,7 +841,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_ensure_linked/0_$aux1'/1,312,static,private,monofile,local,[
+predicate('$emit_ensure_linked/0_$aux1'/1,313,static,private,monofile,local,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -848,7 +866,7 @@ label(1),
     proceed]).
 
 
-predicate(bc_emit_code/5,329,static,private,monofile,global,[
+predicate(bc_emit_code/5,330,static,private,monofile,global,[
     allocate(3),
     get_variable(y(0),4),
     put_atom(streamwamfile,4),
@@ -864,8 +882,9 @@ predicate(bc_emit_code/5,329,static,private,monofile,global,[
     execute('$bc_emit_code/5_$aux1'/3)]).
 
 
-predicate('$bc_emit_code/5_$aux1'/3,329,static,private,monofile,local,[
-    load_cut_level(3),
+predicate('$bc_emit_code/5_$aux1'/3,330,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),
@@ -913,8 +932,9 @@ label(1),
     execute(bc_emit_lst_clause/2)]).
 
 
-predicate('$bc_emit_code/5_$aux2'/4,329,static,private,monofile,local,[
-    load_cut_level(4),
+predicate('$bc_emit_code/5_$aux2'/4,330,static,private,monofile,local,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_list(0),
     unify_variable(x(0)),
@@ -936,7 +956,7 @@ label(1),
     proceed]).
 
 
-predicate(bc_emit_lst_clause/2,350,static,private,monofile,global,[
+predicate(bc_emit_lst_clause/2,351,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -982,7 +1002,7 @@ label(4),
     execute(bc_emit_lst_clause/2)]).
 
 
-predicate(bc_emit_prolog_term/2,363,static,private,monofile,global,[
+predicate(bc_emit_prolog_term/2,364,static,private,monofile,global,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),

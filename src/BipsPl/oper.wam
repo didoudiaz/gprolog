@@ -25,7 +25,8 @@ predicate(op/3,44,static,private,monofile,built_in,[
 
 
 predicate('$op/3_$aux1'/3,44,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_variable(x(4),2),
     get_variable(x(2),0),

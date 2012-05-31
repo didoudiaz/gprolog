@@ -259,14 +259,12 @@ read_predicate1(Pred, N, LSrcCl) :-
 	group_clauses_by_pred(Pred, N, SrcCl, LSrcCl).
 
 read_predicate1(Pred, N, [SrcCl|LSrcCl]) :-
-	retract(buff_discontig_clause(Pred, N, SrcCl)),  % discontiguous pred
-	                                                !,
+	retract(buff_discontig_clause(Pred, N, SrcCl)), !,  % discontiguous pred
 	recover_discontig_clauses(Pred, N, LSrcCl).
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
-	retract(buff_dyn_interf_clause(Pred, N, SrcCl)),      % dyn predicate
-	                                                 !.
+	retract(buff_dyn_interf_clause(Pred, N, SrcCl)), !.     % dyn predicate
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
@@ -563,10 +561,11 @@ handle_directive(dynamic, DLst, Where) :-
 	set_flag_for_preds(DLst, pub),
 	add_empty_dyn(DLst, Where).
 
-handle_directive(multifile, DLst, _) :-
+handle_directive(multifile, DLst, Where) :-
 	!,
 	DLst \== [],
-	set_flag_for_preds(DLst, multi).
+	set_flag_for_preds(DLst, multi),
+	add_empty_dyn(DLst, Where).
 
 handle_directive(discontiguous, DLst, _) :-
 	!,
@@ -828,7 +827,11 @@ add_empty_dyn((P1, P2), Where) :-
 	add_empty_dyn(P2, Where).
 
 add_empty_dyn(Pred / N, Where) :-
-	assertz(empty_dyn_pred(Pred, N, Where)).
+	(   clause(empty_dyn_pred(Pred, N, _), _) ->
+	    true
+	;
+	    assertz(empty_dyn_pred(Pred, N, Where))
+	).
 
 
 

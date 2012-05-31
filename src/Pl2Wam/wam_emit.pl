@@ -76,8 +76,9 @@
  * retry_me_else(L)                         retry(L)                       *
  * trust_me_else_fail                       trust(L)                       *
  *                                                                         *
- * load_cut_level(A)                                                       *
+ * get_current_choice(V)                    pragma_arity(N) (for cut)      *
  * cut(V)                                                                  *
+ * soft_cut(V)                                                             *
  *                                                                         *
  * call_c(F, [T,...], [W,...])                                             *
  *   F=FctName, T=option only these options are relevant:                  *

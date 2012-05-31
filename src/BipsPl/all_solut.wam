@@ -69,7 +69,8 @@ predicate(bagof/3,64,static,private,monofile,built_in,[
 
 
 predicate('$bagof'/4,69,static,private,monofile,built_in,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     allocate(5),
     get_variable(y(0),2),
@@ -122,7 +123,8 @@ label(1),
 
 
 predicate('$$bagof/4_$aux2'/2,80,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_atom(bagof,0),
     cut(x(2)),
@@ -135,7 +137,8 @@ label(1),
 
 
 predicate('$$bagof/4_$aux1'/2,69,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_atom(bagof,0),
     cut(x(2)),

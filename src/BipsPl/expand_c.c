@@ -72,6 +72,7 @@ static Bool opt_term_unif;
 static int atom_clause;
 static int atom_phrase;
 static int atom_if;
+static int atom_soft_if;
 static int atom_neg;
 
 static WamWord dcg_2;
@@ -142,6 +143,7 @@ Expand_Initializer(void)
   atom_clause = Pl_Create_Atom(":-");
   atom_phrase = Pl_Create_Atom("phrase");
   atom_if = Pl_Create_Atom("->");
+  atom_soft_if = Pl_Create_Atom("*->"); /* soft-cut */
   atom_neg = Pl_Create_Atom("\\+");
 
   dcg_2 = Functor_Arity(atom_dcg, 2);
@@ -393,7 +395,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, Bool opt_equal_between_in_out_vars,
 
   opt_term_unif = FALSE;      /* from here opt_term_unif = FALSE */
 
-  if (arity == 2 && func == atom_if)
+  if (arity == 2 && (func == atom_if || func == atom_soft_if))
     {
       word = Pl_Mk_Variable();
       w1 = Dcg_Body(*adr++, FALSE, in_word, word, NULL);

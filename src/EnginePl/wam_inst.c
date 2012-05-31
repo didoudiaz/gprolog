@@ -1156,14 +1156,14 @@ Pl_Switch_On_Structure(SwtTbl t, int size)
 
 
 /*-------------------------------------------------------------------------*
- * PL_LOAD_CUT_LEVEL                                                       *
+ * PL_GET_CURRENT_CHOICE                                                   *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void FC
-Pl_Load_Cut_Level(WamWord *word_adr)
+WamWord FC
+Pl_Get_Current_Choice(void)
 {
-  *word_adr = From_B_To_WamWord(B);
+  return From_B_To_WamWord(B);
 }
 
 
@@ -1179,6 +1179,47 @@ Pl_Cut(WamWord b_word)
 {
   Assign_B(From_WamWord_To_B(b_word));
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SOFT_CUT                                                             *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Pl_Soft_Cut(WamWord b_word)
+{
+  WamWord *kill_B = From_WamWord_To_B(b_word);
+  WamWord *cur_B = B;
+  WamWord *prev_B;
+
+  /* soft cut: unchain the choice-point pointed by kill_B */
+
+  if (cur_B == kill_B)
+    {
+      Assign_B(BB(cur_B));
+      return;
+    }
+
+  for(;;)
+    {
+      prev_B = BB(cur_B);
+
+      if (prev_B == kill_B)	/* found */
+	{
+	  BB(cur_B) = BB(kill_B);
+	  break;
+	}
+
+      if (cur_B < kill_B)	/* not found (can occur at backtracking since already unchained) */
+	break;
+
+      cur_B = prev_B;
+    }
+}
+
 
 
 

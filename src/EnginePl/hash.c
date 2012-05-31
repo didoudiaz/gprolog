@@ -54,6 +54,8 @@
 #define Realloc(ptr, size) realloc(ptr, size)
 #define Free(ptr)          free(ptr)
 
+typedef long PlLong;
+
 #else
 
 #include "engine_pl.h"
@@ -113,7 +115,7 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, PlLong key);
  * A hash table consists of a header (tbl_size, elem_size, nb_elem) and a  *
  * table of tbl_size pointers to nodes.                                    *
  * Each node records a pointer to the next node, and a user element whose  *
- * size is elem_size. Each element must begin with the key (a PlLong).       *
+ * size is elem_size. Each element must begin with the key (a PlLong).     *
  *-------------------------------------------------------------------------*/
 
 
@@ -272,9 +274,7 @@ Pl_Hash_Insert(char *tbl, char *elem, int replace)
 
   if (p == NULL)		/* the key does not exist */
     {
-      p =
-	(HashNode) Malloc(sizeof(struct hash_node) - sizeof(PlLong) +
-			  elem_size);
+      p = (HashNode) Malloc(sizeof(struct hash_node) - sizeof(PlLong) + elem_size);
 #ifdef USE_ALONE
       if (p == NULL)
 	return NULL;

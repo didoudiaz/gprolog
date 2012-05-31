@@ -246,7 +246,12 @@ inline_predicate(Pred, Arity) :-
 
 
 inline_predicate('$get_cut_level', 1, _).
+
+inline_predicate('$get_current_choice', 1, _).
+
 inline_predicate('$cut', 1, _).
+
+inline_predicate('$soft_cut', 1, _).
 
 
 

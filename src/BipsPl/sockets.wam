@@ -99,7 +99,8 @@ predicate(socket_accept/4,89,static,private,monofile,built_in,[
 
 
 predicate('$socket_accept/4_$aux1'/1,89,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),

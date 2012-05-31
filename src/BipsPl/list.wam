@@ -45,7 +45,8 @@ predicate('$reverse_alt'/0,107,static,private,monofile,built_in,[
 
 
 predicate(delete/3,113,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -254,7 +255,8 @@ predicate(nth/3,254,static,private,monofile,built_in,[
 
 
 predicate(nth1/3,257,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     cut(x(3)),
@@ -272,7 +274,8 @@ label(1),
 
 
 predicate(nth0/3,266,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     cut(x(3)),
@@ -328,7 +331,8 @@ predicate(max_list/2,286,static,private,monofile,built_in,[
 
 
 predicate('$max_list1'/3,289,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -376,7 +380,8 @@ predicate(min_list/2,301,static,private,monofile,built_in,[
 
 
 predicate('$min_list1'/3,304,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -447,7 +452,8 @@ label(4),
 
 
 predicate(flatten/2,328,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(3),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -462,7 +468,8 @@ predicate(flatten/2,328,static,private,monofile,built_in,[
 
 
 predicate('$flatten'/3,332,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_list(2),
     unify_local_value(x(0)),

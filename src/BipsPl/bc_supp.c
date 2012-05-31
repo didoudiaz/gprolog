@@ -130,8 +130,14 @@ typedef enum
   PROCEED,
   FAIL,
 
+  GET_CURRENT_CHOICE_X,
+  GET_CURRENT_CHOICE_Y,
+
   CUT_X,
-  CUT_Y
+  CUT_Y,
+
+  SOFT_CUT_X,
+  SOFT_CUT_Y
 }
 BCCodOp;
 
@@ -314,7 +320,9 @@ Byte_Code_Initializer(void)
   Op_In_Tbl("proceed", PROCEED);
   Op_In_Tbl("fail", FAIL);
 
+  Op_In_Tbl("get_current_choice", GET_CURRENT_CHOICE_X);
   Op_In_Tbl("cut", CUT_X);
+  Op_In_Tbl("soft_cut", SOFT_CUT_X);
 
   nb_op = p - op_tbl;
 
@@ -623,7 +631,9 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case UNIFY_X_VARIABLE:
     case UNIFY_X_VALUE:
     case UNIFY_X_LOCAL_VALUE:
+    case GET_CURRENT_CHOICE_X:
     case CUT_X:
+    case SOFT_CUT_X:
       BC2_XY(w) = BC_Arg_X_Or_Y(*arg_adr, &op);
       break;
 
@@ -877,7 +887,7 @@ start:
     goto fail;
 
   arity = dyn->arity;
-  Pl_Load_Cut_Level(&A(arity));	/* init cut register */
+  A(arity) = Pl_Get_Current_Choice();	/* init cut register */
   A(arity + 1) = debug_call;
 
   clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
@@ -1375,6 +1385,16 @@ bc_loop:
 	}
       goto fail;
 
+    case GET_CURRENT_CHOICE_X:
+      x = BC2_XY(w);
+      X(x) = Pl_Get_Current_Choice();
+      goto bc_loop;
+
+    case GET_CURRENT_CHOICE_Y:
+      y = BC2_XY(w);
+      Y(E, y) = Pl_Get_Current_Choice();
+      goto bc_loop;
+
     case CUT_X:
       x = BC2_XY(w);
       Pl_Cut(X(x));
@@ -1383,6 +1403,16 @@ bc_loop:
     case CUT_Y:
       y = BC2_XY(w);
       Pl_Cut(Y(E, y));
+      goto bc_loop;
+
+    case SOFT_CUT_X:
+      x = BC2_XY(w);
+      Pl_Soft_Cut(X(x));
+      goto bc_loop;
+
+    case SOFT_CUT_Y:
+      y = BC2_XY(w);
+      Pl_Soft_Cut(Y(E, y));
       goto bc_loop;
     }
 

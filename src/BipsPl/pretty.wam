@@ -84,7 +84,8 @@ label(1),
 
 
 predicate('$$portray_clause/3_$aux2'/1,65,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -98,7 +99,8 @@ label(1),
 
 
 predicate('$$portray_clause/3_$aux1'/1,65,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
@@ -184,7 +186,8 @@ predicate('$get_bind_variables_options'/4,120,static,private,monofile,built_in,[
 
 
 predicate('$get_bind_variables_options1'/1,131,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),

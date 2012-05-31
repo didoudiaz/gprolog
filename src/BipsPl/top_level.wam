@@ -80,7 +80,8 @@ predicate(break/0,58,static,private,monofile,built_in,[
 
 
 predicate('$break/0_$aux2'/1,58,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),2),
@@ -100,7 +101,8 @@ label(1),
 
 
 predicate('$break/0_$aux1'/1,58,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),2),
@@ -120,7 +122,8 @@ label(1),
 
 
 predicate('$top_level1'/0,85,static,private,monofile,built_in,[
-    load_cut_level(0),
+    pragma_arity(1),
+    get_current_choice(x(0)),
     allocate(1),
     get_variable(y(0),0),
     call(repeat/0),
@@ -160,7 +163,8 @@ predicate('$top_level_stop'/0,101,static,private,monofile,built_in,[
 
 
 predicate('$top_level_exception'/1,109,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(2),
     get_structure('$post_query_exception'/1,0),
@@ -227,7 +231,8 @@ predicate('$reinit_after_exception'/0,127,static,private,monofile,built_in,[
 
 
 predicate('$$reinit_after_exception/0_$aux1'/0,127,static,private,monofile,local,[
-    load_cut_level(0),
+    pragma_arity(1),
+    get_current_choice(x(0)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
@@ -247,7 +252,8 @@ label(1),
 
 
 predicate('$top_level2'/0,139,static,private,monofile,built_in,[
-    load_cut_level(0),
+    pragma_arity(1),
+    get_current_choice(x(0)),
     allocate(6),
     get_variable(y(0),0),
     call(repeat/0),
@@ -278,7 +284,8 @@ predicate('$top_level2'/0,139,static,private,monofile,built_in,[
 
 
 predicate('$$top_level2/0_$aux3'/3,139,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),
@@ -325,7 +332,8 @@ label(1),
 
 
 predicate('$$top_level2/0_$aux5'/1,139,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     get_integer(0,0),
     cut(x(1)),
@@ -342,7 +350,8 @@ label(1),
 
 
 predicate('$$top_level2/0_$aux4'/3,139,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -361,7 +370,8 @@ label(1),
 
 
 predicate('$$top_level2/0_$aux2'/1,139,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -380,7 +390,8 @@ label(1),
 
 
 predicate('$$top_level2/0_$aux1'/2,139,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -427,7 +438,8 @@ label(1),
 
 
 predicate('$$write_indicator/0_$aux1'/2,185,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_variable(x(3),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
@@ -458,7 +470,8 @@ label(2),
 
 
 predicate('$$write_indicator/0_$aux2'/2,185,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_atom('',0),
     cut(x(2)),
@@ -513,7 +526,8 @@ label(7),
 
 
 predicate('$read_query'/2,215,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -565,7 +579,8 @@ label(1),
 
 
 predicate('$$read_query/2_$aux1'/1,215,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -627,7 +642,8 @@ predicate('$exec_query'/2,233,static,private,monofile,built_in,[
 
 
 predicate('$$exec_query/2_$aux1'/3,233,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -649,7 +665,8 @@ label(1),
 
 
 predicate('$$exec_query/2_$aux2'/2,233,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
@@ -696,7 +713,8 @@ predicate('$set_query_vars_names'/2,261,static,private,monofile,built_in,[
 
 
 predicate('$remove_underscore_vars'/2,270,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -764,7 +782,8 @@ label(1),
 
 
 predicate('$write_solution'/3,285,static,private,monofile,built_in,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_nil(0),
     cut(x(3)),
@@ -801,7 +820,8 @@ label(1),
 
 
 predicate('$$write_solution/3_$aux1'/2,285,static,private,monofile,local,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
     math_load_value(x(0),0),
@@ -849,7 +869,8 @@ label(4),
 
 
 predicate('$$write_solution1/2_$aux1'/3,300,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -898,7 +919,8 @@ label(1),
 
 
 predicate('$read_return'/0,312,static,private,monofile,built_in,[
-    load_cut_level(0),
+    pragma_arity(1),
+    get_current_choice(x(0)),
     allocate(2),
     get_variable(y(0),0),
     put_atom(top_level_output,0),
@@ -914,7 +936,8 @@ predicate('$read_return'/0,312,static,private,monofile,built_in,[
 
 
 predicate('$read_return'/1,320,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(12),
     switch_on_term(2,fail,1,fail,fail),
 
@@ -987,7 +1010,8 @@ label(12),
 
 
 predicate('$exec_cmd_line_consult_files'/1,345,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(6),
     switch_on_term(2,fail,fail,1,fail),
 
@@ -1038,7 +1062,8 @@ label(6),
 
 
 predicate('$exec_cmd_line_entry_goals'/1,360,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1060,7 +1085,8 @@ predicate('$exec_cmd_line_goal'/1,370,static,private,monofile,built_in,[
 
 
 predicate('$$exec_cmd_line_goal/1_$aux1'/1,370,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(1),
     get_variable(x(3),0),

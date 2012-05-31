@@ -123,7 +123,8 @@ predicate('$get_read_options'/4,103,static,private,monofile,built_in,[
 
 
 predicate('$get_read_options1'/1,114,static,private,monofile,built_in,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),

@@ -143,9 +143,6 @@ static char *def_inlines[] = {
                      addq    $10,0x8,$10                               \n\
                      stq     $31,2056($9)                              \n",
 
-  "Load_Cut_Level", "   # %s inlined\n\
-                     s8addq  $11,0,$1                                  \n\
-                     stq     $1,0($16)                                 \n",
 
   "Cut", "   # %s inlined\n\
                      srl     $16,3,$11                                 \n",

@@ -21,7 +21,8 @@ predicate(expand_term/2,49,static,private,monofile,built_in,[
 
 
 predicate('$expand_term1'/2,53,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(1),
     get_variable(y(0),2),
     call('$$expand_term1/2_$aux1'/2),
@@ -108,7 +109,8 @@ predicate('$phrase'/4,84,static,private,monofile,built_in,[
 
 
 predicate('$$phrase/4_$aux1'/1,84,static,private,monofile,local,[
-    load_cut_level(1),
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),

@@ -427,15 +427,21 @@ dummy_instruction(put_value(x(X), X), f).
 :-	discontiguous(gen_inline_pred / 5).
 
 
-	% Cut inline ('$get_cut_level'/1,'$cut'/1)
+	% Cut inline ('$get_cut_level'/1, '$get_current_choice'/1, '$cut'/1, '$soft_cut'/1)
 
 gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	cur_pred(Pred, N),
 	set_pred_info(cut, Pred, N),
 	gen_unif_arg(Arg, N, WamNext, WamArg).
 
+gen_inline_pred('$get_current_choice', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
+	WamInst = get_current_choice(VarName).
+
 gen_inline_pred('$cut', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
 	WamInst = cut(VarName).
+
+gen_inline_pred('$soft_cut', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
+	WamInst = soft_cut(VarName).
 
 
 

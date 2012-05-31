@@ -796,7 +796,7 @@ Pl_Get_Current_B_1(WamWord b_word)
 {
   WamWord word;
 
-  Pl_Load_Cut_Level(&word);
+  word = Pl_Get_Current_Choice();
   Pl_Unify(word, b_word);
 }
 

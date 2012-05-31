@@ -136,12 +136,16 @@ In order to allow multiple definitions, \texttt{Pred} can also be a list of
 predicate indicators or a sequence of predicate indicators using
 \texttt{','/2} as separator.
 
+A multifile predicate cannot be directly called from a file where it is not
+declared as multifile (the native compiler must know the called predicate is
+multifile). Workarounds: either call it via a meta-call (e.g. using
+\texttt{call/1}) or declare it as multifile in the calling source file). A
+good habit is to encapsulate a multifile predicate in a monofile predicate
+which invokes it (external call only invoke the monofile wrapper predicate).
+
 \Portability
 
-ISO directive. The ISO reference document states that if there is no clause
-for \texttt{Pred} in the source file, \texttt{Pred} exists however as an
-empty predicate (i.e. \texttt{current\_predicate(Pred)} will succeed). This
-is not the case for GNU Prolog.
+ISO directive. 
 
 \subsubsection{\texttt{ensure\_linked/1}}
    \AddDiD{ensure\_linked/1}
@@ -436,15 +440,18 @@ ISO control constructs.
 
 \subsubsection{\texttt{(',')/2} - conjunction,
                \texttt{(;)/2} - disjunction,
-               \texttt{(-{\gt})/2} - if-then}
+               \texttt{(-{\gt})/2} - if-then,
+               \texttt{(*-{\gt})/2} - soft-cut (soft if-then)}
    \AddCCD{(',')/2}
    \AddCCD{(;)/2}
    \AddCCD{(-{\gt})/2}
+   \AddCCD{(*-{\gt})/2}
 
 \begin{TemplatesOneCol}
 ','(+callable\_term, +callable\_term)\\
 ;(+callable\_term, +callable\_term)\\
--{\gt}(+callable\_term, +callable\_term)
+-{\gt}(+callable\_term, +callable\_term)\\
+{*-{\gt}}(+callable\_term, +callable\_term)
 
 \end{TemplatesOneCol}
 
@@ -471,8 +478,16 @@ choice-points created by \texttt{Goal1} together with the choice-point for
 the else-part are removed and \texttt{Goal2} is executed. If \texttt{Goal1}
 fails then \texttt{Goal3} is executed.
 
-\texttt{','}, \texttt{;} and \texttt{-{\gt}} are predefined infix operators
-\RefSP{op/3:(Term-input/output)}.
+\texttt{Goal1 *-{\gt} Goal2 ; Goal3} implements the so-called
+\Idx{soft-cut}. It acts as the above if-then-else except that if
+\texttt{Goal1} succeeds only \texttt{Goal3} is cut (the alternative solutions
+of \texttt{Goal1} are preserved and can be found by backtracking). Note that
+\texttt{Goal1 *-{\gt} Goal2} alone (i.e. without an else branch
+\texttt{Goal3}) is equivalent to \texttt{(Goal1 , Goal2)}.
+
+
+\texttt{','}, \texttt{;}, \texttt{-{\gt}} and \texttt{*-{\gt}} are predefined
+infix operators \RefSP{op/3:(Term-input/output)}.
 
 \begin{PlErrors}
 
@@ -494,7 +509,7 @@ the \texttt{unknown} Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 \Portability
 
-ISO control constructs.
+ISO control constructs except \texttt{(*-{\gt})/2} which is GNU Prolog specific.
 
 \subsubsection{\texttt{call/1}}
 \label{call/1}

@@ -361,9 +361,11 @@ PlLong FC Pl_Switch_On_Integer(void);
 
 CodePtr FC Pl_Switch_On_Structure(SwtTbl t, int size);
 
-void FC Pl_Load_Cut_Level(WamWord *word_adr);
+WamWord FC Pl_Get_Current_Choice(void);
 
 void FC Pl_Cut(WamWord b_word);
+
+void FC Pl_Soft_Cut(WamWord b_word);
 
 void FC Pl_Global_Push_Float(double n);
 

@@ -693,7 +693,7 @@ Pl_Acyclic_Term_1(WamWord start_word)
 
 	  ret = Pl_Acyclic_Term_1(word1);
       
-	  *adr = word;		/* unmark it */
+	  *adr = word1;		/* unmark it */
 	  if (!ret)
 	    return FALSE;
 	}

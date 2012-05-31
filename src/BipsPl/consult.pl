@@ -292,7 +292,28 @@ listing(PI) :-
 
 
 
+/* NEW version which orders the output by file then by line number */
 
+'$listing_all'(PI) :-  % setof: for each File returns a sorted list [Line-PI,...]
+	setof(Line-PI, '$listing_one_pi'(File, Line, PI), LKPI), 
+	format('~n%% file: ~w~n', [File]),
+	member(_-PI1, LKPI),
+	'$listing_one'(PI1),
+	fail.
+
+'$listing_all'(_).
+
+
+'$listing_one_pi'(File, Line, PI) :-
+	'$current_predicate'(PI),
+	\+ '$predicate_property_pi_any'(PI, native_code),
+	'$predicate_property_pi_any'(PI, prolog_file(File)),
+	'$predicate_property_pi_any'(PI, prolog_line(Line)).
+
+
+
+/* OLD version which does not order the output
+   
 '$listing_all'(PI) :-
 	current_prolog_flag(strict_iso, SI),
 	(   set_prolog_flag(strict_iso, off),
@@ -302,7 +323,7 @@ listing(PI) :-
 	;   set_prolog_flag(strict_iso, SI)
 	).
 
-
+*/
 
 
 '$listing_one'(PI) :-

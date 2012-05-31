@@ -55,6 +55,8 @@ stopping_inst(execute(_)).
 
 stopping_inst(cut(_)).
 
+stopping_inst(soft_cut(_)).
+
 stopping_inst(WamInst) :-
 	codification(WamInst, LCode),
 	assign_x0(LCode).

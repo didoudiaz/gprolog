@@ -110,6 +110,7 @@ Pl_Init_Pred(void)
   Pl_Create_Pred(ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
   Pl_Create_Pred(ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
   Pl_Create_Pred(Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL);
   Pl_Create_Pred(ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
   Pl_Create_Pred(Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
   Pl_Create_Pred(pl_atom_true, 0, file, __LINE__, prop, NULL);

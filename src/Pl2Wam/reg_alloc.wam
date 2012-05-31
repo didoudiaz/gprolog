@@ -32,7 +32,8 @@ predicate(allocate_registers/2,103,static,private,monofile,global,[
 
 
 predicate('$allocate_registers/2_$aux1'/3,103,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     math_fast_load_value(x(0),0),
     put_integer(0,4),
@@ -48,7 +49,8 @@ label(1),
 
 
 predicate(aliases/3,117,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -83,7 +85,8 @@ label(4),
 
 
 predicate('$aliases/3_$aux1'/3,119,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -110,7 +113,8 @@ label(1),
 
 
 predicate(aliases1/3,128,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -221,7 +225,8 @@ label(4),
 
 
 predicate('$add_alias/4_$aux1'/6,146,static,private,monofile,local,[
-    load_cut_level(6),
+    pragma_arity(7),
+    get_current_choice(x(6)),
     try_me_else(1),
     allocate(6),
     get_variable(y(0),0),
@@ -258,7 +263,8 @@ predicate(find_aliases_of/3,157,static,private,monofile,global,[
 
 
 predicate('$find_aliases_of/3_$aux1'/4,157,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),4),
@@ -295,7 +301,8 @@ label(4),
 
 
 predicate('$remove_aliases_of/3_$aux1'/4,168,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     allocate(4),
     get_variable(y(0),2),
@@ -320,7 +327,8 @@ label(1),
 
 
 predicate('$remove_aliases_of/3_$aux2'/3,168,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(3),
     get_variable(y(0),1),
@@ -362,7 +370,8 @@ label(4),
 
 
 predicate(create_lst_tmp/4,185,static,private,monofile,global,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -517,7 +526,8 @@ label(7),
 
 
 predicate('$handle_one_code/7_$aux2'/7,221,static,private,monofile,local,[
-    load_cut_level(7),
+    pragma_arity(8),
+    get_current_choice(x(7)),
     try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
@@ -545,7 +555,8 @@ label(1),
 
 
 predicate('$handle_one_code/7_$aux4'/6,221,static,private,monofile,local,[
-    load_cut_level(6),
+    pragma_arity(7),
+    get_current_choice(x(6)),
     try_me_else(1),
     allocate(7),
     get_variable(y(0),0),
@@ -584,7 +595,8 @@ label(1),
 
 
 predicate('$handle_one_code/7_$aux5'/3,221,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_variable(x(4),1),
     get_variable(x(1),0),
@@ -601,7 +613,8 @@ label(1),
 
 
 predicate('$handle_one_code/7_$aux3'/4,221,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_variable(x(5),3),
     get_variable(x(3),1),
@@ -622,7 +635,8 @@ label(1),
 
 
 predicate('$handle_one_code/7_$aux1'/7,204,static,private,monofile,local,[
-    load_cut_level(7),
+    pragma_arity(8),
+    get_current_choice(x(7)),
     try_me_else(1),
     allocate(7),
     get_variable(y(0),0),
@@ -677,7 +691,8 @@ label(1),
 
 
 predicate('$handle_one_code/7_$aux7'/5,204,static,private,monofile,local,[
-    load_cut_level(5),
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     get_variable(x(6),1),
     get_variable(x(1),0),
@@ -693,7 +708,8 @@ label(1),
 
 
 predicate('$handle_one_code/7_$aux6'/4,204,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_variable(x(5),3),
     get_variable(x(3),1),
@@ -722,7 +738,8 @@ predicate(constraints/4,248,static,private,monofile,global,[
 
 
 predicate('$constraints/4_$aux1'/4,248,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     allocate(4),
     get_variable(y(0),2),
@@ -785,7 +802,8 @@ label(4),
 
 
 predicate('$update_tmp/5_$aux1'/10,260,static,private,monofile,local,[
-    load_cut_level(10),
+    pragma_arity(11),
+    get_current_choice(x(10)),
     try_me_else(1),
     allocate(8),
     get_variable(y(0),0),
@@ -841,7 +859,8 @@ predicate(remove_tmp/5,274,static,private,monofile,global,[
 
 
 predicate('$remove_tmp/5_$aux1'/9,274,static,private,monofile,local,[
-    load_cut_level(9),
+    pragma_arity(10),
+    get_current_choice(x(9)),
     try_me_else(1),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     cut(x(9)),
@@ -895,7 +914,8 @@ label(4),
 
 
 predicate('$make_imposs/4_$aux1'/4,290,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_variable(x(5),1),
     get_variable(x(1),0),
@@ -929,7 +949,8 @@ predicate(assign_lst_tmp/2,302,static,private,monofile,global,[
 
 
 predicate('$assign_lst_tmp/2_$aux1'/3,302,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_integer(2,0),
     cut(x(3)),
@@ -990,7 +1011,8 @@ label(4),
 
 
 predicate('$assign_wishes/2_$aux1'/4,315,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(4)),
@@ -1009,7 +1031,8 @@ label(1),
 
 
 predicate(collapse_tmps/7,327,static,private,monofile,global,[
-    load_cut_level(7),
+    pragma_arity(8),
+    get_current_choice(x(7)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -1123,7 +1146,8 @@ label(1),
 
 
 predicate(try_a_whish/3,349,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(x(4),2),
@@ -1183,7 +1207,8 @@ label(4),
 
 
 predicate('$no_wish/3_$aux1'/4,359,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_integer(0,0),
     cut(x(4)),
@@ -1240,7 +1265,8 @@ label(4),
 
 
 predicate('$assign_values/3_$aux1'/3,371,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     math_fast_load_value(x(0),4),
     math_fast_load_value(x(1),1),
@@ -1256,7 +1282,8 @@ label(1),
 
 
 predicate(find_hole/3,383,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -1293,7 +1320,8 @@ label(7),
 
 
 predicate('$find_hole/3_$aux1'/4,389,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),3),
@@ -1317,7 +1345,8 @@ label(1),
 
 
 predicate('$find_hole/3_$aux2'/3,389,static,private,monofile,local,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     cut(x(3)),
@@ -1333,7 +1362,8 @@ label(1),
 
 
 predicate(set_add/3,404,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -1378,7 +1408,8 @@ label(7),
 
 
 predicate(set_delete/3,415,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -1410,7 +1441,8 @@ label(5),
 
 
 predicate(set_elt/2,425,static,private,monofile,global,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -1439,7 +1471,8 @@ label(5),
 
 
 predicate(set_inter/3,434,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -1487,7 +1520,8 @@ label(7),
 
 
 predicate(set_union/3,446,static,private,monofile,global,[
-    load_cut_level(3),
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),
@@ -1566,7 +1600,8 @@ label(4),
 
 
 predicate('$set_diff/3_$aux1'/4,460,static,private,monofile,local,[
-    load_cut_level(4),
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     allocate(3),
     get_variable(y(0),2),

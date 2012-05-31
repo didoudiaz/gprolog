@@ -139,7 +139,8 @@ predicate('$atom_property_any'/2,159,static,private,monofile,built_in,[
 
 
 predicate('$atom_property1'/2,166,static,private,monofile,built_in,[
-    load_cut_level(2),
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
