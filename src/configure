@@ -5372,6 +5372,36 @@ done
 
 
 
+
+# --------------------------------------
+# Check if obj_chain needs reverse order
+# --------------------------------------
+
+if test "$GCC" = yes; then
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking constructors execution order" >&5
+$as_echo_n "checking constructors execution order... " >&6; }
+   for i in 0 1; do
+      echo '#include "confdefs.h"' > conftest-$i.c
+      echo 'extern int first_to_last;' >>conftest-$i.c
+      echo "static void __attribute__ ((constructor)) mycons(void) { first_to_last = $i; }" >>conftest-$i.c
+   done
+   echo '#include "confdefs.h"' > conftest.c
+   echo 'int first_to_last;' >>conftest.c
+   echo 'int main () {  return first_to_last ? 0 : 1; }' >>conftest.c
+   gcc -o conftest conftest-0.c conftest-1.c conftest.c 2>&5
+   if test -s conftest && ./conftest; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: first to last" >&5
+$as_echo "first to last" >&6; }
+      $as_echo "#define OBJ_CHAIN_REVERSE_ORDER 1" >>confdefs.h
+
+   else
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: last to first" >&5
+$as_echo "last to first" >&6; }
+   fi
+fi
+
+
+
 # ********************
 # * libraries to add *
 # ********************

@@ -37,6 +37,7 @@
 
 /* $Id$ */
 
+#include "gp_config.h"
 #include "pl_long.h"
 
 /*---------------------------------*
@@ -98,7 +99,7 @@ static PlLong obj_chain_start = (PlLong) OBJ_CTOR;
 
 
 
-#if defined(_MSC_VER) || defined(M_darwin)
+#if (defined(_MSC_VER) || defined(M_darwin)) && !defined(OBJ_CHAIN_REVERSE_ORDER)
 #define OBJ_CHAIN_REVERSE_ORDER
 #endif
 

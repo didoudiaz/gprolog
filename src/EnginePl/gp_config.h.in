@@ -283,6 +283,10 @@
 /* Define if linux needs asm/sigcontext.h */
 #undef LINUX_NEEDS_ASM_SIGCONTEXT
 
+
+/* Define if obj chain needs to reverse order of collected objects */
+#undef OBJ_CHAIN_REVERSE_ORDER
+
 #include "arch_dep.h"
 #include "pl_long.h"
 

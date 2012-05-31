@@ -551,6 +551,32 @@ AC_FUNC_MMAP
 AC_CHECK_FUNCS(mprotect mallopt fgetc atanh acosh asinh)
 
 
+
+# --------------------------------------
+# Check if obj_chain needs reverse order
+# --------------------------------------
+
+if test "$GCC" = yes; then
+   AC_MSG_CHECKING([constructors execution order])
+   for i in 0 1; do 
+      echo '#include "confdefs.h"' > conftest-$i.c
+      echo 'extern int first_to_last;' >>conftest-$i.c
+      echo "static void __attribute__ ((constructor)) mycons(void) { first_to_last = $i; }" >>conftest-$i.c 
+   done
+   echo '#include "confdefs.h"' > conftest.c
+   echo 'int first_to_last;' >>conftest.c
+   echo 'int main () {  return first_to_last ? 0 : 1; }' >>conftest.c 
+   gcc -o conftest conftest-0.c conftest-1.c conftest.c 2>&5
+   if test -s conftest && ./conftest; then
+      AC_MSG_RESULT(first to last)
+      AC_DEFINE(OBJ_CHAIN_REVERSE_ORDER)
+   else
+      AC_MSG_RESULT(last to first)
+   fi
+fi
+
+
+
 # ********************
 # * libraries to add *
 # ********************
@@ -620,7 +646,7 @@ CFLAGS=$SAVE_CFLAGS
 # ***********************
 
 AC_DEFINE_UNQUOTED(PROLOG_NAME,      "$PROLOG_NAME")
-AC_DEFINE_UNQUOTED(PROLOG_DIALECT,     "$PROLOG_DIALECT")
+AC_DEFINE_UNQUOTED(PROLOG_DIALECT,   "$PROLOG_DIALECT")
 AC_DEFINE_UNQUOTED(PROLOG_VERSION,   "$PROLOG_VERSION")
 AC_DEFINE_UNQUOTED(PROLOG_DATE,      "$PROLOG_DATE")
 AC_DEFINE_UNQUOTED(PROLOG_COPYRIGHT, "$PROLOG_COPYRIGHT")
