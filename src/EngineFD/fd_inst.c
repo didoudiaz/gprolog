@@ -42,6 +42,8 @@
 
 #define FD_INST_FILE
 
+#define OBJ_INIT Fd_Inst_Initializer
+
 #include "engine_pl.h"
 #include "engine_fd.h"
 
@@ -73,7 +75,7 @@ static WamWord *TP;
 static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
 static PlULong always_date = -1;	/* must be always > DATE */
-static PlULong never_date = 0;	/* must be always < DATE */
+static PlULong never_date = 0;		/* must be always < DATE */
 
 void (*pl_fd_init_solver) () = Pl_Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
 void (*pl_fd_reset_solver) () = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
@@ -257,6 +259,22 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 	}								   \
     }									   \
   while (0)
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * FD_INST_INITIALIZER                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Fd_Inst_Initializer(void)
+{
+  pl_fd_init_solver = Pl_Fd_Init_Solver0;
+  pl_fd_reset_solver = Pl_Fd_Reset_Solver0;
+}
+
 
 
 

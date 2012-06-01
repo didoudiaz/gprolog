@@ -51,6 +51,7 @@
 
 #ifdef IF_NO_FD_FILE
 
+
 void (*pl_fd_init_solver) ();	/* overwritten by FD if present */
 void (*pl_fd_reset_solver) ();
 

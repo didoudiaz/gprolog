@@ -1114,7 +1114,7 @@ Pl_M_Absolute_Path_Name(char *src)
         )
         {
           p = dst;
-          while (isalnum(*src))
+          while (isalnum(*src) || *src == '_')
             *dst++ = *src++;
 #if defined(_WIN32) || defined(__CYGWIN__)
           if (c == '%' && *src != '%')
@@ -1142,12 +1142,23 @@ Pl_M_Absolute_Path_Name(char *src)
 
   if (buff[res][0] == '~')
     {
-      if (buff[res][1] == DIR_SEP_C || buff[res][1] == '\0')    /* ~/... cf $HOME */
+      if (buff[res][1] == DIR_SEP_C || buff[res][1] == '/' ||
+	  buff[res][1] == '\0')    /* ~/... cf $HOME */
         {
-          if ((p = getenv("HOME")) == NULL && (p = getenv("HOMEPATH")) == NULL)
-            return NULL;
-
-          sprintf(buff[1 - res], "%s/%s", p, buff[res] + 1);
+	  q = NULL;;
+          if ((p = getenv("HOME")) == NULL)
+	    {
+#if defined(_WIN32) || defined(__CYGWIN__)
+	      if ((p = getenv("HOMEPATH")) == NULL)
+		return NULL;
+	      q = getenv("HOMEDRIVE");
+#else
+	      return NULL;
+#endif
+	    }
+	  if (q == NULL)
+	    q = "";
+          sprintf(buff[1 - res], "%s%s/%s", q, p, buff[res] + 1);
           res = 1 - res;
         }
 #if defined(__unix__) || defined(__CYGWIN__)
