@@ -1938,10 +1938,11 @@ built-in predicates which have a stream-term as an input argument also accept
 a stream alias as that argument. However, built-in predicates which return a
 stream-term do not accept a stream alias.
 
-\SPart{Standard streams}: two streams are predefined and open during the
+\SPart{Standard streams}: three streams are predefined and open during the
 execution of every goal: the standard input stream which has the alias
-\IdxPKD{user\_input} and the standard output stream which has the alias
-\IdxPKD{user\_output}. A goal which attempts to close either standard stream
+\IdxPKD{user\_input}, the standard output stream which has the alias
+\IdxPKD{user\_output} and the standard error stream which has the alias
+\IdxPKD{user\_error}. A goal which attempts to close either standard stream
 succeeds, but does not close the stream.
 
 \SPart{Current streams}: during execution there is a current input stream

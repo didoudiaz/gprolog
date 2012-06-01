@@ -34,7 +34,7 @@ before trying to rebuild the manual:
    - dvips is needed to rebuild the PostScript version from the DVI.
    - pdflatex is needed to rebuild the PDF version.
    - HeVeA (version >= 1.06) is required to rebuild the HTML version.
-     HeVeA can be obtained at http://pauillac.inria.fr/~maranget/hevea/
+     HeVeA can be obtained at http://hevea.inria.fr/
    - The HTML Help compiler is needed to rebuild the HTML Help version
      (see below).
 

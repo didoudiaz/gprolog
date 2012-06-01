@@ -1,5 +1,10 @@
 Change in GNU Prolog version 1.4.1:
 
+* fix multifile directive (works now with an empty predicate as required by ISO)
+* fix absolute_file_name to expand ~ using HOMEDRIVE and HOMEPATH under windows
+  if HOME is not defined
+* impriove listing/0-1 output
+* add soft cut control construct and its associated operator *->
 * improve the top-level results in case of cyclic terms
 * fix arithmetic evaluable functor ^/2 to work with floats
 * increase maximum number of variables in a term
