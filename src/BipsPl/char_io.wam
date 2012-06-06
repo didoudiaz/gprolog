@@ -1,6 +1,5 @@
 % compiler: GNU Prolog 1.4.1
 % file    : char_io.pl
-%           1.19
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/char_io.pl').

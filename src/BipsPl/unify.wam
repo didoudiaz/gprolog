@@ -1,26 +1,25 @@
 % compiler: GNU Prolog 1.4.1
 % file    : unify.pl
-%           1.19
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/unify.pl').
 
 
-predicate('$use_unify'/0,42,static,private,monofile,built_in,[
+predicate('$use_unify'/0,43,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate((=)/2,45,static,private,monofile,built_in,[
+predicate((=)/2,46,static,private,monofile,built_in,[
     get_value(x(1),0),
     proceed]).
 
 
-predicate(unify_with_occurs_check/2,50,static,private,monofile,built_in,[
+predicate(unify_with_occurs_check/2,51,static,private,monofile,built_in,[
     call_c('Pl_Unify_Occurs_Check',[boolean,fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate((\=)/2,56,static,private,monofile,built_in,[
+predicate((\=)/2,57,static,private,monofile,built_in,[
     get_variable(x(2),0),
     put_structure((=)/2,0),
     unify_local_value(x(2)),

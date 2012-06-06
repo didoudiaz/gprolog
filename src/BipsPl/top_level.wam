@@ -1,6 +1,5 @@
 % compiler: GNU Prolog 1.4.1
 % file    : top_level.pl
-%           1.29
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/top_level.pl').

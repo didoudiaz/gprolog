@@ -1,6 +1,5 @@
 % compiler: GNU Prolog 1.4.1
 % file    : os_interf.pl
-%           1.20
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').

@@ -1,6 +1,5 @@
 % compiler: GNU Prolog 1.4.1
 % file    : call_args.pl
-%           1.19
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/call_args.pl').

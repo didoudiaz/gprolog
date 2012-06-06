@@ -37,7 +37,6 @@
 
 /* $Id$ */
 
-'$file_id'('$Id$').
 
 :-	built_in.
 

@@ -80,8 +80,6 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
 
 .pl.wam:
 	$(GPLC) -W $(GPLCFLAGS) --no-redef-error $*.pl
-#	@-sed -n -e 's!\(^[^$$]*\)\$$Id$$]*\)\(\$$.*\)!\n% from \2!p' $*.pl >>$*.wam
-
 
 .wam@OBJ_SUFFIX@:
 	$(GPLC) -c $*.wam
