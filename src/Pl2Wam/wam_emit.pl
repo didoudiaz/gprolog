@@ -113,7 +113,13 @@ emit_code_init(WamFile0, PlFile0) :-
 	prolog_name(Name),
 	prolog_version(Version),
 	format(Stream, '%% compiler: ~a ~a~n', [Name, Version]),
-	format(Stream, '%% file    : ~a~n', [PlFile]).
+	format(Stream, '%% file    : ~a~n', [PlFile]),
+	g_read(wam_comment, Cmt),
+	(   Cmt = '' ->
+	    true
+	;
+	    format(Stream, '%%           ~a~n', [Cmt])
+	).
 
 
 

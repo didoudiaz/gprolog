@@ -1,5 +1,6 @@
 Thu May 31 15:36:46 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
+	* add an option --wam-comment to gplc
 	* fix multifile directive (works now with an empty predicate as required by ISO)
 	* fix absolute_file_name to expand ~ using HOMEDRIVE and HOMEPATH under windows
 	  if HOME is not defined

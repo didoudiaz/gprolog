@@ -1118,11 +1118,22 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--wam-comment"))
+	    {
+	      if (++i >= argc)
+		Pl_Fatal_Error("COMMENT missing after %s option", last_opt);
+
+	      Add_Last_Option(cmd_pl2wam.opt);
+	      last_opt = argv[i];
+	      Add_Last_Option(cmd_pl2wam.opt);
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--no-susp-warn") ||
 	      Check_Arg(i, "--no-singl-warn") ||
 	      Check_Arg(i, "--no-redef-error") ||
 	      Check_Arg(i, "--foreign-only") ||
-         Check_Arg(i, "--no-call-c") ||
+	      Check_Arg(i, "--no-call-c") ||
 	      Check_Arg(i, "--no-inline") ||
 	      Check_Arg(i, "--no-reorder") ||
 	      Check_Arg(i, "--no-reg-opt") ||
@@ -1434,6 +1445,7 @@ Display_Help(void)
   L(" ");
   L("Prolog to WAM compiler options:");
   L("  --pl-state FILE             read FILE to set the initial Prolog state");
+  L("  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file");
   L("  --no-susp-warn              do not show warnings for suspicious predicates");
   L("  --no-singl-warn             do not show warnings for named singleton variables");
   L("  --no-redef-error            do not show errors for built-in redefinitions");

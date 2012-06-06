@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.1:
 
+* add an option --wam-comment to gplc
 * fix multifile directive (works now with an empty predicate as required by ISO)
 * fix absolute_file_name to expand ~ using HOMEDRIVE and HOMEPATH under windows
   if HOME is not defined

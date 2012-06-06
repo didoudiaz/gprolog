@@ -271,6 +271,7 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(plfile, ''),
 	g_assign(wamfile, ''),
 	g_assign(native_code, t),
+	g_assign(wam_comment, ''),
 	g_assign(susp_warn, t),
 	g_assign(singl_warn, t),
 	g_assign(redef_error, t),
@@ -341,6 +342,9 @@ cmd_line_arg1('--wam-for-byte-code', LArg, LArg) :-
 	g_assign(native_code, f),
 	g_assign(inline, f),                              % force --no-inline
 	g_assign(call_c, f).                              % force --no-call-c
+
+cmd_line_arg1('--wam-comment', [Cmt|LArg], LArg) :-
+	g_assign(wam_comment, Cmt).
 
 cmd_line_arg1('--no-susp-warn', LArg, LArg) :-
 	g_assign(susp_warn, f).
@@ -462,6 +466,7 @@ h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
 h('  --pl-state FILE             read FILE to set the initial Prolog state').
+h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').
 h('  --no-redef-error            do not show errors for built-in redefinitions').
