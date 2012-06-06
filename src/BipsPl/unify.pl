@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+'$file_id'('$Id$').
+
 :-	built_in.
 
 '$use_unify'.
