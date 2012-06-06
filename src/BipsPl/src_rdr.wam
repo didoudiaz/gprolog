@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.4.1
 % file    : src_rdr.pl
+%           1.17
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').

@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.4.1
 % file    : random.pl
+%           1.18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/random.pl').

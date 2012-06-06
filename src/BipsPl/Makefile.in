@@ -80,14 +80,16 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
 
 .pl.wam:
 	$(GPLC) -W $(GPLCFLAGS) --no-redef-error $*.pl
+#	@-sed -n -e 's!\(^[^$$]*\)\$$Id$$]*\)\(\$$.*\)!\n% from \2!p' $*.pl >>$*.wam
+
+
 .wam@OBJ_SUFFIX@:
 	$(GPLC) -c $*.wam
 
 .c@OBJ_SUFFIX@:
 	$(GPLC) -c -C '$(CFLAGS) $(CFLAGS_UNSIGNED_CHAR)' $*.c
 
-$(LIBNAME): $(OBJLIB) no_sockets.wam sockets.wam \
-                      no_le_interf.wam le_interf.wam
+$(LIBNAME): $(OBJLIB) no_sockets.wam sockets.wam no_le_interf.wam le_interf.wam
 	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
 	$(RANLIB) $(LIBNAME)

@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.4.1
 % file    : write.pl
+%           1.23
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/write.pl').

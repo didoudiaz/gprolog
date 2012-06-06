@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.4.1
 % file    : consult.pl
+%           1.24
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/consult.pl').

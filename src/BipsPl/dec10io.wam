@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.4.1
 % file    : dec10io.pl
+%           1.18
 
 
 file_name('/home/diaz/GP/src/src/BipsPl/dec10io.pl').
