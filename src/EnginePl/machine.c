@@ -100,7 +100,7 @@
 #define M_MAGIC1                   0x12345678
 #define M_MAGIC2                   0xdeadbeef
 
-#define UNKOWN_SYS_ERRNO           "Unknown error (%d)"
+#define UNKNOWN_SYS_ERRNO          "Unknown error (%d)"
 
 
 
@@ -708,7 +708,7 @@ Pl_M_Sys_Err_String(int ret_val)
 
       if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, status, 0, 
 			buff, sizeof(buff), NULL) == 0)
-	sprintf(buff, "Windows " UNKOWN_SYS_ERRNO, status);
+	sprintf(buff, "Windows " UNKNOWN_SYS_ERRNO, status);
       else
 	{			/* windows adds a ".\r\n" at end - remove it */
 	  char *p = buff + strlen(buff);
@@ -732,7 +732,7 @@ Pl_M_Sys_Err_String(int ret_val)
   if (str)
     return str;
 
-  sprintf(buff, UNKOWN_SYS_ERRNO, errno);
+  sprintf(buff, UNKNOWN_SYS_ERRNO, errno);
   return buff;
 }
 
