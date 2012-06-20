@@ -247,7 +247,7 @@ Virtual_Mem_Free(void *addr, int length)
 static void
 Virtual_Mem_Protect(void *addr, int length)
 {
-#if defined(WITH_SEH)
+#if defined(_WIN32)
   DWORD old_prot;
 
   if (!VirtualProtect(addr, length, PAGE_NOACCESS, &old_prot))
