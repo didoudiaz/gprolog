@@ -37,6 +37,7 @@
 
 /* $Id$ */
 
+
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <stdio.h>
@@ -50,15 +51,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "engine_pl.h"
-
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
-#endif
-
-#if defined(_WIN32)
+#elif defined(_WIN32)
 #include <windows.h>
 #endif
+
+#include "engine_pl.h"
 
 #ifdef LINUX_NEEDS_ASM_SIGCONTEXT /* see configure.in */
 #include <asm/sigcontext.h>
@@ -263,10 +262,11 @@ Virtual_Mem_Protect(void *addr, int length)
       Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
 
 #else
+  WamWord *addr0 = (WamWord *) addr;
 
-  addr[0] = M_MAGIC1;
-  addr[1] = M_MAGIC2;           /* and rest (addr[2...]) should be 0 */
-  addr[8] = 0;
+  addr0[0] = M_MAGIC1;
+  addr0[1] = M_MAGIC2;           /* and rest (addr[2...]) should be 0 */
+  addr0[8] = 0;
 
 #endif
 }
@@ -527,7 +527,7 @@ Install_SIGSEGV_Handler(void)
 
 #elif defined(_WIN32)
 
-  SetUnhandledExceptionFilter(Windows_Exception_Handler);
+  SetUnhandledExceptionFilter(Win32_Exception_Handler);
 
 #else
 
