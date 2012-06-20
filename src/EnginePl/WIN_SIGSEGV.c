@@ -8,12 +8,6 @@ typedef long WamWord;
 #error CYGWIN not supported
 #endif
 
-#ifdef _WIN64
-#error WIN64 detected
-f f f
-#endif
-
-
 LONG WINAPI Windows_Exception_Handler(LPEXCEPTION_POINTERS ei)
 {
   WamWord *addr;

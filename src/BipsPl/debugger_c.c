@@ -39,7 +39,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <setjmp.h>
 
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -108,7 +107,9 @@ static WamWord reg_copy[NB_OF_REGS];
 static StmInf *pstm_i;
 static StmInf *pstm_o;
 
-static jmp_buf dbg_jumper;
+static sigjmp_buf dbg_jumper;
+
+static void *invalid_addr;
 
 
 
@@ -337,35 +338,20 @@ Pl_Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 
 
 
-#if defined(USE_SEH)
-
 /*-------------------------------------------------------------------------*
- * DEBUGGER_SEH_HANDLER                                                    *
+ * DEBUGGER_SIGSEGV_HANDLER                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static EXCEPT_DISPOSITION
-Debugger_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
-		     CONTEXT *context_rec, void *dispatcher_cxt)
+static int
+Debugger_SIGSEGV_Handler(void *bad_addr)
 {
-  if (excp_rec->ExceptionFlags)
-    return ExceptContinueSearch; /* unwind and others */
+  invalid_addr = bad_addr;
 
-  longjmp(dbg_jumper, excp_rec->ExceptionCode);
+  siglongjmp(dbg_jumper, 1);
+
+  return 1;
 }
 
-#else
-
-/*-------------------------------------------------------------------------*
- * DEBUGGER_SIGNAL_HANDLER                                                 *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Debugger_Signal_Handler(int sig)
-{
-  longjmp(dbg_jumper, sig);
-}
-
-#endif
 
 
 
@@ -386,21 +372,14 @@ Pl_Debug_Wam(void)
 
   Pl_Stream_Printf(pstm_o, "Welcome to the WAM debugger - experts only\n");
 
-#if defined(USE_SEH)
-  SEH_PUSH(Debugger_SEH_Handler);
-#endif
+  Pl_Push_SIGSEGV_Handler(Debugger_SIGSEGV_Handler);
 
  restart:
-  ret = setjmp(dbg_jumper);
-  if (ret == 0)
+
+  ret = sigsetjmp(dbg_jumper, 1);
+  if (ret != 0)
     {
-#if !defined(USE_SEH)
-      signal(SIGSEGV, Debugger_Signal_Handler);
-#endif
-    }
-  else
-    {
-      Pl_Stream_Printf(pstm_o, "ERROR from handler: %d (%#x)\n", ret, ret);
+      Pl_Stream_Printf(pstm_o, "SIGSEGV occured at: %p\n", invalid_addr);
       goto restart;
     }
 
@@ -417,9 +396,8 @@ Pl_Debug_Wam(void)
       if (command)
 	(*command) ();
     }
-#if defined(USE_SEH)
-  SEH_POP;
-#endif
+
+  Pl_Pop_SIGSEGV_Handler();
 }
 
 

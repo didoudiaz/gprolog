@@ -80,7 +80,7 @@ static Bool tok_present;
 static TokInf unget_tok;
 
 
-static jmp_buf jumper;
+static sigjmp_buf jumper;
 
 #if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
 static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
@@ -217,7 +217,7 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
   tok_present = FALSE;
   Save_Machine_Regs(buff_save_machine_regs);
 
-  jmp_val = setjmp(jumper);
+  jmp_val = sigsetjmp(jumper, 1);
 
   Restore_Machine_Regs(buff_save_machine_regs);
 
@@ -750,7 +750,7 @@ Parse_Error(char *err_msg)
     Pl_Recover_After_Error(pstm_i);
 
   Save_Machine_Regs(buff_save_machine_regs);
-  longjmp(jumper, 1);
+  siglongjmp(jumper, 1);
 }
 
 

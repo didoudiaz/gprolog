@@ -43,6 +43,9 @@
 /* Define if you have the fgetc function */
 #undef HAVE_FGETC
 
+/* Define if you have the sigsetjmp function */
+#undef HAVE_SIGSETJMP
+
 /* Define if you have the asinh function */
 #undef HAVE_SINH
 
@@ -280,9 +283,8 @@
 /* Define if socklen_t is not defined */
 #undef socklen_t
 
-/* Define if linux needs asm/sigcontext.h */
-#undef LINUX_NEEDS_ASM_SIGCONTEXT
-
+/* Define if you have a working sigaction to detect SIGSEGV bad addr */
+#undef HAVE_WORKING_SIGACTION
 
 /* Define if obj chain needs to reverse order of collected objects */
 #undef OBJ_CHAIN_REVERSE_ORDER

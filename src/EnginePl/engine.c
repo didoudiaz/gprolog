@@ -93,7 +93,7 @@ static WamWord *heap_actual_start;
 
 static int nb_user_directives = 0;
 
-static jmp_buf *p_jumper;
+static sigjmp_buf *p_jumper;
 static WamWord *p_buff_save;
 
 static CodePtr cont_jmp;        /* we use a global var to support DEC alpha */
@@ -169,7 +169,7 @@ Pl_Start_Prolog(int argc, char *argv[])
 #endif
     }
 
-  Pl_M_Allocate_Stacks();
+  Pl_Allocate_Stacks();
   Save_Machine_Regs(init_buff_regs);
 
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
@@ -349,13 +349,7 @@ Pl_Call_Prolog(CodePtr codep)
 
   CP = Adjust_CP(Call_Prolog_Success);
 
-#if defined(USE_SEH)
-  SEH_PUSH(Win32_SEH_Handler);
-#endif
   ok = Call_Next(codep);
-#if defined(USE_SEH)
-  SEH_POP;
-#endif
 
   CP = save_CP;                 /* restore continuation */
   ALTB(query_b) = save_ALTB;    /* restore choice point */
@@ -431,8 +425,8 @@ static Bool
 Call_Next(CodePtr codep)
 {
   int jmp_val;
-  jmp_buf *old_jumper = p_jumper;
-  jmp_buf new_jumper;
+  sigjmp_buf *old_jumper = p_jumper;
+  sigjmp_buf new_jumper;
   WamWord *old_buff_save = p_buff_save;
   WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS + 1];  /* +1 if = 0 */
 #if 0
@@ -447,7 +441,7 @@ Call_Next(CodePtr codep)
 #endif
   Save_Machine_Regs(buff_save_machine_regs);
 
-  jmp_val = setjmp(*p_jumper);
+  jmp_val = sigsetjmp(*p_jumper, 1);
 
   Restore_Machine_Regs(buff_save_machine_regs);
 
@@ -479,7 +473,7 @@ Call_Next(CodePtr codep)
            * Call_Prolog_Fail: Prolog continuation after failure.       *
            * Return in Call_Next with a longjmp (value -1)              *
            *------------------------------------------------------------*/
-#if 1//!(defined(M_x86_64) && defined(_MSC_VER))/* see file engine_asm.s */
+#if 1/*!(defined(M_x86_64) && defined(_MSC_VER))*//* see file engine_asm.s */
 
 static void
 Call_Prolog_Fail(void)
@@ -490,7 +484,7 @@ Call_Prolog_Fail(void)
   asm("subq $8,%rsp");
 #endif
   Save_Machine_Regs(p_buff_save);
-  longjmp(*p_jumper, -1);
+  siglongjmp(*p_jumper, -1);
 }
 
 
@@ -510,7 +504,7 @@ Call_Prolog_Success(void)
   asm("subq $8,%rsp");
 #endif
   Save_Machine_Regs(p_buff_save);
-  longjmp(*p_jumper, 1);
+  siglongjmp(*p_jumper, 1);
 }
 
 #endif
@@ -526,7 +520,7 @@ void
 Pl_Exit_With_Exception(void)
 {
   Save_Machine_Regs(p_buff_save);
-  longjmp(*p_jumper, 2);
+  siglongjmp(*p_jumper, 2);
 }
 
 
@@ -546,5 +540,5 @@ Pl_Execute_A_Continuation(CodePtr codep)
   Save_Machine_Regs(p_buff_save);
 
   cont_jmp = codep;
-  longjmp(*p_jumper, 3);
+  siglongjmp(*p_jumper, 3);
 }

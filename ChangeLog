@@ -1,13 +1,18 @@
+Fri Jun 15 13:34:45 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
+
+	* improve signal handling
+	* add stack overflow detection on Windows64
+
 Thu May 31 15:36:46 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
-	* add an option --wam-comment to gplc
+	* add an option --wam-comment to gplc and pl2wam
 	* fix multifile directive (works now with an empty predicate as required by ISO)
 	* fix absolute_file_name to expand ~ using HOMEDRIVE and HOMEPATH under windows
 	  if HOME is not defined
 
 Tue May 15 11:56:00 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
-	* impriove listing/0-1 output
+	* improve listing/0-1 output
 
 
 Fri May 11 18:09:19 CEST 2012 <Daniel.Diaz@univ-paris1.fr>

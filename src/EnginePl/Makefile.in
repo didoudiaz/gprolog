@@ -8,7 +8,7 @@ RANLIB        = @RANLIB@
 
 
 LIBNAME = $(LIB_ENGINE_PL)
-OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
+OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
           misc@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
           engine@OBJ_SUFFIX@ engine1@OBJ_SUFFIX@ wam_inst@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
@@ -35,11 +35,11 @@ $(LIBNAME): $(OBJLIB)
 
 config: pl_config@EXE_SUFFIX@ wam_regs.h
 
-pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h wam_archi.def
+pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h stacks_sigsegv.h wam_archi.def
 	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
 
 
-wam_regs.h: pl_config@EXE_SUFFIX@ machine.h wam_archi.def
+wam_regs.h: pl_config@EXE_SUFFIX@ machine.h stacks_sigsegv.h wam_archi.def
 	./pl_config@EXE_SUFFIX@
 	(cd ../TopComp; $(MAKE) $(GPLC)@EXE_SUFFIX@)
 
@@ -61,6 +61,8 @@ try_sigaction@EXE_SUFFIX@: try_sigaction.c
 
 
 machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h
+
+stacks_sigsegv@OBJ_SUFFIX@: stacks_sigsegv.h stacks_sigsegv.c gp_config.h wam_regs.h
 
 mem_alloc@OBJ_SUFFIX@: mem_alloc.c
 

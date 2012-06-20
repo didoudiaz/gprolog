@@ -1,17 +1,17 @@
  $Id$
 
-# *********************************
-# * autoconf configuration script *
-# *********************************
+dnl *********************************
+dnl * autoconf configuration script *
+dnl *********************************
 
 AC_INIT(gprolog, 1.4.1, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
-# AC_CONFIG_AUX_DIR(ConfUtils) to do...
+dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
 
-# ***************************
-# * initial variable values *
-# ***************************
+dnl ***************************
+dnl * initial variable values *
+dnl ***************************
 
 pl_date()
 {
@@ -43,9 +43,9 @@ LIB_BIPS_PL=libbips_pl
 LIB_ENGINE_FD=libengine_fd
 LIB_BIPS_FD=libbips_fd
 
-# ******************
-# * variable names *
-# ******************
+dnl ******************
+dnl * variable names *
+dnl ******************
 
 AC_SUBST(PROLOG_DIALECT)
 AC_SUBST(PROLOG_NAME)
@@ -123,9 +123,9 @@ AC_SUBST(LIB_ENGINE_FD)
 AC_SUBST(LIB_BIPS_FD)
 
 
-# *******************
-# * package options *
-# *******************
+dnl *******************
+dnl * package options *
+dnl *******************
 
 
 AC_ARG_WITH(install-dir, [  --with-install-dir=DIR  specify INSTALL_DIR],
@@ -210,9 +210,9 @@ fi
 
 
 
-# ***********************
-# * checks for programs *
-# ***********************
+dnl ***********************
+dnl * checks for programs *
+dnl ***********************
 
 if test "$host_alias" != ''; then
     WIN_CONF_OPT="$WIN_CONF_OPT --host=$host_alias"
@@ -230,38 +230,38 @@ if test "$WITH_MSVC" != no; then
 fi
 
 
-# should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
-# cannot be put in the then and the else part !!! so repeat the test !
+dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
+dnl cannot be put in the then and the else part !!! so repeat the test !
 
 AC_PROG_CC
 
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
 
-# determine if MinGW and Windows path associated to posix path /tmp
-# needs AC_CANONICAL_BUILD
+dnl determine if MinGW and Windows path associated to posix path /tmp
+dnl needs AC_CANONICAL_BUILD
 
 case "$build_os" in
     cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
     mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
 esac
 
-# determine if MinGW
-# needs AC_CANONICAL_HOST
+dnl determine if MinGW
+dnl needs AC_CANONICAL_HOST
 
 case "$host_os" in
     mingw*) MINGW=yes; WIN_CC_VER=mingw;;
 esac
 
 
-# customize MSVC
+dnl customize MSVC
 
 MAKE_ENGINE1_SRC='engine1.c'
 
 if test "$WITH_MSVC" != no; then
 
-#   NB: double [[ ]] for m4
-#   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
+dnl   NB: double [[ ]] for m4
+dnl   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
    WIN_CC_VER=msvc
 
    dnl test if cl.exe runs in 32 or 64 bits (return 0 if in 64 bits)
@@ -311,12 +311,12 @@ if test "$WITH_MSVC" != no; then
     RC=rc
     RCFLAGS=''
     RC_OUT_NAME_OPT='-fo'
-#   uset this directly invokes MS link.exe (instead of using cl.exe)
-#    LD=link
-#    LD_OUT_NAME_OPT='-out:'
-#    LD_DLL_OPT='-dll'
+dnl   uset this directly invokes MS link.exe (instead of using cl.exe)
+dnl    LD=link
+dnl    LD_OUT_NAME_OPT='-out:'
+dnl    LD_DLL_OPT='-dll'
 
-#   invokes cl.exe
+dnl   invokes cl.exe
     LD=$CC
     LD_OUT_NAME_OPT='-Fe'
     LD_DLL_OPT='-link -dll'
@@ -358,7 +358,7 @@ dnl think the user wants to override the test)
     AC_CHECK_TOOL([STRIP],[strip])
 fi
 
-# RCFLAGS="$RCFLAGS -l 0x409"
+dnl RCFLAGS="$RCFLAGS -l 0x409"
 
 EXE_SUFFIX=$EXEEXT
 AC_PROG_MAKE_SET
@@ -374,9 +374,9 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 
 
 
-# *******************************
-# * host detection and features *
-# *******************************
+dnl *******************************
+dnl * host detection and features *
+dnl *******************************
 
 WINDOWS=no
 
@@ -408,7 +408,7 @@ case "$host" in
     *)               AC_MSG_ERROR(unsupported architecture)
 esac
 
-# M_win64 ==> M_win32
+dnl M_win64 ==> M_win32
 
 if test "$WINDOWS" = 64; then
    AC_DEFINE(M_win32)
@@ -421,9 +421,9 @@ case "$WINDOWS" in
 esac
 
 
-# -------------------
-# Check for socklen_t
-# -------------------
+dnl -------------------
+dnl Check for socklen_t
+dnl -------------------
 
 AC_MSG_CHECKING(for socklen_t)
 AC_TRY_COMPILE([#include <sys/types.h>
@@ -440,27 +440,9 @@ AC_MSG_RESULT(int)
 AC_DEFINE(socklen_t, int)])])
 
 
-# -----------------------------------
-# Check if linux needs asm/sigcontext
-# -----------------------------------
-
-case "$host_os" in
-     linux*)
-
-AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
-AC_TRY_COMPILE([#include <signal.h>
-], [struct sigcontext p;
-], [AC_MSG_RESULT(no)],
-[
-AC_MSG_RESULT(yes)
-AC_DEFINE(LINUX_NEEDS_ASM_SIGCONTEXT)])
-esac
-
-
-
-# ********************
-# * C compiler flags *
-# ********************
+dnl ********************
+dnl * C compiler flags *
+dnl ********************
 
 CFLAGS_MACHINE=
 CFLAGS_PREFIX_REG=
@@ -488,7 +470,7 @@ else
         *)     CFLAGS="$WITH_C_FLAGS";;
     esac
 
-# -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
+dnl -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
     if test "$MINGW-$WITH_C_FLAGS" = yes-yes; then
         CFLAGS='-O3'
     fi
@@ -526,19 +508,19 @@ else
     esac
 
 
-#    case "$host" in
-#       i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
-#    esac
+dnl    case "$host" in
+dnl       i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
+dnl    esac
 
 if test "$GCC" = yes; then
    CFLAGS_MACHINE="$CFLAGS_MACHINE -fno-strict-aliasing"
 fi
 
 
-# For MacOsX - try to avoid this (activate only for fast library fix)
-#    case "$host" in
-#       powerpc*darwin*)        RANLIB="$RANLIB -c";;
-#    esac
+dnl For MacOsX - try to avoid this (activate only for fast library fix)
+dnl    case "$host" in
+dnl       powerpc*darwin*)        RANLIB="$RANLIB -c";;
+dnl    esac
 
 fi
 
@@ -548,13 +530,49 @@ AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(void*)
 AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
 AC_FUNC_MMAP
-AC_CHECK_FUNCS(mprotect mallopt fgetc atanh acosh asinh)
+AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
+
+SAVE_LIBS="$LIBS"
+LIBS="$LIBS -lm"
+AC_CHECK_FUNCS(atanh acosh asinh)
+SAVE_LIBS="$LIBS"
+
+dnl alternative solution
+dnl AC_SEARCH_LIBS(asinh, m, AC_DEFINE_UNQUOTED(HAVE_ASINH, 1, [If we have asinh()]))
+dnl AC_SEARCH_LIBS(acosh, m, AC_DEFINE_UNQUOTED(HAVE_ACOSH, 1, [If we have acosh()]))
+dnl AC_SEARCH_LIBS(atanh, m, AC_DEFINE_UNQUOTED(HAVE_ATANH, 1, [If we have atanh()]))
+
+dnl -------------------------
+dnl Check if sigssetjmp works
+dnl -------------------------
+dnl This test was ripped from gnuplot's configure.in:
+
+AC_MSG_CHECKING([for sigsetjmp])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]], [[jmp_buf env; sigsetjmp(env, 1);]])],
+   [AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_SIGSETJMP)],[AC_MSG_RESULT(no)])
 
 
+dnl ------------------------
+dnl Check if sigaction works
+dnl ------------------------
 
-# --------------------------------------
-# Check if obj_chain needs reverse order
-# --------------------------------------
+if test "$WINDOWS" = no; then
+   AC_MSG_CHECKING([for a working sigaction])
+   echo '#include "confdefs.h"' > conftest.c
+   cat $srcdir/EnginePl/try_sigaction.c >> conftest.c
+   (eval $ac_link) 2>&5
+   if test -s conftest && ./conftest; then
+     AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_WORKING_SIGACTION)
+   else
+     AC_MSG_RESULT(no)
+   fi
+fi
+
+dnl --------------------------------------
+dnl Check if obj_chain needs reverse order
+dnl --------------------------------------
 
 if test "$GCC" = yes; then
    AC_MSG_CHECKING([constructors execution order])
@@ -566,8 +584,8 @@ if test "$GCC" = yes; then
    echo '#include "confdefs.h"' > conftest.c
    echo 'int first_to_last;' >>conftest.c
    echo 'int main () {  return first_to_last ? 0 : 1; }' >>conftest.c 
-   gcc -o conftest conftest-0.c conftest-1.c conftest.c 2>&5
-   if test -s conftest && ./conftest; then
+   (eval $CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS $LIBS conftest-0.c conftest-1.c conftest.c >&5) 2>&5
+   if test -x conftest && ./conftest; then
       AC_MSG_RESULT(first to last)
       AC_DEFINE(OBJ_CHAIN_REVERSE_ORDER)
    else
@@ -577,9 +595,9 @@ fi
 
 
 
-# ********************
-# * libraries to add *
-# ********************
+dnl ********************
+dnl * libraries to add *
+dnl ********************
 
 if test "$WITH_MSVC" != no; then
     LDFLAGS='-nologo -F8000000'
@@ -609,8 +627,8 @@ fi
 if test "$WINDOWS" != no; then
     LIB='advapi32 user32'
     GUILIB='kernel32 user32 gdi32 comdlg32 advapi32 comctl32 shell32 ole32 winmm'
-# winmm is for the sound PlaySound in the GUI
-# other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+dnl winmm is for the sound PlaySound in the GUI
+dnl other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
     case "$WITH_HTMLHELP" in
        static)  AC_DEFINE(WITH_HTMLHELP, 1) GUILIB="$GUILIB htmlhelp";;
        dynamic) AC_DEFINE(WITH_HTMLHELP, 2);;
@@ -630,7 +648,7 @@ else
 
         AC_CHECK_FUNC(gethostbyname,[],
                 AC_CHECK_LIB(nsl,gethostbyname,LIB="$LIB nsl"))
-    # (No error here; just assume gethostbyname is in -lsocket.)
+    dnl (No error here; just assume gethostbyname is in -lsocket.)
     fi
 fi
 
@@ -641,9 +659,9 @@ LDGUILIBS=`make_lib_list $GUILIB`
 CFLAGS=$SAVE_CFLAGS
 
 
-# ***********************
-# * gp_config.h defines *
-# ***********************
+dnl ***********************
+dnl * gp_config.h defines *
+dnl ***********************
 
 AC_DEFINE_UNQUOTED(PROLOG_NAME,      "$PROLOG_NAME")
 AC_DEFINE_UNQUOTED(PROLOG_DIALECT,   "$PROLOG_DIALECT")
@@ -685,12 +703,12 @@ AC_DEFINE_UNQUOTED(LIB_BIPS_FD,      "$LIB_BIPS_FD")
 
 
 
-# ***************
-# * directories *
-# ***************
+dnl ***************
+dnl * directories *
+dnl ***************
 
-# a function to compare 2 directories (avoid diff with trailing /)
-# does not take into account symlinks...
+dnl a function to compare 2 directories (avoid diff with trailing /)
+dnl does not take into account symlinks...
 
 same_directory()
 {
@@ -711,9 +729,9 @@ test "$exec_prefix" = NONE && exec_prefix=$prefix
 
 PKG_NAME=$PROLOG_DIALECT-$PROLOG_VERSION
 
-# *-------------*
-# * INSTALL_DIR *
-# *-------------*
+dnl *-------------*
+dnl * INSTALL_DIR *
+dnl *-------------*
 
 if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
     IN_PLACE=yes
@@ -729,9 +747,9 @@ else
 fi
 
 
-# *-----------*
-# * LINKS_DIR *
-# *-----------*
+dnl *-----------*
+dnl * LINKS_DIR *
+dnl *-----------*
 
 case "$WITH_LINKS_DIR" in
     no) LINKS_DIR=none;;
@@ -740,9 +758,9 @@ case "$WITH_LINKS_DIR" in
 esac
 
 
-# *---------*
-# * DOC_DIR *
-# *---------*
+dnl *---------*
+dnl * DOC_DIR *
+dnl *---------*
 
 case "$WITH_DOC_DIR" in
     no) DOC_DIR=none;
@@ -755,9 +773,9 @@ if same_directory "$DOC_DIR" $ROOT_DIR/doc; then
 fi
 
 
-# *----------*
-# * HTML_DIR *
-# *----------*
+dnl *----------*
+dnl * HTML_DIR *
+dnl *----------*
 
 
 case "$WITH_HTML_DIR" in
@@ -775,9 +793,9 @@ if same_directory "$HTML_DIR" $ROOT_DIR/doc/html_node; then
 fi
 
 
-# *--------------*
-# * EXAMPLES_DIR *
-# *--------------*
+dnl *--------------*
+dnl * EXAMPLES_DIR *
+dnl *--------------*
 
 case "$WITH_EXAMPLES_DIR" in
     no) EXAMPLES_DIR=none;;
@@ -789,9 +807,9 @@ if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
 fi
 
 
-# *---------*
-# * Summary *
-# *---------*
+dnl *---------*
+dnl * Summary *
+dnl *---------*
 
 echo 'DIRECTORIES'
 echo "--> Installation:       $INSTALL_DIR"
@@ -801,9 +819,9 @@ echo "--> HTML documentation: $HTML_DIR"
 echo "--> Examples:           $EXAMPLES_DIR"
 
 
-# ******************
-# * sub-components *
-# ******************
+dnl ******************
+dnl * sub-components *
+dnl ******************
 
 
 if test "$IN_PLACE" = no; then
@@ -875,9 +893,9 @@ LIB_FILES=$L
 
 
 
-# ***********************
-# * Version & Copyright *
-# ***********************
+dnl ***********************
+dnl * Version & Copyright *
+dnl ***********************
 
 echo "$PKG_NAME" >VERSION
 echo "$PKG_NAME" >../VERSION
@@ -898,9 +916,9 @@ fi
 
 
 
-# ********************
-# * Files generation *
-# ********************
+dnl ********************
+dnl * Files generation *
+dnl ********************
 
 OTHER_MAKEFILES=
 for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile Win32/Makefile Win32/gp-setup.iss

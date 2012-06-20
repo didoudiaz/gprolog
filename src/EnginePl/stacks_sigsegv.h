@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : engine_pl.h                                                     *
- * Descr.: general header file                                             *
+ * File  : stacks_sigsegv.c                                                *
+ * Descr.: stack hardware overflow detection (SIGSEGV) - header file       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -37,20 +37,33 @@
 
 /* $Id$ */
 
-#include "gp_config.h"
-#include "pl_params.h"
-#include "hash.h"
-#include "bool.h"
-#include "wam_regs.h"
-#include "wam_archi.h"
-#include "engine.h"
-#include "atom.h"
-#include "pred.h"
-#include "misc.h"
-#include "oper.h"
-#include "machine1.h"
-#include "machine.h"
-#include "stacks_sigsegv.h"
-#include "obj_chain.h"
-#include "wam_inst.h"
-#include "if_no_fd.h"
+#ifndef _STACKS_SIGSEGV
+#define _STACKS_SIGSEGV
+
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
+
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
+
+typedef int (*SegvHdlr)(void *bad_addr);
+
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
+
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
+
+void Pl_Allocate_Stacks(void);
+
+void Pl_Push_SIGSEGV_Handler(SegvHdlr handler);
+
+void Pl_Pop_SIGSEGV_Handler(void);
+
+
+
+#endif	/* !_STACKS_SIGSEGV */

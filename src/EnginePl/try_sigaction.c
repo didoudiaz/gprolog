@@ -37,20 +37,21 @@
 
 /* $Id$ */
 
+#define _XOPEN_SOURCE_EXTENDED
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 
-#include "pl_long.h"
-
-#define BAD_ADDR  0xFEA4F
+#define BAD_ADDR  ((int *) 0xFEA4F)
 
 void
 SIGSEGV_Handler(int sig, siginfo_t * sip)
 {
-  PlLong addr = (PlLong) sip->si_addr;
+  int *addr = (int *) sip->si_addr;
 
-  exit ((addr == BAD_ADDR) ? 0 : 1);
+  _exit(addr != BAD_ADDR);
 }
 
 
@@ -63,11 +64,14 @@ main(int argc, char *argv[])
   act.sa_handler = NULL;
   act.sa_sigaction = (void (*)()) SIGSEGV_Handler;
   sigemptyset(&act.sa_mask);
-  act.sa_flags = SA_SIGINFO;
+  act.sa_flags = SA_SIGINFO | SA_RESTART;
 
   sigaction(SIGSEGV, &act, NULL);
+#if defined(SIGBUS) && SIGBUS != SIGSEGV
+  sigaction(SIGBUS, &act, NULL);
+#endif
 
-  * (PlLong *) BAD_ADDR = 128;
+  *BAD_ADDR = 128;
 
   return 1;
 }

@@ -1026,7 +1026,7 @@ Pl_Lookup_Pred(int func, int arity)
 }
 
 void
-Pl_M_Allocate_Stacks(void)
+Pl_Allocate_Stacks(void)
 {
 }
 AtomInf pl_atom_tbl[1];

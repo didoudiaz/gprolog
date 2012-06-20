@@ -101,12 +101,12 @@
 #define DIR_SEP_S                  "\\"
 #define DIR_SEP_C                  '\\'
 
-#else
+#else /* !defined(_WIN32) || defined(__CYGWIN__) */
 
 #define DIR_SEP_S                  "/"
 #define DIR_SEP_C                  '/'
 
-#endif /* defined(_WIN32) && !defined(__CYGWIN__) */
+#endif /* !defined(_WIN32) || defined(__CYGWIN__) */
 
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
@@ -142,6 +142,13 @@
 
 #ifndef HAVE_FGETC
 #define fgetc getc
+#endif
+
+
+#ifndef HAVE_SIGSETJMP
+#define sigjmp_buf jmp_buf
+#define sigsetjmp(jb, x) setjmp(jb)
+#define siglongjmp longjmp
 #endif
 
 				/* Fast call macros */
@@ -181,7 +188,7 @@
 /* Win32 SEH macros */
 
 #if defined(_WIN32) && !defined(_WIN64) || defined(__CYGWIN__)
-#define USE_SEH 1
+#define USE_SEH
 #endif
 
 #if defined(USE_SEH)

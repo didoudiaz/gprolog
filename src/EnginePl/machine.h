@@ -61,8 +61,6 @@
 
 void Pl_Init_Machine(void);
 
-void Pl_M_Allocate_Stacks(void);
-
 char *Pl_M_Sys_Err_String(int ret_val);
 
 PlLong Pl_M_User_Time(void);

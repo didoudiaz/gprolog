@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <setjmp.h>
 #include <stdarg.h>
 
 #define SCAN_SUPP_FILE
