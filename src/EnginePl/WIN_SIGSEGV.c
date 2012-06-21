@@ -8,7 +8,7 @@ typedef long WamWord;
 #error CYGWIN not supported
 #endif
 
-LONG WINAPI Windows_Exception_Handler(LPEXCEPTION_POINTERS ei)
+LONG WINAPI Win32_Exception_Handler(LPEXCEPTION_POINTERS ei)
 {
   WamWord *addr;
   switch(ei->ExceptionRecord->ExceptionCode)  
@@ -27,11 +27,23 @@ LONG WINAPI Windows_Exception_Handler(LPEXCEPTION_POINTERS ei)
   return EXCEPTION_EXECUTE_HANDLER;
 }
 
+
+void Install_SIGSEGV_Handler(void);
+
 main()
 {
   long *x;
 
-  SetUnhandledExceptionFilter(Windows_Exception_Handler);
+  Install_SIGSEGV_Handler();
+  //  SetUnhandledExceptionFilter(Win32_Exception_Handler);
   x = (long *) 0xFEA4F124;
   *x = 12;
 }
+
+
+void
+Install_SIGSEGV_Handler(void)
+{
+  SetUnhandledExceptionFilter(Win32_Exception_Handler);
+}
+

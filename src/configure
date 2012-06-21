@@ -4428,60 +4428,6 @@ esac
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for socklen_t" >&5
-$as_echo_n "checking for socklen_t... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <sys/types.h>
-#include <sys/socket.h>
-
-int
-main ()
-{
-socklen_t x;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <sys/types.h>
-#include <sys/socket.h>
-
-int
-main ()
-{
-int accept(int, struct sockaddr *, size_t *);
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: size_t" >&5
-$as_echo "size_t" >&6; }
-$as_echo "#define socklen_t size_t" >>confdefs.h
-
-else
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: int" >&5
-$as_echo "int" >&6; }
-$as_echo "#define socklen_t int" >>confdefs.h
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-
 CFLAGS_MACHINE=
 CFLAGS_PREFIX_REG=
 
@@ -5303,6 +5249,93 @@ fi
 done
 
 SAVE_LIBS="$LIBS"
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for socklen_t" >&5
+$as_echo_n "checking for socklen_t... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int
+main ()
+{
+socklen_t x;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int
+main ()
+{
+int accept(int, struct sockaddr *, size_t *);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: size_t" >&5
+$as_echo "size_t" >&6; }
+$as_echo "#define socklen_t size_t" >>confdefs.h
+
+else
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: int" >&5
+$as_echo "int" >&6; }
+$as_echo "#define socklen_t int" >>confdefs.h
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
+
+case "$host_os" in
+     linux*)
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if struct sigcontext needs asm/sigcontext.h" >&5
+$as_echo_n "checking if struct sigcontext needs asm/sigcontext.h... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <signal.h>
+
+int
+main ()
+{
+struct sigcontext p;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+else
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+$as_echo "#define LINUX_NEEDS_ASM_SIGCONTEXT 1" >>confdefs.h
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+esac
 
 
 

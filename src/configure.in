@@ -421,25 +421,6 @@ case "$WINDOWS" in
 esac
 
 
-dnl -------------------
-dnl Check for socklen_t
-dnl -------------------
-
-AC_MSG_CHECKING(for socklen_t)
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/socket.h>
-], [socklen_t x;
-], [AC_MSG_RESULT(yes)], [
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/socket.h>
-], [int accept(int, struct sockaddr *, size_t *);
-], [
-AC_MSG_RESULT(size_t)
-AC_DEFINE(socklen_t, size_t)], [
-AC_MSG_RESULT(int)
-AC_DEFINE(socklen_t, int)])])
-
-
 dnl ********************
 dnl * C compiler flags *
 dnl ********************
@@ -541,6 +522,42 @@ dnl alternative solution
 dnl AC_SEARCH_LIBS(asinh, m, AC_DEFINE_UNQUOTED(HAVE_ASINH, 1, [If we have asinh()]))
 dnl AC_SEARCH_LIBS(acosh, m, AC_DEFINE_UNQUOTED(HAVE_ACOSH, 1, [If we have acosh()]))
 dnl AC_SEARCH_LIBS(atanh, m, AC_DEFINE_UNQUOTED(HAVE_ATANH, 1, [If we have atanh()]))
+
+dnl -------------------
+dnl Check for socklen_t
+dnl -------------------
+
+AC_MSG_CHECKING(for socklen_t)
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/socket.h>
+], [socklen_t x;
+], [AC_MSG_RESULT(yes)], [
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/socket.h>
+], [int accept(int, struct sockaddr *, size_t *);
+], [
+AC_MSG_RESULT(size_t)
+AC_DEFINE(socklen_t, size_t)], [
+AC_MSG_RESULT(int)
+AC_DEFINE(socklen_t, int)])])
+
+
+dnl -----------------------------------
+dnl Check if linux needs asm/sigcontext
+dnl -----------------------------------
+
+case "$host_os" in
+     linux*)
+
+AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
+AC_TRY_COMPILE([#include <signal.h>
+], [struct sigcontext p;
+], [AC_MSG_RESULT(no)],
+[
+AC_MSG_RESULT(yes)
+AC_DEFINE(LINUX_NEEDS_ASM_SIGCONTEXT)])
+esac
+
 
 dnl -------------------------
 dnl Check if sigssetjmp works

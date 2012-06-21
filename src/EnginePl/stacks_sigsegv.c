@@ -59,7 +59,18 @@
 
 #include "engine_pl.h"
 
-#ifdef LINUX_NEEDS_ASM_SIGCONTEXT /* see configure.in */
+
+
+#if defined(HAVE_MMAP) && !defined(_WIN32)
+#include <sys/mman.h>
+
+#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
+#define MAP_ANON MAP_ANONYMOUS
+#endif
+#endif
+
+ /* see configure.in */
+#if !defined(HAVE_WORKING_SIGACTION) && defined(LINUX_NEEDS_ASM_SIGCONTEXT)
 #include <asm/sigcontext.h>
 #endif
 
@@ -135,7 +146,7 @@ static char *Stack_Overflow_Err_Msg(int stk_nb);
 
 
 
-#ifdef _WIN32
+#if defined(_WIN32)
 
 /*-------------------------------------------------------------------------*
  * GETPAGESIZE                                                             *
@@ -153,15 +164,6 @@ getpagesize(void)
 #endif
 
 
-
-#if defined(HAVE_MMAP) && !defined(_WIN32)
-#include <sys/mman.h>
-
-#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
-#define MAP_ANON MAP_ANONYMOUS
-#endif
-#endif
-
 /*-------------------------------------------------------------------------*
  * VIRTUAL_MEM_ALLOC                                                       *
  *                                                                         *
@@ -172,7 +174,7 @@ Virtual_Mem_Alloc(void *addr, int length)
 #if defined(_WIN32)
 
   addr = (void *) VirtualAlloc(addr, length,
-                                  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			       MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 #elif defined(HAVE_MMAP)
 
@@ -247,6 +249,7 @@ Virtual_Mem_Free(void *addr, int length)
 static void
 Virtual_Mem_Protect(void *addr, int length)
 {
+  WamWord *end = (WamWord *) addr;
 #if defined(_WIN32)
   DWORD old_prot;
 
@@ -255,20 +258,16 @@ Virtual_Mem_Protect(void *addr, int length)
 
 #elif defined(HAVE_MMAP)
 
-#ifdef HAVE_MPROTECT
+#  ifdef HAVE_MPROTECT
   if (mprotect((void *) addr, length, PROT_NONE) == -1)
-#endif
+#  endif
     if (munmap((void *) addr, length) == -1)
       Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
 
-#else
-  WamWord *addr0 = (WamWord *) addr;
-
-  addr0[0] = M_MAGIC1;
-  addr0[1] = M_MAGIC2;           /* and rest (addr[2...]) should be 0 */
-  addr0[8] = 0;
-
 #endif
+  end[-16] = M_MAGIC1;
+  end[-32] = M_MAGIC2;           /* and rest (end[-1,...]) should be 0 */
+  end[-33] = 0;
 }
 
 
@@ -281,7 +280,7 @@ Virtual_Mem_Protect(void *addr, int length)
 void
 Pl_Allocate_Stacks(void)
 {
-  unsigned length = 0;
+  unsigned length = 0, stk_sz;
   WamWord *addr;
   int i;
   WamWord *addr_to_try[] = {
@@ -303,8 +302,10 @@ Pl_Allocate_Stacks(void)
 
   for (i = 0; i < NB_OF_STACKS; i++)
     {
-      pl_stk_tbl[i].size = Round_Up(pl_stk_tbl[i].size, page_size);
-      length += pl_stk_tbl[i].size + page_size;
+      stk_sz = pl_stk_tbl[i].size = Round_Up(pl_stk_tbl[i].size, page_size);
+      if (stk_sz == 0)
+	stk_sz = page_size;	/* at leat one page to write magic numbers */
+      length += stk_sz + page_size;
     }
   length *= sizeof(WamWord);
 
@@ -345,8 +346,11 @@ Pl_Allocate_Stacks(void)
   for (i = 0; i < NB_OF_STACKS; i++)
     {
       pl_stk_tbl[i].stack = addr;
-      addr += pl_stk_tbl[i].size;
-      Virtual_Mem_Protect(addr, page_size);
+      stk_sz = pl_stk_tbl[i].size;
+      if (stk_sz == 0)
+	stk_sz = page_size;	/* at least one page for magic numbers */
+      addr += stk_sz;
+      Virtual_Mem_Protect(addr, page_size * sizeof(WamWord));
       addr += page_size;
     }
 
@@ -357,7 +361,7 @@ Pl_Allocate_Stacks(void)
 
 
 
-#if defined(__unix__) || defined(__CYGWIN__)
+#if defined(__unix__) || defined(__CYGWIN__)|| defined(_WIN64)
 
 /*-------------------------------------------------------------------------*
  * SIGSEGV_HANDLER                                                         *
@@ -456,7 +460,7 @@ SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 
 #else
 
-static static void
+static void
 SIGSEGV_Handler(int sig)	/* cannot detect fault addr */
 {
 #ifdef __GNUC__
@@ -525,7 +529,7 @@ Install_SIGSEGV_Handler(void)
   sigaction(SIGBUS, &act, NULL);
 #  endif
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) && !defined(_WIN64)
 
   SetUnhandledExceptionFilter(Win32_Exception_Handler);
 
@@ -667,7 +671,7 @@ M_Check_Magic_Words(void)
                 pl_stk_tbl[i].stack, end, top);
 #endif
       sever = NULL;
-      if (end[0] != M_MAGIC1 || end[1] != M_MAGIC2 || end[8] != 0)
+      if (end[-16] != M_MAGIC1 || end[-32] != M_MAGIC2 || end[-33] != 0)
         sever = "Probable Error";
       else if (top < pl_stk_tbl[i].stack || top >= end)
         sever = "Possible Error";

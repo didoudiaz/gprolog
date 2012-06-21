@@ -140,7 +140,7 @@ Start_GUI(void)
   if (h == NULL)
     {
       fprintf(stderr, "warning: cannot load DLL " DLL_W32GUICONS
-	      " - text console used (error: %d)\n", GetLastError());
+	      " - text console used (error: %d)\n", (int) GetLastError());
       pl_le_hook_start = NULL;
       return;
     }

@@ -381,7 +381,7 @@ Pl_LE_Open_Terminal(void)
       GetConsoleMode(h_stdin, &im);
       SetConsoleMode(h_stdin, im & ~ENABLE_PROCESSED_INPUT);
       if (code_page && (!SetConsoleCP(code_page) || !SetConsoleOutputCP(code_page)))
-	  printf("warning: Setting console code page to %d failed (error: %d)\n", code_page, GetLastError());
+	printf("warning: Setting console code page to %d failed (error: %d)\n", code_page, (int) GetLastError());
     }
 
   interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
