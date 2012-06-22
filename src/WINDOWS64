@@ -17,6 +17,8 @@ as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
 from http://mingw-w64.sourceforge.net/ or, for cygwin, with the cygwin setup.exe 
 utility (selecting the mingw package).
 
+Tested with mingw64/mingw32 gcc version 4.5.3
+
 With the cygwin package things are installed in:
 
    /usr/x86_64-w64-mingw32/  and in  /usr/i686-w64-mingw32/
@@ -29,7 +31,7 @@ With the cygwin package things are installed in:
       sys-root/mingw/include
       sys-root/mingw/lib
 
-the toolchain executables are all prefixed with:
+The toolchain executables are all prefixed with:
 
    x86_64-w64-mingw32 (e.g. x86_64-w64-mingw32-gcc.exe) 
    to produce 64 bits objs/execs/libs/...
