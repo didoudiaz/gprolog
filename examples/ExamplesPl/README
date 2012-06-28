@@ -28,7 +28,7 @@ form the command-line) and get_cpu_time/1 (user time in msec).
 This makes it possible to run the benchmarks with different systems (defining
 a hook.pl file for each system).
 
-Each sub-directorie (YAP, WAMCC, SICSTUS, CIAO, BINPROLOG, XSB, SWI) contains
+If present, each sub-directorie (YAP, WAMCC, SICSTUS, CIAO, BINPROLOG, XSB, SWI) contains
 3 files:
 
 	MAKE_PROGS: a shell-script building the benchmarks
@@ -51,7 +51,7 @@ The build benchmark act like under GNU Prolog, accepting a count as
 command-line argument. It is not mandatory to be in sub-directory for the
 execution. e.g.:
 
-	~/.../ExamplesPl/YAP/zebra 10
+	~/...blabla.../ExamplesPl/YAP/zebra 10
 
 To clean the benchmarks with a given system use MAKE_CLEAN in the
 associated directory (e.g. YAP):
