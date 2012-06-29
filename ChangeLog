@@ -1,7 +1,6 @@
 Fri Jun 15 13:34:45 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* improve signal handling
-	* add stack overflow detection on Windows64
 
 Thu May 31 15:36:46 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
