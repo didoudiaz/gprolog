@@ -54,20 +54,19 @@ safe([X|L]) :-
 
 noattack([], _, _).
 
-/*
-% faster than the original PVH's version
 
 noattack([Y|L],X,I):-
 	I1 is I+1,
 	noattack(L,X,I1),
 	diff(X,Y,I).
-*/
 
+/*
+% slower version (term. rec) (original PVH's version)
 noattack([Y|L], X, I) :-
 	diff(X, Y, I),
 	I1 is I + 1,
 	noattack(L, X, I1).
-
+*/
 
 
 diff(X, Y, I) :-
