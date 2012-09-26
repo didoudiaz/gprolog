@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.1
+% compiler: GNU Prolog 1.4.2
 % file    : pretty.pl
 
 
@@ -39,7 +39,7 @@ predicate(portray_clause/2,55,static,private,monofile,built_in,[
     put_value(y(0),0),
     put_value(y(1),1),
     put_unsafe_value(y(2),2),
-    call_c('Pl_Portray_Clause_2',[],[x(0),x(1),x(2)]),
+    call_c('Pl_Portray_Clause_3',[],[x(0),x(1),x(2)]),
     fail,
 
 label(1),

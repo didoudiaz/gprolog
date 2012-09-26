@@ -1025,7 +1025,7 @@ $\rightarrow$ F & Y \\
 
 \texttt{atan2(Y,X)} & principal value of arc tangent
 of \textit{eval}(\texttt{Y}) / \textit{eval}(\texttt{X}) using both signs for the quadrant & IF
-$\rightarrow$ F & N \\
+$\rightarrow$ F & Y \\
 
 \hline
 
@@ -6949,8 +6949,7 @@ sublist(?list, ?list)
 
 \Description
 
-\texttt{sublist(List1, List2)} succeeds if \texttt{List1} is a sub-list of
-\texttt{List2}. This predicate is re-executable on backtracking.
+\texttt{sublist(List1, List2)} succeeds if all elements of \texttt{List1} appear in \texttt{List2} in the same order. This predicate is re-executable on backtracking.
 
 \PlErrorsNone
 

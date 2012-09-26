@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.1
+% compiler: GNU Prolog 1.4.2
 % file    : top_level.pl
 
 
@@ -277,7 +277,7 @@ predicate('$top_level2'/0,139,static,private,monofile,built_in,[
     put_variable(y(5),1),
     call(sort/2),
     put_unsafe_value(y(3),0),
-    put_value(y(0),1),
+    put_unsafe_value(y(0),1),
     put_unsafe_value(y(5),2),
     deallocate,
     execute('$$top_level2/0_$aux3'/3)]).

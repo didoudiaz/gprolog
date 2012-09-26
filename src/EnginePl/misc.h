@@ -86,7 +86,7 @@ void Pl_Fatal_Error(char *format, ...);
 
 /* NB: for LSB/MSB the result is undefined if x == 0 */
 
-#if defined(__GNUC__) && SIZEOF_LONG == SIZEOF_PTR
+#if defined(__GNUC__) && __GNUC__ >= 4 && SIZEOF_LONG == SIZEOF_PTR
 
 #define Pl_Least_Significant_Bit(x)   (__builtin_ctzl(x))
 
@@ -95,7 +95,7 @@ void Pl_Fatal_Error(char *format, ...);
 #define Pl_Count_Set_Bits(x)          (__builtin_popcountl(x))
 
 
-#else /* !__GNUC__ || SIZEOF_LONG != SIZEOF_PTR */
+#else /* !__GNUC__ || __GNUC__ < 4 || SIZEOF_LONG != SIZEOF_PTR */
 
 #define Pl_Least_Significant_Bit(x)   Pl_LSB(x)
 
@@ -109,7 +109,7 @@ int Pl_MSB(PlLong x);
 
 int Pl_Popcount(PlLong x);
 
-#endif /* !__GNUC__ || SIZEOF_LONG != SIZEOF_PTR */
+#endif /* !__GNUC__ || __GNUC__ < 4 || SIZEOF_LONG != SIZEOF_PTR */
 
 
 void *Pl_Dummy_Ptr(void *p);

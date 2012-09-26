@@ -99,8 +99,11 @@ normalize_cuts1((P -> Q), CutVar, Body) :-
 	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; fail),
 	normalize_cuts1(Q, CutVar, Q1).
 
-normalize_cuts1((P *-> Q), CutVar, (P1, Q1)) :- % P *-> Q alone (i.e. not inside a ;) is the same as P, Q
-	normalize_cuts1(P, CutVar, P1),
+	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. However
+	% a cut in the test part (P) should be local to P (as in P -> Q).
+	% Hence, we replace P *-> Q by P *-> Q1 ; fail
+
+normalize_cuts1((P *-> Q), CutVar, ((P, Q1) ; fail)) :-
 	normalize_cuts1(Q, CutVar, Q1).
 
 normalize_cuts1(!, CutVar, '$cut'(CutVar)) :-

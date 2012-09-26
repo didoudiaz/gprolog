@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.1
+% compiler: GNU Prolog 1.4.2
 % file    : wam_emit.pl
 
 
@@ -704,7 +704,7 @@ label(1),
     call_c('Pl_Blt_Arg',[fast_call,boolean],[x(1),x(2),x(3)]),
     put_value(y(2),1),
     call(emit_one_arg/2),
-    put_value(y(3),0),
+    put_unsafe_value(y(3),0),
     put_value(y(0),1),
     put_value(y(1),2),
     put_value(y(2),3),

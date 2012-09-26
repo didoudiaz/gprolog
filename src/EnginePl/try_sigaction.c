@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#define _XOPEN_SOURCE 700
+/* #define _GNU_SOURCE  */ /* see /usr/include/features.h */
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <stdio.h>
@@ -44,13 +46,20 @@
 #include <signal.h>
 #include <unistd.h>
 
-#define BAD_ADDR  ((int *) 0xFEA4F)
+#include <sys/siginfo.h>
+
+/* chose an address ending by 0 (else can trigger a SIGBUS, and on some archs (sparc/OpenBSD)
+ * si_addr is wrong for SIGBUS :-(
+ */
+#define BAD_ADDR  ((int *) 0x2EA4F0)
 
 void
 SIGSEGV_Handler(int sig, siginfo_t * sip)
 {
   int *addr = (int *) sip->si_addr;
-
+#if 0
+  printf("bad addr: %p\n", addr);
+#endif
   _exit(addr != BAD_ADDR);
 }
 

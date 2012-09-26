@@ -2,18 +2,16 @@
 
 #include "gp_config.h"
 
-#define MAP_REG_BANK		"r12"
+#define MAP_OFFSET_TR    	((NB_OF_X_REGS+0)*8)
+#define MAP_OFFSET_B     	((NB_OF_X_REGS+1)*8)
+#define MAP_OFFSET_H     	((NB_OF_X_REGS+2)*8)
+#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+3)*8)
+#define MAP_OFFSET_CP    	((NB_OF_X_REGS+4)*8)
+#define MAP_OFFSET_E     	((NB_OF_X_REGS+5)*8)
+#define MAP_OFFSET_CS    	((NB_OF_X_REGS+6)*8)
+#define MAP_OFFSET_S     	((NB_OF_X_REGS+7)*8)
+#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+8)*8)
+#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+9)*8)
+#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+10)*8)
 
-#define MAP_REG_TR        	"r13"
-#define MAP_REG_B         	"r14"
-#define MAP_REG_H         	"r15"
-#define MAP_OFFSET_HB1   	((NB_OF_X_REGS+0)*8)
-#define MAP_OFFSET_CP    	((NB_OF_X_REGS+1)*8)
-#define MAP_OFFSET_E     	((NB_OF_X_REGS+2)*8)
-#define MAP_OFFSET_CS    	((NB_OF_X_REGS+3)*8)
-#define MAP_OFFSET_S     	((NB_OF_X_REGS+4)*8)
-#define MAP_OFFSET_STAMP 	((NB_OF_X_REGS+5)*8)
-#define MAP_OFFSET_BCI   	((NB_OF_X_REGS+6)*8)
-#define MAP_OFFSET_LSSA  	((NB_OF_X_REGS+7)*8)
-
-#define CFLAGS_REGS		"-ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15 "
+#define CFLAGS_REGS		""

@@ -3,6 +3,7 @@ VERSION      = @PROLOG_VERSION@
 PKG_NAME     = @PKG_NAME@
 CC           = @CC@ @CFLAGS_MACHINE@
 CFLAGS       = @CFLAGS@
+WITH_MSVC    = @WITH_MSVC@
 WIN_TMP_DIR  = @WIN_TMP_DIR@
 WIN_CONF_OPT = @WIN_CONF_OPT@
 ISCC         = iscc.exe
@@ -30,7 +31,7 @@ setup-link: compile-link create-setup
 
 
 create-setup: create_bat.exe
-	cp `which $(AS)` $(TMPDIR)/bin
+	if test $(WITH_MSVC) != no; then cp `which $(AS)` $(TMPDIR)/bin; fi
 	cp create_bat.exe $(TMPDIR)/bin
 	$(ISCC) gp-setup.iss
 

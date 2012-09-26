@@ -38,6 +38,8 @@
 /* $Id$ */
 
 
+#define _XOPEN_SOURCE 700
+/* #define _GNU_SOURCE  */ /* see /usr/include/features.h */
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <stdio.h>
@@ -379,7 +381,7 @@ SIGSEGV_Handler(int sig, siginfo_t *sip)
 
 #elif defined(M_sparc_sunos)
 
-static static void
+static void
 SIGSEGV_Handler(int sig, int code, int scp, void *addr)
 {
   Handle_Bad_Address(addr);
@@ -387,7 +389,7 @@ SIGSEGV_Handler(int sig, int code, int scp, void *addr)
 
 #elif defined(M_alpha_osf)
 
-static static void
+static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 {
   void *addr = (void *) (scp->sc_traparg_a0);
@@ -396,7 +398,7 @@ SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 
 #elif defined(M_alpha_linux)
 
-static static void
+static void
 SIGSEGV_Handler(int sig, struct sigcontext scp)
 {
   void *addr = (void *) (scp.sc_fp_trigger_inst); /* why this one? */
@@ -406,7 +408,7 @@ SIGSEGV_Handler(int sig, struct sigcontext scp)
 
 #elif defined(M_ix86_linux)
 
-static static void
+static void
 SIGSEGV_Handler(int sig, struct sigcontext scp)
 {
   void *addr = (void *) scp.cr2;
@@ -415,7 +417,7 @@ SIGSEGV_Handler(int sig, struct sigcontext scp)
 
 #elif defined(M_powerpc_linux)
 
-static static void
+static void
 SIGSEGV_Handler(int sig, struct sigcontext scp)
 {
   void *addr = (void *) scp.regs->dar;
@@ -425,7 +427,7 @@ SIGSEGV_Handler(int sig, struct sigcontext scp)
 
 #elif defined(M_ix86_sco)
 #include <sys/siginfo.h>
-static static void
+static void
 SIGSEGV_Handler(int sig, siginfo_t * si)
 {
   void *addr = (void *) si->si_addr;
@@ -433,7 +435,7 @@ SIGSEGV_Handler(int sig, siginfo_t * si)
 }
 
 #elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd)
-static static void
+static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 {
   void *addr = (void *) scp->sc_err;

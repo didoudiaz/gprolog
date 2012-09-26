@@ -51,7 +51,10 @@ typedef struct btnode
 {
   char *str;
   int no;
-  char info[32];		/* a buffer to store some information */
+#if WORD_SIZE == 64
+  int filler;		/* to preserve 64-bits align for info=PlLong (to avoid a SIGBUS) */
+#endif
+  char info[32];	/* a buffer to store some information */
   PBTNode left;
   PBTNode right;
 }

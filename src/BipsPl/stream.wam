@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.1
+% compiler: GNU Prolog 1.4.2
 % file    : stream.pl
 
 
@@ -916,7 +916,7 @@ predicate(stream_property/2,421,static,private,monofile,built_in,[
     call('$check_stream_or_var'/2),
     put_value(y(0),0),
     put_unsafe_value(y(2),1),
-    put_value(y(1),2),
+    put_unsafe_value(y(1),2),
     deallocate,
     execute('$stream_property/2_$aux1'/3)]).
 

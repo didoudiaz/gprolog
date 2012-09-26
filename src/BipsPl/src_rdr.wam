@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.1
+% compiler: GNU Prolog 1.4.2
 % file    : src_rdr.pl
 
 
@@ -620,7 +620,7 @@ label(1),
     put_variable(y(5),3),
     call('$$sr_treat_term/2_$aux2'/4),
     put_unsafe_value(y(5),0),
-    put_value(y(4),1),
+    put_unsafe_value(y(4),1),
     deallocate,
     execute('$$sr_treat_term/2_$aux3'/2),
 

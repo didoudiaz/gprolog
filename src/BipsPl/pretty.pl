@@ -54,7 +54,7 @@ portray_clause(_).
 
 portray_clause(SorA, Term) :-
 	'$portray_clause'(Term, 2, AboveB),
-	'$call_c'('Pl_Portray_Clause_2'(SorA, Term, AboveB)),
+	'$call_c'('Pl_Portray_Clause_3'(SorA, Term, AboveB)),
 	fail.
 
 portray_clause(_, _).

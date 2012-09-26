@@ -4,7 +4,7 @@ dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT(gprolog, 1.4.1, bug-prolog@gnu.org,,www.gprolog.org)
+AC_INIT(gprolog, 1.4.2, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -92,6 +92,7 @@ AC_SUBST(DOC_DIR)
 AC_SUBST(HTML_DIR)
 AC_SUBST(EXAMPLES_DIR)
 
+AC_SUBST(WITH_MSVC)
 AC_SUBST(WIN_TMP_DIR)
 AC_SUBST(WIN_CONF_OPT)
 AC_SUBST(WIN_CC_VER)
