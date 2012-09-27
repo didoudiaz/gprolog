@@ -37,10 +37,12 @@
 
 /* $Id$ */
 
+/* copy this from try_sigaction.c */
 
+#if defined(M_ix86_sco)
 #define _XOPEN_SOURCE 700
-/* #define _GNU_SOURCE  */ /* see /usr/include/features.h */
 #define _XOPEN_SOURCE_EXTENDED
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +63,14 @@
 
 #include "engine_pl.h"
 
+ /* see configure.in */
+#if !defined(HAVE_WORKING_SIGACTION) && defined(LINUX_NEEDS_ASM_SIGCONTEXT)
+#include <asm/sigcontext.h>
+#endif
 
+#ifdef HAVE_SYS_SIGINFO_H
+#include <sys/siginfo.h>
+#endif
 
 #if defined(HAVE_MMAP) && !defined(_WIN32)
 #include <sys/mman.h>
@@ -71,10 +80,6 @@
 #endif
 #endif
 
- /* see configure.in */
-#if !defined(HAVE_WORKING_SIGACTION) && defined(LINUX_NEEDS_ASM_SIGCONTEXT)
-#include <asm/sigcontext.h>
-#endif
 
 
 #if 0

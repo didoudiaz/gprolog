@@ -59,42 +59,52 @@ typedef WamWord *WamWordP;
 
    /*--- Begin Register Generation ---*/
 
-#define TR			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+0])
-#define B			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+1])
-#define H			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+2])
-#define HB1			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+3])
-#define CP			(((WamCont  *) pl_reg_bank)[NB_OF_X_REGS+4])
-#define E			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+5])
-#define CS			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+6])
-#define S			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+7])
-#define STAMP			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+8])
-#define BCI			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+9])
-#define LSSA			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+10])
+register WamWord 		*pl_reg_bank asm ("r12");
+
+register WamWordP		TR  asm ("r13");
+register WamWordP		B   asm ("r14");
+register WamWordP		H   asm ("r15");
+
+
+#define HB1			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+0])
+#define CP			(((WamCont  *) pl_reg_bank)[NB_OF_X_REGS+1])
+#define E			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+2])
+#define CS			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+3])
+#define S			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+4])
+#define STAMP			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+5])
+#define BCI			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+6])
+#define LSSA			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+7])
 
 
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	0
-#define NB_OF_NOT_ALLOC_REGS	11
+#define NB_OF_ALLOC_REGS    	3
+#define NB_OF_NOT_ALLOC_REGS	8
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
 
 
 
 
-#define NB_OF_USED_MACHINE_REGS 0
+#define NB_OF_USED_MACHINE_REGS 4
 
 #ifdef ENGINE_FILE
 
-WamWord pl_reg_bank[REG_BANK_SIZE];
+WamWord *save_reg_bank;
+
+WamWord pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
+
 char *pl_reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
 
 #else
 
-extern WamWord pl_reg_bank[];
+extern WamWord *save_reg_bank;
+
+extern WamWord pl_buff_signal_reg[];
+
 extern char *pl_reg_tbl[];
 
 #endif
 
-#define Init_Reg_Bank(x)
+#define Init_Reg_Bank(x)  save_reg_bank = pl_reg_bank = x
 
 
 #define Reg(i)			(((i)==0) ? (WamWord) TR 	: \
@@ -150,23 +160,43 @@ extern char *pl_reg_tbl[];
 
 #define Save_Machine_Regs(buff_save) \
   do { \
+    buff_save[0] = (WamWord) pl_reg_bank; \
+    buff_save[1] = (WamWord) TR; \
+    buff_save[2] = (WamWord) B; \
+    buff_save[3] = (WamWord) H; \
   } while(0)
 
 
 #define Restore_Machine_Regs(buff_save) \
   do { \
+    pl_reg_bank = (WamWordP) buff_save[0]; \
+    TR = (WamWordP) buff_save[1]; \
+    B = (WamWordP) buff_save[2]; \
+    H = (WamWordP) buff_save[3]; \
   } while(0)
 
 
 
 
-#define Start_Protect_Regs_For_Signal
+#define Start_Protect_Regs_For_Signal \
+  do { \
+    Save_Machine_Regs(pl_buff_signal_reg); \
+    pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \
+  } while(0)
 
 
-#define Stop_Protect_Regs_For_Signal
+#define Stop_Protect_Regs_For_Signal \
+  pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \
 
 
-#define Restore_Protect_Regs_For_Signal
+#define Restore_Protect_Regs_For_Signal \
+  do { \
+    if (pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS]) { \
+      Restore_Machine_Regs(pl_buff_signal_reg); \
+      Stop_Protect_Regs_For_Signal; \
+    } \
+    pl_reg_bank = save_reg_bank; \
+  } while(0)
 
 
    /*--- End Register Generation ---*/

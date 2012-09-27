@@ -46,7 +46,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <sys/siginfo.h>
+/*#include <sys/siginfo.h>*/
 
 /* chose an address ending by 0 (else can trigger a SIGBUS, and on some archs (sparc/OpenBSD)
  * si_addr is wrong for SIGBUS :-(

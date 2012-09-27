@@ -510,7 +510,7 @@ SAVE_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS_MACHINE $CFLAGS"
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(void*)
-AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
+AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h sys/siginfo.h)
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
 
