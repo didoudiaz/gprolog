@@ -11,9 +11,9 @@ AppUpdatesURL=http://www.gprolog.org
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
-SourceDir=\gprolog_win32
-OutputDir=
-OutputBaseFileName=setup-gprolog-1.4.2-
+SourceDir=C:\cygwin\tmp\gprolog_win32
+OutputDir=C:\cygwin\tmp
+OutputBaseFileName=setup-gprolog-1.4.2-msvc-x86
 
 ChangesAssociations=yes
 
@@ -21,7 +21,10 @@ ChangesAssociations=yes
 ; MinVersion=4,3.51
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4
+Name: desktopicon; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; 
+
+Name: assocPl; Description: "&Associate GNU Prolog with .pl files"; GroupDescription: "File associations:";
+Name: assocPro; Description: "A&ssociate GNU Prolog with .pro files"; GroupDescription: "File associations:";
 
 [Files]
 Source: "*.*"; DestDir: "{app}";  Flags: ignoreversion
@@ -47,17 +50,19 @@ Name: "{group}\Uninstall GNU Prolog"; Filename: "{uninstallexe}"
 
 Name: "{userdesktop}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"; MinVersion: 4,4; Tasks: desktopicon
 
+
 [Registry]
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version"; ValueData: "1.4.2"
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "RootPath"; ValueData: "{app}"
 
 ; create an association for .pl and .pro files
 
-Root: HKCR; Subkey: ".pl"; ValueType: string; ValueName: ""; ValueData: "PrologFile"; Flags: uninsdeletevalue
-Root: HKCR; Subkey: ".pro"; ValueType: string; ValueName: ""; ValueData: "PrologFile"; Flags: uninsdeletevalue
-Root: HKCR; Subkey: "PrologFile"; ValueType: string; ValueName: ""; ValueData: "Prolog File"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "PrologFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bin\gprolog.exe,0"
-Root: HKCR; Subkey: "PrologFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\gprolog.exe"" --entry-goal ""consult(`%1`)"""
+Root: HKCR; Subkey: ".pl"; ValueType: string; ValueName: ""; ValueData: "PrologFile"; Flags: uninsdeletevalue; Tasks: assocPl
+Root: HKCR; Subkey: ".pro"; ValueType: string; ValueName: ""; ValueData: "PrologFile"; Flags: uninsdeletevalue; Tasks: assocPro
+
+Root: HKCR; Subkey: "PrologFile"; ValueType: string; ValueName: ""; ValueData: "Prolog File"; Flags: uninsdeletekey; Tasks: assocPl assocPro
+Root: HKCR; Subkey: "PrologFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bin\gprolog.exe,0"; Tasks: assocPl assocPro
+Root: HKCR; Subkey: "PrologFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\gprolog.exe"" --entry-goal ""consult(`%1`)"""; Tasks: assocPl assocPro
 
 
 [Run]
