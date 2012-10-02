@@ -5,6 +5,7 @@
 #define IDR_MENU                                102
 #define IDR_ACCEL                               106
 #define IDD_STACK_SIZES                         109
+#define IDI_ICON                                113
 #define IDC_STACK_DESC0                         1000
 #define IDC_STACK_DESC1                         1001
 #define IDC_DEF_SZ1                             1002
