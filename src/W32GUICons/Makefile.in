@@ -26,7 +26,7 @@ RESDLL  = w32_console.res
 .rc.res:
 	$(RC) $(RCFLAGS) @RC_OUT_NAME_OPT@$*.res $*.rc
 
-all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@
+all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@ win_exe_icon.res
 
 $(DLLNAME): $(OBJDLL) $(RESDLL)
 	$(LD) $(LDFLAGS) @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(LDGUILIBS) @LD_DLL_OPT@

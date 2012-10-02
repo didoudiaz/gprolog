@@ -843,7 +843,7 @@ dnl ******************
 
 
 if test "$IN_PLACE" = no; then
-    TXT_FILES='README COPYING VERSION NEWS ChangeLog'
+    TXT_FILES='README COPYING VERSION NEWS ChangeLog gprolog.ico'
 else
     TXT_FILES=
 fi
@@ -906,6 +906,10 @@ done
 for i in $O; do
     OBJ_FILES="$OBJ_FILES $i$OBJ_SUFFIX"
 done
+
+if test "$USE_GUI_CONSOLE" = yes; then
+    OBJ_FILES="$OBJ_FILES win_exe_icon.res"
+fi
 
 LIB_FILES=$L
 

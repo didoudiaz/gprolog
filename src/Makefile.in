@@ -61,7 +61,6 @@ install-system:
 	./mkinstalldirs $(INSTALL_DIR) $(INSTALL_DIR)/bin \
 	$(INSTALL_DIR)/include $(INSTALL_DIR)/lib
 	for i in $(TXT_FILES); do $(INSTALL_DATA) ../$$i $(INSTALL_DIR); done
-	$(INSTALL_DATA) ../*.ico $(INSTALL_DIR)
 	for i in $(BIN_FILES); do $(INSTALL_PROGRAM) */$$i $(INSTALL_DIR)/bin; done
 	for i in $(OBJ_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
 	for i in $(LIB_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done

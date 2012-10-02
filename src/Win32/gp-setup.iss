@@ -6,13 +6,14 @@ AppVerName=GNU Prolog version 1.4.2
 AppVersion=1.4.2
 AppPublisher=Daniel Diaz
 AppPublisherURL=http://www.gprolog.org
-AppSupportURL=http://www.gprolog.org
+AppSupportURL=http://www.gprolog.org 
 AppUpdatesURL=http://www.gprolog.org
+SetupIconFile=gprolog.ico
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
-SourceDir=\gprolog_win32
-OutputDir=
+SourceDir=C:\cygwin\tmp\gprolog_win32
+OutputDir=C:\cygwin\tmp
 OutputBaseFileName=setup-gprolog-1.4.2-msvc-x86
 
 ChangesAssociations=yes
