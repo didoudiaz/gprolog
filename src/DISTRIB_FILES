@@ -6,6 +6,8 @@ NEWS
 PROBLEMS
 VERSION
 
+gprolog.ico
+
 doc/README
 doc/Makefile
 doc/do_latex

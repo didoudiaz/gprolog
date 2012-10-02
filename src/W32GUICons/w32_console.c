@@ -475,7 +475,8 @@ InitApplication(void)
   wc.lpszClassName = "w32_consoleWndClass";
   wc.lpszMenuName = MAKEINTRESOURCE(IDR_MENU);
   wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+  //  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+  wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_ICON));
   if (!RegisterClass(&wc))
     return 0;
   return 1;
