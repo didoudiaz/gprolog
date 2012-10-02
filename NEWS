@@ -1,3 +1,10 @@
+Change in GNU Prolog version 1.4.2:
+
+* fix a bug in the compiler (unification with fresh vars in the body)
+* fix a bug with *-> containing ! in the test part (! was not local to the test)
+* fix a bug to configure with sigaction on old linux kernels
+* fix some problems/bugs on 64 bits machine
+
 Change in GNU Prolog version 1.4.1:
 
 * improve signal handling

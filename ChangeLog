@@ -1,3 +1,10 @@
+Mon Sep 24 15:03:11 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in the compiler (unification with fresh vars in the body)
+	* fix a bug with *-> containing ! in the test part (! was not local to the test)
+	* fix a bug to configure with sigaction on old linux kernels
+	* fix some problems/bugs on 64 bits machine
+
 Fri Jun 15 13:34:45 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* improve signal handling
@@ -12,7 +19,6 @@ Thu May 31 15:36:46 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 Tue May 15 11:56:00 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* improve listing/0-1 output
-
 
 Fri May 11 18:09:19 CEST 2012 <Daniel.Diaz@univ-paris1.fr>
 

@@ -133,4 +133,4 @@ IDR_ACCEL ACCELERATORS
 // Icon resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDI_ICON           ICON           "../gprolog.ico"
+IDI_ICON           ICON           "../../gprolog.ico"

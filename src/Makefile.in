@@ -64,7 +64,7 @@ install-system:
 	for i in $(BIN_FILES); do $(INSTALL_PROGRAM) */$$i $(INSTALL_DIR)/bin; done
 	for i in $(OBJ_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
 	for i in $(LIB_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
-	$(INSTALL_DATA) $(PKG_NAME).ico $(INSTALL_DIR)/lib
+	$(INSTALL_DATA) *.ico $(INSTALL_DIR)/lib
 	for i in $(INC_FILES); do EnginePl/cpp_headers $$i ./$$i EnginePl EngineFD BipsPl BipsFD; $(INSTALL_DATA) ./$$i $(INSTALL_DIR)/include; rm -f $$i; done
 	for i in $(INSTALL_DIR)/lib/*.a; do $(RANLIB) $$i; done
 
