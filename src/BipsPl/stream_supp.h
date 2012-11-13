@@ -154,9 +154,9 @@ typedef struct stm_inf		/* Stream information             */
   Bool eof_reached;		/* has eof char been read ?       */
   PbStk pb_char;		/* character push back stack      */
 				/* ---- Position information  --- */
-  int char_count;		/* character read count           */
-  int line_count;		/* line read count                */
-  int line_pos;			/* line position                  */
+  PlLong char_count;		/* character read count           */
+  PlLong line_count;		/* line read count                */
+  PlLong line_pos;		/* line position                  */
   PbStk pb_line_pos;		/* line position push back stack  */
 }
 StmInf;
@@ -401,13 +401,13 @@ int Pl_Stream_End_Of_Stream(StmInf *pstm);
 
 
 
-void Pl_Stream_Get_Position(StmInf *pstm, int *offset,
-			 int *char_count, int *line_count, int *line_pos);
+void Pl_Stream_Get_Position(StmInf *pstm, PlLong *offset,
+			    PlLong *char_count, PlLong *line_count, PlLong *line_pos);
 
-int Pl_Stream_Set_Position(StmInf *pstm, int whence, int offset,
-			int char_count, int line_count, int line_pos);
+int Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset,
+			   PlLong char_count, PlLong line_count, PlLong line_pos);
 
-int Pl_Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos);
+int Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos);
 
 
 

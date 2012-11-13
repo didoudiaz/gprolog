@@ -306,7 +306,7 @@ Free_Var(WamWord *adr)
  *                                                                         *
  * There is a special treatment for bagof/3. Each solution is a term of    *
  * the form Key-Value. In order to group solutions by Key we use a keysort *
- * (done in Prolog) + Pl_Group_Solutions_3 (written in C). However, keysort/2 *
+ * (done in Prolog) + Pl_Group_Solutions_3 (done in C). However, keysort/2 *
  * tests a term equality (==) while a structural equality is needed.       *
  *                                                                         *
  * Structural equality: T1 and T2 are structurally equal if their tree     *

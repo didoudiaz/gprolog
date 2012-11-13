@@ -39,6 +39,7 @@
 
 #include "gp_config.h"
 #include "pl_params.h"
+#include "hash_fct.h"
 #include "hash.h"
 #include "bool.h"
 #include "wam_regs.h"

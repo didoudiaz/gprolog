@@ -173,10 +173,8 @@ Pl_Set_Output_1(WamWord sora_word)
 void
 Pl_Set_Top_Level_Streams_2(WamWord sora_in_word, WamWord sora_out_word)
 {
-  pl_stm_top_level_input =
-    Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT);
-  pl_stm_top_level_output =
-    Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT);
+  pl_stm_top_level_input = Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT);
+  pl_stm_top_level_output = Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT);
 
   Pl_Reassign_Alias(pl_atom_top_level_input, pl_stm_top_level_input);
   Pl_Reassign_Alias(pl_atom_top_level_output, pl_stm_top_level_output);
@@ -192,10 +190,8 @@ Pl_Set_Top_Level_Streams_2(WamWord sora_in_word, WamWord sora_out_word)
 void
 Pl_Set_Debugger_Streams_2(WamWord sora_in_word, WamWord sora_out_word)
 {
-  pl_stm_debugger_input =
-    Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT);
-  pl_stm_debugger_output =
-    Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT);
+  pl_stm_debugger_input = Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT);
+  pl_stm_debugger_output = Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT);
 
   Pl_Reassign_Alias(pl_atom_debugger_input, pl_stm_debugger_input);
   Pl_Reassign_Alias(pl_atom_debugger_output, pl_stm_debugger_output);
@@ -1104,7 +1100,7 @@ Pl_Stream_Position_2(WamWord sora_word, WamWord position_word)
 {
   WamWord word, tag_mask;
   WamWord p_word[4];
-  int p[4];
+  PlLong p[4];
   int i;
   int stm;
   StmInf *pstm;
@@ -1194,14 +1190,14 @@ Pl_Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Seek_4(WamWord sora_word, WamWord whence_word, WamWord offset_word,
-       WamWord new_loc_word)
+	  WamWord new_loc_word)
 {
   int stm;
   StmInf *pstm;
   int whence;
-  int offset;
+  PlLong offset;
   int atom;
-  int p[4];
+  PlLong p[4];
 
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
@@ -1249,7 +1245,7 @@ Pl_Character_Count_2(WamWord sora_word, WamWord count_word)
 {
   int stm;
   StmInf *pstm;
-  int offset, char_count, line_count, line_pos;
+  PlLong offset, char_count, line_count, line_pos;
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1271,7 +1267,7 @@ Pl_Line_Count_2(WamWord sora_word, WamWord count_word)
 {
   int stm;
   StmInf *pstm;
-  int offset, char_count, line_count, line_pos;
+  PlLong offset, char_count, line_count, line_pos;
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1297,7 +1293,7 @@ Pl_Line_Position_2(WamWord sora_word, WamWord count_word)
 {
   int stm;
   StmInf *pstm;
-  int offset, char_count, line_count, line_pos;
+  PlLong offset, char_count, line_count, line_pos;
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1323,7 +1319,7 @@ Pl_Stream_Line_Column_3(WamWord sora_word, WamWord line_word, WamWord col_word)
 {
   int stm;
   StmInf *pstm;
-  int offset, char_count, line_count, line_pos;
+  PlLong offset, char_count, line_count, line_pos;
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1347,11 +1343,11 @@ Pl_Stream_Line_Column_3(WamWord sora_word, WamWord line_word, WamWord col_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Set_Stream_Line_Column_3(WamWord sora_word, WamWord line_word,
-			 WamWord col_word)
+			    WamWord col_word)
 {
   int stm;
   StmInf *pstm;
-  int line_count, line_pos;
+  PlLong line_count, line_pos;
 
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);

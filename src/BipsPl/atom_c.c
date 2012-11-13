@@ -112,6 +112,24 @@ Pl_Atom_Length_2(WamWord atom_word, WamWord length_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_NEW_ATOM_2                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_New_Atom_2(WamWord prefix_word, WamWord atom_word)
+{
+  int atom;
+
+  atom = Pl_Rd_Atom_Check(prefix_word);
+  Pl_Check_For_Un_Variable(atom_word);
+
+  return Pl_Get_Atom(Pl_Gen_New_Atom(pl_atom_tbl[atom].name), atom_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_ATOM_CONCAT_3                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -873,30 +891,6 @@ String_To_Number(char *str, WamWord number_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_ATOM_HASH_2                                                          *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Atom_Hash_2(WamWord atom_word, WamWord hash_word)
-{
-  WamWord word, tag_mask;
-  int hash;
-
-  DEREF(atom_word, word, tag_mask);
-  atom_word = word;
-
-  if (tag_mask != TAG_REF_MASK)
-    return Pl_Un_Positive_Check(Pl_Rd_Atom_Check(word), hash_word);
-
-  hash = Pl_Rd_Positive_Check(hash_word);
-
-  return Is_Valid_Atom(hash) && Pl_Un_Atom_Check(hash, atom_word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * PL_CURRENT_ATOM_2                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1000,30 +994,4 @@ Pl_Atom_Property_6(WamWord atom_word,
 
   Pl_Get_Integer(pl_atom_tbl[atom].prop.needs_quote, needs_quote_word);
   Pl_Get_Integer(pl_atom_tbl[atom].prop.needs_scan, needs_scan_word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_NEW_ATOM_3                                                           *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_New_Atom_3(WamWord prefix_word, WamWord hash_word, WamWord atom_word)
-{
-  int atom;
-  int hash = -1;
-
-  atom = Pl_Rd_Atom_Check(prefix_word);
-  Pl_Check_For_Un_Variable(atom_word);
-
-  if (SYS_VAR_OPTION_MASK)
-    {
-      hash = Pl_Rd_Positive_Check(hash_word);
-      if (Is_Valid_Atom(hash) || hash >= MAX_ATOM)
-	return FALSE;
-    }
-
-  return Pl_Get_Atom(Pl_Gen_New_Atom(pl_atom_tbl[atom].name, hash), atom_word);
 }

@@ -85,35 +85,29 @@ predicate(lower_upper/2,121,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(atom_hash/2,128,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[atom_hash,2]),
-    call_c('Pl_Atom_Hash_2',[boolean],[x(0),x(1)]),
-    proceed]).
-
-
-predicate(current_atom/1,135,static,private,monofile,built_in,[
+predicate(current_atom/1,128,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_atom,1]),
     execute('$current_atom'/1)]).
 
 
-predicate('$current_atom'/1,140,static,private,monofile,built_in,[
+predicate('$current_atom'/1,133,static,private,monofile,built_in,[
     put_integer(1,1),
     call_c('Pl_Current_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_atom_any'/1,143,static,private,monofile,built_in,[
+predicate('$current_atom_any'/1,136,static,private,monofile,built_in,[
     put_integer(0,1),
     call_c('Pl_Current_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_atom_alt'/0,147,static,private,monofile,built_in,[
+predicate('$current_atom_alt'/0,140,static,private,monofile,built_in,[
     call_c('Pl_Current_Atom_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(atom_property/2,154,static,private,monofile,built_in,[
+predicate(atom_property/2,147,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -126,7 +120,7 @@ predicate(atom_property/2,154,static,private,monofile,built_in,[
     execute('$atom_property1'/2)]).
 
 
-predicate('$atom_property_any'/2,159,static,private,monofile,built_in,[
+predicate('$atom_property_any'/2,152,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -138,7 +132,7 @@ predicate('$atom_property_any'/2,159,static,private,monofile,built_in,[
     execute('$atom_property1'/2)]).
 
 
-predicate('$atom_property1'/2,166,static,private,monofile,built_in,[
+predicate('$atom_property1'/2,159,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(3),
@@ -161,7 +155,7 @@ predicate('$atom_property1'/2,166,static,private,monofile,built_in,[
     execute('$atom_property2'/7)]).
 
 
-predicate('$check_atom_prop'/1,173,static,private,monofile,built_in,[
+predicate('$check_atom_prop'/1,166,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -234,7 +228,7 @@ label(18),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$atom_property2'/7,196,static,private,monofile,built_in,[
+predicate('$atom_property2'/7,189,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -258,7 +252,7 @@ label(5),
 label(6),
     get_structure(hash/1,0),
     unify_variable(x(0)),
-    call_c('Pl_Atom_Hash_2',[boolean],[x(1),x(0)]),
+    call_c('Pl_Term_Hash_2',[boolean],[x(1),x(0)]),
     proceed,
 
 label(7),
@@ -302,49 +296,14 @@ label(16),
     proceed]).
 
 
-predicate(new_atom/1,215,static,private,monofile,built_in,[
-    allocate(1),
-    get_variable(y(0),0),
+predicate(new_atom/1,208,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[new_atom,1]),
-    put_integer(0,0),
-    put_integer(0,1),
-    call('$sys_var_write'/2),
-    put_atom(atom_,0),
-    put_integer(0,1),
-    put_value(y(0),2),
-    deallocate,
-    call_c('Pl_New_Atom_3',[boolean],[x(0),x(1),x(2)]),
+    put_atom(atom_,1),
+    call_c('Pl_New_Atom_2',[boolean],[x(1),x(0)]),
     proceed]).
 
 
-predicate(new_atom/2,220,static,private,monofile,built_in,[
-    allocate(2),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
+predicate(new_atom/2,212,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[new_atom,2]),
-    put_integer(0,0),
-    put_integer(0,1),
-    call('$sys_var_write'/2),
-    put_value(y(0),0),
-    put_integer(0,1),
-    put_value(y(1),2),
-    deallocate,
-    call_c('Pl_New_Atom_3',[boolean],[x(0),x(1),x(2)]),
-    proceed]).
-
-
-predicate(new_atom/3,225,static,private,monofile,built_in,[
-    allocate(3),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[new_atom,3]),
-    put_integer(0,0),
-    put_integer(1,1),
-    call('$sys_var_write'/2),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    put_value(y(2),2),
-    deallocate,
-    call_c('Pl_New_Atom_3',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_New_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).

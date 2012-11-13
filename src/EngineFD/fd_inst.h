@@ -43,36 +43,44 @@
 
 	  /* FD Variable Frame */
 
-#define FD_VARIABLE_FRAME_SIZE     (OFFSET_RANGE+RANGE_SIZE+CHAINS_SIZE)
-#define FD_INT_VARIABLE_FRAME_SIZE (OFFSET_RANGE+RANGE_SIZE)
+#define FD_VARIABLE_FRAME_SIZE     (OFFSET_RANGE + RANGE_SIZE + CHAINS_SIZE)
+#define FD_INT_VARIABLE_FRAME_SIZE (OFFSET_RANGE + RANGE_SIZE)
 
-#define OFFSET_RANGE               5
-#define RANGE_SIZE                 (2+(sizeof(Range)/sizeof(WamWord)))
+#define OFFSET_RANGE               4
+#define RANGE_SIZE                 (2 + (sizeof(Range) / sizeof(WamWord)))
 
-#define OFFSET_CHAINS              (OFFSET_RANGE+RANGE_SIZE)
+#define OFFSET_CHAINS              (OFFSET_RANGE + RANGE_SIZE)
 #define CHAINS_SIZE                8
 
 
 
-#define FD_Tag_Value(fdv_adr)      (((WamWord *) fdv_adr)[0])
-#define FD_INT_Date(fdv_adr)       (((WamWord *) fdv_adr)[1])
+#define FD_Tag_Value(fdv_adr)      (((WamWord *)  fdv_adr)[0])
+#define FD_INT_Date(fdv_adr)       (((PlULong *)  fdv_adr)[1])
 
-#define Queue_Date_At_Push(fdv_adr)(((WamWord *) fdv_adr)[2])
-#define Queue_Propag_Mask(fdv_adr) (((WamWord *) fdv_adr)[3])
-#define Queue_Next_Fdv_Adr(fdv_adr)(((WamWord *) fdv_adr)[4])
+#define Queue_Propag_Mask(fdv_adr) (((WamWord *)  fdv_adr)[2])
+#define Queue_Next_Fdv_Adr(fdv_adr)(((WamWord **) fdv_adr)[3])
 
-#define Range_Stamp(fdv_adr)       (((WamWord *) fdv_adr)[OFFSET_RANGE])
-#define Nb_Elem(fdv_adr)           (((WamWord *) fdv_adr)[OFFSET_RANGE+1])
-#define Range(fdv_adr)             ((Range *) ((WamWord *) fdv_adr+OFFSET_RANGE+2))
+#define Range_Stamp(fdv_adr)       (((WamWord *)  fdv_adr)[OFFSET_RANGE])
+#define Nb_Elem(fdv_adr)           (((WamWord *)  fdv_adr)[OFFSET_RANGE + 1])
+#define Range(fdv_adr)             ((Range *) ((WamWord *) fdv_adr+OFFSET_RANGE + 2))
 
-#define Chains_Stamp(fdv_adr)      (((WamWord *) fdv_adr)[OFFSET_CHAINS])
-#define Nb_Cstr(fdv_adr)           (((WamWord *) fdv_adr)[OFFSET_CHAINS+1])
-#define Chains_Mask(fdv_adr)       (((WamWord *) fdv_adr)[OFFSET_CHAINS+2])
-#define Chain_Min(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+3])
-#define Chain_Max(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+4])
-#define Chain_Min_Max(fdv_adr)     (((WamWord *) fdv_adr)[OFFSET_CHAINS+5])
-#define Chain_Dom(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+6])
-#define Chain_Val(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+7])
+#define Chains_Stamp(fdv_adr)      (((WamWord *)  fdv_adr)[OFFSET_CHAINS])
+#define Nb_Cstr(fdv_adr)           (((WamWord *)  fdv_adr)[OFFSET_CHAINS + 1])
+#define Chains_Mask(fdv_adr)       (((WamWord *)  fdv_adr)[OFFSET_CHAINS + 2])
+#define Chain_Min(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 3])
+#define Chain_Max(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 4])
+#define Chain_Min_Max(fdv_adr)     (((WamWord **) fdv_adr)[OFFSET_CHAINS + 5])
+#define Chain_Dom(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 6])
+#define Chain_Val(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 7])
+
+
+
+	  /* Shorthands for Queue management */
+
+#define MASK_TO_KEEP_IN_QUEUE      (1 << 8) /* only 5 chains */
+
+#define Is_Var_In_Queue(fdv_adr)   (Queue_Propag_Mask(fdv_adr) != 0) /* mask = 0 <=> not in the queue */
+#define Del_Var_From_Queue(fdv_adr)(Queue_Propag_Mask(fdv_adr) = 0)
 
 
 
@@ -134,10 +142,10 @@
 
 #define CONSTRAINT_FRAME_SIZE      3
 
-#define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to */
+#define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to >>> */
 
-#define AF_Pointer(cf)             (*(WamWord **)  &(cf[0]))
-#define Optim_Pointer(cf)          (*(WamWord **)  &(cf[1]))	/* this cell */
+#define AF_Pointer(cf)             (*(WamWord **)    &(cf[0]))
+#define Optim_Pointer(cf)          (*(PlULong **)    &(cf[1]))	/* >>> this cell */
 #define Cstr_Address(cf)           (*(PlLong (**)()) &(cf[2]))
 
 
@@ -149,7 +157,7 @@
 #define DEFAULT_VECTOR_MAX         127
 
 
-#define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr))==INT)
+#define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr)) == INT)
 
 
 
@@ -208,7 +216,7 @@ WamWord *Pl_Fd_New_Bool_Variable(void);
 WamWord *Pl_Fd_New_Int_Variable(int n);
 
 WamWord *Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF,
-			   WamWord *fdv_adr, Bool optim2);
+			      WamWord *fdv_adr, Bool optim2);
 
 void Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF);
 

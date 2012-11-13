@@ -106,3 +106,15 @@ predicate(acyclic_term/1,130,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[acyclic_term,1]),
     call_c('Pl_Acyclic_Term_1',[boolean],[x(0)]),
     proceed]).
+
+
+predicate(term_hash/4,136,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_hash,4]),
+    call_c('Pl_Term_Hash_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    proceed]).
+
+
+predicate(term_hash/2,140,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_hash,2]),
+    call_c('Pl_Term_Hash_2',[boolean],[x(0),x(1)]),
+    proceed]).

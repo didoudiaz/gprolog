@@ -843,6 +843,8 @@ label(1),
 
 
 predicate(pred_rewriting/2,274,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(6),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -919,16 +921,116 @@ label(6),
     proceed,
 
 label(7),
-    retry_me_else(17),
+    retry_me_else(21),
     switch_on_term(9,fail,fail,fail,8),
 
 label(8),
-    switch_on_structure([('$call_c'/2,10),('$call_c'/1,12),('$call_c_test'/1,14),('$call_c_jump'/1,16)]),
+    switch_on_structure([(term_hash/2,10),(term_hash/4,12),('$call_c'/2,14),('$call_c'/1,16),('$call_c_test'/1,18),('$call_c_jump'/1,20)]),
 
 label(9),
     try_me_else(11),
 
 label(10),
+    allocate(6),
+    get_variable(y(1),1),
+    get_structure(term_hash/2,0),
+    unify_variable(x(1)),
+    unify_variable(y(0)),
+    get_variable(y(2),2),
+    put_atom(inline,0),
+    put_atom(t,2),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
+    put_structure(term_hash/2,0),
+    unify_value(x(1)),
+    unify_variable(y(3)),
+    put_void(1),
+    put_atom(fail,2),
+    put_atom(pred_rewriting,3),
+    put_integer(2,4),
+    put_atom(true,5),
+    call('$catch'/6),
+    put_value(y(3),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    cut(y(2)),
+    put_structure(set_bip_name/2,0),
+    unify_atom(term_hash),
+    unify_integer(2),
+    put_variable(y(4),1),
+    call(pred_rewriting/2),
+    put_structure('Pl_Un_Integer_Check'/2,1),
+    unify_value(y(3)),
+    unify_value(y(0)),
+    put_structure('$call_c'/2,0),
+    unify_value(x(1)),
+    unify_list,
+    unify_atom(boolean),
+    unify_nil,
+    put_variable(y(5),1),
+    call(pred_rewriting/2),
+    put_value(y(1),0),
+    get_structure((',')/2,0),
+    unify_local_value(y(4)),
+    unify_local_value(y(5)),
+    deallocate,
+    proceed,
+
+label(11),
+    retry_me_else(13),
+
+label(12),
+    allocate(6),
+    get_variable(y(1),1),
+    get_structure(term_hash/4,0),
+    unify_variable(x(4)),
+    unify_variable(x(3)),
+    unify_variable(x(1)),
+    unify_variable(y(0)),
+    get_variable(y(2),2),
+    put_atom(inline,0),
+    put_atom(t,2),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
+    put_structure(term_hash/4,0),
+    unify_value(x(4)),
+    unify_value(x(3)),
+    unify_value(x(1)),
+    unify_variable(y(3)),
+    put_void(1),
+    put_atom(fail,2),
+    put_atom(pred_rewriting,3),
+    put_integer(2,4),
+    put_atom(true,5),
+    call('$catch'/6),
+    put_value(y(3),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    cut(y(2)),
+    put_structure(set_bip_name/2,0),
+    unify_atom(term_hash),
+    unify_integer(4),
+    put_variable(y(4),1),
+    call(pred_rewriting/2),
+    put_structure('Pl_Un_Integer_Check'/2,1),
+    unify_value(y(3)),
+    unify_value(y(0)),
+    put_structure('$call_c'/2,0),
+    unify_value(x(1)),
+    unify_list,
+    unify_atom(boolean),
+    unify_list,
+    unify_atom(by_value),
+    unify_nil,
+    put_variable(y(5),1),
+    call(pred_rewriting/2),
+    put_value(y(1),0),
+    get_structure((',')/2,0),
+    unify_local_value(y(4)),
+    unify_local_value(y(5)),
+    deallocate,
+    proceed,
+
+label(13),
+    retry_me_else(15),
+
+label(14),
     allocate(2),
     get_structure('$call_c'/2,0),
     unify_variable(x(0)),
@@ -945,10 +1047,10 @@ label(10),
     deallocate,
     execute(no_internal_transf/2),
 
-label(11),
-    retry_me_else(13),
+label(15),
+    retry_me_else(17),
 
-label(12),
+label(16),
     allocate(2),
     get_structure('$call_c'/1,0),
     unify_variable(y(0)),
@@ -964,10 +1066,10 @@ label(12),
     deallocate,
     execute(pred_rewriting/2),
 
-label(13),
-    retry_me_else(15),
+label(17),
+    retry_me_else(19),
 
-label(14),
+label(18),
     allocate(2),
     get_structure('$call_c_test'/1,0),
     unify_variable(y(0)),
@@ -985,10 +1087,10 @@ label(14),
     deallocate,
     execute(pred_rewriting/2),
 
-label(15),
+label(19),
     trust_me_else_fail,
 
-label(16),
+label(20),
     allocate(2),
     get_structure('$call_c_jump'/1,0),
     unify_variable(y(0)),
@@ -1006,7 +1108,7 @@ label(16),
     deallocate,
     execute(pred_rewriting/2),
 
-label(17),
+label(21),
     trust_me_else_fail,
     get_value(x(1),0),
     proceed]).
@@ -1049,7 +1151,7 @@ label(1),
     proceed]).
 
 
-predicate(test_c_call_allowed/1,332,static,private,monofile,global,[
+predicate(test_c_call_allowed/1,347,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1068,7 +1170,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(not_dangerous_c_call/1,342,static,private,monofile,global,[
+predicate(not_dangerous_c_call/1,357,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1092,7 +1194,7 @@ label(4),
     execute(not_dangerous_c_call/1)]).
 
 
-predicate(add_wrapper_to_dyn_clause/4,352,static,private,monofile,global,[
+predicate(add_wrapper_to_dyn_clause/4,367,static,private,monofile,global,[
     allocate(5),
     get_variable(y(0),1),
     get_structure((+)/2,2),
@@ -1120,7 +1222,7 @@ predicate(add_wrapper_to_dyn_clause/4,352,static,private,monofile,global,[
     execute(assertz/1)]).
 
 
-predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,352,static,private,monofile,local,[
+predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,367,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1144,7 +1246,7 @@ label(1),
     execute(head_wrapper/3)]).
 
 
-predicate(head_wrapper/3,362,static,private,monofile,global,[
+predicate(head_wrapper/3,377,static,private,monofile,global,[
     put_list(4),
     unify_void(1),
     unify_variable(x(3)),
@@ -1156,7 +1258,7 @@ predicate(head_wrapper/3,362,static,private,monofile,global,[
     proceed]).
 
 
-predicate(meta_pred_rewriting/2,370,static,private,monofile,global,[
+predicate(meta_pred_rewriting/2,385,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1195,7 +1297,7 @@ label(1),
     proceed]).
 
 
-predicate(meta_pred_rewrite_args/5,382,static,private,monofile,global,[
+predicate(meta_pred_rewrite_args/5,397,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1236,7 +1338,7 @@ label(1),
     proceed]).
 
 
-predicate(meta_pred_rewrite_arg/3,396,static,private,monofile,global,[
+predicate(meta_pred_rewrite_arg/3,411,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),

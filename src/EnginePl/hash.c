@@ -385,7 +385,8 @@ Hash_Locate(HashNode *t, int tbl_size, PlLong key)
  *   HashScan scan;                                                        *
  *   char     *buff_ptr;                                                   *
  *                                                                         *
- *   for(buff_ptr=Pl_Hash_First(tbl,&scan);buff_ptr;buff_ptr=Pl_Hash_Next(&scan))*
+ * for(buff_ptr=Pl_Hash_First(tbl,&scan); buff_ptr;                        *
+ *     buff_ptr=Pl_Hash_Next(&scan))                                       *
  *       Display_Element(buff_ptr);                                        *
  *-------------------------------------------------------------------------*/
 char *

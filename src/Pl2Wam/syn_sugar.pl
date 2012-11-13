@@ -99,9 +99,9 @@ normalize_cuts1((P -> Q), CutVar, Body) :-
 	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; fail),
 	normalize_cuts1(Q, CutVar, Q1).
 
-	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. However
-	% a cut in the test part (P) should be local to P (as in P -> Q).
-	% Hence, we replace P *-> Q by P *-> Q1 ; fail
+	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
+	% However a cut in the test part (P) should be local to P (as in P -> Q).
+	% Hence we replace P *-> Q by P *-> Q1 ; fail
 
 normalize_cuts1((P *-> Q), CutVar, ((P, Q1) ; fail)) :-
 	normalize_cuts1(Q, CutVar, Q1).
@@ -294,6 +294,21 @@ pred_rewriting(Pred, Pred1) :-                     % math define current bip
 	pred_rewriting(set_bip_name(F, 2), T),
 	Pred1 = (T, Pred).
 
+pred_rewriting(term_hash(Term, Hash), Pred1) :-
+	g_read(inline, t),      % also if byte code since implies --no-inline
+	catch(term_hash(Term, Hash1), _, fail), % if there is an error, do not inline !
+	integer(Hash1), !,
+	pred_rewriting(set_bip_name(term_hash, 2), T),
+	pred_rewriting('$call_c'('Pl_Un_Integer_Check'(Hash1, Hash), [boolean]), T2),
+	Pred1 = (T, T2).
+
+pred_rewriting(term_hash(Term, Depth, Range, Hash), Pred1) :-
+	g_read(inline, t),      % also if byte code since implies --no-inline
+	catch(term_hash(Term, Depth, Range, Hash1), _, fail), % if there is an error, do not inline !
+	integer(Hash1), !,
+	pred_rewriting(set_bip_name(term_hash, 4), T),
+	pred_rewriting('$call_c'('Pl_Un_Integer_Check'(Hash1, Hash), [boolean, by_value]), T2),
+	Pred1 = (T, T2).
 
           % The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
           % LCOpt is a list containing:
@@ -306,7 +321,7 @@ pred_rewriting(Pred, Pred1) :-                     % math define current bip
           % Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
           % kept for the moment...
 
-          % do not use LCOpt1 = '$no_internal$'(LCOpt) for bootstrapping
+          % do not use LCOpt1 = '$no_internal_transf$'(LCOpt) for bootstrapping
 pred_rewriting('$call_c'(F, LCOpt), '$call_c'(F, LCOpt1)) :-
 	test_c_call_allowed('$call_c' / 2),
 	no_internal_transf(LCOpt, LCOpt1).

@@ -49,6 +49,9 @@
 
 #include "bips_pl.h"
 
+#if 0
+#define DEBUG_CHECK_DATES_AND_QUEUE
+#endif
 
 
 
@@ -56,7 +59,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define MSG_VECTOR_TOO_SMALL       "Warning: Vector too small - maybe lost solutions (FD Var:_%d)\n"
+#define MSG_VECTOR_TOO_SMALL       "Warning: Vector too small - maybe lost solutions (FD Var:_%ld)\n"
 
 
 
@@ -69,13 +72,95 @@
  * Global Variables                *
  *---------------------------------*/
 
-static WamWord DATE;
 static WamWord *TP;
 
 static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
-static PlULong always_date = -1;	/* must be always > DATE */
-static PlULong never_date = 0;		/* must be always < DATE */
+static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (intptr_t) */
+
+
+/*
+ * FD_INT_Date(fdv_adr): tells at which date a FD var has been instantiated
+ * Optim #2: if a var has been instantiated before the post of the current 
+ * constraint it is not necessary to reexecute it (in the propagation phase).
+ *
+ * For this we use a counter DATE (an unsigned) ranging from 1 to 0xFFFF...F
+ *    - value 0 is reserved for DATE_NEVER  (never  reexecute it)
+ *    - value 1 is reserved for DATE_ALWAYS (always reexecute it)
+ *        e.g. used as long as an FD variable is not instantiated
+ *
+ * NB: it is not a problem if DATE == 1 (see test below)
+ *     ideally we would like that all DATE == DATE_ALWAYS
+ *
+ * A X in r constraint on X maintains a pointer to the FD_INT_Date(X)
+ * (see Optim_Pointer(cf)). The main test is as follows:
+ *
+ *   if *Optim_Pointer(cf) != both DATE and DATE_ALWAYS
+ *      skip the constraint (optim #2 or constraint stopped)
+ *   else 
+ *      execute the constraint
+ *
+ * For some constraints optim #2 is invalid: point to optim2_date_always
+ * To stop a constraint: point to optim2_date_never
+ *
+ * Since DATE is never decremented, for long computations it can overflow.
+ * In that case DATE restarts from 2, 3,... (rotation).
+ * Due to rotations, it is no longer possible to use tests like (xxx < DATE)
+ *
+ * This prevents to use DATE to test if a variable is already in the queue.
+ *
+ * We now mark variables which are in the queue using the Queue_Propag_Mask
+ * (which is the mask of all chains to reexecute for this var).
+ * if Queue_Propag_Mask == 0 the var is not in the queue (else it is).
+ *
+ * Thus when a constraint is added, it is mandatory that all constraints 
+ * are initially not marked. For this, Pl_Fd_Before_Add_Cstr() clears the 
+ * variables remaining in the queue (i.e. of the previous constraint post).
+ * This occurs if the previous constraint failed in the propagation phase
+ * see Pl_Fd_After_Add_Cstr(). NB: in case of success, the queue has been
+ * fully scanned and all variable are unmarked (no longer in the queue).
+ *
+ * About propagation phase (Pl_Fd_After_Add_Cstr). The queue of constraint
+ * having constraints to reconsider (reexecute) is handled as follows:
+ * Queue_Next_Fdv_Adr(dummy_fd_var) points to the first variable
+ * TP points to the last variable in queue
+ * 
+ * The queue is empty if TP == dummy_fd_var. Constraints are added at the
+ * and modifying TP.
+ *
+ * When a variable X is taken into account, all needed chains are traversed
+ * and constraints depending on X are reexecuted. This can in turn trigger a 
+ * reconsideration of X. It is important to not re-add X to the queue (else
+ * TP will be modified to X and since BP = TP = X the propagation algorithm 
+ * considers everything is done). We use MASK_TO_KEEP_IN_QUEUE to ensure X
+ * continues to be considered in the queue and to clear the chains to 
+ * propagate for it. This gives in the propagation loop:
+ * 
+ * X = BP
+ * propag = Queue_Propag_Mask(X);
+ * Queue_Propag_Mask(X) = MASK_TO_KEEP_IN_QUEUE
+ * for each cstr C in a chain of X wrt to propag
+ *    reexecute C (NB: skip it depending on DATE for optim #2, see above)
+ * Queue_Propag_Mask(X) &= (MASK_TO_KEEP_IN_QUEUE - 1)
+ * if (Queue_Propag_Mask(fdv_adr) == 0) {  ie. no longer in the queue
+ *   if (BP == TP)
+ *       success
+ *   BP = Queue_Next_Fdv_Adr(BP);
+ * }
+ *
+ * NB: if a constraint reexecution fails (in the above loop), X has the 
+ * MASK_TO_KEEP_IN_QUEUE set. This is not a problem since at the next
+ * constraint post the queue is cleared assigning 0 to each Queue_Propag_Mask.
+ */
+
+#define DATE_NEVER   0
+#define DATE_ALWAYS  1
+
+static PlULong optim2_date_never = DATE_NEVER;  /* must be always != any DATE */
+static PlULong optim2_date_always = DATE_ALWAYS; /* must be considered as == all DATE */
+
+
+
 
 void (*pl_fd_init_solver) () = Pl_Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
 void (*pl_fd_reset_solver) () = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
@@ -89,6 +174,8 @@ void (*pl_fd_reset_solver) () = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_f
 
 static void All_Propagations(WamWord *fdv_adr, int propag);
 
+static void Clear_Queue(void);
+
 
 
 
@@ -96,16 +183,33 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
  * Auxiliary engine macros         *
  *---------------------------------*/
 
-#define Trail_Fd_Int_Variable_If_Necessary(fdv_adr)  	\
-  do							\
-    {							\
-      if (Word_Needs_Trailing(&FD_Tag_Value(fdv_adr)))	\
-	{						\
-	  Trail_OV(&FD_Tag_Value(fdv_adr));		\
-	  Trail_OV(&FD_INT_Date(fdv_adr));		\
-	  Trail_Range_If_Necessary(fdv_adr);		\
-	}						\
-    }							\
+#define FD_Word_Needs_Trailing(adr)  ((adr) <  CSB(B))
+
+
+
+
+#define FD_Bind_OV(adr, word)       		\
+  do						\
+    {						\
+      if (FD_Word_Needs_Trailing(adr))		\
+	Trail_OV(adr);				\
+      *(adr) = (word);				\
+    }						\
+  while (0)
+
+
+
+
+#define Trail_Fd_Int_Variable_If_Necessary(fdv_adr)		\
+  do								\
+    {								\
+      if (FD_Word_Needs_Trailing(&FD_Tag_Value(fdv_adr)))	\
+	{							\
+	  Trail_OV(&FD_Tag_Value(fdv_adr));			\
+	  Trail_OV(&FD_INT_Date(fdv_adr));			\
+	  Trail_Range_If_Necessary(fdv_adr);			\
+	}							\
+    }								\
   while (0)
 
 
@@ -263,6 +367,17 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 
 
 
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+
+static WamWord *last_bp = dummy_fd_var;
+static WamWord *last_tp = dummy_fd_var;
+
+static void Check_Queue_Consistency(void);
+
+#endif
+
+
+
 
 /*-------------------------------------------------------------------------*
  * FD_INST_INITIALIZER                                                     *
@@ -316,7 +431,9 @@ Pl_Fd_Init_Solver0(void)
 void
 Pl_Fd_Reset_Solver0(void)
 {
-  STAMP = DATE = 0;
+  STAMP = 0;
+  DATE = 1;
+  TP = dummy_fd_var;		/* the queue is empty */
 }
 
 
@@ -661,13 +778,12 @@ Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
  *-------------------------------------------------------------------------*/
 WamWord *
 Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
-		  Bool optim2)
+		     Bool optim2)
 {
   WamWord *CF = CS;
 
   AF_Pointer(CF) = AF;
-  Optim_Pointer(CF) = (optim2 && fdv_adr) ? &FD_INT_Date(fdv_adr)
-    : (WamWord *) &always_date;
+  Optim_Pointer(CF) = (optim2 && fdv_adr) ? &FD_INT_Date(fdv_adr) : &optim2_date_always;
   Cstr_Address(CF) = cstr_fct;
 
   /* if ground Nb_Cstr not allocated (Fd_Int_Frame) */
@@ -698,7 +814,7 @@ Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
 
   Chains_Mask(fdv_adr) |= (1 << chain_nb);
 
-  chain_adr = (WamWord **) (&Chain_Min(fdv_adr) + chain_nb);
+  chain_adr = (&Chain_Min(fdv_adr) + chain_nb);
 
   CF_Pointer(CS) = CF;
   Next_Chain(CS) = *chain_adr;
@@ -737,10 +853,10 @@ Pl_Fd_New_Variable(void)
   WamWord *fdv_adr = CS;
 
   FD_Tag_Value(fdv_adr) = Tag_FDV(fdv_adr);
-  FD_INT_Date(fdv_adr) = always_date;	/* must be>DATE while tag==FDV */
-  Queue_Date_At_Push(fdv_adr) = 0;
+  FD_INT_Date(fdv_adr) = DATE_ALWAYS;	/* must be awoken as long as tag == FDV */
+
   Queue_Propag_Mask(fdv_adr) = 0;
-  Queue_Next_Fdv_Adr(fdv_adr) = (WamWord) NULL;
+  Queue_Next_Fdv_Adr(fdv_adr) = NULL;
 
   Range_Stamp(fdv_adr) = STAMP;
   Nb_Elem(fdv_adr) = INTERVAL_MAX_INTEGER + 1;
@@ -749,9 +865,8 @@ Pl_Fd_New_Variable(void)
   Chains_Stamp(fdv_adr) = STAMP;
   Nb_Cstr(fdv_adr) = 0;
   Chains_Mask(fdv_adr) = MASK_EMPTY;
-  Chain_Min(fdv_adr) = Chain_Max(fdv_adr) = Chain_Min_Max(fdv_adr) =
-    (WamWord) NULL;
-  Chain_Dom(fdv_adr) = Chain_Val(fdv_adr) = (WamWord) NULL;
+  Chain_Min(fdv_adr) = Chain_Max(fdv_adr) = Chain_Min_Max(fdv_adr) = NULL;
+  Chain_Dom(fdv_adr) = Chain_Val(fdv_adr) = NULL;
 
   CS += FD_VARIABLE_FRAME_SIZE;
   return fdv_adr;
@@ -789,10 +904,10 @@ Pl_Fd_New_Int_Variable(int n)
   WamWord *fdv_adr = CS;
 
   FD_Tag_Value(fdv_adr) = Tag_INT(n);
-  FD_INT_Date(fdv_adr) = DATE;	/* put a great value to have an exact optim #2 */
-  Queue_Date_At_Push(fdv_adr) = 0;
+  FD_INT_Date(fdv_adr) = DATE_NEVER;
+
   Queue_Propag_Mask(fdv_adr) = 0;
-  Queue_Next_Fdv_Adr(fdv_adr) = (WamWord) NULL;
+  Queue_Next_Fdv_Adr(fdv_adr) = NULL;
 
   Range_Stamp(fdv_adr) = STAMP;
   Nb_Elem(fdv_adr) = 1;
@@ -813,10 +928,93 @@ Pl_Fd_New_Int_Variable(int n)
 void
 Pl_Fd_Before_Add_Cstr(void)
 {
-  TP = dummy_fd_var;
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  PlULong last_date = DATE;
+  static int nb_rot = 0;
+
+  DATE += (PlULong) -1 / 10000000;	/* for rotations (decrease denom for more often) */
+
+  if (DATE < last_date)
+    printf(">>>>>>>>>>>>>>> ROTATION OCCURS: #%d\n", ++nb_rot);
+
+#else
+
   DATE++;
-  if (DATE < 0)
-    DATE = 1;
+
+#endif
+
+  if (DATE == DATE_NEVER) /* reserve DATE_NEVER (i.e. 0) */
+    DATE++;		  /* NB: it is not a problem if DATE == DATE_ALWAYS (i.e. 1) */
+
+  Clear_Queue();
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  Check_Queue_Consistency();
+#endif  
+}
+
+
+
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+
+/*-------------------------------------------------------------------------*
+ * CHECK_QUEUE_CONSISTENCY                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Check_Queue_Consistency(void)
+{
+  WamWord *BP = last_bp;
+  WamWord *fdv_adr;
+
+  if (last_tp == dummy_fd_var)	/* empty ? */
+    return;
+
+  for(;;) 
+    {
+      fdv_adr = (WamWord *) BP;
+      if (Is_Var_In_Queue(fdv_adr))
+	printf("ERROR QUEUE should be empty but contains var:_%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
+
+      if (BP == last_tp)
+	break;
+		    
+      BP = Queue_Next_Fdv_Adr(BP);
+    }
+}
+
+#endif
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CLEAR_QUEUE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Clear_Queue(void)
+{
+  WamWord *BP;
+  WamWord *fdv_adr;
+
+  if (TP == dummy_fd_var)	/* empty ? */
+    return;
+
+  BP = Queue_Next_Fdv_Adr(dummy_fd_var);
+    
+  for(;;) 
+    {
+      fdv_adr = (WamWord *) BP;
+      Del_Var_From_Queue(fdv_adr);
+      if (BP == TP)
+	break;
+		    
+      BP = Queue_Next_Fdv_Adr(BP);
+    }
+
+  TP = dummy_fd_var;		/* empty */
 }
 
 
@@ -1074,12 +1272,11 @@ static void
 All_Propagations(WamWord *fdv_adr, int propag)
 {
   if (propag &= Chains_Mask(fdv_adr))
-    {
-      if (Queue_Date_At_Push(fdv_adr) < DATE)	/* not yet in the queue */
+    {				     /* here propag != 0 */
+      if (!Is_Var_In_Queue(fdv_adr)) /* not yet in the queue */
 	{
-	  Queue_Date_At_Push(fdv_adr) = DATE;
-	  Queue_Propag_Mask(fdv_adr) = propag;
-	  Queue_Next_Fdv_Adr(TP) = (WamWord) fdv_adr;
+	  Queue_Propag_Mask(fdv_adr) = propag; /* setting propag != 0 adds the var to the queue */
+	  Queue_Next_Fdv_Adr(TP) = fdv_adr;
 	  TP = fdv_adr;
 	}
       else			/* already in the queue */
@@ -1100,40 +1297,52 @@ Pl_Fd_After_Add_Cstr(void)
   WamWord *fdv_adr;
   WamWord propag;
   WamWord *record_adr;
-  WamWord *chain_adr;
+  WamWord **chain_adr;
   WamWord *CF;
   WamWord *BP;
-  PlULong date = DATE;
+  PlULong date = DATE;		/* local copy for efficiency */
   PlULong *pdate;
   WamWord *AF;
   PlLong (*fct) ();
 
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  last_bp = NULL;
+  last_tp = TP;
+#endif
+
   if (TP == dummy_fd_var)
     return TRUE;
 
-  BP = dummy_fd_var;
-  BP = (WamWord *) Queue_Next_Fdv_Adr(BP);
+  BP = Queue_Next_Fdv_Adr(dummy_fd_var);
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  last_bp = BP;
+#endif
 
   for (;;)
     {
       fdv_adr = (WamWord *) BP;
       propag = Queue_Propag_Mask(fdv_adr);
-      Queue_Propag_Mask(fdv_adr) = 0;
+
+      /* NB: the var must stay in the queue until fix-point (no more reactivations) */
+      /* add a mask to keep it in the queue (in case it is reactivated) */
+      Queue_Propag_Mask(fdv_adr) = MASK_TO_KEEP_IN_QUEUE;
 
       chain_adr = &Chain_Min(fdv_adr);
+
 
       for (; propag; propag >>= 1, chain_adr++)
 	if (propag & 1)
 	  {
-	    record_adr = (WamWord *) (*chain_adr);
+	    record_adr = (*chain_adr);
 	    do
 	      {
 		CF = CF_Pointer(record_adr);
 
 #if 1
-		/* optim #2 */
-		pdate = (PlULong *) Optim_Pointer(CF);
-		if (*pdate < date)
+		/* optim #2 (and for 'stop constraint' management) */
+		pdate = Optim_Pointer(CF);
+		if (*pdate != DATE_ALWAYS && *pdate != date)
 		  continue;
 #endif
 
@@ -1143,12 +1352,16 @@ Pl_Fd_After_Add_Cstr(void)
 		fct = (PlLong (*)()) (*fct) (AF);
 
 		if (fct == (PlLong (*)()) FALSE)
-		  return FALSE;
+		  {
+		  failure:
+		    Queue_Next_Fdv_Adr(dummy_fd_var) = BP; /* update begin of remaining queue */
+		    return FALSE;
+		  }
 #if 1				/* FD switch */
 		if (fct != (PlLong (*)()) TRUE)	/* FD switch case triggered */
 		  {
 		    if ((*fct) (AF) == FALSE)
-		      return FALSE;
+		      goto failure;
 
 		    Pl_Fd_Stop_Constraint(CF);
 		  }
@@ -1157,16 +1370,23 @@ Pl_Fd_After_Add_Cstr(void)
 	    while ((record_adr = Next_Chain(record_adr)) != NULL);
 	  }
 
-      if (Queue_Propag_Mask(fdv_adr) == 0)
+
+      /* undo the mask */
+      Queue_Propag_Mask(fdv_adr) &= (MASK_TO_KEEP_IN_QUEUE - 1);
+
+      /* reactivated ? */
+      if (Queue_Propag_Mask(fdv_adr) == 0) /* no longer in queue ? */
 	{
+	  /*  Del_Var_From_Queue(fdv_adr); since Queue_Propag_Mask(fdv_adr) == 0 */
+
 	  if (BP == TP)
 	    break;
 
-	  BP = (WamWord *) Queue_Next_Fdv_Adr(BP);
-	  Queue_Date_At_Push(fdv_adr) = 0;
+	  BP = Queue_Next_Fdv_Adr(BP);
 	}
     }
 
+  TP = dummy_fd_var;		/* queue is now empty */
 
   return TRUE;
 }
@@ -1182,7 +1402,7 @@ void
 Pl_Fd_Stop_Constraint(WamWord *CF)
 {
   FD_Bind_OV((WamWord *) (CF + OFFSET_OF_OPTIM_POINTER),
-	     (WamWord) (&never_date));
+	     (WamWord) (&optim2_date_never));
 }
 
 
@@ -1258,8 +1478,8 @@ Pl_Fd_Use_Vector(WamWord *fdv_adr)
 
   Pl_Fd_Before_Add_Cstr();
   {
-    WamWord *save_CS=CS;	/* code of fd_allocate (from fd_to_c.h) */
-    CS+=pl_vec_size;
+    WamWord *save_CS = CS;	/* code of fd_allocate (from fd_to_c.h) */
+    CS += pl_vec_size;
 
     Range_Init_Interval(&range, 0, INTERVAL_MAX_INTEGER);
 
@@ -1404,5 +1624,5 @@ void
 Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr)
 {
   Pl_Stream_Printf(pl_stm_tbl[pl_stm_stdout], MSG_VECTOR_TOO_SMALL,
-		Cstr_Offset(fdv_adr));
+		   Cstr_Offset(fdv_adr));
 }

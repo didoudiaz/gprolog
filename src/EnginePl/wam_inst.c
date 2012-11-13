@@ -137,7 +137,7 @@ Pl_Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
  *-------------------------------------------------------------------------*/
 void FC
 Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
-		       CodePtr codep)
+			  CodePtr codep)
 {
   PlLong key = Functor_Arity(func, arity);
 

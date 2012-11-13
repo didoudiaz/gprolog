@@ -443,9 +443,9 @@ Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
  *-------------------------------------------------------------------------*/
 int
 Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
-	   StmFct fct_getc, StmFct fct_putc,
-	   StmFct fct_flush, StmFct fct_close,
-	   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
+	      StmFct fct_getc, StmFct fct_putc,
+	      StmFct fct_flush, StmFct fct_close,
+	      StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
 {
   int stm;
   StmInf *pstm;
@@ -795,7 +795,7 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
   WamWord word, tag_mask, tag_mask1;
   int atom;
   WamWord *stc_adr;
-  int stm = 0;			/* only for the compiler */
+  PlLong stm = 0;		/* only for the compiler (NB: defined as PlLong to check validity) */
   int perm_oper;
 
 
@@ -825,7 +825,7 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
 
  next_test:
 
-  if ((unsigned) stm > (unsigned) pl_stm_last_used || pl_stm_tbl[stm] == NULL)
+  if ((PlULong) stm > (PlULong) pl_stm_last_used || pl_stm_tbl[stm] == NULL)
     {
       if (test == STREAM_CHECK_VALID)
 	return -1;
@@ -854,7 +854,7 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
   Pl_Err_Permission(perm_oper, pl_permission_type_stream, sora_word);
 
  ok:
-  return stm;
+  return (int) stm;
 }
 
 
@@ -1034,8 +1034,8 @@ Pl_Io_Fileno_Of_Stream(int stm)
 
 #define RESTORE_FOR_REENTRANCY				\
   SYS_VAR_OPTION_MASK = save_sys_var_option_mask;	\
-  pl_last_read_line = save_last_read_line;			\
-  pl_last_read_col = save_last_read_col;			\
+  pl_last_read_line = save_last_read_line;		\
+  pl_last_read_col = save_last_read_col;		\
 }
 
 
@@ -1062,7 +1062,7 @@ TTY_Getc(void)
 				/* tty_ptr must remain NULL for reentrancy */
       SAVE_FOR_REENTRANCY;
       tty_buff = Pl_LE_FGets(tty_buff, TTY_BUFFER_SIZE, pl_le_prompt,
-			  pl_use_le_prompt);
+			     pl_use_le_prompt);
       pl_use_le_prompt = 0;
       RESTORE_FOR_REENTRANCY;
       tty_linedit_depth--;
@@ -1162,26 +1162,27 @@ TTY_Clearerr(void)
 
 #else
 
-#define Before_Reading(pstm, file)					    \
-{									    \
-  if (pstm->eof_reached)						    \
-    {									    \
-      if (pstm->prop.eof_action == STREAM_EOF_ACTION_ERROR)		    \
-        Pl_Err_Permission(pl_permission_operation_input,			    \
-                          pl_permission_type_past_end_of_stream,		    \
-                          (pl_last_input_sora == NOT_A_WAM_WORD)		    \
-                          ? word_current_input_stream : pl_last_input_sora);   \
- 									    \
-      if (pstm->prop.eof_action == STREAM_EOF_ACTION_EOF_CODE)		    \
-        return EOF;							    \
- 									    \
-      /* here: eof_action == STREAM_EOF_ACTION_RESET */			    \
-      pstm->eof_reached = FALSE;					    \
-      if (pstm->prop.reposition)					    \
-        Pl_Stream_Set_Position(pstm, SEEK_SET, 0, 0, 0, 0);		    \
-      if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)			    \
-        (*pstm->fct_clearerr) (file);					    \
-    }									    \
+#define Before_Reading(pstm, file)					\
+{									\
+  if (pstm->eof_reached)						\
+    {									\
+      if (pstm->prop.eof_action == STREAM_EOF_ACTION_ERROR)		\
+        Pl_Err_Permission(pl_permission_operation_input,		\
+                          pl_permission_type_past_end_of_stream,	\
+                          (pl_last_input_sora == NOT_A_WAM_WORD)	\
+                          ? word_current_input_stream 			\
+			  : pl_last_input_sora);			\
+									\
+      if (pstm->prop.eof_action == STREAM_EOF_ACTION_EOF_CODE)		\
+        return EOF;							\
+									\
+      /* here: eof_action == STREAM_EOF_ACTION_RESET */			\
+      pstm->eof_reached = FALSE;					\
+      if (pstm->prop.reposition)					\
+        Pl_Stream_Set_Position(pstm, SEEK_SET, 0, 0, 0, 0);		\
+      if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)			\
+        (*pstm->fct_clearerr) (file);					\
+    }									\
 }
 
 #endif /* FOR_EXTERNAL_USE */
@@ -1444,7 +1445,7 @@ Pl_Stream_Gets(char *str, int size, StmInf *pstm)
  *-------------------------------------------------------------------------*/
 char *
 Pl_Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
-		   char *str, int size, StmInf *pstm_i)
+		      char *str, int size, StmInf *pstm_i)
 
 {
 #ifndef NO_USE_LINEDIT
@@ -1602,8 +1603,8 @@ Pl_Stream_End_Of_Stream(StmInf *pstm)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Stream_Get_Position(StmInf *pstm, int *offset, int *char_count,
-		    int *line_count, int *line_pos)
+Pl_Stream_Get_Position(StmInf *pstm, PlLong *offset, PlLong *char_count,
+		       PlLong *line_count, PlLong *line_pos)
 {
   PlLong file = pstm->file;
 
@@ -1642,8 +1643,8 @@ Pl_Stream_Get_Position(StmInf *pstm, int *offset, int *char_count,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
-		    int line_count, int line_pos)
+Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset, PlLong char_count,
+		       PlLong line_count, PlLong line_pos)
 {
   PlLong file = pstm->file;
   int x;
@@ -1682,11 +1683,11 @@ Pl_Stream_Set_Position(StmInf *pstm, int whence, int offset, int char_count,
  * Only the line count and the line position are given.                    *
  *-------------------------------------------------------------------------*/
 int
-Pl_Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos)
+Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos)
 {
   PlLong file = pstm->file;
   int x;
-  int *p;
+  PlLong *p;
   int c;
   int offset;
   Bool save_eof_reached;

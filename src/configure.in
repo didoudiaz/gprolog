@@ -426,6 +426,8 @@ dnl ********************
 dnl * C compiler flags *
 dnl ********************
 
+AC_C_BIGENDIAN
+
 CFLAGS_MACHINE=
 CFLAGS_PREFIX_REG=
 
@@ -510,9 +512,23 @@ SAVE_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS_MACHINE $CFLAGS"
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(void*)
-AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h sys/siginfo.h)
+AC_CHECK_HEADERS(sys/ioctl_compat.h sys/siginfo.h termios.h malloc.h endian.h sys/endian.h byteswap.h float.h)
 AC_FUNC_MMAP
+dnl use one day AC_CHECK_DECL instead of AC_CHECK_FUNC ? but add the include
+dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc, htole32, bswap_32])
+
 AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
+AC_CHECK_DECLS([htole32, bswap_32], [], [], 
+[#ifdef HAVE_ENDIAN_H
+#include <endian.h>
+#endif
+#ifdef HAVE_SYS_ENDIAN_H
+#include <sys/endian.h>
+#endif
+#ifdef HAVE_BYTESWAP_H
+#include <byteswap.h>
+#endif
+])
 
 SAVE_LIBS="$LIBS"
 LIBS="$LIBS -lm"

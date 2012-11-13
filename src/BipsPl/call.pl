@@ -117,6 +117,13 @@ call_det(Goal, Deterministic) :-
 	'$call_internal'(P, CallInfo), !,
 	'$call_internal_with_cut'(Q, CallInfo, VarCut).
 
+	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
+        % However a cut in the test part (P) should be local to P (as in P -> Q).
+'$call_internal_with_cut'((P *-> Q), CallInfo, VarCut) :-
+	!,
+	'$call_internal'(P, CallInfo),
+	'$call_internal_with_cut'(Q, CallInfo, VarCut).
+
 '$call_internal_with_cut'(fail, _CallInfo, _VarCut) :-
 	!,
 	fail.
@@ -145,6 +152,13 @@ call_det(Goal, Deterministic) :-
 '$call_internal_or'((P -> Q), R, CallInfo, VarCut) :-
 	!,
 	(   '$call_internal'(P, CallInfo), !,
+	    '$call_internal_with_cut'(Q, CallInfo, VarCut)
+	;   '$call_internal_with_cut'(R, CallInfo, VarCut)
+	).
+
+'$call_internal_or'((P *-> Q), R, CallInfo, VarCut) :-
+	!,
+	(   '$call_internal'(P, CallInfo) *->
 	    '$call_internal_with_cut'(Q, CallInfo, VarCut)
 	;   '$call_internal_with_cut'(R, CallInfo, VarCut)
 	).

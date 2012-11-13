@@ -26,11 +26,14 @@ q :-
 	write('M ?'),
 	read_integer(M),
 	statistics(runtime, _),
-	(   bpigeon(N, M, A),
-%        write(A), nl,
+	g_assign(count, 0),
+	(   bpigeon(N, M, _A),
+%        write(_A), nl,
+	    g_inc(count),
 	    fail
-	;   write('No more solutions'),
-	    nl
+	;
+	    g_read(count, Count),
+	    format('Number of solutions ~d~n', [Count])
 	),
 	statistics(runtime, [_, Y]),
 	write('time : '),

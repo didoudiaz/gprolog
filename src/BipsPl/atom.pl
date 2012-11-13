@@ -125,13 +125,6 @@ lower_upper(Lower, Upper) :-
 
 
 
-atom_hash(Atom, Hash) :-
-	set_bip_name(atom_hash, 2),
-	'$call_c_test'('Pl_Atom_Hash_2'(Atom, Hash)).
-
-
-
-
 current_atom(X) :-
 	set_bip_name(current_atom, 1),
 	'$current_atom'(X).
@@ -197,7 +190,7 @@ atom_property(Atom, Property) :-
 	'$call_c_test'('Pl_Atom_Length_2'(Atom, Length)).
 
 '$atom_property2'(hash(Hash), Atom, _, _, _, _, _) :-
-	'$call_c_test'('Pl_Atom_Hash_2'(Atom, Hash)).
+	'$call_c_test'('Pl_Term_Hash_2'(Atom, Hash)).
 
 '$atom_property2'(prefix_op, _, 1, _, _, _, _).
 
@@ -214,15 +207,9 @@ atom_property(Atom, Property) :-
 
 new_atom(X) :-
 	set_bip_name(new_atom, 1),
-	'$sys_var_write'(0, 0),                          % hash not specified
-	'$call_c_test'('Pl_New_Atom_3'(atom_, 0, X)).
+	'$call_c_test'('Pl_New_Atom_2'(atom_, X)).
 
 new_atom(Prefix, X) :-
 	set_bip_name(new_atom, 2),
-	'$sys_var_write'(0, 0),                          % hash not specified
-	'$call_c_test'('Pl_New_Atom_3'(Prefix, 0, X)).
+	'$call_c_test'('Pl_New_Atom_2'(Prefix, X)).
 
-new_atom(Prefix, Hash, X) :-
-	set_bip_name(new_atom, 3),
-	'$sys_var_write'(0, 1),                              % hash specified
-	'$call_c_test'('Pl_New_Atom_3'(Prefix, Hash, X)).

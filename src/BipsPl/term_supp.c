@@ -76,6 +76,10 @@ static WamWord *top_vars;
 
 static void Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p);
 
+static Bool Term_Hash(WamWord start_word, PlLong depth, unsigned *hash);
+
+static Bool Term_Hash_Rec(WamWord start_word, PlLong depth, HashIncrInfo *hi);
+
 
 
 
@@ -564,6 +568,7 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
 {
   WamWord word, tag_mask;
   int func;
+  PlLong arity1;
 
   DEREF(pred_indic_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK && must_be_ground)
@@ -582,36 +587,24 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
   pl_pi_name_word = Pl_Unify_Variable();
   pl_pi_arity_word = Pl_Unify_Variable();
 
-  if (must_be_ground)
-    func = Pl_Rd_Atom_Check(pl_pi_name_word);
+  DEREF(pl_pi_name_word, word, tag_mask);
+  if (!must_be_ground && tag_mask == TAG_REF_MASK)
+    func = -1;
   else
-    {
-      DEREF(pl_pi_name_word, word, tag_mask);
-      if (tag_mask == TAG_REF_MASK)
-	func = -1;
-      else
-	func = Pl_Rd_Atom_Check(pl_pi_name_word);
-    }
+    func = Pl_Rd_Atom_Check(word);
 
-  if (must_be_ground)
-    {
-      *arity = Pl_Rd_Positive_Check(pl_pi_arity_word);
 
-      if (*arity > MAX_ARITY)
+  DEREF(pl_pi_arity_word, word, tag_mask);
+  if (!must_be_ground && tag_mask == TAG_REF_MASK)
+    *arity = -1;
+  else
+    {				/* use a PlLong for arity1 to avoid truncations */
+      arity1 = Pl_Rd_Positive_Check(pl_pi_arity_word);
+      
+      if (arity1 > MAX_ARITY)
 	Pl_Err_Representation(pl_representation_max_arity);
-    }
-  else
-    {
-      DEREF(pl_pi_arity_word, word, tag_mask);
-      if (tag_mask == TAG_REF_MASK)
-	*arity = -1;
-      else
-	{
-	  *arity = Pl_Rd_Positive_Check(pl_pi_arity_word);
 
-	  if (*arity > MAX_ARITY)
-	    Pl_Err_Representation(pl_representation_max_arity);
-	}
+      *arity = arity1;
     }
 
   return func;
@@ -701,4 +694,153 @@ Pl_Acyclic_Term_1(WamWord start_word)
     }
 
   return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * TERM_HASH                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static
+Bool Term_Hash(WamWord start_word, PlLong depth, unsigned *hash)
+{
+  HashIncrInfo hi;
+
+  Pl_Hash_Incr_Init(&hi);
+
+  if (depth != 0 && !Term_Hash_Rec(start_word, depth, &hi))
+    return FALSE;
+
+  *hash = Pl_Hash_Incr_Term(&hi);
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * TERM_HASH_REC                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool 
+Term_Hash_Rec(WamWord start_word, PlLong depth, HashIncrInfo *hi)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  int func, arity;
+
+terminal_rec:
+
+  /* here depth is != 0 this is checked before (recursive) call */
+
+  /* NB: the depth-- should be done inside the terminal_rec label (not before !)
+   * here it is only done for lists and structures (since atomic terms do not need it)
+   */
+
+  DEREF(start_word, word, tag_mask);
+
+  switch (Tag_From_Tag_Mask(tag_mask))
+    {
+    case REF:
+#ifndef NO_USE_FD_SOLVER
+    case FDV:
+#endif
+      return FALSE;
+
+    case ATM:
+      Pl_Hash_Incr_Int32(hi, pl_atom_tbl[UnTag_ATM(word)].hash);
+      break;
+
+    case INT:
+      Pl_Hash_Incr_Int64(hi, UnTag_INT(word));
+      break;
+
+    case FLT:
+      Pl_Hash_Incr_Double(hi, Pl_Obtain_Float(UnTag_FLT(word)));
+      break;
+
+      /* For faster list hasing we simply hash Car and then Cdr
+       * h([a,b]) != h([a,[b]]) since h(a), h(b), h([]) != h(a), h(b), h([]), h([])
+       * NB: if depth == 0 (stop hashing) we hash '.' / 2
+       */
+    case LST: 
+      if (--depth == 0)
+	{
+	  Pl_Hash_Incr_Int32(hi, pl_atom_tbl[ATOM_CHAR('.')].hash);
+	  Pl_Hash_Incr_Int32(hi, 2);
+	  break;
+	}
+
+      adr = UnTag_LST(word);
+      if (!Term_Hash_Rec(Car(adr), depth, hi))
+	return FALSE;
+
+      start_word = Cdr(adr);
+      goto terminal_rec;
+
+    case STC:
+      adr = UnTag_STC(word);
+      func = Functor(adr);
+      arity = Arity(adr);	/* do not hash the word <f/n> since it is runtime dependent */
+
+      Pl_Hash_Incr_Int32(hi, pl_atom_tbl[func].hash);
+      Pl_Hash_Incr_Int32(hi, arity);
+
+      if (--depth == 0)
+	break;
+
+      adr = &Arg(adr, 0);
+      while(--arity)
+	{
+	  if (!Term_Hash_Rec(*adr++, depth, hi))
+	    return FALSE;
+	}
+      start_word = *adr;
+      goto terminal_rec;      
+    }
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_TERM_HASH_4                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Term_Hash_4(WamWord start_word, WamWord depth_word, WamWord range_word, 
+	       WamWord hash_word)
+{
+  PlLong depth = Pl_Rd_Integer_Check(depth_word);
+  PlLong range = Pl_Rd_Positive_Check(range_word);
+  unsigned hash;
+
+  if (range <= 0 || range > HASH_MOD_VALUE)
+    range = HASH_MOD_VALUE;
+
+  Pl_Check_For_Un_Integer(hash_word);
+
+  /* Term_Hash fails if the term is not ground, in that case leave hash_word unbound */
+
+  if (!Term_Hash(start_word, depth, &hash))
+    return TRUE;
+
+  return Pl_Un_Integer(hash % range, hash_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_TERM_HASH_2                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Term_Hash_2(WamWord start_word, WamWord hash_word)
+{
+  return Pl_Term_Hash_4(start_word, Tag_INT(-1), Tag_INT(0), hash_word);
 }

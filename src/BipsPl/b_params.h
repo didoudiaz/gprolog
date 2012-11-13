@@ -43,6 +43,11 @@
 
 #define MAX_SYS_VARS               256
 
+/* to return an hash as a Tagged INT use a modulo with HASH_MOD_VALUE
+ * it is the 1+max_integer on 32 bits 
+ */
+#define HASH_MOD_VALUE             (1 << (32 - TAG_SIZE - 1))
+
 
 /* ISO DTC2 seems to allow layout chars between minus sign and the number */
 #if 0

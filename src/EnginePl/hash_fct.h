@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : term_inl.pl                                                     *
- * Descr.: term (inline) management - defs for meta-call                   *
+ * Part  : Prolog engine                                                   *
+ * File  : hash_fct.c                                                      *
+ * Descr.: hash function                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -37,106 +37,44 @@
 
 /* $Id$ */
 
-:-	built_in.
+#ifndef _HASH_FCT_H
+#define _HASH_FCT_H
 
-'$use_term_inl'.
-
-
-compare(C, T1, T2) :-
-	compare(C, T1, T2).
+#include <stdint.h>
 
 
-X == Y :-
-	X == Y.
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
-X \== Y :-
-	X \== Y.
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-X @< Y :-
-	X @< Y.
-
-X @=< Y :-
-	X @=< Y.
-
-X @> Y :-
-	X @> Y.
-
-X @>= Y :-
-	X @>= Y.
+typedef struct
+{
+  int len;
+  uint32_t hash;
+} HashIncrInfo;
 
 
 
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
 
-arg(N, T, A) :-
-	arg(N, T, A).
+uint32_t Pl_Hash_Buffer(const void *data, int len);
 
+void Pl_Hash_Incr_Init(HashIncrInfo *hi);
 
+void Pl_Hash_Incr_Buffer(HashIncrInfo *hi, const void *data, int len);
 
+void Pl_Hash_Incr_Int32(HashIncrInfo *hi, uint32_t x);
 
-functor(T, F, N) :-
-	functor(T, F, N).
+void Pl_Hash_Incr_Int64(HashIncrInfo *hi, uint64_t x);
 
+void Pl_Hash_Incr_Double(HashIncrInfo *hi, double x);
 
+uint32_t Pl_Hash_Incr_Term(HashIncrInfo *hi);
 
-
-Term =.. List :-
-	Term =.. List.
-
-
-/* these are not inlined but put here for practical reasons */
-
-copy_term(T1, T2) :-
-	set_bip_name(copy_term, 2),
-	'$call_c_test'('Pl_Copy_Term_2'(T1, T2)).
-
-
-
-
-setarg(ArgNo, Term, NewValue) :-
-	set_bip_name(setarg, 3),
-	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, true)).
-
-
-setarg(ArgNo, Term, NewValue, Undo) :-
-	set_bip_name(setarg, 4),
-	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, Undo)).
-
-
-
-
-term_ref(Term, Ref) :-
-	set_bip_name(term_ref, 2),
-	'$call_c_test'('Pl_Term_Ref_2'(Term, Ref)).
-
-
-
-term_variables(Term, List) :-
-	set_bip_name(term_variables, 2),
-	'$call_c_test'('Pl_Term_Variables_2'(Term, List)).
-
-
-term_variables(Term, List, Tail) :-
-	set_bip_name(term_variables, 3),
-	'$call_c_test'('Pl_Term_Variables_3'(Term, List, Tail)).
-
-
-
-subsumes_term(General, Specific) :-
-	set_bip_name(subsumes_term, 2),
-	'$call_c_test'('Pl_Subsumes_Term_2'(General, Specific)).
-
-
-
-acyclic_term(X) :-
-	set_bip_name(acyclic_term, 1),
-	'$call_c_test'('Pl_Acyclic_Term_1'(X)).
-
-
-
-term_hash(X, Depth, Range, Hash) :-
-	set_bip_name(term_hash, 4),
-	'$call_c_test'('Pl_Term_Hash_4'(X, Depth, Range, Hash)).
-
-term_hash(X, Hash) :-
-	set_bip_name(term_hash, 2),
-	'$call_c_test'('Pl_Term_Hash_2'(X, Hash)).
+#endif

@@ -40,20 +40,8 @@
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 
-/* Define if you have the fgetc function */
-#undef HAVE_FGETC
-
-/* Define if you have the sigsetjmp function */
-#undef HAVE_SIGSETJMP
-
-/* Define if you have the asinh function */
-#undef HAVE_SINH
-
-/* Define if you have the acosh function */
-#undef HAVE_ACOSH
-
-/* Define if you have the atanh function */
-#undef HAVE_ATANH
+/* Define if you have inttypes.h */
+#undef HAVE_INTTYPES_H
 
 /* Define if you have sys/ioctl_compat.h */
 #undef HAVE_SYS_IOCTL_COMPAT_H
@@ -70,8 +58,32 @@
 /* Define if you have malloc.h */
 #undef HAVE_MALLOC_H
 
-/* Define if you have inttypes.h */
-#undef HAVE_INTTYPES_H
+/* Define if you have endian.h */
+#undef HAVE_ENDIAN_H
+
+/* Define if you have sys/endian.h */
+#undef HAVE_SYS_ENDIAN_H
+
+/* Define if you have byteswap.h */
+#undef HAVE_BYTESWAP_H
+
+/* Define if you have float.h */
+#undef HAVE_FLOAT_H
+
+/* Define if you have the fgetc function */
+#undef HAVE_FGETC
+
+/* Define if you have the sigsetjmp function */
+#undef HAVE_SIGSETJMP
+
+/* Define if you have the asinh function */
+#undef HAVE_SINH
+
+/* Define if you have the acosh function */
+#undef HAVE_ACOSH
+
+/* Define if you have the atanh function */
+#undef HAVE_ATANH
 
 /* Define if you have a working mmap system call */
 #undef HAVE_MMAP
@@ -81,6 +93,12 @@
 
 /* Define if you have a mallopt function */
 #undef HAVE_MALLOPT
+
+/* Define if you have a htole32 function */
+#undef HAVE_DECL_HTOLE32
+
+/* Define if you have a bswap_32 function */
+#undef HAVE_DECL_BSWAP_32
 
 /* Define inline keyword */
 #undef inline
@@ -231,6 +249,21 @@
 /* Define if the system is a x86-64/darwin */
 #undef M_x86_64_darwin
 
+
+/* Define if building universal (internal helper macro) */
+#undef AC_APPLE_UNIVERSAL_BUILD
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
 
 
 /* Constant definitions */

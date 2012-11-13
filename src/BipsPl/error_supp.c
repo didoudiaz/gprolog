@@ -256,10 +256,14 @@ Error_Supp_Initializer(void)
 void
 Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word)
 {
+  PlLong arity;			/* use PlLong to avoid truncation */
   Pl_Set_C_Bip_Name("set_bip_name", 2);
 
   cur_bip_func = Pl_Rd_Atom_Check(func_word);
-  cur_bip_arity = Pl_Rd_Integer_Check(arity_word);
+  arity = Pl_Rd_Integer_Check(arity_word);
+  if (arity > MAX_ARITY)
+    arity = -1;
+  cur_bip_arity = arity;
 
   Pl_Unset_C_Bip_Name();
 

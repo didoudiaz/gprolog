@@ -66,8 +66,12 @@
 
 
 
-
+/* NB: (hash) atom table size should not be < ATOM_NIL (else module will change it) */
+#if 0
 #define ATOM_NIL                  1766
+#else
+#define ATOM_NIL                  134457
+#endif
 
 
 
@@ -81,9 +85,9 @@
 
 
 
-#define Is_Valid_Code(c)           ((PlULong) (c)-1 <256-1)     /* 1<= c <256 */
-#define Is_Valid_Byte(c)           ((PlULong) (c) <256)	/* 0=< c <256 */
-#define Is_Valid_Atom(a)           ((PlULong) (a)<MAX_ATOM && \
+#define Is_Valid_Code(c)           ((PlULong) (c)-1 < 256-1)    /* 1 <= c < 256 */
+#define Is_Valid_Byte(c)           ((PlULong) (c) < 256)	/* 0 <= c < 256 */
+#define Is_Valid_Atom(a)           ((PlULong) (a) < MAX_ATOM && \
                                     pl_atom_tbl[(a)].name!=NULL)
 
 
@@ -109,6 +113,7 @@ AtomProp;
 typedef struct			/* Atom information               */
 {				/* ------------------------------ */
   char *name;			/* key is <name> (the string)     */
+  unsigned hash;		/* the hash code of string (name) */
   AtomProp prop;		/* associated properties          */
 }
 AtomInf;
@@ -186,7 +191,7 @@ WamWord FC Pl_Create_Atom_Tagged(char *name);
 
 int Pl_Find_Atom(char *name);
 
-int Pl_Gen_New_Atom(char *prefix, int hash);
+int Pl_Gen_New_Atom(char *prefix);
 
 int Pl_Find_Next_Atom(int last_atom);
 

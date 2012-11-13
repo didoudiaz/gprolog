@@ -32,7 +32,7 @@
 /* (from N to 1). If only one solution is needed, it is better for first   */
 /* to put this value in the group which has the smallest sum (of already   */
 /* placed values). If all solutions are wanted this is not relevant and    */
-/* add an little overhead.                                                 */
+/* incurs an little overhead.                                              */
 /*                                                                         */
 /* Generalization: finding a partition of 1,2...,N into 2 groups A and B:  */
 /*                                                                         */
@@ -46,14 +46,14 @@
 /* N=8  A=[1,4,6,7]                                                        */
 /*      B=[2,3,5,8]                                                        */
 /*                                                                         */
-/* N=16 A=[1,4,5,8,10,11,14,15]                                            */
-/*      B=[2,3,6,7,9,12,13,16]                                             */
+/* N=16 A=[1,4,6,7,10,11,13,16]                                            */
+/*      B=[2,3,5,8,9,12,14,15]                                             */
 /*                                                                         */
-/* N=20 A=[1,4,5,7,11,12,13,15,18,19]                                      */
-/*      B=[2,3,6,8,9,10,14,16,17,20]                                       */
+/* N=20 A=[1,3,7,8,9,11,14,15,17,20]                                       */
+/*      B=[2,4,5,6,10,12,13,16,18,19]                                      */
 /*                                                                         */
-/* N=24 A=[1,3,6,8,10,11,14,15,18,19,22,23]                                */
-/*      B=[2,4,5,7,9,12,13,16,17,20,21,24]                                 */
+/* N=24 A=[1,5,6,7,8,12,13,16,17,20,21,24]                                 */
+/*      B=[2,3,4,9,10,11,14,15,18,19,22,23]                                */
 /*                                                                         */
 /* Computing all solutions                                                 */
 /*                                                                         */

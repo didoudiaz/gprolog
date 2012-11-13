@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
- * Part  : Prolog buit-in predicates                                       *
- * File  : term_inl.pl                                                     *
- * Descr.: term (inline) management - defs for meta-call                   *
+ * Part  : Prolog engine                                                   *
+ * File  : hash_fct1.c                                                     *
+ * Descr.: hash function (part)                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -37,106 +37,58 @@
 
 /* $Id$ */
 
-:-	built_in.
 
-'$use_term_inl'.
+/* 
+ * This one is mainly MurmurHash3_x86_32 without the finalization part.
+ *
+ * NB: the memory alignment of the key should not affect the hash result.
+ * So it is NOT possible to "consume" 1,2 or 3 bytes at start to ensure
+ * next block reads are aligned.
+ *
+ * This file is included twice to generate 2 versions (aligned and unaligned)
+ */
+static uint32_t
+HASH_BUFFER_FCT(const void *key, int len, uint32_t seed)
+{
+  uint8_t *data = (uint8_t *) key;
+  const uint8_t *limit_block = data + len - 4;	/* -4 for 32-bit block processing */
 
+  const uint32_t c1 = 0xcc9e2d51;
+  const uint32_t c2 = 0x1b873593;
 
-compare(C, T1, T2) :-
-	compare(C, T1, T2).
+  uint32_t h1 = seed;
+  uint32_t k1;
 
+  /* body */
 
-X == Y :-
-	X == Y.
+  while(data <= limit_block)
+    {
+#ifdef USE_32BITS_ALIGNMENT
+      memcpy(&k1, data, 4);
+#else
+      k1 = *(uint32_t *) data;
+#endif
+      data += 4;
+      h1 = Hash_Block(k1, h1);
+    }
+    
+  /* tail */
+  
+  k1 = 0;
 
-X \== Y :-
-	X \== Y.
+  switch (len & 3)
+    {
+    case 3:
+      k1 ^= data[2] << 16;
+    case 2:
+      k1 ^= data[1] << 8;
+    case 1:
+      k1 ^= data[0];
+      k1 *= c1;
+      k1 = ROTL32(k1, 15);
+      k1 *= c2;
+      h1 ^= k1;
+    }
 
-X @< Y :-
-	X @< Y.
-
-X @=< Y :-
-	X @=< Y.
-
-X @> Y :-
-	X @> Y.
-
-X @>= Y :-
-	X @>= Y.
-
-
-
-
-arg(N, T, A) :-
-	arg(N, T, A).
-
-
-
-
-functor(T, F, N) :-
-	functor(T, F, N).
-
-
-
-
-Term =.. List :-
-	Term =.. List.
-
-
-/* these are not inlined but put here for practical reasons */
-
-copy_term(T1, T2) :-
-	set_bip_name(copy_term, 2),
-	'$call_c_test'('Pl_Copy_Term_2'(T1, T2)).
-
-
-
-
-setarg(ArgNo, Term, NewValue) :-
-	set_bip_name(setarg, 3),
-	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, true)).
-
-
-setarg(ArgNo, Term, NewValue, Undo) :-
-	set_bip_name(setarg, 4),
-	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, Undo)).
-
-
-
-
-term_ref(Term, Ref) :-
-	set_bip_name(term_ref, 2),
-	'$call_c_test'('Pl_Term_Ref_2'(Term, Ref)).
-
-
-
-term_variables(Term, List) :-
-	set_bip_name(term_variables, 2),
-	'$call_c_test'('Pl_Term_Variables_2'(Term, List)).
-
-
-term_variables(Term, List, Tail) :-
-	set_bip_name(term_variables, 3),
-	'$call_c_test'('Pl_Term_Variables_3'(Term, List, Tail)).
-
-
-
-subsumes_term(General, Specific) :-
-	set_bip_name(subsumes_term, 2),
-	'$call_c_test'('Pl_Subsumes_Term_2'(General, Specific)).
-
-
-
-acyclic_term(X) :-
-	set_bip_name(acyclic_term, 1),
-	'$call_c_test'('Pl_Acyclic_Term_1'(X)).
-
-
-
-term_hash(X, Depth, Range, Hash) :-
-	set_bip_name(term_hash, 4),
-	'$call_c_test'('Pl_Term_Hash_4'(X, Depth, Range, Hash)).
-
-term_hash(X, Hash) :-
-	set_bip_name(term_hash, 2),
-	'$call_c_test'('Pl_Term_Hash_2'(X, Hash)).
+  return h1;
+}
