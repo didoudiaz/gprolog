@@ -515,7 +515,7 @@ Unif_Flag(int i, WamWord value_word)
       break;
 
     case FLAG_MAX_ATOM:
-      n = MAX_ATOM;
+      n = pl_max_atom;
       break;
 
     case FLAG_MAX_UNGET:

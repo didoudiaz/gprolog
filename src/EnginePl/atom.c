@@ -62,8 +62,11 @@
  * Constants                       *
  *---------------------------------*/
 
-#define ERR_ATOM_TBL_FULL          "Atom table full"
 #define ERR_ATOM_NIL_INVALID       "atom: invalid ATOM_NIL (should be %d)"
+
+#define ERR_TABLE_FULL_ENV         "Atom table full (max atom: %d, environment variable used: %s)"
+
+#define ERR_TABLE_FULL_NO_ENV      "Atom table full (max atom: %d - fixed size)"
 
 
 
@@ -75,6 +78,9 @@
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
+
+    /* this variable can be overwritten by top_comp.c (similarl to stacks) */
+PlLong pl_def_max_atom;
 
 int pl_char_type[256] = {
 
@@ -126,6 +132,8 @@ static AtomInf *Locate_Atom(char *name, unsigned hash);
 
 static unsigned Hash_String(char *str, int len);
 
+static void Error_Table_Full(void);
+
 
 
 
@@ -136,7 +144,36 @@ static unsigned Hash_String(char *str, int len);
 void
 Pl_Init_Atom(void)
 {
-  int i, c;
+  int i, c, x;
+  char *p;
+  
+
+  if ((pl_max_atom = pl_def_max_atom) == 0)
+    pl_max_atom = DEFAULT_MAX_ATOM;
+  
+  /* See engine.c where there is a similar handling of env vars for stacks */
+  if (!pl_fixed_sizes)
+    {
+      p = (char *) getenv(ENV_VAR_MAX_ATOM);
+      if (p && *p)
+	{
+	  sscanf(p, "%d", &x);
+	  pl_max_atom = x;
+	}
+    }
+
+  if (pl_max_atom < 256)
+    pl_max_atom = 256;
+
+  if (pl_max_atom <= ATOM_NIL)
+    pl_max_atom = ATOM_NIL + 1;	/* to be sure h([]) % pl_max_atom == ATOM_NIL */
+
+  if (pl_max_atom > (1 << ATOM_MAX_BITS)) /* be sure f/n words can be encoded (see wam_inst.h) */
+    pl_max_atom = (1 << ATOM_MAX_BITS);
+
+  pl_atom_tbl = (AtomInf *) Calloc(pl_max_atom, sizeof(AtomInf));
+  pl_nb_atom = 0;
+    
 
   for (c = 128; c < 256; c++) 
     {
@@ -146,9 +183,6 @@ Pl_Init_Atom(void)
   for (i = 0; i < 256; i++)	/* initial conv mapping = identity */
     pl_char_conv[i] = i;
 
-
-
-  pl_nb_atom = 0;
 
   for (i = 0; i < 256; i++)
     {
@@ -227,7 +261,7 @@ Add_Atom(char *name, int len, unsigned hash, AtomInf *patom, Bool allocate)
   patom = Locate_Atom(name, hash);
 
   if (patom == NULL)
-    Pl_Fatal_Error(ERR_ATOM_TBL_FULL);
+    Error_Table_Full();
 
   if (patom->name != NULL)
     return patom - pl_atom_tbl;	/* already exists */
@@ -350,10 +384,10 @@ Pl_Find_Atom(char *name)
  * LOCATE_ATOM                                                             *
  *                                                                         *
  * We use a specific hash table for atoms that cannot be extended but which*
- * provides a unique integer (in 0..MAX_ATOM-1) that could be used in the  *
+ * provides a unique integer (0..pl_max_atom-1) that could be used in the  *
  * future for tagged ATM words (and for structures).                       *
  *                                                                         *
- * index (in the table) = hash code % MAX_ATOM                             *
+ * index (in the table) = hash code % pl_max_atom                          *
  *                                                                         *
  * return the address of the found atom (if exists)                        *
  *        the address of the corresponding free cell (if not exist)        *
@@ -362,11 +396,12 @@ Pl_Find_Atom(char *name)
 static AtomInf *
 Locate_Atom(char *name, unsigned hash)
 {
-  int index = hash % MAX_ATOM;
+  int index;
   AtomInf *patom0, *patom, *endt;
 
+  index = hash % pl_max_atom;
   patom = patom0 = pl_atom_tbl + index;
-  endt = pl_atom_tbl + MAX_ATOM;
+  endt = pl_atom_tbl + pl_max_atom;
 
   while (patom->name && (patom->hash != hash || strcmp(patom->name, name) != 0))
     {
@@ -422,9 +457,14 @@ Hash_String(char *str, int len)
     return (unsigned) ((unsigned char) (*str));
 #endif
 
-#if 0 /* uncomment to force a fiven ATOM_NIL (e.g; 256 ?) */
+#if 1 /* uncomment to force a given ATOM_NIL (e.g. 256 ?) */
   if (len == 2 && str[0] == '[' && str[1] == ']')
     return ATOM_NIL;
+#endif
+
+#if 0
+  if (len == 2 && str[0] == '[' && str[1] == ']')
+    printf("Hash([]) = %d\n", Pl_Hash_Buffer(str, len));
 #endif
 
   return Pl_Hash_Buffer(str, len);
@@ -450,13 +490,17 @@ Pl_Gen_New_Atom(char *prefix)
 
   static unsigned gen_sym_rand_next = 1; /* a simple RNG independent from the main one */
 
-#define TRY_MAX 2
+#define TRY_MAX 1		/* 1 seems better than anything else on average ! */
 
 #ifdef DEBUG
   static int nb = 0;
   static unsigned long sum_len = 0;
   static unsigned max_len = 0;
+  static unsigned long sum_try = 0;
+  static unsigned max_try = 0;
   int try_count = 0;
+  static double time0 = 0;
+  double time, tsec = 0.0;
 #endif
 
   int try_no = 0;
@@ -465,9 +509,10 @@ Pl_Gen_New_Atom(char *prefix)
   char *str;
   int c;
   AtomInf *patom;
+  int atom;
 
-  if (pl_nb_atom >= MAX_ATOM)
-    Pl_Fatal_Error(ERR_ATOM_TBL_FULL);
+  if (pl_nb_atom >= pl_max_atom)
+    Error_Table_Full();
 
 
 #ifdef DEBUG
@@ -488,36 +533,58 @@ Pl_Gen_New_Atom(char *prefix)
 
       hash = Hash_String(gen_sym_buff, len);
 
+#if 1
       patom = Locate_Atom(gen_sym_buff, hash);
+#else
+      patom = pl_atom_tbl + (hash % pl_max_atom);
+#endif
 
 #ifdef DEBUG
       try_count++;
       /*      printf("GEN_SYM TRY %3d: %s   len: %d\n", try_count, gen_sym_buff, len); */
 #endif
 
-      if (patom == NULL)
-	Pl_Fatal_Error(ERR_ATOM_TBL_FULL);
-
       if (patom->name == NULL)
 	break;
 
       if (++try_no == TRY_MAX)
 	{
+#if 0
+	  c = Gen_Sym_Rand() % (sizeof(gen_sym_chars) - 1); /* NB: -1 for '\0' */
+	  *str++ = gen_sym_chars[c];
+#else
 	  str++;
+#endif
 	  try_no = 0;
 	}
     }
 
 
+  atom = Add_Atom(gen_sym_buff, len, hash, patom, TRUE);
+
 #ifdef DEBUG
-  sum_len += len;
-  if (len > max_len)
-    max_len = len;
-  printf("GEN_SYM #%5d : %s   len: %d  strlen: %d  tries:%d -  avg len: %d  max len: %d\n", 
-	 nb, gen_sym_buff, len, (int) strlen(gen_sym_buff), try_count, (int) (sum_len / nb), max_len);
+  sum_try += try_count;
+  if (try_count > max_try)
+    max_try = try_count;
+  c = len - strlen(prefix);
+  sum_len += c;
+  if (c > max_len)
+    max_len = c;
+  if (nb % 1000 == 0)
+    {
+      time = (double) Pl_M_User_Time(); /* time needed for the last 1000 gensym */
+      tsec = (time - time0) / 1000.0;
+      time0 = time;
+      printf("GENSYM #%5d: %s len:%d  len add:%d  (avg:%d  max:%d)  try:%d (avg:%d max:%d) time:%.3f\n", 
+	     nb, gen_sym_buff, (int) strlen(gen_sym_buff), c, 
+	     (int) (sum_len / nb), max_len,
+	     try_count, (int) (sum_try / nb), max_try,
+	     tsec);
+    }
 #endif
 
-  return Add_Atom(gen_sym_buff, len, hash, patom, TRUE);
+
+  return atom;
 }
 
 
@@ -531,11 +598,26 @@ Pl_Gen_New_Atom(char *prefix)
 int
 Pl_Find_Next_Atom(int last_atom)
 {
-  while (++last_atom < MAX_ATOM)
+  while (++last_atom < pl_max_atom)
     {
       if (pl_atom_tbl[last_atom].name)
 	return last_atom;
     }
 
   return -1;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * ERROR_TABLE_FULL                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Error_Table_Full(void)
+{
+  if (pl_fixed_sizes)
+    Pl_Fatal_Error(ERR_TABLE_FULL_NO_ENV, pl_max_atom);
+  else
+    Pl_Fatal_Error(ERR_TABLE_FULL_ENV, pl_max_atom, ENV_VAR_MAX_ATOM);
 }

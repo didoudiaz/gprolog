@@ -1029,7 +1029,7 @@ void
 Pl_Allocate_Stacks(void)
 {
 }
-AtomInf pl_atom_tbl[1];
+AtomInf *pl_atom_tbl;
 void FC
 Pl_Create_Choice_Point(CodePtr codep_alt, int arity)
 {

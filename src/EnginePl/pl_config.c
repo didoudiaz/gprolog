@@ -935,7 +935,11 @@ Generate_Tags(FILE *f, FILE *g)
 
   fprintf(g, "#define Tag_Mask_Of(w)\t\t((PlLong) (w) & (TAG_MASK))\n");
 
-  fprintf(g, "#define Tag_From_Tag_Mask(w) \t(((PlULong) (w) >> %d) | ((w) & %d))\n", value_size, (1 << tag_size_low) -1);
+  if (tag_size_high > 0)
+    fprintf(g, "#define Tag_From_Tag_Mask(w) \t(((PlULong) (w) >> %d) | ((w) & %d))\n", value_size, (1 << tag_size_low) -1);
+  else
+    fprintf(g, "#define Tag_From_Tag_Mask(w) \t(w)\n");
+
 
   if (tag_size_high > 0)
     fprintf(g, "#define Tag_Of(w)     \t\t((((PlULong) (w) >> %d) << %d) | ((w) & %d))\n",

@@ -67,11 +67,9 @@
 
 
 /* NB: (hash) atom table size should not be < ATOM_NIL (else module will change it) */
-#if 0
-#define ATOM_NIL                  1766
-#else
-#define ATOM_NIL                  134457
-#endif
+
+#define ATOM_NIL                 256
+
 
 
 
@@ -87,7 +85,7 @@
 
 #define Is_Valid_Code(c)           ((PlULong) (c)-1 < 256-1)    /* 1 <= c < 256 */
 #define Is_Valid_Byte(c)           ((PlULong) (c) < 256)	/* 0 <= c < 256 */
-#define Is_Valid_Atom(a)           ((PlULong) (a) < MAX_ATOM && \
+#define Is_Valid_Atom(a)           ((PlULong) (a) < pl_max_atom && \
                                     pl_atom_tbl[(a)].name!=NULL)
 
 
@@ -115,6 +113,7 @@ typedef struct			/* Atom information               */
   char *name;			/* key is <name> (the string)     */
   unsigned hash;		/* the hash code of string (name) */
   AtomProp prop;		/* associated properties          */
+  void *info;			/* an user info (used by g_var)   */
 }
 AtomInf;
 
@@ -127,7 +126,8 @@ AtomInf;
 
 #ifdef ATOM_FILE
 
-AtomInf pl_atom_tbl[MAX_ATOM];
+AtomInf *pl_atom_tbl;
+int pl_max_atom;
 int pl_nb_atom;
 
 int pl_atom_void;
@@ -151,7 +151,8 @@ char pl_char_conv[256];
 
 #else
 
-extern AtomInf pl_atom_tbl[];
+extern AtomInf *pl_atom_tbl;
+extern int pl_max_atom;
 extern int pl_nb_atom;
 
 extern int pl_atom_void;

@@ -43,8 +43,8 @@
 
 #define START_OPER_TBL_SIZE        1024
 
-#define ATOM_SIZE                  20
-#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
+#define ENV_VAR_MAX_ATOM           "MAX_ATOM"
+#define DEFAULT_MAX_ATOM           32768
 
 #define NB_OF_X_REGS               256
 #define MAX_ARITY                  (NB_OF_X_REGS - 1)

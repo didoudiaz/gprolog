@@ -221,7 +221,7 @@ extern char *pl_reg_tbl[];
 #define TAG_MASK     		(PlULong)0x7
 #define VALUE_MASK   		(PlULong)0xfffffffffffffff8
 #define Tag_Mask_Of(w)		((PlLong) (w) & (TAG_MASK))
-#define Tag_From_Tag_Mask(w) 	(((PlULong) (w) >> 61) | ((w) & 7))
+#define Tag_From_Tag_Mask(w) 	(w)
 #define Tag_Of(w)     		Tag_Mask_Of(w)
 #define TAG_REF_MASK		(PlULong)0
 #define TAG_LST_MASK		(PlULong)0x1

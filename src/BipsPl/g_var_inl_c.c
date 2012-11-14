@@ -104,8 +104,6 @@ typedef struct			/* Target designator record       */
  * Global Variables                *
  *---------------------------------*/
 
-static GVarElt *g_var_tbl[MAX_ATOM];
-
 static GTarget g_target;
 
 static int atom_g_array;
@@ -856,7 +854,7 @@ Get_Target_From_Gvar(WamWord gvar_word)
   if (atom == ATOM_CHAR('-') && arity == 2)
     return Get_Target_From_Selector(arg_adr - OFFSET_ARG);
 
-  g_elem = g_var_tbl[atom];
+  g_elem = (GVarElt *) pl_atom_tbl[atom].info;
 
   if (g_elem == NULL)
     {
@@ -864,7 +862,7 @@ Get_Target_From_Gvar(WamWord gvar_word)
       g_elem->size = 0;
       g_elem->val = G_INITIAL_VALUE;
       g_elem->undo = NULL;
-      g_var_tbl[atom] = g_elem;
+      pl_atom_tbl[atom].info = g_elem;
     }
 
   if (arity > 0 && g_elem->size >= 0)

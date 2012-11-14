@@ -936,7 +936,7 @@ Print_Wam_Word(WamWord *word_adr)
 
       case SHORT_UNS:
 	value = (WamWord) UnTag_Short_Uns(word);
-	if (tag == ATM && value >= 0 && value < MAX_ATOM &&
+	if (tag == ATM && value >= 0 && value < pl_max_atom &&
 	    pl_atom_tbl[value].name != NULL)
 	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%" PL_FMT_d,
 			VALUE_PART_LENGTH, pl_atom_tbl[value].name,
@@ -993,7 +993,7 @@ Print_Wam_Word(WamWord *word_adr)
   functor = Functor_Of(word);
   arity = Arity_Of(word);
 
-  if (functor >= 0 && functor < MAX_ATOM && pl_atom_tbl[functor].name != NULL
+  if (functor >= 0 && functor < pl_max_atom && pl_atom_tbl[functor].name != NULL
       && arity >= 0 && arity <= MAX_ARITY)
     Pl_Stream_Printf(pstm_o, "%12s/%-3d", pl_atom_tbl[functor].name, arity);
 }
@@ -1126,7 +1126,7 @@ Modify_Wam_Word(WamWord *word_adr)
       word = Str_To_PlLong(read_arg[0], &p, 0);
       if (*p != '\0')
 	word = (PlLong) Pl_Create_Allocate_Atom(read_arg[0]);
-      else if (word < 0 || word >= MAX_ATOM)
+      else if (word < 0 || word >= pl_max_atom)
 	goto err;
 
       *word_adr = Functor_Arity(word, i);
