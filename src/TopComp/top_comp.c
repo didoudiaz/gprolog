@@ -182,6 +182,7 @@ int pl_def_local_size = -1;
 int pl_def_global_size = -1;
 int pl_def_trail_size = -1;
 int pl_def_cstr_size = -1;
+int pl_def_max_atom = -1;
 int pl_fixed_sizes = 0;
 int needs_stack_file = 0;
 
@@ -399,6 +400,10 @@ Compile_Files(void)
         fprintf(fd, "long global pl_def_trail_size = %d\n", pl_def_trail_size);
       if (pl_def_cstr_size >= 0)
         fprintf(fd, "long global pl_def_cstr_size = %d\n", pl_def_cstr_size);
+
+      if (pl_def_max_atom >= 0)
+        fprintf(fd, "long global pl_def_max_atom = %d\n", pl_def_max_atom);
+
       if (pl_fixed_sizes)
         fprintf(fd, "long global pl_fixed_sizes = 1\n");
 
@@ -1240,6 +1245,19 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--max-atom"))
+	    {
+	      Record_Link_Warn_Option(i);
+	      if (++i >= argc)
+		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
+	      pl_def_max_atom = strtol(argv[i], &q, 10);
+	      if (*q || pl_def_max_atom < 0)
+		Pl_Fatal_Error("invalid max atom (%s)", argv[i]);
+	      Record_Link_Warn_Option(i);
+	      needs_stack_file = 1;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--fixed-sizes"))
 	    {
 	      Record_Link_Warn_Option(i);
@@ -1482,6 +1500,7 @@ Display_Help(void)
   L("  --global-size N             set default global stack size to N Kb");
   L("  --trail-size N              set default trail  stack size to N Kb");
   L("  --cstr-size N               set default cstr   stack size to N Kb");
+  L("  --max-atom N                set default atom   table size to N atoms");
   L("  --fixed-sizes               do not consult environment variables at run-time");
   L("  --gui-console               link the Win32 GUI console");
   L("  --no-top-level              do not link the top-level (force --no-debugger)");

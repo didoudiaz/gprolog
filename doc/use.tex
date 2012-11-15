@@ -694,7 +694,7 @@ temporarily repositions the cursor on it to show the match.
 \end{tabular}
 
 
-\subsection{Adjusting the size of Prolog stacks}
+\subsection{Adjusting the size of Prolog data}
 \label{Adjusting-the-size-of-Prolog-stacks}
 GNU Prolog uses several stacks to execute a Prolog program. Each stack has a
 static size and cannot be dynamically increased during the execution. For
@@ -703,6 +703,14 @@ setting an environment variable. When a GNU Prolog program is run it first
 consults these variables and if they are not defined uses the default sizes.
 The following table presents each stack of GNU Prolog with its default size
 and the name of its associated environment variable:
+
+Since version 1.4.2, the size of the atom table (the table recording all atoms) 
+is managed similarly to stacks. It is then included in the following table
+(even if actually it is not a stack but an hash table).
+In this table, the associated name is \texttt{atoms} which is the key used in statistics 
+\RefSP{statistics/2}. The environment variable name is derived from the corresponding Prolog flag 
+\texttt{max\_atom}, see \RefSP{prolog-flag/2}.
+
 
 \begin{tabular}{|c|c|c|l|}
 \hline
@@ -717,8 +725,7 @@ and choice-points) \\
 
 \hline
 
-\texttt{global} & 32768 & \texttt{GLOBALSZ} & heap (compound terms)
-\\
+\texttt{global} & 32768 & \texttt{GLOBALSZ} & heap (compound terms) \\
 
 \hline
 
@@ -729,6 +736,10 @@ to undo at backtracking) \\
 
 \texttt{cstr} & 16384 & \texttt{CSTRSZ} & finite domain constraint stack
 (FD variables and constraints) \\
+
+\hline
+
+\texttt{atoms} & 32768 & \texttt{MAX\_ATOM} & atom table \\
 
 \hline
 \end{tabular}
@@ -1043,6 +1054,8 @@ arithmetics) \\
 
 \IdxKD{--cstr-size} \Param{N} & set default constraint stack size to
 \Param{N} Kb \\
+
+\IdxKD{--max-atom} \Param{N} & set default atom table size to \Param{N} atoms \\
 
 \IdxKD{--fixed-sizes} & do not consult environment variables at run-time
 (use default sizes) \\

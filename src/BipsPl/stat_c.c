@@ -85,8 +85,7 @@ Pl_Statistics_0(void)
   static char *n[4] = { "user", "system", "cpu", "real" };
   int i;
 
-  Pl_Stream_Printf(pstm,
-		"Stacks                size          in use            free\n\n");
+  Pl_Stream_Printf(pstm, "Memory               limit         in use            free\n\n");
 
 
   for (i = 0; i < NB_OF_STACKS; i++)
@@ -98,10 +97,18 @@ Pl_Statistics_0(void)
       used /= 1024;
       free /= 1024;
 
-      Pl_Stream_Printf(pstm,
-		    "   %-6s stack %10d Kb   %10d Kb   %10d Kb\n",
-		    pl_stk_tbl[i].name, used + free, used, free);
+      Pl_Stream_Printf(pstm, "   %-6s stack %10d Kb   %10d Kb   %10d Kb\n",
+		       pl_stk_tbl[i].name, used + free, used, free);
     }
+
+
+#if 1
+  Pl_Stream_Printf(pstm, "   atom   table %10d atoms%10d atoms%10d atoms\n",
+		   pl_max_atom , pl_nb_atom, pl_max_atom - pl_nb_atom);
+#else
+  Pl_Stream_Printf(pstm, "\nAtoms: %10d  %10d max\n", pl_nb_atom, pl_max_atom);
+#endif
+  
 
   t[0] = Pl_M_User_Time();
   l[0] = t[0] - last_user_time;
@@ -297,6 +304,19 @@ Pl_Statistics_Cstr_Stack_2(WamWord used_word, WamWord free_word)
     Pl_Un_Integer_Check(free, free_word);
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_STATISTICS_ATOMS_2                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Statistics_Atoms_2(WamWord used_word, WamWord free_word)
+{
+  return Pl_Un_Integer_Check(pl_nb_atom, used_word) &&
+    Pl_Un_Integer_Check(pl_max_atom - pl_nb_atom, free_word);
+}
 
 
 

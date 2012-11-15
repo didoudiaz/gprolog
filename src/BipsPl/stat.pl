@@ -79,6 +79,8 @@ statistics(Key, Values) :-
 
 '$check_stat_key'(cstr_stack).
 
+'$check_stat_key'(atoms).
+
 '$check_stat_key'(Key) :-
 	'$pl_err_domain'(statistics_key, Key).
 
@@ -114,6 +116,9 @@ statistics(Key, Values) :-
 
 '$stat'(cstr_stack, Used, Free) :-
 	'$call_c_test'('Pl_Statistics_Cstr_Stack_2'(Used, Free)).
+
+'$stat'(atoms, Used, Free) :-
+	'$call_c_test'('Pl_Statistics_Atoms_2'(Used, Free)).
 
 
 
