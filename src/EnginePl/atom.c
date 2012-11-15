@@ -80,7 +80,6 @@
  *---------------------------------*/
 
     /* this variable can be overwritten by top_comp.c (similarl to stacks) */
-PlLong pl_def_max_atom;
 
 int pl_char_type[256] = {
 
@@ -144,24 +143,8 @@ static void Error_Table_Full(void);
 void
 Pl_Init_Atom(void)
 {
-  int i, c, x;
-  char *p;
+  int i, c;
   
-
-  if ((pl_max_atom = pl_def_max_atom) == 0)
-    pl_max_atom = DEFAULT_MAX_ATOM;
-  
-  /* See engine.c where there is a similar handling of env vars for stacks */
-  if (!pl_fixed_sizes)
-    {
-      p = (char *) getenv(ENV_VAR_MAX_ATOM);
-      if (p && *p)
-	{
-	  sscanf(p, "%d", &x);
-	  pl_max_atom = x;
-	}
-    }
-
   if (pl_max_atom < 256)
     pl_max_atom = 256;
 

@@ -41,6 +41,7 @@
 #include <windows.h>
 
 #include "../EnginePl/gp_config.h"
+#include "../EnginePl/pl_params.h"
 
 
 /* we include the minimum from ../EnginePl to allow for testing (test_linedit, test_noecho)
@@ -50,6 +51,7 @@
 
 typedef PlLong WamWord;
 #include "../EnginePl/wam_stacks.h"
+#include "../EnginePl/atom.h"
 #define Wam_Words_To_KBytes(ww)    (ww * sizeof(WamWord) / 1024)
 
 #include "w32gc_interf.h"
@@ -223,24 +225,34 @@ Query_Stack(QueryStackCmd cmd, int stack_no)
   switch(cmd)
     {
     case QUERY_STACK_GET_NB_OF_STACKS:
-      return (PlLong) NB_OF_STACKS;
+      return (PlLong) NB_OF_STACKS + 1; /* +1 for max_atom */
 
     case QUERY_STACK_HAS_FIXED_SIZES:
       return (PlLong) pl_fixed_sizes;
 
     case QUERY_STACK_GET_NAME:
+      if (stack_no == NB_OF_STACKS)
+	return (PlLong) "atoms";
       return (PlLong) pl_stk_tbl[stack_no].name;
 
     case QUERY_STACK_GET_DESC:
+      if (stack_no == NB_OF_STACKS)
+	return (PlLong) "atom table";
       return (PlLong) pl_stk_tbl[stack_no].desc;
 
     case QUERY_STACK_GET_ENV_VAR_NAME:
+      if (stack_no == NB_OF_STACKS)
+	return (PlLong) ENV_VAR_MAX_ATOM;
       return (PlLong) pl_stk_tbl[stack_no].env_var_name;
 
     case QUERY_STACK_GET_DEFAULT_SIZE:
+      if (stack_no == NB_OF_STACKS)
+	return (PlLong) DEFAULT_MAX_ATOM;
       return (PlLong) Wam_Words_To_KBytes(pl_stk_tbl[stack_no].default_size);
 
     case QUERY_STACK_GET_SIZE:
+      if (stack_no == NB_OF_STACKS)
+	return (PlLong) pl_max_atom;
       return (PlLong) Wam_Words_To_KBytes(pl_stk_tbl[stack_no].size);
     }
 

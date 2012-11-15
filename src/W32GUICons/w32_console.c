@@ -922,7 +922,9 @@ struct {
   { IDC_STACK_DESC0, IDC_DEF_SZ0, IDC_ENV_VAR_NAME0, IDC_ENV_SZ0, IDC_REG_SZ0, IDC_CUR_SZ0 },
   { IDC_STACK_DESC1, IDC_DEF_SZ1, IDC_ENV_VAR_NAME1, IDC_ENV_SZ1, IDC_REG_SZ1, IDC_CUR_SZ1 },
   { IDC_STACK_DESC2, IDC_DEF_SZ2, IDC_ENV_VAR_NAME2, IDC_ENV_SZ2, IDC_REG_SZ2, IDC_CUR_SZ2 },
-  { IDC_STACK_DESC3, IDC_DEF_SZ3, IDC_ENV_VAR_NAME3, IDC_ENV_SZ3, IDC_REG_SZ3, IDC_CUR_SZ3 }
+  { IDC_STACK_DESC3, IDC_DEF_SZ3, IDC_ENV_VAR_NAME3, IDC_ENV_SZ3, IDC_REG_SZ3, IDC_CUR_SZ3 },
+  /* for max_atom */
+  { IDC_STACK_DESC4, IDC_DEF_SZ4, IDC_ENV_VAR_NAME4, IDC_ENV_SZ4, IDC_REG_SZ4, IDC_CUR_SZ4 }
 };
 
 
@@ -959,7 +961,7 @@ StackSizesProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
       else
         {
           SetDlgItemText(hwndDlg, IDC_FIXED_SIZES,
-                         "New stack sizes will be taken into account at the next restart.");
+                         "New sizes will be taken into account at the next restart.");
         }
 
 

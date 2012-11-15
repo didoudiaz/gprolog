@@ -175,6 +175,7 @@ extern char pl_escape_char[];
 
 #endif
 
+PlLong pl_def_max_atom;		/* overwritten if needed (see top_comp.c) */
 
 
 

@@ -44,6 +44,8 @@
 #define FC /* define FC to force arch_dep.h to no use FC */
 #endif
 
+int pl_max_atom;		/* to not need atom.o */
+
 #define IF_NO_FD_FILE
 //#include "engine_pl.h"
 #include "../EnginePl/engine.c"

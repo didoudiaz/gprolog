@@ -49,7 +49,7 @@ IDR_MENU MENU
     POPUP "Prolog"
     {
         MENUITEM "&Interrupt (send ^C)\tCtrl+Alt+C", IDM_INTERRUPT
-        MENUITEM "&Set Prolog stack sizes", IDM_STACK_SIZES
+        MENUITEM "&Set Prolog memory sizes", IDM_STACK_SIZES
     }
     POPUP "&Help"
     {
@@ -68,44 +68,50 @@ IDR_MENU MENU
 // Dialog resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDD_STACK_SIZES DIALOG 20, 20, 434, 186
+IDD_STACK_SIZES DIALOG 20, 20, 444, 222
 STYLE DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_POPUP | WS_SYSMENU
-CAPTION "Stack sizes setting"
+CAPTION "Memory sizes setting"
 FONT 9, "Ms Shell Dlg"
 {
-    DEFPUSHBUTTON   "&OK", IDOK, 304, 165, 57, 14
-    PUSHBUTTON      "&Cancel", IDCANCEL, 370, 165, 57, 14
-    EDITTEXT        IDC_REG_SZ0, 304, 49, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
-    RTEXT           "", IDC_STACK_DESC0, 16, 48, 78, 12, SS_RIGHT
-    RTEXT           "", IDC_DEF_SZ0, 109, 48, 57, 12, WS_BORDER | SS_RIGHT
-    RTEXT           "", IDC_ENV_SZ0, 239, 49, 57, 12, WS_BORDER | SS_RIGHT
-    LTEXT           "", IDC_ENV_VAR_NAME0, 174, 49, 57, 12, WS_BORDER | SS_LEFT
-    CTEXT           "Default size", IDC_STATIC, 108, 32, 57, 10, SS_CENTER
-    CTEXT           "Var/Key name", IDC_STATIC, 175, 32, 56, 10, SS_CENTER
-    CTEXT           "Env. var. value", IDC_STATIC, 242, 32, 49, 8, SS_CENTER
-    CTEXT           "Registry value", IDC_STATIC, 310, 32, 46, 8, SS_CENTER
-    LTEXT           "You can adjust the size of GNU Prolog stacks using environment variables and/or registry keys. Here you can modify registry values. Sizes are in kilobytes (Kb).", IDC_STATIC, 8, 9, 418, 19, SS_LEFT
-    RTEXT           "", IDC_STACK_DESC1, 16, 75, 78, 12, SS_RIGHT
-    RTEXT           "", IDC_DEF_SZ1, 109, 75, 57, 12, WS_BORDER | SS_RIGHT
-    LTEXT           "", IDC_ENV_VAR_NAME1, 174, 75, 57, 12, WS_BORDER | SS_LEFT
-    RTEXT           "", IDC_ENV_SZ1, 239, 75, 57, 12, WS_BORDER | SS_RIGHT
-    EDITTEXT        IDC_REG_SZ1, 304, 75, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
-    RTEXT           "", IDC_STACK_DESC2, 16, 102, 78, 12, SS_RIGHT
-    RTEXT           "", IDC_DEF_SZ2, 109, 102, 57, 12, WS_BORDER | SS_RIGHT
-    LTEXT           "", IDC_ENV_VAR_NAME2, 174, 102, 57, 12, WS_BORDER | SS_LEFT
-    RTEXT           "", IDC_ENV_SZ2, 239, 102, 57, 12, WS_BORDER | SS_RIGHT
-    EDITTEXT        IDC_REG_SZ2, 304, 102, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
-    RTEXT           "", IDC_STACK_DESC3, 16, 130, 78, 12, SS_RIGHT
-    RTEXT           "", IDC_DEF_SZ3, 109, 130, 57, 12, WS_BORDER | SS_RIGHT
-    LTEXT           "", IDC_ENV_VAR_NAME3, 174, 130, 57, 12, WS_BORDER | SS_LEFT
-    RTEXT           "", IDC_ENV_SZ3, 239, 130, 57, 12, WS_BORDER | SS_RIGHT
-    EDITTEXT        IDC_REG_SZ3, 304, 130, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
-    RTEXT           "", IDC_CUR_SZ0, 370, 48, 57, 12, WS_BORDER | SS_RIGHT
-    CTEXT           "Current size", IDC_STATIC, 381, 32, 38, 8, SS_CENTER
-    RTEXT           "", IDC_CUR_SZ1, 370, 75, 57, 12, WS_BORDER | SS_RIGHT
-    RTEXT           "", IDC_CUR_SZ2, 370, 102, 57, 12, WS_BORDER | SS_RIGHT
-    RTEXT           "", IDC_CUR_SZ3, 370, 130, 57, 12, WS_BORDER | SS_RIGHT
-    LTEXT           "", IDC_FIXED_SIZES, 7, 166, 290, 13, SS_LEFT | SS_NOPREFIX
+    DEFPUSHBUTTON   "&OK", IDOK, 306, 197, 57, 14
+    PUSHBUTTON      "&Cancel", IDCANCEL, 372, 197, 57, 14
+    EDITTEXT        IDC_REG_SZ0, 306, 60, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
+    RTEXT           "", IDC_STACK_DESC0, 18, 59, 78, 12, SS_RIGHT
+    RTEXT           "", IDC_DEF_SZ0, 111, 59, 57, 12, WS_BORDER | SS_RIGHT
+    RTEXT           "", IDC_ENV_SZ0, 241, 60, 57, 12, WS_BORDER | SS_RIGHT
+    LTEXT           "", IDC_ENV_VAR_NAME0, 176, 60, 57, 12, WS_BORDER | SS_LEFT
+    CTEXT           "Default size", IDC_STATIC, 110, 43, 57, 10, SS_CENTER
+    CTEXT           "Var/Key name", IDC_STATIC, 177, 43, 56, 10, SS_CENTER
+    CTEXT           "Env. var. value", IDC_STATIC, 244, 43, 49, 8, SS_CENTER
+    CTEXT           "Registry value", IDC_STATIC, 312, 43, 46, 8, SS_CENTER
+    LTEXT           "You can adjust the size of GNU Prolog memory using environment variables and/or registry keys. Here you can modify registry values.\nFor stacks, sizes are in kilobytes (Kb). For the atom table, it is the number of atoms.", IDC_STATIC, 8, 9, 419, 16, SS_LEFT
+    RTEXT           "", IDC_STACK_DESC1, 18, 86, 78, 12, SS_RIGHT
+    RTEXT           "", IDC_DEF_SZ1, 111, 86, 57, 12, WS_BORDER | SS_RIGHT
+    LTEXT           "", IDC_ENV_VAR_NAME1, 176, 86, 57, 12, WS_BORDER | SS_LEFT
+    RTEXT           "", IDC_ENV_SZ1, 241, 86, 57, 12, WS_BORDER | SS_RIGHT
+    EDITTEXT        IDC_REG_SZ1, 306, 86, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
+    RTEXT           "", IDC_STACK_DESC2, 18, 113, 78, 12, SS_RIGHT
+    RTEXT           "", IDC_DEF_SZ2, 111, 113, 57, 12, WS_BORDER | SS_RIGHT
+    LTEXT           "", IDC_ENV_VAR_NAME2, 176, 113, 57, 12, WS_BORDER | SS_LEFT
+    RTEXT           "", IDC_ENV_SZ2, 241, 113, 57, 12, WS_BORDER | SS_RIGHT
+    EDITTEXT        IDC_REG_SZ2, 306, 113, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
+    RTEXT           "", IDC_STACK_DESC3, 18, 141, 78, 12, SS_RIGHT
+    RTEXT           "", IDC_DEF_SZ3, 111, 141, 57, 12, WS_BORDER | SS_RIGHT
+    LTEXT           "", IDC_ENV_VAR_NAME3, 176, 141, 57, 12, WS_BORDER | SS_LEFT
+    RTEXT           "", IDC_ENV_SZ3, 241, 141, 57, 12, WS_BORDER | SS_RIGHT
+    EDITTEXT        IDC_REG_SZ3, 306, 141, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
+    RTEXT           "", IDC_CUR_SZ0, 372, 59, 57, 12, WS_BORDER | SS_RIGHT
+    CTEXT           "Current size", IDC_STATIC, 383, 43, 38, 8, SS_CENTER
+    RTEXT           "", IDC_CUR_SZ1, 372, 86, 57, 12, WS_BORDER | SS_RIGHT
+    RTEXT           "", IDC_CUR_SZ2, 372, 113, 57, 12, WS_BORDER | SS_RIGHT
+    RTEXT           "", IDC_CUR_SZ3, 372, 141, 57, 12, WS_BORDER | SS_RIGHT
+    LTEXT           "", IDC_FIXED_SIZES, 9, 198, 290, 13, SS_LEFT | SS_NOPREFIX
+    RTEXT           "", IDC_STACK_DESC4, 18, 170, 78, 12, SS_RIGHT
+    RTEXT           "", IDC_DEF_SZ4, 111, 170, 57, 12, WS_BORDER | SS_RIGHT
+    LTEXT           "", IDC_ENV_VAR_NAME4, 176, 170, 57, 12, WS_BORDER | SS_LEFT
+    RTEXT           "", IDC_ENV_SZ4, 241, 170, 57, 12, WS_BORDER | SS_RIGHT
+    EDITTEXT        IDC_REG_SZ4, 306, 170, 57, 12, ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER, WS_EX_STATICEDGE
+    RTEXT           "", IDC_CUR_SZ4, 372, 170, 57, 12, WS_BORDER | SS_RIGHT
 }
 
 

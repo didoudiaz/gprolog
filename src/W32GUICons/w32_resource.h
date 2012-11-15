@@ -52,3 +52,9 @@
 #define IDC_CUR_SZ2                             40038
 #define IDC_CUR_SZ3                             40039
 #define IDC_FIXED_SIZES                         40040
+#define IDC_STACK_DESC4                         40041
+#define IDC_DEF_SZ4                             40042
+#define IDC_ENV_VAR_NAME4                       40043
+#define IDC_ENV_SZ4                             40044
+#define IDC_REG_SZ4                             40045
+#define IDC_CUR_SZ4                             40046

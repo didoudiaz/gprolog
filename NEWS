@@ -1,5 +1,10 @@
 Change in GNU Prolog version 1.4.2:
 
+* fix a bug with soft-call inside a meta-call
+* implement term_hash/2 and term_hash/4. Bacward incompatibility:
+  new_atom/3 and and atom_hash/2 no longer exists.
+* fix some little bugs with 64 bits (e.g. stream id)
+* modify the FD solver to handle very long computations
 * fix a bug in the compiler (unification with fresh vars in the body)
 * fix a bug with *-> containing ! in the test part (! was not local to the test)
 * fix a bug to configure with sigaction on old linux kernels

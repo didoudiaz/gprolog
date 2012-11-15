@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <time.h>
 
@@ -48,7 +49,9 @@
 
 #include "../EnginePl/set_locale.h"
 
-#include "../W32GUICons/w32gc_interf.h" /* only to test GUI Console stack size dialog box */
+#include "../W32GUICons/w32gc_interf.h" /* only to test GUI Console memory size dialog box */
+int pl_max_atom;			/* to test the same dialog box */
+
 #ifdef GUI_CONSOLE_WITH_STACK_SIZES
 #define ENGINE_FILE                      /* to define stacks data */
 typedef PlLong WamWord;
@@ -151,7 +154,7 @@ Set_Test_Locale(void)
   struct tm *thetime;
   char str[100];
 
-  char c = 'é';
+  /*  char c = 'é';*/
 
   Set_Locale();
 

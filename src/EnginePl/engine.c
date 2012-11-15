@@ -125,6 +125,9 @@ Pl_Start_Prolog(int argc, char *argv[])
   int i, x;
   char *p;
   void (*copy_of_pl_init_stream_supp)() = Pl_Dummy_Ptr(pl_init_stream_supp);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  DWORD y;
+#endif
 
   Set_Locale();
 
@@ -157,15 +160,29 @@ Pl_Start_Prolog(int argc, char *argv[])
               sscanf(p, "%d", &x);
               pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
             }
-        }
-
 #if defined(_WIN32) || defined(__CYGWIN__)
-      if (!pl_fixed_sizes && *pl_stk_tbl[i].env_var_name)
-        {
-          DWORD x;
-          if (Read_Windows_Registry(pl_stk_tbl[i].env_var_name, REG_DWORD, &x, sizeof(x)))
-            pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
-        }
+          if (Read_Windows_Registry(pl_stk_tbl[i].env_var_name, REG_DWORD, &y, sizeof(x)))
+            pl_stk_tbl[i].size = KBytes_To_Wam_Words(y);
+#endif
+        }      
+    }
+
+  /* similar treatment for max_atom */
+
+  if ((pl_max_atom = pl_def_max_atom) == 0)
+    pl_max_atom = DEFAULT_MAX_ATOM;
+  
+  if (!pl_fixed_sizes)
+    {
+      p = (char *) getenv(ENV_VAR_MAX_ATOM);
+      if (p && *p)
+	{
+	  sscanf(p, "%d", &x);
+	  pl_max_atom = x;
+	}
+#if defined(_WIN32) || defined(__CYGWIN__)
+      if (Read_Windows_Registry(ENV_VAR_MAX_ATOM, REG_DWORD, &y, sizeof(x)))
+	pl_max_atom = y;
 #endif
     }
 
