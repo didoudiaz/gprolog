@@ -518,8 +518,13 @@ dnl use one day AC_CHECK_DECL instead of AC_CHECK_FUNC ? but add the include
 dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc, htole32, bswap_32])
 
 AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
+dnl NB: OpenBSD/spac64 needs stdin.h before sys/endian.h
 AC_CHECK_DECLS([htole32, bswap_32], [], [], 
-[#ifdef HAVE_ENDIAN_H
+[#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#include <sys/types.h>
+#ifdef HAVE_ENDIAN_H
 #include <endian.h>
 #endif
 #ifdef HAVE_SYS_ENDIAN_H

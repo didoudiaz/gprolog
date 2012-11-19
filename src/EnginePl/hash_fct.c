@@ -56,6 +56,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include <sys/types.h>		/* some systems need this */
 
 #if 1
 #include "engine_pl.h"

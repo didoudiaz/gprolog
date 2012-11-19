@@ -5507,7 +5507,11 @@ _ACEOF
 fi
 done
 
-ac_fn_c_check_decl "$LINENO" "htole32" "ac_cv_have_decl_htole32" "#ifdef HAVE_ENDIAN_H
+ac_fn_c_check_decl "$LINENO" "htole32" "ac_cv_have_decl_htole32" "#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#include <sys/types.h>
+#ifdef HAVE_ENDIAN_H
 #include <endian.h>
 #endif
 #ifdef HAVE_SYS_ENDIAN_H
@@ -5527,7 +5531,11 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_HTOLE32 $ac_have_decl
 _ACEOF
-ac_fn_c_check_decl "$LINENO" "bswap_32" "ac_cv_have_decl_bswap_32" "#ifdef HAVE_ENDIAN_H
+ac_fn_c_check_decl "$LINENO" "bswap_32" "ac_cv_have_decl_bswap_32" "#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#include <sys/types.h>
+#ifdef HAVE_ENDIAN_H
 #include <endian.h>
 #endif
 #ifdef HAVE_SYS_ENDIAN_H
