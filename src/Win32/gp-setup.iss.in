@@ -14,7 +14,7 @@ DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
 SourceDir=@WIN_TMP_DIR@\gprolog_win32
 OutputDir=@WIN_TMP_DIR@
-OutputBaseFileName=setup-gprolog-@PROLOG_VERSION@-msvc-x86
+OutputBaseFileName=setup-gprolog-@PROLOG_VERSION@-@WIN_CC_VER@
 
 ChangesAssociations=yes
 
