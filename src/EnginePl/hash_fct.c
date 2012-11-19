@@ -373,25 +373,48 @@ Pl_Hash_Incr_Double(HashIncrInfo *hi, double x)
 
 
 /* multiplier to use maximum bits of mantissa (according to target type)
- * (to be exact should be (UINT64_MAX + 1.0) to have 2^64 anyway on double it is max on 53 bits)
- */
-#define MULT (UINT64_MAX + 1.0)
-/*#define MULT ((uint64_t) 1<<32)*/	/* test with less decimals */
+ * To be exact should be (UINT64_MAX + 1.0) (something like 1<<64
+ * Does not for for MSVC: max is 1 << 63 because it exceeds signed int 64 bits */
+
+#if 0
+#define DEBUG
+#endif
+
+#define MULT ((uint64_t) 1 << 63) 
+/*#define MULT ((uint64_t) 1 << 32)*/	/* test with less decimals */
 {
   int exp;
   uint64_t man64;
   uint64_t rest;
 
+#ifdef DEBUG
+  printf("dbl: %.15g\n", x);
+#endif
   x = frexp(x, &exp);  		/* x is now the mantissa */
+#ifdef DEBUG
+  printf("man: %.15f\n", x);
+  printf("exp: %d\n", exp);
+#endif
 
-  /* Mantissa between 0 and 1 (other possibility: x = (2 * fabs(x) - 1); */
+  /* Mantissa between 0 and 1 (other possibility: x = (2 * fabs(x) - 1) slower) */
   if (x < 0.0)
     x = -(x + 0.5);
 
-  /* Mantissa on maximum bits */
+  /* Mantissa on maximum bits for the target type (here 64 bits) */
   x *= MULT; 
 
-  man64 = (uint64_t) x;
+#ifdef DEBUG
+  printf("man scaled : %.2f\n", x);
+#endif
+
+  /* NB: signed cast (int64_t) is much faster than unsigned (uint64_t)
+   * Anyway: here we only want bits 
+   * Other possibility: use lrint() math function but is missing under MSVC */
+  man64 = (int64_t) x; 
+
+#ifdef DEBUG
+  printf("man integer: %"  FMT64_d "\n", man64);
+#endif
 
 #if 0				/* hash both mantissa and exponent */
 
@@ -407,8 +430,18 @@ Pl_Hash_Incr_Double(HashIncrInfo *hi, double x)
   rest = 0;
 #endif
 
+#ifdef DEBUG
+  printf("rest: %" FMT64_x "\n",  rest);
+  printf("div: %" FMT64_d " = 0x%" FMT64_x "\n",  (MULT / DBL_MAX_EXP), (MULT / DBL_MAX_EXP));
+#endif
+
   /* take into account exp */
-  man64 = man64 + rest + (UINT64_MAX / DBL_MAX_EXP) * exp;
+  man64 = man64 + rest + (MULT / DBL_MAX_EXP) * exp;
+
+#ifdef DEBUG
+  printf("final value: %"  FMT64_d "\n", man64);
+#endif
+
   Pl_Hash_Incr_Int64(hi, man64);
 #endif
 }

@@ -42,6 +42,8 @@
 
 #include "gp_config.h"
 
+/* A PlLong can store an address: it is thus an intptr_t (depends on 32/64 bits arch) */
+
 typedef intptr_t PlLong;
 typedef uintptr_t PlULong;
 
@@ -53,6 +55,13 @@ typedef uintptr_t PlULong;
 #define PL_FMT_u  PRIuPTR
 #define PL_FMT_o  PRIoPTR
 #define PL_FMT_x  PRIxPTR
+
+/* Utilities to work on int64_t independently of the 32/64 bits of the arch */
+
+#define FMT64_d   PRId64
+#define FMT64_u   PRIu64
+#define FMT64_o   PRIo64
+#define FMT64_x   PRIx64
 
 #else  /* !HAVE_INTTYPES_H */
 
@@ -75,7 +84,29 @@ typedef uintptr_t PlULong;
 #define PL_FMT_o  __PL_FMT_PREFIX "o"
 #define PL_FMT_x  __PL_FMT_PREFIX "x"
 
+/* Utilities to work on int64_t independently of the 32/64 bits of the arch */
+
+#ifdef _MSC_VER
+
+#  define __FMT64_PREFIX  "I64"
+
+#elif WORD_SIZE == 64
+
+#  define __FMT64_PREFIX  "l"
+
+#else
+
+#  define __FMT64_PREFIX  "ll"
+
+#endif
+
+#define FMT64_d   __FMT64_PREFIX "d"
+#define FMT64_u   __FMT64_PREFIX "u"
+#define FMT64_o   __FMT64_PREFIX "o"
+#define FMT64_x   __FMT64_PREFIX "x"
+
 #endif /* !HAVE_INTTYPES_H */
+
 
 /* --- strtol / strtoul --- */
 
