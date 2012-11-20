@@ -12,9 +12,9 @@ SetupIconFile=gprolog.ico
 DefaultDirName={sd}\GNU-Prolog
 DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
-SourceDir=C:\cygwin\tmp\gprolog_win32
-OutputDir=C:\cygwin\tmp
-OutputBaseFileName=setup-gprolog-1.4.2-msvc-x86
+SourceDir=\gprolog_win32
+OutputDir=
+OutputBaseFileName=setup-gprolog-1.4.2-
 
 ChangesAssociations=yes
 

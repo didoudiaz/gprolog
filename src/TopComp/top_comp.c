@@ -663,7 +663,6 @@ Link_Cmd(void)
       if (!Find_File(LIB_BIPS_FD, "", buff, 1) ||
           !Find_File(LIB_ENGINE_FD, "", buff + strlen(buff), 1))
         no_fd_lib = min_fd_bips = 1;
-      *buff = '\0';
     }
 
   if (file_name_out == NULL)
@@ -759,6 +758,8 @@ Link_Cmd(void)
   if (!no_pl_lib && gui_console)
     {    /* modify Linedit/Makefile.in to follow this list of ld objects */
       Find_File("w32gc_interf", OBJ_SUFFIX, buff + strlen(buff), 0);
+      strcat(buff, " ");
+      Find_File("win_exe_icon", ".res", buff + strlen(buff), 1);
       strcat(buff, " ");
 #ifdef _MSC_VER
       has_gui_console = 1;
@@ -916,12 +917,12 @@ Find_File(char *file, char *suff, char *file_path, int ignore_error)
 {
   char name[MAXPATHLEN];
   char **pdev;
+  char *cur_end = file_path;
 
   sprintf(name, "%s%s", file, suff);
   if (!devel_mode)
     {
-      sprintf(file_path, "%s" DIR_SEP_S "lib" DIR_SEP_S "%s", start_path,
-	      name);
+      sprintf(file_path, "%s" DIR_SEP_S "lib" DIR_SEP_S "%s", start_path, name);
       if (access(file_path, F_OK) == 0)
 	return 1;
     }
@@ -937,6 +938,8 @@ Find_File(char *file, char *suff, char *file_path, int ignore_error)
 
   if (!ignore_error)
     Pl_Fatal_Error("cannot locate file %s", name);
+
+  *cur_end = '\0';
   return 0;
 }
 
