@@ -640,8 +640,7 @@ Pl_M_Absolute_Path_Name(char *src)
 
   if (buff[res][0] == '~')
     {
-      if (buff[res][1] == DIR_SEP_C || buff[res][1] == '/' ||
-	  buff[res][1] == '\0')    /* ~/... cf $HOME */
+      if (Is_Dir_Sep(buff[res][1]) || buff[res][1] == '\0') /* ~/... cf $HOME */
         {
 	  q = NULL;;
           if ((p = getenv("HOME")) == NULL)
@@ -665,7 +664,7 @@ Pl_M_Absolute_Path_Name(char *src)
           struct passwd *pw;
 
           p = buff[res] + 1;
-          while (*p && *p != '/')
+          while (*p && !Is_Dir_Sep(*p))
             p++;
 
           buff[res][0] = *p;
@@ -758,8 +757,110 @@ Pl_M_Absolute_Path_Name(char *src)
 #define MIN_PREFIX 1            /* unix  minimal path /    */
 #endif
 
-  if (dst - buff[res] > MIN_PREFIX && (dst[-1] == '/' || dst[-1] == '\\'))
+  if (dst - buff[res] > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
     dst[-1] = '\0';             /* remove last / or \ */
 
   return buff[res];
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_DECOMPOSE_FILE_NAME                                                *
+ *                                                                         *
+ * Decompose a path name into the dir, base and suffix (extension).        *
+ *                                                                         *
+ * path:   the path to decompose                                           *
+ * del_trail_slashes: see below                                            *
+ * base:   points the buffer which will receive the basename               *
+ *         (or "" if none. It includes the suffix                          *
+ * suffix: points inside base to the suffix part                           *
+ *         (or "" if none, i.e. at the end of base)                        *
+ * returns the dirname part (or "" if none)                                *
+ *                                                                         *
+ * Returned pointers are on 2 static buffers (dir and base) which can be   *
+ * written.                                                                *
+ *                                                                         *
+ * del_trail_slashes: delete trailing slashes from dir ?                   *
+ *  FALSE: nothing is done (path is simply split into dir and base).       *
+ *         Concatenating dir and base yields the complete pathname.        *
+ *  TRUE:  trailing slashes of the dir part are removed (similarly to      *
+ *         dirname(3) except that initial trailing slashes of path are not *
+ *         removed). If the dir part is empty then "." is returned.        *
+ *         Concatenating dir "/" and base yields a complete pathname.      *
+ *                                                                         *
+ * To remove the extension from base simply do *suffix = '\0'              *
+ * To add/change the suffix simply do strcpy(suffix, ".txt");              *
+ *-------------------------------------------------------------------------*/
+
+char *
+Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char **suffix)
+{
+  static char buff_dir[MAXPATHLEN];
+  static char buff_base[MAXPATHLEN];
+  int dir_start_pos = 0;	/* on _WIN32 maybe there is a drive specif */
+
+  *base = buff_base;
+
+#if 0 && defined(_WIN32)	/* uncomment to explicitely use _splitpath() on Windows */
+
+  char direct[_MAX_DIR];
+  char ext[_MAX_EXT];
+  
+  _splitpath(path, buff_dir, direct, buff_base, ext); /* buff_dir contains the drive */
+  dir_start_pos = strlen(buff_dir);
+  strcat(buff_dir, direct);	/* concat the dirname */
+
+  *suffix = buff_base + strlen(buff_base); /* buff_base contains the basename */
+  strcpy(*suffix, ext);		     /* concat the suffix */
+    
+#else
+
+  /* This version works for both Windows AND Unix */
+
+  char *p;
+
+  strcpy(buff_dir, path);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if (buff_dir[0] != '\0' && buff_dir[1] == ':') /* consider it as a drive specif */
+    dir_start_pos = 2;
+#endif
+
+  Find_Last_Dir_Sep(p, buff_dir);
+
+  p = (p == NULL) ? buff_dir + dir_start_pos : p + 1;
+
+  strcpy(buff_base, p);
+  *p = '\0';
+
+  if ((p = strrchr(buff_base, '.')) != NULL)
+    *suffix = p;      
+  else
+    *suffix = buff_base + strlen(buff_base); /* i.e. suffix = "" */
+
+#endif
+
+  if (del_trail_slashes)
+    {
+      if (buff_dir[dir_start_pos] == '\0') /* if dir is empty it becomes "." */
+	strcat(buff_dir, ".");
+      else
+	{
+	  int len = strlen(buff_dir);		/* remove all trailing / */
+	  while(--len >= dir_start_pos && Is_Dir_Sep(buff_dir[len]))
+	    ;
+
+	  if (len < dir_start_pos)		/* if all are / keep one */
+	    len = dir_start_pos;
+	  buff_dir[len + 1] = '\0';
+	}
+    }
+
+#if 0			 /* uncomment to avoid extension with only one '.' */
+  if ((*suffix)[0] == '.' && (*suffix)[1] == '\0') /* not really a suffix: undo it */
+    (*suffix)++;		     /* points the \0 */
+#endif
+
+  return buff_dir;
 }

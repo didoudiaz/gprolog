@@ -98,67 +98,30 @@ Pl_Absolute_File_Name_2(WamWord f1_word, WamWord f2_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
-		      WamWord prefix_word, WamWord suffix_word)
+			 WamWord prefix_word, WamWord suffix_word)
 {
-  char *path;
-  char *p;
-  int atom;
+  char *path = pl_atom_tbl[Pl_Rd_Atom_Check(path_word)].name;
+  char *dir, *base, *suffix;
   char c;
-
-  strcpy(pl_glob_buff, pl_atom_tbl[Pl_Rd_Atom_Check(path_word)].name);
-  path = pl_glob_buff;
-
 
   Pl_Check_For_Un_Atom(dir_word);
   Pl_Check_For_Un_Atom(prefix_word);
   Pl_Check_For_Un_Atom(suffix_word);
 
-  p = strrchr(path, DIR_SEP_C);
-#ifdef _WIN32
-  {
-    char *q = strrchr(path, '/');
+  dir = Pl_M_Decompose_File_Name(path, FALSE, &base, &suffix);
 
-    if (p == NULL || p > q)
-      p = q;
-  }
-#endif
-
-  if (p != NULL)
-    {
-      p++;
-      c = *p;
-      *p = '\0';
-      atom = Pl_Create_Allocate_Atom(path);
-      *p = c;
-      path = p;
-    }
-  else
-    atom = pl_atom_void;
-
-  if (!Pl_Get_Atom(atom, dir_word))
+  if (!Pl_Un_String(dir, dir_word))
     return FALSE;
 
+  c = *suffix;
+  *suffix = '\0';
 
-  p = strrchr(path, '.');
-  if (p != NULL)
-    {
-      *p = '\0';
-      atom = Pl_Create_Allocate_Atom(path);
-      *p = '.';
-      path = p;
-    }
-  else
-    atom = Pl_Create_Allocate_Atom(path);
-
-  if (!Pl_Get_Atom(atom, prefix_word))
+  if (!Pl_Un_String(base, prefix_word))
     return FALSE;
 
-  if (p != NULL)
-    atom = Pl_Create_Allocate_Atom(path);
-  else
-    atom = pl_atom_void;
+  *suffix = c;
 
-  return Pl_Get_Atom(atom, suffix_word);
+  return Pl_Un_String(suffix, suffix_word);
 }
 
 
@@ -190,15 +153,7 @@ Pl_Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
       return Pl_Un_Atom_Check(atom, f2_word);
     }
 
-  p = strrchr(f1, DIR_SEP_C);
-#ifdef _WIN32
-  {
-    char *q = strrchr(f1, '/');
-
-    if (p == NULL || p > q)
-      p = q;
-  }
-#endif
+  Find_Last_Dir_Sep(p, f1);
 
   if (strchr((p) ? p : f1, '.'))
     goto same;
@@ -221,3 +176,4 @@ Pl_Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
 
   return Pl_Un_String_Check(pl_glob_buff, f2_word);
 }
+

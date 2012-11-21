@@ -100,13 +100,37 @@
 
 #define DIR_SEP_S                  "\\"
 #define DIR_SEP_C                  '\\'
+#define DIR_SEP_C_ALT              '/'
 
-#else /* !defined(_WIN32) || defined(__CYGWIN__) */
+#elif defined(__CYGWIN__)
 
 #define DIR_SEP_S                  "/"
 #define DIR_SEP_C                  '/'
+#define DIR_SEP_C_ALT              '\\'
 
-#endif /* !defined(_WIN32) || defined(__CYGWIN__) */
+#else  /* Unix */
+
+#define DIR_SEP_S                  "/"
+#define DIR_SEP_C                  '/'
+#define DIR_SEP_C_ALT              '/'
+
+#endif
+
+#define Is_Dir_Sep(c)              ((c) == DIR_SEP_C || (c) == DIR_SEP_C_ALT)
+
+
+
+#define Find_Last_Dir_Sep(_p, _path)			\
+  do {							\
+    char *_ptr;						\
+							\
+    for((_p) = NULL, _ptr = (_path); *_ptr; _ptr++)	\
+      if (Is_Dir_Sep(*_ptr))				\
+	(_p) = _ptr;					\
+  } while(0)
+
+
+
 
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)

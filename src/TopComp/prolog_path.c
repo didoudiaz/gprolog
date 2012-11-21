@@ -261,19 +261,19 @@ Get_Prolog_Path_From_Exec(char *str, int *devel_mode)
 #endif
 
   p = resolved + strlen(resolved) - 1;
-  while (p > resolved && *p != DIR_SEP_C)       /* skip exec_name */
+  while (p > resolved && !Is_Dir_Sep(*p)) /* skip exec_name */
     p--;
 
   if (p == resolved)
     return NULL;
 
-  while (p > resolved && *p == DIR_SEP_C)       /* skip / */
+  while (p > resolved && Is_Dir_Sep(*p)) /* skip / */
     p--;
 
   if (p == resolved)
     return NULL;
 
-  while (p > resolved && *p != DIR_SEP_C)       /* skip previous dir name */
+  while (p > resolved && !Is_Dir_Sep(*p)) /* skip previous dir name */
     p--;
 
   if (p == resolved)
@@ -305,7 +305,7 @@ Is_A_Valid_Root(char *str, int *devel_mode)
 
   p = str + strlen(str) - 1;
 
-  while (p >= str && *p == DIR_SEP_C)
+  while (p >= str && Is_Dir_Sep(*p))
     p--;
 
   if (p < str)
