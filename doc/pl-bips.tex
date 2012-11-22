@@ -8762,6 +8762,47 @@ the desired file, e.g. \texttt{open/4}.
 
 GNU Prolog predicate.
 
+\subsubsection{\texttt{is\_absolute\_file\_name/1},
+               \texttt{is\_relative\_file\_name/1}}
+   \AddPBD{is\_absolute\_file\_name/1}
+   \AddPBD{is\_relative\_file\_name/1}
+
+\begin{TemplatesOneCol}
+is\_absolute\_file\_name(+atom)\\
+is\_relative\_file\_name(+atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{is\_absolute\_file\_name(PathName)} succeeds if \texttt{PathName} is
+an absolute file name. 
+
+Conversely, \texttt{is\_relative\_file\_name(PathName)} succeeds if
+\texttt{PathName} is not an absolute file name.
+
+See \IdxPB{absolute\_file\_name/2} for information about the syntax of
+\texttt{PathName} \RefSP{absolute-file-name/2}.
+
+The current implementation does not check the validity of
+\texttt{PathName}. If \texttt{PathName} starts with a \texttt{/} (slash) it
+is considered as absolute. Under Windows, \texttt{PathName} can also start
+with a \texttt{{\bs}} (backslash) or a drive specification.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{PathName} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{PathName} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, PathName)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
 \subsubsection{\texttt{decompose\_file\_name/4}}
    \AddPBD{decompose\_file\_name/4}
 
