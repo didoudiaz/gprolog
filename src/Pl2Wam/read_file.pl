@@ -169,13 +169,8 @@ read_file_error_nb(SynErrNb) :-
 open_new_prolog_file(PlFile0) :-
 	g_read(open_file_stack, OpenFileStack),
 	prolog_file_name(PlFile0, PlFile),
-%	format('~n*** Trying to open ~a~n', [PlFile]),
-	(   PlFile = user ->
-	    current_input(Stream)
-	;   catch(open(PlFile, read, Stream), error(existence_error(source_sink, _), _),
-		  try_other_open(PlFile, OpenFileStack, Stream))
-	),
-	g_assign(open_file_stack, [PlFile * Stream|OpenFileStack]),
+	open_new_prolog_file1(PlFile, OpenFileStack, PlFile1, Stream), !,
+	g_assign(open_file_stack, [PlFile1 * Stream|OpenFileStack]),
 	(   peek_char(Stream, '#'), % ignore #! starting line (for shebang support)
 	    repeat,
 	    get_char(Stream, X),
@@ -185,27 +180,35 @@ open_new_prolog_file(PlFile0) :-
 	).
 
 
+open_new_prolog_file1(user, _, user, Stream) :-
+	current_input(Stream).
+	
+open_new_prolog_file1(PlFile, _, PlFile, Stream) :-
+%	format('~n*** Trying to open ~a~n', [PlFile]),
+	catch(open(PlFile, read, Stream), error(existence_error(source_sink, _), _), fail).
 
-
-try_other_open(PlFile, OpenFileStack, Stream) :-
+open_new_prolog_file1(PlFile, OpenFileStack, PlFile1, Stream) :-
 %	format('file stack: ~w~n', [OpenFileStack]),
 	is_relative_file_name(PlFile),
-	try_other_directory(OpenFileStack, PlFile, Stream), !.
+	try_other_directory(OpenFileStack, PlFile, PlFile1, Stream).
 
-try_other_open(PlFile, _, _) :-
+open_new_prolog_file1(PlFile, _, _, _) :-
 	throw(error(existence_error(source_sink, PlFile), open/3)).
 
 
+	/* If an included file is not found try to look in "parents" (includers) path.
+	 * If found return the new name (to have correct error msg and file_name in .wam)
+	 */
 
-try_other_directory([PlFile1 * _|_], PlFile, Stream) :-
+try_other_directory([PlFile1 * _|_], PlFile, PlFile2, Stream) :-
 	decompose_file_name(PlFile1, Directory, _, _),
 	Directory \== '',
 	atom_concat(Directory, PlFile, PlFile2),
 %	format('   fail.~n+++ Trying to open ~a~n', [PlFile2]),
 	catch(open(PlFile2, read, Stream), _, fail).
 
-try_other_directory([_|OpenFileStack], PlFile, Stream) :-
-	try_other_directory(OpenFileStack, PlFile, Stream).
+try_other_directory([_|OpenFileStack], PlFile, PlFile1, Stream) :-
+	try_other_directory(OpenFileStack, PlFile, PlFile1, Stream).
 
 
 
