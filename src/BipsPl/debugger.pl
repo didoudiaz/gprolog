@@ -499,25 +499,25 @@ nospyall.
 	NewAncLst = [a(Goal, Invoc1, Index1, B)|OldAncLst],
 	setarg(1, DebugInfo, Invoc1),
 	setarg(2, DebugInfo, NewAncLst),
-% format('starting of call:~w',[Goal]), disp_B(''),
+%format('starting of call:~w',[Goal]), disp_B(''),
 	'$debug_call1'(Goal, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, Invoc, OldAncLst).
 
 
 
 %disp_B(Msg):-
 %'$get_current_B'(B),
-%format(' ~w B:%#x\n',[Msg,B]).
+%format(' ~w B:%d (%#x)\n',[Msg, B, B]).
 
 
 '$debug_call1'(Goal, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, _, OldAncLst) :-
-% format('Goal:~w  Call Info:~w~n',[Goal,CallInfo]),
+%format('Goal:~w  Call Info:~w~n',[Goal,CallInfo]),
 	'$get_current_B'(B),
 	'$catch_internal'('$debug_call_port'(Goal, CallInfo, Invoc1, Index1, NewAncLst), Ball, '$debug_exception_port'(Goal, Invoc1, Index1, NewAncLst, Ball), 0),
 	'$get_current_B'(B1),
-% format(' after effective call: ~w B(start):%#x B1(end):%#x~n',[Goal,B,B1]),
-% disp_B('before end call'),
+%format(' after effective call: ~w B(start):%#x B1(end):%#x~n',[Goal,B,B1]),
+%disp_B('before end call'),
 	'$debug_end_call'(Goal, Invoc1, Index1, NewAncLst, DebugInfo, OldAncLst),
-% disp_B('after end call and before test determin'),
+%disp_B('after end call and before test determin'),
 	(   B1 =< B, !
 	;   true
 	).
@@ -525,11 +525,12 @@ nospyall.
 
 
 '$debug_call1'(Goal, _, Invoc1, Index1, NewAncLst, _, _, _) :-
+%format('the call to ~w failed~n', [Goal]),	
 	'$debug_port'(Goal, Invoc1, Index1, NewAncLst, fail),
 	fail.
 
 '$debug_call1'(Goal, CallInfo, Invoc1, _, _, DebugInfo, Invoc, OldAncLst) :-
-	g_read('$debug_next', retry(X)),
+	g_read('$debug_next', retry(X)), % if user asked a 'retry'
 	X >= Invoc1,
 	setarg(1, DebugInfo, Invoc),
 	setarg(2, DebugInfo, OldAncLst),
@@ -544,6 +545,10 @@ nospyall.
 	'$debug_port'(Goal, Invoc, Index, AncLst, call),
 	g_read('$debug_unify', DebugUnify),
 	(   DebugUnify == '' ->
+%format('now I call ~w~n', [Goal]),
+	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
+				% but don(t call 'call_from_debugger since it is a
+				% control-construct (thus its native codep == NULL)
 	    '$call_from_debugger'(Goal, CallInfo)
 	;   Goal = DebugUnify
 	).

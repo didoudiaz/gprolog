@@ -91,6 +91,8 @@ Bool Pl_M_Set_Working_Dir(char *path);
 
 char *Pl_M_Absolute_Path_Name(char *src);
 
+Bool Pl_M_Is_Absolute_File_Name(char *path);
+
 char *Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, 
 			       char **base, char **suffix);
 

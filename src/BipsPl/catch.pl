@@ -101,7 +101,7 @@
 
 '$catch_a_throw'(Ball, Ball1, Recovery, CallInfo, _) :-
 % for debug
-% write(catch1(Ball, Ball1, Recovery)), nl,
+%write(catch1(Ball, Ball1, Recovery)), nl,
 	Ball = Ball1,
 % for debug
 % write(catch2(Ball, Ball1, Recovery)), nl,

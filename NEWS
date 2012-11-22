@@ -1,5 +1,8 @@
 Change in GNU Prolog version 1.4.2:
 
+* fix a bug in the debugger
+* modify decompose_file_name/4 (fix problems under windows)
+* add built-in is_absolute_file_name/1 and is_relative_file_name/1
 * modify atom table management (its size can be defined via env. var MAX_ATOM)
 * fix a bug with soft-call inside a meta-call
 * implement term_hash/2 and term_hash/4. Bacward incompatibility:

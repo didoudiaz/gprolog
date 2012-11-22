@@ -131,6 +131,10 @@
 
 
 
+#define Has_Drive_Specif(str) \
+  (((*(str) >= 'a' && *(str) <= 'z') || (*(str) >= 'A' && *(str) <= 'Z')) && (str)[1] == ':')
+
+
 
 #if defined(M_ix86_cygwin) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)

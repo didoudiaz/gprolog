@@ -765,6 +765,38 @@ Pl_M_Absolute_Path_Name(char *src)
 
 
 
+/*-------------------------------------------------------------------------*
+ * PL_M_IS_ABSOLUTE_FILE_NAME                                              *
+ *                                                                         *
+ * Test if a path name is absolute (i.e. not relative).                    *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_M_Is_Absolute_File_Name(char *path)
+{
+  if (Is_Dir_Sep(*path))
+    return TRUE;
+
+
+  /* Windows: path strating with a drive specif is considered as absolute
+   * (even if not followed by an antislash, e.g. c:foo is absolute).
+   * Indeed, for a relative path, it is always 
+   * possible to add before it the current working directory and it is not 
+   * possible before a drive specif.
+   * This is the behavior of Win32 PathIsRelative() function.
+   * (to use it #include <shlwapi.h> and link with shlwapi.dll
+   */
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+  if (Has_Drive_Specif(path))
+    return TRUE;
+
+#endif
+
+  return FALSE;
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * PL_M_DECOMPOSE_FILE_NAME                                                *
@@ -817,13 +849,13 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
     
 #else
 
-  /* This version works for both Windows AND Unix */
+  /* This version works for both Windows and Unix */
 
   char *p;
 
   strcpy(buff_dir, path);
 #if defined(_WIN32) || defined(__CYGWIN__)
-  if (buff_dir[0] != '\0' && buff_dir[1] == ':') /* consider it as a drive specif */
+  if (Has_Drive_Specif(buff_dir))
     dir_start_pos = 2;
 #endif
 

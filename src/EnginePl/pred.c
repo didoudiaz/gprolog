@@ -100,7 +100,8 @@ Pl_Init_Pred(void)
  * NB: see ISO Core 1 Section 7.5 about what is a "procedure" 
  * (bult-in predicates, control constructs or user defined predicates).
  *
- * Anyway, these predicates are NEVER called (see the compiler and call/1).
+ * Anyway, these predicates should NEVER called. Ensure it ! 
+ * Check the compiler, meta-calls (call/1) and the debugger...
  *
  * This file is ALWAYS linked (see EnginePl/pred.c).
  */

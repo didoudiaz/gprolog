@@ -15,13 +15,25 @@ predicate(absolute_file_name/2,45,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(decompose_file_name/4,52,static,private,monofile,built_in,[
+predicate(is_absolute_file_name/1,52,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is_absolute_file_name,1]),
+    call_c('Pl_Is_Absolute_File_Name_1',[boolean],[x(0)]),
+    proceed]).
+
+
+predicate(is_relative_file_name/1,59,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is_relative_file_name,1]),
+    call_c('Pl_Is_Relative_File_Name_1',[boolean],[x(0)]),
+    proceed]).
+
+
+predicate(decompose_file_name/4,66,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[decompose_file_name,4]),
     call_c('Pl_Decompose_File_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(prolog_file_name/2,59,static,private,monofile,built_in,[
+predicate(prolog_file_name/2,73,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_name,2]),
     call_c('Pl_Prolog_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).

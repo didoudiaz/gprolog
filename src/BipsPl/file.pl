@@ -42,9 +42,23 @@
 '$use_file'.
 
 
-absolute_file_name(F1, F2) :-
+absolute_file_name(Path1, Path2) :-
 	set_bip_name(absolute_file_name, 2),
-	'$call_c_test'('Pl_Absolute_File_Name_2'(F1, F2)).
+	'$call_c_test'('Pl_Absolute_File_Name_2'(Path1, Path2)).
+
+
+
+
+is_absolute_file_name(Path) :-
+	set_bip_name(is_absolute_file_name, 1),
+	'$call_c_test'('Pl_Is_Absolute_File_Name_1'(Path)).
+
+
+
+
+is_relative_file_name(Path) :-
+	set_bip_name(is_relative_file_name, 1),
+	'$call_c_test'('Pl_Is_Relative_File_Name_1'(Path)).
 
 
 

@@ -167,12 +167,14 @@ read_file_error_nb(SynErrNb) :-
 
 
 open_new_prolog_file(PlFile0) :-
+	g_read(open_file_stack, OpenFileStack),
 	prolog_file_name(PlFile0, PlFile),
+%	format('~n*** Trying to open ~a~n', [PlFile]),
 	(   PlFile = user ->
 	    current_input(Stream)
-	;   open(PlFile, read, Stream)
+	;   catch(open(PlFile, read, Stream), error(existence_error(source_sink, _), _),
+		  try_other_open(PlFile, OpenFileStack, Stream))
 	),
-	g_read(open_file_stack, OpenFileStack),
 	g_assign(open_file_stack, [PlFile * Stream|OpenFileStack]),
 	(   peek_char(Stream, '#'), % ignore #! starting line (for shebang support)
 	    repeat,
@@ -183,6 +185,31 @@ open_new_prolog_file(PlFile0) :-
 	).
 
 
+
+
+try_other_open(PlFile, OpenFileStack, Stream) :-
+%	format('file stack: ~w~n', [OpenFileStack]),
+	is_relative_file_name(PlFile),
+	try_other_directory(OpenFileStack, PlFile, Stream), !.
+
+try_other_open(PlFile, _, _) :-
+	throw(error(existence_error(source_sink, PlFile), open/3)).
+
+
+
+try_other_directory([PlFile1 * _|_], PlFile, Stream) :-
+	decompose_file_name(PlFile1, Directory, _, _),
+	Directory \== '',
+	atom_concat(Directory, PlFile, PlFile2),
+%	format('   fail.~n+++ Trying to open ~a~n', [PlFile2]),
+	catch(open(PlFile2, read, Stream), _, fail).
+
+try_other_directory([_|OpenFileStack], PlFile, Stream) :-
+	try_other_directory(OpenFileStack, PlFile, Stream).
+
+
+
+	
 
 
 close_last_prolog_file :-
