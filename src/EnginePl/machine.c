@@ -765,6 +765,7 @@ Pl_M_Absolute_Path_Name(char *src)
 
 
 
+
 /*-------------------------------------------------------------------------*
  * PL_M_IS_ABSOLUTE_FILE_NAME                                              *
  *                                                                         *
@@ -833,8 +834,6 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
   static char buff_base[MAXPATHLEN];
   int dir_start_pos = 0;	/* on _WIN32 maybe there is a drive specif */
 
-  *base = buff_base;
-
 #if 0 && defined(_WIN32)	/* uncomment to explicitely use _splitpath() on Windows */
 
   char direct[_MAX_DIR];
@@ -893,6 +892,8 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
   if ((*suffix)[0] == '.' && (*suffix)[1] == '\0') /* not really a suffix: undo it */
     (*suffix)++;		     /* points the \0 */
 #endif
+
+  *base = buff_base;
 
   return buff_dir;
 }
