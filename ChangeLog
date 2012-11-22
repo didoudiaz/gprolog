@@ -3,6 +3,8 @@ Thu Nov 22 14:20:23 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 	* fix a bug in the debugger
 	* modify decompose_file_name/4 (fix problems under windows)
 	* add built-in is_absolute_file_name/1 and is_relative_file_name/1
+	* modify the compiler include/1 directive handling
+	  (if the file to include is not found, seach in directories of parent includers)
 
 Thu Nov 15 16:15:50 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
