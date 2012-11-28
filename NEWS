@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.2:
 
+* fix a bug in the compiler for byte-code with op/3 directive
 * fix a bug in the debugger
 * modify decompose_file_name/4 (fix problems under windows)
 * add built-in is_absolute_file_name/1 and is_relative_file_name/1

@@ -300,7 +300,25 @@ emit_one_arg([X|L], Stream) :-
 	emit_list(L, P, Stream).
 
 emit_one_arg(A, Stream) :-
+	g_read(native_code, f),	    % if also wanted to .wam remove this line
+	emit_one_f_n(A, Stream), !. % if fail breakthrough
+
+emit_one_arg(A, Stream) :-
 	writeq(Stream, A).
+
+
+ /* this is added to fix a bug with consult/1. Pb with operators:
+  *    :- op(500, xfx, edge).
+  *    p(a edge b).
+  *    :- op(0, xfx, edge).
+  * will fail if edge is declared in the top-level before consult
+  */
+
+emit_one_f_n(M:P/N, Stream) :-
+	format(Stream, '(~q):(~q)/~q', [M, P, N]).
+
+emit_one_f_n(F/N, Stream) :-
+	format(Stream, '(~q)/~q', [F, N]).
 
 
 
@@ -309,7 +327,7 @@ emit_list([], _, Stream) :-
 	put_char(Stream, ']').
 
 emit_list([X|L], P, Stream) :-
-	format(Stream, ',~n~*c', [P, 0' ]),
+	format(Stream, ',~n~*c', [P, 32]), % changed 0' to 32 for emacs highlighting
 	write_term(Stream, X, [quoted(true), priority(999)]),
 	emit_list(L, P, Stream).
 

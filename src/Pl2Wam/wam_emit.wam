@@ -771,6 +771,18 @@ predicate(emit_one_arg/2,293,static,private,monofile,global,[
     execute(emit_list/3),
 
 label(1),
+    retry_me_else(2),
+    allocate(1),
+    get_variable(y(0),2),
+    put_atom(native_code,2),
+    put_atom(f,3),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(3)]),
+    call(emit_one_f_n/2),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(2),
     trust_me_else_fail,
     get_variable(x(2),1),
     get_variable(x(1),0),
@@ -778,7 +790,50 @@ label(1),
     execute(writeq/2)]).
 
 
-predicate(emit_list/3,308,static,private,monofile,global,[
+predicate(emit_one_f_n/2,317,static,private,monofile,global,[
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([((:)/2,3),((/)/2,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure((:)/2,0),
+    unify_variable(x(4)),
+    unify_structure((/)/2),
+    unify_variable(x(3)),
+    unify_variable(x(0)),
+    put_list(2),
+    unify_value(x(4)),
+    unify_list,
+    unify_value(x(3)),
+    unify_list,
+    unify_value(x(0)),
+    unify_nil,
+    put_value(x(1),0),
+    put_atom('(~q):(~q)/~q',1),
+    execute(format/3),
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_structure((/)/2,0),
+    unify_variable(x(3)),
+    unify_variable(x(0)),
+    put_list(2),
+    unify_value(x(3)),
+    unify_list,
+    unify_value(x(0)),
+    unify_nil,
+    put_value(x(1),0),
+    put_atom('(~q)/~q',1),
+    execute(format/3)]).
+
+
+predicate(emit_list/3,326,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -827,7 +882,7 @@ label(4),
     execute(emit_list/3)]).
 
 
-predicate(emit_ensure_linked/0,319,static,private,monofile,global,[
+predicate(emit_ensure_linked/0,337,static,private,monofile,global,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -864,7 +919,7 @@ label(1),
     proceed]).
 
 
-predicate('$emit_ensure_linked/0_$aux1'/1,319,static,private,monofile,local,[
+predicate('$emit_ensure_linked/0_$aux1'/1,337,static,private,monofile,local,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -889,7 +944,7 @@ label(1),
     proceed]).
 
 
-predicate(bc_emit_code/5,336,static,private,monofile,global,[
+predicate(bc_emit_code/5,354,static,private,monofile,global,[
     allocate(3),
     get_variable(y(0),4),
     put_atom(streamwamfile,4),
@@ -905,7 +960,7 @@ predicate(bc_emit_code/5,336,static,private,monofile,global,[
     execute('$bc_emit_code/5_$aux1'/3)]).
 
 
-predicate('$bc_emit_code/5_$aux1'/3,336,static,private,monofile,local,[
+predicate('$bc_emit_code/5_$aux1'/3,354,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -955,7 +1010,7 @@ label(1),
     execute(bc_emit_lst_clause/2)]).
 
 
-predicate('$bc_emit_code/5_$aux2'/4,336,static,private,monofile,local,[
+predicate('$bc_emit_code/5_$aux2'/4,354,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -979,7 +1034,7 @@ label(1),
     proceed]).
 
 
-predicate(bc_emit_lst_clause/2,357,static,private,monofile,global,[
+predicate(bc_emit_lst_clause/2,375,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1025,7 +1080,7 @@ label(4),
     execute(bc_emit_lst_clause/2)]).
 
 
-predicate(bc_emit_prolog_term/2,370,static,private,monofile,global,[
+predicate(bc_emit_prolog_term/2,388,static,private,monofile,global,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
