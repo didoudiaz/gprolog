@@ -237,6 +237,11 @@ include(+atom)
 the Prolog text obtained by replacing the directive by the content of the
 Prolog source \texttt{File}.
 
+In case of \texttt{File} is a relative file name, it is searched in the
+current directory. If it is not found it is then searched in each directory
+of parent includers.
+
+
 See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 \texttt{File} \RefSP{absolute-file-name/2}.
 
