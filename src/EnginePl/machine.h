@@ -196,7 +196,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
  * Malloc Management               *
  *---------------------------------*/
 
-#ifdef __OpenBSD__
+#if defined(__OpenBSD__) || defined(M_bsd)
 #define USE_DL_MALLOC
 #endif
 

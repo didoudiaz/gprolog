@@ -4366,100 +4366,108 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 WINDOWS=no
 
 case "$host" in
-    mips*irix*)      $as_echo "#define M_mips 1" >>confdefs.h
+    mips*irix*)        $as_echo "#define M_mips 1" >>confdefs.h
     $as_echo "#define M_irix 1" >>confdefs.h
     $as_echo "#define M_mips_irix 1" >>confdefs.h
 ;;
-    sparc*sunos*)    $as_echo "#define M_sparc 1" >>confdefs.h
+    sparc*sunos*)      $as_echo "#define M_sparc 1" >>confdefs.h
    $as_echo "#define M_sunos 1" >>confdefs.h
    $as_echo "#define M_sparc_sunos 1" >>confdefs.h
 ;;
-    sparc*solaris*)  $as_echo "#define M_sparc 1" >>confdefs.h
+    sparc*solaris*)    $as_echo "#define M_sparc 1" >>confdefs.h
    $as_echo "#define M_solaris 1" >>confdefs.h
  $as_echo "#define M_sparc_solaris 1" >>confdefs.h
 ;;
-    sparc*bsd*)      $as_echo "#define M_sparc 1" >>confdefs.h
+    sparc*bsd*)        $as_echo "#define M_sparc 1" >>confdefs.h
    $as_echo "#define M_bsd 1" >>confdefs.h
      $as_echo "#define M_sparc_bsd 1" >>confdefs.h
 ;;
-    alpha*osf*)      $as_echo "#define M_alpha 1" >>confdefs.h
+    alpha*osf*)        $as_echo "#define M_alpha 1" >>confdefs.h
    $as_echo "#define M_osf 1" >>confdefs.h
      $as_echo "#define M_alpha_osf 1" >>confdefs.h
 ;;
-    alpha*linux*)    $as_echo "#define M_alpha 1" >>confdefs.h
+    alpha*linux*)      $as_echo "#define M_alpha 1" >>confdefs.h
    $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_alpha_linux 1" >>confdefs.h
 ;;
-    x86_64*linux*)   $as_echo "#define M_x86_64 1" >>confdefs.h
+    x86_64*linux*)     $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_x86_64_linux 1" >>confdefs.h
 ;;
-    x86_64*bsd*)     $as_echo "#define M_x86_64 1" >>confdefs.h
+    x86_64*dragonfly*) $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_bsd 1" >>confdefs.h
      $as_echo "#define M_x86_64_bsd 1" >>confdefs.h
 ;;
-    x86_64*solaris*) $as_echo "#define M_x86_64 1" >>confdefs.h
+    x86_64*bsd*)       $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_x86_64_bsd 1" >>confdefs.h
+;;
+    x86_64*solaris*)   $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_solaris 1" >>confdefs.h
  $as_echo "#define M_x86_64_solaris 1" >>confdefs.h
 ;;
-    x86_64*mingw*)   $as_echo "#define M_x86_64 1" >>confdefs.h
+    x86_64*mingw*)     $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_win64 1" >>confdefs.h
    $as_echo "#define M_x86_64_win64 1" >>confdefs.h
  WINDOWS=64;;
-    x86_64*win64*)   $as_echo "#define M_x86_64 1" >>confdefs.h
+    x86_64*win64*)     $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_win64 1" >>confdefs.h
    $as_echo "#define M_x86_64_win64 1" >>confdefs.h
  WINDOWS=64;;
-    x86_64*darwin*)  $as_echo "#define M_x86_64 1" >>confdefs.h
+    x86_64*darwin*)    $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_darwin 1" >>confdefs.h
   $as_echo "#define M_x86_64_darwin 1" >>confdefs.h
 ;;
-    i*86*linux*)     $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*linux*)       $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_ix86_linux 1" >>confdefs.h
 ;;
-    i*86*solaris*)   $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*solaris*)     $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_solaris 1" >>confdefs.h
  $as_echo "#define M_ix86_solaris 1" >>confdefs.h
 ;;
-    i*86*sco*)       $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*sco*)         $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_sco 1" >>confdefs.h
      $as_echo "#define M_ix86_sco 1" >>confdefs.h
 ;;
-    i*86*bsd*)       $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*dragonfly*)   $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_bsd 1" >>confdefs.h
      $as_echo "#define M_ix86_bsd 1" >>confdefs.h
 ;;
-    i*86*cygwin*)    $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*bsd*)         $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_ix86_bsd 1" >>confdefs.h
+;;
+    i*86*cygwin*)      $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_cygwin 1" >>confdefs.h
   $as_echo "#define M_ix86_cygwin 1" >>confdefs.h
 ;;
-    i*86*mingw*)     $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*mingw*)       $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_win32 1" >>confdefs.h
    $as_echo "#define M_ix86_win32 1" >>confdefs.h
    WINDOWS=32;;
-    i*86*win32*)     $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*win32*)       $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_win32 1" >>confdefs.h
    $as_echo "#define M_ix86_win32 1" >>confdefs.h
    WINDOWS=32;;
-    i*86*darwin*)    $as_echo "#define M_ix86 1" >>confdefs.h
+    i*86*darwin*)      $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_darwin 1" >>confdefs.h
   $as_echo "#define M_ix86_darwin 1" >>confdefs.h
 ;;
-    powerpc*linux*)  $as_echo "#define M_powerpc 1" >>confdefs.h
+    powerpc*linux*)    $as_echo "#define M_powerpc 1" >>confdefs.h
  $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_powerpc_linux 1" >>confdefs.h
 ;;
-    powerpc*darwin*) $as_echo "#define M_powerpc 1" >>confdefs.h
+    powerpc*darwin*)   $as_echo "#define M_powerpc 1" >>confdefs.h
  $as_echo "#define M_darwin 1" >>confdefs.h
   $as_echo "#define M_powerpc_darwin 1" >>confdefs.h
 ;;
-    powerpc*bsd*)    $as_echo "#define M_powerpc 1" >>confdefs.h
+    powerpc*bsd*)      $as_echo "#define M_powerpc 1" >>confdefs.h
  $as_echo "#define M_bsd 1" >>confdefs.h
      $as_echo "#define M_powerpc_bsd 1" >>confdefs.h
 ;;
 
-    *)               as_fn_error $? "unsupported architecture" "$LINENO" 5
+    *)                 as_fn_error $? "unsupported architecture" "$LINENO" 5
 esac
 
 
