@@ -492,9 +492,7 @@ list of variables (including FD variables), each sharing with a unique
 variable of \texttt{Term}. The variables in \texttt{List} are ordered in
 order of appearance traversing \texttt{Term} depth-first and left-to-right.
 
-\texttt{term\_variables(Term, List, Tail)} is a difference-list version of
-the above predicate, i.e. \texttt{Tail} is the tail of the variable-list
-\texttt{List}.
+\texttt{term\_variables(Term, List, Tail)} is a difference-list version of the above predicate, i.e. \texttt{Tail} is the tail of the variable-list \texttt{List}.
 
 \begin{PlErrors}
 
@@ -555,65 +553,6 @@ shall thus be reserved to protect critical predicates against cyclic terms.
 \Portability
 
 ISO predicate.
-
-\subsubsection{\texttt{term\_hash/4},
-            \texttt{term\_hash/2}}
-\label{term-hash/4}
-   \AddPBD{term\_hash/4}
-   \AddPBD{term\_hash/2}
-
-\begin{TemplatesOneCol}
-term\_hash(?term, +integer, +integer, ?integer) \\
-term\_hash(?term, ?integer)
-
-\end{TemplatesOneCol}
-
-\Description
-
-\texttt{term\_hash(Term, Depth, Range, Hash)} succeeds if \texttt{Hash} is
-the \Idx{hash code} of \texttt{Term}. If \texttt{Term} is not ground (see
-\texttt{ground/1} \RefSP{var/1}), the predicate simply succeeds
-(\texttt{Hash} is not unified). \texttt{Depth} is the depth limit to scan
-\texttt{Term} (starting from 1 for the top-level term). With \texttt{Depth} =
-0 nothing is hashed, with 1 only atomic terms and the main functors/arity are
-hashed,... With \texttt{Depth} = -1 the full term is considered.
-
-The hash code is as follows: $0 \leq$ \texttt{Hash} $<$ \texttt{Range}. If \texttt{Range} = 0 then
-\texttt{Hash} is not restricted (currently it is $<$ 268435456).
-
-\texttt{term\_hash(Term, Hash)} is equivalent to \texttt{term\_hash(Term, -1, 0, Hash)}.
-
-NB: the computed hash code is independent of any runtime context (i.e. it is
-constant across different executions). It is also independent on the
-underlying machine.
-
-These predicates are useful to implement hash tables or argument indexing.
-
-\begin{PlErrors}
-
-\ErrCond{\texttt{Depth} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{Depth} is neither a variable nor an integer}
-\ErrTerm{type\_error(integer, Depth)}
-
-\ErrCond{\texttt{Range} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{Range} is neither a variable nor an integer}
-\ErrTerm{type\_error(integer, Range)}
-
-\ErrCond{\texttt{Range} is an integer $<$ 0}
-\ErrTerm{domain\_error(not\_less\_than\_zero, Range)}
-
-\ErrCond{\texttt{Hash} is neither a variable nor an integer}
-\ErrTerm{type\_error(integer, Hash)}
-
-\end{PlErrors}
-
-\Portability
-
-GNU Prolog predicate.
 
 \subsubsection{\texttt{setarg/4},
                \texttt{setarg/3}}
@@ -2311,7 +2250,7 @@ otherwise.
 \ErrTerm{type\_error(list, Options)}
 
 \ErrCond{\texttt{Stream} is not a variable}
-\ErrTerm{uninstantiation\_error(Stream)}
+\ErrTerm{type\_error(variable, Stream)}
 
 \ErrCond{\texttt{SourceSink} is neither a variable nor a source/sink}
 \ErrTerm{domain\_error(source\_sink, SourceSink)}
@@ -3339,7 +3278,7 @@ character code list \texttt{Codes}.
 \begin{PlErrors}
 
 \ErrCond{\texttt{Stream} is not a variable}
-\ErrTerm{uninstantiation\_error(Stream)}
+\ErrTerm{type\_error(variable, Stream)}
 
 \ErrCond{\texttt{Atom} is a variable}
 \ErrTerm{instantiation\_error}
@@ -3464,7 +3403,7 @@ character code list.
 \begin{PlErrors}
 
 \ErrCond{\texttt{Stream} is not a variable}
-\ErrTerm{uninstantiation\_error(Stream)}
+\ErrTerm{type\_error(variable, Stream)}
 
 \end{PlErrors}
 
@@ -6674,12 +6613,52 @@ list \texttt{Codes} is an integer but not a character code}
 
 GNU Prolog predicate.
 
-\subsubsection{\texttt{new\_atom/2},
+\subsubsection{\texttt{atom\_hash/2}}
+\label{atom-hash/2}
+   \AddPBD{atom\_hash/2}
+
+\begin{TemplatesOneCol}
+atom\_hash(+atom, ?integer)\\
+atom\_hash(?atom, +integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{atom\_hash(Atom, Hash)} succeeds if \texttt{Hash} is the internal
+key associated with \texttt{Atom} (an existing atom). The internal key of an
+atom is a unique integer $\geq$ 0 and $<$ to the \IdxPF{max\_atom}
+\Idx{Prolog flag} \RefSP{set-prolog-flag/2}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Atom} and \texttt{Hash} are both variables}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Atom} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, Atom)}
+
+\ErrCond{\texttt{Hash} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Hash)}
+
+\ErrCond{\texttt{Hash} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Hash)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\texttt{new\_atom/3},
+               \texttt{new\_atom/2},
                \texttt{new\_atom/1}}
+   \AddPBD{new\_atom/3}
    \AddPBD{new\_atom/2}
    \AddPBD{new\_atom/1}
 
 \begin{TemplatesOneCol}
+new\_atom(+atom, +integer, -atom)\\
 new\_atom(+atom, -atom)\\
 new\_atom(-atom)
 
@@ -6687,27 +6666,40 @@ new\_atom(-atom)
 
 \Description
 
-\texttt{new\_atom(Prefix, Atom)} unifies \texttt{Atom} with a new atom
-whose name begins with the characters of the name of \texttt{Prefix}. 
-This predicate is then a symbol generator. It is guaranteed that \texttt{Atom} does not exist
+\texttt{new\_atom(Prefix, Hash, Atom)} unifies \texttt{Atom} with a new atom
+whose name begins with the characters of the name of \texttt{Prefix} and
+whose internal key is \texttt{Hash} \RefSP{atom-hash/2}. This predicate is
+then a symbol generator. It is guaranteed that \texttt{Atom} does not exist
 before the invocation of \texttt{new\_atom/3}. The characters appended to
 \texttt{Prefix} to form \texttt{Atom} are in: \texttt{A}-\texttt{Z} (capital
-letter), \texttt{a}-\texttt{z} (small letter) and \texttt{0}-\texttt{9}
-(digit).
+letter), \texttt{a}-\texttt{z} (small letter), \texttt{0}-\texttt{9}
+(digit), \texttt{\#}, \texttt{\$}, \texttt{\&}, \texttt{\_}, \texttt{@}.
 
-\texttt{new\_atom/1} is similar to \texttt{new\_atom(term\_, Atom)}, i.e.
-the generated atom begins with \texttt{term\_}.
+\texttt{new\_atom/2} is similar to \texttt{new\_atom/3}, but the atom
+generated can have any (free) internal key.
+
+\texttt{new\_atom/1} is similar to \texttt{new\_atom(atom\_, Atom)}, i.e.
+the generated atom begins with \texttt{atom\_}.
 
 \begin{PlErrors}
 
 \ErrCond{\texttt{Prefix} is a variable}
 \ErrTerm{instantiation\_error}
 
+\ErrCond{\texttt{Hash} is a variable}
+\ErrTerm{instantiation\_error}
+
 \ErrCond{\texttt{Prefix} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, Prefix)}
 
+\ErrCond{\texttt{Hash} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Hash)}
+
+\ErrCond{\texttt{Hash} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Hash)}
+
 \ErrCond{\texttt{Atom} is not a variable}
-\ErrTerm{uninstantiation\_error(Atom)}
+\ErrTerm{type\_error(variable, Atom)}
 
 \end{PlErrors}
 
@@ -6765,8 +6757,8 @@ predicate is re-executable on backtracking.
 \item \IdxPPD[length]{length(Length)}: \texttt{Length} is the length of the
 name of the atom.
 
-\item \IdxPPD[hash]{hash(Hash)}: \texttt{Hash} is the \Idx{hash code} of the
-atom, see also \texttt{term\_hash/2} \RefSP{term-hash/4}.
+\item \IdxPPD[hash]{hash(Hash)}: \texttt{Hash} is the internal key of the
+atom \RefSP{atom-hash/2}.
 
 \item \IdxPPD{prefix\_op}: if there is a prefix operator currently defined
 with this name.
@@ -8433,7 +8425,6 @@ GNU Prolog predicate.
 
 \subsubsection{\texttt{statistics/0},
                \texttt{statistics/2}}
-\label{statistics/2}
    \AddPBD{statistics/0}
    \AddPBD{statistics/2}
 
@@ -8492,11 +8483,6 @@ SinceLast]} \\
 
 \texttt{cstr\_stack} & constraint trail sizes (finite domain constraints) &
 \texttt{[UsedSize, FreeSize]} \\
-
-\hline
-
-\texttt{atoms} & atom table &
-\texttt{[NumberOfAtoms, FreeNumberOfAtoms]} \\
 
 \hline
 \end{tabular}
@@ -8648,7 +8634,7 @@ number such that 0.0 $\leq$ \texttt{Number} $<$ 1.0.
 \begin{PlErrors}
 
 \ErrCond{\texttt{Number} is not a variable}
-\ErrTerm{uninstantiation\_error(Number)}
+\ErrTerm{type\_error(variable, Number)}
 
 \end{PlErrors}
 
@@ -8686,7 +8672,7 @@ integer, otherwise \texttt{Number} will be a floating point number.
 \ErrTerm{type\_error(number, Max)}
 
 \ErrCond{\texttt{Number} is not a variable}
-\ErrTerm{uninstantiation\_error(Number)}
+\ErrTerm{type\_error(variable, Number)}
 
 \end{PlErrors}
 
@@ -8761,47 +8747,6 @@ the desired file, e.g. \texttt{open/4}.
 \Portability
 
 GNU Prolog predicate.
-
-\subsubsection{\texttt{is\_absolute\_file\_name/1},
-               \texttt{is\_relative\_file\_name/1}}
-   \AddPBD{is\_absolute\_file\_name/1}
-   \AddPBD{is\_relative\_file\_name/1}
-
-\begin{TemplatesOneCol}
-is\_absolute\_file\_name(+atom)\\
-is\_relative\_file\_name(+atom)
-
-\end{TemplatesOneCol}
-
-\Description
-
-\texttt{is\_absolute\_file\_name(PathName)} succeeds if \texttt{PathName} is
-an absolute file name. 
-
-Conversely, \texttt{is\_relative\_file\_name(PathName)} succeeds if
-\texttt{PathName} is not an absolute file name.
-
-See \IdxPB{absolute\_file\_name/2} for information about the syntax of
-\texttt{PathName} \RefSP{absolute-file-name/2}.
-
-The current implementation does not check the validity of
-\texttt{PathName}. If \texttt{PathName} starts with a \texttt{/} (slash) it
-is considered as absolute. Under Windows, \texttt{PathName} can also start
-with a \texttt{{\bs}} (backslash) or a drive specification.
-
-\begin{PlErrors}
-
-\ErrCond{\texttt{PathName} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{PathName} is neither a variable nor an atom}
-\ErrTerm{type\_error(atom, PathName)}
-
-\end{PlErrors}
-
-\Portability
-
-GNU Prolog predicates.
 
 \subsubsection{\texttt{decompose\_file\_name/4}}
    \AddPBD{decompose\_file\_name/4}
@@ -9795,7 +9740,7 @@ This predicate is an interface to the C Unix function \texttt{popen(3)}.
 \ErrTerm{domain\_error(io\_mode, Mode)}
 
 \ErrCond{\texttt{Stream} is not a variable}
-\ErrTerm{uninstantiation\_error(Stream)}
+\ErrTerm{type\_error(variable, Stream)}
 
 \ErrCond{an operating system error occurs and the value of the
 \texttt{os\_error} Prolog flag is \texttt{error}
