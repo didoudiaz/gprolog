@@ -99,7 +99,7 @@ distclean: clean-full
 clean-all: distclean
 	rm -f $(DVINAME) $(PDFNAME) $(PSNAME) $(CHMNAME)
 	rm -f $(HTMLNAME) html_node/$(PREFIX)*.html html_node/index.html
-	(cd html_node ; rm -f *.hhc *.hhk *.css *.hrf *.gif *.html)
+	(cd html_node ; rm -f *.hhc *.hhk *.css *.hrf *_motif.gif *.html)
 
 clean-aux:
 	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf
