@@ -1,0 +1,13 @@
+Makefile
+gp_config.h
+gprolog_cst.h
+cpp_headers
+pl_config
+try_sigaction
+DO_CPP_HEADERS
+test_oc
+MMAP.c
+TEST_CTRLC.c
+TIME_MEASURE.c
+GCC_CHAIN_OBJ.c
+
