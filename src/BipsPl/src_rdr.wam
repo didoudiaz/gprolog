@@ -2,7 +2,7 @@
 % file    : src_rdr.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/src_rdr.pl').
+file_name('/home/diaz/GP/src/BipsPl/src_rdr.pl').
 
 
 predicate('$use_src_rdr'/0,42,static,private,monofile,built_in,[

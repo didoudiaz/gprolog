@@ -2,7 +2,7 @@
 % file    : const_io.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/const_io.pl').
+file_name('/home/diaz/GP/src/BipsPl/const_io.pl').
 
 
 predicate('$use_const_io'/0,42,static,private,monofile,built_in,[

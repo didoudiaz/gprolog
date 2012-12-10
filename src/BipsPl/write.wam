@@ -2,7 +2,7 @@
 % file    : write.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/write.pl').
+file_name('/home/diaz/GP/src/BipsPl/write.pl').
 
 
 predicate('$use_write'/0,42,static,private,monofile,built_in,[

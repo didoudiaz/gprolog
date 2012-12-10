@@ -2,7 +2,7 @@
 % file    : assert.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/assert.pl').
+file_name('/home/diaz/GP/src/BipsPl/assert.pl').
 
 
 predicate('$use_assert'/0,42,static,private,monofile,built_in,[

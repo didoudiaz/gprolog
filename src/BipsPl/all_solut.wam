@@ -2,7 +2,7 @@
 % file    : all_solut.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/all_solut.pl').
+file_name('/home/diaz/GP/src/BipsPl/all_solut.pl').
 
 
 predicate('$use_all_solut'/0,42,static,private,monofile,built_in,[

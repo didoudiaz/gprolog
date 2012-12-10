@@ -2,7 +2,7 @@
 % file    : wam_emit.pl
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/wam_emit.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/wam_emit.pl').
 
 
 predicate(emit_code_init/2,104,static,private,monofile,global,[

@@ -2,7 +2,7 @@
 % file    : oper.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/oper.pl').
+file_name('/home/diaz/GP/src/BipsPl/oper.pl').
 
 
 predicate('$use_oper'/0,42,static,private,monofile,built_in,[

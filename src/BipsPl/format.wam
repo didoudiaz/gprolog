@@ -2,7 +2,7 @@
 % file    : format.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/format.pl').
+file_name('/home/diaz/GP/src/BipsPl/format.pl').
 
 
 predicate('$use_format'/0,42,static,private,monofile,built_in,[

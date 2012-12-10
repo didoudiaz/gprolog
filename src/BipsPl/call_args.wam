@@ -2,7 +2,7 @@
 % file    : call_args.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/call_args.pl').
+file_name('/home/diaz/GP/src/BipsPl/call_args.pl').
 
 
 predicate('$use_call_args'/0,42,static,private,monofile,built_in,[

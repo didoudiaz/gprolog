@@ -2,7 +2,7 @@
 % file    : os_interf.pl
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/os_interf.pl').
+file_name('/home/diaz/GP/src/BipsPl/os_interf.pl').
 
 
 predicate('$use_os_interf'/0,42,static,private,monofile,built_in,[
