@@ -135,10 +135,8 @@ since all Prolog $\leftrightarrow$ C data conversions are implicitly
 achieved. To manipulate complex terms (lists, structures) a set of functions
 is provided. Finally it is also possible to write non-deterministic C code.
 
-\subsubsection{\texttt{foreign/2} directive}
-\label{foreign/2-directive}
-   \AddDiD{foreign/2}
-   \AddDiD{foreign/1}
+\subsubsection{\AddDiD{foreign/1}%
+\IdxDiD{foreign/2} directive \label{foreign/2-directive}}
 
 \texttt{foreign/2} directive \RefSP{foreign/2} declares a C function interface.
 The general form is \texttt{foreign(Template, Options)} which defines an
@@ -152,13 +150,13 @@ which applies. Possible options are:
 
 \begin{itemize}
 
-\item \IdxPOD[fct\_name]{fct\_name(F)}: \texttt{F} is an atom representing
+\item \AddPOD{fct\_name}\texttt{fct\_name(F)}: \texttt{F} is an atom representing
 the name of the C function to call. By default the name of the C function is
 the same as the principal functor of \texttt{Template}. In any case, the atom
 associated with the name of the function must conforms to the syntax of C
 identifiers.
 
-\item \IdxPOD[return]{return(boolean}/\texttt{none}/\texttt{jump)}:
+\item \AddPOD{return}\texttt{return(boolean}/\texttt{none}/\texttt{jump)}:
 specifies the value returned by the C function:
 
 \begin{itemize}
@@ -176,7 +174,7 @@ the address of a Prolog code to execute).
 
 The default value is \texttt{boolean}.
 
-\item \IdxPOD[bip\_name]{bip\_name(Name, Arity)}: initializes the error
+\item \AddPOD{bip\_name}\texttt{bip\_name(Name, Arity)}: initializes the error
 context with \texttt{Name} and \texttt{Arity}. If an error occurs this
 information is used to indicate from which predicate the error occurred
 \RefSP{General-format-and-error-context}. It is also possible to prevent the
@@ -184,7 +182,7 @@ initialization of the error context using \texttt{bip\_name(none)}. By
 default \texttt{Name} and \texttt{Arity} are set to the functor and arity of
 \texttt{Template}.
 
-\item \IdxPOD[choice\_size]{choice\_size(N)}: this option specifies that the
+\item \AddPOD{choice\_size}\texttt{choice\_size(N)}: this option specifies that the
 function implements a non-deterministic code. \texttt{N} is an integer
 specifying the size needed by the non-deterministic C function. This facility
 is explained later \RefSP{Writing-non-deterministic-C-code}. By default a
@@ -464,7 +462,7 @@ allows the function to detect its first call. When writing non-deterministic
 code, it is often useful to record data between consecutive re-invocations of
 the function. The interface maintains a buffer to record such an
 information. The size of this buffer is given by
-\IdxPO[choice\_size]{choice\_size(N)} when using \texttt{foreign/2}
+\AddPO{choice\_size}\texttt{choice\_size(N)} when using \texttt{foreign/2}
 \RefSP{foreign/2-directive}. This size is the number of (consecutive)
 \texttt{PlLong}\emph{s} needed by the C function. Inside the function it is
 possible to call the following functions/macros:

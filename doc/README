@@ -149,3 +149,61 @@ sub-statement:
 Index file (.hhk)
 Index files have same format as contents file except that ID params are ignored.
 
+
+
+HEVEA SPECIFIC
+
+In LaTeX the \index{word} refers the current section no. 
+Classically we have \section{section title} ... \index{word}.
+
+In HeVeA the corresponding HTML anchor is defined at the position the
+\index{word} appears. This is a problem if we want to associate an index to
+(a word appearing in) a section title. Clicking on the 'word' in the HTML
+index will show the page starting from 'word' and not from the section title
+(which is hidden).  
+
+Previously we tried to reference the section for anchors in the index using
+this in custom.hva:
+
+%To get index citations that point to section titles
+%this comes from /usr/lib/hevea/makeidx.hva
+%NB: no longer works in HeVeA 2.0 !!! 
+%
+%\usepackage{makeidx}
+%\renewcommand{\index}[1]
+%{\if@refs\@saveclosed%
+%\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
+%\@restoreclosed\fi}
+
+However this no longer works in HeVeA 2.0. The solution consisted in writing
+\section{...\index{...}...}. NB: LaTeX removes \index (and \label) when
+generating the TOC (see addcontentsline in file .toc).  Using macros is OK
+but not \if in macros (else they are not expansed and the \index will appear
+in the TOC resulting in a wrong index (TOC lines referenced).
+If the \if is really necessary the are 2 other possibilities:
+
+1) deactivate the macro(s) appearing in the \section whose expansion give a \index
+before the table of contents and reactivate after. E.g., (let us suppose it is IdxPBD):
+
+let\saveIdxPBD=\IdxPBD
+\renewcommand{\IdxPBD}[1] {\texttt{#1}}
+\tableofcontents
+\let\IdxPBD=\saveIdxPBD
+
+
+2) Define a macro to emit such a subsection (e.g., let us suppose it is as subsubsection)
+with 2 args: the section title and the index entry/ies. For LaTeX, define \section and then \index.
+For HeVeA do the reverse: \index and then \section
+
+
+in macros.tex:
+\newcommand{\SSSect}[2]{\subsubsection{#1}#2}
+
+
+and in custom.hva
+\newcommand{\SSSect}[2]{#2\subsubsection{#1}}
+
+Use as follows:
+
+\SSSect{\texttt{var/1}, \texttt{nonvar/1}} {\AddPBD{var/1} \AddPBD{nonvar/1}}
+

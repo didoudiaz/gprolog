@@ -45,14 +45,13 @@ identifier (i.e. the invocation number).
 
 \subsection{Debugging predicates}
 
-\subsubsection{Running and stopping the debugger}
-\label{Running-and-stopping-the-debugger}
-   \AddDBD{trace/0}
-   \AddDBD{debug/0}
-   \AddDBD{debugging/0}
-   \AddDBD{notrace/0}
-   \AddDBD{nodebug/0}
-   \AddDBD{wam\_debug/0}
+\subsubsection{\AddDBD{trace/0}%
+\AddDBD{debug/0}%
+\AddDBD{debugging/0}%
+\AddDBD{notrace/0}%
+\AddDBD{nodebug/0}%
+\AddDBD{wam\_debug/0}%
+Running and stopping the debugger \label{Running-and-stopping-the-debugger}}
 
 \texttt{trace/0} activates the debugger. The next invocation of a predicate
 will be traced.
@@ -79,9 +78,9 @@ ports, spy-points defined,\ldots).
 structures \RefSP{The-WAM-debugger}. It can be also invoked using the
 \texttt{W} debugger command \RefSP{Debugger-commands}.
 
-\subsubsection{Leashing ports}
-\label{Leashing-ports}
-   \AddDBD{leash/1}
+\subsubsection{\AddDBD{leash/1}%
+Leashing ports \label{Leashing-ports}}
+   
 
 \texttt{leash(Ports)} requests the debugger to prompt the user, as
 he creeps through the program, for every port defined in the \texttt{Ports}
@@ -108,12 +107,12 @@ exception]}
 When an unleashed port is encountered the debugger continues to show the
 associated goal but does not stop the execution to prompt the user.
 
-\subsubsection{Spy-points}
-\label{Spy-points}
-   \AddDBD{spy/1}
-   \AddDBD{nospy/1}
-   \AddDBD{nospyall/0}
-   \AddDBD{spypoint\_condition/3}
+\subsubsection{%
+\AddDBD{spy/1}%
+\AddDBD{nospy/1}%
+\AddDBD{nospyall/0}%
+\AddDBD{spypoint\_condition/3}%
+Spy-points \label{Spy-points}}
 
 When dealing with big sources it is not very practical to creep through the
 entire program. It is preferable to define a set of spy-points on

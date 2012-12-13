@@ -117,17 +117,17 @@ order of appearance) before all entry goals and all entry goals are executed
 before all query goals.
 
 Each \Param{GOAL} is passed as a shell argument (i.e. one shell string) and
-should not contain a terminal dot. Example:
-\texttt{--init-goal 'write(hello), nl'} under a sh-like.
-To be executed, a \Param{GOAL} is transformed into a term using
-\IdxPB[read\_term\_from\_atom/3]
-{read\_term\_from\_atom(Goal, Term, [end\_of\_term(eof)])}. Respecting both
-the syntax of shell strings and of Prolog can be heavy. For
-instance, passing a backslash character \texttt{{\bs}} can be difficult
-since it introduces an \Idx{escape sequence} both in sh and inside Prolog
-quoted atoms. The use of back quotes can then be useful since, by default, no
-escape sequence is processed inside back quotes (this behavior can be
-controlled using the \IdxPF{back\_quotes} \Idx{Prolog flag} \RefSP{set-prolog-flag/2}).
+should not contain a terminal dot. Example: \texttt{--init-goal
+  'write(hello), nl'} under a sh-like.  To be executed, a \Param{GOAL} is
+transformed into a term using
+\AddPB{read\_term\_from\_atom/3}\texttt{read\_term\_from\_atom(Goal, Term,
+  [end\_of\_term(eof)])}. Respecting both the syntax of shell strings and of
+Prolog can be heavy. For instance, passing a backslash character
+\texttt{{\bs}} can be difficult since it introduces an \Idx{escape sequence}
+both in sh and inside Prolog quoted atoms. The use of back quotes can then be
+useful since, by default, no escape sequence is processed inside back quotes
+(this behavior can be controlled using the \IdxPF{back\_quotes} \Idx{Prolog
+  flag} \RefSP{set-prolog-flag/2}).
 
 
 Since the Prolog argument list is created when the whole command-line is
@@ -273,8 +273,8 @@ variable name \texttt{A} is introduced)}
 
 The top-level uses variable binding predicates \RefSP{Variable-naming/numbering}. To display the value of a variable, the top-level calls
 \IdxPB{write\_term/3} with the following option list:
-\texttt{[\IdxPO[quoted]{quoted(true)},\IdxPO[numbervars]{numbervars(false)},
-\IdxPO[namevars]{namevars(true)}]} \RefSP{write-term/3}. A term of the
+\texttt{[\AddPO{quoted}\texttt{quoted(true)},\AddPO{numbervars}\texttt{numbervars(false)},
+\AddPO{namevars}\texttt{namevars(true)}]} \RefSP{write-term/3}. A term of the
 form \texttt{'\$VARNAME'(Name)} where \texttt{Name} is an atom is displayed
 as a variable name while a term of the form \texttt{'\$VAR'(N)} where
 \texttt{N} is an integer is displayed as a normal compound term (such a term

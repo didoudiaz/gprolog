@@ -20,9 +20,7 @@ changeable Prolog flags).
 
 \end{itemize}
 
-\subsubsection{\texttt{dynamic/1}}
-\label{dynamic/1}
-   \AddDiD{dynamic/1}
+\subsubsection{\IdxDiD{dynamic/1} \label{dynamic/1}}
 
 \begin{TemplatesOneCol}
 dynamic(+predicate\_indicator)\\
@@ -54,9 +52,7 @@ predicate indicators or a sequence of predicate indicators using
 
 ISO directive.
 
-\subsubsection{\texttt{public/1}}
-\label{public/1}
-   \AddDiD{public/1}
+\subsubsection{\IdxDiD{public/1} \label{public/1}}
 
 \begin{TemplatesOneCol}
 public(+predicate\_indicator)\\
@@ -91,8 +87,7 @@ predicate is only visible from predicates defined in the same source file as
 itself). When a module system is incorporated in GNU Prolog a more general
 visibility declaration shall be provided conforming to the ISO reference.
 
-\subsubsection{\texttt{multifile/1}}
-   \AddDiD{multifile/1}
+\subsubsection{\IdxDiD{multifile/1}}
 
 \begin{TemplatesOneCol}
 multifile(+predicate\_indicator)\\
@@ -112,8 +107,7 @@ supported by GNU Prolog since version 1.4.0.
 
 ISO directive.
 
-\subsubsection{\texttt{discontiguous/1}}
-   \AddDiD{discontiguous/1}
+\subsubsection{\IdxDiD{discontiguous/1}}
 
 \begin{TemplatesOneCol}
 discontiguous(+predicate\_indicator)\\
@@ -147,8 +141,7 @@ which invokes it (external call only invoke the monofile wrapper predicate).
 
 ISO directive. 
 
-\subsubsection{\texttt{ensure\_linked/1}}
-   \AddDiD{ensure\_linked/1}
+\subsubsection{\IdxDiD{ensure\_linked/1}}
 
 \begin{TemplatesOneCol}
 ensure\_linked(+predicate\_indicator)\\
@@ -177,14 +170,10 @@ predicate indicators or a sequence of predicate indicators using
 
 GNU Prolog directive.
 
-\subsubsection{\texttt{built\_in/0},
-               \texttt{built\_in/1},
-               \texttt{built\_in\_fd/0},
-               \texttt{built\_in\_fd/1}}
-   \AddDiD{built\_in/0}
-   \AddDiD{built\_in/1}
-   \AddDiD{built\_in\_fd/0}
-   \AddDiD{built\_in\_fd/1}
+\subsubsection{\IdxDiD{built\_in/0},
+               \IdxDiD{built\_in/1},
+               \IdxDiD{built\_in\_fd/0},
+               \IdxDiD{built\_in\_fd/1}}
 
 \begin{TemplatesOneCol}
 built\_in\\
@@ -222,8 +211,7 @@ predicate indicators or a sequence of predicate indicators using
 
 GNU Prolog directives.
 
-\subsubsection{\texttt{include/1}}
-   \AddDiD{include/1}
+\subsubsection{\IdxDiD{include/1}}
 
 \begin{TemplatesOneCol}
 include(+atom)
@@ -249,11 +237,7 @@ See \IdxPB{absolute\_file\_name/2} for information about the syntax of
 
 ISO directive.
 
-\subsubsection{\texttt{if/1}, \texttt{else/0}, \texttt{endif/0}, \texttt{elif/1} }
-   \AddDiD{if/1}
-   \AddDiD{else/0}
-   \AddDiD{endif/0}
-   \AddDiD{elif/1}
+\subsubsection{\IdxDiD{if/1}, \IdxDiD{else/0}, \IdxDiD{endif/0}, \IdxDiD{elif/1} }
 
 \begin{TemplatesOneCol}
 if(+callable\_term) \\
@@ -283,8 +267,7 @@ and \texttt{Goal} fails.
 GNU Prolog directive. Also in SWI and YAP.
 
 
-\subsubsection{\texttt{ensure\_loaded/1}}
-   \AddDiD{ensure\_loaded/1}
+\subsubsection{\IdxDiD{ensure\_loaded/1}}
 
 \begin{TemplatesOneCol}
 ensure\_loaded(+atom)
@@ -300,9 +283,7 @@ directive is encountered it is simply ignored.
 
 ISO directive. Not supported.
 
-\subsubsection{\texttt{op/3}}
-\label{op/3}
-   \AddDiD{op/3}
+\subsubsection{\IdxDiD{op/3} \label{op/3}}
 
 \begin{TemplatesOneCol}
 op(+integer, +operator\_specifier, +atom\_or\_atom\_list)
@@ -321,8 +302,7 @@ run-time \RefSP{Running-an-executable}.
 
 ISO directive.
 
-\subsubsection{\texttt{char\_conversion/2}}
-   \AddDiD{char\_conversion/2}
+\subsubsection{\IdxDiD{char\_conversion/2}}
 
 \begin{TemplatesOneCol}
 char\_conversion(+character, +character)
@@ -341,8 +321,7 @@ the effect of this directive at run-time \RefSP{Running-an-executable}.
 
 ISO directive.
 
-\subsubsection{\texttt{set\_prolog\_flag/2}}
-   \AddDiD{set\_prolog\_flag/2}
+\subsubsection{\IdxDiD{set\_prolog\_flag/2}}
 
 \begin{TemplatesOneCol}
 set\_prolog\_flag(+flag, +term)
@@ -362,9 +341,7 @@ is also generated to reflect the effect of this directive at run-time
 
 ISO directive.
 
-\subsubsection{\texttt{initialization/1}}
-\label{initialization/1}
-   \AddDiD{initialization/1}
+\subsubsection{\IdxDiD{initialization/1} \label{initialization/1}}
 
 \begin{TemplatesOneCol}
 initialization(+callable\_term)
@@ -383,11 +360,8 @@ the same file they are executed in the order of appearance
 
 ISO directive.
 
-\subsubsection{\texttt{foreign/2},
-               \texttt{foreign/1}}
-\label{foreign/2}
-   \AddDiD{foreign/2}
-   \AddDiD{foreign/1}
+\subsubsection{\IdxDiD{foreign/2},
+               \IdxDiD{foreign/1} \label{foreign/2}}
 
 \begin{TemplatesOneCol}
 foreign(+callable\_term, +foreign\_option\_list)\\
@@ -413,13 +387,9 @@ GNU Prolog directive.
 
 GNU Prolog follows the ISO notion of \Idx{control constructs}. 
 
-\subsubsection{\texttt{true/0},
-               \texttt{fail/0},
-               \texttt{!/0}}
-\label{true/0}
-   \AddCCD{true/0}
-   \AddCCD{fail/0}
-   \AddCCD{"!/0}
+\subsubsection{\IdxCCD{true/0},
+               \IdxCCD{fail/0},
+               \AddCCD{"!/0}\texttt{!/0} \label{true/0}} % Pb with ! in \index with HeVeA
 
 \begin{TemplatesOneCol}
 true\\
@@ -443,14 +413,10 @@ choice-points created since the invocation of the predicate activating it.
 
 ISO control constructs.
 
-\subsubsection{\texttt{(',')/2} - conjunction,
-               \texttt{(;)/2} - disjunction,
-               \texttt{(-{\gt})/2} - if-then,
-               \texttt{(*-{\gt})/2} - soft-cut (soft if-then)}
-   \AddCCD{(',')/2}
-   \AddCCD{(;)/2}
-   \AddCCD{(-{\gt})/2}
-   \AddCCD{(*-{\gt})/2}
+\subsubsection{\IdxCCD{(',')/2} - conjunction,
+               \IdxCCD{(;)/2} - disjunction,
+               \IdxCCD{(-{\gt})/2} - if-then, 
+               \IdxCCD{(*-{\gt})/2} - soft-cut (soft if-then)}
 
 \begin{TemplatesOneCol}
 ','(+callable\_term, +callable\_term)\\
@@ -516,9 +482,7 @@ the \texttt{unknown} Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 ISO control constructs except \texttt{(*-{\gt})/2} which is GNU Prolog specific.
 
-\subsubsection{\texttt{call/1}}
-\label{call/1}
-   \AddCCD{call/1}
+\subsubsection{\IdxCCD{call/1} \label{call/1}}
 
 \begin{TemplatesOneCol}
 call(+callable\_term)
@@ -529,7 +493,7 @@ call(+callable\_term)
 
 \texttt{call(Goal)} executes \texttt{Goal}. \texttt{call/1} succeeds if
 \texttt{Goal} represents a goal which is true. When \texttt{Goal} contains a
-cut symbol \IdxCC["!/0]{!} \RefSP{true/0} as a subgoal, the effect of
+cut symbol \AddCC{"!/0}\texttt{!} \RefSP{true/0} as a subgoal, the effect of
 \texttt{!} does not extend outside \texttt{Goal}.
 
 \begin{PlErrors}
@@ -551,11 +515,8 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 ISO control construct.
 
-\subsubsection{\texttt{catch/3},
-               \texttt{throw/1}}
-\label{catch/3}
-   \AddCCD{catch/3}
-   \AddCCD{throw/1}
+\subsubsection{\IdxCCD{catch/3},
+               \IdxCCD{throw/1} \label{catch/3}}
 
 \begin{TemplatesOneCol}
 catch(?callable\_term, ?term, ?term)\\
