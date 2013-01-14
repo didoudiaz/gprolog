@@ -44,7 +44,8 @@ Here is the instruction encoding
      PUT_NIL		   | ------- | x  | op |
      PUT_LIST		   | ------- | x  | op |
      PUT_STRUCTURE	   | arity   | x  | op | | fun32  |
-			    	        	     
+     PUT_META_TERM	   | x       | x  | op | | cst32   |
+
      MATH_LOAD_X_VALUE	   | x       | x  | op |
      MATH_LOAD_Y_VALUE	   | y       | x  | op |
      			    	        	     

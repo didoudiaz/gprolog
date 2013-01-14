@@ -73,107 +73,112 @@ call_det(Goal, Deterministic) :-
 
 
 
+/* Goal the goal to execute
+ * CallerModule is the module where the call comes from (calling module)
+ * CallerFunc/CallerArity: the pred/arity which invoked the call (head of the clause)
+ *     NB: Goal can be of the form '$meta_term'(Offset) providing another CallerModule and Goal
+ *
+ * To be fast a C function is first called: it mainly handles a call to a predicate
+ * (and some simple control constructs).
+ *
+ * For more complex constructs it calls (via return) '$call_complex'
+ * It has set bip_name to CallerFunc/CallerArity.
+ * CallInfo is dereferenced
+ * QualifModule the module qualification of a goal (default: same as CallerModule)
+ */
 
-'$call'(Goal, Func, Arity, DebugCall) :-
-	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
-	'$call1'(Goal, 0).
-
-'$call1'(Goal, CallInfo) :-
-	'$call_c'('Pl_Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
-	'$call_internal'(Goal, CallInfo).
-
-'$call_internal'(Goal, CallInfo) :-
-	'$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
-	(   var(Goal) ->
-	    '$pl_err_instantiation'
-	;   true
-	),
-	'$term_to_goal'(Goal, CallInfo, Goal1),
-	'$call_internal1'(Goal1, CallInfo).
+'$call'(Goal, CallerModule, CallerFunc, CallerArity, DebugCall) :-
+	'$call_c_jump'('Pl_BC_Call_Initial_5'(Goal, CallerModule, CallerFunc, CallerArity, DebugCall)).
 
 
-'$call_internal1'(Goal, CallInfo) :-
-	'$get_cut_level'(VarCut),         % must be the first goal (A(2)=cut)
-	'$call_internal_with_cut'(Goal, CallInfo, VarCut).
+				% here we know Goal is not a variable (checked by Pl_BC_Call_Initial_4) 
+'$call_complex'(Goal, CallerModule, QualifModule, CallInfo) :-
+ 	'$term_to_goal'(Goal, CallInfo, CallerModule, QualifModule, Goal1),
+	'$call_internal'(Goal1, CallerModule, CallInfo).
+ 	
+
+'$call_internal'(Goal, CallerModule, CallInfo) :-
+	'$get_cut_level'(VarCut),         % must be the first goal (A(arity)=cut)
+	'$call_internal_with_cut'(Goal, CallerModule, CallInfo, VarCut).
 
 
                                     % also called by C code BC_Emulate_Clause
 
-'$call_internal_with_cut'((P, Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P, Q), CallerModule, CallInfo, VarCut) :-
 	!,
-	'$call_internal_with_cut'(P, CallInfo, VarCut),
-	'$call_internal_with_cut'(Q, CallInfo, VarCut).
+	'$call_internal_with_cut'(P, CallerModule, CallInfo, VarCut),
+	'$call_internal_with_cut'(Q, CallerModule, CallInfo, VarCut).
 
-'$call_internal_with_cut'((P ; Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P ; Q), CallerModule, CallInfo, VarCut) :-
 	!,
-	'$call_internal_or'(P, Q, CallInfo, VarCut).
+	'$call_internal_or'(P, Q, CallerModule, CallInfo, VarCut).
 
-'$call_internal_with_cut'(!, _CallInfo, VarCut) :-
+'$call_internal_with_cut'(!, _CallerModule, _CallInfo, VarCut) :-
 % !,                               this cut is useless because '$cut'/1
 	'$cut'(VarCut).
 
-'$call_internal_with_cut'((P -> Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P -> Q), CallerModule, CallInfo, VarCut) :-
 	!,
-	'$call_internal'(P, CallInfo), !,
-	'$call_internal_with_cut'(Q, CallInfo, VarCut).
+	'$call_internal'(P, CallerModule, CallInfo), !,
+	'$call_internal_with_cut'(Q, CallerModule, CallInfo, VarCut).
 
 	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
         % However a cut in the test part (P) should be local to P (as in P -> Q).
-'$call_internal_with_cut'((P *-> Q), CallInfo, VarCut) :-
+'$call_internal_with_cut'((P *-> Q), CallerModule, CallInfo, VarCut) :-
 	!,
-	'$call_internal'(P, CallInfo),
-	'$call_internal_with_cut'(Q, CallInfo, VarCut).
+	'$call_internal'(P, CallerModule, CallInfo),
+	'$call_internal_with_cut'(Q, CallerModule, CallInfo, VarCut).
 
-'$call_internal_with_cut'(fail, _CallInfo, _VarCut) :-
+'$call_internal_with_cut'(fail, _CallerModule, _CallInfo, _VarCut) :-
 	!,
 	fail.
 
-'$call_internal_with_cut'(true, _CallInfo, _VarCut) :-
+'$call_internal_with_cut'(true, _CallerModule, _CallInfo, _VarCut) :-
 	!.
 
-'$call_internal_with_cut'(call(Goal), CallInfo, _VarCut) :-
+'$call_internal_with_cut'(call(Goal), CallerModule, CallInfo, _VarCut) :-
 	!,
-	'$call_internal'(Goal, CallInfo).
+	'$call_internal'(Goal, CallerModule, CallInfo).
 
-'$call_internal_with_cut'(catch(Goal, Catch, Recovery), CallInfo, _VarCut) :-
+'$call_internal_with_cut'(catch(Goal, Catch, Recovery), CallerModule, CallInfo, _VarCut) :-
 	!,
-	'$catch_internal'(Goal, Catch, Recovery, CallInfo).
+	'$catch_internal'(Goal, Catch, Recovery, CallerModule, CallInfo).
 
-'$call_internal_with_cut'(throw(Ball), CallInfo, _VarCut) :-
+'$call_internal_with_cut'(throw(Ball), CallerModule, CallInfo, _VarCut) :-
 	!,
-	'$throw_internal'(Ball, CallInfo).
+	'$throw_internal'(Ball, CallerModule, CallInfo).
 
-'$call_internal_with_cut'(P, CallInfo, _VarCut) :-
-	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_3'(P, CallInfo, 1)).
-
-
+'$call_internal_with_cut'(P, CallerModule, CallInfo, _VarCut) :-
+	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_4'(P, CallerModule, CallInfo, 1)).
 
 
-'$call_internal_or'((P -> Q), R, CallInfo, VarCut) :-
+
+
+'$call_internal_or'((P -> Q), R, CallerModule, CallInfo, VarCut) :-
 	!,
-	(   '$call_internal'(P, CallInfo), !,
-	    '$call_internal_with_cut'(Q, CallInfo, VarCut)
-	;   '$call_internal_with_cut'(R, CallInfo, VarCut)
+	(   '$call_internal'(P, CallerModule, CallInfo), !,
+	    '$call_internal_with_cut'(Q, CallerModule, CallInfo, VarCut)
+	;   '$call_internal_with_cut'(R, CallerModule, CallInfo, VarCut)
 	).
 
-'$call_internal_or'((P *-> Q), R, CallInfo, VarCut) :-
+'$call_internal_or'((P *-> Q), R, CallerModule, CallInfo, VarCut) :-
 	!,
-	(   '$call_internal'(P, CallInfo) *->
-	    '$call_internal_with_cut'(Q, CallInfo, VarCut)
-	;   '$call_internal_with_cut'(R, CallInfo, VarCut)
+	(   '$call_internal'(P, CallerModule, CallInfo) *->
+	    '$call_internal_with_cut'(Q, CallerModule, CallInfo, VarCut)
+	;   '$call_internal_with_cut'(R, CallerModule, CallInfo, VarCut)
 	).
 
-'$call_internal_or'(P, _, CallInfo, VarCut) :-
-	'$call_internal_with_cut'(P, CallInfo, VarCut).
+'$call_internal_or'(P, _, CallerModule, CallInfo, VarCut) :-
+	'$call_internal_with_cut'(P, CallerModule, CallInfo, VarCut).
 
-'$call_internal_or'(_, Q, CallInfo, VarCut) :-
-	'$call_internal_with_cut'(Q, CallInfo, VarCut).
-
-
+'$call_internal_or'(_, Q, CallerModule, CallInfo, VarCut) :-
+	'$call_internal_with_cut'(Q, CallerModule, CallInfo, VarCut).
 
 
-'$call_from_debugger'(Goal, CallInfo) :-
-	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_3'(Goal, CallInfo, 0)).
+
+
+'$call_from_debugger'(Goal, CallerModule, CallInfo) :-
+	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_4'(Goal, CallerModule, CallInfo, 0)).
 
 
 
@@ -186,7 +191,7 @@ forall(Condition, Action) :-
 
 
 '$not'(Goal, Func, Arity) :-
-	(   '$call'(Goal, Func, Arity, true) ->
+	(   '$call'(Goal, user, Func, Arity, true) -> % FIXME CallerModule
 	    fail
 	;   true
 	).

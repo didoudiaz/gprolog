@@ -101,6 +101,7 @@ typedef enum
   PUT_NIL,
   PUT_LIST,
   PUT_STRUCTURE,
+  PUT_META_TERM,
 
   MATH_LOAD_X_VALUE,
   MATH_LOAD_Y_VALUE,
@@ -196,6 +197,10 @@ static int atom_multifile;
 static int atom_built_in;
 static int atom_built_in_fd;
 static int atom_fail;
+static int atom_if_then;
+static int atom_call;
+static int atom_catch;
+static int atom_throw;
 
 static int caller_func;
 static int caller_arity;
@@ -240,8 +245,18 @@ static void Prep_Debug_Call(int func, int arity, int caller_func,
 
 #define CALL_INTERNAL_WITH_CUT     X1_2463616C6C5F696E7465726E616C5F776974685F637574
 
+#define CALL_COMPLEX               X1_2463616C6C5F636F6D706C6578
+
+#define CATCH_INTERNAL             X1_2463617463685F696E7465726E616C
+
+#define THROW_INTERNAL             X1_247468726F775F696E7465726E616C
+
 Prolog_Prototype(BC_EMULATE_CONT, 0);
-Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
+Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 4);
+
+Prolog_Prototype(CALL_COMPLEX, 4);
+Prolog_Prototype(CATCH_INTERNAL, 5);
+Prolog_Prototype(THROW_INTERNAL, 2);
 
 #define BC_Op(w)                   ((w).t1.code_op)
 
@@ -269,6 +284,25 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define Op_In_Tbl(str, op)  BC_Op(*p) = op; BC2_Atom(*p) = Pl_Create_Atom(str); p++
 
+
+
+#if WORD_SIZE == 32
+
+#define Compute_Branch_Adr(bc, codep)   \
+{                                       \
+  codep = (WamCont) (bc->word); bc++;   \
+}
+
+#else
+
+#define Compute_Branch_Adr(bc, codep)     \
+{                                         \
+  cv.u[0] = (unsigned) (bc->word); bc++;  \
+  cv.u[1] = (unsigned) (bc->word); bc++;  \
+  codep = (WamCont) (cv.p);               \
+}
+
+#endif
 
 
 
@@ -300,6 +334,7 @@ Byte_Code_Initializer(void)
   Op_In_Tbl("put_nil", PUT_NIL);
   Op_In_Tbl("put_list", PUT_LIST);
   Op_In_Tbl("put_structure", PUT_STRUCTURE);
+  Op_In_Tbl("put_meta_term", PUT_META_TERM);
   Op_In_Tbl("math_load_value", MATH_LOAD_X_VALUE);
 
   Op_In_Tbl("unify_variable", UNIFY_X_VARIABLE);
@@ -339,6 +374,10 @@ Byte_Code_Initializer(void)
   atom_built_in = Pl_Create_Atom("built_in");
   atom_built_in_fd = Pl_Create_Atom("built_in_fd");
   atom_fail = Pl_Create_Atom("fail");
+  atom_if_then = Pl_Create_Atom("->");
+  atom_call = Pl_Create_Atom("call");
+  atom_catch = Pl_Create_Atom("catch");
+  atom_throw = Pl_Create_Atom("throw");
 }
 
 
@@ -429,7 +468,7 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
 
   pred = Pl_Update_Dynamic_Pred(func, arity, 0, (multi) ? pl_file : -1);
   if (pred == NULL)
-    pred = Pl_Create_Pred(func, arity, pl_file, pl_line, prop, NULL);
+    pred = Pl_Create_Pred_Compat(func, arity, pl_file, pl_line, prop, NULL);
   else
     {
       if (multi)
@@ -623,6 +662,13 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
       break;
 
+    case PUT_META_TERM:
+      nb_word = 2;
+      w1 = Pl_Rd_Atom(*arg_adr++);
+      BC1_X0(w) = Pl_Rd_Integer(*arg_adr++);
+      BC1_XY(w) = Pl_Rd_Integer(*arg_adr);
+      break;
+
     case PUT_VOID:
       BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
       break;
@@ -683,7 +729,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case EXECUTE:
       w1 = func = BC_Arg_Func_Arity(*arg_adr++, &arity);
       BC2_Arity(w) = arity;
-      pred = Pl_Lookup_Pred(func, arity);
+      pred = Pl_Lookup_Pred_Compat(func, arity);
       if (pred && (pred->prop & MASK_PRED_NATIVE_CODE))
 	{
 	  op++;
@@ -824,39 +870,38 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
- * PL_BC_CALL_TERMINAL_PRED_3                                              *
+ * EXECUTE_PRED                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-WamCont
-Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
-			WamWord first_call_word)
+static WamCont
+Execute_Pred(int func, int arity, WamWord *arg_adr, 
+	     int caller_module, int qualif_module,
+	     WamWord call_info_word)
 {
-  int func, arity;
-  WamWord *arg_adr;
   PredInf *pred;
+  WamWord word;  
   int i;
 
-  arg_adr = Pl_Rd_Callable_Check(pred_word, &func, &arity);
-
-  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
-
-  if (pl_debug_call_code != NULL && debug_call &&
-      (first_call_word & (1 << TAG_SIZE_LOW)))
-    {
-      A(0) = pred_word;
-      A(1) = call_info_word;
-      return pl_debug_call_code;
-    }
-
-  pred = Pl_Lookup_Pred(func, arity);
+  pred = Pl_Lookup_Pred(qualif_module, func, arity);
   if (pred == NULL)
     {				/* case: fail/0 from '$call_from_debugger' */
       if (func != atom_fail || arity != 0)
 	{
 	  Pl_Call_Info_Bip_Name_1(call_info_word);
-	  Pl_Unknown_Pred_Error(func, arity);
+	  Pl_Unknown_Pred_Error(func, arity); /* TODO: pass qualif_module */
 	}
       return ALTB(B);		/* i.e. fail */
+    }
+
+  if (qualif_module != caller_module && !(pred->prop & MASK_PRED_EXPORTED))
+    {
+      word = Pl_Put_Structure(ATOM_CHAR(':'), 2);
+      Pl_Unify_Atom(qualif_module);
+      Pl_Unify_Structure(ATOM_CHAR('/'), 2);
+      Pl_Unify_Atom(func);
+      Pl_Unify_Integer(arity);
+      Pl_Err_Permission(pl_permission_operation_execute, 
+                        pl_permission_type_non_exported_procedure, word);                        
     }
 
   for (i = 0; i < arity; i++)
@@ -866,6 +911,162 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
     return (WamCont) (pred->codep);
 
   return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BC_CALL_INITIAL                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+
+
+/* called by '$call'/5 */
+
+WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word, 
+			     WamWord caller_func_word, WamWord caller_arity_word,
+			     WamWord debug_call_word)
+
+{
+  int caller_module = Pl_Rd_Atom(caller_module_word);
+  int qualif_module = caller_module;
+  int qualif_module_orig = qualif_module;
+  WamWord call_info_word = Tag_INT(Pl_Make_Call_Info(caller_func_word, caller_arity_word, debug_call_word));
+  int func, arity;
+  WamWord *arg_adr;
+
+
+  Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
+
+ terminal_rec:
+
+  arg_adr = Pl_Rd_Callable_Check(pred_word, &func, &arity);
+
+  /* treat control constructs */
+
+  switch(arity)
+    {
+    case 0:
+      if (func == atom_fail)
+	return ALTB(B);		/* i.e. fail */
+      
+      if (func == pl_atom_true || func == ATOM_CHAR('!'))
+	return UnAdjust_CP(CP);
+
+      break;
+
+    case 1:			/* call is not transparent to module qualif */
+      if (func == atom_call)
+	{
+	  qualif_module = qualif_module_orig; /* not transparent to module qualif */
+	  pred_word = *arg_adr;
+	  goto terminal_rec;
+	}
+
+      if (func == atom_throw)
+	{
+	  A(0) = *arg_adr;
+	  A(1) = call_info_word;
+	  return (CodePtr) Prolog_Predicate(THROW_INTERNAL, 2);
+	}
+
+#ifdef META_TERM_HIDDEN
+      if (func == pl_atom_meta_term)
+	{
+	  arg_adr++;		      /* skip Offset (should we test it ?) */
+	  if (Tag_Mask_Of(*arg_adr) != TAG_ATM_MASK) /* should be dereferenced */
+	    break;		/* treat it as a normal goal ! */
+	  caller_module = UnTag_ATM(*arg_adr);
+	  pred_word = *++arg_adr;
+	  goto terminal_rec;
+	}
+#endif      
+      break;
+      
+
+    case 2:
+      if (func == ATOM_CHAR(':'))
+	{
+	  qualif_module = Pl_Rd_Atom_Check(*arg_adr++);
+	  pred_word = *arg_adr;
+	  goto terminal_rec;
+	}
+      
+      if (func == ATOM_CHAR(',') || func == ATOM_CHAR(';') || func == atom_if_then)
+	{
+	  A(0) = pred_word;
+	  A(1) = Tag_ATM(caller_module);
+	  A(2) = Tag_ATM(qualif_module);
+	  A(3) = call_info_word;
+	  return (CodePtr) Prolog_Predicate(CALL_COMPLEX, 4);
+	}
+
+      break;
+      
+   case 3:
+     if (func == atom_catch)
+       {
+	 A(0) = *arg_adr++;
+	 A(1) = *arg_adr++;
+	 A(2) = *arg_adr;
+	 A(3) = Tag_ATM(caller_module);
+	 A(4) = call_info_word;
+	 return (CodePtr) Prolog_Predicate(CATCH_INTERNAL, 5);
+       }
+     
+     break;
+    }
+
+  /* here we have a simple predicate to call */
+
+  debug_call = 1;
+
+  if (pl_debug_call_code != NULL) /* inform the debugger if active */
+    {
+      A(0) = pred_word;
+      A(1) = Tag_ATM(caller_module);
+      A(2) = Tag_ATM(qualif_module);
+      A(3) = call_info_word;
+      return pl_debug_call_code;
+    }
+
+  return Execute_Pred(func, arity, arg_adr, caller_module, qualif_module,
+		      call_info_word);
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BC_CALL_TERMINAL_PRED_4                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamCont
+Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord caller_module_word,
+			   WamWord call_info_word, WamWord first_call_word)
+{
+  int func, arity;
+  WamWord *arg_adr;
+  int caller_module = Pl_Rd_Atom(caller_module_word);
+  int qualif_module = caller_module;/* FIXME: CallerModule != QualifModule ? */
+
+  arg_adr = Pl_Rd_Callable(pred_word, &func, &arity); /* we know it is a callable */
+
+  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
+
+  if (pl_debug_call_code != NULL && debug_call &&
+      (first_call_word & (1 << TAG_SIZE_LOW)))
+    {
+      A(0) = pred_word;
+      A(1) = caller_module_word;
+      A(2) = call_info_word;
+      return pl_debug_call_code;
+    }
+
+  return Execute_Pred(func, arity, arg_adr, caller_module, qualif_module, call_info_word);
 }
 
 
@@ -966,10 +1167,12 @@ BC_Emulate_Clause(DynCInf *clause)
     if (!Pl_Unify(A(i), *arg_adr++))
       goto fail;
 
-  A(2) = A(arity);		/* before since pb with cut if arity <= 1 */
+  A(4) = A(arity);		/* NB: must be first */
   A(0) = body_word;
-  A(1) = Tag_INT(Call_Info(func, arity, debug_call));
-  return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 3);
+  A(1) = Tag_ATM(pl_atom_user); /* caller module   TODO: fix me */
+  A(2) = Tag_ATM(pl_atom_user);	/* qualif module   TODO: fix me */
+  A(3) = Tag_INT(Call_Info(func, arity, debug_call));
+  return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 4);
 
 fail:
   return ALTB(B);
@@ -991,6 +1194,7 @@ BC_Emulate_Byte_Code(BCWord *bc)
   PlLong l;
   WamCont codep;
   int func, arity;
+  int module;
   PredInf *pred;
   C64To32 cv;
 
@@ -1187,6 +1391,14 @@ bc_loop:
       X(x0) = Pl_Put_Structure(func, arity);
       goto bc_loop;
 
+    case PUT_META_TERM:
+      x0 = BC1_X0(w);
+      x = BC1_XY(w);
+      module = bc->word;
+      bc++;
+      X(x) = Pl_Put_Meta_Term(module, X(x0));
+      goto bc_loop;
+
     case MATH_LOAD_X_VALUE:
       x0 = BC1_X0(w);
       x = BC1_XY(w);
@@ -1312,7 +1524,7 @@ bc_loop:
 	  return pl_debug_call_code;
 	}
 
-      if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+      if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
 	{
 	  w1 = bc->word;
 	  caller_func = Functor_Of(w1);
@@ -1333,17 +1545,8 @@ bc_loop:
     case CALL_NATIVE:
       arity = BC2_Arity(w);
       func = bc->word;
-      bc++;
-#if WORD_SIZE == 32
-      codep = (WamCont) (bc->word);
-      bc++;
-#else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
-      codep = (WamCont) (cv.p);
-#endif
+      bc++;      
+      Compute_Branch_Adr(bc, codep);
       BCI = (WamWord) bc | debug_call;
       CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
       if (pl_debug_call_code != NULL && debug_call)
@@ -1356,17 +1559,8 @@ bc_loop:
     case EXECUTE_NATIVE:
       arity = BC2_Arity(w);
       func = bc->word;
-      bc++;
-#if WORD_SIZE == 32
-      codep = (WamCont) (bc->word);
-      bc++;
-#else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
-      codep = (WamCont) (cv.p);
-#endif
+      bc++;      
+      Compute_Branch_Adr(bc, codep);
       if (pl_debug_call_code != NULL && debug_call)
 	{
 	  Prep_Debug_Call(func, arity, 0, 0);

@@ -91,7 +91,7 @@ bagof(Template, Generator, Instances) :-
 
 '$store_solutions'(Template, Generator, Stop, Func) :-
 	'$call_c'('Pl_Stop_Mark_1'(Stop)),
-	(   '$call'(Generator, Func, 3, true),
+	(   '$call'(Generator, user, Func, 3, true), % FIXME CallerModule
 	    '$call_c'('Pl_Store_Solution_1'(Template)),
 	    fail
 	;   true

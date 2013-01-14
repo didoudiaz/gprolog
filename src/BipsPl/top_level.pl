@@ -50,6 +50,7 @@ top_level :-
 	write(top_level_output, 'By Daniel Diaz'),
 	nl,
 	format(top_level_output, '~a~n', [Copyright]),
+	g_assign('$top_level_cur_module', user),
 	break.
 
 
@@ -236,7 +237,8 @@ break :-
 	g_assign('$all_solutions', f),
 	'$get_current_B'(B),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
-	'$call'(X, top_level, 0, true),
+	g_read('$top_level_cur_module', Module),
+	'$call'(X, Module, top_level, 0, true),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
@@ -375,7 +377,8 @@ break :-
 
 '$exec_cmd1'(Goal) :-
 	read_term_from_atom(Goal, TermGoal, [end_of_term(eof)]),
-	'$call'(TermGoal, 'command-line', -1, false).
+	g_read('$top_level_cur_module', Module),
+	'$call'(TermGoal, Module, 'command-line', -1, false).
 
 
 '$exec_cmd_err'(Goal, Err) :-

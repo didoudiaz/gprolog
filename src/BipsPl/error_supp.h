@@ -118,6 +118,7 @@ int pl_permission_operation_modify;
 int pl_permission_operation_open;
 int pl_permission_operation_output;
 int pl_permission_operation_reposition;
+int pl_permission_operation_execute;
 
 
 int pl_permission_type_binary_stream;
@@ -129,6 +130,7 @@ int pl_permission_type_static_procedure;
 int pl_permission_type_source_sink;
 int pl_permission_type_stream;
 int pl_permission_type_text_stream;
+int pl_permission_type_non_exported_procedure;
 
 
 int pl_representation_character;
@@ -222,6 +224,7 @@ extern int pl_permission_operation_modify;
 extern int pl_permission_operation_open;
 extern int pl_permission_operation_output;
 extern int pl_permission_operation_reposition;
+extern int pl_permission_operation_execute;
 
 
 extern int pl_permission_type_binary_stream;
@@ -233,6 +236,7 @@ extern int pl_permission_type_static_procedure;
 extern int pl_permission_type_source_sink;
 extern int pl_permission_type_stream;
 extern int pl_permission_type_text_stream;
+extern int pl_permission_type_non_exported_procedure;
 
 
 extern int pl_representation_character;

@@ -843,7 +843,7 @@ case "$WITH_EXAMPLES_DIR" in
     '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
     *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
-if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
+if same_directory "$EXAMPLES_DIR" $ROOT_DIR/examples; then
     EXAMPLES_DIR=none
 fi
 

@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : Prolog engine                                                   *
  * File  : pred.c                                                          *
- * Descr.: predicate table management                                      *
+ * Descr.: module/predicate table management                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -68,6 +68,10 @@
  * Global Variables                *
  *---------------------------------*/
 
+static ModuleInf *mod_system;
+static ModuleInf *mod_user;
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -89,7 +93,11 @@ Pl_Init_Pred(void)
 
 #endif
 
-  pl_pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+  pl_module_tbl = Pl_Hash_Alloc_Table(START_MODULE_TBL_SIZE, sizeof(ModuleInf));
+  mod_system = Pl_Create_Module(pl_atom_system);
+  mod_user = Pl_Create_Module(pl_atom_user);
+
+  pl_pred_tbl = mod_user->pred_tbl;
 
 /* The following control constructs are defined as predicates ONLY to:
  *
@@ -108,18 +116,79 @@ Pl_Init_Pred(void)
 
 #ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
 
-  Pl_Create_Pred(ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_true, 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, pl_atom_true, 0, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL);
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
 
 #endif
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CREATE_MODULE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+ModuleInf *
+Pl_Create_Module(int module)
+{
+  ModuleInf module_info;
+  ModuleInf *mod;
+
+
+#ifdef DEBUG
+  DBGPRINTF("Create module: %s\n", pl_atom_tbl[module].name);
+#endif
+
+  module_info.module = module;
+  module_info.pred_tbl = NULL;
+
+  Pl_Extend_Table_If_Needed(&pl_module_tbl);
+  mod = (ModuleInf *) Pl_Hash_Insert(pl_module_tbl, (char *) &module_info, FALSE);
+  if (mod->pred_tbl == NULL)
+    mod->pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+  
+  return mod;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_LOOKUP_MODULE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+ModuleInf *
+Pl_Lookup_Module(int module)
+{
+
+  if (module == pl_atom_user)
+    return mod_user;
+
+  if (module == pl_atom_system)
+    return mod_system;
+
+  return (ModuleInf *) Pl_Hash_Find(pl_module_tbl, module);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DELETE_MODULE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Delete_Module(int module)
+{
+  Pl_Hash_Delete(pl_module_tbl, module);
 }
 
 
@@ -132,9 +201,10 @@ Pl_Init_Pred(void)
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
+Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int prop,
 	       PlLong *codep)
 {
+  ModuleInf *mod = Pl_Create_Module(module);
   PredInf pred_info;
   PredInf *pred;
   PlLong key = Functor_Arity(func, arity);
@@ -144,7 +214,8 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
     prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
 
 #ifdef DEBUG
-  DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity, prop);
+  DBGPRINTF("Create pred: %s:%s/%d  prop: %x\n",
+	    pl_atom_tbl[module].name, pl_atom_tbl[func].name, arity, prop);
 #endif
 
   pred_info.f_n = key;
@@ -154,8 +225,8 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
   pred_info.codep = codep;
   pred_info.dyn = NULL;
 
-  Pl_Extend_Table_If_Needed(&pl_pred_tbl);
-  pred = (PredInf *) Pl_Hash_Insert(pl_pred_tbl, (char *) &pred_info, FALSE);
+  Pl_Extend_Table_If_Needed(&mod->pred_tbl);
+  pred = (PredInf *) Pl_Hash_Insert(mod->pred_tbl, (char *) &pred_info, FALSE);
 
   if (prop != pred->prop)	/* predicate exists - occurs for multifile pred */
     {
@@ -180,11 +251,44 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Pl_Lookup_Pred(int func, int arity)
+Pl_Lookup_Pred(int module, int func, int arity)
 {
+#if 0
+  ModuleInf *mod = Pl_Lookup_Module(module);
+  PredInf *pred;
   PlLong key = Functor_Arity(func, arity);
 
-  return (PredInf *) Pl_Hash_Find(pl_pred_tbl, key);
+  if (mod == NULL)
+    return NULL;
+
+  pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, key);
+
+  if (pred == NULL && module != pl_atom_system) /* replace by all imported */
+    pred = (PredInf *) Pl_Hash_Find(mod_system->pred_tbl, key);
+
+  return pred;
+
+#else
+
+  ModuleInf *mod;
+  PredInf *pred;
+  PlLong key = Functor_Arity(func, arity);
+
+  if (module == pl_atom_system)
+    module = pl_atom_user;
+
+  mod = Pl_Lookup_Module(module);
+
+  if (mod == NULL)
+    return NULL;
+
+  pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, key);
+
+  if (pred == NULL && module != pl_atom_system) /* replace by all imported */
+    pred = (PredInf *) Pl_Hash_Find(mod_system->pred_tbl, key);
+
+  return pred;
+#endif
 }
 
 
@@ -195,9 +299,51 @@ Pl_Lookup_Pred(int func, int arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Delete_Pred(int func, int arity)
+Pl_Delete_Pred(int module, int func, int arity)
 {
+  ModuleInf *mod = Pl_Lookup_Module(module);
   PlLong key = Functor_Arity(func, arity);
 
-  Pl_Hash_Delete(pl_pred_tbl, key);
+  if (mod == NULL)
+    return;
+
+  Pl_Hash_Delete(mod->pred_tbl, key);
+}
+
+/* TO BE REMOVED - COMPAT ONLY */
+
+/*-------------------------------------------------------------------------*
+ * PL_CREATE_PRED_COMPAT                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Create_Pred_Compat(int func, int arity, int pl_file, int pl_line, 
+		      int prop, long *codep)
+{
+  return Pl_Create_Pred(pl_atom_user, func, arity, pl_file, pl_line, prop, codep);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_LOOKUP_PRED_COMPAT                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Lookup_Pred_Compat(int func, int arity)
+{
+  return Pl_Lookup_Pred(pl_atom_user, func, arity);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DELETE_PRED_COMPAT                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Delete_Pred_Compat(int func, int arity)
+{
+  return Pl_Delete_Pred(pl_atom_user, func, arity);
 }

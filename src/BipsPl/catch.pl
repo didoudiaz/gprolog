@@ -53,7 +53,10 @@
 	'$call_c'('Pl_Load_Call_Info_Arg_1'(3)),   % to ensure CallInfo is deref
 	'$catch_internal'(Goal, Catch, Recovery, CallInfo).
 
-
+/* FIXME ****/
+'$catch_internal'(Goal, Catch, Recovery, CallerModule, CallInfo) :-
+	'$catch_internal'(Goal, Catch, Recovery, CallInfo).
+/* FIXME ****/
 '$catch_internal'(Goal, Catch, Recovery, CallInfo) :-
 	'$sys_var_read'(7, Handler),
 	'$sys_var_put'(8, '$no_ball$'),
@@ -65,7 +68,7 @@
 	'$sys_var_write'(7, B),
 % for debug
 % format('~N*** ~d for catch(~w,~w,~w)~n', [B, Goal, _Catch, _Recovery]),
-	'$call_internal'(Goal, CallInfo),
+	'$call_internal'(Goal, user, CallInfo), % FIXME: pass right CallerModule
 	'$get_current_B'(B1),
 	(   B1 > B ->
 	    '$trail_handler'(B)
@@ -107,7 +110,7 @@
 % write(catch2(Ball, Ball1, Recovery)), nl,
 	!,                                           % normal throw - unifies
 	'$sys_var_put'(8, '$no_ball$'),
-	'$call_internal'(Recovery, CallInfo).
+	'$call_internal'(Recovery, user, CallInfo). %FIXME CallerModule
 
 '$catch_a_throw'(Ball, _, _, _, _) :-         % normal throw - does not unify
 	'$unwind'(Ball).

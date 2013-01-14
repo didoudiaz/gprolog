@@ -132,13 +132,14 @@ consult(File) :-
 
 
 '$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream) :-
-	PI = Pred / N,
+	( PI = Pred/N, Module = user ; PI = Module:Pred/N), !, %TODO use Module (change PI1 below in PI)
+	PI1=Pred/N, % TODO
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(Pred, N, PlFile, PlLine),
 	(   MonoMulti = multifile, '$predicate_property1'(Pred, N, multifile) ->
 	    true
 	;
-	    '$check_owner_files'(PI, PlFile, PlLine)
+	    '$check_owner_files'(PI1, PlFile, PlLine)
 	),
 	'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd),
 	g_assign('$ctr', 0),

@@ -81,7 +81,7 @@ Pl_Halt_If_No_Top_Level_1(WamWord exit_code_word)
   if (SYS_VAR_TOP_LEVEL == 0)	/* no top level running */
     Pl_Exit_With_Value(x);
 
-  pred = Pl_Lookup_Pred(Pl_Create_Atom((x) ? "$top_level_abort" : "$top_level_stop"), 0);
+  pred = Pl_Lookup_Pred_Compat(Pl_Create_Atom((x) ? "$top_level_abort" : "$top_level_stop"), 0);
 
   if (pred == NULL)		/* should not occur */
     Pl_Exit_With_Value(x);

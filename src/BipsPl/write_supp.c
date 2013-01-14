@@ -1083,7 +1083,7 @@ Try_Portray(WamWord word)
 
   if (try_portray_code == NULL)
     {
-      pred = Pl_Lookup_Pred(Pl_Create_Atom("$try_portray"), 1);
+      pred = Pl_Lookup_Pred_Compat(Pl_Create_Atom("$try_portray"), 1);
       if (pred == NULL || pred->codep == NULL)
 	Pl_Err_Resource(pl_resource_print_object_not_linked);
 

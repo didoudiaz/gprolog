@@ -58,7 +58,7 @@ assertz(C) :-
 
 '$assert'(C, Asserta, CheckPerm, FileName) :-
 	'$get_head_and_body'(C, H, B),
-	'$term_to_goal'(B, none, B1),
+	'$term_to_goal'(B, user, -1, none, B1),
 	'$call_c'('Pl_Assert_5'(H, B1, Asserta, CheckPerm, FileName)),
 	fail.
 

@@ -542,7 +542,7 @@ F_predicate(ArgVal arg[])
       exit(1);
     }
 
-  if (module == NULL || *module == '\0') /* 'module' should be given in the future */
+  if (module == NULL || *module == '\0') /* 'module' is always given but in case of... */
     {
       if (prop & MASK_PRED_BUILTIN || prop & MASK_PRED_BUILTIN_FD)
 	module = "system";
@@ -972,12 +972,13 @@ F_put_structure(ArgVal arg[])
 void
 F_put_meta_term(ArgVal arg[])
 {
-  Args2(ATOM(module), INTEGER(a));
+  Args3(ATOM(module), INTEGER(x), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %" PL_FMT_d ")", module->no, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), X(%" PL_FMT_d "))", module->no, x);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %" PL_FMT_d ")", module->no, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), X(%" PL_FMT_d "))", module->no, x);
 #endif
+  Inst_Printf("move_ret", "X(%" PL_FMT_d ")", a);
 }
 
 
@@ -2073,7 +2074,7 @@ Emit_Obj_Initializer(void)
       else
 	q = "0";
 
-#if 0  /* uncomment this to support modules */
+#if 1  /* uncomment this to support modules */
       Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),at(%d),%d,at(%d),%d,%d,%s)",
 		  p->module->no, p->functor->no, p->arity, p->pl_file->no, p->pl_line,
 		  p->prop, q);

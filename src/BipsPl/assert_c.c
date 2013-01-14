@@ -130,7 +130,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
     return FALSE;
 
   if ((for_what == 0 && !(pred->prop & MASK_PRED_PUBLIC)) ||
@@ -218,7 +218,7 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
     return FALSE;
 
   if (!(pred->prop & MASK_PRED_DYNAMIC))
@@ -292,7 +292,7 @@ Pl_Retract_Last_Found_0(void)
 
 
 /*-------------------------------------------------------------------------*
- * SETARG_Of_LAST_FOUND_2                                                  *
+ * SETARG_OF_LAST_FOUND_2                                                  *
  *                                                                         *
  * update in place the ArgNo th argument of last_clause. NewValue must be  *
  * a 1-tagged word data (atom, integer).                                   *
@@ -335,7 +335,7 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
 
   arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
-  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
     return TRUE;
 
   if (!(pred->prop & MASK_PRED_DYNAMIC))

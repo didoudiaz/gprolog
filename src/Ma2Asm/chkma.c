@@ -1022,7 +1022,7 @@ Pl_Create_Atom(char *name)
 }
 
 PredInf * FC
-Pl_Lookup_Pred(int func, int arity)
+Pl_Lookup_Pred(int module, int func, int arity)
 {
   return NULL;
 }
@@ -1032,6 +1032,7 @@ Pl_Allocate_Stacks(void)
 {
 }
 AtomInf *pl_atom_tbl;
+int pl_atom_system;
 void FC
 Pl_Create_Choice_Point(CodePtr codep_alt, int arity)
 {

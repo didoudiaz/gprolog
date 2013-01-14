@@ -5,23 +5,28 @@
 file_name('/home/diaz/GP/src/BipsPl/throw.pl').
 
 
-predicate('$use_throw'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_throw'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$throw'/4,45,static,private,monofile,built_in,[
+predicate(system:'$throw'/4,45,static,private,monofile,built_in,[
     call_c('Pl_Save_Call_Info_3',[],[x(1),x(2),x(3)]),
     put_integer(0,1),
     execute('$throw1'/2)]).
 
 
-predicate('$throw1'/2,50,static,private,monofile,built_in,[
+predicate(system:'$throw1'/2,50,static,private,monofile,built_in,[
     put_integer(1,2),
     call_c('Pl_Load_Call_Info_Arg_1',[],[x(2)]),
     execute('$throw_internal'/2)]).
 
 
-predicate('$throw_internal'/2,55,static,private,monofile,built_in,[
+predicate(system:'$throw_internal'/3,55,static,private,monofile,built_in,[
+    put_value(x(2),1),
+    execute('$throw_internal'/2)]).
+
+
+predicate(system:'$throw_internal'/2,59,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -34,7 +39,7 @@ predicate('$throw_internal'/2,55,static,private,monofile,built_in,[
     execute('$unwind'/1)]).
 
 
-predicate('$$throw_internal/2_$aux1'/2,55,static,private,monofile,local,[
+predicate(user:'$$throw_internal/2_$aux1'/2,59,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -48,7 +53,7 @@ label(1),
     proceed]).
 
 
-predicate('$unwind'/1,67,static,private,monofile,built_in,[
+predicate(system:'$unwind'/1,71,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),

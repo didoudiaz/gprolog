@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : Prolog engine                                                   *
  * File  : pred.h                                                          *
- * Descr.: predicate table management - header file                        *
+ * Descr.: module/predicate table management - header file                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -60,6 +60,14 @@
  * Type Definitions                *
  *---------------------------------*/
 
+typedef struct			/* Module information             */
+{				/* ------------------------------ */
+  long module;			/* key is the atom module         */
+  int pl_file;			/* atom pl file of its definiton  */
+  char *pred_tbl;		/* predicate table of the module  */
+}
+ModuleInf;
+
 typedef struct			/* Predicate information          */
 {				/* ------------------------------ */
   PlLong f_n;			/* key is <functor_atom,arity>    */
@@ -80,11 +88,13 @@ PredInf;
 
 #ifdef PRED_FILE
 
-char *pl_pred_tbl;
+char *pl_module_tbl;
+char *pl_pred_tbl;		/* pred table of the user module  */
 
 #else
 
 extern char *pl_pred_tbl;
+extern char *pl_module_tbl;
 
 #endif
 
@@ -97,9 +107,31 @@ extern char *pl_pred_tbl;
 
 void Pl_Init_Pred(void);
 
-PredInf * FC Pl_Create_Pred(int func, int arity, int pl_file, int pl_line,
-			    int prop, PlLong *codep);
 
-PredInf * FC Pl_Lookup_Pred(int func, int arity);
+ModuleInf *Pl_Create_Module(int module);
 
-void FC Pl_Delete_Pred(int func, int arity);
+ModuleInf *Pl_Lookup_Module(int module);
+
+void Pl_Delete_Module(int module);
+
+
+void Pl_Create_Pred_Table(void);
+
+PredInf * FC Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line,
+			    int prop, long *codep);
+
+PredInf * FC Pl_Lookup_Pred(int module, int func, int arity);
+
+void FC Pl_Delete_Pred(int module, int func, int arity);
+
+
+
+/* TO BE REMOVED - COMPAT ONLY */
+
+PredInf *Pl_Create_Pred_Compat(int func, int arity, int pl_file, int pl_line, 
+			       int prop, long *codep);
+
+
+PredInf *Pl_Lookup_Pred_Compat(int func, int arity);
+
+void Pl_Delete_Pred_Compat(int func, int arity);

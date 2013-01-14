@@ -5,7 +5,7 @@
 file_name('/home/diaz/GP/src/Pl2Wam/inst_codif.pl').
 
 
-predicate(alias_stop_instruction/1,42,static,private,monofile,global,[
+predicate(user:alias_stop_instruction/1,42,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(1),
@@ -21,7 +21,7 @@ predicate(alias_stop_instruction/1,42,static,private,monofile,global,[
     proceed]).
 
 
-predicate('$alias_stop_instruction/1_$aux1'/2,42,static,private,monofile,local,[
+predicate(user:'$alias_stop_instruction/1_$aux1'/2,42,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -52,7 +52,7 @@ label(7),
     execute('$alias_stop_instruction/1_$aux2'/1)]).
 
 
-predicate('$alias_stop_instruction/1_$aux2'/1,42,static,private,monofile,local,[
+predicate(user:'$alias_stop_instruction/1_$aux2'/1,42,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_atom(jump,0),
@@ -65,7 +65,7 @@ label(1),
     execute(memberchk/2)]).
 
 
-predicate(codification/2,56,static,private,monofile,global,[
+predicate(user:codification/2,56,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(1),
@@ -76,14 +76,14 @@ predicate(codification/2,56,static,private,monofile,global,[
     proceed]).
 
 
-predicate(codif/2,60,static,private,monofile,global,[
+predicate(user:codif/2,60,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
-    try_me_else(80),
+    try_me_else(82),
     switch_on_term(8,fail,fail,fail,1),
 
 label(1),
-    switch_on_structure([(get_variable/2,2),(get_value/2,3),(get_atom/2,17),(get_integer/2,19),(get_float/2,21),(get_nil/1,23),(get_list/1,25),(get_structure/2,27),(put_variable/2,4),(put_void/1,31),(put_value/2,5),(put_unsafe_value/2,39),(put_atom/2,41),(put_integer/2,43),(put_float/2,45),(put_nil/1,47),(put_list/1,49),(put_structure/2,51),(math_load_value/2,6),(math_fast_load_value/2,7),(unify_variable/1,61),(unify_value/1,63),(unify_local_value/1,65),(call/1,67),(execute/1,69),(get_current_choice/1,71),(cut/1,73),(soft_cut/1,75),(call_c/3,77),(foreign_call_c/4,79)]),
+    switch_on_structure([(get_variable/2,2),(get_value/2,3),(get_atom/2,17),(get_integer/2,19),(get_float/2,21),(get_nil/1,23),(get_list/1,25),(get_structure/2,27),(put_variable/2,4),(put_void/1,31),(put_value/2,5),(put_unsafe_value/2,39),(put_atom/2,41),(put_integer/2,43),(put_float/2,45),(put_nil/1,47),(put_list/1,49),(put_structure/2,51),(put_meta_term/3,53),(math_load_value/2,6),(math_fast_load_value/2,7),(unify_variable/1,63),(unify_value/1,65),(unify_local_value/1,67),(call/1,69),(execute/1,71),(get_current_choice/1,73),(cut/1,75),(soft_cut/1,77),(call_c/3,79),(foreign_call_c/4,81)]),
 
 label(2),
     try(9),
@@ -102,12 +102,12 @@ label(5),
     trust(37),
 
 label(6),
-    try(53),
-    trust(55),
+    try(55),
+    trust(57),
 
 label(7),
-    try(57),
-    trust(59),
+    try(59),
+    trust(61),
 
 label(8),
     try_me_else(10),
@@ -444,11 +444,10 @@ label(52),
     retry_me_else(54),
 
 label(53),
-    get_structure(math_load_value/2,0),
+    get_structure(put_meta_term/3,0),
+    unify_void(1),
     unify_variable(x(2)),
     unify_variable(x(0)),
-    get_structure(x/1,2),
-    unify_variable(x(2)),
     get_list(1),
     unify_variable(x(3)),
     unify_list,
@@ -467,6 +466,26 @@ label(55),
     get_structure(math_load_value/2,0),
     unify_variable(x(2)),
     unify_variable(x(0)),
+    get_structure(x/1,2),
+    unify_variable(x(2)),
+    get_list(1),
+    unify_variable(x(3)),
+    unify_list,
+    unify_variable(x(1)),
+    unify_nil,
+    get_structure(r/1,3),
+    unify_value(x(2)),
+    get_structure(w/1,1),
+    unify_value(x(0)),
+    proceed,
+
+label(56),
+    retry_me_else(58),
+
+label(57),
+    get_structure(math_load_value/2,0),
+    unify_variable(x(2)),
+    unify_variable(x(0)),
     get_structure(y/1,2),
     unify_void(1),
     get_list(1),
@@ -476,10 +495,10 @@ label(55),
     unify_value(x(0)),
     proceed,
 
-label(56),
-    retry_me_else(58),
+label(58),
+    retry_me_else(60),
 
-label(57),
+label(59),
     get_structure(math_fast_load_value/2,0),
     unify_variable(x(2)),
     unify_variable(x(0)),
@@ -496,10 +515,10 @@ label(57),
     unify_value(x(0)),
     proceed,
 
-label(58),
-    retry_me_else(60),
+label(60),
+    retry_me_else(62),
 
-label(59),
+label(61),
     get_structure(math_fast_load_value/2,0),
     unify_variable(x(2)),
     unify_variable(x(0)),
@@ -512,10 +531,10 @@ label(59),
     unify_value(x(0)),
     proceed,
 
-label(60),
-    retry_me_else(62),
+label(62),
+    retry_me_else(64),
 
-label(61),
+label(63),
     get_structure(unify_variable/1,0),
     unify_structure(x/1),
     unify_variable(x(0)),
@@ -526,25 +545,11 @@ label(61),
     unify_value(x(0)),
     proceed,
 
-label(62),
-    retry_me_else(64),
-
-label(63),
-    get_structure(unify_value/1,0),
-    unify_structure(x/1),
-    unify_variable(x(0)),
-    get_list(1),
-    unify_variable(x(1)),
-    unify_nil,
-    get_structure(r/1,1),
-    unify_value(x(0)),
-    proceed,
-
 label(64),
     retry_me_else(66),
 
 label(65),
-    get_structure(unify_local_value/1,0),
+    get_structure(unify_value/1,0),
     unify_structure(x/1),
     unify_variable(x(0)),
     get_list(1),
@@ -558,6 +563,20 @@ label(66),
     retry_me_else(68),
 
 label(67),
+    get_structure(unify_local_value/1,0),
+    unify_structure(x/1),
+    unify_variable(x(0)),
+    get_list(1),
+    unify_variable(x(1)),
+    unify_nil,
+    get_structure(r/1,1),
+    unify_value(x(0)),
+    proceed,
+
+label(68),
+    retry_me_else(70),
+
+label(69),
     allocate(3),
     get_variable(y(0),1),
     get_structure(call/1,0),
@@ -572,10 +591,10 @@ label(67),
     deallocate,
     execute(lst_r_for_call_execute/3),
 
-label(68),
-    retry_me_else(70),
+label(70),
+    retry_me_else(72),
 
-label(69),
+label(71),
     allocate(3),
     get_variable(y(0),1),
     get_structure(execute/1,0),
@@ -590,10 +609,10 @@ label(69),
     deallocate,
     execute(lst_r_for_call_execute/3),
 
-label(70),
-    retry_me_else(72),
+label(72),
+    retry_me_else(74),
 
-label(71),
+label(73),
     get_structure(get_current_choice/1,0),
     unify_structure(x/1),
     unify_variable(x(0)),
@@ -604,25 +623,11 @@ label(71),
     unify_value(x(0)),
     proceed,
 
-label(72),
-    retry_me_else(74),
-
-label(73),
-    get_structure(cut/1,0),
-    unify_structure(x/1),
-    unify_variable(x(0)),
-    get_list(1),
-    unify_variable(x(1)),
-    unify_nil,
-    get_structure(r/1,1),
-    unify_value(x(0)),
-    proceed,
-
 label(74),
     retry_me_else(76),
 
 label(75),
-    get_structure(soft_cut/1,0),
+    get_structure(cut/1,0),
     unify_structure(x/1),
     unify_variable(x(0)),
     get_list(1),
@@ -636,6 +641,20 @@ label(76),
     retry_me_else(78),
 
 label(77),
+    get_structure(soft_cut/1,0),
+    unify_structure(x/1),
+    unify_variable(x(0)),
+    get_list(1),
+    unify_variable(x(1)),
+    unify_nil,
+    get_structure(r/1,1),
+    unify_value(x(0)),
+    proceed,
+
+label(78),
+    retry_me_else(80),
+
+label(79),
     allocate(3),
     get_variable(y(1),1),
     get_structure(call_c/3,0),
@@ -650,10 +669,10 @@ label(77),
     deallocate,
     execute(lst_rw_for_c_call/3),
 
-label(78),
+label(80),
     trust_me_else_fail,
 
-label(79),
+label(81),
     get_structure(foreign_call_c/4,0),
     unify_void(2),
     unify_variable(x(0)),
@@ -662,13 +681,13 @@ label(79),
     put_nil(1),
     execute(lst_rw_for_foreign_c_call/3),
 
-label(80),
+label(82),
     trust_me_else_fail,
     get_nil(1),
     proceed]).
 
 
-predicate('$codif/2_$aux3'/2,132,static,private,monofile,local,[
+predicate(user:'$codif/2_$aux3'/2,134,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -695,7 +714,7 @@ label(1),
     proceed]).
 
 
-predicate('$codif/2_$aux2'/2,122,static,private,monofile,local,[
+predicate(user:'$codif/2_$aux2'/2,124,static,private,monofile,local,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -722,7 +741,7 @@ label(5),
     proceed]).
 
 
-predicate('$codif/2_$aux1'/2,118,static,private,monofile,local,[
+predicate(user:'$codif/2_$aux1'/2,120,static,private,monofile,local,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -749,7 +768,7 @@ label(5),
     proceed]).
 
 
-predicate(lst_r_for_call_execute/3,149,static,private,monofile,global,[
+predicate(user:lst_r_for_call_execute/3,151,static,private,monofile,global,[
     try_me_else(1),
     get_nil(2),
     get_value(x(1),0),
@@ -767,7 +786,7 @@ label(1),
     execute(lst_r_for_call_execute/3)]).
 
 
-predicate(lst_rw_for_foreign_c_call/3,158,static,private,monofile,global,[
+predicate(user:lst_rw_for_foreign_c_call/3,160,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -799,7 +818,7 @@ label(4),
     execute(lst_rw_for_foreign_c_call/3)]).
 
 
-predicate(lst_rw_for_c_call/3,166,static,private,monofile,global,[
+predicate(user:lst_rw_for_c_call/3,168,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),

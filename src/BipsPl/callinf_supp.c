@@ -55,7 +55,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-static int save_call_info;
+static PlLong save_call_info;	/* 'int' is enough in fact */
 
 
 
@@ -68,12 +68,11 @@ static int save_call_info;
 
 
 /*-------------------------------------------------------------------------*
- * PL_SAVE_CALL_INFO_3                                                     *
+ * PL_MAKE_CALL_INFO                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-Pl_Save_Call_Info_3(WamWord func_word, WamWord arity_word,
-		 WamWord debug_call_word)
+PlLong
+Pl_Make_Call_Info(WamWord func_word, WamWord arity_word, WamWord debug_call_word)
 {
   int func, arity;
   Bool debug_call;
@@ -82,8 +81,23 @@ Pl_Save_Call_Info_3(WamWord func_word, WamWord arity_word,
   arity = Pl_Rd_Integer(arity_word);
   debug_call = *Pl_Rd_String(debug_call_word) == 't';
 
-  save_call_info = Call_Info(func, arity, debug_call);
+  return Call_Info(func, arity, debug_call);
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SAVE_CALL_INFO_3                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Save_Call_Info_3(WamWord func_word, WamWord arity_word,
+		    WamWord debug_call_word)
+{
+  save_call_info = Pl_Make_Call_Info(func_word, arity_word, debug_call_word);
+}
+
 
 
 

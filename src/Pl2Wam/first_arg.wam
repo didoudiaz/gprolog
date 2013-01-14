@@ -5,7 +5,7 @@
 file_name('/home/diaz/GP/src/Pl2Wam/first_arg.pl').
 
 
-predicate(find_first_arg/2,40,static,private,monofile,global,[
+predicate(user:find_first_arg/2,40,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -34,7 +34,7 @@ label(4),
     proceed]).
 
 
-predicate('$find_first_arg/2_$aux1'/3,42,static,private,monofile,local,[
+predicate(user:'$find_first_arg/2_$aux1'/3,42,static,private,monofile,local,[
     try_me_else(1),
     execute(defines_first_arg/2),
 
@@ -54,7 +54,7 @@ label(2),
     execute(find_first_arg/2)]).
 
 
-predicate(stopping_inst/1,52,static,private,monofile,global,[
+predicate(user:stopping_inst/1,52,static,private,monofile,global,[
     try_me_else(10),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -103,14 +103,14 @@ label(10),
     execute(assign_x0/1)]).
 
 
-predicate(assign_x0/1,67,static,private,monofile,global,[
+predicate(user:assign_x0/1,67,static,private,monofile,global,[
     get_list(0),
     unify_variable(x(0)),
     unify_variable(x(1)),
     execute('$assign_x0/1_$aux1'/2)]).
 
 
-predicate('$assign_x0/1_$aux1'/2,67,static,private,monofile,local,[
+predicate(user:'$assign_x0/1_$aux1'/2,67,static,private,monofile,local,[
     try_me_else(6),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -142,7 +142,7 @@ label(6),
     execute(assign_x0/1)]).
 
 
-predicate(defines_first_arg/2,78,static,private,monofile,global,[
+predicate(user:defines_first_arg/2,78,static,private,monofile,global,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),

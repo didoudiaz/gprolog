@@ -79,8 +79,6 @@
  * Global Variables                *
  *---------------------------------*/
 
-    /* this variable can be overwritten by top_comp.c (similarl to stacks) */
-
 int pl_char_type[256] = {
 
 /* nul soh stx etx eot enq ack bel bs  ht  nl  vt  np  cr  so  si  */
@@ -184,10 +182,17 @@ Pl_Init_Atom(void)
   pl_atom_void = Pl_Create_Atom("");
   pl_atom_curly_brackets = Pl_Create_Atom("{}");
 
+  pl_atom_user = Pl_Create_Atom("user");
+  pl_atom_system = Pl_Create_Atom("system");
+
   pl_atom_false = Pl_Create_Atom("false");
   pl_atom_true = Pl_Create_Atom("true");
 
   pl_atom_end_of_file = Pl_Create_Atom("end_of_file");
+
+#ifdef META_TERM_HIDDEN
+  pl_atom_meta_term = Pl_Create_Atom("$$meta_term");
+#endif
 }
 
 

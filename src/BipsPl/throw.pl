@@ -51,6 +51,10 @@
 	'$call_c'('Pl_Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
 	'$throw_internal'(Ball, CallInfo).
 
+/* FIXME ***/
+'$throw_internal'(Ball, _CallerModule, CallInfo) :-
+	'$throw_internal'(Ball, CallInfo).
+/* FIXME ***/
 
 '$throw_internal'(Ball, CallInfo) :-
 	(   var(Ball) ->

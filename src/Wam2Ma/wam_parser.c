@@ -115,7 +115,7 @@ ParseInf inst[] = {
   {"put_nil", F_put_nil, 1, {INTEGER}},
   {"put_list", F_put_list, 1, {INTEGER}},
   {"put_structure", F_put_structure, 2, {F_N, INTEGER}},
-  {"put_meta_term", F_put_meta_term, 2, {ATOM, INTEGER}},
+  {"put_meta_term", F_put_meta_term, 3, {ATOM, INTEGER, INTEGER}},
   {"math_load_value", F_math_load_value, 2, {X_Y, INTEGER}},
   {"math_fast_load_value", F_math_fast_load_value, 2, {X_Y, INTEGER}},
 

@@ -358,7 +358,7 @@ nospyall.
 '$spy_test_condition'(Goal, Port, c(Goal, Port, Test)) :-
 	(   var(Test) ->
 	    true
-	;   '$call'(Test, spy_conditional, 1, false), !
+	;   '$call'(Test, user, spy_conditional, 1, false), ! % FIXME CallerModule
 	).
 
 
@@ -454,6 +454,10 @@ nospyall.
           % '$debug_call'/2 is called by meta-call (cf Call_2()) when the
           % debugger is active, ie. Set_Debug_Call_Code() has been called
 
+
+'$debug_call'(Goal, _CallerModule, _QualifModule, CallInfo) :- % FIXME user CallerModule, what is QualifModule ?
+	'$debug_call'(Goal, CallInfo).
+
 '$debug_call'(notrace, _) :-
 	!,
 	notrace.
@@ -547,9 +551,9 @@ nospyall.
 	(   DebugUnify == '' ->
 %format('now I call ~w~n', [Goal]),
 	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
-				% but don(t call 'call_from_debugger since it is a
+				% but don't call 'call_from_debugger since it is a
 				% control-construct (thus its native codep == NULL)
-	    '$call_from_debugger'(Goal, CallInfo)
+	    '$call_from_debugger'(Goal, user, CallInfo) % FIXME CallerModule
 	;   Goal = DebugUnify
 	).
 

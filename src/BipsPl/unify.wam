@@ -5,21 +5,21 @@
 file_name('/home/diaz/GP/src/BipsPl/unify.pl').
 
 
-predicate('$use_unify'/0,43,static,private,monofile,built_in,[
+predicate(system:'$use_unify'/0,43,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate((=)/2,46,static,private,monofile,built_in,[
+predicate(system:(=)/2,46,static,private,monofile,built_in,[
     get_value(x(1),0),
     proceed]).
 
 
-predicate(unify_with_occurs_check/2,51,static,private,monofile,built_in,[
+predicate(system:unify_with_occurs_check/2,51,static,private,monofile,built_in,[
     call_c('Pl_Unify_Occurs_Check',[boolean,fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate((\=)/2,57,static,private,monofile,built_in,[
+predicate(system:(\=)/2,57,static,private,monofile,built_in,[
     get_variable(x(2),0),
     put_structure((=)/2,0),
     unify_local_value(x(2)),

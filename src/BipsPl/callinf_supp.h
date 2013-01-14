@@ -55,4 +55,7 @@
 
 void Pl_Call_Info_Bip_Name_1(WamWord call_info_word);
 
+PlLong Pl_Make_Call_Info(WamWord func_word, WamWord arity_word, WamWord debug_call_word);
+
+
 #define Call_Info(f, a, dc)        ((Functor_Arity(f, a) << 1) | dc)

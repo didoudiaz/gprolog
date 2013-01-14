@@ -209,6 +209,7 @@ Error_Supp_Initializer(void)
   pl_permission_operation_open = Pl_Create_Atom("open");
   pl_permission_operation_output = Pl_Create_Atom("output");
   pl_permission_operation_reposition = Pl_Create_Atom("reposition");
+  pl_permission_operation_execute = Pl_Create_Atom("execute");
 
 
   pl_permission_type_binary_stream = Pl_Create_Atom("binary_stream");
@@ -220,6 +221,7 @@ Error_Supp_Initializer(void)
   pl_permission_type_source_sink = Pl_Create_Atom("source_sink");
   pl_permission_type_stream = Pl_Create_Atom("stream");
   pl_permission_type_text_stream = Pl_Create_Atom("text_stream");
+  pl_permission_type_non_exported_procedure = Pl_Create_Atom("non_exported_procedure");
 
 
   pl_representation_character = Pl_Create_Atom("character");

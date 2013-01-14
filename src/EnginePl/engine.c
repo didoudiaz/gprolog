@@ -326,7 +326,7 @@ Pl_Try_Execute_Top_Level(void)
 
   Pl_Reset_Prolog();
 
-  pred = Pl_Lookup_Pred(Pl_Create_Atom("top_level"), 0);
+  pred = Pl_Lookup_Pred(pl_atom_system, Pl_Create_Atom("top_level"), 0);
 
   if (pred != NULL)
     {

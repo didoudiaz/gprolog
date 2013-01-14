@@ -249,7 +249,7 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
   int i;
   int bip_func, bip_arity;
 
-  pred = Pl_Lookup_Pred(func, arity);
+  pred = Pl_Lookup_Pred_Compat(func, arity);
   if (pred == NULL || !(pred->prop & MASK_PRED_NATIVE_CODE) || 
       (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
     {

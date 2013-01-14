@@ -160,7 +160,7 @@ static Bool Help(void);
 #define DEBUG_CALL                 X1_2464656275675F63616C6C
 
 Prolog_Prototype(INIT_DEBUGGER, 0);
-Prolog_Prototype(DEBUG_CALL, 2);
+Prolog_Prototype(DEBUG_CALL, 4);
 
 
 
@@ -200,7 +200,7 @@ My_System_Directives(void)
 void
 Pl_Set_Debug_Call_Code_0(void)
 {
-  pl_debug_call_code = Prolog_Predicate(DEBUG_CALL, 2);
+  pl_debug_call_code = Prolog_Predicate(DEBUG_CALL, 4);
 
   Flag_Value(FLAG_DEBUG) = TRUE;
 }

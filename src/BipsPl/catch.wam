@@ -5,23 +5,28 @@
 file_name('/home/diaz/GP/src/BipsPl/catch.pl').
 
 
-predicate('$use_catch'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_catch'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$catch'/6,48,static,private,monofile,built_in,[
+predicate(system:'$catch'/6,48,static,private,monofile,built_in,[
     call_c('Pl_Save_Call_Info_3',[],[x(3),x(4),x(5)]),
     put_integer(0,3),
     execute('$catch1'/4)]).
 
 
-predicate('$catch1'/4,52,static,private,monofile,built_in,[
+predicate(system:'$catch1'/4,52,static,private,monofile,built_in,[
     put_integer(3,4),
     call_c('Pl_Load_Call_Info_Arg_1',[],[x(4)]),
     execute('$catch_internal'/4)]).
 
 
-predicate('$catch_internal'/4,57,static,private,monofile,built_in,[
+predicate(system:'$catch_internal'/5,57,static,private,monofile,built_in,[
+    put_value(x(4),3),
+    execute('$catch_internal'/4)]).
+
+
+predicate(system:'$catch_internal'/4,60,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -42,7 +47,7 @@ predicate('$catch_internal'/4,57,static,private,monofile,built_in,[
     execute('$catch_internal1'/5)]).
 
 
-predicate('$catch_internal1'/5,63,static,private,monofile,built_in,[
+predicate(system:'$catch_internal1'/5,66,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -57,8 +62,9 @@ predicate('$catch_internal1'/5,63,static,private,monofile,built_in,[
     put_value(y(4),1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
-    put_value(y(1),1),
-    call('$call_internal'/2),
+    put_atom(user,1),
+    put_value(y(1),2),
+    call('$call_internal'/3),
     put_variable(y(5),0),
     call('$get_current_B'/1),
     put_value(y(5),0),
@@ -95,7 +101,7 @@ label(1),
     execute('$catch_a_throw'/5)]).
 
 
-predicate('$$catch_internal1/5_$aux1'/3,63,static,private,monofile,local,[
+predicate(user:'$$catch_internal1/5_$aux1'/3,66,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -113,7 +119,7 @@ label(1),
     proceed]).
 
 
-predicate('$catch_a_throw'/5,92,static,private,monofile,built_in,[
+predicate(system:'$catch_a_throw'/5,95,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -135,16 +141,17 @@ label(1),
     put_atom('$no_ball$',1),
     call('$sys_var_put'/2),
     put_value(y(0),0),
-    put_value(y(1),1),
+    put_atom(user,1),
+    put_value(y(1),2),
     deallocate,
-    execute('$call_internal'/2),
+    execute('$call_internal'/3),
 
 label(2),
     trust_me_else_fail,
     execute('$unwind'/1)]).
 
 
-predicate('$$catch_a_throw/5_$aux1'/2,92,static,private,monofile,local,[
+predicate(user:'$$catch_a_throw/5_$aux1'/2,95,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -163,7 +170,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$trail_handler'/1,118,static,private,monofile,built_in,[
+predicate(system:'$trail_handler'/1,121,static,private,monofile,built_in,[
     try_me_else(1),
     proceed,
 
@@ -176,7 +183,7 @@ label(1),
     fail]).
 
 
-predicate('$catch_sync_for_fail_at'/1,127,static,private,monofile,built_in,[
+predicate(system:'$catch_sync_for_fail_at'/1,130,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -188,7 +195,7 @@ predicate('$catch_sync_for_fail_at'/1,127,static,private,monofile,built_in,[
     execute('$$catch_sync_for_fail_at/1_$aux1'/2)]).
 
 
-predicate('$$catch_sync_for_fail_at/1_$aux1'/2,127,static,private,monofile,local,[
+predicate(user:'$$catch_sync_for_fail_at/1_$aux1'/2,130,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -209,7 +216,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate('$catch_fail_now'/1,139,static,private,monofile,built_in,[
+predicate(system:'$catch_fail_now'/1,142,static,private,monofile,built_in,[
     allocate(0),
     call('$set_current_B'/1),
     fail]).

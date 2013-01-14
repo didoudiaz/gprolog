@@ -318,6 +318,10 @@ WamWord FC Pl_Put_Structure_Tagged(WamWord w);
 
 WamWord FC Pl_Put_Structure(int func, int arity);
 
+WamWord FC Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word);
+
+WamWord FC Pl_Put_Meta_Term(int module, WamWord goal_word);
+
 WamWord FC Pl_Unify_Variable(void);
 
 void FC Pl_Unify_Void(int n);

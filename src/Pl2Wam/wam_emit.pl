@@ -50,7 +50,7 @@
  * get_nil(A)                               put_nil(A)                     *
  * get_list(A)                              put_list(A)                    *
  * get_structure(F/N, A)                    put_structure(F/N, A)          *
- *                                          hide_meta_term(A)              *
+ *                                          put_meta_term(M, A)            *
  *                                                                         *
  *                                          math_load_value(V, A)          *
  *                                          math_fast_load_value(V, A)     *
@@ -188,10 +188,9 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	;   MonoMulti = monofile
 	),
 	g_read(module, Module0),
-	export_type(Pred, N, Module0, _Module, ExportBplBfd),
-  		% MODULES: then add Module:Pred/N instead of Pred/N in the next line
+	export_type(Pred, N, Module0, Module, ExportBplBfd),
 	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,~a,',
-	       [Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
+	       [Module:Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
 
 
 

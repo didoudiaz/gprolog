@@ -68,7 +68,7 @@ static int atom_call;
 
 #define CALL_INTERNAL              X1_2463616C6C5F696E7465726E616C
 
-Prolog_Prototype(CALL_INTERNAL, 2);
+Prolog_Prototype(CALL_INTERNAL, 3);
 
 
 
@@ -115,7 +115,7 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
 
   Pl_Unset_C_Bip_Name();
 
-  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL || 
+  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL || 
       (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
     {
       if (arity > 0)
@@ -130,9 +130,10 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
 	  H = w;
 	}
 
-      A(1) = Tag_INT(Call_Info(atom_bip, arity_rest + 1, 1));
+      A(1) = Tag_ATM(pl_atom_user); /* FIXME CallerModule */
+      A(2) = Tag_INT(Call_Info(atom_bip, arity_rest + 1, 1));
 
-      return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
+      return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 3);
     }
 
 

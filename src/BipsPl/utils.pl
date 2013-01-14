@@ -40,55 +40,62 @@
 :-	built_in.
 
 
-'$term_to_goal'(P, CallInfo, P1) :-
-	g_assign('$call_call_info', CallInfo),
-	g_assign('$new_term', f),
-	'$term_to_goal1'(P, P1),
-	g_read('$new_term', t),                               % GC: case P=P1
-	                        !.
+'$term_to_goal'(P, CallInfo, CallerModule, QualifModule, P1) :-
+	g_assign('$term_to_goal_info', CallInfo),
+	g_assign('$term_to_goal_caller_module', CallerModule),
+	'$term_to_goal1'(P, QualifModule, P1).
 
-'$term_to_goal'(P, _, P).
-
-
-'$term_to_goal1'(P, P1) :-
-	'$term_to_goal2'(P, P1), !.
-
-'$term_to_goal1'(P, _) :-
+'$term_to_goal1'(P, _, _, _, _) :-
 	'$pl_err_type'(callable, P).
 
 
-'$term_to_goal2'(P, P1) :-
+'$term_to_goal1'(P, _QualifModule, P1) :-
 	var(P), !,
-	g_read('$call_call_info', CallInfo),
-	g_assign('$new_term', t),
+	g_read('$term_to_goal_call_info', CallInfo),
+	g_read('$term_to_goal_caller_module', CallerModule),
 	(   CallInfo = none ->
-	    P1 = call(P)
-	;   P1 = '$call_internal'(P, CallInfo)
+	    P1 = call(P)   % TODO: pb with caller module ??? check it
+	;
+				% call is not transparent to module qualif (pass CallerModule)
+	    P1 = '$call_internal'(P, CallerModule, CallerModule, CallInfo)
 	).
 
-'$term_to_goal2'((P -> Q), (P1 -> Q1)) :-
+				% TODO: what about '$meta_term'/1 ???
+'$term_to_goal1'(QualifModule:P, _QualifModule, P1) :-
 	!,
-	'$term_to_goal2'(P, P1),
-	'$term_to_goal2'(Q, Q1).
+	'$term_to_goal1'(P, QualifModule, P1).
 
-'$term_to_goal2'((P, Q), (P1, Q1)) :-
+'$term_to_goal1'((P -> Q), QualifModule, (P1 -> Q1)) :-
 	!,
-	'$term_to_goal2'(P, P1),
-	'$term_to_goal2'(Q, Q1).
+	'$term_to_goal1'(P, QualifModule, P1),
+	'$term_to_goal1'(Q, QualifModule, Q1).
 
-'$term_to_goal2'((P ; Q), (P1 ; Q1)) :-
+'$term_to_goal1'((P, Q), QualifModule, (P1, Q1)) :-
 	!,
-	'$term_to_goal2'(P, P1),
-	'$term_to_goal2'(Q, Q1).
-/*  ISO: (\+)/1 is no longer a control construct
-'$term_to_goal2'((\+ P),(\+ P1)):-
+	'$term_to_goal1'(P, QualifModule, P1),
+	'$term_to_goal1'(Q, QualifModule, Q1).
+
+'$term_to_goal1'((P ; Q), QualifModule, (P1 ; Q1)) :-
 	!,
-	'$term_to_goal2'(P,P1).
-*/
-'$term_to_goal2'(P, P) :-
-	callable(P).
+	'$term_to_goal1'(P, QualifModule, P1),
+	'$term_to_goal1'(Q, QualifModule, Q1).
+	
+'$term_to_goal1'(P, _QualifModule, P) :-
+	P = call(_), !.
 
+'$term_to_goal1'(P, _QualifModule, P) :-
+	P = catch(_, _, _), !.
 
+'$term_to_goal1'(P, QualifModule, P1) :-
+	callable(P),
+	(   g_read('$term_to_goal_caller_module', QualifModule) -> %TODO check QualifModule vs CallerModule, g_read vs received argument
+	    P1 = P  	% same module as caller, qualification is useless
+	;
+	    QualifModule = none -> % check none (see assert.pl)
+	    P1 = P
+	;
+	    P1 = QualifModule:P
+	).
 
 
 '$check_list'(List) :-
