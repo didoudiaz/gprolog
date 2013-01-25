@@ -94,18 +94,26 @@ Call_Args_Initializer(void)
 WamCont
 Pl_Call_Closure(int atom_bip, int arity_rest)
 {
+  int caller_func = atom_bip;
+  int caller_arity = arity_rest + 1;
+  WamWord module_word;
   int func, arity_clos, arity;
+  WamWord goal_word;
   WamWord *arg_adr;
+#if 0
   PredInf *pred;
   WamWord *w;
   int i;
+#endif
+  Pl_Set_C_Bip_Name(pl_atom_tbl[caller_func].name, caller_arity);
 
-  Pl_Set_C_Bip_Name(pl_atom_tbl[atom_bip].name, 1 + arity_rest);
+  module_word = Pl_Strip_Module(A(0), FALSE, TRUE, &goal_word);
+
   if (atom_bip == atom_call_with_args) {
-    func = Pl_Rd_Atom_Check(A(0));
+    func = Pl_Rd_Atom_Check(goal_word);
     arity_clos = 0;
   } else {
-    arg_adr = Pl_Rd_Callable_Check(A(0), &func, &arity_clos);
+    arg_adr = Pl_Rd_Callable_Check(goal_word, &func, &arity_clos);
   }
 
   arity = arity_clos + arity_rest;
@@ -114,28 +122,6 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
 
 
   Pl_Unset_C_Bip_Name();
-
-  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL || 
-      (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
-    {
-      if (arity > 0)
-	{
-	  w = H;
-	  A(0) = Tag_STC(w);
-	  *w++ = Functor_Arity(func, arity);
-	  while(arity_clos-- > 0)
-	    *w++ = *arg_adr++;
-	  for (i = 1; i <= arity_rest; i++)
-	    *w++ = A(i);
-	  H = w;
-	}
-
-      A(1) = Tag_ATM(pl_atom_user); /* FIXME CallerModule */
-      A(2) = Tag_INT(Call_Info(atom_bip, arity_rest + 1, 1));
-
-      return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 3);
-    }
-
 
   /* arity = arity_clos + arity_rest */
   /* the arity_clos args in the compound term   go in A(0)..A(arity_clos-1) */
@@ -148,15 +134,10 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   /* we use memmove */
 
   if (arity_clos != 1)		/* optim: no copy needed when closure has 1 arg */
-    memmove((void *) &A(arity_clos), &A(1), sizeof(WamWord) * arity_rest);
+    memmove(&A(arity_clos), &A(1), sizeof(WamWord) * arity_rest);
 
   /* then copy the arity_clos args */
-  w = &A(0);
-  while(arity_clos-- > 0)
-    *w++ = *arg_adr++;
+  memcpy((void *) &A(0), arg_adr, sizeof(WamWord) * arity_clos);
 
-  if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
-    return (WamCont) (pred->codep);
-
-  return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+  return Pl_BC_Call_Initial(module_word, func, arity, &A(0), caller_func, caller_arity);
 }

@@ -63,11 +63,14 @@ expand_term(T1, T3) :-
 
 
 '$call_term_expansion'(T1, T2) :-
-	current_predicate(term_expansion / 2),
+	'$current_predicate'(term_expansion / 2),
 	call(term_expansion(T1, T2)).
 
 
 
+
+:- meta_predicate(phrase(2, ?)).
+:- meta_predicate(phrase(2, ?, ?)).
 
 phrase(DcgBody, In) :-
 	'$phrase'(DcgBody, In, [], 2).

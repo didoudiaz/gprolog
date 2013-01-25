@@ -41,6 +41,9 @@
 
 '$use_all_solut'.
 
+:- meta_predicate(findall(?, 0, -)).
+:- meta_predicate(bagof(?, 0, -)).
+:- meta_predicate(setof(?, 0, -)).
 
 findall(Template, Generator, Instances) :-
 	'$findall'(Template, Generator, Instances, findall).

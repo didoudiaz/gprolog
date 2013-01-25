@@ -276,6 +276,8 @@ spypoint_condition(Goal, _, _) :-
 
 
 
+:- meta_predicate(spy(:)).
+
 spy(Spec) :-
 	set_bip_name(spy, 1),
 	'$debug_list_of_pred'(Spec, L),
@@ -289,6 +291,8 @@ spy(_).
 
 
 
+
+:- meta_predicate(nospy(:)).
 
 nospy(Spec) :-
 	set_bip_name(nospy, 1),

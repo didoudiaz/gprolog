@@ -119,8 +119,8 @@ normalize_cuts1((P ; Q), CutVar, (P1 ; Q1)) :-
 
 normalize_cuts1(M:G, CutVar, Body) :-
 	check_module_name(M, true),
-g_read(module, Module),		% this is for colon_sets_calling_context = true
-g_assign(module, M),
+	g_read(module, Module),		% this is for colon_sets_calling_context = true
+	g_assign(module, M),		% this is for colon_sets_calling_context = true
 	normalize_cuts1(G, CutVar, G1),
 	distrib_module_qualif(G1, M, G2),
 	(   G2 = M3:_, var(M3) ->
@@ -128,21 +128,20 @@ g_assign(module, M),
 	;
 	    Body = G2
 	),
-g_assign(module, Module).
+	g_assign(module, Module). 	% this is for colon_sets_calling_context = true
 
-normalize_cuts1(call(G), _, '$call'(G, Module, Func, Arity, true)) :-
-	get_module_of_cur_pred(Module),
+normalize_cuts1(call(G), _, '$call'(G, Func, Arity)) :-
 	cur_pred_without_aux(Func, Arity).
 
-normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity, true)) :-
+normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity)) :-
 	cur_pred_without_aux(Func, Arity).
 
 normalize_cuts1(throw(B), _, '$throw'(B, Func, Arity, true)) :-
 	cur_pred_without_aux(Func, Arity).
 
-normalize_cuts1(P, _, P1) :-
+normalize_cuts1(P, _, P) :-
 	(   callable(P) ->
-	    meta_pred_rewriting(P, P1)
+	    true
 	;   error('body goal is not callable (~q)', [P])
 	).
 
@@ -211,8 +210,9 @@ normalize_alts1((P ; Q), RestC, AuxPred) :-
 	linearize((P ; Q), AuxPred, Where, LAuxSrcCl),
 	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
 
-normalize_alts1(P, _, P1) :-
-	pred_rewriting(P, P1), !.
+normalize_alts1(P, _, P2) :-
+	meta_pred_rewriting(P, P1),
+	pred_rewriting(P1, P2), !.
 
 
 
@@ -386,14 +386,22 @@ head_wrapper(Head, AuxName, Head1) :-
 	% meta_predicate rewriting
 
 meta_pred_rewriting(P1, P2) :-
-	nonvar(P1),
+%	nonvar(P1), % useless
 	functor(P1, Pred, N),
-	clause(meta_pred(Pred, N, MetaDecl), _), !,
+	get_meta_pred_decl(Pred, N, MetaDecl), !,
 	functor(P2, Pred, N),
 	meta_pred_rewrite_args(1, N, P1, MetaDecl, P2).
 
 meta_pred_rewriting(P, P).
 
+
+
+get_meta_pred_decl(Pred, N, MetaDecl) :-
+	clause(meta_pred(Pred, N, MetaDecl), _), !.
+
+get_meta_pred_decl(Pred, N, MetaDecl) :-
+	'$predicate_property1'(Pred, N, built_in),
+	'$predicate_property1'(Pred, N, meta_predicate(MetaDecl)), !.
 
 
 
@@ -419,7 +427,8 @@ meta_pred_rewrite_arg(:, A1, A2) :-
 	meta_pred_rewrite_arg(0, A1, A2).
 
 meta_pred_rewrite_arg(Spec, A1, '$mt'(Module, A1)) :-
-	integer(Spec), !,
+	integer(Spec), 
+%	functor(A1, F, N), (F \== '$mt' ;  N \== 2), !, % do not nest meta_term args
 	get_module_of_cur_pred(Module).
 
 meta_pred_rewrite_arg(_, A, A).

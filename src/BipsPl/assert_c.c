@@ -385,9 +385,9 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
 void
 Pl_Abolish_1(WamWord pred_indic_word)
 {
-  int func, arity;
-
-  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+  int module, func, arity;
+  /* FIXME: use module */
+  module = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &func, &arity);
 
   Pl_Update_Dynamic_Pred(func, arity, 3, -1);
 }

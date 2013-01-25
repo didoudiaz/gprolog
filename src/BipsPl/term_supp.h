@@ -51,6 +51,7 @@
 
 #ifdef TERM_SUPP_FILE
 
+WamWord pl_pi_module_word;
 WamWord pl_pi_name_word;
 WamWord pl_pi_arity_word;
 
@@ -58,6 +59,7 @@ PlLong pl_glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
 
 #else
 
+extern WamWord pl_pi_module_word;
 extern WamWord pl_pi_name_word;
 extern WamWord pl_pi_arity_word;
 
@@ -91,7 +93,10 @@ void Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr);
 
 void Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 
-int Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
-			  int *arity);
+WamWord Pl_Strip_Module(WamWord term_word, Bool accept_var, Bool raise_error, 
+			WamWord *goal_word);
+
+WamWord Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
+			      int *func, int *arity);
 
 Bool Pl_Acyclic_Term_1(WamWord start_word);

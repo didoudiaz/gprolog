@@ -517,14 +517,14 @@ label(6),
     proceed]).
 
 
-predicate(system:maplist/2,347,static,private,monofile,built_in,[
+predicate(system:maplist/2,351,static,private,monofile,built_in,[
     get_variable(x(2),1),
     get_variable(x(1),0),
     put_value(x(2),0),
     execute('$maplist'/2)]).
 
 
-predicate(system:'$maplist'/2,350,static,private,monofile,built_in,[
+predicate(system:'$maplist'/2,354,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -544,6 +544,7 @@ label(4),
     unify_variable(x(1)),
     unify_variable(y(0)),
     put_value(y(1),0),
+    put_meta_term(system,0,0),
     call(call/2),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -551,7 +552,7 @@ label(4),
     execute('$maplist'/2)]).
 
 
-predicate(system:maplist/3,359,static,private,monofile,built_in,[
+predicate(system:maplist/3,363,static,private,monofile,built_in,[
     get_variable(x(3),2),
     get_variable(x(2),0),
     put_value(x(1),0),
@@ -559,7 +560,7 @@ predicate(system:maplist/3,359,static,private,monofile,built_in,[
     execute('$maplist'/3)]).
 
 
-predicate(system:'$maplist'/3,362,static,private,monofile,built_in,[
+predicate(system:'$maplist'/3,366,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -584,6 +585,7 @@ label(4),
     unify_variable(y(1)),
     put_value(x(0),1),
     put_value(y(2),0),
+    put_meta_term(system,0,0),
     call(call/3),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -592,7 +594,7 @@ label(4),
     execute('$maplist'/3)]).
 
 
-predicate(system:maplist/4,371,static,private,monofile,built_in,[
+predicate(system:maplist/4,375,static,private,monofile,built_in,[
     get_variable(x(4),3),
     get_variable(x(3),0),
     put_value(x(1),0),
@@ -601,7 +603,7 @@ predicate(system:maplist/4,371,static,private,monofile,built_in,[
     execute('$maplist'/4)]).
 
 
-predicate(system:'$maplist'/4,374,static,private,monofile,built_in,[
+predicate(system:'$maplist'/4,378,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -631,6 +633,7 @@ label(4),
     put_value(x(4),1),
     put_value(x(0),2),
     put_value(y(3),0),
+    put_meta_term(system,0,0),
     call(call/4),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -640,7 +643,7 @@ label(4),
     execute('$maplist'/4)]).
 
 
-predicate(system:maplist/5,383,static,private,monofile,built_in,[
+predicate(system:maplist/5,387,static,private,monofile,built_in,[
     get_variable(x(5),4),
     get_variable(x(4),0),
     put_value(x(1),0),
@@ -650,7 +653,7 @@ predicate(system:maplist/5,383,static,private,monofile,built_in,[
     execute('$maplist'/5)]).
 
 
-predicate(system:'$maplist'/5,386,static,private,monofile,built_in,[
+predicate(system:'$maplist'/5,390,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -685,6 +688,7 @@ label(4),
     put_value(x(5),2),
     put_value(x(0),3),
     put_value(y(4),0),
+    put_meta_term(system,0,0),
     call(call/5),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -695,7 +699,7 @@ label(4),
     execute('$maplist'/5)]).
 
 
-predicate(system:maplist/6,395,static,private,monofile,built_in,[
+predicate(system:maplist/6,399,static,private,monofile,built_in,[
     get_variable(x(6),5),
     get_variable(x(5),0),
     put_value(x(1),0),
@@ -706,7 +710,7 @@ predicate(system:maplist/6,395,static,private,monofile,built_in,[
     execute('$maplist'/6)]).
 
 
-predicate(system:'$maplist'/6,398,static,private,monofile,built_in,[
+predicate(system:'$maplist'/6,402,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -746,6 +750,7 @@ label(4),
     put_value(x(6),3),
     put_value(x(0),4),
     put_value(y(5),0),
+    put_meta_term(system,0,0),
     call(call/6),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -757,7 +762,7 @@ label(4),
     execute('$maplist'/6)]).
 
 
-predicate(system:maplist/7,407,static,private,monofile,built_in,[
+predicate(system:maplist/7,411,static,private,monofile,built_in,[
     get_variable(x(7),6),
     get_variable(x(6),0),
     put_value(x(1),0),
@@ -769,7 +774,7 @@ predicate(system:maplist/7,407,static,private,monofile,built_in,[
     execute('$maplist'/7)]).
 
 
-predicate(system:'$maplist'/7,410,static,private,monofile,built_in,[
+predicate(system:'$maplist'/7,414,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -814,6 +819,7 @@ label(4),
     put_value(x(7),4),
     put_value(x(0),5),
     put_value(y(6),0),
+    put_meta_term(system,0,0),
     call(call/7),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -826,7 +832,7 @@ label(4),
     execute('$maplist'/7)]).
 
 
-predicate(system:maplist/8,419,static,private,monofile,built_in,[
+predicate(system:maplist/8,423,static,private,monofile,built_in,[
     get_variable(x(8),7),
     get_variable(x(7),0),
     put_value(x(1),0),
@@ -839,7 +845,7 @@ predicate(system:maplist/8,419,static,private,monofile,built_in,[
     execute('$maplist'/8)]).
 
 
-predicate(system:'$maplist'/8,422,static,private,monofile,built_in,[
+predicate(system:'$maplist'/8,426,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -889,6 +895,7 @@ label(4),
     put_value(x(8),5),
     put_value(x(0),6),
     put_value(y(7),0),
+    put_meta_term(system,0,0),
     call(call/8),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -902,7 +909,7 @@ label(4),
     execute('$maplist'/8)]).
 
 
-predicate(system:maplist/9,431,static,private,monofile,built_in,[
+predicate(system:maplist/9,435,static,private,monofile,built_in,[
     get_variable(x(9),8),
     get_variable(x(8),0),
     put_value(x(1),0),
@@ -916,7 +923,7 @@ predicate(system:maplist/9,431,static,private,monofile,built_in,[
     execute('$maplist'/9)]).
 
 
-predicate(system:'$maplist'/9,434,static,private,monofile,built_in,[
+predicate(system:'$maplist'/9,438,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -961,8 +968,9 @@ label(4),
     unify_variable(x(0)),
     unify_variable(y(6)),
     get_list(7),
-    unify_variable(x(8)),
+    unify_variable(x(1)),
     unify_variable(y(7)),
+    put_meta_term(system,1,8),
     put_value(x(14),1),
     put_value(x(13),2),
     put_value(x(12),3),
@@ -983,3 +991,41 @@ label(4),
     put_value(y(8),8),
     deallocate,
     execute('$maplist'/9)]).
+
+
+directive(346,system,[
+    put_atom(user,0),
+    put_structure(maplist/2,1),
+    unify_integer(1),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(347,system,[
+    put_atom(user,0),
+    put_structure(maplist/3,1),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(348,system,[
+    put_atom(user,0),
+    put_structure(maplist/4,1),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(349,system,[
+    put_atom(user,0),
+    put_structure(maplist/5,1),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).

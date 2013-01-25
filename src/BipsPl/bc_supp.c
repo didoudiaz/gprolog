@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define OBJ_INIT Byte_Code_Initializer
 
@@ -197,7 +198,8 @@ static int atom_multifile;
 static int atom_built_in;
 static int atom_built_in_fd;
 static int atom_fail;
-static int atom_if_then;
+static int atom_if;
+static int atom_soft_if;
 static int atom_call;
 static int atom_catch;
 static int atom_throw;
@@ -254,7 +256,7 @@ static void Prep_Debug_Call(int func, int arity, int caller_func,
 Prolog_Prototype(BC_EMULATE_CONT, 0);
 Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 4);
 
-Prolog_Prototype(CALL_COMPLEX, 4);
+Prolog_Prototype(CALL_COMPLEX, 5);
 Prolog_Prototype(CATCH_INTERNAL, 5);
 Prolog_Prototype(THROW_INTERNAL, 2);
 
@@ -374,7 +376,8 @@ Byte_Code_Initializer(void)
   atom_built_in = Pl_Create_Atom("built_in");
   atom_built_in_fd = Pl_Create_Atom("built_in_fd");
   atom_fail = Pl_Create_Atom("fail");
-  atom_if_then = Pl_Create_Atom("->");
+  atom_if = Pl_Create_Atom("->");
+  atom_soft_if = Pl_Create_Atom("*->");
   atom_call = Pl_Create_Atom("call");
   atom_catch = Pl_Create_Atom("catch");
   atom_throw = Pl_Create_Atom("throw");
@@ -874,38 +877,67 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-Execute_Pred(int func, int arity, WamWord *arg_adr, 
-	     int caller_module, int qualif_module,
+Execute_Pred(int module, int func, int arity, WamWord *arg_adr, 
 	     WamWord call_info_word)
 {
   PredInf *pred;
   WamWord word;  
   int i;
 
-  pred = Pl_Lookup_Pred(qualif_module, func, arity);
+  pred = Pl_Lookup_Pred(module, func, arity);
   if (pred == NULL)
     {				/* case: fail/0 from '$call_from_debugger' */
       if (func != atom_fail || arity != 0)
 	{
 	  Pl_Call_Info_Bip_Name_1(call_info_word);
-	  Pl_Unknown_Pred_Error(func, arity); /* TODO: pass qualif_module */
+	  Pl_Unknown_Pred_Error(func, arity); /* TODO: pass module */
 	}
       return ALTB(B);		/* i.e. fail */
     }
-
-  if (qualif_module != caller_module && !(pred->prop & MASK_PRED_EXPORTED))
+#if 0				/* FIXME test module != current module (1st = type_in_module) */
+  if (!(pred->prop & MASK_PRED_EXPORTED))
     {
       word = Pl_Put_Structure(ATOM_CHAR(':'), 2);
-      Pl_Unify_Atom(qualif_module);
+      Pl_Unify_Atom(module);
       Pl_Unify_Structure(ATOM_CHAR('/'), 2);
       Pl_Unify_Atom(func);
       Pl_Unify_Integer(arity);
       Pl_Err_Permission(pl_permission_operation_execute, 
                         pl_permission_type_non_exported_procedure, word);                        
     }
+#endif
 
-  for (i = 0; i < arity; i++)
-    A(i) = *arg_adr++;
+  if (arg_adr != &A(0))
+#if 1
+    memcpy(&A(0), arg_adr, sizeof(WamWord) * arity);
+#else
+    for (i = 0; i < arity; i++)
+      A(i) = *arg_adr++;
+#endif
+
+#if 1
+  if (pred->prop & MASK_PRED_META_PRED)
+    {
+      MetaSpec meta_spec = pred->meta_spec;
+      int x;
+
+      for (i = 0; i < arity; i++)
+	{
+	  x = meta_spec & 0xf;
+	  meta_spec >>= 4;
+
+	  if (x <= META_PRED_ARG_COLON)
+	    {
+	      printf("in meta-call to %s/%d meta-arg %d = ", pl_atom_tbl[func].name, arity, i);
+	      Pl_Write_Simple(A(i));
+	      A(i) = Pl_Put_Meta_Term(module, A(i));
+	      printf(" becomes ");
+	      Pl_Write_Simple(A(i));
+	      printf("\n");
+	    }
+	}
+    }
+#endif
 
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
@@ -916,33 +948,29 @@ Execute_Pred(int func, int arity, WamWord *arg_adr,
 
 
 
-
 /*-------------------------------------------------------------------------*
  * PL_BC_CALL_INITIAL                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-
-
-/* called by '$call'/5 */
-
-WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word, 
-			     WamWord caller_func_word, WamWord caller_arity_word,
-			     WamWord debug_call_word)
-
+WamCont
+Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr, 
+		   int caller_func, int caller_arity)
 {
-  int caller_module = Pl_Rd_Atom(caller_module_word);
-  int qualif_module = caller_module;
-  int qualif_module_orig = qualif_module;
-  WamWord call_info_word = Tag_INT(Pl_Make_Call_Info(caller_func_word, caller_arity_word, debug_call_word));
-  int func, arity;
-  WamWord *arg_adr;
+  WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, 1));
+  int module;
 
 
-  Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
+  Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
+
+  /* here module_word cannot be a var since Pl_Strip_Module should have been 
+   * called with accept_var = FALSE */
+
+  if (module_word == NOT_A_WAM_WORD)
+    module = pl_atom_user;
+  else
+    module = UnTag_ATM(module_word);
 
  terminal_rec:
-
-  arg_adr = Pl_Rd_Callable_Check(pred_word, &func, &arity);
 
   /* treat control constructs */
 
@@ -957,11 +985,10 @@ WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word,
 
       break;
 
-    case 1:			/* call is not transparent to module qualif */
+    case 1:
       if (func == atom_call)
 	{
-	  qualif_module = qualif_module_orig; /* not transparent to module qualif */
-	  pred_word = *arg_adr;
+	  arg_adr = Pl_Rd_Callable_Check(*arg_adr, &func, &arity);
 	  goto terminal_rec;
 	}
 
@@ -978,8 +1005,8 @@ WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word,
 	  arg_adr++;		      /* skip Offset (should we test it ?) */
 	  if (Tag_Mask_Of(*arg_adr) != TAG_ATM_MASK) /* should be dereferenced */
 	    break;		/* treat it as a normal goal ! */
-	  caller_module = UnTag_ATM(*arg_adr);
-	  pred_word = *++arg_adr;
+	  module = UnTag_ATM(*arg_adr);
+	  arg_adr = Pl_Rd_Callable_Check(*++arg_adr, &func, &arity);
 	  goto terminal_rec;
 	}
 #endif      
@@ -989,18 +1016,19 @@ WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word,
     case 2:
       if (func == ATOM_CHAR(':'))
 	{
-	  qualif_module = Pl_Rd_Atom_Check(*arg_adr++);
-	  pred_word = *arg_adr;
+	  module = Pl_Rd_Atom_Check(*arg_adr);
+	  arg_adr = Pl_Rd_Callable_Check(*++arg_adr, &func, &arity);
 	  goto terminal_rec;
 	}
       
-      if (func == ATOM_CHAR(',') || func == ATOM_CHAR(';') || func == atom_if_then)
+      if (func == ATOM_CHAR(',') || func == ATOM_CHAR(';') || func == atom_if || func == atom_soft_if)
 	{
-	  A(0) = pred_word;
-	  A(1) = Tag_ATM(caller_module);
-	  A(2) = Tag_ATM(qualif_module);
-	  A(3) = call_info_word;
-	  return (CodePtr) Prolog_Predicate(CALL_COMPLEX, 4);
+	  A(0) = Tag_ATM(func);
+	  A(1) = *arg_adr++;
+	  A(2) = *arg_adr;
+	  A(3) = Tag_ATM(module);
+	  A(4) = call_info_word;
+	  return (CodePtr) Prolog_Predicate(CALL_COMPLEX, 5);
 	}
 
       break;
@@ -1011,7 +1039,7 @@ WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word,
 	 A(0) = *arg_adr++;
 	 A(1) = *arg_adr++;
 	 A(2) = *arg_adr;
-	 A(3) = Tag_ATM(caller_module);
+	 A(3) = Tag_ATM(module);
 	 A(4) = call_info_word;
 	 return (CodePtr) Prolog_Predicate(CATCH_INTERNAL, 5);
        }
@@ -1022,20 +1050,49 @@ WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word,
   /* here we have a simple predicate to call */
 
   debug_call = 1;
-
+#if 0				  /* FIXME */
   if (pl_debug_call_code != NULL) /* inform the debugger if active */
     {
       A(0) = pred_word;
-      A(1) = Tag_ATM(caller_module);
-      A(2) = Tag_ATM(qualif_module);
+      A(1) = Tag_ATM(module);
+      A(2) = Tag_ATM(module);	/* FIXME QualifModule */
       A(3) = call_info_word;
       return pl_debug_call_code;
     }
-
-  return Execute_Pred(func, arity, arg_adr, caller_module, qualif_module,
-		      call_info_word);
+#endif
+  return Execute_Pred(module, func, arity, arg_adr, call_info_word);
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BC_CALL_INITIAL_3                                                    *
+ *                                                                         *
+ * called by '$call'/5    FIXME arity of $call in this comment             *
+ *-------------------------------------------------------------------------*/
+WamCont 
+Pl_BC_Call_Initial_3(WamWord pred_word, WamWord caller_func_word, WamWord caller_arity_word,
+		     WamWord debug_call_word)
+
+{
+  WamWord module_word;
+  int func, arity;
+  int caller_func, caller_arity;
+  WamWord *arg_adr;
+
+
+  Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
+  
+  module_word = Pl_Strip_Module(pred_word, FALSE, TRUE, &pred_word);
+
+  caller_func = Pl_Rd_Atom(caller_func_word);
+  caller_arity = Pl_Rd_Integer(caller_arity_word);
+
+  arg_adr = Pl_Rd_Callable_Check(pred_word, &func, &arity);
+
+  return Pl_BC_Call_Initial(module_word, func, arity, arg_adr, caller_func, caller_arity);
+}
 
 
 
@@ -1045,13 +1102,12 @@ WamCont Pl_BC_Call_Initial_5(WamWord pred_word, WamWord caller_module_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamCont
-Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord caller_module_word,
+Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 			   WamWord call_info_word, WamWord first_call_word)
 {
   int func, arity;
   WamWord *arg_adr;
-  int caller_module = Pl_Rd_Atom(caller_module_word);
-  int qualif_module = caller_module;/* FIXME: CallerModule != QualifModule ? */
+  int module = Pl_Rd_Atom(module_word);
 
   arg_adr = Pl_Rd_Callable(pred_word, &func, &arity); /* we know it is a callable */
 
@@ -1061,12 +1117,12 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord caller_module_word,
       (first_call_word & (1 << TAG_SIZE_LOW)))
     {
       A(0) = pred_word;
-      A(1) = caller_module_word;
+      A(1) = module_word;
       A(2) = call_info_word;
       return pl_debug_call_code;
     }
 
-  return Execute_Pred(func, arity, arg_adr, caller_module, qualif_module, call_info_word);
+  return Execute_Pred(module, func, arity, arg_adr, call_info_word);
 }
 
 
@@ -1167,11 +1223,10 @@ BC_Emulate_Clause(DynCInf *clause)
     if (!Pl_Unify(A(i), *arg_adr++))
       goto fail;
 
-  A(4) = A(arity);		/* NB: must be first */
+  A(3) = A(arity);		/* NB: must be first */
   A(0) = body_word;
-  A(1) = Tag_ATM(pl_atom_user); /* caller module   TODO: fix me */
-  A(2) = Tag_ATM(pl_atom_user);	/* qualif module   TODO: fix me */
-  A(3) = Tag_INT(Call_Info(func, arity, debug_call));
+  A(1) = Tag_ATM(pl_atom_user); /* caller module   TODO: FIXME */
+  A(2) = Tag_INT(Call_Info(func, arity, debug_call));
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 4);
 
 fail:

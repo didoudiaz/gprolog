@@ -39,6 +39,8 @@
 
 #include <string.h>
 
+#define OBJ_INIT Term_Supp_Initializer
+
 #define TERM_SUPP_FILE
 
 #include "engine_pl.h"
@@ -70,6 +72,12 @@ static WamWord *top_vars;
 
 
 
+static int pl_atom_call;
+static int pl_atom_call_internal;
+
+
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -79,6 +87,20 @@ static void Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p);
 static Bool Term_Hash(WamWord start_word, PlLong depth, unsigned *hash);
 
 static Bool Term_Hash_Rec(WamWord start_word, PlLong depth, HashIncrInfo *hi);
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * TERM_SUPP_INITIALIZER                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Term_Supp_Initializer(void)
+{
+  pl_atom_call = Pl_Create_Atom("call");
+  pl_atom_call_internal = Pl_Create_Atom("$call_internal");
+}
 
 
 
@@ -482,7 +504,7 @@ terminal_rec:
  *-------------------------------------------------------------------------*/
 void
 Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr)
-#define Old_Adr_To_New_Adr(adr)  ((dst_adr)+((adr)-(src_adr)))
+#define Old_Adr_To_New_Adr(adr)  ((dst_adr) + ((adr) - (src_adr)))
 {
   WamWord word, *adr;
   WamWord *q;
@@ -558,28 +580,115 @@ terminal_rec:
 
 
 /*-------------------------------------------------------------------------*
- * PL_GET_PRED_INDICATOR                                                   *
+ * PL_STRIP_MODULE                                                         *
  *                                                                         *
- * returns the functor and initializes the arity of the predicate indicator*
- * func= -1 if it is a variable, arity= -1 if it is a variable             *
+ * Decompose a meta-term (qualified term): stop when no more (:)/2 or if   *
+ * the module part is not an atom (consume var if accept_var = TRUE)       *
+ *                                                                         *
+ * The remaining term forms the goal_word (dereferenced).                  *
+ *                                                                         *
+ * Return: the module_word (dereferenced) (atom or var) or NOT_A_WAM_WORD  *
  *-------------------------------------------------------------------------*/
-int
-Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
+WamWord
+Pl_Strip_Module(WamWord start_word, Bool accept_var, Bool raise_error,
+		WamWord *goal_word)
 {
   WamWord word, tag_mask;
-  int func;
+  WamWord *adr;
+  WamWord module_word = NOT_A_WAM_WORD;
+
+  for(;;)
+    {
+      DEREF(start_word, word, tag_mask);
+      *goal_word = word;
+
+      if (tag_mask != TAG_STC_MASK)
+	break;
+
+      adr = UnTag_STC(word);
+      if (Functor_And_Arity(adr) == Functor_Arity(ATOM_CHAR(':'), 2))
+	{
+	  DEREF(Arg(adr, 0), word, tag_mask);
+
+	  if (tag_mask == TAG_ATM_MASK)
+	    {
+	    eat_it:
+	      module_word = word;
+	      start_word = Arg(adr, 1);
+	      continue;
+	    }
+
+	  if (tag_mask == TAG_REF_MASK)
+	    {
+	      if (accept_var)
+		goto eat_it;
+
+	      if (raise_error)
+		Pl_Err_Instantiation();
+
+	      break;
+	    }
+
+	  if (raise_error)
+	    Pl_Err_Type(pl_type_atom, word);
+
+	  break;
+	}
+
+#ifdef META_TERM_HIDDEN
+      if (Functor_And_Arity(adr) == Functor_Arity(pl_atom_meta_term, 1))
+	{
+	  word = Arg(adr, 1); /* 0 is the offset */
+	  DEREF(word, word, tag_mask);
+	  if (tag_mask == TAG_ATM_MASK) 
+	    {
+	      module_word = word;
+	      start_word = Arg(adr, 2);
+	      continue;
+	    }
+	}
+#endif
+
+
+      break;
+    }
+
+  return module_word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_PRED_INDICATOR                                                   *
+ *                                                                         *
+ * Initializes the functor and arity of the predicate indicator.           *
+ * func and arity: -1 means a variable.                                    *
+ * Return the module (see Pl_Strip_Module)                                 *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, 
+		      int *func, int *arity)
+{
+  WamWord pred_indic_word1;
+  WamWord module_word;
+  WamWord word, tag_mask;
   PlLong arity1;
 
-  DEREF(pred_indic_word, word, tag_mask);
+  module_word = Pl_Strip_Module(pred_indic_word, !must_be_ground, TRUE, &pred_indic_word1);
+  pl_pi_module_word = module_word;
+
+  /* FIXME what do we return ??? */
+  DEREF(pred_indic_word1, word, tag_mask);
   if (tag_mask == TAG_REF_MASK && must_be_ground)
     Pl_Err_Instantiation();
 
-  if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word))
+  if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word1))
     {
 #if 0 /* no longer accept a callable when a predicate indicator is expected */
       if (!Flag_Value(FLAG_STRICT_ISO) &&
-	  Pl_Rd_Callable(word, &func, arity) != NULL)
-	return func;
+	  Pl_Rd_Callable(word, func, arity) != NULL)
+	return module_word;
 #endif
       Pl_Err_Type(pl_type_predicate_indicator, pred_indic_word);
     }
@@ -589,9 +698,9 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
 
   DEREF(pl_pi_name_word, word, tag_mask);
   if (!must_be_ground && tag_mask == TAG_REF_MASK)
-    func = -1;
+    *func = -1;
   else
-    func = Pl_Rd_Atom_Check(word);
+    *func = Pl_Rd_Atom_Check(word);
 
 
   DEREF(pl_pi_arity_word, word, tag_mask);
@@ -607,7 +716,7 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
       *arity = arity1;
     }
 
-  return func;
+  return module_word;
 }
 
 
@@ -621,14 +730,14 @@ Bool
 Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
 		    WamWord arity_word)
 {
+  WamWord module_word;
   int func, arity;
 
-  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+  /* FIXME: use module */
+  module_word = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
   return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
 }
-
-
 
 
 
@@ -843,4 +952,118 @@ Bool
 Pl_Term_Hash_2(WamWord start_word, WamWord hash_word)
 {
   return Pl_Term_Hash_4(start_word, Tag_INT(-1), Tag_INT(0), hash_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * TERM_TO_GOAL_REC                                                        *
+ *                                                                         *
+ * Converts a term to a goal. Used for meta-call and for assert(a/z).      *
+ * module_word can be NOT_A_WAM_WORD iff called for assert.                *
+ * call_info_word = NOT_A_WAM_WORD for assert else the call_info of call.  *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Term_To_Goal_Rec(WamWord term_word, WamWord module_word, WamWord call_info_word,
+		 WamWord full_term_word)
+{
+  WamWord word, tag_mask;
+  int func, arity;
+  WamWord goal_word;
+  WamWord *adr;
+  WamWord *cur_H;
+
+#define FOR_ASSERT  (call_info_word == NOT_A_WAM_WORD)
+
+ terminal_rec:
+
+  DEREF(term_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
+    {
+    surround_with_call:
+      if (FOR_ASSERT)		/* var X --> call(X) */
+	{
+	  if (module_word != NOT_A_WAM_WORD)	/* module M is given --> call(M:X) */
+	    {
+	      goal_word = Pl_Put_Structure(pl_atom_call, 1);
+	      Pl_Unify_Structure(ATOM_CHAR(':'), 2);
+	      Pl_Unify_Value(module_word);
+	      Pl_Unify_Value(word);
+	    }
+	  else
+	    {
+	      goal_word = Pl_Put_Structure(pl_atom_call, 1);
+	      Pl_Unify_Value(word);
+	    }
+	}
+      else			/* var X --> '$call_internal'(X, Module, CallInfo) */
+	{
+	  goal_word = Pl_Put_Structure(pl_atom_call_internal, 3);
+	  Pl_Unify_Value(word);
+	  Pl_Unify_Value(module_word);
+	  Pl_Unify_Value(call_info_word);
+	}
+      return goal_word;
+    }
+
+
+  if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_LST_MASK)
+    return word;		/* copy it */
+
+
+  if (tag_mask != TAG_STC_MASK)
+    Pl_Err_Type(pl_type_callable, full_term_word);
+
+
+  adr = UnTag_STC(word);
+  func = Functor(adr);
+  arity = Arity(adr);
+
+  if (arity != 2)
+    return word;		/* copy it */
+
+  if (func == ATOM_CHAR(':')) 	/* module qualification */
+    {
+      DEREF(*adr, word, tag_mask);
+      if (tag_mask == TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
+	Pl_Err_Type(pl_type_atom, word);
+      module_word = word;
+      term_word = adr[1];
+      if (tag_mask == TAG_REF_MASK)
+	{
+	  word = Term_To_Goal_Rec(term_word, module_word, call_info_word, full_term_word);
+	  goto surround_with_call;
+	}
+      goto terminal_rec;
+    }
+
+  if (func != ATOM_CHAR('?'))
+    goal_word = Tag_STC(H);
+  *H++ = *adr++;		/* copy functor / arity (Functor_And_Arity(adr)) */
+
+
+
+  /* here we have arity words to put on the heap */
+  cur_H = H;
+  H += arity;
+  while(--arity)
+    *cur_H++ = Term_To_Goal_Rec(*adr++, module_word, call_info_word, full_term_word);
+
+  term_word = *adr;
+  goto terminal_rec;
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_TERM_TO_GOAL                                                         *
+ *                                                                         *
+ * Converts a term to a goal. Used for meta-call and for assert(a/z).      *
+ * module can be -1 iff called for assert.                                 *
+ * call_info_word = NOT_A_WAM_WORD for assert else the call_info of call.  *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Term_To_Goal(WamWord term_word, WamWord module_word, WamWord call_info_word)
+{
+  return Term_To_Goal_Rec(term_word, module_word, call_info_word, term_word);
 }

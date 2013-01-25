@@ -41,10 +41,15 @@
 
 '$use_catch'.
 
+:- meta_predicate('$call'(0, ?, 0, +, +)).
+
+'$catch'(Goal, Catch, Recovery, Func, Arity) :-
+	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, true)),
+	'$catch1'(Goal, Catch, Recovery, 0).
 
 
           % Warning the name '$catch_internal1' is tested by the debugger
-
+/* should not be called anymore */
 '$catch'(Goal, Catch, Recovery, Func, Arity, DebugCall) :-
 	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
 	'$catch1'(Goal, Catch, Recovery, 0).

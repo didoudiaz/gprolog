@@ -42,6 +42,17 @@
 '$use_call_args'.
 
 
+:- meta_predicate(call_with_args(1)).
+:- meta_predicate(call_with_args(1, ?)).
+:- meta_predicate(call_with_args(2, ?, ?)).
+:- meta_predicate(call_with_args(3, ?, ?, ?)).
+:- meta_predicate(call_with_args(4, ?, ?, ?, ?)).
+:- meta_predicate(call_with_args(5, ?, ?, ?, ?, ?)).
+:- meta_predicate(call_with_args(6, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call_with_args(7, ?, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call_with_args(8, ?, ?, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call_with_args(9, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call_with_args(10, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
 
 call_with_args(_F) :-
 	'$call_c'('Pl_Call_Closure'(call_with_args, 0), [jump, by_value]).
@@ -77,6 +88,16 @@ call_with_args(_F, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9, _A10) :-
 	'$call_c'('Pl_Call_Closure'(call_with_args, 10), [jump, by_value]).
 
 
+:- meta_predicate(call(1, ?)).
+:- meta_predicate(call(2, ?, ?)).
+:- meta_predicate(call(3, ?, ?, ?)).
+:- meta_predicate(call(4, ?, ?, ?, ?)).
+:- meta_predicate(call(5, ?, ?, ?, ?, ?)).
+:- meta_predicate(call(6, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call(7, ?, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call(8, ?, ?, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call(9, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
+:- meta_predicate(call(10, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
 
 call(_Closure, _A1) :-
 	'$call_c'('Pl_Call_Closure'(call, 1), [jump, by_value]).

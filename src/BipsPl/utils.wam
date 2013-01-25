@@ -5,190 +5,218 @@
 file_name('/home/diaz/GP/src/BipsPl/utils.pl').
 
 
-predicate(system:'$term_to_goal'/5,43,static,private,monofile,built_in,[
-    put_atom('$term_to_goal_info',5),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(5),x(1)]),
-    put_atom('$term_to_goal_caller_module',1),
+predicate(system:'$term_to_goal'/4,43,static,private,monofile,built_in,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),4),
+    put_atom('$term_to_goal_module',4),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(4),x(1)]),
+    put_atom('$term_to_goal_info',1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_value(x(3),1),
-    put_value(x(4),2),
-    execute('$term_to_goal1'/3)]).
+    call('$term_to_goal1'/2),
+    cut(y(0)),
+    deallocate,
+    proceed,
 
-
-predicate(system:'$term_to_goal1'/5,48,static,private,monofile,built_in,[
+label(1),
+    trust_me_else_fail,
     put_value(x(0),1),
     put_atom(callable,0),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$term_to_goal1'/3,52,static,private,monofile,built_in,[
-    pragma_arity(4),
-    get_current_choice(x(3)),
+predicate(system:'$term_to_goal1'/2,52,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
-    get_variable(x(1),2),
-    get_variable(x(2),0),
-    call_c('Pl_Blt_Var',[fast_call,boolean],[x(2)]),
-    cut(x(3)),
-    put_atom('$term_to_goal_call_info',3),
-    put_variable(x(0),4),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(3),x(4)]),
-    put_atom('$term_to_goal_caller_module',4),
+    get_variable(x(4),0),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(4)]),
+    cut(x(2)),
+    put_atom('$term_to_goal_call_info',2),
+    put_variable(x(0),3),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(3)]),
+    put_atom('$term_to_goal_module',2),
     put_variable(x(3),5),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(4),x(5)]),
-    execute('$$term_to_goal1/3_$aux1'/4),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(5)]),
+    put_value(x(4),2),
+    execute('$$term_to_goal1/2_$aux1'/4),
 
 label(1),
-    retry_me_else(11),
+    retry_me_else(13),
     switch_on_term(3,fail,fail,fail,2),
 
 label(2),
-    switch_on_structure([((:)/2,4),((->)/2,6),((',')/2,8),((;)/2,10)]),
+    switch_on_structure([((:)/2,4),((->)/2,6),((*->)/2,8),((',')/2,10),((;)/2,12)]),
 
 label(3),
     try_me_else(5),
 
 label(4),
+    allocate(1),
     get_structure((:)/2,0),
-    unify_variable(x(1)),
+    unify_variable(x(3)),
     unify_variable(x(0)),
-    cut(x(3)),
-    execute('$term_to_goal1'/3),
+    cut(x(2)),
+    put_atom('$term_to_goal_module',2),
+    put_variable(y(0),4),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(4)]),
+    put_atom('$term_to_goal_module',2),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(2),x(3)]),
+    call('$term_to_goal1'/2),
+    put_atom('$term_to_goal_module',0),
+    put_unsafe_value(y(0),1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    deallocate,
+    proceed,
 
 label(5),
     retry_me_else(7),
 
 label(6),
-    allocate(3),
-    get_variable(y(1),1),
+    allocate(2),
     get_structure((->)/2,0),
     unify_variable(x(0)),
     unify_variable(y(0)),
-    get_structure((->)/2,2),
-    unify_variable(x(2)),
-    unify_variable(y(2)),
-    cut(x(3)),
-    put_value(y(1),1),
-    call('$term_to_goal1'/3),
+    get_structure((->)/2,1),
+    unify_variable(x(1)),
+    unify_variable(y(1)),
+    cut(x(2)),
+    call('$term_to_goal1'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_value(y(2),2),
     deallocate,
-    execute('$term_to_goal1'/3),
+    execute('$term_to_goal1'/2),
 
 label(7),
     retry_me_else(9),
 
 label(8),
-    allocate(3),
-    get_variable(y(1),1),
+    allocate(2),
+    get_structure((*->)/2,0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    get_structure((*->)/2,1),
+    unify_variable(x(1)),
+    unify_variable(y(1)),
+    cut(x(2)),
+    call('$term_to_goal1'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$term_to_goal1'/2),
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    allocate(2),
     get_structure((',')/2,0),
     unify_variable(x(0)),
     unify_variable(y(0)),
-    get_structure((',')/2,2),
-    unify_variable(x(2)),
-    unify_variable(y(2)),
-    cut(x(3)),
-    put_value(y(1),1),
-    call('$term_to_goal1'/3),
+    get_structure((',')/2,1),
+    unify_variable(x(1)),
+    unify_variable(y(1)),
+    cut(x(2)),
+    call('$term_to_goal1'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_value(y(2),2),
     deallocate,
-    execute('$term_to_goal1'/3),
+    execute('$term_to_goal1'/2),
 
-label(9),
+label(11),
     trust_me_else_fail,
 
-label(10),
-    allocate(3),
-    get_variable(y(1),1),
+label(12),
+    allocate(2),
     get_structure((;)/2,0),
     unify_variable(x(0)),
     unify_variable(y(0)),
-    get_structure((;)/2,2),
-    unify_variable(x(2)),
-    unify_variable(y(2)),
-    cut(x(3)),
-    put_value(y(1),1),
-    call('$term_to_goal1'/3),
+    get_structure((;)/2,1),
+    unify_variable(x(1)),
+    unify_variable(y(1)),
+    cut(x(2)),
+    call('$term_to_goal1'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_value(y(2),2),
     deallocate,
-    execute('$term_to_goal1'/3),
-
-label(11),
-    retry_me_else(12),
-    get_value(x(2),0),
-    get_structure(call/1,2),
-    unify_void(1),
-    cut(x(3)),
-    proceed,
-
-label(12),
-    retry_me_else(13),
-    get_value(x(2),0),
-    get_structure(catch/3,2),
-    unify_void(3),
-    cut(x(3)),
-    proceed,
+    execute('$term_to_goal1'/2),
 
 label(13),
+    retry_me_else(14),
+    get_value(x(1),0),
+    get_structure(call/1,1),
+    unify_void(1),
+    cut(x(2)),
+    proceed,
+
+label(14),
+    retry_me_else(15),
+    get_value(x(1),0),
+    get_structure(catch/3,1),
+    unify_void(3),
+    cut(x(2)),
+    proceed,
+
+label(15),
     trust_me_else_fail,
-    get_variable(x(3),2),
     get_variable(x(2),0),
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(2)]),
-    put_value(x(1),0),
-    put_value(x(3),1),
-    execute('$$term_to_goal1/3_$aux2'/3)]).
+    put_atom('$term_to_goal_module',3),
+    put_variable(x(0),4),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(3),x(4)]),
+    execute('$$term_to_goal1/2_$aux2'/3)]).
 
 
-predicate(user:'$$term_to_goal1/3_$aux2'/3,89,static,private,monofile,local,[
+predicate(user:'$$term_to_goal1/2_$aux2'/3,98,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
-    put_atom('$term_to_goal_caller_module',4),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(4),x(0)]),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(x(3)),
+    get_structure((:)/2,1),
+    unify_local_value(x(0)),
+    unify_local_value(x(2)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
     get_value(x(2),1),
+    proceed]).
+
+
+predicate(user:'$$term_to_goal1/2_$aux1'/4,52,static,private,monofile,local,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
+    try_me_else(1),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    cut(x(4)),
+    get_structure('$call_internal'/3,1),
+    unify_local_value(x(2)),
+    unify_local_value(x(3)),
+    unify_local_value(x(0)),
     proceed,
 
 label(1),
     retry_me_else(2),
-    get_atom(none,0),
-    cut(x(3)),
-    get_value(x(2),1),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(3)]),
+    cut(x(4)),
+    get_structure(call/1,1),
+    unify_structure((:)/2),
+    unify_local_value(x(3)),
+    unify_local_value(x(2)),
     proceed,
 
 label(2),
     trust_me_else_fail,
-    get_structure((:)/2,1),
-    unify_local_value(x(0)),
-    unify_local_value(x(2)),
-    proceed]).
-
-
-predicate(user:'$$term_to_goal1/3_$aux1'/4,52,static,private,monofile,local,[
-    pragma_arity(5),
-    get_current_choice(x(4)),
-    try_me_else(1),
-    get_atom(none,0),
-    cut(x(4)),
     get_structure(call/1,1),
     unify_local_value(x(2)),
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    get_structure('$call_internal'/4,1),
-    unify_local_value(x(2)),
-    unify_local_value(x(3)),
-    unify_local_value(x(3)),
-    unify_local_value(x(0)),
     proceed]).
 
 
-predicate(system:'$check_list'/1,101,static,private,monofile,built_in,[
+predicate(system:'$check_list'/1,110,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -209,7 +237,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$check_list_or_partial_list'/1,114,static,private,monofile,built_in,[
+predicate(system:'$check_list_or_partial_list'/1,123,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -224,7 +252,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$check_atom_or_atom_list'/1,123,static,private,monofile,built_in,[
+predicate(system:'$check_atom_or_atom_list'/1,132,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -242,7 +270,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$check_atom_or_atom_list1'/1,130,static,private,monofile,built_in,[
+predicate(system:'$check_atom_or_atom_list1'/1,139,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -278,7 +306,7 @@ label(6),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$check_atom_or_atom_list2'/1,144,static,private,monofile,built_in,[
+predicate(system:'$check_atom_or_atom_list2'/1,153,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -299,7 +327,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$get_head_and_body'/3,157,static,private,monofile,built_in,[
+predicate(system:'$get_head_and_body'/3,166,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -318,7 +346,7 @@ label(1),
     execute('$check_head'/1)]).
 
 
-predicate(system:'$check_head'/1,167,static,private,monofile,built_in,[
+predicate(system:'$check_head'/1,176,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -331,7 +359,7 @@ label(1),
     execute('$$check_head/1_$aux1'/1)]).
 
 
-predicate(user:'$$check_head/1_$aux1'/1,171,static,private,monofile,local,[
+predicate(user:'$$check_head/1_$aux1'/1,180,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -346,6 +374,6 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$get_pred_indic'/3,180,static,private,monofile,built_in,[
+predicate(system:'$get_pred_indic'/3,189,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

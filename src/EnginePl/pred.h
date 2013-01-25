@@ -50,8 +50,15 @@
 #define MASK_PRED_BUILTIN_FD        16	  /* FD built-in pred  (==> MASK_PRED_BUILTIN) */
 #define MASK_PRED_CONTROL_CONSTRUCT 32	  /* control_construct (==> MASK_PRED_BUILTIN) */
 #define MASK_PRED_MULTIFILE         64	  /* multifile or monofile */
-#define MASK_PRED_EXPORTED          128	  /* exported by module not yet used - for future */
+#define MASK_PRED_EXPORTED          128	  /* exported by module */
+#define MASK_PRED_META_PRED         256	  /* has a meta_predicate declaration (see macros) */
 
+
+        /* Each meta_predicate arg specif is coded on 4 bits (0..10 are for integ) */
+#define META_PRED_ARG_COLON         11 	  /* meta spec : (meta) */
+#define META_PRED_ARG_PLUS          12	  /* meta spec + (nonvar) */
+#define META_PRED_ARG_MINUS         13	  /* meta spec - (var) */
+#define META_PRED_ARG_QUESTION      14	  /* meta spec ? (any term) */
 
 
 
@@ -59,6 +66,8 @@
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
+
+typedef uint64_t MetaSpec;	/* 4-bits/arg for meta_pred spec  */
 
 typedef struct			/* Module information             */
 {				/* ------------------------------ */
@@ -74,6 +83,7 @@ typedef struct			/* Predicate information          */
   int pl_file;			/* atom pl file of its definiton  */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */
+  MetaSpec meta_spec;		/* meta_predicate specifier       */
   PlLong *codep;		/* compiled code                  */
   PlLong *dyn;			/* dynamic info (cf BipsPl)       */
 }
@@ -119,6 +129,9 @@ void Pl_Create_Pred_Table(void);
 
 PredInf * FC Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line,
 			    int prop, long *codep);
+
+PredInf * FC Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line,
+				 int prop, long *codep, int meta_arg[]);
 
 PredInf * FC Pl_Lookup_Pred(int module, int func, int arity);
 

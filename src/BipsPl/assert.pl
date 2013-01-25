@@ -41,6 +41,8 @@
 
 '$use_assert'.
 
+:- meta_predicate(asserta(:)).
+:- meta_predicate(assertz(:)).
 
 asserta(C) :-
 	set_bip_name(asserta, 1),
@@ -58,7 +60,7 @@ assertz(C) :-
 
 '$assert'(C, Asserta, CheckPerm, FileName) :-
 	'$get_head_and_body'(C, H, B),
-	'$term_to_goal'(B, user, -1, none, B1),
+	'$term_to_goal'(B, 'no call info', 0, B1),
 	'$call_c'('Pl_Assert_5'(H, B1, Asserta, CheckPerm, FileName)),
 	fail.
 
@@ -66,6 +68,7 @@ assertz(C) :-
 
 
 
+:- meta_predicate(retract(:)).
 
 retract(C) :-
 	set_bip_name(retract, 1),
@@ -78,6 +81,7 @@ retract(C) :-
 
 
 
+:- meta_predicate(retractall(:)).
 
 retractall(H) :-
 	set_bip_name(retractall, 1),
@@ -96,6 +100,8 @@ retractall(_).
 	'$call_c'('Pl_Retract_Last_Found_0').
 
 
+
+:- meta_predicate(clause(:, ?)).
 
 clause(H, B) :-
 	set_bip_name(clause, 2),
@@ -116,6 +122,7 @@ clause(H, B) :-
 	'$call_c'('Pl_Setarg_Of_Last_Found_2'(ArgNo, NewValue)).
 
 
+:- meta_predicate(abolish(:)).
 
 abolish(PI) :-
 	set_bip_name(abolish, 1),

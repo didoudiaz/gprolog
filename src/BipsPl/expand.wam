@@ -59,30 +59,29 @@ predicate(system:'$call_term_expansion'/2,65,static,private,monofile,built_in,[
     put_structure((/)/2,0),
     unify_atom(term_expansion),
     unify_integer(2),
-    call(current_predicate/1),
+    call('$current_predicate'/1),
     put_structure(term_expansion/2,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
-    put_atom(system,1),
-    put_atom('$call_term_expansion',2),
-    put_integer(2,3),
-    put_atom(true,4),
+    put_meta_term(system,0,0),
+    put_atom('$call_term_expansion',1),
+    put_integer(2,2),
     deallocate,
-    execute('$call'/5)]).
+    execute('$call'/3)]).
 
 
-predicate(system:phrase/2,72,static,private,monofile,built_in,[
+predicate(system:phrase/2,75,static,private,monofile,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(system:phrase/3,78,static,private,monofile,built_in,[
+predicate(system:phrase/3,81,static,private,monofile,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate(system:'$phrase'/4,84,static,private,monofile,built_in,[
+predicate(system:'$phrase'/4,87,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -99,8 +98,10 @@ predicate(system:'$phrase'/4,84,static,private,monofile,built_in,[
     put_variable(y(5),3),
     call('$dcg_trans_body'/4),
     put_value(y(5),0),
+    put_meta_term(system,0,0),
     put_atom(user,1),
     put_atom(phrase,2),
+    put_meta_term(system,2,2),
     put_value(y(3),3),
     put_atom(true,4),
     call('$call'/5),
@@ -110,7 +111,7 @@ predicate(system:'$phrase'/4,84,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(user:'$$phrase/4_$aux1'/1,84,static,private,monofile,local,[
+predicate(user:'$$phrase/4_$aux1'/1,87,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -123,11 +124,28 @@ label(1),
     proceed]).
 
 
-predicate(system:'$dcg_trans_rule'/2,100,static,private,monofile,built_in,[
+predicate(system:'$dcg_trans_rule'/2,103,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:'$dcg_trans_body'/4,106,static,private,monofile,built_in,[
+predicate(system:'$dcg_trans_body'/4,109,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
+
+
+directive(72,system,[
+    put_atom(user,0),
+    put_structure(phrase/2,1),
+    unify_integer(2),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(73,system,[
+    put_atom(user,0),
+    put_structure(phrase/3,1),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).

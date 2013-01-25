@@ -42,6 +42,9 @@
 '$use_fd_optim'.
 
 
+:- meta_predicate(fd_minimize(0, ?)).
+:- meta_predicate(fd_maximize(0, ?)).
+
 fd_minimize(Goal, Var) :-
 	fd_max_integer(Inf),
 	g_assign('$cur_min', Inf),

@@ -9,7 +9,7 @@ predicate(system:'$use_assert'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:asserta/1,45,static,private,monofile,built_in,[
+predicate(system:asserta/1,47,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[asserta,1]),
     put_integer(1,1),
     put_integer(1,2),
@@ -17,7 +17,7 @@ predicate(system:asserta/1,45,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate(system:assertz/1,52,static,private,monofile,built_in,[
+predicate(system:assertz/1,54,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[assertz,1]),
     put_integer(0,1),
     put_integer(1,2),
@@ -25,7 +25,7 @@ predicate(system:assertz/1,52,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate(system:'$assert'/4,59,static,private,monofile,built_in,[
+predicate(system:'$assert'/4,61,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(6),
     get_variable(y(0),1),
@@ -35,11 +35,10 @@ predicate(system:'$assert'/4,59,static,private,monofile,built_in,[
     put_variable(y(4),2),
     call('$get_head_and_body'/3),
     put_value(y(4),0),
-    put_atom(user,1),
-    put_integer(-1,2),
-    put_atom(none,3),
-    put_variable(y(5),4),
-    call('$term_to_goal'/5),
+    put_atom('no call info',1),
+    put_integer(0,2),
+    put_variable(y(5),3),
+    call('$term_to_goal'/4),
     put_unsafe_value(y(3),0),
     put_unsafe_value(y(5),1),
     put_value(y(0),2),
@@ -53,7 +52,7 @@ label(1),
     proceed]).
 
 
-predicate(system:retract/1,70,static,private,monofile,built_in,[
+predicate(system:retract/1,73,static,private,monofile,built_in,[
     allocate(2),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retract,1]),
     put_variable(y(0),1),
@@ -65,12 +64,12 @@ predicate(system:retract/1,70,static,private,monofile,built_in,[
     execute('$retract'/2)]).
 
 
-predicate(system:'$retract'/2,76,static,private,monofile,built_in,[
+predicate(system:'$retract'/2,79,static,private,monofile,built_in,[
     call_c('Pl_Retract_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:retractall/1,82,static,private,monofile,built_in,[
+predicate(system:retractall/1,86,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -91,12 +90,12 @@ label(2),
     proceed]).
 
 
-predicate(system:'$retract_last_found'/0,95,static,private,monofile,built_in,[
+predicate(system:'$retract_last_found'/0,99,static,private,monofile,built_in,[
     call_c('Pl_Retract_Last_Found_0',[],[]),
     proceed]).
 
 
-predicate(system:clause/2,100,static,private,monofile,built_in,[
+predicate(system:clause/2,106,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -110,38 +109,81 @@ predicate(system:clause/2,100,static,private,monofile,built_in,[
     execute('$clause'/3)]).
 
 
-predicate(system:'$clause'/3,106,static,private,monofile,built_in,[
+predicate(system:'$clause'/3,112,static,private,monofile,built_in,[
     call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$instance_for_setarg'/2,112,static,private,monofile,built_in,[
+predicate(system:'$instance_for_setarg'/2,118,static,private,monofile,built_in,[
     put_integer(0,2),
     call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$setarg_in_last_found'/2,115,static,private,monofile,built_in,[
+predicate(system:'$setarg_in_last_found'/2,121,static,private,monofile,built_in,[
     call_c('Pl_Setarg_Of_Last_Found_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:abolish/1,120,static,private,monofile,built_in,[
+predicate(system:abolish/1,127,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[abolish,1]),
     call_c('Pl_Abolish_1',[],[x(0)]),
     proceed]).
 
 
-predicate(system:'$remove_predicate'/2,127,static,private,monofile,built_in,[
+predicate(system:'$remove_predicate'/2,134,static,private,monofile,built_in,[
     call_c('Pl_Remove_Predicate_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:'$scan_dyn_test_alt'/0,133,static,private,monofile,built_in,[
+predicate(system:'$scan_dyn_test_alt'/0,140,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:'$scan_dyn_jump_alt'/0,136,static,private,monofile,built_in,[
+predicate(system:'$scan_dyn_jump_alt'/0,143,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[jump],[]),
     proceed]).
+
+
+directive(44,system,[
+    put_atom(user,0),
+    put_structure(asserta/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(45,system,[
+    put_atom(user,0),
+    put_structure(assertz/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(71,system,[
+    put_atom(user,0),
+    put_structure(retract/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(84,system,[
+    put_atom(user,0),
+    put_structure(retractall/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(104,system,[
+    put_atom(user,0),
+    put_structure(clause/2,1),
+    unify_atom(:),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(125,system,[
+    put_atom(user,0),
+    put_structure(abolish/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).

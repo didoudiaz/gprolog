@@ -678,12 +678,14 @@ handle_directive(use_module, [Module, DLst], _) :-
 	check_module_name(Module, false),
 	add_module_export_info(DLst, Module).
 
-handle_directive(meta_predicate, [MetaDecl], _) :-
+handle_directive(meta_predicate, [MetaDecl], Where) :-
 	!,
 	(   callable(MetaDecl) ->
 	    functor(MetaDecl, Pred, N),
 	    set_flag_for_preds(Pred/N, meta),
-	    assertz(meta_pred(Pred, N, MetaDecl))
+	    assertz(meta_pred(Pred, N, MetaDecl)),
+	    g_read(module, Module),
+	    handle_initialization(system, '$declare_meta_predicate'(Module,MetaDecl), Where)
 	;
 	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
 	).

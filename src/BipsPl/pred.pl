@@ -42,6 +42,9 @@
 '$use_pred'.
 
 
+/* there is no meta_predicate declaration for current_predicate because we
+ * want to be able to pass X:f/n to search f/n in all modules */
+
 current_predicate(PI) :-
 	set_bip_name(current_predicate, 1),
 	'$current_predicate'(PI).
@@ -68,6 +71,11 @@ current_predicate(PI) :-
  * accepted iff strict_iso was off.
  * This is no longer the case. We kept old version renamed '$predicate_property_pi'
  */
+
+
+/* there is no meta_predicate declaration for predicate_property because we
+ * want to be able to pass X:f/n to search f/n in all modules */
+
 
 predicate_property(Head, Property) :-
 	set_bip_name(predicate_property, 2),
@@ -185,78 +193,8 @@ predicate_property(Head, _) :-
 '$predicate_property2'(prolog_line(PlLine), Func, Arity) :-
 	'$call_c_test'('Pl_Pred_Prop_Prolog_Line_3'(Func, Arity, PlLine)).
 
-'$predicate_property2'(meta_predicate(MetaPredTerm), Func, Arity) :-
-	'$prop_meta_pred'(Func, Arity, MetaPredTerm).
-
-
-
-% the control constructs (they are now found by predicate_property/2)
-
-'$prop_meta_pred'(',', 2, ','(0,0)).
-'$prop_meta_pred'(;, 2, ;(0,0)).
-'$prop_meta_pred'(->, 2, ->(0,0)).
-'$prop_meta_pred'(*->, 2, *->(0,0)).
-'$prop_meta_pred'(call, 0, call(0)).
-'$prop_meta_pred'(catch, 3, catch(0, ?, 0)).
-
-% the built-ins
-
-'$prop_meta_pred'(\+, 1, \+(0)).
-'$prop_meta_pred'(abolish, 1, abolish(:)).
-'$prop_meta_pred'(asserta, 1, asserta(:)).
-'$prop_meta_pred'(assertz, 1, assertz(:)).
-'$prop_meta_pred'(bagof, 3, bagof(?, 0, -)).
-'$prop_meta_pred'(call, 2, call(1, ?)).
-'$prop_meta_pred'(call, 3, call(2, ?, ?)).
-'$prop_meta_pred'(call, 4, call(3, ?, ?, ?)).
-'$prop_meta_pred'(call, 5, call(4, ?, ?, ?, ?)).
-'$prop_meta_pred'(call, 6, call(5, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call, 7, call(6, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call, 8, call(7, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call, 9, call(8, ?, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call, 10, call(9, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call, 11, call(10, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_det, 2, call_det(0, ?)).
-'$prop_meta_pred'(call_with_args, 1, call_with_args(1)).
-'$prop_meta_pred'(call_with_args, 2, call_with_args(1, ?)).
-'$prop_meta_pred'(call_with_args, 3, call_with_args(2, ?, ?)).
-'$prop_meta_pred'(call_with_args, 4, call_with_args(3, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 5, call_with_args(4, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 6, call_with_args(5, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 7, call_with_args(6, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 8, call_with_args(7, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 9, call_with_args(8, ?, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 10, call_with_args(9, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(call_with_args, 11, call_with_args(10, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)).
-'$prop_meta_pred'(clause, 2, clause(:, ?)).
-'$prop_meta_pred'(consult, 1, consult(:)).
-'$prop_meta_pred'('.', 2, '.'(:, +)).
-'$prop_meta_pred'(current_predicate, 1, current_predicate(:)).
-'$prop_meta_pred'(findall, 3, findall(?, 0, -)).
-'$prop_meta_pred'(forall, 2, forall(0, 0)).
-'$prop_meta_pred'(maplist, 2, maplist(1, ?)).
-'$prop_meta_pred'(maplist, 3, maplist(2, ?, ?)).
-'$prop_meta_pred'(maplist, 4, maplist(3, ?, ?, ?)).
-'$prop_meta_pred'(maplist, 5, maplist(4, ?, ?, ?, ?)).
-'$prop_meta_pred'(nospy, 1, nospy(:)).
-%'$prop_meta_pred'(format, 2, format(+, :)).
-%'$prop_meta_pred'(format, 3, format(+, +, :)).
-'$prop_meta_pred'(listing, 1, listing(:)).
-'$prop_meta_pred'(once, 1, once(0)).
-'$prop_meta_pred'(phrase, 2, phrase(2, ?)).
-'$prop_meta_pred'(phrase, 3, phrase(2, ?, ?)).
-'$prop_meta_pred'(predicate_property, 2, predicate_property(:, ?)).
-'$prop_meta_pred'(retract, 1, retract(:)).
-'$prop_meta_pred'(retractall, 1, retractall(:)).
-'$prop_meta_pred'(setof, 3, setof(?, 0, -)).
-'$prop_meta_pred'(spy, 1, spy(:)).
-
-'$prop_meta_pred'(fd_minimize, 2, fd_minimize(0, ?)).
-'$prop_meta_pred'(fd_maximize, 2, fd_maximize(0, ?)).
-
-
-'$get_pred_indicator'(PI, Func, Arity) :-
-	'$call_c_test'('Pl_Get_Pred_Indicator_3'(PI, Func, Arity)).
+'$predicate_property2'(meta_predicate(MetaPredSpec), Func, Arity) :-
+		'$call_c_test'('Pl_Pred_Prop_Meta_Predicate_3'(Func, Arity, MetaPredSpec)).
 
 
 
@@ -293,3 +231,14 @@ predicate_property(Head, _) :-
 
 '$make_aux_name'(Name, Arity, AuxNb, AuxName) :-
 	'$call_c_test'('Pl_Make_Aux_Name_4'(Name, Arity, AuxNb, AuxName)).
+
+
+
+'$declare_meta_predicate'(Module, MetaPredSpec) :-
+	'$call_c_test'('Pl_Decl_Meta_Pred_2'(Module, MetaPredSpec)).
+
+
+:- meta_predicate(strip_module(:, ?, ?)).
+
+strip_module(Term, Module, Plain) :-
+	'$call_c_test'('Pl_Strip_Module_3'(Term, Module, Plain)).

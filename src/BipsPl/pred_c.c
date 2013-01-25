@@ -58,6 +58,9 @@
  * Global Variables                *
  *---------------------------------*/
 
+
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -80,11 +83,13 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
   HashScan scan;
   PredInf *pred;
   int func, arity;
+  WamWord module_word;
   int func1, arity1;
   int which_preds;		/* 0=user, 1=user+bips, 2=user+bips+system */
   Bool all;
 
-  func = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &arity);
+  /* FIXME: use module */
+  module_word = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
   name_word = pl_pi_name_word;
   arity_word = pl_pi_arity_word;
 
@@ -397,6 +402,65 @@ Pl_Pred_Prop_Native_Code_2(WamWord func_word, WamWord arity_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_PRED_PROP_META_PREDICATE_3                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Pred_Prop_Meta_Predicate_3(WamWord func_word, WamWord arity_word, 
+			      WamWord meta_pred_spec_word)
+{
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_Integer(arity_word);
+  PredInf *pred = Pl_Lookup_Pred_Compat(func, arity);
+  MetaSpec meta_spec;
+  WamWord word;
+  int i, x;
+
+  if (pred == NULL || !(pred->prop & MASK_PRED_META_PRED))
+    return FALSE;
+
+  if (!Pl_Get_Structure(func, arity, meta_pred_spec_word))
+    return FALSE;
+
+  meta_spec = pred->meta_spec;
+
+  for(i = 0; i < arity; i++)
+    {
+      x = meta_spec & 0xf;
+      meta_spec >>= 4;
+
+      switch(x)
+	{
+	case META_PRED_ARG_COLON:
+	  word = Tag_ATM(ATOM_CHAR(':')); 
+	  break;
+
+	case META_PRED_ARG_PLUS:
+	  word = Tag_ATM(ATOM_CHAR('+')); 
+	  break;
+
+	case META_PRED_ARG_MINUS:
+	  word = Tag_ATM(ATOM_CHAR('-')); 
+	  break;
+
+	case META_PRED_ARG_QUESTION:
+	  word = Tag_ATM(ATOM_CHAR('?')); 
+	  break;
+
+	default: 		/* an integer */
+	  word = Tag_INT(x);
+	}
+      if (!Pl_Unify_Value(word))
+	return FALSE;
+    }
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_PRED_PROP_PROLOG_FILE_3                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -430,23 +494,6 @@ Pl_Pred_Prop_Prolog_Line_3(WamWord func_word, WamWord arity_word, WamWord pl_lin
 
 
 
-
-/*-------------------------------------------------------------------------*
- * PL_GET_PRED_INDICATOR_3                                                 *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Get_Pred_Indicator_3(WamWord pred_indic_word, WamWord func_word, WamWord arity_word)
-{
-  int func, arity;
-
-  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
-  return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
-}
-
-
-
-
 /*-------------------------------------------------------------------------*
  * PL_GET_PREDICATE_FILE_INFO_3                                            *
  *                                                                         *
@@ -455,10 +502,11 @@ Bool
 Pl_Get_Predicate_File_Info_3(WamWord pred_indic_word,
 			     WamWord pl_file_word, WamWord pl_line_word)
 {
-  int func, arity;
+  int module, func, arity;
   PredInf *pred;
 
-  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+  /* FIXME: use module */
+  module = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
   if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
     return FALSE;
@@ -481,11 +529,12 @@ Bool
 Pl_Set_Predicate_File_Info_3(WamWord pred_indic_word,
 			     WamWord pl_file_word, WamWord pl_line_word)
 {
-  int func, arity;
+  int module, func, arity;
   int pl_file, pl_line;
   PredInf *pred;
 
-  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+  /* FIXME: use module */
+  module = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
   if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
     return FALSE;
@@ -588,4 +637,100 @@ Pl_Make_Aux_Name_4(WamWord name_word, WamWord arity_word,
   aux_name = Pl_Make_Aux_Name(func, arity, aux_nb);
 
   return Pl_Un_Atom_Check(aux_name, aux_name_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DECL_META_PRED_2                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Decl_Meta_Pred_2(WamWord module_word, WamWord meta_pred_spec_word)
+{
+  int module;
+  int func, arity;
+  WamWord *arg_adr;
+  PredInf *pred;
+  WamWord word, tag_mask;
+  int i, x;
+  int atom;
+  MetaSpec meta_spec = 0;
+
+  module = Pl_Rd_Atom_Check(module_word);
+  
+  arg_adr = Pl_Rd_Compound_Check(meta_pred_spec_word, &func, &arity);
+
+  if (arity > 16)		/* 4-bits/arg on 64 bits = 16 agrs max */
+    return FALSE;		/* FIXME: emit a representation error max_arity_meta_predicate  */
+
+  pred = Pl_Lookup_Pred(module, func, arity);
+  if (pred == NULL)
+    return FALSE;
+
+  for (i = 0; i < arity; i++, arg_adr++)
+    {
+      DEREF(*arg_adr, word, tag_mask);
+      if (tag_mask == TAG_REF_MASK) /* should not occur */
+	Pl_Err_Instantiation();
+      if (tag_mask == TAG_INT_MASK)
+	{
+	  x = UnTag_INT(word);
+	  if (x >= 0 && x < META_PRED_ARG_COLON)
+	    {
+	    ok:
+	      meta_spec |= x << (i * 4);
+	      continue;
+	    }
+	}
+      if (tag_mask == TAG_ATM_MASK)
+	{
+	  x = -1;
+	  atom = UnTag_ATM(word);
+	  if (atom == ATOM_CHAR(':'))
+	    x = META_PRED_ARG_COLON;
+	  else if (atom == ATOM_CHAR('+'))
+	    x = META_PRED_ARG_PLUS;
+	  else if (atom == ATOM_CHAR('-'))
+	    x = META_PRED_ARG_MINUS;
+	  else if (atom == ATOM_CHAR('?') || atom == ATOM_CHAR('*'))
+	    x = META_PRED_ARG_QUESTION;
+	  if (x >= 0)
+	    goto ok;
+	}
+
+#if 0 				/* FIXME: should be a domain error meta_argument_specifier */
+      Pl_Err_Domain(blabla, word);
+#endif
+    }
+
+  pred->prop |= MASK_PRED_META_PRED;
+
+  pred->meta_spec = meta_spec;
+
+  return TRUE;
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_STRIP_MODULE_3                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Strip_Module_3(WamWord term_word, WamWord module_word, WamWord plain_word)
+{
+  WamWord goal_word, module_word1;
+  
+  module_word1 = Pl_Strip_Module(term_word, FALSE, FALSE, &goal_word);
+
+#if 1				/* should not occur since meta_predicate declaration */
+  if (module_word == NOT_A_WAM_WORD)
+    module_word = Tag_ATM(pl_atom_user);
+#endif
+
+  return Pl_Unify(module_word1, module_word) && Pl_Unify(goal_word, plain_word);
 }

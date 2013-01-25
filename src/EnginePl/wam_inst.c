@@ -595,6 +595,8 @@ Pl_Put_Structure(int func, int arity)
  * PL_PUT_META_TERM_TAGGED                                                 *
  *                                                                         *
  * Called by compiled prolog code.                                         *
+ *                                                                         *
+ * See also Pl_Get_Module_And_Goal (for meta_term decomposition)           *
  *-------------------------------------------------------------------------*/
 WamWord FC
 Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
@@ -606,19 +608,25 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
 #endif
 #if 1				/* avoid to create meta_term on an existing meta_term */
   WamWord word, tag_mask;
+  WamWord f_n;
   WamWord *adr;
 
   DEREF(goal_word, word, tag_mask);
   if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(word);
-      if (Functor_And_Arity(adr) == Functor_Arity(ATOM_CHAR(':'), 2)
+      f_n = Functor_And_Arity(adr);
+      if (f_n == Functor_Arity(ATOM_CHAR(':'), 2))
+	{
+	  DEREF(Arg(adr, 0), word, tag_mask); /* module part */
+	  if (tag_mask == TAG_ATM_MASK)
+	    return goal_word;
+	}
+
 #ifdef META_TERM_HIDDEN
-	  ||
-	  Functor_And_Arity(adr) == Functor_Arity(pl_atom_meta_term, 1)
-#endif
-	  )
+      if (f_n == Functor_Arity(pl_atom_meta_term, 1)) /* also test arg1 = offset ? */
 	return goal_word;
+#endif
     }
 #endif
 

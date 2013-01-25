@@ -41,6 +41,9 @@
 
 '$use_consult'.
 
+%:- meta_predicate(consult(:)).	% why ?
+%:- meta_predicate('.'(:, +)).
+
 
 [File|Files] :-
 	consult([File|Files]).
@@ -272,6 +275,8 @@ load(File) :-
 
 
           % Listing
+
+:- meta_predicate(listing(:)).
 
 listing :-
 	set_bip_name(listing, 0),

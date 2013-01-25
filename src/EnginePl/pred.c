@@ -90,6 +90,7 @@ Pl_Init_Pred(void)
 
   int file = Pl_Create_Atom(__FILE__);
   int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
+  int meta_arg[3];		/* max is for catch/3 */
 
 #endif
 
@@ -116,15 +117,27 @@ Pl_Init_Pred(void)
 
 #ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
 
-  Pl_Create_Pred(pl_atom_system, ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_system, ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL);
+  meta_arg[0] = meta_arg[1] = meta_arg[2] = 0; /* default = 0 (integer), e.g. ','(0,0) */
+
+  Pl_Create_Pred_Meta(pl_atom_system, ATOM_CHAR(','), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred_Meta(pl_atom_system, ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL, meta_arg);
+
   Pl_Create_Pred(pl_atom_system, ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
+
   Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
+
   Pl_Create_Pred(pl_atom_system, pl_atom_true, 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL);
+
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL, meta_arg);
+
+  meta_arg[1] = META_PRED_ARG_QUESTION; /* for catch(0,?,0) */
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL, meta_arg);
+
   Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
 
 #endif
@@ -247,6 +260,32 @@ Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int pr
 
 
 /*-------------------------------------------------------------------------*
+ * PL_CREATE_PRED_META                                                     *
+ *                                                                         *
+ * Called by compiled prolog code, by dynamic predicate support and by     *
+ * byte-code support.                                                      *
+ *-------------------------------------------------------------------------*/
+PredInf * FC
+Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line, int prop,
+		    PlLong *codep, int meta_arg[])
+{
+  PredInf *pred = Pl_Create_Pred(module, func, arity, pl_file, pl_file, 
+				 prop | MASK_PRED_META_PRED, codep);
+  MetaSpec meta_spec = 0;
+  int i;
+
+  for(i = 0; i < arity; i++)
+    meta_spec |= (meta_arg[i] << (i * 4));
+
+  pred->meta_spec = meta_spec;
+
+  return pred;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_LOOKUP_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -309,6 +348,9 @@ Pl_Delete_Pred(int module, int func, int arity)
 
   Pl_Hash_Delete(mod->pred_tbl, key);
 }
+
+
+
 
 /* TO BE REMOVED - COMPAT ONLY */
 

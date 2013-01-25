@@ -28,8 +28,7 @@ label(1),
     unify_variable(x(1)),
     put_atom(pl2wam,3),
     put_integer(1,4),
-    put_atom(true,5),
-    execute('$catch'/6)]).
+    execute('$catch'/5)]).
 
 
 predicate(user:pl2wam1/1,51,static,private,monofile,global,[

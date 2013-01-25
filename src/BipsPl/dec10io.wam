@@ -73,6 +73,7 @@ label(11),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_local_value(y(2)),
+    put_meta_term(system,0,0),
     put_void(1),
     call(clause/2),
     cut(y(3)),
@@ -125,11 +126,11 @@ predicate(user:'$$find_existing_stream/3_$aux1'/3,54,static,private,monofile,loc
 label(1),
     trust_me_else_fail,
     allocate(0),
-    get_variable(x(3),0),
-    put_structure('$dec10_stream'/3,0),
+    put_structure('$dec10_stream'/3,3),
     unify_local_value(x(1)),
-    unify_local_value(x(3)),
+    unify_local_value(x(0)),
     unify_local_value(x(2)),
+    put_meta_term(system,3,0),
     call(retract/1),
     fail]).
 
@@ -175,6 +176,7 @@ label(1),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_atom(input),
+    put_meta_term(system,0,0),
     deallocate,
     execute(assertz/1)]).
 
@@ -267,6 +269,7 @@ label(1),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_atom(output),
+    put_meta_term(system,0,0),
     deallocate,
     execute(assertz/1)]).
 
@@ -359,6 +362,7 @@ label(1),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_atom(output),
+    put_meta_term(system,0,0),
     deallocate,
     execute(assertz/1)]).
 
