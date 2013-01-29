@@ -55,6 +55,8 @@ WamWord pl_pi_module_word;
 WamWord pl_pi_name_word;
 WamWord pl_pi_arity_word;
 
+WamWord pl_calling_module;
+
 PlLong pl_glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
 
 #else
@@ -62,6 +64,8 @@ PlLong pl_glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
 extern WamWord pl_pi_module_word;
 extern WamWord pl_pi_name_word;
 extern WamWord pl_pi_arity_word;
+
+extern WamWord pl_calling_module;
 
 extern PlLong pl_glob_dico_var[];
 
@@ -76,12 +80,6 @@ extern PlLong pl_glob_dico_var[];
 
 PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word);
 
-Bool Is_List(WamWord start_word);
-
-Bool Is_Partial_List(WamWord start_word);
-
-Bool Is_List_Or_Partial(WamWord start_word);
-
 Bool Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,
 			   Bool (*fct) ());
 
@@ -93,10 +91,15 @@ void Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr);
 
 void Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr);
 
+Bool Pl_Acyclic_Term_1(WamWord start_word);
+
 WamWord Pl_Strip_Module(WamWord term_word, Bool accept_var, Bool raise_error, 
 			WamWord *goal_word);
 
 WamWord Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
 			      int *func, int *arity);
 
-Bool Pl_Acyclic_Term_1(WamWord start_word);
+WamWord Pl_Get_Head_And_Body(WamWord clause_word, WamWord *head_word, WamWord *body_word);
+
+WamWord Pl_Term_To_Goal(WamWord term_word, WamWord module_word, 
+			WamWord call_info_word);

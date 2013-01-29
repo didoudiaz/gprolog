@@ -965,7 +965,7 @@ Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr,
   /* here module_word cannot be a var since Pl_Strip_Module should have been 
    * called with accept_var = FALSE */
 
-  if (module_word == NOT_A_WAM_WORD)
+  if (module_word == NOT_A_WAM_WORD) /* should not occur due to meta_predicate decl */
     module = pl_atom_user;
   else
     module = UnTag_ATM(module_word);
@@ -1072,8 +1072,8 @@ Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr,
  * called by '$call'/5    FIXME arity of $call in this comment             *
  *-------------------------------------------------------------------------*/
 WamCont 
-Pl_BC_Call_Initial_3(WamWord pred_word, WamWord caller_func_word, WamWord caller_arity_word,
-		     WamWord debug_call_word)
+Pl_BC_Call_Initial_3(WamWord pred_word, WamWord caller_func_word, 
+		     WamWord caller_arity_word, WamWord debug_call_word)
 
 {
   WamWord module_word;
@@ -1091,7 +1091,8 @@ Pl_BC_Call_Initial_3(WamWord pred_word, WamWord caller_func_word, WamWord caller
 
   arg_adr = Pl_Rd_Callable_Check(pred_word, &func, &arity);
 
-  return Pl_BC_Call_Initial(module_word, func, arity, arg_adr, caller_func, caller_arity);
+  return Pl_BC_Call_Initial(module_word, func, arity, arg_adr, 
+			    caller_func, caller_arity);
 }
 
 

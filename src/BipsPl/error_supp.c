@@ -261,6 +261,9 @@ Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word)
   PlLong arity;			/* use PlLong to avoid truncation */
   Pl_Set_C_Bip_Name("set_bip_name", 2);
 
+  /* FIXME ? use the module part ? ignore if system or user ? */
+  Pl_Strip_Module(func_word, FALSE, FALSE, &func_word);
+
   cur_bip_func = Pl_Rd_Atom_Check(func_word);
   arity = Pl_Rd_Integer_Check(arity_word);
   if (arity > MAX_ARITY)
@@ -479,19 +482,44 @@ Pl_Syntax_Error(int flag_value)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_MK_PRED_ERROR_TERM                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Mk_Pred_Indic_Error(int module, int func, int arity)
+{
+  WamWord term;
+
+  term = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+  Pl_Unify_Atom(func);
+  Pl_Unify_Integer(arity);
+
+  if (module >= 0 && module != pl_atom_system && module != pl_calling_module)
+    {
+      WamWord term1 = Pl_Put_Structure(ATOM_CHAR(':'), 2);
+      Pl_Unify_Atom(module);
+      Pl_Unify_Value(term);
+      term = term1;
+    }
+
+  return term;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_UNKNOWN_PRED_ERROR                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Unknown_Pred_Error(int func, int arity)
+Pl_Unknown_Pred_Error(int func, int arity) /* FIXME: pass module */
 {
   WamWord term;
 
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_ERROR)
     {
-      term = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      term = Pl_Mk_Pred_Indic_Error(-1, func, arity);
       Pl_Err_Existence(pl_existence_procedure, term);
     }
 

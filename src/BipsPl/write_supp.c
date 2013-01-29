@@ -50,12 +50,17 @@
 
 				/* spaces for non-assoc op (fx, xfx, xf) */
 #if 0
-#define SPACE_ARGS_RESTRICTED
+#define NO_SPACE_ARGS_FOR_NON_ASSOC_OP
 #endif
 				/* spaces around the | inside lists */
-#if 0
-#define SPACE_ARGS_FOR_LIST_PIPE
+#if 1
+#define NO_SPACE_ARGS_FOR_LIST_PIPE
 #endif
+				/* spaces around the : (module qualification) */
+#if 1
+#define NO_SPACE_ARGS_FOR_COLON
+#endif
+
 
 
 
@@ -108,6 +113,9 @@ static Bool number_vars;
 static Bool name_vars;
 static Bool space_args;
 static Bool portrayed;
+
+
+
 
 static WamWord *name_number_above_H;
 
@@ -660,10 +668,10 @@ Show_Float(double x)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
-#ifdef SPACE_ARGS_FOR_LIST_PIPE
-#define SHOW_LIST_PIPE if (space_args) Out_String(" | "); else Out_Char('|')
-#else
+#ifdef NO_SPACE_ARGS_FOR_LIST_PIPE
 #define SHOW_LIST_PIPE Out_Char('|')
+#else
+#define SHOW_LIST_PIPE if (space_args) Out_String(" | "); else Out_Char('|')
 #endif
 
 static void
@@ -897,7 +905,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       last_prefix_op = W_PREFIX_OP_ANY;
 
       if (space_args
-#if SPACE_ARGS_RESTRICTED	/* space_args -> space after fx operator */
+#ifdef NO_SPACE_ARGS_FOR_NON_ASSOC_OP	/* space_args -> space after fx operator */
 	  && oper->prec > oper->right
 #endif
 	  )
@@ -944,7 +952,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
       if (space_args
-#if SPACE_ARGS_RESTRICTED	/* space_args -> space before xf operator */
+#ifdef NO_SPACE_ARGS_FOR_NON_ASSOC_OP	/* space_args -> space before xf operator */
 	  && oper->prec > oper->left
 #endif
 	  )
@@ -969,8 +977,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  bracket = TRUE;
 	}
 
-      context =
-	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
+      context =	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
@@ -998,8 +1005,11 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	    if (pl_atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
 		pl_atom_tbl[functor].prop.type == OTHER_ATOM ||
 		(space_args
-#ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
-		 && oper->left != oper->prec && oper->right != oper->prec
+#ifdef NO_SPACE_ARGS_FOR_NON_ASSOC_OP	/* space_args -> space around xfx operators */
+		 && (oper->left != oper->prec && oper->right != oper->prec)
+#endif
+#ifdef NO_SPACE_ARGS_FOR_COLON
+		 && (functor != ATOM_CHAR(':'))
 #endif
 		 ))
 	      {

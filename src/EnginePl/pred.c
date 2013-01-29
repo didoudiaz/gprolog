@@ -232,6 +232,7 @@ Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int pr
 #endif
 
   pred_info.f_n = key;
+  pred_info.mod = mod;
   pred_info.prop = prop;
   pred_info.pl_file = pl_file;
   pred_info.pl_line = pl_line;
@@ -292,42 +293,26 @@ Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line, i
 PredInf * FC
 Pl_Lookup_Pred(int module, int func, int arity)
 {
-#if 0
-  ModuleInf *mod = Pl_Lookup_Module(module);
-  PredInf *pred;
-  PlLong key = Functor_Arity(func, arity);
-
-  if (mod == NULL)
-    return NULL;
-
-  pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, key);
-
-  if (pred == NULL && module != pl_atom_system) /* replace by all imported */
-    pred = (PredInf *) Pl_Hash_Find(mod_system->pred_tbl, key);
-
-  return pred;
-
-#else
-
   ModuleInf *mod;
-  PredInf *pred;
+  PredInf *pred = NULL;
   PlLong key = Functor_Arity(func, arity);
 
-  if (module == pl_atom_system)
-    module = pl_atom_user;
+  if (module != pl_atom_system)
+    {
+      if (module != pl_atom_user)
+	{
+	  mod = Pl_Lookup_Module(module);
 
-  mod = Pl_Lookup_Module(module);
+	  if (mod != NULL && (pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, key)) != NULL)
+	    return pred;
+	}
 
-  if (mod == NULL)
-    return NULL;
+      if ((pred = (PredInf *) Pl_Hash_Find(mod_user->pred_tbl, key)) != NULL)
+	return pred;
+    }
 
-  pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, key);
-
-  if (pred == NULL && module != pl_atom_system) /* replace by all imported */
-    pred = (PredInf *) Pl_Hash_Find(mod_system->pred_tbl, key);
-
+  pred = (PredInf *) Pl_Hash_Find(mod_system->pred_tbl, key);
   return pred;
-#endif
 }
 
 
@@ -343,10 +328,8 @@ Pl_Delete_Pred(int module, int func, int arity)
   ModuleInf *mod = Pl_Lookup_Module(module);
   PlLong key = Functor_Arity(func, arity);
 
-  if (mod == NULL)
-    return;
-
-  Pl_Hash_Delete(mod->pred_tbl, key);
+  if (mod)
+    Pl_Hash_Delete(mod->pred_tbl, key);
 }
 
 

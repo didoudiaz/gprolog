@@ -72,19 +72,28 @@ static Bool Retract_Alt(DynCInf *clause, WamWord *w);
 
 
 /*-------------------------------------------------------------------------*
- * PL_ASSERT_5                                                             *
+ * PL_ASSERT_4                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Assert_5(WamWord head_word, WamWord body_word,
-	    WamWord asserta_word, WamWord check_perm_word, WamWord pl_file_word)
+Pl_Assert_4(WamWord clause_word, WamWord asserta_word, 
+	    WamWord check_perm_word, WamWord pl_file_word)
 {
+  WamWord module_word, head_word, body_word;
   Bool asserta = Pl_Rd_Integer(asserta_word);
   Bool check_perm = Pl_Rd_Integer(check_perm_word);
   int pl_file = Pl_Rd_Atom(pl_file_word);
 
-  last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta,
-				      check_perm, pl_file);
+  module_word = Pl_Get_Head_And_Body(clause_word, &head_word, &body_word);
+#if 1
+  if (module_word == NOT_A_WAM_WORD) /* should not occur */
+    module_word = Tag_ATM(pl_atom_user); /* FIXME */
+#endif
+
+  body_word = Pl_Term_To_Goal(body_word, module_word, NOT_A_WAM_WORD);
+
+  last_clause = Pl_Add_Dynamic_Clause(UnTag_ATM(module_word), head_word, body_word, 
+				      asserta, check_perm, pl_file);
 }
 
 
@@ -136,9 +145,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
   if ((for_what == 0 && !(pred->prop & MASK_PRED_PUBLIC)) ||
       (for_what == 2 && (pred->prop & MASK_PRED_NATIVE_CODE)))
     {
-      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
       Pl_Err_Permission(pl_permission_operation_access,
 			pl_permission_type_private_procedure, word);
     }
@@ -223,9 +230,7 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
 
   if (!(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -340,9 +345,7 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
 
   if (!(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -385,9 +388,10 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
 void
 Pl_Abolish_1(WamWord pred_indic_word)
 {
-  int module, func, arity;
+  int func, arity;
+  WamWord module_word;
   /* FIXME: use module */
-  module = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &func, &arity);
+  module_word = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &func, &arity);
 
   Pl_Update_Dynamic_Pred(func, arity, 3, -1);
 }

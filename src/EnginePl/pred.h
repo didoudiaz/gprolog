@@ -80,6 +80,7 @@ ModuleInf;
 typedef struct			/* Predicate information          */
 {				/* ------------------------------ */
   PlLong f_n;			/* key is <functor_atom,arity>    */
+  ModuleInf *mod;		/* its definition module          */
   int pl_file;			/* atom pl file of its definiton  */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */

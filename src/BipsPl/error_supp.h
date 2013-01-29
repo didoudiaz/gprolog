@@ -283,6 +283,8 @@ void Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
 
 void Pl_Syntax_Error(int flag_value);
 
+WamWord Pl_Mk_Pred_Indic_Error(int module, int func, int arity);
+
 void Pl_Unknown_Pred_Error(int func, int arity);
 
 void Pl_Os_Error(int ret_val);

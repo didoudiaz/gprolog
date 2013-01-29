@@ -133,8 +133,9 @@ DynPInf;
  * Function Prototypes             *
  *---------------------------------*/
 
-DynCInf *Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
+DynCInf *Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 			       Bool asserta, Bool check_perm, int pl_file);
+
 
 void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 

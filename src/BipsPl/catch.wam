@@ -231,7 +231,7 @@ predicate(system:'$catch_fail_now'/1,147,static,private,monofile,built_in,[
 
 directive(44,system,[
     put_atom(user,0),
-    put_structure('$call'/5,1),
+    put_structure('$catch'/5,1),
     unify_integer(0),
     unify_atom(?),
     unify_integer(0),

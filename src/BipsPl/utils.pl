@@ -39,7 +39,14 @@
 
 :-	built_in.
 
+'$get_head_and_body'(Clause, Module, Head, Body) :-
+	'$call_c_test'('Pl_Get_Head_And_Body_4'(Clause, Module, Head, Body)).
 
+'$term_to_goal'(P, Module, CallInfo, P1) :-
+	'$call_c_test'('Pl_Term_To_Goal_4'(P, Module, CallInfo, P1)).
+
+		      
+/*
 '$term_to_goal'(P, Module, CallInfo, P1) :-
 	g_assign('$term_to_goal_module', Module),
 	g_assign('$term_to_goal_info', CallInfo),
@@ -104,6 +111,8 @@
 	    P1 = P
 	).
 
+*/
+
 
 
 
@@ -163,12 +172,6 @@
 
 
 
-'$get_head_and_body'((H :- B), H, B) :-
-	!,
-	'$check_head'(H).
-
-'$get_head_and_body'(H, H, true) :-
-	'$check_head'(H).
 
 
 

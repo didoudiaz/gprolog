@@ -57,14 +57,9 @@ assertz(C) :-
 
 
 
-
+				% also called by consult
 '$assert'(C, Asserta, CheckPerm, FileName) :-
-	'$get_head_and_body'(C, H, B),
-	'$term_to_goal'(B, 'no call info', 0, B1),
-	'$call_c'('Pl_Assert_5'(H, B1, Asserta, CheckPerm, FileName)),
-	fail.
-
-'$assert'(_, _, _, _).
+	'$call_c'('Pl_Assert_4'(C, Asserta, CheckPerm, FileName)).
 
 
 
@@ -72,7 +67,7 @@ assertz(C) :-
 
 retract(C) :-
 	set_bip_name(retract, 1),
-	'$get_head_and_body'(C, H, B),
+	'$get_head_and_body'(C, _M, H, B), % FIXME use module
 	'$retract'(H, B).
 
 

@@ -606,7 +606,14 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
 #ifdef META_TERM_HIDDEN
   int offset;
 #endif
-#if 1				/* avoid to create meta_term on an existing meta_term */
+
+  /* Avoid to create meta_term on an existing SAME meta_term.
+   * SAME is because we want to have the calling context, e.g.
+   * if goal_word is foo:p(...) and the module is bar we will
+   * obtain bar:foo:p(...) (so the topmost module is the caller module)
+   * But if goal_word is bar:p(...) the goal remains unchanged
+   */
+#if 1	
   WamWord word, tag_mask;
   WamWord f_n;
   WamWord *adr;
@@ -618,8 +625,11 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
       f_n = Functor_And_Arity(adr);
       if (f_n == Functor_Arity(ATOM_CHAR(':'), 2))
 	{
+	  DEREF(module_word, word, tag_mask);
+	  module_word = word;
+	  
 	  DEREF(Arg(adr, 0), word, tag_mask); /* module part */
-	  if (tag_mask == TAG_ATM_MASK)
+	  if (word == module_word)
 	    return goal_word;
 	}
 
