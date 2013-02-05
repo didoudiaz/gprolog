@@ -53,13 +53,13 @@ fd_minimize(Goal, Var) :-
 	B1 is B - 1,
 	set_bip_name(fd_minimize, 2),
 	(   '$fd_domain'(Var, 0, B1),
-	    '$call'(Goal, user, fd_minimize, 2, true) -> % FIXME: CallerModule
+	    '$call'(Goal, user, fd_minimize, 2) -> % FIXME: CallerModule
 	    fd_min(Var, C),
 	    g_assign('$cur_min', C),
 	    fail
 	;   !,
 	    Var = B,
-	    '$call'(Goal, user, fd_minimize, 2, true) % FIXME: CallerModule
+	    '$call'(Goal, user, fd_minimize, 2) % FIXME: CallerModule
 	).
 
 
@@ -73,11 +73,11 @@ fd_maximize(Goal, Var) :-
 	B1 is B + 1,
 	set_bip_name(fd_maximize, 2),
 	(   '$fd_domain'(Var, B1, Inf),
-	    '$call'(Goal, user, fd_maximize, 2, true) -> % FIXME: CallerModule
+	    '$call'(Goal, user, fd_maximize, 2) -> % FIXME: CallerModule
 	    fd_max(Var, C),
 	    g_assign('$cur_max', C),
 	    fail
 	;   !,
 	    Var = B,
-	    '$call'(Goal, user, fd_maximize, 2, true) % FIXME: CallerModule
+	    '$call'(Goal, user, fd_maximize, 2) % FIXME: CallerModule
 	).

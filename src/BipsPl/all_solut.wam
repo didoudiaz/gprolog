@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : all_solut.pl
 
 
@@ -164,12 +164,10 @@ predicate(user:'$$store_solutions/4_$aux1'/3,95,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),
-    put_meta_term(system,0,0),
-    put_meta_term(system,1,2),
+    put_value(x(1),2),
     put_atom(user,1),
     put_integer(3,3),
-    put_atom(true,4),
-    call('$call'/5),
+    call('$call'/4),
     put_value(y(0),0),
     call_c('Pl_Store_Solution_1',[],[x(0)]),
     fail,

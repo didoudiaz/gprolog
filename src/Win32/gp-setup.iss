@@ -2,8 +2,8 @@
 
 [Setup]
 AppName=GNU Prolog
-AppVerName=GNU Prolog version 1.4.2
-AppVersion=1.4.2
+AppVerName=GNU Prolog version 1.5.0
+AppVersion=1.5.0
 AppPublisher=Daniel Diaz
 AppPublisherURL=http://www.gprolog.org
 AppSupportURL=http://www.gprolog.org 
@@ -14,7 +14,7 @@ DefaultGroupName=GNU Prolog
 AllowNoIcons=yes
 SourceDir=\gprolog_win32
 OutputDir=
-OutputBaseFileName=setup-gprolog-1.4.2-
+OutputBaseFileName=setup-gprolog-1.5.0-
 
 ChangesAssociations=yes
 
@@ -53,7 +53,7 @@ Name: "{userdesktop}\GNU Prolog"; Filename: "{app}\bin\gprolog.exe"; MinVersion:
 
 
 [Registry]
-Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version"; ValueData: "1.4.2"
+Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "Version"; ValueData: "1.5.0"
 Root: HKCU; Subkey: "Software\GnuProlog"; ValueType: string; ValueName: "RootPath"; ValueData: "{app}"
 
 ; create an association for .pl and .pro files

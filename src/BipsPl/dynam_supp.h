@@ -43,7 +43,8 @@
  *---------------------------------*/
 
 #define DYN_ALT_FCT_FOR_TEST       0
-#define DYN_ALT_FCT_FOR_JUMP       1
+#define DYN_ALT_FCT_FOR_FAIL       1
+#define DYN_ALT_FCT_FOR_JUMP       2
 
 
 
@@ -139,14 +140,13 @@ DynCInf *Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 
 void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 
-PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi);
+PredInf *Pl_Update_Dynamic_Pred(int module, int func, int arity, int what_to_do, int pl_file_for_multi);
 
 DynCInf *Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
-			   DynPInf *dyn, WamWord first_arg_word,
-			   ScanFct alt_fct, int alt_fct_type,
-			   int alt_info_size, WamWord *alt_info);
+			      DynPInf *dyn, WamWord first_arg_word,
+			      ScanFct alt_fct, int alt_fct_type,
+			      int alt_info_size, WamWord *alt_info);
 
 int Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity);
 
-void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
-			 WamWord *body_word);
+void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word);

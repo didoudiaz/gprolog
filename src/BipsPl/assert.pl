@@ -67,32 +67,18 @@ assertz(C) :-
 
 retract(C) :-
 	set_bip_name(retract, 1),
-	'$get_head_and_body'(C, _M, H, B), % FIXME use module
-	'$retract'(H, B).
-
-
-'$retract'(H, B) :-      % call_c must be alone (inline) CP cannot be changed
-	'$call_c_test'('Pl_Retract_2'(H, B)).
-
+	'$call_c_test'('Pl_Retract_1'(C)).
 
 
 :- meta_predicate(retractall(:)).
 
-retractall(H) :-
-	set_bip_name(retractall, 1),
-	'$call_c_test'('Pl_Retractall_If_Empty_Head_1'(H)), !.
-
-retractall(H) :-              % here only if Retractall_If_Empty_Head_1 fails
-	'$retract'(H, _),
+retractall(H) :-% non-det: CP must not be changed (no env) call_c must be alone (inline)
+	set_bip_name(retractall, 1), %inline is OK
+	'$call_c'('Pl_Retractall_1'(H)), %inline is OK
 	fail.
 
 retractall(_).
 
-
-
-
-'$retract_last_found' :-
-	'$call_c'('Pl_Retract_Last_Found_0').
 
 
 
@@ -101,21 +87,22 @@ retractall(_).
 clause(H, B) :-
 	set_bip_name(clause, 2),
 	'$check_head'(H),
-	'$clause'(H, B, 0).
+	'$clause'(H, B, true).
 
 
-'$clause'(H, B, ForWhat) :-
-                         % call_c must be alone (inline) CP cannot be changed
-	'$call_c_test'('Pl_Clause_3'(H, B, ForWhat)).
+'$clause'(H, B, CheckPublic) :-	% non-det: CP must not be changed (no env) call_c must be alone (inline)
+	'$call_c_test'('Pl_Clause_3'(H, B, CheckPublic)).
 
-
+/* OLD CODE
+'$retract_last_found' :-
+	'$call_c'('Pl_Retract_Last_Found_0').
 
 '$instance_for_setarg'(H, B) :-
 	'$call_c_test'('Pl_Clause_3'(H, B, 0)).
 
 '$setarg_in_last_found'(ArgNo, NewValue) :-
 	'$call_c'('Pl_Setarg_Of_Last_Found_2'(ArgNo, NewValue)).
-
+*/
 
 :- meta_predicate(abolish(:)).
 
@@ -126,14 +113,12 @@ abolish(PI) :-
 
 
 
-'$remove_predicate'(Name, Arity) :-
-	'$call_c'('Pl_Remove_Predicate_2'(Name, Arity)).
-
-
-
-
 '$scan_dyn_test_alt' :-             % used by C code to create a choice-point
 	'$call_c_test'('Pl_Scan_Dynamic_Pred_Alt_0').
+
+'$scan_dyn_fail_alt' :-             % used by C code to create a choice-point
+	'$call_c'('Pl_Scan_Dynamic_Pred_Alt_0'),
+	fail.
 
 '$scan_dyn_jump_alt' :-             % used by C code to create a choice-point
 	'$call_c_jump'('Pl_Scan_Dynamic_Pred_Alt_0').

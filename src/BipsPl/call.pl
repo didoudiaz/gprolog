@@ -76,11 +76,11 @@ call_det(Goal, Deterministic) :-
 	).
 
 
-
+				% FIXME COMMENT
 /* Goal the goal to execute
  * Module is the module where the call comes from (calling module)
+ * (this is passed separately to avoid meta-arg creation)
  * CallerFunc/CallerArity: the pred/arity which invoked the call (head of the clause)
- *     NB: Goal can be a meta_term providing another Module and Goal
  *
  * To be fast a C function is first called: it mainly handles a call to a predicate
  * (and some simple control constructs).
@@ -91,18 +91,13 @@ call_det(Goal, Deterministic) :-
  * QualifModule the module qualification of a goal (default: same as Module)
  */
 
-:- meta_predicate('$call'(:,+,+)).
+
+'$call'(Goal, Module, CallerFunc, CallerArity) :-
+	'$call_c'('Pl_BC_Call_5'(Goal, Module, CallerFunc, CallerArity, 1), [jump, by_value]).
 
 
-'$call'(Goal, CallerFunc, CallerArity) :-
-	'$call_c_jump'('Pl_BC_Call_Initial_3'(Goal, CallerFunc, CallerArity)).
-
-/* should not be called anymore */
-:- meta_predicate('$call'(:,+,+,+,+)).
-
-'$call'(Goal, _Module, CallerFunc, CallerArity, _DebugCall) :-
-format('FIXME - $call/5 should not be called anymore~n', []),
-	'$call_c_jump'('Pl_BC_Call_Initial_3'(Goal, CallerFunc, CallerArity)).
+'$call_no_debug'(Goal, Module, CallerFunc, CallerArity) :-
+	'$call_c'('Pl_BC_Call_5'(Goal, Module, CallerFunc, CallerArity, 0), [jump, by_value]).
 
 
 	/* called by Pl_BC_Call_Initial_3 for control-constructs , ; -> *-> (all of arity = 2) */
@@ -194,7 +189,7 @@ format('~w between ~w -> ~w and ~w -> ~w  (~w)', [Func, Arg1, Goal1, Arg2, Goal2
 
 '$call_internal_with_cut'(throw(Ball), Module, CallInfo, _VarCut) :-
 	!,
-	'$throw_internal'(Ball, Module, CallInfo).
+	'$throw_internal'(Ball, /*Module,*/ CallInfo).   % FIXME what to do with Module in throw (for error report)
 
 '$call_internal_with_cut'(P, Module, CallInfo, _VarCut) :-
 	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_4'(P, Module, CallInfo, 1)).
@@ -241,7 +236,7 @@ forall(Condition, Action) :-
 
 
 '$not'(Goal, Func, Arity) :-
-	(   '$call'(Goal, user, Func, Arity, true) -> % FIXME Module
+	(   '$call'(Goal, user, Func, Arity) -> % user is OK since Goal is qualified (meta_predicate)
 	    fail
 	;   true
 	).

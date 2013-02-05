@@ -362,7 +362,7 @@ nospyall.
 '$spy_test_condition'(Goal, Port, c(Goal, Port, Test)) :-
 	(   var(Test) ->
 	    true
-	;   '$call'(Test, user, spy_conditional, 1, false), ! % FIXME CallerModule
+	;   '$call_no_debug'(Test, user, spy_conditional, 1), ! % FIXME Module
 	).
 
 
@@ -459,7 +459,7 @@ nospyall.
           % debugger is active, ie. Set_Debug_Call_Code() has been called
 
 
-'$debug_call'(Goal, _CallerModule, _QualifModule, CallInfo) :- % FIXME user CallerModule, what is QualifModule ?
+'$debug_call'(Goal, _Module, CallInfo) :- % FIXME use Module
 	'$debug_call'(Goal, CallInfo).
 
 '$debug_call'(notrace, _) :-
@@ -520,7 +520,7 @@ nospyall.
 '$debug_call1'(Goal, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, _, OldAncLst) :-
 %format('Goal:~w  Call Info:~w~n',[Goal,CallInfo]),
 	'$get_current_B'(B),
-	'$catch_internal'('$debug_call_port'(Goal, CallInfo, Invoc1, Index1, NewAncLst), Ball, '$debug_exception_port'(Goal, Invoc1, Index1, NewAncLst, Ball), 0),
+	'$catch_internal'('$debug_call_port'(Goal, CallInfo, Invoc1, Index1, NewAncLst), Ball, '$debug_exception_port'(Goal, Invoc1, Index1, NewAncLst, Ball), user, 0), % 0 is OK because means no debug   % FIXME Module
 	'$get_current_B'(B1),
 %format(' after effective call: ~w B(start):%#x B1(end):%#x~n',[Goal,B,B1]),
 %disp_B('before end call'),
@@ -557,7 +557,7 @@ nospyall.
 	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
 				% but don't call 'call_from_debugger since it is a
 				% control-construct (thus its native codep == NULL)
-	    '$call_from_debugger'(Goal, user, CallInfo) % FIXME CallerModule
+	    '$call_from_debugger'(Goal, user, CallInfo) % FIXME Module
 	;   Goal = DebugUnify
 	).
 
@@ -828,7 +828,7 @@ nospyall.
 '$debug_exec_cmd'(@, _, _, _, _, _) :-                              % command
 	write(debugger_output, 'Command: '),
 	read(debugger_input, Command),
-	(   '$catch'(Command, Err, format(debugger_output, 'Warning: ~w - exception raised ~w~n', [Command, Err]), debugger_exec_cmd, 1, false) ->
+	(   '$catch_no_debug'(Command, Err, format(debugger_output, 'Warning: ~w - exception raised ~w~n', [Command, Err]), user, debugger_exec_cmd, 1) -> %FIXME Module
 	    true
 	;   format(debugger_output, 'Warning: ~w - goal failed~n', [Command])
 	), !,

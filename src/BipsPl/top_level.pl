@@ -85,7 +85,8 @@ break :-
 
 '$top_level1' :-
 	repeat,
-	'$catch_internal'('$top_level2', X, '$top_level_exception'(X), false), !.
+	g_read('$top_level_cur_module', Module),
+	'$catch_no_debug'('$top_level2', X, '$top_level_exception'(X), Module, top_level, 0), !.
 
 
 
@@ -238,11 +239,12 @@ break :-
 	'$get_current_B'(B),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	g_read('$top_level_cur_module', Module),
-	'$call'(Module:X, top_level, 0),
+	'$call'(X, Module, top_level, 0),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
-	'$catch_internal'('$set_query_vars_names'(QueryVars, ToDispVars), Err, throw('$post_query_exception'(Err)), false),
+	'$catch_no_debug'('$set_query_vars_names'(QueryVars, ToDispVars), Err, throw('$post_query_exception'(Err)),
+			  Module, top_level, 0),
 %	'$set_query_vars_names'(QueryVars, ToDispVars),
 	(   fail,                             % do not activate 'alt if vars'
 	    ToDispVars = [] ->
@@ -345,7 +347,7 @@ break :-
 /* interface with command-line option consulting files */
 
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
-	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+	'$catch_no_debug'('$consult2'(File), error(Err, _), true, system, 'command-line', -1),
 	nonvar(Err),
 	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	fail.
@@ -370,15 +372,14 @@ break :-
 
 
 '$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
-	(   '$catch'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), 'command-line', -1, false) ->
+	(   '$catch_no_debug'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), user, 'command-line', -1) ->
 	    true
 	;   format('~Nwarning: command-line goal ~q failed~n', [Goal])).
 
 
 '$exec_cmd1'(Goal) :-
 	read_term_from_atom(Goal, TermGoal, [end_of_term(eof)]),
-	g_read('$top_level_cur_module', Module),
-	'$call'(TermGoal, Module, 'command-line', -1, false).
+	'$call'(TermGoal, user, 'command-line', -1).
 
 
 '$exec_cmd_err'(Goal, Err) :-

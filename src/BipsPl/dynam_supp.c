@@ -154,10 +154,11 @@ static void Check_Chain(D2ChHdr *p, int index_no);
 
 
 #define SCAN_DYN_TEST_ALT          X1_247363616E5F64796E5F746573745F616C74
-
+#define SCAN_DYN_FAIL_ALT          X1_247363616E5F64796E5F6661696C5F616C74
 #define SCAN_DYN_JUMP_ALT          X1_247363616E5F64796E5F6A756D705F616C74
 
 Prolog_Prototype(SCAN_DYN_TEST_ALT, 0);
+Prolog_Prototype(SCAN_DYN_FAIL_ALT, 0);
 Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
 
 
@@ -253,13 +254,16 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
+  pred = Pl_Lookup_Pred(module, func, arity);
+
+  if (pred == NULL || 		/* test now if it hiddes an existing pred (if yes: create) */
+      (pred->mod->module != module && pred->mod->module != pl_atom_system && module != pl_atom_system))
     pred = Pl_Create_Pred(module, func, arity, pl_atom_user_input,
 			  pl_stm_tbl[pl_stm_stdin]->line_count,
 			  MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
+      word = Pl_Built_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -790,18 +794,18 @@ Free_Clause(DynCInf *clause)
  * returns a pointer to associated pred or NULL if it does not exist.      *
  *-------------------------------------------------------------------------*/
 PredInf *
-Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi)
+Pl_Update_Dynamic_Pred(int module, int func, int arity, int what_to_do, int pl_file_for_multi)
 {
   WamWord word;
   PredInf *pred;
 
-  pred = Pl_Lookup_Pred_Compat(func, arity);
+  pred = Pl_Lookup_Pred(module, func, arity);
   if (pred == NULL)
     return NULL;
 
   if ((what_to_do & 1) && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
+      word = Pl_Built_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -891,7 +895,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
     case VAR_INDEX:
       scan.xxx_is_seq_chain = TRUE;
       scan.xxx_ind_chain = dyn->seq_chain.first;
-      p_ind_htbl = NULL;
+     p_ind_htbl = NULL;
       break;
 
     case LST_INDEX:
@@ -940,6 +944,8 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 
       if (alt_fct_type == DYN_ALT_FCT_FOR_TEST)
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0);
+      else if (alt_fct_type == DYN_ALT_FCT_FOR_FAIL)
+	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_FAIL_ALT, 0);
       else
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0);
 

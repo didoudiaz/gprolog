@@ -79,7 +79,7 @@ Pl_Make_Call_Info(WamWord func_word, WamWord arity_word, WamWord debug_call_word
 
   func = Pl_Rd_Atom(func_word);
   arity = Pl_Rd_Integer(arity_word);
-  debug_call = *Pl_Rd_String(debug_call_word) == 't';
+  debug_call = Pl_Rd_Integer(debug_call_word);
 
   return Call_Info(func, arity, debug_call);
 }

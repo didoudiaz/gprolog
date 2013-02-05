@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : pl_error.pl
 
 
@@ -102,9 +102,9 @@ predicate(system:'$pl_error'/1,89,static,private,monofile,built_in,[
     put_structure(error/2,0),
     unify_local_value(x(2)),
     unify_value(x(1)),
-    put_atom('$pl_error',1),
-    put_integer(1,2),
-    put_atom(true,3),
+    put_atom(system,1),
+    put_atom('$pl_error',2),
+    put_integer(1,3),
     execute('$throw'/4)]).
 
 

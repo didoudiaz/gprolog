@@ -130,13 +130,16 @@ normalize_cuts1(M:G, CutVar, Body) :-
 	),
 	g_assign(module, Module). 	% this is for colon_sets_calling_context = true
 
-normalize_cuts1(call(G), _, '$call'(G, Func, Arity)) :-
+normalize_cuts1(call(G), _, '$call'(G, Module, Func, Arity)) :-
+	get_module_of_cur_pred(Module),
 	cur_pred_without_aux(Func, Arity).
 
-normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity)) :-
+normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Module, Func, Arity)) :-
+	get_module_of_cur_pred(Module),
 	cur_pred_without_aux(Func, Arity).
 
-normalize_cuts1(throw(B), _, '$throw'(B, Func, Arity, true)) :-
+normalize_cuts1(throw(B), _, '$throw'(B, Module, Func, Arity)) :-
+	get_module_of_cur_pred(Module),
 	cur_pred_without_aux(Func, Arity).
 
 normalize_cuts1(P, _, P) :-

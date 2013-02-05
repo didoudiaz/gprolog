@@ -79,124 +79,28 @@ void
 Pl_Assert_4(WamWord clause_word, WamWord asserta_word, 
 	    WamWord check_perm_word, WamWord pl_file_word)
 {
-  WamWord module_word, head_word, body_word;
+  WamWord head_word, body_word;
+  int module;
   Bool asserta = Pl_Rd_Integer(asserta_word);
   Bool check_perm = Pl_Rd_Integer(check_perm_word);
   int pl_file = Pl_Rd_Atom(pl_file_word);
 
-  module_word = Pl_Get_Head_And_Body(clause_word, &head_word, &body_word);
-#if 1
-  if (module_word == NOT_A_WAM_WORD) /* should not occur */
-    module_word = Tag_ATM(pl_atom_user); /* FIXME */
-#endif
+  module = Pl_Get_Head_And_Body_Top(clause_word, &head_word, &body_word);
 
-  body_word = Pl_Term_To_Goal(body_word, module_word, NOT_A_WAM_WORD);
+  body_word = Pl_Term_To_Goal(body_word, module, NOT_A_WAM_WORD);
 
-  last_clause = Pl_Add_Dynamic_Clause(UnTag_ATM(module_word), head_word, body_word, 
-				      asserta, check_perm, pl_file);
+  last_clause = Pl_Add_Dynamic_Clause(module, head_word, body_word, asserta, check_perm, pl_file);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PL_CLAUSE_3                                                             *
- *                                                                         *
- * for_what=0 for clause/2  (ie. error if not public)                      *
- *          2 for listing/1 (no check if public)                           *
- *                listing/1 tests before that it is not a native_code pred.*
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
-{
-  WamWord word, tag_mask;
-  WamWord *first_arg_adr;
-  WamWord head_word1, body_word1;
-  int func, arity;
-  int for_what;
-  PredInf *pred;
-  DynPInf *dyn;
-  DynCInf *clause;
-  WamWord w[2];
-
-  first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
-
-  DEREF(body_word, word, tag_mask);
-  body_word = word;
-  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&
-      tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
-    Pl_Err_Type(pl_type_callable, body_word);
-
-  for_what = Pl_Rd_Integer_Check(for_what_word);
-
-#ifdef DEBUG
-  DBGPRINTF("clause/2: arity: %d", arity);
-  if (arity > 0)
-    {
-      DBGPRINTF("\tfirst arg: ");
-      Pl_Write_Simple(*first_arg_adr);
-    }
-  DBGPRINTF("\n");
-#endif
-
-  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
-    return FALSE;
-
-  if ((for_what == 0 && !(pred->prop & MASK_PRED_PUBLIC)) ||
-      (for_what == 2 && (pred->prop & MASK_PRED_NATIVE_CODE)))
-    {
-      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
-      Pl_Err_Permission(pl_permission_operation_access,
-			pl_permission_type_private_procedure, word);
-    }
-
-  dyn = (DynPInf *) (pred->dyn);
-  if (dyn == NULL)		/* no dynamic info */
-    return FALSE;
-
-  if (arity > 0)
-    word = *first_arg_adr;
-
-  w[0] = head_word;
-  w[1] = body_word;
-
-  clause = Pl_Scan_Dynamic_Pred(-1, 0, (DynPInf *) (pred->dyn), word,
-				(ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2,
-				w);
-  if (clause == NULL)
-    return FALSE;
-
-  Pl_Copy_Clause_To_Heap(clause, &head_word1, &body_word1);
-  last_clause = clause;
-  return Pl_Unify(head_word, head_word1) && Pl_Unify(body_word, body_word1);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * CLAUSE_ALT                                                              *
+ * RETRACT                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Clause_Alt(DynCInf *clause, WamWord *w)
-{
-  WamWord head_word1, body_word1;
-
-  Pl_Copy_Clause_To_Heap(clause, &head_word1, &body_word1);
-  last_clause = clause;
-  return Pl_Unify(head_word1, w[0]) && Pl_Unify(body_word1, w[1]);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_RETRACT_2                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Retract_2(WamWord head_word, WamWord body_word)
+Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
 {
   WamWord word, tag_mask;
   WamWord *first_arg_adr;
@@ -216,7 +120,7 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
     Pl_Err_Type(pl_type_callable, body_word);
 
 #ifdef DEBUG
-  DBGPRINTF("retract/2: arity: %d", arity);
+  DBGPRINTF("retract(all)/1: arity: %d", arity);
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
@@ -225,12 +129,12 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
     return FALSE;
 
   if (!(pred->prop & MASK_PRED_DYNAMIC))
-    {
-      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
+    { /* dont use module here: can be != pred->mod->module (ex: foo:p/n can refer to user:p/n) */
+      word = Pl_Built_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -245,9 +149,8 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, 0, (DynPInf *) (pred->dyn), word,
-				(ScanFct) Retract_Alt, DYN_ALT_FCT_FOR_TEST, 2,
-				w);
+  clause = Pl_Scan_Dynamic_Pred(-1, 0, dyn, word, (ScanFct) Retract_Alt, 
+				(retractall) ? DYN_ALT_FCT_FOR_FAIL : DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
 
@@ -284,6 +187,180 @@ Retract_Alt(DynCInf *clause, WamWord *w)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_RETRACT_1                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Retract_1(WamWord clause_word)
+{
+  WamWord head_word, body_word;
+  int module;
+  
+  module = Pl_Get_Head_And_Body_Top(clause_word, &head_word, &body_word);
+
+  return Retract(module, head_word, body_word, FALSE);
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RETRACTALL_1                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Retractall_1(WamWord head_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  WamWord *arg_adr;
+  int module, func, arity;
+  PredInf *pred;
+  WamWord *ref_adr[MAX_ARITY];
+  int i, j;
+  Bool all_singleton;
+
+  module = Pl_Strip_Module_Top(head_word, FALSE, TRUE, &head_word);
+
+  arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
+
+  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
+    return;
+
+  if (!(pred->prop & MASK_PRED_DYNAMIC))
+    { /* NB: module can be != pred->mod->module (ex: foo:p/n can refer to user:p/n) */
+      word = Pl_Built_Pred_Indic_Error(pred);
+      Pl_Err_Permission(pl_permission_operation_modify,
+			pl_permission_type_static_procedure, word);
+    }
+
+  all_singleton = TRUE;			/* check if all args are singleton variables */
+  for (i = 0; i < arity; i++)
+    {
+      DEREF(*arg_adr, word, tag_mask);
+      if (tag_mask != TAG_REF_MASK)
+	{
+	  all_singleton = FALSE;		/* not a var */
+	  break;
+	}
+      adr = UnTag_REF(word);
+      ref_adr[i] = adr;
+      *adr = Tag_INT(0);	/* patch the argument to an INT */
+      arg_adr++;
+    }
+
+  j = i;
+  for (i = 0; i < j; i++)	/* restore the args */
+    {
+      adr = ref_adr[i];
+      *adr = Make_Self_Ref(adr);
+    }
+
+  if (all_singleton)
+    {
+      Pl_Update_Dynamic_Pred(module, func, arity, 1, -1); /* remove all clauses for this pred */
+      return;
+    }
+
+  Retract(module, head_word, Pl_Put_X_Variable(), TRUE); /* act like retract(p(...)), fail (failure in assert.pl) */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CLAUSE_3                                                             *
+ *                                                                         *
+ * check_public = TRUE  for for clause/2 (ie. error if not public)         *
+ *              = FALSE for listing/1 (no check if public)                 *
+ *                      NB: listing/1 tests before it is not native_code   *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
+{
+  WamWord word, tag_mask;
+  WamWord *first_arg_adr;
+  WamWord head_word1, body_word1;
+  int module, func, arity;
+  PredInf *pred;
+  DynPInf *dyn;
+  DynCInf *clause;
+  WamWord w[2];
+  Bool check_public = Pl_Rd_Boolean(check_public_word);
+
+  module = Pl_Strip_Module_Top(head_word, FALSE, TRUE, &head_word);
+
+  first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
+
+  DEREF(body_word, word, tag_mask);
+  body_word = word;
+  if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&
+      tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
+    Pl_Err_Type(pl_type_callable, body_word);
+
+#ifdef DEBUG
+  DBGPRINTF("clause/2: arity: %d", arity);
+  if (arity > 0)
+    {
+      DBGPRINTF("\tfirst arg: ");
+      Pl_Write_Simple(*first_arg_adr);
+    }
+  DBGPRINTF("\n");
+#endif
+
+  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
+    return FALSE;
+  
+  if (check_public && !(pred->prop & MASK_PRED_PUBLIC))
+    {
+      word = Pl_Built_Pred_Indic_Error(pred);
+      Pl_Err_Permission(pl_permission_operation_access,
+			pl_permission_type_private_procedure, word);
+    }
+
+  dyn = (DynPInf *) (pred->dyn);
+  if (dyn == NULL)		/* no dynamic info */
+    return FALSE;
+
+  if (arity > 0)
+    word = *first_arg_adr;
+
+  w[0] = head_word;
+  w[1] = body_word;
+
+  clause = Pl_Scan_Dynamic_Pred(-1, 0, dyn, word,
+				(ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
+  if (clause == NULL)
+    return FALSE;
+
+  Pl_Copy_Clause_To_Heap(clause, &head_word1, &body_word1);
+  last_clause = clause;
+  return Pl_Unify(head_word, head_word1) && Pl_Unify(body_word, body_word1);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CLAUSE_ALT                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool
+Clause_Alt(DynCInf *clause, WamWord *w)
+{
+  WamWord head_word1, body_word1;
+
+  Pl_Copy_Clause_To_Heap(clause, &head_word1, &body_word1);
+  last_clause = clause;
+  return Pl_Unify(head_word1, w[0]) && Pl_Unify(body_word1, w[1]);
+}
+
+
+
+
+#if 0				/* OLD CODE */
+/*-------------------------------------------------------------------------*
  * PL_RETRACT_LAST_FOUND_0                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -319,65 +396,7 @@ Pl_Setarg_Of_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
   Arg(adr, arg_no) = word;
 }
 
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_RETRACTALL_IF_EMPTY_HEAD_1                                           *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Retractall_If_Empty_Head_1(WamWord head_word)
-{
-  WamWord word, tag_mask;
-  WamWord *adr;
-  WamWord *arg_adr;
-  int func, arity;
-  PredInf *pred;
-  WamWord *ref_adr[MAX_ARITY];
-  int i, j;
-  Bool ret;
-
-  arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
-
-  if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
-    return TRUE;
-
-  if (!(pred->prop & MASK_PRED_DYNAMIC))
-    {
-      word = Pl_Mk_Pred_Indic_Error(pred->mod->module, func, arity);
-      Pl_Err_Permission(pl_permission_operation_modify,
-			pl_permission_type_static_procedure, word);
-    }
-
-  ret = TRUE;			/* check if all args are singletons variables */
-  for (i = 0; i < arity; i++)
-    {
-      DEREF(*arg_adr, word, tag_mask);
-      if (tag_mask != TAG_REF_MASK)
-	{
-	  ret = FALSE;		/* not a var */
-	  break;
-	}
-      adr = UnTag_REF(word);
-      ref_adr[i] = adr;
-      *adr = Tag_INT(0);	/* patch the argument to an INT */
-      arg_adr++;
-    }
-
-  j = i;
-  for (i = 0; i < j; i++)	/* restore the args */
-    {
-      adr = ref_adr[i];
-      *adr = Make_Self_Ref(adr);
-    }
-
-  if (ret)
-    Pl_Update_Dynamic_Pred(func, arity, 1, -1);
-
-  return ret;
-}
-
+#endif
 
 
 
@@ -388,28 +407,9 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
 void
 Pl_Abolish_1(WamWord pred_indic_word)
 {
-  int func, arity;
-  WamWord module_word;
-  /* FIXME: use module */
-  module_word = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &func, &arity);
+  int module, func, arity;
 
-  Pl_Update_Dynamic_Pred(func, arity, 3, -1);
-}
+  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, TRUE, &func, &arity);
 
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_REMOVE_PREDICATE_2                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_Remove_Predicate_2(WamWord name_word, WamWord arity_word)
-{
-  int func, arity;
-
-  func = Pl_Rd_Atom_Check(name_word);
-  arity = Pl_Rd_Integer_Check(arity_word);
-
-  Pl_Update_Dynamic_Pred(func, arity, 2, -1);
+  Pl_Update_Dynamic_Pred(module, func, arity, 3, -1);
 }

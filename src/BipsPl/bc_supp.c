@@ -204,8 +204,8 @@ static int atom_call;
 static int atom_catch;
 static int atom_throw;
 
-static int caller_func;
-static int caller_arity;
+static int glob_caller_func;	/* for byte-code creation */
+static int glob_caller_arity;
 
 static int glob_func;
 static DynPInf *glob_dyn;
@@ -468,8 +468,8 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
   else if (atom == atom_built_in_fd)
     prop |= MASK_PRED_BUILTIN_FD;
 
-
-  pred = Pl_Update_Dynamic_Pred(func, arity, 0, (multi) ? pl_file : -1);
+  /* FIXME: pass good module */
+  pred = Pl_Update_Dynamic_Pred(-1, func, arity, 0, (multi) ? pl_file : -1);
   if (pred == NULL)
     pred = Pl_Create_Pred_Compat(func, arity, pl_file, pl_line, prop, NULL);
   else
@@ -485,10 +485,10 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
     }
 
 #if 1
-  caller_func = Pl_Pred_Without_Aux(func, arity, &caller_arity);
+  glob_caller_func = Pl_Pred_Without_Aux(func, arity, &glob_caller_arity);
 #else
-  caller_func = func;
-  caller_arity = arity;
+  glob_caller_func = func;
+  glob_caller_arity = arity;
 #endif
 
 #ifdef DEBUG
@@ -750,7 +750,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       else
 	{
 	  nb_word = 3;
-	  w2 = (unsigned) Functor_Arity(caller_func, caller_arity);
+	  w2 = (unsigned) Functor_Arity(glob_caller_func, glob_caller_arity);
 	}
       break;
     }
@@ -881,7 +881,6 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
 	     WamWord call_info_word)
 {
   PredInf *pred;
-  WamWord word;  
   int i;
 
   pred = Pl_Lookup_Pred(module, func, arity);
@@ -890,18 +889,14 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
       if (func != atom_fail || arity != 0)
 	{
 	  Pl_Call_Info_Bip_Name_1(call_info_word);
-	  Pl_Unknown_Pred_Error(func, arity); /* TODO: pass module */
+	  Pl_Unknown_Pred_Error(module, func, arity);
 	}
       return ALTB(B);		/* i.e. fail */
     }
 #if 0				/* FIXME test module != current module (1st = type_in_module) */
   if (!(pred->prop & MASK_PRED_EXPORTED))
     {
-      word = Pl_Put_Structure(ATOM_CHAR(':'), 2);
-      Pl_Unify_Atom(module);
-      Pl_Unify_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      WamWord word = Pl_Built_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_execute, 
                         pl_permission_type_non_exported_procedure, word);                        
     }
@@ -953,22 +948,14 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamCont
-Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr, 
-		   int caller_func, int caller_arity)
+Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, 
+		   int caller_func, int caller_arity, Bool debug_call)
 {
   WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, 1));
-  int module;
-
 
   Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
 
-  /* here module_word cannot be a var since Pl_Strip_Module should have been 
-   * called with accept_var = FALSE */
-
-  if (module_word == NOT_A_WAM_WORD) /* should not occur due to meta_predicate decl */
-    module = pl_atom_user;
-  else
-    module = UnTag_ATM(module_word);
+  /* NB: arg_adr can be &A(0): beware when writting in A(i) to not overwrite args */
 
  terminal_rec:
 
@@ -1055,8 +1042,7 @@ Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr,
     {
       A(0) = pred_word;
       A(1) = Tag_ATM(module);
-      A(2) = Tag_ATM(module);	/* FIXME QualifModule */
-      A(3) = call_info_word;
+      A(2) = call_info_word;
       return pl_debug_call_code;
     }
 #endif
@@ -1067,32 +1053,30 @@ Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr,
 
 
 /*-------------------------------------------------------------------------*
- * PL_BC_CALL_INITIAL_3                                                    *
+ * PL_BC_CALL_5                                                            *
  *                                                                         *
- * called by '$call'/5    FIXME arity of $call in this comment             *
+ * called by '$call'/4 and '$call_no_debug'/5                              *
  *-------------------------------------------------------------------------*/
 WamCont 
-Pl_BC_Call_Initial_3(WamWord pred_word, WamWord caller_func_word, 
-		     WamWord caller_arity_word, WamWord debug_call_word)
-
+Pl_BC_Call_5(WamWord goal_word, WamWord module_word, 
+	     WamWord caller_func_word, WamWord caller_arity_word,
+	     Bool debug_call)
 {
-  WamWord module_word;
-  int func, arity;
+  int module, func, arity;
   int caller_func, caller_arity;
   WamWord *arg_adr;
 
 
   Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
   
-  module_word = Pl_Strip_Module(pred_word, FALSE, TRUE, &pred_word);
+  module = Pl_Rd_Atom(module_word);
 
   caller_func = Pl_Rd_Atom(caller_func_word);
   caller_arity = Pl_Rd_Integer(caller_arity_word);
 
-  arg_adr = Pl_Rd_Callable_Check(pred_word, &func, &arity);
+  arg_adr = Pl_Rd_Callable_Check(goal_word, &func, &arity);
 
-  return Pl_BC_Call_Initial(module_word, func, arity, arg_adr, 
-			    caller_func, caller_arity);
+  return Pl_BC_Call_Initial(module, func, arity, arg_adr, caller_func, caller_arity, debug_call);
 }
 
 
@@ -1112,7 +1096,7 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 
   arg_adr = Pl_Rd_Callable(pred_word, &func, &arity); /* we know it is a callable */
 
-  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
+  //  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0; // FIXME
 
   if (pl_debug_call_code != NULL && debug_call &&
       (first_call_word & (1 << TAG_SIZE_LOW)))
@@ -1253,6 +1237,7 @@ BC_Emulate_Byte_Code(BCWord *bc)
   int module;
   PredInf *pred;
   C64To32 cv;
+  int caller_func, caller_arity;
 
 
 bc_loop:
@@ -1585,9 +1570,8 @@ bc_loop:
 	  w1 = bc->word;
 	  caller_func = Functor_Of(w1);
 	  caller_arity = Arity_Of(w1);
-	  Pl_Set_Bip_Name_2(Tag_ATM(caller_func),
-			 Tag_INT(caller_arity));
-	  Pl_Unknown_Pred_Error(func, arity);
+	  Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
+	  Pl_Unknown_Pred_Error(pl_atom_user, func, arity); /* FIXME: pass module */
 	  goto fail;
 	}
 
@@ -1715,5 +1699,6 @@ Prep_Debug_Call(int func, int arity, int caller_func, int caller_arity)
 
       A(0) = word;
     }
-  A(1) = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
+  A(1) = Tag_ATM(pl_atom_user);	/* FIXME: pass module */
+  A(2) = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
 }

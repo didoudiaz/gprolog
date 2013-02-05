@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : print.pl
 
 
@@ -46,9 +46,9 @@ predicate(system:'$try_portray'/1,56,static,private,monofile,built_in,[
     put_structure((',')/2,0),
     unify_value(x(3)),
     unify_atom(!),
-    put_atom(portray,3),
-    put_integer(1,4),
-    put_atom(false,5),
+    put_atom(user,3),
+    put_atom(portray,4),
+    put_integer(1,5),
     call('$catch'/6),
     put_atom('$portray_ok',0),
     put_integer(1,1),

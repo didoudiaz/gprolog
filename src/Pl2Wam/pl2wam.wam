@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : pl2wam.pl
 
 
@@ -26,9 +26,10 @@ label(1),
     unify_local_value(x(1)),
     put_structure(exception/1,2),
     unify_variable(x(1)),
-    put_atom(pl2wam,3),
-    put_integer(1,4),
-    execute('$catch'/5)]).
+    put_atom(user,3),
+    put_atom(pl2wam,4),
+    put_integer(1,5),
+    execute('$catch'/6)]).
 
 
 predicate(user:pl2wam1/1,51,static,private,monofile,global,[

@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : expand.pl
 
 
@@ -63,11 +63,11 @@ predicate(system:'$call_term_expansion'/2,65,static,private,monofile,built_in,[
     put_structure(term_expansion/2,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
-    put_meta_term(system,0,0),
-    put_atom('$call_term_expansion',1),
-    put_integer(2,2),
+    put_atom(system,1),
+    put_atom('$call_term_expansion',2),
+    put_integer(2,3),
     deallocate,
-    execute('$call'/3)]).
+    execute('$call'/4)]).
 
 
 predicate(system:phrase/2,75,static,private,monofile,built_in,[
@@ -98,13 +98,10 @@ predicate(system:'$phrase'/4,87,static,private,monofile,built_in,[
     put_variable(y(5),3),
     call('$dcg_trans_body'/4),
     put_value(y(5),0),
-    put_meta_term(system,0,0),
     put_atom(user,1),
     put_atom(phrase,2),
-    put_meta_term(system,2,2),
     put_value(y(3),3),
-    put_atom(true,4),
-    call('$call'/5),
+    call('$call'/4),
     put_value(y(2),0),
     get_value(y(4),0),
     deallocate,

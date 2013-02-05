@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : read_file.pl
 
 
@@ -195,9 +195,10 @@ label(1),
     unify_value(x(2)),
     unify_void(1),
     put_atom(fail,2),
-    put_atom(open_new_prolog_file1,3),
-    put_integer(4,4),
-    execute('$catch'/5),
+    put_atom(user,3),
+    put_atom(open_new_prolog_file1,4),
+    put_integer(4,5),
+    execute('$catch'/6),
 
 label(2),
     retry_me_else(3),
@@ -225,9 +226,9 @@ label(3),
     unify_structure((/)/2),
     unify_atom(open),
     unify_integer(3),
-    put_atom(open_new_prolog_file1,1),
-    put_integer(4,2),
-    put_atom(true,3),
+    put_atom(user,1),
+    put_atom(open_new_prolog_file1,2),
+    put_integer(4,3),
     execute('$throw'/4)]).
 
 
@@ -269,10 +270,11 @@ label(3),
     unify_local_value(y(2)),
     put_void(1),
     put_atom(fail,2),
-    put_atom(try_other_directory,3),
-    put_integer(4,4),
+    put_atom(user,3),
+    put_atom(try_other_directory,4),
+    put_integer(4,5),
     deallocate,
-    execute('$catch'/5),
+    execute('$catch'/6),
 
 label(4),
     trust_me_else_fail,

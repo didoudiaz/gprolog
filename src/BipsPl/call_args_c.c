@@ -66,10 +66,6 @@ static int atom_call;
  * Function Prototypes             *
  *---------------------------------*/
 
-#define CALL_INTERNAL              X1_2463616C6C5F696E7465726E616C
-
-Prolog_Prototype(CALL_INTERNAL, 3);
-
 
 
 
@@ -96,8 +92,7 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
 {
   int caller_func = atom_bip;
   int caller_arity = arity_rest + 1;
-  WamWord module_word;
-  int func, arity_clos, arity;
+  int module, func, arity_clos, arity;
   WamWord goal_word;
   WamWord *arg_adr;
 #if 0
@@ -107,7 +102,7 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
 #endif
   Pl_Set_C_Bip_Name(pl_atom_tbl[caller_func].name, caller_arity);
 
-  module_word = Pl_Strip_Module(A(0), FALSE, TRUE, &goal_word);
+  module = Pl_Strip_Module_Top(A(0), FALSE, TRUE, &goal_word);
 
   if (atom_bip == atom_call_with_args) {
     func = Pl_Rd_Atom_Check(goal_word);
@@ -139,5 +134,5 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   /* then copy the arity_clos args */
   memcpy((void *) &A(0), arg_adr, sizeof(WamWord) * arity_clos);
 
-  return Pl_BC_Call_Initial(module_word, func, arity, &A(0), caller_func, caller_arity);
+  return Pl_BC_Call_Initial(module, func, arity, &A(0), caller_func, caller_arity, TRUE);
 }

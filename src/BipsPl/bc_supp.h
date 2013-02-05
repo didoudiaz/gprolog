@@ -71,8 +71,9 @@ unsigned *pl_byte_code;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamCont Pl_BC_Call_Initial(WamWord module_word, int func, int arity, WamWord *arg_adr, 
-			   int caller_func, int caller_arity);
+WamCont Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, 
+			   int caller_func, int caller_arity, Bool debug_call);
+
 WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
 
 void Pl_BC_Start_Emit_0(void);

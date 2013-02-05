@@ -247,7 +247,10 @@ Error_Supp_Initializer(void)
       pl_resource_too_big_fd_constraint = Pl_Create_Atom("too_big_fd_constraint");
 				/* for FD */
     }
+
+  pl_calling_module = pl_atom_user;
 }
+
 
 
 
@@ -482,11 +485,33 @@ Pl_Syntax_Error(int flag_value)
 
 
 /*-------------------------------------------------------------------------*
- * PL_MK_PRED_ERROR_TERM                                                   *
+ * NEED_MODULE_PREFIX                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Need_Module_Prefix(int module)
+{
+  int cc_module = pl_calling_module;
+
+  if (cc_module == pl_atom_system || cc_module < 0)
+    cc_module = pl_atom_user;
+
+  if (module == pl_atom_system || module < 0)
+    module = pl_atom_user;
+
+
+  return (module != cc_module);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILD_PRED_INDIC_ERROR0                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Mk_Pred_Indic_Error(int module, int func, int arity)
+Pl_Built_Pred_Indic_Error0(int module, int func, int arity)
 {
   WamWord term;
 
@@ -494,7 +519,8 @@ Pl_Mk_Pred_Indic_Error(int module, int func, int arity)
   Pl_Unify_Atom(func);
   Pl_Unify_Integer(arity);
 
-  if (module >= 0 && module != pl_atom_system && module != pl_calling_module)
+
+  if (Need_Module_Prefix(module))
     {
       WamWord term1 = Pl_Put_Structure(ATOM_CHAR(':'), 2);
       Pl_Unify_Atom(module);
@@ -509,25 +535,49 @@ Pl_Mk_Pred_Indic_Error(int module, int func, int arity)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_BUILD_PRED_INDIC_ERROR                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Built_Pred_Indic_Error(PredInf *pred)
+{
+  int module = pred->mod->module;
+  int func = Functor_Of(pred->f_n);
+  int arity = Arity_Of(pred->f_n);
+
+  return Pl_Built_Pred_Indic_Error0(module, func, arity);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_UNKNOWN_PRED_ERROR                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Unknown_Pred_Error(int func, int arity) /* FIXME: pass module */
+Pl_Unknown_Pred_Error(int module, int func, int arity)
 {
   WamWord term;
 
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_ERROR)
     {
-      term = Pl_Mk_Pred_Indic_Error(-1, func, arity);
+      term = Pl_Built_Pred_Indic_Error0(module, func, arity);
       Pl_Err_Existence(pl_existence_procedure, term);
     }
 
   Update_Cur_From_C_Bip();
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_WARNING)
-    Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
-		  "warning: unknown procedure %s/%d (from %s)\n",
-		  pl_atom_tbl[func].name, arity, Context_Error_String());
+    {
+      Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "warning: unknown procedure ");
+
+      if (Need_Module_Prefix(module))
+	Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "%s:",
+			 pl_atom_tbl[module].name);
+
+      Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "%s/%d (from %s)\n",
+		       pl_atom_tbl[func].name, arity, Context_Error_String());
+    }
 }
 
 

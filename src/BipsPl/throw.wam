@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.5.0
 % file    : throw.pl
 
 
@@ -10,7 +10,8 @@ predicate(system:'$use_throw'/0,42,static,private,monofile,built_in,[
 
 
 predicate(system:'$throw'/4,45,static,private,monofile,built_in,[
-    call_c('Pl_Save_Call_Info_3',[],[x(1),x(2),x(3)]),
+    put_integer(1,1),
+    call_c('Pl_Save_Call_Info_3',[],[x(2),x(3),x(1)]),
     put_integer(0,1),
     execute('$throw1'/2)]).
 
@@ -21,12 +22,7 @@ predicate(system:'$throw1'/2,50,static,private,monofile,built_in,[
     execute('$throw_internal'/2)]).
 
 
-predicate(system:'$throw_internal'/3,55,static,private,monofile,built_in,[
-    put_value(x(2),1),
-    execute('$throw_internal'/2)]).
-
-
-predicate(system:'$throw_internal'/2,59,static,private,monofile,built_in,[
+predicate(system:'$throw_internal'/2,54,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -39,7 +35,7 @@ predicate(system:'$throw_internal'/2,59,static,private,monofile,built_in,[
     execute('$unwind'/1)]).
 
 
-predicate(user:'$$throw_internal/2_$aux1'/2,59,static,private,monofile,local,[
+predicate(user:'$$throw_internal/2_$aux1'/2,54,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -53,7 +49,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$unwind'/1,71,static,private,monofile,built_in,[
+predicate(system:'$unwind'/1,66,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),

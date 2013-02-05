@@ -94,7 +94,7 @@ phrase(DcgBody, In, Out) :-
 	% '$check_list_or_partial_list'(In),
 	% '$check_list_or_partial_list'(Out),
 	'$dcg_trans_body'(DcgBody, In, Out1, Body),
-	'$call'(Body, user, phrase, Arity, true), % FIXME CallerModule
+	'$call'(Body, user, phrase, Arity), % FIXME CallerModule
 	Out = Out1.
 
 

@@ -42,19 +42,14 @@
 '$use_throw'.
 
 
-'$throw'(Ball, Func, Arity, DebugCall) :-
-	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
+'$throw'(Ball, _Module, Func, Arity) :-			  % FIXME use module for error report
+	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, 1)), %the Debug arg is not relevant (only call_info for error report)
 	'$throw1'(Ball, 0).
 
 
 '$throw1'(Ball, CallInfo) :-
 	'$call_c'('Pl_Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
 	'$throw_internal'(Ball, CallInfo).
-
-/* FIXME ***/
-'$throw_internal'(Ball, _CallerModule, CallInfo) :-
-	'$throw_internal'(Ball, CallInfo).
-/* FIXME ***/
 
 '$throw_internal'(Ball, CallInfo) :-
 	(   var(Ball) ->

@@ -89,6 +89,7 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
   Bool all;
 
   /* FIXME: use module */
+  Pl_Unset_Calling_Module();
   module_word = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
   name_word = pl_pi_name_word;
   arity_word = pl_pi_arity_word;
@@ -506,6 +507,7 @@ Pl_Get_Predicate_File_Info_3(WamWord pred_indic_word,
   PredInf *pred;
 
   /* FIXME: use module */
+  Pl_Unset_Calling_Module();
   module = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
   if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
@@ -530,11 +532,13 @@ Pl_Set_Predicate_File_Info_3(WamWord pred_indic_word,
 			     WamWord pl_file_word, WamWord pl_line_word)
 {
   int module, func, arity;
+  WamWord module_word;
   int pl_file, pl_line;
   PredInf *pred;
 
   /* FIXME: use module */
-  module = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
+  Pl_Unset_Calling_Module();
+  module_word = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
   if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
     return FALSE;
@@ -728,8 +732,8 @@ Pl_Strip_Module_3(WamWord term_word, WamWord module_word, WamWord plain_word)
   module_word1 = Pl_Strip_Module(term_word, FALSE, FALSE, &goal_word);
 
 #if 1				/* should not occur since meta_predicate declaration */
-  if (module_word == NOT_A_WAM_WORD)
-    module_word = Tag_ATM(pl_atom_user);
+  if (module_word1 == NOT_A_WAM_WORD)
+    module_word1 = Tag_ATM(pl_atom_user);
 #endif
 
   return Pl_Unify(module_word1, module_word) && Pl_Unify(goal_word, plain_word);

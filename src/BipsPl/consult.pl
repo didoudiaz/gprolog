@@ -340,7 +340,7 @@ listing(PI) :-
 	'$get_pred_indic'(PI, N, A),
 	functor(H, N, A),
 	nl,
-	'$clause'(H, B, 2),
+	'$clause'(H, B, false),
 	portray_clause((H :- B)),
 	fail.
 
