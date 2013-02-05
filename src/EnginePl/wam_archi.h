@@ -59,52 +59,48 @@ typedef WamWord *WamWordP;
 
    /*--- Begin Register Generation ---*/
 
-register WamWord 		*pl_reg_bank asm ("r12");
-
-register WamWordP		TR  asm ("r13");
-register WamWordP		B   asm ("r14");
-register WamWordP		H   asm ("r15");
+register WamWordP		TR  asm ("ebx");
 
 
-#define HB1			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+0])
-#define CP			(((WamCont  *) pl_reg_bank)[NB_OF_X_REGS+1])
-#define E			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+2])
-#define CS			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+3])
-#define S			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+4])
-#define STAMP			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+5])
-#define BCI			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+6])
-#define LSSA			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+7])
+#define B			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+0])
+#define H			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+1])
+#define HB1			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+2])
+#define CP			(((WamCont  *) pl_reg_bank)[NB_OF_X_REGS+3])
+#define E			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+4])
+#define CS			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+5])
+#define S			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+6])
+#define STAMP			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+7])
+#define BCI			(((WamWord  *) pl_reg_bank)[NB_OF_X_REGS+8])
+#define LSSA			(((WamWordP *) pl_reg_bank)[NB_OF_X_REGS+9])
 
 
 #define NB_OF_REGS          	11
-#define NB_OF_ALLOC_REGS    	3
-#define NB_OF_NOT_ALLOC_REGS	8
+#define NB_OF_ALLOC_REGS    	1
+#define NB_OF_NOT_ALLOC_REGS	10
 #define REG_BANK_SIZE       	(NB_OF_X_REGS+NB_OF_NOT_ALLOC_REGS)
 
 
 
 
-#define NB_OF_USED_MACHINE_REGS 4
+#define NB_OF_USED_MACHINE_REGS 1
 
 #ifdef ENGINE_FILE
 
-WamWord *save_reg_bank;
-
+WamWord pl_reg_bank[REG_BANK_SIZE];
 WamWord pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS + 1];
 
 char *pl_reg_tbl[] = { "TR", "B", "H", "HB1", "CP", "E", "CS", "S", "STAMP", "BCI", "LSSA"};
 
 #else
 
-extern WamWord *save_reg_bank;
-
+extern WamWord pl_reg_bank[];
 extern WamWord pl_buff_signal_reg[];
 
 extern char *pl_reg_tbl[];
 
 #endif
 
-#define Init_Reg_Bank(x)  save_reg_bank = pl_reg_bank = x
+#define Init_Reg_Bank(x)
 
 
 #define Reg(i)			(((i)==0) ? (WamWord) TR 	: \
@@ -160,19 +156,13 @@ extern char *pl_reg_tbl[];
 
 #define Save_Machine_Regs(buff_save) \
   do { \
-    buff_save[0] = (WamWord) pl_reg_bank; \
-    buff_save[1] = (WamWord) TR; \
-    buff_save[2] = (WamWord) B; \
-    buff_save[3] = (WamWord) H; \
+    buff_save[0] = (WamWord) TR; \
   } while(0)
 
 
 #define Restore_Machine_Regs(buff_save) \
   do { \
-    pl_reg_bank = (WamWordP) buff_save[0]; \
-    TR = (WamWordP) buff_save[1]; \
-    B = (WamWordP) buff_save[2]; \
-    H = (WamWordP) buff_save[3]; \
+    TR = (WamWordP) buff_save[0]; \
   } while(0)
 
 
@@ -195,7 +185,6 @@ extern char *pl_reg_tbl[];
       Restore_Machine_Regs(pl_buff_signal_reg); \
       Stop_Protect_Regs_For_Signal; \
     } \
-    pl_reg_bank = save_reg_bank; \
   } while(0)
 
 
@@ -215,21 +204,21 @@ extern char *pl_reg_tbl[];
    /*--- Begin Tag Generation ---*/
 
 #define TAG_SIZE     		3
-#define TAG_SIZE_LOW 		3
-#define TAG_SIZE_HIGH		0
-#define VALUE_SIZE   		61
-#define TAG_MASK     		(PlULong)0x7
-#define VALUE_MASK   		(PlULong)0xfffffffffffffff8
+#define TAG_SIZE_LOW 		2
+#define TAG_SIZE_HIGH		1
+#define VALUE_SIZE   		29
+#define TAG_MASK     		(PlULong)0x80000003
+#define VALUE_MASK   		(PlULong)0x7ffffffc
 #define Tag_Mask_Of(w)		((PlLong) (w) & (TAG_MASK))
-#define Tag_From_Tag_Mask(w) 	(w)
-#define Tag_Of(w)     		Tag_Mask_Of(w)
+#define Tag_From_Tag_Mask(w) 	(((PlULong) (w) >> 29) | ((w) & 3))
+#define Tag_Of(w)     		((((PlULong) (w) >> 31) << 2) | ((w) & 3))
 #define TAG_REF_MASK		(PlULong)0
 #define TAG_LST_MASK		(PlULong)0x1
 #define TAG_STC_MASK		(PlULong)0x2
 #define TAG_ATM_MASK		(PlULong)0x3
-#define TAG_FLT_MASK		(PlULong)0x4
-#define TAG_FDV_MASK		(PlULong)0x5
-#define TAG_INT_MASK		(PlULong)0x7
+#define TAG_FLT_MASK		(PlULong)0x80000000
+#define TAG_FDV_MASK		(PlULong)0x80000001
+#define TAG_INT_MASK		(PlULong)0x80000003
 
 #define NB_OF_TAGS       	7
 #define REF        		0 
@@ -242,11 +231,11 @@ extern char *pl_reg_tbl[];
 
 	/* General Tag/UnTag macros */
 
-#define Tag_Long_Int(tm, v)  	((((PlLong) ((v) << 3)) >> 0) | (tm))
-#define Tag_Short_Uns(tm, v)	(((PlLong) (v) << 3) + (tm))
+#define Tag_Long_Int(tm, v)  	((((PlLong) ((v) << 3)) >> 1) | (tm))
+#define Tag_Short_Uns(tm, v)	(((PlLong) (v) << 2) + (tm))
 #define Tag_Address(tm, v)  	((PlLong) (v) + (tm))
 
-#define UnTag_Long_Int(w)    	((PlLong) ((w) << 0) >> 3)
+#define UnTag_Long_Int(w)    	((PlLong) ((w) << 1) >> 3)
 #define UnTag_Short_Uns(w)	UnTag_Long_Int(w)
 #define UnTag_Address(w)  	((WamWord *) ((w) & VALUE_MASK))
 
@@ -260,12 +249,12 @@ extern char *pl_reg_tbl[];
 #define Tag_ATM(v)  		Tag_Short_Uns(TAG_ATM_MASK, v)
 #define Tag_FLT(v)  		Tag_Address(TAG_FLT_MASK, v)
 #define Tag_FDV(v)  		Tag_Address(TAG_FDV_MASK, v)
-#define Tag_INT(v)  		(((PlULong) (v) << 3) | TAG_MASK)
+#define Tag_INT(v)  		(((PlULong) (v) << 2) | TAG_MASK)
 
 #define UnTag_REF(w)  		((WamWord *) (w))
 #define UnTag_LST(w)  		UnTag_Address(w)
 #define UnTag_STC(w)  		UnTag_Address(w)
-#define UnTag_ATM(w)  		((PlULong) (w) >> 3)
+#define UnTag_ATM(w)  		((PlULong) (w) >> 2)
 #define UnTag_FLT(w)  		UnTag_Address(w)
 #define UnTag_FDV(w)  		UnTag_Address(w)
 #define UnTag_INT(w)  		UnTag_Long_Int(w)
@@ -302,9 +291,9 @@ InfTag pl_tag_tbl[] =
   { "LST", ADDRESS, 1, 1},
   { "STC", ADDRESS, 2, 2},
   { "ATM", SHORT_UNS, 3, 3},
-  { "FLT", ADDRESS, 4, 4},
-  { "FDV", ADDRESS, 5, 5},
-  { "INT", LONG_INT, 7, 7}
+  { "FLT", ADDRESS, 4, 80000000},
+  { "FDV", ADDRESS, 5, 80000001},
+  { "INT", LONG_INT, 7, 80000003}
 };
 
 #else
