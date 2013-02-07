@@ -304,6 +304,9 @@ Pl_Allocate_Stacks(void)
     (WamWord *) M_MMAP_HIGH_ADR3,
 #endif
     (WamWord *) -1 };
+#ifdef DEBUG
+  size_t DEBUG_desc_max_len = 0;
+#endif
 
   page_size = getpagesize() / sizeof(WamWord);
 
@@ -313,6 +316,11 @@ Pl_Allocate_Stacks(void)
       if (stk_sz == 0)
 	stk_sz = page_size;	/* at leat one page to write magic numbers */
       length += stk_sz + page_size;
+#ifdef DEBUG
+      if (DEBUG_desc_max_len < strlen(pl_stk_tbl[i].desc)) {
+	  DEBUG_desc_max_len = strlen(pl_stk_tbl[i].desc);
+      }
+#endif
     }
   length *= sizeof(WamWord);
 
@@ -356,6 +364,15 @@ Pl_Allocate_Stacks(void)
       stk_sz = pl_stk_tbl[i].size;
       if (stk_sz == 0)
 	stk_sz = page_size;	/* at least one page for magic numbers */
+#ifdef DEBUG
+      DBGPRINTF("Allocated '%s'%*s at %p with size %u(=%xh) bytes\n",
+		pl_stk_tbl[i].desc,
+		DEBUG_desc_max_len - strlen(pl_stk_tbl[i].desc),
+		"",
+		addr,
+		stk_sz * sizeof(WamWord),
+		stk_sz * sizeof(WamWord));
+#endif
       addr += stk_sz;
       Virtual_Mem_Protect(addr, page_size * sizeof(WamWord));
       addr += page_size;
