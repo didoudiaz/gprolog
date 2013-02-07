@@ -1433,13 +1433,14 @@ DLMALLOC_EXPORT int mspace_mallopt(int, int);
 #ifndef LACKS_ERRNO_H
 #include <errno.h>       /* for MALLOC_FAILURE_ACTION */
 #endif /* LACKS_ERRNO_H */
-#ifdef DEBUG
+#if defined(DEBUG) || defined(DEBUG_MEM)
 #if ABORT_ON_ASSERT_FAILURE
 #undef assert
 #define assert(x) if(!(x)) ABORT
 #else /* ABORT_ON_ASSERT_FAILURE */
 #include <assert.h>
 #endif /* ABORT_ON_ASSERT_FAILURE */
+#define DEBUG 1
 #else  /* DEBUG */
 #ifndef assert
 #define assert(x)

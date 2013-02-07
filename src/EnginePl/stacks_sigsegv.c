@@ -82,7 +82,7 @@
 
 
 
-#if 0
+#if defined(DEBUG_MEM)
 #define DEBUG
 #endif
 
