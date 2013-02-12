@@ -680,7 +680,7 @@ dnl other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
         LIB="$LIB ws2_32"
     fi
 else
-    LIB='m'
+    LIB='m gc'
     GUILIB=''
     if test "$USE_SOCKETS" = yes; then
         AC_CHECK_FUNC(socket,[],
