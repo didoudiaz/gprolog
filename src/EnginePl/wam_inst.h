@@ -465,8 +465,16 @@ PlLong chain_len;
 
   /* Trail Stack Management */
 
+#ifdef BOEHM_GC
+
+#define Word_Needs_Trailing(adr) TRUE
+
+#else /* BOEHM_GC */
+
 #define Word_Needs_Trailing(adr)			\
   ((adr) < HB1 || (Is_A_Local_Adr(adr) && (adr) < B))
+
+#endif /* BOEHM_GC */
 
 
 
@@ -557,6 +565,24 @@ PlLong chain_len;
 
   /* Globalization */
 
+#ifdef BOEHM_GC
+
+#define Globalize_Local_Unbound_Var(adr, res_word)	\
+  do							\
+    {							\
+      WamWord *cur_H;					\
+							\
+      H = alloc(1);					\
+      cur_H = H;					\
+      res_word = Make_Self_Ref(cur_H);			\
+      *cur_H = res_word;				\
+      H++;						\
+      Bind_UV(adr, res_word);				\
+    }							\
+  while (0)
+
+#else /* BOEHM_GC */
+
 #define Globalize_Local_Unbound_Var(adr, res_word)	\
   do							\
     {							\
@@ -568,6 +594,8 @@ PlLong chain_len;
       Bind_UV(adr, res_word);				\
     }							\
   while (0)
+
+#endif /* BOEHM_GC */
 
 
 
