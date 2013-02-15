@@ -197,6 +197,7 @@ static int atom_public;
 static int atom_multifile;
 static int atom_built_in;
 static int atom_built_in_fd;
+static int atom_local;
 static int atom_fail;
 static int atom_if;
 static int atom_soft_if;
@@ -378,6 +379,7 @@ Byte_Code_Initializer(void)
   atom_multifile = Pl_Create_Atom("multifile");
   atom_built_in = Pl_Create_Atom("built_in");
   atom_built_in_fd = Pl_Create_Atom("built_in_fd");
+  atom_local = Pl_Create_Atom("local");
   atom_fail = Pl_Create_Atom("fail");
   atom_if = Pl_Create_Atom("->");
   atom_soft_if = Pl_Create_Atom("*->");
@@ -433,22 +435,23 @@ Compar_Inst_Code_Op(BCWord *p1, BCWord *p2)
 
 
 /*-------------------------------------------------------------------------*
- * PL_BC_START_PRED_7                                                      *
+ * PL_BC_START_PRED_9                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
+Pl_BC_Start_Pred_9(WamWord module_word, WamWord func_word, WamWord arity_word,
 		   WamWord pl_file_word, WamWord pl_line_word,
 		   WamWord sta_dyn_word, WamWord pub_priv_word,
 		   WamWord mono_multi_word, WamWord us_blp_bfd_word)
 {
-  int func, arity;
+  int module, func, arity;
   int pl_file, pl_line;
   int prop = 0;
   int atom;
   int multi = 0;
   PredInf *pred;
 
+  module = Pl_Rd_Atom_Check(module_word);
   func = Pl_Rd_Atom_Check(func_word);
   arity = Pl_Rd_Integer_Check(arity_word);
   pl_file = Pl_Rd_Atom_Check(pl_file_word);
@@ -470,11 +473,12 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
     prop |= MASK_PRED_BUILTIN;
   else if (atom == atom_built_in_fd)
     prop |= MASK_PRED_BUILTIN_FD;
+  else if (atom != atom_local)	/* an exported predicate (in case of module) - works for user, local, exported */
+    prop |= MASK_PRED_EXPORTED;
 
-  /* FIXME: pass good module */
-  pred = Pl_Update_Dynamic_Pred(-1, func, arity, 0, (multi) ? pl_file : -1);
+  pred = Pl_Update_Dynamic_Pred(module, func, arity, 0, (multi) ? pl_file : -1);
   if (pred == NULL)
-    pred = Pl_Create_Pred_Compat(func, arity, pl_file, pl_line, prop, NULL);
+    pred = Pl_Create_Pred(module, func, arity, pl_file, pl_line, prop, NULL);
   else
     {
       if (multi)

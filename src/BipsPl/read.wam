@@ -223,7 +223,7 @@ label(13),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(user:'$$get_read_options2/1_$aux2'/1,147,static,private,monofile,local,[
+predicate(system:'$$get_read_options2/1_$aux2'/1,147,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -248,7 +248,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(user:'$$get_read_options2/1_$aux1'/1,137,static,private,monofile,local,[
+predicate(system:'$$get_read_options2/1_$aux1'/1,137,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),

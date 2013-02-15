@@ -101,7 +101,7 @@ label(12),
     execute(stream_property/2)]).
 
 
-predicate(user:'$$find_existing_stream/3_$aux1'/3,54,static,private,monofile,local,[
+predicate(system:'$$find_existing_stream/3_$aux1'/3,54,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -156,7 +156,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(user:'$see/1_$aux1'/2,74,static,private,monofile,local,[
+predicate(system:'$see/1_$aux1'/2,74,static,private,monofile,local,[
     try_me_else(1),
     put_atom(input,2),
     execute('$find_existing_stream'/3),
@@ -216,7 +216,7 @@ predicate(system:seen/0,98,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(user:'$seen/0_$aux1'/1,98,static,private,monofile,local,[
+predicate(system:'$seen/0_$aux1'/1,98,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_void(0),
@@ -249,7 +249,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(user:'$tell/1_$aux1'/2,108,static,private,monofile,local,[
+predicate(system:'$tell/1_$aux1'/2,108,static,private,monofile,local,[
     try_me_else(1),
     put_atom(output,2),
     execute('$find_existing_stream'/3),
@@ -309,7 +309,7 @@ predicate(system:told/0,132,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(user:'$told/0_$aux1'/1,132,static,private,monofile,local,[
+predicate(system:'$told/0_$aux1'/1,132,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_void(0),
@@ -342,7 +342,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(user:'$append/1_$aux1'/2,141,static,private,monofile,local,[
+predicate(system:'$append/1_$aux1'/2,141,static,private,monofile,local,[
     try_me_else(1),
     put_atom(output,2),
     execute('$find_existing_stream'/3),
@@ -386,7 +386,7 @@ predicate(system:get/1,163,static,private,monofile,built_in,[
     execute('$get/1_$aux1'/2)]).
 
 
-predicate(user:'$get/1_$aux1'/2,163,static,private,monofile,local,[
+predicate(system:'$get/1_$aux1'/2,163,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -449,7 +449,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate(user:'$$check_in_character_code/1_$aux1'/1,190,static,private,monofile,local,[
+predicate(system:'$$check_in_character_code/1_$aux1'/1,190,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),

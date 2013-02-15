@@ -27,7 +27,7 @@ predicate(system:(\+)/1,52,static,private,monofile,built_in,[
     execute('$\\+/1_$aux1'/1)]).
 
 
-predicate(user:'$\\+/1_$aux1'/1,52,static,private,monofile,local,[
+predicate(system:'$\\+/1_$aux1'/1,52,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -67,7 +67,7 @@ predicate(system:call_det/2,62,static,private,monofile,built_in,[
     execute('$call_det/2_$aux2'/3)]).
 
 
-predicate(user:'$call_det/2_$aux2'/3,62,static,private,monofile,local,[
+predicate(system:'$call_det/2_$aux2'/3,62,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -85,7 +85,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$call_det/2_$aux1'/1,62,static,private,monofile,local,[
+predicate(system:'$call_det/2_$aux1'/1,62,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -406,7 +406,7 @@ label(7),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(user:'$$call_internal_or/5_$aux2'/6,192,static,private,monofile,local,[
+predicate(system:'$$call_internal_or/5_$aux2'/6,192,static,private,monofile,local,[
     try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
@@ -432,7 +432,7 @@ label(1),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(user:'$$call_internal_or/5_$aux1'/7,185,static,private,monofile,local,[
+predicate(system:'$$call_internal_or/5_$aux1'/7,185,static,private,monofile,local,[
     try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
@@ -485,7 +485,7 @@ predicate(system:'$not'/3,223,static,private,monofile,built_in,[
     execute('$$not/3_$aux1'/3)]).
 
 
-predicate(user:'$$not/3_$aux1'/3,223,static,private,monofile,local,[
+predicate(system:'$$not/3_$aux1'/3,223,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),

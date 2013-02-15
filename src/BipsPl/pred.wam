@@ -112,7 +112,7 @@ label(15),
     proceed]).
 
 
-predicate(user:'$$select_module/3_$aux1'/2,69,static,private,monofile,local,[
+predicate(system:'$$select_module/3_$aux1'/2,69,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -143,7 +143,7 @@ predicate(system:'$current_predicate'/1,98,static,private,monofile,built_in,[
 
 
 predicate(system:'$current_predicate_any'/1,103,static,private,monofile,built_in,[
-    put_integer(3,1),
+    put_integer(2,1),
     put_integer(1,2),
     execute('$current_predicate'/3)]).
 
@@ -189,7 +189,7 @@ predicate(system:'$predicate_property'/2,140,static,private,monofile,built_in,[
 
 
 predicate(system:'$predicate_property_any'/2,145,static,private,monofile,built_in,[
-    put_integer(3,2),
+    put_integer(2,2),
     put_integer(1,3),
     execute('$predicate_property'/4)]).
 
@@ -563,13 +563,13 @@ label(30),
     proceed]).
 
 
-predicate(system:'$get_predicate_file_info'/3,288,static,private,monofile,built_in,[
-    call_c('Pl_Get_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
+predicate(system:'$get_predicate_file_info'/5,288,static,private,monofile,built_in,[
+    call_c('Pl_Get_Predicate_File_Info_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(system:'$set_predicate_file_info'/3,294,static,private,monofile,built_in,[
-    call_c('Pl_Set_Predicate_File_Info_3',[boolean],[x(0),x(1),x(2)]),
+predicate(system:'$set_predicate_file_info'/5,294,static,private,monofile,built_in,[
+    call_c('Pl_Set_Predicate_File_Info_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
@@ -605,6 +605,11 @@ predicate(system:strip_module/3,329,static,private,monofile,built_in,[
 
 predicate(system:'$strip_module_var'/3,333,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_Var_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(system:'$strip_module_nonvar'/3,337,static,private,monofile,built_in,[
+    call_c('Pl_Strip_Module_Nonvar_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 

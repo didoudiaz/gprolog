@@ -402,7 +402,7 @@ nospyall.
 	'$debug_list_of_pred1'(N, 0, Max, L), !.
 
 '$debug_list_of_pred'(PI, L) :-
-	'$get_pred_indic'(PI, N, A),
+	'$get_pred_indic'(PI, user, _, N, A), % FIXME  DefModule, Module
 	'$debug_list_of_pred1'(N, A, A, L).
 
 
@@ -778,7 +778,7 @@ nospyall.
 '$debug_exec_cmd'('.', Goal, _, _, _, _) :-                     % father file
 	!,
 	functor(Goal, N, A),
-	(   '$get_predicate_file_info'(N / A, PlFile, PlLine) ->
+	(   '$get_predicate_file_info'(user, N, A, PlFile, PlLine) -> %FIXME Module
 	    format(debugger_output, '~a/~d defined in ~a:~d~n', [N, A, PlFile, PlLine])
 	;   format(debugger_output, 'no file information for ~a/~d~n', [N, A])
 	),

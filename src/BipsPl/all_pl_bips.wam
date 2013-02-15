@@ -5,7 +5,7 @@
 file_name('/home/diaz/GP/src/BipsPl/all_pl_bips.pl').
 
 
-predicate(user:'$use_all_pl_bips'/0,40,static,private,monofile,global,[
+predicate(system:'$use_all_pl_bips'/0,42,static,private,monofile,built_in,[
     allocate(0),
     call('$use_control'/0),
     call('$use_call'/0),

@@ -35,7 +35,7 @@ predicate(system:'$throw_internal'/2,54,static,private,monofile,built_in,[
     execute('$unwind'/1)]).
 
 
-predicate(user:'$$throw_internal/2_$aux1'/2,54,static,private,monofile,local,[
+predicate(system:'$$throw_internal/2_$aux1'/2,54,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),

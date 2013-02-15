@@ -122,7 +122,7 @@ label(1),
     execute('$$bagof/4_$aux2'/2)]).
 
 
-predicate(user:'$$bagof/4_$aux2'/2,83,static,private,monofile,local,[
+predicate(system:'$$bagof/4_$aux2'/2,83,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -136,7 +136,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate(user:'$$bagof/4_$aux1'/2,72,static,private,monofile,local,[
+predicate(system:'$$bagof/4_$aux1'/2,72,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -160,7 +160,7 @@ predicate(system:'$store_solutions'/4,95,static,private,monofile,built_in,[
     execute('$$store_solutions/4_$aux1'/3)]).
 
 
-predicate(user:'$$store_solutions/4_$aux1'/3,95,static,private,monofile,local,[
+predicate(system:'$$store_solutions/4_$aux1'/3,95,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),

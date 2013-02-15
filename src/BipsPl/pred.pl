@@ -101,7 +101,7 @@ current_predicate(MPI) :-
 :- meta_predicate('$current_predicate_any'(:)).
 
 '$current_predicate_any'(MPI) :-
-	'$current_predicate'(MPI, 3, 1). % also dollar
+	'$current_predicate'(MPI, 2, 1). % also dollar
 
 
 	/* '$current_predicate' expects a qualified PI */
@@ -143,7 +143,7 @@ predicate_property(MHead, Property) :-
 :- meta_predicate('$predicate_property_any'(:, ?)).
 
 '$predicate_property_any'(MHead, Property) :-
-	'$predicate_property'(MHead, Property, 3, 1). % also dollar
+	'$predicate_property'(MHead, Property, 2, 1). % also dollar
 
 
 	/* '$predicate_property' expects a qualified head */
@@ -285,14 +285,14 @@ predicate_property(MHead, Property) :-
 
 
 
-'$get_predicate_file_info'(PI, PlFile, PlLine) :-
-	'$call_c_test'('Pl_Get_Predicate_File_Info_3'(PI, PlFile, PlLine)).
+'$get_predicate_file_info'(Module, F, N, PlFile, PlLine) :-
+	'$call_c_test'('Pl_Get_Predicate_File_Info_5'(Module, F, N, PlFile, PlLine)).
 
 
 
 
-'$set_predicate_file_info'(PI, PlFile, PlLine) :-
-	'$call_c_test'('Pl_Set_Predicate_File_Info_3'(PI, PlFile, PlLine)).
+'$set_predicate_file_info'(Module, F, N, PlFile, PlLine) :-
+	'$call_c_test'('Pl_Set_Predicate_File_Info_5'(Module, F, N, PlFile, PlLine)).
 
 
 
@@ -329,6 +329,10 @@ predicate_property(MHead, Property) :-
 strip_module(Term, Module, Plain) :-
 	'$call_c_test'('Pl_Strip_Module_3'(Term, Module, Plain)).
 
-
+				% these 2 sets the calling module
 '$strip_module_var'(Term, Module, Plain) :-
 	'$call_c_test'('Pl_Strip_Module_Var_3'(Term, Module, Plain)).
+
+
+'$strip_module_nonvar'(Term, Module, Plain) :-
+	'$call_c_test'('Pl_Strip_Module_Nonvar_3'(Term, Module, Plain)).

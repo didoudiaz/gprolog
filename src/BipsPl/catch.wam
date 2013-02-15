@@ -109,7 +109,7 @@ label(1),
     execute('$catch_a_throw'/6)]).
 
 
-predicate(user:'$$catch_internal1/6_$aux1'/3,66,static,private,monofile,local,[
+predicate(system:'$$catch_internal1/6_$aux1'/3,66,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -160,7 +160,7 @@ label(2),
     execute('$unwind'/1)]).
 
 
-predicate(user:'$$catch_a_throw/6_$aux1'/2,95,static,private,monofile,local,[
+predicate(system:'$$catch_a_throw/6_$aux1'/2,95,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -204,7 +204,7 @@ predicate(system:'$catch_sync_for_fail_at'/1,130,static,private,monofile,built_i
     execute('$$catch_sync_for_fail_at/1_$aux1'/2)]).
 
 
-predicate(user:'$$catch_sync_for_fail_at/1_$aux1'/2,130,static,private,monofile,local,[
+predicate(system:'$$catch_sync_for_fail_at/1_$aux1'/2,130,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),

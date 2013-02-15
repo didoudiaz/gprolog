@@ -445,7 +445,7 @@ predicate(system:exec/5,287,static,private,monofile,built_in,[
     execute('$exec'/5)]).
 
 
-predicate(user:'$exec/5_$aux1'/1,287,static,private,monofile,local,[
+predicate(system:'$exec/5_$aux1'/1,287,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -530,7 +530,7 @@ predicate(system:fork_prolog/1,326,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(user:'$fork_prolog/1_$aux1'/1,326,static,private,monofile,local,[
+predicate(system:'$fork_prolog/1_$aux1'/1,326,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),

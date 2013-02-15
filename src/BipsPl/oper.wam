@@ -24,7 +24,7 @@ predicate(system:op/3,44,static,private,monofile,built_in,[
     execute('$op/3_$aux1'/3)]).
 
 
-predicate(user:'$op/3_$aux1'/3,44,static,private,monofile,local,[
+predicate(system:'$op/3_$aux1'/3,44,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),

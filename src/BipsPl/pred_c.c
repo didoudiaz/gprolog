@@ -658,19 +658,19 @@ Pl_Pred_Prop_Prolog_Line_3(WamWord module_word, WamWord func_word, WamWord arity
 
 
 /*-------------------------------------------------------------------------*
- * PL_GET_PREDICATE_FILE_INFO_3                                            *
+ * PL_GET_PREDICATE_FILE_INFO_5                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Get_Predicate_File_Info_3(WamWord pred_indic_word,
+Pl_Get_Predicate_File_Info_5(WamWord module_word, WamWord func_word, WamWord arity_word, 
 			     WamWord pl_file_word, WamWord pl_line_word)
 {
-  int module, func, arity;
+  int module = Pl_Rd_Atom(module_word);
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_Integer(arity_word);
   PredInf *pred;
-  /* FIXME: use correct module */
-  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, TRUE, &func, &arity);
 
-  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred_In_Module(module, func, arity)) == NULL)
     return FALSE;
 
   if (pred->pl_file == pl_atom_void || pred->pl_line == 0)
@@ -684,20 +684,20 @@ Pl_Get_Predicate_File_Info_3(WamWord pred_indic_word,
 
 
 /*-------------------------------------------------------------------------*
- * PL_SET_PREDICATE_FILE_INFO_3                                            *
+ * PL_SET_PREDICATE_FILE_INFO_5                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Set_Predicate_File_Info_3(WamWord pred_indic_word,
+Pl_Set_Predicate_File_Info_5(WamWord module_word, WamWord func_word, WamWord arity_word, 
 			     WamWord pl_file_word, WamWord pl_line_word)
 {
-  int module, func, arity;
-  int pl_file, pl_line;
+  int module = Pl_Rd_Atom(module_word);
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_Integer(arity_word);
   PredInf *pred;
-  /* FIXME: use correct module */
-  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, TRUE, &func, &arity);
+  int pl_file, pl_line;
 
-  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred_In_Module(module, func, arity)) == NULL)
     return FALSE;
 
   pl_file = Pl_Rd_Atom_Check(pl_file_word);
@@ -888,7 +888,7 @@ Pl_Strip_Module_3(WamWord term_word, WamWord module_word, WamWord plain_word)
   
   module_word1 = Pl_Strip_Module(term_word, FALSE, FALSE, &goal_word);
 
-#if 1				/* should not occur since meta_predicate declaration */
+#if 1			/* should not occur since meta_predicate declaration */
   if (module_word1 == NOT_A_WAM_WORD)
     module_word1 = Tag_ATM(pl_atom_user);
 #endif
@@ -910,6 +910,31 @@ Pl_Strip_Module_Var_3(WamWord term_word, WamWord module_word, WamWord plain_word
   
   Pl_Unset_Calling_Module();
   module_word1 = Pl_Strip_Module(term_word, TRUE, TRUE, &goal_word);
+
+  /* here there is no meta_predicate declaration */
+
+  if (module_word1 == NOT_A_WAM_WORD)
+    Pl_Set_Calling_Module(pl_atom_user);
+  else if (!Pl_Unify(module_word1, module_word))
+    return FALSE;
+
+  return Pl_Unify(goal_word, plain_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_STRIP_MODULE_NONVAR_3                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Strip_Module_Nonvar_3(WamWord term_word, WamWord module_word, WamWord plain_word)
+{
+  WamWord goal_word, module_word1;
+  
+  Pl_Unset_Calling_Module();
+  module_word1 = Pl_Strip_Module(term_word, FALSE, TRUE, &goal_word);
 
   /* here there is no meta_predicate declaration */
 

@@ -257,7 +257,10 @@ Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int pr
 
 
   if (prop & (MASK_PRED_BUILTIN_FD | MASK_PRED_CONTROL_CONSTRUCT))
-    prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
+      prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
+
+  if (prop & MASK_PRED_BUILTIN)
+    prop |= MASK_PRED_EXPORTED;
 
 #ifdef DEBUG
   DBGPRINTF("Create pred: %s:%s/%d  prop: %x\n",

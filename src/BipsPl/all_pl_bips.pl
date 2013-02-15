@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+:- built_in.			%to put the $use_all_pl_bips in module system
+
 '$use_all_pl_bips' :-
 	'$use_control',
 	'$use_call',

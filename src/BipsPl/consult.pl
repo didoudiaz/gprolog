@@ -41,34 +41,44 @@
 
 '$use_consult'.
 
-%:- meta_predicate(consult(:)).	% to consult in a given module
-%:- meta_predicate('.'(:, +)).
 
+	/* the meta_predicate declaration is to allow foo:consult(File)
+	 * foo becomes the destination module. If File does not contain any module definition
+	 * (i.e. module = user) then the consult is done in the destination module (foo) instead of user.
+	 */
+
+:- meta_predicate(consult(:)).
+:- meta_predicate('.'(:, +)).
 
 [File|Files] :-
 	consult([File|Files]).
 
 
-
-
-consult(File) :-
+consult(MFile) :-
 	set_bip_name(consult, 1),
+	'$strip_module_nonvar'(MFile, Module, File), % the destination module
 	'$check_atom_or_atom_list'(File), !,
-	(   atom(File),
-	    File \== [] ->
-	    '$consult2'(File)
-	;   '$consult1'(File)
+	(   atom(File), File \== [] ->
+	    '$consult2'(File, Module)
+	;
+	    '$consult1'(File, Module)
 	).
 
 
-'$consult1'([]).
+'$consult1'([], _).
 
-'$consult1'([File|Files]) :-
-	'$consult2'(File),
-	'$consult1'(Files).
+'$consult1'([File|Files], Module) :-
+	'$consult2'(File, Module),
+	'$consult1'(Files, Module).
 
 
-'$consult2'(File) :-
+'$consult2'(MFile, Module0) :-
+	'$strip_module_nonvar'(MFile, Module1, File), % individual destination module
+	(   var(Module1) ->			      % not given, use inherited destination module
+	    Module = Module0
+	;
+	    Module = Module1			      % given: use this
+	),
 	'$call_c_test'('Pl_Prolog_File_Name_2'(File, File1)),
 	(   File1 = user ->
 	    File2 = File1
@@ -82,9 +92,10 @@ consult(File) :-
 	temporary_file('', gplc, TmpFile),
 	set_bip_name(consult, 1),
 	(   '$consult3'(TmpFile, File2) ->
-	    '$load_file'(TmpFile),
+	    '$load_file'(TmpFile, Module),
 	    unlink(TmpFile)
-	;   unlink(TmpFile),
+	;
+	    unlink(TmpFile),
 	    format(top_level_output, 'compilation failed~n', []),
 	    fail
 	).
@@ -98,8 +109,7 @@ consult(File) :-
 /*
 '$consult3'(TmpFile,PlFile):-
 	write_pl_state_file(TmpFile),
-	Args=['-w','--compile-msg','--pl-state',TmpFile,'-o',TmpFile,PlFile
-              |End],
+	Args=['-w','--compile-msg','--pl-state',TmpFile,'-o',TmpFile,PlFile|End],
         (current_prolog_flag(singleton_warning,on)
             -> End=[]
             ;  End=['--no-singl-warn']),
@@ -109,42 +119,48 @@ consult(File) :-
 
 
 
-'$load_file'(BCFile) :-
+'$load_file'(BCFile, Module) :-	% Module is the destination Module
 	open(BCFile, read, Stream),
 	repeat,
 	read(Stream, P),
 	(   P = end_of_file ->
 	    !
-	;   '$load_pred'(P, Stream),
+	;
+	    '$load_pred'(P, Stream, Module),
 	    fail
 	),
 	close(Stream).
 
 
+/* DEBUG
+'$load_pred'(P, _Stream, Module) :-
+	format('LOAD: ~w   MOD:~w~n', [P, Module]),
+	fail.
+*/
 
-
-'$load_pred'(file_name(PlFile), _) :-
+'$load_pred'(file_name(PlFile), _, _) :-
 	g_assign('$pl_file', PlFile).
 
-'$load_pred'(directive(PlLine, Type, Goal), _) :-
-	(   '$catch'(Goal, CallErr, '$load_directive_exception'(CallErr, PlLine, Type), load, 1, true) ->
+'$load_pred'(directive(PlLine, Type, Goal), _, Module) :-
+	(   '$catch'(Goal, CallErr, '$load_directive_exception'(CallErr, PlLine, Type), Module, load, 1) ->
 	    true
-	;   g_read('$pl_file', PlFile),
+	;
+	    g_read('$pl_file', PlFile),
 	    format(top_level_output, '~Nwarning: ~a:~d: ~a directive failed~n', [PlFile, PlLine, Type])
 	).
 
 
-'$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream) :-
-	( PI = Pred/N, Module = user ; PI = Module:Pred/N), !, %TODO use Module (change PI1 below in PI)
-	PI1=Pred/N, % TODO
+'$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream, Module0) :-
+	'$load_pred_extract_module'(PI, Module0, Pred, N, Module), !,
 	g_read('$pl_file', PlFile),
-	'$check_pred_type'(Pred, N, PlFile, PlLine),
-	(   MonoMulti = multifile, '$predicate_property1'(user, Pred, N, multifile) -> %FIXME Module
+	'$check_pred_type'(Module, Pred, N, PlFile, PlLine),
+% DEBUG format('LOAD: pred ~w:~w/~w  from:~w:~w~n', [Module, Pred, N, PlFile, PlLine]),
+	(   MonoMulti = multifile, '$predicate_property1'(Module, Pred, N, multifile) ->
 	    true
 	;
-	    '$check_owner_files'(PI1, PlFile, PlLine)
+	    '$check_owner_files'(Module, Pred, N, PlFile, PlLine)
 	),
-	'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd),
+	'$bc_start_pred'(Module, Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd),
 	g_assign('$ctr', 0),
 	repeat,
 	g_read('$ctr', Ctr),
@@ -152,11 +168,21 @@ consult(File) :-
 	g_assign('$ctr', Ctr1),
 	(   Ctr = NbCl ->
 	    true
-	;   read(Stream, clause(Cl, WamCl)),
+	;
+	    read(Stream, clause(Cl, WamCl)),
 	    '$add_clause_term_and_bc'(Cl, PlFile, WamCl),
 	    fail
 	), !.
 
+
+				% if user, select the destination Module
+'$load_pred_extract_module'(user:Pred/N, Module, Pred, N, Module).
+
+				% if pred module != user use it
+'$load_pred_extract_module'(Module:Pred/N, _, Pred, N, Module).
+
+				% if no module specified use destination Module (should not occur)
+'$load_pred_extract_module'(Pred/N, Module, Pred, N, Module).
 
 
 
@@ -168,52 +194,59 @@ consult(File) :-
 
 
 
-'$check_pred_type'(Pred, N, PlFile, PlLine) :-
-	'$predicate_property1'(user, Pred, N, native_code), !, % FIXME Module
+'$check_pred_type'(Module, Pred, N, PlFile, PlLine) :-
+	'$predicate_property1'(Module, Pred, N, native_code), !,
 	(   '$aux_name'(Pred) ->
 	    true
 	;   format(top_level_output, 'error: ~a:~d: native code procedure ~q cannot be redefined (ignored)~n', [PlFile, PlLine, Pred/N])
 	),
 	fail.
 
-'$check_pred_type'(_, _, _, _).
+'$check_pred_type'(_, _, _, _, _).
 
 
 
 
-'$check_owner_files'(PI, PlFile, PlLine) :-
-	'$get_predicate_file_info'(PI, PlFile1, PlLine1), %FIXME Module
+'$check_owner_files'(Module, F, N, PlFile, PlLine) :-
+	'$get_predicate_file_info'(Module, F, N, PlFile1, PlLine1),
 	PlFile \== PlFile1, !,
-	PI = Name / _,
-	(   '$aux_name'(Name) ->
+	(   '$aux_name'(F) ->
 	    true
-	;   format(top_level_output, 'warning: ~a:~d: redefining procedure ~q~n', [PlFile, PlLine, PI]),
+	;   format(top_level_output, 'warning: ~a:~d: redefining procedure ~q~n', [PlFile, PlLine, F/N]),
 	    format(top_level_output, '         ~a:~d: previous definition~n', [PlFile1, PlLine1])
 	).
 
-'$check_owner_files'(_, _, _).
+'$check_owner_files'(_, _, _, _, _).
 
 
 
+:- meta_predicate(load(:)).
 
-load(File) :-
+load(MFile) :-
 	set_bip_name(load, 1),
+	'$strip_module_nonvar'(MFile, Module, File), % the destination module
 	'$check_atom_or_atom_list'(File), !,
 	(   atom(File),
 	    File \== [] ->
-	    '$load2'(File)
-	;   '$load1'(File)
+	    '$load2'(File, Module)
+	;   '$load1'(File, Module)
 	).
 
 
-'$load1'([]).
+'$load1'([], _).
 
-'$load1'([File|Files]) :-
-	'$load2'(File),
-	'$load1'(Files).
+'$load1'([File|Files], Module) :-
+	'$load2'(File, Module),
+	'$load1'(Files, Module).
 
 
-'$load2'(File) :-
+'$load2'(MFile, Module0) :-
+	'$strip_module_nonvar'(MFile, Module1, File), % individual destination module
+	(   var(Module1) ->			      % not given, use inherited destination module
+	    Module = Module0
+	;
+	    Module = Module1			      % given: use this
+	),
 	decompose_file_name(File, _Dir, _Prefix, Suffix),
 	(   Suffix = '' ->
 	    atom_concat(File, '.wbc', File1)
@@ -226,13 +259,13 @@ load(File) :-
 	    '$pl_err_existence'(source_sink, File1)
 	),
 	set_bip_name(load, 1),
-	'$load_file'(File1).
+	'$load_file'(File1, Module).
 
 
 
 
-'$bc_start_pred'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd) :-
-	'$call_c'('Pl_BC_Start_Pred_8'(Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd)).
+'$bc_start_pred'(Module, Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd) :-
+	'$call_c'('Pl_BC_Start_Pred_9'(Module, Pred, N, PlFile, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd)).
 
 
 '$bc_start_emit' :-
@@ -284,8 +317,14 @@ listing :-
 
 
 
-listing(PI) :-
+listing(MPI) :-
 	set_bip_name(listing, 1),
+	'$strip_module_var'(MPI, Module, PI),
+	(   atom(PI) ->
+	    true
+	;
+	    '$get_pred_indic'(PI, Module, _, Pred, N)
+	),
 	var(PI), !,
 	'$pl_err_instantiation'.
 
@@ -333,11 +372,10 @@ listing(PI) :-
 
 
 '$listing_one'(PI) :-
-	'$predicate_property_pi_any'(PI, native_code), !,
-	true.
+	'$predicate_property_pi_any'(PI, native_code), !.
 
 '$listing_one'(PI) :-
-	'$get_pred_indic'(PI, N, A),
+	'$get_pred_indic'(PI, 0, 0, N, A), % we know there is no module qualifier
 	functor(H, N, A),
 	nl,
 	'$clause'(H, B, false),

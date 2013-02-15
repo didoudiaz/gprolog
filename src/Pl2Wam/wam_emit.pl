@@ -194,8 +194,10 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 
 
 
-export_type(Pred, _, Module, Module, local) :-
-	'$aux_name'(Pred), !.
+export_type(Pred, _, Module, Module1, local) :-
+	'$aux_name'(Pred), !,
+	'$father_of_aux_name'(Pred, F, N),
+	export_type(F, N, Module, Module1, _).
 
 export_type(Pred, N, Module, Module, local) :-
 	test_pred_info(multi, Pred, N), !.

@@ -98,7 +98,7 @@ predicate(system:socket_accept/4,89,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(user:'$socket_accept/4_$aux1'/1,89,static,private,monofile,local,[
+predicate(system:'$socket_accept/4_$aux1'/1,89,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),

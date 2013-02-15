@@ -82,7 +82,7 @@ predicate(system:break/0,59,static,private,monofile,built_in,[
     execute('$break/0_$aux2'/1)]).
 
 
-predicate(user:'$break/0_$aux2'/1,59,static,private,monofile,local,[
+predicate(system:'$break/0_$aux2'/1,59,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -103,7 +103,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$break/0_$aux1'/1,59,static,private,monofile,local,[
+predicate(system:'$break/0_$aux1'/1,59,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -237,7 +237,7 @@ predicate(system:'$reinit_after_exception'/0,129,static,private,monofile,built_i
     execute('$$reinit_after_exception/0_$aux1'/0)]).
 
 
-predicate(user:'$$reinit_after_exception/0_$aux1'/0,129,static,private,monofile,local,[
+predicate(system:'$$reinit_after_exception/0_$aux1'/0,129,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -290,7 +290,7 @@ predicate(system:'$top_level2'/0,141,static,private,monofile,built_in,[
     execute('$$top_level2/0_$aux3'/3)]).
 
 
-predicate(user:'$$top_level2/0_$aux3'/3,141,static,private,monofile,local,[
+predicate(system:'$$top_level2/0_$aux3'/3,141,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -338,7 +338,7 @@ label(1),
     fail]).
 
 
-predicate(user:'$$top_level2/0_$aux5'/1,141,static,private,monofile,local,[
+predicate(system:'$$top_level2/0_$aux5'/1,141,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -356,7 +356,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(user:'$$top_level2/0_$aux4'/3,141,static,private,monofile,local,[
+predicate(system:'$$top_level2/0_$aux4'/3,141,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -376,7 +376,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$$top_level2/0_$aux2'/1,141,static,private,monofile,local,[
+predicate(system:'$$top_level2/0_$aux2'/1,141,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -396,7 +396,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$$top_level2/0_$aux1'/2,141,static,private,monofile,local,[
+predicate(system:'$$top_level2/0_$aux1'/2,141,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -444,7 +444,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$$write_indicator/0_$aux1'/2,187,static,private,monofile,local,[
+predicate(system:'$$write_indicator/0_$aux1'/2,187,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -476,7 +476,7 @@ label(2),
     execute(format/3)]).
 
 
-predicate(user:'$$write_indicator/0_$aux2'/2,187,static,private,monofile,local,[
+predicate(system:'$$write_indicator/0_$aux2'/2,187,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -585,7 +585,7 @@ label(1),
     execute(read_term/3)]).
 
 
-predicate(user:'$$read_query/2_$aux1'/1,217,static,private,monofile,local,[
+predicate(system:'$$read_query/2_$aux1'/1,217,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -653,7 +653,7 @@ predicate(system:'$exec_query'/2,235,static,private,monofile,built_in,[
     execute('$$exec_query/2_$aux1'/3)]).
 
 
-predicate(user:'$$exec_query/2_$aux1'/3,235,static,private,monofile,local,[
+predicate(system:'$$exec_query/2_$aux1'/3,235,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -676,7 +676,7 @@ label(1),
     execute('$$exec_query/2_$aux2'/2)]).
 
 
-predicate(user:'$$exec_query/2_$aux2'/2,235,static,private,monofile,local,[
+predicate(system:'$$exec_query/2_$aux2'/2,235,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -774,7 +774,7 @@ label(7),
     execute('$remove_underscore_vars'/2)]).
 
 
-predicate(user:'$$remove_underscore_vars/2_$aux1'/2,276,static,private,monofile,local,[
+predicate(system:'$$remove_underscore_vars/2_$aux1'/2,276,static,private,monofile,local,[
     try_me_else(1),
     put_integer(0,1),
     put_integer(1,2),
@@ -819,7 +819,7 @@ label(1),
     execute('$write_solution1'/2)]).
 
 
-predicate(user:'$$write_solution/3_$aux2'/1,296,static,private,monofile,local,[
+predicate(system:'$$write_solution/3_$aux2'/1,296,static,private,monofile,local,[
     try_me_else(1),
     put_atom(xfx,1),
     put_atom(=,2),
@@ -831,7 +831,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$$write_solution/3_$aux1'/2,289,static,private,monofile,local,[
+predicate(system:'$$write_solution/3_$aux1'/2,289,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -880,7 +880,7 @@ label(4),
     execute('$write_solution1'/2)]).
 
 
-predicate(user:'$$write_solution1/2_$aux1'/3,304,static,private,monofile,local,[
+predicate(system:'$$write_solution1/2_$aux1'/3,304,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1098,7 +1098,7 @@ predicate(system:'$exec_cmd_line_goal'/1,374,static,private,monofile,built_in,[
     execute('$$exec_cmd_line_goal/1_$aux1'/1)]).
 
 
-predicate(user:'$$exec_cmd_line_goal/1_$aux1'/1,374,static,private,monofile,local,[
+predicate(system:'$$exec_cmd_line_goal/1_$aux1'/1,374,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),

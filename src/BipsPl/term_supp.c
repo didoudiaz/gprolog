@@ -1013,20 +1013,22 @@ Pl_Get_Pred_Indicator_Top(WamWord pred_indic_word, Bool must_be_ground,
 
 
 /*-------------------------------------------------------------------------*
- * PL_GET_PRED_INDIC_3                                                     *
+ * PL_GET_PRED_INDIC_5                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord module_word, WamWord func_word,
-		    WamWord arity_word)
+Pl_Get_Pred_Indic_5(WamWord pred_indic_word, WamWord default_module_word,
+		    WamWord module_word, WamWord func_word, WamWord arity_word)
 {
-  WamWord module_word1;
   int func, arity;
 
-  module_word1 = Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
+  Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
-  return (module_word1 == NOT_A_WAM_WORD || Pl_Unify(module_word, module_word1)) &&
-      Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
+  if (pl_pi_module_word == NOT_A_WAM_WORD)
+    pl_pi_module_word = default_module_word;
+  
+  return Pl_Unify(pl_pi_module_word, module_word) &&
+    Pl_Unify(pl_pi_name_word, func_word) && Pl_Unify(pl_pi_arity_word, arity_word);
 }
 
 

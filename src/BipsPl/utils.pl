@@ -159,13 +159,14 @@
 	'$pl_err_type'(list, List).
 
 
-'$check_atom_or_atom_list2'(X) :-
+'$check_atom_or_atom_list2'(MX) :-
+	'$strip_module_nonvar'(MX, _, X), % NB: also accepts module qualification
 	atom(X), !.
-
+/*
 '$check_atom_or_atom_list2'(X) :-
 	var(X), !,
-	'$pl_err_instantiation'.
-
+	'$pl_err_instantiation'. %detected by '$strip_module_nonvar'
+*/
 '$check_atom_or_atom_list2'(X) :-
 	'$pl_err_type'(atom, X).
 
@@ -189,5 +190,5 @@
 
 
 
-'$get_pred_indic'(PI, N, A) :-
-	'$call_c_test'('Pl_Get_Pred_Indic_3'(PI, N, A)).
+'$get_pred_indic'(PI, DefModule, Module, Func, Arity) :-
+	'$call_c_test'('Pl_Get_Pred_Indic_5'(PI, DefModule, Module, Func, Arity)).

@@ -37,7 +37,7 @@ predicate(system:statistics/2,50,static,private,monofile,built_in,[
     execute('$stat'/3)]).
 
 
-predicate(user:'$statistics/2_$aux1'/3,50,static,private,monofile,local,[
+predicate(system:'$statistics/2_$aux1'/3,50,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -232,7 +232,7 @@ label(18),
     proceed]).
 
 
-predicate(user:'$$stat/3_$aux1'/2,90,static,private,monofile,local,[
+predicate(system:'$$stat/3_$aux1'/2,90,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -251,7 +251,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$$stat/3_$aux2'/1,90,static,private,monofile,local,[
+predicate(system:'$$stat/3_$aux2'/1,90,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
