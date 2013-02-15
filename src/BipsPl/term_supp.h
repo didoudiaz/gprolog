@@ -80,6 +80,8 @@ extern PlLong pl_glob_dico_var[];
 
 #define Pl_Unset_Calling_Module()    (pl_calling_module = -1)
 
+#define Pl_Set_Calling_Module(m)     (pl_calling_module = (m))
+
 PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word);
 
 Bool Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,

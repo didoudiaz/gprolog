@@ -59,6 +59,7 @@ predicate(system:'$call_term_expansion'/2,65,static,private,monofile,built_in,[
     put_structure((/)/2,0),
     unify_atom(term_expansion),
     unify_integer(2),
+    put_meta_term(system,0,0),
     call('$current_predicate'/1),
     put_structure(term_expansion/2,0),
     unify_local_value(y(0)),

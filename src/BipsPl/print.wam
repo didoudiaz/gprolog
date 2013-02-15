@@ -28,6 +28,7 @@ predicate(system:'$try_portray'/1,56,static,private,monofile,built_in,[
     put_structure((/)/2,0),
     unify_atom(portray),
     unify_integer(1),
+    put_meta_term(system,0,0),
     call('$current_predicate'/1),
     put_atom('$portray_ok',0),
     put_integer(0,1),

@@ -41,7 +41,7 @@
 
 '$use_consult'.
 
-%:- meta_predicate(consult(:)).	% why ?
+%:- meta_predicate(consult(:)).	% to consult in a given module
 %:- meta_predicate('.'(:, +)).
 
 
@@ -139,7 +139,7 @@ consult(File) :-
 	PI1=Pred/N, % TODO
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(Pred, N, PlFile, PlLine),
-	(   MonoMulti = multifile, '$predicate_property1'(Pred, N, multifile) ->
+	(   MonoMulti = multifile, '$predicate_property1'(user, Pred, N, multifile) -> %FIXME Module
 	    true
 	;
 	    '$check_owner_files'(PI1, PlFile, PlLine)
@@ -169,7 +169,7 @@ consult(File) :-
 
 
 '$check_pred_type'(Pred, N, PlFile, PlLine) :-
-	'$predicate_property1'(Pred, N, native_code), !,
+	'$predicate_property1'(user, Pred, N, native_code), !, % FIXME Module
 	(   '$aux_name'(Pred) ->
 	    true
 	;   format(top_level_output, 'error: ~a:~d: native code procedure ~q cannot be redefined (ignored)~n', [PlFile, PlLine, Pred/N])
@@ -182,7 +182,7 @@ consult(File) :-
 
 
 '$check_owner_files'(PI, PlFile, PlLine) :-
-	'$get_predicate_file_info'(PI, PlFile1, PlLine1),
+	'$get_predicate_file_info'(PI, PlFile1, PlLine1), %FIXME Module
 	PlFile \== PlFile1, !,
 	PI = Name / _,
 	(   '$aux_name'(Name) ->

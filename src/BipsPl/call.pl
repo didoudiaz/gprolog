@@ -100,35 +100,20 @@ call_det(Goal, Deterministic) :-
 	'$call_c'('Pl_BC_Call_5'(Goal, Module, CallerFunc, CallerArity, 0), [jump, by_value]).
 
 
-	/* called by Pl_BC_Call_Initial_3 for control-constructs , ; -> *-> (all of arity = 2) */
+	/* called by Pl_BC_Call_5 for control-constructs , ; -> *-> (all of arity = 2) */
 
-'$call_complex'(Func, Arg1, Arg2, Module, CallInfo) :-
- 	'$term_to_goal'(Arg1, Module, CallInfo, Goal1),
- 	'$term_to_goal'(Arg2, Module, CallInfo, Goal2),
-format('~w between ~w -> ~w and ~w -> ~w  (~w)', [Func, Arg1, Goal1, Arg2, Goal2, Module]),
-	'$call_complex1'(Func, Goal1, Goal2, Module, CallInfo).
-
-
-'$call_complex1'(Func, Goal1, Goal2, Module, CallInfo) :-
-	'$get_cut_level'(VarCut),         % must be the first goal (A(arity)=cut)
-	'$call_complex_with_cut'(Func, Goal1, Goal2, Module, CallInfo, VarCut).
-
-
-'$call_complex_with_cut'(',', P, Q, Module, CallInfo, VarCut) :-
+'$call_internal_and'(P, Q, Module, CallInfo, VarCut) :-
 	'$call_internal_with_cut'(P, Module, CallInfo, VarCut),
 	'$call_internal_with_cut'(Q, Module, CallInfo, VarCut).
 	
-'$call_complex_with_cut'(';', P, Q, Module, CallInfo, VarCut) :-
-	'$call_internal_or'(P, Q, Module, CallInfo, VarCut).
-
-'$call_complex_with_cut'((P -> Q), Module, CallInfo, VarCut) :-
+'$call_internal_if'(P, Q, Module, CallInfo, VarCut) :-
 	!,
 	'$call_internal'(P, Module, CallInfo), !,
 	'$call_internal_with_cut'(Q, Module, CallInfo, VarCut).
 
 	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
         % However a cut in the test part (P) should be local to P (as in P -> Q).
-'$call_complex_with_cut'((P *-> Q), Module, CallInfo, VarCut) :-
+'$call_internal_soft_if'(P, Q, Module, CallInfo, VarCut) :-
 	!,
 	'$call_internal'(P, Module, CallInfo),
 	'$call_internal_with_cut'(Q, Module, CallInfo, VarCut).
@@ -187,7 +172,7 @@ format('~w between ~w -> ~w and ~w -> ~w  (~w)', [Func, Arg1, Goal1, Arg2, Goal2
 	!,
 	'$catch_internal'(Goal, Catch, Recovery, Module, CallInfo).
 
-'$call_internal_with_cut'(throw(Ball), Module, CallInfo, _VarCut) :-
+'$call_internal_with_cut'(throw(Ball), _Module, CallInfo, _VarCut) :-
 	!,
 	'$throw_internal'(Ball, /*Module,*/ CallInfo).   % FIXME what to do with Module in throw (for error report)
 

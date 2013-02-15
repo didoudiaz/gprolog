@@ -68,13 +68,29 @@
  * Global Variables                *
  *---------------------------------*/
 
+
+/* cache for Pl_Lookup_Module */
+
 static ModuleInf *mod_system;
 static ModuleInf *mod_user;
+
+static int cache_mod_module = -1;
+static ModuleInf *cache_mod_mod;
+
+
+/* cache for Pl_Lookup_Pred */
+
+static int cache_pred_module = -1;
+static PlLong cache_pred_f_n;
+static PredInf *cache_pred_pred;
+
+
 
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
 
 
 
@@ -95,8 +111,8 @@ Pl_Init_Pred(void)
 #endif
 
   pl_module_tbl = Pl_Hash_Alloc_Table(START_MODULE_TBL_SIZE, sizeof(ModuleInf));
-  mod_system = Pl_Create_Module(pl_atom_system);
-  mod_user = Pl_Create_Module(pl_atom_user);
+  mod_system = Pl_Create_Module(pl_atom_system, pl_atom_system);
+  mod_user = Pl_Create_Module(pl_atom_user, pl_atom_user);
 
   pl_pred_tbl = mod_user->pred_tbl;
 
@@ -150,7 +166,7 @@ Pl_Init_Pred(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 ModuleInf *
-Pl_Create_Module(int module)
+Pl_Create_Module(int module, int pl_file)
 {
   ModuleInf module_info;
   ModuleInf *mod;
@@ -161,6 +177,7 @@ Pl_Create_Module(int module)
 #endif
 
   module_info.module = module;
+  module_info.pl_file = pl_file;
   module_info.pred_tbl = NULL;
 
   Pl_Extend_Table_If_Needed(&pl_module_tbl);
@@ -181,14 +198,24 @@ Pl_Create_Module(int module)
 ModuleInf *
 Pl_Lookup_Module(int module)
 {
-
+  ModuleInf *mod;
+  
   if (module == pl_atom_user)
     return mod_user;
 
   if (module == pl_atom_system)
     return mod_system;
 
-  return (ModuleInf *) Pl_Hash_Find(pl_module_tbl, module);
+  if (module == cache_mod_module)
+    return cache_mod_mod;
+
+  mod = (ModuleInf *) Pl_Hash_Find(pl_module_tbl, module);
+  if (mod == NULL)
+    return NULL;
+
+  cache_mod_module = module;
+  cache_mod_mod = mod;
+  return mod;
 }
 
 
@@ -202,6 +229,12 @@ void
 Pl_Delete_Module(int module)
 {
   Pl_Hash_Delete(pl_module_tbl, module);
+
+  if (module == cache_mod_module)
+    {
+      cache_mod_module = -1;
+      cache_mod_mod = NULL;
+    }
 }
 
 
@@ -217,10 +250,10 @@ PredInf * FC
 Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int prop,
 	       PlLong *codep)
 {
-  ModuleInf *mod = Pl_Create_Module(module);
+  ModuleInf *mod = Pl_Create_Module(module, pl_file);
   PredInf pred_info;
   PredInf *pred;
-  PlLong key = Functor_Arity(func, arity);
+  PlLong f_n = Functor_Arity(func, arity);
 
 
   if (prop & (MASK_PRED_BUILTIN_FD | MASK_PRED_CONTROL_CONSTRUCT))
@@ -231,11 +264,12 @@ Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int pr
 	    pl_atom_tbl[module].name, pl_atom_tbl[func].name, arity, prop);
 #endif
 
-  pred_info.f_n = key;
+  pred_info.f_n = f_n;
   pred_info.mod = mod;
   pred_info.prop = prop;
   pred_info.pl_file = pl_file;
   pred_info.pl_line = pl_line;
+  pred_info.meta_spec = 0;
   pred_info.codep = codep;
   pred_info.dyn = NULL;
 
@@ -287,31 +321,87 @@ Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line, i
 
 
 /*-------------------------------------------------------------------------*
+ * LOOKUP_PRED_CACHE                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Lookup_Pred_Cache(int module, PlLong f_n)
+{
+  ModuleInf *mod;
+  PredInf *pred;
+
+  if (cache_pred_module == module && cache_pred_f_n == f_n)
+    {
+#if 0
+      printf("\nCACHED: %s:%s/%d\n", pl_atom_tbl[module].name, 
+	     pl_atom_tbl[Functor_Of(f_n)].name, (int) Arity_Of(f_n));
+#endif      
+      return cache_pred_pred;
+    }
+
+  mod = Pl_Lookup_Module(module);
+
+  if (mod == NULL)
+    return NULL;
+
+  pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, f_n);
+
+  if (pred == NULL)
+    return NULL;
+
+#if 0
+  printf("\nPUT IN CACHE: %s:%s/%d\n", pl_atom_tbl[module].name, 
+	 pl_atom_tbl[Functor_Of(f_n)].name, (int) Arity_Of(f_n));
+#endif
+
+  cache_pred_module = module;
+  cache_pred_f_n = f_n;
+  cache_pred_pred = pred;
+
+  return pred;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_LOOKUP_PRED_IN_MODULE                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Lookup_Pred_In_Module(int module, int func, int arity)
+{
+  PlLong f_n = Functor_Arity(func, arity);
+
+  return Lookup_Pred_Cache(module, f_n);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_LOOKUP_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PredInf * FC
 Pl_Lookup_Pred(int module, int func, int arity)
 {
-  ModuleInf *mod;
-  PredInf *pred = NULL;
-  PlLong key = Functor_Arity(func, arity);
+  PredInf *pred;
+  PlLong f_n = Functor_Arity(func, arity);
 
   if (module != pl_atom_system)
     {
       if (module != pl_atom_user)
 	{
-	  mod = Pl_Lookup_Module(module);
-
-	  if (mod != NULL && (pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, key)) != NULL)
+	  if ((pred = Lookup_Pred_Cache(module, f_n)) != NULL)
 	    return pred;
 	}
 
-      if ((pred = (PredInf *) Pl_Hash_Find(mod_user->pred_tbl, key)) != NULL)
+      if ((pred = Lookup_Pred_Cache(pl_atom_user, f_n)) != NULL)
 	return pred;
     }
 
-  pred = (PredInf *) Pl_Hash_Find(mod_system->pred_tbl, key);
+  pred = Lookup_Pred_Cache(pl_atom_system, f_n);
   return pred;
 }
 
@@ -326,10 +416,14 @@ void FC
 Pl_Delete_Pred(int module, int func, int arity)
 {
   ModuleInf *mod = Pl_Lookup_Module(module);
-  PlLong key = Functor_Arity(func, arity);
+  PlLong f_n = Functor_Arity(func, arity);
 
   if (mod)
-    Pl_Hash_Delete(mod->pred_tbl, key);
+    {
+      Pl_Hash_Delete(mod->pred_tbl, f_n);
+      if (module == cache_pred_module && f_n == cache_pred_f_n)
+	cache_pred_module = -1;
+    }
 }
 
 

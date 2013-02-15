@@ -244,17 +244,20 @@ static void Prep_Debug_Call(int func, int arity, int caller_func,
 
 
 #define BC_EMULATE_CONT            X1_2462635F656D756C6174655F636F6E74
-
 #define CALL_INTERNAL_WITH_CUT     X1_2463616C6C5F696E7465726E616C5F776974685F637574
-
-#define CALL_COMPLEX               X1_2463616C6C5F636F6D706C6578
-
+#define CALL_INTERNAL_AND          X1_2463616C6C5F696E7465726E616C5F616E64
+#define CALL_INTERNAL_OR           X1_2463616C6C5F696E7465726E616C5F6F72
+#define CALL_INTERNAL_IF           X1_2463616C6C5F696E7465726E616C5F6966
+#define CALL_INTERNAL_SOFT_IF      X1_2463616C6C5F696E7465726E616C5F736F66745F6966
 #define CATCH_INTERNAL             X1_2463617463685F696E7465726E616C
-
 #define THROW_INTERNAL             X1_247468726F775F696E7465726E616C
 
 Prolog_Prototype(BC_EMULATE_CONT, 0);
 Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 4);
+Prolog_Prototype(CALL_INTERNAL_AND, 5);
+Prolog_Prototype(CALL_INTERNAL_OR, 5);
+Prolog_Prototype(CALL_INTERNAL_IF, 5);
+Prolog_Prototype(CALL_INTERNAL_SOFT_IF, 5);
 
 Prolog_Prototype(CALL_COMPLEX, 5);
 Prolog_Prototype(CATCH_INTERNAL, 5);
@@ -903,12 +906,7 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
 #endif
 
   if (arg_adr != &A(0))
-#if 1
     memcpy(&A(0), arg_adr, sizeof(WamWord) * arity);
-#else
-    for (i = 0; i < arity; i++)
-      A(i) = *arg_adr++;
-#endif
 
 #if 1
   if (pred->prop & MASK_PRED_META_PRED)
@@ -952,6 +950,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr,
 		   int caller_func, int caller_arity, Bool debug_call)
 {
   WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, 1));
+  CodePtr codep;
 
   Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
 
@@ -1007,31 +1006,60 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr,
 	  arg_adr = Pl_Rd_Callable_Check(*++arg_adr, &func, &arity);
 	  goto terminal_rec;
 	}
-      
-      if (func == ATOM_CHAR(',') || func == ATOM_CHAR(';') || func == atom_if || func == atom_soft_if)
+
+      /* complex call: needs Pl_Term_To_Goal transformation */
+
+
+      if (func == ATOM_CHAR(','))
 	{
-	  A(0) = Tag_ATM(func);
-	  A(1) = *arg_adr++;
-	  A(2) = *arg_adr;
-	  A(3) = Tag_ATM(module);
-	  A(4) = call_info_word;
-	  return (CodePtr) Prolog_Predicate(CALL_COMPLEX, 5);
+	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_AND, 5);
+	complex_call:
+
+	  /* NB: arg_adr can be &A(0), thus args can be in A(0) and A(1). Beware */
+
+	  A(0) = Pl_Term_To_Goal(arg_adr[0], module, call_info_word);
+	  A(1) = Pl_Term_To_Goal(arg_adr[1], module, call_info_word);
+	  A(2) = Tag_ATM(module);
+	  A(3) = call_info_word;
+	  A(4) = Pl_Get_Current_Choice(); /* VarCut */
+	  return codep;
+	}
+
+      if (func == ATOM_CHAR(';'))
+	{
+	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_OR, 5);
+	  goto complex_call;
+	}
+
+      if (func == atom_if)
+	{
+	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_IF, 5);
+	  goto complex_call;
+	}
+
+      if (func == atom_soft_if)
+	{
+	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_SOFT_IF, 5);
+	  goto complex_call;
 	}
 
       break;
       
-   case 3:
-     if (func == atom_catch)
-       {
-	 A(0) = *arg_adr++;
-	 A(1) = *arg_adr++;
-	 A(2) = *arg_adr;
-	 A(3) = Tag_ATM(module);
-	 A(4) = call_info_word;
-	 return (CodePtr) Prolog_Predicate(CATCH_INTERNAL, 5);
-       }
+    case 3:
+      if (func == atom_catch)
+	{
+	  if (arg_adr != &A(0))
+	    {
+	      A(0) = *arg_adr++;
+	      A(1) = *arg_adr++;
+	      A(2) = *arg_adr;
+	    }
+	  A(3) = Tag_ATM(module);
+	  A(4) = call_info_word;
+	  return (CodePtr) Prolog_Predicate(CATCH_INTERNAL, 5);
+	}
      
-     break;
+      break;
     }
 
   /* here we have a simple predicate to call */
@@ -1068,8 +1096,9 @@ Pl_BC_Call_5(WamWord goal_word, WamWord module_word,
 
 
   Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
-  
+
   module = Pl_Rd_Atom(module_word);
+  Pl_Set_Calling_Module(module);
 
   caller_func = Pl_Rd_Atom(caller_func_word);
   caller_arity = Pl_Rd_Integer(caller_arity_word);
@@ -1096,7 +1125,7 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 
   arg_adr = Pl_Rd_Callable(pred_word, &func, &arity); /* we know it is a callable */
 
-  //  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0; // FIXME
+  debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
 
   if (pl_debug_call_code != NULL && debug_call &&
       (first_call_word & (1 << TAG_SIZE_LOW)))
@@ -1555,8 +1584,7 @@ bc_loop:
       arity = BC2_Arity(w);
       func = bc->word;
       bc++;
-      if (pl_debug_call_code != NULL && debug_call &&
-	  Pl_Detect_If_Aux_Name(func) == NULL)
+      if (pl_debug_call_code != NULL && debug_call && Pl_Detect_If_Aux_Name(func) == NULL)
 	{
 	  w1 = bc->word;
 	  caller_func = Functor_Of(w1);
@@ -1613,7 +1641,7 @@ bc_loop:
 
     case FAIL:
       if (pl_debug_call_code != NULL && debug_call)
-	{			/* invoke the debugger that will then call fail/0 */
+	{			/* invoke the debugger which will then call fail/0 */
 	  Prep_Debug_Call(atom_fail, 0, 0, 0);
 	  return pl_debug_call_code;
 	}

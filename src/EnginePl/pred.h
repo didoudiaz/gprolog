@@ -119,7 +119,7 @@ extern char *pl_module_tbl;
 void Pl_Init_Pred(void);
 
 
-ModuleInf *Pl_Create_Module(int module);
+ModuleInf *Pl_Create_Module(int module, int pl_file);
 
 ModuleInf *Pl_Lookup_Module(int module);
 
@@ -133,6 +133,8 @@ PredInf * FC Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl
 
 PredInf * FC Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line,
 				 int prop, long *codep, int meta_arg[]);
+
+PredInf *Pl_Lookup_Pred_In_Module(int module, int func, int arity);
 
 PredInf * FC Pl_Lookup_Pred(int module, int func, int arity);
 

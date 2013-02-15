@@ -115,70 +115,12 @@ predicate(system:'$call_no_debug'/4,99,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$call_complex'/5,105,static,private,monofile,built_in,[
-    allocate(7),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    get_variable(y(3),3),
-    get_variable(y(4),4),
-    put_value(y(1),0),
-    put_value(y(3),1),
-    put_value(y(4),2),
-    put_variable(y(5),3),
-    call('$term_to_goal'/4),
-    put_value(y(2),0),
-    put_value(y(3),1),
-    put_value(y(4),2),
-    put_variable(y(6),3),
-    call('$term_to_goal'/4),
-    put_atom('~w between ~w -> ~w and ~w -> ~w  (~w)',0),
-    put_list(1),
-    unify_local_value(y(0)),
-    unify_list,
-    unify_local_value(y(1)),
-    unify_list,
-    unify_local_value(y(5)),
-    unify_list,
-    unify_local_value(y(2)),
-    unify_list,
-    unify_local_value(y(6)),
-    unify_list,
-    unify_local_value(y(3)),
-    unify_nil,
-    call(format/2),
-    put_value(y(0),0),
-    put_unsafe_value(y(5),1),
-    put_unsafe_value(y(6),2),
-    put_value(y(3),3),
-    put_value(y(4),4),
-    deallocate,
-    execute('$call_complex1'/5)]).
-
-
-predicate(system:'$call_complex1'/5,112,static,private,monofile,built_in,[
-    pragma_arity(6),
-    get_current_choice(x(5)),
-    execute('$call_complex_with_cut'/6)]).
-
-
-predicate(system:'$call_complex_with_cut'/6,117,static,private,monofile,built_in,[
-    switch_on_term(2,1,fail,fail,fail),
-
-label(1),
-    switch_on_atom([((','),3),((;),5)]),
-
-label(2),
-    try_me_else(4),
-
-label(3),
+predicate(system:'$call_internal_and'/5,105,static,private,monofile,built_in,[
     allocate(4),
-    get_atom(',',0),
-    get_variable(y(0),2),
-    get_variable(y(1),3),
-    get_variable(y(2),4),
-    get_variable(y(3),5),
-    put_value(x(1),0),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    get_variable(y(2),3),
+    get_variable(y(3),4),
     put_value(y(1),1),
     put_value(y(2),2),
     put_value(y(3),3),
@@ -188,41 +130,18 @@ label(3),
     put_value(y(2),2),
     put_value(y(3),3),
     deallocate,
-    execute('$call_internal_with_cut'/4),
-
-label(4),
-    trust_me_else_fail,
-
-label(5),
-    get_atom(;,0),
-    put_value(x(1),0),
-    put_value(x(2),1),
-    put_value(x(3),2),
-    put_value(x(4),3),
-    put_value(x(5),4),
-    execute('$call_internal_or'/5)]).
+    execute('$call_internal_with_cut'/4)]).
 
 
-predicate(system:'$call_complex_with_cut'/4,124,static,private,monofile,built_in,[
-    pragma_arity(5),
-    get_current_choice(x(4)),
-    switch_on_term(2,fail,fail,fail,1),
-
-label(1),
-    switch_on_structure([((->)/2,3),((*->)/2,5)]),
-
-label(2),
-    try_me_else(4),
-
-label(3),
+predicate(system:'$call_internal_if'/5,109,static,private,monofile,built_in,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     allocate(5),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    get_variable(y(3),3),
-    get_structure((->)/2,0),
-    unify_variable(x(0)),
-    unify_variable(y(0)),
-    get_variable(y(4),4),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    get_variable(y(2),3),
+    get_variable(y(3),4),
+    get_variable(y(4),5),
     cut(y(4)),
     put_value(y(1),1),
     put_value(y(2),2),
@@ -233,20 +152,18 @@ label(3),
     put_value(y(2),2),
     put_value(y(3),3),
     deallocate,
-    execute('$call_internal_with_cut'/4),
+    execute('$call_internal_with_cut'/4)]).
 
-label(4),
-    trust_me_else_fail,
 
-label(5),
+predicate(system:'$call_internal_soft_if'/5,116,static,private,monofile,built_in,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     allocate(4),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    get_variable(y(3),3),
-    get_structure((*->)/2,0),
-    unify_variable(x(0)),
-    unify_variable(y(0)),
-    cut(x(4)),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    get_variable(y(2),3),
+    get_variable(y(3),4),
+    cut(x(5)),
     put_value(y(1),1),
     put_value(y(2),2),
     call('$call_internal'/3),
@@ -258,13 +175,13 @@ label(5),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(system:'$call_internal'/3,139,static,private,monofile,built_in,[
+predicate(system:'$call_internal'/3,124,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(system:'$call_internal_with_cut'/4,146,static,private,monofile,built_in,[
+predicate(system:'$call_internal_with_cut'/4,131,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(25),
@@ -433,7 +350,7 @@ label(25),
     proceed]).
 
 
-predicate(system:'$call_internal_or'/5,200,static,private,monofile,built_in,[
+predicate(system:'$call_internal_or'/5,185,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(6),
@@ -489,7 +406,7 @@ label(7),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(user:'$$call_internal_or/5_$aux2'/6,207,static,private,monofile,local,[
+predicate(user:'$$call_internal_or/5_$aux2'/6,192,static,private,monofile,local,[
     try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
@@ -515,7 +432,7 @@ label(1),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(user:'$$call_internal_or/5_$aux1'/7,200,static,private,monofile,local,[
+predicate(user:'$$call_internal_or/5_$aux1'/7,185,static,private,monofile,local,[
     try_me_else(1),
     allocate(5),
     get_variable(y(0),1),
@@ -541,17 +458,17 @@ label(1),
     execute('$call_internal_with_cut'/4)]).
 
 
-predicate(system:'$call_from_debugger'/3,223,static,private,monofile,built_in,[
+predicate(system:'$call_from_debugger'/3,208,static,private,monofile,built_in,[
     put_integer(0,3),
     call_c('Pl_BC_Call_Terminal_Pred_4',[jump],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:false/0,228,static,private,monofile,built_in,[
+predicate(system:false/0,213,static,private,monofile,built_in,[
     fail]).
 
 
-predicate(system:forall/2,234,static,private,monofile,built_in,[
+predicate(system:forall/2,219,static,private,monofile,built_in,[
     get_variable(x(2),0),
     put_structure((',')/2,0),
     unify_local_value(x(2)),
@@ -564,11 +481,11 @@ predicate(system:forall/2,234,static,private,monofile,built_in,[
     execute('$not'/3)]).
 
 
-predicate(system:'$not'/3,238,static,private,monofile,built_in,[
+predicate(system:'$not'/3,223,static,private,monofile,built_in,[
     execute('$$not/3_$aux1'/3)]).
 
 
-predicate(user:'$$not/3_$aux1'/3,238,static,private,monofile,local,[
+predicate(user:'$$not/3_$aux1'/3,223,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -609,7 +526,7 @@ directive(60,system,[
     execute('$declare_meta_predicate'/2)]).
 
 
-directive(232,system,[
+directive(217,system,[
     put_atom(user,0),
     put_structure(forall/2,1),
     unify_integer(0),
