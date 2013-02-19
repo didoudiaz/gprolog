@@ -54,6 +54,9 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef BOEHM_GC
+#include <gc.h>
+#endif
 
 #include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
 
@@ -379,6 +382,11 @@ Pl_Allocate_Stacks(void)
 		i, pl_stk_tbl[i].name, stk_sz * sizeof(WamWord) / 1024, 
 		addr, addr + stk_sz, addr + stk_sz + page_size);
 #endif
+#ifdef BOEHM_GC
+      if (strcmp(pl_stk_tbl[i].name, "local")==0) {
+	  GC_add_roots(addr, addr + stk_sz);
+      }
+#endif /* BOEHM_GC */
       addr += stk_sz;
       Virtual_Mem_Protect(addr, page_size * sizeof(WamWord));
       addr += page_size;

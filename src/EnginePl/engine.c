@@ -41,6 +41,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
+#ifdef BOEHM_GC
+#include <gc.h>
+#endif
 
 #include "gp_config.h"
 #include "set_locale.h"
@@ -127,6 +130,10 @@ Pl_Start_Prolog(int argc, char *argv[])
   void (*copy_of_pl_init_stream_supp)() = Pl_Dummy_Ptr(pl_init_stream_supp);
 #if defined(_WIN32) || defined(__CYGWIN__)
   DWORD y;
+#endif
+
+#ifdef BOEHM_GC
+  GC_INIT();
 #endif
 
   Set_Locale();
