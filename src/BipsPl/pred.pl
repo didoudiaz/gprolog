@@ -133,12 +133,12 @@ current_predicate(MPI) :-
 
 predicate_property(MHead, Property) :-
 	set_bip_name(predicate_property, 2),
-	'$predicate_property'(MHead, Property, 0, 0).
+	'$predicate_property'(MHead, Property, 2, 0).
 
 :- meta_predicate('$predicate_property'(:, ?)).
 
 '$predicate_property'(MHead, Property) :-
-	'$predicate_property'(MHead, Property, 0, 0).
+	'$predicate_property'(MHead, Property, 2, 0).
 
 :- meta_predicate('$predicate_property_any'(:, ?)).
 
@@ -195,6 +195,7 @@ predicate_property(MHead, Property) :-
 	'$predicate_property1'(system, Func, Arity, Property).
 
 
+				% here Module, Func, Arity are instantiated
 
 '$predicate_property1'(Module, Func, Arity, Property) :-
 	'$check_pred_prop'(Property), !,

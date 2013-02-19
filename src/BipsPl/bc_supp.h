@@ -79,5 +79,5 @@ WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
 void Pl_BC_Start_Emit_0(void);
 void Pl_BC_Stop_Emit_0(void);
 void Pl_BC_Emit_Inst_1(WamWord inst_word);
-void Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep);
+
 

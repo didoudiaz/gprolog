@@ -167,7 +167,7 @@ start:
     case 'd':			/* debug */
       if (SYS_VAR_DEBUGGER)
 	{
-	  pred = Pl_Lookup_Pred_Compat(Pl_Create_Atom((c == 't') ? "trace" : "debug"), 0);
+	  pred = Pl_Check_Sys_Pred_Exist((c == 't') ? "trace" : "debug", 0);
 	  if (pred == NULL)
 	    Pl_Fatal_Error(ERR_DEBUGGER_NOT_FOUND);	/* should not occur */
 

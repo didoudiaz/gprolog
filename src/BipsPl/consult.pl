@@ -170,7 +170,7 @@ consult(MFile) :-
 	    true
 	;
 	    read(Stream, clause(Cl, WamCl)),
-	    '$add_clause_term_and_bc'(Cl, PlFile, WamCl),
+	    '$add_clause_term_and_bc'(Module, Cl, PlFile, WamCl),
 	    fail
 	), !.
 
@@ -291,18 +291,20 @@ load(MFile) :-
 
 
 
+%  called by compiled code for dynamic or multifile predicate
 
-'$add_clause_term'(Cl, PlFile) :-
-	'$assert'(Cl, 0, 0, PlFile).
+'$add_clause_term'(Module, Cl, PlFile) :-
+	'$assert'(Module:Cl, 0, 0, PlFile).
 
 
 
+% called by '$load_pred'
 
-'$add_clause_term_and_bc'(Cl, PlFile, WamCl) :-
+'$add_clause_term_and_bc'(Module, Cl, PlFile, WamCl) :-
 	'$bc_start_emit',
 	'$bc_emit'(WamCl),
 	'$bc_stop_emit',
-	'$add_clause_term'(Cl, PlFile).
+	'$add_clause_term'(Module, Cl, PlFile).
 
 
 
@@ -313,7 +315,7 @@ load(MFile) :-
 
 listing :-
 	set_bip_name(listing, 0),
-	'$listing_all'(_).
+	'$listing_all'(user, _, _). %FIXME what to do with a meta_pred without argument ?
 
 
 
@@ -321,65 +323,70 @@ listing(MPI) :-
 	set_bip_name(listing, 1),
 	'$strip_module_var'(MPI, Module, PI),
 	(   atom(PI) ->
-	    true
+	    Func = PI
 	;
-	    '$get_pred_indic'(PI, Module, _, Pred, N)
+	    '$get_pred_indic'(PI, Module, _, Func, Arity)
 	),
-	var(PI), !,
-	'$pl_err_instantiation'.
-
-listing(N) :-
-	atom(N), !,
-	'$listing_all'(N / _).
-
-listing(PI) :-
-	'$listing_all'(PI).
-
-
+	'$listing_all'(Module, Func, Arity).
 
 /* NEW version which orders the output by file then by line number */
 
-'$listing_all'(PI) :-  % setof: for each File returns a sorted list [Line-PI,...]
-	setof(Line-PI, '$listing_one_pi'(File, Line, PI), LKPI), 
+
+'$listing_all'(Module, Func, Arity) :- % setof: for each File returns a sorted list [Line-PI,...]
+	g_assign('$last_module', Module),
+	setof(v(Line, Func, Arity), '$listing_one_collect'(Module, Func, Arity, File, Line), LP),
+	g_read('$last_module', LastModule),
+	(   LastModule == Module ->
+	    true
+	;
+	    format('~n:- module(~q).~n', [Module]),
+	    g_assign('$last_module', Module)
+	),
 	format('~n%% file: ~w~n', [File]),
-	member(_-PI1, LKPI),
-	'$listing_one'(PI1),
-	fail.
+	member(v(_, Func1, Arity1), LP),
+	'$listing_one_show'(Module, Func1, Arity1). % this one fails
 
-'$listing_all'(_).
+'$listing_all'(_, _, _).
 
 
-'$listing_one_pi'(File, Line, PI) :-
-	'$current_predicate'(PI),
-	\+ '$predicate_property_pi_any'(PI, native_code),
-	'$predicate_property_pi_any'(PI, prolog_file(File)),
-	'$predicate_property_pi_any'(PI, prolog_line(Line)).
+'$listing_one_collect'(Module, Func, Arity, File, Line) :-
+	'$current_predicate'(Module:Func/Arity),
+   	(   '$call_c_test'('Pl_Pred_Prop_Native_Code_2'(Module, Func, Arity)) ->
+	    fail
+	;
+	    '$call_c_test'('Pl_Pred_Prop_Prolog_File_3'(Module, Func, Arity, File)),
+	    '$call_c_test'('Pl_Pred_Prop_Prolog_Line_3'(Module, Func, Arity, Line))
+	).
 
 
 
 /* OLD version which does not order the output
-   
-'$listing_all'(PI) :-
-	current_prolog_flag(strict_iso, SI),
-	(   set_prolog_flag(strict_iso, off),
-	    '$current_predicate'(PI),
-	    '$listing_one'(PI),
+  
+'$listing_all'(Module, Func, Arity) :-   
+	g_assign('$last_module', Module),
+	'$current_predicate'(Module:Func/Arity),
+	(   '$call_c_test'('Pl_Pred_Prop_Native_Code_2'(Module, Func, Arity)) ->
 	    fail
-	;   set_prolog_flag(strict_iso, SI)
-	).
-
+	;
+	    true
+	),
+	g_read('$last_module', LastModule),
+	(   LastModule == Module ->
+	    true
+	;
+	    format(':- module(~q).~n', [Module]),
+	    g_assign('$last_module', Module)
+	),
+	'$listing_one_show'(Module, Func, Arity). % this one fails
 */
 
 
-'$listing_one'(PI) :-
-	'$predicate_property_pi_any'(PI, native_code), !.
 
-'$listing_one'(PI) :-
-	'$get_pred_indic'(PI, 0, 0, N, A), % we know there is no module qualifier
-	functor(H, N, A),
+'$listing_one_show'(Module, Func, Arity) :-
+	functor(H, Func, Arity),
 	nl,
-	'$clause'(H, B, false),
+	'$clause'(Module:H, B, false),
 	portray_clause((H :- B)),
 	fail.
 
-'$listing_one'(_).
+

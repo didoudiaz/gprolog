@@ -739,7 +739,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case EXECUTE:
       w1 = func = BC_Arg_Func_Arity(*arg_adr++, &arity);
       BC2_Arity(w) = arity;
-      pred = Pl_Lookup_Pred_Compat(func, arity);
+      pred = Pl_Lookup_Pred_Visible(pl_atom_user, func, arity); /* FIXME Module */
       if (pred && (pred->prop & MASK_PRED_NATIVE_CODE))
 	{
 	  op++;
@@ -792,16 +792,16 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_BC_EMIT_INST_EXECUTE_NATIVE                                          *
+ * BC_EMIT_INST_EXECUTE_NATIVE                                             *
  *                                                                         *
- * This function is called by the compiled code for dynamic or multifile   *
- * predicate. Each clause has been compiled to native code (aux pred).     *
+ * This function is called for dynamic or multifile predicate.             *
+ * Each clause has been compiled to native code (aux pred).                *
  * We here create a call to this clause.                                   *
  * This function is called between Pl_BC_Start_Emit_0 and Pl_BC_Stop_Emit_0*
- * the buffer always bc has enough room for our 3 or 4 words.              *
+ * The buffer always bc has enough room for our 3 or 4 words.              *
  *-------------------------------------------------------------------------*/
-void
-Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
+static void
+BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep) /* FIXME use module */
 {
   BCWord w;			/* code-op word */
   unsigned w1, w2, w3;		/* additional words */
@@ -824,6 +824,24 @@ Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
 #endif
 
   ASSEMBLE_INST(bc_sp, EXECUTE_NATIVE, nb_word, w, w1, w2, w3);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
+ *                                                                         *
+ * This function is called by the compiled code for dynamic or multifile   *
+ * predicate. Each clause has been compiled to native code (aux pred).     *
+ * We here create a call to this clause.                                   *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Emit_BC_Execute_Wrapper(int module, int func, int arity, PlLong *codep)
+{
+  Pl_BC_Start_Emit_0();
+  BC_Emit_Inst_Execute_Native(module, func, arity, codep);
+  Pl_BC_Stop_Emit_0();
 }
 
 
@@ -890,7 +908,7 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
   PredInf *pred;
   int i;
 
-  pred = Pl_Lookup_Pred(module, func, arity);
+  pred = Pl_Lookup_Pred_Visible(module, func, arity);
   if (pred == NULL)
     {				/* case: fail/0 from '$call_from_debugger' */
       if (func != atom_fail || arity != 0)
@@ -1597,7 +1615,7 @@ bc_loop:
 	  return pl_debug_call_code;
 	}
 
-      if ((pred = Pl_Lookup_Pred_Compat(func, arity)) == NULL)
+      if ((pred = Pl_Lookup_Pred_Visible(pl_atom_user, func, arity)) == NULL) /* FIXME Module */
 	{
 	  w1 = bc->word;
 	  caller_func = Functor_Of(w1);

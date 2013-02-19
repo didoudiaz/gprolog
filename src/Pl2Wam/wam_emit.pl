@@ -187,37 +187,35 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	    MonoMulti = multifile
 	;   MonoMulti = monofile
 	),
-	g_read(module, Module0),
-	export_type(Pred, N, Module0, Module, ExportBplBfd),
+	get_module_of_pred(Pred, N, Module),
+	export_type(Pred, N, Module, ExportBplBfd),
 	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,~a,',
 	       [Module:Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
 
 
 
-export_type(Pred, _, Module, Module1, local) :-
-	'$aux_name'(Pred), !,
-	'$father_of_aux_name'(Pred, F, N),
-	export_type(F, N, Module, Module1, _).
+export_type(Pred, _, _, local) :-
+	'$aux_name'(Pred), !.
 
-export_type(Pred, N, Module, Module, local) :-
+export_type(Pred, N, Module, local) :-
 	test_pred_info(multi, Pred, N), !.
 
-export_type(Pred, N, _, system, built_in) :-
+export_type(Pred, N, _, built_in) :-
 	test_pred_info(bpl, Pred, N), !.
 
-export_type(Pred, N, _, system, built_in_fd) :-
+export_type(Pred, N, _, built_in_fd) :-
 	test_pred_info(bfd, Pred, N), !.
 
-export_type(Pred, N, system, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
+export_type(Pred, N, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
 	is_exported(Pred, N), !.
 
-export_type(_, _, Module, Module, global) :-
+export_type(_, _, _, global) :-
 	g_read(module_already_seen, f), !.
 
-export_type(Pred, N, Module, Module, global) :-
+export_type(Pred, N, _, global) :-
 	is_exported(Pred, N), !.
 
-export_type(_, _, Module, Module, local).
+export_type(_, _, _, local).
 
 
 

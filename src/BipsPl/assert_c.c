@@ -225,9 +225,10 @@ Pl_Retractall_1(WamWord head_word)
 
   arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
+  /* if pred does not exist, retractall implicitly creates it as a dynamic pred. */
   if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
-    return;
-
+    pred = Pl_Create_Dynamic_Pred(module, func, arity);
+  
   if (!(pred->prop & MASK_PRED_DYNAMIC))
     { /* NB: module can be != pred->mod->module (ex: foo:p/n can refer to user:p/n) */
       word = Pl_Built_Pred_Indic_Error(pred);
@@ -309,7 +310,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred_Visible(module, func, arity)) == NULL)
     return FALSE;
   
   if (check_public && !(pred->prop & MASK_PRED_PUBLIC))

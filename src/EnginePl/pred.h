@@ -131,23 +131,13 @@ void Pl_Create_Pred_Table(void);
 PredInf * FC Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line,
 			    int prop, long *codep);
 
-PredInf * FC Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line,
-				 int prop, long *codep, int meta_arg[]);
+PredInf *Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line,
+			     int prop, long *codep, int meta_arg[]);
 
-PredInf *Pl_Lookup_Pred_In_Module(int module, int func, int arity);
+PredInf *Pl_Lookup_Pred(int module, int func, int arity);
 
-PredInf * FC Pl_Lookup_Pred(int module, int func, int arity);
+PredInf *Pl_Lookup_Pred_Visible(int module, int func, int arity);
 
-void FC Pl_Delete_Pred(int module, int func, int arity);
+PredInf *Pl_Check_Sys_Pred_Exist(char *name, int arity);
 
-
-
-/* TO BE REMOVED - COMPAT ONLY */
-
-PredInf *Pl_Create_Pred_Compat(int func, int arity, int pl_file, int pl_line, 
-			       int prop, long *codep);
-
-
-PredInf *Pl_Lookup_Pred_Compat(int func, int arity);
-
-void Pl_Delete_Pred_Compat(int func, int arity);
+void Pl_Delete_Pred(int module, int func, int arity);

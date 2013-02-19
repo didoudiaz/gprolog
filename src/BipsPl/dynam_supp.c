@@ -220,6 +220,21 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
+ * PL_CREATE_DYNAMIC_PRED                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Create_Dynamic_Pred(int module, int func, int arity)
+{
+  return Pl_Create_Pred(module, func, arity, pl_atom_user_input,
+			pl_stm_tbl[pl_stm_stdin]->line_count,
+			MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_ADD_DYNAMIC_CLAUSE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -256,11 +271,13 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 
   pred = Pl_Lookup_Pred(module, func, arity);
 
-  if (pred == NULL || 		/* test now if it hiddes an existing pred (if yes: create) */
-      (pred->mod->module != module && pred->mod->module != pl_atom_system && module != pl_atom_system))
-    pred = Pl_Create_Pred(module, func, arity, pl_atom_user_input,
-			  pl_stm_tbl[pl_stm_stdin]->line_count,
-			  MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+  if (pred == NULL
+#if 0		/* useless if we use Pl_Lookup_Pred_In_Module instead of Pl_Lookup_Pred */
+      || 		/* test now if it hiddes an existing pred (if yes: create) */
+      (pred->mod->module != module && pred->mod->module != pl_atom_system && module != pl_atom_system)
+#endif
+      )
+    pred = Pl_Create_Dynamic_Pred(module, func, arity);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
       word = Pl_Built_Pred_Indic_Error(pred);
@@ -822,7 +839,7 @@ Pl_Update_Dynamic_Pred(int module, int func, int arity, int what_to_do, int pl_f
 
   if ((what_to_do & 2))
     {
-      Pl_Delete_Pred_Compat(func, arity);
+      Pl_Delete_Pred(module, func, arity);
       return NULL;
     }
 

@@ -1092,8 +1092,8 @@ Try_Portray(WamWord word)
     return FALSE;
 
   if (try_portray_code == NULL)
-    {
-      pred = Pl_Lookup_Pred_Compat(Pl_Create_Atom("$try_portray"), 1);
+    {				/* FIXME pass Module to user portray (need meta_predicate decl) */
+      pred = Pl_Check_Sys_Pred_Exist("$try_portray", 1);
       if (pred == NULL || pred->codep == NULL)
 	Pl_Err_Resource(pl_resource_print_object_not_linked);
 

@@ -376,7 +376,8 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
 	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
+	get_owner_module(Pred, N, Module),
+	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Module, Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Module, Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
 
@@ -684,8 +685,8 @@ handle_directive(meta_predicate, [MetaDecl], Where) :-
 	    functor(MetaDecl, Pred, N),
 	    set_flag_for_preds(Pred/N, meta),
 	    assertz(meta_pred(Pred, N, MetaDecl)),
-	    g_read(module, Module),
-	    handle_initialization(system, '$declare_meta_predicate'(Module,MetaDecl), Where)
+	    get_module_of_pred(Pred, N, Module),
+	    handle_initialization(system, '$declare_meta_predicate'(Module, MetaDecl), Where)
 	;
 	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
 	).
@@ -947,7 +948,7 @@ check_head_is_module_free(_).
 
 check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
 	clause(module_export(Pred, N, Module), true),
-	g_read(module, Module1),
+	get_module_of_pred(Pred, N, Module),
 	Module \== Module1, !,
 	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
 
@@ -956,12 +957,13 @@ check_module_clash(_, _).
 
 
 
-
+				% used to know how to qualify a call to a predicate (see code_gen.pl)
 get_owner_module(Pred, N, Module) :-
 	clause(module_export(Pred, N, Module), true),
 	Module \== system, !.
 
 get_owner_module(_, _, _).
+
 
 
 
@@ -971,8 +973,12 @@ is_exported(Pred, N) :-
 
 
 
-get_module_of_cur_pred(Module) :-
-	cur_pred(Pred, N),
+get_module_of_pred(Pred, _, Module) :- % an aux is in the same module as its father
+	'$aux_name'(Pred), !,
+	'$father_of_aux_name'(Pred, Pred1, N),
+	get_module_of_pred(Pred1, N, Module).
+
+get_module_of_pred(Pred, N, Module) :-
 	(   test_pred_info(bpl, Pred, N) ->
 	    Module = system
 	;   test_pred_info(bfd, Pred, N) ->
@@ -980,6 +986,13 @@ get_module_of_cur_pred(Module) :-
 	;
 	    g_read(module, Module)
 	).
+
+
+
+
+get_module_of_cur_pred(Module) :-
+	cur_pred(Pred, N),
+	get_module_of_pred(Pred, N, Module).
 
 
 

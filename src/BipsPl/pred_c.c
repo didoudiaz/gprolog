@@ -232,11 +232,11 @@ Pl_Current_Predicate_4(WamWord module_word, WamWord home_module_word,
 #define Pred_Is_Ok(pred, f, a, also_dollar)				\
   ((also_dollar || (pl_atom_tbl[f].name[0] != '$')) &&			\
    (pred->mod->module == home_module ||					\
-    pred == Pl_Lookup_Pred(home_module, f, a))) /* check if not hidden by parent ? */
+    pred == Pl_Lookup_Pred_Visible(home_module, f, a))) /* check if not hidden by parent ? */
 
   if (func >= 0 && arity >= 0)
     {
-      pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+      pred = Pl_Lookup_Pred(module, func, arity);
       return pred && Pred_Is_Ok(pred, func, arity, also_dollar);
     }
 
@@ -371,7 +371,7 @@ Pl_Pred_Prop_Static_2(WamWord module_word, WamWord func_word, WamWord arity_word
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_DYNAMIC) == 0;
 }
@@ -389,7 +389,7 @@ Pl_Pred_Prop_Dynamic_2(WamWord module_word, WamWord func_word, WamWord arity_wor
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_DYNAMIC) != 0;
 }
@@ -407,7 +407,7 @@ Pl_Pred_Prop_Private_2(WamWord module_word, WamWord func_word, WamWord arity_wor
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_PUBLIC) == 0;
 }
@@ -425,7 +425,7 @@ Pl_Pred_Prop_Public_2(WamWord module_word, WamWord func_word, WamWord arity_word
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_PUBLIC) != 0;
 }
@@ -443,7 +443,7 @@ Pl_Pred_Prop_Monofile_2(WamWord module_word, WamWord func_word, WamWord arity_wo
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_MULTIFILE) == 0;
 }
@@ -461,7 +461,7 @@ Pl_Pred_Prop_Multifile_2(WamWord module_word, WamWord func_word, WamWord arity_w
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_MULTIFILE) != 0;
 }
@@ -479,7 +479,7 @@ Pl_Pred_Prop_User_2(WamWord module_word, WamWord func_word, WamWord arity_word)
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_BUILTIN) == 0;
 }
@@ -497,7 +497,7 @@ Pl_Pred_Prop_Built_In_2(WamWord module_word, WamWord func_word, WamWord arity_wo
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_BUILTIN) != 0;
 }
@@ -515,7 +515,7 @@ Pl_Pred_Prop_Built_In_Fd_2(WamWord module_word, WamWord func_word, WamWord arity
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_BUILTIN_FD) != 0;
 }
@@ -533,7 +533,7 @@ Pl_Pred_Prop_Control_Construct_2(WamWord module_word, WamWord func_word, WamWord
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_CONTROL_CONSTRUCT) != 0;
 }
@@ -551,7 +551,7 @@ Pl_Pred_Prop_Native_Code_2(WamWord module_word, WamWord func_word, WamWord arity
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_NATIVE_CODE) != 0;
 }
@@ -570,7 +570,7 @@ Pl_Pred_Prop_Meta_Predicate_3(WamWord module_word, WamWord func_word, WamWord ar
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
   MetaSpec meta_spec;
   WamWord word;
   int i, x;
@@ -630,7 +630,7 @@ Pl_Pred_Prop_Prolog_File_3(WamWord module_word, WamWord func_word, WamWord arity
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && Pl_Un_Atom_Check(pred->pl_file, pl_file_word);
 }
@@ -649,7 +649,7 @@ Pl_Pred_Prop_Prolog_Line_3(WamWord module_word, WamWord func_word, WamWord arity
   int module = Pl_Rd_Atom(module_word);
   int func = Pl_Rd_Atom(func_word);
   int arity = Pl_Rd_Integer(arity_word);
-  PredInf *pred = Pl_Lookup_Pred_In_Module(module, func, arity);
+  PredInf *pred = Pl_Lookup_Pred(module, func, arity);
 
   return pred != NULL && Pl_Un_Integer_Check(pred->pl_line, pl_line_word);
 }
@@ -670,7 +670,7 @@ Pl_Get_Predicate_File_Info_5(WamWord module_word, WamWord func_word, WamWord ari
   int arity = Pl_Rd_Integer(arity_word);
   PredInf *pred;
 
-  if ((pred = Pl_Lookup_Pred_In_Module(module, func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
     return FALSE;
 
   if (pred->pl_file == pl_atom_void || pred->pl_line == 0)
@@ -697,7 +697,7 @@ Pl_Set_Predicate_File_Info_5(WamWord module_word, WamWord func_word, WamWord ari
   PredInf *pred;
   int pl_file, pl_line;
 
-  if ((pred = Pl_Lookup_Pred_In_Module(module, func, arity)) == NULL)
+  if ((pred = Pl_Lookup_Pred(module, func, arity)) == NULL)
     return FALSE;
 
   pl_file = Pl_Rd_Atom_Check(pl_file_word);
@@ -826,7 +826,7 @@ Pl_Decl_Meta_Pred_2(WamWord module_word, WamWord meta_pred_spec_word)
   if (arity > 16)		/* 4-bits/arg on 64 bits = 16 agrs max */
     return FALSE;		/* FIXME: emit a representation error max_arity_meta_predicate  */
 
-  pred = Pl_Lookup_Pred(module, func, arity);
+  pred = Pl_Lookup_Pred_Visible(module, func, arity);
   if (pred == NULL)
     return FALSE;
 

@@ -303,7 +303,7 @@ Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int pr
  * Called by compiled prolog code, by dynamic predicate support and by     *
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
-PredInf * FC
+PredInf *
 Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line, int prop,
 		    PlLong *codep, int meta_arg[])
 {
@@ -368,11 +368,11 @@ Lookup_Pred_Cache(int module, PlLong f_n)
 
 
 /*-------------------------------------------------------------------------*
- * PL_LOOKUP_PRED_IN_MODULE                                                *
+ * PL_LOOKUP_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PredInf *
-Pl_Lookup_Pred_In_Module(int module, int func, int arity)
+Pl_Lookup_Pred(int module, int func, int arity)
 {
   PlLong f_n = Functor_Arity(func, arity);
 
@@ -383,11 +383,11 @@ Pl_Lookup_Pred_In_Module(int module, int func, int arity)
 
 
 /*-------------------------------------------------------------------------*
- * PL_LOOKUP_PRED                                                          *
+ * PL_LOOKUP_PRED_VISIBLE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-PredInf * FC
-Pl_Lookup_Pred(int module, int func, int arity)
+PredInf *
+Pl_Lookup_Pred_Visible(int module, int func, int arity)
 {
   PredInf *pred;
   PlLong f_n = Functor_Arity(func, arity);
@@ -412,10 +412,31 @@ Pl_Lookup_Pred(int module, int func, int arity)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_CHECK_SYS_PRED_EXIST                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Check_Sys_Pred_Exist(char *name, int arity)
+{
+  int func = Pl_Find_Atom(name);
+  PredInf *pred;
+  
+  if (func < 0)			/* if the atom does not exist, the pred does not exist neither */
+    return NULL;
+
+
+  pred = Pl_Lookup_Pred(pl_atom_system, func, arity);
+  return pred;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_DELETE_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void FC
+void
 Pl_Delete_Pred(int module, int func, int arity)
 {
   ModuleInf *mod = Pl_Lookup_Module(module);
@@ -427,45 +448,4 @@ Pl_Delete_Pred(int module, int func, int arity)
       if (module == cache_pred_module && f_n == cache_pred_f_n)
 	cache_pred_module = -1;
     }
-}
-
-
-
-
-/* TO BE REMOVED - COMPAT ONLY */
-
-/*-------------------------------------------------------------------------*
- * PL_CREATE_PRED_COMPAT                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-PredInf *
-Pl_Create_Pred_Compat(int func, int arity, int pl_file, int pl_line, 
-		      int prop, long *codep)
-{
-  return Pl_Create_Pred(pl_atom_user, func, arity, pl_file, pl_line, prop, codep);
-}
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_LOOKUP_PRED_COMPAT                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-PredInf *
-Pl_Lookup_Pred_Compat(int func, int arity)
-{
-  return Pl_Lookup_Pred(pl_atom_user, func, arity);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_DELETE_PRED_COMPAT                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_Delete_Pred_Compat(int func, int arity)
-{
-  return Pl_Delete_Pred(pl_atom_user, func, arity);
 }

@@ -302,8 +302,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 
       Flag_Value(i) = atom == atom_on;
 
-      pred = Pl_Lookup_Pred(pl_atom_system, Pl_Create_Atom((atom == atom_on)
-					   ? "debug" : "nodebug"), 0);
+      pred = Pl_Check_Sys_Pred_Exist((atom == atom_on) ? "debug" : "nodebug", 0);
 
       if (pred != NULL)
 	Pl_Call_Prolog((CodePtr) (pred->codep));

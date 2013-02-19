@@ -44,7 +44,8 @@
  *                                                                         *
  * NoPred : predicate number = corresponding chunk number                  *
  *                                                                         *
- * Module: module qualification or module owned if export (a variable else)*
+ * Module: module qualification or module owner if export (a variable else)*
+ *         used to qualify a call to a predicate (see code_gen.pl)         *
  *                                                                         *
  * Pred/N : predicate/arity                                                *
  *                                                                         *
@@ -80,7 +81,7 @@ internal_format(Head, Body, Head1, Body1, NbChunk, NbY) :-
 
 
 format_head(Head, DicoVar, Head1) :-
-	g_read(module, Module),	% not really necessary since Module info in p(...) is never used
+	get_module_of_cur_pred(Module),  % not really necessary since Module info of head is never used
 	format_pred(Module:Head, 0, DicoVar, Head1, _).
 
 

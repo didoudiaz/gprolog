@@ -1474,7 +1474,7 @@ retract(+clause)
 
 \Description
 
-\texttt{retract(Clause)} erases the first clause of the database
+\texttt{retract(Clause)} removes the first clause of the database
 that unifies with \texttt{Clause}. The concerned predicate must be a
 dynamic procedure
 \RefSP{Introduction:(Dynamic-clause-management)}. Removing all clauses
@@ -1513,12 +1513,14 @@ retractall(+head)
 
 \Description
 
-\texttt{retractall(Head)} erases all clauses whose head unifies with
-\texttt{Head}. The concerned predicate must be a dynamic procedure
-\RefSP{Introduction:(Dynamic-clause-management)}. The procedure definition
-is not removed so that it is found by \IdxPB{current\_predicate/1}
-\RefSP{current-predicate/1}. \texttt{abolish/1} should be used to remove the
-procedure \RefSP{abolish/1}.
+\texttt{retractall(Head)} removes all clauses whose head unifies with
+\texttt{Head} (this predicate always succeeds). The concerned predicate must
+be a dynamic procedure \RefSP{Introduction:(Dynamic-clause-management)}. The
+procedure definition is not removed so that it is found by
+\IdxPB{current\_predicate/1} \RefSP{current-predicate/1}. \texttt{abolish/1}
+should be used to remove the procedure \RefSP{abolish/1}. If \texttt{Head}
+refers to an undefined predicate, it is implicitly created as a dynamic
+predicate.
 
 \begin{PlErrors}
 
@@ -8080,10 +8082,7 @@ any arity). This predicate uses \IdxPB{portray\_clause/2}
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Pred} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{Pred} is neither a variable nor predicate indicator or an
+\ErrCond{\texttt{Pred} is neither a variable nor predicate indicator nor an
 atom}
 \ErrTerm{type\_error(predicate\_indicator, Pred)}
 
