@@ -134,5 +134,5 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   /* then copy the arity_clos args */
   memcpy((void *) &A(0), arg_adr, sizeof(WamWord) * arity_clos);
 
-  return Pl_BC_Call_Initial(module, func, arity, &A(0), caller_func, caller_arity, TRUE);
+  return Pl_BC_Call_Initial(module, func, arity, &A(0), NOT_A_WAM_WORD, caller_func, caller_arity, TRUE);
 }

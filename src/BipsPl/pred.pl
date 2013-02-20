@@ -125,7 +125,7 @@ current_predicate(MPI) :-
 /* From 1.4.0 predicate_property only accepts a Head which is a callable.
  * In previous versions a predicate_indicator was expected, a callable was
  * accepted iff strict_iso was off.
- * This is no longer the case. We kept old version renamed '$predicate_property_pi'
+ * This is no longer the case.
  */
 
 
@@ -171,22 +171,6 @@ predicate_property(MHead, Property) :-
 	'$pl_err_type'(callable, Head).
 
 
-
-
-:- meta_predicate('$predicate_property_pi'(:, ?)).
-
-'$predicate_property_pi'(PI, Property) :-
-	'$current_predicate_any'(PI),
-	PI = Func/Arity,
-	'$predicate_property1'(user, Func, Arity, Property). %FIXME: Module
-
-
-:- meta_predicate('$predicate_property_pi_any'(:, ?)).
-
-'$predicate_property_pi_any'(PI, Property) :-
-	'$current_predicate_any'(PI),
-	PI = Func/Arity,
-	'$predicate_property1'(user, Func, Arity, Property). % FIXME: Module
 
 
 % FIXME: when stable remove it (used in read_file.pl/syn_sugar.pl

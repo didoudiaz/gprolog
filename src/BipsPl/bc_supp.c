@@ -744,7 +744,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       module = BC_Arg_Module_Func_Arity(*arg_adr++, &func, &arity);
       BC2_Atom(w) = (module == -1) ? pl_atom_user : module;
       w1 = (unsigned) Functor_Arity(func, arity);
-      pred = Pl_Lookup_Pred_Visible(pl_atom_user, func, arity); /* FIXME Module */
+      pred = Pl_Lookup_Pred_Visible(module, func, arity);
       if (pred && (pred->prop & MASK_PRED_NATIVE_CODE))
 	{
 	  op++;			/* switch to _NATIVE codep */
@@ -806,7 +806,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
  * The buffer always bc has enough room for our 3 or 4 words.              *
  *-------------------------------------------------------------------------*/
 static void
-BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep) /* FIXME use module */
+BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep)
 {
   BCWord w;			/* code-op word */
   unsigned w1, w2, w3;		/* additional words */
@@ -815,8 +815,9 @@ BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep) /* F
   C64To32 cv;
 #endif
 
-  w1 = func;
-  BC2_Arity(w) = arity;
+  BC2_Atom(w) = (module == -1) ? pl_atom_user : module;
+  w1 = (unsigned) Functor_Arity(func, arity);
+
 #if WORD_SIZE == 32
   nb_word = 3;
   w2 = (unsigned) codep;
@@ -1001,10 +1002,10 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamCont
-Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, 
+Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord goal_word,
 		   int caller_func, int caller_arity, Bool debug_call)
 {
-  WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, 1));
+  WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
   CodePtr codep;
 
   Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
@@ -1029,7 +1030,8 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr,
     case 1:
       if (func == atom_call)
 	{
-	  arg_adr = Pl_Rd_Callable_Check(*arg_adr, &func, &arity);
+	  goal_word = *arg_adr;
+	  arg_adr = Pl_Rd_Callable_Check(goal_word, &func, &arity);
 	  goto terminal_rec;
 	}
 
@@ -1047,7 +1049,8 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr,
 	  if (Tag_Mask_Of(*arg_adr) != TAG_ATM_MASK) /* should be dereferenced */
 	    break;		/* treat it as a normal goal ! */
 	  module = UnTag_ATM(*arg_adr);
-	  arg_adr = Pl_Rd_Callable_Check(*++arg_adr, &func, &arity);
+	  goal_word = *++arg_adr;
+	  arg_adr = Pl_Rd_Callable_Check(goal_word, &func, &arity);
 	  goto terminal_rec;
 	}
 #endif      
@@ -1058,7 +1061,8 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr,
       if (func == ATOM_CHAR(':'))
 	{
 	  module = Pl_Rd_Atom_Check(*arg_adr);
-	  arg_adr = Pl_Rd_Callable_Check(*++arg_adr, &func, &arity);
+	  goal_word = *++arg_adr;
+	  arg_adr = Pl_Rd_Callable_Check(goal_word, &func, &arity);
 	  goto terminal_rec;
 	}
 
@@ -1119,11 +1123,13 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr,
 
   /* here we have a simple predicate to call */
 
-  debug_call = 1;
-#if 0				  /* FIXME */
+#if 1				  /* FIXME */
   if (pl_debug_call_code != NULL) /* inform the debugger if active */
     {
-      A(0) = pred_word;
+      if (goal_word == NOT_A_WAM_WORD)
+	goal_word = Pl_Mk_Compound(func, arity, arg_adr);
+
+      A(0) = goal_word;
       A(1) = Tag_ATM(module);
       A(2) = call_info_word;
       return pl_debug_call_code;
@@ -1160,7 +1166,8 @@ Pl_BC_Call_5(WamWord goal_word, WamWord module_word,
 
   arg_adr = Pl_Rd_Callable_Check(goal_word, &func, &arity);
 
-  return Pl_BC_Call_Initial(module, func, arity, arg_adr, caller_func, caller_arity, debug_call);
+  return Pl_BC_Call_Initial(module, func, arity, arg_adr, goal_word, 
+			    caller_func, caller_arity, debug_call);
 }
 
 

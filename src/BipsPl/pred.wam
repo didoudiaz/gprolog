@@ -253,41 +253,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$predicate_property_pi'/2,178,static,private,monofile,built_in,[
-    allocate(2),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    put_value(y(0),0),
-    put_meta_term(system,0,0),
-    call('$current_predicate_any'/1),
-    put_value(y(0),0),
-    get_structure((/)/2,0),
-    unify_variable(x(1)),
-    unify_variable(x(2)),
-    put_atom(user,0),
-    put_value(y(1),3),
-    deallocate,
-    execute('$predicate_property1'/4)]).
-
-
-predicate(system:'$predicate_property_pi_any'/2,186,static,private,monofile,built_in,[
-    allocate(2),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    put_value(y(0),0),
-    put_meta_term(system,0,0),
-    call('$current_predicate_any'/1),
-    put_value(y(0),0),
-    get_structure((/)/2,0),
-    unify_variable(x(1)),
-    unify_variable(x(2)),
-    put_atom(user,0),
-    put_value(y(1),3),
-    deallocate,
-    execute('$predicate_property1'/4)]).
-
-
-predicate(system:'$predicate_property1'/3,194,static,private,monofile,built_in,[
+predicate(system:'$predicate_property1'/3,178,static,private,monofile,built_in,[
     get_variable(x(3),2),
     get_variable(x(2),1),
     put_value(x(0),1),
@@ -295,7 +261,7 @@ predicate(system:'$predicate_property1'/3,194,static,private,monofile,built_in,[
     execute('$predicate_property1'/4)]).
 
 
-predicate(system:'$predicate_property1'/4,200,static,private,monofile,built_in,[
+predicate(system:'$predicate_property1'/4,184,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     allocate(5),
@@ -315,7 +281,7 @@ predicate(system:'$predicate_property1'/4,200,static,private,monofile,built_in,[
     execute('$predicate_property2'/4)]).
 
 
-predicate(system:'$check_pred_prop'/1,207,static,private,monofile,built_in,[
+predicate(system:'$check_pred_prop'/1,191,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -438,7 +404,7 @@ label(32),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$predicate_property2'/4,244,static,private,monofile,built_in,[
+predicate(system:'$predicate_property2'/4,228,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -563,52 +529,52 @@ label(30),
     proceed]).
 
 
-predicate(system:'$get_predicate_file_info'/5,289,static,private,monofile,built_in,[
+predicate(system:'$get_predicate_file_info'/5,273,static,private,monofile,built_in,[
     call_c('Pl_Get_Predicate_File_Info_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(system:'$set_predicate_file_info'/5,295,static,private,monofile,built_in,[
+predicate(system:'$set_predicate_file_info'/5,279,static,private,monofile,built_in,[
     call_c('Pl_Set_Predicate_File_Info_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(system:'$aux_name'/1,301,static,private,monofile,built_in,[
+predicate(system:'$aux_name'/1,285,static,private,monofile,built_in,[
     call_c('Pl_Aux_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:'$father_of_aux_name'/3,307,static,private,monofile,built_in,[
+predicate(system:'$father_of_aux_name'/3,291,static,private,monofile,built_in,[
     call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$pred_without_aux'/4,313,static,private,monofile,built_in,[
+predicate(system:'$pred_without_aux'/4,297,static,private,monofile,built_in,[
     call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:'$make_aux_name'/4,319,static,private,monofile,built_in,[
+predicate(system:'$make_aux_name'/4,303,static,private,monofile,built_in,[
     call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:'$declare_meta_predicate'/2,324,static,private,monofile,built_in,[
+predicate(system:'$declare_meta_predicate'/2,308,static,private,monofile,built_in,[
     call_c('Pl_Decl_Meta_Pred_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:strip_module/3,330,static,private,monofile,built_in,[
+predicate(system:strip_module/3,314,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$strip_module_var'/3,334,static,private,monofile,built_in,[
+predicate(system:'$strip_module_var'/3,318,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_Var_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$strip_module_nonvar'/3,338,static,private,monofile,built_in,[
+predicate(system:'$strip_module_nonvar'/3,322,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_Nonvar_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
@@ -658,23 +624,7 @@ directive(143,system,[
     execute('$declare_meta_predicate'/2)]).
 
 
-directive(176,system,[
-    put_atom(user,0),
-    put_structure('$predicate_property_pi'/2,1),
-    unify_atom(:),
-    unify_atom(?),
-    execute('$declare_meta_predicate'/2)]).
-
-
-directive(184,system,[
-    put_atom(user,0),
-    put_structure('$predicate_property_pi_any'/2,1),
-    unify_atom(:),
-    unify_atom(?),
-    execute('$declare_meta_predicate'/2)]).
-
-
-directive(328,system,[
+directive(312,system,[
     put_atom(user,0),
     put_structure(strip_module/3,1),
     unify_atom(:),
