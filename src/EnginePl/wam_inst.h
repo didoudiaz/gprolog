@@ -213,7 +213,11 @@
 
 
 
+#ifdef BOEHM_GC
+#define Is_A_Local_Adr(adr)        ((adr) >= LSSA && ((adr) <= E || (adr) <= B))
+#else /* BOEHM_GC */
 #define Is_A_Local_Adr(adr)        ((adr) >= LSSA)
+#endif /* BOEHM_GC */
 
 
 
@@ -461,13 +465,38 @@ PlLong chain_len;
     }						\
   while (0)
 
+#ifdef BOEHM_GC
+
+#define DEREF_PTR(start_word_ptr, word_ptr, tag_mask)	\
+  do							\
+    {							\
+      WamWord *deref_last_word;				\
+							\
+      word_ptr = start_word_ptr;			\
+							\
+      DEREF_COUNT(nb_deref);				\
+      do						\
+	{						\
+	  DEREF_COUNT(chain_len);			\
+	  deref_last_word = word_ptr;			\
+	  tag_mask = Tag_Mask_Of(*(word_ptr));		\
+	  if (tag_mask != TAG_REF_MASK)			\
+	    break;					\
+	  word_ptr = UnTag_REF(*(word_ptr));		\
+	}						\
+      while (word_ptr != deref_last_word);		\
+    }							\
+  while (0)
+
+#endif /* BOEHM_GC */
 
 
   /* Trail Stack Management */
 
 #ifdef BOEHM_GC
 
-#define Word_Needs_Trailing(adr) TRUE
+#define Word_Needs_Trailing(adr) 			\
+  ((adr) < B || (adr) > E)
 
 #else /* BOEHM_GC */
 
@@ -572,11 +601,11 @@ PlLong chain_len;
     {							\
       WamWord *cur_H;					\
 							\
-      H = alloc(1);					\
-      cur_H = H;					\
+      cur_H = alloc(1);					\
       res_word = Make_Self_Ref(cur_H);			\
       *cur_H = res_word;				\
-      H++;						\
+      cur_H++;						\
+      H = cur_H;					\
       Bind_UV(adr, res_word);				\
     }							\
   while (0)

@@ -56,8 +56,21 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 
  terminal_rec:
 
+#ifdef BOEHM_GC
+  assert( !Tag_Is_LST(start_u_word) && !Tag_Is_STC(start_u_word) && !Tag_Is_FLT(start_u_word) );
+  assert( !Tag_Is_LST(start_v_word) && !Tag_Is_STC(start_v_word) && !Tag_Is_FLT(start_v_word) );
+
+  DEREF_PTR(&start_u_word, u_adr, u_tag_mask);
+  u_word = *u_adr;
+  DEREF_PTR(&start_v_word, v_adr, v_tag_mask);
+  v_word = *v_adr;
+
+  if (u_adr == v_adr)
+    return TRUE;
+#else /* BOEHM_GC */
   DEREF(start_u_word, u_word, u_tag_mask);
   DEREF(start_v_word, v_word, v_tag_mask);
+#endif /* BOEHM_GC */
 
   if (u_tag_mask == TAG_REF_MASK)
     {
@@ -66,10 +79,24 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 	{
 	  v_adr = UnTag_REF(v_word);
 
-	  if (u_adr > v_adr)
-	    Bind_UV(u_adr, Tag_REF(v_adr));
-	  else if (v_adr > u_adr)
-	    Bind_UV(v_adr, Tag_REF(u_adr));
+#ifdef BOEHM_GC
+	  int u_local = Is_A_Local_Adr(u_adr);
+	  int v_local = Is_A_Local_Adr(v_adr);
+	  if (u_local && !v_local || u_local && !v_local)
+	    {
+	      if (u_local)
+		Bind_UV(u_adr, Tag_REF(v_adr));
+	      else
+		Bind_UV(v_adr, Tag_REF(u_adr));
+	    }
+	  else
+#endif /* BOEHM_GC */
+	    {
+	      if (u_adr > v_adr)
+		Bind_UV(u_adr, Tag_REF(v_adr));
+	      else if (v_adr > u_adr)
+		Bind_UV(v_adr, Tag_REF(u_adr));
+	    }
 	}
       else
 	{
@@ -78,6 +105,11 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 	      Check_If_Var_Occurs(u_adr, v_word))
 	    return FALSE;
 #endif
+#ifdef BOEHM_GC
+	  if (Tag_Is_LST(v_word) || Tag_Is_STC(v_word) || Tag_Is_FLT(v_word))
+	    // using v_adr pointer value acquired from DEREF_PTR
+	    v_word = Tag_REF(v_adr);
+#endif /* BOEHM_GC */
 	  Do_Copy_Of_Word(v_tag_mask, v_word);
 	  Bind_UV(u_adr, v_word);
 	}
@@ -95,6 +127,11 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 	  Check_If_Var_Occurs(v_adr, u_word))
 	return FALSE;
 #endif
+#ifdef BOEHM_GC
+      if (Tag_Is_LST(u_word) || Tag_Is_STC(u_word) || Tag_Is_FLT(u_word))
+	// using u_adr pointer value acquired from DEREF_PTR
+	u_word = Tag_REF(u_adr);
+#endif /* BOEHM_GC */
       Do_Copy_Of_Word(u_tag_mask, u_word);
       Bind_UV(v_adr, u_word);
 

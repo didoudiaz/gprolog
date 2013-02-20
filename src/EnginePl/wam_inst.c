@@ -41,7 +41,14 @@
 #include <stdlib.h>
 #ifdef BOEHM_GC
 #include <gc/gc.h>
-#endif
+#if !defined(DEBUG_MEM) && !defined(NDEBUG)
+#define NDEBUG
+#include <assert.h>
+#undef NDEBUG
+#else /* !defined(DEBUG_MEM) && !defined(NDEBUG) */
+#include <assert.h>
+#endif /* !defined(DEBUG_MEM) && !defined(NDEBUG) */
+#endif /* BOEHM_GC */
 
 #include "engine_pl.h"
 
@@ -302,12 +309,16 @@ Pl_Get_Float(double n, WamWord start_word)
     {
 #ifdef BOEHM_GC
 #if WORD_SIZE == 32
-      H = alloc(2);
+      H = alloc(3);
 #else
-      H = alloc(1);
+      H = alloc(2);
 #endif
-#endif /* BOEHM_GC */
+      *H = Tag_FLT(H+1);
+      Bind_UV(UnTag_REF(word), Tag_REF(H));
+      H++;
+#else /* BOEHM_GC */
       Bind_UV(UnTag_REF(word), Tag_FLT(H));
+#endif /* BOEHM_GC */
       Pl_Global_Push_Float(n);
       return TRUE;
     }
@@ -355,9 +366,13 @@ Pl_Get_List(WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      H = alloc(2);
-#endif /* BOEHM_GC */
+      H = alloc(3);
+      Bind_UV(UnTag_REF(word), Tag_REF(H));
+      *H = Tag_LST(H+1);
+      H++;
+#else /* BOEHM_GC */
       Bind_UV(UnTag_REF(word), Tag_LST(H));
+#endif /* BOEHM_GC */
       S = WRITE_MODE;
       return TRUE;
     }
@@ -391,13 +406,21 @@ Pl_Get_Structure_Tagged(WamWord w, WamWord start_word)
       WamWord *cur_H;
 #ifdef BOEHM_GC
       PlULong arity = Arity_Of(w);
-      H = alloc(arity + 1);
-#endif /* BOEHM_GC */
+      cur_H = alloc(arity + 2);
+      *cur_H = Tag_STC(cur_H + 1);
+      cur_H++;
+      H = cur_H;
+#else /* BOEHM_GC */
       cur_H = H;
+#endif /* BOEHM_GC */
       *cur_H = w;
       H++;
       S = WRITE_MODE;
+#ifdef BOEHM_GC
+      Bind_UV(UnTag_REF(word), Tag_REF(cur_H - 1));
+#else /* BOEHM_GC */
       Bind_UV(UnTag_REF(word), Tag_STC(cur_H));
+#endif /* BOEHM_GC */
       return TRUE;
     }
 
@@ -483,7 +506,14 @@ Pl_Put_Unsafe_Value(WamWord start_word)
   WamWord *adr;
   WamWord res_word;
 
+#ifdef BOEHM_GC
+  assert( !Tag_Is_LST(start_word) && !Tag_Is_STC(start_word) && !Tag_Is_FLT(start_word) );
+
+  DEREF_PTR(&start_word, adr, tag_mask);
+  word = Tag_REF(*adr);
+#else /* BOEHM_GC */
   DEREF(start_word, word, tag_mask);
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_REF_MASK &&
       (adr = UnTag_REF(word)) >= (WamWord *) EE(E)
@@ -495,6 +525,12 @@ Pl_Put_Unsafe_Value(WamWord start_word)
       Globalize_Local_Unbound_Var(adr, res_word);
       return res_word;
     }
+
+#ifdef BOEHM_GC
+  if (Tag_Is_LST(word) || Tag_Is_STC(word) || Tag_Is_FLT(word))
+    // using adr pointer value acquired from DEREF_PTR
+    word = Tag_REF(adr);
+#endif /* BOEHM_GC */
 
   Do_Copy_Of_Word(tag_mask, word);
   return word;
@@ -607,10 +643,14 @@ WamWord FC
 Pl_Put_List(void)
 {
 #ifdef BOEHM_GC
-  H = alloc(2);
-#endif /* BOEHM_GC */
+  H = alloc(3);
+  *H = Tag_LST(H+1);
+  S = WRITE_MODE;
+  return Tag_REF(H++);
+#else /* BOEHM_GC */
   S = WRITE_MODE;
   return Tag_LST(H);
+#endif /* BOEHM_GC */
 }
 
 
@@ -627,13 +667,21 @@ Pl_Put_Structure_Tagged(WamWord w)
   WamWord *cur_H;
 #ifdef BOEHM_GC
   PlULong arity = Arity_Of(w);
-  H = alloc(arity + 1);
-#endif /* BOEHM_GC */
+  cur_H = alloc(arity + 2);
+  *cur_H = Tag_STC(cur_H + 1);
+  cur_H++;
+  H = cur_H;
+#else /* BOEHM_GC */
   cur_H = H;
+#endif /* BOEHM_GC */
   *cur_H = w;
   H++;
   S = WRITE_MODE;
+#ifdef BOEHM_GC
+  return Tag_REF(cur_H - 1);
+#else /* BOEHM_GC */
   return Tag_STC(cur_H);
+#endif /* BOEHM_GC */
 }
 
 
@@ -843,12 +891,24 @@ Pl_Unify_Local_Value(WamWord start_word)
   if (S != WRITE_MODE)
     return Pl_Unify(start_word, *S++);
 
+#ifdef BOEHM_GC
+  assert( !Tag_Is_LST(start_word) && !Tag_Is_STC(start_word) && !Tag_Is_FLT(start_word) );
+
+  DEREF_PTR(&start_word, adr, tag_mask);
+  word = Tag_REF(*adr);
+#else /* BOEHM_GC */
   DEREF(start_word, word, tag_mask);
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
     Globalize_Local_Unbound_Var(adr, word);
   else
     {
+#ifdef BOEHM_GC
+      if (Tag_Is_LST(word) || Tag_Is_STC(word) || Tag_Is_FLT(word))
+	// using adr pointer value acquired from DEREF_PTR
+	word = Tag_REF(adr);
+#endif /* BOEHM_GC */
       Do_Copy_Of_Word(tag_mask, word);
       // BOEHM_GC: Suppose already allocated.
       Global_Push(word);
@@ -1000,10 +1060,16 @@ Pl_Unify_List(void)
   if (S != WRITE_MODE)
     return Pl_Get_List(*S);
 
-  // BOEHM_GC: Suppose already allocated.
+#ifdef BOEHM_GC
+  cur_H = H;
+  H = alloc(3);
+  *H = Tag_LST(H+1);
+  *cur_H = Tag_REF(H++);
+#else /* BOEHM_GC */
   cur_H = H;
   *cur_H = Tag_LST(cur_H + 1);
   H++;
+#endif /* BOEHM_GC */
 
   return TRUE;
 }
@@ -1024,11 +1090,21 @@ Pl_Unify_Structure_Tagged(WamWord w)
   if (S != WRITE_MODE)
     return Pl_Get_Structure_Tagged(w, *S);
 
-  // BOEHM_GC: Suppose already allocated.
+#ifdef BOEHM_GC
+  cur_H = H;
+  PlULong arity = Arity_Of(w);
+  H = alloc(arity + 2);
+  *H = Tag_STC(H + 1);
+  *cur_H = Tag_REF(H);
+  H++;
+  *H = w;
+  H++;
+#else /* BOEHM_GC */
   cur_H = H;
   *cur_H = Tag_STC(cur_H + 1);
   cur_H[1] = w;
   H += 2;
+#endif /* BOEHM_GC */
 
   return TRUE;
 }
