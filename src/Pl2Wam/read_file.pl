@@ -666,7 +666,7 @@ handle_directive(initialization, [Body], Where) :-
 handle_directive(module, [Module, DLst], _) :-
 	!,
 	(   g_read(module_already_seen, f) ->
-	    check_module_name(Module, false),
+	    check_module_name(Module, true),
 	    g_assign(module_already_seen, t),
 	    g_assign(module, Module),
 	    add_module_export_info(DLst, Module)
@@ -918,7 +918,11 @@ add_module_export_info(Pred / N, Module) :-
 
 
 check_module_name(Module, true) :-
-	var(Module), !.
+	var(Module), !,
+	g_read(open_file_stack, [FileName * _|_]),
+%		g_read(where, Where),  Where = [FileName * _|_] + _,
+	decompose_file_name(FileName, _, Module, _),
+	check_module_name(Module, false).
 
 check_module_name(Module, _) :-
 	atom(Module), !.
@@ -948,9 +952,9 @@ check_head_is_module_free(_).
 
 check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
 	clause(module_export(Pred, N, Module), true),
-	get_module_of_pred(Pred, N, Module),
+	get_module_of_pred(Pred, N, Module1),
 	Module \== Module1, !,
-	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
+	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred/N, Module1, Module]).
 
 check_module_clash(_, _).
 
@@ -1085,7 +1089,11 @@ unset_pred_info(_, _, _).
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	clause(pred_info(F, N, X), _),
-	X /\ 1 << Bit > 0 .
+	X /\ 1 << Bit > 0, !.
+
+test_pred_info(bpl, F, N) :- % an exported pred in system is a built_in - remove if not wanted
+	g_read(module, system),
+	is_exported(F, N).
 
 
 

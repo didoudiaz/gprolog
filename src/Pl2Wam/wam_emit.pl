@@ -188,34 +188,31 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	;   MonoMulti = monofile
 	),
 	get_module_of_pred(Pred, N, Module),
-	export_type(Pred, N, Module, ExportBplBfd),
+	export_type(Pred, N, ExportBplBfd),
 	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,~a,',
 	       [Module:Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
 
 
 
-export_type(Pred, _, _, local) :-
+export_type(Pred, _, local) :-
 	'$aux_name'(Pred), !.
 
-export_type(Pred, N, Module, local) :-
+export_type(Pred, N, local) :-
 	test_pred_info(multi, Pred, N), !.
 
-export_type(Pred, N, _, built_in) :-
+export_type(Pred, N, built_in) :-
 	test_pred_info(bpl, Pred, N), !.
 
-export_type(Pred, N, _, built_in_fd) :-
+export_type(Pred, N, built_in_fd) :-
 	test_pred_info(bfd, Pred, N), !.
 
-export_type(Pred, N, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
-	is_exported(Pred, N), !.
-
-export_type(_, _, _, global) :-
+export_type(_, _, global) :-	% global means now exported
 	g_read(module_already_seen, f), !.
 
-export_type(Pred, N, _, global) :-
+export_type(Pred, N, global) :-
 	is_exported(Pred, N), !.
 
-export_type(_, _, _, local).
+export_type(_, _, local).
 
 
 
@@ -291,15 +288,14 @@ emit_args(I, N, WamInst, Stream) :-
 
 emit_one_arg([X|L], Stream) :-
 	length(L, N),		% split long lists
-	N > 30,
-	!,
+	N > 30,	!,
 	put_char(Stream, '['),
 	line_position(Stream, P),
 	write_term(Stream, X, [quoted(true), priority(999)]),
 	emit_list(L, P, Stream).
 
 emit_one_arg(A, Stream) :-
-	g_read(native_code, f),	    % if also wanted to .wam remove this line
+	g_read(native_code, f),	    % if also wanted for .wam remove this line
 	emit_one_f_n(A, Stream), !. % if fail breakthrough
 
 emit_one_arg(A, Stream) :-

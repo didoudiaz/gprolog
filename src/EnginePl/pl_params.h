@@ -43,8 +43,6 @@
 
 #define START_PRED_TBL_SIZE        4096
 
-#define START_OBSFUC_TBL_SIZE      32
-
 #define START_OPER_TBL_SIZE        1024
 
 #define ENV_VAR_MAX_ATOM           "MAX_ATOM"

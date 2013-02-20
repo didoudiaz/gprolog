@@ -1,7 +1,9 @@
 Here is the detail of the byte-code encoding
 The first word is always a 32-bits word.
 
-cst32 is a 32-bits words on any machine (an int = index in the atom table).
+atm32 is a 32-bits words on any machine (an int = index in the atom table).
+mod32 is the same as atm32 (or mod24 = cst24)
+
 dbl64 is always a 64-bits word on any machine.
 
 int32 or int64 is a 32-bits word on a 32-bits machine, a 64-bits word on a 64-bits machine.
@@ -22,7 +24,7 @@ Here is the instruction encoding
      GET_X_VALUE	   | x       | x  | op |
      GET_Y_VALUE	   | y       | x  | op |
      GET_ATOM    	   | cst16   | x  | op | 
-     GET_ATOM_BIG    	   | ------- | x  | op | | cst32  |
+     GET_ATOM_BIG    	   | ------- | x  | op | | atm32  |
      GET_INTEGER	   | int16   | x  | op |
      GET_INTEGER_BIG	   | ------- | x  | op | | int32 or int64 |
      GET_FLOAT		   | ------- | x  | op | | dbl64          |
@@ -37,14 +39,14 @@ Here is the instruction encoding
      PUT_Y_VALUE	   | y       | x  | op |
      PUT_Y_UNSAFE_VALUE	   | y       | x  | op |
      PUT_ATOM    	   | cst16   | x  | op |
-     PUT_ATOM_BIG    	   | ------- | x  | op | | cst32  |
+     PUT_ATOM_BIG    	   | ------- | x  | op | | atm32  |
      PUT_INTEGER	   | int16   | x  | op |
      PUT_INTEGER_BIG	   | ------- | x  | op | | int32 or int64 |
      PUT_FLOAT		   | ------- | x  | op | | dbl64          |
      PUT_NIL		   | ------- | x  | op |
      PUT_LIST		   | ------- | x  | op |
      PUT_STRUCTURE	   | arity   | x  | op | | fun32  |
-     PUT_META_TERM	   | x       | x  | op | | cst32   |
+     PUT_META_TERM	   | x       | x  | op | | mod32  |
 
      MATH_LOAD_X_VALUE	   | x       | x  | op |
      MATH_LOAD_Y_VALUE	   | y       | x  | op |
@@ -57,7 +59,7 @@ Here is the instruction encoding
      UNIFY_X_LOCAL_VALUE   | x            | op |
      UNIFY_Y_LOCAL_VALUE   | y            | op |
      UNIFY_ATOM    	   | cst24        | op |
-     UNIFY_ATOM_BIG	   | ------------ | op | | cst32  |  useless while nb of atoms < 2^24
+     UNIFY_ATOM_BIG	   | ------------ | op | | atm32  |  useless while nb of atoms < 2^24
      UNIFY_INTEGER	   | int24        | op |
      UNIFY_INTEGER_BIG	   | ------------ | op | | int32 or int64 |
      UNIFY_NIL		   | ------------ | op |
@@ -67,10 +69,10 @@ Here is the instruction encoding
      ALLOCATE		   | int24        | op |
      DEALLOCATE		   | ------------ | op |
      			    		     
-     CALL		   | arity        | op | | fun32  |  | f/n32  |          (f/n of the caller)
-     CALL_NATIVE	   | arity        | op | | fun32  |  | adr32 or adr64 |
-     EXECUTE		   | arity        | op | | fun32  |  | f/n32  |          (f/n of the caller)
-     EXECUTE_NATIVE	   | arity        | op | | fun32  |  | adr32 or adr64 |
+     CALL		   | mod24        | op | | f/n32  |  | f/n32  |          (f/n of the caller)
+     CALL_NATIVE	   | mod24        | op | | f/n32  |  | adr32 or adr64 |
+     EXECUTE		   | mod24        | op | | f/n32  |  | f/n32  |          (f/n of the caller)
+     EXECUTE_NATIVE	   | mod24        | op | | f/n32  |  | adr32 or adr64 |
      PROCEED		   | ------------ | op |
      FAIL		   | ------------ | op |
      			    		     
