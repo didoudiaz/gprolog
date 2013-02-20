@@ -271,6 +271,8 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
+WamWord * FC Pl_GC_Mem_Alloc(PlULong n_wamwords);
+
 WamWord FC Pl_Create_Functor_Arity_Tagged(char *func_str, int arity);
 
 SwtTbl FC Pl_Create_Swt_Table(int size);
@@ -601,7 +603,7 @@ PlLong chain_len;
     {							\
       WamWord *cur_H;					\
 							\
-      cur_H = alloc(1);					\
+      cur_H = Pl_GC_Mem_Alloc(1);					\
       res_word = Make_Self_Ref(cur_H);			\
       *cur_H = res_word;				\
       cur_H++;						\

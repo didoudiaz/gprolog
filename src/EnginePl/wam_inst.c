@@ -92,7 +92,8 @@ static SwtInf *Locate_Swt_Element(SwtTbl t, int size, PlLong key);
 
 #ifdef BOEHM_GC
 
-WamWord * alloc(PlULong n)
+WamWord * FC
+Pl_GC_Mem_Alloc(PlULong n)
 {
   WamWord *result = 0, *x;
   result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
@@ -309,9 +310,9 @@ Pl_Get_Float(double n, WamWord start_word)
     {
 #ifdef BOEHM_GC
 #if WORD_SIZE == 32
-      H = alloc(3);
+      H = Pl_GC_Mem_Alloc(3);
 #else
-      H = alloc(2);
+      H = Pl_GC_Mem_Alloc(2);
 #endif
       *H = Tag_FLT(H+1);
       Bind_UV(UnTag_REF(word), Tag_REF(H));
@@ -366,7 +367,7 @@ Pl_Get_List(WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      H = alloc(3);
+      H = Pl_GC_Mem_Alloc(3);
       Bind_UV(UnTag_REF(word), Tag_REF(H));
       *H = Tag_LST(H+1);
       H++;
@@ -406,7 +407,7 @@ Pl_Get_Structure_Tagged(WamWord w, WamWord start_word)
       WamWord *cur_H;
 #ifdef BOEHM_GC
       PlULong arity = Arity_Of(w);
-      cur_H = alloc(arity + 2);
+      cur_H = Pl_GC_Mem_Alloc(arity + 2);
       *cur_H = Tag_STC(cur_H + 1);
       cur_H++;
       H = cur_H;
@@ -467,7 +468,7 @@ Pl_Put_X_Variable(void)
   WamWord *cur_H;
 
 #ifdef BOEHM_GC
-  H = alloc(1);
+  H = Pl_GC_Mem_Alloc(1);
 #endif /* BOEHM_GC */
   cur_H = H;
   res_word = Make_Self_Ref(cur_H);
@@ -607,9 +608,9 @@ Pl_Put_Float(double n)
 
 #ifdef BOEHM_GC
 #if WORD_SIZE == 32
-      H = alloc(2);
+      H = Pl_GC_Mem_Alloc(2);
 #else
-      H = alloc(1);
+      H = Pl_GC_Mem_Alloc(1);
 #endif
 #endif /* BOEHM_GC */
   res_word = Tag_FLT(H);
@@ -643,7 +644,7 @@ WamWord FC
 Pl_Put_List(void)
 {
 #ifdef BOEHM_GC
-  H = alloc(3);
+  H = Pl_GC_Mem_Alloc(3);
   *H = Tag_LST(H+1);
   S = WRITE_MODE;
   return Tag_REF(H++);
@@ -667,7 +668,7 @@ Pl_Put_Structure_Tagged(WamWord w)
   WamWord *cur_H;
 #ifdef BOEHM_GC
   PlULong arity = Arity_Of(w);
-  cur_H = alloc(arity + 2);
+  cur_H = Pl_GC_Mem_Alloc(arity + 2);
   *cur_H = Tag_STC(cur_H + 1);
   cur_H++;
   H = cur_H;
@@ -1062,7 +1063,7 @@ Pl_Unify_List(void)
 
 #ifdef BOEHM_GC
   cur_H = H;
-  H = alloc(3);
+  H = Pl_GC_Mem_Alloc(3);
   *H = Tag_LST(H+1);
   *cur_H = Tag_REF(H++);
 #else /* BOEHM_GC */
@@ -1093,7 +1094,7 @@ Pl_Unify_Structure_Tagged(WamWord w)
 #ifdef BOEHM_GC
   cur_H = H;
   PlULong arity = Arity_Of(w);
-  H = alloc(arity + 2);
+  H = Pl_GC_Mem_Alloc(arity + 2);
   *H = Tag_STC(H + 1);
   *cur_H = Tag_REF(H);
   H++;
