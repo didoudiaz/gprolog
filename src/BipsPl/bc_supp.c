@@ -205,12 +205,14 @@ static int atom_call;
 static int atom_catch;
 static int atom_throw;
 
-static int glob_module;		/* for byte-code creation */
+				/* for byte-code creation */
+static int glob_caller_module;
 static int glob_caller_func;
 static int glob_caller_arity;
 
-static int glob_func;
-static DynPInf *glob_dyn;
+				/* for byte-code emulation */
+static PredInf *glob_pred;
+
 static Bool debug_call;
 
 WamCont pl_debug_call_code;	/* overwritten by debugger_c.c */
@@ -234,7 +236,7 @@ static int BC_Arg_Module_Func_Arity(WamWord arg_word, int *func, int *arity);
 
 
 
-WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
+static WamCont BC_Emulate_Pred(PredInf *pred);
 
 static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w);
 
@@ -494,7 +496,7 @@ Pl_BC_Start_Pred_9(WamWord module_word, WamWord func_word, WamWord arity_word,
 	}
     }
 
-  glob_module = module;
+  glob_caller_module = module;
 #if 1
   glob_caller_func = Pl_Pred_Without_Aux(func, arity, &glob_caller_arity);
 #else
@@ -742,7 +744,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case CALL:
     case EXECUTE:
       module = BC_Arg_Module_Func_Arity(*arg_adr++, &func, &arity);
-      BC2_Atom(w) = (module == -1) ? pl_atom_user : module;
+      BC2_Atom(w) = (module == -1) ? glob_caller_module : module;
       w1 = (unsigned) Functor_Arity(func, arity);
       pred = Pl_Lookup_Pred_Visible(module, func, arity);
       if (pred && (pred->prop & MASK_PRED_NATIVE_CODE))
@@ -991,7 +993,7 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+  return BC_Emulate_Pred(pred);
 }
 
 
@@ -1123,7 +1125,6 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 
   /* here we have a simple predicate to call */
 
-#if 1				  /* FIXME */
   if (pl_debug_call_code != NULL) /* inform the debugger if active */
     {
       if (goal_word == NOT_A_WAM_WORD)
@@ -1134,7 +1135,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
       A(2) = call_info_word;
       return pl_debug_call_code;
     }
-#endif
+
   return Execute_Pred(module, func, arity, arg_adr, call_info_word);
 }
 
@@ -1205,39 +1206,36 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 
 
 /*-------------------------------------------------------------------------*
- * PL_BC_EMULATE_PRED                                                      *
+ * BC_EMULATE_PRED                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-WamCont
-Pl_BC_Emulate_Pred(int func, DynPInf *dyn)
+static WamCont
+BC_Emulate_Pred(PredInf *pred)
 {
+  DynPInf *dyn;
   DynCInf *clause;
   WamCont codep;
   int arity;
 
-start:
-  if (dyn == NULL)
-    goto fail;
+  while((dyn = (DynPInf *) pred->dyn) != NULL)
+    {
+      arity = dyn->arity;
+      A(arity) = Pl_Get_Current_Choice();	/* init cut register */
+      A(arity + 1) = debug_call;
 
-  arity = dyn->arity;
-  A(arity) = Pl_Get_Current_Choice();	/* init cut register */
-  A(arity + 1) = debug_call;
+      clause = Pl_Scan_Dynamic_Pred(pred->mod->module, Functor_Of(pred->f_n), arity, 
+				    dyn, A(0), (PlLong (*)()) BC_Emulate_Pred_Alt,
+				    DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
+      if (clause == NULL)
+	break;
 
-  clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-				(PlLong (*)()) BC_Emulate_Pred_Alt,
-				DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
-  if (clause == NULL)
-    goto fail;
+      codep = BC_Emulate_Clause(clause);
+      if (codep)
+	return (codep);
 
-  codep = BC_Emulate_Clause(clause);
-  if (codep)
-    return (codep);
+      pred = glob_pred;
+    }
 
-  func = glob_func;
-  dyn = glob_dyn;
-  goto start;
-
-fail:
   return ALTB(B);
 }
 
@@ -1267,7 +1265,7 @@ BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w)
   debug_call = *w;
 
   codep = BC_Emulate_Clause(clause);
-  return (codep) ? codep : Pl_BC_Emulate_Pred(glob_func, glob_dyn);
+  return (codep) ? codep : BC_Emulate_Pred(glob_pred);
 }
 
 
@@ -1315,6 +1313,7 @@ fail:
 /*-------------------------------------------------------------------------*
  * BC_EMULATE_BYTE_CODE                                                    *
  *                                                                         *
+ * Return NULL for a call to an emulate pred (then in BC_Emulate_Pred).    *
  *-------------------------------------------------------------------------*/
 static WamCont
 BC_Emulate_Byte_Code(BCWord *bc)
@@ -1671,8 +1670,7 @@ bc_loop:
 #if 0
       bc++;			/* useless since CP already set */
 #endif
-      glob_func = func;
-      glob_dyn = (DynPInf *) (pred->dyn);
+      glob_pred = pred;
       return NULL;		/* to then call BC_Emulate_Pred */
 
     case CALL_NATIVE:
@@ -1758,7 +1756,7 @@ Pl_BC_Emulate_Cont_0(void)
   bc = (BCWord *) ((BCI >> 1) << 1);
 
   codep = BC_Emulate_Byte_Code(bc);
-  return (codep) ? codep : Pl_BC_Emulate_Pred(glob_func, glob_dyn);
+  return (codep) ? codep : BC_Emulate_Pred(glob_pred);
 }
 
 

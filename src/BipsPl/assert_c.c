@@ -149,7 +149,7 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, 0, dyn, word, (ScanFct) Retract_Alt, 
+  clause = Pl_Scan_Dynamic_Pred(-1, -1, 0, dyn, word, (ScanFct) Retract_Alt, 
 				(retractall) ? DYN_ALT_FCT_FOR_FAIL : DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
@@ -330,7 +330,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, 0, dyn, word,
+  clause = Pl_Scan_Dynamic_Pred(-1, -1, 0, dyn, word,
 				(ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;

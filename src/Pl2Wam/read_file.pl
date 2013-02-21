@@ -961,10 +961,10 @@ check_module_clash(_, _).
 
 
 
-				% used to know how to qualify a call to a predicate (see code_gen.pl)
+				% used to know how to qualify a call to a predicate (see internal.pl/code_gen.pl)
 get_owner_module(Pred, N, Module) :-
 	clause(module_export(Pred, N, Module), true),
-	Module \== system, !.
+	Module \== system, Module \== user, !.
 
 get_owner_module(_, _, _).
 

@@ -242,16 +242,18 @@ Pl_Remove_One_Choice_Point_1(WamWord b_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_CHOICE_POINT_INFO_4                                                  *
+ * PL_CHOICE_POINT_INFO_5                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
-		    WamWord lastb_word)
+Pl_Choice_Point_Info_5(WamWord b_word, 
+		       WamWord module_word, WamWord func_word, WamWord arity_word,
+		       WamWord lastb_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
-  HashScan scan;
+  HashScan scan_mod, scan;
+  ModuleInf *mod;
   PredInf *pred;
   PredInf *last_pred;
   WamCont code, code1;
@@ -264,21 +266,26 @@ Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
 
   code = (WamCont) ALTB(b);
 
-  for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
-       pred = (PredInf *) Pl_Hash_Next(&scan))
+  for(mod = (ModuleInf *) Pl_Hash_First(pl_module_tbl, &scan_mod); mod;
+      mod = (ModuleInf *) Pl_Hash_Next(&scan_mod))
     {
-      code1 = (WamCont) (pred->codep);
-      if (code >= code1 && code1 >= last_code)
+      for (pred = (PredInf *) Pl_Hash_First(mod->pred_tbl, &scan); pred;
+	   pred = (PredInf *) Pl_Hash_Next(&scan))
 	{
-	  last_pred = pred;
-	  last_code = code1;
+	  code1 = (WamCont) (pred->codep);
+	  if (code >= code1 && code1 >= last_code)
+	    {
+	      last_pred = pred;
+	      last_code = code1;
+	    }
 	}
     }
 
   func = Functor_Of(last_pred->f_n);
   arity = Arity_Of(last_pred->f_n);
 
-  Pl_Get_Atom(func, name_word);
+  Pl_Get_Atom(last_pred->mod->module, module_word);
+  Pl_Get_Atom(func, func_word);
   Pl_Get_Integer(arity, arity_word);
   Pl_Unify(From_B_To_WamWord(BB(b)), lastb_word);
 }
@@ -287,25 +294,27 @@ Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
 
 
 /*-------------------------------------------------------------------------*
- * PL_SCAN_CHOICE_POINT_INFO_3                                             *
+ * PL_SCAN_CHOICE_POINT_INFO_4                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Scan_Choice_Point_Info_3(WamWord b_word, WamWord name_word,
-			 WamWord arity_word)
+Pl_Scan_Choice_Point_Info_4(WamWord b_word, 
+			    WamWord module_word, WamWord func_word,
+			    WamWord arity_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
-  int func, arity;
+  int module, func, arity;
 
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
-  func = Pl_Scan_Choice_Point_Pred(b, &arity);
-  if (func < 0)
+  module = Pl_Scan_Choice_Point_Pred(b, &func, &arity);
+  if (module < 0)
     return FALSE;
 
-  Pl_Get_Atom(func, name_word);
+  Pl_Get_Atom(module, module_word);
+  Pl_Get_Atom(func, func_word);
   Pl_Get_Integer(arity, arity_word);
 
   return TRUE;

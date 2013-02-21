@@ -347,7 +347,7 @@ break :-
 /* interface with command-line option consulting files */
 
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
-	'$catch_no_debug'('$consult2'(File), error(Err, _), true, system, 'command-line', -1),
+	'$catch_no_debug'('$consult2'(File, user), error(Err, _), true, system, 'command-line', -1),
 	nonvar(Err),
 	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	fail.

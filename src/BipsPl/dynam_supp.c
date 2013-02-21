@@ -84,8 +84,9 @@ typedef struct			/* Dynamic clause scanning info   */
 {				/* --------- input data --------- */
   ScanFct alt_fct;		/* fct to call for each clause    */
   int alt_size_info;		/* user alt info size             */
-  int owner_func;		/* func  of the owner (for dbg)   */
-  int owner_arity;		/* arity of the owner (for dbg)   */
+  int owner_module;		/* module of the owner (for dbg)  */
+  int owner_func;		/* func   of the owner (for dbg)  */
+  int owner_arity;		/* arity  of the owner (for dbg)  */
   DynPInf *dyn;			/* associated dyn info            */
   int stop_cl_no;		/* clause # to reach to stop scan */
   DynStamp erase_stamp;		/* max stamp to perform a retract */
@@ -877,7 +878,7 @@ Get_Scan_Choice_Point(WamWord *b)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DynCInf *
-Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
+Pl_Scan_Dynamic_Pred(int owner_module, int owner_func, int owner_arity,
 		     DynPInf *dyn, WamWord first_arg_word,
 		     ScanFct alt_fct, int alt_fct_type,
 		     int alt_info_size, WamWord *alt_info)
@@ -893,13 +894,16 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   CodePtr scan_alt;
 
   if (owner_func < 0)
-    owner_func = Pl_Get_Current_Bip(&owner_arity);
+    {
+      owner_module = pl_atom_system; /* a built-in */
+      owner_func = Pl_Get_Current_Bip(&owner_arity);
+    }
 
-  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
-    : NO_INDEX;
+  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key) : NO_INDEX;
 
   scan.alt_fct = alt_fct;
   scan.alt_size_info = alt_info_size;
+  scan.owner_module = owner_module;
   scan.owner_func = owner_func;
   scan.owner_arity = owner_arity;
   scan.dyn = dyn;
@@ -1092,11 +1096,11 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
 /*-------------------------------------------------------------------------*
  * PL_SCAN_CHOICE_POINT_PRED                                               *
  *                                                                         *
- * returns the functor and initializes the arity of the scan choice point b*
- * or -1 if b is not a scan choice point.                                  *
+ * returns the module and initializes the functor and arity of the scan    *
+ * choice point b. returns -1 if b is not a scan choice point.             *
  *-------------------------------------------------------------------------*/
 int
-Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity)
+Pl_Scan_Choice_Point_Pred(WamWord *b, int *func, int *arity)
 {
   DynScan *scan;
 
@@ -1104,9 +1108,10 @@ Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity)
   if (scan == NULL)
     return -1;
 
+  *func = scan->owner_func;
   *arity = scan->owner_arity;
 
-  return scan->owner_func;
+  return scan->owner_module;
 }
 
 

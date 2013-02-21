@@ -110,7 +110,7 @@
 % write(catch2(Ball, Ball1, Recovery)), nl,
 	!,                                           % normal throw - unifies
 	'$sys_var_put'(8, '$no_ball$'),
-	'$call_internal'(Recovery, Module, CallInfo). %FIXME CallerModule
+	'$call_internal'(Recovery, Module, CallInfo).
 
 '$catch_a_throw'(Ball, _, _, _, _, _) :-         % normal throw - does not unify
 	'$unwind'(Ball).
