@@ -148,7 +148,7 @@ static void Modify_Wam_Word(WamWord *word_adr);
 
 static WamWord *Detect_Stack(WamWord *adr, char **stack_name);
 
-static PredInf *Detect_Pred_From_Code(PlLong *codep);
+static PredInf *Detect_Pred_From_Code(WamCont code);
 
 static Bool Help(void);
 
@@ -252,41 +252,21 @@ Pl_Choice_Point_Info_5(WamWord b_word,
 {
   WamWord word, tag_mask;
   WamWord *b;
-  HashScan scan_mod, scan;
-  ModuleInf *mod;
   PredInf *pred;
-  PredInf *last_pred;
-  WamCont code, code1;
-  WamCont last_code = 0;
-  int func, arity;
 
 
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
-  code = (WamCont) ALTB(b);
+  pred = Detect_Pred_From_Code(ALTB(b));
 
-  for(mod = (ModuleInf *) Pl_Hash_First(pl_module_tbl, &scan_mod); mod;
-      mod = (ModuleInf *) Pl_Hash_Next(&scan_mod))
+  if (pred != NULL)	/* should not occur in practice */
     {
-      for (pred = (PredInf *) Pl_Hash_First(mod->pred_tbl, &scan); pred;
-	   pred = (PredInf *) Pl_Hash_Next(&scan))
-	{
-	  code1 = (WamCont) (pred->codep);
-	  if (code >= code1 && code1 >= last_code)
-	    {
-	      last_pred = pred;
-	      last_code = code1;
-	    }
-	}
+      Pl_Get_Atom(pred->mod->module, module_word);
+      Pl_Get_Atom(Functor_Of(pred->f_n), func_word);
+      Pl_Get_Integer(Arity_Of(pred->f_n), arity_word);
     }
 
-  func = Functor_Of(last_pred->f_n);
-  arity = Arity_Of(last_pred->f_n);
-
-  Pl_Get_Atom(last_pred->mod->module, module_word);
-  Pl_Get_Atom(func, func_word);
-  Pl_Get_Integer(arity, arity_word);
   Pl_Unify(From_B_To_WamWord(BB(b)), lastb_word);
 }
 
@@ -568,7 +548,7 @@ What(void)
       return FALSE;
     }
 
-  if ((pred = Detect_Pred_From_Code(adr)) != NULL)
+  if ((pred = Detect_Pred_From_Code((WamCont) adr)) != NULL)
     {
       func = Functor_Of(pred->f_n);
       arity = Arity_Of(pred->f_n);
@@ -732,7 +712,7 @@ Backtrack(void)
       Detect_Stack(B, &stack_name);
       for (adr = B; adr > Local_Stack + 10; adr = BB(adr))
 	{
-	  pred = Detect_Pred_From_Code((PlLong *) ALTB(adr));
+	  pred = Detect_Pred_From_Code(ALTB(adr));
 
 	  func = Functor_Of(pred->f_n);
 	  arity = Arity_Of(pred->f_n);
@@ -767,7 +747,7 @@ Backtrack(void)
       adr += offset;
     }
 
-  pred = Detect_Pred_From_Code((PlLong *) ALTB(adr));
+  pred = Detect_Pred_From_Code(ALTB(adr));
 
   func = Functor_Of(pred->f_n);
   arity = Arity_Of(pred->f_n);
@@ -1178,25 +1158,26 @@ Detect_Stack(WamWord *adr, char **stack_name)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static PredInf *
-Detect_Pred_From_Code(PlLong *codep)
+Detect_Pred_From_Code(WamCont code)
 {
-  HashScan scan;
+  ModuleInf *mod;
+  HashScan scan_mod, scan;
   PredInf *pred;
+  WamCont cur_code, last_code = 0;
   PredInf *last_pred = NULL;
-  PlLong dist, d;
 
-  for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
-       pred = (PredInf *) Pl_Hash_Next(&scan))
+ for(mod = (ModuleInf *) Pl_Hash_First(pl_module_tbl, &scan_mod); mod;
+     mod = (ModuleInf *) Pl_Hash_Next(&scan_mod))
     {
-      d = codep - pred->codep;
-
-      if ((pred->prop & MASK_PRED_DYNAMIC) || d < 0)
-	continue;
-
-      if (last_pred == NULL || d < dist)
+      for (pred = (PredInf *) Pl_Hash_First(mod->pred_tbl, &scan); pred;
+	   pred = (PredInf *) Pl_Hash_Next(&scan))
 	{
-	  last_pred = pred;
-	  dist = d;
+	  cur_code = (WamCont) (pred->codep);
+	  if (last_code <= cur_code && cur_code <= code) /* cur_code between last_code and code */
+	    {
+	      last_pred = pred;
+	      last_code = cur_code;
+	    }
 	}
     }
 

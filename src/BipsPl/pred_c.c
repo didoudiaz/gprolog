@@ -87,8 +87,6 @@ Pl_Current_Module_2(WamWord module_word, WamWord also_dollar_word)
   HashScan scan;
   ModuleInf *mod;
 
-  /* FIXME: use module */
-
   also_dollar = Pl_Rd_Integer(also_dollar_word);
 
   DEREF(module_word, word, tag_mask);
@@ -710,6 +708,53 @@ Pl_Set_Predicate_File_Info_5(WamWord module_word, WamWord func_word, WamWord ari
   pred->pl_line = pl_line;
 
   return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_MODULE_OF_PRED_4                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Module_Of_Pred_4(WamWord home_module_word, WamWord func_word, WamWord arity_word, 
+			WamWord module_word)
+{
+  int home_module;
+  int func, arity;
+  PredInf *pred;
+  
+  home_module = Pl_Rd_Atom(home_module_word);
+  func = Pl_Rd_Atom(func_word);
+  arity = Pl_Rd_Integer(arity_word);
+
+  pred = Pl_Lookup_Pred_Visible(home_module, func, arity);
+
+  return pred && Pl_Get_Atom(pred->mod->module, module_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_MODULE_OF_GOAL_3                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Module_Of_Goal_3(WamWord home_module_word, WamWord goal_word,
+			WamWord module_word)
+{
+  int home_module;
+  int func, arity;
+  PredInf *pred;
+
+  home_module = Pl_Rd_Atom(home_module_word);
+  Pl_Rd_Callable_Check(goal_word, &func, &arity);
+
+  pred = Pl_Lookup_Pred_Visible(home_module, func, arity);
+
+  return pred && Pl_Get_Atom(pred->mod->module, module_word);
 }
 
 

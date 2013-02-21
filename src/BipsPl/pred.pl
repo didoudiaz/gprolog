@@ -155,8 +155,10 @@ predicate_property(MHead, Property) :-
 	'$head_to_fn'(Head, F, N),
 	'$call_c_test'('Pl_Current_Predicate_4'(Module, HomeModule, F/N, AlsoMask)),
 	functor(Head, F, N),
-	'$predicate_property1'(Module, F, N, Property).
-
+	(   '$predicate_property1'(Module, F, N, Property)
+	;
+	    HomeModule \== Module, Property = imported_from(Module)
+	).
 
 
 
@@ -219,6 +221,8 @@ predicate_property(MHead, Property) :-
 
 '$check_pred_prop'(meta_predicate(_)).
 
+'$check_pred_prop'(imported_from(_)).
+
 '$check_pred_prop'(Property) :-
 	'$pl_err_domain'(predicate_property, Property).
 
@@ -278,6 +282,17 @@ predicate_property(MHead, Property) :-
 
 '$set_predicate_file_info'(Module, F, N, PlFile, PlLine) :-
 	'$call_c_test'('Pl_Set_Predicate_File_Info_5'(Module, F, N, PlFile, PlLine)).
+
+
+
+
+'$get_module_of_pred'(HomeModule, Func, Arity, Module) :-
+	'$call_c_test'('Pl_Get_Module_Of_Pred_4'(HomeModule, Func, Arity, Module)).
+	
+
+'$get_module_of_goal'(HomeModule, Goal, Module) :-
+	'$call_c_test'('Pl_Get_Module_Of_Goal_3'(HomeModule, Goal, Module)).
+	
 
 
 

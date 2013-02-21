@@ -100,11 +100,9 @@ PredInf;
 #ifdef PRED_FILE
 
 char *pl_module_tbl;
-char *pl_pred_tbl;		/* pred table of the user module  */
 
 #else
 
-extern char *pl_pred_tbl;
 extern char *pl_module_tbl;
 
 #endif

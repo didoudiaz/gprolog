@@ -325,7 +325,7 @@ nospyall.
 	;   Msg = 'Spypoint placed on'
 	),
 	assertz('$debug_spy_point'(F, A, Module, Cond)),
-	'$debug_qualify_goal_pretty'(F/A, Module, PI),
+	'$debug_qualify_pi_pretty'(F, A, Module, PI),
 	format(debugger_output, '~a ~q~n', [Msg, PI]), !,
 	'$debug_spy_set'(L, Cond).
 
@@ -339,7 +339,7 @@ nospyall.
 	    Msg = 'Spypoint removed from'
 	;   Msg = 'There is no spypoint on'
 	),
-	'$debug_qualify_goal_pretty'(F/A, Module, PI),
+	'$debug_qualify_pi_pretty'(F, A, Module, PI),
 	format(debugger_output, '~a ~q~n', [Msg, PI]), !,
 	'$debug_spy_reset'(L).
 
@@ -375,7 +375,7 @@ nospyall.
 	write(debugger_output, 'Spypoints:'),
 	nl(debugger_output),
 	clause('$debug_spy_point'(F, A, Module, _), _),
-	'$debug_qualify_goal_pretty'(F/A, Module, PI),
+	'$debug_qualify_pi_pretty'(F, A, Module, PI),
 	format(debugger_output, '   ~q~n', [PI]),
 	fail.
 
@@ -886,14 +886,29 @@ nospyall.
 
 
 
+'$debug_qualify_pi_pretty'(F, A, Module, PI) :-
+	'$get_module_of_pred'(Module, F, A, Module1),
+	'$debug_needs_module'(Module1), !,
+	PI = Module1:F/A.
 
-'$debug_qualify_goal_pretty'(Goal, user, Goal) :-
-	!.
+'$debug_qualify_pi_pretty'(F, A, _, F/A).
 
-'$debug_qualify_goal_pretty'(Goal, system, Goal) :-
-	!.
 
-'$debug_qualify_goal_pretty'(Goal, Module, Module:Goal).
+
+
+
+'$debug_qualify_goal_pretty'(Goal, Module, Goal1) :-
+	'$get_module_of_goal'(Module, Goal, Module1),
+	'$debug_needs_module'(Module1), !,
+	Goal1 = Module1:Goal.
+
+'$debug_qualify_goal_pretty'(Goal, _, Goal).
+
+
+
+'$debug_needs_module'(Module) :-
+	Module \== user,
+	Module \== system.
 
 
 
@@ -959,7 +974,7 @@ nospyall.
 '$debug_disp_alt1'(_, _, _, B) :-                           % dynam clause selection ?
 	'$call_c_test'('Pl_Scan_Choice_Point_Info_4'(B, Module, F, A)),    % fail if not
 	'$pred_without_aux'(F, A, F1, A1),
-	'$debug_qualify_goal_pretty'(F1/A1, Module, PI),
+	'$debug_qualify_pi_pretty'(F1, A1, Module, PI),
 	'$debug_disp_alt2'(PI).
 
 '$debug_disp_alt1'(system, '$catch_internal1', 6, B) :-            % hide debug catch
@@ -984,7 +999,7 @@ nospyall.
 	).
 
 '$debug_disp_alt1'(Module, F, A, _) :-                             % normal predicate
-	'$debug_qualify_goal_pretty'(F/A, Module, PI),
+	'$debug_qualify_pi_pretty'(F, A, Module, PI),
 	'$debug_disp_alt2'(PI).
 
 

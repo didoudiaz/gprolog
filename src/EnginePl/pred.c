@@ -114,21 +114,18 @@ Pl_Init_Pred(void)
   mod_system = Pl_Create_Module(pl_atom_system, pl_atom_system);
   mod_user = Pl_Create_Module(pl_atom_user, pl_atom_user);
 
-  pl_pred_tbl = mod_user->pred_tbl;
 
 /* The following control constructs are defined as predicates ONLY to:
  *
- * - be found by current_predicate/1 (if strict_iso is off)
+ * - be found by current_predicate/1 (in system)
  * - be found by predicate_property/2
  * - prevent their redefinition (e.g. asserta/1 will raise a permission_error)
  *
  * NB: see ISO Core 1 Section 7.5 about what is a "procedure" 
  * (bult-in predicates, control constructs or user defined predicates).
  *
- * Anyway, these predicates should NEVER called. Ensure it ! 
+ * Anyway, these predicates should NEVER be called. Ensure it ! 
  * Check the compiler, meta-calls (call/1) and the debugger...
- *
- * This file is ALWAYS linked (see EnginePl/pred.c).
  */
 
 #ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
