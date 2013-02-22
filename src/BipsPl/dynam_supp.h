@@ -79,7 +79,7 @@ typedef struct dyncinf		/* Dynamic clause information     */
 {				/* ------------------------------ */
   D2ChCell seq_chain;		/* sequential chain               */
   D2ChCell ind_chain;		/* indexical  chain               */
-  DynPInfP dyn;			/* back ptr to associated dyn inf */
+  DynPInfP dyn;			/* associated dyn inf (back link) */
   D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
   char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
@@ -115,6 +115,7 @@ typedef struct dynpinf		/* Dynamic predicate information  */
   char *int_htbl;		/* index if 1st arg=INT (htable)  */
   D2ChHdr lst_ind_chain;	/* index if 1st arg=LST (chain)   */
   char *stc_htbl;		/* index if 1st arg=STC (htable)  */
+  PredInf *pred;		/* associated pred (back link)    */
   int arity;			/* arity (redundant but faster)   */
   int count_a;			/* next clause nb for asserta     */
   int count_z;			/* next clause nb for assertz     */
@@ -144,8 +145,8 @@ void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 
 PredInf *Pl_Update_Dynamic_Pred(int module, int func, int arity, int what_to_do, int pl_file_for_multi);
 
-DynCInf *Pl_Scan_Dynamic_Pred(int owner_module, int owner_func, int owner_arity,
-			      DynPInf *dyn, WamWord first_arg_word,
+DynCInf *Pl_Scan_Dynamic_Pred(PredInf *pred, WamWord first_arg_word,
+			      int owner_module, int owner_func, int owner_arity,
 			      ScanFct alt_fct, int alt_fct_type,
 			      int alt_info_size, WamWord *alt_info);
 

@@ -243,7 +243,6 @@ static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w);
 static WamCont BC_Emulate_Clause(DynCInf *clause);
 
 static WamCont BC_Emulate_Byte_Code(BCWord *bc);
-
 static void Prep_Debug_Call(int module, int func, int arity,
 			    int caller_func, int caller_arity);
 
@@ -954,7 +953,7 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
 	}
       return ALTB(B);		/* i.e. fail */
     }
-#if 0				/* FIXME test module != current module (1st = type_in_module) */
+#if 0	/* we need a test: pred module != calling module (notion of home module ?, first = typein-module of top-level) */
   if (!(pred->prop & MASK_PRED_EXPORTED))
     {
       WamWord word = Pl_Built_Pred_Indic_Error(pred);
@@ -1190,8 +1189,7 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 
   debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
 
-  if (pl_debug_call_code != NULL && debug_call &&
-      (first_call_word & (1 << TAG_SIZE_LOW)))
+  if (pl_debug_call_code != NULL && debug_call && (first_call_word & (1 << TAG_SIZE_LOW)))
     {
       A(0) = pred_word;
       A(1) = module_word;
@@ -1223,8 +1221,9 @@ BC_Emulate_Pred(PredInf *pred)
       A(arity) = Pl_Get_Current_Choice();	/* init cut register */
       A(arity + 1) = debug_call;
 
-      clause = Pl_Scan_Dynamic_Pred(pred->mod->module, Functor_Of(pred->f_n), arity, 
-				    dyn, A(0), (PlLong (*)()) BC_Emulate_Pred_Alt,
+      clause = Pl_Scan_Dynamic_Pred(pred, A(0), 
+				    pred->mod->module, Functor_Of(pred->f_n), arity, 
+				    (PlLong (*)()) BC_Emulate_Pred_Alt,
 				    DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
       if (clause == NULL)
 	break;
@@ -1281,13 +1280,16 @@ BC_Emulate_Clause(DynCInf *clause)
   WamWord head_word, body_word;
   WamWord *arg_adr;
   BCWord *bc;
-  int func, arity;
+  int module, func, arity;
   int i;
 
   bc = (BCWord *) clause->byte_code;
 
   if (bc)			/* emulated code */
     return BC_Emulate_Byte_Code(bc);
+
+  module = clause->dyn->pred->mod->module; /* traverse back links to obtain module */
+
 				/* interpreted code */
   Pl_Copy_Clause_To_Heap(clause, &head_word, &body_word);
 
@@ -1295,16 +1297,13 @@ BC_Emulate_Clause(DynCInf *clause)
 
   for (i = 0; i < arity; i++)	/* head unification */
     if (!Pl_Unify(A(i), *arg_adr++))
-      goto fail;
+      return ALTB(B);		/* fail */
 
   A(3) = A(arity);		/* NB: must be first */
   A(0) = body_word;
-  A(1) = Tag_ATM(pl_atom_user); /* caller module   TODO: FIXME */
+  A(1) = Tag_ATM(module);
   A(2) = Tag_INT(Call_Info(func, arity, debug_call));
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 4);
-
-fail:
-  return ALTB(B);
 }
 
 

@@ -264,7 +264,7 @@ Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word)
   PlLong arity;			/* use PlLong to avoid truncation */
   Pl_Set_C_Bip_Name("set_bip_name", 2);
 
-  /* FIXME ? use the module part ? ignore if system or user ? */
+  /* Use the module part ??? ignore if system or user ? (a Bip is in system) */
   Pl_Strip_Module(func_word, FALSE, FALSE, &func_word);
 
   cur_bip_func = Pl_Rd_Atom_Check(func_word);

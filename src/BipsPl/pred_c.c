@@ -219,7 +219,7 @@ Pl_Current_Predicate_4(WamWord module_word, WamWord home_module_word,
   also_mask = Pl_Rd_Integer(also_mask_word);
 
   also_dollar = also_mask & 1;
-  /*  also_import = also_mask >> 1; / * FIXME */
+  /*  also_import = also_mask >> 1; */
 
 
 #if 0				/* old code */
@@ -299,7 +299,7 @@ Pl_Current_Predicate_Alt_0(void)
   int func, arity, home_module;
   int func1, arity1;
   int also_mask;
-  /*  Bool also_import;	/ * FIXME */
+  /*  Bool also_import;	*/
   Bool also_dollar;		/* 0=user, 1=user+bips, 2=user+bips+dollar */
   Bool all;
 
@@ -314,7 +314,7 @@ Pl_Current_Predicate_Alt_0(void)
   scan.cur_p = (char *) AB(B, 6);
 
   also_dollar = also_mask & 1;
-  /*  also_import = also_mask >> 1;  / * FIXME */
+  /*  also_import = also_mask >> 1;  */
 
   func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
   arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : UnTag_INT(arity_word);

@@ -107,7 +107,6 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
   WamWord head_word1, body_word1;
   int func, arity;
   PredInf *pred;
-  DynPInf *dyn;
   DynCInf *clause;
   WamWord w[2];
 
@@ -139,8 +138,7 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
 			pl_permission_type_static_procedure, word);
     }
 
-  dyn = (DynPInf *) (pred->dyn);
-  if (dyn == NULL)		/* no dynamic info */
+  if (pred->dyn == NULL)	/* no dynamic info */
     return FALSE;
 
   if (arity > 0)
@@ -149,7 +147,7 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, -1, 0, dyn, word, (ScanFct) Retract_Alt, 
+  clause = Pl_Scan_Dynamic_Pred(pred, word, -1, -1, 0, (ScanFct) Retract_Alt, 
 				(retractall) ? DYN_ALT_FCT_FOR_FAIL : DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
@@ -285,7 +283,6 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
   WamWord head_word1, body_word1;
   int module, func, arity;
   PredInf *pred;
-  DynPInf *dyn;
   DynCInf *clause;
   WamWord w[2];
   Bool check_public = Pl_Rd_Boolean(check_public_word);
@@ -320,8 +317,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
 			pl_permission_type_private_procedure, word);
     }
 
-  dyn = (DynPInf *) (pred->dyn);
-  if (dyn == NULL)		/* no dynamic info */
+  if (pred->dyn == NULL)	/* no dynamic info */
     return FALSE;
 
   if (arity > 0)
@@ -330,7 +326,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, -1, 0, dyn, word,
+  clause = Pl_Scan_Dynamic_Pred(pred, word, -1, -1, 0,
 				(ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;

@@ -1637,15 +1637,13 @@ current\_predicate(?predicate\_indicator)
 
 \Description
 
-\texttt{current\_predicate(Pred)} succeeds if there
-exists a predicate indicator of a defined procedure that unifies with
-\texttt{Pred}. All user defined procedures are found, whether static or
-dynamic. Internal system procedures whose name begins
-with \texttt{'\$'} are not found. A user-defined procedure is found
-even when it has no clauses. A user-defined procedure is not found if
-it has been abolished. To conform to the ISO reference, built-in predicates
-are not found except if the \IdxPF{strict\_iso} \Idx{Prolog flag} is switched off \RefSP{set-prolog-flag/2}. This predicate is re-executable on
-backtracking.
+\texttt{current\_predicate(Pred)} succeeds if there exists a predicate
+indicator of a defined procedure that unifies with \texttt{Pred}. All user
+defined procedures are found, whether static or dynamic. Internal system
+procedures whose name begins with \texttt{'\$'} are not found. A user-defined
+procedure is found even when it has no clauses. A user-defined procedure is
+not found if it has been abolished. Only procedures defined in the specified
+module are found. This predicate is re-executable on backtracking.
 
 \begin{PlErrors}
 
@@ -7556,11 +7554,11 @@ system & N \\
 
 \hline
 
-\IdxPFD{host} & an atom & a combination of the OS-vendor-cpu & N \\
+\IdxPFD{host} & an atom & a combination of the cpu-OS-vendor & N \\
 
 \hline
 
-\IdxPFD{arch} & an atom & a combination of the OS-cpu & N \\
+\IdxPFD{arch} & an atom & a combination of the cpu-OS & N \\
 
 \hline
 
@@ -7767,9 +7765,6 @@ The \texttt{strict\_iso} flag is introduced to allow a compatibility with
 other Prolog systems. When turned off the following relaxations apply:
 
 \begin{itemize}
-
-\item built-in predicates are found by \texttt{current\_predicate/1}
-\RefSP{current-predicate/1}.
 
 \item the term parser (\texttt{read/1} and friends) is more indulgent, e.g. \texttt{0''} is
   accepted and returns 39, the \Idx{escape sequence} \texttt{{\bs}s} (space) and

@@ -80,14 +80,22 @@
  * Type Definitions                *
  *---------------------------------*/
 
+
+/* NB: the owner can be different from the predicate wich is scanned. 
+ * for instance for clause(p(X),Y) the owner is system:clause/2.
+ * This information is used by the dbg.
+ *
+ * The information on associated pred (thus module:f/n) can be retrieved from dyn->pred.
+ */
+
 typedef struct			/* Dynamic clause scanning info   */
 {				/* --------- input data --------- */
+  DynPInf *dyn;			/* associated dyn info (back link)*/
+  int owner_module;		/* module of the owner (see above)*/
+  int owner_func;		/* func   of the owner (see above)*/
+  int owner_arity;		/* arity  of the owner (see above)*/
   ScanFct alt_fct;		/* fct to call for each clause    */
   int alt_size_info;		/* user alt info size             */
-  int owner_module;		/* module of the owner (for dbg)  */
-  int owner_func;		/* func   of the owner (for dbg)  */
-  int owner_arity;		/* arity  of the owner (for dbg)  */
-  DynPInf *dyn;			/* associated dyn info            */
   int stop_cl_no;		/* clause # to reach to stop scan */
   DynStamp erase_stamp;		/* max stamp to perform a retract */
   Bool xxx_is_seq_chain;        /* scan all clauses ?             */
@@ -407,6 +415,7 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
   dyn->var_ind_chain.first = dyn->var_ind_chain.last = NULL;
   dyn->lst_ind_chain.first = dyn->lst_ind_chain.last = NULL;
   dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
+  dyn->pred = pred;
   dyn->arity = arity;
   dyn->count_a = -1;
   dyn->count_z = 0;
@@ -878,11 +887,12 @@ Get_Scan_Choice_Point(WamWord *b)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DynCInf *
-Pl_Scan_Dynamic_Pred(int owner_module, int owner_func, int owner_arity,
-		     DynPInf *dyn, WamWord first_arg_word,
+Pl_Scan_Dynamic_Pred(PredInf *pred, WamWord first_arg_word,
+		     int owner_module, int owner_func, int owner_arity,
 		     ScanFct alt_fct, int alt_fct_type,
 		     int alt_info_size, WamWord *alt_info)
 {
+  DynPInf *dyn = (DynPInf *) pred->dyn;	/* not NULL */
   int index_no;
   PlLong key;
   char **p_ind_htbl;
@@ -901,12 +911,12 @@ Pl_Scan_Dynamic_Pred(int owner_module, int owner_func, int owner_arity,
 
   index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key) : NO_INDEX;
 
-  scan.alt_fct = alt_fct;
-  scan.alt_size_info = alt_info_size;
+  scan.dyn = dyn;
   scan.owner_module = owner_module;
   scan.owner_func = owner_func;
   scan.owner_arity = owner_arity;
-  scan.dyn = dyn;
+  scan.alt_fct = alt_fct;
+  scan.alt_size_info = alt_info_size;
   scan.stop_cl_no = dyn->count_z;
   scan.erase_stamp = erase_stamp++;
 
@@ -1001,7 +1011,7 @@ Scan_Dynamic_Pred_Next(DynScan *scan)
 #ifdef DEBUG
   DBGPRINTF("Looking for next clause stamp:%" PL_FMT_d,
 	    (PlLong) (scan->erase_stamp));
-  Check_Dynamic_Clauses(scan->dyn);
+  Check_Dynamic_Clauses((DynPInf *) scan->pred->dyn);
 #endif
 
   scan->clause = NULL;
@@ -1087,7 +1097,7 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
   if (is_last)
     Delete_Last_Choice_Point();
 
-  return (*scan->alt_fct) (clause, alt_info, is_last);
+  return (*scan->alt_fct) (clause, alt_info /*, is_last*/);  /* nobody needs is_last for the moment */
 }
 
 
@@ -1096,8 +1106,8 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
 /*-------------------------------------------------------------------------*
  * PL_SCAN_CHOICE_POINT_PRED                                               *
  *                                                                         *
- * returns the module and initializes the functor and arity of the scan    *
- * choice point b. returns -1 if b is not a scan choice point.             *
+ * returns the module and initializes the functor and arity of the owner   *
+ * of the scan choice point b. returns -1 if b is not a scan choice point. *
  *-------------------------------------------------------------------------*/
 int
 Pl_Scan_Choice_Point_Pred(WamWord *b, int *func, int *arity)
