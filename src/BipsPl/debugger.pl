@@ -247,40 +247,49 @@ leash(L) :-
 
 
 
-spypoint_condition(Goal, _, _) :-
+:- meta_predicate(spypoint_condition(:, ?, ?)).
+
+spypoint_condition(MGoal, Port, Test) :-
 	set_bip_name(spypoint_condition, 3),
+	'$strip_module_nonvar'(MGoal, Module, Goal),
+	'$spypoint_condition1'(Goal, Module, Port, Test).
+
+
+'$spypoint_condition1'(Goal, _, _, _) :-
 	var(Goal), !,
 	'$pl_err_instantiation'.
 
-spypoint_condition(Goal, Port, Test) :-
+'$spypoint_condition1'(Goal, Module, Port, Test) :-
 	callable(Goal), !,
-	'$spypoint_condition1'(Goal, Port, Test).
+	'$spypoint_condition2'(Goal, Module, Port, Test).
 
-spypoint_condition(Goal, _, _) :-
+'$spypoint_condition1'(Goal, _, _, _) :-
 	'$pl_err_type'(callable, Goal).
 
 
-'$spypoint_condition1'(Goal, Port, Test) :-
-	functor(Goal, F, A),	%FIXME Module
-	(   '$current_predicate_any'(F/A) ->
-	    '$debug_spy_set'([F/A], c(Goal, Port, Test)),
+'$spypoint_condition2'(Goal, HomeModule, Port, Test) :-
+	functor(Goal, F, A),
+	(   '$get_module_of_pred'(HomeModule, F, A, Module) ->
+	    '$debug_spy_set'([Module:F/A], c(Goal, Port, Test)),
 	    g_read('$debug_mode', nodebug),
 	    debug
-	;   format(debugger_output, 'Warning: The predicate ~a/~d is undefined~n', [F, A])
+	;
+	    '$debug_qualify_pi_pretty'(F, A, HomeModule, PI),
+	    format(debugger_output, 'Warning: The predicate ~q is undefined~n', [PI])
 	),
 	fail.
 
-'$spypoint_condition1'(_, _, _).
-
+'$spypoint_condition2'(_, _, _, _).
 
 
 
 
 :- meta_predicate(spy(:)).
 
-spy(Spec) :-
+spy(MSpec) :-
 	set_bip_name(spy, 1),
-	'$debug_list_of_pred'(Spec, L),
+	'$strip_module_nonvar'(MSpec, Module, Spec),
+	'$debug_list_of_pred'(Spec, Module, L),
 	'$debug_spy_set'(L, _),
 	L \== [],
 	g_read('$debug_mode', nodebug),
@@ -294,9 +303,10 @@ spy(_).
 
 :- meta_predicate(nospy(:)).
 
-nospy(Spec) :-
+nospy(MSpec) :-
 	set_bip_name(nospy, 1),
-	'$debug_list_of_pred'(Spec, L),
+	'$strip_module_nonvar'(MSpec, Module, Spec),
+	'$debug_list_of_pred'(Spec, Module, L),
 	'$debug_spy_reset'(L),
 	fail.
 
@@ -319,8 +329,8 @@ nospyall.
 
 '$debug_spy_set'([], _).
 
-'$debug_spy_set'([F/A|L], Cond) :-
-	(   retract('$debug_spy_point'(F, A, Module, _)) -> %FIXME Module
+'$debug_spy_set'([Module:F/A|L], Cond) :-
+	(   retract('$debug_spy_point'(F, A, Module, _)) ->
 	    Msg = 'There is already a spypoint on'
 	;   Msg = 'Spypoint placed on'
 	),
@@ -334,8 +344,8 @@ nospyall.
 
 '$debug_spy_reset'([]).
 
-'$debug_spy_reset'([F/A|L]) :-
-	(   retract('$debug_spy_point'(F, A, Module, _)) -> % FIXME Module
+'$debug_spy_reset'([Module:F/A|L]) :-
+	(   retract('$debug_spy_point'(F, A, Module, _)) ->
 	    Msg = 'Spypoint removed from'
 	;   Msg = 'There is no spypoint on'
 	),
@@ -363,9 +373,11 @@ nospyall.
 
 
 '$spy_test_condition'(Goal, Module, Port, c(Goal, Port, Test)) :-
+%format('Spypoint test condition: goal ~q:~q  port: ~w  test: ~q~n', [Module, Goal, Port, Test]),
 	(   var(Test) ->
 	    true
-	;   '$call_no_debug'(Test, Module, spy_conditional, 1), !
+	;
+	    '$call_no_debug'(Test, Module, spy_conditional, 1), !
 	).
 
 
@@ -384,48 +396,64 @@ nospyall.
 
 
 
-'$debug_list_of_pred'(Spec, _) :-
+'$debug_list_of_pred'(Spec, _, _) :-
 	var(Spec), !,
 	'$pl_err_instantiation'.
 
-'$debug_list_of_pred'([], []) :-
+'$debug_list_of_pred'([], _, []) :-
 	!.
 
-'$debug_list_of_pred'([Spec1|Spec2], L) :-
-	!,
-	'$debug_list_of_pred'(Spec1, L1),
-	'$debug_list_of_pred'(Spec2, L2),
-	append(L1, L2, L).
+'$debug_list_of_pred'([Spec|Specs], Module, L) :-
+	'$debug_list_of_pred_one'(Spec, Module, L1),
+	'$debug_list_of_pred'(Specs, Module, L2),
+	append(L1, L2, L), !.
 
-'$debug_list_of_pred'(F/A1 - A2, L) :-
-	'$debug_list_of_pred1'(F, A1, A2, L), !.
+'$debug_list_of_pred'(Spec, Module, L) :-
+	'$debug_list_of_pred_one'(Spec, Module, L).
 
-'$debug_list_of_pred'(F, L) :-
+
+'$debug_list_of_pred_one'(Spec, _, _) :-
+	var(Spec), !,
+	'$pl_err_instantiation'.
+
+'$debug_list_of_pred_one'(MSpec, _, L) :-
+	functor(MSpec, :, 2), !,
+	'$strip_module_nonvar'(MSpec, Module, Spec),
+	'$debug_list_of_pred_one'(Spec, Module, L).
+
+'$debug_list_of_pred_one'(F/A1 - A2, Module, L) :-% be cool ! accept F/(A1-A2) and (F/A1)-A2
+	atom(F), !,
+	'$debug_list_of_pred_one1'(F, A1, A2, Module, L).
+
+'$debug_list_of_pred_one'(F/(A1 - A2), Module, L) :- % be cool ! accept F/(A1-A2) and (F/A1)-A2
+	atom(F), !,
+	'$debug_list_of_pred_one1'(F, A1, A2, Module, L).
+
+'$debug_list_of_pred_one'(F, Module, L) :-
 	atom(F), !,
 	current_prolog_flag(max_arity, Max),
-	'$debug_list_of_pred1'(F, 0, Max, L), !.
+	'$debug_list_of_pred_one1'(F, 0, Max, Module, L).
 
-'$debug_list_of_pred'(PI, L) :-
-	'$get_pred_indic'(PI, user, _, F, A), % FIXME  DefModule, Module
-	'$debug_list_of_pred1'(F, A, A, L).
-
-
+'$debug_list_of_pred_one'(PI, Module, L) :-
+	'$get_pred_indic'(PI, Module, Module1, F, A), % Module = Module1 in fact
+	'$debug_list_of_pred_one1'(F, A, A, Module1, L).
 
 
-'$debug_list_of_pred1'(F, _, _, _) :-
+
+
+'$debug_list_of_pred_one1'(F, _, _, _, _) :-
 	var(F), !,
 	'$pl_err_instantiation'.
 
-'$debug_list_of_pred1'(_, A1, _, _) :-
+'$debug_list_of_pred_one1'(_, A1, _, _, _) :-
 	var(A1), !,
 	'$pl_err_instantiation'.
 
-'$debug_list_of_pred1'(_, _, A2, _) :-
+'$debug_list_of_pred_one1'(_, _, A2, _, _) :-
 	var(A2), !,
 	'$pl_err_instantiation'.
 
-'$debug_list_of_pred1'(F, A1, A2, L) :-
-	atom(F),
+'$debug_list_of_pred_one1'(F, A1, A2, Module, L) :-
 	current_prolog_flag(max_arity, Max),
 	integer(A1),
 	integer(A2),
@@ -434,24 +462,34 @@ nospyall.
 	A2 >= 0,
 	A2 =< Max,
 	g_assign('$debug_work', []),
-	(   '$current_predicate_any'(F/A),
+	(   '$current_predicate_any'(Module:F/A),
 	    A >= A1,
 	    A =< A2,
 	    g_read('$debug_work', X),
-	    g_assign('$debug_work', [F/A|X]),
+	    '$get_module_of_pred'(Module, F, A, Module1),
+	    g_assign('$debug_work', [Module1:F/A|X]),
 	    fail
 	;   g_read('$debug_work', L)
 	),
 	(   L = [],
-	    (   A1 = A2,
-	        Z = A1
-	    ;   A1 = 0,
+	    (   A1 = A2 ->
+	        Z0 = F/A1
+	    ;
+		A1 = 0 ->
 	        A2 = Max,
-	        Z = any
-	    ;   Z = A1 - A2
+	        Z0 = F/any
+	    ;
+		Z0 = F/A1 - A2
 	    ),
-	    format(debugger_output, 'Warning: spy ~a/~w - no matching predicate~n', [F, Z])
-	;   true
+	    (   var(Module) ->
+		Z = Z0
+	    ;
+		Z = Module:Z0
+	    ),
+	    format(debugger_output, 'Warning: spy ~q - no matching predicate~n', [Z]),
+	    fail
+	;
+	    true
 	).
 
 
@@ -462,49 +500,49 @@ nospyall.
           % '$debug_call'/2 is called by meta-call (cf bc_supp.c) when the
           % debugger is active, ie. Set_Debug_Call_Code() has been called
 
-/*
-'$debug_call'(Goal, Module, CallInfo) :-
-%	format('Here in debugger: ~w ~w ~w~n', [Goal, Module, CallInfo]),
-	(   Module \== user, Module \== system ->
-	    Goal1 = Module:Goal
-	;
-	    Goal1 = Goal
-	),
-	'$debug_call'(Goal1, CallInfo).
-*/
 '$debug_call'(notrace, _, _) :-
 	!,
 	notrace.
+
 '$debug_call'(nodebug, _, _) :-
 	!,
 	nodebug.
+
 '$debug_call'(trace, _, _) :-
 	!,
 	trace.
+
 '$debug_call'(debug, _, _) :-
 	!,
 	debug.
+
 '$debug_call'(debugging, _, _) :-
 	!,
 	debugging.
+
 '$debug_call'(leash(L), _, _) :-
 	!,
 	leash(L).
-'$debug_call'(spy(Spec), _, _) :-
+
+'$debug_call'(spy(Spec), Module, _) :-
 	!,
-	spy(Spec).
-'$debug_call'(spypoint_condition(Goal, Port, Test), _, _) :-
+	spy(Module:Spec).
+
+'$debug_call'(spypoint_condition(Goal, Port, Test), Module, _) :-
 	!,
-	spypoint_condition(Goal, Port, Test).
-'$debug_call'(nospy(Spec), _, _) :-
+	spypoint_condition(Module:Goal, Port, Test).
+
+'$debug_call'(nospy(Spec), Module, _) :-
 	!,
-	nospy(Spec).
+	nospy(Module:Spec).
+
 '$debug_call'(nospyall, _, _) :-
 	!,
 	nospyall.
 
 
-'$debug_call'(Goal, Module, CallInfo) :-
+'$debug_call'(Goal, Module0, CallInfo) :-
+	( '$get_module_of_goal'(Module0, Goal, Module), ! ; Module = Module0 ),
 	g_read('$debug_info', DebugInfo),
 	DebugInfo = d(Invoc, OldAncLst),
 	(   OldAncLst = [] ->
@@ -627,6 +665,7 @@ nospyall.
 
 '$debug_port_ignore'(debug, Goal, Module, _, Port) :-
 	'$has_spy_point'(Goal, Module, Cond),
+%format('Port: ~w spypoint on ~w:~q with condition: ~q~n', [Port, Module, Goal, Cond]),
 	(   '$spy_test_condition'(Goal, Module, Port, Cond) ->
 	    fail
 	;   true
@@ -792,7 +831,8 @@ nospyall.
 	functor(Goal, F, A),
 	(   '$get_predicate_file_info'(Module, F, A, PlFile, PlLine) ->
 	    format(debugger_output, '~a/~d defined in ~a:~d~n', [F, A, PlFile, PlLine])
-	;   format(debugger_output, 'no file information for ~a/~d~n', [F, A])
+	;
+	    format(debugger_output, 'no file information for ~a/~d~n', [F, A])
 	),
 	fail.
 
@@ -840,9 +880,9 @@ nospyall.
 '$debug_exec_cmd'(@, _, _, _, _, _, _) :-				% command
 	write(debugger_output, 'Command: '),
 	read(debugger_input, Command),
-	(   '$catch_no_debug'(Command, Err, format(debugger_output, 'Warning: ~w - exception raised ~w~n', [Command, Err]), user, debugger_exec_cmd, 1) ->
+	(   '$catch_no_debug'(Command, Err, format(debugger_output, 'Warning: ~q - exception raised ~w~n', [Command, Err]), user, debugger_exec_cmd, 1) ->
 	    true
-	;   format(debugger_output, 'Warning: ~w - goal failed~n', [Command])
+	;   format(debugger_output, 'Warning: ~q - goal failed~n', [Command])
 	), !,
 	fail.
 
@@ -887,9 +927,9 @@ nospyall.
 
 
 '$debug_qualify_pi_pretty'(F, A, Module, PI) :-
-	'$get_module_of_pred'(Module, F, A, Module1),
-	'$debug_needs_module'(Module1), !,
-	PI = Module1:F/A.
+%	'$get_module_of_pred'(Module, F, A, Module1),
+	'$debug_needs_module'(Module), !,
+	PI = Module:F/A.
 
 '$debug_qualify_pi_pretty'(F, A, _, F/A).
 
@@ -898,9 +938,9 @@ nospyall.
 
 
 '$debug_qualify_goal_pretty'(Goal, Module, Goal1) :-
-	'$get_module_of_goal'(Module, Goal, Module1),
-	'$debug_needs_module'(Module1), !,
-	Goal1 = Module1:Goal.
+%	'$get_module_of_goal'(Module, Goal, Module1),
+	'$debug_needs_module'(Module), !,
+	Goal1 = Module:Goal.
 
 '$debug_qualify_goal_pretty'(Goal, _, Goal).
 
