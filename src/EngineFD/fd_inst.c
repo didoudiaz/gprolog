@@ -113,16 +113,19 @@ static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (in
  * (which is the mask of all chains to reexecute for this var).
  * if Queue_Propag_Mask == 0 the var is not in the queue (else it is).
  *
- * Thus when a constraint is added, it is mandatory that all constraints 
- * are initially not marked. For this, Pl_Fd_Before_Add_Cstr() clears the 
- * variables remaining in the queue (i.e. of the previous constraint post).
- * This occurs if the previous constraint failed in the propagation phase
- * see Pl_Fd_After_Add_Cstr(). NB: in case of success, the queue has been
- * fully scanned and all variable are unmarked (no longer in the queue).
+ * Whan a constraint is told, in case of success, the queue has been
+ * fully scanned and all variable are unmarked (i.e. no longer in the queue).
+ * However, when a failure occurs in the propagation phase, some vars remain
+ * in the queue (marked). Thus Clear_Queue() is called to clean the queue.
+ *
+ *   NB: in 1.4.2, Clear_Queue() was called in Pl_Fd_Before_Add_Cstr() to clear 
+ *   the variables remaining in the queue (i.e. of the previous constraint post).
+ *   But this does not work if FD vars are created/restored (choice-point)
+ *   between a failure (remaining vars in the queue) and the next Clear_Queue().
  *
  * About propagation phase (Pl_Fd_After_Add_Cstr). The queue of constraint
  * having constraints to reconsider (reexecute) is handled as follows:
- * Queue_Next_Fdv_Adr(dummy_fd_var) points to the first variable
+ * Queue_Next_Fdv_Adr(dummy_fd_var) points to the first variable.
  * TP points to the last variable in queue
  * 
  * The queue is empty if TP == dummy_fd_var. Constraints are added at the
@@ -311,19 +314,6 @@ static void Clear_Queue(void);
 
 
 
-#define FD_Word_Needs_Trailing(adr)  ((adr) <  CSB(B))
-
-
-
-
-#define FD_Bind_OV(adr, word)       		\
-  do						\
-    {						\
-      if (FD_Word_Needs_Trailing(adr))		\
-	Trail_OV(adr);				\
-      *(adr) = (word);				\
-    }						\
-  while (0)
 
 
 
@@ -369,8 +359,7 @@ static void Clear_Queue(void);
 
 #ifdef DEBUG_CHECK_DATES_AND_QUEUE
 
-static WamWord *last_bp = dummy_fd_var;
-static WamWord *last_tp = dummy_fd_var;
+static WamWord *last_fdv_avr = NULL; /* a list of all FD vars (see Pl_Fd_New_Variable) */
 
 static void Check_Queue_Consistency(void);
 
@@ -850,7 +839,15 @@ Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF)
 WamWord *
 Pl_Fd_New_Variable(void)
 {
-  WamWord *fdv_adr = CS;
+  WamWord *fdv_adr;
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  Trail_OV(&last_fdv_avr);	/* reserve a cell just before the FD var to link prev FD var (stack) */
+  *CS = (WamWord) last_fdv_avr;
+  last_fdv_avr = CS++;
+#endif
+
+  fdv_adr = CS;
 
   FD_Tag_Value(fdv_adr) = Tag_FDV(fdv_adr);
   FD_INT_Date(fdv_adr) = DATE_ALWAYS;	/* must be awoken as long as tag == FDV */
@@ -946,11 +943,11 @@ Pl_Fd_Before_Add_Cstr(void)
   if (DATE == DATE_NEVER) /* reserve DATE_NEVER (i.e. 0) */
     DATE++;		  /* NB: it is not a problem if DATE == DATE_ALWAYS (i.e. 1) */
 
-  Clear_Queue();
+  TP = dummy_fd_var;		/* the queue is empty */
 
 #ifdef DEBUG_CHECK_DATES_AND_QUEUE
   Check_Queue_Consistency();
-#endif  
+#endif
 }
 
 
@@ -965,22 +962,20 @@ Pl_Fd_Before_Add_Cstr(void)
 static void
 Check_Queue_Consistency(void)
 {
-  WamWord *BP = last_bp;
-  WamWord *fdv_adr;
+  WamWord *fdv_adr = last_fdv_avr;
+  WamWord *prev;
 
-  if (last_tp == dummy_fd_var)	/* empty ? */
-    return;
-
-  for(;;) 
+  while(fdv_adr != NULL)
     {
-      fdv_adr = (WamWord *) BP;
+      prev = (WamWord *) (*fdv_adr); /* link to (cell - 1 of) previous FD var */
+      fdv_adr++;	      /* FD var is just after stack previous links */
+#if 0
+      printf("Checking var:_%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
+#endif
       if (Is_Var_In_Queue(fdv_adr))
 	printf("ERROR QUEUE should be empty but contains var:_%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
 
-      if (BP == last_tp)
-	break;
-		    
-      BP = Queue_Next_Fdv_Adr(BP);
+      fdv_adr = prev;
     }
 }
 
@@ -1305,19 +1300,10 @@ Pl_Fd_After_Add_Cstr(void)
   WamWord *AF;
   PlLong (*fct) ();
 
-#ifdef DEBUG_CHECK_DATES_AND_QUEUE
-  last_bp = NULL;
-  last_tp = TP;
-#endif
-
   if (TP == dummy_fd_var)
     return TRUE;
 
   BP = Queue_Next_Fdv_Adr(dummy_fd_var);
-
-#ifdef DEBUG_CHECK_DATES_AND_QUEUE
-  last_bp = BP;
-#endif
 
   for (;;)
     {
@@ -1355,6 +1341,7 @@ Pl_Fd_After_Add_Cstr(void)
 		  {
 		  failure:
 		    Queue_Next_Fdv_Adr(dummy_fd_var) = BP; /* update begin of remaining queue */
+		    Clear_Queue(); /* Do it now, not in Pl_Fd_Before_Add_Cstr */
 		    return FALSE;
 		  }
 #if 1				/* FD switch */
