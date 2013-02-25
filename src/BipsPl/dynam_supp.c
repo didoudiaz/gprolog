@@ -1011,7 +1011,7 @@ Scan_Dynamic_Pred_Next(DynScan *scan)
 #ifdef DEBUG
   DBGPRINTF("Looking for next clause stamp:%" PL_FMT_d,
 	    (PlLong) (scan->erase_stamp));
-  Check_Dynamic_Clauses((DynPInf *) scan->pred->dyn);
+  Check_Dynamic_Clauses(scan->dyn);
 #endif
 
   scan->clause = NULL;
