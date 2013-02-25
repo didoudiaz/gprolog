@@ -1,3 +1,7 @@
+Mon Feb 25 13:57:51 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in the FD solver
+
 Wed Nov 28 17:04:46 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the compiler for byte-code with op/3 directive
