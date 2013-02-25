@@ -10,7 +10,7 @@
 /* Find a semigroup table so that: ((xy)x)x=y under idempotency hypothesis.*/
 /*                                                                         */
 /* Solution:                                                               */
-/* N = 5   [[1,3,2,5,4],[5,2,4,3,1],[4,5,3,1,2],[2,1,5,4,3],[3,4,1,2,5]]   */
+/* N = 5   [[1,5,4,2,3],[3,2,5,1,4],[2,4,3,5,1],[5,3,1,4,2],[4,1,2,3,5]]   */
 /*                                                                         */
 /* table (x.y is at col x, row y)                                          */
 /*   1  5  4  2  3                                                         */
