@@ -243,6 +243,7 @@ static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w);
 static WamCont BC_Emulate_Clause(DynCInf *clause);
 
 static WamCont BC_Emulate_Byte_Code(BCWord *bc);
+
 static void Prep_Debug_Call(int module, int func, int arity,
 			    int caller_func, int caller_arity);
 
@@ -266,7 +267,7 @@ Prolog_Prototype(CALL_INTERNAL_SOFT_IF, 5);
 
 Prolog_Prototype(CALL_COMPLEX, 5);
 Prolog_Prototype(CATCH_INTERNAL, 5);
-Prolog_Prototype(THROW_INTERNAL, 2);
+Prolog_Prototype(THROW_INTERNAL, 3);
 
 #define BC_Op(w)                   ((w).t1.code_op)
 
@@ -978,12 +979,16 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
 
 	  if (x <= META_PRED_ARG_COLON)
 	    {
+#if 1
 	      printf("in meta-call to %s/%d meta-arg %d = ", pl_atom_tbl[func].name, arity, i);
 	      Pl_Write_Simple(A(i));
+#endif
 	      A(i) = Pl_Put_Meta_Term(module, A(i));
+#if 1
 	      printf(" becomes ");
 	      Pl_Write_Simple(A(i));
 	      printf("\n");
+#endif
 	    }
 	}
     }
@@ -1039,8 +1044,9 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
       if (func == atom_throw)
 	{
 	  A(0) = *arg_adr;
-	  A(1) = call_info_word;
-	  return (CodePtr) Prolog_Predicate(THROW_INTERNAL, 2);
+	  A(1) = Tag_ATM(module);	/* FIXME should be CallerModule or CallerMFA */
+	  A(2) = call_info_word;
+	  return (CodePtr) Prolog_Predicate(THROW_INTERNAL, 3);
 	}
 
 #ifdef META_TERM_HIDDEN

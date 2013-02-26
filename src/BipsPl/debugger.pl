@@ -604,13 +604,16 @@ nospyall.
 				% but don't call 'call_from_debugger since it is a
 				% control-construct (thus its native codep == NULL)
 	    '$call_from_debugger'(Goal, Module, CallInfo)
-	;   Goal = DebugUnify
+%,g_read('$debug_next', DebugNext),format('now I exit ~w   debug_next:~w~n', [Module:Goal,DebugNext])
+	;
+	    Goal = DebugUnify
 	).
 
 
 
 
 '$debug_end_call'(Goal, Module, Invoc1, Index1, AncLst, DebugInfo, OldAncLst) :-
+%write('in end call'(Goal)),nl,
 	'$debug_port'(Goal, Module, Invoc1, Index1, AncLst, exit),
 	setarg(2, DebugInfo, OldAncLst).
 
@@ -650,7 +653,8 @@ nospyall.
 
 '$debug_port2'(Goal, Module, Invoc, _, _, Port, _) :-
 	g_read('$debug_next', DebugNext),
-	'$debug_port_ignore'(DebugNext, Goal, Module, Invoc, Port), !.
+%format(' test port_ignore   debug_next:~w~n', [DebugNext]),
+'$debug_port_ignore'(DebugNext, Goal, Module, Invoc, Port), !.
 
 '$debug_port2'(Goal, Module, Invoc, Index, AncLst, Port, B) :-
 	'$debug_port_prompt'(Goal, Module, Invoc, Index, AncLst, Port, B).
@@ -658,7 +662,7 @@ nospyall.
 
 
 
-'$debug_port_ignore'(nodebug, _, _, _).
+'$debug_port_ignore'(nodebug, _, _, _, _).
 
 '$debug_port_ignore'(debug, Goal, Module, _, _) :-
 	'$has_no_spy_point'(Goal, Module).

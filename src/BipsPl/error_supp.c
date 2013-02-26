@@ -361,6 +361,24 @@ Pl_Get_Current_Bip(int *arity)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_GET_BIP_NAME_2                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Bip_Name_2(WamWord func_word, WamWord arity_word)
+{
+  Pl_Set_C_Bip_Name("get_bip_name", 2);
+
+  Pl_Check_For_Un_Atom(func_word);
+  Pl_Check_For_Un_Integer(arity_word);
+
+  return Pl_Get_Atom(cur_bip_func, func_word) && Pl_Get_Integer(cur_bip_arity, arity_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * UPDATE_CUR_FROM_C_BIP                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/

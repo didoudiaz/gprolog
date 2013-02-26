@@ -105,7 +105,8 @@ current_predicate(MPI) :-
 
 
 	/* '$current_predicate' expects a qualified PI */
-				% AlsoMask = Import(0/1)  Dollar(0/1)
+			% WhichModule = 0=only given, 1=include user, 2=include user and system
+			% AlsoMask = Import(0/1)  Dollar(0/1)
 '$current_predicate'(MPI, WhichModule, AlsoMask) :-
 	'$strip_module_var'(MPI, HomeModule, PI),
 %write('home_module'(HomeModule)),nl,
@@ -147,10 +148,11 @@ predicate_property(MHead, Property) :-
 
 
 	/* '$predicate_property' expects a qualified head */
-				% AlsoMask = Import(0/1)  Dollar(0/1)
+			% WhichModule = 0=only given, 1=include user, 2=include user and system
+			% AlsoMask = Import(0/1)  Dollar(0/1)
 '$predicate_property'(MHead, Property, WhichModule, AlsoMask) :-
 	'$strip_module_var'(MHead, HomeModule, Head),
-	'$current_module'(HomeModule),
+	'$current_module_relax'(HomeModule),
 	'$select_module'(WhichModule, HomeModule, Module),
 	'$head_to_fn'(Head, F, N),
 	'$call_c_test'('Pl_Current_Predicate_4'(Module, HomeModule, F/N, AlsoMask)),

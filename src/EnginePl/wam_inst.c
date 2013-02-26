@@ -612,6 +612,7 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
    * if goal_word is foo:p(...) and the module is bar we will
    * obtain bar:foo:p(...) (so the topmost module is the caller module)
    * But if goal_word is bar:p(...) the goal remains unchanged
+   * See Pl_Set_Calling_Module (and fct like Pl_Strip_Module_Top)
    */
 #if 1	
   WamWord word, tag_mask;

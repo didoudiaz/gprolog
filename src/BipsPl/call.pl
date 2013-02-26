@@ -79,9 +79,11 @@ call_det(Goal, Deterministic) :-
 
 
 /* Goal the goal to execute
- * Module is the module og the Goal
+ * Module is the lookup module for the Goal (i.e. Module:Goal)
  * (this is passed separately to avoid meta-arg creation)
  * CallerFunc/CallerArity: the pred/arity which invoked the call (head of the clause)
+ * NB: add the CallerModule (as CallerMFA: Module/Func/Arity) also for catch/throw
+ * for instance in module foo:p(X):-  bar:call(X), the CallerMFA is foo:p/1 but Module is bar.
  *
  * To be fast a C function is first called: it mainly handles a call to a predicate
  * (and some simple control constructs).
@@ -172,9 +174,9 @@ call_det(Goal, Deterministic) :-
 	!,
 	'$catch_internal'(Goal, Catch, Recovery, Module, CallInfo).
 
-'$call_internal_with_cut'(throw(Ball), _Module, CallInfo, _VarCut) :-
+'$call_internal_with_cut'(throw(Ball), Module, CallInfo, _VarCut) :-
 	!,
-	'$throw_internal'(Ball, /*Module,*/ CallInfo).   % FIXME what to do with Module in throw (for error report)
+	'$throw_internal'(Ball, Module, CallInfo).   % FIXME what to do with Module in throw (for error report, this is not the good Module (should be CallerModule))
 
 '$call_internal_with_cut'(P, Module, CallInfo, _VarCut) :-
 	'$call_c_jump'('Pl_BC_Call_Terminal_Pred_4'(P, Module, CallInfo, 1)).
