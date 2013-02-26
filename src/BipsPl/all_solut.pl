@@ -94,7 +94,7 @@ bagof(Template, Generator, Instances) :-
 
 '$store_solutions'(Template, Generator, Stop, Func) :-
 	'$call_c'('Pl_Stop_Mark_1'(Stop)),
-	(   '$call'(Generator, user, Func, 3), % FIXME CallerModule
+	(   '$call'(Generator, user, Func, 3), % user is OK since Generator is module qualified (meta_predicate decl).
 	    '$call_c'('Pl_Store_Solution_1'(Template)),
 	    fail
 	;   true

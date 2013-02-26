@@ -289,7 +289,7 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
     pred = Pl_Create_Dynamic_Pred(module, func, arity);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Built_Pred_Indic_Error(pred);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -832,7 +832,7 @@ Pl_Update_Dynamic_Pred(int module, int func, int arity, int what_to_do, int pl_f
 
   if ((what_to_do & 1) && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Built_Pred_Indic_Error(pred);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }

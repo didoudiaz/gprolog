@@ -511,7 +511,7 @@ Need_Module_Prefix(int module)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Built_Pred_Indic_Error0(int module, int func, int arity)
+Pl_Build_Pred_Indic_Error0(int module, int func, int arity)
 {
   WamWord term;
 
@@ -539,13 +539,13 @@ Pl_Built_Pred_Indic_Error0(int module, int func, int arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Built_Pred_Indic_Error(PredInf *pred)
+Pl_Build_Pred_Indic_Error(PredInf *pred)
 {
   int module = pred->mod->module;
   int func = Functor_Of(pred->f_n);
   int arity = Arity_Of(pred->f_n);
 
-  return Pl_Built_Pred_Indic_Error0(module, func, arity);
+  return Pl_Build_Pred_Indic_Error0(module, func, arity);
 }
 
 
@@ -562,7 +562,7 @@ Pl_Unknown_Pred_Error(int module, int func, int arity)
 
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_ERROR)
     {
-      term = Pl_Built_Pred_Indic_Error0(module, func, arity);
+      term = Pl_Build_Pred_Indic_Error0(module, func, arity);
       Pl_Err_Existence(pl_existence_procedure, term);
     }
 

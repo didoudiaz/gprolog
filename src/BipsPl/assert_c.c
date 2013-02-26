@@ -133,7 +133,7 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
 
   if (!(pred->prop & MASK_PRED_DYNAMIC))
     { /* dont use module here: can be != pred->mod->module (ex: foo:p/n can refer to user:p/n) */
-      word = Pl_Built_Pred_Indic_Error(pred);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -229,7 +229,7 @@ Pl_Retractall_1(WamWord head_word)
   
   if (!(pred->prop & MASK_PRED_DYNAMIC))
     { /* NB: module can be != pred->mod->module (ex: foo:p/n can refer to user:p/n) */
-      word = Pl_Built_Pred_Indic_Error(pred);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -312,7 +312,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
   
   if (check_public && !(pred->prop & MASK_PRED_PUBLIC))
     {
-      word = Pl_Built_Pred_Indic_Error(pred);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_access,
 			pl_permission_type_private_procedure, word);
     }

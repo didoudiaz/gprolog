@@ -666,18 +666,18 @@ handle_directive(initialization, [Body], Where) :-
 handle_directive(module, [Module, DLst], _) :-
 	!,
 	(   g_read(module_already_seen, f) ->
-	    check_module_name(Module, true),
+	    check_module_name_decl(Module, Module1),
 	    g_assign(module_already_seen, t),
-	    g_assign(module, Module),
-	    add_module_export_info(DLst, Module)
+	    g_assign(module, Module1),
+	    add_module_export_info(DLst, Module1)
 	;
 	    error('directive module/2 already declared', [])
 	).
 
 handle_directive(use_module, [Module, DLst], _) :-
 	!,
-	check_module_name(Module, false),
-	add_module_export_info(DLst, Module).
+	check_module_name_use(Module, Module1),
+	add_module_export_info(DLst, Module1).
 
 handle_directive(meta_predicate, [MetaDecl], Where) :-
 	!,
@@ -917,27 +917,53 @@ add_module_export_info(Pred / N, Module) :-
 	).
 
 
-check_module_name(Module, true) :-
-	var(Module), !,
+
+				% module syntax in module/2 directive
+check_module_name_decl(Module, Module1) :-
+	var(Module), !,				% replace a var by file basename
 	g_read(open_file_stack, [FileName * _|_]),
-%		g_read(where, Where),  Where = [FileName * _|_] + _,
+%	g_read(where, Where),  Where = [FileName * _|_] + _,
 	decompose_file_name(FileName, _, Module, _),
-	check_module_name(Module, false).
+	check_module_name_decl(Module, Module1).
 
-check_module_name(Module, _) :-
-	atom(Module), !.
+check_module_name_decl(Module, Module) :-
+	check_module_name_syntax(Module).
 
-check_module_name(Module, _) :-
-	error('invalid module name (~q) should be an atom', [Module]).
 
-/*
-check_module_name(Module, _) :-
+
+
+				% module syntax in use_module/2 directive
+check_module_name_use(Module, Module2) :-
+	nonvar(Module),
+	Module = library(Module1), !,
+	check_module_name_use(Module1, Module2). % For the moment ignore the surrounding library(...)
+
+check_module_name_use(Module, Module) :-
+	check_module_name_syntax(Module).
+
+
+
+
+
+				% module syntax in M:G
+check_module_name_qualif(Module) :-
+	var(Module), !.
+
+check_module_name_qualif(Module) :-
+	check_module_name_syntax(Module).
+
+
+
+
+
+				% Here Module must be an atom with valid syntax
+check_module_name_syntax(Module) :-
 	atom(Module),
-	\+ atom_property(Module, needs_quotes), !.
+	\+ atom_property(Module, needs_quotes), !. % be less restrictive ? accept upper case
 
-check_module_name(Module, _) :-
-	error('invalid module name (~q) should only containts lower chars', [Module]).
-*/
+check_module_name_syntax(Module) :-
+	error('invalid module name (~q) should be an atom = valid file name', [Module]).
+
 
 
 

@@ -118,7 +118,7 @@ normalize_cuts1((P ; Q), CutVar, (P1 ; Q1)) :-
 	normalize_cuts1(Q, CutVar, Q1).
 
 normalize_cuts1(M:G, CutVar, Body) :-
-	check_module_name(M, true),
+	check_module_name_qualif(M),
 	g_read(module, Module),		% this is for colon_sets_calling_context = true
 	g_assign(module, M),		% this is for colon_sets_calling_context = true
 	normalize_cuts1(G, CutVar, G1),
@@ -168,20 +168,13 @@ distrib_module_qualif((P , Q), M, (P1 , Q1)) :-
 
 distrib_module_qualif(M:G, _, G1) :-
 	!,
-	check_module_name(M, true),
+	check_module_name_qualif(M),
 	distrib_module_qualif(G, M, G1).
 
 distrib_module_qualif(!, _, !) :-
 	!.
 
 distrib_module_qualif(P, M, M:P).
-
-distrib_module_qualif_goal(G, _, G) :-
-	nonvar(G),
-	G = M:_, !,		% already qualifed with a module
-	check_module_name(M, true).
-
-distrib_module_qualif_goal(G, M, M:G).
 
 
 

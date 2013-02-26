@@ -956,7 +956,7 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
 #if 0	/* we need a test: pred module != calling module (notion of home module ?, first = typein-module of top-level) */
   if (!(pred->prop & MASK_PRED_EXPORTED))
     {
-      WamWord word = Pl_Built_Pred_Indic_Error(pred);
+      WamWord word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_execute, 
                         pl_permission_type_non_exported_procedure, word);                        
     }
@@ -1144,7 +1144,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 /*-------------------------------------------------------------------------*
  * PL_BC_CALL_5                                                            *
  *                                                                         *
- * called by '$call'/4 and '$call_no_debug'/5                              *
+ * called by '$call'/4 and '$call_no_debug'/4                              *
  *-------------------------------------------------------------------------*/
 WamCont 
 Pl_BC_Call_5(WamWord goal_word, WamWord module_word, 

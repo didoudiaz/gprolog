@@ -283,9 +283,9 @@ void Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
 
 void Pl_Syntax_Error(int flag_value);
 
-WamWord Pl_Built_Pred_Indic_Error0(int module, int func, int arity);
+WamWord Pl_Build_Pred_Indic_Error0(int module, int func, int arity);
 
-WamWord Pl_Built_Pred_Indic_Error(PredInf *pred);
+WamWord Pl_Build_Pred_Indic_Error(PredInf *pred);
 
 void Pl_Unknown_Pred_Error(int module, int func, int arity);
 

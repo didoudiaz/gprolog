@@ -76,19 +76,19 @@ call_det(Goal, Deterministic) :-
 	).
 
 
-				% FIXME COMMENT
+
+
 /* Goal the goal to execute
- * Module is the module where the call comes from (calling module)
+ * Module is the module og the Goal
  * (this is passed separately to avoid meta-arg creation)
  * CallerFunc/CallerArity: the pred/arity which invoked the call (head of the clause)
  *
  * To be fast a C function is first called: it mainly handles a call to a predicate
  * (and some simple control constructs).
  *
- * For more complex constructs it calls (via return) '$call_complex'
+ * For more complex constructs it calls (via return) '$call_internal_xxx' predicates
  * It has set bip_name to CallerFunc/CallerArity.
- * CallInfo is dereferenced
- * QualifModule the module qualification of a goal (default: same as Module)
+ * The predicates containing '_internal' accept a CallInfo (which is dereferenced)
  */
 
 
