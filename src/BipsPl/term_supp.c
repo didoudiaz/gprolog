@@ -1249,7 +1249,7 @@ Pl_Term_To_Goal(WamWord term_word, int module, WamWord call_info_word)
 {
   WamWord goal_word;
 
-  t2g_term_word = t2g_term_word;
+  t2g_term_word = term_word;
   t2g_module = module;
   t2g_call_info_word = call_info_word;
 
