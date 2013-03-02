@@ -12,6 +12,7 @@
 *.out 
 tmp
 TMP
+*.dSYM
 *.lib
 *.pdb
 *.idb
