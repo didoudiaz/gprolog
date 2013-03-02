@@ -55,6 +55,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
+
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
 #elif defined(_WIN32)
@@ -325,15 +327,16 @@ Pl_Allocate_Stacks(void)
 #endif
       if (addr)
         {
-          addr = (WamWord *) Round_Down((PlLong) addr, getpagesize());
-          addr -= length;
+          addr = (WamWord *) Round_Down((PlULong) addr, getpagesize());
+          addr = (WamWord *) ((PlULong) (addr) - length);
         }
 #ifdef DEBUG
-      DBGPRINTF("base: %p length: %d\n", addr, length);
+      DBGPRINTF("base: %p length: %d Kb\n", addr, length / 1024);
 #endif
       addr = Virtual_Mem_Alloc(addr, length);
+
 #ifdef DEBUG
-      DBGPRINTF("obtaining: %p\n", addr);
+      DBGPRINTF("obtaining: %p  (end: %p)\n", addr, (WamWord *) ((PlULong) addr + length));
 #endif
 #if TAG_SIZE_HIGH > 0
       if (addr && (((PlULong) (addr) + length) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0)
@@ -356,6 +359,11 @@ Pl_Allocate_Stacks(void)
       stk_sz = pl_stk_tbl[i].size;
       if (stk_sz == 0)
 	stk_sz = page_size;	/* at least one page for magic numbers */
+#ifdef DEBUG
+      DBGPRINTF("  stack: %d %-10s length: %5ld Kb   addr:[%p..%p[ + 1 free page, next addr: %p\n", 
+		i, pl_stk_tbl[i].name, stk_sz * sizeof(WamWord) / 1024, 
+		addr, addr + stk_sz, addr + stk_sz + page_size);
+#endif
       addr += stk_sz;
       Virtual_Mem_Protect(addr, page_size * sizeof(WamWord));
       addr += page_size;
@@ -634,7 +642,12 @@ Default_SIGSEGV_Handler(void *bad_addr)
 		  i, pl_stk_tbl[i].stack + pl_stk_tbl[i].size);
 #endif
         if (addr >= pl_stk_tbl[i].stack + pl_stk_tbl[i].size)
-          Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
+	  {
+#ifdef DEBUG
+	    DBGPRINTF("Found overflow on stack[%d]\n", i);
+#endif
+	    Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
+	  }
         i--;
       }
 
