@@ -56,9 +56,7 @@ predicate(system:'$sr_open/3_$aux1'/1,72,static,private,monofile,local,[
 
 label(1),
     trust_me_else_fail,
-    put_value(x(0),1),
-    put_atom(variable,0),
-    execute('$pl_err_type'/2)]).
+    execute('$pl_err_uninstantiation'/1)]).
 
 
 predicate(system:'$set_sr_defaults'/0,105,static,private,monofile,built_in,[
@@ -526,9 +524,9 @@ predicate(system:sr_read_term/4,251,static,private,monofile,built_in,[
     unify_local_value(y(2)),
     put_variable(y(5),1),
     put_atom(true,2),
-    put_atom(sr_read_term,3),
-    put_integer(3,4),
-    put_atom(false,5),
+    put_atom(system,3),
+    put_atom(sr_read_term,4),
+    put_integer(3,5),
     call('$catch'/6),
     call_c('Pl_SR_Update_Position_0',[],[]),
     put_value(y(5),0),
@@ -658,9 +656,9 @@ predicate(system:'$$sr_treat_term/2_$aux2'/4,286,static,private,monofile,local,[
     unify_local_value(x(3)),
     unify_local_value(x(5)),
     put_value(x(3),1),
-    put_atom(any,3),
-    put_integer(0,4),
-    put_atom(false,5),
+    put_atom(system,3),
+    put_atom(any,4),
+    put_integer(0,5),
     execute('$catch'/6),
 
 label(1),
