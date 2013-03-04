@@ -1038,7 +1038,7 @@ load_module_interface(Module, DLst, Module1, DLst1) :-
 	),
 	prolog_file_name(File0, PlFile),
 	catch(load_module_interface1(PlFile, Module, DLst, DLst1), Err, load_module_interface_err(Err, Module)), !,
-%	format('for use_module(~w) imports are: ~w~n', [Module, DLst1]),
+%format('for use_module(~w) imports are: ~w~n', [Module, DLst1]),
 	true.
 
 
@@ -1062,6 +1062,7 @@ load_module_interface1(PlFile, Module, DLst, DLst2) :-
 		)
 	    ;
 		Directive = meta_predicate(MetaDecl), % FIXME accept several MetaDecls
+%    format('interface of ~w: read ~w~n', [Module, MetaDecl]),
 		(   callable(MetaDecl) ->
 		    functor(MetaDecl, Pred, N),
 		    % set_flag_for_preds(Pred/N, meta), % useless for the moment
