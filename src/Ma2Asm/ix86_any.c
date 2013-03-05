@@ -149,7 +149,7 @@ int load_pb_reg = 0;
 int pb_label_no = 0;
 char pb_label[32];
 
-int needs_pre_pass = 1;
+int needs_pre_pass = 1;		/* overwritte var of ma_parser.c */
 
 #include "../Wam2Ma/bt_string.h"
 BTString bt_stub;

@@ -410,7 +410,7 @@ Parser(int pass_no, int nb_passes)
 	    cur_line_p++;
 	  if (*cur_line_p != '=')
 	    {
-	      Decl_Long(name, global, NONE, 0);
+	      Decl_Long(name, global, NONE, 1); /* default: NONE as value = 1 (value = array size = 1) */
 	      break;
 	    }
 	  cur_line_p++;		/* skip the = */
