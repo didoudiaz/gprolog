@@ -271,7 +271,9 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
+#ifdef BOEHM_GC
 WamWord * FC Pl_GC_Mem_Alloc(PlULong n_wamwords);
+#endif /* BOEHM_GC */
 
 WamWord FC Pl_Create_Functor_Arity_Tagged(char *func_str, int arity);
 
@@ -598,12 +600,12 @@ PlLong chain_len;
 
 #ifdef BOEHM_GC
 
-#define Globalize_Local_Unbound_Var(adr, res_word)	\
+#define Allocate_Local_Unbound_Var(adr, res_word)	\
   do							\
     {							\
       WamWord *cur_H;					\
 							\
-      cur_H = Pl_GC_Mem_Alloc(1);					\
+      cur_H = Pl_GC_Mem_Alloc(1);			\
       res_word = Make_Self_Ref(cur_H);			\
       *cur_H = res_word;				\
       cur_H++;						\
@@ -612,7 +614,7 @@ PlLong chain_len;
     }							\
   while (0)
 
-#else /* BOEHM_GC */
+#endif /* BOEHM_GC */
 
 #define Globalize_Local_Unbound_Var(adr, res_word)	\
   do							\
@@ -625,8 +627,6 @@ PlLong chain_len;
       Bind_UV(adr, res_word);				\
     }							\
   while (0)
-
-#endif /* BOEHM_GC */
 
 
 

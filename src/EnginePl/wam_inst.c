@@ -85,13 +85,13 @@ static SwtInf *Locate_Swt_Element(SwtTbl t, int size, PlLong key);
 
 
 
-
-/*---------------------------------*
- * Local functions                 *
- *---------------------------------*/
-
 #ifdef BOEHM_GC
 
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Mem_Alloc                                                         *
+ *                                                                         *
+ * Allocates memory for the garbage collected heap.                        *
+ *-------------------------------------------------------------------------*/
 WamWord * FC
 Pl_GC_Mem_Alloc(PlULong n)
 {
@@ -103,10 +103,12 @@ Pl_GC_Mem_Alloc(PlULong n)
 	  *x=0;
       }
   }
+  assert( Tag_Is_REF(result) );
   return result;
 }
 
 #endif /* BOEHM_GC */
+
 
 /*-------------------------------------------------------------------------*
  * PL_CREATE_FUNCTOR_ARITY_TAGGED                                          *
@@ -523,7 +525,11 @@ Pl_Put_Unsafe_Value(WamWord start_word)
 #endif
      )
     {
+#ifdef BOEHM_GC
+      Allocate_Local_Unbound_Var(adr, res_word);
+#else /* BOEHM_GC */
       Globalize_Local_Unbound_Var(adr, res_word);
+#endif /* BOEHM_GC */
       return res_word;
     }
 
