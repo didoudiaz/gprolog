@@ -40,26 +40,21 @@
 :-	built_in.
 
 '$use_throw'.
+/*
+'$throw'(Ball, CallerModule, CallerFunc, CallerArity) :-
+	format('  throw(~w,~w,~w,~w)~n',[Ball, CallerModule, CallerFunc, CallerArity]),
+	fail.
+*/
 
-
-'$throw'(Ball, Func, Arity, DebugCall) :-
-	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
-	'$throw1'(Ball, 0).
-
-
-'$throw1'(Ball, CallInfo) :-
-	'$call_c'('Pl_Load_Call_Info_Arg_1'(1)),   % to ensure CallInfo is deref
-	'$throw_internal'(Ball, CallInfo).
-
-
-'$throw_internal'(Ball, CallInfo) :-
-	(   var(Ball) ->
-	    '$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
-	    '$pl_err_instantiation'
-	;   true
-	),
+'$throw'(Ball, _, _, _) :-
+	nonvar(Ball), !,
 	'$sys_var_put'(8, Ball),
 	'$unwind'(Ball).
+
+'$throw'(_Ball, _CallerModule, CallerFunc, CallerArity) :-
+%	'$call_c'('Pl_Set_Error_MFA'(CallerModule, CallerFunc, CallerArity)), % FIXME
+	'$call_c'('Pl_Set_Bip_Name_2'(CallerFunc, CallerArity)),
+	'$pl_err_instantiation'.
 
 
 
@@ -68,3 +63,14 @@
 	'$sys_var_read'(7, Handler),
 	'$call_c'('Pl_Throw_2'(Ball, Handler)),              % mainly does a cut
 	fail.
+
+
+% FIXME remove this when MFA is correctly handled everywhere (in call/catch)
+
+'$throw_internal'(Ball, CallerModule, CallInfo) :- %NB not really CallerModule but Module (see call.pl comment)
+	'$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
+	'$call_c'('Pl_Get_Bip_Name_2'(CallerFunc, CallerArity)),
+%format('In throw(~w,~w,~w,~w)~n',[Ball, CallerModule, CallerFunc, CallerArity]),
+	'$throw'(Ball, CallerModule, CallerFunc, CallerArity).
+	
+

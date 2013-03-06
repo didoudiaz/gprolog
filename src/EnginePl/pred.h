@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : Prolog engine                                                   *
  * File  : pred.h                                                          *
- * Descr.: predicate table management - header file                        *
+ * Descr.: module/predicate table management - header file                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -50,8 +50,15 @@
 #define MASK_PRED_BUILTIN_FD        16	  /* FD built-in pred  (==> MASK_PRED_BUILTIN) */
 #define MASK_PRED_CONTROL_CONSTRUCT 32	  /* control_construct (==> MASK_PRED_BUILTIN) */
 #define MASK_PRED_MULTIFILE         64	  /* multifile or monofile */
-#define MASK_PRED_EXPORTED          128	  /* exported by module not yet used - for future */
+#define MASK_PRED_EXPORTED          128	  /* exported by module */
+#define MASK_PRED_META_PRED         256	  /* has a meta_predicate declaration (see macros) */
 
+
+        /* Each meta_predicate arg specif is coded on 4 bits (0..10 are for integ) */
+#define META_PRED_ARG_COLON         11 	  /* meta spec : (meta) */
+#define META_PRED_ARG_PLUS          12	  /* meta spec + (nonvar) */
+#define META_PRED_ARG_MINUS         13	  /* meta spec - (var) */
+#define META_PRED_ARG_QUESTION      14	  /* meta spec ? (any term) */
 
 
 
@@ -60,12 +67,24 @@
  * Type Definitions                *
  *---------------------------------*/
 
+typedef uint64_t MetaSpec;	/* 4-bits/arg for meta_pred spec  */
+
+typedef struct			/* Module information             */
+{				/* ------------------------------ */
+  long module;			/* key is the atom module         */
+  int pl_file;			/* atom pl file of its definiton  */
+  char *pred_tbl;		/* predicate table of the module  */
+}
+ModuleInf;
+
 typedef struct			/* Predicate information          */
 {				/* ------------------------------ */
   PlLong f_n;			/* key is <functor_atom,arity>    */
+  ModuleInf *mod;		/* associated module (back link)  */
   int pl_file;			/* atom pl file of its definiton  */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */
+  MetaSpec meta_spec;		/* meta_predicate specifier       */
   PlLong *codep;		/* compiled code                  */
   PlLong *dyn;			/* dynamic info (cf BipsPl)       */
 }
@@ -80,11 +99,11 @@ PredInf;
 
 #ifdef PRED_FILE
 
-char *pl_pred_tbl;
+char *pl_module_tbl;
 
 #else
 
-extern char *pl_pred_tbl;
+extern char *pl_module_tbl;
 
 #endif
 
@@ -97,9 +116,26 @@ extern char *pl_pred_tbl;
 
 void Pl_Init_Pred(void);
 
-PredInf * FC Pl_Create_Pred(int func, int arity, int pl_file, int pl_line,
-			    int prop, PlLong *codep);
 
-PredInf * FC Pl_Lookup_Pred(int func, int arity);
+ModuleInf *Pl_Create_Module(int module, int pl_file);
 
-void FC Pl_Delete_Pred(int func, int arity);
+ModuleInf *Pl_Lookup_Module(int module);
+
+void Pl_Delete_Module(int module);
+
+
+void Pl_Create_Pred_Table(void);
+
+PredInf * FC Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line,
+			    int prop, long *codep);
+
+PredInf *Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line,
+			     int prop, long *codep, int meta_arg[]);
+
+PredInf *Pl_Lookup_Pred(int module, int func, int arity);
+
+PredInf *Pl_Lookup_Pred_Visible(int module, int func, int arity);
+
+PredInf *Pl_Check_Sys_Pred_Exist(char *name, int arity);
+
+void Pl_Delete_Pred(int module, int func, int arity);

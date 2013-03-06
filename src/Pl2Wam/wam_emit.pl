@@ -50,7 +50,7 @@
  * get_nil(A)                               put_nil(A)                     *
  * get_list(A)                              put_list(A)                    *
  * get_structure(F/N, A)                    put_structure(F/N, A)          *
- *                                          hide_meta_term(A)              *
+ *                                          put_meta_term(M, X, A)         *
  *                                                                         *
  *                                          math_load_value(V, A)          *
  *                                          math_fast_load_value(V, A)     *
@@ -187,36 +187,32 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	    MonoMulti = multifile
 	;   MonoMulti = monofile
 	),
-	g_read(module, Module0),
-	export_type(Pred, N, Module0, _Module, ExportBplBfd),
-  		% MODULES: then add Module:Pred/N instead of Pred/N in the next line
+	get_module_of_pred(Pred, N, Module),
+	export_type(Pred, N, ExportBplBfd),
 	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,~a,',
-	       [Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
+	       [Module:Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
 
 
 
-export_type(Pred, _, Module, Module, local) :-
+export_type(Pred, _, local) :-
 	'$aux_name'(Pred), !.
 
-export_type(Pred, N, Module, Module, local) :-
+export_type(Pred, N, local) :-
 	test_pred_info(multi, Pred, N), !.
 
-export_type(Pred, N, _, system, built_in) :-
+export_type(Pred, N, built_in) :-
 	test_pred_info(bpl, Pred, N), !.
 
-export_type(Pred, N, _, system, built_in_fd) :-
+export_type(Pred, N, built_in_fd) :-
 	test_pred_info(bfd, Pred, N), !.
 
-export_type(Pred, N, system, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
-	is_exported(Pred, N), !.
-
-export_type(_, _, Module, Module, global) :-
+export_type(_, _, global) :-	% global means now exported
 	g_read(module_already_seen, f), !.
 
-export_type(Pred, N, Module, Module, global) :-
+export_type(Pred, N, global) :-
 	is_exported(Pred, N), !.
 
-export_type(_, _, Module, Module, local).
+export_type(_, _, local).
 
 
 
@@ -292,15 +288,14 @@ emit_args(I, N, WamInst, Stream) :-
 
 emit_one_arg([X|L], Stream) :-
 	length(L, N),		% split long lists
-	N > 30,
-	!,
+	N > 30,	!,
 	put_char(Stream, '['),
 	line_position(Stream, P),
 	write_term(Stream, X, [quoted(true), priority(999)]),
 	emit_list(L, P, Stream).
 
 emit_one_arg(A, Stream) :-
-	g_read(native_code, f),	    % if also wanted to .wam remove this line
+	g_read(native_code, f),	    % if also wanted for .wam remove this line
 	emit_one_f_n(A, Stream), !. % if fail breakthrough
 
 emit_one_arg(A, Stream) :-

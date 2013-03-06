@@ -150,7 +150,7 @@ uninstall-examples:
 
 # --- CHECKS --- #
 
-check:
+check: all
 	. ./SETVARS; \
 	(cd EnginePl; $(MAKE) check) && \
 	(cd Ma2Asm; $(MAKE) check) && \

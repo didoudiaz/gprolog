@@ -1,114 +1,371 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.4.3
 % file    : call_args.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/call_args.pl').
 
 
-predicate('$use_call_args'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_call_args'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(call_with_args/1,46,static,private,monofile,built_in,[
+predicate(system:call_with_args/1,57,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,0]),
     proceed]).
 
 
-predicate(call_with_args/2,49,static,private,monofile,built_in,[
+predicate(system:call_with_args/2,60,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,1]),
     proceed]).
 
 
-predicate(call_with_args/3,52,static,private,monofile,built_in,[
+predicate(system:call_with_args/3,63,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,2]),
     proceed]).
 
 
-predicate(call_with_args/4,55,static,private,monofile,built_in,[
+predicate(system:call_with_args/4,66,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,3]),
     proceed]).
 
 
-predicate(call_with_args/5,58,static,private,monofile,built_in,[
+predicate(system:call_with_args/5,69,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,4]),
     proceed]).
 
 
-predicate(call_with_args/6,61,static,private,monofile,built_in,[
+predicate(system:call_with_args/6,72,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,5]),
     proceed]).
 
 
-predicate(call_with_args/7,64,static,private,monofile,built_in,[
+predicate(system:call_with_args/7,75,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,6]),
     proceed]).
 
 
-predicate(call_with_args/8,67,static,private,monofile,built_in,[
+predicate(system:call_with_args/8,78,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,7]),
     proceed]).
 
 
-predicate(call_with_args/9,70,static,private,monofile,built_in,[
+predicate(system:call_with_args/9,81,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,8]),
     proceed]).
 
 
-predicate(call_with_args/10,73,static,private,monofile,built_in,[
+predicate(system:call_with_args/10,84,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,9]),
     proceed]).
 
 
-predicate(call_with_args/11,76,static,private,monofile,built_in,[
+predicate(system:call_with_args/11,87,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,10]),
     proceed]).
 
 
-predicate(call/2,81,static,private,monofile,built_in,[
+predicate(system:call/2,102,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,1]),
     proceed]).
 
 
-predicate(call/3,84,static,private,monofile,built_in,[
+predicate(system:call/3,105,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,2]),
     proceed]).
 
 
-predicate(call/4,87,static,private,monofile,built_in,[
+predicate(system:call/4,108,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,3]),
     proceed]).
 
 
-predicate(call/5,90,static,private,monofile,built_in,[
+predicate(system:call/5,111,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,4]),
     proceed]).
 
 
-predicate(call/6,93,static,private,monofile,built_in,[
+predicate(system:call/6,114,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,5]),
     proceed]).
 
 
-predicate(call/7,96,static,private,monofile,built_in,[
+predicate(system:call/7,117,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,6]),
     proceed]).
 
 
-predicate(call/8,99,static,private,monofile,built_in,[
+predicate(system:call/8,120,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,7]),
     proceed]).
 
 
-predicate(call/9,102,static,private,monofile,built_in,[
+predicate(system:call/9,123,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,8]),
     proceed]).
 
 
-predicate(call/10,105,static,private,monofile,built_in,[
+predicate(system:call/10,126,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,9]),
     proceed]).
 
 
-predicate(call/11,108,static,private,monofile,built_in,[
+predicate(system:call/11,129,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,10]),
     proceed]).
+
+
+directive(45,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/1,1),
+    unify_integer(1),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(46,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/2,1),
+    unify_integer(1),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(47,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/3,1),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(48,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/4,1),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(49,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/5,1),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(50,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/6,1),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(51,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/7,1),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(52,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/8,1),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(53,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/9,1),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(54,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/10,1),
+    unify_integer(9),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(55,system,[
+    put_atom(user,0),
+    put_structure(call_with_args/11,1),
+    unify_integer(10),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(91,system,[
+    put_atom(user,0),
+    put_structure(call/2,1),
+    unify_integer(1),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(92,system,[
+    put_atom(user,0),
+    put_structure(call/3,1),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(93,system,[
+    put_atom(user,0),
+    put_structure(call/4,1),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(94,system,[
+    put_atom(user,0),
+    put_structure(call/5,1),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(95,system,[
+    put_atom(user,0),
+    put_structure(call/6,1),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(96,system,[
+    put_atom(user,0),
+    put_structure(call/7,1),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(97,system,[
+    put_atom(user,0),
+    put_structure(call/8,1),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(98,system,[
+    put_atom(user,0),
+    put_structure(call/9,1),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(99,system,[
+    put_atom(user,0),
+    put_structure(call/10,1),
+    unify_integer(9),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(100,system,[
+    put_atom(user,0),
+    put_structure(call/11,1),
+    unify_integer(10),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).

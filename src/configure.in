@@ -1,10 +1,8 @@
- $Id$
-
 dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT(gprolog, 1.4.2, bug-prolog@gnu.org,,www.gprolog.org)
+AC_INIT(gprolog, 1.4.3, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -843,7 +841,7 @@ case "$WITH_EXAMPLES_DIR" in
     '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
     *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
-if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
+if same_directory "$EXAMPLES_DIR" $ROOT_DIR/examples; then
     EXAMPLES_DIR=none
 fi
 

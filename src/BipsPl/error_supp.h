@@ -118,6 +118,7 @@ int pl_permission_operation_modify;
 int pl_permission_operation_open;
 int pl_permission_operation_output;
 int pl_permission_operation_reposition;
+int pl_permission_operation_execute;
 
 
 int pl_permission_type_binary_stream;
@@ -129,6 +130,7 @@ int pl_permission_type_static_procedure;
 int pl_permission_type_source_sink;
 int pl_permission_type_stream;
 int pl_permission_type_text_stream;
+int pl_permission_type_non_exported_procedure;
 
 
 int pl_representation_character;
@@ -222,6 +224,7 @@ extern int pl_permission_operation_modify;
 extern int pl_permission_operation_open;
 extern int pl_permission_operation_output;
 extern int pl_permission_operation_reposition;
+extern int pl_permission_operation_execute;
 
 
 extern int pl_permission_type_binary_stream;
@@ -233,6 +236,7 @@ extern int pl_permission_type_static_procedure;
 extern int pl_permission_type_source_sink;
 extern int pl_permission_type_stream;
 extern int pl_permission_type_text_stream;
+extern int pl_permission_type_non_exported_procedure;
 
 
 extern int pl_representation_character;
@@ -279,7 +283,11 @@ void Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
 
 void Pl_Syntax_Error(int flag_value);
 
-void Pl_Unknown_Pred_Error(int func, int arity);
+WamWord Pl_Build_Pred_Indic_Error0(int module, int func, int arity);
+
+WamWord Pl_Build_Pred_Indic_Error(PredInf *pred);
+
+void Pl_Unknown_Pred_Error(int module, int func, int arity);
 
 void Pl_Os_Error(int ret_val);
 

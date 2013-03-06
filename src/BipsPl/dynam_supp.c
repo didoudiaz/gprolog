@@ -80,13 +80,22 @@
  * Type Definitions                *
  *---------------------------------*/
 
+
+/* NB: the owner can be different from the predicate wich is scanned. 
+ * for instance for clause(p(X),Y) the owner is system:clause/2.
+ * This information is used by the dbg.
+ *
+ * The information on associated pred (thus module:f/n) can be retrieved from dyn->pred.
+ */
+
 typedef struct			/* Dynamic clause scanning info   */
 {				/* --------- input data --------- */
+  DynPInf *dyn;			/* associated dyn info (back link)*/
+  int owner_module;		/* module of the owner (see above)*/
+  int owner_func;		/* func   of the owner (see above)*/
+  int owner_arity;		/* arity  of the owner (see above)*/
   ScanFct alt_fct;		/* fct to call for each clause    */
   int alt_size_info;		/* user alt info size             */
-  int owner_func;		/* func  of the owner (for dbg)   */
-  int owner_arity;		/* arity of the owner (for dbg)   */
-  DynPInf *dyn;			/* associated dyn info            */
   int stop_cl_no;		/* clause # to reach to stop scan */
   DynStamp erase_stamp;		/* max stamp to perform a retract */
   Bool xxx_is_seq_chain;        /* scan all clauses ?             */
@@ -154,10 +163,11 @@ static void Check_Chain(D2ChHdr *p, int index_no);
 
 
 #define SCAN_DYN_TEST_ALT          X1_247363616E5F64796E5F746573745F616C74
-
+#define SCAN_DYN_FAIL_ALT          X1_247363616E5F64796E5F6661696C5F616C74
 #define SCAN_DYN_JUMP_ALT          X1_247363616E5F64796E5F6A756D705F616C74
 
 Prolog_Prototype(SCAN_DYN_TEST_ALT, 0);
+Prolog_Prototype(SCAN_DYN_FAIL_ALT, 0);
 Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
 
 
@@ -219,12 +229,27 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
+ * PL_CREATE_DYNAMIC_PRED                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Create_Dynamic_Pred(int module, int func, int arity)
+{
+  return Pl_Create_Pred(module, func, arity, pl_atom_user_input,
+			pl_stm_tbl[pl_stm_stdin]->line_count,
+			MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_ADD_DYNAMIC_CLAUSE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DynCInf *
-Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
-		      Bool check_perm, int pl_file)
+Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
+		      Bool asserta, Bool check_perm, int pl_file)
 {
   WamWord word;
   WamWord *first_arg_adr;
@@ -253,15 +278,18 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   DBGPRINTF("\n");
 #endif
 
-  if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
-    pred = Pl_Create_Pred(func, arity, pl_atom_user_input,
-		       pl_stm_tbl[pl_stm_stdin]->line_count,
-		       MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+  pred = Pl_Lookup_Pred(module, func, arity);
+
+  if (pred == NULL
+#if 0		/* useless if we use Pl_Lookup_Pred_In_Module instead of Pl_Lookup_Pred */
+      || 		/* test now if it hiddes an existing pred (if yes: create) */
+      (pred->mod->module != module && pred->mod->module != pl_atom_system && module != pl_atom_system)
+#endif
+      )
+    pred = Pl_Create_Dynamic_Pred(module, func, arity);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -387,6 +415,7 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
   dyn->var_ind_chain.first = dyn->var_ind_chain.last = NULL;
   dyn->lst_ind_chain.first = dyn->lst_ind_chain.last = NULL;
   dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
+  dyn->pred = pred;
   dyn->arity = arity;
   dyn->count_a = -1;
   dyn->count_z = 0;
@@ -792,20 +821,18 @@ Free_Clause(DynCInf *clause)
  * returns a pointer to associated pred or NULL if it does not exist.      *
  *-------------------------------------------------------------------------*/
 PredInf *
-Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi)
+Pl_Update_Dynamic_Pred(int module, int func, int arity, int what_to_do, int pl_file_for_multi)
 {
   WamWord word;
   PredInf *pred;
 
-  pred = Pl_Lookup_Pred(func, arity);
+  pred = Pl_Lookup_Pred(module, func, arity);
   if (pred == NULL)
     return NULL;
 
   if ((what_to_do & 1) && !(pred->prop & MASK_PRED_DYNAMIC))
     {
-      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      word = Pl_Build_Pred_Indic_Error(pred);
       Pl_Err_Permission(pl_permission_operation_modify,
 			pl_permission_type_static_procedure, word);
     }
@@ -822,7 +849,7 @@ Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_mult
 
   if ((what_to_do & 2))
     {
-      Pl_Delete_Pred(func, arity);
+      Pl_Delete_Pred(module, func, arity);
       return NULL;
     }
 
@@ -860,11 +887,12 @@ Get_Scan_Choice_Point(WamWord *b)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DynCInf *
-Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
-		     DynPInf *dyn, WamWord first_arg_word,
+Pl_Scan_Dynamic_Pred(PredInf *pred, WamWord first_arg_word,
+		     int owner_module, int owner_func, int owner_arity,
 		     ScanFct alt_fct, int alt_fct_type,
 		     int alt_info_size, WamWord *alt_info)
 {
+  DynPInf *dyn = (DynPInf *) pred->dyn;	/* not NULL */
   int index_no;
   PlLong key;
   char **p_ind_htbl;
@@ -876,16 +904,19 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   CodePtr scan_alt;
 
   if (owner_func < 0)
-    owner_func = Pl_Get_Current_Bip(&owner_arity);
+    {
+      owner_module = pl_atom_system; /* a built-in */
+      owner_func = Pl_Get_Current_Bip(&owner_arity);
+    }
 
-  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
-    : NO_INDEX;
+  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key) : NO_INDEX;
 
-  scan.alt_fct = alt_fct;
-  scan.alt_size_info = alt_info_size;
+  scan.dyn = dyn;
+  scan.owner_module = owner_module;
   scan.owner_func = owner_func;
   scan.owner_arity = owner_arity;
-  scan.dyn = dyn;
+  scan.alt_fct = alt_fct;
+  scan.alt_size_info = alt_info_size;
   scan.stop_cl_no = dyn->count_z;
   scan.erase_stamp = erase_stamp++;
 
@@ -895,7 +926,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
     case VAR_INDEX:
       scan.xxx_is_seq_chain = TRUE;
       scan.xxx_ind_chain = dyn->seq_chain.first;
-      p_ind_htbl = NULL;
+     p_ind_htbl = NULL;
       break;
 
     case LST_INDEX:
@@ -944,6 +975,8 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 
       if (alt_fct_type == DYN_ALT_FCT_FOR_TEST)
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0);
+      else if (alt_fct_type == DYN_ALT_FCT_FOR_FAIL)
+	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_FAIL_ALT, 0);
       else
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0);
 
@@ -1064,7 +1097,7 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
   if (is_last)
     Delete_Last_Choice_Point();
 
-  return (*scan->alt_fct) (clause, alt_info, is_last);
+  return (*scan->alt_fct) (clause, alt_info /*, is_last*/);  /* nobody needs is_last for the moment */
 }
 
 
@@ -1073,11 +1106,11 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
 /*-------------------------------------------------------------------------*
  * PL_SCAN_CHOICE_POINT_PRED                                               *
  *                                                                         *
- * returns the functor and initializes the arity of the scan choice point b*
- * or -1 if b is not a scan choice point.                                  *
+ * returns the module and initializes the functor and arity of the owner   *
+ * of the scan choice point b. returns -1 if b is not a scan choice point. *
  *-------------------------------------------------------------------------*/
 int
-Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity)
+Pl_Scan_Choice_Point_Pred(WamWord *b, int *func, int *arity)
 {
   DynScan *scan;
 
@@ -1085,9 +1118,10 @@ Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity)
   if (scan == NULL)
     return -1;
 
+  *func = scan->owner_func;
   *arity = scan->owner_arity;
 
-  return scan->owner_func;
+  return scan->owner_module;
 }
 
 

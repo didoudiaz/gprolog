@@ -251,6 +251,10 @@ int Pl_Atom_Char(char c);
 
 int Pl_Atom_Nil(void);
 
+int Pl_Atom_User(void);
+
+int Pl_Atom_System(void);
+
 int Pl_Atom_False(void);
 
 int Pl_Atom_True(void);

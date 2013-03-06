@@ -343,6 +343,10 @@ flatten(List, FlatList) :-
 
 
 
+:- meta_predicate(maplist(1, ?)).
+:- meta_predicate(maplist(2, ?, ?)).
+:- meta_predicate(maplist(3, ?, ?, ?)).
+:- meta_predicate(maplist(4, ?, ?, ?, ?)).
 
 maplist(Goal, List) :-
         '$maplist'(List, Goal).

@@ -39,54 +39,79 @@
 
 :-	built_in.
 
+'$get_head_and_body'(Clause, Module, Head, Body) :-
+	'$call_c_test'('Pl_Get_Head_And_Body_4'(Clause, Module, Head, Body)).
 
-'$term_to_goal'(P, CallInfo, P1) :-
-	g_assign('$call_call_info', CallInfo),
-	g_assign('$new_term', f),
-	'$term_to_goal1'(P, P1),
-	g_read('$new_term', t),                               % GC: case P=P1
-	                        !.
+'$term_to_goal'(P, Module, CallInfo, P1) :-
+	'$call_c_test'('Pl_Term_To_Goal_4'(P, Module, CallInfo, P1)).
 
-'$term_to_goal'(P, _, P).
+		      
+/*
+'$term_to_goal'(P, Module, CallInfo, P1) :-
+	g_assign('$term_to_goal_module', Module),
+	g_assign('$term_to_goal_info', CallInfo),
+	'$term_to_goal1'(P, P1) , !.
 
-
-'$term_to_goal1'(P, P1) :-
-	'$term_to_goal2'(P, P1), !.
-
-'$term_to_goal1'(P, _) :-
+'$term_to_goal'(P, _, _, _) :-
 	'$pl_err_type'(callable, P).
 
 
-'$term_to_goal2'(P, P1) :-
+'$term_to_goal1'(P, P1) :-
 	var(P), !,
-	g_read('$call_call_info', CallInfo),
-	g_assign('$new_term', t),
-	(   CallInfo = none ->
+	g_read('$term_to_goal_call_info', CallInfo),
+	g_read('$term_to_goal_module', Module),
+	(   integer(CallInfo) ->		% for call
+	    P1 = '$call_internal'(P, Module, CallInfo)
+	;
+	    atom(Module) -> 
+	    P1 = call(Module:P)
+	;
 	    P1 = call(P)
-	;   P1 = '$call_internal'(P, CallInfo)
 	).
 
-'$term_to_goal2'((P -> Q), (P1 -> Q1)) :-
+'$term_to_goal1'(Module:P, P1) :-
 	!,
-	'$term_to_goal2'(P, P1),
-	'$term_to_goal2'(Q, Q1).
+	g_read('$term_to_goal_module', SaveModule),
+	g_assign('$term_to_goal_module', Module),
+	'$term_to_goal1'(P, P1),
+	g_assign('$term_to_goal_module', SaveModule).
 
-'$term_to_goal2'((P, Q), (P1, Q1)) :-
+'$term_to_goal1'((P -> Q), (P1 -> Q1)) :-
 	!,
-	'$term_to_goal2'(P, P1),
-	'$term_to_goal2'(Q, Q1).
+	'$term_to_goal1'(P, P1),
+	'$term_to_goal1'(Q, Q1).
 
-'$term_to_goal2'((P ; Q), (P1 ; Q1)) :-
+'$term_to_goal1'((P *-> Q), (P1 *-> Q1)) :-
 	!,
-	'$term_to_goal2'(P, P1),
-	'$term_to_goal2'(Q, Q1).
-/*  ISO: (\+)/1 is no longer a control construct
-'$term_to_goal2'((\+ P),(\+ P1)):-
+	'$term_to_goal1'(P, P1),
+	'$term_to_goal1'(Q, Q1).
+
+'$term_to_goal1'((P, Q), (P1, Q1)) :-
 	!,
-	'$term_to_goal2'(P,P1).
+	'$term_to_goal1'(P, P1),
+	'$term_to_goal1'(Q, Q1).
+
+'$term_to_goal1'((P ; Q), (P1 ; Q1)) :-
+	!,
+	'$term_to_goal1'(P, P1),
+	'$term_to_goal1'(Q, Q1).
+	
+'$term_to_goal1'(P,  P) :-
+	P = call(_), !.
+
+'$term_to_goal1'(P, P) :-
+	P = catch(_, _, _), !.
+
+'$term_to_goal1'(P, P1) :-
+	callable(P),
+	g_read('$term_to_goal_module', Module),
+	(   atom(Module) -> 
+	    P1 = Module:P
+	;
+	    P1 = P
+	).
+
 */
-'$term_to_goal2'(P, P) :-
-	callable(P).
 
 
 
@@ -134,25 +159,20 @@
 	'$pl_err_type'(list, List).
 
 
-'$check_atom_or_atom_list2'(X) :-
+'$check_atom_or_atom_list2'(MX) :-
+	'$strip_module_nonvar'(MX, _, X), % NB: also accepts module qualification
 	atom(X), !.
-
+/*
 '$check_atom_or_atom_list2'(X) :-
 	var(X), !,
-	'$pl_err_instantiation'.
-
+	'$pl_err_instantiation'. %detected by '$strip_module_nonvar'
+*/
 '$check_atom_or_atom_list2'(X) :-
 	'$pl_err_type'(atom, X).
 
 
 
 
-'$get_head_and_body'((H :- B), H, B) :-
-	!,
-	'$check_head'(H).
-
-'$get_head_and_body'(H, H, true) :-
-	'$check_head'(H).
 
 
 
@@ -170,5 +190,5 @@
 
 
 
-'$get_pred_indic'(PI, N, A) :-
-	'$call_c_test'('Pl_Get_Pred_Indic_3'(PI, N, A)).
+'$get_pred_indic'(PI, DefModule, Module, Func, Arity) :-
+	'$call_c_test'('Pl_Get_Pred_Indic_5'(PI, DefModule, Module, Func, Arity)).

@@ -1,39 +1,39 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.4.3
 % file    : file.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/file.pl').
 
 
-predicate('$use_file'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_file'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(absolute_file_name/2,45,static,private,monofile,built_in,[
+predicate(system:absolute_file_name/2,45,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[absolute_file_name,2]),
     call_c('Pl_Absolute_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(is_absolute_file_name/1,52,static,private,monofile,built_in,[
+predicate(system:is_absolute_file_name/1,52,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is_absolute_file_name,1]),
     call_c('Pl_Is_Absolute_File_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(is_relative_file_name/1,59,static,private,monofile,built_in,[
+predicate(system:is_relative_file_name/1,59,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is_relative_file_name,1]),
     call_c('Pl_Is_Relative_File_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(decompose_file_name/4,66,static,private,monofile,built_in,[
+predicate(system:decompose_file_name/4,66,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[decompose_file_name,4]),
     call_c('Pl_Decompose_File_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(prolog_file_name/2,73,static,private,monofile,built_in,[
+predicate(system:prolog_file_name/2,73,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_name,2]),
     call_c('Pl_Prolog_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).

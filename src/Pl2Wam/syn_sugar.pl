@@ -59,14 +59,15 @@ syntactic_sugar(SrcCl, Head, Body2) :-
 
 normalize_cuts(Body, Body2) :-
 	g_assign(has_cut, f),
-	normalize_cuts1(Body, CutVar, Body1), !,
+	get_module_of_cur_pred(Module), % to solve module qualification
+	normalize_cuts1(Body, Module, CutVar, Body1), !,
 	(   g_read(has_cut, t) ->
 	    Body2 = ('$get_cut_level'(CutVar), Body1)
 	;   Body2 = Body1
 	).
 
 
-	/* NB: difference between cut and soft cut
+	/* NB: difference between cut and soft-cut
    	 * cut: a cut generates a '$get_cut_level'(V) followed by a '$cut'(V)
 	 *      '$get_cut_level'(V) will give rise to a copy from X(arity) to V
 	 *      (see code_gen.pl). The initialization of X(arity) is done once
@@ -74,7 +75,7 @@ normalize_cuts(Body, Body2) :-
 	 *      thus X(arity) is saved in choice-points. The initialization is
 	 *      done by a WAM instruction get_current_choice(x(Arity)) (indexing.pl)
 	 *
-	 * soft cut: give rise to a '$get_current_choice'(V) followed by a '$cut'(V)
+	 * soft-cut: give rise to a '$get_current_choice'(V) followed by a '$cut'(V)
 	 *      '$get_current_choice'(V) is translated as a WAM instruction
 	 *      get_current_choice(V).
 	 *
@@ -82,101 +83,84 @@ normalize_cuts(Body, Body2) :-
 	 * points to the choice-point to kill.
 	 */
 
-normalize_cuts1(X, CutVar, P) :-
-	var(X),
-	normalize_cuts1(call(X), CutVar, P).
+normalize_cuts1(P, Module, CutVar, P1) :-
+	var(P),
+	normalize_cuts1(call(P), Module, CutVar, P1).
 
-normalize_cuts1((If ; R), CutVar, Body) :-
+normalize_cuts1((If ; R), Module, CutVar, Body) :-
 	nonvar(If),
 	(   If = (P -> Q), Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; R1)
 	;
 	    If = (P *-> Q), Body = ('$get_current_choice'(CutVar1), P, '$soft_cut'(CutVar1), Q1 ; R1)
 	),
-	normalize_cuts1(Q, CutVar, Q1),
-	normalize_cuts1(R, CutVar, R1).
+	normalize_cuts1(Q, Module, CutVar, Q1),
+	normalize_cuts1(R, Module, CutVar, R1).
 
-normalize_cuts1((P -> Q), CutVar, Body) :-
+normalize_cuts1((P -> Q), Module, CutVar, Body) :-
 	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; fail),
-	normalize_cuts1(Q, CutVar, Q1).
+	normalize_cuts1(Q, Module, CutVar, Q1).
 
 	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
 	% However a cut in the test part (P) should be local to P (as in P -> Q).
 	% Hence we replace P *-> Q by P *-> Q1 ; fail
 
-normalize_cuts1((P *-> Q), CutVar, ((P, Q1) ; fail)) :-
-	normalize_cuts1(Q, CutVar, Q1).
+normalize_cuts1((P *-> Q), Module, CutVar, ((P, Q1) ; fail)) :-
+	normalize_cuts1(Q, Module, CutVar, Q1).
 
-normalize_cuts1(!, CutVar, '$cut'(CutVar)) :-
+normalize_cuts1(!, _, CutVar, '$cut'(CutVar)) :-
 	g_assign(has_cut, t).
 
-normalize_cuts1((P, Q), CutVar, (P1, Q1)) :-
-	normalize_cuts1(P, CutVar, P1),
-	normalize_cuts1(Q, CutVar, Q1).
+normalize_cuts1((P, Q), Module, CutVar, (P1, Q1)) :-
+	normalize_cuts1(P, Module, CutVar, P1),
+	normalize_cuts1(Q, Module, CutVar, Q1).
 
-normalize_cuts1((P ; Q), CutVar, (P1 ; Q1)) :-
-	normalize_cuts1(P, CutVar, P1),
-	normalize_cuts1(Q, CutVar, Q1).
+normalize_cuts1((P ; Q), Module, CutVar, (P1 ; Q1)) :-
+	normalize_cuts1(P, Module, CutVar, P1),
+	normalize_cuts1(Q, Module, CutVar, Q1).
 
-normalize_cuts1(M:G, CutVar, Body) :-
-	check_module_name(M, true),
-	normalize_cuts1(G, CutVar, G1),
-	distrib_module_qualif(G1, M, G2),
-	(   G2 = M3:_, var(M3) ->
-	    normalize_cuts1(call(G2), CutVar, Body)
+normalize_cuts1(Module:G, _, CutVar, G1) :-
+	check_module_name_qualif(Module),
+	normalize_cuts1(G, Module, CutVar, G1).
+
+normalize_cuts1(call(G), Module, _, '$call'(G, Module, CallerFunc, CallerArity)) :-
+%	get_module_of_cur_pred(CallerModule),  % FIXME use it when implementing CallerMFA
+	cur_pred_without_aux(CallerFunc, CallerArity).
+
+normalize_cuts1(catch(G, C, R), Module, _, '$catch'(G, C, R, Module, CallerFunc, CallerArity)) :-
+%	get_module_of_cur_pred(CallerModule),  % FIXME use it when implementing CallerMFA
+	cur_pred_without_aux(CallerFunc, CallerArity).
+
+normalize_cuts1(throw(B), _, _, '$throw'(B, CallerModule, CallerFunc, CallerArity)) :-
+	get_module_of_cur_pred(CallerModule),
+	cur_pred_without_aux(CallerFunc, CallerArity).
+
+normalize_cuts1(P, Module, CutVar, P1) :-
+	callable(P),
+	(   var(Module) ->
+	    normalize_cuts1(call(P), Module, CutVar, P1)
 	;
-	    Body = G2
+	    useless_module_qualification(Module, P) ->
+	    P1 = P
+	;
+	    P1 = Module:P
 	).
-
-normalize_cuts1(call(G), _, '$call'(G, Func, Arity, true)) :-
-%	get_module_of_cur_pred(Module), % then use a '$call'(G, Module, Func, Arity, true)
-	cur_pred_without_aux(Func, Arity).
-
-normalize_cuts1(catch(G, C, R), _, '$catch'(G, C, R, Func, Arity, true)) :-
-	cur_pred_without_aux(Func, Arity).
-
-normalize_cuts1(throw(B), _, '$throw'(B, Func, Arity, true)) :-
-	cur_pred_without_aux(Func, Arity).
-
-normalize_cuts1(P, _, P1) :-
-	(   callable(P) ->
-	    meta_pred_rewriting(P, P1)
-	;   error('body goal is not callable (~q)', [P])
-	).
+	
+normalize_cuts1(P, _Module, _CutVar, _P1) :-
+	error('body goal is not callable (~q)', [P]).
 
 
 
 
-distrib_module_qualif((P ; Q), M, (P1 ; Q1)) :-
-	!,
-	distrib_module_qualif(P, M, P1),
-	distrib_module_qualif(Q, M, Q1).
+useless_module_qualification(system, _).
 
-distrib_module_qualif((P -> Q), M, (P1 -> Q1)) :-
-	!,
-	distrib_module_qualif(P, M, P1),
-	distrib_module_qualif(Q, M, Q1).
+useless_module_qualification(user, _).
 
-distrib_module_qualif((P , Q), M, (P1 , Q1)) :-
-	!,
-	distrib_module_qualif(P, M, P1),
-	distrib_module_qualif(Q, M, Q1).
+useless_module_qualification(Module, _) :-
+	    get_module_of_cur_pred(Module).
 
-distrib_module_qualif(M:G, _, G1) :-
-	!,
-	check_module_name(M, true),
-	distrib_module_qualif(G, M, G1).
+useless_module_qualification(Module, P) :-
+	'$get_module_of_goal'(Module, P, system).     
 
-distrib_module_qualif(!, _, !) :-
-	!.
-
-distrib_module_qualif(P, M, M:P).
-
-distrib_module_qualif_goal(G, _, G) :-
-	nonvar(G),
-	G = M:_, !,		% already qualifed with a module
-	check_module_name(M, true).
-
-distrib_module_qualif_goal(G, M, M:G).
 
 
 
@@ -208,8 +192,9 @@ normalize_alts1((P ; Q), RestC, AuxPred) :-
 	linearize((P ; Q), AuxPred, Where, LAuxSrcCl),
 	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
 
-normalize_alts1(P, _, P1) :-
-	pred_rewriting(P, P1), !.
+normalize_alts1(P, _, P2) :-
+	meta_pred_rewriting(P, P1),
+	pred_rewriting(P1, P2), !.
 
 
 
@@ -383,14 +368,22 @@ head_wrapper(Head, AuxName, Head1) :-
 	% meta_predicate rewriting
 
 meta_pred_rewriting(P1, P2) :-
-	nonvar(P1),
+%	nonvar(P1), % useless
 	functor(P1, Pred, N),
-	clause(meta_pred(Pred, N, MetaDecl), _), !,
+	get_meta_pred_decl(Pred, N, MetaDecl), !,
 	functor(P2, Pred, N),
 	meta_pred_rewrite_args(1, N, P1, MetaDecl, P2).
 
 meta_pred_rewriting(P, P).
 
+
+
+get_meta_pred_decl(Pred, N, MetaDecl) :-
+	clause(meta_pred(Pred, N, MetaDecl), _), !.
+
+get_meta_pred_decl(Pred, N, MetaDecl) :-
+	'$predicate_property1'(Pred, N, built_in),
+	'$predicate_property1'(Pred, N, meta_predicate(MetaDecl)), !.
 
 
 
@@ -416,7 +409,8 @@ meta_pred_rewrite_arg(:, A1, A2) :-
 	meta_pred_rewrite_arg(0, A1, A2).
 
 meta_pred_rewrite_arg(Spec, A1, '$mt'(Module, A1)) :-
-	integer(Spec), !,
+	integer(Spec), 
+%	functor(A1, F, N), (F \== '$mt' ;  N \== 2), !, % do not nest meta_term args
 	get_module_of_cur_pred(Module).
 
 meta_pred_rewrite_arg(_, A, A).

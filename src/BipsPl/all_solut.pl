@@ -41,6 +41,9 @@
 
 '$use_all_solut'.
 
+:- meta_predicate(findall(?, 0, -)).
+:- meta_predicate(bagof(?, 0, -)).
+:- meta_predicate(setof(?, 0, -)).
 
 findall(Template, Generator, Instances) :-
 	'$findall'(Template, Generator, Instances, findall).
@@ -91,7 +94,7 @@ bagof(Template, Generator, Instances) :-
 
 '$store_solutions'(Template, Generator, Stop, Func) :-
 	'$call_c'('Pl_Stop_Mark_1'(Stop)),
-	(   '$call'(Generator, Func, 3, true),
+	(   '$call'(Generator, user, Func, 3), % user is OK since Generator is module qualified (meta_predicate decl).
 	    '$call_c'('Pl_Store_Solution_1'(Template)),
 	    fail
 	;   true

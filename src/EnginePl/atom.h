@@ -133,10 +133,17 @@ int pl_nb_atom;
 int pl_atom_void;
 int pl_atom_curly_brackets;
 
+int pl_atom_user;
+int pl_atom_system;
+
 int pl_atom_false;
 int pl_atom_true;
 
 int pl_atom_end_of_file;
+
+#ifdef META_TERM_HIDDEN
+int pl_atom_meta_term;
+#endif
 
 #ifndef OPTIM_1_CHAR_ATOM
 int atom_char[256];
@@ -158,10 +165,17 @@ extern int pl_nb_atom;
 extern int pl_atom_void;
 extern int pl_atom_curly_brackets;
 
+extern int pl_atom_user;
+extern int pl_atom_system;
+
 extern int pl_atom_false;
 extern int pl_atom_true;
 
 extern int pl_atom_end_of_file;
+
+#ifdef META_TERM_HIDDEN
+extern int pl_atom_meta_term;
+#endif
 
 #ifndef OPTIM_1_CHAR_ATOM
 extern int atom_char[];

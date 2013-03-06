@@ -1,3 +1,7 @@
+Change in GNU Prolog version 1.4.3:
+
+* fix a bug in the FD solver
+
 Change in GNU Prolog version 1.4.2:
 
 * fix a bug in the compiler for byte-code with op/3 directive

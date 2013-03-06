@@ -1,20 +1,20 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.4.3
 % file    : all_solut.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/all_solut.pl').
 
 
-predicate('$use_all_solut'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_all_solut'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(findall/3,45,static,private,monofile,built_in,[
+predicate(system:findall/3,48,static,private,monofile,built_in,[
     put_atom(findall,3),
     execute('$findall'/4)]).
 
 
-predicate('$findall'/4,48,static,private,monofile,built_in,[
+predicate(system:'$findall'/4,51,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -36,7 +36,7 @@ predicate('$findall'/4,48,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(setof/3,56,static,private,monofile,built_in,[
+predicate(system:setof/3,59,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -52,7 +52,7 @@ predicate(setof/3,56,static,private,monofile,built_in,[
     execute('$bagof'/4)]).
 
 
-predicate(bagof/3,64,static,private,monofile,built_in,[
+predicate(system:bagof/3,67,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -68,7 +68,7 @@ predicate(bagof/3,64,static,private,monofile,built_in,[
     execute('$bagof'/4)]).
 
 
-predicate('$bagof'/4,69,static,private,monofile,built_in,[
+predicate(system:'$bagof'/4,72,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -122,7 +122,7 @@ label(1),
     execute('$$bagof/4_$aux2'/2)]).
 
 
-predicate('$$bagof/4_$aux2'/2,80,static,private,monofile,local,[
+predicate(system:'$$bagof/4_$aux2'/2,83,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -136,7 +136,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$$bagof/4_$aux1'/2,69,static,private,monofile,local,[
+predicate(system:'$$bagof/4_$aux1'/2,72,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -151,7 +151,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$store_solutions'/4,92,static,private,monofile,built_in,[
+predicate(system:'$store_solutions'/4,95,static,private,monofile,built_in,[
     get_variable(x(4),2),
     get_variable(x(2),0),
     call_c('Pl_Stop_Mark_1',[],[x(4)]),
@@ -160,12 +160,13 @@ predicate('$store_solutions'/4,92,static,private,monofile,built_in,[
     execute('$$store_solutions/4_$aux1'/3)]).
 
 
-predicate('$$store_solutions/4_$aux1'/3,92,static,private,monofile,local,[
+predicate(system:'$$store_solutions/4_$aux1'/3,95,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),
-    put_integer(3,2),
-    put_atom(true,3),
+    put_value(x(1),2),
+    put_atom(user,1),
+    put_integer(3,3),
     call('$call'/4),
     put_value(y(0),0),
     call_c('Pl_Store_Solution_1',[],[x(0)]),
@@ -176,17 +177,44 @@ label(1),
     proceed]).
 
 
-predicate('$group_solutions'/3,103,static,private,monofile,built_in,[
+predicate(system:'$group_solutions'/3,106,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$group_solutions_alt'/0,106,static,private,monofile,built_in,[
+predicate(system:'$group_solutions_alt'/0,109,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$check_list_arg'/2,114,static,private,monofile,built_in,[
+predicate(system:'$check_list_arg'/2,117,static,private,monofile,built_in,[
     put_integer(3,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).
+
+
+directive(44,system,[
+    put_atom(user,0),
+    put_structure(findall/3,1),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(45,system,[
+    put_atom(user,0),
+    put_structure(bagof/3,1),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(46,system,[
+    put_atom(user,0),
+    put_structure(setof/3,1),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    execute('$declare_meta_predicate'/2)]).

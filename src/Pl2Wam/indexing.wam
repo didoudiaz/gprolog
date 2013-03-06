@@ -1,11 +1,11 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.4.3
 % file    : indexing.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/indexing.pl').
 
 
-predicate(indexing/2,135,static,private,monofile,global,[
+predicate(user:indexing/2,135,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),1),
     put_atom(f,1),
@@ -29,7 +29,7 @@ predicate(indexing/2,135,static,private,monofile,global,[
     execute(allocate_labels/3)]).
 
 
-predicate('$indexing/2_$aux1'/4,135,static,private,monofile,local,[
+predicate(user:'$indexing/2_$aux1'/4,135,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -65,7 +65,7 @@ label(1),
     proceed]).
 
 
-predicate(indexing1/4,148,static,private,monofile,global,[
+predicate(user:indexing1/4,148,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     allocate(7),
@@ -93,7 +93,7 @@ predicate(indexing1/4,148,static,private,monofile,global,[
     proceed]).
 
 
-predicate(look_for_var/5,155,static,private,monofile,global,[
+predicate(user:look_for_var/5,155,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     switch_on_term(2,3,fail,1,fail),
@@ -152,7 +152,7 @@ label(7),
     execute('$look_for_var/5_$aux2'/2)]).
 
 
-predicate('$look_for_var/5_$aux2'/2,164,static,private,monofile,local,[
+predicate(user:'$look_for_var/5_$aux2'/2,164,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(6),
@@ -185,7 +185,7 @@ label(6),
     proceed]).
 
 
-predicate('$look_for_var/5_$aux1'/2,157,static,private,monofile,local,[
+predicate(user:'$look_for_var/5_$aux1'/2,157,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -200,7 +200,7 @@ label(1),
     proceed]).
 
 
-predicate(mk_indexing/6,176,static,private,monofile,global,[
+predicate(user:mk_indexing/6,176,static,private,monofile,global,[
     pragma_arity(7),
     get_current_choice(x(6)),
     switch_on_term(2,fail,1,fail,fail),
@@ -393,7 +393,7 @@ label(11),
     execute(gen_insts/3)]).
 
 
-predicate('$mk_indexing/6_$aux6'/8,207,static,private,monofile,local,[
+predicate(user:'$mk_indexing/6_$aux6'/8,207,static,private,monofile,local,[
     pragma_arity(9),
     get_current_choice(x(8)),
     try_me_else(1),
@@ -421,7 +421,7 @@ label(1),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux5'/3,207,static,private,monofile,local,[
+predicate(user:'$mk_indexing/6_$aux5'/3,207,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -438,7 +438,7 @@ label(1),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux4'/3,201,static,private,monofile,local,[
+predicate(user:'$mk_indexing/6_$aux4'/3,201,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -455,7 +455,7 @@ label(1),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux3'/3,193,static,private,monofile,local,[
+predicate(user:'$mk_indexing/6_$aux3'/3,193,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -472,7 +472,7 @@ label(1),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux2'/3,185,static,private,monofile,local,[
+predicate(user:'$mk_indexing/6_$aux2'/3,185,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -489,7 +489,7 @@ label(1),
     proceed]).
 
 
-predicate('$mk_indexing/6_$aux1'/3,176,static,private,monofile,local,[
+predicate(user:'$mk_indexing/6_$aux1'/3,176,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -506,7 +506,7 @@ label(1),
     proceed]).
 
 
-predicate(split/5,228,static,private,monofile,global,[
+predicate(user:split/5,228,static,private,monofile,global,[
     allocate(6),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -537,7 +537,7 @@ predicate(split/5,228,static,private,monofile,global,[
     execute(terminate_list/2)]).
 
 
-predicate(split1/9,235,static,private,monofile,global,[
+predicate(user:split1/9,235,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -589,7 +589,7 @@ label(4),
     execute(split1/9)]).
 
 
-predicate(split2/10,242,static,private,monofile,global,[
+predicate(user:split2/10,242,static,private,monofile,global,[
     switch_on_term(2,7,fail,fail,1),
 
 label(1),
@@ -662,7 +662,7 @@ label(9),
     execute(add_to_list/4)]).
 
 
-predicate(add_to_list/4,256,static,private,monofile,global,[
+predicate(user:add_to_list/4,256,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     switch_on_term(2,3,fail,1,fail),
@@ -724,7 +724,7 @@ label(7),
     execute(add_to_list/4)]).
 
 
-predicate(terminate_list/2,267,static,private,monofile,global,[
+predicate(user:terminate_list/2,267,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -755,7 +755,7 @@ label(4),
     execute(terminate_list/2)]).
 
 
-predicate(gen_switch/5,275,static,private,monofile,global,[
+predicate(user:gen_switch/5,275,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(5),
@@ -813,7 +813,7 @@ label(5),
     proceed]).
 
 
-predicate(create_switch_list/4,296,static,private,monofile,global,[
+predicate(user:create_switch_list/4,296,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -853,7 +853,7 @@ label(4),
     execute(create_switch_list/4)]).
 
 
-predicate(gen_list/4,305,static,private,monofile,global,[
+predicate(user:gen_list/4,305,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     switch_on_term(2,3,fail,1,fail),
@@ -903,7 +903,7 @@ label(7),
     execute(gen_list1/3)]).
 
 
-predicate(gen_list1/3,315,static,private,monofile,global,[
+predicate(user:gen_list1/3,315,static,private,monofile,global,[
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -939,7 +939,7 @@ label(5),
     execute(gen_list1/3)]).
 
 
-predicate(gen_insts/3,324,static,private,monofile,global,[
+predicate(user:gen_insts/3,324,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,fail,fail,1,fail),
@@ -1004,7 +1004,7 @@ label(5),
     proceed]).
 
 
-predicate(gen_insts1/3,333,static,private,monofile,global,[
+predicate(user:gen_insts1/3,333,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,fail,fail,1,fail),
@@ -1075,7 +1075,7 @@ label(5),
     proceed]).
 
 
-predicate(allocate_labels/3,343,static,private,monofile,global,[
+predicate(user:allocate_labels/3,343,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(7),

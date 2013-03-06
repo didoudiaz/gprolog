@@ -209,6 +209,7 @@ Error_Supp_Initializer(void)
   pl_permission_operation_open = Pl_Create_Atom("open");
   pl_permission_operation_output = Pl_Create_Atom("output");
   pl_permission_operation_reposition = Pl_Create_Atom("reposition");
+  pl_permission_operation_execute = Pl_Create_Atom("execute");
 
 
   pl_permission_type_binary_stream = Pl_Create_Atom("binary_stream");
@@ -220,6 +221,7 @@ Error_Supp_Initializer(void)
   pl_permission_type_source_sink = Pl_Create_Atom("source_sink");
   pl_permission_type_stream = Pl_Create_Atom("stream");
   pl_permission_type_text_stream = Pl_Create_Atom("text_stream");
+  pl_permission_type_non_exported_procedure = Pl_Create_Atom("non_exported_procedure");
 
 
   pl_representation_character = Pl_Create_Atom("character");
@@ -245,7 +247,10 @@ Error_Supp_Initializer(void)
       pl_resource_too_big_fd_constraint = Pl_Create_Atom("too_big_fd_constraint");
 				/* for FD */
     }
+
+  pl_calling_module = pl_atom_user;
 }
+
 
 
 
@@ -258,6 +263,9 @@ Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word)
 {
   PlLong arity;			/* use PlLong to avoid truncation */
   Pl_Set_C_Bip_Name("set_bip_name", 2);
+
+  /* Use the module part ??? ignore if system or user ? (a Bip is in system) */
+  Pl_Strip_Module(func_word, FALSE, FALSE, &func_word);
 
   cur_bip_func = Pl_Rd_Atom_Check(func_word);
   arity = Pl_Rd_Integer_Check(arity_word);
@@ -347,6 +355,24 @@ Pl_Get_Current_Bip(int *arity)
 
   *arity = cur_bip_arity;
   return cur_bip_func;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_BIP_NAME_2                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Bip_Name_2(WamWord func_word, WamWord arity_word)
+{
+  Pl_Set_C_Bip_Name("get_bip_name", 2);
+
+  Pl_Check_For_Un_Atom(func_word);
+  Pl_Check_For_Un_Integer(arity_word);
+
+  return Pl_Get_Atom(cur_bip_func, func_word) && Pl_Get_Integer(cur_bip_arity, arity_word);
 }
 
 
@@ -477,27 +503,99 @@ Pl_Syntax_Error(int flag_value)
 
 
 /*-------------------------------------------------------------------------*
+ * NEED_MODULE_PREFIX                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Need_Module_Prefix(int module)
+{
+  int cc_module = pl_calling_module;
+
+  if (cc_module == pl_atom_system || cc_module < 0)
+    cc_module = pl_atom_user;
+
+  if (module == pl_atom_system || module < 0)
+    module = pl_atom_user;
+
+
+  return (module != cc_module);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILD_PRED_INDIC_ERROR0                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Build_Pred_Indic_Error0(int module, int func, int arity)
+{
+  WamWord term;
+
+  term = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+  Pl_Unify_Atom(func);
+  Pl_Unify_Integer(arity);
+
+
+  if (Need_Module_Prefix(module))
+    {
+      WamWord term1 = Pl_Put_Structure(ATOM_CHAR(':'), 2);
+      Pl_Unify_Atom(module);
+      Pl_Unify_Value(term);
+      term = term1;
+    }
+
+  return term;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BUILD_PRED_INDIC_ERROR                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Build_Pred_Indic_Error(PredInf *pred)
+{
+  int module = pred->mod->module;
+  int func = Functor_Of(pred->f_n);
+  int arity = Arity_Of(pred->f_n);
+
+  return Pl_Build_Pred_Indic_Error0(module, func, arity);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_UNKNOWN_PRED_ERROR                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Unknown_Pred_Error(int func, int arity)
+Pl_Unknown_Pred_Error(int module, int func, int arity)
 {
   WamWord term;
 
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_ERROR)
     {
-      term = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Atom(func);
-      Pl_Unify_Integer(arity);
+      term = Pl_Build_Pred_Indic_Error0(module, func, arity);
       Pl_Err_Existence(pl_existence_procedure, term);
     }
 
   Update_Cur_From_C_Bip();
   if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_WARNING)
-    Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
-		  "warning: unknown procedure %s/%d (from %s)\n",
-		  pl_atom_tbl[func].name, arity, Context_Error_String());
+    {
+      Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "warning: unknown procedure ");
+
+      if (Need_Module_Prefix(module))
+	Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "%s:",
+			 pl_atom_tbl[module].name);
+
+      Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "%s/%d (from %s)\n",
+		       pl_atom_tbl[func].name, arity, Context_Error_String());
+    }
 }
 
 

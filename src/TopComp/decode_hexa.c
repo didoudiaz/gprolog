@@ -236,8 +236,8 @@ Encode_Hexa_Line(char *str, char *format, int strict)
  * STRING_NEEDS_ENCODING                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static
-int String_Needs_Encoding(char *str)
+static int
+String_Needs_Encoding(char *str)
 {
   if (*str == '\0' || !Letter_Digit(*str))
     return 1;

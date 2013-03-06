@@ -376,7 +376,8 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
 	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
+	get_owner_module(Pred, N, Module),
+	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Module, Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Module, Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
 
@@ -665,25 +666,27 @@ handle_directive(initialization, [Body], Where) :-
 handle_directive(module, [Module, DLst], _) :-
 	!,
 	(   g_read(module_already_seen, f) ->
-	    check_module_name(Module, false),
+	    check_module_name_decl(Module, Module1),
 	    g_assign(module_already_seen, t),
-	    g_assign(module, Module),
-	    add_module_export_info(DLst, Module)
+	    g_assign(module, Module1),
+	    add_module_export_info(DLst, Module1)
 	;
 	    error('directive module/2 already declared', [])
 	).
 
 handle_directive(use_module, [Module, DLst], _) :-
 	!,
-	check_module_name(Module, false),
-	add_module_export_info(DLst, Module).
+	check_module_name_use(Module, Module1),
+	add_module_export_info(DLst, Module1).
 
-handle_directive(meta_predicate, [MetaDecl], _) :-
+handle_directive(meta_predicate, [MetaDecl], Where) :-
 	!,
 	(   callable(MetaDecl) ->
 	    functor(MetaDecl, Pred, N),
 	    set_flag_for_preds(Pred/N, meta),
-	    assertz(meta_pred(Pred, N, MetaDecl))
+	    assertz(meta_pred(Pred, N, MetaDecl)),
+	    get_module_of_pred(Pred, N, Module),
+	    handle_initialization(system, '$declare_meta_predicate'(Module, MetaDecl), Where)
 	;
 	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
 	).
@@ -914,23 +917,53 @@ add_module_export_info(Pred / N, Module) :-
 	).
 
 
-check_module_name(Module, true) :-
+
+				% module syntax in module/2 directive
+check_module_name_decl(Module, Module1) :-
+	var(Module), !,				% replace a var by file basename
+	g_read(open_file_stack, [FileName * _|_]),
+%	g_read(where, Where),  Where = [FileName * _|_] + _,
+	decompose_file_name(FileName, _, Module, _),
+	check_module_name_decl(Module, Module1).
+
+check_module_name_decl(Module, Module) :-
+	check_module_name_syntax(Module).
+
+
+
+
+				% module syntax in use_module/2 directive
+check_module_name_use(Module, Module2) :-
+	nonvar(Module),
+	Module = library(Module1), !,
+	check_module_name_use(Module1, Module2). % For the moment ignore the surrounding library(...)
+
+check_module_name_use(Module, Module) :-
+	check_module_name_syntax(Module).
+
+
+
+
+
+				% module syntax in M:G
+check_module_name_qualif(Module) :-
 	var(Module), !.
 
-check_module_name(Module, _) :-
-	atom(Module), !.
+check_module_name_qualif(Module) :-
+	check_module_name_syntax(Module).
 
-check_module_name(Module, _) :-
-	error('invalid module name (~q) should be an atom', [Module]).
 
-/*
-check_module_name(Module, _) :-
+
+
+
+				% Here Module must be an atom with valid syntax
+check_module_name_syntax(Module) :-
 	atom(Module),
-	\+ atom_property(Module, needs_quotes), !.
+	\+ atom_property(Module, needs_quotes), !. % be less restrictive ? accept upper case
 
-check_module_name(Module, _) :-
-	error('invalid module name (~q) should only containts lower chars', [Module]).
-*/
+check_module_name_syntax(Module) :-
+	error('invalid module name (~q) should be an atom = valid file name', [Module]).
+
 
 
 
@@ -945,21 +978,22 @@ check_head_is_module_free(_).
 
 check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
 	clause(module_export(Pred, N, Module), true),
-	g_read(module, Module1),
+	get_module_of_pred(Pred, N, Module1),
 	Module \== Module1, !,
-	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
+	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred/N, Module1, Module]).
 
 check_module_clash(_, _).
 
 
 
 
-
+				% used to know how to qualify a call to a predicate (see internal.pl/code_gen.pl)
 get_owner_module(Pred, N, Module) :-
 	clause(module_export(Pred, N, Module), true),
-	Module \== system, !.
+	Module \== system, Module \== user, !.
 
 get_owner_module(_, _, _).
+
 
 
 
@@ -969,8 +1003,12 @@ is_exported(Pred, N) :-
 
 
 
-get_module_of_cur_pred(Module) :-
-	cur_pred(Pred, N),
+get_module_of_pred(Pred, _, Module) :- % an aux is in the same module as its father
+	'$aux_name'(Pred), !,
+	'$father_of_aux_name'(Pred, Pred1, N),
+	get_module_of_pred(Pred1, N, Module).
+
+get_module_of_pred(Pred, N, Module) :-
 	(   test_pred_info(bpl, Pred, N) ->
 	    Module = system
 	;   test_pred_info(bfd, Pred, N) ->
@@ -978,6 +1016,13 @@ get_module_of_cur_pred(Module) :-
 	;
 	    g_read(module, Module)
 	).
+
+
+
+
+get_module_of_cur_pred(Module) :-
+	cur_pred(Pred, N),
+	get_module_of_pred(Pred, N, Module).
 
 
 
@@ -1070,7 +1115,11 @@ unset_pred_info(_, _, _).
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	clause(pred_info(F, N, X), _),
-	X /\ 1 << Bit > 0 .
+	X /\ 1 << Bit > 0, !.
+
+test_pred_info(bpl, F, N) :- % an exported pred in system is a built_in - remove if not wanted
+	g_read(module, system),
+	is_exported(F, N).
 
 
 

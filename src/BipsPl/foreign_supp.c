@@ -90,7 +90,7 @@ WamWord pl_query_exception;		/* overwrite var of throw_c.c */
  * Function Prototypes             *
  *---------------------------------*/
 
-static CodePtr Prepare_Call(int func, int arity, WamWord *arg_adr);
+static CodePtr Prepare_Call(int module, int func, int arity, WamWord *arg_adr);
 
 
 
@@ -99,7 +99,7 @@ static CodePtr Prepare_Call(int func, int arity, WamWord *arg_adr);
 #define PL_QUERY_RECOVER_ALT       X1_24706C5F71756572795F7265636F7665725F616C74
 
 Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
-Prolog_Prototype(CALL_INTERNAL, 2);
+Prolog_Prototype(CALL_INTERNAL, 3);
 
 
 
@@ -242,14 +242,14 @@ Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static CodePtr
-Prepare_Call(int func, int arity, WamWord *arg_adr)
+Prepare_Call(int module, int func, int arity, WamWord *arg_adr)
 {
   PredInf *pred;
   WamWord *w;
   int i;
   int bip_func, bip_arity;
 
-  pred = Pl_Lookup_Pred(func, arity);
+  pred = Pl_Lookup_Pred_Visible(module, func, arity);
   if (pred == NULL || !(pred->prop & MASK_PRED_NATIVE_CODE) || 
       (pred->prop & MASK_PRED_CONTROL_CONSTRUCT))
     {
@@ -265,8 +265,9 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
 	}
 
       bip_func = Pl_Get_Current_Bip(&bip_arity);
-      A(1) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
-      return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 2);
+      A(1) = Tag_ATM(module);
+      A(2) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
+      return (CodePtr) Prolog_Predicate(CALL_INTERNAL, 3);
     }
 
   for (i = 0; i < arity; i++)
@@ -279,13 +280,26 @@ Prepare_Call(int func, int arity, WamWord *arg_adr)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_EXEC_CONTINUATION_MODULE                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Exec_Continuation_Module(int module, int func, int arity, WamWord *arg_adr)
+{
+  Pl_Execute_A_Continuation(Prepare_Call(module, func, arity, arg_adr));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_EXEC_CONTINUATION                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
 Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr)
 {
-  Pl_Execute_A_Continuation(Prepare_Call(func, arity, arg_adr));
+  Pl_Exec_Continuation_Module(pl_atom_user, func, arity, arg_adr);
 }
 
 
@@ -311,16 +325,29 @@ Pl_Query_Begin(Bool recoverable)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_QUERY_CALL_MODULE                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Query_Call_Module(int module, int func, int arity, WamWord *arg_adr)
+{
+  *query_stack_top++ = pl_query_top_b = B;
+  pl_query_exception = pl_atom_void;
+
+  return Pl_Call_Prolog(Prepare_Call(module, func, arity, arg_adr));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_QUERY_CALL                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
 Pl_Query_Call(int func, int arity, WamWord *arg_adr)
 {
-  *query_stack_top++ = pl_query_top_b = B;
-  pl_query_exception = pl_atom_void;
-
-  return Pl_Call_Prolog(Prepare_Call(func, arity, arg_adr));
+  return Pl_Query_Call_Module(pl_atom_user, func, arity, arg_adr);
 }
 
 
@@ -506,6 +533,7 @@ Pl_Atom_Needs_Scan(int atom)
 
 
 
+
 /*-------------------------------------------------------------------------*
  * PL_IS_VALID_ATOM                                                        *
  *                                                                         *
@@ -542,6 +570,31 @@ int Pl_Atom_Nil(void)
 
 
 
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_USER                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_User(void)
+{
+  return pl_atom_user;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_ATOM_SYSTEM                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int Pl_Atom_System(void)
+{
+  return pl_atom_user;
+}
+
+
+
+
 /*-------------------------------------------------------------------------*
  * PL_ATOM_FALSE                                                           *
  *                                                                         *
@@ -574,6 +627,7 @@ int Pl_Atom_End_Of_File(void)
 {
   return pl_atom_end_of_file;
 }
+
 
 
 

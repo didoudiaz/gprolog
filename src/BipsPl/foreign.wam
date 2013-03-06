@@ -1,14 +1,14 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.4.3
 % file    : foreign.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/foreign.pl').
 
 
-predicate('$force_foreign_link'/0,46,static,private,monofile,built_in,[
+predicate(system:'$force_foreign_link'/0,46,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$pl_query_recover_alt'/0,51,static,private,monofile,built_in,[
+predicate(system:'$pl_query_recover_alt'/0,51,static,private,monofile,built_in,[
     call_c('Pl_Query_Recover_Alt_0',[],[]),
     fail]).

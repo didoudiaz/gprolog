@@ -1,54 +1,37 @@
-% compiler: GNU Prolog 1.4.2
+% compiler: GNU Prolog 1.4.3
 % file    : throw.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/throw.pl').
 
 
-predicate('$use_throw'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_throw'/0,42,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$throw'/4,45,static,private,monofile,built_in,[
-    call_c('Pl_Save_Call_Info_3',[],[x(1),x(2),x(3)]),
-    put_integer(0,1),
-    execute('$throw1'/2)]).
-
-
-predicate('$throw1'/2,50,static,private,monofile,built_in,[
-    put_integer(1,2),
-    call_c('Pl_Load_Call_Info_Arg_1',[],[x(2)]),
-    execute('$throw_internal'/2)]).
-
-
-predicate('$throw_internal'/2,55,static,private,monofile,built_in,[
+predicate(system:'$throw'/4,49,static,private,monofile,built_in,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
+    try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
-    call('$$throw_internal/2_$aux1'/2),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    cut(x(4)),
     put_integer(8,0),
     put_value(y(0),1),
     call('$sys_var_put'/2),
     put_value(y(0),0),
     deallocate,
-    execute('$unwind'/1)]).
-
-
-predicate('$$throw_internal/2_$aux1'/2,55,static,private,monofile,local,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
-    try_me_else(1),
-    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
-    cut(x(2)),
-    call_c('Pl_Call_Info_Bip_Name_1',[],[x(1)]),
-    execute('$pl_err_instantiation'/0),
+    execute('$unwind'/1),
 
 label(1),
     trust_me_else_fail,
-    proceed]).
+    call_c('Pl_Set_Bip_Name_2',[],[x(2),x(3)]),
+    execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$unwind'/1,67,static,private,monofile,built_in,[
+predicate(system:'$unwind'/1,62,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -58,3 +41,11 @@ predicate('$unwind'/1,67,static,private,monofile,built_in,[
     put_unsafe_value(y(1),1),
     call_c('Pl_Throw_2',[],[x(0),x(1)]),
     fail]).
+
+
+predicate(system:'$throw_internal'/3,70,static,private,monofile,built_in,[
+    call_c('Pl_Call_Info_Bip_Name_1',[],[x(2)]),
+    put_variable(x(2),4),
+    put_variable(x(3),5),
+    call_c('Pl_Get_Bip_Name_2',[],[x(4),x(5)]),
+    execute('$throw'/4)]).

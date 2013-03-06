@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : Prolog engine                                                   *
  * File  : pred.c                                                          *
- * Descr.: predicate table management                                      *
+ * Descr.: module/predicate table management                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
@@ -68,9 +68,29 @@
  * Global Variables                *
  *---------------------------------*/
 
+
+/* cache for Pl_Lookup_Module */
+
+static ModuleInf *mod_system;
+static ModuleInf *mod_user;
+
+static int cache_mod_module = -1;
+static ModuleInf *cache_mod_mod;
+
+
+/* cache for Pl_Lookup_Pred */
+
+static int cache_pred_module = -1;
+static PlLong cache_pred_f_n;
+static PredInf *cache_pred_pred;
+
+
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
 
 
 
@@ -86,40 +106,132 @@ Pl_Init_Pred(void)
 
   int file = Pl_Create_Atom(__FILE__);
   int prop = MASK_PRED_NATIVE_CODE | MASK_PRED_CONTROL_CONSTRUCT | MASK_PRED_EXPORTED;
+  int meta_arg[3];		/* max is for catch/3 */
 
 #endif
 
-  pl_pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+  pl_module_tbl = Pl_Hash_Alloc_Table(START_MODULE_TBL_SIZE, sizeof(ModuleInf));
+  mod_system = Pl_Create_Module(pl_atom_system, pl_atom_system);
+  mod_user = Pl_Create_Module(pl_atom_user, pl_atom_user);
+
 
 /* The following control constructs are defined as predicates ONLY to:
  *
- * - be found by current_predicate/1 (if strict_iso is off)
+ * - be found by current_predicate/1 (in system)
  * - be found by predicate_property/2
  * - prevent their redefinition (e.g. asserta/1 will raise a permission_error)
  *
  * NB: see ISO Core 1 Section 7.5 about what is a "procedure" 
  * (bult-in predicates, control constructs or user defined predicates).
  *
- * Anyway, these predicates should NEVER called. Ensure it ! 
+ * Anyway, these predicates should NEVER be called. Ensure it ! 
  * Check the compiler, meta-calls (call/1) and the debugger...
- *
- * This file is ALWAYS linked (see EnginePl/pred.c).
  */
 
 #ifdef ADD_CONTROL_CONSTRUCTS_IN_PRED_TBL
 
-  Pl_Create_Pred(ATOM_CHAR(','), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(pl_atom_true, 0, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL);
-  Pl_Create_Pred(Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
+  meta_arg[0] = meta_arg[1] = meta_arg[2] = 0; /* default = 0 (integer), e.g. ','(0,0) */
+
+  Pl_Create_Pred_Meta(pl_atom_system, ATOM_CHAR(','), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred_Meta(pl_atom_system, ATOM_CHAR(';'), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("->"), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("*->"), 2, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred(pl_atom_system, ATOM_CHAR('!'), 0, file, __LINE__, prop, NULL);
+
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("fail"), 0, file, __LINE__, prop, NULL);
+
+  Pl_Create_Pred(pl_atom_system, pl_atom_true, 0, file, __LINE__, prop, NULL);
+
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("call"), 1, file, __LINE__, prop, NULL, meta_arg);
+
+  meta_arg[1] = META_PRED_ARG_QUESTION; /* for catch(0,?,0) */
+  Pl_Create_Pred_Meta(pl_atom_system, Pl_Create_Atom("catch"), 3, file, __LINE__, prop, NULL, meta_arg);
+
+  Pl_Create_Pred(pl_atom_system, Pl_Create_Atom("throw"), 1, file, __LINE__, prop, NULL);
 
 #endif
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CREATE_MODULE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+ModuleInf *
+Pl_Create_Module(int module, int pl_file)
+{
+  ModuleInf module_info;
+  ModuleInf *mod;
+
+
+#ifdef DEBUG
+  DBGPRINTF("Create module: %s\n", pl_atom_tbl[module].name);
+#endif
+
+  module_info.module = module;
+  module_info.pl_file = pl_file;
+  module_info.pred_tbl = NULL;
+
+  Pl_Extend_Table_If_Needed(&pl_module_tbl);
+  mod = (ModuleInf *) Pl_Hash_Insert(pl_module_tbl, (char *) &module_info, FALSE);
+  if (mod->pred_tbl == NULL)
+    mod->pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+  
+  return mod;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_LOOKUP_MODULE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+ModuleInf *
+Pl_Lookup_Module(int module)
+{
+  ModuleInf *mod;
+  
+  if (module == pl_atom_user)
+    return mod_user;
+
+  if (module == pl_atom_system)
+    return mod_system;
+
+  if (module == cache_mod_module)
+    return cache_mod_mod;
+
+  mod = (ModuleInf *) Pl_Hash_Find(pl_module_tbl, module);
+  if (mod == NULL)
+    return NULL;
+
+  cache_mod_module = module;
+  cache_mod_mod = mod;
+  return mod;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DELETE_MODULE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Delete_Module(int module)
+{
+  Pl_Hash_Delete(pl_module_tbl, module);
+
+  if (module == cache_mod_module)
+    {
+      cache_mod_module = -1;
+      cache_mod_mod = NULL;
+    }
 }
 
 
@@ -132,30 +244,37 @@ Pl_Init_Pred(void)
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
+Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int prop,
 	       PlLong *codep)
 {
+  ModuleInf *mod = Pl_Create_Module(module, pl_file);
   PredInf pred_info;
   PredInf *pred;
-  PlLong key = Functor_Arity(func, arity);
+  PlLong f_n = Functor_Arity(func, arity);
 
 
   if (prop & (MASK_PRED_BUILTIN_FD | MASK_PRED_CONTROL_CONSTRUCT))
-    prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
+      prop |= MASK_PRED_BUILTIN;	/* now an FD built-in or a CC is also a built-in */
+
+  if (prop & MASK_PRED_BUILTIN)
+    prop |= MASK_PRED_EXPORTED;
 
 #ifdef DEBUG
-  DBGPRINTF("Create pred: %s/%d  prop: %x\n", pl_atom_tbl[func].name, arity, prop);
+  DBGPRINTF("Create pred: %s:%s/%d  prop: %x\n",
+	    pl_atom_tbl[module].name, pl_atom_tbl[func].name, arity, prop);
 #endif
 
-  pred_info.f_n = key;
+  pred_info.f_n = f_n;
+  pred_info.mod = mod;
   pred_info.prop = prop;
   pred_info.pl_file = pl_file;
   pred_info.pl_line = pl_line;
+  pred_info.meta_spec = 0;
   pred_info.codep = codep;
   pred_info.dyn = NULL;
 
-  Pl_Extend_Table_If_Needed(&pl_pred_tbl);
-  pred = (PredInf *) Pl_Hash_Insert(pl_pred_tbl, (char *) &pred_info, FALSE);
+  Pl_Extend_Table_If_Needed(&mod->pred_tbl);
+  pred = (PredInf *) Pl_Hash_Insert(mod->pred_tbl, (char *) &pred_info, FALSE);
 
   if (prop != pred->prop)	/* predicate exists - occurs for multifile pred */
     {
@@ -176,15 +295,135 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
 
 
 /*-------------------------------------------------------------------------*
+ * PL_CREATE_PRED_META                                                     *
+ *                                                                         *
+ * Called by compiled prolog code, by dynamic predicate support and by     *
+ * byte-code support.                                                      *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line, int prop,
+		    PlLong *codep, int meta_arg[])
+{
+  PredInf *pred = Pl_Create_Pred(module, func, arity, pl_file, pl_file, 
+				 prop | MASK_PRED_META_PRED, codep);
+  MetaSpec meta_spec = 0;
+  int i;
+
+  for(i = 0; i < arity; i++)
+    meta_spec |= (meta_arg[i] << (i * 4));
+
+  pred->meta_spec = meta_spec;
+
+  return pred;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LOOKUP_PRED_CACHE                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Lookup_Pred_Cache(int module, PlLong f_n)
+{
+  ModuleInf *mod;
+  PredInf *pred;
+
+  if (cache_pred_module == module && cache_pred_f_n == f_n)
+    {
+#if 0
+      printf("\nCACHED: %s:%s/%d\n", pl_atom_tbl[module].name, 
+	     pl_atom_tbl[Functor_Of(f_n)].name, (int) Arity_Of(f_n));
+#endif      
+      return cache_pred_pred;
+    }
+
+  mod = Pl_Lookup_Module(module);
+
+  if (mod == NULL)
+    return NULL;
+
+  pred = (PredInf *) Pl_Hash_Find(mod->pred_tbl, f_n);
+
+  if (pred == NULL)
+    return NULL;
+
+#if 0
+  printf("\nPUT IN CACHE: %s:%s/%d\n", pl_atom_tbl[module].name, 
+	 pl_atom_tbl[Functor_Of(f_n)].name, (int) Arity_Of(f_n));
+#endif
+
+  cache_pred_module = module;
+  cache_pred_f_n = f_n;
+  cache_pred_pred = pred;
+
+  return pred;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_LOOKUP_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-PredInf * FC
-Pl_Lookup_Pred(int func, int arity)
+PredInf *
+Pl_Lookup_Pred(int module, int func, int arity)
 {
-  PlLong key = Functor_Arity(func, arity);
+  PlLong f_n = Functor_Arity(func, arity);
 
-  return (PredInf *) Pl_Hash_Find(pl_pred_tbl, key);
+  return Lookup_Pred_Cache(module, f_n);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_LOOKUP_PRED_VISIBLE                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Lookup_Pred_Visible(int module, int func, int arity)
+{
+  PredInf *pred;
+  PlLong f_n = Functor_Arity(func, arity);
+
+  if (module != pl_atom_system)
+    {
+      if (module != pl_atom_user)
+	{
+	  if ((pred = Lookup_Pred_Cache(module, f_n)) != NULL)
+	    return pred;
+	}
+
+      if ((pred = Lookup_Pred_Cache(pl_atom_user, f_n)) != NULL)
+	return pred;
+    }
+
+  pred = Lookup_Pred_Cache(pl_atom_system, f_n);
+  return pred;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CHECK_SYS_PRED_EXIST                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf *
+Pl_Check_Sys_Pred_Exist(char *name, int arity)
+{
+  int func = Pl_Find_Atom(name);
+  PredInf *pred;
+  
+  if (func < 0)			/* if the atom does not exist, the pred does not exist neither */
+    return NULL;
+
+
+  pred = Pl_Lookup_Pred(pl_atom_system, func, arity);
+  return pred;
 }
 
 
@@ -194,10 +433,16 @@ Pl_Lookup_Pred(int func, int arity)
  * PL_DELETE_PRED                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void FC
-Pl_Delete_Pred(int func, int arity)
+void
+Pl_Delete_Pred(int module, int func, int arity)
 {
-  PlLong key = Functor_Arity(func, arity);
+  ModuleInf *mod = Pl_Lookup_Module(module);
+  PlLong f_n = Functor_Arity(func, arity);
 
-  Pl_Hash_Delete(pl_pred_tbl, key);
+  if (mod)
+    {
+      Pl_Hash_Delete(mod->pred_tbl, f_n);
+      if (module == cache_pred_module && f_n == cache_pred_f_n)
+	cache_pred_module = -1;
+    }
 }

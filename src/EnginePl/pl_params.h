@@ -39,6 +39,8 @@
 
 #define MAX_OBJECT                 1024
 
+#define START_MODULE_TBL_SIZE      32
+
 #define START_PRED_TBL_SIZE        4096
 
 #define START_OPER_TBL_SIZE        1024
@@ -52,3 +54,8 @@
 /* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
    also the byte code management */
 
+
+
+#if 0
+#define META_TERM_HIDDEN
+#endif
