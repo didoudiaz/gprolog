@@ -245,7 +245,7 @@ Pl_Delete_Module(int module)
  *-------------------------------------------------------------------------*/
 PredInf * FC
 Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int prop,
-	       PlLong *codep)
+	       CodePtr codep)
 {
   ModuleInf *mod = Pl_Create_Module(module, pl_file);
   PredInf pred_info;
@@ -302,7 +302,7 @@ Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line, int pr
  *-------------------------------------------------------------------------*/
 PredInf *
 Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line, int prop,
-		    PlLong *codep, int meta_arg[])
+		    CodePtr codep, int meta_arg[])
 {
   PredInf *pred = Pl_Create_Pred(module, func, arity, pl_file, pl_file, 
 				 prop | MASK_PRED_META_PRED, codep);

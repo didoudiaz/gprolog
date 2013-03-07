@@ -297,16 +297,15 @@ Pl_Set_Heap_Actual_Start(WamWord *new_heap_actual_start)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system, CodePtr proc)
+Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system, CodePtr codep)
 {
   Pl_Reset_Prolog();
 
   if (!is_system)
     nb_user_directives++;
 
-  if (!Pl_Call_Prolog(proc))
-    fprintf(stderr,
-            ERR_DIRECTIVE_FAILED, pl_atom_tbl[pl_file].name, pl_line,
+  if (!Pl_Call_Prolog(codep))
+    fprintf(stderr, ERR_DIRECTIVE_FAILED, pl_atom_tbl[pl_file].name, pl_line,
             (is_system) ? "system" : "user");
 
   Pl_Reset_Prolog();
@@ -330,7 +329,7 @@ Pl_Try_Execute_Top_Level(void)
 
   if (pred != NULL)
     {
-      Pl_Call_Prolog((CodePtr) (pred->codep));
+      Pl_Call_Prolog(pred->codep);
       return TRUE;
     }
 
@@ -362,7 +361,7 @@ Pl_Call_Prolog(CodePtr codep)
   WamCont save_ALTB = ALTB(query_b);
   Bool ok;
 
-  ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
+  ALTB(query_b) = (WamCont) Call_Prolog_Fail;   /* modify choice point */
 
   CP = Adjust_CP(Call_Prolog_Success);
 
@@ -389,7 +388,7 @@ Pl_Call_Prolog_Next_Sol(WamWord *query_b)
   WamCont save_ALTB = ALTB(query_b);
   Bool ok;
 
-  ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
+  ALTB(query_b) = (WamCont) Call_Prolog_Fail;   /* modify choice point */
 
   CP = Adjust_CP(Call_Prolog_Success);  /* should be useless since */
   /* alternative will restore CP */

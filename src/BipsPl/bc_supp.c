@@ -170,10 +170,9 @@ typedef union
 {
   double d;
 #if WORD_SIZE == 64
-  int *p;
-  PlLong l;
+  uint64_t l;
 #endif
-  unsigned u[2];
+  uint32_t u[2];
 }
 C64To32;
 
@@ -301,7 +300,7 @@ Prolog_Prototype(THROW_INTERNAL, 3);
 
 #define Compute_Branch_Adr(bc, codep)   \
 {                                       \
-  codep = (WamCont) (bc->word); bc++;   \
+  codep = (CodePtr) (bc->word); bc++;   \
 }
 
 #else
@@ -310,7 +309,7 @@ Prolog_Prototype(THROW_INTERNAL, 3);
 {                                         \
   cv.u[0] = (unsigned) (bc->word); bc++;  \
   cv.u[1] = (unsigned) (bc->word); bc++;  \
-  codep = (WamCont) (cv.p);               \
+  codep = (CodePtr) (cv.l);               \
 }
 
 #endif
@@ -756,7 +755,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 	  w3 = 0;		/* to avoid MSVC warning */
 #else
 	  nb_word = 4;
-	  cv.p = (int *) (pred->codep);
+	  cv.l = (uint64_t) (pred->codep);
 	  w2 = cv.u[0];
 	  w3 = cv.u[1];
 #endif
@@ -808,7 +807,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
  * The buffer always bc has enough room for our 3 or 4 words.              *
  *-------------------------------------------------------------------------*/
 static void
-BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep)
+BC_Emit_Inst_Execute_Native(int module, int func, int arity, CodePtr codep)
 {
   BCWord w;			/* code-op word */
   unsigned w1, w2, w3;		/* additional words */
@@ -826,7 +825,7 @@ BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep)
   w3 = 0;		/* to avoid MSVC warning */
 #else
   nb_word = 4;
-  cv.p = (int *) codep;
+  cv.l = (uint64_t) codep;
   w2 = cv.u[0];
   w3 = cv.u[1];
 #endif
@@ -845,7 +844,7 @@ BC_Emit_Inst_Execute_Native(int module, int func, int arity, PlLong *codep)
  * We here create a call to this clause.                                   *
  *-------------------------------------------------------------------------*/
 void
-Pl_Emit_BC_Execute_Wrapper(int module, int func, int arity, PlLong *codep)
+Pl_Emit_BC_Execute_Wrapper(int module, int func, int arity, CodePtr codep)
 {
   Pl_BC_Start_Emit_0();
   BC_Emit_Inst_Execute_Native(module, func, arity, codep);
@@ -1012,7 +1011,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 		   int caller_func, int caller_arity, Bool debug_call)
 {
   WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
-  CodePtr codep;
+  WamCont codep;
 
   Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
 
@@ -1046,7 +1045,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 	  A(0) = *arg_adr;
 	  A(1) = Tag_ATM(module);	/* FIXME should be CallerModule or CallerMFA */
 	  A(2) = call_info_word;
-	  return (CodePtr) Prolog_Predicate(THROW_INTERNAL, 3);
+	  return (WamCont) Prolog_Predicate(THROW_INTERNAL, 3);
 	}
 
 #ifdef META_TERM_HIDDEN
@@ -1078,7 +1077,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 
       if (func == ATOM_CHAR(','))
 	{
-	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_AND, 5);
+	  codep = (WamCont) Prolog_Predicate(CALL_INTERNAL_AND, 5);
 	complex_call:
 
 	  /* NB: arg_adr can be &A(0), thus args can be in A(0) and A(1). Beware */
@@ -1088,24 +1087,24 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 	  A(2) = Tag_ATM(module);
 	  A(3) = call_info_word;
 	  A(4) = Pl_Get_Current_Choice(); /* VarCut */
-	  return codep;
+	  return (WamCont) codep;
 	}
 
       if (func == ATOM_CHAR(';'))
 	{
-	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_OR, 5);
+	  codep = (WamCont) Prolog_Predicate(CALL_INTERNAL_OR, 5);
 	  goto complex_call;
 	}
 
       if (func == atom_if)
 	{
-	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_IF, 5);
+	  codep = (WamCont) Prolog_Predicate(CALL_INTERNAL_IF, 5);
 	  goto complex_call;
 	}
 
       if (func == atom_soft_if)
 	{
-	  codep = (CodePtr) Prolog_Predicate(CALL_INTERNAL_SOFT_IF, 5);
+	  codep = (WamCont) Prolog_Predicate(CALL_INTERNAL_SOFT_IF, 5);
 	  goto complex_call;
 	}
 
@@ -1122,7 +1121,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 	    }
 	  A(3) = Tag_ATM(module);
 	  A(4) = call_info_word;
-	  return (CodePtr) Prolog_Predicate(CATCH_INTERNAL, 5);
+	  return (WamCont) Prolog_Predicate(CATCH_INTERNAL, 5);
 	}
      
       break;
@@ -1309,7 +1308,7 @@ BC_Emulate_Clause(DynCInf *clause)
   A(0) = body_word;
   A(1) = Tag_ATM(module);
   A(2) = Tag_INT(Call_Info(func, arity, debug_call));
-  return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 4);
+  return (WamCont) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 4);
 }
 
 
