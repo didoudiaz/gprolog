@@ -365,9 +365,11 @@ Reload_E_In_Register(void)
 void
 Pl_Jump(char *label)
 {
+#ifndef M_x86_64_darwin
   if (pic_code)
     Inst_Printf("jmp", UN "%s@PLT", label);
   else
+#endif
     Inst_Printf("jmp", UN "%s", label);
 }
 
@@ -465,11 +467,12 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
-#if 0
-  Inst_Printf("jmp", UN "%s", label);
-#else
-  Inst_Printf("jmp", UN "%s@PLT", label);
+#ifndef M_x86_64_darwin
+  if (pic_code)
+    Inst_Printf("jmp", UN "%s@PLT", label);
+  else
 #endif
+    Inst_Printf("jmp", UN "%s", label);
 }
 
 
@@ -903,9 +906,11 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 void
 Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
 {
+#ifndef M_x86_64_darwin
   if (pic_code)
     Inst_Printf("call", UN "%s@PLT", fct_name);
   else
+#endif
     Inst_Printf("call", UN "%s", fct_name);
 }
 
@@ -1212,7 +1217,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case INITIAL_VALUE:
       if (global)
         Inst_Printf(".globl", UN "%s", name);
-#if 1
+#ifndef M_x86_64_darwin
       Inst_Printf(".size", UN "%s,8", name);
 #endif
       Label_Printf(UN "%s:", name);
