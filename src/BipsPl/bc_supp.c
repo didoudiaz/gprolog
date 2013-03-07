@@ -978,12 +978,12 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr,
 
 	  if (x <= META_PRED_ARG_COLON)
 	    {
-#if 1
+#if 0
 	      printf("in meta-call to %s/%d meta-arg %d = ", pl_atom_tbl[func].name, arity, i);
 	      Pl_Write_Simple(A(i));
 #endif
 	      A(i) = Pl_Put_Meta_Term(module, A(i));
-#if 1
+#if 0
 	      printf(" becomes ");
 	      Pl_Write_Simple(A(i));
 	      printf("\n");
