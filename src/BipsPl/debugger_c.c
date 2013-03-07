@@ -148,7 +148,7 @@ static void Modify_Wam_Word(WamWord *word_adr);
 
 static WamWord *Detect_Stack(WamWord *adr, char **stack_name);
 
-static PredInf *Detect_Pred_From_Code(WamCont code);
+static PredInf *Detect_Pred_From_Code(CodePtr codep);
 
 static Bool Help(void);
 
@@ -548,12 +548,12 @@ What(void)
       return FALSE;
     }
 
-  if ((pred = Detect_Pred_From_Code((WamCont) adr)) != NULL)
+  if ((pred = Detect_Pred_From_Code((CodePtr) adr)) != NULL)
     {
       func = Functor_Of(pred->f_n);
       arity = Arity_Of(pred->f_n);
       Pl_Stream_Printf(pstm_o, "%s/%d", pl_atom_tbl[func].name, arity);
-      if (adr > pred->codep)
+      if (adr > (PlLong *) (pred->codep))
 	Pl_Stream_Printf(pstm_o, "+%d", (char *) adr - (char *) (pred->codep));
       Pl_Stream_Printf(pstm_o, "\n");
       return FALSE;
@@ -1158,12 +1158,12 @@ Detect_Stack(WamWord *adr, char **stack_name)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static PredInf *
-Detect_Pred_From_Code(WamCont code)
+Detect_Pred_From_Code(CodePtr codep)
 {
   ModuleInf *mod;
   HashScan scan_mod, scan;
   PredInf *pred;
-  WamCont cur_code, last_code = 0;
+  CodePtr cur_codep, last_codep = 0;
   PredInf *last_pred = NULL;
 
  for(mod = (ModuleInf *) Pl_Hash_First(pl_module_tbl, &scan_mod); mod;
@@ -1172,11 +1172,11 @@ Detect_Pred_From_Code(WamCont code)
       for (pred = (PredInf *) Pl_Hash_First(mod->pred_tbl, &scan); pred;
 	   pred = (PredInf *) Pl_Hash_Next(&scan))
 	{
-	  cur_code = (WamCont) (pred->codep);
-	  if (last_code <= cur_code && cur_code <= code) /* cur_code between last_code and code */
-	    {
+	  cur_codep = (pred->codep);
+	  if (last_codep <= cur_codep && cur_codep <= codep)
+	    {			/* cur_codep between last_codep and codep */
 	      last_pred = pred;
-	      last_code = cur_code;
+	      last_codep = cur_codep;
 	    }
 	}
     }

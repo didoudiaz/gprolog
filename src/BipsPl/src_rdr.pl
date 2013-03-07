@@ -75,7 +75,7 @@ sr_open(FileOrStream, D, Options) :-
         '$get_sr_options'(Options, OutSorA),
 	(   var(D) ->
 	    true
-	;   '$pl_err_type'(variable, D)
+	;   '$pl_err_uninstantiation'(D)
 	),
 	'$call_c'('Pl_SR_Init_Open_2'(D, OutSorA)),
 	(   nonvar(FileOrStream), FileOrStream = '$stream'(_) ->
@@ -255,7 +255,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	Stream = '$stream'(Stm),
 	set_bip_name(sr_read_term, 3),
 	'$catch'('$read_term'(Stream, Term, Options), Excep, true,
-		 sr_read_term, 3, false),
+		 system, sr_read_term, 3),
 	'$call_c'('Pl_SR_Update_Position_0'),
 	(   var(Excep) ->
 	    '$sr_treat_term'(Term, SRError)
@@ -296,7 +296,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	    '$catch'('$sr_exec_directive'(Directive, SRError),
 		     Excep,
 		     '$sr_error_from_exception'(Excep, SRError),
-		     any, 0, false)
+		     system, any, 0)
 	;
 	    true),
 	(   var(Excep) ->

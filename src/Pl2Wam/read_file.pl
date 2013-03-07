@@ -284,7 +284,7 @@ read_predicate1(Pred, N, LSrcCl) :-
 	;   true
 	), !,
 	Cl \== end_of_file,                    % if end_of_file is read, fail
-                                            % and backtrack to read_predicate
+                                            % and backtrack to read_predicate1
 	define_predicate(Pred, N),
 	group_clauses_by_pred(Pred, N, SrcCl, LSrcCl).
 
@@ -321,8 +321,8 @@ read_predicate1(Pred, N, LSrcCl) :-
 read_predicate1(Pred, N, LSrcCl) :-
 	Pred = end_of_file,
 	N = 0,
-	LSrcCl = [],                                            % end of file
-	             !.
+	LSrcCl = [], !.                                         % end of file
+	             
 
 
 
@@ -404,10 +404,10 @@ get_next_clause(Pred, N, SrcCl) :-
 get_next_clause(Pred, N, SrcCl) :-
 	g_read(open_file_stack, OpenFileStack),
 	OpenFileStack = [_ * Stream|_],
-	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, any, 0, false),
+	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, user, any, 0),
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
-	    '$catch'(expand_term(Cl, Cl1), error(Err, _), dcg_error(Err), any, 0, false),
+	    '$catch'(expand_term(Cl, Cl1), error(Err, _), dcg_error(Err), user, any, 0),
 	    stream_line_column(Stream, Line, Col),
 	    (   Col = 1 ->
 	        L2 is Line - 1
@@ -442,7 +442,7 @@ get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 get_next_clause1((:- if(Goal)), _, _, Pred, N, SrcCl) :-
 	!,
 	g_read(if_stack, IfStack),
-	(   '$catch'(Goal, Err, (warn('if directive caused exception: ~w', [Err]), fail), any, 0, false) ->
+	(   '$catch'(Goal, Err, (warn('if directive caused exception: ~w', [Err]), fail), user, any, 0) ->
 	    g_assign(if_stack, [if(then, 1)|IfStack])
 	;
 	    g_assign(if_stack, [if(then, 0)|IfStack])
@@ -453,7 +453,7 @@ get_next_clause1((:- elif(Goal)), _, _, Pred, N, SrcCl) :-
 	!,
 	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
 	    (   Keep = 0 ->
-		(   '$catch'(Goal, Err, (warn('elif directive caused exception: ~w', [Err]), fail), any, 0, false) ->
+		(   '$catch'(Goal, Err, (warn('elif directive caused exception: ~w', [Err]), fail), user, any, 0) ->
 		    g_assign(if_stack, [if(then, 1)|IfStack])
 		;
 		    g_assign(if_stack, [if(then, 0)|IfStack])
@@ -676,10 +676,10 @@ handle_directive(module, [Module, DLst], _) :-
 
 handle_directive(use_module, [Module, DLst], _) :-
 	!,
-	check_module_name_use(Module, Module1),
-	add_module_export_info(DLst, Module1).
+	load_module_interface(Module, DLst, Module1, DLst1),
+	add_module_export_info(DLst1, Module1).
 
-handle_directive(meta_predicate, [MetaDecl], Where) :-
+handle_directive(meta_predicate, [MetaDecl], Where) :- % FIXME accept several MetaDecls
 	!,
 	(   callable(MetaDecl) ->
 	    functor(MetaDecl, Pred, N),
@@ -688,7 +688,7 @@ handle_directive(meta_predicate, [MetaDecl], Where) :-
 	    get_module_of_pred(Pred, N, Module),
 	    handle_initialization(system, '$declare_meta_predicate'(Module, MetaDecl), Where)
 	;
-	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
+	    error('invalid directive meta_predicate/1 ~w', [MetaDecl])
 	).
 
 handle_directive(foreign, [Template], Where) :-
@@ -827,7 +827,7 @@ handle_initialization(user, Body, Where) :-
 
 
 exec_directive(Goal) :-
-	'$catch'(Goal, Err, exec_directive_exception(Goal, Err), any, 0, false), !.
+	'$catch'(Goal, Err, exec_directive_exception(Goal, Err), user, any, 0), !.
 
 exec_directive(Goal) :-
 	warn('directive failed (~q)', [Goal]).
@@ -1023,6 +1023,86 @@ get_module_of_pred(Pred, N, Module) :-
 get_module_of_cur_pred(Module) :-
 	cur_pred(Pred, N),
 	get_module_of_pred(Pred, N, Module).
+
+
+
+
+load_module_interface(Module, DLst, Module1, DLst1) :-
+	check_module_name_use(Module, Module1),
+	(   Module = library(_) ->
+	    current_prolog_flag(home, Home),
+	    atom_concat(Home, '/library/', D),
+	    atom_concat(D, Module1, File0)
+	;
+	    File0 = Module1
+	),
+	prolog_file_name(File0, PlFile),
+	catch(load_module_interface1(PlFile, Module, DLst, DLst1), Err, load_module_interface_err(Err, Module)), !,
+%format('for use_module(~w) imports are: ~w~n', [Module, DLst1]),
+	true.
+
+
+
+load_module_interface1(PlFile, Module, DLst, DLst2) :-
+	open(PlFile, read, Stream),
+	g_assign(loaded_export_list, ''),
+	repeat,
+	catch(read(Stream, T), _, fail), % ignore errors (FIXME report ? what with :- op/3)
+	(   T = end_of_file ->
+	    !
+	;
+	    T = (:- Directive),
+	    (   functor(Directive, module, A), A >= 2, A =< 3 ->
+		arg(2, Directive, DLst1),
+		(   g_read(loaded_export_list, '') ->
+		    g_assign(loaded_export_list, DLst1)
+		;
+		    warn('reading interface of ~w more than one module directive - keep first',
+			 [Module])
+		)
+	    ;
+		Directive = meta_predicate(MetaDecl), % FIXME accept several MetaDecls
+%    format('interface of ~w: read ~w~n', [Module, MetaDecl]),
+		(   callable(MetaDecl) ->
+		    functor(MetaDecl, Pred, N),
+		    % set_flag_for_preds(Pred/N, meta), % useless for the moment
+		    assertz(meta_pred(Pred, N, MetaDecl))
+		;
+		    warn('reading interface of ~w invalid directive meta_predicate/1 ~w (ignored)',
+			 [Module, MetaDecl])
+		)
+	    ),
+	    fail
+	),
+	close(Stream),
+	g_read(loaded_export_list, DLst1) ->
+	(   DLst1 = '' ->
+	    warn('no module directive found in ~w (still imported)', [Module])
+	;
+	    member(PI, DLst),
+	    (   memberchk(PI, DLst1) ->
+		true
+	    ;
+		warn('~w is not exported by ~w (still imported)', [PI, Module])
+	    ),
+	    fail
+	;
+	    
+	    (   DLst = [] ->
+		DLst2 = DLst1
+	    ;
+		DLst2 = DLst
+	    )
+	).
+
+
+
+
+load_module_interface_err(error(existence_error(source_sink, _), _), Module) :-
+	warn('cannot open ~w - does not exist (still imported)', [Module]).
+
+load_module_interface_err(Err, Module) :-
+	warn('reading interface of ~w raised an error ~w (ignored)', [Module, Err]).
 
 
 

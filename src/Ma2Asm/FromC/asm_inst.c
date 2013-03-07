@@ -87,7 +87,7 @@ _foo:;
 }
 
 
-void TRNAS_pl_call_another()
+void TRANS_pl_call_another()
 {
   CP = (CodePtr) &&cont;
   foo();
@@ -179,6 +179,7 @@ TRANS_move_y_to_y()
 void
 TRANS_call_c(void)
 {
+  dummy();
 /*  &label,var,int, double,         string */
   bar(foo, var, 12, 4098, -4095, (double) 1.20e-10, "this is a string",
       "a\14b");
@@ -382,6 +383,14 @@ static intptr_t var_long_static_init100 = 100;
 intptr_t var_long_common_unint;
 intptr_t var_long_common_init128 = 128;
 
+
+intptr_t ma_array[5000];
+intptr_t ma_global_var1;
+intptr_t ma_global_var2 = 12345;
+static intptr_t ma_local_var1;
+static intptr_t ma_local_var2 = 128;
+
+
 static intptr_t var_array_static128[128];
 intptr_t var_array_common128[128];
 
@@ -391,8 +400,10 @@ intptr_t var_array_common128[128];
 static void
 initializer_fct()
 { /* the following printf to ensure gcc does not remove unused static vars */
-  printf("%ld %ld %ld %ld\n", var_long_static_uninit, var_long_static_init0,
+  printf("%p %p\n", &ma_local_var1, &ma_local_var2);
+  printf("%ld %ld %ld %p\n", var_long_static_uninit, var_long_static_init0,
 	 var_long_static_init100, var_array_static128);
+  dummy(12);
 }
 
 

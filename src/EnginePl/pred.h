@@ -85,7 +85,7 @@ typedef struct			/* Predicate information          */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */
   MetaSpec meta_spec;		/* meta_predicate specifier       */
-  PlLong *codep;		/* compiled code                  */
+  CodePtr codep;		/* compiled code                  */
   PlLong *dyn;			/* dynamic info (cf BipsPl)       */
 }
 PredInf;
@@ -127,10 +127,10 @@ void Pl_Delete_Module(int module);
 void Pl_Create_Pred_Table(void);
 
 PredInf * FC Pl_Create_Pred(int module, int func, int arity, int pl_file, int pl_line,
-			    int prop, long *codep);
+			    int prop, CodePtr codep);
 
 PredInf *Pl_Create_Pred_Meta(int module, int func, int arity, int pl_file, int pl_line,
-			     int prop, long *codep, int meta_arg[]);
+			     int prop, CodePtr codep, int meta_arg[]);
 
 PredInf *Pl_Lookup_Pred(int module, int func, int arity);
 
