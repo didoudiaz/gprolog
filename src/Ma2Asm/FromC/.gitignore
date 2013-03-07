@@ -1,1 +1,4 @@
 Makefile
+asm_inst.c
+wam_archi.h
+
