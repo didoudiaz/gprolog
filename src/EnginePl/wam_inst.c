@@ -510,7 +510,9 @@ Pl_Put_Unsafe_Value(WamWord start_word)
   WamWord res_word;
 
 #ifdef BOEHM_GC
-  assert( !Tag_Is_LST(start_word) && !Tag_Is_STC(start_word) && !Tag_Is_FLT(start_word) );
+  assert( !Tag_Is_LST(start_word) );
+  assert( !Tag_Is_STC(start_word) );
+  assert( !Tag_Is_FLT(start_word) );
 
   DEREF_PTR(&start_word, adr, tag_mask);
   word = Tag_REF(*adr);
@@ -899,7 +901,9 @@ Pl_Unify_Local_Value(WamWord start_word)
     return Pl_Unify(start_word, *S++);
 
 #ifdef BOEHM_GC
-  assert( !Tag_Is_LST(start_word) && !Tag_Is_STC(start_word) && !Tag_Is_FLT(start_word) );
+  assert( !Tag_Is_LST(start_word) );
+  assert( !Tag_Is_STC(start_word) );
+  assert( !Tag_Is_FLT(start_word) );
 
   DEREF_PTR(&start_word, adr, tag_mask);
   word = Tag_REF(*adr);
