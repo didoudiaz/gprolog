@@ -134,7 +134,10 @@ Pl_Start_Prolog(int argc, char *argv[])
 
 #ifdef BOEHM_GC
   GC_INIT();
-#endif
+#ifdef DEBUG_MEM_GC_DONT_COLLECT
+  GC_disable();
+#endif /* DEBUG_MEM_GC_DONT_COLLECT */
+#endif /* BOEHM_GC */
 
   Set_Locale();
 

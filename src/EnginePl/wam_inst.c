@@ -96,7 +96,11 @@ WamWord * FC
 Pl_GC_Mem_Alloc(PlULong n)
 {
   WamWord *result = 0, *x;
+#if DEBUG_MEM_GC_DONT_COLLECT>=2
+  result = (WamWord *) malloc(n * sizeof(WamWord));
+#else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
   result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
+#endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
   if (result != 0) {
       x = result + n;
       while (x-- > result) {
