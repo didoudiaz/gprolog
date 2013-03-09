@@ -285,19 +285,20 @@ Pl_Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
   WamWord *adr, *fdv_adr;
   WamWord *exp;
   int op;
+  static WamWord h[3];		/* static to avoid high address */
 
 
   DEREF(op_word, word, tag_mask);
   op = UnTag_INT(op_word);
 
-  H[0] = bool_tbl[op];		/* also works for NOT/1 */
-  H[1] = le_word;
-  H[2] = re_word;
+  h[0] = bool_tbl[op];		/* also works for NOT/1 */
+  h[1] = le_word;
+  h[2] = re_word;
 
   sp = stack;
   vars_sp = vars_tbl;
 
-  exp = Simplify(1, Tag_STC(H));
+  exp = Simplify(1, Tag_STC(h));
 
 #ifdef DEBUG
   Display_Stack(exp);

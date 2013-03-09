@@ -762,16 +762,34 @@ Normalize(WamWord e_word, int sign, Poly *p)
       goto terminal_rec;
 
     case PLUS_2:
-      if (!Normalize(le_word, sign, p))
-	return FALSE;
-      e_word = re_word;
+      if (!Pl_Blt_Compound(le_word)) /* try to avoid C stack overflow */
+	{
+	  if (!Normalize(le_word, sign, p))
+	    return FALSE;
+	  e_word = re_word;
+	}
+      else
+	{
+	  if (!Normalize(re_word, sign, p))
+	    return FALSE;
+	  e_word = le_word;
+	}
       goto terminal_rec;
 
     case MINUS_2:
-      if (!Normalize(le_word, sign, p))
-	return FALSE;
-      e_word = re_word;
-      sign = -sign;
+      if (!Pl_Blt_Compound(le_word)) /* try to avoid C stack overflow */
+	{
+	  if (!Normalize(le_word, sign, p))
+	    return FALSE;
+	  e_word = re_word;
+	  sign = -sign;
+	}
+      else
+	{
+	  if (!Normalize(re_word, -sign, p))
+	    return FALSE;
+	  e_word = le_word;
+	}
       goto terminal_rec;
 
     case MINUS_1:
@@ -1017,49 +1035,49 @@ Normalize(WamWord e_word, int sign, Poly *p)
 
     case QUOT_REM_3:
     quot_rem:
-    if (!Load_Term_Into_Word(le_word, &word1) ||
-	!Load_Term_Into_Word(re_word, &word2) ||
-	(i == QUOT_REM_3 && !Load_Term_Into_Word(Arg(adr, 2), &word3)))
-      return FALSE;
+      if (!Load_Term_Into_Word(le_word, &word1) ||
+	  !Load_Term_Into_Word(re_word, &word2) ||
+	  (i == QUOT_REM_3 && !Load_Term_Into_Word(Arg(adr, 2), &word3)))
+	return FALSE;
 
-    if (Tag_Is_INT(word1))
-      {
-	n1 = UnTag_INT(word1);
-	if (Tag_Is_INT(word2))
-	  {
-	    n2 = UnTag_INT(word2);
-	    if (n2 == 0)
-	      return FALSE;
-	    n3 = n1 % n2;
+      if (Tag_Is_INT(word1))
+	{
+	  n1 = UnTag_INT(word1);
+	  if (Tag_Is_INT(word2))
+	    {
+	      n2 = UnTag_INT(word2);
+	      if (n2 == 0)
+		return FALSE;
+	      n3 = n1 % n2;
 
-	    if (i == QUOT_2 || i == QUOT_REM_3)
-	      {
-		if (i == QUOT_REM_3)
-		  PRIM_CSTR_2(pl_x_eq_c, word3, word);
-		else
-		  H--;	/* recover word3 space */
-		n3 = n1 / n2;
-	      }
+	      if (i == QUOT_2 || i == QUOT_REM_3)
+		{
+		  if (i == QUOT_REM_3)
+		    PRIM_CSTR_2(pl_x_eq_c, word3, word);
+		  else
+		    H--;	/* recover word3 space */
+		  n3 = n1 / n2;
+		}
 
-	    Add_Cst_To_Poly(p, sign, n3);
-	    return TRUE;
-	  }
+	      Add_Cst_To_Poly(p, sign, n3);
+	      return TRUE;
+	    }
 
-	word = Push_Delayed_Cstr(DC_QUOT_REM_A_Y_R_EQ_Z, word1, word2,
+	  word = Push_Delayed_Cstr(DC_QUOT_REM_A_Y_R_EQ_Z, word1, word2,
+				   word3);
+	  goto end_quot_rem;
+	}
+
+      if (Tag_Is_INT(word2))
+	word = Push_Delayed_Cstr(DC_QUOT_REM_X_A_R_EQ_Z, word1, word2,
 				 word3);
-	goto end_quot_rem;
-      }
-
-    if (Tag_Is_INT(word2))
-      word = Push_Delayed_Cstr(DC_QUOT_REM_X_A_R_EQ_Z, word1, word2,
-			       word3);
-    else
-      word = Push_Delayed_Cstr(DC_QUOT_REM_X_Y_R_EQ_Z, word1, word2,
-			       word3);
+      else
+	word = Push_Delayed_Cstr(DC_QUOT_REM_X_Y_R_EQ_Z, word1, word2,
+				 word3);
 
     end_quot_rem:
-    Add_Monom(p, sign, 1, (i == REM_2) ? word3 : word);
-    return TRUE;
+      Add_Monom(p, sign, 1, (i == REM_2) ? word3 : word);
+      return TRUE;
 
     case DIV_2:
       if (!Load_Term_Into_Word(le_word, &word1) ||
@@ -1399,7 +1417,7 @@ Debug_Display(char *fct, int n, ...)
 	  if (*s && p[1 + i] == '_')
 	    {
 	      p += 1 + i;
-	      DBGPRINTF(s2[s - s1]);
+	      DBGPRINTF("%s", s2[s - s1]);
 	      continue;
 	    }
 	}
