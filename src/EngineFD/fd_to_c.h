@@ -179,14 +179,14 @@
 
 #define fd_call_internal_and_test_switch_simple(fct_name)	\
 {								\
-  PlLong (*fct) () = (PlLong (*)()) fct_name(AF);			\
+  PlLong (*fct) () = (PlLong (*)()) fct_name(AF);		\
 								\
   if (fct == (PlLong (*)()) FALSE)				\
     {								\
       ret_val = FALSE;						\
       goto lab_exit;						\
     }								\
-  if (fct != (PlLong (*)()) TRUE)	/* FD switch case triggered */	\
+  if (fct != (PlLong (*)()) TRUE)/* FD switch case triggered */	\
     {								\
       if ((*fct) (AF) == FALSE)					\
 	{							\
@@ -201,14 +201,14 @@
 
 #define fd_call_internal_and_test_switch(fct_name)		\
 {								\
-  PlLong (*fct) () = (PlLong (*)()) fct_name(AF);			\
+  PlLong (*fct) () = (PlLong (*)()) fct_name(AF);		\
 								\
   if (fct == (PlLong (*)()) FALSE)				\
     {								\
       ret_val = FALSE;						\
       goto lab_exit;						\
     }								\
-  if (fct != (PlLong (*)()) TRUE)	/* FD switch case triggered */	\
+  if (fct != (PlLong (*)()) TRUE)/* FD switch case triggered */	\
     {								\
       if ((*fct) (AF) == FALSE)					\
 	{							\
@@ -216,7 +216,7 @@
 	  goto lab_exit;					\
 	}							\
 								\
-      Pl_Fd_Stop_Constraint(CF);					\
+      Pl_Fd_Stop_Constraint(CF);				\
     }								\
 }
 
@@ -235,7 +235,7 @@
 	  /* Install instructions */
 
 #define fd_create_c_frame(fct_name, tell_fv, optim2)			   \
-  CF = Pl_Fd_Create_C_Frame(fct_name, AF, 					   \
+  CF = Pl_Fd_Create_C_Frame(fct_name, AF, 				   \
                          (tell_fv == -1) ? NULL : Frame_Variable(tell_fv), \
                          optim2);
 
@@ -302,7 +302,7 @@
 #define fd_tell_not_value(fv, t)		\
 {						\
   fdv_adr = Frame_Variable(fv);			\
-  if (!Pl_Fd_Tell_Not_Value(fdv_adr, t))		\
+  if (!Pl_Fd_Tell_Not_Value(fdv_adr, t))	\
     {						\
       ret_val = FALSE;				\
       goto lab_exit;				\
@@ -312,58 +312,27 @@
 
 
 
-#define fd_tell_interval(fv, t_min, t_max)				\
-{									\
-  fdv_adr = Frame_Variable(fv);						\
-  if (Fd_Variable_Is_Ground(fdv_adr))					\
-    {									\
-      int n = Min(fdv_adr);						\
-									\
-      if (n < (int) (t_min) || n > (int) (t_max))			\
-	{ /* also detects if initial range is empty */			\
-	  ret_val = FALSE;						\
-	  goto lab_exit;						\
-	}								\
-    }									\
-  else if (Is_Sparse(Range (fdv_adr)))					\
-    {									\
-      Range range;							\
-									\
-      Range_Init_Interval(&range, t_min, t_max);			\
-									\
-      if (!Pl_Fd_Tell_Range_Range(fdv_adr, &range))			\
-	{								\
-	  ret_val = FALSE;						\
-	  goto lab_exit;						\
-	}								\
-    }									\
-  else if (!Pl_Fd_Tell_Interv_Interv(fdv_adr, t_min, t_max))		\
-    {									\
-      ret_val = FALSE;							\
-      goto lab_exit;							\
-    }									\
+#define fd_tell_interval(fv, t_min, t_max)		\
+{							\
+  fdv_adr = Frame_Variable(fv);				\
+  if (!Pl_Fd_Tell_Interval(fdv_adr, t_min, t_max))	\
+    {							\
+      ret_val = FALSE;					\
+      goto lab_exit;					\
+    }							\
 }
 
 
 
 
-
-#define fd_tell_range(fv, r)				\
-{							\
-  fdv_adr = Frame_Variable(fv);				\
-  if (Fd_Variable_Is_Ground(fdv_adr))			\
-    {							\
-      if (!Pl_Fd_Tell_Int_Range(fdv_adr, &R(r)))		\
-	{						\
-	  ret_val = FALSE;				\
-	  goto lab_exit;				\
-	}						\
-    }							\
-  else if (!Pl_Fd_Tell_Range_Range(fdv_adr, &R(r)))	\
-    {							\
-      ret_val = FALSE;					\
-      goto lab_exit;					\
-    }							\
+#define fd_tell_range(fv, r)			\
+{						\
+  fdv_adr = Frame_Variable(fv);			\
+  if (!Pl_Fd_Tell_Range(fdv_adr, &R(r)))	\
+    {						\
+      ret_val = FALSE;				\
+      goto lab_exit;				\
+    }						\
 }
 
 

@@ -1259,6 +1259,53 @@ Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
 
 
 
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_TELL_INTERVAL                                                     *
+ *                                                                         *
+ * Called by fd_to_c.h                                                     *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Tell_Interval(WamWord *fdv_adr, int min, int max)
+{
+  int n;
+  Range range;
+
+  if (Fd_Variable_Is_Ground(fdv_adr))
+    {
+      n = Min(fdv_adr);
+      return (n >= min && n <= max); /* also detects if initial range is empty */
+    }
+
+  if (Is_Sparse(Range(fdv_adr)))
+    {
+      Range_Init_Interval(&range, min, max);
+      return Pl_Fd_Tell_Range_Range(fdv_adr, &range);
+    }
+
+  return Pl_Fd_Tell_Interv_Interv(fdv_adr, min, max);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_TELL_RANGE                                                        *
+ *                                                                         *
+ * Called by fd_to_c.h                                                     *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Tell_Range(WamWord *fdv_adr, Range *range)
+{
+  if (Fd_Variable_Is_Ground(fdv_adr))
+    return Pl_Fd_Tell_Int_Range(fdv_adr, range);
+
+  return Pl_Fd_Tell_Range_Range(fdv_adr, range);
+}
+
+
+
+
 /*-------------------------------------------------------------------------*
  * ALL_PROPAGATIONS                                                        *
  *                                                                         *
@@ -1472,7 +1519,7 @@ Pl_Fd_Use_Vector(WamWord *fdv_adr)
 
     Pl_Range_Becomes_Sparse(&range);
 
-    CS=save_CS;			/* code of fd_deallocate (from fd_to_c.h) */
+    CS = save_CS;		/* code of fd_deallocate (from fd_to_c.h) */
   }
   return Pl_Fd_Tell_Range_Range(fdv_adr, &range) && Pl_Fd_After_Add_Cstr();
 }

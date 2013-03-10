@@ -26,3 +26,5 @@ VERSION
 *.[oa]
 *.so
 *.po
+*.BAK
+.#*
