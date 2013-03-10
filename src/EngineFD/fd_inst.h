@@ -242,6 +242,10 @@ Bool Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max);
 
 Bool Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range);
 
+Bool Pl_Fd_Tell_Interval(WamWord *fdv_adr, int min, int max);
+
+Bool Pl_Fd_Tell_Range(WamWord *fdv_adr, Range *range);
+
 void Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr);
 
 
