@@ -1063,17 +1063,14 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	      return TRUE;
 	    }
 
-	  word = Push_Delayed_Cstr(DC_QUOT_REM_A_Y_R_EQ_Z, word1, word2,
-				   word3);
+	  word = Push_Delayed_Cstr(DC_QUOT_REM_A_Y_R_EQ_Z, word1, word2, word3);
 	  goto end_quot_rem;
 	}
 
       if (Tag_Is_INT(word2))
-	word = Push_Delayed_Cstr(DC_QUOT_REM_X_A_R_EQ_Z, word1, word2,
-				 word3);
+	word = Push_Delayed_Cstr(DC_QUOT_REM_X_A_R_EQ_Z, word1, word2, word3);
       else
-	word = Push_Delayed_Cstr(DC_QUOT_REM_X_Y_R_EQ_Z, word1, word2,
-				 word3);
+	word = Push_Delayed_Cstr(DC_QUOT_REM_X_Y_R_EQ_Z, word1, word2, word3);
 
     end_quot_rem:
       Add_Monom(p, sign, 1, (i == REM_2) ? word3 : word);

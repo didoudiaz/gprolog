@@ -1576,16 +1576,24 @@ Pl_Fd_Reified_In(WamWord x_word, WamWord l_word, WamWord u_word, WamWord b_word)
   WamWord word, tag_mask;
   WamWord b_tag_mask, x_tag_mask;
   WamWord *adr, *fdv_adr;
-  int x;
-  int l = Pl_Rd_Integer_Check(l_word);
-  int u = Pl_Rd_Integer_Check(u_word);
-  int b = -1;			/* a var */
-  Range *r;
+  PlLong x;
+  PlLong b = -1;		/* a var */
+  int min, max;
   int x_min, x_max;
+  Range *r;
  
+  //  Bool pl_fd_domain(WamWord x_word, WamWord l_word, WamWord u_word);
+  /* from fd_values_c.c (optimized version) */
+  Bool Pl_Fd_Domain_Interval(WamWord x_word, int min, int max);
 
-  Bool pl_fd_domain(WamWord x_word, WamWord l_word, WamWord u_word);
+  /* from fd_values_fd.fd */
   Bool pl_fd_not_domain(WamWord x_word, WamWord l_word, WamWord u_word);
+
+
+  min = Pl_Fd_Prolog_To_Value(l_word);
+  if (min < 0)
+    min = 0;
+  max = Pl_Fd_Prolog_To_Value(u_word);
 
 
   DEREF(x_word, word, tag_mask);
@@ -1608,7 +1616,7 @@ Pl_Fd_Reified_In(WamWord x_word, WamWord l_word, WamWord u_word, WamWord b_word)
   if (x_tag_mask == TAG_INT_MASK)
     {
       x = UnTag_INT(x_word);
-      b = (x >= l) && (x <= u);
+      b = (x >= min) && (x <= max);
     unif_b:
       return Pl_Get_Integer(b, b_word);
     }
@@ -1618,7 +1626,7 @@ Pl_Fd_Reified_In(WamWord x_word, WamWord l_word, WamWord u_word, WamWord b_word)
       b = UnTag_INT(b_word);
       if (b == 0)
 	return pl_fd_not_domain(x_word, l_word, u_word);
-      return (b == 1) && pl_fd_domain(x_word, l_word, u_word);
+      return (b == 1) && Pl_Fd_Domain_Interval(x_word, min, max);
     }
 
 
@@ -1636,13 +1644,13 @@ Pl_Fd_Reified_In(WamWord x_word, WamWord l_word, WamWord u_word, WamWord b_word)
   x_min = r->min;
   x_max = r->max;
 
-  if (x_min >= l && x_max <= u)
+  if (x_min >= min && x_max <= max)
     {
       b = 1;
       goto unif_b;
     }
 
-  if (l > u || x_max < l || x_min > u) /* NB: if L..U is empty then B = 0 */
+  if (min > max || x_max < min || x_min > max) /* NB: if L..U is empty then B = 0 */
     {
       b = 0;
       goto unif_b;

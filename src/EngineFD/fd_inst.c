@@ -78,9 +78,19 @@ static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
 static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (intptr_t) */
 
+/*
+ * When a constraint X in ...  is added the following sequence is executed:
+ * Pl_Fd_Before_Add_Cstr  (init the queue)
+ * compute the range/interval to restrict the variable X
+ * Pl_Fd_Tell_...(X, range/interval)   (restric X)
+ *    these functions call All_Propagations to add constraint depending on X to the queue
+ * Pl_Fd_After_Add_Cstr   (execute constraints in the queue)
+ *
+ * NB: Pl_Fd_Tell_... functions must be called in Pl_Fd_Before_Add_Cstr / Pl_Fd_After_Add_Cstr
+ */
 
 /*
- * FD_INT_Date(fdv_adr): tells at which date a FD var has been instantiated
+ * FD_INT_Date(fdv_adr): is the date at which the FD var has been instantiated
  * Optim #2: if a var has been instantiated before the post of the current 
  * constraint it is not necessary to reexecute it (in the propagation phase).
  *
@@ -224,7 +234,7 @@ static void Clear_Queue(void);
       if (Range_Stamp(fdv_adr) != STAMP)			\
 	{							\
 	  Trail_MV(fdv_adr + OFFSET_RANGE, RANGE_SIZE);		\
-	  if (Is_Sparse(Range (fdv_adr)))			\
+	  if (Is_Sparse(Range(fdv_adr)))			\
 	      Trail_MV((WamWord *) Vec(fdv_adr), pl_vec_size);	\
 								\
 	  Range_Stamp(fdv_adr) = STAMP;				\
@@ -321,7 +331,7 @@ static void Clear_Queue(void);
 #define Update_Range_From_Range(fdv_adr, nb_elem, range, propag)           \
   do									   \
     {									   \
-      Range *r = Range (fdv_adr);					   \
+      Range *r = Range(fdv_adr);					   \
 									   \
       propag = MASK_EMPTY;						   \
 									   \
@@ -455,11 +465,10 @@ Pl_Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
   if (tag_mask == TAG_INT_MASK)
     return Pl_Fd_New_Int_Variable(UnTag_INT(word));
 
-  if (tag_mask == TAG_FDV_MASK)
-    return UnTag_FDV(word);
+  if (tag_mask != TAG_FDV_MASK)
+    Pl_Err_Type(pl_type_fd_variable, word);
 
-  Pl_Err_Type(pl_type_fd_variable, word);
-  return NULL;
+  return UnTag_FDV(word);
 }
 
 
@@ -494,17 +503,16 @@ Pl_Fd_Prolog_To_Range(WamWord list_word)
 int
 Pl_Fd_Prolog_To_Value(WamWord arg_word)
 {
-  WamWord word, tag_mask;
+  PlLong v = Pl_Rd_Integer_Check(arg_word);
 
-  DEREF(arg_word, word, tag_mask);
+				/* conversion PlLong -> int (Fd only uses int) */
+  if (v < -INTERVAL_MAX_INTEGER)
+    v = -INTERVAL_MAX_INTEGER;
 
-  if (tag_mask == TAG_REF_MASK)
-    Pl_Err_Instantiation();
+  if (v > INTERVAL_MAX_INTEGER)
+    v = INTERVAL_MAX_INTEGER;
 
-  if (tag_mask != TAG_INT_MASK)
-    Pl_Err_Type(pl_type_integer, word);
-
-  return UnTag_INT(word);
+  return (int) v;
 }
 
 
@@ -544,15 +552,8 @@ Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
 	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      DEREF(Car(lst_adr), word, tag_mask);
-      if (tag_mask == TAG_REF_MASK)
-	Pl_Err_Instantiation();
-
-      if (tag_mask != TAG_INT_MASK)
-	Pl_Err_Type(pl_type_integer, word);
-
-
-      val = UnTag_INT(word);
+      
+      val = Pl_Fd_Prolog_To_Value(Car(lst_adr));
 
       if ((unsigned) val > (unsigned) pl_vec_max_integer)
 	range->extra_cstr = TRUE;
@@ -833,11 +834,11 @@ Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF)
 
 
 /*-------------------------------------------------------------------------*
- * PL_FD_NEW_VARIABLE                                                      *
+ * PL_FD_NEW_VARIABLE_INTERVAL                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Pl_Fd_New_Variable(void)
+Pl_Fd_New_Variable_Interval(int min, int max)
 {
   WamWord *fdv_adr;
 
@@ -856,8 +857,8 @@ Pl_Fd_New_Variable(void)
   Queue_Next_Fdv_Adr(fdv_adr) = NULL;
 
   Range_Stamp(fdv_adr) = STAMP;
-  Nb_Elem(fdv_adr) = INTERVAL_MAX_INTEGER + 1;
-  Range_Init_Interval(Range(fdv_adr), 0, INTERVAL_MAX_INTEGER);
+  Nb_Elem(fdv_adr) = max - min + 1;
+  Range_Init_Interval(Range(fdv_adr), min, max);
 
   Chains_Stamp(fdv_adr) = STAMP;
   Nb_Cstr(fdv_adr) = 0;
@@ -869,22 +870,30 @@ Pl_Fd_New_Variable(void)
   return fdv_adr;
 }
 
+/*-------------------------------------------------------------------------*
+ * PL_FD_NEW_VARIABLE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord *
+Pl_Fd_New_Variable(void)
+{
+  return Pl_Fd_New_Variable_Interval(0, INTERVAL_MAX_INTEGER);
+}
+
 
 
 
 /*-------------------------------------------------------------------------*
- * PL_FD_NEW_BOOL_VARIABLE                                                 *
+ * PL_FD_NEW_VARIABLE_RANGE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Pl_Fd_New_Bool_Variable(void)
+Pl_Fd_New_Variable_Range(Range *r)
 {
   WamWord *fdv_adr = Pl_Fd_New_Variable();
-
-  Nb_Elem(fdv_adr) = 2;
-  Min(fdv_adr) = 0;
-  Max(fdv_adr) = 1;
-
+  Pl_Range_Copy(Range(fdv_adr), r);
+  Nb_Elem(fdv_adr) = Pl_Range_Nb_Elem(r);
+ 
   return fdv_adr;
 }
 
@@ -1443,10 +1452,42 @@ Pl_Fd_Stop_Constraint(WamWord *CF)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_FD_IN_INTERVAL                                                       *
+ *                                                                         *
+ * Used by domain predicates.                                              *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_In_Interval(WamWord *fdv_adr, int min, int max)
+{
+  Pl_Fd_Before_Add_Cstr();
+
+  return Pl_Fd_Tell_Interval(fdv_adr, min, max) && Pl_Fd_After_Add_Cstr();
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_IN_RANGE                                                          *
+ *                                                                         *
+ * Used by domain predicates.                                              *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_In_Range(WamWord *fdv_adr, Range *range)
+{
+  Pl_Fd_Before_Add_Cstr();
+
+  return Pl_Fd_Tell_Range(fdv_adr, range) && Pl_Fd_After_Add_Cstr();
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_FD_ASSIGN_VALUE                                                      *
  *                                                                         *
- * fdv_adr is a FDV and n belongs to the range of the FD var               *
- * like Pl_Fd_Unify_With_Integer0() but specialized Fd_Tell_Value without  *
+ * fdv_adr is an FDV and n belongs to the range of the FD var.             *
+ * Like Pl_Fd_Unify_With_Integer0() but specialized Fd_Tell_Value without  *
  * useless tests (ie. groundness and Pl_Range_Test_Value())                *
  * Used by labeling predicates.                                            *
  *-------------------------------------------------------------------------*/
