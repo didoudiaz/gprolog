@@ -88,6 +88,8 @@ typedef enum { PL_FALSE, PL_TRUE } PlBool;
 
 typedef intptr_t PlLong;
 
+typedef uintptr_t PlULong;
+
 typedef intptr_t PlTerm;
 
 typedef struct
@@ -655,6 +657,8 @@ void Pl_Write_Simple(PlTerm term);
 
 
 void Pl_Exec_Continuation(int func, int arity, PlTerm *arg_adr);
+
+void Pl_Throw(PlTerm ball_word);
 
 void Pl_Query_Begin(PlBool recoverable);
 

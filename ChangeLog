@@ -1,3 +1,8 @@
+Mon Mar 11 15:42:31 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* add PlULong to gprolog.h and PlThrow(ball) to foreign interface
+	* improve the FD solver (avoid some cases of C stack overflow, improved fd_domain/3)
+
 Mon Feb 25 13:57:51 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in the FD solver

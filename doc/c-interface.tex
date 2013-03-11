@@ -1432,6 +1432,7 @@ The following functions allows a C function to call a Prolog predicate:
 
 \begin{Indentation}
 \begin{verbatim}
+<<<<<<< HEAD
 void   Pl_Query_Begin             (PlBool recoverable)
 int    Pl_Query_Call              (int functor, int arity, PlTerm *arg)
 int    Pl_Query_Call_Module       (int module, int functor, int arity, PlTerm *arg)
@@ -1440,6 +1441,15 @@ void   Pl_Query_End               (int op)
 PlTerm Pl_Get_Exception           (void)
 void   Pl_Exec_Continuation       (int functor, int arity, PlTerm *arg)
 void   Pl_Exec_Continuation_Module(int module, int functor, int arity, PlTerm *arg)
+=======
+void   Pl_Query_Begin        (PlBool recoverable)
+int    Pl_Query_Call         (int functor, int arity, PlTerm *arg)
+int    Pl_Query_Next_Solution(void)
+void   Pl_Query_End          (int op)
+PlTerm Pl_Get_Exception      (void)
+void   Pl_Exec_Continuation  (int functor, int arity, PlTerm *arg)
+void   Pl_Throw              (PlTerm ball)
+>>>>>>> master
 \end{verbatim}
 \end{Indentation}
 
@@ -1485,7 +1495,7 @@ obtain the unification performed by the query.
 
 \item \texttt{PL\_EXCEPTION} (a constant equal to 2). In that case function
 \texttt{Pl\_Get\_Exception()} can be used to obtained the exceptional term
-raised by \IdxPB{throw/1} \RefSP{catch/3}.
+raised by \IdxCC{throw/1} \RefSP{catch/3}.
 
 \end{itemize}
 
@@ -1528,6 +1538,7 @@ terminating it to call another query. In that case the first execution of
 \texttt{Pl\_Query\_End()} will finish the second query (i.e. the inner) and
 the next execution of \texttt{Pl\_Query\_End()} will finish the first query.
 
+<<<<<<< HEAD
 Finally, the function \texttt{Pl\_Exec\_Continuation(functor, arity, arg)}
 replaces the current calculus by the execution of the specified
 predicate. The arguments \texttt{functor}, \texttt{arity} and \texttt{arg}
@@ -1535,6 +1546,19 @@ are similar to those of the functions handling complex terms
 \RefSP{Introduction:(Manipulating-Prolog-terms)}. The function
 \texttt{Pl\_Exec\_Continuation\_Module} is similar but accepts an additionnal
 argument to specify the lookup module (an atom).
+=======
+The function \texttt{Pl\_Exec\_Continuation(functor, arity,
+arg)} replaces the current calculus by the execution of the specified
+predicate. The arguments \texttt{functor}, \texttt{arity} and
+\texttt{arg} are similar to those of the functions handling complex
+terms \RefSP{Introduction:(Manipulating-Prolog-terms)}.
+>>>>>>> master
+
+Finally the function \texttt{Pl\_Throw(ball)} throws an exception. See the
+\IdxCC{throw/1} control construct for more information on exceptions
+\RefSP{catch/3}. Note that \texttt{Pl\_Throw(ball)} is logically equivalent (but
+faster)
+to \texttt{Pl\_Exec\_Continuation(Pl\_Find\_Atom("throw"), 1, \&ball)} .
 
 \subsubsection{Example: \texttt{my\_call/1} - a \texttt{call/1} clone}
 
@@ -1625,7 +1649,8 @@ my_call(PlTerm goal)
   if (result == PL_EXCEPTION)
     {
       PlTerm except = Pl_Get_Exception();
-      Pl_Exec_Continuation(Find_Atom("throw"), 1, &except);
+      Pl_Throw(except); 
+      // equivalent to Pl_Exec_Continuation(Find_Atom("throw"), 1, &except);
     }
 
   return result;

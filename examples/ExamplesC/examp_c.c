@@ -217,7 +217,11 @@ my_call(PlTerm goal)
   if (result == PL_EXCEPTION)
     {
       PlTerm except = Pl_Get_Exception();
+#if 0
       Pl_Exec_Continuation(Pl_Find_Atom("throw"), 1, &except);
+#else
+      Pl_Throw(except);
+#endif
     }
 
   return result;
