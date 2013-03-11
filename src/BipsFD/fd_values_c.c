@@ -133,53 +133,7 @@ Prolog_Prototype(EXTRA_CSTR_ALT, 0);
 
   /* defined in fd_values_fd.fd */
 
-Bool pl_fd_domain(WamWord x_word, WamWord l_word, WamWord u_word);
-
 Bool pl_fd_domain_r(WamWord x_word, WamWord r_word);
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_FD_DOMAIN_BOOL_1                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Fd_Domain_Bool_1(WamWord list_word)
-{
-  WamWord word, tag_mask;
-  WamWord save_list_word;
-  WamWord *lst_adr;
-
-
-  DEREF(list_word, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK ||
-      tag_mask == TAG_FDV_MASK)
-    return Pl_Fd_Check_For_Bool_Var(word);
-
-  save_list_word = list_word;
-  for (;;)
-    {
-      DEREF(list_word, word, tag_mask);
-
-      if (tag_mask == TAG_REF_MASK)
-	Pl_Err_Instantiation();
-
-      if (word == NIL_WORD)
-	break;
-
-      if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(pl_type_list, save_list_word);
-
-      lst_adr = UnTag_LST(word);
-      if (!Pl_Fd_Check_For_Bool_Var(Car(lst_adr)))
-	return FALSE;
-
-      list_word = Cdr(lst_adr);
-    }
-
-  return TRUE;
-}
 
 
 
@@ -197,8 +151,7 @@ Pl_Fd_Domain_2(WamWord list_word, WamWord r_word)
 
 
   DEREF(list_word, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK ||
-      tag_mask == TAG_FDV_MASK)
+  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK || tag_mask == TAG_FDV_MASK)
     return pl_fd_domain_r(word, r_word);
 
   save_list_word = list_word;
@@ -227,6 +180,84 @@ Pl_Fd_Domain_2(WamWord list_word, WamWord r_word)
 
 
 
+/* domain(X,L,U) is optimized here.
+ * Previously it called pl_fd_domain (defined in fd_values_fd.fd as X in L..U)
+ * This version avoids AFrame creation and FD var creation if interval is empty or an INT
+ *
+ * We do not do the same for domain(X,L) (which continues to call pl_fd_domain_r)
+ * Because we have to be cautious when handling range directly (see Pl_Tell_Range_Range
+ * which recovers CS/save_CS). Also to avoid to handle extra cstr warning messages
+ * (for instance when a range is empty or a singleton and extr_cstr is TRUE).
+ *
+ * The 2 following functions could be moved to EngineFD/fd_inst.c (is often use): 
+ *    Pl_Fd_Domain_Interval 
+ *    Pl_Fd_Domain_Var_3  (renamed as Pl_Fd_Prolog_Domain)
+ * 
+ */
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_FD_DOMAIN_INTERVAL                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Domain_Interval(WamWord x_word, int min, int max)
+{
+  WamWord word, tag_mask;
+  WamWord *adr, *fdv_adr;
+  PlLong v;
+
+  DEREF(x_word, word, tag_mask);
+
+  if (tag_mask == TAG_REF_MASK)
+    {
+      if (min > max)
+	return FALSE;
+
+      if (min == max)
+	return Pl_Get_Integer(min, x_word);
+
+      adr = UnTag_REF(word);
+      fdv_adr = Pl_Fd_New_Variable_Interval(min, max);
+      Bind_UV(adr, Tag_REF(fdv_adr));
+      return TRUE;
+    }
+
+  if (tag_mask == TAG_INT_MASK)
+    {
+      v = UnTag_INT(word);
+      return (v >= min && v <= max); /* also detects if min > max */
+    }
+
+  if (tag_mask != TAG_FDV_MASK)
+    Pl_Err_Type(pl_type_fd_variable, word);
+
+  return Pl_Fd_In_Interval(UnTag_FDV(word), min, max);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_DOMAIN_VAR_3                                                      *
+ *                                                                         *
+ * Only accepts a var (not a list)                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Domain_Var_3(WamWord x_word, WamWord l_word, WamWord u_word)
+{
+  int min, max;
+
+  min = Pl_Fd_Prolog_To_Value(l_word);
+  if (min < 0)
+    min = 0;
+  max = Pl_Fd_Prolog_To_Value(u_word);
+
+  return Pl_Fd_Domain_Interval(x_word, min, max);  
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * PL_FD_DOMAIN_3                                                          *
@@ -238,14 +269,16 @@ Pl_Fd_Domain_3(WamWord list_word, WamWord l_word, WamWord u_word)
   WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr;
+  int min, max;
 
-
-  if (l_word == Tag_INT(0) && u_word == Tag_INT(1))
-    return Pl_Fd_Domain_Bool_1(list_word);
+  min = Pl_Fd_Prolog_To_Value(l_word);
+  if (min < 0)
+    min = 0;
+  max = Pl_Fd_Prolog_To_Value(u_word);
 
   DEREF(list_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK || tag_mask == TAG_INT_MASK || tag_mask == TAG_FDV_MASK)
-    return pl_fd_domain(word, l_word, u_word);
+    return Pl_Fd_Domain_Interval(word, min, max);
 
   save_list_word = list_word;
   for (;;)
@@ -262,7 +295,7 @@ Pl_Fd_Domain_3(WamWord list_word, WamWord l_word, WamWord u_word)
 	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      if (!pl_fd_domain(Car(lst_adr), l_word, u_word))
+      if (!Pl_Fd_Domain_Interval(Car(lst_adr), min, max))
 	return FALSE;
 
       list_word = Cdr(lst_adr);
@@ -279,12 +312,12 @@ Pl_Fd_Domain_3(WamWord list_word, WamWord l_word, WamWord u_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Indomain_2(WamWord fdv_word, WamWord method_word)
+Pl_Indomain_2(WamWord x_word, WamWord method_word)
 {
   WamWord word, tag_mask;
   WamWord *fdv_adr;
 
-  Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
+  Fd_Deref_Check_Fd_Var(x_word, word, tag_mask);
 
   if (tag_mask == TAG_INT_MASK)
     return TRUE;
@@ -824,7 +857,7 @@ Pl_Fd_Sel_Array_From_List_2(WamWord list_word, WamWord sel_array_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
-			WamWord reorder_word, WamWord fdv_word)
+			   WamWord reorder_word, WamWord fdv_word)
 #if 1
 #define PACK_ARRAY
 #endif

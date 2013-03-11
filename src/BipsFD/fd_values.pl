@@ -55,14 +55,14 @@ fd_domain(List, L, U) :-
 
 
 '$fd_domain'(X, L, U) :-                     % for fd builtins (exact errors)
-	fd_tell(pl_fd_domain(X, L, U)).
+	'$call_c_test'('Pl_Fd_Domain_Var_3'(X, L, U)).
 
 
 
 
 fd_domain_bool(List) :-
 	set_bip_name(fd_domain_bool, 1),
-	'$call_c_test'('Pl_Fd_Domain_Bool_1'(List)).
+	'$call_c_test'('Pl_Fd_Domain_3'(List, 0, 1)).
 
 
 
