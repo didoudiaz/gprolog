@@ -95,11 +95,14 @@ static CodePtr Prepare_Call(int func, int arity, WamWord *arg_adr);
 
 
 #define CALL_INTERNAL              X1_2463616C6C5F696E7465726E616C
+#define THROW_INTERNAL             X1_247468726F775F696E7465726E616C
 
 #define PL_QUERY_RECOVER_ALT       X1_24706C5F71756572795F7265636F7665725F616C74
 
-Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
 Prolog_Prototype(CALL_INTERNAL, 2);
+Prolog_Prototype(THROW_INTERNAL, 2);
+
+Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
 
 
 
@@ -286,6 +289,25 @@ void
 Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr)
 {
   Pl_Execute_A_Continuation(Prepare_Call(func, arity, arg_adr));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_THROW                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Throw(WamWord ball_word)
+{
+  int bip_func, bip_arity;
+
+  bip_func = Pl_Get_Current_Bip(&bip_arity);
+
+  A(0) = ball_word;
+  A(1) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
+  Pl_Execute_A_Continuation(Prolog_Predicate(THROW_INTERNAL, 2));
 }
 
 
