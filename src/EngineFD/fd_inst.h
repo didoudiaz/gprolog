@@ -213,6 +213,8 @@ WamWord *Pl_Fd_New_Variable_Interval(int min, int max);
 
 WamWord *Pl_Fd_New_Variable(void);
 
+WamWord *Pl_Fd_New_Variable_Range(Range *r);
+
 WamWord *Pl_Fd_New_Int_Variable(int n);
 
 WamWord *Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF,
@@ -255,6 +257,8 @@ void Pl_Fd_Init_Solver0(void);
 void Pl_Fd_Reset_Solver0(void);
 
 Bool Pl_Fd_In_Interval(WamWord *fdv_adr, int min, int max);
+
+Bool Pl_Fd_In_Range(WamWord *fdv_adr, Range *range);
 
 Bool Pl_Fd_Assign_Value(WamWord *fdv_adr, int n);
 

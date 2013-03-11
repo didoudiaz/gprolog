@@ -884,6 +884,23 @@ Pl_Fd_New_Variable(void)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_FD_NEW_VARIABLE_RANGE                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord *
+Pl_Fd_New_Variable_Range(Range *r)
+{
+  WamWord *fdv_adr = Pl_Fd_New_Variable();
+  Pl_Range_Copy(Range(fdv_adr), r);
+  Nb_Elem(fdv_adr) = Pl_Range_Nb_Elem(r);
+ 
+  return fdv_adr;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_FD_NEW_INT_VARIABLE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
