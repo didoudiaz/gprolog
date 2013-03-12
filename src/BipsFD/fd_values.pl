@@ -91,11 +91,10 @@ fd_labeling(List, Options) :-
 	'$sys_var_read'(1, ValMethod),
 	'$sys_var_read'(2, Reorder),
 	'$sys_var_write'(3, 0),                               % bckts counter
-	(   (   fd_var(List)
-	    ;   integer(List)
-	    ) ->
+	(   ( fd_var(List) ; integer(List) ) ->
 	    '$indomain'(List, ValMethod)
-	;   '$check_list'(List),
+	;
+	    '$check_list'(List),
 	    '$fd_labeling1'(List, VarMethod, ValMethod, Reorder)
 	),
 	'$sys_var_read'(3, Bckts),
@@ -229,20 +228,8 @@ fd_labeling(List, Options) :-
 	'$call_c_test'('Pl_Indomain_2'(X, ValMethod)).
 
 
-'$indomain_min_alt' :-              % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Min_Alt_0').
-
-'$indomain_max_alt' :-              % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Max_Alt_0').
-
-'$indomain_middle_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Middle_Alt_0').
-
-'$indomain_limits_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Limits_Alt_0').
-
-'$indomain_random_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Random_Alt_0').
+'$indomain_alt' :-		% used by C code to create a choice-point
+	'$call_c_test'('Pl_Indomain_Alt_0').
 
 '$extra_cstr_alt' :-                % used by C code to create a choice-point
 	'$call_c_test'('Pl_Extra_Cstr_Alt_0').

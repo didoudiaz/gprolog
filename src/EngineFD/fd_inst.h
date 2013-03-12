@@ -260,11 +260,15 @@ Bool Pl_Fd_In_Interval(WamWord *fdv_adr, int min, int max);
 
 Bool Pl_Fd_In_Range(WamWord *fdv_adr, Range *range);
 
-Bool Pl_Fd_Assign_Value(WamWord *fdv_adr, int n);
+Bool Pl_Fd_Assign_Value_Fast(WamWord *fdv_adr, int n);
+
+#define Pl_Fd_Assign_Value(fdv, n) Pl_Fd_Unify_With_Integer0(fdv, n)
 
 Bool Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
 
 Bool Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
+
+Bool Pl_Fd_Remove_Value(WamWord *fdv_adr, int n);
 
 Bool Pl_Fd_Use_Vector(WamWord *fdv_adr);
 
