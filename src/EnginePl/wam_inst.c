@@ -620,12 +620,16 @@ Pl_Put_Float(double n)
 
 #ifdef BOEHM_GC
 #if WORD_SIZE == 32
-      H = Pl_GC_Mem_Alloc(2);
+      H = Pl_GC_Mem_Alloc(3);
 #else
-      H = Pl_GC_Mem_Alloc(1);
+      H = Pl_GC_Mem_Alloc(2);
 #endif
-#endif /* BOEHM_GC */
+  *H = Tag_FLT(H+1);
+  res_word = Tag_REF(H);
+  H++;
+#else /* BOEHM_GC */
   res_word = Tag_FLT(H);
+#endif /* BOEHM_GC */
   Pl_Global_Push_Float(n);
   return res_word;
 }
