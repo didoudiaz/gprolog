@@ -768,7 +768,18 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
     }
 #endif
 
+#ifdef BOEHM_GC
+#ifdef META_TERM_HIDDEN
+  cur_H = Pl_GC_Mem_Alloc(1+4);
+#else /* META_TERM_HIDDEN */
+  cur_H = Pl_GC_Mem_Alloc(1+3);
+#endif /* META_TERM_HIDDEN */
+  *cur_H = Tag_STC(cur_H + 1);
+  res_word = Tag_REF(cur_H);
+  cur_H++;
+#else /* BOEHM_GC */
   res_word = Tag_STC(cur_H);
+#endif /* BOEHM_GC */
 
 #ifdef META_TERM_HIDDEN
   /* Return a term '$$meta_term'(Offset) in A(j) 
@@ -1160,7 +1171,11 @@ Pl_Globalize_If_In_Local(WamWord start_word)
     {
       adr = UnTag_REF(word);
       if (Is_A_Local_Adr(adr))
+#ifdef BOEHM_GC
+	Allocate_Local_Unbound_Var(adr, start_word);
+#else /* BOEHM_GC */
 	Globalize_Local_Unbound_Var(adr, start_word);
+#endif /* BOEHM_GC */
     }
 
   return start_word;
