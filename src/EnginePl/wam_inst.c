@@ -1244,11 +1244,26 @@ CodePtr FC
 Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 	       CodePtr c_lst, CodePtr c_stc)
 {
-  WamWord word, tag_mask;
+  WamWord tag_mask;
   CodePtr codep;
+
+#ifdef BOEHM_GC
+  WamWord *adr;
+
+  assert( !Tag_Is_LST(A(0)) );
+  assert( !Tag_Is_STC(A(0)) );
+  assert( !Tag_Is_FLT(A(0)) );
+
+  DEREF_PTR(&A(0), adr, tag_mask);
+  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
+  if (adr != &A(0))
+    A(0) = Tag_REF(adr);
+#else /* BOEHM_GC */
+  WamWord word;
 
   DEREF(A(0), word, tag_mask);
   A(0) = word;
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_INT_MASK)
     codep = c_int;
@@ -1270,10 +1285,26 @@ Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 CodePtr FC
 Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 {
-  WamWord word, tag_mask;
+  WamWord tag_mask;
+  CodePtr codep;
+
+#ifdef BOEHM_GC
+  WamWord *adr;
+
+  assert( !Tag_Is_LST(A(0)) );
+  assert( !Tag_Is_STC(A(0)) );
+  assert( !Tag_Is_FLT(A(0)) );
+
+  DEREF_PTR(&A(0), adr, tag_mask);
+  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
+  if (adr != &A(0))
+    A(0) = Tag_REF(adr);
+#else /* BOEHM_GC */
+  WamWord word;
 
   DEREF(A(0), word, tag_mask);
   A(0) = word;
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_ATM_MASK)
     return c_atm;
@@ -1294,10 +1325,26 @@ Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 CodePtr FC
 Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 {
-  WamWord word, tag_mask;
+  WamWord tag_mask;
+  CodePtr codep;
+
+#ifdef BOEHM_GC
+  WamWord *adr;
+
+  assert( !Tag_Is_LST(A(0)) );
+  assert( !Tag_Is_STC(A(0)) );
+  assert( !Tag_Is_FLT(A(0)) );
+
+  DEREF_PTR(&A(0), adr, tag_mask);
+  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
+  if (adr != &A(0))
+    A(0) = Tag_REF(adr);
+#else /* BOEHM_GC */
+  WamWord word;
 
   DEREF(A(0), word, tag_mask);
   A(0) = word;
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_STC_MASK)
     return c_stc;
@@ -1318,10 +1365,26 @@ Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 CodePtr FC
 Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 {
-  WamWord word, tag_mask;
+  WamWord tag_mask;
+  CodePtr codep;
+
+#ifdef BOEHM_GC
+  WamWord *adr;
+
+  assert( !Tag_Is_LST(A(0)) );
+  assert( !Tag_Is_STC(A(0)) );
+  assert( !Tag_Is_FLT(A(0)) );
+
+  DEREF_PTR(&A(0), adr, tag_mask);
+  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
+  if (adr != &A(0))
+    A(0) = Tag_REF(adr);
+#else /* BOEHM_GC */
+  WamWord word;
 
   DEREF(A(0), word, tag_mask);
   A(0) = word;
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_LST_MASK)
     return c_lst;
@@ -1345,10 +1408,26 @@ Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 CodePtr FC
 Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
 {
-  WamWord word, tag_mask;
+  WamWord tag_mask;
+  CodePtr codep;
+
+#ifdef BOEHM_GC
+  WamWord *adr;
+
+  assert( !Tag_Is_LST(A(0)) );
+  assert( !Tag_Is_STC(A(0)) );
+  assert( !Tag_Is_FLT(A(0)) );
+
+  DEREF_PTR(&A(0), adr, tag_mask);
+  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
+  if (adr != &A(0))
+    A(0) = Tag_REF(adr);
+#else /* BOEHM_GC */
+  WamWord word;
 
   DEREF(A(0), word, tag_mask);
   A(0) = word;
+#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_STC_MASK)
     return c_stc;
@@ -1374,6 +1453,7 @@ Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
  *                                                                         *
  * switch_on_atom always occurs after a switch_on_term, thus A(0) is       *
  * dereferenced and has been updated with its deref word.                  *
+ * (This is no longer true when using the Boehm garbage collector.)        *
  * Look in the hash table t and return the adr of the corresponding code.  *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -1382,8 +1462,18 @@ CodePtr FC
 Pl_Switch_On_Atom(SwtTbl t, int size)
 {
   SwtInf *swt;
+  WamWord word;
 
-  swt = Locate_Swt_Element(t, size, (PlLong) UnTag_ATM(A(0)));
+#ifdef BOEHM_GC
+  if (Tag_Is_REF(A(0)))
+    word = *UnTag_REF(A(0));
+  else
+    word = A(0);
+#else /* BOEHM_GC */
+  word = A(0);
+#endif /* BOEHM_GC */
+
+  swt = Locate_Swt_Element(t, size, (PlLong) UnTag_ATM(word));
 
   return (swt->codep) ? swt->codep : ALTB(B);
 }
@@ -1396,6 +1486,7 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
  *                                                                         *
  * switch_on_integer always occurs after a switch_on_term, thus A(0) is    *
  * dereferenced and has been updated with its deref word.                  *
+ * (This is no longer true when using the Boehm garbage collector.)        *
  * Simply return the integer since the switch is done by the assembly code.*
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -1403,7 +1494,18 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
 PlLong FC
 Pl_Switch_On_Integer(void)
 {
-  return UnTag_INT(A(0));
+  WamWord word;
+
+#ifdef BOEHM_GC
+  if (Tag_Is_REF(A(0)))
+    word = *UnTag_REF(A(0));
+  else
+    word = A(0);
+#else /* BOEHM_GC */
+  word = A(0);
+#endif /* BOEHM_GC */
+
+  return UnTag_INT(word);
 }
 
 
@@ -1414,6 +1516,7 @@ Pl_Switch_On_Integer(void)
  *                                                                         *
  * switch_on_structure always occurs after a switch_on_term, thus A(0) is  *
  * dereferenced and has been updated with its deref word.                  *
+ * (This is no longer true when using the Boehm garbage collector.)        *
  * Look in the hash table t and return the adr of the corresponding code.  *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -1422,8 +1525,18 @@ CodePtr FC
 Pl_Switch_On_Structure(SwtTbl t, int size)
 {
   SwtInf *swt;
+  WamWord word;
 
-  swt = Locate_Swt_Element(t, size, Functor_And_Arity(UnTag_STC(A(0))));
+#ifdef BOEHM_GC
+  if (Tag_Is_REF(A(0)))
+    word = *UnTag_REF(A(0));
+  else
+    word = A(0);
+#else /* BOEHM_GC */
+  word = A(0);
+#endif /* BOEHM_GC */
+
+  swt = Locate_Swt_Element(t, size, Functor_And_Arity(UnTag_STC(word)));
 
   return (swt->codep) ? swt->codep : ALTB(B);
 }
