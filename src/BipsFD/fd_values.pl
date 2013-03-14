@@ -90,15 +90,27 @@ fd_labeling(List, Options) :-
 	'$sys_var_read'(0, VarMethod),
 	'$sys_var_read'(1, ValMethod),
 	'$sys_var_read'(2, Reorder),
-	'$sys_var_write'(3, 0),                               % bckts counter
+	'$fd_reset_labeling_backtracks',
 	(   ( fd_var(List) ; integer(List) ) ->
 	    '$indomain'(List, ValMethod)
 	;
 	    '$check_list'(List),
 	    '$fd_labeling1'(List, VarMethod, ValMethod, Reorder)
 	),
-	'$sys_var_read'(3, Bckts),
-	'$sys_var_write'(3, 0).
+	'$fd_get_labeling_backtracks'(Bckts).
+
+
+
+
+'$fd_reset_labeling_backtracks' :-
+	'$fd_set_labeling_backtracks'(0).
+
+'$fd_set_labeling_backtracks'(Bckts) :-
+	'$sys_var_write'(4, Bckts). 			% bckts counter
+
+
+'$fd_get_labeling_backtracks'(Bckts) :-
+	'$sys_var_read'(4, Bckts).
 
 
 
@@ -155,12 +167,14 @@ fd_labeling(List, Options) :-
 	    '$sys_var_write'(1, 0)
 	;   X = max,
 	    '$sys_var_write'(1, 1)
-	;   X = middle,
-	    '$sys_var_write'(1, 2)
-	;   X = limits,
-	    '$sys_var_write'(1, 3)
 	;   X = random,
+	    '$sys_var_write'(1, 2)
+	;   X = middle,
+	    '$sys_var_write'(1, 3)
+	;   X = bisect,
 	    '$sys_var_write'(1, 4)
+	;   X = limits,
+	    '$sys_var_write'(1, 5)
 	).
 
 '$get_labeling_options2'(reorder(X)) :-

@@ -54,12 +54,13 @@
 
 #define METHOD_MIN                 0
 #define METHOD_MAX                 1
-#define METHOD_MIDDLE              2
-#define METHOD_LIMITS              3
-#define METHOD_RANDOM_V            4
+#define METHOD_RANDOM_V            2
+#define METHOD_MIDDLE              3
+#define METHOD_BISECT              4
+#define METHOD_LIMITS              5
 
 #define METHOD_LIMITS_MIN          METHOD_LIMITS
-#define METHOD_LIMITS_MAX          5
+#define METHOD_LIMITS_MAX          (METHOD_LIMITS + 1)
 
 
 
@@ -306,13 +307,14 @@ Select_Value(WamWord *fdv_adr, int value_method)
     case METHOD_LIMITS_MAX:
       return Max(fdv_adr);
 
+    case METHOD_BISECT:
     case METHOD_MIDDLE:
-      n = Nb_Elem(fdv_adr) / 2;
-      return Pl_Range_Ith_Elem(Range(fdv_adr), n + 1); /* Ith is in 1..nb_elem */
+      n = Nb_Elem(fdv_adr) / 2;			   /* here nb_elem > 1 => n >= 1 */
+      return Pl_Range_Ith_Elem(Range(fdv_adr), n); /* Ith is in 1..nb_elem */
       
     case METHOD_RANDOM_V:
       n = Nb_Elem(fdv_adr);
-      n = Pl_M_Random_Integer(n);
+      n = Pl_M_Random_Integer(n);		       /* random returns in 0..nb_elem-1 */
       return Pl_Range_Ith_Elem(Range(fdv_adr), n + 1); /* Ith is in 1..nb_elem */
     }
 
@@ -334,14 +336,15 @@ Pl_Indomain_2(WamWord x_word, WamWord method_word)
   int value_method;
   int value;
 
-  Fd_Deref_Check_Fd_Var(x_word, word, tag_mask);
+  value_method = Pl_Rd_Integer(method_word);
 
-  if (tag_mask == TAG_INT_MASK)
-    return TRUE;
+  Fd_Deref_Check_Fd_Var(x_word, word, tag_mask);
 
   fdv_adr = UnTag_FDV(word);
 
-  value_method = Pl_Rd_Integer(method_word);
+ bisect_terminal_rec:
+  if (tag_mask == TAG_INT_MASK)
+    return TRUE;
 
   value = Select_Value(fdv_adr, value_method);
   
@@ -350,6 +353,16 @@ Pl_Indomain_2(WamWord x_word, WamWord method_word)
   A(2) = value;
 
   Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(INDOMAIN_ALT, 0), 3);
+
+  if (value_method == METHOD_BISECT)
+    {
+      if (!Pl_Fd_In_Interval(fdv_adr, 0, value))
+	return FALSE;
+
+      tag_mask = Tag_Mask_Of(*fdv_adr);
+
+      goto bisect_terminal_rec;
+    }
 
   return Pl_Fd_Assign_Value_Fast(fdv_adr, value);
 }
@@ -372,6 +385,8 @@ Pl_Indomain_Alt_0(void)
 
   Pl_Delete_Choice_Point(3);
 
+  SYS_VAR_FD_BCKTS++;
+
   fdv_adr = (WamWord *) (A(0) & ~1);
   extra_cstr = A(0) & 1;
   value_method = A(1);
@@ -381,6 +396,18 @@ Pl_Indomain_Alt_0(void)
     value_method = METHOD_LIMITS_MAX;
   else if (value_method == METHOD_LIMITS_MAX)
     value_method = METHOD_LIMITS_MIN;
+  else if (value_method == METHOD_BISECT)
+    {
+      /* NB: not need to test extra_cstr because it is handled by Pl_Fd_In_Interval() 
+       * (when the var becomes ground or if empty domain (failure) 
+       */
+      if (!Pl_Fd_In_Interval(fdv_adr, value + 1, INTERVAL_MAX_INTEGER))
+	return FALSE;
+
+      /* simple and enough (like in Prolog) */
+      return Pl_Indomain_2(*fdv_adr, Tag_INT(value_method));
+    }
+
  
   if (!Pl_Fd_Remove_Value(fdv_adr, value))
     {
@@ -401,8 +428,6 @@ Pl_Indomain_Alt_0(void)
     }
 
   value = Select_Value(fdv_adr, value_method);
-
-  SYS_VAR_FD_BCKTS++;
 
 
   /*  A(0) = (WamWord) fdv_adr | Extra_Cstr(fdv_adr); */
