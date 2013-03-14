@@ -1307,12 +1307,12 @@ difference between the smallest value and the next value of its domain. If
 there is more than one such variable selects the variable that appears in
 most constraints.
 
-\item \IdxFOD{random}: selects randomly a variable. Each variable is only
-chosen once.
+\item \IdxFOD{random}: selects randomly a variable. Each variable is 
+chosen only once.
 
 \end{itemize}
 
-The default value is \texttt{standard}.
+\BL The default value is \texttt{standard}.
 
 \item \AddFOD{reorder}\texttt{reorder(true/false)}: specifies if the variable
 heuristics should dynamically reorder the list of variable (\texttt{true}) or
@@ -1334,12 +1334,17 @@ to select the value to assign to the chosen variable:
 
 \item \IdxFOD{bounds}: enumerates the values from the bounds to the middle.
 
-\item \IdxFOD{random}: enumerates the values randomly. Each value is only
-tried once.
+\item \IdxFOD{random}: enumerates the values randomly. Each value is tried
+  only once.
+
+\item \IdxFOD{bisect}: recursively creates a choice between \texttt{X \#={\lt}
+    M} and \texttt{X \#{\gt} M}, where \texttt{M} is the midpoint of the
+  domain of the variable. Values are thus tried from the smallest to the
+  greatest. This is also known as \textit{domain splitting}.
 
 \end{itemize}
 
-The default value is \texttt{min}.
+\BL The default value is \texttt{min}.
 
 \item \AddFOD{backtracks}\texttt{backtracks(B)}: unifies \texttt{B} with the
 number of backtracks during the enumeration.
