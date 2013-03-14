@@ -1484,15 +1484,15 @@ Pl_Fd_In_Range(WamWord *fdv_adr, Range *range)
 
 
 /*-------------------------------------------------------------------------*
- * PL_FD_ASSIGN_VALUE                                                      *
+ * PL_FD_ASSIGN_VALUE_FAST                                                 *
  *                                                                         *
  * fdv_adr is an FDV and n belongs to the range of the FD var.             *
- * Like Pl_Fd_Unify_With_Integer0() but specialized Fd_Tell_Value without  *
+ * Like Pl_Fd_Unify_With_Integer0 but specialized Pl_Fd_Tell_Value without *
  * useless tests (ie. groundness and Pl_Range_Test_Value())                *
  * Used by labeling predicates.                                            *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Fd_Assign_Value(WamWord *fdv_adr, int n)
+Pl_Fd_Assign_Value_Fast(WamWord *fdv_adr, int n)
 {
   int propag;
 
@@ -1518,6 +1518,21 @@ Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n)
   Pl_Fd_Before_Add_Cstr();
 
   return Pl_Fd_Tell_Value(fdv_adr, n) && Pl_Fd_After_Add_Cstr();
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_REMOVE_VALUE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Remove_Value(WamWord *fdv_adr, int n)
+{
+  Pl_Fd_Before_Add_Cstr();
+
+  return Pl_Fd_Tell_Not_Value(fdv_adr, n) && Pl_Fd_After_Add_Cstr();
 }
 
 

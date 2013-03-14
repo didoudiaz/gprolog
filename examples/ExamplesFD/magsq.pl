@@ -55,6 +55,8 @@ magsq(N, A) :-
 	for_each_big_diagonal(A, N, lab),
 %       for_each_line(A,lab).
 	fd_labeling(Values, [variable_method(ff), value_method(max)]).
+% in practice this random is better than max
+%	fd_labeling(Values, [variable_method(ff), value_method(random)]).
 
 
 

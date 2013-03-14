@@ -1,8 +1,11 @@
 Change in GNU Prolog version 1.4.3:
 
-* add PlULong to gprolog.h and PlThrow(ball) to foreign interface
+* fix a bug in the FD solver (option backtracks in fd_labeling)
+* improve the FD solver (better propagation for reified constraints at labeling)
+* improve the FD solver (add labeling option: value_method(bisect))
 * improve the FD solver (avoid some cases of C stack overflow, improved fd_domain/3)
-* fix a bug in the FD solver
+* fix a bug in the FD solver (regression bug in 1.4.2)
+* add PlULong to gprolog.h and PlThrow(ball) to C foreign interface
 
 Change in GNU Prolog version 1.4.2:
 
