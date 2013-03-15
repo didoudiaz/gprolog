@@ -209,9 +209,11 @@ WamWord *Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok);
 
 void Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word);
 
+WamWord *Pl_Fd_New_Variable_Interval(int min, int max);
+
 WamWord *Pl_Fd_New_Variable(void);
 
-WamWord *Pl_Fd_New_Bool_Variable(void);
+WamWord *Pl_Fd_New_Variable_Range(Range *r);
 
 WamWord *Pl_Fd_New_Int_Variable(int n);
 
@@ -242,6 +244,10 @@ Bool Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max);
 
 Bool Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range);
 
+Bool Pl_Fd_Tell_Interval(WamWord *fdv_adr, int min, int max);
+
+Bool Pl_Fd_Tell_Range(WamWord *fdv_adr, Range *range);
+
 void Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr);
 
 
@@ -250,11 +256,19 @@ void Pl_Fd_Init_Solver0(void);
 
 void Pl_Fd_Reset_Solver0(void);
 
-Bool Pl_Fd_Assign_Value(WamWord *fdv_adr, int n);
+Bool Pl_Fd_In_Interval(WamWord *fdv_adr, int min, int max);
+
+Bool Pl_Fd_In_Range(WamWord *fdv_adr, Range *range);
+
+Bool Pl_Fd_Assign_Value_Fast(WamWord *fdv_adr, int n);
+
+#define Pl_Fd_Assign_Value(fdv, n) Pl_Fd_Unify_With_Integer0(fdv, n)
 
 Bool Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
 
 Bool Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
+
+Bool Pl_Fd_Remove_Value(WamWord *fdv_adr, int n);
 
 Bool Pl_Fd_Use_Vector(WamWord *fdv_adr);
 
@@ -267,6 +281,7 @@ int Pl_Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
 char *Pl_Fd_Variable_To_String0(WamWord *fdv_adr);
 
 
+#define Pl_Fd_New_Bool_Variable()  Pl_Fd_New_Variable_Interval(0, 1)
 
 
 #define Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask)         \

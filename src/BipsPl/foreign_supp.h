@@ -108,21 +108,24 @@ void Pl_Foreign_Update_Choice(CodePtr codep_alt, int arity, int choice_size);
 CodePtr Pl_Foreign_Jump_Ret(CodePtr codep);
 
 PlFIOArg *Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word,
-			  PlLong (*rd_fct) (), int fio_arg_index);
+			       PlLong (*rd_fct) (), int fio_arg_index);
 
 Bool Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
-		       WamWord start_word);
+			  WamWord start_word);
 
 
 
 void Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col,
-		       char *err_msg);
+			  char *err_msg);
 
 
+
+void Pl_Exec_Continuation_Module(int module, int func, int arity, WamWord *arg_adr);
 
 void Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr);
 
-void Pl_Exec_Continuation_Module(int module, int func, int arity, WamWord *arg_adr);
+void Pl_Throw(WamWord ball_word);
+
 
 void Pl_Query_Begin(Bool recoverable);
 

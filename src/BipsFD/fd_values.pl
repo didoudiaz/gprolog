@@ -55,14 +55,14 @@ fd_domain(List, L, U) :-
 
 
 '$fd_domain'(X, L, U) :-                     % for fd builtins (exact errors)
-	fd_tell(pl_fd_domain(X, L, U)).
+	'$call_c_test'('Pl_Fd_Domain_Var_3'(X, L, U)).
 
 
 
 
 fd_domain_bool(List) :-
 	set_bip_name(fd_domain_bool, 1),
-	'$call_c_test'('Pl_Fd_Domain_Bool_1'(List)).
+	'$call_c_test'('Pl_Fd_Domain_3'(List, 0, 1)).
 
 
 
@@ -90,16 +90,27 @@ fd_labeling(List, Options) :-
 	'$sys_var_read'(0, VarMethod),
 	'$sys_var_read'(1, ValMethod),
 	'$sys_var_read'(2, Reorder),
-	'$sys_var_write'(3, 0),                               % bckts counter
-	(   (   fd_var(List)
-	    ;   integer(List)
-	    ) ->
+	'$fd_reset_labeling_backtracks',
+	(   ( fd_var(List) ; integer(List) ) ->
 	    '$indomain'(List, ValMethod)
-	;   '$check_list'(List),
+	;
+	    '$check_list'(List),
 	    '$fd_labeling1'(List, VarMethod, ValMethod, Reorder)
 	),
-	'$sys_var_read'(3, Bckts),
-	'$sys_var_write'(3, 0).
+	'$fd_get_labeling_backtracks'(Bckts).
+
+
+
+
+'$fd_reset_labeling_backtracks' :-
+	'$fd_set_labeling_backtracks'(0).
+
+'$fd_set_labeling_backtracks'(Bckts) :-
+	'$sys_var_write'(4, Bckts). 			% bckts counter
+
+
+'$fd_get_labeling_backtracks'(Bckts) :-
+	'$sys_var_read'(4, Bckts).
 
 
 
@@ -156,12 +167,14 @@ fd_labeling(List, Options) :-
 	    '$sys_var_write'(1, 0)
 	;   X = max,
 	    '$sys_var_write'(1, 1)
-	;   X = middle,
-	    '$sys_var_write'(1, 2)
-	;   X = limits,
-	    '$sys_var_write'(1, 3)
 	;   X = random,
+	    '$sys_var_write'(1, 2)
+	;   X = middle,
+	    '$sys_var_write'(1, 3)
+	;   X = bisect,
 	    '$sys_var_write'(1, 4)
+	;   X = limits,
+	    '$sys_var_write'(1, 5)
 	).
 
 '$get_labeling_options2'(reorder(X)) :-
@@ -229,20 +242,8 @@ fd_labeling(List, Options) :-
 	'$call_c_test'('Pl_Indomain_2'(X, ValMethod)).
 
 
-'$indomain_min_alt' :-              % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Min_Alt_0').
-
-'$indomain_max_alt' :-              % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Max_Alt_0').
-
-'$indomain_middle_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Middle_Alt_0').
-
-'$indomain_limits_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Limits_Alt_0').
-
-'$indomain_random_alt' :-           % used by C code to create a choice-point
-	'$call_c_test'('Pl_Indomain_Random_Alt_0').
+'$indomain_alt' :-		% used by C code to create a choice-point
+	'$call_c_test'('Pl_Indomain_Alt_0').
 
 '$extra_cstr_alt' :-                % used by C code to create a choice-point
 	'$call_c_test'('Pl_Extra_Cstr_Alt_0').

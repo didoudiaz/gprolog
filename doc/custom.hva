@@ -109,12 +109,12 @@ medium, provided this notice is preserved.
 
 \setcounter{tocdepth}{3}
 
-% to get index citations that point to section titles
-% this comes from /usr/lib/hevea/makeidx.hva
-\usepackage{makeidx}
-\renewcommand{\index}[1]
-{\if@refs\@saveclosed%
-\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
-\@restoreclosed\fi}
-
-
+%To get index citations that point to section titles
+%this comes from /usr/lib/hevea/makeidx.hva
+%NB: no longer works in HeVeA 2.0 !!! 
+%
+%\usepackage{makeidx}
+%\renewcommand{\index}[1]
+%{\if@refs\@saveclosed%
+%\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
+%\@restoreclosed\fi}

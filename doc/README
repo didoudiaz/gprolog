@@ -191,9 +191,10 @@ let\saveIdxPBD=\IdxPBD
 \let\IdxPBD=\saveIdxPBD
 
 
-2) Define a macro to emit such a subsection (e.g., let us suppose it is as subsubsection)
-with 2 args: the section title and the index entry/ies. For LaTeX, define \section and then \index.
-For HeVeA do the reverse: \index and then \section
+2) Define a macro to emit such a subsection (e.g., let us suppose it is as
+subsubsection) with 2 args: the section title and the index entry/ies. For
+LaTeX, define \section and then \index.  For HeVeA do the reverse: \index and
+then \section
 
 
 in macros.tex:

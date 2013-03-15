@@ -1,6 +1,17 @@
+Thu Mar 14 12:46:35 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in the FD solver (option backtracks in fd_labeling)
+	* improve the FD solver (better propagation for reified constraints at labeling)
+	* improve the FD solver (add labeling option: value_method(bisect))
+
+Mon Mar 11 15:42:31 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* improve the FD solver (avoid some cases of C stack overflow, improved fd_domain/3)
+	* add PlULong to gprolog.h and PlThrow(ball) to C foreign interface
+
 Mon Feb 25 13:57:51 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix a bug in the FD solver
+	* fix a bug in the FD solver (regression bug in 1.4.2)
 
 Wed Nov 28 17:04:46 CET 2012 <Daniel.Diaz@univ-paris1.fr>
 
