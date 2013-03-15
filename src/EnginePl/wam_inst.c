@@ -77,6 +77,12 @@ DblInt;
  * Global Variables                *
  *---------------------------------*/
 
+#ifdef BOEHM_GC
+void * pl_gc_bad_alloc=0;
+size_t pl_gc_bad_alloc_count=0;
+#define PL_GC_BAD_ALLOC_COUNT_MOD (1024*1024)
+#endif /* BOEHM_GC */
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -96,11 +102,29 @@ WamWord * FC
 Pl_GC_Mem_Alloc(PlULong n)
 {
   WamWord *result = 0, *x;
+  do
+    {
 #if DEBUG_MEM_GC_DONT_COLLECT>=2
-  result = (WamWord *) malloc(n * sizeof(WamWord));
+      result = (WamWord *) malloc(n * sizeof(WamWord));
 #else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
-  result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
+      result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
 #endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
+    if (!Tag_Is_REF(result+n-1))
+      {
+	// Keep the bad memory referenced so it is not collected and reused.
+	*(void **)result = pl_gc_bad_alloc;
+	pl_gc_bad_alloc = result;
+	if (pl_gc_bad_alloc_count++ % PL_GC_BAD_ALLOC_COUNT_MOD == 0)
+	  {
+	    fprintf(stderr, "Warning: Unusable memory allocated.\n");
+	  }
+      }
+    else
+      {
+	break;
+      }
+    }
+  while (result != 0);
   if (result != 0) {
       x = result + n;
       while (x-- > result) {
