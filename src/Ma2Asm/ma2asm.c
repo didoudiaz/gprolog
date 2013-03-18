@@ -720,7 +720,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--shared") || Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC"))
+	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC"))
 	    {
 	      if (can_produce_pic_code)
 		pic_code = 1;
@@ -811,7 +811,7 @@ Display_Help(void)
   L("");
   L("Options:");
   L("  -o FILE, --output FILE      set output file name");
-  L("  --shared,--pic,-fPIC         produce position indepent code (PIC)");
+  L("  --pic                       produce position independent code (PIC)");
   L("  --inline-asm                inline some C calls as asm instructions");
   L("  --full-inline-asm           inline most C calls as asm instructions");
   L("  --ignore-fast               ignore fast call (FC) declarations");
