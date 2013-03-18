@@ -95,6 +95,10 @@
  * Global Variables                *
  *---------------------------------*/
 
+int can_produce_pic_code = 1;   /* overwritte var of ma2asm.c */
+extern int pic_code;
+
+
 char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
@@ -149,7 +153,7 @@ int load_pb_reg = 0;
 int pb_label_no = 0;
 char pb_label[32];
 
-int needs_pre_pass = 1;
+int needs_pre_pass = 1;		/* overwritte var of ma_parser.c */
 
 #include "../Wam2Ma/bt_string.h"
 BTString bt_stub;

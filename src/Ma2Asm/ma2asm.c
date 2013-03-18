@@ -91,8 +91,11 @@ CodeInf;
  * Global Variables                *
  *---------------------------------*/
 
+int can_produce_pic_code;	/* can be overwritten by mappers */
+
 char *file_name_in;
 char *file_name_out;
+int pic_code;
 int inline_asm;
 int ignore_fc;
 int comment;
@@ -695,6 +698,7 @@ Parse_Arguments(int argc, char *argv[])
 
 
   file_name_in = file_name_out = NULL;
+  pic_code = 0;
   inline_asm = 0;
   ignore_fc = 0;
   comment = 0;
@@ -713,6 +717,15 @@ Parse_Arguments(int argc, char *argv[])
 		}
 
 	      file_name_out = argv[i];
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--shared") || Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC"))
+	    {
+	      if (can_produce_pic_code)
+		pic_code = 1;
+	      else
+		fprintf(stderr, "ignored option %s - cannot produce PIC code for this architecture\n", argv[i]);
 	      continue;
 	    }
 
@@ -752,8 +765,7 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  fprintf(stderr, "unknown option %s - try ma2asm --help\n",
-		  argv[i]);
+	  fprintf(stderr, "unknown option %s - try ma2asm --help\n", argv[i]);
 	  exit(1);
 	}
 
@@ -765,7 +777,6 @@ Parse_Arguments(int argc, char *argv[])
 	}
       file_name_in = argv[i];
     }
-
 
   if (file_name_in != NULL && strcmp(file_name_in, "-") == 0)
     file_name_in = NULL;
@@ -800,6 +811,7 @@ Display_Help(void)
   L("");
   L("Options:");
   L("  -o FILE, --output FILE      set output file name");
+  L("  --shared,--pic,-fPIC         produce position indepent code (PIC)");
   L("  --inline-asm                inline some C calls as asm instructions");
   L("  --full-inline-asm           inline most C calls as asm instructions");
   L("  --ignore-fast               ignore fast call (FC) declarations");
