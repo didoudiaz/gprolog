@@ -95,6 +95,10 @@
  * Global Variables                *
  *---------------------------------*/
 
+int can_produce_pic_code = 1;   /* overwritte var of ma2asm.c */
+extern int pic_code;
+
+
 char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
