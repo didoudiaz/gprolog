@@ -55,11 +55,13 @@ To use HtmlHelp you maybe need to copy:
 
    copy + rename the 64 bits version of Htmlhelp.lib as
    /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
-   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64)
+   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64
+   or in C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86)
 
    copy + rename the 32 bits version of Htmlhelp.lib as
    /usr/i686-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
-   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/)
+   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/
+   or in C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x64)
 
 
 Configuration
