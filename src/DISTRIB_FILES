@@ -71,15 +71,6 @@ src/configure.in
 src/install-sh
 src/mkinstalldirs
 
-src/RPM/Makefile
-src/RPM/README
-src/RPM/build_spec_file
-src/RPM/make_rpm_tree
-src/RPM/try_rpm
-src/RPM/rpm_env.spec
-src/RPM/initial.spec
-src/RPM/gprolog.spec
-
 src/Win32/Makefile.in
 src/Win32/README
 src/Win32/compile_install

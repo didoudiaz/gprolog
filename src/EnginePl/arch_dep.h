@@ -179,6 +179,35 @@
 #define siglongjmp longjmp
 #endif
 
+#if defined(_WIN64)
+/* Mingw64-gcc implements setjmp with msvcrt's _setjmp. This _setjmp
+ * has an additional (hidden) argument. If it is NULL, longjmp will NOT do
+ * stack unwinding (needed for SEH). By default the the second argument is
+ * NOT null (it is $rsp), then longjmp will try a stack unwinding which will
+ * crash gprolog.
+ * NB: _setjmp stores this argument in the jmp_buf (in the first bytes) 
+ * Mingw-gcc v < 4.6 fixed this at longjmp (before calling msvcrt's _longjmp)
+ * (see file: lib64_libmingwex_a-mingw_getsp.o in library libmingwex.a)
+ * 
+ * 0000000000000006 <longjmp>:                              # x86_64 ABI: jmp_buf is in $rcx
+ *    6:   31 c0                   xor    %eax,%eax
+ *    8:   89 01                   mov    %eax,(%rcx)       # set 0 in the first word of jmp_buf
+ *    a:   48 8d 05 00 00 00 00    lea    0x0(%rip),%rax    # this will call dll msvcrt's longjmp
+ *   11:   ff 20                   jmpq   *(%rax)
+ *
+ * while in >= 4.6: (no more fixes)
+ *
+ * 0000000000000006 <longjmp>:
+ *    6:   48 8d 05 00 00 00 00    lea    0x0(%rip),%rax    # this will call dll msvcrt's longjmp
+ *    d:   ff 20                   jmpq   *(%rax)
+ *    f:   90                      nop
+ *
+ */
+#ifdef setjmp
+#undef setjmp
+#endif
+#define setjmp(buf) _setjmp(buf, NULL)
+#endif
 				/* Fast call macros */
 #if defined(M_ix86)
 

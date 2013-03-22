@@ -10,14 +10,14 @@ The preliminar port to Win64 has been done in Jan 2011 by
 Jasper Taylor <jasper@simulistics.com>. Many thanks to him !
 I have then added some finishing touches.
 
-I have tested it under x86-64/Windows 7. I use cygwin as compilation
+I have tested it under x86-64/Windows 7 and 8. I use Cygwin or MSYS as compilation
 environment (see file WINDOWS). I used mingw-w64 which delivers a complete
 toolchain (runtime, headers, and libs) for developing 64 bit (x64), as well
 as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
 from http://mingw-w64.sourceforge.net/ or, for cygwin, with the cygwin setup.exe 
 utility (selecting the mingw package).
 
-Tested with mingw64/mingw32 gcc version 4.5.3
+Tested with mingw64/mingw32 gcc version 4.5.3,  4.7.0
 
 With the cygwin package things are installed in:
 
@@ -43,6 +43,24 @@ and with
 
 Strictly speaking i686-... are not needed here (since we are interested in 64 bits)
 
+
+Using original mingw64 packages
+
+If you are under MSYS or if you prefer a more recent version under Cygwin,
+you can dowload mingw64 from the official site: http://mingw-w64.sourceforge.net/
+From the left menu:
+- "What do I download ?", read it to know what you download
+- "WIN64 Downloads" (to run under a 64 bits Windows)
+- "WIN32 Downloads" (to run under a 32 or 64 bits Windows)
+NB: on each arch (32 or 64) you can produce 32 bits (prefix i686) or 64 bits (prefix x86_64) code.
+ 
+You can either chose Automated Buils or Personal Builds (in this one I use
+rubenvb buils which also include gdb).
+
+
+HTML Help
+---------
+
 To use HtmlHelp you maybe need to copy:
 
    the header file:
@@ -55,11 +73,13 @@ To use HtmlHelp you maybe need to copy:
 
    copy + rename the 64 bits version of Htmlhelp.lib as
    /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
-   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64)
+   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64
+   or in C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86)
 
    copy + rename the 32 bits version of Htmlhelp.lib as
    /usr/i686-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
-   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/)
+   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/
+   or in C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x64)
 
 
 Configuration

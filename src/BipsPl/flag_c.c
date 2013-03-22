@@ -104,7 +104,7 @@ static int atom_atom_no_escape;
 static int atom_the_dialect;
 static int atom_the_home;
 
-static int atom_prolog[11];
+static int atom_prolog[12];
 
 
 
@@ -166,6 +166,8 @@ Flag_Initializer(void)
   atom_flag_tbl[FLAG_HOST_CPU] = Pl_Create_Atom("host_cpu");
   atom_flag_tbl[FLAG_HOST] = Pl_Create_Atom("host");
   atom_flag_tbl[FLAG_ARCH] = Pl_Create_Atom("arch");
+  atom_flag_tbl[FLAG_COMPILED_AT] = Pl_Create_Atom("compiled_at");
+  atom_flag_tbl[FLAG_ADDRESS_BITS] = Pl_Create_Atom("address_bits");
 
   atom_flag_tbl[FLAG_VERSION] = Pl_Create_Atom("version");
   atom_flag_tbl[FLAG_VERSION_DATA] = Pl_Create_Atom("version_data");
@@ -204,6 +206,11 @@ Flag_Initializer(void)
   atom_prolog[8] = Pl_Create_Atom(M_OS);
   atom_prolog[9] = Pl_Create_Atom(M_CPU "-" M_VENDOR "-" M_OS);
   atom_prolog[10] = Pl_Create_Atom(M_CPU "-" M_OS);
+#if defined(__DATE__) && defined(__TIME__)
+  atom_prolog[11] = Pl_Create_Atom(__DATE__ ", " __TIME__);
+#else
+  atom_prolog[11] = Pl_Create_Atom("unknown date");
+#endif
 
   Flag_Value(FLAG_SINGLETON_WARNING) = 1;
   Flag_Value(FLAG_SUSPICIOUS_WARNING) = 1;
@@ -272,6 +279,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_MAX_ATOM:
     case FLAG_MAX_UNGET:
     case FLAG_VERSION:
+    case FLAG_ADDRESS_BITS:
       if (tag_mask != TAG_INT_MASK)
 	goto err_value;
       goto err_perm;
@@ -358,6 +366,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_HOST_CPU:
     case FLAG_HOST:
     case FLAG_ARCH:
+    case FLAG_COMPILED_AT:
       if (tag_mask != TAG_ATM_MASK)
 	goto err_value;
       goto err_perm;
@@ -581,7 +590,12 @@ Unif_Flag(int i, WamWord value_word)
     case FLAG_HOST_VENDOR:
     case FLAG_HOST:
     case FLAG_ARCH:
+    case FLAG_COMPILED_AT:
       atom = atom_prolog[i - FLAG_PROLOG_NAME];
+      break;
+
+    case FLAG_ADDRESS_BITS:
+      n = WORD_SIZE;
       break;
 
     case FLAG_VERSION:

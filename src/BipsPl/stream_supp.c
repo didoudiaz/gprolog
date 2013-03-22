@@ -228,7 +228,7 @@ Init_Stream_Supp(void)
   pl_use_le_prompt = TRUE;
 
   pl_stm_stdin = Pl_Add_Stream_For_Stdio_Desc(stdin, pl_atom_user_input,
-					STREAM_MODE_READ, TRUE);
+					      STREAM_MODE_READ, TRUE);
 
 #ifndef NO_USE_LINEDIT
   if ((pl_use_gui) || isatty(0))
@@ -249,7 +249,7 @@ Init_Stream_Supp(void)
 
 
   pl_stm_stdout = Pl_Add_Stream_For_Stdio_Desc(stdout, pl_atom_user_output,
-					 STREAM_MODE_WRITE, TRUE);
+					       STREAM_MODE_WRITE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
@@ -267,7 +267,7 @@ Init_Stream_Supp(void)
 
 
   pl_stm_stderr = Pl_Add_Stream_For_Stdio_Desc(stderr, pl_atom_user_error,
-					 STREAM_MODE_WRITE, TRUE);
+					       STREAM_MODE_WRITE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
@@ -363,7 +363,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
   return Pl_Add_Stream(atom_path, (PlLong) f, prop,
-		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+		       NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 

@@ -33,7 +33,6 @@ setup-link: compile-link create-setup
 create-setup: create_bat.exe
 	if test $(WITH_MSVC) != no; then cp `which $(AS)` $(TMPDIR)/bin; fi
 	cp create_bat.exe $(TMPDIR)/bin
-	cp ../../gprolog.ico .
 	$(ISCC) gp-setup.iss
 
 ../$(PKG_NAME).tar.gz:
