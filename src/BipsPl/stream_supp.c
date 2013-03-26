@@ -231,7 +231,7 @@ Init_Stream_Supp(void)
 					      STREAM_MODE_READ, TRUE);
 
 #ifndef NO_USE_LINEDIT
-  if ((pl_use_gui) || isatty(0))
+  if (pl_use_gui || isatty(0))
     {
       pstm = pl_stm_tbl[pl_stm_stdin];
       pstm->fct_getc = (StmFct) TTY_Getc;
@@ -1440,7 +1440,7 @@ Pl_Stream_Gets(char *str, int size, StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GET_LINE                                                         *
+ * PL_STREAM_GETS_PROMPT                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *

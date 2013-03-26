@@ -213,6 +213,7 @@ int pl_stm_top_level_output;
 int pl_stm_debugger_input;
 int pl_stm_debugger_output;
 
+Bool pl_stream_use_linedit;
 char *pl_le_prompt;
 int pl_use_le_prompt;
 
@@ -280,6 +281,7 @@ extern int pl_stm_top_level_output;
 extern int pl_stm_debugger_input;
 extern int pl_stm_debugger_output;
 
+extern Bool pl_stream_use_linedit;
 extern char *pl_le_prompt;
 extern int pl_use_le_prompt;
 
