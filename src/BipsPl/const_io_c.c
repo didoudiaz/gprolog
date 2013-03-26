@@ -84,10 +84,31 @@ void Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word);
 	  /* from read_c.c */
 
 Bool Pl_Read_Term_5(WamWord sora_word, WamWord term_word,
-		 WamWord vars_word, WamWord var_names_word,
-		 WamWord sing_names_word);
+		    WamWord vars_word, WamWord var_names_word,
+		    WamWord sing_names_word);
 
 Bool Pl_Read_Token_2(WamWord sora_word, WamWord token_word);
+
+
+
+
+#define OUT_TO_STR(const_stream_type, str, stm_word, code_out, code_after) \
+{									\
+  int stm;								\
+  WamWord stm_word;							\
+  char *str;								\
+									\
+  stm = Pl_Add_Str_Stream(NULL, const_stream_type);			\
+  stm_word = Pl_Make_Stream_Tagged_Word(stm);				\
+									\
+  { code_out; }								\
+									\
+  str = Pl_Term_Write_Str_Stream(stm);					\
+									\
+  { code_after; }							\
+									\
+  Pl_Delete_Str_Stream(stm);						\
+}
 
 
 
@@ -99,17 +120,12 @@ Bool Pl_Read_Token_2(WamWord sora_word, WamWord token_word);
 Bool
 Pl_Write_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
 
-  Pl_Write_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  Pl_Write_2(stm_word, term_word),
+  ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -124,17 +140,11 @@ Pl_Write_To_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Write_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Write_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Write_2(stm_word, term_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -149,17 +159,11 @@ Pl_Write_To_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Write_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Write_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Write_2(stm_word, term_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }
@@ -174,17 +178,11 @@ Pl_Write_To_Codes_2(WamWord codes_word, WamWord term_word)
 Bool
 Pl_Writeq_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
-
-  Pl_Writeq_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Writeq_2(stm_word, term_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -199,17 +197,11 @@ Pl_Writeq_To_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Writeq_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Writeq_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Writeq_2(stm_word, term_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -224,17 +216,11 @@ Pl_Writeq_To_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Writeq_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Writeq_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Writeq_2(stm_word, term_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }
@@ -249,17 +235,11 @@ Pl_Writeq_To_Codes_2(WamWord codes_word, WamWord term_word)
 Bool
 Pl_Write_Canonical_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
-
-  Pl_Write_Canonical_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Write_Canonical_2(stm_word, term_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -274,17 +254,11 @@ Pl_Write_Canonical_To_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Write_Canonical_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Write_Canonical_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Write_Canonical_2(stm_word, term_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -299,17 +273,11 @@ Pl_Write_Canonical_To_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Write_Canonical_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Write_Canonical_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Write_Canonical_2(stm_word, term_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }
@@ -324,17 +292,11 @@ Pl_Write_Canonical_To_Codes_2(WamWord codes_word, WamWord term_word)
 Bool
 Pl_Display_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
-
-  Pl_Display_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Display_2(stm_word, term_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -349,17 +311,11 @@ Pl_Display_To_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Display_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Display_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Display_2(stm_word, term_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -374,17 +330,11 @@ Pl_Display_To_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Display_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Display_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Display_2(stm_word, term_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }
@@ -399,17 +349,11 @@ Pl_Display_To_Codes_2(WamWord codes_word, WamWord term_word)
 Bool
 Pl_Print_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
-
-  Pl_Print_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Print_2(stm_word, term_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -424,17 +368,11 @@ Pl_Print_To_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Print_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Print_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Print_2(stm_word, term_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -449,17 +387,11 @@ Pl_Print_To_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Print_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Print_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Print_2(stm_word, term_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }
@@ -474,17 +406,11 @@ Pl_Print_To_Codes_2(WamWord codes_word, WamWord term_word)
 Bool
 Pl_Write_Term_To_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
-
-  Pl_Write_Term_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Write_Term_2(stm_word, term_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -499,17 +425,11 @@ Pl_Write_Term_To_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Write_Term_To_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Write_Term_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Write_Term_2(stm_word, term_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -524,17 +444,11 @@ Pl_Write_Term_To_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Write_Term_To_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Write_Term_2(Pl_Make_Stream_Tagged_Word(stm), term_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Write_Term_2(stm_word, term_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }
@@ -549,17 +463,11 @@ Pl_Write_Term_To_Codes_2(WamWord codes_word, WamWord term_word)
 Bool
 Pl_Format_To_Atom_3(WamWord atom_word, WamWord format_word, WamWord args_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_ATOM);
-
-  Pl_Format_3(Pl_Make_Stream_Tagged_Word(stm), format_word, args_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_String_Check(str, atom_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Format_3(stm_word, format_word, args_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -572,20 +480,13 @@ Pl_Format_To_Atom_3(WamWord atom_word, WamWord format_word, WamWord args_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Format_To_Chars_3(WamWord chars_word, WamWord format_word,
-		  WamWord args_word)
+Pl_Format_To_Chars_3(WamWord chars_word, WamWord format_word, WamWord args_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CHARS);
-
-  Pl_Format_3(Pl_Make_Stream_Tagged_Word(stm), format_word, args_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Chars_Check(str, chars_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
+	     Pl_Format_3(stm_word, format_word, args_word),
+	     ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -598,22 +499,33 @@ Pl_Format_To_Chars_3(WamWord chars_word, WamWord format_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Format_To_Codes_3(WamWord codes_word, WamWord format_word,
-		  WamWord args_word)
+Pl_Format_To_Codes_3(WamWord codes_word, WamWord format_word, WamWord args_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(NULL, TERM_STREAM_CODES);
-
-  Pl_Format_3(Pl_Make_Stream_Tagged_Word(stm), format_word, args_word);
-
-  str = Pl_Term_Write_Str_Stream(stm);
-  ret = Pl_Un_Codes_Check(str, codes_word);
-  Pl_Delete_Str_Stream(stm);
+  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
+	     Pl_Format_3(stm_word, format_word, args_word),
+	     ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
+}
+
+
+
+
+/*----- INPUT -----*/
+
+#define IN_FROM_STR(const_stream_type, str, stm_word, code_in)	\
+{								\
+  int stm;							\
+  WamWord stm_word;						\
+								\
+  stm = Pl_Add_Str_Stream(str, const_stream_type);		\
+  stm_word = Pl_Make_Stream_Tagged_Word(stm);			\
+								\
+  { code_in; }							\
+								\
+  Pl_Delete_Str_Stream(stm);					\
 }
 
 
@@ -626,17 +538,10 @@ Pl_Format_To_Codes_3(WamWord codes_word, WamWord format_word,
 Bool
 Pl_Read_From_Atom_2(WamWord atom_word, WamWord term_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  str = pl_atom_tbl[Pl_Rd_Atom_Check(atom_word)].name;
-
-  stm = Pl_Add_Str_Stream(str, TERM_STREAM_ATOM);
-
-  ret = Pl_Read_Term_5(Pl_Make_Stream_Tagged_Word(stm), term_word, 0, 0, 0);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_ATOM, pl_atom_tbl[Pl_Rd_Atom_Check(atom_word)].name, stm_word, 
+	      ret = Pl_Read_Term_5(stm_word, term_word, 0, 0, 0));
 
   return ret;
 }
@@ -651,14 +556,10 @@ Pl_Read_From_Atom_2(WamWord atom_word, WamWord term_word)
 Bool
 Pl_Read_From_Chars_2(WamWord chars_word, WamWord term_word)
 {
-  int stm;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(Pl_Rd_Chars_Check(chars_word), TERM_STREAM_CHARS);
-
-  ret = Pl_Read_Term_5(Pl_Make_Stream_Tagged_Word(stm), term_word, 0, 0, 0);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_CHARS, Pl_Rd_Chars_Check(chars_word), stm_word,
+	      ret = Pl_Read_Term_5(stm_word, term_word, 0, 0, 0));
 
   return ret;
 }
@@ -673,14 +574,10 @@ Pl_Read_From_Chars_2(WamWord chars_word, WamWord term_word)
 Bool
 Pl_Read_From_Codes_2(WamWord codes_word, WamWord term_word)
 {
-  int stm;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(Pl_Rd_Codes_Check(codes_word), TERM_STREAM_CODES);
-
-  ret = Pl_Read_Term_5(Pl_Make_Stream_Tagged_Word(stm), term_word, 0, 0, 0);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_CODES, Pl_Rd_Codes_Check(codes_word), stm_word,
+	      ret = Pl_Read_Term_5(stm_word, term_word, 0, 0, 0));
 
   return ret;
 }
@@ -694,21 +591,13 @@ Pl_Read_From_Codes_2(WamWord codes_word, WamWord term_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Read_Term_From_Atom_5(WamWord atom_word, WamWord term_word,
-		      WamWord vars_word, WamWord var_names_word,
-		      WamWord sing_names_word)
+			 WamWord vars_word, WamWord var_names_word,
+			 WamWord sing_names_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  str = pl_atom_tbl[Pl_Rd_Atom_Check(atom_word)].name;
-
-  stm = Pl_Add_Str_Stream(str, TERM_STREAM_ATOM);
-
-  ret = Pl_Read_Term_5(Pl_Make_Stream_Tagged_Word(stm), term_word,
-		    vars_word, var_names_word, sing_names_word);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_ATOM, pl_atom_tbl[Pl_Rd_Atom_Check(atom_word)].name, stm_word,
+	      ret = Pl_Read_Term_5(stm_word, term_word, vars_word, var_names_word, sing_names_word));
 
   return ret;
 }
@@ -722,18 +611,13 @@ Pl_Read_Term_From_Atom_5(WamWord atom_word, WamWord term_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Read_Term_From_Chars_5(WamWord chars_word, WamWord term_word,
-		       WamWord vars_word, WamWord var_names_word,
-		       WamWord sing_names_word)
+			  WamWord vars_word, WamWord var_names_word,
+			  WamWord sing_names_word)
 {
-  int stm;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(Pl_Rd_Chars_Check(chars_word), TERM_STREAM_CHARS);
-
-  ret = Pl_Read_Term_5(Pl_Make_Stream_Tagged_Word(stm), term_word,
-		    vars_word, var_names_word, sing_names_word);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_CHARS, Pl_Rd_Chars_Check(chars_word), stm_word,
+	      ret = Pl_Read_Term_5(stm_word, term_word, vars_word, var_names_word, sing_names_word));
 
   return ret;
 }
@@ -748,18 +632,13 @@ Pl_Read_Term_From_Chars_5(WamWord chars_word, WamWord term_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Read_Term_From_Codes_5(WamWord codes_word, WamWord term_word,
-		       WamWord vars_word, WamWord var_names_word,
-		       WamWord sing_names_word)
+			  WamWord vars_word, WamWord var_names_word,
+			  WamWord sing_names_word)
 {
-  int stm;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(Pl_Rd_Codes_Check(codes_word), TERM_STREAM_CODES);
-
-  ret = Pl_Read_Term_5(Pl_Make_Stream_Tagged_Word(stm), term_word,
-		    vars_word, var_names_word, sing_names_word);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_CODES, Pl_Rd_Codes_Check(codes_word), stm_word,
+	      ret = Pl_Read_Term_5(stm_word, term_word, vars_word, var_names_word, sing_names_word));
 
   return ret;
 }
@@ -774,17 +653,10 @@ Pl_Read_Term_From_Codes_5(WamWord codes_word, WamWord term_word,
 Bool
 Pl_Read_Token_From_Atom_2(WamWord atom_word, WamWord token_word)
 {
-  int stm;
-  char *str;
   Bool ret;
 
-  str = pl_atom_tbl[Pl_Rd_Atom_Check(atom_word)].name;
-
-  stm = Pl_Add_Str_Stream(str, TERM_STREAM_ATOM);
-
-  ret = Pl_Read_Token_2(Pl_Make_Stream_Tagged_Word(stm), token_word);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_ATOM, pl_atom_tbl[Pl_Rd_Atom_Check(atom_word)].name, stm_word,
+	      ret = Pl_Read_Token_2(stm_word, token_word));
 
   return ret;
 }
@@ -799,14 +671,10 @@ Pl_Read_Token_From_Atom_2(WamWord atom_word, WamWord token_word)
 Bool
 Pl_Read_Token_From_Chars_2(WamWord chars_word, WamWord token_word)
 {
-  int stm;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(Pl_Rd_Chars_Check(chars_word), TERM_STREAM_CHARS);
-
-  ret = Pl_Read_Token_2(Pl_Make_Stream_Tagged_Word(stm), token_word);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_CHARS, Pl_Rd_Chars_Check(chars_word), stm_word,
+	      ret = Pl_Read_Token_2(stm_word, token_word));
 
   return ret;
 }
@@ -821,14 +689,10 @@ Pl_Read_Token_From_Chars_2(WamWord chars_word, WamWord token_word)
 Bool
 Pl_Read_Token_From_Codes_2(WamWord codes_word, WamWord token_word)
 {
-  int stm;
   Bool ret;
 
-  stm = Pl_Add_Str_Stream(Pl_Rd_Codes_Check(codes_word), TERM_STREAM_CODES);
-
-  ret = Pl_Read_Token_2(Pl_Make_Stream_Tagged_Word(stm), token_word);
-
-  Pl_Delete_Str_Stream(stm);
+  IN_FROM_STR(TERM_STREAM_CODES, Pl_Rd_Codes_Check(codes_word), stm_word,
+	      ret = Pl_Read_Token_2(stm_word, token_word));
 
   return ret;
 }
