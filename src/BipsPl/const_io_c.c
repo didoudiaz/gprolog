@@ -92,6 +92,9 @@ Bool Pl_Read_Token_2(WamWord sora_word, WamWord token_word);
 
 
 
+/*----- OUTPUT -----*/
+
+
 #define OUT_TO_STR(const_stream_type, str, stm_word, code_out, code_after) \
 {									\
   int stm;								\
