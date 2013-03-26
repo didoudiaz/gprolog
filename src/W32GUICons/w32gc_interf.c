@@ -75,7 +75,7 @@ extern int Pl_LE_Get_Prompt_Length(void);
  * Global Variables                *
  *---------------------------------*/
 
-static void Start_GUI(void);
+static void Start_GUI(int silent);
 
 #ifdef GUI_CONSOLE_WITH_STACK_SIZES
 static PlLong Query_Stack(QueryStackCmd cmd, int stack_no);
@@ -128,7 +128,7 @@ typedef __declspec(dllimport) int (*Fct) ();
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Start_GUI(void)
+Start_GUI(int silent)
 {
   Fct W32GC_Start_Window;
   HANDLE h;
@@ -141,8 +141,9 @@ Start_GUI(void)
 
   if (h == NULL)
     {
-      fprintf(stderr, "warning: cannot load DLL " DLL_W32GUICONS
-	      " - text console used (error: %d)\n", (int) GetLastError());
+      if (!silent)
+	fprintf(stderr, "warning: cannot load DLL " DLL_W32GUICONS
+		" - text console used (error: %d)\n", (int) GetLastError());
       pl_le_hook_start = NULL;
       return;
     }

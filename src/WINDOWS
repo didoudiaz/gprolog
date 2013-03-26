@@ -231,3 +231,15 @@ then in c:\emacs-24.2\site-lisp create the file site-start.el with:
 
 it wil then execute the .emacs file in your HOME directory
 
+
+7) Using cygwin Emacs
+---------------------
+
+install emacs-w32 (cygwin package). Then
+   cp /bin/emacs-w32.exe /bin/emacs.exe
+
+To have an icon (desktop and/or quick launch bar)
+   copy runemacs.exe in the cygwin /bin (see above for runemacs.exe)
+   create a shortcut on the desktop and/or quick launch bar
+   modify icon if wanted (take it from runemacs.exe or emacs-w32.exe)
+   modify the starting directory (set your cygwin home)

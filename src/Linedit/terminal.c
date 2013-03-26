@@ -189,8 +189,8 @@ Pl_LE_Initialize(void)
   Choose_Fd_Out();
 #endif
 
-  if (pl_le_hook_start && pl_use_gui == 1)
-    (*pl_le_hook_start) ();
+  if (pl_le_hook_start && pl_use_gui)
+    (*pl_le_hook_start) (pl_use_gui == 2);
 
   if (pl_le_hook_put_char != NULL && pl_le_hook_get_char0 != NULL
       && pl_le_hook_kbd_is_not_empty != NULL && pl_le_hook_screen_size != NULL)
@@ -258,6 +258,9 @@ Parse_Env_Var(void)
 
   if (strstr(p, "gui=n") != NULL)
     pl_use_gui = 0;
+
+  if (strstr(p, "gui=s") != NULL) /* silent */
+    pl_use_gui = 2;
 
   if (strstr(p, "ansi=n") != NULL)
     use_ansi = 0;

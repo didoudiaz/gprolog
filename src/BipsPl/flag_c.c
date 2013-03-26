@@ -225,11 +225,7 @@ Flag_Initializer(void)
    */
   Flag_Value(FLAG_BACK_QUOTES) = FLAG_AS_ATOM | FLAG_NO_ESCAPE_MASK; 
 
-#ifndef NO_USE_LINEDIT
-  SYS_VAR_LINEDIT = 1;
-#else
-  SYS_VAR_LINEDIT = 0;
-#endif
+  SYS_VAR_LINEDIT = pl_stream_use_linedit;
 }
 
 
