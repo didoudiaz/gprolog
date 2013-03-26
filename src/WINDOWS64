@@ -10,6 +10,9 @@ The preliminar port to Win64 has been done in Jan 2011 by
 Jasper Taylor <jasper@simulistics.com>. Many thanks to him !
 I have then added some finishing touches.
 
+1) Compiling with mingw64
+-------------------------
+
 I have tested it under x86-64/Windows 7 and 8. I use Cygwin or MSYS as compilation
 environment (see file WINDOWS). I used mingw-w64 which delivers a complete
 toolchain (runtime, headers, and libs) for developing 64 bit (x64), as well
@@ -17,7 +20,7 @@ as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
 from http://mingw-w64.sourceforge.net/ or, for cygwin, with the cygwin setup.exe 
 utility (selecting the mingw package).
 
-Tested with mingw64/mingw32 gcc version 4.5.3,  4.7.0
+Tested with mingw64/mingw32 gcc version 4.5.3, 4.6.3 and 4.7.0
 
 With the cygwin package things are installed in:
 
@@ -102,8 +105,29 @@ then
     make install
 
 
-LIMITATIONS
------------
+
+2) Compiling GNU Prolog using MSVC++
+------------------------------------
+
+See the same section in file WINDOWS (it is basically the same process). Be sure
+yuo run a cygwin which invokes the 64 bits version of the MSVC++ compiler
+to check run 'cl' and see if  you obtain something with a x64 like:
+   Microsoft (R) C/C++ Optimizing Compiler Version 17.00.50727.1 for x64
+
+Basically you have to set PATH and other variables invoking the MSVS .bat
+   call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x64
+
+
+Finally, you need the YASM assembler (called yasm.exe). Copy it under a
+directory inside your PATH (for instance in /bin) under the name yasm-win64.exe.
+A version can be found at:
+
+http://gprolog.org/yasm-win64.exe
+
+
+
+3) Limitations
+--------------
 
 Currently hardware detection of stack overflows does not work 
 (SEH is not yet implemented in mingw64).
