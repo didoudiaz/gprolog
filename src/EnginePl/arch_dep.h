@@ -179,7 +179,7 @@
 #define siglongjmp longjmp
 #endif
 
-#if defined(_WIN64)
+#if defined(_WIN64) && !defined(_MSC_VER)
 /* Mingw64-gcc implements setjmp with msvcrt's _setjmp. This _setjmp
  * has an additional (hidden) argument. If it is NULL, longjmp will NOT do
  * stack unwinding (needed for SEH). By default the the second argument is

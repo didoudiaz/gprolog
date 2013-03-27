@@ -24,7 +24,9 @@ VERSION
 *.dll
 *.exe
 *.[oa]
+*.obj
 *.so
 *.po
 *.BAK
 .#*
+#*

@@ -93,7 +93,7 @@ read_term(SorA, Term, Options) :-
 
 
 
-'$set_read_defaults' :-
+'$set_read_defaults' :-		%if modified, modified also const_io_c.c
 	'$sys_var_write'(0, 0),                                % default mask
 	'$sys_var_write'(1, -1).
 

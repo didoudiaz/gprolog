@@ -210,7 +210,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Write_Simple(WamWord term_word)
+Pl_Write(WamWord term_word)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_output];
 

@@ -383,7 +383,7 @@ Simplify(int sign, WamWord e_word)
 
 #ifdef DEBUG
   printf("ENTERING %5ld: %2d: ", sp - stack, sign);
-  Pl_Write_Simple(e_word);
+  Pl_Write(e_word);
   printf("\n");
 #endif
 

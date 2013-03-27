@@ -1,10 +1,15 @@
+Wed Mar 27 16:35:02 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* add new C foreign interface functions converting term to/from C strings
+
 Tue Mar 26 10:23:05 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
+	* modify top-level banner to show 32/64 bits, compile date, compiler name
 	* modify Linedit: fix Prolog prompt when Linedit is not activated
 	* modify linedit: accept gui=silent in env var LINEDIT
 	  (does not warn if the windows gui DLL is not found)
 	* fixes for Windows 8 (i686 and x86_64) with MSVS 2012, mingw64 gcc > 4.5.3
-	* add Prolog flags address_bits and compiled_at
+	* add Prolog flags address_bits, compiled_at, c_cc, c_cflags, c_ldflags
 
 Thu Mar 14 12:46:35 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 

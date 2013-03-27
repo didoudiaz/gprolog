@@ -790,7 +790,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   else
     DBGPRINTF("            ");
 
-  Pl_Write_Simple(inst_word);
+  Pl_Write(inst_word);
   DBGPRINTF("\n");
 #endif
 }
