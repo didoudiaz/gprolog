@@ -66,10 +66,10 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
 
 #define CHECK_STREAM_AND_GET_STM(sora_word, stm)		\
   stm = (sora_word == NOT_A_WAM_WORD)				\
-         ? pl_stm_input : 						\
+         ? pl_stm_input :					\
          Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);	\
 								\
-  pl_last_input_sora = sora_word;					\
+  pl_last_input_sora = sora_word;				\
   Pl_Check_Stream_Type(stm, TRUE, TRUE)
 
 
@@ -84,7 +84,7 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
       return FALSE;						\
     }								\
 								\
-  if (!Pl_Unify(word, term_word))					\
+  if (!Pl_Unify(word, term_word))				\
     return FALSE
 
 

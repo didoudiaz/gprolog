@@ -248,7 +248,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
-      Pl_Write_Simple(*first_arg_adr);
+      Pl_Write(*first_arg_adr);
     }
   DBGPRINTF("\n");
 #endif
@@ -281,9 +281,9 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   DBGPRINTF("\n");
   DBGPRINTF("asserta: %d  Clause: ", asserta);
   DBGPRINTF("\thead: ");
-  Pl_Write_Simple(head_word);
+  Pl_Write(head_word);
   DBGPRINTF("\tbody: ");
-  Pl_Write_Simple(body_word);
+  Pl_Write(body_word);
   DBGPRINTF("\nByte Code at :%p\n", pl_byte_code);
 #endif
 
@@ -1231,9 +1231,9 @@ Check_Chain(D2ChHdr *hdr, int index_no)
       DBGPRINTF(" %3d  %3d  %p  %p <-> %p  ",
 		clause->cl_no, clause->term_size, clause,
 		clause_b, clause_f);
-      Pl_Write_Simple(clause->head_word);
+      Pl_Write(clause->head_word);
       DBGPRINTF(":-");
-      Pl_Write_Simple(clause->body_word);
+      Pl_Write(clause->body_word);
       if (clause->erase_stamp != DYN_STAMP_NONE)
 	DBGPRINTF("  erased at:%" PL_FMT_d "   next erased: %p",
 		  clause->erase_stamp, (clause->next_erased_cl));

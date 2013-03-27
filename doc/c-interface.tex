@@ -901,8 +901,8 @@ interface when an output argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-PlBool Pl_Un_Integer_Check (PlLong n,          PlTerm term)
-PlBool Pl_Un_Positive_Check(PlLong n,          PlTerm term)
+PlBool Pl_Un_Integer_Check (PlLong n,        PlTerm term)
+PlBool Pl_Un_Positive_Check(PlLong n,        PlTerm term)
 PlBool Pl_Un_Float_Check   (double n,        PlTerm term)
 PlBool Pl_Un_Number_Check  (double n,        PlTerm term)
 PlBool Pl_Un_Atom_Check    (int atom,        PlTerm term)
@@ -1160,8 +1160,6 @@ PlBool Pl_Builtin_Compare(PlTerm cmp, PlTerm term1, PlTerm term2)
 \end{Indentation}
 
 
-
-
 \subsubsection{Term processing}
 
 The following functions give access to the built-in predicates:
@@ -1197,6 +1195,49 @@ the function \texttt{Pl\_Copy\_Contiguous\_Term()} can be used instead (it is
 faster). In any case, sufficient space should be available for the copy
 (i.e. from \texttt{dst\_term}). The function \texttt{Pl\_Term\_Size(term)}
 returns the number of \texttt{PlTerm} needed by \texttt{term}.
+
+The following function is an utility to display a term to the console, similarly to
+the built-in predicate \texttt{write/1} \RefSP{write-term/3}.
+
+\begin{Indentation}
+\begin{verbatim}
+void Pl_Write(PlTerm term)
+\end{verbatim}
+\end{Indentation}
+
+This \texttt{Pl\_Write} function can be used for debugging purpose. However, it is more
+flexible to receive the content of the \texttt{write/1} as a C string. This can be
+achieved by the following functions (using repectively \texttt{write/1},
+\texttt{writeq/1}, \texttt{write\_canonical/1} and \texttt{display/1}
+\RefSP{write-term/3} to obtain a textual representation of the term). These functions
+return a dynamically allocated C string (using \texttt{malloc(3)}) which can be freed
+by the user when no longer needed.
+
+\begin{Indentation}
+\begin{verbatim}
+char *Pl_Write_To_String(PlTerm term)
+
+char *Pl_Writeq_To_String(PlTerm term)
+
+char *Pl_Write_Canonical_To_String(PlTerm term)
+
+char *Pl_Display_To_String(PlTerm term)
+\end{verbatim}
+\end{Indentation}
+
+
+Finally the following function performs the opposite converstion: given a C string it
+returns the associated Prolog term. It uses \texttt{read\_term/2} \RefSP{read-term/3}
+with the option \texttt{end\_of\_term(eof)} (thus the C string does not need to
+terminate by a dot).
+
+\begin{Indentation}
+\begin{verbatim}
+PlTerm Pl_Read_From_String(const char *str)
+\end{verbatim}
+\end{Indentation}
+
+
 
 \subsubsection{Comparing and evaluating arithmetic expressions}
 The following functions compare arithmetic expressions. Each function

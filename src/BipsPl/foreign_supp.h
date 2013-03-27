@@ -128,8 +128,7 @@ void Pl_Query_Begin(Bool recoverable);
 
 int Pl_Query_Call(int func, int arity, WamWord *arg_adr);
 
-#define Pl_Query_Start(func, arity, arg_adr, recoverable) \
- (Pl_Query_Begin(recoverable), Pl_Query_Call(func, arity, arg_adr))
+int Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable);
 
 int Pl_Query_Next_Solution(void);
 

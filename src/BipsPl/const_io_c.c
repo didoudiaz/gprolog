@@ -117,6 +117,82 @@ Bool Pl_Read_Token_2(WamWord sora_word, WamWord token_word);
 
 
 /*-------------------------------------------------------------------------*
+ * PL_WRITE_TO_STRING (foreign interface)                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Write_To_String(WamWord term_word)
+{
+  char *ret_str;
+
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Write_2(stm_word, term_word),
+	     ret_str = Strdup(str));
+
+  return ret_str;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_WRITEQ_TO_STRING (foreign interface)                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Writeq_To_String(WamWord term_word)
+{
+  char *ret_str;
+
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Writeq_2(stm_word, term_word),
+	     ret_str = Strdup(str));
+
+  return ret_str;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_WRITE_CANONICAL_TO_STRING (foreign interface)                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Write_Canonical_To_String(WamWord term_word)
+{
+  char *ret_str;
+
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Write_Canonical_2(stm_word, term_word),
+	     ret_str = Strdup(str));
+
+  return ret_str;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DISPLAY_TO_STRING (foreign interface)                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Display_To_String(WamWord term_word)
+{
+  char *ret_str;
+
+  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
+	     Pl_Display_2(stm_word, term_word),
+	     ret_str = Strdup(str));
+
+  return ret_str;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_WRITE_TO_ATOM_2                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -126,9 +202,8 @@ Pl_Write_To_Atom_2(WamWord atom_word, WamWord term_word)
   Bool ret;
 
   OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
-
-  Pl_Write_2(stm_word, term_word),
-  ret = Pl_Un_String_Check(str, atom_word));
+	     Pl_Write_2(stm_word, term_word),
+	     ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -529,6 +604,32 @@ Pl_Format_To_Codes_3(WamWord codes_word, WamWord format_word, WamWord args_word)
   { code_in; }							\
 								\
   Pl_Delete_Str_Stream(stm);					\
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_READ_FROM_STRING (foreign interface)                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Read_From_String(char *str)
+{
+  WamWord term_word = Pl_Mk_Variable();
+
+  /* this corresponds to defaults in read.pl ('$set_read_defaults') and read_c.c */
+  SYS_VAR_OPTION_MASK = 0;	/* nothing */
+  SYS_VAR_OPTION_MASK |= (1 << 3); /* end_of_term = EOF */
+
+
+  SYS_VAR_SYNTAX_ERROR_ACTON = -1; /* on syntax error use value fo flags syntax_error */
+
+
+  IN_FROM_STR(TERM_STREAM_ATOM, str, stm_word, 
+	      Pl_Read_Term_5(stm_word, term_word, 0, 0, 0));
+
+  return term_word;
 }
 
 

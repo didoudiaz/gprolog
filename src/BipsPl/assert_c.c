@@ -125,7 +125,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
-      Pl_Write_Simple(*first_arg_adr);
+      Pl_Write(*first_arg_adr);
     }
   DBGPRINTF("\n");
 #endif
@@ -213,7 +213,7 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
-      Pl_Write_Simple(*first_arg_adr);
+      Pl_Write(*first_arg_adr);
     }
   DBGPRINTF("\n");
 #endif

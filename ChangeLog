@@ -1,3 +1,7 @@
+Wed Mar 27 16:35:02 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* add new C foreign interface functions converting term to/from C strings
+
 Tue Mar 26 10:23:05 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 	* modify top-level banner to show 32/64 bits, compile date, compiler name

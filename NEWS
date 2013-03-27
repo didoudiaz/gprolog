@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.3:
 
+* add new C foreign interface functions converting term to/from C strings
 * modify top-level banner to show 32/64 bits, compile date, C compiler name
 * modify Linedit: fix Prolog prompt when Linedit is not activated
 * modify linedit: accept gui=silent in env var LINEDIT

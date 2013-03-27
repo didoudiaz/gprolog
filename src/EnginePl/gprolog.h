@@ -472,7 +472,7 @@ PlBool Pl_Un_Callable_Check(int func, int arity, PlTerm *arg,
 
 PlBool Pl_Un_Callable(int func, int arity, PlTerm *arg, PlTerm term);
 
-PlBool Pl_Un_Term(PlTerm term_word, PlTerm term);
+PlBool Pl_Un_Term(PlTerm term1, PlTerm term2);
 
 
 
@@ -648,20 +648,30 @@ void Pl_Os_Error(void);
 
 
 
-void Pl_Write_Simple(PlTerm term);
+void Pl_Write(PlTerm term);
+
+char *Pl_Write_To_String(PlTerm term);
+
+char *Pl_Writeq_To_String(PlTerm term);
+
+char *Pl_Write_Canonical_To_String(PlTerm term);
+
+char *Pl_Display_To_String(PlTerm term);
+
+PlTerm Pl_Read_From_String(const char *str);
+
 
 
 
 void Pl_Exec_Continuation(int func, int arity, PlTerm *arg_adr);
 
-void Pl_Throw(PlTerm ball_word);
+void Pl_Throw(PlTerm ball);
 
 void Pl_Query_Begin(PlBool recoverable);
 
 int Pl_Query_Call(int func, int arity, PlTerm *arg_adr);
 
-#define Pl_Query_Start(func, arity, arg_adr, recoverable) \
- (Pl_Query_Begin(recoverable), Pl_Query_Call(func, arity, arg_adr))
+int Pl_Query_Start(int func, int arity, PlTerm *arg_adr, PlBool recoverable);
 
 int Pl_Query_Next_Solution(void);
 
@@ -1061,7 +1071,7 @@ typedef PlFIOArg FIOArg;
 
 #define Un_Callable(func, arity, arg, term) Pl_Un_Callable(func, arity, arg, term)
 
-#define Un_Term(term_word, term) Pl_Un_Term(term_word, term)
+#define Un_Term(term1, term2) Pl_Un_Term(term1, term2)
 
 
 

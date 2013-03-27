@@ -349,6 +349,20 @@ Pl_Query_Call(int func, int arity, WamWord *arg_adr)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_QUERY_START                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable)
+{
+  Pl_Query_Begin(recoverable);
+  return  Pl_Query_Call(func, arity, arg_adr);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_QUERY_RECOVER_ALT_0                                                  *
  *                                                                         *
  * NB: This choice-point is invoked when PL_KEEP_FOR_PROLOG is used        *
@@ -614,7 +628,7 @@ Pl_Unif(PlTerm term1, PlTerm term2)
 
 
 /*-------------------------------------------------------------------------*
- * PL_Unif_With_Occurs_Check                                               *
+ * PL_UNIF_WITH_OCCURS_CHECK                                               *
  *                                                                         *
  * do not use directly Pl_Unify_Occurs_Check because of FC (fast call)     *
  *-------------------------------------------------------------------------*/
