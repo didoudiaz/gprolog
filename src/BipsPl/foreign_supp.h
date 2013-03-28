@@ -120,9 +120,9 @@ void Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col,
 
 
 
-void Pl_Exec_Continuation_Module(int module, int func, int arity, WamWord *arg_adr);
-
 void Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr);
+
+void Pl_Exec_Continuation_Module(int module, int func, int arity, WamWord *arg_adr);
 
 void Pl_Throw(WamWord ball_word);
 
@@ -135,8 +135,7 @@ int Pl_Query_Call_Module(int module, int func, int arity, WamWord *arg_adr);
 
 int Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable);
 
-/*TODO*/
-/*int Pl_Query_Start_Module(int module, int func, int arity, WamWord *arg_adr, Bool recoverable);*/
+int Pl_Query_Start_Module(int module, int func, int arity, WamWord *arg_adr, Bool recoverable);
 
 
 int Pl_Query_Next_Solution(void);

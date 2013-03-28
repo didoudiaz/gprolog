@@ -100,7 +100,7 @@ static CodePtr Prepare_Call(int module, int func, int arity, WamWord *arg_adr);
 #define PL_QUERY_RECOVER_ALT       X1_24706C5F71756572795F7265636F7665725F616C74
 
 Prolog_Prototype(CALL_INTERNAL, 3);
-Prolog_Prototype(THROW_INTERNAL, 2);
+Prolog_Prototype(THROW_INTERNAL, 3);
 
 Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
 
@@ -320,8 +320,9 @@ Pl_Throw(WamWord ball_word)
   bip_func = Pl_Get_Current_Bip(&bip_arity);
 
   A(0) = ball_word;
-  A(1) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
-  Pl_Execute_A_Continuation(Prolog_Predicate(THROW_INTERNAL, 2));
+  A(1) = pl_atom_user;		/* TODO pass module of the caller (for error), see throw.pl */
+  A(2) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
+  Pl_Execute_A_Continuation(Prolog_Predicate(THROW_INTERNAL, 3));
 }
 
 
@@ -376,14 +377,27 @@ Pl_Query_Call(int func, int arity, WamWord *arg_adr)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_QUERY_START_MODULE                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Query_Start_Module(int module, int func, int arity, WamWord *arg_adr, Bool recoverable)
+{
+  Pl_Query_Begin(recoverable);
+  return Pl_Query_Call_Module(module, func, arity, arg_adr);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_QUERY_START                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
 Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable)
 {
-  Pl_Query_Begin(recoverable);
-  return  Pl_Query_Call(func, arity, arg_adr);
+  return Pl_Query_Start_Module(pl_atom_user, func, arity, arg_adr, recoverable);
 }
 
 

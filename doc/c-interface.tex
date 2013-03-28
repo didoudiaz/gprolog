@@ -1473,24 +1473,19 @@ The following functions allows a C function to call a Prolog predicate:
 
 \begin{Indentation}
 \begin{verbatim}
-<<<<<<< HEAD
 void   Pl_Query_Begin             (PlBool recoverable)
 int    Pl_Query_Call              (int functor, int arity, PlTerm *arg)
 int    Pl_Query_Call_Module       (int module, int functor, int arity, PlTerm *arg)
+int    Pl_Query_Start             (int functor, int arity, PlTerm *arg,
+                                   PlBool recoverable)
+int    Pl_Query_Start_Module      (int module, int functor, int arity, PlTerm *arg, 
+                                   Plbool recoverable)
 int    Pl_Query_Next_Solution     (void)
 void   Pl_Query_End               (int op)
 PlTerm Pl_Get_Exception           (void)
 void   Pl_Exec_Continuation       (int functor, int arity, PlTerm *arg)
 void   Pl_Exec_Continuation_Module(int module, int functor, int arity, PlTerm *arg)
-=======
-void   Pl_Query_Begin        (PlBool recoverable)
-int    Pl_Query_Call         (int functor, int arity, PlTerm *arg)
-int    Pl_Query_Next_Solution(void)
-void   Pl_Query_End          (int op)
-PlTerm Pl_Get_Exception      (void)
-void   Pl_Exec_Continuation  (int functor, int arity, PlTerm *arg)
-void   Pl_Throw              (PlTerm ball)
->>>>>>> master
+void   Pl_Throw                   (PlTerm ball)
 \end{verbatim}
 \end{Indentation}
 
@@ -1500,8 +1495,8 @@ The invocation of a Prolog predicate should be done as follows:
 
 \item open a query using \texttt{Pl\_Query\_Begin()}
 
-\item compute the first solution using \texttt{Pl\_Query\_Call()} (or the
-  module-aware version \texttt{Pl\_Query\_Call\_Module()})
+\item compute the first solution using \texttt{Pl\_Query\_Call()}\\
+  (or the module-aware version \texttt{Pl\_Query\_Call\_Module()})
 
 \item eventually compute next solutions using
 \texttt{Pl\_Query\_Next\_Solution()}
@@ -1550,6 +1545,12 @@ solution. It must be only used if the result of the previous solution was
 \texttt{PL\_SUCCESS}. This functions returns the same kind of values as
 \texttt{Pl\_Query\_Call()} (see above).
 
+The function \texttt{Pl\_Query\_Start(functor, arity, arg, recoverable)} is a
+shorthand equivalent to a call to \texttt{Pl\_Query\_Begin(recoverable)} followed by
+a call to \texttt{Pl\_Query\_Call(functor, arity, arg)}.  
+The function \texttt{Pl\_Query\_Start\_Module} is similar but accepts an additionnal
+argument to specify the lookup module (an atom).
+
 The function \texttt{Pl\_Query\_End(op)} is used to finish a query. This
 function mainly manages the remaining alternatives of the query. However,
 even if the query has no alternatives this function must be used to
@@ -1579,21 +1580,13 @@ terminating it to call another query. In that case the first execution of
 \texttt{Pl\_Query\_End()} will finish the second query (i.e. the inner) and
 the next execution of \texttt{Pl\_Query\_End()} will finish the first query.
 
-<<<<<<< HEAD
-Finally, the function \texttt{Pl\_Exec\_Continuation(functor, arity, arg)}
+The function \texttt{Pl\_Exec\_Continuation(functor, arity, arg)}
 replaces the current calculus by the execution of the specified
 predicate. The arguments \texttt{functor}, \texttt{arity} and \texttt{arg}
 are similar to those of the functions handling complex terms
-\RefSP{Introduction:(Manipulating-Prolog-terms)}. The function
-\texttt{Pl\_Exec\_Continuation\_Module} is similar but accepts an additionnal
-argument to specify the lookup module (an atom).
-=======
-The function \texttt{Pl\_Exec\_Continuation(functor, arity,
-arg)} replaces the current calculus by the execution of the specified
-predicate. The arguments \texttt{functor}, \texttt{arity} and
-\texttt{arg} are similar to those of the functions handling complex
-terms \RefSP{Introduction:(Manipulating-Prolog-terms)}.
->>>>>>> master
+\RefSP{Introduction:(Manipulating-Prolog-terms)}.
+The function \texttt{Pl\_Exec\_Continuation\_Module} is similar but accepts an
+additionnal argument to specify the lookup module (an atom).
 
 Finally the function \texttt{Pl\_Throw(ball)} throws an exception. See the
 \IdxCC{throw/1} control construct for more information on exceptions
