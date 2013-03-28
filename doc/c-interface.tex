@@ -825,7 +825,7 @@ be ensured. It simply makes a dynamic copy of \texttt{str}
 (using \texttt{strdup(3)}).
 
 The function \texttt{Pl\_Find\_Atom(str)} returns the internal key of the
-atom whose name is \texttt{str} or \texttt{-1} if does not exist.
+atom whose name is \texttt{str} or \texttt{-1} if it does not exist.
 
 All atoms corresponding to a single character already exist and their
 key can be obtained via the function \texttt{Pl\_Atom\_Char}.  For
@@ -1449,10 +1449,10 @@ error. There is no predefined system error atoms.
 \texttt{Pl\_Err\_System(Pl\_Create\_Atom("invalid path name"))}.
 
 The following function emits a system error associated with an operating
-system error according to the value of the \IdxPF{os\_error}
-\Idx{Prolog flag} \RefSP{set-prolog-flag/2}. This function can then return (if the value of the flag is either \texttt{warning} or \texttt{fail}).
-In that case the calling function should fail (e.g. returning
-\texttt{PL\_FALSE}).
+system error according to the value of the \IdxPF{os\_error} \Idx{Prolog
+  flag} \RefSP{set-prolog-flag/2}. This function can then return (if the
+value of the flag is either \texttt{warning} or \texttt{fail}). In that case
+the calling function should fail (e.g. returning \texttt{PL\_FALSE}).
 
 The following function uses the value of the \texttt{errno} C library
 variable (basically it calls \texttt{Pl\_Err\_System} with the result
@@ -1473,6 +1473,8 @@ The following functions allows a C function to call a Prolog predicate:
 \begin{verbatim}
 void   Pl_Query_Begin        (PlBool recoverable)
 int    Pl_Query_Call         (int functor, int arity, PlTerm *arg)
+int    Pl_Query_Start        (int functor, int arity, PlTerm *arg,
+                              PlBool recoverable)
 int    Pl_Query_Next_Solution(void)
 void   Pl_Query_End          (int op)
 PlTerm Pl_Get_Exception      (void)
@@ -1496,11 +1498,12 @@ The invocation of a Prolog predicate should be done as follows:
 
 \end{itemize}
 
-The function \texttt{Pl\_Query\_Begin(recoverable)} is used to initialize a query. The argument \texttt{recoverable} shall be set to
-\texttt{PL\_TRUE} if the user wants to recover, at the end of the query, the
-memory space consumed by the query (in that case an additional choice-point
-is created). All terms created in the heap, e.g. using \texttt{Pl\_Mk\_...}
-family functions \RefSP{Creating-Prolog-terms}, after the invocation of
+The function \texttt{Pl\_Query\_Begin(recoverable)} is used to initialize a
+query. The argument \texttt{recoverable} shall be set to \texttt{PL\_TRUE} if
+the user wants to recover, at the end of the query, the memory space consumed
+by the query (in that case an additional choice-point is created). All terms
+created in the heap, e.g. using \texttt{Pl\_Mk\_...}  family functions
+\RefSP{Creating-Prolog-terms}, after the invocation of
 \texttt{Pl\_Query\_Begin()} can be recovered when calling
 \texttt{Pl\_Query\_End(PL\_TRUE)} (see below).
 
@@ -1524,6 +1527,10 @@ obtain the unification performed by the query.
 raised by \IdxCC{throw/1} \RefSP{catch/3}.
 
 \end{itemize}
+
+The function \texttt{Pl\_Query\_Start(functor, arity, arg, recoverable)} is a
+shorthand equivalent to a call to \texttt{Pl\_Query\_Begin(recoverable)} followed by
+a call to \texttt{Pl\_Query\_Call(functor, arity, arg)}.
 
 The function \texttt{Pl\_Query\_Next\_Solution()} is used to compute a new
 solution. It must be only used if the result of the previous solution was
@@ -1559,11 +1566,11 @@ terminating it to call another query. In that case the first execution of
 \texttt{Pl\_Query\_End()} will finish the second query (i.e. the inner) and
 the next execution of \texttt{Pl\_Query\_End()} will finish the first query.
 
-The function \texttt{Pl\_Exec\_Continuation(functor, arity,
-arg)} replaces the current calculus by the execution of the specified
-predicate. The arguments \texttt{functor}, \texttt{arity} and
-\texttt{arg} are similar to those of the functions handling complex
-terms \RefSP{Introduction:(Manipulating-Prolog-terms)}.
+The function \texttt{Pl\_Exec\_Continuation(functor, arity, arg)}
+replaces the current calculus by the execution of the specified
+predicate. The arguments \texttt{functor}, \texttt{arity} and \texttt{arg}
+are similar to those of the functions handling complex terms
+\RefSP{Introduction:(Manipulating-Prolog-terms)}.
 
 Finally the function \texttt{Pl\_Throw(ball)} throws an exception. See the
 \IdxCC{throw/1} control construct for more information on exceptions
