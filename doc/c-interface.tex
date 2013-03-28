@@ -1540,16 +1540,16 @@ additionnal argument to specify the lookup module (an atom). The procedure is
 first searched in the specified module, then in the \texttt{user} module and
 finally in the \texttt{system} module.
 
-The function \texttt{Pl\_Query\_Next\_Solution()} is used to compute a new
-solution. It must be only used if the result of the previous solution was
-\texttt{PL\_SUCCESS}. This functions returns the same kind of values as
-\texttt{Pl\_Query\_Call()} (see above).
-
 The function \texttt{Pl\_Query\_Start(functor, arity, arg, recoverable)} is a
 shorthand equivalent to a call to \texttt{Pl\_Query\_Begin(recoverable)} followed by
 a call to \texttt{Pl\_Query\_Call(functor, arity, arg)}.  
 The function \texttt{Pl\_Query\_Start\_Module} is similar but accepts an additionnal
 argument to specify the lookup module (an atom).
+
+The function \texttt{Pl\_Query\_Next\_Solution()} is used to compute a new
+solution. It must be only used if the result of the previous solution was
+\texttt{PL\_SUCCESS}. This functions returns the same kind of values as
+\texttt{Pl\_Query\_Call()} (see above).
 
 The function \texttt{Pl\_Query\_End(op)} is used to finish a query. This
 function mainly manages the remaining alternatives of the query. However,
