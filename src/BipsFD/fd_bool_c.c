@@ -106,7 +106,7 @@ static WamWord *sp;
 static WamWord vars_tbl[VARS_STACK_SIZE];
 static WamWord *vars_sp;
 
-static Bool (*func_tbl[NB_OF_OP + 2]) ();
+static Bool (*func_tbl[NB_OF_OP + 2]) (WamWord *exp, int result, WamWord *load_word);
 
 
 
@@ -1044,7 +1044,7 @@ Set_Not(WamWord *exp, int result, WamWord *load_word)
 
 
 /*-------------------------------------------------------------------------*
- * SET_EQUIV                                                               *
+ * SET_EQUIV                                                               *<
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
