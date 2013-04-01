@@ -135,24 +135,21 @@ Pl_GC_Mem_Alloc(PlULong n)
  * Allocate the required amount of memory for a given tagged structure.    *
  *                                                                         *
  * next_H:  A pointer to the variable that specifies where to write        *
- *          the next entry.                                                *
+ *          the content of the struct.                                     *
  * w:       The tagged structure.                                          *
  * returns: A pointer to the allocated memory.                             *
  *-------------------------------------------------------------------------*/
 WamWord * FC
-Pl_GC_Alloc_Struc(WamWord **next_H, WamWord w)
+Pl_GC_Alloc_Struc(WamWord **next_H, PlULong arity)
 {
   WamWord *cur_H;
-  PlULong arity = Arity_Of(w);
   cur_H = Pl_GC_Mem_Alloc(arity + 2);
   *cur_H = Tag_STC(cur_H + 1);
-  cur_H++;
-  *cur_H = w;
   if (next_H != 0)
     {
       *next_H = cur_H + 1;
     }
-  return cur_H - 1;
+  return cur_H;
 }
 
 
@@ -172,7 +169,7 @@ Pl_GC_Alloc_List(WamWord **next_H)
 {
   WamWord *cur_H;
   cur_H = Pl_GC_Mem_Alloc(3);
-  *cur_H = Tag_LST(cur_H+1);
+  *cur_H = Tag_LST(cur_H + 1);
   if (next_H != 0)
     {
         *next_H = cur_H + 1;

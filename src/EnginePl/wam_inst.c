@@ -371,7 +371,8 @@ Pl_Get_Structure_Tagged(WamWord w, WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Struc(&H, w)));
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Struc(&H, Arity_Of(w))));
+      *H++ = w;
 #else /* BOEHM_GC */
       WamWord *cur_H;
       cur_H = H;
@@ -623,12 +624,13 @@ Pl_Put_List(void)
 WamWord FC
 Pl_Put_Structure_Tagged(WamWord w)
 {
-#ifdef BOEHM_GC
-  S = WRITE_MODE;
-  return Tag_REF(Pl_GC_Alloc_Struc(&H, w));
-#else /* BOEHM_GC */
   WamWord *cur_H;
   S = WRITE_MODE;
+#ifdef BOEHM_GC
+  cur_H = Pl_GC_Alloc_Struc(&H, Arity_Of(w));
+  *H++ = w;
+  return Tag_REF(cur_H);
+#else /* BOEHM_GC */
   cur_H = H;
   *cur_H = w;
   H++;
@@ -1054,7 +1056,8 @@ Pl_Unify_Structure_Tagged(WamWord w)
 
   cur_H = H;
 #ifdef BOEHM_GC
-  *cur_H = Tag_REF(Pl_GC_Alloc_Struc(&H, w));
+  *cur_H = Tag_REF(Pl_GC_Alloc_Struc(&H, Arity_Of(w)));
+  *H++ = w;
 #else /* BOEHM_GC */
   *cur_H = Tag_STC(cur_H + 1);
   cur_H[1] = w;

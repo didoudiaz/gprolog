@@ -64,7 +64,7 @@ Pl_GC_Mem_Alloc(PlULong n_wamwords);
 
 
 WamWord * FC
-Pl_GC_Alloc_Struc(WamWord **next_H, WamWord w);
+Pl_GC_Alloc_Struc(WamWord **next_H, PlULong arity);
 
 WamWord * FC
 Pl_GC_Alloc_List(WamWord **next_H);
