@@ -2,9 +2,9 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : wam_archi.def (gives rise to wam_archi.h)                       *
- * Descr.: Wam architecture definition - description file                  *
- * Author: Daniel Diaz                                                     *
+ * File  : wam_inst.h                                                      *
+ * Descr.: WAM garbage collected heap functions - header file              *
+ * Author: Nick Calus and Daniel Diaz                                      *
  *                                                                         *
  * Copyright (C) 1999-2012 Daniel Diaz                                     *
  *                                                                         *
@@ -35,103 +35,46 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-#ifndef _WAM_ARCHI_H
-#define _WAM_ARCHI_H
+/* $Id$ */
 
-#include "pl_long.h"
+#ifndef _WAM_GC_HEAP_H
+#define _WAM_GC_HEAP_H
+
+#include "gp_config.h"
+#include "wam_archi.h"
 
 /*---------------------------------*
- * Register Descriptions           *
+ * Constants                       *
  *---------------------------------*/
 
-typedef intptr_t WamWord;       /* a WamWord can store a ptr (32/64 bits) */
-
-typedef void (*CodePtr) ();     /* a code pointer is a ptr to fct */
-
-typedef CodePtr WamCont;        /* a continuation is a code pointer */
-
-#ifndef ONLY_TAG_PART
-
-#define X(x)                       (pl_reg_bank[x])
-#define A(a)                       (pl_reg_bank[a])
-
-typedef WamWord *WamWordP;
-
-
-@begin regs
-
-@filler NB_OF_X_REGS
-
-@reg 4 WamCont  CP              /* Continuation pointer */
-
-@reg 4 WamWordP E               /* Last environment pointer */
-
-@reg 2 WamWordP B               /* Last choice point pointer */
-
-@reg 3 WamWordP H               /* Top of the heap */
-@reg 3 WamWordP HB1             /* copy of HB(B) */
-
-@reg 1 WamWordP TR              /* Top of the trail */
-@reg 5 WamWordP S               /* Unification pointer */
-
-@reg 9 WamWord  STAMP           /* Choice point stamp (for FD) */
-@reg 4 WamWordP CS              /* Top of the constraint stack */
-
-@reg 9 WamWord  BCI             /* Byte-code info */
-
-@reg 9 WamWordP LSSA            /* Local stack start address */
-
-
-@end regs
-
-#endif
-
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
 /*---------------------------------*
- * Tag Descriptions                *
+ * Global Variables                *
+ *---------------------------------*/
+
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
+
+WamWord * FC
+Pl_GC_Mem_Alloc(PlULong n_wamwords);
+
+
+WamWord * FC
+Pl_GC_Alloc_Struc(WamWord **next_H, WamWord w);
+
+WamWord * FC
+Pl_GC_Alloc_List(WamWord **next_H);
+
+WamWord * FC
+Pl_GC_Alloc_Float(WamWord **next_H);
+
+/*---------------------------------*
+ * Auxiliary engine macros         *
  *---------------------------------*/
 
 
-@begin tags
-
-@tag REF address 0              /* Reference */
-@tag LST address 1              /* List */
-@tag STC address 2              /* Structure */
-
-@tag ATM short_uns 3            /* Atom */
-
-@tag FLT address 4              /* Float */
-@tag FDV address 5              /* Finite Domain Variable */
-
-@tag INT long_int 7             /* Integer */
-
-@end tags
-
-
-
-
-/*---------------------------------*
- * Stack Descriptions              *
- *---------------------------------*/
-
-#ifndef ONLY_TAG_PART
-
-#define KBytes_To_Wam_Words(kb)    ((1024 * kb + sizeof(WamWord) - 1) / sizeof(WamWord))
-
-#define Wam_Words_To_KBytes(ww)    (ww * sizeof(WamWord) / 1024)
-
-#define Local_Top                  ((B >= E) ? B : E)
-
-@begin stacks
-
-@stack trail  "Trail Stack (undo)"        16384 TR          /* Trail  stack */
-@stack cstr   "Cstr Stack (constraints)"  16384 CS          /* Constraint stack */
-@stack global "Global Stack (heap)"       32768 H           /* Global stack */
-@stack local  "Local Stack (control)"     16384 Local_Top   /* Local  stack (after global) */
-
-@end stacks
-
-#endif
-
-#endif // _WAM_ARCHI_H
-
+#endif // _WAM_GC_HEAP_H

@@ -271,10 +271,6 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-#ifdef BOEHM_GC
-WamWord * FC Pl_GC_Mem_Alloc(PlULong n_wamwords);
-#endif /* BOEHM_GC */
-
 WamWord FC Pl_Create_Functor_Arity_Tagged(char *func_str, int arity);
 
 SwtTbl FC Pl_Create_Swt_Table(int size);
@@ -469,7 +465,6 @@ PlLong chain_len;
     }						\
   while (0)
 
-#ifdef BOEHM_GC
 
 #define DEREF_PTR(start_word_ptr, word_ptr, tag_mask)	\
   do							\
@@ -492,7 +487,6 @@ PlLong chain_len;
     }							\
   while (0)
 
-#endif /* BOEHM_GC */
 
 
   /* Trail Stack Management */

@@ -77,65 +77,11 @@ DblInt;
  * Global Variables                *
  *---------------------------------*/
 
-#ifdef BOEHM_GC
-void * pl_gc_bad_alloc=0;
-size_t pl_gc_bad_alloc_count=0;
-#define PL_GC_BAD_ALLOC_COUNT_MOD (1024*1024)
-#endif /* BOEHM_GC */
-
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
 static SwtInf *Locate_Swt_Element(SwtTbl t, int size, PlLong key);
-
-
-
-#ifdef BOEHM_GC
-
-/*-------------------------------------------------------------------------*
- * Pl_GC_Mem_Alloc                                                         *
- *                                                                         *
- * Allocates memory for the garbage collected heap.                        *
- *-------------------------------------------------------------------------*/
-WamWord * FC
-Pl_GC_Mem_Alloc(PlULong n)
-{
-  WamWord *result = 0, *x;
-  do
-    {
-#if DEBUG_MEM_GC_DONT_COLLECT>=2
-      result = (WamWord *) malloc(n * sizeof(WamWord));
-#else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
-      result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
-#endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
-    if (!Tag_Is_REF(result+n-1))
-      {
-	// Keep the bad memory referenced so it is not collected and reused.
-	*(void **)result = pl_gc_bad_alloc;
-	pl_gc_bad_alloc = result;
-	if (pl_gc_bad_alloc_count++ % PL_GC_BAD_ALLOC_COUNT_MOD == 0)
-	  {
-	    fprintf(stderr, "Warning: Unusable memory allocated.\n");
-	  }
-      }
-    else
-      {
-	break;
-      }
-    }
-  while (result != 0);
-  if (result != 0) {
-      x = result + n;
-      while (x-- > result) {
-	  *x=0;
-      }
-  }
-  assert( Tag_Is_REF(result) );
-  return result;
-}
-
-#endif /* BOEHM_GC */
 
 
 /*-------------------------------------------------------------------------*
@@ -339,14 +285,7 @@ Pl_Get_Float(double n, WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-#if WORD_SIZE == 32
-      H = Pl_GC_Mem_Alloc(3);
-#else
-      H = Pl_GC_Mem_Alloc(2);
-#endif
-      *H = Tag_FLT(H+1);
-      Bind_UV(UnTag_REF(word), Tag_REF(H));
-      H++;
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Float(&H)));
 #else /* BOEHM_GC */
       Bind_UV(UnTag_REF(word), Tag_FLT(H));
 #endif /* BOEHM_GC */
@@ -397,10 +336,7 @@ Pl_Get_List(WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      H = Pl_GC_Mem_Alloc(3);
-      Bind_UV(UnTag_REF(word), Tag_REF(H));
-      *H = Tag_LST(H+1);
-      H++;
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_List(&H)));
 #else /* BOEHM_GC */
       Bind_UV(UnTag_REF(word), Tag_LST(H));
 #endif /* BOEHM_GC */
@@ -434,24 +370,16 @@ Pl_Get_Structure_Tagged(WamWord w, WamWord start_word)
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
-      WamWord *cur_H;
 #ifdef BOEHM_GC
-      PlULong arity = Arity_Of(w);
-      cur_H = Pl_GC_Mem_Alloc(arity + 2);
-      *cur_H = Tag_STC(cur_H + 1);
-      cur_H++;
-      H = cur_H;
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Struc(&H, w)));
 #else /* BOEHM_GC */
+      WamWord *cur_H;
       cur_H = H;
-#endif /* BOEHM_GC */
       *cur_H = w;
       H++;
-      S = WRITE_MODE;
-#ifdef BOEHM_GC
-      Bind_UV(UnTag_REF(word), Tag_REF(cur_H - 1));
-#else /* BOEHM_GC */
       Bind_UV(UnTag_REF(word), Tag_STC(cur_H));
 #endif /* BOEHM_GC */
+      S = WRITE_MODE;
       return TRUE;
     }
 
@@ -643,14 +571,7 @@ Pl_Put_Float(double n)
   WamWord res_word;
 
 #ifdef BOEHM_GC
-#if WORD_SIZE == 32
-      H = Pl_GC_Mem_Alloc(3);
-#else
-      H = Pl_GC_Mem_Alloc(2);
-#endif
-  *H = Tag_FLT(H+1);
-  res_word = Tag_REF(H);
-  H++;
+  res_word = Tag_REF(Pl_GC_Alloc_Float(&H));
 #else /* BOEHM_GC */
   res_word = Tag_FLT(H);
 #endif /* BOEHM_GC */
@@ -683,13 +604,10 @@ Pl_Put_Nil(void)
 WamWord FC
 Pl_Put_List(void)
 {
+  S = WRITE_MODE;
 #ifdef BOEHM_GC
-  H = Pl_GC_Mem_Alloc(3);
-  *H = Tag_LST(H+1);
-  S = WRITE_MODE;
-  return Tag_REF(H++);
+  return Tag_REF(Pl_GC_Alloc_List(&H));
 #else /* BOEHM_GC */
-  S = WRITE_MODE;
   return Tag_LST(H);
 #endif /* BOEHM_GC */
 }
@@ -705,22 +623,15 @@ Pl_Put_List(void)
 WamWord FC
 Pl_Put_Structure_Tagged(WamWord w)
 {
-  WamWord *cur_H;
 #ifdef BOEHM_GC
-  PlULong arity = Arity_Of(w);
-  cur_H = Pl_GC_Mem_Alloc(arity + 2);
-  *cur_H = Tag_STC(cur_H + 1);
-  cur_H++;
-  H = cur_H;
+  S = WRITE_MODE;
+  return Tag_REF(Pl_GC_Alloc_Struc(&H, w));
 #else /* BOEHM_GC */
+  WamWord *cur_H;
+  S = WRITE_MODE;
   cur_H = H;
-#endif /* BOEHM_GC */
   *cur_H = w;
   H++;
-  S = WRITE_MODE;
-#ifdef BOEHM_GC
-  return Tag_REF(cur_H - 1);
-#else /* BOEHM_GC */
   return Tag_STC(cur_H);
 #endif /* BOEHM_GC */
 }
@@ -1114,13 +1025,10 @@ Pl_Unify_List(void)
   if (S != WRITE_MODE)
     return Pl_Get_List(*S);
 
+  cur_H = H;
 #ifdef BOEHM_GC
-  cur_H = H;
-  H = Pl_GC_Mem_Alloc(3);
-  *H = Tag_LST(H+1);
-  *cur_H = Tag_REF(H++);
+  *cur_H = Tag_REF(Pl_GC_Alloc_List(&H));
 #else /* BOEHM_GC */
-  cur_H = H;
   *cur_H = Tag_LST(cur_H + 1);
   H++;
 #endif /* BOEHM_GC */
@@ -1144,17 +1052,10 @@ Pl_Unify_Structure_Tagged(WamWord w)
   if (S != WRITE_MODE)
     return Pl_Get_Structure_Tagged(w, *S);
 
+  cur_H = H;
 #ifdef BOEHM_GC
-  cur_H = H;
-  PlULong arity = Arity_Of(w);
-  H = Pl_GC_Mem_Alloc(arity + 2);
-  *H = Tag_STC(H + 1);
-  *cur_H = Tag_REF(H);
-  H++;
-  *H = w;
-  H++;
+  *cur_H = Tag_REF(Pl_GC_Alloc_Struc(&H, w));
 #else /* BOEHM_GC */
-  cur_H = H;
   *cur_H = Tag_STC(cur_H + 1);
   cur_H[1] = w;
   H += 2;

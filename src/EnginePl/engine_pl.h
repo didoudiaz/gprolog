@@ -54,4 +54,5 @@
 #include "stacks_sigsegv.h"
 #include "obj_chain.h"
 #include "wam_inst.h"
+#include "wam_gc_heap.h"
 #include "if_no_fd.h"
