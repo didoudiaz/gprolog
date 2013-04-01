@@ -2510,6 +2510,11 @@ Pl_Mk_List(WamWord *arg)
  * list word.                                                              *
  * Note: arg can be equal to H to tranform an array into a list in-place.  *
  * The resulting list uses 2*n WamWord from the top of the heap.           *
+ *                                                                         *
+ * Boehm GC:                                                               *
+ * Allocate a block that is large enough to contain the list.              *
+ * Then copy the list.                                                     *
+ * As a result this operation can no longer transform an array in-place.   *
  *-------------------------------------------------------------------------*/
 WamWord
 Pl_Mk_Proper_List(int n, WamWord *arg)
@@ -2519,6 +2524,28 @@ Pl_Mk_Proper_List(int n, WamWord *arg)
   if (n <= 0 || arg == NULL)
     return NIL_WORD;
 
+#ifdef BOEHM_GC
+  src = arg + n;
+  dst = Pl_GC_Mem_Alloc(3 * n);
+  dst += 3 * n;
+  H = dst;
+
+  *--dst = NIL_WORD;
+  goto entry;
+
+  do
+    {
+      p = dst--;
+      *dst = Tag_REF(p);
+    entry:
+      *--dst = *--src;
+      p = dst--;
+      *dst = Tag_LST(p);
+    }
+  while (--n);
+
+  return Tag_REF(dst);
+#else /* BOEHM_GC */
   src = arg + n;		/* copy from end to start to make possible */
   dst = H = H + 2 * n;		/* in-place array->list transformation     */
 
@@ -2535,6 +2562,7 @@ Pl_Mk_Proper_List(int n, WamWord *arg)
   while (--n);
 
   return Tag_LST(dst);
+#endif /* BOEHM_GC */
 }
 
 
