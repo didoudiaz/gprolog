@@ -130,6 +130,13 @@ call_det(Goal, Deterministic) :-
 
                                     % also called by C code BC_Emulate_Clause
 
+
+
+'$call_internal_with_cut'(Goal, _, CallInfo, _) :-
+	var(Goal), !,
+	'$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
+	'$pl_err_instantiation'.
+
 '$call_internal_with_cut'(Module:P, _, CallInfo, VarCut) :-
 	!,
 	'$call_internal_with_cut'(P, Module, CallInfo, VarCut).

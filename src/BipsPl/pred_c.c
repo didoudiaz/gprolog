@@ -212,7 +212,7 @@ Pl_Current_Predicate_4(WamWord module_word, WamWord home_module_word,
   module = Pl_Rd_Atom(module_word);
   home_module = Pl_Rd_Atom(home_module_word);
 
-  Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
+  Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &func, &arity);
   name_word = pl_pi_name_word;
   arity_word = pl_pi_arity_word;
 

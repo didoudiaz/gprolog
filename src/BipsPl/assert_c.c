@@ -406,7 +406,7 @@ Pl_Abolish_1(WamWord pred_indic_word)
 {
   int module, func, arity;
 
-  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, TRUE, &func, &arity);
+  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, FALSE, &func, &arity);
 
   Pl_Update_Dynamic_Pred(module, func, arity, 3, -1);
 }

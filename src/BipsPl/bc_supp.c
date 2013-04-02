@@ -1011,6 +1011,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 		   int caller_func, int caller_arity, Bool debug_call)
 {
   WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
+  WamWord module_word;
   WamCont codep;
 
   Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
@@ -1081,10 +1082,11 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 	complex_call:
 
 	  /* NB: arg_adr can be &A(0), thus args can be in A(0) and A(1). Beware */
-
-	  A(0) = Pl_Term_To_Goal(arg_adr[0], module, call_info_word);
-	  A(1) = Pl_Term_To_Goal(arg_adr[1], module, call_info_word);
-	  A(2) = Tag_ATM(module);
+	  
+	  module_word = Tag_ATM(module);
+	  A(0) = Pl_Term_To_Goal(arg_adr[0], module_word, call_info_word);
+	  A(1) = Pl_Term_To_Goal(arg_adr[1], module_word, call_info_word);
+	  A(2) = module_word;
 	  A(3) = call_info_word;
 	  A(4) = Pl_Get_Current_Choice(); /* VarCut */
 	  return (WamCont) codep;

@@ -243,6 +243,7 @@ break :-
 	'$get_current_B'(B),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	g_read('$top_level_cur_module', Module),
+%format('executing query ~w in module: ~w vars: ~w~n', [X, Module, QueryVars]),
 	'$call'(X, Module, top_level, 0),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),

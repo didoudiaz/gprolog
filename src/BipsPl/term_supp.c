@@ -73,7 +73,7 @@ static WamWord *top_vars;
 	/* term to goal variables */
 
 static WamWord t2g_term_word;
-static WamWord t2g_module;
+static WamWord t2g_module_word;
 static WamWord t2g_call_info_word;
 
 
@@ -929,7 +929,7 @@ Pl_Strip_Module_Top(WamWord start_word, Bool accept_var, Bool raise_error,
  * Return the module (see Pl_Strip_Module)                                 *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, 
+Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool accept_var, 
 		      int *func, int *arity)
 {
   WamWord pred_indic_word1;
@@ -937,12 +937,12 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
   WamWord word, tag_mask;
   PlLong arity1;
 
-  module_word = Pl_Strip_Module(pred_indic_word, !must_be_ground, TRUE, 
+  module_word = Pl_Strip_Module(pred_indic_word, accept_var, TRUE, 
 				&pred_indic_word1);
   pl_pi_module_word = module_word;
 
   DEREF(pred_indic_word1, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK && must_be_ground)
+  if (tag_mask == TAG_REF_MASK && !accept_var)
     Pl_Err_Instantiation();
 
   if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word1))
@@ -959,14 +959,14 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
   pl_pi_arity_word = Pl_Unify_Variable();
 
   DEREF(pl_pi_name_word, word, tag_mask);
-  if (!must_be_ground && tag_mask == TAG_REF_MASK)
+  if (accept_var && tag_mask == TAG_REF_MASK)
     *func = -1;
   else
-    *func = Pl_Rd_Atom_Check(word);
+    *func = Pl_Rd_Atom_Check(word); /* emit instantiation error if needed */
 
 
   DEREF(pl_pi_arity_word, word, tag_mask);
-  if (!must_be_ground && tag_mask == TAG_REF_MASK)
+  if (accept_var && tag_mask == TAG_REF_MASK)
     *arity = -1;
   else
     {				/* use a PlLong for arity1 to avoid truncations */
@@ -991,13 +991,13 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
  * Return module, func and arity: -1 means a variable.                     *
  *-------------------------------------------------------------------------*/
 int
-Pl_Get_Pred_Indicator_Top(WamWord pred_indic_word, Bool must_be_ground, 
+Pl_Get_Pred_Indicator_Top(WamWord pred_indic_word, Bool accept_var, 
 			  int *func, int *arity)
 {
   WamWord module_word;
 
   Pl_Unset_Calling_Module();
-  module_word = Pl_Get_Pred_Indicator(pred_indic_word, must_be_ground, func, arity);
+  module_word = Pl_Get_Pred_Indicator(pred_indic_word, accept_var, func, arity);
 
   /* normally called from meta-argument so module_word != NOT_A_WAM_WORD (qualified with module) */
   if (module_word == NOT_A_WAM_WORD)
@@ -1045,7 +1045,7 @@ Pl_Get_Pred_Indic_5(WamWord pred_indic_word, WamWord default_module_word,
 WamWord
 Pl_Get_Head_And_Body(WamWord clause_word, WamWord *head_word, WamWord *body_word)
 {
-  WamWord module_word = Pl_Strip_Module(clause_word, FALSE, FALSE, &clause_word);
+  WamWord module_word = Pl_Strip_Module(clause_word, FALSE, TRUE, &clause_word);
   WamWord module_word1;
   int func, arity;
   WamWord *adr = Pl_Rd_Callable_Check(clause_word, &func, &arity);
@@ -1128,7 +1128,7 @@ Pl_Get_Head_And_Body_4(WamWord clause_word, WamWord module_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
+Term_To_Goal_Rec(WamWord term_word, WamWord module_word, WamWord *goal_word)
 {
   WamWord word, tag_mask;
   int func, arity;
@@ -1145,11 +1145,11 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
     surround_with_call:
       if (FOR_ASSERT)		/* Term = var X --> Goal = call(X) */
 	{
-	  if (module != t2g_module)	/* Module != entry Module --> call(Module:X) */
+	  if (module_word != t2g_module_word)	/* Module != entry Module --> call(Module:X) */
 	    {
 	      *goal_word = Pl_Put_Structure(atom_call, 1);
 	      Pl_Unify_Structure(ATOM_CHAR(':'), 2);
-	      Pl_Unify_Atom(module);
+	      Pl_Unify_Value(module_word);
 	      Pl_Unify_Value(word);
 	    }
 	  else
@@ -1162,7 +1162,7 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
 	{
 	  *goal_word = Pl_Put_Structure(atom_call_internal, 3);
 	  Pl_Unify_Value(word);
-	  Pl_Unify_Atom(module);
+	  Pl_Unify_Value(module_word);
 	  Pl_Unify_Value(t2g_call_info_word);
 	}
       return;
@@ -1172,18 +1172,18 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
   if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_LST_MASK)
     {				/* Goal = Term or Module:Term */
     not_a_control_construct:
-      if (module == t2g_module)
+      if (module_word == t2g_module_word)
 	{
 	  *goal_word = word;		/* Goal = Term (unchanged) */
 	}
-      else if (module == -1)
+      else if (Tag_Mask_Of(module_word) == TAG_REF_MASK)
 	{
 	  goto surround_with_call;
 	}
       else
 	{
 	  *goal_word = Pl_Put_Structure(ATOM_CHAR(':'), 2);
-	  Pl_Unify_Atom(module);
+	  Pl_Unify_Value(module_word);
 	  Pl_Unify_Value(word);
 	}
       return;
@@ -1205,10 +1205,8 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
     {
       adr = &Arg(adr, 0);
       DEREF(*adr, word, tag_mask);
-      if (tag_mask == TAG_REF_MASK)
-	module = -1;
-      else if (tag_mask == TAG_ATM_MASK)
-	module = UnTag_ATM(word);
+      if (tag_mask == TAG_REF_MASK || tag_mask == TAG_ATM_MASK)
+	module_word = word;
       else
 	Pl_Err_Type(pl_type_atom, word);
       term_word = adr[1];
@@ -1227,7 +1225,7 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
   cur_H = H;
   H += arity;			/* reserve space on the heap */
   while(--arity)
-    Term_To_Goal_Rec(*adr++, module, cur_H++);
+    Term_To_Goal_Rec(*adr++, module_word, cur_H++);
 
   term_word = *adr;
   goal_word = cur_H;
@@ -1245,15 +1243,15 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
  * call_info of call.                                                      *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Term_To_Goal(WamWord term_word, int module, WamWord call_info_word)
+Pl_Term_To_Goal(WamWord term_word, WamWord module_word, WamWord call_info_word)
 {
   WamWord goal_word;
 
   t2g_term_word = term_word;
-  t2g_module = module;
+  t2g_module_word = module_word;
   t2g_call_info_word = call_info_word;
 
-  Term_To_Goal_Rec(term_word, module, &goal_word);
+  Term_To_Goal_Rec(term_word, module_word, &goal_word);
   return goal_word;
 }
 
@@ -1270,15 +1268,11 @@ Pl_Term_To_Goal_4(WamWord term_word, WamWord module_word, WamWord call_info_word
 {
   WamWord goal_word1;
   WamWord word, tag_mask;
-  int module;
-
-  DEREF(module_word, word, tag_mask);
-  module = (tag_mask == TAG_ATM_MASK) ? UnTag_ATM(word) : -1;
 
   DEREF(call_info_word, word, tag_mask);
   call_info_word = (tag_mask == TAG_INT_MASK) ? word : NOT_A_WAM_WORD;
   
-  goal_word1 = Pl_Term_To_Goal(term_word, module, call_info_word);
+  goal_word1 = Pl_Term_To_Goal(term_word, module_word, call_info_word);
 
   return Pl_Unify(goal_word, goal_word1);
 }
