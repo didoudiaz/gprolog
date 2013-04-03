@@ -1,35 +1,54 @@
 Information for developers
 
-If you want to update/modify GNU-Prolog without having to install each
-working (intermediate) version simply use:
+Get the sources from the GIT repo:
 
-   % cd src
-   % . ./SETVARS         (under sh/bash)
-   % source ./CSHSETVARS (under csh/tcsh)
+   git clone git://git.code.sf.net/p/gprolog/code gprolog-code
+   cd gprolog-code
 
-This updates the PATH variable and makes it possible to invoke gplc (and
-gprolog) which resides in src/TopComp. gplc then detects that it is in a
-development mode (use gplc -v to check this) and will use the libraries
-residing in src/EnginePl, src/BipsPl, src/EngineFD, src/BipsFD, src/Linedit
-(i.e the current development libraries and objects).
+(then it will be possible to use 'git pull' to stay up to date).
 
-To test a new (pure) Prolog feature, define a file t.pl and t_c.c (maybe
-empty) in BipsPl:
 
-   % cd BipsPl
-   % modify t.pl and t_c.c
-   % make t
-   % ./t to test
+If you want to test/update/modify GNU-Prolog without having to install each working
+(intermediate) version simply use:
+
+   cd src
+   . ./SETVARS         (under sh/bash)
+   source ./CSHSETVARS (under csh/tcsh)
+
+This updates the PATH variable and makes it possible to invoke gplc (and gprolog)
+which resides in src/TopComp. gplc then detects that it is in a development mode (use
+gplc -v to check this) and will use the libraries residing in src/EnginePl,
+src/BipsPl, src/EngineFD, src/BipsFD, src/Linedit (i.e the current development
+libraries and objects).
+
+To configure:
+
+   autoconf  (only needed if configure.in has been modified or if configure does not exist)
+   ./configure
+
+or for debugging
+
+   ./configure --with-c-flags=debug
+
+then:
+
+   make
+
+To test a new (pure) Prolog feature, define a file t.pl and t_c.c (maybe empty) in
+BipsPl:
+
+   cd BipsPl
+   modify t.pl and t_c.c
+   make t
+   ./t (to test)
 
 There is an entry in the Makefile that reconstruct t from t.pl and t_c.c.
 
-Similarly, to test a new Prolog+FD feature, use t.pl, t_c.c and t_fd.fd in
-BipsFD:
+Similarly, to test a new Prolog+FD feature, use t.pl, t_c.c and t_fd.fd in BipsFD:
 
-   % cd BipsFD
-   % modify t.pl and/or t_c.c and/or t_fd.fd
-   % make t
-   % ./t (to test)
+   cd BipsFD
+   modify t.pl and/or t_c.c and/or t_fd.fd
+   make t
+   ./t (to test)
 
-There is an entry in the Makefile that reconstruct t from t.pl, t_c.c and
-t_fd.fd. 
+There is an entry in the Makefile that reconstruct t from t.pl, t_c.c and t_fd.fd. 
