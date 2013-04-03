@@ -937,8 +937,7 @@ BC_Arg_Module_Func_Arity(WamWord arg_word, int *func, int *arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-Execute_Pred(int module, int func, int arity, WamWord *arg_adr, 
-	     WamWord call_info_word)
+Execute_Pred(int module, int func, int arity, WamWord *arg_adr, WamWord call_info_word)
 {
   PredInf *pred;
   int i;
@@ -1165,7 +1164,7 @@ Pl_BC_Call_5(WamWord goal_word, WamWord module_word,
 
   Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
 
-  module = Pl_Rd_Atom(module_word);
+  module = Pl_Rd_Atom_Check(module_word);
   Pl_Set_Calling_Module(module);
 
   caller_func = Pl_Rd_Atom(caller_func_word);
@@ -1190,7 +1189,11 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 {
   int func, arity;
   WamWord *arg_adr;
-  int module = Pl_Rd_Atom(module_word);
+  int module;
+
+  Pl_Call_Info_Bip_Name_1(call_info_word);
+
+  module = Pl_Rd_Atom_Check(module_word); /* check instantiation error */
 
   arg_adr = Pl_Rd_Callable(pred_word, &func, &arity); /* we know it is a callable */
 
