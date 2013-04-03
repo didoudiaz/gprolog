@@ -1,4 +1,4 @@
-Information for developers
+Information for developers (see also file PORTING)
 
 Get the sources from the GIT repo:
 
@@ -26,7 +26,7 @@ To configure:
    autoconf  (only needed if configure.in has been modified or if configure does not exist)
    ./configure
 
-or for debugging
+or for debugging (without optimizations)
 
    ./configure --with-c-flags=debug
 
