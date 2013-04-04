@@ -264,7 +264,7 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
   DSwtInf swt_info;
   DSwtInf *swt;
   int size;
-  WamWord lst_h_b;
+  WamWord lst_h_b[3];
 
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
@@ -316,13 +316,18 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 #endif
 
 
-  lst_h_b = Tag_LST(H);
-  H[0] = head_word;
-  H[1] = body_word;
-
-  size = Pl_Term_Size(lst_h_b);
+  lst_h_b[0] = Tag_LST(lst_h_b + 1);
+  lst_h_b[1] = head_word;
+  lst_h_b[2] = body_word;
+#ifdef BOEHM_GC
+  size = 3;
+  clause = (DynCInf *)
+    Malloc(sizeof(DynCInf));
+#else // BOEHM_GC
+  size = Pl_Term_Size(lst_h_b[0]);
   clause = (DynCInf *)
     Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
+#endif // BOEHM_GC
 
   Add_To_2Chain(&dyn->seq_chain, clause, TRUE, asserta);
 
@@ -333,7 +338,7 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
   clause->next_erased_cl = NULL;
   clause->term_size = size;
 
-  Pl_Copy_Term(&clause->term_word, &lst_h_b);
+  Pl_Copy_Term(&clause->term_word, lst_h_b);
 
   clause->byte_code = pl_byte_code;
   pl_byte_code = NULL;
@@ -1134,10 +1139,17 @@ Pl_Scan_Choice_Point_Pred(WamWord *b, int *func, int *arity)
 void
 Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 {
-  Pl_Copy_Contiguous_Term(H, &clause->term_word);	/* *H=<LST,H+1> */
+#ifdef BOEHM_GC
+  Pl_Copy_Term(H, &clause->term_word);
+  *head_word = clause->head_word;
+  *body_word = clause->body_word;
+  H += 1;
+#else // BOEHM_GC
+  Pl_Copy_Contiguous_Term(H, &clause->term_word);       /* *H=<LST,H+1> */
   *head_word = H[1];
   *body_word = H[2];
   H += clause->term_size;
+#endif // BOEHM_GC
 }
 
 

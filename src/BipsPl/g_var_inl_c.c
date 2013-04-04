@@ -643,6 +643,13 @@ G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word)
 				/* similar to g_read + g_assign */
 
   *g_arg = word;		/* set the argument */
+#ifdef BOEHM_GC
+  adr = (WamWord *) Malloc(sizeof(WamWord));
+  Pl_Copy_Term(adr, (WamWord *) g_elem->val);
+  G_Free_Element(g_elem, TRUE);
+  g_elem->size = 1;
+  g_elem->val = (WamWord) adr;
+#else // BOEHM_GC
   Pl_Copy_Term(H, (WamWord *) g_elem->val);
 
   G_Free_Element(g_elem, TRUE);
@@ -655,6 +662,7 @@ G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word)
   g_elem->val = (WamWord) adr;
 
   Pl_Copy_Contiguous_Term(adr, H);
+#endif // BOEHM_GC
 }
 
 
@@ -1148,11 +1156,15 @@ G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem)
 
 				/* a copy: alloc + copy */
 
+#ifdef BOEHM_GC
+  Pl_Copy_Term(&dst_g_elem->val, (WamWord *) src_g_elem->val);
+#else // BOEHM_GC
   adr = (WamWord *) Malloc(size * sizeof(WamWord));
 
   dst_g_elem->val = (WamWord) adr;
 
   Pl_Copy_Contiguous_Term(adr, (WamWord *) src_g_elem->val);
+#endif // BOEHM_GC
 }
 
 
@@ -1262,9 +1274,13 @@ G_Read_Element(GVarElt *g_elem, WamWord gval_word)
 
   if (size > 0)			/* a copy: copy+unify */
     {
+#ifdef BOEHM_GC
+      Pl_Copy_Term(&word, (WamWord *) g_elem->val);
+#else // BOEHM_GC
       Pl_Copy_Contiguous_Term(H, (WamWord *) g_elem->val);
       word = *H;
       H += size;
+#endif // BOEHM_GC
       return Pl_Unify(word, gval_word);
     }
 

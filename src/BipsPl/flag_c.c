@@ -737,8 +737,10 @@ Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
   if (tag_mask == TAG_REF_MASK)
     {
       adr = UnTag_REF(word);
+#ifndef BOEHM_GC
       if (adr != NULL)
-	Free(adr);		/* recover the Malloc: don't mix sys_var_put/get and others sys_var_write... on same sys variable */
+        Free(adr); // recover the Malloc: don't mix sys_var_put/get and others sys_var_write... on same sys variable
+#endif // BOEHM_GC
     }
 
   DEREF(term_word, word, tag_mask);
@@ -749,10 +751,14 @@ Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
       return;
     }
 
+#ifdef BOEHM_GC
+  Pl_Copy_Term((WamWord *)&pl_sys_var[sv], &word);
+#else // BOEHM_GC
   size = Pl_Term_Size(word);
-  adr = (WamWord *) Malloc(size * sizeof(WamWord));	/* recovered at next sys_var_put */
+  adr = (WamWord *) Malloc(size * sizeof(WamWord)); // recovered at next sys_var_put
   Pl_Copy_Term(adr, &word);
   pl_sys_var[sv] = Tag_REF(adr);
+#endif // BOEHM_GC
 }
 
 
@@ -773,11 +779,15 @@ Pl_Sys_Var_Get_2(WamWord var_word, WamWord term_word)
 
   if (Tag_Mask_Of(word) == TAG_REF_MASK)
     {
+#ifdef BOEHM_GC
+      Pl_Copy_Term(&word, &word);
+#else // BOEHM_GC
       adr = UnTag_REF(word);
       size = Pl_Term_Size(*adr);
       Pl_Copy_Contiguous_Term(H, adr);
       word = *H;
       H += size;
+#endif // BOEHM_GC
     }
 
   return Pl_Unify(word, term_word);

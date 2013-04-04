@@ -361,6 +361,16 @@ Pl_Stop_Mark_1(WamWord stop_word)
 void
 Pl_Store_Solution_1(WamWord term_word)
 {
+#ifdef BOEHM_GC
+  OneSol *s;
+
+  s = (OneSol *) Malloc(sizeof(OneSol));
+  s->prev = sol;
+  s->sol_no = sol->sol_no + 1;
+  s->term_size = 1;
+  Pl_Copy_Term(&s->term_word, &term_word);
+  sol = s;
+#else // BOEHM_GC
   OneSol *s;
   int size;
 /* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
@@ -378,6 +388,7 @@ Pl_Store_Solution_1(WamWord term_word)
   fix_bug = term_word;
   Pl_Copy_Term(&s->term_word, &fix_bug);
   sol = s;
+#endif // BOEHM_GC
 }
 
 
@@ -393,8 +404,8 @@ Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
 {
   int stop;
   int nb_sol;
-  WamWord *p, *q;
-  OneSol *s;
+  WamWord *p, *q, *ql, start;
+  OneSol *s, *rev;
   Bool handle_key;
 
   stop = Pl_Rd_Integer(stop_word);
@@ -407,6 +418,31 @@ Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
   key_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: key vars */
 
 
+#ifdef BOEHM_GC
+  rev = 0;
+  while (sol->sol_no > stop)
+    { // (un)reverse linked list
+      s = sol;
+      sol = sol->prev;
+      s->prev = rev;
+      rev = s;
+      if (handle_key)
+        Handle_Key_Variables(s->term_word);
+    }
+  ql = &start;
+  while (rev != 0)
+    {
+      s = rev;
+      rev = rev->prev;
+      p = Pl_GC_Alloc_List(&q);
+      *ql = Tag_REF(p);
+      Car(q) = s->term_word;
+      ql = &Cdr(q);
+      Free(s);
+    }
+  *ql = NIL_WORD;
+  return Pl_Unify(start, list_word);
+#else // BOEHM_GC
   H += 2 * nb_sol;
 
   /* Since we start from the end to the beginning, if nb_sol is very big
@@ -437,6 +473,7 @@ Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
 
   q[-1] = NIL_WORD;
   return Pl_Unify(Tag_LST(p), list_word);
+#endif // BOEHM_GC
 }
 
 
