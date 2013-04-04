@@ -53,9 +53,30 @@
  * Constants                       *
  *---------------------------------*/
 
+// Sophie Germain primes
+static size_t magic_sizes[]=
+    {
+	89,
+	719,
+	3539,
+	28319,
+	215399,
+	2245319,
+	17962559,
+	134191649,
+	1073533199,
+	0
+    };
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
+
+typedef char * HashTable;
+typedef struct {
+  WamWord *src;
+  WamWord *dst;
+} GCCopyTermAddr;
 
 /*---------------------------------*
  * Global Variables                *
@@ -94,12 +115,37 @@ static int atom_soft_if;
 
 static void Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p);
 
+static void GC_Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, HashTable *tbl);
+
 static Bool Term_Hash(WamWord start_word, PlLong depth, unsigned *hash);
 
 static Bool Term_Hash_Rec(WamWord start_word, PlLong depth, HashIncrInfo *hi);
 
 
 
+/*-------------------------------------------------------------------------*
+ * GC_Hash_Insert                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+
+static inline GCCopyTermAddr *
+GC_Hash_Insert(HashTable *tbl, GCCopyTermAddr ta)
+{
+  size_t s,i;
+  HashTable tmp = 0;
+  s = Pl_Hash_Table_Size(*tbl);
+  if (Pl_Hash_Nb_Elements(*tbl) >= s)
+    {
+      i = 0;
+      while (magic_sizes[i + 1] != 0 && magic_sizes[i] <= s) i++;
+      i = magic_sizes[i];
+      if (i > s)
+	tmp = Pl_Hash_Realloc_Table(*tbl, magic_sizes[i]);
+      if (tmp != 0)
+	*tbl = tmp;
+    }
+  return (GCCopyTermAddr *) Pl_Hash_Insert(*tbl, (char *) &ta, 0);
+}
 
 /*-------------------------------------------------------------------------*
  * TERM_SUPP_INITIALIZER                                                   *
@@ -368,10 +414,19 @@ terminal_rec:
  * PL_COPY_TERM                                                            *
  *                                                                         *
  * Copy a non contiguous term, the result is a contiguous term.            *
+ *                                                                         *
+ * !!! BOEHM !!!                                                           *
+ * The result is NOT a contiguous term.                                    *
  *-------------------------------------------------------------------------*/
 void
 Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr)
 {
+#ifdef BOEHM_GC
+  HashTable tbl;
+  tbl = Pl_Hash_Alloc_Table(5, sizeof(GCCopyTermAddr));
+  GC_Copy_Term_Rec(dst_adr, src_adr, &tbl);
+  Pl_Hash_Free_Table(tbl);
+#else // BOEHM_GC
   WamWord *qtop, *base;
   WamWord *p;
 /* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
@@ -393,6 +448,7 @@ Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr)
       p = (WamWord *) (*--qtop);	/* address to restore */
       *p = *--qtop;		        /* word    to restore */
     }
+#endif // BOEHM_GC
 }
 
 
@@ -507,9 +563,86 @@ terminal_rec:
     }
 }
 
+/*-------------------------------------------------------------------------*
+ * GC_Copy_Term_Rec                                                        *
+ *                                                                         *
+ * Perform a deep copy of the term pointed to by src_adr.                  *
+ *                                                                         *
+ * dst_adr: Pointer to the variable where to put a reference to the copy.  *
+ * src_adr: Pointer to the variable containing a reference to the          *
+ *          original term.                                                 *
+ * tbl:     A hashtable containing already copied parts of the term.       *
+ *-------------------------------------------------------------------------*/
+static void
+GC_Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, HashTable *tbl)
+{
+  WamWord tag_mask;
+  GCCopyTermAddr ta, *ta_p;
+  WamWord *next;
+
+tail_recurse:
+
+  DEREF_PTR(src_adr, ta.src, tag_mask);
+
+  if ((ta_p=(GCCopyTermAddr *)Pl_Hash_Find(*tbl,(PlLong)ta.src)) != NULL)
+    {
+      // Already copied this part.
+      *dst_adr = Tag_REF(ta_p->dst);
+      return;
+    }
+
+  switch (Tag_From_Tag_Mask(tag_mask))
+    {
+    case REF:
+      ta.dst = Pl_GC_Mem_Alloc(1);
+      GC_Hash_Insert(tbl, ta);
+      *dst_adr = Tag_REF(ta.dst);
+      *ta.dst = Tag_REF(ta.dst);
+      return;
+#ifndef NO_USE_FD_SOLVER
+    case FDV:
+      //TODO: implement case 'FDV' in GC_Copy_Term_Rec
+      Pl_Err_System(Pl_Create_Atom("not_implemented__GC_Copy_Term_Rec__FDV"));
+      return;
+#endif // NO_USE_FD_SOLVER
+    case FLT:
+      next = H;
+      ta.dst = Pl_GC_Alloc_Float(&H);
+      GC_Hash_Insert(tbl, ta);
+      *dst_adr = Tag_REF(ta.dst);
+      Pl_Global_Push_Float(Pl_Obtain_Float(UnTag_FLT(*ta.src)));
+      H = next;
+      return;
+    case LST:
+      ta.dst = Pl_GC_Alloc_List(&next);
+      GC_Hash_Insert(tbl, ta);
+      *dst_adr = Tag_REF(ta.dst);
+      GC_Copy_Term_Rec(&Car(next), &Car(UnTag_LST(*ta.src)), tbl);
+      dst_adr = &Cdr(next);
+      src_adr = &Cdr(UnTag_LST(*ta.src));
+      goto tail_recurse;//= GC_Copy_Term_Rec(&Cdr(next), &Cdr(UnTag_LST(*ta.src)), tbl);
+    case STC:
+      src_adr = UnTag_STC(*ta.src);
+      PlULong arity = Arity(src_adr);
+      ta.dst = Pl_GC_Alloc_Struc(&next, arity);
+      GC_Hash_Insert(tbl, ta);
+      *dst_adr = Tag_REF(ta.dst);
+      Functor_And_Arity(next) = Functor_And_Arity(src_adr);
+      src_adr = &Arg(src_adr, 0);
+      next = &Arg(next, 0);
+      while (--arity)
+	GC_Copy_Term_Rec(next++, src_adr++, tbl);
+      dst_adr = next;
+      goto tail_recurse;//= GC_Copy_Term_Rec(next, src_adr, tbl);
+    default:
+      *dst_adr = *ta.src;
+      return;
+    }
+  return;
+}
 
 
-
+#ifndef BOEHM_GC
 /*-------------------------------------------------------------------------*
  * PL_COPY_CONTIGUOUS_TERM                                                 *
  *                                                                         *
@@ -588,6 +721,7 @@ terminal_rec:
       return;
     }
 }
+#endif // BOEHM_GC
 
 
 
