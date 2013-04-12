@@ -875,8 +875,8 @@ format('now I call ~w~n', [Module:Goal]),
 	    ;
 		'$call_c'('Pl_Reset_Debug_Call_Code_0'),
 		listing(PI),
-		'$call_c'('Pl_Set_Debug_Call_Code_0'),
-	        nl(debugger_output)
+	        nl(debugger_output),
+		'$call_c'('Pl_Set_Debug_Call_Code_0')
 	    )
 	;   format(debugger_output, 'cannot find any info on ~a/~d~n', [F, A])
 	),
