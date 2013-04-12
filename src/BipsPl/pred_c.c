@@ -761,6 +761,30 @@ Pl_Get_Module_Of_Goal_3(WamWord home_module_word, WamWord goal_word,
 
 
 /*-------------------------------------------------------------------------*
+ * PL_GET_MODULE_OF_GOAL_IF_NOT_META_PRED_3                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Module_Of_Goal_If_Not_Meta_Pred_3(WamWord home_module_word, WamWord goal_word,
+					 WamWord module_word)
+{
+  int home_module;
+  int func, arity;
+  PredInf *pred;
+
+  home_module = Pl_Rd_Atom(home_module_word);
+  Pl_Rd_Callable_Check(goal_word, &func, &arity);
+
+  pred = Pl_Lookup_Pred_Visible(home_module, func, arity);
+  
+  return pred && !(pred->prop & MASK_PRED_META_PRED) &&
+    Pl_Get_Atom(pred->mod->module, module_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_AUX_NAME_1                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/

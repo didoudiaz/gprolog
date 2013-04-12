@@ -304,10 +304,10 @@ label(1),
     switch_on_term(4,2,fail,fail,3),
 
 label(2),
-    switch_on_atom([(static,5),(dynamic,7),(private,9),(public,11),(monofile,13),(multifile,15),(user,17),(built_in,19),(built_in_fd,21),(control_construct,23),(native_code,25)]),
+    switch_on_atom([(static,5),((dynamic),7),(private,9),((public),11),(monofile,13),((multifile),15),(user,17),(built_in,19),(built_in_fd,21),(control_construct,23),(native_code,25)]),
 
 label(3),
-    switch_on_structure([(prolog_file/1,27),(prolog_line/1,29),(meta_predicate/1,31),(imported_from/1,33)]),
+    switch_on_structure([(prolog_file/1,27),(prolog_line/1,29),((meta_predicate)/1,31),(imported_from/1,33)]),
 
 label(4),
     try_me_else(6),
@@ -406,7 +406,7 @@ label(30),
     retry_me_else(32),
 
 label(31),
-    get_structure(meta_predicate/1,0),
+    get_structure((meta_predicate)/1,0),
     unify_void(1),
     proceed,
 
@@ -429,10 +429,10 @@ predicate(system:'$predicate_property2'/4,234,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
-    switch_on_atom([(static,4),(dynamic,6),(private,8),(public,10),(monofile,12),(multifile,14),(user,16),(built_in,18),(built_in_fd,20),(control_construct,22),(native_code,24)]),
+    switch_on_atom([(static,4),((dynamic),6),(private,8),((public),10),(monofile,12),((multifile),14),(user,16),(built_in,18),(built_in_fd,20),(control_construct,22),(native_code,24)]),
 
 label(2),
-    switch_on_structure([(prolog_file/1,26),(prolog_line/1,28),(meta_predicate/1,30)]),
+    switch_on_structure([(prolog_file/1,26),(prolog_line/1,28),((meta_predicate)/1,30)]),
 
 label(3),
     try_me_else(5),
@@ -544,7 +544,7 @@ label(29),
     trust_me_else_fail,
 
 label(30),
-    get_structure(meta_predicate/1,0),
+    get_structure((meta_predicate)/1,0),
     unify_variable(x(0)),
     call_c('Pl_Pred_Prop_Meta_Predicate_3',[boolean],[x(1),x(2),x(3),x(0)]),
     proceed]).
@@ -570,42 +570,47 @@ predicate(system:'$get_module_of_goal'/3,295,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$aux_name'/1,302,static,private,monofile,built_in,[
+predicate(system:'$get_module_of_goal_if_not_meta_pred'/3,298,static,private,monofile,built_in,[
+    call_c('Pl_Get_Module_Of_Goal_If_Not_Meta_Pred_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(system:'$aux_name'/1,305,static,private,monofile,built_in,[
     call_c('Pl_Aux_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:'$father_of_aux_name'/3,308,static,private,monofile,built_in,[
+predicate(system:'$father_of_aux_name'/3,311,static,private,monofile,built_in,[
     call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$pred_without_aux'/4,314,static,private,monofile,built_in,[
+predicate(system:'$pred_without_aux'/4,317,static,private,monofile,built_in,[
     call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:'$make_aux_name'/4,320,static,private,monofile,built_in,[
+predicate(system:'$make_aux_name'/4,323,static,private,monofile,built_in,[
     call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:'$declare_meta_predicate'/2,325,static,private,monofile,built_in,[
+predicate(system:'$declare_meta_predicate'/2,328,static,private,monofile,built_in,[
     call_c('Pl_Decl_Meta_Pred_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:strip_module/3,331,static,private,monofile,built_in,[
+predicate(system:strip_module/3,334,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$strip_module_var'/3,335,static,private,monofile,built_in,[
+predicate(system:'$strip_module_var'/3,338,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_Var_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$strip_module_nonvar'/3,339,static,private,monofile,built_in,[
+predicate(system:'$strip_module_nonvar'/3,342,static,private,monofile,built_in,[
     call_c('Pl_Strip_Module_Nonvar_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
@@ -655,7 +660,7 @@ directive(144,system,[
     execute('$declare_meta_predicate'/2)]).
 
 
-directive(329,system,[
+directive(332,system,[
     put_atom(user,0),
     put_structure(strip_module/3,1),
     unify_atom(:),

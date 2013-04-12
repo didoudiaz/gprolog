@@ -132,6 +132,19 @@ select(X, [H|T1], [H|T2]) :-
 
 
 
+subtract([], _, []).
+
+subtract([X|L1], L2, L3) :-
+        memberchk(X, L2), !,
+        subtract(L1, L2, L3).
+
+subtract([X|L1], L2, [X|L3]) :-
+        subtract(L1, L2, L3).
+
+
+
+
+
 permutation([], []).
 
 permutation(L, [H|T]) :-

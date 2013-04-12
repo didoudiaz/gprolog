@@ -192,3 +192,7 @@
 
 '$get_pred_indic'(PI, DefModule, Module, Func, Arity) :-
 	'$call_c_test'('Pl_Get_Pred_Indic_5'(PI, DefModule, Module, Func, Arity)).
+
+
+'$get_pred_indic_var'(PI, DefModule, Module, Func, Arity) :-
+	'$call_c_test'('Pl_Get_Pred_Indic_Var_5'(PI, DefModule, Module, Func, Arity)).

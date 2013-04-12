@@ -1035,6 +1035,28 @@ Pl_Get_Pred_Indic_5(WamWord pred_indic_word, WamWord default_module_word,
 
 
 /*-------------------------------------------------------------------------*
+ * PL_GET_PRED_INDIC_VAR_5                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Pred_Indic_Var_5(WamWord pred_indic_word, WamWord default_module_word,
+			WamWord module_word, WamWord func_word, WamWord arity_word)
+{
+  int func, arity;
+
+  Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &func, &arity);
+
+  if (pl_pi_module_word == NOT_A_WAM_WORD)
+    pl_pi_module_word = default_module_word;
+  
+  return Pl_Unify(pl_pi_module_word, module_word) &&
+    Pl_Unify(pl_pi_name_word, func_word) && Pl_Unify(pl_pi_arity_word, arity_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_GET_HEAD_AND_BODY                                                    *
  *                                                                         *
  * Get the head and body of a clause.                                      *

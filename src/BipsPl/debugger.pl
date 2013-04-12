@@ -542,7 +542,12 @@ nospyall.
 
 
 '$debug_call'(Goal, Module0, CallInfo) :-
-	( '$get_module_of_goal'(Module0, Goal, Module), ! ; Module = Module0 ),
+%format('$debug_call Goal:~w  Module: ~w~n',[Goal, Module0]),
+	(   '$get_module_of_goal_if_not_meta_pred'(Module0, Goal, Module)
+	    -> true
+	;
+	    Module = Module0
+	),
 	g_read('$debug_info', DebugInfo),
 	DebugInfo = d(Invoc, OldAncLst),
 	(   OldAncLst = [] ->
@@ -599,7 +604,7 @@ nospyall.
 	'$debug_port'(Goal, Module, Invoc, Index, AncLst, call),
 	g_read('$debug_unify', DebugUnify),
 	(   DebugUnify == '' ->
-%format('now I call ~w~n', [Module:Goal]),
+format('now I call ~w~n', [Module:Goal]),
 	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
 				% but don't call 'call_from_debugger since it is a
 				% control-construct (thus its native codep == NULL)
@@ -867,7 +872,10 @@ nospyall.
 	(   '$current_predicate_any'(PI) ->
 	    (   '$predicate_property1'(Module, F, A, native_code) ->
 	        format(debugger_output, 'native code predicate ~a/~d~n', [F, A])
-	    ;   listing(PI),
+	    ;
+		'$call_c'('Pl_Reset_Debug_Call_Code_0'),
+		listing(PI),
+		'$call_c'('Pl_Set_Debug_Call_Code_0'),
 	        nl(debugger_output)
 	    )
 	;   format(debugger_output, 'cannot find any info on ~a/~d~n', [F, A])
