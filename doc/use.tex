@@ -681,13 +681,17 @@ the associated open bracket, i.e. \texttt{(}, \texttt{[} or \texttt{{\lb}}, and
 temporarily repositions the cursor on it to show the match.
 
 
-\SPart{Customization}: the behavior of \texttt{linedit} can be controlled via an environment variable called \texttt{LINEDIT}. This variable can contain the following substrings:
+\SPart{Customization}: the behavior of \texttt{linedit} can be controlled via
+an environment variable called \texttt{LINEDIT}. This variable can contain
+the following substrings:
 
 \begin{tabular}{ll}
 
+\texttt{no}          & do not activated linedit (should the only value of the variable) \\
 \texttt{ansi=no}     & do not use ANSI escape sequence (unix only) \\
 \texttt{out=}$N$     & use the file descriptor $N$ for the output (unix only) \\
 \texttt{gui=no}      & even if compiled with the \Idx{GUI console} run in text mode (windows) \\
+\texttt{gui=silent}  & if the \Idx{GUI console} is not found, silently run in text mode (windows) \\
 \texttt{cp=}$N$      & use code page $N$ (windows text console) \\
 \texttt{oem\_put=no} & do not use Char$\rightarrow$Oem conversion when emitting a char (windows text console) \\
 \texttt{oem\_get=no} & do not use Oem$\rightarrow$Char conversion when reading a char (windows text console) \\

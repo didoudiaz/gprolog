@@ -803,8 +803,11 @@ nospyall.
 	(   '$current_predicate_any'(PI) ->
 	    (   '$predicate_property1'(N, A, native_code) ->
 	        format(debugger_output, 'native code predicate ~a/~d~n', [N, A])
-	    ;   listing(PI),
-	        nl(debugger_output)
+	    ;
+		'$call_c'('Pl_Reset_Debug_Call_Code_0'),
+		listing(PI),
+	        nl(debugger_output),
+		'$call_c'('Pl_Set_Debug_Call_Code_0')
 	    )
 	;   format(debugger_output, 'cannot find any info on ~a/~d~n', [N, A])
 	),

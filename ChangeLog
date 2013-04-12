@@ -1,3 +1,9 @@
+Fri Apr 12 17:17:50 CEST 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a regression bug in linedit
+	* fix a little bug in debugger
+	* add subtract/3 built-in predicate
+
 Wed Mar 27 16:35:02 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 	* add new C foreign interface functions converting term to/from C strings

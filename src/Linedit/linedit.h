@@ -57,6 +57,15 @@
  * Type Definitions                *
  *---------------------------------*/
 
+enum {
+  LE_MODE_DEACTIVATED = 0,	/* linedit is deactivated */
+  LE_MODE_TTY,			/* linedit runs in console mode */
+  LE_MODE_HOOK			/* linedit runs via a hook (i.e. GUI) */
+};
+
+
+
+
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/

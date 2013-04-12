@@ -78,10 +78,10 @@ int pl_devel_mode;
 
 char pl_glob_buff[10240];
 
-PlLong *pl_base_fl;			/* overwritten by foreign if present */
+PlLong *pl_base_fl;		/* overwritten by foreign if present */
 double *pl_base_fd;		/* overwritten by foreign if present */
 
-int pl_use_gui;
+int pl_le_mode;			/* LE_MODE_HOOK if GUI */
 
 #else
 
@@ -96,7 +96,7 @@ extern char pl_glob_buff[];
 extern PlLong *pl_base_fl;
 extern double *pl_base_fd;
 
-extern int pl_use_gui;
+extern int pl_le_mode;
 
 #endif
 
@@ -119,7 +119,7 @@ void Pl_Set_Heap_Actual_Start(WamWord *heap_actual_start);
 
 
 void Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system,
-		       CodePtr proc);
+			  CodePtr proc);
 
 Bool Pl_Try_Execute_Top_Level(void);
 

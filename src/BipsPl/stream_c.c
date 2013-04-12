@@ -820,7 +820,7 @@ Pl_Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-#ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
+#ifndef NO_USE_LINEDIT		/* if GUI: ask it for buffering */
   if (pl_stm_tbl[stm]->file == (PlLong) stdout && pl_le_hook_get_line_buffering)
     {
       if ((*pl_le_hook_get_line_buffering)())
