@@ -202,12 +202,12 @@ Pl_Start_Prolog(int argc, char *argv[])
   Pl_Init_Pred();
   Pl_Init_Oper();
 
+  pl_le_mode = 0;	/* not compiled with linedit or deactivated (using env var) */
+
 #ifndef NO_USE_LINEDIT
   if (pl_le_initialize != NULL)
-    pl_use_gui = (*pl_le_initialize)();
-  else
+    pl_le_mode = (*pl_le_initialize)();
 #endif
-    pl_use_gui = 0;
 
   if (copy_of_pl_init_stream_supp)
     (*copy_of_pl_init_stream_supp)();

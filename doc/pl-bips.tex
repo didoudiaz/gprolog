@@ -6555,7 +6555,7 @@ instantiated and both \texttt{List1} and \texttt{List2} are variable).
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{member/2},
+\subsubsection{\IdxPBD{member/2}, \label{member/2}
                \IdxPBD{memberchk/2}}
 
 \begin{TemplatesOneCol}
@@ -6597,7 +6597,7 @@ list \texttt{List1} in reverse order.
 GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{delete/3},
-               \IdxPBD{select/3}}
+  \IdxPBD{select/3}}
 
 \begin{TemplatesOneCol}
 delete(?list, ?term, ?list)\\
@@ -6614,6 +6614,26 @@ equality is required, cf. \IdxPB{(==)/2} \RefSP{(==)/2}.
 \texttt{select(Element, List1, List2)} removes one occurrence of
 \texttt{Element} in \texttt{List1} to provide \texttt{List2}. This predicate
 is re-executable on backtracking.
+
+\PlErrorsNone
+
+\Portability
+
+GNU Prolog predicate.
+
+
+\subsubsection{\IdxPBD{subtract/3}}
+
+\begin{TemplatesOneCol}
+subtract(+list, +list, ?list)
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{subtract(List1, List2, List3)} removes all elements in \texttt{List2}
+from \texttt{List1} to provide \texttt{List3}. Membership is tested using
+\texttt{memberchk/2} \RefSP{member/2}. The predicate runs in
+$O(|\texttt{List2}| \times |\texttt{List1}|)$.
 
 \PlErrorsNone
 

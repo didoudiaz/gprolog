@@ -231,7 +231,7 @@ Init_Stream_Supp(void)
 					      STREAM_MODE_READ, TRUE);
 
 #ifndef NO_USE_LINEDIT
-  if (pl_use_gui || isatty(0))
+  if (pl_le_mode == LE_MODE_HOOK || (pl_le_mode == LE_MODE_TTY && isatty(0)))
     {
       pstm = pl_stm_tbl[pl_stm_stdin];
       pstm->fct_getc = (StmFct) TTY_Getc;
@@ -241,6 +241,7 @@ Init_Stream_Supp(void)
       pstm->fct_tell = STREAM_FCT_UNDEFINED;
       pstm->fct_seek = STREAM_FCT_UNDEFINED;
       pstm->fct_clearerr = (StmFct) TTY_Clearerr;
+      pl_stream_use_linedit = TRUE;
     }
 #endif
   Pl_Add_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin);
@@ -770,12 +771,12 @@ Pl_Set_Stream_Buffering(int stm)
       return;
     }
 
-#ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
-  if ((pstm->file == (PlLong) stdout || pstm->file == (PlLong) stderr) && pl_le_hook_set_line_buffering)
+#ifndef NO_USE_LINEDIT		/* if GUI: inform it about buffering */
+  if ((pstm->file == (PlLong) stdout || pstm->file == (PlLong) stderr) && 
+      pl_le_hook_set_line_buffering)
     (*pl_le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif
-
     Pl_Stdio_Set_Buffering(f, pstm->prop.buffering);
 }
 
@@ -958,7 +959,9 @@ Pl_Stdio_Set_Buffering(FILE *f, int buffering)
     case STREAM_BUFFERING_LINE:
       buff_flag = _IOLBF;
 #ifdef _WIN32
-      if (!pl_use_gui)		/* in Win32 console app, line buff = full */
+#ifndef NO_USE_LINEDIT
+      if (!pl_le_mode != LE_MODE_HOOK)	/* in Win32 console app, line buff = full */
+#endif
 	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif
       break;
@@ -1017,7 +1020,7 @@ Pl_Io_Fileno_Of_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
- * The following functions replaces standard fgetc/... on stdin if a TTY.  *
+ * The following functions replace standard fgetc/... on stdin if a TTY.   *
  * It uses linedit to provide a more comfortable interface.                *
  * These functions should not be used directly but via the common interface*
  * provided by the Stream_Getc/... functions (see below).                  *
