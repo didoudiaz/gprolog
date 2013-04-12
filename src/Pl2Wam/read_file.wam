@@ -3024,15 +3024,8 @@ predicate(user:load_module_interface/4,1084,static,private,monofile,global,[
     put_value(y(0),1),
     put_value(y(6),2),
     put_value(y(3),3),
-    call(load_module_interface_compute_import_lst/4),
-    put_atom('from module ~w imports are: ~w~n',0),
-    put_list(1),
-    unify_local_value(y(0)),
-    unify_list,
-    unify_local_value(y(3)),
-    unify_nil,
     deallocate,
-    execute(format/2)]).
+    execute(load_module_interface_compute_import_lst/4)]).
 
 
 predicate(user:'$load_module_interface/4_$aux1'/3,1084,static,private,monofile,local,[

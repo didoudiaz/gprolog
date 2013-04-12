@@ -1094,7 +1094,7 @@ load_module_interface(Module, Imports, Module1, ImportLst) :-
 	catch(load_module_interface1(PlFile, Module, ExportLst), Err,
 	      load_module_interface_err(Err, Module)),
 	load_module_interface_compute_import_lst(Imports, Module, ExportLst, ImportLst),
-format('from module ~w imports are: ~w~n', [Module, ImportLst]),
+%format('from module ~w imports are: ~w~n', [Module, ImportLst]),
 	true.
 
 
