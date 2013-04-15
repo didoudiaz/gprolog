@@ -101,7 +101,7 @@ Pl_Init_Oper(void)
   ADD_OPER(1150, FX, "initialization");
   ADD_OPER(1150, FX, "meta_predicate");
   ADD_OPER(1150, FX, "multifile");
-  ADD_OPER(1150, FX, "public");	/* NOT USED - COMPAT ONLY */
+  ADD_OPER(1150, FX, "public");
 
   ADD_OPER(1105, XFY, "|");
 
