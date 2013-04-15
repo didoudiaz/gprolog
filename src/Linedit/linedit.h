@@ -6,7 +6,7 @@
  * Descr.: line editor - header file                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 
 /* Windows uses 2 codepages (which give the meaning of 0x80..0xFF chars):

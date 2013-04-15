@@ -6,7 +6,7 @@
  * Descr.: pass 2: internal format transformation                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * predicate internal format: (I(t)=internal format of t)                  *

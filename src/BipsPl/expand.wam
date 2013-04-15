@@ -1,15 +1,15 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : expand.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/expand.pl').
 
 
-predicate('$use_expand'/0,42,static,private,monofile,built_in,[
+predicate('$use_expand'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(expand_term/2,49,static,private,monofile,built_in,[
+predicate(expand_term/2,48,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),1),
     put_variable(y(1),1),
@@ -20,7 +20,7 @@ predicate(expand_term/2,49,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$expand_term1'/2,53,static,private,monofile,built_in,[
+predicate('$expand_term1'/2,52,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(1),
@@ -31,7 +31,7 @@ predicate('$expand_term1'/2,53,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$$expand_term1/2_$aux1'/2,53,static,private,monofile,local,[
+predicate('$$expand_term1/2_$aux1'/2,52,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     get_value(x(0),1),
@@ -52,7 +52,7 @@ label(3),
     proceed]).
 
 
-predicate('$call_term_expansion'/2,65,static,private,monofile,built_in,[
+predicate('$call_term_expansion'/2,64,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -70,18 +70,18 @@ predicate('$call_term_expansion'/2,65,static,private,monofile,built_in,[
     execute('$call'/4)]).
 
 
-predicate(phrase/2,72,static,private,monofile,built_in,[
+predicate(phrase/2,71,static,private,monofile,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(phrase/3,78,static,private,monofile,built_in,[
+predicate(phrase/3,77,static,private,monofile,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate('$phrase'/4,84,static,private,monofile,built_in,[
+predicate('$phrase'/4,83,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -108,7 +108,7 @@ predicate('$phrase'/4,84,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$$phrase/4_$aux1'/1,84,static,private,monofile,local,[
+predicate('$$phrase/4_$aux1'/1,83,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -121,11 +121,11 @@ label(1),
     proceed]).
 
 
-predicate('$dcg_trans_rule'/2,100,static,private,monofile,built_in,[
+predicate('$dcg_trans_rule'/2,99,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,106,static,private,monofile,built_in,[
+predicate('$dcg_trans_body'/4,105,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
