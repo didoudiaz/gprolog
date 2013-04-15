@@ -1,4 +1,3 @@
-/* $Id$ */
 
 :-	include(read_file).
 :-	include(bip_list).

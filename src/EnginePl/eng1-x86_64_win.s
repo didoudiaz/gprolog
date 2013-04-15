@@ -35,8 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
-
 /* Replacement file for engine1.c for x86_64-win64 with MSVC
  * (MSVC 64 bits does not accept inline assembly)
  */

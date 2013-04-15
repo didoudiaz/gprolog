@@ -1,15 +1,15 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : pretty.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/pretty.pl').
 
 
-predicate(system:'$use_pretty'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_pretty'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:portray_clause/1,45,static,private,monofile,built_in,[
+predicate(system:portray_clause/1,44,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -27,7 +27,7 @@ label(1),
     proceed]).
 
 
-predicate(system:portray_clause/2,55,static,private,monofile,built_in,[
+predicate(system:portray_clause/2,54,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -47,7 +47,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$portray_clause'/3,65,static,private,monofile,built_in,[
+predicate(system:'$portray_clause'/3,64,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -83,7 +83,7 @@ label(1),
     fail]).
 
 
-predicate(system:'$$portray_clause/3_$aux2'/1,65,static,private,monofile,local,[
+predicate(system:'$$portray_clause/3_$aux2'/1,64,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -98,7 +98,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$$portray_clause/3_$aux1'/1,65,static,private,monofile,local,[
+predicate(system:'$$portray_clause/3_$aux1'/1,64,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -111,19 +111,19 @@ label(1),
     proceed]).
 
 
-predicate(system:name_singleton_vars/1,85,static,private,monofile,built_in,[
+predicate(system:name_singleton_vars/1,84,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_singleton_vars,1]),
     call_c('Pl_Name_Singleton_Vars_1',[],[x(0)]),
     proceed]).
 
 
-predicate(system:name_query_vars/2,92,static,private,monofile,built_in,[
+predicate(system:name_query_vars/2,91,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_query_vars,2]),
     call_c('Pl_Name_Query_Vars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:bind_variables/2,101,static,private,monofile,built_in,[
+predicate(system:bind_variables/2,100,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -142,18 +142,18 @@ predicate(system:bind_variables/2,101,static,private,monofile,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate(system:'$bind_variables'/4,108,static,private,monofile,built_in,[
+predicate(system:'$bind_variables'/4,107,static,private,monofile,built_in,[
     call_c('Pl_Bind_Variables_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:'$set_bind_variables_defaults'/0,114,static,private,monofile,built_in,[
+predicate(system:'$set_bind_variables_defaults'/0,113,static,private,monofile,built_in,[
     put_integer(0,0),
     put_integer(0,1),
     execute('$sys_var_write'/2)]).
 
 
-predicate(system:'$get_bind_variables_options'/4,120,static,private,monofile,built_in,[
+predicate(system:'$get_bind_variables_options'/4,119,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -185,7 +185,7 @@ predicate(system:'$get_bind_variables_options'/4,120,static,private,monofile,bui
     proceed]).
 
 
-predicate(system:'$get_bind_variables_options1'/1,131,static,private,monofile,built_in,[
+predicate(system:'$get_bind_variables_options1'/1,130,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
@@ -213,7 +213,7 @@ label(4),
     execute('$get_bind_variables_options1'/1)]).
 
 
-predicate(system:'$get_bind_variables_options2'/1,138,static,private,monofile,built_in,[
+predicate(system:'$get_bind_variables_options2'/1,137,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -283,7 +283,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:numbervars/1,163,static,private,monofile,built_in,[
+predicate(system:numbervars/1,162,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,1]),
@@ -296,7 +296,7 @@ predicate(system:numbervars/1,163,static,private,monofile,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate(system:numbervars/3,169,static,private,monofile,built_in,[
+predicate(system:numbervars/3,168,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),

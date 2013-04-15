@@ -6,7 +6,7 @@
  * Descr.: unification part                                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 static Bool Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word);
 

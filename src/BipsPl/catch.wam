@@ -1,35 +1,35 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : catch.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/catch.pl').
 
 
-predicate(system:'$use_catch'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_catch'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$catch'/6,44,static,private,monofile,built_in,[
+predicate(system:'$catch'/6,43,static,private,monofile,built_in,[
     put_integer(1,6),
     call_c('Pl_Save_Call_Info_3',[],[x(4),x(5),x(6)]),
     put_integer(0,4),
     execute('$catch1'/5)]).
 
 
-predicate(system:'$catch_no_debug'/6,48,static,private,monofile,built_in,[
+predicate(system:'$catch_no_debug'/6,47,static,private,monofile,built_in,[
     put_integer(0,6),
     call_c('Pl_Save_Call_Info_3',[],[x(4),x(5),x(6)]),
     put_integer(0,4),
     execute('$catch1'/5)]).
 
 
-predicate(system:'$catch1'/5,53,static,private,monofile,built_in,[
+predicate(system:'$catch1'/5,52,static,private,monofile,built_in,[
     put_integer(4,5),
     call_c('Pl_Load_Call_Info_Arg_1',[],[x(5)]),
     execute('$catch_internal'/5)]).
 
 
-predicate(system:'$catch_internal'/5,60,static,private,monofile,built_in,[
+predicate(system:'$catch_internal'/5,59,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -52,7 +52,7 @@ predicate(system:'$catch_internal'/5,60,static,private,monofile,built_in,[
     execute('$catch_internal1'/6)]).
 
 
-predicate(system:'$catch_internal1'/6,66,static,private,monofile,built_in,[
+predicate(system:'$catch_internal1'/6,65,static,private,monofile,built_in,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -109,7 +109,7 @@ label(1),
     execute('$catch_a_throw'/6)]).
 
 
-predicate(system:'$$catch_internal1/6_$aux1'/3,66,static,private,monofile,local,[
+predicate(system:'$$catch_internal1/6_$aux1'/3,65,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -127,7 +127,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$catch_a_throw'/6,95,static,private,monofile,built_in,[
+predicate(system:'$catch_a_throw'/6,94,static,private,monofile,built_in,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -160,7 +160,7 @@ label(2),
     execute('$unwind'/1)]).
 
 
-predicate(system:'$$catch_a_throw/6_$aux1'/2,95,static,private,monofile,local,[
+predicate(system:'$$catch_a_throw/6_$aux1'/2,94,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -179,7 +179,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate(system:'$trail_handler'/1,121,static,private,monofile,built_in,[
+predicate(system:'$trail_handler'/1,120,static,private,monofile,built_in,[
     try_me_else(1),
     proceed,
 
@@ -192,7 +192,7 @@ label(1),
     fail]).
 
 
-predicate(system:'$catch_sync_for_fail_at'/1,130,static,private,monofile,built_in,[
+predicate(system:'$catch_sync_for_fail_at'/1,129,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -204,7 +204,7 @@ predicate(system:'$catch_sync_for_fail_at'/1,130,static,private,monofile,built_i
     execute('$$catch_sync_for_fail_at/1_$aux1'/2)]).
 
 
-predicate(system:'$$catch_sync_for_fail_at/1_$aux1'/2,130,static,private,monofile,local,[
+predicate(system:'$$catch_sync_for_fail_at/1_$aux1'/2,129,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -225,7 +225,7 @@ label(1),
     execute('$catch_fail_now'/1)]).
 
 
-predicate(system:'$catch_fail_now'/1,142,static,private,monofile,built_in,[
+predicate(system:'$catch_fail_now'/1,141,static,private,monofile,built_in,[
     allocate(0),
     call('$set_current_B'/1),
     fail]).
