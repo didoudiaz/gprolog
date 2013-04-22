@@ -947,8 +947,7 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool accept_var,
   if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word1))
     {
 #if 0 /* no longer accept a callable when a predicate indicator is expected */
-      if (!Flag_Value(FLAG_STRICT_ISO) &&
-	  Pl_Rd_Callable(word, func, arity) != NULL)
+      if (!Flag_Value(strict_iso) && Pl_Rd_Callable(word, func, arity) != NULL)
 	return module_word;
 #endif
       Pl_Err_Type(pl_type_predicate_indicator, pred_indic_word);
