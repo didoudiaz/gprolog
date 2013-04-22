@@ -1,7 +1,8 @@
 Change in GNU Prolog version 1.4.4:
 
+* add Prolog flags c_cc_version_data
 * fix a regression bug in linedit
-* fix a little bug in debugger
+* fix a little bug in the debugger
 * add subtract/3 built-in predicate
 
 Change in GNU Prolog version 1.4.3:

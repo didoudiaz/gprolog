@@ -1,7 +1,8 @@
 Fri Apr 12 17:17:50 CEST 2013 <Daniel.Diaz@univ-paris1.fr>
 
+	* add Prolog flags c_cc_version_data
 	* fix a regression bug in linedit
-	* fix a little bug in debugger
+	* fix a little bug in the debugger
 	* add subtract/3 built-in predicate
 
 Wed Mar 27 16:35:02 CET 2013 <Daniel.Diaz@univ-paris1.fr>
