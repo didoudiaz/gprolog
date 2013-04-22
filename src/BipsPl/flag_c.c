@@ -107,6 +107,8 @@ static Bool Fct_Chk_Argv(FlagInf *flag, WamWord tag_mask, WamWord value_word);
 Prolog_Prototype(ENVIRON_ALT, 0);
 
 
+
+
 /*-------------------------------------------------------------------------*
  * FLAG_INITIALIZER                                                        *
  *                                                                         *
@@ -124,36 +126,45 @@ Flag_Initializer(void)
   atom_the_dialect = Pl_Create_Atom(PROLOG_DIALECT);
   atom_the_cc = Pl_Create_Atom(CC);
 
+  /* Unchangeable flags */
 
   NEW_FLAG_ATOM   (prolog_name,           PROLOG_NAME);
   NEW_FLAG_ATOM   (prolog_version,        PROLOG_VERSION);
   NEW_FLAG_ATOM   (prolog_date,           PROLOG_DATE);
   NEW_FLAG_ATOM   (prolog_copyright,      PROLOG_COPYRIGHT);
+
   NEW_FLAG_ATOM   (dialect,               PROLOG_DIALECT);
-  NEW_FLAG_ATOM   (home,                  pl_home ? pl_home : "");
-  NEW_FLAG_ATOM   (host_os,               M_CPU);
-  NEW_FLAG_ATOM   (host_vendor,           M_VENDOR);
-  NEW_FLAG_ATOM   (host_cpu,              M_OS);
-  NEW_FLAG_ATOM   (host,                  M_CPU "-" M_VENDOR "-" M_OS);
-  NEW_FLAG_ATOM   (arch,                  M_CPU "-" M_OS);
-  NEW_FLAG_ATOM   (compiled_at,           COMPILED_AT); /* see arch_dep.h */
-  NEW_FLAG_ATOM   (c_cc,                  CC);
-  NEW_FLAG_ATOM   (c_cflags,              CFLAGS_MACHINE " " CFLAGS);
-  NEW_FLAG_ATOM   (c_ldflags,             LDFLAGS);                            
+
+  NEW_FLAG_INTEGER(version,               __GPROLOG_VERSION__);
+  Pl_New_Prolog_Flag("version_data",      FALSE, PF_TYPE_ANY, 0, Fct_Get_Version_Data, Fct_Chk_Version_Data, NULL);
+  NEW_FLAG_BOOL   (bounded,               TRUE);
 
   NEW_FLAG_INTEGER(max_integer,           INT_GREATEST_VALUE);    
   NEW_FLAG_INTEGER(min_integer,           INT_LOWEST_VALUE);
-  NEW_FLAG_INTEGER(max_atom,              pl_max_atom);
-  NEW_FLAG_INTEGER(max_arity,             MAX_ARITY);
-  NEW_FLAG_INTEGER(max_unget,             STREAM_PB_SIZE);
-  NEW_FLAG_INTEGER(address_bits,          WORD_SIZE);
-  NEW_FLAG_INTEGER(version,               __GPROLOG_VERSION__);
-
-  NEW_FLAG_BOOL   (bounded,               TRUE);
-  NEW_FLAG_BOOL   (unix,                  is_unix);
-
   NEW_FLAG_ROUND  (integer_rounding_function, ((-3 / 2) == -1) ? PF_ROUND_ZERO : PF_ROUND_DOWN);
 
+  NEW_FLAG_INTEGER(max_arity,             MAX_ARITY);
+  NEW_FLAG_INTEGER(max_atom,              pl_max_atom);
+  NEW_FLAG_INTEGER(max_unget,             STREAM_PB_SIZE);
+
+  NEW_FLAG_ATOM   (home,                  pl_home ? pl_home : "");
+  NEW_FLAG_ATOM   (host_os,               M_OS);
+  NEW_FLAG_ATOM   (host_vendor,           M_VENDOR);
+  NEW_FLAG_ATOM   (host_cpu,              M_CPU);
+  NEW_FLAG_ATOM   (host,                  M_CPU "-" M_VENDOR "-" M_OS);
+  NEW_FLAG_ATOM   (arch,                  M_CPU "-" M_OS);
+  NEW_FLAG_INTEGER(address_bits,          WORD_SIZE);
+  NEW_FLAG_BOOL   (unix,                  is_unix);
+
+  NEW_FLAG_ATOM   (compiled_at,           COMPILED_AT); /* see arch_dep.h */
+  NEW_FLAG_ATOM   (c_cc,                  CC);
+  Pl_New_Prolog_Flag("c_cc_version_data", FALSE, PF_TYPE_ANY, 1, Fct_Get_Version_Data, Fct_Chk_Version_Data,  NULL);
+  NEW_FLAG_ATOM   (c_cflags,              CFLAGS_MACHINE " " CFLAGS);
+  NEW_FLAG_ATOM   (c_ldflags,             LDFLAGS);                            
+
+  Pl_New_Prolog_Flag("argv",              FALSE, PF_TYPE_ANY, 0, Fct_Get_Argv, Fct_Chk_Argv, NULL);
+
+  /* changeable flags */
 
   NEW_FLAG_ON_OFF (char_conversion,       0);
   NEW_FLAG_ON_OFF (singleton_warning,     1);
@@ -162,28 +173,23 @@ Flag_Initializer(void)
   NEW_FLAG_ON_OFF (strict_iso,            1);
 #if 0
   NEW_FLAG_ON_OFF (debug,                 0);
-#else  /* to have a customized set function */
+#else  /* to have a customized Set function */
   pl_flag_debug = Pl_New_Prolog_Flag("debug", TRUE, PF_TYPE_ON_OFF, 0, NULL, NULL, Fct_Set_Debug);
 #endif
+
+
+  NEW_FLAG_QUOTES(double_quotes,          PF_QUOT_AS_CODES);
+
+  /* DON'T CHANGE back_quotes default: no_escape is useful under
+   * Windows when assoc .pl to gprolog (see InnoSetup) and avoid \ (backslash)
+   * to be misinterpreted in pathnames (e.g. c:\foo\bar).
+   */
+  NEW_FLAG_QUOTES(back_quotes,            PF_QUOT_AS_ATOM | PF_QUOT_NO_ESCAPE_MASK);
 
   NEW_FLAG_ERR    (unknown,               PF_ERR_ERROR);
   NEW_FLAG_ERR    (syntax_error,          PF_ERR_ERROR);
   NEW_FLAG_ERR    (os_error,              PF_ERR_ERROR);
 
-
-  NEW_FLAG_QUOTES(double_quotes,          PF_QUOT_AS_CODES);
-
-  /* DON'T CHANGE this flag_back_quotes default: no_escape is useful under
-   * Windows when assoc .pl to gprolog (see InnoSetup) and avoid \ (backslash)
-   * to be misinterpreted in pathnames (e.g. c:\foo\bar).
-   */
-
-  NEW_FLAG_QUOTES(back_quotes,            PF_QUOT_AS_ATOM | PF_QUOT_NO_ESCAPE_MASK);
-
-  Pl_New_Prolog_Flag("version_data",      FALSE, PF_TYPE_ANY, 0, Fct_Get_Version_Data, Fct_Chk_Version_Data, NULL);
-  Pl_New_Prolog_Flag("c_cc_version_data", FALSE, PF_TYPE_ANY, 1, Fct_Get_Version_Data, Fct_Chk_Version_Data,  NULL);
-
-  Pl_New_Prolog_Flag("argv",             FALSE, PF_TYPE_ANY, 0, Fct_Get_Argv, Fct_Chk_Argv, NULL);
 
   SYS_VAR_LINEDIT = pl_stream_use_linedit;
 }
