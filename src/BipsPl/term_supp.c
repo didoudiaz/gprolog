@@ -557,82 +557,6 @@ terminal_rec:
 
 
 /*-------------------------------------------------------------------------*
- * PL_GET_PRED_INDICATOR                                                   *
- *                                                                         *
- * returns the functor and initializes the arity of the predicate indicator*
- * func= -1 if it is a variable, arity= -1 if it is a variable             *
- *-------------------------------------------------------------------------*/
-int
-Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
-{
-  WamWord word, tag_mask;
-  int func;
-  PlLong arity1;
-
-  DEREF(pred_indic_word, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK && must_be_ground)
-    Pl_Err_Instantiation();
-
-  if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word))
-    {
-#if 0 /* no longer accept a callable when a predicate indicator is expected */
-      if (!Flag_Value(strict_iso) &&
-	  Pl_Rd_Callable(word, &func, arity) != NULL)
-	return func;
-#endif
-      Pl_Err_Type(pl_type_predicate_indicator, pred_indic_word);
-    }
-
-  pl_pi_name_word = Pl_Unify_Variable();
-  pl_pi_arity_word = Pl_Unify_Variable();
-
-  DEREF(pl_pi_name_word, word, tag_mask);
-  if (!must_be_ground && tag_mask == TAG_REF_MASK)
-    func = -1;
-  else
-    func = Pl_Rd_Atom_Check(word);
-
-
-  DEREF(pl_pi_arity_word, word, tag_mask);
-  if (!must_be_ground && tag_mask == TAG_REF_MASK)
-    *arity = -1;
-  else
-    {				/* use a PlLong for arity1 to avoid truncations */
-      arity1 = Pl_Rd_Positive_Check(pl_pi_arity_word);
-      
-      if (arity1 > MAX_ARITY)
-	Pl_Err_Representation(pl_representation_max_arity);
-
-      *arity = arity1;
-    }
-
-  return func;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_GET_PRED_INDIC_3                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
-		    WamWord arity_word)
-{
-  int func, arity;
-
-  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
-
-  return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
-}
-
-
-
-
-
-
-/*-------------------------------------------------------------------------*
  * PL_ACYCLIC_TERM_1                                                       *
  *                                                                         *
  * This implementation is not very satisfactory because:                   *
@@ -842,4 +766,78 @@ Bool
 Pl_Term_Hash_2(WamWord start_word, WamWord hash_word)
 {
   return Pl_Term_Hash_4(start_word, Tag_INT(-1), Tag_INT(0), hash_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_PRED_INDICATOR                                                   *
+ *                                                                         *
+ * returns the functor and initializes the arity of the predicate indicator*
+ * func= -1 if it is a variable, arity= -1 if it is a variable             *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
+{
+  WamWord word, tag_mask;
+  int func;
+  PlLong arity1;
+
+  DEREF(pred_indic_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK && must_be_ground)
+    Pl_Err_Instantiation();
+
+  if (!Pl_Get_Structure(ATOM_CHAR('/'), 2, pred_indic_word))
+    {
+#if 0 /* no longer accept a callable when a predicate indicator is expected */
+      if (!Flag_Value(strict_iso) &&
+	  Pl_Rd_Callable(word, &func, arity) != NULL)
+	return func;
+#endif
+      Pl_Err_Type(pl_type_predicate_indicator, pred_indic_word);
+    }
+
+  pl_pi_name_word = Pl_Unify_Variable();
+  pl_pi_arity_word = Pl_Unify_Variable();
+
+  DEREF(pl_pi_name_word, word, tag_mask);
+  if (!must_be_ground && tag_mask == TAG_REF_MASK)
+    func = -1;
+  else
+    func = Pl_Rd_Atom_Check(word);
+
+
+  DEREF(pl_pi_arity_word, word, tag_mask);
+  if (!must_be_ground && tag_mask == TAG_REF_MASK)
+    *arity = -1;
+  else
+    {				/* use a PlLong for arity1 to avoid truncations */
+      arity1 = Pl_Rd_Positive_Check(pl_pi_arity_word);
+      
+      if (arity1 > MAX_ARITY)
+	Pl_Err_Representation(pl_representation_max_arity);
+
+      *arity = arity1;
+    }
+
+  return func;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_PRED_INDIC_3                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Pred_Indic_3(WamWord pred_indic_word, WamWord func_word,
+		    WamWord arity_word)
+{
+  int func, arity;
+
+  func = Pl_Get_Pred_Indicator(pred_indic_word, TRUE, &arity);
+
+  return Pl_Get_Atom(func, func_word) && Pl_Get_Integer(arity, arity_word);
 }
