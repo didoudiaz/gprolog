@@ -39,6 +39,60 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
+#define CPP_STR1(s) #s
+#define CPP_STR(s) CPP_STR1(s)
+
+#define CPP_CAT1(x, y)   x ## y
+#define CPP_CAT(x, y)    CPP_CAT1(x, y)
+
+
+/* C compiler version (for more general handling see http://sourceforge.net/projects/predef) */
+
+#if defined(__clang__)		/* put before because also defines __GNUC__ */
+
+#define CC_MAJOR       __clang_major__
+#define CC_MINOR       __clang_minor__
+#define CC_PATCHLEVEL  __clang_patchlevel__
+
+#elif defined(__GNUC__)
+
+#define CC_MAJOR       __GNUC__
+#define CC_MINOR       __GNUC_MINOR__
+#define CC_PATCHLEVEL  __GNUC_PATCHLEVEL__
+
+#elif defined(_MSC_FULL_VER)
+
+#define CC_MAJOR       (_MSC_FULL_VER / 1000000)
+#define CC_MINOR       (_MSC_FULL_VER % 1000000 / 10000)
+#define CC_PATCHLEVEL  (_MSC_FULL_VER % 10000)
+
+#elif defined(_MSC_VER)
+
+#define CC_MAJOR       (_MSC_VER / 100)
+#define CC_MINOR       (_MSC_VER % 100)
+#define CC_PATCHLEVEL  0
+
+#else
+
+#define CC_MAJOR       0
+#define CC_MINOR       0
+#define CC_PATCHLEVEL  0
+
+#endif
+
+
+
+/* Compile date */
+
+#if defined(__DATE__) && defined(__TIME__)
+#define COMPILED_AT __DATE__ ", " __TIME__
+#else
+#define COMPILED_AT "unknown date"
+#endif
+
+
+
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
 /* There are 2 kinds of MSVC warning C4996 one wants to remove:

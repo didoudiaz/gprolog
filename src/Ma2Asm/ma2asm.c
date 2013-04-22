@@ -45,6 +45,8 @@
 #include "../Wam2Ma/bt_string.c"
 #include "../TopComp/copying.c"
 
+#define MA2ASM_FILE
+
 #include "ma_parser.h"
 #include "ma_protos.h"
 
@@ -89,8 +91,6 @@ CodeInf;
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
-int can_produce_pic_code;	/* can be overwritten by mappers */
 
 char *file_name_in;
 char *file_name_out;

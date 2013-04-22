@@ -94,7 +94,6 @@
  * Global Variables                *
  *---------------------------------*/
 
-int can_produce_pic_code = 1;   /* overwritte var of ma2asm.c */
 extern int pic_code;
 
 
@@ -113,6 +112,7 @@ int eax_used_as_fc_reg = 0;	/* is eax already containing an arg (FC) ? */
 
 
 	  /* variables for ma_parser.c / ma2asm.c */
+int can_produce_pic_code = 1;
 #ifndef M_solaris
 char *comment_prefix = "#";
 #else

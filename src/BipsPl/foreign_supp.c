@@ -233,7 +233,7 @@ void
 Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg)
 {
   Pl_Set_Last_Syntax_Error(file_name, err_line, err_col, err_msg);
-  Pl_Syntax_Error(Flag_Value(FLAG_SYNTAX_ERROR));
+  Pl_Syntax_Error(Flag_Value(syntax_error));
 }
 
 

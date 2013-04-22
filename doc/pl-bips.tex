@@ -7499,8 +7499,35 @@ Flag & Values & Description & ISO \\
 
 \hline\hline
 
-\IdxPFD{bounded} & \texttt{\underline{true}} / \texttt{false} & are integers
-bounded ? & Y \\
+\IdxPFD{prolog\_name} & an atom &  name of the Prolog system & N \\
+
+\hline
+
+\IdxPFD{prolog\_version} & an atom & version number of the Prolog system & N \\
+
+\hline
+
+\IdxPFD{prolog\_date} & an atom & date of the Prolog system & N \\
+
+\hline
+
+\IdxPFD{prolog\_copyright} & an atom &  copyright message of the Prolog system & N \\
+
+\hline
+
+\IdxPFD{dialect} & an atom & fixed to \texttt{gprolog} & N \\
+
+\hline
+
+\IdxPFD{version} & an integer & $Major * 10000 + Minor * 100 + Patch$ & N \\
+
+\hline
+
+\IdxPFD{version\_data} & a structure & \texttt{gprolog(Major,Minor,Patch,Extra)} & N \\
+
+\hline
+
+\IdxPFD{bounded} & \texttt{\underline{true}} / \texttt{false} & are integers bounded ? & Y \\
 
 \hline
 
@@ -7522,8 +7549,7 @@ bounded ? & Y \\
 
 \hline
 
-\IdxPFD{max\_arity} & an integer & maximum arity for compound terms (255) &
-Y \\
+\IdxPFD{max\_arity} & an integer & maximum arity for compound terms (255) & Y \\
 
 \hline
 
@@ -7531,30 +7557,7 @@ Y \\
 
 \hline
 
-\IdxPFD{max\_unget} & an integer & maximum number of successive ungets & N
-\\
-
-\hline
-
-\IdxPFD{prolog\_name} & an atom &  name of the Prolog system & N \\
-
-\hline
-
-\IdxPFD{prolog\_version} & an atom & version number of the Prolog system & N
-\\
-
-\hline
-
-\IdxPFD{prolog\_date} & an atom & date of the Prolog system & N \\
-
-\hline
-
-\IdxPFD{prolog\_copyright} & an atom &  copyright message of the Prolog
-system & N \\
-
-\hline
-
-\IdxPFD{dialect} & an atom & fixed to \texttt{gprolog} & N \\
+\IdxPFD{max\_unget} & an integer & maximum number of successive ungets & N \\
 
 \hline
 
@@ -7582,11 +7585,23 @@ system & N \\
 
 \hline
 
+\IdxPFD{address\_bits} & an integer & address size of the machine (32 or 64) & N \\
+
+\hline
+
+\IdxPFD{unix} & \texttt{on}/\texttt{off} & is the architecture an Unix-like OS ? & N \\
+
+\hline
+
 \IdxPFD{compiled\_at} & an atom & compilation date using \texttt{\_\_DATE\_\_} and \texttt{\_\_TIME\_\_} C compiler macros & N \\
 
 \hline
 
-\IdxPFD{c\_cc} & an atom & C compiler used to compile GNU Prolog (\texttt{gcc}, \texttt{cc}, \texttt{cl},...) & N \\
+\IdxPFD{c\_cc} & an atom & C compiler used to compile GNU Prolog (\texttt{gcc}, \texttt{cc}, \texttt{clang}, \texttt{cl},...) & N \\
+
+\hline
+
+\IdxPFD{c\_cc\_version\_data} &  a structure & \texttt{\textit{c\_cc}(Major,Minor,Patch,Extra)} & N \\
 
 \hline
 
@@ -7598,19 +7613,7 @@ system & N \\
 
 \hline
 
-\IdxPFD{address\_bits} & an integer & address size of the machine (32 or 64) & N \\
-
-\hline
-
-\IdxPFD{version} & an integer & $Major * 10000 + Minor * 100 + Patch$ & N \\
-
-\hline
-
-\IdxPFD{version\_data} & a structure & \texttt{gprolog(Major,Minor,Patch,Extra)} & N \\
-
-\hline
-
-\IdxPFD{unix} & \texttt{true} / \texttt{false} & \texttt{true} if the underlying OS is unix-like & N \\
+\IdxPFD{argv} & a list of atoms & list of command-line arguments & N \\
 
 \hline
 \end{tabular}
@@ -7629,28 +7632,23 @@ character conversion activated ? & Y \\
 
 \hline
 
-\IdxPFD{debug} & \texttt{on} / \texttt{\underline{off}} & is the debugger
-activated ? & Y \\
+\IdxPFD{singleton\_warning} & \texttt{\underline{on}} / \texttt{off} & warn about named singleton variables ? & N \\
 
 \hline
 
-\IdxPFD{singleton\_warning} & \texttt{\underline{on}} / \texttt{off} & warn
-about named singleton variables ? & N \\
+\IdxPFD{suspicious\_warning} & \texttt{\underline{on}} / \texttt{off} & warn about suspicious predicate ? & N \\
 
 \hline
 
-\IdxPFD{suspicious\_warning} & \texttt{\underline{on}} / \texttt{off} & warn
-about suspicious predicate ? & N \\
+\IdxPFD{multifile\_warning} & \texttt{\underline{on}} / \texttt{off} & warn about unsupported multifile directive ? & N \\
 
 \hline
 
-\IdxPFD{multifile\_warning} & \texttt{\underline{on}} / \texttt{off} & warn
-about unsupported multifile directive ? & N \\
+\IdxPFD{strict\_iso} & \texttt{\underline{on}} / \texttt{off} & strict ISO behavior ? & N \\
 
 \hline
 
-\IdxPFD{strict\_iso} & \texttt{\underline{on}} / \texttt{off} & strict ISO
-behavior ? & N \\
+\IdxPFD{debug} & \texttt{on} / \texttt{\underline{off}} & is the debugger activated ? & Y \\
 
 \hline
 

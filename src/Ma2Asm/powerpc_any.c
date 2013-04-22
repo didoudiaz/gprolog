@@ -103,6 +103,7 @@ int w_label = 0;
 
 	  /* variables for ma_parser.c / ma2asm.c */
 
+int can_produce_pic_code = 0;
 char *comment_prefix = "#";
 char *local_symb_prefix = ".L";
 int strings_need_null = 0;

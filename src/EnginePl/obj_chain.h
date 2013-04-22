@@ -64,9 +64,6 @@ void Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fc
 
 static void OBJ_INIT(void);
 
-#define CPP_CAT1(x, y)   x ## y
-#define CPP_CAT(x, y)    CPP_CAT1(x, y)
-
 #define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
 
 

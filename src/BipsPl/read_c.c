@@ -78,7 +78,7 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
   if (returned_word == NOT_A_WAM_WORD)				\
     {								\
       Pl_Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)		\
-		   ? Flag_Value(FLAG_SYNTAX_ERROR)		\
+		   ? Flag_Value(syntax_error)		\
 		   : SYS_VAR_SYNTAX_ERROR_ACTON);		\
       return FALSE;						\
     }								\

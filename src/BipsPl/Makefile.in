@@ -47,7 +47,7 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
           call@OBJ_SUFFIX@ \
           call_args@OBJ_SUFFIX@ call_args_c@OBJ_SUFFIX@ \
           catch@OBJ_SUFFIX@ throw@OBJ_SUFFIX@ throw_c@OBJ_SUFFIX@ \
-          flag@OBJ_SUFFIX@ flag_c@OBJ_SUFFIX@ \
+          flag_supp@OBJ_SUFFIX@ flag@OBJ_SUFFIX@ flag_c@OBJ_SUFFIX@ \
           arith_inl@OBJ_SUFFIX@ arith_inl_c@OBJ_SUFFIX@ \
           type_inl@OBJ_SUFFIX@ type_inl_c@OBJ_SUFFIX@ \
           term_inl@OBJ_SUFFIX@ term_inl_c@OBJ_SUFFIX@ \
@@ -115,6 +115,7 @@ t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/$(LIB_ENGINE_PL) $(LIBN
 error_supp@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 stream_supp@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
+flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 
 
 # depending on dynam_supp.h
@@ -122,6 +123,11 @@ flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 dynam_supp@OBJ_SUFFIX@: dynam_supp.h
 bc_supp@OBJ_SUFFIX@:    dynam_supp.h
 assert_c@OBJ_SUFFIX@:   dynam_supp.h
+
+# depending on flag_supp.h
+
+flag_supp@OBJ_SUFFIX@:   flag_supp.h
+flag_c@OBJ_SUFFIX@:      flag_supp.h
 stream_supp@OBJ_SUFFIX@: flag_supp.h
 consult_c@OBJ_SUFFIX@:   flag_supp.h
 
