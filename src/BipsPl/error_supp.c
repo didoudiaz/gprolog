@@ -462,11 +462,11 @@ Pl_Syntax_Error(int flag_value)
     sprintf(str, "%s:%d (char:%d) %s", last_err_file,
 	    last_err_line, last_err_col, last_err_msg);
 
-  if (flag_value == FLAG_VALUE_ERROR)
+  if (flag_value == PF_ERR_ERROR)
     Pl_Err_Syntax(Pl_Create_Allocate_Atom(str));
 
   Update_Cur_From_C_Bip();
-  if (flag_value == FLAG_VALUE_WARNING)
+  if (flag_value == PF_ERR_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		  "warning: syntax error: %s (from %s)\n",
 		  str, Context_Error_String());
@@ -484,7 +484,7 @@ Pl_Unknown_Pred_Error(int func, int arity)
 {
   WamWord term;
 
-  if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_ERROR)
+  if (Flag_Value(unknown) == PF_ERR_ERROR)
     {
       term = Pl_Put_Structure(ATOM_CHAR('/'), 2);
       Pl_Unify_Atom(func);
@@ -493,7 +493,7 @@ Pl_Unknown_Pred_Error(int func, int arity)
     }
 
   Update_Cur_From_C_Bip();
-  if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_WARNING)
+  if (Flag_Value(unknown) == PF_ERR_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		  "warning: unknown procedure %s/%d (from %s)\n",
 		  pl_atom_tbl[func].name, arity, Context_Error_String());
@@ -511,11 +511,11 @@ Pl_Os_Error(int ret_val)
 {
   char *err_str = Pl_M_Sys_Err_String(ret_val);
 
-  if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_ERROR)
+  if (Flag_Value(os_error) == PF_ERR_ERROR)
     Pl_Err_System(Pl_Create_Allocate_Atom(err_str));
 
   Update_Cur_From_C_Bip();
-  if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_WARNING)
+  if (Flag_Value(os_error) == PF_ERR_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		     "warning: OS error: %s (from %s)\n",
 		     err_str, Context_Error_String());

@@ -89,7 +89,7 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
 
   which_preds = Pl_Rd_Integer(which_preds_word);
 
-  if (which_preds == 0 && !Flag_Value(FLAG_STRICT_ISO))
+  if (which_preds == 0 && !Flag_Value(strict_iso))
     which_preds = 1;
 
 #define Pred_Is_Ok(pred, func, which_preds) \

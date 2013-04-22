@@ -201,7 +201,7 @@ Pl_Set_Debug_Call_Code_0(void)
 {
   pl_debug_call_code = Prolog_Predicate(DEBUG_CALL, 2);
 
-  Flag_Value(FLAG_DEBUG) = TRUE;
+  Flag_Value(debug) = TRUE;
 }
 
 
@@ -215,7 +215,7 @@ void
 Pl_Reset_Debug_Call_Code_0(void)
 {
   pl_debug_call_code = NULL;
-  Flag_Value(FLAG_DEBUG) = FALSE;
+  Flag_Value(debug) = FALSE;
 }
 
 
