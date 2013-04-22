@@ -106,9 +106,6 @@
  * Global Variables                *
  *---------------------------------*/
 
-int can_produce_pic_code = 1;	/* overwritte var of ma2asm.c */
-extern int pic_code;
-
 static double dbl_tbl[MAX_DOUBLES_IN_PRED];
 static int nb_dbl = 0;
 static int dbl_lc_no = 0;
@@ -146,6 +143,7 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
 #endif
           /* variables for ma_parser.c / ma2asm.c */
 
+int can_produce_pic_code = 1;
 char *comment_prefix = "#";
 #ifdef M_x86_64_darwin
 char *local_symb_prefix = "L";

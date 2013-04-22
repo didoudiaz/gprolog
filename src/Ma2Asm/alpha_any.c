@@ -75,6 +75,7 @@ int inPrologCode = 0;	/* whether we are currently compiling a prolog code */
 
 	  /* variables for ma_parser.c / ma2asm.c */
 
+int can_produce_pic_code = 0;
 char *comment_prefix = "#";
 char *local_symb_prefix = "$";
 int strings_need_null = 1;

@@ -85,6 +85,7 @@ char delay_operands[1024];
 
 
 	  /* variables for ma_parser.c / ma2asm.c */
+int can_produce_pic_code = 0;
 #if 0
 char *comment_prefix = "#";  /* does not work on solaris 9 */
 #else

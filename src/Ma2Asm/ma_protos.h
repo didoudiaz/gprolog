@@ -67,6 +67,7 @@
 
 #ifndef MAPPER_FILE
 
+extern int can_produce_pic_code;
 extern char *comment_prefix;
 extern char *local_symb_prefix;
 extern int strings_need_null;
@@ -83,6 +84,13 @@ extern char *inline_asm_data[];
 extern int reload_e;
 
 #endif
+
+#ifndef MA2ASM_FILE
+
+extern int pic_code;
+
+#endif
+
 
 
 
