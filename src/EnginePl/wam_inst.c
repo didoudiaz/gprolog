@@ -41,13 +41,7 @@
 #include <stdlib.h>
 #ifdef BOEHM_GC
 #include <gc/gc.h>
-#if !defined(DEBUG_MEM) && !defined(NDEBUG)
-#define NDEBUG
 #include <assert.h>
-#undef NDEBUG
-#else /* !defined(DEBUG_MEM) && !defined(NDEBUG) */
-#include <assert.h>
-#endif /* !defined(DEBUG_MEM) && !defined(NDEBUG) */
 #endif /* BOEHM_GC */
 
 #include "engine_pl.h"
