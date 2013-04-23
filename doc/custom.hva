@@ -1,6 +1,23 @@
 % To have a title on the first page
 
 \input{article.hva}
+
+%\let\oldmeta=\@meta
+%\renewcommand{\@meta}{%
+%\oldmeta
+%\begin{rawhtml}
+%<meta name="Author" content="Daniel Diaz">
+%<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
+%<link rel="icon" type="image/x-icon" href="gprolog.ico">
+%\end{rawhtml}}
+
+\addto{\@meta}
+{\begin{rawhtml}
+<meta name="Author" content="Daniel Diaz">
+<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
+<link rel="icon" type="image/x-icon" href="gprolog.ico">
+\end{rawhtml}}
+
 \title{GNU-Prolog Manual}
 
 
