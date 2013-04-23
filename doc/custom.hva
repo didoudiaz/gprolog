@@ -103,9 +103,9 @@ medium, provided this notice is preserved.
 
 
 
-% To use a gif image instead of an eps as in the original definition:
+% To use a PNG image instead of an EPS as in the original definition:
 
-\newcommand{\InsertImage}[1]{\begin{center}\imgsrc{#1.gif}\end{center}}
+\newcommand{\InsertImage}[2][]{\begin{center}\imgsrc{#2.png}\end{center}}
 
 
 
