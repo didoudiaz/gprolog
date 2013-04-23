@@ -8,14 +8,14 @@
 %\begin{rawhtml}
 %<meta name="Author" content="Daniel Diaz">
 %<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
-%<link rel="icon" type="image/x-icon" href="gprolog.ico">
+%<link rel="icon" type="image/x-icon" href="/gprolog.ico">
 %\end{rawhtml}}
 
 \addto{\@meta}
 {\begin{rawhtml}
 <meta name="Author" content="Daniel Diaz">
 <meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
-<link rel="icon" type="image/x-icon" href="gprolog.ico">
+<link rel="icon" type="image/x-icon" href="/gprolog.ico">
 \end{rawhtml}}
 
 \title{GNU-Prolog Manual}
