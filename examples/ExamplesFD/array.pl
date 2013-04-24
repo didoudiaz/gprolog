@@ -1,16 +1,14 @@
 	/* Array procedures */
 
-	/*---------------------------------------------------------*/
-	/*                                                         */
-	/* An array NL x NC elements is represented as follows :   */
-	/* A = [L_1, ..., L_NL] with L_i = [X_i_1, ..., X_i_NC]    */
-	/* Hence :                                                 */
-	/* A = [ [X_1_1,..., X_1_NC], ..., [X_NL_1,..., X_NL_NC] ] */
-	/*---------------------------------------------------------*/
+	/*---------------------------------------------------------*
+	 * An array NL x NC elements is represented as follows :   *
+	 * A = [L_1, ..., L_NL] with L_i = [X_i_1, ..., X_i_NC]    *
+	 * Hence :                                                 *
+	 * A = [ [X_1_1,..., X_1_NC], ..., [X_NL_1,..., X_NL_NC] ] *
+	 *---------------------------------------------------------*/
 
-	% create_array(NL,NC,A)
-	%     NL: nb of lines   NC:nb of columns   A:array
-	%     creates an array (with unbound variables)
+	% create_array(+NL, +NC, ?A): creates an array (with unbound variables)
+	% NL: nb of lines   NC:nb of columns   A:array
 
 create_array(NL, NC, A) :-
 	create_array1(0, NL, NC, A), !.
@@ -35,13 +33,20 @@ create_one_line(J, NC, [_|L]) :-
 
 
 
+	% array_elem(+A, +I, +J, ?X): returns an element
+	% A:array   I: line no   J: column no  X: the element
+
 array_elem(A, I, J, X) :-
-	nth(I, A, L),
-	nth(J, L, X).
+	nth1(I, A, L),
+	nth1(J, L, X).
 
 
+
+	% array_values(+A, ?Values): returns all elements
+	%     A: array   Values: list of elements
 
 array_values([], []).
+
 array_values([L|A], Values) :-
 	array_values(A, V),
 	append(L, V, Values).
@@ -49,9 +54,31 @@ array_values([L|A], Values) :-
 
 
 
-	% for_each_line(A,P)
-	%     A:array   P: program atom
-	%     calls: array_prog(P,L) for each line L (L is a list)
+	% array_line(+A, +I, ?C): returns the Ith line
+	% A:array   I: line no   L: the line
+
+array_line(A, I, L) :-
+	nth1(I, A, L).
+
+
+
+
+	% array_column(+A, +J, ?C): returns the Jth column
+	% A:array   J: column no   C: the column
+
+array_column([], _, []).
+
+array_column([L|A], J, [X|C]) :-
+	nth1(J, L, X),
+	array_column(A, J, C).
+
+	
+	
+
+
+	% for_each_line(+A, +P): invokes a user procedure for each line
+	% A:array   P: program atom
+	% calls: array_prog(P, L) for each line L (L is a list)
 
 for_each_line([], _).
 
@@ -62,9 +89,9 @@ for_each_line([L|A], P) :-
 
 
 
-	% for_each_column(A,P)
-	%     A:array   P: program atom
-	%     calls:  array_prog(P,L) for each column L (L is a list)
+	% for_each_column(+A, +P): invokes a user procedure for each column
+	% A:array   P: program atom
+	% calls: array_prog(P, L) for each column L (L is a list)
 
 for_each_column([[]|_], _) :-
 	!.
@@ -85,10 +112,10 @@ create_column([[X|L]|A], [X|C], [L|A1]) :-
 
 
 
-	% for_each_diagonal(A,NL,NC,P)
-	%     A:array   NL: nb of lines
-	%     NC:nb of columns   P: program atom
-	%     calls:  array_prog(P,D) for each diagonal D (D is a list)
+	% for_each_diagonal(+A, +NL, +NC, +P): invokes a user procedure for each diagonal
+	% A:array   NL: nb of lines
+	% NC:nb of columns   P: program atom
+	% calls: array_prog(P, D) for each diagonal D (D is a list)
 
 for_each_diagonal(A, NL, NC, P) :-
 	NbDiag is 2 * (NL + NC - 1),            % numbered from 0 to NbDiag-1
@@ -144,10 +171,10 @@ add_in_lst_diagonal(K, NoDiag, X, [D|LD], [D|LD1]) :-
 
 
 
-	% for_each_big_diagonal(A,N,P)
-	%     A:array   N: nb of lines/columns (must be a square)
-	%     P: program atom
-	%     calls:  array_prog(P,D) for each diagonal D (D is a list)
+	% for_each_big_diagonal(+A, +N, +P): invokes a user procedure for each major diagonal
+	% A:array   N: nb of lines/columns (must be a square)
+	% P: program atom
+	% calls: array_prog(P, D) for each diagonal D (D is a list)
 
 
 for_each_big_diagonal(A, N, P) :-
@@ -161,16 +188,16 @@ big_diags([], _, _, [], []).
 big_diags([L|A], I, J, [X|D1], [Y|D2]) :-
 	I1 is I + 1,
 	J1 is J - 1,
-	nth(I1, L, X),
-	nth(J, L, Y),
+	nth1(I1, L, X),
+	nth1(J, L, Y),
 	big_diags(A, I1, J1, D1, D2).
 
 
 
 
-	% write_array(A,Format,Sep)
-	%     A:array   Format: format for element writing
-        %     Sep: nb of spaces between 2 elements of a line
+	% write_array(+A, +Format, +Sep): writes an array
+	% A:array   Format: format for element writing
+        % Sep: nb of spaces between 2 elements of a line
 
 write_array([], _, _).
 
@@ -188,8 +215,8 @@ write_array_line([X|L], Format, Sep) :-
 	write_array_line(L, Format, Sep).
 
 
-	% array_labeling(A)
-	%     A:array
+	% array_labeling(+A): call fd_labeling line by line
+	% A:array
 
 
 array_labeling([]).
