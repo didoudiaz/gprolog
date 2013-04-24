@@ -77,7 +77,7 @@ array_column([L|A], J, [X|C]) :-
 
 
 	% for_each_line(+A, +P): invokes a user procedure for each line
-	% A:array   P: program atom
+	% A:array   P: program term
 	% calls: array_prog(P, L) for each line L (L is a list)
 
 for_each_line([], _).
@@ -90,7 +90,7 @@ for_each_line([L|A], P) :-
 
 
 	% for_each_column(+A, +P): invokes a user procedure for each column
-	% A:array   P: program atom
+	% A:array   P: program term
 	% calls: array_prog(P, L) for each column L (L is a list)
 
 for_each_column([[]|_], _) :-
@@ -114,7 +114,7 @@ create_column([[X|L]|A], [X|C], [L|A1]) :-
 
 	% for_each_diagonal(+A, +NL, +NC, +P): invokes a user procedure for each diagonal
 	% A:array   NL: nb of lines
-	% NC:nb of columns   P: program atom
+	% NC:nb of columns   P: program term
 	% calls: array_prog(P, D) for each diagonal D (D is a list)
 
 for_each_diagonal(A, NL, NC, P) :-
@@ -173,7 +173,7 @@ add_in_lst_diagonal(K, NoDiag, X, [D|LD], [D|LD1]) :-
 
 	% for_each_big_diagonal(+A, +N, +P): invokes a user procedure for each major diagonal
 	% A:array   N: nb of lines/columns (must be a square)
-	% P: program atom
+	% P: program term
 	% calls: array_prog(P, D) for each diagonal D (D is a list)
 
 
