@@ -609,18 +609,19 @@ tail_recurse:
       next = H;
       ta.dst = Pl_GC_Alloc_Float(&H);
       GC_Hash_Insert(tbl, ta);
-      *dst_adr = Tag_REF(ta.dst);
       Pl_Global_Push_Float(Pl_Obtain_Float(UnTag_FLT(*ta.src)));
+      *dst_adr = Tag_REF(ta.dst);
       H = next;
       return;
     case LST:
+      src_adr = UnTag_LST(*ta.src);
       ta.dst = Pl_GC_Alloc_List(&next);
       GC_Hash_Insert(tbl, ta);
+      GC_Copy_Term_Rec(&Car(next), &Car(src_adr), tbl);
       *dst_adr = Tag_REF(ta.dst);
-      GC_Copy_Term_Rec(&Car(next), &Car(UnTag_LST(*ta.src)), tbl);
+      src_adr = &Cdr(src_adr);
       dst_adr = &Cdr(next);
-      src_adr = &Cdr(UnTag_LST(*ta.src));
-      goto tail_recurse;//= GC_Copy_Term_Rec(&Cdr(next), &Cdr(UnTag_LST(*ta.src)), tbl);
+      goto tail_recurse;//= GC_Copy_Term_Rec(&Cdr(next), &Cdr(src_adr), tbl);
     case STC:
       src_adr = UnTag_STC(*ta.src);
       PlULong arity = Arity(src_adr);
