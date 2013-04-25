@@ -39,6 +39,8 @@
 
 #include <stdlib.h>
 
+#include <assert.h>
+
 #define OBJ_INIT G_Var_Initializer
 
 #include "engine_pl.h"
@@ -552,7 +554,7 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
 		 Bool copy)
 {
   WamWord word, tag_mask;
-  WamWord *adr;
+  WamWord *adr, *word_adr;
   int size;
   int atom;
   int save_size;
@@ -562,12 +564,12 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
   save_size = g_elem->size;
   save_val = g_elem->val;
 
-  DEREF(gval_word, word, tag_mask);
+  DEREF_CLEAN_TAG(gval_word, word_adr, word, tag_mask);
 
   if (tag_mask != TAG_STC_MASK)
     goto not_an_array;
 
-  adr = UnTag_STC(word);
+  adr = UnTag_STC(*word_adr);
   atom = Functor(adr);
 
   if (atom == atom_g_array)
@@ -591,7 +593,11 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
   if (!copy || tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
     {				/* a link */
       if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
+#ifdef BOEHM_GC
+	Allocate_Local_Unbound_Var(adr, word);
+#else // BOEHM_GC
 	Globalize_Local_Unbound_Var(adr, word);
+#endif // BOEHM_GC
 
       g_elem->size = 0;
       Do_Copy_Of_Word(tag_mask, word);
@@ -600,6 +606,14 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
     }
 
 				/* a copy */
+#ifdef BOEHM_GC
+  adr = (WamWord *) Malloc(sizeof(WamWord));
+
+  g_elem->size = 1;
+  g_elem->val = (WamWord) adr;
+
+  Pl_Copy_Term(adr, word_adr);
+#else // BOEHM_GC
   size = Pl_Term_Size(word);
 
   adr = (WamWord *) Malloc(size * sizeof(WamWord));
@@ -608,6 +622,7 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
   g_elem->val = (WamWord) adr;
 
   Pl_Copy_Term(adr, &word);
+#endif // BOEHM_GC
 
  finish:
 
