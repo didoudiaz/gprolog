@@ -39,6 +39,8 @@
 
 #include <string.h>
 
+#include <assert.h>
+
 #define OBJ_INIT Term_Supp_Initializer
 
 #define TERM_SUPP_FILE
@@ -425,6 +427,11 @@ Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr)
 {
 #ifdef BOEHM_GC
   HashTable tbl;
+  assert( !Tag_Is_FLT(*src_adr) ||  UnTag_Address(*src_adr) == src_adr + 1 );
+  assert( !Tag_Is_LST(*src_adr) ||  UnTag_Address(*src_adr) == src_adr + 1 );
+  assert( !Tag_Is_STC(*src_adr) ||  UnTag_Address(*src_adr) == src_adr + 1 );
+  assert( !Tag_Is_FDV(*src_adr) ||  UnTag_Address(*src_adr) == src_adr + 1 );
+
   tbl = Pl_Hash_Alloc_Table(5, sizeof(GCCopyTermAddr));
   GC_Copy_Term_Rec(dst_adr, src_adr, &tbl);
   Pl_Hash_Free_Table(tbl);
