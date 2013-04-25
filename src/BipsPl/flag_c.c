@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <assert.h>
+
 #define OBJ_INIT Flag_Initializer
 
 #define FLAG_C_FILE
@@ -732,15 +734,27 @@ Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
 
   sv = Pl_Rd_Integer(var_word);
 
+#ifdef BOEHM_GC
+  DEREF_PTR(&term_word, adr, tag_mask);
+  word = *adr;
+
+  if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
+    {
+      pl_sys_var[sv] = word;
+      return;
+    }
+
+  assert( Tag_Is_REF(term_word) );
+
+  Pl_Copy_Term((WamWord *)&pl_sys_var[sv], adr);
+#else // BOEHM_GC
   word = pl_sys_var[sv];
   tag_mask = Tag_Mask_Of(word);
   if (tag_mask == TAG_REF_MASK)
     {
       adr = UnTag_REF(word);
-#ifndef BOEHM_GC
       if (adr != NULL)
         Free(adr); // recover the Malloc: don't mix sys_var_put/get and others sys_var_write... on same sys variable
-#endif // BOEHM_GC
     }
 
   DEREF(term_word, word, tag_mask);
@@ -751,9 +765,6 @@ Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
       return;
     }
 
-#ifdef BOEHM_GC
-  Pl_Copy_Term((WamWord *)&pl_sys_var[sv], &word);
-#else // BOEHM_GC
   size = Pl_Term_Size(word);
   adr = (WamWord *) Malloc(size * sizeof(WamWord)); // recovered at next sys_var_put
   Pl_Copy_Term(adr, &word);
