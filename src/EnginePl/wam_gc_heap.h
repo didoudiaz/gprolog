@@ -48,6 +48,16 @@
  * Constants                       *
  *---------------------------------*/
 
+#define GC_assert_clean_start_word(start_word)\
+      do\
+	{\
+	  assert( !Tag_Is_LST(start_word) );\
+	  assert( !Tag_Is_STC(start_word) );\
+	  assert( !Tag_Is_FLT(start_word) );\
+	  assert( !Tag_Is_FDV(start_word) );\
+	}\
+      while (0)
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/

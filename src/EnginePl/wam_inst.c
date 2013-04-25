@@ -461,10 +461,7 @@ Pl_Put_Unsafe_Value(WamWord start_word)
   WamWord res_word;
 
 #ifdef BOEHM_GC
-  assert( !Tag_Is_LST(start_word) );
-  assert( !Tag_Is_STC(start_word) );
-  assert( !Tag_Is_FLT(start_word) );
-  assert( !Tag_Is_FDV(start_word) );
+  GC_assert_clean_start_word(start_word);
 
   DEREF_PTR(&start_word, adr, tag_mask);
   word = Tag_REF(*adr);
@@ -852,10 +849,7 @@ Pl_Unify_Local_Value(WamWord start_word)
     return Pl_Unify(start_word, *S++);
 
 #ifdef BOEHM_GC
-  assert( !Tag_Is_LST(start_word) );
-  assert( !Tag_Is_STC(start_word) );
-  assert( !Tag_Is_FLT(start_word) );
-  assert( !Tag_Is_FDV(start_word) );
+  GC_assert_clean_start_word(start_word);
 
   DEREF_PTR(&start_word, adr, tag_mask);
   word = Tag_REF(*adr);
@@ -1174,10 +1168,7 @@ Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 #ifdef BOEHM_GC
   WamWord *adr;
 
-  assert( !Tag_Is_LST(A(0)) );
-  assert( !Tag_Is_STC(A(0)) );
-  assert( !Tag_Is_FLT(A(0)) );
-  assert( !Tag_Is_FDV(A(0)) );
+  GC_assert_clean_start_word(A(0));
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1216,10 +1207,7 @@ Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 #ifdef BOEHM_GC
   WamWord *adr;
 
-  assert( !Tag_Is_LST(A(0)) );
-  assert( !Tag_Is_STC(A(0)) );
-  assert( !Tag_Is_FLT(A(0)) );
-  assert( !Tag_Is_FDV(A(0)) );
+  GC_assert_clean_start_word(A(0));
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1257,10 +1245,7 @@ Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 #ifdef BOEHM_GC
   WamWord *adr;
 
-  assert( !Tag_Is_LST(A(0)) );
-  assert( !Tag_Is_STC(A(0)) );
-  assert( !Tag_Is_FLT(A(0)) );
-  assert( !Tag_Is_FDV(A(0)) );
+  GC_assert_clean_start_word(A(0));
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1298,10 +1283,7 @@ Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 #ifdef BOEHM_GC
   WamWord *adr;
 
-  assert( !Tag_Is_LST(A(0)) );
-  assert( !Tag_Is_STC(A(0)) );
-  assert( !Tag_Is_FLT(A(0)) );
-  assert( !Tag_Is_FDV(A(0)) );
+  GC_assert_clean_start_word(A(0));
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1342,10 +1324,7 @@ Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
 #ifdef BOEHM_GC
   WamWord *adr;
 
-  assert( !Tag_Is_LST(A(0)) );
-  assert( !Tag_Is_STC(A(0)) );
-  assert( !Tag_Is_FLT(A(0)) );
-  assert( !Tag_Is_FDV(A(0)) );
+  GC_assert_clean_start_word(A(0));
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
