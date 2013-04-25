@@ -60,9 +60,12 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
   assert( !Tag_Is_LST(start_u_word) );
   assert( !Tag_Is_STC(start_u_word) );
   assert( !Tag_Is_FLT(start_u_word) );
+  assert( !Tag_Is_FDV(start_u_word) );
+
   assert( !Tag_Is_LST(start_v_word) );
   assert( !Tag_Is_STC(start_v_word) );
   assert( !Tag_Is_FLT(start_v_word) );
+  assert( !Tag_Is_FDV(start_v_word) );
 
   DEREF_PTR(&start_u_word, u_adr, u_tag_mask);
   u_word = *u_adr;

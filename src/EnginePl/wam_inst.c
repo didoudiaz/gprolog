@@ -464,6 +464,7 @@ Pl_Put_Unsafe_Value(WamWord start_word)
   assert( !Tag_Is_LST(start_word) );
   assert( !Tag_Is_STC(start_word) );
   assert( !Tag_Is_FLT(start_word) );
+  assert( !Tag_Is_FDV(start_word) );
 
   DEREF_PTR(&start_word, adr, tag_mask);
   word = Tag_REF(*adr);
@@ -854,6 +855,7 @@ Pl_Unify_Local_Value(WamWord start_word)
   assert( !Tag_Is_LST(start_word) );
   assert( !Tag_Is_STC(start_word) );
   assert( !Tag_Is_FLT(start_word) );
+  assert( !Tag_Is_FDV(start_word) );
 
   DEREF_PTR(&start_word, adr, tag_mask);
   word = Tag_REF(*adr);
@@ -1175,6 +1177,7 @@ Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
   assert( !Tag_Is_LST(A(0)) );
   assert( !Tag_Is_STC(A(0)) );
   assert( !Tag_Is_FLT(A(0)) );
+  assert( !Tag_Is_FDV(A(0)) );
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1216,6 +1219,7 @@ Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
   assert( !Tag_Is_LST(A(0)) );
   assert( !Tag_Is_STC(A(0)) );
   assert( !Tag_Is_FLT(A(0)) );
+  assert( !Tag_Is_FDV(A(0)) );
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1256,6 +1260,7 @@ Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
   assert( !Tag_Is_LST(A(0)) );
   assert( !Tag_Is_STC(A(0)) );
   assert( !Tag_Is_FLT(A(0)) );
+  assert( !Tag_Is_FDV(A(0)) );
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1296,6 +1301,7 @@ Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
   assert( !Tag_Is_LST(A(0)) );
   assert( !Tag_Is_STC(A(0)) );
   assert( !Tag_Is_FLT(A(0)) );
+  assert( !Tag_Is_FDV(A(0)) );
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
@@ -1339,6 +1345,7 @@ Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
   assert( !Tag_Is_LST(A(0)) );
   assert( !Tag_Is_STC(A(0)) );
   assert( !Tag_Is_FLT(A(0)) );
+  assert( !Tag_Is_FDV(A(0)) );
 
   DEREF_PTR(&A(0), adr, tag_mask);
   // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
