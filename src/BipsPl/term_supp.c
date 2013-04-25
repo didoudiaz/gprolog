@@ -976,13 +976,13 @@ Pl_Strip_Module(WamWord start_word, Bool accept_var, Bool raise_error,
 
   for(;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
       *goal_word = word;
 
       if (tag_mask != TAG_STC_MASK)
 	break;
 
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       if (Functor_And_Arity(adr) == Functor_Arity(ATOM_CHAR(':'), 2))
 	{
 	  DEREF(Arg(adr, 0), word, tag_mask);
@@ -1032,6 +1032,9 @@ Pl_Strip_Module(WamWord start_word, Bool accept_var, Bool raise_error,
       break;
     }
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(module_word);
+#endif // BOEHM_GC
   return module_word;
 }
 

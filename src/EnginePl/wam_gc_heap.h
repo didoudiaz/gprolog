@@ -48,6 +48,8 @@
  * Constants                       *
  *---------------------------------*/
 
+#define GC_is_tag_allowed(tag_mask) (tag_mask == TAG_REF_MASK || tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
+
 #define GC_assert_clean_start_word(start_word)\
       do\
 	{\

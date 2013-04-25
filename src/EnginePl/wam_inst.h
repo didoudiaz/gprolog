@@ -488,6 +488,30 @@ PlLong chain_len;
   while (0)
 
 
+#ifdef BOEHM_GC
+#define DEREF_CLEAN_TAG(start_word, adr, word, tag_mask)\
+  do                                                    \
+    {                                                   \
+      GC_assert_clean_start_word(start_word);           \
+                                                        \
+      DEREF_PTR(&start_word, adr, tag_mask);            \
+      if (!GC_is_tag_allowed(tag_mask))                 \
+	word = Tag_REF(adr);                            \
+      else                                              \
+	word = *adr;                                    \
+    }                                                   \
+  while (0)
+#else // BOEHM_GC
+#define DEREF_CLEAN_TAG(start_word, adr, word, tag_mask)\
+  do                                                    \
+    {                                                   \
+      DEREF_PTR(&start_word, adr, tag_mask);            \
+      word = *adr;                                      \
+    }                                                   \
+  while (0)
+#endif // BOEHM_GC
+
+
 
   /* Trail Stack Management */
 
