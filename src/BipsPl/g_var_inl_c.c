@@ -1263,9 +1263,13 @@ G_Read(WamWord gvar_word, WamWord gval_word)
 
   if (g_arg != NULL)
     {
+#ifdef BOEHM_GC
+      Pl_Copy_Term(&word, g_arg);
+#else // BOEHM_GC
       Pl_Copy_Term(H, g_arg);
       word = *H;
       H += Pl_Term_Size(word);
+#endif // BOEHM_GC
       return Pl_Unify(word, gval_word);
     }
 
