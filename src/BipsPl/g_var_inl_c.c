@@ -700,6 +700,10 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
   GVarElt *p;
   int i;
 
+#ifdef BOEHM_GC
+  assert( Tag_Is_STC(*(stc_adr - 1)) && UnTag_STC(*(stc_adr - 1)) == stc_adr );
+#endif // BOEHM_GC
+
   arity = Arity(stc_adr);
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);
