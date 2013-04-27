@@ -1273,6 +1273,64 @@ Pl_Get_Head_And_Body_4(WamWord clause_word, WamWord module_word,
 
 
 /*-------------------------------------------------------------------------*
+ * TERM_TO_GOAL_REC helpers                                                *
+ *-------------------------------------------------------------------------*/
+static void
+surround_goal_with_call(int module, WamWord word, WamWord *goal_word)
+{
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+#endif // BOEHM_GC
+  if (t2g_call_info_word == NOT_A_WAM_WORD) // Term = var X --> Goal = call(X)
+    {
+      if (module != t2g_module) // Module != entry Module --> call(Module:X)
+	{
+	  *goal_word = Pl_Put_Structure(atom_call, 1);
+	  Pl_Unify_Structure(ATOM_CHAR(':'), 2);
+	  Pl_Unify_Atom(module);
+	  Pl_Unify_Value(word);
+	}
+      else
+	{
+	  *goal_word = Pl_Put_Structure(atom_call, 1);
+	  Pl_Unify_Value(word);
+	}
+    }
+  else // Term = var X --> Goal '$call_internal'(X, Module, CallInfo)
+    {
+      *goal_word = Pl_Put_Structure(atom_call_internal, 3);
+      Pl_Unify_Value(word);
+      Pl_Unify_Atom(module);
+      Pl_Unify_Value(t2g_call_info_word);
+    }
+  return;
+}
+
+static void
+not_a_control_construct(int module, WamWord word, WamWord *goal_word)
+{
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+#endif // BOEHM_GC
+  if (module == t2g_module)
+    {
+      *goal_word = word; /* Goal = Term (unchanged) */
+    }
+  else if (module == -1)
+    {
+      surround_goal_with_call(module, word, goal_word);
+      return;
+    }
+  else
+    {
+      *goal_word = Pl_Put_Structure(ATOM_CHAR(':'), 2);
+      Pl_Unify_Atom_Tagged(Tag_ATM(module));
+      Pl_Unify_Value(word);
+    }
+  return;
+}
+
+/*-------------------------------------------------------------------------*
  * TERM_TO_GOAL_REC                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1281,60 +1339,22 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
 {
   WamWord word, tag_mask;
   int func, arity;
-  WamWord *adr;
+  WamWord *adr, *word_adr;
   WamWord *cur_H;
-
-#define FOR_ASSERT  (t2g_call_info_word == NOT_A_WAM_WORD)
 
  terminal_rec:
 
-  DEREF(term_word, word, tag_mask);
+  DEREF_CLEAN_TAG(term_word, word_adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
-    surround_with_call:
-      if (FOR_ASSERT)		/* Term = var X --> Goal = call(X) */
-	{
-	  if (module != t2g_module)	/* Module != entry Module --> call(Module:X) */
-	    {
-	      *goal_word = Pl_Put_Structure(atom_call, 1);
-	      Pl_Unify_Structure(ATOM_CHAR(':'), 2);
-	      Pl_Unify_Atom(module);
-	      Pl_Unify_Value(word);
-	    }
-	  else
-	    {
-	      *goal_word = Pl_Put_Structure(atom_call, 1);
-	      Pl_Unify_Value(word);
-	    }
-	}
-      else			/* Term = var X --> Goal '$call_internal'(X, Module, CallInfo) */
-	{
-	  *goal_word = Pl_Put_Structure(atom_call_internal, 3);
-	  Pl_Unify_Value(word);
-	  Pl_Unify_Atom(module);
-	  Pl_Unify_Value(t2g_call_info_word);
-	}
+      surround_goal_with_call(module, word, goal_word);
       return;
     }
 
 
   if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_LST_MASK)
     {				/* Goal = Term or Module:Term */
-    not_a_control_construct:
-      if (module == t2g_module)
-	{
-	  *goal_word = word;		/* Goal = Term (unchanged) */
-	}
-      else if (module == -1)
-	{
-	  goto surround_with_call;
-	}
-      else
-	{
-	  *goal_word = Pl_Put_Structure(ATOM_CHAR(':'), 2);
-	  Pl_Unify_Atom(module);
-	  Pl_Unify_Value(word);
-	}
+      not_a_control_construct(module, word, goal_word);
       return;
     }
 
@@ -1342,12 +1362,15 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
     Pl_Err_Type(pl_type_callable, t2g_term_word);
 
 
-  adr = UnTag_STC(word);
+  adr = UnTag_STC(*word_adr);
   func = Functor(adr);
   arity = Arity(adr);
 
   if (arity != 2)
-    goto not_a_control_construct;
+    {
+      not_a_control_construct(module, word, goal_word);
+      return;
+    }
 
 
   if (func == ATOM_CHAR(':')) 	/* module qualification */
@@ -1365,10 +1388,17 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
     }
 
   if (func != ATOM_CHAR(',') && func != ATOM_CHAR(';') && func != atom_if && func != atom_soft_if)
-    goto not_a_control_construct;
+    {
+      not_a_control_construct(module, word, goal_word);
+      return;
+    }
 
   /* create a term on the heap, recursing on args for term to goal conversion */
+#ifdef BOEHM_GC
+  *goal_word = Tag_REF(Pl_GC_Alloc_Struc(&H, arity));
+#else // BOEHM_GC
   *goal_word = Tag_STC(H);
+#endif // BOEHM_GC
   *H++ = *adr++;		/* copy functor / arity (Functor_And_Arity(adr)) */
 
 
@@ -1397,6 +1427,10 @@ WamWord
 Pl_Term_To_Goal(WamWord term_word, int module, WamWord call_info_word)
 {
   WamWord goal_word;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(term_word);
+#endif // BOEHM_GC
 
   t2g_term_word = term_word;
   t2g_module = module;
