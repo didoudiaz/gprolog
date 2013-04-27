@@ -196,6 +196,10 @@ Pl_Get_Atom_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
@@ -217,6 +221,10 @@ Pl_Get_Atom_Tagged(WamWord w, WamWord start_word)
 Bool FC
 Pl_Get_Atom(int atom, WamWord start_word)
 {
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   return Pl_Get_Atom_Tagged(Tag_ATM(atom), start_word);
 }
 
@@ -232,6 +240,10 @@ Bool FC
 Pl_Get_Integer_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -275,6 +287,10 @@ Pl_Get_Float(double n, WamWord start_word)
 {
   WamWord word, tag_mask;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
@@ -303,6 +319,10 @@ Pl_Get_Nil(WamWord start_word)
 {
   WamWord word, tag_mask;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
@@ -325,6 +345,10 @@ Bool FC
 Pl_Get_List(WamWord start_word)
 {
   WamWord word, tag_mask;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -360,6 +384,10 @@ Pl_Get_Structure_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -823,6 +851,10 @@ Pl_Unify_Void(int n)
 Bool FC
 Pl_Unify_Value(WamWord start_word)
 {
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   if (S != WRITE_MODE)
     return Pl_Unify(start_word, *S++);
 
@@ -1083,6 +1115,10 @@ Pl_Globalize_If_In_Local(WamWord start_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
