@@ -38,6 +38,7 @@
 /* $Id$ */
 
 #include <stdlib.h>
+#include <assert.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -251,7 +252,7 @@ DynCInf *
 Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 		      Bool asserta, Bool check_perm, int pl_file)
 {
-  WamWord word;
+  WamWord word, tag_mask;
   WamWord *first_arg_adr;
   int func, arity;
   PredInf *pred;
@@ -264,7 +265,7 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
   DSwtInf swt_info;
   DSwtInf *swt;
   int size;
-  WamWord lst_h_b[3];
+  WamWord lst_h_b;
 
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
@@ -316,15 +317,20 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 #endif
 
 
-  lst_h_b[0] = Tag_LST(lst_h_b + 1);
-  lst_h_b[1] = head_word;
-  lst_h_b[2] = body_word;
 #ifdef BOEHM_GC
+  lst_h_b = Tag_REF(Pl_GC_Alloc_List(&first_arg_adr));
+  first_arg_adr[0] = head_word;
+  first_arg_adr[1] = body_word;
+
   size = 3;
   clause = (DynCInf *)
     Malloc(sizeof(DynCInf));
 #else // BOEHM_GC
-  size = Pl_Term_Size(lst_h_b[0]);
+  lst_h_b = Tag_LST(H);
+  H[0] = head_word;
+  H[1] = body_word;
+
+  size = Pl_Term_Size(lst_h_b);
   clause = (DynCInf *)
     Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
 #endif // BOEHM_GC
@@ -338,7 +344,14 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
   clause->next_erased_cl = NULL;
   clause->term_size = size;
 
-  Pl_Copy_Term(&clause->term_word, lst_h_b);
+  Pl_Copy_Term(&clause->term_word, &lst_h_b);
+
+#ifdef BOEHM_GC
+  DEREF(clause->term_word, word, tag_mask);
+  assert( tag_mask == TAG_LST_MASK );
+  clause->head_word = Car(UnTag_LST(word));
+  clause->body_word = Cdr(UnTag_LST(word));
+#endif // BOEHM_GC
 
   clause->byte_code = pl_byte_code;
   pl_byte_code = NULL;
@@ -1140,10 +1153,14 @@ void
 Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 {
 #ifdef BOEHM_GC
-  Pl_Copy_Term(H, &clause->term_word);
-  *head_word = clause->head_word;
-  *body_word = clause->body_word;
-  H += 1;
+  WamWord res, tag_mask;
+  Pl_Copy_Term(&res, &clause->term_word);
+  DEREF(res, res, tag_mask);
+  assert( tag_mask == TAG_LST_MASK ); // See Pl_Add_Dynamic_Clause
+  *head_word = Car(UnTag_LST(res));
+  *body_word = Cdr(UnTag_LST(res));
+  // There is no reference to the start of the top level LST chunk.
+  // (head_word and body_word are internal pointers.)
 #else // BOEHM_GC
   Pl_Copy_Contiguous_Term(H, &clause->term_word);       /* *H=<LST,H+1> */
   *head_word = H[1];
