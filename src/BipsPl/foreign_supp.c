@@ -114,10 +114,14 @@ Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
 static void
 Foreign_Initializer(void)
 {
+#ifdef BOEHM_GC
+  goal_H = Pl_GC_Mem_Alloc(MAX_ARITY + 2);
+#else // BOEHM_GC
   goal_H = H;
   H = H + MAX_ARITY + 1;
 
   Pl_Set_Heap_Actual_Start(H);	/* reserve space for meta-call goal */
+#endif // BOEHM_GC
 }
 
 
@@ -261,7 +265,13 @@ Prepare_Call(int module, int func, int arity, WamWord *arg_adr)
       else
 	{
 	  w = goal_H;
+#ifdef BOEHM_GC
+	  A(0) = Tag_REF(w);
+	  *w = Tag_STC(w + 1);
+	  w++;
+#else // BOEHM_GC
 	  A(0) = Tag_STC(w);
+#endif // BOEHM_GC
 	  *w++ = Functor_Arity(func, arity);
 	  for (i = 0; i < arity; i++)
 	    *w++ = *arg_adr++;
