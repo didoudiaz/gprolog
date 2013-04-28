@@ -113,9 +113,11 @@ static int atom_soft_if;
  * Function Prototypes             *
  *---------------------------------*/
 
+#ifndef BOEHM_GC
 static void Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, WamWord **p);
-
+#else // BOEHM_GC
 static void GC_Copy_Term_Rec(WamWord *dst_adr, WamWord *src_adr, HashTable *tbl);
+#endif // BOEHM_GC
 
 static Bool Term_Hash(WamWord start_word, PlLong depth, unsigned *hash);
 
@@ -453,7 +455,7 @@ Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr)
 
 
 
-
+#ifndef BOEHM_GC
 /*-------------------------------------------------------------------------*
  * COPY_TERM_REC                                                           *
  *                                                                         *
@@ -563,6 +565,7 @@ terminal_rec:
     }
 }
 
+#else // BOEHM_GC
 /*-------------------------------------------------------------------------*
  * GC_Copy_Term_Rec                                                        *
  *                                                                         *
@@ -641,6 +644,7 @@ tail_recurse:
     }
   return;
 }
+#endif // BOEHM_GC
 
 
 #ifndef BOEHM_GC

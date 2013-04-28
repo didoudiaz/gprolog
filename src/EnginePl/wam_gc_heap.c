@@ -37,12 +37,11 @@
 
 /* $Id$ */
 
+#ifdef BOEHM_GC
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef BOEHM_GC
 #include <gc/gc.h>
 #include <assert.h>
-#endif /* BOEHM_GC */
 
 #include "engine_pl.h"
 
@@ -60,11 +59,9 @@
  * Global Variables                *
  *---------------------------------*/
 
-#ifdef BOEHM_GC
 void * pl_gc_bad_alloc=0;
 size_t pl_gc_bad_alloc_count=0;
 #define PL_GC_BAD_ALLOC_COUNT_MOD (1024*1024)
-#endif /* BOEHM_GC */
 
 /*---------------------------------*
  * Local functions                 *
@@ -76,7 +73,6 @@ size_t pl_gc_bad_alloc_count=0;
  *---------------------------------*/
 
 
-#ifdef BOEHM_GC
 /*-------------------------------------------------------------------------*
  * Pl_GC_Mem_Alloc                                                         *
  *                                                                         *
@@ -118,7 +114,6 @@ Pl_GC_Mem_Alloc(PlULong n)
   assert( Tag_Is_REF(result) );
   return result;
 }
-#endif /* BOEHM_GC */
 
 
 
@@ -200,3 +195,5 @@ Pl_GC_Alloc_Float(WamWord **next_H)
     }
   return cur_H;
 }
+
+#endif /* BOEHM_GC */

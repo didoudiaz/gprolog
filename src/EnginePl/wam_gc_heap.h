@@ -39,6 +39,7 @@
 
 #ifndef _WAM_GC_HEAP_H
 #define _WAM_GC_HEAP_H
+#ifdef BOEHM_GC
 
 #include "gp_config.h"
 #include "wam_archi.h"
@@ -76,5 +77,5 @@ Pl_GC_Alloc_Float(WamWord **next_H);
  * Auxiliary engine macros         *
  *---------------------------------*/
 
-
+#endif // BOEHM_GC
 #endif // _WAM_GC_HEAP_H
