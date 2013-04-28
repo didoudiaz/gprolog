@@ -616,12 +616,10 @@ tail_recurse:
       return;
 #endif // NO_USE_FD_SOLVER
     case FLT:
-      next = H;
-      ta.dst = Pl_GC_Alloc_Float(&H);
+      ta.dst = Pl_GC_Alloc_Float(&next);
       GC_Hash_Insert(tbl, ta);
-      Pl_Global_Push_Float(Pl_Obtain_Float(UnTag_FLT(*ta.src)));
+      Pl_Push_Float(&next, Pl_Obtain_Float(UnTag_FLT(*ta.src)));
       *dst_adr = Tag_REF(ta.dst);
-      H = next;
       return;
     case LST:
       src_adr = UnTag_LST(*ta.src);
@@ -1395,16 +1393,17 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
 
   /* create a term on the heap, recursing on args for term to goal conversion */
 #ifdef BOEHM_GC
-  *goal_word = Tag_REF(Pl_GC_Alloc_Struc(&H, arity));
+  *goal_word = Tag_REF(Pl_GC_Alloc_Struc(&cur_H, arity));
+  *cur_H++ = *adr++;
 #else // BOEHM_GC
   *goal_word = Tag_STC(H);
-#endif // BOEHM_GC
   *H++ = *adr++;		/* copy functor / arity (Functor_And_Arity(adr)) */
 
 
   /* here we have arity words to put on the heap */
   cur_H = H;
   H += arity;			/* reserve space on the heap */
+#endif // BOEHM_GC
   while(--arity)
     Term_To_Goal_Rec(*adr++, module, cur_H++);
 
