@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -70,7 +72,6 @@ Prolog_Prototype(MEMBER_ALT, 0);
 Prolog_Prototype(REVERSE_ALT, 0);
 
 
-#if 1
 /*-------------------------------------------------------------------------*
  * Pl_APPEND_3                                                             *
  *                                                                         *
@@ -82,8 +83,13 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
   WamWord *adr;
   int len1, len2, len3;
   WamWord result_word;
-  WamWord *next_H;
+  WamWord *next_H, *curr_H;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(l1_word);
+  GC_assert_clean_start_word(l2_word);
+  GC_assert_clean_start_word(l3_word);
+#endif // BOEHM_GC
 
   for(;;)
     {
@@ -93,9 +99,23 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 
       adr = UnTag_LST(word);
 
+#if 1 // efficiency
       DEREF(l3_word, word, tag_mask);
       if (tag_mask == TAG_REF_MASK) /* as soon as L3 is a var, create the result and unify with L3 at the end only */
 	{
+#ifdef BOEHM_GC
+	  next_H = &result_word;
+	  do {
+	    *next_H = Tag_REF(Pl_GC_Alloc_List(&curr_H));
+	    next_H = curr_H + 1;
+
+	    *curr_H = Car(adr);
+	    l1_word = Cdr(adr);
+
+	    DEREF(l1_word, word, tag_mask);
+	    adr = UnTag_LST(word);
+	  } while(tag_mask == TAG_LST_MASK);
+#else // BOEHM_GC
 	  result_word = Tag_LST(H);
 	  do {
 	    next_H = H + 2;
@@ -108,6 +128,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 	    adr = UnTag_LST(word);
 	  } while(tag_mask == TAG_LST_MASK);
 	  next_H = H - 1;
+#endif // BOEHM_GC
 	  *next_H = Make_Self_Ref(next_H);
 
 	  Pl_Unify(result_word, l3_word);
@@ -116,6 +137,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
 	  break;
 	}
       /* here L3 is not a var */
+#endif
 
       if (!Pl_Get_List(l3_word) || !Pl_Unify_Value(Car(adr)))
 	return FALSE;
@@ -169,79 +191,6 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
   Pl_Get_Nil(l1_word); /* always succeeds */
   return Pl_Unify(l2_word, l3_word);
 }
-
-#else  /* less efficient version */
-
-/*-------------------------------------------------------------------------*
- * Pl_APPEND_3                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
-{
-  WamWord word, tag_mask;
-  WamWord *adr;
-  int len1, len2, len3;
-
-  for(;;)
-    {
-      DEREF(l1_word, word, tag_mask);
-      if (tag_mask != TAG_LST_MASK)
-	break;
-
-      adr = UnTag_LST(word);
-      if (!Pl_Get_List(l3_word) || !Pl_Unify_Value(Car(adr)))
-	return FALSE;
-
-      l3_word = Pl_Unify_Variable();
-      l1_word = Cdr(adr);
-    }
-
-  if (word == NIL_WORD)
-    return Pl_Unify(l2_word, l3_word);
-
-  if (tag_mask != TAG_REF_MASK)
-    return FALSE;
-
-
-  /* L1 is a var, let's see L2 and L3 */
-
-  if ((len2 = Pl_List_Length(l2_word)) >= 0 &&
-      (len3 = Pl_List_Length(l3_word)) >= 0)
-    {		/* deterministic: L1 is the prefix of L3 with len = len3 - len2 */
-      if ((len1 = len3 - len2) < 0)
-	return FALSE;
-
-      while(len1-- > 0)
-	{
-	  DEREF(l3_word, word, tag_mask);
-	  adr = UnTag_LST(word);
-	  Pl_Get_List(l1_word);
-
-	  Pl_Unify_Value(Car(adr));
-	  l1_word = Pl_Unify_Variable();
-	  l3_word = Cdr(adr);
-	}
-
-      Pl_Get_Nil(l1_word); /* always succeeds */
-      return Pl_Unify(l2_word, l3_word);
-    }
-
-  /* L1 is a var, L2 / L3 are not 2 proper lists, check L3 */
-
-  DEREF(l3_word, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_LST_MASK) /* nondet case */
-    {
-      A(0) = l1_word;
-      A(1) = l2_word;
-      A(2) = l3_word;
-      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(APPEND_ALT, 0), 3);
-    }
-
-  Pl_Get_Nil(l1_word);
-  return Pl_Unify(l2_word, l3_word);
-}
-#endif
 
 
 
@@ -545,7 +494,7 @@ Bool
 Pl_Reverse_2(WamWord l1_word, WamWord l2_word)
 {
   WamWord word, tag_mask;
-  WamWord *adr;
+  WamWord *adr, *next;
   int len1 = 0, len2;
   WamWord x_word;
   WamWord result_word = NIL_WORD;
@@ -557,9 +506,15 @@ Pl_Reverse_2(WamWord l1_word, WamWord l2_word)
 	break;
 
       adr = UnTag_LST(word);
+#ifdef BOEHM_GC
+      word = Tag_REF(Pl_GC_Alloc_List(&next));
+      *next++ = Car(adr);
+      *next = result_word;
+#else // BOEHM_GC
       word = Tag_LST(H);
       *H++ = Car(adr);
       *H++ = result_word;
+#endif // BOEHM_GC
       result_word = word;
       len1++;
       l1_word = Cdr(adr);
@@ -584,9 +539,15 @@ Pl_Reverse_2(WamWord l1_word, WamWord l2_word)
 	  x_word = Pl_Unify_Variable();
 	  l1_word = Pl_Unify_Variable();
 
+#ifdef BOEHM_GC
+	  word = Tag_REF(Pl_GC_Alloc_List(&next));
+	  *next++ = x_word;
+	  *next = result_word;
+#else // BOEHM_GC
 	  word = Tag_LST(H);
 	  *H++ = x_word;
 	  *H++ = result_word;
+#endif // BOEHM_GC
 	  result_word = word;
 
 	  len1++;
@@ -614,6 +575,7 @@ Bool
 Pl_Reverse_Alt_0(void)
 {
   WamWord x_word, result_word;
+  WamWord *next;
 
   Pl_Delete_Choice_Point(3);
 
@@ -624,9 +586,15 @@ Pl_Reverse_Alt_0(void)
   x_word = Pl_Unify_Variable();
   A(0) = Pl_Unify_Variable();
 
+#ifdef BOEHM_GC
+  result_word = Tag_REF(Pl_GC_Alloc_List(&next));
+  *next++ = x_word;
+  *next = A(2);
+#else // BOEHM_GC
   result_word = Tag_LST(H);
   *H++ = x_word;
   *H++ = A(2);
+#endif // BOEHM_GC
   A(2) = result_word;
 
   Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(REVERSE_ALT, 0), 3);
