@@ -2528,7 +2528,6 @@ Pl_Mk_Proper_List(int n, WamWord *arg)
   src = arg + n;
   dst = Pl_GC_Mem_Alloc(3 * n);
   dst += 3 * n;
-  H = dst;
 
   *--dst = NIL_WORD;
   goto entry;
