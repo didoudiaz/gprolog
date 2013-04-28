@@ -71,6 +71,12 @@ DblInt;
  * Global Variables                *
  *---------------------------------*/
 
+#ifdef BOEHM_GC
+static WamWord *heap_ptr=0;
+#else // BOEHM_GC
+#define heap_ptr H
+#endif // BOEHM_GC
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -295,9 +301,9 @@ Pl_Get_Float(double n, WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Float(&H)));
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Float(&heap_ptr)));
 #else /* BOEHM_GC */
-      Bind_UV(UnTag_REF(word), Tag_FLT(H));
+      Bind_UV(UnTag_REF(word), Tag_FLT(heap_ptr));
 #endif /* BOEHM_GC */
       Pl_Global_Push_Float(n);
       return TRUE;
@@ -354,9 +360,9 @@ Pl_Get_List(WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_List(&H)));
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_List(&heap_ptr)));
 #else /* BOEHM_GC */
-      Bind_UV(UnTag_REF(word), Tag_LST(H));
+      Bind_UV(UnTag_REF(word), Tag_LST(heap_ptr));
 #endif /* BOEHM_GC */
       S = WRITE_MODE;
       return TRUE;
@@ -393,13 +399,13 @@ Pl_Get_Structure_Tagged(WamWord w, WamWord start_word)
   if (tag_mask == TAG_REF_MASK)
     {
 #ifdef BOEHM_GC
-      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Struc(&H, Arity_Of(w))));
-      *H++ = w;
+      Bind_UV(UnTag_REF(word), Tag_REF(Pl_GC_Alloc_Struc(&heap_ptr, Arity_Of(w))));
+      *heap_ptr++ = w;
 #else /* BOEHM_GC */
       WamWord *cur_H;
-      cur_H = H;
+      cur_H = heap_ptr;
       *cur_H = w;
-      H++;
+      heap_ptr++;
       Bind_UV(UnTag_REF(word), Tag_STC(cur_H));
 #endif /* BOEHM_GC */
       S = WRITE_MODE;
@@ -449,12 +455,12 @@ Pl_Put_X_Variable(void)
   WamWord *cur_H;
 
 #ifdef BOEHM_GC
-  H = Pl_GC_Mem_Alloc(1);
+  heap_ptr = Pl_GC_Mem_Alloc(1);
 #endif /* BOEHM_GC */
-  cur_H = H;
+  cur_H = heap_ptr;
   res_word = Make_Self_Ref(cur_H);
   *cur_H = res_word;
-  H++;
+  heap_ptr++;
 
   return res_word;
 }
@@ -507,7 +513,7 @@ Pl_Put_Unsafe_Value(WamWord start_word)
 #ifdef BOEHM_GC
       Allocate_Local_Unbound_Var(adr, res_word);
 #else /* BOEHM_GC */
-      Globalize_Local_Unbound_Var(adr, res_word);
+      Globalize_Local_Unbound_Var(heap_ptr, adr, res_word);
 #endif /* BOEHM_GC */
       return res_word;
     }
@@ -592,9 +598,9 @@ Pl_Put_Float(double n)
   WamWord res_word;
 
 #ifdef BOEHM_GC
-  res_word = Tag_REF(Pl_GC_Alloc_Float(&H));
+  res_word = Tag_REF(Pl_GC_Alloc_Float(&heap_ptr));
 #else /* BOEHM_GC */
-  res_word = Tag_FLT(H);
+  res_word = Tag_FLT(heap_ptr);
 #endif /* BOEHM_GC */
   Pl_Global_Push_Float(n);
   return res_word;
@@ -627,9 +633,9 @@ Pl_Put_List(void)
 {
   S = WRITE_MODE;
 #ifdef BOEHM_GC
-  return Tag_REF(Pl_GC_Alloc_List(&H));
+  return Tag_REF(Pl_GC_Alloc_List(&heap_ptr));
 #else /* BOEHM_GC */
-  return Tag_LST(H);
+  return Tag_LST(heap_ptr);
 #endif /* BOEHM_GC */
 }
 
@@ -647,13 +653,13 @@ Pl_Put_Structure_Tagged(WamWord w)
   WamWord *cur_H;
   S = WRITE_MODE;
 #ifdef BOEHM_GC
-  cur_H = Pl_GC_Alloc_Struc(&H, Arity_Of(w));
-  *H++ = w;
+  cur_H = Pl_GC_Alloc_Struc(&heap_ptr, Arity_Of(w));
+  *heap_ptr++ = w;
   return Tag_REF(cur_H);
 #else /* BOEHM_GC */
-  cur_H = H;
+  cur_H = heap_ptr;
   *cur_H = w;
-  H++;
+  heap_ptr++;
   return Tag_STC(cur_H);
 #endif /* BOEHM_GC */
 }
@@ -685,7 +691,7 @@ Pl_Put_Structure(int func, int arity)
 WamWord FC
 Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
 {
-  WamWord *cur_H = H;
+  WamWord *cur_H = heap_ptr;
   WamWord res_word;
 #ifdef META_TERM_HIDDEN
   int offset;
@@ -760,7 +766,7 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
   *cur_H++ = goal_word;
 #endif
 
-  H = cur_H;
+  heap_ptr = cur_H;
   return res_word;
 }
 
@@ -802,10 +808,10 @@ Pl_Unify_Variable(void)
     }
 
   // BOEHM_GC: Suppose already allocated.
-  cur_H = H;
+  cur_H = heap_ptr;
   res_word = Make_Self_Ref(cur_H);
   *cur_H = res_word;
-  H++;
+  heap_ptr++;
 
   return res_word;
 }
@@ -830,8 +836,8 @@ Pl_Unify_Void(int n)
     }
 
   // BOEHM_GC: Suppose already allocated.
-  cur_H = H;
-  H += n;
+  cur_H = heap_ptr;
+  heap_ptr += n;
   do
     {
       *cur_H = Make_Self_Ref(cur_H);
@@ -859,7 +865,7 @@ Pl_Unify_Value(WamWord start_word)
     return Pl_Unify(start_word, *S++);
 
   // BOEHM_GC: Suppose already allocated.
-  Global_Push(start_word);
+  *heap_ptr++ = start_word;
   return TRUE;
 }
 
@@ -890,7 +896,7 @@ Pl_Unify_Local_Value(WamWord start_word)
 #endif /* BOEHM_GC */
 
   if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
-    Globalize_Local_Unbound_Var(adr, word);
+    Globalize_Local_Unbound_Var(heap_ptr, adr, word);
   else
     {
 #ifdef BOEHM_GC
@@ -900,7 +906,7 @@ Pl_Unify_Local_Value(WamWord start_word)
 #endif /* BOEHM_GC */
       Do_Copy_Of_Word(tag_mask, word);
       // BOEHM_GC: Suppose already allocated.
-      Global_Push(word);
+      *heap_ptr++ = word;
     }
 
   return TRUE;
@@ -934,7 +940,7 @@ Pl_Unify_Atom_Tagged(WamWord w)
     }
       
   // BOEHM_GC: Suppose already allocated.
-  Global_Push(w);
+  *heap_ptr++ = w;
   return TRUE;
 }
 
@@ -984,7 +990,7 @@ Pl_Unify_Integer_Tagged(WamWord w)
     }
 
   // BOEHM_GC: Suppose already allocated.
-  Global_Push(w);
+  *heap_ptr++ = w;
   return TRUE;
 }
 
@@ -1029,7 +1035,7 @@ Pl_Unify_Nil(void)
     }
 
   // BOEHM_GC: Suppose already allocated.
-  Global_Push(NIL_WORD);
+  *heap_ptr++ = NIL_WORD;
   return TRUE;
 }
 
@@ -1049,12 +1055,12 @@ Pl_Unify_List(void)
   if (S != WRITE_MODE)
     return Pl_Get_List(*S);
 
-  cur_H = H;
+  cur_H = heap_ptr;
 #ifdef BOEHM_GC
-  *cur_H = Tag_REF(Pl_GC_Alloc_List(&H));
+  *cur_H = Tag_REF(Pl_GC_Alloc_List(&heap_ptr));
 #else /* BOEHM_GC */
   *cur_H = Tag_LST(cur_H + 1);
-  H++;
+  heap_ptr++;
 #endif /* BOEHM_GC */
 
   return TRUE;
@@ -1076,14 +1082,14 @@ Pl_Unify_Structure_Tagged(WamWord w)
   if (S != WRITE_MODE)
     return Pl_Get_Structure_Tagged(w, *S);
 
-  cur_H = H;
+  cur_H = heap_ptr;
 #ifdef BOEHM_GC
-  *cur_H = Tag_REF(Pl_GC_Alloc_Struc(&H, Arity_Of(w)));
-  *H++ = w;
+  *cur_H = Tag_REF(Pl_GC_Alloc_Struc(&heap_ptr, Arity_Of(w)));
+  *heap_ptr++ = w;
 #else /* BOEHM_GC */
   *cur_H = Tag_STC(cur_H + 1);
   cur_H[1] = w;
-  H += 2;
+  heap_ptr += 2;
 #endif /* BOEHM_GC */
 
   return TRUE;
@@ -1128,7 +1134,7 @@ Pl_Globalize_If_In_Local(WamWord start_word)
 #ifdef BOEHM_GC
 	Allocate_Local_Unbound_Var(adr, start_word);
 #else /* BOEHM_GC */
-	Globalize_Local_Unbound_Var(adr, start_word);
+	Globalize_Local_Unbound_Var(heap_ptr, adr, start_word);
 #endif /* BOEHM_GC */
     }
 
@@ -1571,10 +1577,10 @@ Pl_Global_Push_Float(double n)
   DblInt di;
 
   di.d = n;
-  *H++ = di.i[0];
+  *heap_ptr++ = di.i[0];
 
 #if WORD_SIZE == 32
-  *H++ = di.i[1];
+  *heap_ptr++ = di.i[1];
 #endif
 }
 

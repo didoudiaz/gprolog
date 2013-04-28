@@ -596,7 +596,7 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
 #ifdef BOEHM_GC
 	Allocate_Local_Unbound_Var(adr, word);
 #else // BOEHM_GC
-	Globalize_Local_Unbound_Var(adr, word);
+	Globalize_Local_Unbound_Var(H, adr, word);
 #endif // BOEHM_GC
 
       g_elem->size = 0;

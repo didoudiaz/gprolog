@@ -627,21 +627,18 @@ PlLong chain_len;
       res_word = Make_Self_Ref(cur_H);			\
       *cur_H = res_word;				\
       cur_H++;						\
-      H = cur_H;					\
       Bind_UV(adr, res_word);				\
     }							\
   while (0)
 
 #endif /* BOEHM_GC */
 
-#define Globalize_Local_Unbound_Var(adr, res_word)	\
+#define Globalize_Local_Unbound_Var(cur_H, adr, res_word)	\
   do							\
     {							\
-      WamWord *cur_H = H;				\
-							\
       res_word = Make_Self_Ref(cur_H);			\
       *cur_H = res_word;				\
-      H++;						\
+      cur_H++;						\
       Bind_UV(adr, res_word);				\
     }							\
   while (0)

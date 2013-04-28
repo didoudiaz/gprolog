@@ -435,7 +435,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       adr = UnTag_REF(word);
       if (Is_A_Local_Adr(adr))
 	{
-	  Globalize_Local_Unbound_Var(adr, word);
+	  Globalize_Local_Unbound_Var(H, adr, word);
 	  adr = UnTag_REF(word);
 	}
       Show_Global_Var(adr);
