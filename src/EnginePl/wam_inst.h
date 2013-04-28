@@ -377,6 +377,7 @@ void FC Pl_Cut(WamWord b_word);
 
 void FC Pl_Soft_Cut(WamWord b_word);
 
+void FC Pl_Push_Float(WamWord **addr, double n);
 void FC Pl_Global_Push_Float(double n);
 
 double FC Pl_Obtain_Float(WamWord *adr);

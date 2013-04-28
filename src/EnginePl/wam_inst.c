@@ -1568,20 +1568,33 @@ Pl_Soft_Cut(WamWord b_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_PUSH_FLOAT                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Pl_Push_Float(WamWord **addr, double n)
+{
+  DblInt di;
+
+  di.d = n;
+  *(*addr)++ = di.i[0];
+
+#if WORD_SIZE == 32
+  *(*addr)++ = di.i[1];
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_GLOBAL_PUSH_FLOAT                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
 Pl_Global_Push_Float(double n)
 {
-  DblInt di;
-
-  di.d = n;
-  *heap_ptr++ = di.i[0];
-
-#if WORD_SIZE == 32
-  *heap_ptr++ = di.i[1];
-#endif
+  Pl_Push_Float(&heap_ptr, n);
 }
 
 
