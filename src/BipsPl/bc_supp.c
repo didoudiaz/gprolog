@@ -1774,17 +1774,25 @@ static void
 Prep_Debug_Call(int module, int func, int arity, int caller_func, int caller_arity)
 {
   int i;
-  WamWord word;
+  WamWord word, *next;
 
   if (arity == 0)
     A(0) = Tag_ATM(func);
   else
     {
+#ifdef BOEHM_GC
+      word = Tag_REF(Pl_GC_Alloc_Struc(&next, arity));
+      *next++ = (WamWord)Functor_Arity(func, arity);
+
+      for (i = 0; i < arity; i++)
+	*next++ = A(i);
+#else // BOEHM_GC
       word = Tag_STC(H);
       Global_Push(Functor_Arity(func, arity));
 
       for (i = 0; i < arity; i++)
 	Global_Push(A(i));
+#endif // BOEHM_GC
 
       A(0) = word;
     }
