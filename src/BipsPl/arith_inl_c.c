@@ -268,9 +268,15 @@ Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 static WamWord
 Make_Tagged_Float(double d)
 {
-  WamWord x = Tag_FLT(H);
+  WamWord x, *next;
+#ifdef BOEHM_GC
+  x = Tag_REF(Pl_GC_Alloc_Float(&next));
+  Pl_Push_Float(&next, d);
+#else // BOEHM_GC
+  x = Tag_FLT(H);
 
   Pl_Global_Push_Float(d);
+#endif // BOEHM_GC
 
   return x;
 }
