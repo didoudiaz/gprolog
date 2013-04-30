@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -385,7 +387,7 @@ list_to_term:
     Pl_Err_Type(pl_type_list, list_word);
 
   lst_adr = UnTag_LST(word);
-  DEREF(Car(lst_adr), functor_word, functor_tag);
+  DEREF_CLEAN_TAG(Car(lst_adr), adr, functor_word, functor_tag);
   if (functor_tag == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -412,6 +414,7 @@ list_to_term:
 
   functor = UnTag_ATM(functor_word);
 
+  // Boehm: Use Global stack as temporary storage.
   stc_adr = H;
 
   H++;				/* space for f/n maybe lost if a list */
@@ -421,7 +424,7 @@ list_to_term:
     {
       arity++;
       lst_adr = UnTag_LST(word);
-      DEREF(Car(lst_adr), word, tag_mask);
+      DEREF_CLEAN_TAG(Car(lst_adr), adr, word, tag_mask);
       Do_Copy_Of_Word(tag_mask, word); /* since Dont_Separate_Tag */
       Global_Push(word);
 
@@ -440,12 +443,32 @@ list_to_term:
     Pl_Err_Representation(pl_representation_max_arity);
 
   if (functor == ATOM_CHAR('.') && arity == 2)	/* a list */
-    term_word = Tag_LST(stc_adr + 1);
+    {
+#ifdef BOEHM_GC
+      term_word = Tag_REF(Pl_GC_Alloc_List(&adr));
+#else // BOEHM_GC
+      term_word = Tag_LST(stc_adr + 1);
+#endif // BOEHM_GC
+    }
   else
     {
+#ifdef BOEHM_GC
+      term_word = Tag_REF(Pl_GC_Alloc_Struc(&adr, arity));
+      *adr++ = Functor_Arity(functor, arity);
+#else // BOEHM_GC
       *stc_adr = Functor_Arity(functor, arity);
       term_word = Tag_STC(stc_adr);
+#endif // BOEHM_GC
     }
+#ifdef BOEHM_GC
+  H = stc_adr + 1;
+  while (arity-- > 0)
+    {
+      *adr++ = *H;
+      *H++ = NOT_A_WAM_WORD;
+    }
+  H = stc_adr;
+#endif // BOEHM_GC
 
 finish:
   Bind_UV(term_adr, term_word);
@@ -464,6 +487,9 @@ Bool
 Pl_Copy_Term_2(WamWord u_word, WamWord v_word)
 {
   WamWord word;
+#ifdef BOEHM_GC
+  Pl_Copy_Term(&word, &u_word);
+#else // BOEHM_GC
   int size;
 /* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
  * it allocates a frame even with -fomit-frame-pointer.
@@ -475,6 +501,7 @@ Pl_Copy_Term_2(WamWord u_word, WamWord v_word)
   Pl_Copy_Term(H, &fix_bug);
   word = *H;
   H += size;
+#endif // BOEHM_GC
 
   return Pl_Unify(word, v_word);
 }
