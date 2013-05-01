@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #define OBJ_INIT Sort_Initializer
 
 #include "engine_pl.h"
@@ -113,12 +115,13 @@ static WamWord
 Get_Pair(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
+  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(*adr)) != minus_2)
     Pl_Err_Type(pl_type_pair, word);
 
   return word;			/* store dereferenced words in the array */
@@ -135,8 +138,9 @@ Get_Pair(WamWord start_word)
 Bool
 Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
 {
+  WamWord sorted;
   WamWord *arg;
-  int n;
+  int n, n2;
   int sort_type;
 
   sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=msort/2, 2=keysort/2 */
@@ -160,12 +164,22 @@ Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
   if (n == 1)
     return Pl_Unify(list1_word, list2_word);
 
-  n = Merge_Sort(arg, arg + n, n, sort_type,
+  n2 = Merge_Sort(arg, arg + n, n, sort_type,
 		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
 
   /* n can have changed here (if dup removed) */
+  assert( n2 <= n );
 
-  return Pl_Unify(Pl_Mk_Proper_List(n, arg), list2_word);
+  sorted = Pl_Mk_Proper_List(n2, arg);
+
+#ifdef BOEHM_GC
+  while (n-- > 0)
+    {
+      *arg++ = NOT_A_WAM_WORD;
+    }
+#endif // BOEHM_GC
+
+  return Pl_Unify(sorted, list2_word);
 }
 
 
@@ -180,7 +194,7 @@ Pl_Sort_List_1(WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *adr, *arg, *prev;
-  int n;
+  int n, n2;
   int sort_type;
 
   sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=msort/1, 2=keysort/1 */
@@ -199,20 +213,34 @@ Pl_Sort_List_1(WamWord list_word)
   if (n <= 1)
     return;
 
-  n = Merge_Sort(arg, arg + n, n, sort_type,
+  n2 = Merge_Sort(arg, arg + n, n, sort_type,
 		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
   /* n can have changed here (if dup removed) */
+  assert( n2 <= n );
   /* update in-place the list */
   do
     {
       DEREF(list_word, word, tag_mask);
       adr = UnTag_LST(word);
+#ifdef BOEHM_GC
+      Car(adr) = *arg;
+      *arg++ = NOT_A_WAM_WORD;
+      --n;
+#else // BOEHM_GC
       Car(adr) = *arg++;
+#endif // BOEHM_GC
       prev = &Cdr(adr);
       list_word = Cdr(adr);
     }
-  while (--n);
+  while (--n2);
   *prev = NIL_WORD;
+
+#ifdef BOEHM_GC
+  while (n-- > 0)
+    {
+      *arg++ = NOT_A_WAM_WORD;
+    }
+#endif // BOEHM_GC
 }
 
 
@@ -225,6 +253,12 @@ Pl_Sort_List_1(WamWord list_word)
 static PlLong
 Keysort_Cmp(WamWord u_word, WamWord v_word)
 {
+#ifdef BOEHM_GC
+  // Strip one last added REF
+  u_word = *UnTag_REF(u_word);
+  v_word = *UnTag_REF(v_word);
+#endif // BOEHM_GC
+
   /* here we know that u_word and v_word are dereferenced (and are pairs) */
 
   u_word = Arg(UnTag_STC(u_word), 0);
