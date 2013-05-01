@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 
+#include <assert.h>
+
 #define OBJ_INIT All_Solut_Initializer
 
 #include "engine_pl.h"
@@ -185,13 +187,29 @@ Pl_Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
 
   if (nb_free_var <= MAX_ARITY)
     {
+#ifdef BOEHM_GC
+      H = save_H;
+      gl_key_word = Tag_REF(Pl_GC_Alloc_Struc(&save_H, nb_free_var));
+      *save_H++ = Functor_Arity(ATOM_CHAR('.'), nb_free_var);
+      while (nb_free_var-- > 0) {
+	  *save_H++ = *arg;
+	  *arg++ = NOT_A_WAM_WORD;
+      }
+#else // BOEHM_GC
       *save_H = Functor_Arity(ATOM_CHAR('.'), nb_free_var);
       gl_key_word = Tag_STC(save_H);
+#endif // BOEHM_GC
     }
   else
     {
       H = free_var_base;
       gl_key_word = Pl_Mk_Proper_List(nb_free_var, arg);
+#ifdef BOEHM_GC
+      H = save_H;
+      while (nb_free_var-- > 0) {
+	  *arg++ = NOT_A_WAM_WORD;
+      }
+#endif // BOEHM_GC
     }
 
   Pl_Unify(new_gen_word, gen1_word);
@@ -244,22 +262,22 @@ Bound_Var(WamWord *adr)
 static WamWord
 Existential_Variables(WamWord start_word)
 {
-  WamWord word, tag_mask;
+  WamWord tag_mask;
   WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, start_word, tag_mask);
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       if (Functor_And_Arity(adr) == exist_2)
 	{
 	  Pl_Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var);
-	  word = Existential_Variables(Arg(adr, 1));
+	  start_word = Existential_Variables(Arg(adr, 1));
 	}
     }
 
-  return word;
+  return start_word;
 }
 
 
@@ -548,6 +566,12 @@ Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
 {
   WamWord word, tag_mask;
   WamWord key_word;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(all_sol_word);
+  GC_assert_clean_start_word(gl_key_word);
+  GC_assert_clean_start_word(sol_word);
+#endif // BOEHM_GC
 
   DEREF(all_sol_word, word, tag_mask);
   if (word == NIL_WORD)
