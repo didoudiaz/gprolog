@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 
+#include <assert.h>
+
 #define OBJ_INIT Expand_Initializer
 
 #include "engine_pl.h"
@@ -244,7 +246,11 @@ start:
       goto start;
     }
 
+#ifdef BOEHM_GC
+  save_H = Pl_GC_Alloc_Struc(&p, arity + 2);
+#else // BOEHM_GC
   p = save_H = H;
+#endif // BOEHM_GC
   *p++ = Functor_Arity(func, arity + 2);
   while (arity--)
     *p++ = *adr++;
@@ -252,9 +258,13 @@ start:
   *p++ = *in_word = Make_Self_Ref(adr);
   adr = p;
   *p++ = *out_word = Make_Self_Ref(adr);
+#ifdef BOEHM_GC
+  return Tag_REF(save_H);
+#else // BOEHM_GC
   H = p;
 
   return Tag_STC(save_H);
+#endif // BOEHM_GC
 }
 
 
@@ -323,12 +333,20 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
   word = *--top;
   while (top > base)
     {
+#ifdef BOEHM_GC
+      save_H = Pl_GC_Alloc_Struc(&p, 2);
+      *p++ = Functor_Arity(ATOM_CHAR(','), 2);
+      *p++ = *--top;
+      *p++ = word;
+      word = Tag_REF(save_H);
+#else // BOEHM_GC
       p = save_H = H;
       *p++ = Functor_Arity(ATOM_CHAR(','), 2);
       *p++ = *--top;
       *p++ = word;
       H = p;
       word = Tag_STC(save_H);
+#endif // BOEHM_GC
     }
 
 finish:
@@ -440,14 +458,22 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, Bool opt_equal_between_in_out_vars,
 
   /* other callable term = non terminal */
  non_term:
+#ifdef BOEHM_GC
+  save_H = Pl_GC_Alloc_Struc(&p, arity + 2);
+#else // BOEHM_GC
   p = save_H = H;
+#endif // BOEHM_GC
   *p++ = Functor_Arity(func, arity + 2);
   while (arity--)
     *p++ = *adr++;
   *p++ = in_word;
   *p++ = out_word;
+#ifdef BOEHM_GC
+  *top++ = Tag_REF(save_H);
+#else // BOEHM_GC
   H = p;
   *top++ = Tag_STC(save_H);
+#endif // BOEHM_GC
 }
 
 
@@ -465,7 +491,11 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
   WamWord *save_lst_adr = lst_adr;
   WamWord *save_H, *p;
 
+#ifdef BOEHM_GC
+  save_H = Pl_GC_Alloc_List(&p);
+#else // BOEHM_GC
   p = save_H = H;
+#endif // BOEHM_GC
   for (;;)
     {
       *p++ = Car(lst_adr);
@@ -481,12 +511,21 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
 	Pl_Err_Type(pl_type_list, Tag_LST(save_lst_adr));
 
       lst_adr = UnTag_LST(word);
+#ifdef BOEHM_GC
+      adr = p;
+      *adr = Tag_REF(Pl_GC_Alloc_List(&p));
+#else // BOEHM_GC
       adr = p + 1;
       *p++ = Tag_LST(adr);
+#endif // BOEHM_GC
     }
   *p++ = out_word;
+#ifdef BOEHM_GC
+  word = Tag_REF(save_H);
+#else // BOEHM_GC
   H = p;
   word = Tag_LST(save_H);
+#endif // BOEHM_GC
 
   if (opt_term_unif)
     Pl_Unify(in_word, word);
@@ -509,11 +548,18 @@ Dcg_Compound1(int func, WamWord w1)
 {
   WamWord *save_H, *p;
 
+#ifdef BOEHM_GC
+  save_H = Pl_GC_Alloc_Struc(&p, 1);
+  *p++ = Functor_Arity(func, 1);
+  *p++ = w1;
+  return Tag_REF(save_H);
+#else // BOEHM_GC
   p = save_H = H;
   *p++ = Functor_Arity(func, 1);
   *p++ = w1;
   H = p;
   return Tag_STC(save_H);
+#endif // BOEHM_GC
 }
 
 
@@ -528,10 +574,18 @@ Dcg_Compound2(int func, WamWord w1, WamWord w2)
 {
   WamWord *save_H, *p;
 
+#ifdef BOEHM_GC
+  save_H = Pl_GC_Alloc_Struc(&p, 2);
+  *p++ = Functor_Arity(func, 2);
+  *p++ = w1;
+  *p++ = w2;
+  return Tag_REF(save_H);
+#else // BOEHM_GC
   p = save_H = H;
   *p++ = Functor_Arity(func, 2);
   *p++ = w1;
   *p++ = w2;
   H = p;
   return Tag_STC(save_H);
+#endif // BOEHM_GC
 }
