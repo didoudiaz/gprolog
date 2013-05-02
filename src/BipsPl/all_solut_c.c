@@ -643,10 +643,15 @@ Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr)
 
   DEREF(all_sol_word, word, tag_mask);
 
+  assert( tag_mask == TAG_LST_MASK );
   lst_adr = UnTag_LST(word);
   DEREF(Car(lst_adr), word, tag_mask);	/* term of the form Key-Value */
+  assert( tag_mask == TAG_STC_MASK );
   adr = UnTag_STC(word);
   *key_adr = key_word = Arg(adr, 0);
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(key_word);
+#endif // BOEHM_GC
 
   for (;;)
     {				/* Arg(adr,1) cannot be a Dont_Separate_Tag */
@@ -658,8 +663,10 @@ Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr)
 	return NOT_A_WAM_WORD;
 
       prev_lst_adr = lst_adr;
+      assert( tag_mask == TAG_LST_MASK );
       lst_adr = UnTag_LST(word);
       DEREF(Car(lst_adr), word, tag_mask); /* term of the form Key-Value */
+      assert( tag_mask == TAG_STC_MASK );
       adr = UnTag_STC(word);
       key_word1 = Arg(adr, 0);
 
