@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -110,9 +112,14 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
   DynCInf *clause;
   WamWord w[2];
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(head_word);
+#endif // BOEHM_GC
+
+  DEREF_CLEAN_TAG(body_word, first_arg_adr, word, tag_mask);
+
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
-  DEREF(body_word, word, tag_mask);
   body_word = word;
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&
       tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
@@ -289,9 +296,10 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
 
   module = Pl_Strip_Module_Top(head_word, FALSE, TRUE, &head_word);
 
+  DEREF_CLEAN_TAG(body_word, first_arg_adr, word, tag_mask);
+
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
-  DEREF(body_word, word, tag_mask);
   body_word = word;
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&
       tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
