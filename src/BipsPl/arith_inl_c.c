@@ -41,6 +41,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <assert.h>
+
 #define OBJ_INIT Arith_Initializer
 
 #include "engine_pl.h"
@@ -232,11 +234,16 @@ void FC
 Pl_Math_Load_Value(WamWord start_word, WamWord *word_adr)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FLT_MASK)
     word = Load_Math_Expression(word);
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+#endif // BOEHM_GC
 
   *word_adr = word;
 }
@@ -253,8 +260,9 @@ void FC
 Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   *word_adr = word;
 }
 
@@ -311,14 +319,14 @@ Load_Math_Expression(WamWord exp)
   ArithInf *arith;
   int atom;
 
-  DEREF(exp, word, tag_mask);
+  DEREF_CLEAN_TAG(exp, adr, word, tag_mask);
 
   if (tag_mask == TAG_INT_MASK || tag_mask == TAG_FLT_MASK)
     return word;
 
   if (tag_mask == TAG_LST_MASK)
     {
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
       DEREF(Cdr(lst_adr), word, tag_mask);
       if (word != NIL_WORD)
 	{
@@ -327,7 +335,7 @@ Load_Math_Expression(WamWord exp)
 	  Pl_Unify_Integer(2);
 	  Pl_Err_Type(pl_type_evaluable, word);
 	}
-      DEREF(Car(lst_adr), word, tag_mask);
+      DEREF_CLEAN_TAG(Car(lst_adr), adr, word, tag_mask);
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
@@ -340,7 +348,7 @@ Load_Math_Expression(WamWord exp)
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
 
       arith = (ArithInf *) Pl_Hash_Find(arith_tbl, Functor_And_Arity(adr));
       if (arith == NULL)
@@ -363,7 +371,7 @@ Load_Math_Expression(WamWord exp)
 
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(word);
+      atom = UnTag_ATM(*adr);
       if (atom == atom_pi)
 	return Pl_Fct_PI();
 
@@ -404,9 +412,10 @@ Bool
 Pl_Succ_2(WamWord x_word, WamWord y_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   PlLong x;
 
-  DEREF(x_word, word, tag_mask);
+  DEREF_CLEAN_TAG(x_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return Pl_Un_Positive_Check(Pl_Rd_Positive_Check(word) + 1, y_word);
 
