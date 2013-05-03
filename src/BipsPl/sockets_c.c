@@ -38,6 +38,7 @@
 /* $Id$ */
 #include "gp_config.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -235,7 +236,7 @@ Bool
 Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 {
   WamWord word, tag_mask;
-  WamWord *stc_adr;
+  WamWord *stc_adr, *adr;
   int dom;
   int sock;
   int port;
@@ -252,7 +253,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   sock = Pl_Rd_Integer_Check(socket_word);
 
 
-  DEREF(address_word, word, tag_mask);
+  DEREF_CLEAN_TAG(address_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
@@ -263,7 +264,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
       Pl_Err_Domain(pl_domain_socket_address, word);
     }
 
-  stc_adr = UnTag_STC(word);
+  stc_adr = UnTag_STC(*adr);
 
 #ifdef SUPPORT_AF_UNIX
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
@@ -291,7 +292,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 #endif
   /* case AF_INET */
 
-  DEREF(Arg(stc_adr, 0), word, tag_mask);
+  DEREF_CLEAN_TAG(Arg(stc_adr, 0), adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
       if (atom_host_name < 0)
@@ -303,7 +304,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
     Pl_Rd_Atom_Check(word);	/* only to test the type */
 
   port = 0;
-  DEREF(Arg(stc_adr, 1), word, tag_mask);
+  DEREF_CLEAN_TAG(Arg(stc_adr, 1), adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     port = Pl_Rd_Integer_Check(word);
 
@@ -335,7 +336,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 		 WamWord stm_in_word, WamWord stm_out_word)
 {
   WamWord word, tag_mask;
-  WamWord *stc_adr;
+  WamWord *stc_adr, *adr;
   int dom;
   int sock;
   int port;
@@ -350,9 +351,14 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
   int stm_in, stm_out;
   char stream_name[256];
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(stm_in_word);
+  GC_assert_clean_start_word(stm_out_word);
+#endif // BOEHM_GC
+
   sock = Pl_Rd_Integer_Check(socket_word);
 
-  DEREF(address_word, word, tag_mask);
+  DEREF_CLEAN_TAG(address_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
@@ -363,7 +369,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
       Pl_Err_Domain(pl_domain_socket_address, word);
     }
 
-  stc_adr = UnTag_STC(word);
+  stc_adr = UnTag_STC(*adr);
 
 #ifdef SUPPORT_AF_UNIX
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
@@ -569,12 +575,17 @@ Bool
 Pl_Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   char *host_name;
   char *host_address;
   struct hostent *host_entry;
   struct in_addr iadr;
 
-  DEREF(host_name_word, word, tag_mask);
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(host_address_word);
+#endif // BOEHM_GC
+
+  DEREF_CLEAN_TAG(host_name_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
       host_address = Pl_Rd_String_Check(host_address_word);
