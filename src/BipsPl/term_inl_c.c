@@ -165,6 +165,10 @@ Pl_Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
   char c;
   Bool res;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(cmp_word);
+#endif // BOEHM_GC
+
   Pl_Set_C_Bip_Name("compare", 3);
 
   cmp = Pl_Term_Compare(x, y);
@@ -201,6 +205,10 @@ Pl_Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
   int func, arity;
   int arg_no;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sub_term_word);
+#endif // BOEHM_GC
+
   Pl_Set_C_Bip_Name("arg", 3);
 
   arg_no = Pl_Rd_Positive_Check(arg_no_word) - 1;
@@ -228,10 +236,14 @@ Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
   int arity;
   Bool res;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(functor_word);
+  GC_assert_clean_start_word(arity_word);
+#endif // BOEHM_GC
 
   Pl_Set_C_Bip_Name("functor", 3);
 
-  DEREF(term_word, word, tag_mask);
+  DEREF_CLEAN_TAG(term_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       if (tag_mask == TAG_LST_MASK)
@@ -239,7 +251,7 @@ Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 	  Pl_Un_Integer_Check(2, arity_word);
       else if (tag_mask == TAG_STC_MASK)
 	{
-	  adr = UnTag_STC(word);
+	  adr = UnTag_STC(*adr);
 	  res = Pl_Un_Atom_Check(Functor(adr), functor_word) &&
 	    Pl_Un_Integer_Check(Arity(adr), arity_word);
 	}
@@ -252,7 +264,7 @@ Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 
 				/* tag_mask == TAG_REF_MASK */
 
-  DEREF(functor_word, word, tag_mask);
+  DEREF_CLEAN_TAG(functor_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -314,9 +326,14 @@ Pl_Blt_Univ(WamWord term_word, WamWord list_word)
   int arity;
 
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(term_word);
+  GC_assert_clean_start_word(list_word);
+#endif // BOEHM_GC
+
   Pl_Set_C_Bip_Name("=..", 2);
 
-  DEREF(term_word, word, tag_mask);
+  DEREF_CLEAN_TAG(term_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
     goto list_to_term;
@@ -325,14 +342,14 @@ Pl_Blt_Univ(WamWord term_word, WamWord list_word)
 
   if (tag_mask == TAG_LST_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       car_word = Tag_ATM(ATOM_CHAR('.'));
       lst_length = 1 + 2;
       arg1_adr = &Car(adr);
     }
   else if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       car_word = Tag_ATM(Functor(adr));
       lst_length = 1 + Arity(adr);
       arg1_adr = &Arg(adr, 0);
@@ -340,7 +357,7 @@ Pl_Blt_Univ(WamWord term_word, WamWord list_word)
 #ifndef NO_USE_FD_SOLVER
   else if (tag_mask == TAG_FDV_MASK)
     {
-      adr = UnTag_FDV(word);
+      adr = UnTag_FDV(*adr);
       car_word = Tag_REF(adr);	/* since Dont_Separate_Tag */
       lst_length = 1 + 0;
     }
@@ -391,7 +408,7 @@ list_to_term:
   if (functor_tag == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
-  DEREF(Cdr(lst_adr), word, tag_mask);
+  DEREF_CLEAN_TAG(Cdr(lst_adr), adr, word, tag_mask);
 
   if (word == NIL_WORD)
     {
@@ -423,12 +440,12 @@ list_to_term:
   for (;;)
     {
       arity++;
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
       DEREF_CLEAN_TAG(Car(lst_adr), adr, word, tag_mask);
       Do_Copy_Of_Word(tag_mask, word); /* since Dont_Separate_Tag */
       Global_Push(word);
 
-      DEREF(Cdr(lst_adr), word, tag_mask);
+      DEREF_CLEAN_TAG(Cdr(lst_adr), adr, word, tag_mask);
       if (word == NIL_WORD)
 	break;
 
@@ -488,6 +505,8 @@ Pl_Copy_Term_2(WamWord u_word, WamWord v_word)
 {
   WamWord word;
 #ifdef BOEHM_GC
+  GC_assert_clean_start_word(u_word);
+  GC_assert_clean_start_word(v_word);
   Pl_Copy_Term(&word, &u_word);
 #else // BOEHM_GC
   int size;
@@ -518,6 +537,7 @@ Pl_Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
 	 WamWord undo_word)
 {
   WamWord word, tag_mask;
+  WamWord *word_adr;
   int func, arity;
   int undo;
   WamWord *arg_adr;
@@ -527,7 +547,7 @@ Pl_Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
   arg_no = Pl_Rd_Positive_Check(arg_no_word) - 1;
   undo = Pl_Rd_Boolean_Check(undo_word);
 
-  DEREF(new_value_word, word, tag_mask);
+  DEREF_CLEAN_TAG(new_value_word, word_adr, word, tag_mask);
   if (!undo && tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK)
     Pl_Err_Type(pl_type_atomic, word);	/* pl_type_atomic but float not allowed */
 
@@ -601,6 +621,12 @@ Pl_Term_Variables_3(WamWord start_word, WamWord list_word, WamWord tail_word)
 
   /* only check if no Tail since if there is no vars in Term
    * then List = Tail and Tail can be any term */
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+  GC_assert_clean_start_word(list_word);
+  GC_assert_clean_start_word(tail_word);
+#endif // BOEHM_GC
 
   if (tail_word == NOT_A_WAM_WORD)
     Pl_Check_For_Un_List(list_word);
