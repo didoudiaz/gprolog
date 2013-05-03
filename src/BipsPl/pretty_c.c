@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #define OBJ_INIT Pretty_Initializer
 
 #include "engine_pl.h"
@@ -257,11 +259,11 @@ Check_Structure(WamWord term_word, int func, int arity, WamWord arg_word[])
   int i;
 
 
-  DEREF(term_word, word, tag_mask);
+  DEREF_CLEAN_TAG(term_word, adr, word, tag_mask);
   if (tag_mask != TAG_STC_MASK)
     return FALSE;
 
-  adr = UnTag_STC(word);
+  adr = UnTag_STC(*adr);
 
   if (Functor_And_Arity(adr) != Functor_Arity(func, arity))
     return FALSE;
@@ -480,8 +482,14 @@ Bool
 Pl_Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord save_list_word;
   WamWord *lst_adr, *stc_adr;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(query_list_word);
+  GC_assert_clean_start_word(rest_list_word);
+#endif // BOEHM_GC
 
   save_list_word = query_list_word;
 
@@ -510,7 +518,7 @@ Pl_Name_Query_Vars_2(WamWord query_list_word, WamWord rest_list_word)
 	  if (tag_mask != TAG_ATM_MASK)
 	    goto unchanged;
 				/* Value is a variable */
-	  DEREF(Arg(stc_adr, 1), word, tag_mask);
+	  DEREF_CLEAN_TAG(Arg(stc_adr, 1), adr, word, tag_mask);
 	  if (tag_mask != TAG_REF_MASK)
 	    goto unchanged;
 				/* Value is a variable */
@@ -546,9 +554,16 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 		    WamWord from_word, WamWord next_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord save_list_word;
   WamWord *lst_adr, *stc_adr;
   int i;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(term_word);
+  GC_assert_clean_start_word(from_word);
+  GC_assert_clean_start_word(next_word);
+#endif // BOEHM_GC
 
   for (i = 0; i < MAX_VAR_IN_TERM; i++)
     pl_glob_dico_var[i] = 0;	/* pl_glob_dico_var: excluded var ? (0/1) */
@@ -559,6 +574,9 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 
   for (;;)
     {
+#ifdef BOEHM_GC
+      GC_assert_clean_start_word(exclude_list_word);
+#endif // BOEHM_GC
       DEREF(exclude_list_word, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
@@ -572,11 +590,11 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
 
       lst_adr = UnTag_LST(word);
 
-      DEREF(Car(lst_adr), word, tag_mask);
+      DEREF_CLEAN_TAG(Car(lst_adr), adr, word, tag_mask);
       if (Pl_Acyclic_Term_1(word))
 	Collect_Excluded_Rec(word);
 
-      stc_adr = UnTag_STC(word);
+      stc_adr = UnTag_STC(*adr);
       if (tag_mask == TAG_STC_MASK && Functor_And_Arity(stc_adr) == equal_2)
 	{			/* form: Name=Value */
 	  DEREF(Arg(stc_adr, 0), word, tag_mask);
@@ -649,6 +667,10 @@ Collect_Excluded_Rec(WamWord start_word)
   int i;
 
  terminal_rec:
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
 
