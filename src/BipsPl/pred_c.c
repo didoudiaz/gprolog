@@ -39,6 +39,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -82,6 +83,7 @@ Bool
 Pl_Current_Module_2(WamWord module_word, WamWord also_dollar_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int module;
   Bool also_dollar;
   HashScan scan;
@@ -89,7 +91,7 @@ Pl_Current_Module_2(WamWord module_word, WamWord also_dollar_word)
 
   also_dollar = Pl_Rd_Integer(also_dollar_word);
 
-  DEREF(module_word, word, tag_mask);
+  DEREF_CLEAN_TAG(module_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_ATM_MASK)
     return Pl_Lookup_Module(UnTag_ATM(word)) != NULL;
