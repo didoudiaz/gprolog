@@ -42,6 +42,7 @@
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
+#include <assert.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -219,6 +220,11 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   int mask = SYS_VAR_OPTION_MASK;
   Bool reposition;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(source_sink_word);
+  GC_assert_clean_start_word(mode_word);
+  GC_assert_clean_start_word(stm_word);
+#endif // BOEHM_GC
 
   DEREF(source_sink_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -581,6 +587,9 @@ Pl_Current_Stream_1(WamWord stm_word)
   WamWord word, tag_mask;
   int stm = 0;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(stm_word);
+#endif // BOEHM_GC
 
   DEREF(stm_word, word, tag_mask);	/* either an INT or a REF */
   if (tag_mask == TAG_INT_MASK)
@@ -923,14 +932,19 @@ Bool
 Pl_Current_Alias_2(WamWord stm_word, WamWord alias_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int stm;
   HashScan scan;
   AliasInf *alias;
   AliasInf *save_alias;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(stm_word);
+#endif // BOEHM_GC
+
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
-  DEREF(alias_word, word, tag_mask);
+  DEREF_CLEAN_TAG(alias_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return Pl_Find_Stream_By_Alias(Pl_Rd_Atom_Check(word)) == stm;
 
@@ -1037,6 +1051,9 @@ Pl_Current_Mirror_2(WamWord stm_word, WamWord m_stm_word)
   StmInf *pstm = pl_stm_tbl[stm];
   StmLst *m = pstm->mirror;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(m_stm_word);
+#endif // BOEHM_GC
 				/* From here, the code also works with     */
 				/* m = m_pstm->mirror_of. Could be used    */
 				/* if m_stm_word is given and not stm_word */
@@ -1105,6 +1122,10 @@ Pl_Stream_Position_2(WamWord sora_word, WamWord position_word)
   int stm;
   StmInf *pstm;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(position_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1148,6 +1169,10 @@ Pl_Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
   int stm;
   StmInf *pstm;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(position_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1199,6 +1224,12 @@ Pl_Seek_4(WamWord sora_word, WamWord whence_word, WamWord offset_word,
   int atom;
   PlLong p[4];
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(whence_word);
+  GC_assert_clean_start_word(offset_word);
+  GC_assert_clean_start_word(new_loc_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1247,6 +1278,11 @@ Pl_Character_Count_2(WamWord sora_word, WamWord count_word)
   StmInf *pstm;
   PlLong offset, char_count, line_count, line_pos;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(count_word);
+#endif // BOEHM_GC
+
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
 
@@ -1268,6 +1304,11 @@ Pl_Line_Count_2(WamWord sora_word, WamWord count_word)
   int stm;
   StmInf *pstm;
   PlLong offset, char_count, line_count, line_pos;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(count_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1295,6 +1336,11 @@ Pl_Line_Position_2(WamWord sora_word, WamWord count_word)
   StmInf *pstm;
   PlLong offset, char_count, line_count, line_pos;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(count_word);
+#endif // BOEHM_GC
+
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
 
@@ -1320,6 +1366,12 @@ Pl_Stream_Line_Column_3(WamWord sora_word, WamWord line_word, WamWord col_word)
   int stm;
   StmInf *pstm;
   PlLong offset, char_count, line_count, line_pos;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(line_word);
+  GC_assert_clean_start_word(col_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1349,6 +1401,11 @@ Pl_Set_Stream_Line_Column_3(WamWord sora_word, WamWord line_word,
   StmInf *pstm;
   PlLong line_count, line_pos;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(line_word);
+  GC_assert_clean_start_word(col_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
@@ -1390,6 +1447,11 @@ Pl_Open_Input_Term_Stream_2(WamWord sink_term_word, WamWord stm_word)
   int stm;
   int n;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sink_term_word);
+  GC_assert_clean_start_word(stm_word);
+#endif // BOEHM_GC
+
   if (SYS_VAR_OPTION_MASK == TERM_STREAM_ATOM)
     str = pl_atom_tbl[Pl_Rd_Atom_Check(sink_term_word)].name;
   else
@@ -1426,6 +1488,10 @@ Pl_Close_Input_Term_Stream_1(WamWord sora_word)
   StrSInf *str_stream;
   int type;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+#endif // BOEHM_GC
+
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
 
@@ -1459,6 +1525,10 @@ Pl_Open_Output_Term_Stream_1(WamWord stm_word)
 {
   int stm;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(stm_word);
+#endif // BOEHM_GC
+
   stm = Pl_Add_Str_Stream(NULL, SYS_VAR_OPTION_MASK);
 
   Pl_Get_Integer(stm, stm_word);
@@ -1478,6 +1548,11 @@ Pl_Close_Output_Term_Stream_2(WamWord sora_word, WamWord sink_term_word)
   StmInf *pstm;
   int type;
   char *str;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(sink_term_word);
+#endif // BOEHM_GC
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
