@@ -40,6 +40,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -88,6 +89,12 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
   StmInf *pstm;
   char *str;
   char buff[2048];
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+  GC_assert_clean_start_word(format_word);
+  GC_assert_clean_start_word(args_word);
+#endif // BOEHM_GC
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
@@ -430,7 +437,7 @@ Read_Arg(WamWord **lst_adr)
   WamWord car_word;
 
 
-  DEREF(**lst_adr, word, tag_mask);
+  DEREF_CLEAN_TAG(**lst_adr, adr, word, tag_mask);
 
   if (tag_mask != TAG_LST_MASK)
     {
@@ -443,11 +450,11 @@ Read_Arg(WamWord **lst_adr)
       Pl_Err_Type(pl_type_list, word);
     }
 
-  adr = UnTag_LST(word);
+  adr = UnTag_LST(*adr);
   car_word = Car(adr);
   *lst_adr = &Cdr(adr);
 
-  DEREF(car_word, word, tag_mask);
+  DEREF_CLEAN_TAG(car_word, adr, word, tag_mask);
   return word;
 }
 
