@@ -252,6 +252,7 @@ static
 Bool Pl_Member_3(void)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   Bool ok;
 
   for(;;)
@@ -260,7 +261,7 @@ Bool Pl_Member_3(void)
 
       ok = Pl_Unify(A(0), A(1));
 
-      DEREF(A(2), word, tag_mask);
+      DEREF_CLEAN_TAG(A(2), adr, word, tag_mask);
 #if 1
       if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK)
 	{
@@ -359,7 +360,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
   WamWord *adr;
   PlLong n, len = 0;
 
-  DEREF(n_word, word, tag_mask);
+  DEREF_CLEAN_TAG(n_word, adr, word, tag_mask);
   n_word = word;
   if (tag_mask == TAG_INT_MASK)
     {
@@ -382,7 +383,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
 
   for(;;)
     {
-      DEREF(list_word, word, tag_mask);
+      DEREF_CLEAN_TAG(list_word, adr, word, tag_mask);
       if (word == NIL_WORD)
 	return (n == len) || Pl_Get_Integer(len, n_word);
 
@@ -409,7 +410,7 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
       if ((PlULong) n < (PlULong) len)
 	return FALSE;
 
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       list_word = Cdr(adr);
     }
 
@@ -499,13 +500,17 @@ Pl_Reverse_2(WamWord l1_word, WamWord l2_word)
   WamWord x_word;
   WamWord result_word = NIL_WORD;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(l2_word);
+#endif // BOEHM_GC
+
   for(;;)
     {
-      DEREF(l1_word, word, tag_mask);
+      DEREF_CLEAN_TAG(l1_word, adr, word, tag_mask);
       if (tag_mask != TAG_LST_MASK)
 	break;
 
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
 #ifdef BOEHM_GC
       word = Tag_REF(Pl_GC_Alloc_List(&next));
       *next++ = Car(adr);
