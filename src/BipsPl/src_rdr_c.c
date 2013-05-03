@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 
 #include "gp_config.h"
 
@@ -573,6 +574,7 @@ Pl_SR_Add_Directive_7(WamWord type_word,
   SRDirect *d;
   SROneDirect one, *o;
   WamWord word, tag_mask;
+  WamWord *adr;
 
   if (sr->cur_module == NULL)
     d = &sr->direct_lst;
@@ -582,22 +584,22 @@ Pl_SR_Add_Directive_7(WamWord type_word,
   o = &one;
   o->type = Pl_Rd_Integer(type_word);
 
-  DEREF(d1_word, word, tag_mask);
+  DEREF_CLEAN_TAG(d1_word, adr, word, tag_mask);
   o->a[0][0] = word;
 
-  DEREF(d2_word, word, tag_mask);
+  DEREF_CLEAN_TAG(d2_word, adr, word, tag_mask);
   o->a[0][1] = word;
 
-  DEREF(d3_word, word, tag_mask);
+  DEREF_CLEAN_TAG(d3_word, adr, word, tag_mask);
   o->a[0][2] = word;
 
-  DEREF(u1_word, word, tag_mask);
+  DEREF_CLEAN_TAG(u1_word, adr, word, tag_mask);
   o->a[1][0] = word;
 
-  DEREF(u2_word, word, tag_mask);
+  DEREF_CLEAN_TAG(u2_word, adr, word, tag_mask);
   o->a[1][1] = word;
 
-  DEREF(u3_word, word, tag_mask);
+  DEREF_CLEAN_TAG(u3_word, adr, word, tag_mask);
   o->a[1][2] = word;
 
   o->next = NULL;
@@ -924,12 +926,13 @@ Bool
 Pl_SR_Current_Descriptor_1(WamWord desc_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int desc = 0;
 
-  DEREF(desc_word, word, tag_mask);
+  DEREF_CLEAN_TAG(desc_word, adr, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      desc = UnTag_INT(word);
+      desc = UnTag_INT(*adr);
       return (desc >= 0 && desc <= sr_last_used && sr_tbl[desc].in_use);
     }
   if (tag_mask != TAG_REF_MASK)
@@ -1241,6 +1244,10 @@ Get_Descriptor(WamWord desc_word, Bool accept_none)
   WamWord word, tag_mask;
   int desc;
   int atom;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(desc_word);
+#endif // BOEHM_GC
 
   if (accept_none)
     {
