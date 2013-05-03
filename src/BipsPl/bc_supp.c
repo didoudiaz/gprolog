@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #define OBJ_INIT Byte_Code_Initializer
 
@@ -865,6 +866,7 @@ BC_Arg_X_Or_Y(WamWord arg_word, int *op)
   WamWord *adr;
 
   DEREF(arg_word, word, tag_mask);
+  assert( tag_mask == TAG_STC_MASK );
   adr = UnTag_STC(word);
 
   if (Functor(adr) != ATOM_CHAR('x'))
@@ -887,12 +889,15 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
   WamWord *stc_adr;
 
   DEREF(arg_word, word, tag_mask);              /* functor/arity */
+  assert( tag_mask == TAG_STC_MASK );
   stc_adr = UnTag_STC(word);
 
   DEREF(Arg(stc_adr, 1), word, tag_mask);	/* arity */
+  assert( tag_mask == TAG_INT_MASK );
   *arity = UnTag_INT(word);
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);	/* functor */
+  assert( tag_mask == TAG_ATM_MASK );
   return UnTag_ATM(word);
 }
 
@@ -910,12 +915,18 @@ BC_Arg_Module_Func_Arity(WamWord arg_word, int *func, int *arity)
   WamWord *stc_adr;
   int module = -1;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(arg_word);
+#endif // BOEHM_GC
+
   DEREF(arg_word, word, tag_mask);              /* module:functor/arity or func/arity*/
+  assert( tag_mask == TAG_STC_MASK );
   stc_adr = UnTag_STC(word);
 
   if (Functor_And_Arity(stc_adr) == Functor_Arity(ATOM_CHAR(':'), 2))
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
+      assert( tag_mask == TAG_ATM_MASK );
       module = UnTag_ATM(word);
       arg_word = Arg(stc_adr, 1);
     }
