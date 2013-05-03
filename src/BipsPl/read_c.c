@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -410,12 +412,17 @@ Bool
 Pl_Current_Char_Conversion_2(WamWord in_char_word, WamWord out_char_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int c_in, c_out;
   int c_in1, c_out1;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(out_char_word);
+#endif // BOEHM_GC
+
   Pl_Check_For_Un_Char(out_char_word);
 
-  DEREF(in_char_word, word, tag_mask);
+  DEREF_CLEAN_TAG(in_char_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       c_in = Pl_Rd_Char_Check(word);
