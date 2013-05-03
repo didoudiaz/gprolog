@@ -44,6 +44,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <assert.h>
 
 
 #ifdef clearerr	/* prevent the case clearerr is (also) a macro */
@@ -798,6 +799,9 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
   PlLong stm = 0;		/* only for the compiler (NB: defined as PlLong to check validity) */
   int perm_oper;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(sora_word);
+#endif // BOEHM_GC
 
   DEREF(sora_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)	/* alias ? */
@@ -914,12 +918,20 @@ Pl_Check_Stream_Type(int stm, Bool check_text, Bool for_input)
 WamWord
 Pl_Make_Stream_Tagged_Word(int stm)
 {
+#ifdef BOEHM_GC
+  WamWord *stc, *h;
+  stc = Pl_GC_Alloc_Struc(&h, 1);
+  *h++ = stream_1;
+  *h = Tag_INT(stm);
+  return Tag_REF(stc);
+#else // BOEHM_GC
   static WamWord h[2];
 
   h[0] = stream_1;
   h[1] = Tag_INT(stm);
 
   return Tag_STC(h);
+#endif // BOEHM_GC
 }
 
 
