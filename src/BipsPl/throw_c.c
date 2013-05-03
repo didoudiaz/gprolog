@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -79,7 +81,12 @@ Pl_Throw_2(WamWord ball_word, WamWord b_word)
   WamWord *b;
   StmInf *pstm;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(ball_word);
+#endif // BOEHM_GC
+
   DEREF(b_word, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
   b = From_WamWord_To_B(word);
 
   if (b <= pl_query_top_b && pl_query_top_b != NULL)
