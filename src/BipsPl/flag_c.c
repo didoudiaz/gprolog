@@ -253,7 +253,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   if (i >= NB_OF_FLAGS)
     Pl_Err_Domain(pl_domain_prolog_flag, flag_word);
 
-  DEREF(value_word, word, tag_mask);
+  DEREF_CLEAN_TAG(value_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -368,7 +368,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
     case FLAG_VERSION_DATA:
       if (tag_mask != TAG_STC_MASK)
 	goto err_value;
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       if (Functor(adr) != atom_the_dialect || Arity(adr) != 4)
 	goto err_value;
       goto err_perm;
@@ -402,10 +402,15 @@ Bool
 Pl_Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int i;
   int atom;
 
-  DEREF(flag_word, word, tag_mask);
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(value_word);
+#endif // BOEHM_GC
+
+  DEREF_CLEAN_TAG(flag_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       atom = Pl_Rd_Atom_Check(word);
@@ -735,8 +740,7 @@ Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
   sv = Pl_Rd_Integer(var_word);
 
 #ifdef BOEHM_GC
-  DEREF_PTR(&term_word, adr, tag_mask);
-  word = *adr;
+  DEREF_CLEAN_TAG(term_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_ATM_MASK || tag_mask == TAG_INT_MASK)
     {
@@ -831,8 +835,9 @@ void
 Pl_Set_Current_B_1(WamWord b_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(b_word, word, tag_mask);
+  DEREF_CLEAN_TAG(b_word, adr, word, tag_mask);
   Pl_Cut(word);
 }
 
@@ -1068,6 +1073,7 @@ Bool
 Pl_Environ_2(WamWord var_name_word, WamWord value_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   char *var_name;
   char *value;
   char **cur_env;
@@ -1076,7 +1082,7 @@ Pl_Environ_2(WamWord var_name_word, WamWord value_word)
 
   Pl_Check_For_Un_Atom(value_word);
 
-  DEREF(var_name_word, word, tag_mask);
+  DEREF_CLEAN_TAG(var_name_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       var_name = Pl_Rd_String_Check(word);
