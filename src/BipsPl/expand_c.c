@@ -167,6 +167,11 @@ Pl_Dcg_Trans_Rule_2(WamWord rule_word, WamWord clause_word)
   WamWord head_word, body_word;
   WamWord *end_lst_adr;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(rule_word);
+  GC_assert_clean_start_word(clause_word);
+#endif // BOEHM_GC
+
   DEREF(rule_word, word, tag_mask);
   adr = UnTag_STC(word);
   if (tag_mask != TAG_STC_MASK || Functor_And_Arity(adr) != dcg_2)
@@ -216,7 +221,7 @@ Dcg_Head(WamWord dcg_head_word, WamWord *in_word,
 	 WamWord *out_word, WamWord **end_lst_adr)
 {
   WamWord word, tag_mask;
-  WamWord *adr;
+  WamWord *adr, *word_adr;
   WamWord *save_H, *p;
   int func, arity;
   Bool first;
@@ -225,13 +230,16 @@ Dcg_Head(WamWord dcg_head_word, WamWord *in_word,
   *end_lst_adr = NULL;
 
 start:
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(dcg_head_word);
+#endif // BOEHM_GC
   adr = Pl_Rd_Callable_Check(dcg_head_word, &func, &arity);
 
   if (first && arity == 2 && func == ATOM_CHAR(','))
     {
       first = FALSE;
       dcg_head_word = *adr++;
-      DEREF(*adr, word, tag_mask);
+      DEREF_CLEAN_TAG(*adr, word_adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
@@ -241,7 +249,7 @@ start:
 	  if (tag_mask != TAG_LST_MASK)
 	    Pl_Err_Type(pl_type_list, word);
 
-	  *end_lst_adr = UnTag_LST(word);
+	  *end_lst_adr = UnTag_LST(*word_adr);
 	}
       goto start;
     }
@@ -312,6 +320,9 @@ Dcg_Body(WamWord dcg_body_word, Bool in_alt, WamWord in_word,
   opt_equal_between_in_out_vars = (end_lst_adr != NULL);
 #endif
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(dcg_body_word);
+#endif // BOEHM_GC
   Dcg_Body_On_Stack(dcg_body_word, opt_equal_between_in_out_vars, in_word, new_out_word);
 
   if (end_lst_adr)
@@ -373,7 +384,12 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, Bool opt_equal_between_in_out_vars,
   WamWord *save_H, *p;
   int func, arity;
 
-  DEREF(dcg_body_word, word, tag_mask);
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(in_word);
+  GC_assert_clean_start_word(out_word);
+#endif // BOEHM_GC
+
+  DEREF_CLEAN_TAG(dcg_body_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     {
       adr = UnTag_REF(word);
@@ -396,7 +412,7 @@ Dcg_Body_On_Stack(WamWord dcg_body_word, Bool opt_equal_between_in_out_vars,
 
   if (tag_mask == TAG_LST_MASK)
     {
-      Dcg_Term_List_On_Stack(UnTag_LST(word), in_word, out_word);
+      Dcg_Term_List_On_Stack(UnTag_LST(*adr), in_word, out_word);
       return;
     }
 
@@ -492,6 +508,9 @@ Dcg_Term_List_On_Stack(WamWord *lst_adr, WamWord in_word, WamWord out_word)
   WamWord *save_H, *p;
 
 #ifdef BOEHM_GC
+  GC_assert_clean_start_word(in_word);
+  GC_assert_clean_start_word(out_word);
+
   save_H = Pl_GC_Alloc_List(&p);
 #else // BOEHM_GC
   p = save_H = H;
