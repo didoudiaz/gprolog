@@ -46,6 +46,7 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <assert.h>
 
 #include "gp_config.h"
 
@@ -481,6 +482,7 @@ Bool
 Pl_File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord save_perm_list_word;
   WamWord *lst_adr;
   char *path_name;
@@ -499,7 +501,7 @@ Pl_File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 
   is_a_directory = (res == 0) && S_ISDIR(mode);
 
-  DEREF(perm_list_word, word, tag_mask);
+  DEREF_CLEAN_TAG(perm_list_word, adr, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
     perm |= Flag_Of_Permission(word, is_a_directory);
   else
@@ -508,7 +510,7 @@ Pl_File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 
       for (;;)
 	{
-	  DEREF(perm_list_word, word, tag_mask);
+	  DEREF_CLEAN_TAG(perm_list_word, adr, word, tag_mask);
 
 	  if (tag_mask == TAG_REF_MASK)
 	    Pl_Err_Instantiation();
@@ -519,7 +521,7 @@ Pl_File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 	  if (tag_mask != TAG_LST_MASK)
 	    Pl_Err_Type(pl_type_list, save_perm_list_word);
 
-	  lst_adr = UnTag_LST(word);
+	  lst_adr = UnTag_LST(*adr);
 	  perm |= Flag_Of_Permission(Car(lst_adr), is_a_directory);
 
 	  perm_list_word = Cdr(lst_adr);
@@ -680,6 +682,11 @@ Pl_Check_Prop_Perm_And_File_2(WamWord perm_word, WamWord path_name_word)
   WamWord word, tag_mask;
   char *path_name;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(perm_word);
+  GC_assert_clean_start_word(path_name_word);
+#endif // BOEHM_GC
+
   path_name = Get_Path_Name(path_name_word);
 
   DEREF(perm_word, word, tag_mask);
@@ -807,6 +814,7 @@ Bool
 Pl_Host_Name_1(WamWord host_name_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
   static int atom_host_name = -1;	/* not created in an init since */
 				        /* establishes a connection */
@@ -815,7 +823,7 @@ Pl_Host_Name_1(WamWord host_name_word)
   if (atom_host_name < 0)
     atom_host_name = Pl_Create_Allocate_Atom(Pl_M_Host_Name_From_Name(NULL));
 
-  DEREF(host_name_word, word, tag_mask);
+  DEREF_CLEAN_TAG(host_name_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     return Pl_Get_Atom(atom_host_name, host_name_word);
 
@@ -950,6 +958,12 @@ Pl_Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
   char **p = arg;
   char err[64];
   int status;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(cmd_word);
+  GC_assert_clean_start_word(list_word);
+  GC_assert_clean_start_word(status_word);
+#endif // BOEHM_GC
 
   save_list_word = list_word;
 
@@ -1236,6 +1250,7 @@ static int
 Select_Init_Set(WamWord list_word, fd_set *set, int check)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord save_list_word;
   WamWord *lst_adr;
   int stm;
@@ -1246,7 +1261,7 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
   save_list_word = list_word;
   for (;;)
     {
-      DEREF(list_word, word, tag_mask);
+      DEREF_CLEAN_TAG(list_word, adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
@@ -1257,8 +1272,8 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_list_word);
 
-      lst_adr = UnTag_LST(word);
-      DEREF(Car(lst_adr), word, tag_mask);
+      lst_adr = UnTag_LST(*adr);
+      DEREF_CLEAN_TAG(Car(lst_adr), adr, word, tag_mask);
       if (tag_mask == TAG_INT_MASK)
 	fd = Pl_Rd_Positive_Check(word);
       else
@@ -1299,9 +1314,15 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
 		       WamWord ready_list_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr;
   int stm;
   int fd;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(list_word);
+  GC_assert_clean_start_word(ready_list_word);
+#endif // BOEHM_GC
 
   for (;;)
     {
@@ -1309,8 +1330,10 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       if (word == NIL_WORD)
 	break;
 
+      assert( tag_mask == TAG_LST_MASK );
+
       lst_adr = UnTag_LST(word);
-      DEREF(Car(lst_adr), word, tag_mask);
+      DEREF_CLEAN_TAG(Car(lst_adr), adr, word, tag_mask);
 
       if (tag_mask == TAG_INT_MASK)
 	fd = UnTag_INT(word);
@@ -1362,6 +1385,7 @@ Bool
 Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int pid;
   int sig;
   int atom;
@@ -1369,10 +1393,10 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
 
   pid = Pl_Rd_Integer_Check(pid_word);
 
-  DEREF(signal_word, word, tag_mask);
+  DEREF_CLEAN_TAG(signal_word, adr, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(word);
+      atom = UnTag_ATM(*adr);
       sig = -1;
       for (i = 0; i < nb_sig; i++)
 	if (tsig[i].atom == atom)
@@ -1460,6 +1484,7 @@ static Bool
 Date_Time_To_Prolog(time_t *t, WamWord date_time_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord year_word, month_word, day_word;
   WamWord hour_word, minute_word, second_word;
   struct tm *tm;
@@ -1476,7 +1501,7 @@ Date_Time_To_Prolog(time_t *t, WamWord date_time_word)
   second = tm->tm_sec;
 
 
-  DEREF(date_time_word, word, tag_mask);
+  DEREF_CLEAN_TAG(date_time_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK &&
       tag_mask != TAG_STC_MASK)
     Pl_Err_Type(pl_type_compound, word);
