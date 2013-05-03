@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -137,27 +138,28 @@ Bool
 Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int tag1, tag2, tag3;
   AtomInf *patom1, *patom2, *patom3;
   char *str;
   int l;
 
 
-  DEREF(atom1_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom1_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(pl_type_atom, atom1_word);
   tag1 = tag_mask;
   atom1_word = word;
 
 
-  DEREF(atom2_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom2_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(pl_type_atom, atom2_word);
   tag2 = tag_mask;
   atom2_word = word;
 
 
-  DEREF(atom3_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom3_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(pl_type_atom, atom3_word);
   tag3 = tag_mask;
@@ -279,11 +281,11 @@ Pl_Atom_Concat_Alt_0(void)
 
 
 #define DEREF_LG(lg_word, lg)                                               \
-  DEREF(lg_word, word, tag_mask);                                           \
+  DEREF_CLEAN_TAG(lg_word, adr, word, tag_mask);                            \
   mask <<= 1;                                                               \
   if (tag_mask == TAG_INT_MASK)                                             \
     {                                                                       \
-      if ((lg = UnTag_INT(word)) < 0)                                       \
+      if ((lg = UnTag_INT(*adr)) < 0)                                       \
         Pl_Err_Domain(pl_domain_not_less_than_zero, word);                  \
       mask |= 1;                                                            \
     }                                                                       \
@@ -307,6 +309,7 @@ Pl_Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
 	   WamWord after_word, WamWord sub_atom_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   AtomInf *patom;
   AtomInf *psub_atom = NULL;	/* only for the compiler */
   int length;
@@ -325,13 +328,13 @@ Pl_Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
   DEREF_LG(after_word, a);
 
 
-  DEREF(sub_atom_word, word, tag_mask);
+  DEREF_CLEAN_TAG(sub_atom_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(pl_type_atom, word);
   sub_atom_word = word;
   if (tag_mask == TAG_ATM_MASK)
     {
-      psub_atom = pl_atom_tbl + UnTag_ATM(word);
+      psub_atom = pl_atom_tbl + UnTag_ATM(*adr);
       l = psub_atom->prop.length;
       if (!Pl_Get_Integer(l, length_word))
 	return FALSE;
@@ -584,8 +587,9 @@ Bool
 Pl_Atom_Chars_2(WamWord atom_word, WamWord chars_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(atom_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return Pl_Un_Chars_Check(Pl_Rd_String_Check(word), chars_word);
 
@@ -603,8 +607,9 @@ Bool
 Pl_Atom_Codes_2(WamWord atom_word, WamWord codes_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(atom_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return Pl_Un_Codes_Check(Pl_Rd_String_Check(word), codes_word);
 
@@ -622,19 +627,20 @@ Bool
 Pl_Number_Atom_2(WamWord number_word, WamWord atom_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   char *str;
 
-  DEREF(atom_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom_word, adr, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
-    return String_To_Number(pl_atom_tbl[UnTag_ATM(word)].name, number_word);
+    return String_To_Number(pl_atom_tbl[UnTag_ATM(*adr)].name, number_word);
 
   if (tag_mask != TAG_REF_MASK)
     Pl_Err_Type(pl_type_atom, word);
 
-  DEREF(number_word, word, tag_mask);
+  DEREF_CLEAN_TAG(number_word, adr, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(word));
+      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(*adr));
       return Pl_Un_String_Check(pl_glob_buff, atom_word);
     }
 
@@ -653,6 +659,7 @@ Bool
 Pl_Number_Chars_2(WamWord number_word, WamWord chars_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr, list_word;
   char *str = pl_glob_buff;
   int atom;
@@ -682,10 +689,10 @@ Pl_Number_Chars_2(WamWord number_word, WamWord chars_word)
   return String_To_Number(pl_glob_buff, number_word);
 
 from_nb:
-  DEREF(number_word, word, tag_mask);
+  DEREF_CLEAN_TAG(number_word, adr, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(word));
+      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(*adr));
       return Pl_Un_Chars_Check(pl_glob_buff, chars_word);
     }
 
@@ -710,6 +717,7 @@ Bool
 Pl_Number_Codes_2(WamWord number_word, WamWord codes_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr, list_word;
   char *str = pl_glob_buff;
   PlLong c;
@@ -739,10 +747,10 @@ Pl_Number_Codes_2(WamWord number_word, WamWord codes_word)
   return String_To_Number(pl_glob_buff, number_word);
 
 from_nb:
-  DEREF(number_word, word, tag_mask);
+  DEREF_CLEAN_TAG(number_word, adr, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
     {
-      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(word));
+      sprintf(pl_glob_buff, "%" PL_FMT_d, UnTag_INT(*adr));
       return Pl_Un_Codes_Check(pl_glob_buff, codes_word);
     }
 
@@ -767,8 +775,9 @@ Bool
 Pl_Char_Code_2(WamWord char_word, WamWord code_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(char_word, word, tag_mask);
+  DEREF_CLEAN_TAG(char_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return Pl_Un_Code_Check(Pl_Rd_Char_Check(word), code_word);
 
@@ -786,12 +795,12 @@ Bool
 Pl_Name_2(WamWord atomic_word, WamWord codes_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int syn_flag;
   Bool is_number;
   char *str;
 
-
-  DEREF(atomic_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atomic_word, adr, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     return Pl_Atom_Codes_2(word, codes_word);
 
@@ -828,8 +837,9 @@ Bool
 Pl_Lower_Upper_2(WamWord lower_word, WamWord upper_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(lower_word, word, tag_mask);
+  DEREF_CLEAN_TAG(lower_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return Pl_Un_Char_Check(toupper(Pl_Rd_Char_Check(word)), upper_word);
 
@@ -898,12 +908,13 @@ Bool
 Pl_Current_Atom_2(WamWord atom_word, WamWord hide_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   Bool hide;
   int atom;
 
   hide = Pl_Rd_Integer_Check(hide_word);
 
-  DEREF(atom_word, word, tag_mask);
+  DEREF_CLEAN_TAG(atom_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     return *Pl_Rd_String_Check(word) != '$' || !hide;
 
@@ -986,6 +997,7 @@ Pl_Atom_Property_6(WamWord atom_word,
   int atom;
 
   DEREF(atom_word, word, tag_mask);
+  assert( tag_mask == TAG_ATM_MASK );
   atom = UnTag_ATM(word);
 
   Pl_Get_Integer(Check_Oper(atom, PREFIX) != 0, prefix_op_word);
