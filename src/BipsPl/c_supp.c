@@ -38,6 +38,7 @@
 /* $Id$ */
 
 #include <string.h>
+#include <assert.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -63,24 +64,27 @@
 
 #define CHECK_FOR_UN_VARIABLE                                               \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
    if (tag_mask != TAG_REF_MASK)                                            \
      Pl_Err_Uninstantiation(word)
 
 
 #define CHECK_FOR_UN_INTEGER                                                \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
    if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                \
      Pl_Err_Type(pl_type_integer, word)
 
 
 #define CHECK_FOR_UN_POSITIVE                                               \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
     Pl_Err_Type(pl_type_integer, word);                                     \
   if (tag_mask == TAG_INT_MASK && UnTag_INT(word)<0)                        \
@@ -89,16 +93,18 @@
 
 #define CHECK_FOR_UN_FLOAT                                                  \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_FLT_MASK)                 \
     Pl_Err_Type(pl_type_float, word)
 
 
 #define CHECK_FOR_UN_NUMBER                                                 \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK &&               \
       tag_mask != TAG_FLT_MASK)                                             \
      Pl_Err_Type(pl_type_number, word)
@@ -106,17 +112,19 @@
 
 #define CHECK_FOR_UN_ATOM                                                   \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)                 \
     Pl_Err_Type(pl_type_atom, word)
 
 
 #define CHECK_FOR_UN_BOOLEAN                                                \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   int atom;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
       (atom != pl_atom_true && atom != pl_atom_false)))                     \
@@ -125,9 +133,10 @@
 
 #define CHECK_FOR_UN_CHAR                                                   \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   int atom;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
       pl_atom_tbl[atom].prop.length != 1))                                  \
@@ -136,9 +145,10 @@
 
 #define CHECK_FOR_UN_IN_CHAR                                                \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   int atom;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   atom = UnTag_ATM(word);                                                   \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_ATM_MASK ||              \
       (atom != pl_atom_end_of_file && pl_atom_tbl[atom].prop.length != 1))) \
@@ -147,9 +157,10 @@
 
 #define CHECK_FOR_UN_CODE                                                   \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   PlLong c;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
     Pl_Err_Type(pl_type_integer, word);                                     \
   c = UnTag_INT(word);                                                      \
@@ -159,9 +170,10 @@
 
 #define CHECK_FOR_UN_IN_CODE                                                \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   PlLong c;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
     Pl_Err_Type(pl_type_integer, word);                                     \
   c = UnTag_INT(word);                                                      \
@@ -171,9 +183,10 @@
 
 #define CHECK_FOR_UN_BYTE                                                   \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   PlLong c;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   c = UnTag_INT(word);                                                      \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_INT_MASK ||              \
       !Is_Valid_Byte(c)))                                                   \
@@ -182,9 +195,10 @@
 
 #define CHECK_FOR_UN_IN_BYTE                                                \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
   PlLong c;                                                                 \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   c = UnTag_INT(word);                                                      \
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_INT_MASK ||              \
       (c != -1 && !Is_Valid_Byte(c))))                                      \
@@ -193,8 +207,9 @@
 
 #define CHECK_FOR_UN_COMPOUND                                               \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK &&               \
       tag_mask != TAG_STC_MASK)                                             \
     Pl_Err_Type(pl_type_compound, word)
@@ -202,8 +217,9 @@
 
 #define CHECK_FOR_UN_CALLABLE                                               \
   WamWord word, tag_mask;                                                   \
+  WamWord *adr;                                                             \
                                                                             \
-  DEREF(start_word, word, tag_mask);                                        \
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);                         \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK &&               \
       tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)                 \
     Pl_Err_Type(pl_type_callable, word)
@@ -219,8 +235,9 @@ PlLong
 Pl_Rd_Integer_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -241,8 +258,10 @@ PlLong
 Pl_Rd_Integer(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
 
   return UnTag_INT(word);
 }
@@ -289,15 +308,16 @@ double
 Pl_Rd_Float_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
   if (tag_mask != TAG_FLT_MASK)
     Pl_Err_Type(pl_type_float, word);
 
-  return Pl_Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(*adr));
 }
 
 
@@ -311,10 +331,12 @@ double
 Pl_Rd_Float(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
+  assert( tag_mask == TAG_FLT_MASK );
 
-  return Pl_Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(*adr));
 }
 
 
@@ -328,8 +350,9 @@ double
 Pl_Rd_Number_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -339,7 +362,7 @@ Pl_Rd_Number_Check(WamWord start_word)
   if (tag_mask == TAG_INT_MASK)
     return (double) UnTag_INT(word);
 
-  return Pl_Obtain_Float(UnTag_FLT(word));
+  return Pl_Obtain_Float(UnTag_FLT(*adr));
 }
 
 
@@ -353,13 +376,15 @@ double
 Pl_Rd_Number(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_INT_MASK)
     return (double) UnTag_INT(word);
 
-  return Pl_Obtain_Float(UnTag_FLT(word));
+  assert( tag_mask == TAG_FLT_MASK );
+  return Pl_Obtain_Float(UnTag_FLT(*adr));
 }
 
 
@@ -373,8 +398,9 @@ int
 Pl_Rd_Atom_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -395,8 +421,10 @@ int
 Pl_Rd_Atom(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
+  assert( tag_mask == TAG_ATM_MASK );
 
   return UnTag_ATM(word);
 }
@@ -412,9 +440,10 @@ int
 Pl_Rd_Boolean_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -436,9 +465,11 @@ int
 Pl_Rd_Boolean(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
+  assert( tag_mask == TAG_ATM_MASK );
 
   atom = UnTag_ATM(word);
 
@@ -456,9 +487,10 @@ int
 Pl_Rd_Char_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -480,9 +512,11 @@ int
 Pl_Rd_Char(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
+  assert( tag_mask == TAG_ATM_MASK );
   atom = UnTag_ATM(word);
 
   return pl_atom_tbl[atom].name[0];
@@ -499,9 +533,10 @@ int
 Pl_Rd_In_Char_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -524,9 +559,11 @@ int
 Pl_Rd_In_Char(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
+  assert( tag_mask == TAG_ATM_MASK );
   atom = UnTag_ATM(word);
   return (atom != pl_atom_end_of_file) ? pl_atom_tbl[atom].name[0] : -1;
 }
@@ -606,9 +643,10 @@ int
 Pl_Rd_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   PlLong c;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -643,9 +681,10 @@ int
 Pl_Rd_In_Byte_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   PlLong c;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -680,8 +719,9 @@ char *
 Pl_Rd_String_Check(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
@@ -771,6 +811,7 @@ int
 Pl_Rd_Chars_Str_Check(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord save_start_word;
   WamWord *lst_adr;
   int n = 0;
@@ -779,7 +820,7 @@ Pl_Rd_Chars_Str_Check(WamWord start_word, char *str)
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
@@ -790,7 +831,7 @@ Pl_Rd_Chars_Str_Check(WamWord start_word, char *str)
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_start_word);
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
 
       *str++ = Pl_Rd_Char_Check(Car(lst_adr));
       n++;
@@ -813,17 +854,18 @@ int
 Pl_Rd_Chars_Str(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr;
   int n = 0;
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
       if (word == NIL_WORD)
 	break;
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
 
       *str++ = Pl_Rd_Char_Check(Car(lst_adr));
       n++;
@@ -846,6 +888,7 @@ int
 Pl_Rd_Codes_Str_Check(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord save_start_word;
   WamWord *lst_adr;
   int n = 0;
@@ -854,7 +897,7 @@ Pl_Rd_Codes_Str_Check(WamWord start_word, char *str)
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
@@ -865,7 +908,7 @@ Pl_Rd_Codes_Str_Check(WamWord start_word, char *str)
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_start_word);
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
 
       *str++ = Pl_Rd_Code_Check(Car(lst_adr));
       n++;
@@ -888,17 +931,18 @@ int
 Pl_Rd_Codes_Str(WamWord start_word, char *str)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   WamWord *lst_adr;
   int n = 0;
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
       if (word == NIL_WORD)
 	break;
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
 
       *str++ = Pl_Rd_Code_Check(Car(lst_adr));
       n++;
@@ -923,7 +967,7 @@ Pl_Rd_List_Check(WamWord start_word)
   WamWord word, tag_mask;
   WamWord *lst_adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
@@ -934,7 +978,7 @@ Pl_Rd_List_Check(WamWord start_word)
   if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(pl_type_list, start_word);
 
-  lst_adr = UnTag_LST(word);
+  lst_adr = UnTag_LST(*lst_adr);
   return &Car(lst_adr);
 }
 
@@ -951,12 +995,12 @@ Pl_Rd_List(WamWord start_word)
   WamWord word, tag_mask;
   WamWord *lst_adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
   if (word == NIL_WORD)
     return NULL;
 
-  lst_adr = UnTag_LST(word);
+  lst_adr = UnTag_LST(*lst_adr);
   return &Car(lst_adr);
 }
 
@@ -979,7 +1023,7 @@ Pl_Rd_Proper_List_Check(WamWord start_word, WamWord *arg)
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
@@ -990,7 +1034,7 @@ Pl_Rd_Proper_List_Check(WamWord start_word, WamWord *arg)
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_start_word);
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*lst_adr);
 
       *arg++ = Car(lst_adr);
       n++;
@@ -1022,7 +1066,7 @@ Pl_Rd_Proper_List_Check2(WamWord start_word, WamWord *arg,
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
@@ -1033,7 +1077,7 @@ Pl_Rd_Proper_List_Check2(WamWord start_word, WamWord *arg,
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_start_word);
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*lst_adr);
 
       *arg++ = (*elt_fct)(Car(lst_adr));
       n++;
@@ -1060,12 +1104,12 @@ Pl_Rd_Proper_List(WamWord start_word, WamWord *arg)
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
       if (word == NIL_WORD)
 	break;
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*lst_adr);
 
       *arg++ = Car(lst_adr);
       n++;
@@ -1089,14 +1133,14 @@ Pl_Rd_Compound_Check(WamWord start_word, int *func, int *arity)
   WamWord word, tag_mask;
   WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
 
   if (tag_mask == TAG_LST_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       *func = ATOM_CHAR('.');
       *arity = 2;
       return &Car(adr);
@@ -1104,7 +1148,7 @@ Pl_Rd_Compound_Check(WamWord start_word, int *func, int *arity)
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       *func = Functor(adr);
       *arity = Arity(adr);
       return &Arg(adr, 0);
@@ -1127,11 +1171,11 @@ Pl_Rd_Compound(WamWord start_word, int *func, int *arity)
   WamWord word, tag_mask;
   WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_LST_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       *func = ATOM_CHAR('.');
       *arity = 2;
       return &Car(adr);
@@ -1139,7 +1183,7 @@ Pl_Rd_Compound(WamWord start_word, int *func, int *arity)
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       *func = Functor(adr);
       *arity = Arity(adr);
       return &Arg(adr, 0);
@@ -1161,7 +1205,7 @@ Pl_Rd_Callable_Check(WamWord start_word, int *func, int *arity)
   WamWord word, tag_mask;
   WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
@@ -1169,14 +1213,14 @@ Pl_Rd_Callable_Check(WamWord start_word, int *func, int *arity)
 
   if (tag_mask == TAG_ATM_MASK)
     {
-      *func = UnTag_ATM(word);
+      *func = UnTag_ATM(*adr);
       *arity = 0;
       return NULL;
     }
 
   if (tag_mask == TAG_LST_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       *func = ATOM_CHAR('.');
       *arity = 2;
       return &Car(adr);
@@ -1184,7 +1228,7 @@ Pl_Rd_Callable_Check(WamWord start_word, int *func, int *arity)
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       *func = Functor(adr);
       *arity = Arity(adr);
       return &Arg(adr, 0);
@@ -1207,18 +1251,18 @@ Pl_Rd_Callable(WamWord start_word, int *func, int *arity)
   WamWord word, tag_mask;
   WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_ATM_MASK)
     {
-      *func = UnTag_ATM(word);
+      *func = UnTag_ATM(*adr);
       *arity = 0;
       return (WamWord *) arity;	/* anything except NULL */
     }
 
   if (tag_mask == TAG_LST_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       *func = ATOM_CHAR('.');
       *arity = 2;
       return &Car(adr);
@@ -1226,7 +1270,7 @@ Pl_Rd_Callable(WamWord start_word, int *func, int *arity)
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       *func = Functor(adr);
       *arity = Arity(adr);
       return &Arg(adr, 0);
@@ -1402,13 +1446,14 @@ void
 Pl_Check_For_Un_Pair(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
 static WamWord minus_2 = Functor_Arity(ATOM_CHAR('-'), 2);
 
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_STC_MASK || 
-      Functor_And_Arity(UnTag_STC(word)) != minus_2))
+      Functor_And_Arity(UnTag_STC(*adr)) != minus_2))
     Pl_Err_Type(pl_type_pair, word);
 }
 
@@ -1430,7 +1475,7 @@ Pl_Check_For_Un_Chars(WamWord start_word)
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK || word == NIL_WORD)
 	return;
@@ -1438,7 +1483,7 @@ Pl_Check_For_Un_Chars(WamWord start_word)
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_start_word);
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*lst_adr);
 
       Pl_Check_For_Un_Char(Car(lst_adr));
 
@@ -1477,7 +1522,7 @@ Pl_Check_For_Un_Codes(WamWord start_word)
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, lst_adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK || word == NIL_WORD)
 	return;
@@ -1485,7 +1530,7 @@ Pl_Check_For_Un_Codes(WamWord start_word)
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, save_start_word);
 
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*lst_adr);
 
       Pl_Check_For_Un_Code(Car(lst_adr));
 
@@ -1503,6 +1548,9 @@ Pl_Check_For_Un_Codes(WamWord start_word)
 void
 Pl_Check_For_Un_List(WamWord start_word)
 {
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
   if (!Pl_Blt_List_Or_Partial_List(start_word))
     Pl_Err_Type(pl_type_list, start_word);
 }
@@ -1524,7 +1572,7 @@ Pl_Check_For_Un_List2(WamWord start_word, void (*elt_fct)(WamWord start_word))
 
   for (;;)
     {
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK || word == NIL_WORD)
 	return;
@@ -1532,7 +1580,7 @@ Pl_Check_For_Un_List2(WamWord start_word, void (*elt_fct)(WamWord start_word))
       if (tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, start_word0);
 
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
 
       (*elt_fct)(Car(adr));
 
@@ -2045,6 +2093,7 @@ Bool
 Pl_Un_List_Check(WamWord *arg, WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
   if (arg == NULL)
     {
@@ -2052,7 +2101,7 @@ Pl_Un_List_Check(WamWord *arg, WamWord start_word)
 	return TRUE;
 
     check_type:
-      DEREF(start_word, word, tag_mask);
+      DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
       if (word != NIL_WORD && tag_mask != TAG_LST_MASK)
 	Pl_Err_Type(pl_type_list, start_word);
 
