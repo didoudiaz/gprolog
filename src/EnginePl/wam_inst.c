@@ -39,9 +39,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #ifdef BOEHM_GC
 #include <gc/gc.h>
-#include <assert.h>
 #endif /* BOEHM_GC */
 
 #include "engine_pl.h"
@@ -205,6 +205,7 @@ Pl_Get_Atom_Tagged(WamWord w, WamWord start_word)
 #ifdef BOEHM_GC
   GC_assert_clean_start_word(start_word);
 #endif // BOEHM_GC
+  assert( Tag_Is_ATM(w) );
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -250,6 +251,7 @@ Pl_Get_Integer_Tagged(WamWord w, WamWord start_word)
 #ifdef BOEHM_GC
   GC_assert_clean_start_word(start_word);
 #endif // BOEHM_GC
+  assert( Tag_Is_INT(w) );
 
   DEREF(start_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -494,14 +496,7 @@ Pl_Put_Unsafe_Value(WamWord start_word)
   WamWord *adr;
   WamWord res_word;
 
-#ifdef BOEHM_GC
-  GC_assert_clean_start_word(start_word);
-
-  DEREF_PTR(&start_word, adr, tag_mask);
-  word = Tag_REF(*adr);
-#else /* BOEHM_GC */
-  DEREF(start_word, word, tag_mask);
-#endif /* BOEHM_GC */
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK &&
       (adr = UnTag_REF(word)) >= (WamWord *) EE(E)
@@ -518,12 +513,6 @@ Pl_Put_Unsafe_Value(WamWord start_word)
       return res_word;
     }
 
-#ifdef BOEHM_GC
-  if (Tag_Is_LST(word) || Tag_Is_STC(word) || Tag_Is_FLT(word))
-    // using adr pointer value acquired from DEREF_PTR
-    word = Tag_REF(adr);
-#endif /* BOEHM_GC */
-
   Do_Copy_Of_Word(tag_mask, word);
   return word;
 }
@@ -539,6 +528,7 @@ Pl_Put_Unsafe_Value(WamWord start_word)
 WamWord FC
 Pl_Put_Atom_Tagged(WamWord w)
 {
+  assert( Tag_Is_ATM(w) );
   return w;
 }
 
@@ -567,6 +557,7 @@ Pl_Put_Atom(int atom)
 WamWord FC
 Pl_Put_Integer_Tagged(WamWord w)
 {
+  assert( Tag_Is_INT(w) );
   return w;
 }
 
@@ -707,7 +698,12 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
 #if 1	
   WamWord word, tag_mask;
   WamWord f_n;
-  WamWord *adr;
+  WamWord *adr, *word_adr;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(module_word);
+  GC_assert_clean_start_word(goal_word);
+#endif // BOEHM_GC
 
   DEREF(goal_word, word, tag_mask);
   if (tag_mask == TAG_STC_MASK)
@@ -716,11 +712,11 @@ Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
       f_n = Functor_And_Arity(adr);
       if (f_n == Functor_Arity(ATOM_CHAR(':'), 2))
 	{
-	  DEREF(module_word, word, tag_mask);
+	  DEREF_CLEAN_TAG(module_word, word_adr, word, tag_mask);
 	  module_word = word;
 	  
 	  DEREF(Arg(adr, 0), word, tag_mask); /* module part */
-	  if (word == module_word)
+	  if (word == *word_adr)
 	    return goal_word;
 	}
 
@@ -886,24 +882,12 @@ Pl_Unify_Local_Value(WamWord start_word)
   if (S != WRITE_MODE)
     return Pl_Unify(start_word, *S++);
 
-#ifdef BOEHM_GC
-  GC_assert_clean_start_word(start_word);
-
-  DEREF_PTR(&start_word, adr, tag_mask);
-  word = Tag_REF(*adr);
-#else /* BOEHM_GC */
-  DEREF(start_word, word, tag_mask);
-#endif /* BOEHM_GC */
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK && Is_A_Local_Adr(adr = UnTag_REF(word)))
     Globalize_Local_Unbound_Var(heap_ptr, adr, word);
   else
     {
-#ifdef BOEHM_GC
-      if (Tag_Is_LST(word) || Tag_Is_STC(word) || Tag_Is_FLT(word))
-	// using adr pointer value acquired from DEREF_PTR
-	word = Tag_REF(adr);
-#endif /* BOEHM_GC */
       Do_Copy_Of_Word(tag_mask, word);
       // BOEHM_GC: Suppose already allocated.
       *heap_ptr++ = word;
@@ -924,6 +908,8 @@ Bool FC
 Pl_Unify_Atom_Tagged(WamWord w)
 {
   WamWord word, tag_mask;
+
+  assert( Tag_Is_ATM(w) );
 
   if (S != WRITE_MODE)
     {
@@ -970,6 +956,8 @@ Bool FC
 Pl_Unify_Integer_Tagged(WamWord w)
 {
   WamWord word, tag_mask;
+
+  assert( Tag_Is_INT(w) );
 
   if (S != WRITE_MODE)
     {
@@ -1204,24 +1192,12 @@ CodePtr FC
 Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 	       CodePtr c_lst, CodePtr c_stc)
 {
-  WamWord tag_mask;
+  WamWord word, tag_mask;
+  WamWord *adr;
   CodePtr codep;
 
-#ifdef BOEHM_GC
-  WamWord *adr;
-
-  GC_assert_clean_start_word(A(0));
-
-  DEREF_PTR(&A(0), adr, tag_mask);
-  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
-  if (adr != &A(0))
-    A(0) = Tag_REF(adr);
-#else /* BOEHM_GC */
-  WamWord word;
-
-  DEREF(A(0), word, tag_mask);
+  DEREF_CLEAN_TAG(A(0), adr, word, tag_mask);
   A(0) = word;
-#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_INT_MASK)
     codep = c_int;
@@ -1243,24 +1219,12 @@ Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 CodePtr FC
 Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 {
-  WamWord tag_mask;
+  WamWord word, tag_mask;
+  WamWord *adr;
   CodePtr codep;
 
-#ifdef BOEHM_GC
-  WamWord *adr;
-
-  GC_assert_clean_start_word(A(0));
-
-  DEREF_PTR(&A(0), adr, tag_mask);
-  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
-  if (adr != &A(0))
-    A(0) = Tag_REF(adr);
-#else /* BOEHM_GC */
-  WamWord word;
-
-  DEREF(A(0), word, tag_mask);
+  DEREF_CLEAN_TAG(A(0), adr, word, tag_mask);
   A(0) = word;
-#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_ATM_MASK)
     return c_atm;
@@ -1281,24 +1245,12 @@ Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 CodePtr FC
 Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 {
-  WamWord tag_mask;
+  WamWord word, tag_mask;
+  WamWord *adr;
   CodePtr codep;
 
-#ifdef BOEHM_GC
-  WamWord *adr;
-
-  GC_assert_clean_start_word(A(0));
-
-  DEREF_PTR(&A(0), adr, tag_mask);
-  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
-  if (adr != &A(0))
-    A(0) = Tag_REF(adr);
-#else /* BOEHM_GC */
-  WamWord word;
-
-  DEREF(A(0), word, tag_mask);
+  DEREF_CLEAN_TAG(A(0), adr, word, tag_mask);
   A(0) = word;
-#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_STC_MASK)
     return c_stc;
@@ -1319,24 +1271,12 @@ Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 CodePtr FC
 Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 {
-  WamWord tag_mask;
+  WamWord word, tag_mask;
+  WamWord *adr;
   CodePtr codep;
 
-#ifdef BOEHM_GC
-  WamWord *adr;
-
-  GC_assert_clean_start_word(A(0));
-
-  DEREF_PTR(&A(0), adr, tag_mask);
-  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
-  if (adr != &A(0))
-    A(0) = Tag_REF(adr);
-#else /* BOEHM_GC */
-  WamWord word;
-
-  DEREF(A(0), word, tag_mask);
+  DEREF_CLEAN_TAG(A(0), adr, word, tag_mask);
   A(0) = word;
-#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_LST_MASK)
     return c_lst;
@@ -1360,24 +1300,12 @@ Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 CodePtr FC
 Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
 {
-  WamWord tag_mask;
+  WamWord word, tag_mask;
+  WamWord *adr;
   CodePtr codep;
 
-#ifdef BOEHM_GC
-  WamWord *adr;
-
-  GC_assert_clean_start_word(A(0));
-
-  DEREF_PTR(&A(0), adr, tag_mask);
-  // BOEHM_GC: make sure not to hide a pointer, therefore use a REF pointer.
-  if (adr != &A(0))
-    A(0) = Tag_REF(adr);
-#else /* BOEHM_GC */
-  WamWord word;
-
-  DEREF(A(0), word, tag_mask);
+  DEREF_CLEAN_TAG(A(0), adr, word, tag_mask);
   A(0) = word;
-#endif /* BOEHM_GC */
 
   if (tag_mask == TAG_STC_MASK)
     return c_stc;
@@ -1414,14 +1342,10 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
   SwtInf *swt;
   WamWord word;
 
-#ifdef BOEHM_GC
-  if (Tag_Is_REF(A(0)))
-    word = *UnTag_REF(A(0));
-  else
-    word = A(0);
-#else /* BOEHM_GC */
   word = A(0);
-#endif /* BOEHM_GC */
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+#endif // BOEHM_GC
 
   swt = Locate_Swt_Element(t, size, (PlLong) UnTag_ATM(word));
 
@@ -1446,14 +1370,10 @@ Pl_Switch_On_Integer(void)
 {
   WamWord word;
 
-#ifdef BOEHM_GC
-  if (Tag_Is_REF(A(0)))
-    word = *UnTag_REF(A(0));
-  else
-    word = A(0);
-#else /* BOEHM_GC */
   word = A(0);
-#endif /* BOEHM_GC */
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+#endif // BOEHM_GC
 
   return UnTag_INT(word);
 }
@@ -1477,14 +1397,11 @@ Pl_Switch_On_Structure(SwtTbl t, int size)
   SwtInf *swt;
   WamWord word;
 
-#ifdef BOEHM_GC
-  if (Tag_Is_REF(A(0)))
-    word = *UnTag_REF(A(0));
-  else
-    word = A(0);
-#else /* BOEHM_GC */
   word = A(0);
-#endif /* BOEHM_GC */
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+  word = *UnTag_REF(word);
+#endif // BOEHM_GC
 
   swt = Locate_Swt_Element(t, size, Functor_And_Arity(UnTag_STC(word)));
 
