@@ -40,6 +40,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <setjmp.h>
+#include <assert.h>
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
@@ -233,6 +234,7 @@ Pl_Remove_One_Choice_Point_1(WamWord b_word)
   WamWord *b;
 
   DEREF(b_word, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
   b = From_WamWord_To_B(word);
 
   Assign_B(BB(b));
@@ -256,6 +258,7 @@ Pl_Choice_Point_Info_5(WamWord b_word,
 
 
   DEREF(b_word, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
   b = From_WamWord_To_B(word);
 
   pred = Detect_Pred_From_Code(ALTB(b));
@@ -287,6 +290,7 @@ Pl_Scan_Choice_Point_Info_4(WamWord b_word,
   int module, func, arity;
 
   DEREF(b_word, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
   b = From_WamWord_To_B(word);
 
   module = Pl_Scan_Choice_Point_Pred(b, &func, &arity);
@@ -316,9 +320,11 @@ Pl_Choice_Point_Arg_3(WamWord b_word, WamWord i_word, WamWord arg_word)
 
 
   DEREF(b_word, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
   b = From_WamWord_To_B(word);
 
   DEREF(i_word, word, tag_mask);
+  assert( tag_mask == TAG_INT_MASK );
   i = UnTag_INT(word) - 1;
 
   Pl_Unify(arg_word, AB(b, i));
