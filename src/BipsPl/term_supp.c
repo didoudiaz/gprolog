@@ -184,8 +184,8 @@ PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
   int i, x;
   double d1, d2;
 
-  DEREF(start_u_word, u_word, u_tag_mask);
-  DEREF(start_v_word, v_word, v_tag_mask);
+  DEREF_CLEAN_TAG(start_u_word, u_arg_adr, u_word, u_tag_mask);
+  DEREF_CLEAN_TAG(start_v_word, v_arg_adr, v_word, v_tag_mask);
 
   u_tag = Tag_From_Tag_Mask(u_tag_mask);
   v_tag = Tag_From_Tag_Mask(v_tag_mask);
@@ -200,7 +200,7 @@ PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
       if (v_tag == REF)
 	return 1;
 
-      return (v_tag != FDV) ? -1 : UnTag_FDV(u_word) - UnTag_FDV(v_word);
+      return (v_tag != FDV) ? -1 : UnTag_FDV(*u_arg_adr) - UnTag_FDV(*v_arg_adr);
 #endif
 
     case FLT:
@@ -214,8 +214,8 @@ PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
       if (v_tag != FLT)
 	return -1;
 
-      d1 = Pl_Obtain_Float(UnTag_FLT(u_word));
-      d2 = Pl_Obtain_Float(UnTag_FLT(v_word));
+      d1 = Pl_Obtain_Float(UnTag_FLT(*u_arg_adr));
+      d2 = Pl_Obtain_Float(UnTag_FLT(*v_arg_adr));
       return (d1 < d2) ? -1 : (d1 == d2) ? 0 : 1;
 
 
@@ -279,25 +279,25 @@ Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, Bool (*fct) ())
 
 terminal_rec:
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   switch (Tag_Of(word))
     {
     case REF:
-      if (!(*fct) (UnTag_REF(word), word))
+      if (!(*fct) (UnTag_REF(*adr), word))
 	return FALSE;
       break;
 
 #ifndef NO_USE_FD_SOLVER
     case FDV:
       if (generic_var)
-	if (!(*fct) (UnTag_FDV(word), word))
+	if (!(*fct) (UnTag_FDV(*adr), word))
 	  return FALSE;
       break;
 #endif
 
     case LST:
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       adr = &Car(adr);
       if (!Pl_Treat_Vars_Of_Term(*adr++, generic_var, fct))
 	return FALSE;
@@ -306,7 +306,7 @@ terminal_rec:
       goto terminal_rec;
 
     case STC:
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       i = Arity(adr);
       adr = &Arg(adr, 0);
       while (--i)
@@ -335,6 +335,10 @@ Pl_List_Length(WamWord start_word)
 {
   WamWord word, tag_mask;
   int n = 0;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   for (;;)
     {
@@ -370,6 +374,10 @@ Pl_Term_Size(WamWord start_word)
   int n = 0;			/* init to zero for terminal_rec */
 
 terminal_rec:
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
 
@@ -757,6 +765,10 @@ Pl_Acyclic_Term_1(WamWord start_word)
   int arity;
   Bool ret;
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   DEREF(start_word, word, tag_mask);
 
   if (tag_mask == TAG_LST_MASK)
@@ -841,6 +853,10 @@ terminal_rec:
   /* NB: the depth-- should be done inside the terminal_rec label (not before !)
    * here it is only done for lists and structures (since atomic terms do not need it)
    */
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
 
   DEREF(start_word, word, tag_mask);
 
@@ -969,7 +985,7 @@ Pl_Strip_Module(WamWord start_word, Bool accept_var, Bool raise_error,
 		WamWord *goal_word)
 {
   WamWord word, tag_mask;
-  WamWord *adr;
+  WamWord *adr, *word_adr;
   WamWord module_word = NOT_A_WAM_WORD;
 
   for(;;)
@@ -983,7 +999,7 @@ Pl_Strip_Module(WamWord start_word, Bool accept_var, Bool raise_error,
       adr = UnTag_STC(*adr);
       if (Functor_And_Arity(adr) == Functor_Arity(ATOM_CHAR(':'), 2))
 	{
-	  DEREF(Arg(adr, 0), word, tag_mask);
+	  DEREF_CLEAN_TAG(Arg(adr, 0), word_adr, word, tag_mask);
 
 	  if (tag_mask == TAG_ATM_MASK)
 	    {
@@ -991,7 +1007,7 @@ Pl_Strip_Module(WamWord start_word, Bool accept_var, Bool raise_error,
 	      module_word = word;
 	      start_word = Arg(adr, 1);
 	      if (pl_calling_module < 0)	     /* see Pl_Unset_Calling_Module */
-		pl_calling_module = UnTag_ATM(word); /* keep the top-most module */
+		pl_calling_module = UnTag_ATM(*word_adr); /* keep the top-most module */
 	      continue;
 	    }
 
@@ -1082,13 +1098,14 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
   WamWord pred_indic_word1;
   WamWord module_word;
   WamWord word, tag_mask;
+  WamWord *adr;
   PlLong arity1;
 
   module_word = Pl_Strip_Module(pred_indic_word, !must_be_ground, TRUE, 
 				&pred_indic_word1);
   pl_pi_module_word = module_word;
 
-  DEREF(pred_indic_word1, word, tag_mask);
+  DEREF_CLEAN_TAG(pred_indic_word1, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK && must_be_ground)
     Pl_Err_Instantiation();
 
@@ -1105,14 +1122,14 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
   pl_pi_name_word = Pl_Unify_Variable();
   pl_pi_arity_word = Pl_Unify_Variable();
 
-  DEREF(pl_pi_name_word, word, tag_mask);
+  DEREF_CLEAN_TAG(pl_pi_name_word, adr, word, tag_mask);
   if (!must_be_ground && tag_mask == TAG_REF_MASK)
     *func = -1;
   else
     *func = Pl_Rd_Atom_Check(word);
 
 
-  DEREF(pl_pi_arity_word, word, tag_mask);
+  DEREF_CLEAN_TAG(pl_pi_arity_word, adr, word, tag_mask);
   if (!must_be_ground && tag_mask == TAG_REF_MASK)
     *arity = -1;
   else
@@ -1171,6 +1188,10 @@ Pl_Get_Pred_Indic_5(WamWord pred_indic_word, WamWord default_module_word,
 
   Pl_Get_Pred_Indicator(pred_indic_word, FALSE, &func, &arity);
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(default_module_word);
+#endif // BOEHM_GC
+
   if (pl_pi_module_word == NOT_A_WAM_WORD)
     pl_pi_module_word = default_module_word;
   
@@ -1197,6 +1218,9 @@ Pl_Get_Head_And_Body(WamWord clause_word, WamWord *head_word, WamWord *body_word
   int func, arity;
   WamWord *adr = Pl_Rd_Callable_Check(clause_word, &func, &arity);
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(clause_word);
+#endif // BOEHM_GC
 
   if (func == atom_clause && arity == 2)
     {
@@ -1220,6 +1244,12 @@ Pl_Get_Head_And_Body(WamWord clause_word, WamWord *head_word, WamWord *body_word
       *head_word = clause_word;
       *body_word = Tag_ATM(pl_atom_true);
     }
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(*head_word);
+  GC_assert_clean_start_word(*body_word);
+  GC_assert_clean_start_word(module_word);
+#endif // BOEHM_GC
 
   return module_word;
 }
@@ -1245,6 +1275,8 @@ Pl_Get_Head_And_Body_Top(WamWord clause_word, WamWord *head_word, WamWord *body_
   if (module_word == NOT_A_WAM_WORD)
     return pl_atom_user;
   
+  assert( Tag_Is_ATM(module_word) );
+
   return UnTag_ATM(module_word);
 }
 
@@ -1301,6 +1333,11 @@ surround_goal_with_call(int module, WamWord word, WamWord *goal_word)
       Pl_Unify_Atom(module);
       Pl_Unify_Value(t2g_call_info_word);
     }
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(*goal_word);
+#endif // BOEHM_GC
+
   return;
 }
 
@@ -1325,6 +1362,11 @@ not_a_control_construct(int module, WamWord word, WamWord *goal_word)
       Pl_Unify_Atom_Tagged(Tag_ATM(module));
       Pl_Unify_Value(word);
     }
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(*goal_word);
+#endif // BOEHM_GC
+
   return;
 }
 
@@ -1374,11 +1416,11 @@ Term_To_Goal_Rec(WamWord term_word, int module, WamWord *goal_word)
   if (func == ATOM_CHAR(':')) 	/* module qualification */
     {
       adr = &Arg(adr, 0);
-      DEREF(*adr, word, tag_mask);
+      DEREF_CLEAN_TAG(*adr, word_adr, word, tag_mask);
       if (tag_mask == TAG_REF_MASK)
 	module = -1;
       else if (tag_mask == TAG_ATM_MASK)
-	module = UnTag_ATM(word);
+	module = UnTag_ATM(*word_adr);
       else
 	Pl_Err_Type(pl_type_atom, word);
       term_word = adr[1];
@@ -1429,6 +1471,7 @@ Pl_Term_To_Goal(WamWord term_word, int module, WamWord call_info_word)
 
 #ifdef BOEHM_GC
   GC_assert_clean_start_word(term_word);
+  GC_assert_clean_start_word(call_info_word);
 #endif // BOEHM_GC
 
   t2g_term_word = term_word;
@@ -1436,6 +1479,9 @@ Pl_Term_To_Goal(WamWord term_word, int module, WamWord call_info_word)
   t2g_call_info_word = call_info_word;
 
   Term_To_Goal_Rec(term_word, module, &goal_word);
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(goal_word);
+#endif // BOEHM_GC
   return goal_word;
 }
 
