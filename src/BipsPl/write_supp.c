@@ -39,6 +39,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #define OBJ_INIT Write_Supp_Initializer
 
@@ -425,7 +426,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       return;
     }
 
-  DEREF(term_word, word, tag_mask);
+  DEREF_CLEAN_TAG(term_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && Try_Portray(word))
     return;
 
@@ -451,7 +452,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
 
 #ifndef NO_USE_FD_SOLVER
     case FDV:
-      Show_Fd_Variable(UnTag_FDV(word));
+      Show_Fd_Variable(UnTag_FDV(*adr));
       break;
 #endif
 
@@ -460,11 +461,11 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       break;
 
     case FLT:
-      Show_Float(Pl_Obtain_Float(UnTag_FLT(word)));
+      Show_Float(Pl_Obtain_Float(UnTag_FLT(*adr)));
       break;
 
     case LST:
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       if (ignore_op)
 	{
 	  Out_String("'.'(");
@@ -484,7 +485,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       break;
 
     case STC:
-      adr = UnTag_STC(word);
+      adr = UnTag_STC(*adr);
       Show_Structure(depth, prec, context, adr);
       break;
     }
@@ -682,6 +683,7 @@ static void
 Show_List_Arg(int depth, WamWord *lst_adr)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
  terminal_rec:
   depth--;
@@ -692,7 +694,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
     return;
 
 
-  DEREF(Cdr(lst_adr), word, tag_mask);
+  DEREF_CLEAN_TAG(Cdr(lst_adr), adr, word, tag_mask);
 
   switch (Tag_From_Tag_Mask(tag_mask))
     {
@@ -718,7 +720,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       if (Try_Portray(word))
 	return;
 
-      Show_Fd_Variable(UnTag_FDV(word));
+      Show_Fd_Variable(UnTag_FDV(*adr));
       break;
 #endif
 
@@ -735,14 +737,14 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       if (Try_Portray(word))
 	return;
 
-      Show_Float(Pl_Obtain_Float(UnTag_FLT(word)));
+      Show_Float(Pl_Obtain_Float(UnTag_FLT(*adr)));
       break;
 
     case LST:
       Out_Char(',');
       if (space_args)
 	Out_Space();
-      lst_adr = UnTag_LST(word);
+      lst_adr = UnTag_LST(*adr);
       goto terminal_rec;
       break;
 
@@ -752,7 +754,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
 	return;
 
       Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM,
-		     UnTag_STC(word));
+		     UnTag_STC(*adr));
       break;
     }
 }
@@ -794,6 +796,10 @@ Bool
 Pl_Is_Valid_Var_Name_1(WamWord name_word)
 {
   WamWord word, tag_mask;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(name_word);
+#endif // BOEHM_GC
 
   DEREF(name_word, word, tag_mask);
   return (tag_mask == TAG_ATM_MASK) && Is_Valid_Var_Name(pl_atom_tbl[UnTag_ATM(word)].name);
@@ -1111,6 +1117,10 @@ Try_Portray(WamWord word)
   print_name_vars = name_vars;
   print_space_args = space_args;
   print_portrayed = portrayed;
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(word);
+#endif // BOEHM_GC
 
   A(0) = word;
   print_ok = Pl_Call_Prolog(try_portray_code);
