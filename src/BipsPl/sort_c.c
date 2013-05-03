@@ -97,10 +97,11 @@ static void
 Chk_Pair(WamWord start_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_STC_MASK || 
-      Functor_And_Arity(UnTag_STC(word)) != minus_2))
+      Functor_And_Arity(UnTag_STC(*adr)) != minus_2))
     Pl_Err_Type(pl_type_pair, word);
 }
 
