@@ -1516,6 +1516,7 @@ Pl_Get_Current_Choice(void)
 void FC
 Pl_Cut(WamWord b_word)
 {
+  assert( Tag_Is_INT(b_word) );
   Assign_B(From_WamWord_To_B(b_word));
 }
 
@@ -1533,6 +1534,8 @@ Pl_Soft_Cut(WamWord b_word)
   WamWord *kill_B = From_WamWord_To_B(b_word);
   WamWord *cur_B = B;
   WamWord *prev_B;
+
+  assert( Tag_Is_INT(b_word) );
 
   /* soft cut: unchain the choice-point pointed by kill_B */
 
