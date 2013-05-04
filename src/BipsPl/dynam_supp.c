@@ -269,6 +269,10 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
 
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(body_word);
+#endif // BOEHM_GC
+
 #ifdef DEBUG
   DBGPRINTF("\tarity: %d", arity);
   if (arity > 0)
