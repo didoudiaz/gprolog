@@ -38,6 +38,7 @@
 /* $Id$ */
 
 #include <string.h>
+#include <assert.h>
 
 #define OBJ_INIT Foreign_Initializer
 
@@ -78,7 +79,9 @@ static PlFIOArg fio_arg_array[NB_OF_X_REGS];
 
 static WamWord *query_stack[QUERY_STACK_SIZE];
 static WamWord **query_stack_top = query_stack;
+#ifndef BOEHM_GC
 static WamWord *goal_H;
+#endif // BOEHM_GC
 
 WamWord *pl_query_top_b;		/* overwrite var of throw_c.c */
 WamWord pl_query_exception;		/* overwrite var of throw_c.c */
@@ -114,9 +117,7 @@ Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
 static void
 Foreign_Initializer(void)
 {
-#ifdef BOEHM_GC
-  goal_H = Pl_GC_Mem_Alloc(MAX_ARITY + 2);
-#else // BOEHM_GC
+#ifndef BOEHM_GC
   goal_H = H;
   H = H + MAX_ARITY + 1;
 
@@ -184,9 +185,10 @@ Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
 		     int fio_arg_index)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   PlFIOArg *fa = fio_arg_array + fio_arg_index;
 
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   fa->is_var = fa->unify = (tag_mask == TAG_REF_MASK);
 
@@ -218,6 +220,10 @@ Bool
 Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
 		     WamWord start_word)
 {
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
+
   if (!fa->unify)
     return TRUE;
 
@@ -264,12 +270,10 @@ Prepare_Call(int module, int func, int arity, WamWord *arg_adr)
 	A(0) = Tag_ATM(func);
       else
 	{
-	  w = goal_H;
 #ifdef BOEHM_GC
-	  A(0) = Tag_REF(w);
-	  *w = Tag_STC(w + 1);
-	  w++;
+	  A(0) = Tag_REF(Pl_GC_Alloc_Struc(&w, arity));
 #else // BOEHM_GC
+	  w = goal_H;
 	  A(0) = Tag_STC(w);
 #endif // BOEHM_GC
 	  *w++ = Functor_Arity(func, arity);
@@ -328,6 +332,10 @@ Pl_Throw(WamWord ball_word)
   int bip_func, bip_arity;
 
   bip_func = Pl_Get_Current_Bip(&bip_arity);
+
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(ball_word);
+#endif // BOEHM_GC
 
   A(0) = ball_word;
   A(1) = Tag_INT(Call_Info(bip_func, bip_arity, 0));
@@ -475,6 +483,9 @@ Pl_Query_End(int op)
 WamWord
 Pl_Get_Exception(void)
 {
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(pl_query_exception);
+#endif // BOEHM_GC
   return pl_query_exception;
 }
 
