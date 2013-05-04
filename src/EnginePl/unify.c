@@ -56,21 +56,8 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 
  terminal_rec:
 
-#ifdef BOEHM_GC
-  GC_assert_clean_start_word(start_u_word);
-  GC_assert_clean_start_word(start_v_word);
-
-  DEREF_PTR(&start_u_word, u_adr, u_tag_mask);
-  u_word = *u_adr;
-  DEREF_PTR(&start_v_word, v_adr, v_tag_mask);
-  v_word = *v_adr;
-
-  if (u_adr == v_adr)
-    return TRUE;
-#else /* BOEHM_GC */
-  DEREF(start_u_word, u_word, u_tag_mask);
-  DEREF(start_v_word, v_word, v_tag_mask);
-#endif /* BOEHM_GC */
+  DEREF_CLEAN_TAG(start_u_word, u_adr, u_word, u_tag_mask);
+  DEREF_CLEAN_TAG(start_v_word, v_adr, v_word, v_tag_mask);
 
   if (u_tag_mask == TAG_REF_MASK)
     {
@@ -82,13 +69,10 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 #ifdef BOEHM_GC
 	  int u_local = Is_A_Local_Adr(u_adr);
 	  int v_local = Is_A_Local_Adr(v_adr);
-	  if (u_local && !v_local || u_local && !v_local)
-	    {
-	      if (u_local)
-		Bind_UV(u_adr, Tag_REF(v_adr));
-	      else
-		Bind_UV(v_adr, Tag_REF(u_adr));
-	    }
+	  if      ( u_local && !v_local)
+	    Bind_UV(u_adr, Tag_REF(v_adr));
+	  else if (!u_local &&  v_local)
+	    Bind_UV(v_adr, Tag_REF(u_adr));
 	  else
 #endif /* BOEHM_GC */
 	    {
@@ -105,11 +89,6 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 	      Check_If_Var_Occurs(u_adr, v_word))
 	    return FALSE;
 #endif
-#ifdef BOEHM_GC
-	  if (Tag_Is_LST(v_word) || Tag_Is_STC(v_word) || Tag_Is_FLT(v_word))
-	    // using v_adr pointer value acquired from DEREF_PTR
-	    v_word = Tag_REF(v_adr);
-#endif /* BOEHM_GC */
 	  Do_Copy_Of_Word(v_tag_mask, v_word);
 	  Bind_UV(u_adr, v_word);
 	}
@@ -127,11 +106,6 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 	  Check_If_Var_Occurs(v_adr, u_word))
 	return FALSE;
 #endif
-#ifdef BOEHM_GC
-      if (Tag_Is_LST(u_word) || Tag_Is_STC(u_word) || Tag_Is_FLT(u_word))
-	// using u_adr pointer value acquired from DEREF_PTR
-	u_word = Tag_REF(u_adr);
-#endif /* BOEHM_GC */
       Do_Copy_Of_Word(u_tag_mask, u_word);
       Bind_UV(v_adr, u_word);
 
@@ -146,8 +120,8 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
       if (u_tag_mask != v_tag_mask)
 	return FALSE;
 
-      u_adr = UnTag_LST(u_word);
-      v_adr = UnTag_LST(v_word);
+      u_adr = UnTag_LST(*u_adr);
+      v_adr = UnTag_LST(*v_adr);
 
       u_adr = &Car(u_adr);
       v_adr = &Car(v_adr);
@@ -165,8 +139,8 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
       if (u_tag_mask != v_tag_mask)
 	return FALSE;
 
-      u_adr = UnTag_STC(u_word);
-      v_adr = UnTag_STC(v_word);
+      u_adr = UnTag_STC(*u_adr);
+      v_adr = UnTag_STC(*v_adr);
 
       if (Functor_And_Arity(u_adr) != Functor_And_Arity(v_adr))
 	return FALSE;
@@ -185,11 +159,11 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 
 #ifndef NO_USE_FD_SOLVER
   if (v_tag_mask == TAG_INT_MASK && u_tag_mask == TAG_FDV_MASK)
-    return Fd_Unify_With_Integer(UnTag_FDV(u_word), UnTag_INT(v_word));
+    return Fd_Unify_With_Integer(UnTag_FDV(*u_adr), UnTag_INT(v_word));
 
   if (v_tag_mask == TAG_FDV_MASK)
     {
-      v_adr = UnTag_FDV(v_word);
+      v_adr = UnTag_FDV(*v_adr);
 
       if (u_tag_mask == TAG_INT_MASK)
 	return Fd_Unify_With_Integer(v_adr, UnTag_INT(u_word));
@@ -197,14 +171,14 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
       if (u_tag_mask != v_tag_mask) /* i.e. TAG_FDV_MASK */
 	return FALSE;
 
-      return Fd_Unify_With_Fd_Var(UnTag_FDV(u_word), v_adr);
+      return Fd_Unify_With_Fd_Var(UnTag_FDV(*u_adr), v_adr);
     }
 #endif
 
   if (v_tag_mask == TAG_FLT_MASK)
     return (u_tag_mask == v_tag_mask &&
-	    Pl_Obtain_Float(UnTag_FLT(u_word)) ==
-	    Pl_Obtain_Float(UnTag_FLT(v_word)));
+	    Pl_Obtain_Float(UnTag_FLT(*u_adr)) ==
+	    Pl_Obtain_Float(UnTag_FLT(*v_adr)));
 
   return FALSE;
 }
@@ -229,6 +203,9 @@ Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word)
 
  terminal_rec:
 
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(term_word);
+#endif // BOEHM_GC
   DEREF(term_word, word, tag_mask);
 
   if (tag_mask == TAG_REF_MASK)
