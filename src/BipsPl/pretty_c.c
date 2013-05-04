@@ -90,7 +90,11 @@ static int nb_singl_var;
 
 static int nb_to_try;
 
+#ifdef BOEHM_GC
+#define above_H NULL
+#else // BOEHM_GC
 static WamWord *above_H;
+#endif // BOEHM_GC
 
 
 
@@ -166,7 +170,9 @@ Pl_Portray_Clause_3(WamWord sora_word, WamWord term_word, WamWord above_word)
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
   b = LSSA + Pl_Rd_Integer(above_word); /* see Pl_Get_Current_Choice / Pl_Cut */
+#ifndef BOEHM_GC
   above_H = HB(b);
+#endif // BOEHM_GC
 
   Portray_Clause(pstm, term_word);
 }

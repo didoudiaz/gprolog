@@ -118,7 +118,9 @@ static Bool portrayed;
 
 
 
+#ifndef BOEHM_GC
 static WamWord *name_number_above_H;
+#endif // BOEHM_GC
 
 static int last_prefix_op = W_NO_PREFIX_OP;
 static Bool *p_bracket_minus;
@@ -196,7 +198,9 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
   space_args = mask & WRITE_SPACE_ARGS;
   portrayed = mask & WRITE_PORTRAYED;
 
+#ifndef BOEHM_GC
   name_number_above_H = above_H;
+#endif // BOEHM_GC
 
   pl_last_writing = W_NOTHING;
 
@@ -831,7 +835,13 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   depth--;
 
-  if (name_vars && f_n == dollar_varname_1 && stc_adr >= name_number_above_H)
+#ifdef BOEHM_GC
+#define NAME_NUMBER_ABOVE_H_TEST 1
+#else // BOEHM_GC
+#define NAME_NUMBER_ABOVE_H_TEST stc_adr >= name_number_above_H
+#endif // BOEHM_GC
+
+  if (name_vars && f_n == dollar_varname_1 && NAME_NUMBER_ABOVE_H_TEST)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       if (tag_mask == TAG_ATM_MASK)
@@ -846,7 +856,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	}
     }
 
-  if (number_vars && f_n == dollar_var_1 && stc_adr >= name_number_above_H)
+  if (number_vars && f_n == dollar_var_1 && NAME_NUMBER_ABOVE_H_TEST)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       if (tag_mask == TAG_INT_MASK && (n = UnTag_INT(word)) >= 0)
