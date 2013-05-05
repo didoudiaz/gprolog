@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -113,12 +115,13 @@ Bool
 Pl_Between_3(WamWord l_word, WamWord u_word, WamWord i_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   PlLong l, u, i;
 
   l = Pl_Rd_Integer_Check(l_word);
   u = Pl_Rd_Integer_Check(u_word);
 
-  DEREF(i_word, word, tag_mask);
+  DEREF_CLEAN_TAG(i_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       i = Pl_Rd_Integer_Check(word);
