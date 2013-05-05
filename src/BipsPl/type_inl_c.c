@@ -37,6 +37,8 @@
 
 /* $Id$ */
 
+#include <assert.h>
+
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -95,7 +97,8 @@
 
 #define Type_Test(test, x)			\
    WamWord word, tag_mask;  			\
-   DEREF(x, word, tag_mask);			\
+   WamWord *adr;				\
+   DEREF_CLEAN_TAG(x, adr, word, tag_mask);	\
    return test(tag_mask)
 
 
@@ -193,14 +196,14 @@ Pl_Blt_Ground(WamWord start_word)
   int arity;
 
  terminal_rec:
-  DEREF(start_word, word, tag_mask);
+  DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
   if (Tag_Is_Generic_Var(tag_mask))
     return FALSE;
 
   if (tag_mask == TAG_LST_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_LST(*adr);
       if (!Pl_Blt_Ground(Car(adr)))
 	return FALSE;
 
@@ -210,7 +213,7 @@ Pl_Blt_Ground(WamWord start_word)
 
   if (tag_mask == TAG_STC_MASK)
     {
-      adr = UnTag_LST(word);
+      adr = UnTag_STC(*adr);
       arity = Arity(adr);
 
       adr = &Arg(adr, 0);
@@ -242,6 +245,9 @@ Pl_Blt_List(WamWord start_word)
 
   for (;;)
     {
+#ifdef BOEHM_GC
+      GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
       DEREF(start_word, word, tag_mask);
 
       if (word == NIL_WORD)
@@ -268,6 +274,9 @@ Pl_Blt_Partial_List(WamWord start_word)
 
   for (;;)
     {
+#ifdef BOEHM_GC
+      GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
       DEREF(start_word, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK)
@@ -294,6 +303,9 @@ Pl_Blt_List_Or_Partial_List(WamWord start_word)
 
   for (;;)
     {
+#ifdef BOEHM_GC
+      GC_assert_clean_start_word(start_word);
+#endif // BOEHM_GC
       DEREF(start_word, word, tag_mask);
 
       if (tag_mask == TAG_REF_MASK || word == NIL_WORD)
