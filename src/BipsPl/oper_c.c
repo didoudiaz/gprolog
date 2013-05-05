@@ -38,6 +38,7 @@
 /* $Id$ */
 
 #include <string.h>
+#include <assert.h>
 
 #define OBJ_INIT Oper_Initializer
 
@@ -192,6 +193,7 @@ Bool
 Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr, *oper_adr;
   HashScan scan;
   PlLong prec;
   int atom_specif;
@@ -200,13 +202,13 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   int op_mask;
   int i;
 
-  DEREF(oper_word, word, tag_mask);
+  DEREF_CLEAN_TAG(oper_word, oper_adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)
     Pl_Err_Type(pl_type_atom, word);
   oper_word = word;
 
 
-  DEREF(prec_word, word, tag_mask);
+  DEREF_CLEAN_TAG(prec_word, adr, word, tag_mask);
   prec = UnTag_INT(word);
   if (tag_mask != TAG_REF_MASK &&
       (tag_mask != TAG_INT_MASK || prec < 0 || prec > MAX_PREC))
@@ -214,10 +216,10 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   prec_word = word;
 
 
-  DEREF(specif_word, word, tag_mask);
+  DEREF_CLEAN_TAG(specif_word, adr, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom_specif = UnTag_ATM(word);
+      atom_specif = UnTag_ATM(*adr);
 
       for (i = 0; i < 7 && atom_specif != atom_specif_tbl[i]; i++)
 	;
@@ -228,9 +230,9 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   specif_word = word;
 
 
-  if (Tag_Mask_Of(oper_word) == TAG_ATM_MASK)
+  if (Tag_Mask_Of(*oper_adr) == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(oper_word);
+      atom = UnTag_ATM(*oper_adr);
       op_mask = pl_atom_tbl[atom].prop.op_mask;
       if (op_mask == 0)
 	return FALSE;
