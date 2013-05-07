@@ -269,8 +269,11 @@ Fct_Chk_Version_Data(FlagInf *flag, WamWord tag_mask, WamWord value_word)
 {
   int atom;
   WamWord *adr;
+  WamWord tag_mask2;
 
-  if (tag_mask != TAG_STC_MASK)
+  DEREF(value_word, value_word, tag_mask2);
+
+  if (tag_mask != TAG_STC_MASK || tag_mask != tag_mask2)
     return FALSE;
 
   if (flag->value == 0)		/* GNU Prolog version */
