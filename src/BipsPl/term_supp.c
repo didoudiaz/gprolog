@@ -1333,6 +1333,7 @@ static void
 surround_goal_with_call(WamWord module_word, WamWord word, WamWord *goal_word)
 {
 #ifdef BOEHM_GC
+  GC_assert_clean_start_word(module_word);
   GC_assert_clean_start_word(word);
 #endif // BOEHM_GC
   if (t2g_call_info_word == NOT_A_WAM_WORD) // Term = var X --> Goal = call(X)
@@ -1369,6 +1370,7 @@ static void
 not_a_control_construct(WamWord module_word, WamWord word, WamWord *goal_word)
 {
 #ifdef BOEHM_GC
+  GC_assert_clean_start_word(module_word);
   GC_assert_clean_start_word(word);
 #endif // BOEHM_GC
   if (module_word == t2g_module_word)
