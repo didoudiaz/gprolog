@@ -6,7 +6,7 @@
  * Descr.: operator table management                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -97,6 +96,13 @@ Pl_Init_Oper(void)
 
   ADD_OPER(1200, FX, ":-");
 
+  ADD_OPER(1150, FX, "discontiguous");
+  ADD_OPER(1150, FX, "dynamic");
+  ADD_OPER(1150, FX, "initialization");
+  ADD_OPER(1150, FX, "meta_predicate");
+  ADD_OPER(1150, FX, "multifile");
+  ADD_OPER(1150, FX, "public");
+
   ADD_OPER(1105, XFY, "|");
 
   ADD_OPER(1100, XFY, ";");
@@ -119,6 +125,8 @@ Pl_Init_Oper(void)
   ADD_OPER(700, XFX, "@>=");
 
   ADD_OPER(700, XFX, "=..");
+
+  ADD_OPER(700, XFX, "as");
 
   ADD_OPER(700, XFX, "is");
   ADD_OPER(700, XFX, "=:=");

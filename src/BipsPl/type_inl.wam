@@ -1,99 +1,99 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : type_inl.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/type_inl.pl').
 
 
-predicate(system:'$use_type_inl'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_type_inl'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:var/1,45,static,private,monofile,built_in,[
+predicate(system:var/1,44,static,private,monofile,built_in,[
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:nonvar/1,48,static,private,monofile,built_in,[
+predicate(system:nonvar/1,47,static,private,monofile,built_in,[
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:atom/1,51,static,private,monofile,built_in,[
+predicate(system:atom/1,50,static,private,monofile,built_in,[
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:integer/1,54,static,private,monofile,built_in,[
+predicate(system:integer/1,53,static,private,monofile,built_in,[
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:float/1,57,static,private,monofile,built_in,[
+predicate(system:float/1,56,static,private,monofile,built_in,[
     call_c('Pl_Blt_Float',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:number/1,60,static,private,monofile,built_in,[
+predicate(system:number/1,59,static,private,monofile,built_in,[
     call_c('Pl_Blt_Number',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:atomic/1,63,static,private,monofile,built_in,[
+predicate(system:atomic/1,62,static,private,monofile,built_in,[
     call_c('Pl_Blt_Atomic',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:compound/1,66,static,private,monofile,built_in,[
+predicate(system:compound/1,65,static,private,monofile,built_in,[
     call_c('Pl_Blt_Compound',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:callable/1,69,static,private,monofile,built_in,[
+predicate(system:callable/1,68,static,private,monofile,built_in,[
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:ground/1,72,static,private,monofile,built_in,[
+predicate(system:ground/1,71,static,private,monofile,built_in,[
     call_c('Pl_Blt_Ground',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:is_list/1,75,static,private,monofile,built_in,[
+predicate(system:is_list/1,74,static,private,monofile,built_in,[
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:list/1,78,static,private,monofile,built_in,[
+predicate(system:list/1,77,static,private,monofile,built_in,[
     call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:partial_list/1,81,static,private,monofile,built_in,[
+predicate(system:partial_list/1,80,static,private,monofile,built_in,[
     call_c('Pl_Blt_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:list_or_partial_list/1,84,static,private,monofile,built_in,[
+predicate(system:list_or_partial_list/1,83,static,private,monofile,built_in,[
     call_c('Pl_Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:fd_var/1,90,static,private,monofile,built_in_fd,[
+predicate(system:fd_var/1,89,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:non_fd_var/1,93,static,private,monofile,built_in_fd,[
+predicate(system:non_fd_var/1,92,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Non_Fd_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:generic_var/1,96,static,private,monofile,built_in_fd,[
+predicate(system:generic_var/1,95,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:non_generic_var/1,99,static,private,monofile,built_in_fd,[
+predicate(system:non_generic_var/1,98,static,private,monofile,built_in_fd,[
     call_c('Pl_Blt_Non_Generic_Var',[fast_call,boolean],[x(0)]),
     proceed]).

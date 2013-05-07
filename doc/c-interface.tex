@@ -114,7 +114,7 @@ In addition, \texttt{gprolog.h} defines a set of macros:
   of this version (e.g. \texttt{"Mar 29 2011"}.
 
 \item \texttt{PL\_PROLOG\_COPYRIGHT}: a C constant string associated with the
-  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2012 Daniel Diaz"}.
+  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2013 Daniel Diaz"}.
 
 \end{itemize}
 
@@ -903,8 +903,8 @@ interface when an output argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-PlBool Pl_Un_Integer_Check (PlLong n,          PlTerm term)
-PlBool Pl_Un_Positive_Check(PlLong n,          PlTerm term)
+PlBool Pl_Un_Integer_Check (PlLong n,        PlTerm term)
+PlBool Pl_Un_Positive_Check(PlLong n,        PlTerm term)
 PlBool Pl_Un_Float_Check   (double n,        PlTerm term)
 PlBool Pl_Un_Number_Check  (double n,        PlTerm term)
 PlBool Pl_Un_Atom_Check    (int atom,        PlTerm term)
@@ -1162,8 +1162,6 @@ PlBool Pl_Builtin_Compare(PlTerm cmp, PlTerm term1, PlTerm term2)
 \end{Indentation}
 
 
-
-
 \subsubsection{Term processing}
 
 The following functions give access to the built-in predicates:
@@ -1199,6 +1197,49 @@ the function \texttt{Pl\_Copy\_Contiguous\_Term()} can be used instead (it is
 faster). In any case, sufficient space should be available for the copy
 (i.e. from \texttt{dst\_term}). The function \texttt{Pl\_Term\_Size(term)}
 returns the number of \texttt{PlTerm} needed by \texttt{term}.
+
+The following function is an utility to display a term to the console, similarly to
+the built-in predicate \texttt{write/1} \RefSP{write-term/3}.
+
+\begin{Indentation}
+\begin{verbatim}
+void Pl_Write(PlTerm term)
+\end{verbatim}
+\end{Indentation}
+
+This \texttt{Pl\_Write} function can be used for debugging purpose. However, it is more
+flexible to receive the content of the \texttt{write/1} as a C string. This can be
+achieved by the following functions (using repectively \texttt{write/1},
+\texttt{writeq/1}, \texttt{write\_canonical/1} and \texttt{display/1}
+\RefSP{write-term/3} to obtain a textual representation of the term). These functions
+return a dynamically allocated C string (using \texttt{malloc(3)}) which can be freed
+by the user when no longer needed.
+
+\begin{Indentation}
+\begin{verbatim}
+char *Pl_Write_To_String(PlTerm term)
+
+char *Pl_Writeq_To_String(PlTerm term)
+
+char *Pl_Write_Canonical_To_String(PlTerm term)
+
+char *Pl_Display_To_String(PlTerm term)
+\end{verbatim}
+\end{Indentation}
+
+
+Finally the following function performs the opposite converstion: given a C string it
+returns the associated Prolog term. It uses \texttt{read\_term/2} \RefSP{read-term/3}
+with the option \texttt{end\_of\_term(eof)} (thus the C string does not need to
+terminate by a dot).
+
+\begin{Indentation}
+\begin{verbatim}
+PlTerm Pl_Read_From_String(const char *str)
+\end{verbatim}
+\end{Indentation}
+
+
 
 \subsubsection{Comparing and evaluating arithmetic expressions}
 The following functions compare arithmetic expressions. Each function
@@ -1432,24 +1473,19 @@ The following functions allows a C function to call a Prolog predicate:
 
 \begin{Indentation}
 \begin{verbatim}
-<<<<<<< HEAD
 void   Pl_Query_Begin             (PlBool recoverable)
 int    Pl_Query_Call              (int functor, int arity, PlTerm *arg)
 int    Pl_Query_Call_Module       (int module, int functor, int arity, PlTerm *arg)
+int    Pl_Query_Start             (int functor, int arity, PlTerm *arg,
+                                   PlBool recoverable)
+int    Pl_Query_Start_Module      (int module, int functor, int arity, PlTerm *arg, 
+                                   Plbool recoverable)
 int    Pl_Query_Next_Solution     (void)
 void   Pl_Query_End               (int op)
 PlTerm Pl_Get_Exception           (void)
 void   Pl_Exec_Continuation       (int functor, int arity, PlTerm *arg)
 void   Pl_Exec_Continuation_Module(int module, int functor, int arity, PlTerm *arg)
-=======
-void   Pl_Query_Begin        (PlBool recoverable)
-int    Pl_Query_Call         (int functor, int arity, PlTerm *arg)
-int    Pl_Query_Next_Solution(void)
-void   Pl_Query_End          (int op)
-PlTerm Pl_Get_Exception      (void)
-void   Pl_Exec_Continuation  (int functor, int arity, PlTerm *arg)
-void   Pl_Throw              (PlTerm ball)
->>>>>>> master
+void   Pl_Throw                   (PlTerm ball)
 \end{verbatim}
 \end{Indentation}
 
@@ -1459,8 +1495,8 @@ The invocation of a Prolog predicate should be done as follows:
 
 \item open a query using \texttt{Pl\_Query\_Begin()}
 
-\item compute the first solution using \texttt{Pl\_Query\_Call()} (or the
-  module-aware version \texttt{Pl\_Query\_Call\_Module()})
+\item compute the first solution using \texttt{Pl\_Query\_Call()}\\
+  (or the module-aware version \texttt{Pl\_Query\_Call\_Module()})
 
 \item eventually compute next solutions using
 \texttt{Pl\_Query\_Next\_Solution()}
@@ -1504,6 +1540,12 @@ additionnal argument to specify the lookup module (an atom). The procedure is
 first searched in the specified module, then in the \texttt{user} module and
 finally in the \texttt{system} module.
 
+The function \texttt{Pl\_Query\_Start(functor, arity, arg, recoverable)} is a
+shorthand equivalent to a call to \texttt{Pl\_Query\_Begin(recoverable)} followed by
+a call to \texttt{Pl\_Query\_Call(functor, arity, arg)}.  
+The function \texttt{Pl\_Query\_Start\_Module} is similar but accepts an additionnal
+argument to specify the lookup module (an atom).
+
 The function \texttt{Pl\_Query\_Next\_Solution()} is used to compute a new
 solution. It must be only used if the result of the previous solution was
 \texttt{PL\_SUCCESS}. This functions returns the same kind of values as
@@ -1538,21 +1580,13 @@ terminating it to call another query. In that case the first execution of
 \texttt{Pl\_Query\_End()} will finish the second query (i.e. the inner) and
 the next execution of \texttt{Pl\_Query\_End()} will finish the first query.
 
-<<<<<<< HEAD
-Finally, the function \texttt{Pl\_Exec\_Continuation(functor, arity, arg)}
+The function \texttt{Pl\_Exec\_Continuation(functor, arity, arg)}
 replaces the current calculus by the execution of the specified
 predicate. The arguments \texttt{functor}, \texttt{arity} and \texttt{arg}
 are similar to those of the functions handling complex terms
-\RefSP{Introduction:(Manipulating-Prolog-terms)}. The function
-\texttt{Pl\_Exec\_Continuation\_Module} is similar but accepts an additionnal
-argument to specify the lookup module (an atom).
-=======
-The function \texttt{Pl\_Exec\_Continuation(functor, arity,
-arg)} replaces the current calculus by the execution of the specified
-predicate. The arguments \texttt{functor}, \texttt{arity} and
-\texttt{arg} are similar to those of the functions handling complex
-terms \RefSP{Introduction:(Manipulating-Prolog-terms)}.
->>>>>>> master
+\RefSP{Introduction:(Manipulating-Prolog-terms)}.
+The function \texttt{Pl\_Exec\_Continuation\_Module} is similar but accepts an
+additionnal argument to specify the lookup module (an atom).
 
 Finally the function \texttt{Pl\_Throw(ball)} throws an exception. See the
 \IdxCC{throw/1} control construct for more information on exceptions

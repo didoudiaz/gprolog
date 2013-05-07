@@ -6,7 +6,7 @@
  * Descr.: meta call management                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -129,6 +128,13 @@ call_det(Goal, Deterministic) :-
 
 
                                     % also called by C code BC_Emulate_Clause
+
+
+
+'$call_internal_with_cut'(Goal, _, CallInfo, _) :-
+	var(Goal), !,
+	'$call_c'('Pl_Call_Info_Bip_Name_1'(CallInfo)),
+	'$pl_err_instantiation'.
 
 '$call_internal_with_cut'(Module:P, _, CallInfo, VarCut) :-
 	!,

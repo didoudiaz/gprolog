@@ -6,7 +6,7 @@
  * Descr.: translation file for IRIX on MIPS                               *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -76,6 +75,7 @@ int inPrologCode = 0;	/* whether we are currently compiling a prolog code */
 
 	  /* variables for ma_parser.c / ma2asm.c */
 
+int can_produce_pic_code = 0;
 char *comment_prefix = "#";
 char *local_symb_prefix = ".L";
 int strings_need_null = 1;

@@ -1,21 +1,21 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : stat.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/stat.pl').
 
 
-predicate(system:'$use_stat'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_stat'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:statistics/0,45,static,private,monofile,built_in,[
+predicate(system:statistics/0,44,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[statistics,0]),
     call_c('Pl_Statistics_0',[],[]),
     proceed]).
 
 
-predicate(system:statistics/2,50,static,private,monofile,built_in,[
+predicate(system:statistics/2,49,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(5),
@@ -37,7 +37,7 @@ predicate(system:statistics/2,50,static,private,monofile,built_in,[
     execute('$stat'/3)]).
 
 
-predicate(system:'$statistics/2_$aux1'/3,50,static,private,monofile,local,[
+predicate(system:'$statistics/2_$aux1'/3,49,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -56,7 +56,7 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$check_stat_key'/1,62,static,private,monofile,built_in,[
+predicate(system:'$check_stat_key'/1,61,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -145,7 +145,7 @@ label(23),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$stat'/3,90,static,private,monofile,built_in,[
+predicate(system:'$stat'/3,89,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -232,7 +232,7 @@ label(18),
     proceed]).
 
 
-predicate(system:'$$stat/3_$aux1'/2,90,static,private,monofile,local,[
+predicate(system:'$$stat/3_$aux1'/2,89,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -251,7 +251,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$stat/3_$aux2'/1,90,static,private,monofile,local,[
+predicate(system:'$$stat/3_$aux2'/1,89,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -272,25 +272,25 @@ label(5),
     proceed]).
 
 
-predicate(system:user_time/1,126,static,private,monofile,built_in,[
+predicate(system:user_time/1,125,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[user_time,1]),
     call_c('Pl_User_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:system_time/1,133,static,private,monofile,built_in,[
+predicate(system:system_time/1,132,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system_time,1]),
     call_c('Pl_System_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:cpu_time/1,140,static,private,monofile,built_in,[
+predicate(system:cpu_time/1,139,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[cpu_time,1]),
     call_c('Pl_Cpu_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:real_time/1,147,static,private,monofile,built_in,[
+predicate(system:real_time/1,146,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[real_time,1]),
     call_c('Pl_Real_Time_1',[boolean],[x(0)]),
     proceed]).

@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <assert.h>
 
@@ -130,7 +129,7 @@ Retract(int module, WamWord head_word, WamWord body_word, Bool retractall)
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
-      Pl_Write_Simple(*first_arg_adr);
+      Pl_Write(*first_arg_adr);
     }
   DBGPRINTF("\n");
 #endif
@@ -310,7 +309,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord check_public_word)
   if (arity > 0)
     {
       DBGPRINTF("\tfirst arg: ");
-      Pl_Write_Simple(*first_arg_adr);
+      Pl_Write(*first_arg_adr);
     }
   DBGPRINTF("\n");
 #endif
@@ -414,7 +413,7 @@ Pl_Abolish_1(WamWord pred_indic_word)
 {
   int module, func, arity;
 
-  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, TRUE, &func, &arity);
+  module = Pl_Get_Pred_Indicator_Top(pred_indic_word, FALSE, &func, &arity);
 
   Pl_Update_Dynamic_Pred(module, func, arity, 3, -1);
 }

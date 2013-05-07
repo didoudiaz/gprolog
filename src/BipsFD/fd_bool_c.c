@@ -6,7 +6,7 @@
  * Descr.: boolean and Meta-constraint predicate management - C part       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #define OBJ_INIT Fd_Bool_Initializer
 
@@ -106,7 +105,7 @@ static WamWord *sp;
 static WamWord vars_tbl[VARS_STACK_SIZE];
 static WamWord *vars_sp;
 
-static Bool (*func_tbl[NB_OF_OP + 2]) ();
+static Bool (*func_tbl[NB_OF_OP + 2]) (WamWord *exp, int result, WamWord *load_word);
 
 
 
@@ -383,7 +382,7 @@ Simplify(int sign, WamWord e_word)
 
 #ifdef DEBUG
   printf("ENTERING %5ld: %2d: ", sp - stack, sign);
-  Pl_Write_Simple(e_word);
+  Pl_Write(e_word);
   printf("\n");
 #endif
 

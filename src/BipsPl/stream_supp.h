@@ -6,7 +6,7 @@
  * Descr.: stream support - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 
@@ -213,6 +212,7 @@ int pl_stm_top_level_output;
 int pl_stm_debugger_input;
 int pl_stm_debugger_output;
 
+Bool pl_stream_use_linedit;
 char *pl_le_prompt;
 int pl_use_le_prompt;
 
@@ -280,6 +280,7 @@ extern int pl_stm_top_level_output;
 extern int pl_stm_debugger_input;
 extern int pl_stm_debugger_output;
 
+extern Bool pl_stream_use_linedit;
 extern char *pl_le_prompt;
 extern int pl_use_le_prompt;
 

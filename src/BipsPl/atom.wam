@@ -1,113 +1,113 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : atom.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/atom.pl').
 
 
-predicate(system:'$use_atom'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_atom'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:atom_length/2,45,static,private,monofile,built_in,[
+predicate(system:atom_length/2,44,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[atom_length,2]),
     call_c('Pl_Atom_Length_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:atom_concat/3,52,static,private,monofile,built_in,[
+predicate(system:atom_concat/3,51,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[atom_concat,3]),
     call_c('Pl_Atom_Concat_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$atom_concat_alt'/0,56,static,private,monofile,built_in,[
+predicate(system:'$atom_concat_alt'/0,55,static,private,monofile,built_in,[
     call_c('Pl_Atom_Concat_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:sub_atom/5,61,static,private,monofile,built_in,[
+predicate(system:sub_atom/5,60,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sub_atom,5]),
     call_c('Pl_Sub_Atom_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(system:'$sub_atom_alt'/0,66,static,private,monofile,built_in,[
+predicate(system:'$sub_atom_alt'/0,65,static,private,monofile,built_in,[
     call_c('Pl_Sub_Atom_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:atom_chars/2,72,static,private,monofile,built_in,[
+predicate(system:atom_chars/2,71,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[atom_chars,2]),
     call_c('Pl_Atom_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:atom_codes/2,79,static,private,monofile,built_in,[
+predicate(system:atom_codes/2,78,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[atom_codes,2]),
     call_c('Pl_Atom_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:number_atom/2,86,static,private,monofile,built_in,[
+predicate(system:number_atom/2,85,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[number_atom,2]),
     call_c('Pl_Number_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:number_chars/2,93,static,private,monofile,built_in,[
+predicate(system:number_chars/2,92,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[number_chars,2]),
     call_c('Pl_Number_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:number_codes/2,100,static,private,monofile,built_in,[
+predicate(system:number_codes/2,99,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[number_codes,2]),
     call_c('Pl_Number_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:char_code/2,107,static,private,monofile,built_in,[
+predicate(system:char_code/2,106,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[char_code,2]),
     call_c('Pl_Char_Code_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:name/2,114,static,private,monofile,built_in,[
+predicate(system:name/2,113,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name,2]),
     call_c('Pl_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:lower_upper/2,121,static,private,monofile,built_in,[
+predicate(system:lower_upper/2,120,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[lower_upper,2]),
     call_c('Pl_Lower_Upper_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:current_atom/1,128,static,private,monofile,built_in,[
+predicate(system:current_atom/1,127,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_atom,1]),
     execute('$current_atom'/1)]).
 
 
-predicate(system:'$current_atom'/1,133,static,private,monofile,built_in,[
+predicate(system:'$current_atom'/1,132,static,private,monofile,built_in,[
     put_integer(1,1),
     call_c('Pl_Current_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:'$current_atom_any'/1,136,static,private,monofile,built_in,[
+predicate(system:'$current_atom_any'/1,135,static,private,monofile,built_in,[
     put_integer(0,1),
     call_c('Pl_Current_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:'$current_atom_alt'/0,140,static,private,monofile,built_in,[
+predicate(system:'$current_atom_alt'/0,139,static,private,monofile,built_in,[
     call_c('Pl_Current_Atom_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:atom_property/2,147,static,private,monofile,built_in,[
+predicate(system:atom_property/2,146,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -120,7 +120,7 @@ predicate(system:atom_property/2,147,static,private,monofile,built_in,[
     execute('$atom_property1'/2)]).
 
 
-predicate(system:'$atom_property_any'/2,152,static,private,monofile,built_in,[
+predicate(system:'$atom_property_any'/2,151,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -132,7 +132,7 @@ predicate(system:'$atom_property_any'/2,152,static,private,monofile,built_in,[
     execute('$atom_property1'/2)]).
 
 
-predicate(system:'$atom_property1'/2,159,static,private,monofile,built_in,[
+predicate(system:'$atom_property1'/2,158,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(3),
@@ -155,7 +155,7 @@ predicate(system:'$atom_property1'/2,159,static,private,monofile,built_in,[
     execute('$atom_property2'/7)]).
 
 
-predicate(system:'$check_atom_prop'/1,166,static,private,monofile,built_in,[
+predicate(system:'$check_atom_prop'/1,165,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -228,7 +228,7 @@ label(18),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$atom_property2'/7,189,static,private,monofile,built_in,[
+predicate(system:'$atom_property2'/7,188,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -296,14 +296,14 @@ label(16),
     proceed]).
 
 
-predicate(system:new_atom/1,208,static,private,monofile,built_in,[
+predicate(system:new_atom/1,207,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[new_atom,1]),
     put_atom(atom_,1),
     call_c('Pl_New_Atom_2',[boolean],[x(1),x(0)]),
     proceed]).
 
 
-predicate(system:new_atom/2,212,static,private,monofile,built_in,[
+predicate(system:new_atom/2,211,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[new_atom,2]),
     call_c('Pl_New_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).

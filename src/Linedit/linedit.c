@@ -6,7 +6,7 @@
  * Descr.: line editor                                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1387,7 +1386,7 @@ Display_Help(void)
 
   L("");
   sprintf(buff,
-          "   linedit %-25s Copyright (C) 1999-2012 Daniel Diaz",
+          "   linedit %-25s Copyright (C) 1999-2013 Daniel Diaz",
           LINEDIT_VERSION);
   L(buff);
   L("");

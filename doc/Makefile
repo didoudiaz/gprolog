@@ -6,9 +6,21 @@ PDFNAME=$(PREFIX).pdf
 HTMLNAME=$(PREFIX).html
 CHMNAME=$(PREFIX).chm
 
-FIG=$(shell echo *.fig)
-EPS=$(FIG:.fig=.eps)
-GIF=$(FIG:.fig=.gif)
+
+# Images:
+#    .eps are needed for latex (and hevea)
+#    .pdf are needed for pdflatex
+#    .png are needed for hevea
+#
+# There are rules to convert eps -> pdf and eps->png
+# NB: convert (ImageMagick) is a superb tool for conversion
+#
+# For the logo: it is created from the .ico using convert
+#  NB: gprolog.ico[5] means the 5th image of the .ico file (256x256)
+
+IMG_EPS=logo.eps compil-scheme.eps debug-box.eps
+IMG_PDF=$(IMG_EPS:.eps=.pdf)
+IMG_PNG=$(IMG_EPS:.eps=.png)
 
 TEX_SRC=$(MAIN) packages.tex macros.tex body.tex copyright.tex \
         cover.tex acknow.tex intro.tex use.tex debugger.tex \
@@ -21,7 +33,7 @@ TRACE=
 
 
 .SUFFIXES:
-.SUFFIXES: .html .hva .pdf .eps .ps .dvi .aux .toc .idx .tex $(SUFFIXES)
+.SUFFIXES: .html .hva .pdf .gif .png .eps .ps .dvi .aux .toc .idx .tex $(SUFFIXES)
 
 help:
 	@echo
@@ -44,24 +56,43 @@ help:
 
 .eps.pdf:
 	epstopdf $<
+#	convert $< $@
 #	ps2pdf $< $@
+
+
+#.eps.gif:
+#	convert $< $@
+
+.eps.png:
+	convert $< $@
 
 
 
 all: dvi pdf ps html chm
 
 
+logo.eps: ../gprolog.ico
+	convert -scale 150x150 $<[5] $@
+
+# epstopdf does not handle transparency (needed for HeVeA in case the background is colored)
+logo.png: ../gprolog.ico
+	convert -scale 150x150 $<[5] $@
+
+logo.pdf: ../gprolog.ico
+	convert -scale 150x150 $<[5] $@
+
+
 
 dvi: $(DVINAME)
 
-$(DVINAME): $(TEX_SRC) compil-scheme.eps debug-box.eps
+$(DVINAME): $(TEX_SRC) $(IMG_EPS)
 	do_latex -dvi $(TRACE) $(MAIN)
 
 
 
 pdf: $(PDFNAME)
 
-$(PDFNAME): $(TEX_SRC) compil-scheme.pdf debug-box.pdf
+$(PDFNAME): $(TEX_SRC)  $(IMG_PDF)
 	do_latex -pdf $(TRACE) $(MAIN)
 
 
@@ -74,11 +105,12 @@ $(PSNAME): $(DVINAME)
 
 html: $(HTMLNAME) html_node/index.html
 
-$(HTMLNAME): custom.hva $(TEX_SRC)
+$(HTMLNAME): custom.hva $(TEX_SRC) $(IMG_PNG)
 	hevea -O -s -exec xxdate.exe -fix custom.hva $(MAIN) -o $(HTMLNAME)
 
 html_node/index.html: $(HTMLNAME)
 	rm -f html_node/index.html html_node/$(PREFIX)*.html
+	cp $(IMG_PNG) html_node/.
 	(cd html_node && hacha -hrf -tocbis ../$(HTMLNAME) && ./hh_do_hhc_hhk $(PREFIX))
 
 chm: $(CHMNAME)
@@ -93,16 +125,16 @@ clean:
 	rm -rf $(PREFIX)*.htoc $(PREFIX)*.haux $(PREFIX)*.hind $(PREFIX)*.hrf
 
 
-distclean: clean-full
+distclean: clean-aux
 
 
-clean-all: distclean
+clean-all:
 	rm -f $(DVINAME) $(PDFNAME) $(PSNAME) $(CHMNAME)
-	rm -f $(HTMLNAME) html_node/$(PREFIX)*.html html_node/index.html
-	(cd html_node ; rm -f *.hhc *.hhk *.css *.hrf *_motif.gif *.html)
+	rm -f $(HTMLNAME)
+	(cd html_node ; rm -f *.hhc *.hhk *.css *.hrf *_motif.gif *.png *.html)
 
 clean-aux:
-	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf
+	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf *.image.tex 
 
 clean-full: clean-all clean-aux
 
@@ -120,10 +152,10 @@ HTMLTGZNAME=$(HTMLNAME).tar.gz
 HTMLNODETGZNAME=$(PREFIX).html_node.tar.gz
 
 copy: $(DVINAME) $(PSNAME) $(PDFNAME) $(HTMLNAME) $(CHMNAME) names
-	cp $(DVINAME) $(EPS) $(PSNAME) $(PDFNAME) $(HTMLNAME) $(GIF) $(CHMNAME) $(COPY_PATH)/.
-	tar cf - $(DVINAME) $(EPS) | gzip > $(COPY_PATH)/$(DVITGZNAME)
-	tar cf - $(HTMLNAME) $(GIF) | gzip > $(COPY_PATH)/$(HTMLTGZNAME)
-	( cd html_node ; tar cf - index.html $(PREFIX)*.html $(PREFIX)*.css *.gif | gzip > $(COPY_PATH)/$(HTMLNODETGZNAME) )
+	cp $(DVINAME) $(IMG_EPS) $(PSNAME) $(PDFNAME) $(HTMLNAME) $(IMG_PNG) $(CHMNAME) $(COPY_PATH)/.
+	tar cf - $(DVINAME) $(IMG_EPS) | gzip > $(COPY_PATH)/$(DVITGZNAME)
+	tar cf - $(HTMLNAME) $(IMG_PNG) | gzip > $(COPY_PATH)/$(HTMLTGZNAME)
+	( cd html_node ; tar cf - index.html $(PREFIX)*.html $(PREFIX)*.css *.gif *.png| gzip > $(COPY_PATH)/$(HTMLNODETGZNAME) )
 
 NAMES_FILE=$(COPY_PATH)/doc_names
 
@@ -135,8 +167,8 @@ names:
 	@echo "PSNAME=$(PSNAME)"                   >>$(NAMES_FILE)
 	@echo "HTMLNAME=$(HTMLNAME)"               >>$(NAMES_FILE)
 	@echo "CHMNAME=$(CHMNAME)"                 >>$(NAMES_FILE)
-	@echo "GIF='$(GIF)'"                       >>$(NAMES_FILE)
-	@echo "EPS='$(EPS)'"                       >>$(NAMES_FILE)
+	@echo "IMG_EPS='$(IMG_EPS)'"               >>$(NAMES_FILE)
+	@echo "IMG_PNG='$(IMG_PNG)'"               >>$(NAMES_FILE)
 	@echo "DVITGZNAME=$(DVITGZNAME)"           >>$(NAMES_FILE)
 	@echo "HTMLTGZNAME=$(HTMLTGZNAME)"         >>$(NAMES_FILE)
 	@echo "HTMLNODETGZNAME=$(HTMLNODETGZNAME)" >>$(NAMES_FILE)

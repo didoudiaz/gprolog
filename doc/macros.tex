@@ -128,6 +128,8 @@
 %\renewcommand{\OneLineTwoCols}[3][4cm]%
 %   {\begin{CodeTwoCols}[#1]\texttt{#2} & {#3}\end{CodeTwoCols}}
 
+
+
 \newlength{\tmplg}
 \newcounter{colnbround}
 \newenvironment{TabularC}[1]%
@@ -137,22 +139,22 @@
                        - \arrayrulewidth*\value{colnbround}/#1}%
     \par\begin{tabular*}{\linewidth}%
                       {|*{#1}{>{\raggedright\arraybackslash\hspace{0pt}}%
-                         p{\the\tmplg}|}}}%
+                         m{\the\tmplg}|}}}%
    {\end{tabular*}\par}
 
 
 % For use in tabular (parameter is column width)
 
-\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}m{#1}}
 
 
 
 % Image inclusion
 
-\newcommand{\InsertImage}[2][0.83]%
-   {\BL\begin{center}\fbox{\includegraphics[scale=#1]{#2}}\end{center}\BL}
+\newcommand{\InsertImage}[2][scale=0.83]%
+   {\BL\begin{center}\includegraphics[#1]{#2}\end{center}\BL}
 
 
 

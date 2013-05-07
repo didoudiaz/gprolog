@@ -6,7 +6,7 @@
  * Descr.: term writing support - header file                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*---------------------------------*
  * Constants                       *
@@ -79,7 +78,7 @@ extern int pl_last_writing;
 void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 		   WamWord term_word);
 
-void Pl_Write_Simple(WamWord term_word);
+void Pl_Write(WamWord term_word);
 
 void Pl_Write_A_Full_Stop(StmInf *pstm);
 

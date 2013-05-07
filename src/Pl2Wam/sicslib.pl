@@ -1,4 +1,3 @@
-/* $Id$ */
 
 prolog_name('SICStus Prolog').
 prolog_version(X) :-

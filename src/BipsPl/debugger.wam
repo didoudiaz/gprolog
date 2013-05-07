@@ -1,11 +1,11 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : debugger.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/debugger.pl').
 
 
-predicate(system:'$init_debugger'/0,42,static,private,monofile,built_in,[
+predicate(system:'$init_debugger'/0,41,static,private,monofile,built_in,[
     allocate(0),
     put_integer(13,0),
     put_integer(1,1),
@@ -19,7 +19,7 @@ predicate(system:'$init_debugger'/0,42,static,private,monofile,built_in,[
     execute('$debug_switch_off'/0)]).
 
 
-predicate(system:'$debug_switch_off'/0,51,static,private,monofile,built_in,[
+predicate(system:'$debug_switch_off'/0,50,static,private,monofile,built_in,[
     put_atom('$debug_mode',0),
     put_atom(nodebug,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
@@ -36,7 +36,7 @@ predicate(system:'$debug_switch_off'/0,51,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$debug_switch_on'/1,60,static,private,monofile,built_in,[
+predicate(system:'$debug_switch_on'/1,59,static,private,monofile,built_in,[
     allocate(1),
     put_atom('$debug_mode',1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(0)]),
@@ -60,18 +60,18 @@ predicate(system:'$debug_switch_on'/1,60,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:wam_debug/0,73,static,private,monofile,built_in,[
+predicate(system:wam_debug/0,72,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[wam_debug,0]),
     call_c('Pl_Debug_Wam',[],[]),
     proceed]).
 
 
-predicate(system:notrace/0,80,static,private,monofile,built_in,[
+predicate(system:notrace/0,79,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[notrace,0]),
     execute(nodebug/0)]).
 
 
-predicate(system:nodebug/0,87,static,private,monofile,built_in,[
+predicate(system:nodebug/0,86,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nodebug,0]),
     call('$debug_switch_off'/0),
@@ -79,7 +79,7 @@ predicate(system:nodebug/0,87,static,private,monofile,built_in,[
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(system:trace/0,93,static,private,monofile,built_in,[
+predicate(system:trace/0,92,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[trace,0]),
     put_atom(trace,0),
@@ -88,7 +88,7 @@ predicate(system:trace/0,93,static,private,monofile,built_in,[
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(system:debug/0,99,static,private,monofile,built_in,[
+predicate(system:debug/0,98,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debug,0]),
     put_atom(debug,0),
@@ -97,7 +97,7 @@ predicate(system:debug/0,99,static,private,monofile,built_in,[
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(system:'$show_debugger_mode'/0,107,static,private,monofile,built_in,[
+predicate(system:'$show_debugger_mode'/0,106,static,private,monofile,built_in,[
     allocate(0),
     put_atom('$debug_mode',1),
     put_variable(x(0),2),
@@ -108,7 +108,7 @@ predicate(system:'$show_debugger_mode'/0,107,static,private,monofile,built_in,[
     execute(nl/1)]).
 
 
-predicate(system:'$show_debugger_mode1'/1,113,static,private,monofile,built_in,[
+predicate(system:'$show_debugger_mode1'/1,112,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -152,7 +152,7 @@ label(7),
     execute(write/2)]).
 
 
-predicate(system:debugging/0,127,static,private,monofile,built_in,[
+predicate(system:debugging/0,126,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debugging,0]),
     call('$show_debugger_mode'/0),
@@ -162,7 +162,7 @@ predicate(system:debugging/0,127,static,private,monofile,built_in,[
     execute('$show_spy_points'/0)]).
 
 
-predicate(system:leash/1,137,static,private,monofile,built_in,[
+predicate(system:leash/1,136,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -267,7 +267,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$leash_make_mask'/2,170,static,private,monofile,built_in,[
+predicate(system:'$leash_make_mask'/2,169,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -300,7 +300,7 @@ label(4),
     proceed]).
 
 
-predicate(system:'$show_leashing_info'/0,180,static,private,monofile,built_in,[
+predicate(system:'$show_leashing_info'/0,179,static,private,monofile,built_in,[
     allocate(0),
     put_atom('$debug_leash',1),
     put_variable(x(0),2),
@@ -311,7 +311,7 @@ predicate(system:'$show_leashing_info'/0,180,static,private,monofile,built_in,[
     execute(nl/1)]).
 
 
-predicate(system:'$show_leashing_info1'/1,186,static,private,monofile,built_in,[
+predicate(system:'$show_leashing_info1'/1,185,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -339,7 +339,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate(system:'$show_leashing_info2'/1,197,static,private,monofile,built_in,[
+predicate(system:'$show_leashing_info2'/1,196,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -372,7 +372,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_is_not_leashed'/1,210,static,private,monofile,built_in,[
+predicate(system:'$debug_is_not_leashed'/1,209,static,private,monofile,built_in,[
     allocate(2),
     put_atom('$debug_leash',1),
     put_variable(y(0),2),
@@ -388,7 +388,7 @@ predicate(system:'$debug_is_not_leashed'/1,210,static,private,monofile,built_in,
     proceed]).
 
 
-predicate(system:'$debug_port_mask'/2,218,static,private,monofile,built_in,[
+predicate(system:'$debug_port_mask'/2,217,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -435,7 +435,7 @@ label(11),
     proceed]).
 
 
-predicate(system:'$show_undefined_action'/0,231,static,private,monofile,built_in,[
+predicate(system:'$show_undefined_action'/0,230,static,private,monofile,built_in,[
     allocate(1),
     put_atom(unknown,0),
     put_variable(y(0),1),
@@ -450,7 +450,7 @@ predicate(system:'$show_undefined_action'/0,231,static,private,monofile,built_in
     execute(nl/1)]).
 
 
-predicate(system:'$show_undefined_action1'/1,238,static,private,monofile,built_in,[
+predicate(system:'$show_undefined_action1'/1,237,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -484,7 +484,7 @@ label(7),
     execute(write/2)]).
 
 
-predicate(system:spypoint_condition/3,252,static,private,monofile,built_in,[
+predicate(system:spypoint_condition/3,251,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -500,7 +500,7 @@ predicate(system:spypoint_condition/3,252,static,private,monofile,built_in,[
     execute('$spypoint_condition1'/4)]).
 
 
-predicate(system:'$spypoint_condition1'/4,258,static,private,monofile,built_in,[
+predicate(system:'$spypoint_condition1'/4,257,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -521,7 +521,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$spypoint_condition2'/4,270,static,private,monofile,built_in,[
+predicate(system:'$spypoint_condition2'/4,269,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     get_variable(x(5),3),
@@ -540,7 +540,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$spypoint_condition2/4_$aux1'/6,270,static,private,monofile,local,[
+predicate(system:'$$spypoint_condition2/4_$aux1'/6,269,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -593,7 +593,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(system:spy/1,289,static,private,monofile,built_in,[
+predicate(system:spy/1,288,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spy,1]),
@@ -621,7 +621,7 @@ label(1),
     proceed]).
 
 
-predicate(system:nospy/1,306,static,private,monofile,built_in,[
+predicate(system:nospy/1,305,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospy,1]),
@@ -641,7 +641,7 @@ label(1),
     proceed]).
 
 
-predicate(system:nospyall/0,318,static,private,monofile,built_in,[
+predicate(system:nospyall/0,317,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospyall,0]),
@@ -661,7 +661,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_spy_set'/2,330,static,private,monofile,built_in,[
+predicate(system:'$debug_spy_set'/2,329,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -720,7 +720,7 @@ label(4),
     execute('$debug_spy_set'/2)]).
 
 
-predicate(system:'$$debug_spy_set/2_$aux1'/4,332,static,private,monofile,local,[
+predicate(system:'$$debug_spy_set/2_$aux1'/4,331,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -746,7 +746,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_spy_reset'/1,345,static,private,monofile,built_in,[
+predicate(system:'$debug_spy_reset'/1,344,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
@@ -796,7 +796,7 @@ label(4),
     execute('$debug_spy_reset'/1)]).
 
 
-predicate(system:'$$debug_spy_reset/1_$aux1'/4,347,static,private,monofile,local,[
+predicate(system:'$$debug_spy_reset/1_$aux1'/4,346,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -822,7 +822,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$has_spy_point'/3,359,static,private,monofile,built_in,[
+predicate(system:'$has_spy_point'/3,358,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     allocate(1),
@@ -843,7 +843,7 @@ predicate(system:'$has_spy_point'/3,359,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$has_no_spy_point'/2,365,static,private,monofile,built_in,[
+predicate(system:'$has_no_spy_point'/2,364,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -868,7 +868,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$spy_test_condition'/4,375,static,private,monofile,built_in,[
+predicate(system:'$spy_test_condition'/4,374,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     get_structure(c/3,3),
@@ -879,7 +879,7 @@ predicate(system:'$spy_test_condition'/4,375,static,private,monofile,built_in,[
     execute('$$spy_test_condition/4_$aux1'/3)]).
 
 
-predicate(system:'$$spy_test_condition/4_$aux1'/3,375,static,private,monofile,local,[
+predicate(system:'$$spy_test_condition/4_$aux1'/3,374,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -899,7 +899,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$show_spy_points'/0,386,static,private,monofile,built_in,[
+predicate(system:'$show_spy_points'/0,385,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(4),
     put_atom(debugger_output,0),
@@ -933,7 +933,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_list_of_pred'/3,399,static,private,monofile,built_in,[
+predicate(system:'$debug_list_of_pred'/3,398,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -985,7 +985,7 @@ label(6),
     execute('$debug_list_of_pred_one'/3)]).
 
 
-predicate(system:'$debug_list_of_pred_one'/3,415,static,private,monofile,built_in,[
+predicate(system:'$debug_list_of_pred_one'/3,414,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1087,7 +1087,7 @@ label(9),
     execute('$debug_list_of_pred_one1'/5)]).
 
 
-predicate(system:'$debug_list_of_pred_one1'/5,444,static,private,monofile,built_in,[
+predicate(system:'$debug_list_of_pred_one1'/5,443,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1153,7 +1153,7 @@ label(3),
     execute('$$debug_list_of_pred_one1/5_$aux2'/6)]).
 
 
-predicate(system:'$$debug_list_of_pred_one1/5_$aux2'/6,456,static,private,monofile,local,[
+predicate(system:'$$debug_list_of_pred_one1/5_$aux2'/6,455,static,private,monofile,local,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),5),
@@ -1179,7 +1179,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$debug_list_of_pred_one1/5_$aux4'/3,456,static,private,monofile,local,[
+predicate(system:'$$debug_list_of_pred_one1/5_$aux4'/3,455,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1196,7 +1196,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$debug_list_of_pred_one1/5_$aux3'/5,456,static,private,monofile,local,[
+predicate(system:'$$debug_list_of_pred_one1/5_$aux3'/5,455,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1228,7 +1228,7 @@ label(2),
     proceed]).
 
 
-predicate(system:'$$debug_list_of_pred_one1/5_$aux1'/5,456,static,private,monofile,local,[
+predicate(system:'$$debug_list_of_pred_one1/5_$aux1'/5,455,static,private,monofile,local,[
     try_me_else(1),
     allocate(7),
     get_variable(y(0),0),
@@ -1275,7 +1275,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_call'/3,503,static,private,monofile,built_in,[
+predicate(system:'$debug_call'/3,502,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(23),
@@ -1394,7 +1394,7 @@ label(23),
     put_value(x(1),0),
     put_value(y(0),1),
     put_variable(y(2),2),
-    call('$$debug_call/3_$aux1'/4),
+    call('$$debug_call/3_$aux1'/3),
     put_atom('$debug_info',0),
     put_variable(y(3),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
@@ -1444,7 +1444,7 @@ label(23),
     execute('$debug_call1'/9)]).
 
 
-predicate(system:'$$debug_call/3_$aux2'/2,544,static,private,monofile,local,[
+predicate(system:'$$debug_call/3_$aux2'/2,543,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -1472,11 +1472,13 @@ label(4),
     proceed]).
 
 
-predicate(system:'$$debug_call/3_$aux1'/4,544,static,private,monofile,local,[
+predicate(system:'$$debug_call/3_$aux1'/3,543,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),3),
-    call('$get_module_of_goal'/3),
+    call('$get_module_of_goal_if_not_meta_pred'/3),
     cut(y(0)),
     deallocate,
     proceed,
@@ -1487,7 +1489,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_call1'/9,566,static,private,monofile,built_in,[
+predicate(system:'$debug_call1'/9,570,static,private,monofile,built_in,[
     pragma_arity(10),
     get_current_choice(x(9)),
     try_me_else(1),
@@ -1579,7 +1581,7 @@ label(2),
     execute('$debug_call'/3)]).
 
 
-predicate(system:'$$debug_call1/9_$aux1'/3,566,static,private,monofile,local,[
+predicate(system:'$$debug_call1/9_$aux1'/3,570,static,private,monofile,local,[
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),1),
@@ -1592,7 +1594,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_call_port'/6,597,static,private,monofile,built_in,[
+predicate(system:'$debug_call_port'/6,601,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1610,34 +1612,48 @@ predicate(system:'$debug_call_port'/6,597,static,private,monofile,built_in,[
     put_atom('$debug_unify',1),
     put_variable(x(0),2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    put_value(y(0),1),
-    put_value(y(1),2),
+    put_value(y(1),1),
+    put_value(y(0),2),
     put_value(y(2),3),
     deallocate,
     execute('$$debug_call_port/6_$aux1'/4)]).
 
 
-predicate(system:'$$debug_call_port/6_$aux1'/4,597,static,private,monofile,local,[
+predicate(system:'$$debug_call_port/6_$aux1'/4,601,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
-    put_atom('',5),
-    call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(5)]),
+    allocate(3),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    get_variable(y(2),3),
+    put_atom('',1),
+    call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     cut(x(4)),
-    put_atom(fail,0),
-    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(1),x(0)]),
-    put_value(x(1),0),
-    put_value(x(2),1),
-    put_value(x(3),2),
+    put_atom('now I call ~w~n',0),
+    put_structure((:)/2,2),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    put_list(1),
+    unify_value(x(2)),
+    unify_nil,
+    call(format/2),
+    put_value(y(1),0),
+    put_atom(fail,1),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
+    put_value(y(1),0),
+    put_value(y(0),1),
+    put_value(y(2),2),
+    deallocate,
     execute('$call_from_debugger'/3),
 
 label(1),
     trust_me_else_fail,
-    get_value(x(0),1),
+    get_value(x(0),2),
     proceed]).
 
 
-predicate(system:'$debug_end_call'/7,615,static,private,monofile,built_in,[
+predicate(system:'$debug_end_call'/7,619,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),5),
@@ -1658,7 +1674,7 @@ label(1),
     fail]).
 
 
-predicate(system:'$debug_exception_port'/6,627,static,private,monofile,built_in,[
+predicate(system:'$debug_exception_port'/6,631,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),5),
     put_atom('$debug_ball',5),
@@ -1674,7 +1690,7 @@ predicate(system:'$debug_exception_port'/6,627,static,private,monofile,built_in,
     execute('$throw'/4)]).
 
 
-predicate(system:'$debug_port'/6,637,static,private,monofile,built_in,[
+predicate(system:'$debug_port'/6,641,static,private,monofile,built_in,[
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1695,7 +1711,7 @@ predicate(system:'$debug_port'/6,637,static,private,monofile,built_in,[
     execute('$debug_port1'/7)]).
 
 
-predicate(system:'$debug_port1'/7,642,static,private,monofile,built_in,[
+predicate(system:'$debug_port1'/7,646,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     call('$debug_port2'/7),
@@ -1710,7 +1726,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_port2'/7,654,static,private,monofile,built_in,[
+predicate(system:'$debug_port2'/7,658,static,private,monofile,built_in,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -1733,7 +1749,7 @@ label(1),
     execute('$debug_port_prompt'/7)]).
 
 
-predicate(system:'$debug_port_ignore'/5,665,static,private,monofile,built_in,[
+predicate(system:'$debug_port_ignore'/5,669,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     switch_on_term(4,1,fail,fail,3),
@@ -1832,7 +1848,7 @@ label(15),
     proceed]).
 
 
-predicate(system:'$$debug_port_ignore/5_$aux3'/3,687,static,private,monofile,local,[
+predicate(system:'$$debug_port_ignore/5_$aux3'/3,691,static,private,monofile,local,[
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),1),
@@ -1846,7 +1862,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$debug_port_ignore/5_$aux2'/5,678,static,private,monofile,local,[
+predicate(system:'$$debug_port_ignore/5_$aux2'/5,682,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1865,7 +1881,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$debug_port_ignore/5_$aux1'/4,670,static,private,monofile,local,[
+predicate(system:'$$debug_port_ignore/5_$aux1'/4,674,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1880,7 +1896,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_port_prompt'/7,697,static,private,monofile,built_in,[
+predicate(system:'$debug_port_prompt'/7,701,static,private,monofile,built_in,[
     pragma_arity(8),
     get_current_choice(x(7)),
     allocate(8),
@@ -1914,7 +1930,7 @@ predicate(system:'$debug_port_prompt'/7,697,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$$debug_port_prompt/7_$aux1'/6,697,static,private,monofile,local,[
+predicate(system:'$$debug_port_prompt/7_$aux1'/6,701,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1951,7 +1967,7 @@ label(1),
     execute('$debug_exec_cmd'/7)]).
 
 
-predicate(system:'$debug_read_cmd'/1,711,static,private,monofile,built_in,[
+predicate(system:'$debug_read_cmd'/1,715,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(debugger_output,0),
@@ -1978,7 +1994,7 @@ predicate(system:'$debug_read_cmd'/1,711,static,private,monofile,built_in,[
     execute(format/3)]).
 
 
-predicate(system:'$debug_read_integer'/1,723,static,private,monofile,built_in,[
+predicate(system:'$debug_read_integer'/1,727,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(1),
@@ -1995,7 +2011,7 @@ predicate(system:'$debug_read_integer'/1,723,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$debug_exec_cmd'/7,731,static,private,monofile,built_in,[
+predicate(system:'$debug_exec_cmd'/7,735,static,private,monofile,built_in,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -2524,7 +2540,7 @@ label(66),
     fail]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux6'/1,884,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux6'/1,891,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -2556,7 +2572,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux5'/4,863,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux5'/4,867,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2590,7 +2606,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux7'/4,863,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux7'/4,867,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2616,14 +2632,17 @@ predicate(system:'$$debug_exec_cmd/7_$aux7'/4,863,static,private,monofile,local,
 label(1),
     trust_me_else_fail,
     allocate(0),
+    call_c('Pl_Reset_Debug_Call_Code_0',[],[]),
     put_meta_term(system,3,0),
     call(listing/1),
     put_atom(debugger_output,0),
+    call(nl/1),
     deallocate,
-    execute(nl/1)]).
+    call_c('Pl_Set_Debug_Call_Code_0',[],[]),
+    proceed]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux4'/3,833,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux4'/3,837,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2664,7 +2683,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux3'/2,816,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux3'/2,820,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -2696,7 +2715,7 @@ label(1),
     fail]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux2'/1,799,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux2'/1,803,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -2723,7 +2742,7 @@ label(1),
     execute(nl/1)]).
 
 
-predicate(system:'$$debug_exec_cmd/7_$aux1'/1,743,static,private,monofile,local,[
+predicate(system:'$$debug_exec_cmd/7_$aux1'/1,747,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2751,7 +2770,7 @@ label(7),
     proceed]).
 
 
-predicate(system:'$debug_write_goal'/5,920,static,private,monofile,built_in,[
+predicate(system:'$debug_write_goal'/5,927,static,private,monofile,built_in,[
     allocate(9),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2799,7 +2818,7 @@ predicate(system:'$debug_write_goal'/5,920,static,private,monofile,built_in,[
     execute(write_term/3)]).
 
 
-predicate(system:'$$debug_write_goal/5_$aux1'/3,920,static,private,monofile,local,[
+predicate(system:'$$debug_write_goal/5_$aux1'/3,927,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2819,7 +2838,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_qualify_pi_pretty'/4,933,static,private,monofile,built_in,[
+predicate(system:'$debug_qualify_pi_pretty'/4,940,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2849,7 +2868,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_qualify_goal_pretty'/3,944,static,private,monofile,built_in,[
+predicate(system:'$debug_qualify_goal_pretty'/3,951,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2874,7 +2893,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_needs_module'/1,953,static,private,monofile,built_in,[
+predicate(system:'$debug_needs_module'/1,960,static,private,monofile,built_in,[
     put_atom(user,1),
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_atom(system,1),
@@ -2882,7 +2901,7 @@ predicate(system:'$debug_needs_module'/1,953,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$debug_port_pretty'/2,960,static,private,monofile,built_in,[
+predicate(system:'$debug_port_pretty'/2,967,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2937,7 +2956,7 @@ label(13),
     proceed]).
 
 
-predicate(system:'$debug_disp_anc_lst'/1,975,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_anc_lst'/1,982,static,private,monofile,built_in,[
     allocate(1),
     get_list(0),
     unify_variable(x(0)),
@@ -2954,7 +2973,7 @@ predicate(system:'$debug_disp_anc_lst'/1,975,static,private,monofile,built_in,[
     execute('$debug_disp_anc_lst1'/1)]).
 
 
-predicate(system:'$debug_disp_anc_lst1'/1,981,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_anc_lst1'/1,988,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2988,7 +3007,7 @@ label(4),
     execute('$debug_write_goal'/5)]).
 
 
-predicate(system:'$debug_disp_alternatives'/2,990,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_alternatives'/2,997,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -3007,7 +3026,7 @@ predicate(system:'$debug_disp_alternatives'/2,990,static,private,monofile,built_
     execute(format/3)]).
 
 
-predicate(system:'$debug_disp_alternatives1'/2,997,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_alternatives1'/2,1004,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -3046,7 +3065,7 @@ label(4),
     execute('$debug_disp_alt'/2)]).
 
 
-predicate(system:'$debug_disp_alt'/2,1005,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_alt'/2,1012,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3084,7 +3103,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$debug_disp_alt1'/4,1015,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_alt1'/4,1022,static,private,monofile,built_in,[
     try_me_else(1),
     get_atom(system,0),
     put_value(x(1),0),
@@ -3184,7 +3203,7 @@ label(10),
     execute('$debug_disp_alt2'/1)]).
 
 
-predicate(system:'$$debug_disp_alt1/4_$aux1'/2,1031,static,private,monofile,local,[
+predicate(system:'$$debug_disp_alt1/4_$aux1'/2,1038,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3210,7 +3229,7 @@ label(1),
     execute('$debug_disp_alt2'/1)]).
 
 
-predicate(system:'$$debug_disp_alt1/4_$aux2'/3,1031,static,private,monofile,local,[
+predicate(system:'$$debug_disp_alt1/4_$aux2'/3,1038,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -3241,7 +3260,7 @@ label(1),
     execute('$debug_check_bip'/2)]).
 
 
-predicate(system:'$debug_disp_alt2'/1,1050,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_alt2'/1,1057,static,private,monofile,built_in,[
     put_list(2),
     unify_local_value(x(0)),
     unify_nil,
@@ -3250,7 +3269,7 @@ predicate(system:'$debug_disp_alt2'/1,1050,static,private,monofile,built_in,[
     execute(format/3)]).
 
 
-predicate(system:'$debug_is_debug_predicate'/1,1056,static,private,monofile,built_in,[
+predicate(system:'$debug_is_debug_predicate'/1,1063,static,private,monofile,built_in,[
     put_integer(0,1),
     put_integer(7,2),
     put_void(3),
@@ -3258,7 +3277,7 @@ predicate(system:'$debug_is_debug_predicate'/1,1056,static,private,monofile,buil
     execute(sub_atom/5)]).
 
 
-predicate(system:'$debug_check_bip'/2,1062,static,private,monofile,built_in,[
+predicate(system:'$debug_check_bip'/2,1069,static,private,monofile,built_in,[
     get_variable(x(2),1),
     put_value(x(0),1),
     put_atom(user,0),
@@ -3266,7 +3285,7 @@ predicate(system:'$debug_check_bip'/2,1062,static,private,monofile,built_in,[
     execute('$predicate_property1'/4)]).
 
 
-predicate(system:'$debug_disp_help'/0,1073,static,private,monofile,built_in,[
+predicate(system:'$debug_disp_help'/0,1080,static,private,monofile,built_in,[
     allocate(0),
     put_atom(debugger_output,0),
     put_atom('Debugging commands:~n~n',1),
@@ -3329,17 +3348,17 @@ predicate(system:'$debug_disp_help'/0,1073,static,private,monofile,built_in,[
     execute(nl/1)]).
 
 
-predicate(system:'$choice_point_info'/5,1094,static,private,monofile,built_in,[
+predicate(system:'$choice_point_info'/5,1101,static,private,monofile,built_in,[
     call_c('Pl_Choice_Point_Info_5',[],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(system:'$choice_point_arg'/3,1098,static,private,monofile,built_in,[
+predicate(system:'$choice_point_arg'/3,1105,static,private,monofile,built_in,[
     call_c('Pl_Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
     proceed]).
 
 
-directive(250,system,[
+directive(249,system,[
     put_atom(user,0),
     put_structure(spypoint_condition/3,1),
     unify_atom(:),
@@ -3348,14 +3367,14 @@ directive(250,system,[
     execute('$declare_meta_predicate'/2)]).
 
 
-directive(287,system,[
+directive(286,system,[
     put_atom(user,0),
     put_structure(spy/1,1),
     unify_atom(:),
     execute('$declare_meta_predicate'/2)]).
 
 
-directive(304,system,[
+directive(303,system,[
     put_atom(user,0),
     put_structure(nospy/1,1),
     unify_atom(:),

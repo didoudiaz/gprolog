@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "../EnginePl/gp_config.h"
 
@@ -1064,9 +1063,9 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--inline-asm") ||
-	      Check_Arg(i, "--full-inline-asm"))
-	    {
+	  if (Check_Arg(i, "--inline-asm") || Check_Arg(i, "--full-inline-asm") ||
+	      Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC")) /* TODO pass --pic to gcc as -fPIC for C code */
+	    {		
 	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
 	    }
@@ -1487,6 +1486,7 @@ Display_Help(void)
   L(" ");
   L("Mini-assembly to assembly translator options:");
   L("  --comment                   include comments in the output file");
+  L("  --pic                       produce position independent code (PIC)");
   L("  --inline-asm                inline some C calls as asm instructions");
   L("  --full-inline-asm           inline most C calls as asm instructions");
   L(" ");

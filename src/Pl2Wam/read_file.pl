@@ -6,7 +6,7 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * Data structures:                                                        *
@@ -92,9 +91,11 @@
  * ensure_linked(Pred,N):                                                  *
  *    asserted for each Pred/N occuring in a :- ensure_linked directive.   *
  *                                                                         *
- * module_export(Pred,N,Module):                                           *
- *    asserted for each imported Pred/N from Module.                       *
- *    asserted for each exported Pred/N from Module.                       *
+ * module_export(Pred,N):                                                  *
+ *    asserted for each exported Pred/N from the module.                   *
+ *                                                                         *
+ * module_import(Pred,N,Module,PredOrig):                                  *
+ *    asserted for each imported Pred/N from Module (PredOrig is for as/2).*
  *                                                                         *
  * meta_pred(Pred,N,MetaDecl):                                             *
  *    asserted for each meta_predicate declaration.                        *
@@ -135,7 +136,8 @@ read_file_init(PlFile) :-
 	retractall(empty_dyn_pred(_, _, _)),
 	retractall(ensure_linked(_, _)),
 	retractall(pred_info(_, _, _)),
-	retractall(module_export(_, _, _)),
+	retractall(module_export(_, _)),
+	retractall(module_import(_, _, _, _)),
 	retractall(meta_pred(_, _, _)),
 	g_assign(module, user),
 	g_assign(module_already_seen, f),
@@ -376,7 +378,7 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
 	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	get_owner_module(Pred, N, Module),
+	get_owner_module(Pred, N, Module, Pred),
 	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Module, Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Module, Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
@@ -663,21 +665,26 @@ handle_directive(initialization, [Body], Where) :-
 	handle_initialization(user, Body, Where).
 
 
-handle_directive(module, [Module, DLst], _) :-
+handle_directive(module, [Module, ExportLst], _) :-
 	!,
 	(   g_read(module_already_seen, f) ->
 	    check_module_name_decl(Module, Module1),
 	    g_assign(module_already_seen, t),
 	    g_assign(module, Module1),
-	    add_module_export_info(DLst, Module1)
+	    add_module_export_info(ExportLst)
 	;
-	    error('directive module/2 already declared', [])
+	    error('directive module already declared', [])
 	).
 
-handle_directive(use_module, [Module, DLst], _) :-
+handle_directive(use_module, [Module], Where) :-
 	!,
-	load_module_interface(Module, DLst, Module1, DLst1),
-	add_module_export_info(DLst1, Module1).
+	handle_directive(use_module, [Module, all], Where).
+
+handle_directive(use_module, [Module, Imports], _) :-
+	!,
+	load_module_interface(Module, Imports, Module1, ImportLst),
+%format('load module interface ~w: imports: ~w~n', [Module, ImportLst]),
+	add_module_import_info(ImportLst, Module1).
 
 handle_directive(meta_predicate, [MetaDecl], Where) :- % FIXME accept several MetaDecls
 	!,
@@ -891,25 +898,66 @@ add_ensure_linked(Pred / N) :-
 
 
 
-add_module_export_info([], _) :-
+add_module_export_info([]) :-
 	!.
 
-add_module_export_info([P1|P2], Module) :-
+add_module_export_info([P1|P2]) :-
 	!,
-	add_module_export_info(P1, Module),
-	add_module_export_info(P2, Module).
+	add_module_export_info(P1),
+	add_module_export_info(P2).
 
-add_module_export_info((P1, P2), Module) :-
+add_module_export_info((P1, P2)) :-
 	!,
-	add_module_export_info(P1, Module),
-	add_module_export_info(P2, Module).
+	add_module_export_info(P1),
+	add_module_export_info(P2).
 
-add_module_export_info(Pred / N, _) :-
-	clause(module_export(Pred, N, Module1), true), !,
-	error('predicate ~w already exported from module ~w', [Pred/N, Module1]).
+add_module_export_info(Pred/N) :-
+	clause(module_export(Pred, N), true), !.
 
-add_module_export_info(Pred / N, Module) :-
-	assertz(module_export(Pred, N, Module)),
+add_module_export_info(Pred/N) :-
+	assertz(module_export(Pred, N)),
+	(   test_pred_info(def, Pred, N) ->
+	    check_module_clash(Pred, N)
+	;
+	    true
+	).
+
+
+
+
+add_module_import_info([], _) :-
+	!.
+
+add_module_import_info([P1|P2], Module) :-
+	!,
+	add_module_import_info(P1, Module),
+	add_module_import_info(P2, Module).
+
+add_module_import_info((P1, P2), Module) :-
+	!,
+	add_module_import_info(P1, Module),
+	add_module_import_info(P2, Module).
+
+add_module_import_info(PredOrig / N as Pred, Module) :-
+	!,
+	atom(Pred),
+	add_module_import_info1(Pred, N, Module, PredOrig).
+
+add_module_import_info(Pred / N, Module) :-
+	add_module_import_info1(Pred, N, Module, Pred).
+
+
+	
+add_module_import_info1(Pred, N, Module, _) :-
+	clause(module_import(Pred, N, Module1, _), true), !,
+	(   Module = Module1 ->
+	    true
+	;
+	    error('predicate ~w already imported from module ~w', [Pred/N, Module1])
+	).
+
+add_module_import_info1(Pred, N, Module, PredOrig) :-
+	assertz(module_import(Pred, N, Module, PredOrig)),
 	(   test_pred_info(def, Pred, N) ->
 	    check_module_clash(Pred, N)
 	;
@@ -977,7 +1025,7 @@ check_head_is_module_free(_).
 
 
 check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
-	clause(module_export(Pred, N, Module), true),
+	clause(module_import(Pred, N, Module, _), true),
 	get_module_of_pred(Pred, N, Module1),
 	Module \== Module1, !,
 	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred/N, Module1, Module]).
@@ -988,17 +1036,22 @@ check_module_clash(_, _).
 
 
 				% used to know how to qualify a call to a predicate (see internal.pl/code_gen.pl)
-get_owner_module(Pred, N, Module) :-
-	clause(module_export(Pred, N, Module), true),
+get_owner_module(Pred, N, Module, Pred) :-
+	clause(module_export(Pred, N), true),
+	get_module_of_pred(Pred, N, Module),
 	Module \== system, Module \== user, !.
 
-get_owner_module(_, _, _).
+get_owner_module(Pred, N, Module, PredOrig) :-
+	clause(module_import(Pred, N, Module, PredOrig), true),
+	Module \== system, Module \== user, !.
+
+get_owner_module(Pred, _, _, Pred).
 
 
 
 
 is_exported(Pred, N) :-
-	clause(module_export(Pred, N, _), true), !.
+	clause(module_export(Pred, N), true), !.
 
 
 
@@ -1027,7 +1080,7 @@ get_module_of_cur_pred(Module) :-
 
 
 
-load_module_interface(Module, DLst, Module1, DLst1) :-
+load_module_interface(Module, Imports, Module1, ImportLst) :-
 	check_module_name_use(Module, Module1),
 	(   Module = library(_) ->
 	    current_prolog_flag(home, Home),
@@ -1037,15 +1090,17 @@ load_module_interface(Module, DLst, Module1, DLst1) :-
 	    File0 = Module1
 	),
 	prolog_file_name(File0, PlFile),
-	catch(load_module_interface1(PlFile, Module, DLst, DLst1), Err, load_module_interface_err(Err, Module)), !,
-%format('for use_module(~w) imports are: ~w~n', [Module, DLst1]),
+	catch(load_module_interface1(PlFile, Module, ExportLst), Err,
+	      load_module_interface_err(Err, Module)),
+	load_module_interface_compute_import_lst(Imports, Module, ExportLst, ImportLst),
+%format('from module ~w imports are: ~w~n', [Module, ImportLst]),
 	true.
 
 
 
-load_module_interface1(PlFile, Module, DLst, DLst2) :-
+load_module_interface1(PlFile, Module, ExportLst) :-
 	open(PlFile, read, Stream),
-	g_assign(loaded_export_list, ''),
+	g_assign(loaded_export_list, '$$empty'),
 	repeat,
 	catch(read(Stream, T), _, fail), % ignore errors (FIXME report ? what with :- op/3)
 	(   T = end_of_file ->
@@ -1053,11 +1108,11 @@ load_module_interface1(PlFile, Module, DLst, DLst2) :-
 	;
 	    T = (:- Directive),
 	    (   functor(Directive, module, A), A >= 2, A =< 3 ->
-		arg(2, Directive, DLst1),
-		(   g_read(loaded_export_list, '') ->
-		    g_assign(loaded_export_list, DLst1)
+		arg(2, Directive, ExportLst),
+		(   g_read(loaded_export_list, '$$empty') ->
+		    g_assign(loaded_export_list, ExportLst)
 		;
-		    warn('reading interface of ~w more than one module directive - keep first',
+		    warn('reading interface of ~w: more than one module directive - keep first',
 			 [Module])
 		)
 	    ;
@@ -1068,31 +1123,18 @@ load_module_interface1(PlFile, Module, DLst, DLst2) :-
 		    % set_flag_for_preds(Pred/N, meta), % useless for the moment
 		    assertz(meta_pred(Pred, N, MetaDecl))
 		;
-		    warn('reading interface of ~w invalid directive meta_predicate/1 ~w (ignored)',
+		    warn('reading interface of ~w: invalid directive meta_predicate/1 ~w (ignored)',
 			 [Module, MetaDecl])
 		)
 	    ),
 	    fail
 	),
 	close(Stream),
-	g_read(loaded_export_list, DLst1) ->
-	(   DLst1 = '' ->
-	    warn('no module directive found in ~w (still imported)', [Module])
+	(   g_read(loaded_export_list, '$$empty') ->
+	    warn('no module directive found in ~w (still imported)', [Module]),
+	    ExportLst = []
 	;
-	    member(PI, DLst),
-	    (   memberchk(PI, DLst1) ->
-		true
-	    ;
-		warn('~w is not exported by ~w (still imported)', [PI, Module])
-	    ),
-	    fail
-	;
-	    
-	    (   DLst = [] ->
-		DLst2 = DLst1
-	    ;
-		DLst2 = DLst
-	    )
+	    g_read(loaded_export_list, ExportLst)
 	).
 
 
@@ -1103,6 +1145,32 @@ load_module_interface_err(error(existence_error(source_sink, _), _), Module) :-
 
 load_module_interface_err(Err, Module) :-
 	warn('reading interface of ~w raised an error ~w (ignored)', [Module, Err]).
+
+
+
+
+load_module_interface_compute_import_lst(all, _, ExportLst, ExportLst) :-
+	!.
+
+load_module_interface_compute_import_lst(except(Lst), _, ExportLst, ImportLst) :-
+	!,
+	subtract(ExportLst, Lst, ImportLst).
+
+load_module_interface_compute_import_lst(ImportLst, Module, ExportLst, _) :-
+	member(PI, ImportLst),
+	(   PI = as(PI1, _) ->
+	    true
+	;
+	    PI1 = PI
+	),
+	(   memberchk(PI1, ExportLst) ->
+	    true
+	;
+	    warn('~w is not currently exported by ~w (still imported)', [PI1, Module])
+	),
+	fail.
+
+load_module_interface_compute_import_lst(ImportLst, _, _, ImportLst).
 
 
 

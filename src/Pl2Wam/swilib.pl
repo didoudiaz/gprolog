@@ -1,4 +1,3 @@
-/* $Id$ */
 
 prolog_name('SWI Prolog').
 prolog_version(X) :-

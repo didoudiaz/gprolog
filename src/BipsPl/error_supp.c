@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <errno.h>
 #include <string.h>
@@ -489,11 +488,11 @@ Pl_Syntax_Error(int flag_value)
     sprintf(str, "%s:%d (char:%d) %s", last_err_file,
 	    last_err_line, last_err_col, last_err_msg);
 
-  if (flag_value == FLAG_VALUE_ERROR)
+  if (flag_value == PF_ERR_ERROR)
     Pl_Err_Syntax(Pl_Create_Allocate_Atom(str));
 
   Update_Cur_From_C_Bip();
-  if (flag_value == FLAG_VALUE_WARNING)
+  if (flag_value == PF_ERR_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		  "warning: syntax error: %s (from %s)\n",
 		  str, Context_Error_String());
@@ -578,14 +577,15 @@ Pl_Unknown_Pred_Error(int module, int func, int arity)
 {
   WamWord term;
 
-  if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_ERROR)
+  if (Flag_Value(unknown) == PF_ERR_ERROR)
     {
       term = Pl_Build_Pred_Indic_Error0(module, func, arity);
       Pl_Err_Existence(pl_existence_procedure, term);
     }
 
   Update_Cur_From_C_Bip();
-  if (Flag_Value(FLAG_UNKNOWN) == FLAG_VALUE_WARNING)
+
+  if (Flag_Value(unknown) == PF_ERR_WARNING)
     {
       Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output], "warning: unknown procedure ");
 
@@ -610,11 +610,11 @@ Pl_Os_Error(int ret_val)
 {
   char *err_str = Pl_M_Sys_Err_String(ret_val);
 
-  if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_ERROR)
+  if (Flag_Value(os_error) == PF_ERR_ERROR)
     Pl_Err_System(Pl_Create_Allocate_Atom(err_str));
 
   Update_Cur_From_C_Bip();
-  if (Flag_Value(FLAG_OS_ERROR) == FLAG_VALUE_WARNING)
+  if (Flag_Value(os_error) == PF_ERR_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		     "warning: OS error: %s (from %s)\n",
 		     err_str, Context_Error_String());

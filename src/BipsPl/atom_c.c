@@ -6,7 +6,7 @@
  * Descr.: atom manipulation management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -813,12 +812,12 @@ Pl_Name_2(WamWord atomic_word, WamWord codes_word)
 
   str = Pl_Rd_Codes_Check(codes_word);
 
-  syn_flag = Flag_Value(FLAG_SYNTAX_ERROR);
-  Flag_Value(FLAG_SYNTAX_ERROR) = FLAG_VALUE_FAIL;
+  syn_flag = Flag_Value(syntax_error);
+  Flag_Value(syntax_error) = PF_ERR_FAIL;
 
   is_number = String_To_Number(str, word);	/* only fails on syn err */
 
-  Flag_Value(FLAG_SYNTAX_ERROR) = syn_flag;
+  Flag_Value(syntax_error) = syn_flag;
 
   if (is_number)
     return TRUE;
@@ -890,7 +889,7 @@ String_To_Number(char *str, WamWord number_word)
 #if 0
     err:
 #endif
-      Pl_Syntax_Error(Flag_Value(FLAG_SYNTAX_ERROR));
+      Pl_Syntax_Error(Flag_Value(syntax_error));
       return FALSE;
     }
 

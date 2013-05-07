@@ -6,7 +6,7 @@
  * Descr.: write term support                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <string.h>
 #include <ctype.h>
@@ -215,7 +214,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Write_Simple(WamWord term_word)
+Pl_Write(WamWord term_word)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_output];
 

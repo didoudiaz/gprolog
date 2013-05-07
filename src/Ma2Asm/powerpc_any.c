@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Darwin (MacOsX) on PowerPC           *
  * Author: Daniel Diaz and Lindsey Spratt                                  *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <string.h>
@@ -104,6 +103,7 @@ int w_label = 0;
 
 	  /* variables for ma_parser.c / ma2asm.c */
 
+int can_produce_pic_code = 0;
 char *comment_prefix = "#";
 char *local_symb_prefix = ".L";
 int strings_need_null = 0;

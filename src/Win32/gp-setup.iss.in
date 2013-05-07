@@ -1,4 +1,4 @@
-; GNU Prolog WIN32 installation script for Inno Setup 4
+; GNU Prolog WIN32 installation script for Inno Setup
 
 [Setup]
 AppName=GNU Prolog

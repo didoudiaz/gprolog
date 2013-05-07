@@ -6,7 +6,7 @@
  * Descr.: top Level                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -46,7 +45,11 @@ top_level :-
 	current_prolog_flag(prolog_name, Name),
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
-	format(top_level_output, '~N~a ~a~n', [Name, Version]),
+	current_prolog_flag(address_bits, Bits),
+	current_prolog_flag(compiled_at, Date),
+	current_prolog_flag(c_cc, CC),
+	format(top_level_output, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
+	format(top_level_output, 'Compiled ~a with ~a~n', [Date, CC]),
 	write(top_level_output, 'By Daniel Diaz'),
 	nl,
 	format(top_level_output, '~a~n', [Copyright]),
@@ -239,6 +242,7 @@ break :-
 	'$get_current_B'(B),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	g_read('$top_level_cur_module', Module),
+%format('executing query ~w in module: ~w vars: ~w~n', [X, Module, QueryVars]),
 	'$call'(X, Module, top_level, 0),
 	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),

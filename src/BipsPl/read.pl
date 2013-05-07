@@ -6,7 +6,7 @@
  * Descr.: term input (read/1 and friends) management                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -93,7 +92,7 @@ read_term(SorA, Term, Options) :-
 
 
 
-'$set_read_defaults' :-
+'$set_read_defaults' :-		%if modified, modified also const_io_c.c
 	'$sys_var_write'(0, 0),                                % default mask
 	'$sys_var_write'(1, -1).
 

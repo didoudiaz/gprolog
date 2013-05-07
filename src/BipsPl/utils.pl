@@ -6,7 +6,7 @@
  * Descr.: utilities                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -192,3 +191,7 @@
 
 '$get_pred_indic'(PI, DefModule, Module, Func, Arity) :-
 	'$call_c_test'('Pl_Get_Pred_Indic_5'(PI, DefModule, Module, Func, Arity)).
+
+
+'$get_pred_indic_var'(PI, DefModule, Module, Func, Arity) :-
+	'$call_c_test'('Pl_Get_Pred_Indic_Var_5'(PI, DefModule, Module, Func, Arity)).

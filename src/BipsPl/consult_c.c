@@ -6,7 +6,7 @@
  * Descr.: file consulting - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <errno.h>
 #include <sys/types.h>
@@ -88,9 +87,9 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 
 #define ADD_WARN(flag, opt_str)  if (!Flag_Value(flag))  arg[warn_i++] = opt_str
 
-  ADD_WARN(FLAG_SUSPICIOUS_WARNING, "--no-susp-warn");
-  ADD_WARN(FLAG_SINGLETON_WARNING, "--no-singl-warn");
-  ADD_WARN(FLAG_MULTIFILE_WARNING, "--no-mult-warn");
+  ADD_WARN(suspicious_warning, "--no-susp-warn");
+  ADD_WARN(singleton_warning, "--no-singl-warn");
+  ADD_WARN(multifile_warning, "--no-mult-warn");
 
 
   save = SYS_VAR_SAY_GETC;

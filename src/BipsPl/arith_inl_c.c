@@ -6,7 +6,7 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -501,7 +500,7 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
     {                                            \
-      if (Flag_Value(FLAG_STRICT_ISO))           \
+      if (Flag_Value(strict_iso))           \
          Pl_Err_Type(pl_type_float, x);          \
       else                                       \
          return x;                               \

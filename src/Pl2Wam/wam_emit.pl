@@ -6,7 +6,7 @@
  * Descr.: code emission                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * WAM Instructions                                                        *
@@ -176,16 +175,16 @@ emit_pred_start(Pred, 0, PlFile, PlLine, Stream, Type) :-
 emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	emit_file_name_if_needed(PlFile, Stream),
 	(   test_pred_info(dyn, Pred, N) ->
-	    StaDyn = dynamic
-	;   StaDyn = static
+	    StaDyn = (dynamic)
+	;   StaDyn = (static)
 	),
 	(   test_pred_info(pub, Pred, N) ->
-	    PubPriv = public
-	;   PubPriv = private
+	    PubPriv = (public)
+	;   PubPriv = (private)
 	),
 	(   test_pred_info(multi, Pred, N) ->
-	    MonoMulti = multifile
-	;   MonoMulti = monofile
+	    MonoMulti = (multifile)
+	;   MonoMulti = (monofile)
 	),
 	get_module_of_pred(Pred, N, Module),
 	export_type(Pred, N, ExportBplBfd),

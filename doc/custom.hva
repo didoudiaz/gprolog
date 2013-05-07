@@ -1,6 +1,23 @@
 % To have a title on the first page
 
 \input{article.hva}
+
+%\let\oldmeta=\@meta
+%\renewcommand{\@meta}{%
+%\oldmeta
+%\begin{rawhtml}
+%<meta name="Author" content="Daniel Diaz">
+%<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
+%<link rel="icon" type="image/x-icon" href="/gprolog.ico">
+%\end{rawhtml}}
+
+\addto{\@meta}
+{\begin{rawhtml}
+<meta name="Author" content="Daniel Diaz">
+<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
+<link rel="icon" type="image/x-icon" href="/gprolog.ico">
+\end{rawhtml}}
+
 \title{GNU-Prolog Manual}
 
 
@@ -86,9 +103,9 @@ medium, provided this notice is preserved.
 
 
 
-% To use a gif image instead of an eps as in the original definition:
+% To use a PNG image instead of an EPS as in the original definition:
 
-\newcommand{\InsertImage}[1]{\begin{center}\imgsrc{#1.gif}\end{center}}
+\newcommand{\InsertImage}[2][]{\begin{center}\imgsrc{#2.png}\end{center}}
 
 
 

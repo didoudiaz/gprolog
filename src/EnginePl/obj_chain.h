@@ -6,7 +6,7 @@
  * Descr.: object chaining management - header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "gp_config.h"
 #include "pl_long.h"
@@ -64,9 +63,6 @@ void Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fc
 #ifdef OBJ_INIT
 
 static void OBJ_INIT(void);
-
-#define CPP_CAT1(x, y)   x ## y
-#define CPP_CAT(x, y)    CPP_CAT1(x, y)
 
 #define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
 

@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux on AMD x86-64                        *
  * Author: Gwenole Beauchesne, Ozaki Kiichi and Daniel Diaz                *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz and Gwenole Beauchesne              *
+ * Copyright (C) 1999-2013 Daniel Diaz and Gwenole Beauchesne              *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -107,9 +106,6 @@
  * Global Variables                *
  *---------------------------------*/
 
-int can_produce_pic_code = 1;	/* overwritte var of ma2asm.c */
-extern int pic_code;
-
 static double dbl_tbl[MAX_DOUBLES_IN_PRED];
 static int nb_dbl = 0;
 static int dbl_lc_no = 0;
@@ -147,6 +143,7 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
 #endif
           /* variables for ma_parser.c / ma2asm.c */
 
+int can_produce_pic_code = 1;
 char *comment_prefix = "#";
 #ifdef M_x86_64_darwin
 char *local_symb_prefix = "L";
@@ -209,7 +206,11 @@ Asm_Start(void)
 
 #ifdef M_x86_64_darwin
   pic_code = 1;			/* NB: on darwin everything is PIC code */
+#elif defined(_WIN32)
+  pic_code = 0;			/* NB: on MinGW nothing is needed for PIC code */
+#endif
 
+#ifdef M_x86_64_darwin
   Inst_Printf(".section", "__TEXT,__text,regular,pure_instructions");
   Inst_Printf(".align", "4, 0x90");
 #else
@@ -1203,9 +1204,9 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
         Inst_Printf(".lcomm", UN "%s,%" PL_FMT_d, name, size_bytes);
       else
 #endif
-#if 0				/* old code */
+#if 1				/* work for all */
       Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",8", name, size_bytes);
-#else
+#else  /* this does not work under MinGW - not used for the moment */
       if (value < 4)
 	Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",8", name, size_bytes);
       else
@@ -1217,7 +1218,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case INITIAL_VALUE:
       if (global)
         Inst_Printf(".globl", UN "%s", name);
-#ifndef M_x86_64_darwin
+#if !(defined(M_x86_64_darwin) || defined(_WIN32))
       Inst_Printf(".size", UN "%s,8", name);
 #endif
       Label_Printf(UN "%s:", name);
@@ -1254,7 +1255,7 @@ Data_Start(char *initializer_fct)
 
 #ifdef _MSC_VER
   Inst_Printf(".section", ".GPLC$m");
-#elif defined( __CYGWIN__) || defined (_WIN32)
+#elif defined(__CYGWIN__) || defined(_WIN32)
   Inst_Printf(".section", ".ctors,\"aw\"");
 #elif defined(M_x86_64_darwin)
   Inst_Printf(".section", "__DATA,__mod_init_func,mod_init_funcs");

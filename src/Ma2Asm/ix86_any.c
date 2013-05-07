@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Cygwin/mingw32/... on intel x86      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,6 +94,9 @@
  * Global Variables                *
  *---------------------------------*/
 
+extern int pic_code;
+
+
 char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
@@ -110,6 +112,7 @@ int eax_used_as_fc_reg = 0;	/* is eax already containing an arg (FC) ? */
 
 
 	  /* variables for ma_parser.c / ma2asm.c */
+int can_produce_pic_code = 1;
 #ifndef M_solaris
 char *comment_prefix = "#";
 #else

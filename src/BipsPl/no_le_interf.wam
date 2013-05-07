@@ -1,17 +1,17 @@
-% compiler: GNU Prolog 1.4.3
+% compiler: GNU Prolog 1.4.4
 % file    : no_le_interf.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/no_le_interf.pl').
 
 
-predicate(system:'$use_le_interf'/0,42,static,private,monofile,built_in,[
+predicate(system:'$use_le_interf'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$get_linedit_prompt'/1,45,static,private,monofile,built_in,[
+predicate(system:'$get_linedit_prompt'/1,44,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$set_linedit_prompt'/1,47,static,private,monofile,built_in,[
+predicate(system:'$set_linedit_prompt'/1,46,static,private,monofile,built_in,[
     proceed]).

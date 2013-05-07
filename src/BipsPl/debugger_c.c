@@ -6,7 +6,7 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <string.h>
 #include <stdlib.h>
@@ -203,7 +202,7 @@ Pl_Set_Debug_Call_Code_0(void)
 {
   pl_debug_call_code = Prolog_Predicate(DEBUG_CALL, 3);
 
-  Flag_Value(FLAG_DEBUG) = TRUE;
+  Flag_Value(debug) = TRUE;
 }
 
 
@@ -217,7 +216,7 @@ void
 Pl_Reset_Debug_Call_Code_0(void)
 {
   pl_debug_call_code = NULL;
-  Flag_Value(FLAG_DEBUG) = FALSE;
+  Flag_Value(debug) = FALSE;
 }
 
 

@@ -6,7 +6,7 @@
  * Descr.: term support - header file                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*---------------------------------*
  * Constants                       *
@@ -104,14 +103,14 @@ WamWord Pl_Strip_Module(WamWord term_word, Bool accept_var, Bool raise_error,
 int Pl_Strip_Module_Top(WamWord start_word, Bool accept_var, Bool raise_error,
 			WamWord *goal_word);
 
-WamWord Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground,
+WamWord Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool accept_var,
 			      int *func, int *arity);
 
-int Pl_Get_Pred_Indicator_Top(WamWord pred_indic_word, Bool must_be_ground, 
+int Pl_Get_Pred_Indicator_Top(WamWord pred_indic_word, Bool accept_var,
 			      int *func, int *arity);
 
 WamWord Pl_Get_Head_And_Body(WamWord clause_word, WamWord *head_word, WamWord *body_word);
 
 int Pl_Get_Head_And_Body_Top(WamWord clause_word, WamWord *head_word, WamWord *body_word);
 
-WamWord Pl_Term_To_Goal(WamWord term_word, int module, WamWord call_info_word);
+WamWord Pl_Term_To_Goal(WamWord term_word, WamWord module_word, WamWord call_info_word);

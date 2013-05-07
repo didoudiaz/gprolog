@@ -1,4 +1,3 @@
-/* $Id$ */
 
 :-	use_module(library(format)).
 :-	use_module(library(sort)).

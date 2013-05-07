@@ -6,7 +6,7 @@
  * Descr.: byte-code support                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -791,7 +790,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   else
     DBGPRINTF("            ");
 
-  Pl_Write_Simple(inst_word);
+  Pl_Write(inst_word);
   DBGPRINTF("\n");
 #endif
 }
@@ -948,8 +947,7 @@ BC_Arg_Module_Func_Arity(WamWord arg_word, int *func, int *arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-Execute_Pred(int module, int func, int arity, WamWord *arg_adr, 
-	     WamWord call_info_word)
+Execute_Pred(int module, int func, int arity, WamWord *arg_adr, WamWord call_info_word)
 {
   PredInf *pred;
   int i;
@@ -1022,6 +1020,7 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 		   int caller_func, int caller_arity, Bool debug_call)
 {
   WamWord call_info_word = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
+  WamWord module_word;
   WamCont codep;
 
   Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
@@ -1093,9 +1092,10 @@ Pl_BC_Call_Initial(int module, int func, int arity, WamWord *arg_adr, WamWord go
 
 	  /* NB: arg_adr can be &A(0), thus args can be in A(0) and A(1). Beware */
 
-	  A(0) = Pl_Term_To_Goal(arg_adr[0], module, call_info_word);
-	  A(1) = Pl_Term_To_Goal(arg_adr[1], module, call_info_word);
-	  A(2) = Tag_ATM(module);
+	  module_word = Tag_ATM(module);
+	  A(0) = Pl_Term_To_Goal(arg_adr[0], module_word, call_info_word);
+	  A(1) = Pl_Term_To_Goal(arg_adr[1], module_word, call_info_word);
+	  A(2) = module_word;
 	  A(3) = call_info_word;
 	  A(4) = Pl_Get_Current_Choice(); /* VarCut */
 	  return (WamCont) codep;
@@ -1174,7 +1174,7 @@ Pl_BC_Call_5(WamWord goal_word, WamWord module_word,
 
   Pl_Set_Bip_Name_2(caller_func_word, caller_arity_word);
 
-  module = Pl_Rd_Atom(module_word);
+  module = Pl_Rd_Atom_Check(module_word);
   Pl_Set_Calling_Module(module);
 
   caller_func = Pl_Rd_Atom(caller_func_word);
@@ -1199,7 +1199,11 @@ Pl_BC_Call_Terminal_Pred_4(WamWord pred_word, WamWord module_word,
 {
   int func, arity;
   WamWord *arg_adr;
-  int module = Pl_Rd_Atom(module_word);
+  int module;
+
+  Pl_Call_Info_Bip_Name_1(call_info_word);
+
+  module = Pl_Rd_Atom_Check(module_word); /* check instantiation error */
 
   arg_adr = Pl_Rd_Callable(pred_word, &func, &arity); /* we know it is a callable */
 

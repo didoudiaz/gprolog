@@ -6,7 +6,7 @@
  * Descr.: file consulting                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -57,6 +56,7 @@
 consult(MFile) :-
 	set_bip_name(consult, 1),
 	'$strip_module_nonvar'(MFile, Module, File), % the destination module
+%format('Consulting File: ~w in module: ~w~n', [File, Module]),
 	'$check_atom_or_atom_list'(File), !,
 	(   atom(File), File \== [] ->
 	    '$consult2'(File, Module)
@@ -155,7 +155,7 @@ consult(MFile) :-
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(Module, Pred, N, PlFile, PlLine),
 % DEBUG format('LOAD: pred ~w:~w/~w  from:~w:~w~n', [Module, Pred, N, PlFile, PlLine]),
-	(   MonoMulti = multifile, '$predicate_property1'(Module, Pred, N, multifile) ->
+	(   MonoMulti = (multifile), '$predicate_property1'(Module, Pred, N, multifile) ->
 	    true
 	;
 	    '$check_owner_files'(Module, Pred, N, PlFile, PlLine)
@@ -325,7 +325,7 @@ listing(MPI) :-
 	(   atom(PI) ->
 	    Func = PI
 	;
-	    '$get_pred_indic'(PI, Module, _, Func, Arity)
+	    '$get_pred_indic_var'(PI, Module, _, Func, Arity)
 	),
 	'$listing_all'(Module, Func, Arity).
 

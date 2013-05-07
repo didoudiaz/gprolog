@@ -1,5 +1,19 @@
+Change in GNU Prolog version 1.4.4:
+
+* add Prolog flags c_cc_version_data
+* fix a regression bug in linedit
+* fix a little bug in the debugger
+* add subtract/3 built-in predicate
+
 Change in GNU Prolog version 1.4.3:
 
+* add new C foreign interface functions converting term to/from C strings
+* modify top-level banner to show 32/64 bits, compile date, C compiler name
+* modify Linedit: fix Prolog prompt when Linedit is not activated
+* modify linedit: accept gui=silent in env var LINEDIT
+  (does not warn if the windows gui DLL is not found)
+* fixes for Windows 8 (i686 and x86_64) with MSVS 2012, mingw64 gcc > 4.5.3
+* add Prolog flags address_bits, compiled_at, c_cc, c_cflags, c_ldflags
 * fix a bug in the FD solver (option backtracks in fd_labeling)
 * improve the FD solver (better propagation for reified constraints at labeling)
 * improve the FD solver (add labeling option: value_method(bisect))

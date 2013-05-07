@@ -3,8 +3,10 @@
 // http://www.resedit.net
 
 #include <windows.h>
+/*
 #include <commctrl.h>
 #include <richedit.h>
+*/
 #include "w32_resource.h"
 
 
@@ -33,7 +35,7 @@ IDR_MENU MENU
         MENUITEM SEPARATOR
         MENUITEM "Sa&ve Options", IDM_SAVE_OPTIONS
     }
-    POPUP "&Terminal", CHECKED
+    POPUP "&Terminal"
     {
         MENUITEM "&Beep on error", IDM_BEEP
         MENUITEM SEPARATOR

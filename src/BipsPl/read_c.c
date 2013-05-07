@@ -6,7 +6,7 @@
  * Descr.: read/1 and friends - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <assert.h>
 
@@ -68,10 +67,10 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
 
 #define CHECK_STREAM_AND_GET_STM(sora_word, stm)		\
   stm = (sora_word == NOT_A_WAM_WORD)				\
-         ? pl_stm_input : 						\
+         ? pl_stm_input :					\
          Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);	\
 								\
-  pl_last_input_sora = sora_word;					\
+  pl_last_input_sora = sora_word;				\
   Pl_Check_Stream_Type(stm, TRUE, TRUE)
 
 
@@ -81,12 +80,12 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
   if (returned_word == NOT_A_WAM_WORD)				\
     {								\
       Pl_Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)		\
-		   ? Flag_Value(FLAG_SYNTAX_ERROR)		\
+		   ? Flag_Value(syntax_error)		\
 		   : SYS_VAR_SYNTAX_ERROR_ACTON);		\
       return FALSE;						\
     }								\
 								\
-  if (!Pl_Unify(word, term_word))					\
+  if (!Pl_Unify(word, term_word))				\
     return FALSE
 
 

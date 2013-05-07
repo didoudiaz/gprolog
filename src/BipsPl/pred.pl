@@ -6,7 +6,7 @@
  * Descr.: predicate manipulation management                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -290,10 +289,13 @@ predicate_property(MHead, Property) :-
 
 '$get_module_of_pred'(HomeModule, Func, Arity, Module) :-
 	'$call_c_test'('Pl_Get_Module_Of_Pred_4'(HomeModule, Func, Arity, Module)).
-	
+
 
 '$get_module_of_goal'(HomeModule, Goal, Module) :-
 	'$call_c_test'('Pl_Get_Module_Of_Goal_3'(HomeModule, Goal, Module)).
+	
+'$get_module_of_goal_if_not_meta_pred'(HomeModule, Goal, Module) :-
+	'$call_c_test'('Pl_Get_Module_Of_Goal_If_Not_Meta_Pred_3'(HomeModule, Goal, Module)).
 	
 
 

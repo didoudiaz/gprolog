@@ -6,7 +6,7 @@
  * Descr.: basic terminal operations                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 
 #include <stdio.h>
@@ -103,8 +102,9 @@ typedef struct termio TermIO;
  * Global Variables                *
  *---------------------------------*/
 
-static int pl_use_gui = 1;
-static int use_ansi = 1;
+static int use_linedit;
+static int use_gui;
+static int use_ansi;
 #if defined(__unix__) || defined(__CYGWIN__)
 static int fd_in = 0;           /* not changed */
 #endif
@@ -176,25 +176,31 @@ int
 Pl_LE_Initialize(void)
 {
   static int initialized = 0;
-  static int le_hook_present = 0; /* ie. gui is present */
+  static int le_mode;
 
   if (initialized)
-    return le_hook_present;
+    return le_mode;
 
   initialized = 1;
-
+  
   Parse_Env_Var();
+
+  if (!use_linedit)
+    return (le_mode = LE_MODE_DEACTIVATED);
+
+   le_mode = LE_MODE_TTY;	/* default */
+
 
 #if defined(__unix__) || defined(__CYGWIN__)
   Choose_Fd_Out();
 #endif
 
-  if (pl_le_hook_start && pl_use_gui == 1)
-    (*pl_le_hook_start) ();
+  if (pl_le_hook_start && use_gui)
+    (*pl_le_hook_start) (use_gui == 2);
 
   if (pl_le_hook_put_char != NULL && pl_le_hook_get_char0 != NULL
       && pl_le_hook_kbd_is_not_empty != NULL && pl_le_hook_screen_size != NULL)
-    le_hook_present = 1;
+    le_mode = LE_MODE_HOOK;
   else
     {
       pl_le_hook_put_char = NULL;
@@ -235,7 +241,7 @@ Pl_LE_Initialize(void)
 
 #endif
 
-  return le_hook_present;
+  return le_mode;
 }
 
 
@@ -252,12 +258,23 @@ Parse_Env_Var(void)
   char buff[1024];
   char *q;
 
+  use_linedit = use_gui = use_ansi = 1; /* default */
+
   p = getenv("LINEDIT");
   if (p == NULL)
     return;
 
+  if (strncmp(p, "no", 2) == 0)	/* deactivate linedit */
+    {
+      use_linedit = 0;
+      return;
+    }
+
   if (strstr(p, "gui=n") != NULL)
-    pl_use_gui = 0;
+    use_gui = 0;
+
+  if (strstr(p, "gui=s") != NULL) /* silent */
+    use_gui = 2;
 
   if (strstr(p, "ansi=n") != NULL)
     use_ansi = 0;
@@ -294,6 +311,8 @@ Parse_Env_Var(void)
           fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
         }
     }
+
+  return;
 }
 
 

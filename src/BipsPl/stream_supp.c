@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -229,10 +228,10 @@ Init_Stream_Supp(void)
   pl_use_le_prompt = TRUE;
 
   pl_stm_stdin = Pl_Add_Stream_For_Stdio_Desc(stdin, pl_atom_user_input,
-					STREAM_MODE_READ, TRUE);
+					      STREAM_MODE_READ, TRUE);
 
 #ifndef NO_USE_LINEDIT
-  if ((pl_use_gui) || isatty(0))
+  if (pl_le_mode == LE_MODE_HOOK || (pl_le_mode == LE_MODE_TTY && isatty(0)))
     {
       pstm = pl_stm_tbl[pl_stm_stdin];
       pstm->fct_getc = (StmFct) TTY_Getc;
@@ -242,6 +241,7 @@ Init_Stream_Supp(void)
       pstm->fct_tell = STREAM_FCT_UNDEFINED;
       pstm->fct_seek = STREAM_FCT_UNDEFINED;
       pstm->fct_clearerr = (StmFct) TTY_Clearerr;
+      pl_stream_use_linedit = TRUE;
     }
 #endif
   Pl_Add_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin);
@@ -250,7 +250,7 @@ Init_Stream_Supp(void)
 
 
   pl_stm_stdout = Pl_Add_Stream_For_Stdio_Desc(stdout, pl_atom_user_output,
-					 STREAM_MODE_WRITE, TRUE);
+					       STREAM_MODE_WRITE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
@@ -268,7 +268,7 @@ Init_Stream_Supp(void)
 
 
   pl_stm_stderr = Pl_Add_Stream_For_Stdio_Desc(stderr, pl_atom_user_error,
-					 STREAM_MODE_WRITE, TRUE);
+					       STREAM_MODE_WRITE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
@@ -364,7 +364,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
   return Pl_Add_Stream(atom_path, (PlLong) f, prop,
-		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+		       NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 
@@ -771,12 +771,12 @@ Pl_Set_Stream_Buffering(int stm)
       return;
     }
 
-#ifndef NO_USE_LINEDIT		/* if pl_use_gui == 1 */
-  if ((pstm->file == (PlLong) stdout || pstm->file == (PlLong) stderr) && pl_le_hook_set_line_buffering)
+#ifndef NO_USE_LINEDIT		/* if GUI: inform it about buffering */
+  if ((pstm->file == (PlLong) stdout || pstm->file == (PlLong) stderr) &&
+      pl_le_hook_set_line_buffering)
     (*pl_le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif
-
     Pl_Stdio_Set_Buffering(f, pstm->prop.buffering);
 }
 
@@ -970,7 +970,9 @@ Pl_Stdio_Set_Buffering(FILE *f, int buffering)
     case STREAM_BUFFERING_LINE:
       buff_flag = _IOLBF;
 #ifdef _WIN32
-      if (!pl_use_gui)		/* in Win32 console app, line buff = full */
+#ifndef NO_USE_LINEDIT
+      if (!pl_le_mode != LE_MODE_HOOK)	/* in Win32 console app, line buff = full */
+#endif
 	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif
       break;
@@ -1029,7 +1031,7 @@ Pl_Io_Fileno_Of_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
- * The following functions replaces standard fgetc/... on stdin if a TTY.  *
+ * The following functions replace standard fgetc/... on stdin if a TTY.   *
  * It uses linedit to provide a more comfortable interface.                *
  * These functions should not be used directly but via the common interface*
  * provided by the Stream_Getc/... functions (see below).                  *
@@ -1452,7 +1454,7 @@ Pl_Stream_Gets(char *str, int size, StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * STREAM_GET_LINE                                                         *
+ * PL_STREAM_GETS_PROMPT                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
@@ -1851,7 +1853,7 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
 
 
 /*-------------------------------------------------------------------------*
- * REMOVE_STR_STREAM                                                       *
+ * PL_DELETE_STR_STREAM                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void

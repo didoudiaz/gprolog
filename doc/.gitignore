@@ -21,4 +21,5 @@ version_no.tex
 html_node/gprolog*.*
 html_node/*.html
 html_node/*_motif.gif
+html_node/*.png
 

@@ -6,7 +6,7 @@
  * Descr.: pass 2: internal format transformation                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * predicate internal format: (I(t)=internal format of t)                  *
@@ -121,13 +120,13 @@ format_pred(Module:Pred, NoPred, DicoVar, p(NoPred, Module, FN, ArgLst), InlineP
 	!,
 	format_pred(Pred, NoPred, DicoVar, p(NoPred, _, FN, ArgLst), InlinePred).
 
-format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F / N, ArgLst1), InlinePred) :-
+format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F1 / N, ArgLst1), InlinePred) :-
 	functor(Pred, F, N),
-	get_owner_module(F, N, Module),
+	get_owner_module(F, N, Module, F1), % F1 is to handle as/2 in import
 	Pred =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1),
-	(   (   inline_predicate(F, N)
-            ;   F = '$call_c',
+	(   (   F = F1, inline_predicate(F, N)
+            ;   F = F1, F = '$call_c',
 	        N = 2,
 		ArgLst1 = [_, LCOpt],  % $no_internal_transf$ removed here
 	        not_dangerous_c_call(LCOpt)

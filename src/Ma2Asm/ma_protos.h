@@ -6,7 +6,7 @@
  * Descr.: code generation - header file                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "../EnginePl/pl_long.h"
 
@@ -68,6 +67,7 @@
 
 #ifndef MAPPER_FILE
 
+extern int can_produce_pic_code;
 extern char *comment_prefix;
 extern char *local_symb_prefix;
 extern int strings_need_null;
@@ -84,6 +84,13 @@ extern char *inline_asm_data[];
 extern int reload_e;
 
 #endif
+
+#ifndef MA2ASM_FILE
+
+extern int pic_code;
+
+#endif
+
 
 
 

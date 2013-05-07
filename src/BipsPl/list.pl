@@ -6,7 +6,7 @@
  * Descr.: list library                                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -128,6 +127,18 @@ select(X, [X|T], T).
 select(X, [H|T1], [H|T2]) :-
 	select(X, T1, T2).
 
+
+
+
+
+subtract([], _, []).
+
+subtract([X|L1], L2, L3) :-
+        memberchk(X, L2), !,
+        subtract(L1, L2, L3).
+
+subtract([X|L1], L2, [X|L3]) :-
+        subtract(L1, L2, L3).
 
 
 

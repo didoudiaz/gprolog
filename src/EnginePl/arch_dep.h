@@ -6,7 +6,7 @@
  * Descr.: architecture dependent features - Header file                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,10 +35,63 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
+
+#define CPP_STR1(s) #s
+#define CPP_STR(s) CPP_STR1(s)
+
+#define CPP_CAT1(x, y)   x ## y
+#define CPP_CAT(x, y)    CPP_CAT1(x, y)
+
+
+/* C compiler version (for more general handling see http://sourceforge.net/projects/predef) */
+
+#if defined(__clang__)		/* put before because also defines __GNUC__ */
+
+#define CC_MAJOR       __clang_major__
+#define CC_MINOR       __clang_minor__
+#define CC_PATCHLEVEL  __clang_patchlevel__
+
+#elif defined(__GNUC__)
+
+#define CC_MAJOR       __GNUC__
+#define CC_MINOR       __GNUC_MINOR__
+#define CC_PATCHLEVEL  __GNUC_PATCHLEVEL__
+
+#elif defined(_MSC_FULL_VER)
+
+#define CC_MAJOR       (_MSC_FULL_VER / 1000000)
+#define CC_MINOR       (_MSC_FULL_VER % 1000000 / 10000)
+#define CC_PATCHLEVEL  (_MSC_FULL_VER % 10000)
+
+#elif defined(_MSC_VER)
+
+#define CC_MAJOR       (_MSC_VER / 100)
+#define CC_MINOR       (_MSC_VER % 100)
+#define CC_PATCHLEVEL  0
+
+#else
+
+#define CC_MAJOR       0
+#define CC_MINOR       0
+#define CC_PATCHLEVEL  0
+
+#endif
+
+
+
+/* Compile date */
+
+#if defined(__DATE__) && defined(__TIME__)
+#define COMPILED_AT __DATE__ ", " __TIME__
+#else
+#define COMPILED_AT "unknown date"
+#endif
+
+
+
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
@@ -179,6 +232,35 @@
 #define siglongjmp longjmp
 #endif
 
+#if defined(_WIN64) && !defined(_MSC_VER)
+/* Mingw64-gcc implements setjmp with msvcrt's _setjmp. This _setjmp
+ * has an additional (hidden) argument. If it is NULL, longjmp will NOT do
+ * stack unwinding (needed for SEH). By default the the second argument is
+ * NOT null (it is $rsp), then longjmp will try a stack unwinding which will
+ * crash gprolog.
+ * NB: _setjmp stores this argument in the jmp_buf (in the first bytes) 
+ * Mingw-gcc v < 4.6 fixed this at longjmp (before calling msvcrt's _longjmp)
+ * (see file: lib64_libmingwex_a-mingw_getsp.o in library libmingwex.a)
+ * 
+ * 0000000000000006 <longjmp>:                              # x86_64 ABI: jmp_buf is in $rcx
+ *    6:   31 c0                   xor    %eax,%eax
+ *    8:   89 01                   mov    %eax,(%rcx)       # set 0 in the first word of jmp_buf
+ *    a:   48 8d 05 00 00 00 00    lea    0x0(%rip),%rax    # this will call dll msvcrt's longjmp
+ *   11:   ff 20                   jmpq   *(%rax)
+ *
+ * while in >= 4.6: (no more fixes)
+ *
+ * 0000000000000006 <longjmp>:
+ *    6:   48 8d 05 00 00 00 00    lea    0x0(%rip),%rax    # this will call dll msvcrt's longjmp
+ *    d:   ff 20                   jmpq   *(%rax)
+ *    f:   90                      nop
+ *
+ */
+#ifdef setjmp
+#undef setjmp
+#endif
+#define setjmp(buf) _setjmp(buf, NULL)
+#endif
 				/* Fast call macros */
 #if defined(M_ix86)
 

@@ -6,7 +6,7 @@
  * Descr.: scanner support                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2012 Daniel Diaz                                     *
+ * Copyright (C) 1999-2013 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -382,7 +381,7 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       if (c == -1)		/* <character> is ' */
 	{
 	  /* STRICT ISO does not allow 0'' one should write 0''' or 0'\' */
-	  if (Flag_Value(FLAG_STRICT_ISO))
+	  if (Flag_Value(strict_iso))
 	    {
 
 	    /* do not emit an error since 0'' is valid if '' is a postif/infix op 
@@ -504,17 +503,17 @@ Scan_Quoted(StmInf *pstm)
   else if (c_type == DQ)
     {
       pl_token.type = TOKEN_STRING;
-      i = Flag_Value(FLAG_DOUBLE_QUOTES);
+      i = Flag_Value(double_quotes);
     }
   else
     {
       pl_token.type = TOKEN_BACK_QUOTED;
-      i = Flag_Value(FLAG_BACK_QUOTES);
+      i = Flag_Value(back_quotes);
     }
 
   s = pl_token.name;
   c0 = c;
-  no_escape = i >> FLAG_NO_ESCAPE_BIT;
+  no_escape = i >> PF_QUOT_NO_ESCAPE_BIT;
 
   for (;;)
     {
@@ -657,7 +656,7 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
   if ((p = (char *) strchr(pl_escape_symbol, c)))	/* \a \b \f \n \r \t \v */
     return pl_escape_char[p - pl_escape_symbol];
 
-  if (!Flag_Value(FLAG_STRICT_ISO))
+  if (!Flag_Value(strict_iso))
     {
       if (c == 's')		/* \s = space */
 	return ' ';
@@ -866,12 +865,12 @@ Pl_Scan_Next_Atom(StmInf *pstm)
       break;
 
     case DQ:			/* double quote */
-      if ((Flag_Value(FLAG_DOUBLE_QUOTES) & FLAG_AS_PART_MASK) != FLAG_AS_ATOM)
+      if ((Flag_Value(double_quotes) & PF_QUOT_AS_PART_MASK) != PF_QUOT_AS_ATOM)
 	goto error;
       goto do_scan_quoted;
 
     case BQ:			/* back quote */
-      if ((Flag_Value(FLAG_BACK_QUOTES) & FLAG_AS_PART_MASK) != FLAG_AS_ATOM)
+      if ((Flag_Value(back_quotes) & PF_QUOT_AS_PART_MASK) != PF_QUOT_AS_ATOM)
 	goto error;
     case QT:			/* quote */
     do_scan_quoted:
