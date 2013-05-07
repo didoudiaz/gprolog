@@ -36,6 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -578,6 +579,7 @@ Bool
 Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom_name;
   FlagInf *flag;
 
@@ -588,7 +590,7 @@ Pl_Set_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
   if (flag == NULL)
     Pl_Err_Domain(pl_domain_prolog_flag, flag_word);
 
-  DEREF(value_word, word, tag_mask);
+  DEREF_CLEAN_TAG(value_word, adr, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
   value_word = word; 		/* dereferenced */
@@ -622,11 +624,16 @@ Bool
 Pl_Current_Prolog_Flag_2(WamWord flag_word, WamWord value_word)
 {
   WamWord word, tag_mask;
+  WamWord *adr;
   int atom_name;
   FlagInf *flag;
   int i;
 
-  DEREF(flag_word, word, tag_mask);
+#ifdef BOEHM_GC
+  GC_assert_clean_start_word(value_word);
+#endif // BOEHM_GC
+
+  DEREF_CLEAN_TAG(flag_word, adr, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
     {
       atom_name = Pl_Rd_Atom_Check(word);
@@ -679,6 +686,10 @@ Pl_Current_Prolog_Flag_Alt_0(void)
   else				/* non deterministic case */
     {
 #if 0 /* the following data is unchanged */
+#ifdef BOEHM_GC
+      GC_assert_clean_start_word(flag_word);
+      GC_assert_clean_start_word(value_word);
+#endif // BOEHM_GC
       AB(B, 0) = flag_word;
       AB(B, 1) = value_word;
 #endif
