@@ -280,7 +280,7 @@ terminal_rec:
 
   DEREF_CLEAN_TAG(start_word, adr, word, tag_mask);
 
-  switch (Tag_Of(word))
+  switch (Tag_Of(tag_mask))
     {
     case REF:
       if (!(*fct) (UnTag_REF(*adr), word))
