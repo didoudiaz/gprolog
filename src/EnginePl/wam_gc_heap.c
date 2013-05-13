@@ -74,6 +74,36 @@ size_t pl_gc_bad_alloc_count=0;
 
 
 /*-------------------------------------------------------------------------*
+ * Register_GC_Trail_Elem                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Register_GC_Trail_Elem(WamWord **trail, WamWord *adr)
+{
+  assert( *trail == adr );
+  if (!Is_A_Local_Adr(adr))
+    {
+      GC_general_register_disappearing_link((void **)trail, adr);
+    }
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Unregister_GC_Trail_Elem                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Unregister_GC_Trail_Elem(WamWord **trail)
+{
+  if (!Is_A_Local_Adr(*trail))
+    {
+      GC_unregister_disappearing_link((void **)trail);
+    }
+}
+
+
+
+/*-------------------------------------------------------------------------*
  * Pl_GC_Mem_Alloc                                                         *
  *                                                                         *
  * Allocates memory for the garbage collected heap.                        *
@@ -112,6 +142,7 @@ Pl_GC_Mem_Alloc(PlULong n)
       }
   }
   assert( Tag_Is_REF(result) );
+  assert( result != 0 );
   return result;
 }
 

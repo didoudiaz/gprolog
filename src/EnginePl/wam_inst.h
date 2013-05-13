@@ -566,7 +566,12 @@ PlLong chain_len;
 
 
 #define Trail_UV(adr)				\
-  Trail_Push(Trail_Tag_Value(TUV, adr))
+  do						\
+    {						\
+      Trail_Push(Trail_Tag_Value(TUV, adr));	\
+      Register_GC_Trail_Elem((WamWord **)(TR-1), adr);	\
+    }						\
+  while (0)
 
 
 #define Trail_OV(adr)				\

@@ -72,6 +72,13 @@
  * Function Prototypes             *
  *---------------------------------*/
 
+void FC
+Register_GC_Trail_Elem(WamWord **trail, WamWord *adr);
+
+void FC
+Unregister_GC_Trail_Elem(WamWord **trail);
+
+
 WamWord * FC
 Pl_GC_Mem_Alloc(PlULong n_wamwords);
 

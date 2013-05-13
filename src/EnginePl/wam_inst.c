@@ -1868,15 +1868,19 @@ Pl_Defeasible_Close(Bool success)
  * PL_UNTRAIL                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
+#ifdef BOEHM_GC
+static void *
+untrail_with_alloc_lock (void * low_adr)
+#else // BOEHM_GC
 void FC
 Pl_Untrail(WamWord *low_adr)
+#endif // BOEHM_GC
 {
   WamWord word;
   WamWord *adr;
   int nb;
 
-
-  while (TR > low_adr)
+  while (TR > (WamWord *)low_adr)
     {
       word = Trail_Pop;
       adr = (WamWord *) (Trail_Value_Of(word));
@@ -1884,6 +1888,11 @@ Pl_Untrail(WamWord *low_adr)
       switch (Trail_Tag_Of(word))
 	{
 	case TUV:
+#ifdef BOEHM_GC
+	  if (adr == NULL)
+	    continue;
+	  Unregister_GC_Trail_Elem((WamWord **)TR);
+#endif // BOEHM_GC
 	  *adr = Make_Self_Ref(adr);
 	  break;
 
@@ -1897,14 +1906,30 @@ Pl_Untrail(WamWord *low_adr)
 	  Mem_Word_Cpy(adr, TR, nb);
 	  break;
 
-	default:		/* TFC */
+	case TFC:		/* TFC */
 	  adr = (WamWord *) Trail_Pop; /* fct adr no longer word aligned */
 	  nb = Trail_Pop;
 	  TR -= nb;
 	  (*((int (*)()) adr)) (nb, TR);
+	  break;
+
+	default:
+	  assert( FALSE );
+	  break;
 	}
     }
+#ifdef BOEHM_GC
+  return 0;
+#endif // BOEHM_GC
 }
+
+#ifdef BOEHM_GC
+void FC
+Pl_Untrail(WamWord *low_adr)
+{
+  GC_call_with_alloc_lock(&untrail_with_alloc_lock, (void *)low_adr);
+}
+#endif // BOEHM_GC
 
 
 
