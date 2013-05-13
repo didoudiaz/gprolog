@@ -77,14 +77,15 @@ size_t pl_gc_bad_alloc_count=0;
  * Register_GC_Trail_Elem                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void FC
+int FC
 Register_GC_Trail_Elem(WamWord **trail, WamWord *adr)
 {
   assert( *trail == adr );
   if (!Is_A_Local_Adr(adr))
     {
-      GC_general_register_disappearing_link((void **)trail, adr);
+      return GC_general_register_disappearing_link((void **)trail, adr);
     }
+  return 0;
 }
 
 
@@ -92,13 +93,14 @@ Register_GC_Trail_Elem(WamWord **trail, WamWord *adr)
  * Unregister_GC_Trail_Elem                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void FC
+int FC
 Unregister_GC_Trail_Elem(WamWord **trail)
 {
   if (!Is_A_Local_Adr(*trail))
     {
-      GC_unregister_disappearing_link((void **)trail);
+      return GC_unregister_disappearing_link((void **)trail);
     }
+  return 0;
 }
 
 

@@ -72,10 +72,10 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void FC
+int FC
 Register_GC_Trail_Elem(WamWord **trail, WamWord *adr);
 
-void FC
+int FC
 Unregister_GC_Trail_Elem(WamWord **trail);
 
 
