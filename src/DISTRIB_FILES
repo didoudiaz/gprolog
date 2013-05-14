@@ -17,6 +17,7 @@ doc/[a-z][a-z]?*.hva
 doc/[a-z][a-z]?*.fig
 doc/[a-z][a-z]?*.gif
 doc/[a-z][a-z]?*.eps
+doc/[a-z][a-z]?*.png
 doc/[a-z][a-z]?*.dvi
 doc/[a-z][a-z]?*.ps
 doc/[a-z][a-z]?*.pdf
