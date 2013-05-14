@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <gc/gc.h>
 #include <assert.h>
+#include <signal.h>
 
 #include "engine_pl.h"
 
@@ -274,7 +275,13 @@ size_t FC
 Pl_GC_Compact_Trail()
 {
   size_t reduction = 0;
+  sigset_t block;
+  sigset_t orig;
+  sigemptyset(&block);
+  sigaddset(&block, SIGINT);
+  sigprocmask(SIG_BLOCK, &block, &orig);
   GC_call_with_alloc_lock(&compact_trail, (void *)&reduction);
+  sigprocmask(SIG_SETMASK, &orig, NULL);
   return reduction;
 }
 
