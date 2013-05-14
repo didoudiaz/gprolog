@@ -1867,6 +1867,7 @@ Pl_Defeasible_Close(Bool success)
 /*-------------------------------------------------------------------------*
  * PL_UNTRAIL                                                              *
  *                                                                         *
+ * Boehm: Also see Pl_GC_Compact_Trail in wam_gc_heap.c                    *
  *-------------------------------------------------------------------------*/
 #ifdef BOEHM_GC
 static void *

@@ -63,6 +63,8 @@ void * pl_gc_bad_alloc=0;
 size_t pl_gc_bad_alloc_count=0;
 #define PL_GC_BAD_ALLOC_COUNT_MOD (1024*1024)
 
+static int old_gc_no=0;
+
 /*---------------------------------*
  * Local functions                 *
  *---------------------------------*/
@@ -106,6 +108,179 @@ Unregister_GC_Trail_Elem(WamWord **trail)
 
 
 /*-------------------------------------------------------------------------*
+ * Pl_GC_Compact_Trail                                                     *
+ *                                                                         *
+ * See also Pl_Untrail in wam_inst.c                                       *
+ *-------------------------------------------------------------------------*/
+static int
+reverse_trail_elem(WamWord **trp, int d/*direction*/)
+{
+  WamWord word;
+  size_t nb;
+  WamWord *tr = *trp;
+
+  assert( d == 1 || d == -1 );
+
+  word = *tr;
+  switch (Trail_Tag_Of(word))
+    {
+    case TUV:
+      break;
+
+    case TOV:
+      *tr = *(tr+d);
+      tr += d;
+      *tr = word;
+      break;
+
+    case TMV:
+      tr += d;
+      nb = *tr;
+      tr += nb*d;
+
+      *(tr - (nb + 1)*d) = *tr;
+      *(tr -  nb     *d) = *(tr - d);
+
+      *(tr - d) = nb;
+      *tr = word;
+      break;
+
+    case TFC:
+      tr += 2*d;
+      nb = *tr;
+      tr += nb*d;
+
+      *(tr - (nb + 2)*d) = *tr;
+      *(tr -  nb     *d) = *(tr - 2*d);
+
+      *(tr - 2*d) = nb;
+      *tr = word;
+      break;
+
+    default:
+      assert( FALSE );
+      break;
+    }
+
+  *trp = tr;
+  return Trail_Tag_Of(word) != TUV || Trail_Value_Of(word) != 0;
+}
+
+static void
+move_trail_elem(WamWord *dst, WamWord *src)
+{
+  int nb;
+  WamWord *p;
+
+  assert( dst <= src );
+
+  switch (Trail_Tag_Of(*src))
+    {
+    case TUV:
+      if (Trail_Value_Of(*src) != 0)
+	{
+	  *dst = *src;
+	  Unregister_GC_Trail_Elem((WamWord **)src);
+	  nb = Register_GC_Trail_Elem((WamWord **)dst, (WamWord*)*dst);
+	  assert( nb == 0 );
+	}
+      nb = 0;
+      break;
+
+    case TOV:
+      nb = 2;
+      break;
+
+    case TMV:
+      nb = *(src-1);
+      nb += 2;
+      break;
+
+    case TFC: /* TFC */
+      nb = *(src - 2);
+      nb += 3;
+      break;
+
+    default:
+      assert( FALSE );
+      break;
+    }
+
+  p = src - nb;
+  dst = dst - nb;
+
+  while (p < src)
+    {
+      *++dst = *++p;
+    }
+}
+
+static void *
+compact_trail(void *data)
+{
+  WamWord *b, *bp, *bn;
+  WamWord *tr, *trm, *trp;
+  size_t res = 0;
+
+  //reverse B blocks
+  bp = bn = b = B;
+  while (b != LSSA && TRB(b) > Trail_Stack)
+    {
+      bp = BB(b);
+      BB(b) = bn;
+      bn = b;
+      b = bp;
+    }
+  b = bn;
+
+  //reverse trail element headers
+  tr = TR;
+  while (tr > Trail_Stack)
+    {
+      tr--;
+      reverse_trail_elem(&tr, -1);
+    }
+  assert( tr == Trail_Stack );
+
+  //restore and compact
+  trm = tr;
+  while (tr < TR)
+    {
+      trp = tr;
+      if (reverse_trail_elem(&tr, 1))
+	  trm += tr - trp + 1; // element still exists
+      else
+	  res += tr - trp + 1;
+      move_trail_elem(trm-1, tr);
+      tr++;
+      while (bp != b && tr >= TRB(b))
+	{
+	  assert( tr == TRB(b) );
+	  TRB(b) = trm;
+	  bn = BB(b);
+	  BB(b) = bp;
+	  bp = b;
+	  b = bn;
+	}
+    }
+  assert( tr == TR );
+
+  TR -= res;
+  *(size_t *)data = res;
+  return data;
+}
+
+size_t FC
+Pl_GC_Compact_Trail()
+{
+  size_t reduction = 0;
+  GC_call_with_alloc_lock(&compact_trail, (void *)&reduction);
+  return reduction;
+}
+
+
+
+/*-------------------------------------------------------------------------*
  * Pl_GC_Mem_Alloc                                                         *
  *                                                                         *
  * Allocates memory for the garbage collected heap.                        *
@@ -119,7 +294,15 @@ Pl_GC_Mem_Alloc(PlULong n)
 #if DEBUG_MEM_GC_DONT_COLLECT>=2
       result = (WamWord *) malloc(n * sizeof(WamWord));
 #else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
+      if (old_gc_no != GC_gc_no) {
+	  old_gc_no = GC_gc_no;
+	  Pl_GC_Compact_Trail();
+      }
       result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
+      if (old_gc_no != GC_gc_no) {
+	  old_gc_no = GC_gc_no;
+	  Pl_GC_Compact_Trail();
+      }
 #endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
     if (!Tag_Is_REF(result+n-1))
       {
