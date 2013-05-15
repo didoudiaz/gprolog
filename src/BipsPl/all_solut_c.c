@@ -147,7 +147,7 @@ All_Solut_Initializer(void)
  * qualified variables.                                                    *
  *   - collect variables of the template (bound variables)                 *
  *   - collect existentially qualified variables of the generator          *
- *     btw: compute the unqualified generator                              *
+ *     btw: compute the existentially unqualified generator                *
  *   - make in the heap the array of free variables of the unqualified     *
  *     generator                                                           *
  *   - create a Prolog term (gl_key) with the free variables.              *

@@ -44,33 +44,36 @@
 :- meta_predicate(bagof(?, 0, -)).
 :- meta_predicate(setof(?, 0, -)).
 
-findall(Template, Generator, Instances) :-
-	'$findall'(Template, Generator, Instances, findall).
+findall(Template, MGenerator, Instances) :-
+	'$check_list_arg'(Instances, findall),
+	'$strip_module_nonvar'(MGenerator, Module, Generator),
+	'$findall'(Template, Generator, Module, Instances, findall).
 
-'$findall'(Template, Generator, Instances, Func) :-
-	'$check_list_arg'(Instances, Func),
-	'$store_solutions'(Template, Generator, Stop, Func),
+'$findall'(Template, Generator, Module, Instances, Func) :-
+	'$store_solutions'(Template, Generator, Module, Stop, Func),
 	'$call_c_test'('Pl_Recover_Solutions_2'(Stop, 0, Instances)).
 
 
 
 
-setof(Template, Goal, Instances) :-
+setof(Template, MGenerator, Instances) :-
 	'$check_list_arg'(Instances, setof),
-	'$bagof'(Template, Goal, Instances, setof).
+	'$strip_module_nonvar'(MGenerator, Module, Generator),
+	'$bagof'(Template, Generator, Module, Instances, setof).
 %	sort(Instances).
 
 
 
 
-bagof(Template, Generator, Instances) :-
+bagof(Template, MGenerator, Instances) :-
 	'$check_list_arg'(Instances, bagof),
-	'$bagof'(Template, Generator, Instances, bagof).
+	'$strip_module_nonvar'(MGenerator, Module, Generator),
+	'$bagof'(Template, Generator, Module, Instances, bagof).
 
 
-'$bagof'(Template, Generator, Instances, Func) :-
+'$bagof'(Template, Generator, Module, Instances, Func) :-
 	'$call_c_test'('Pl_Free_Variables_4'(Template, Generator, Generator1, Key)), !,
-	'$store_solutions'(Key - Template, Generator1, Stop, Func),
+	'$store_solutions'(Key - Template, Generator1, Module, Stop, Func),
 	set_bip_name(Func, 3),   % for error too_many_variables in C function
 	'$call_c_test'('Pl_Recover_Solutions_2'(Stop, 1, AllInstances)),
 	(   Func = bagof ->
@@ -79,9 +82,9 @@ bagof(Template, Generator, Instances) :-
 	),
 	'$group_solutions'(AllInstances, Key, Instances).
 
-'$bagof'(Template, _, Instances, Func) :-
+'$bagof'(Template, _, Module, Instances, Func) :-
 	'$call_c'('Pl_Recover_Generator_1'(Generator)),
-	'$findall'(Template, Generator, Instances, Func),
+	'$findall'(Template, Generator, Module, Instances, Func),
 	Instances \== [],
 	(   Func = bagof ->
 	    true
@@ -91,9 +94,9 @@ bagof(Template, Generator, Instances) :-
 
 
 
-'$store_solutions'(Template, Generator, Stop, Func) :-
+'$store_solutions'(Template, Generator, Module, Stop, Func) :-
 	'$call_c'('Pl_Stop_Mark_1'(Stop)),
-	(   '$call'(Generator, user, Func, 3), % user is OK since Generator is module qualified (meta_predicate decl).
+	(   '$call'(Generator, Module, Func, 3),
 	    '$call_c'('Pl_Store_Solution_1'(Template)),
 	    fail
 	;   true
