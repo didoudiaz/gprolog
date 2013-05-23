@@ -603,7 +603,7 @@ nospyall.
 	'$debug_port'(Goal, Module, Invoc, Index, AncLst, call),
 	g_read('$debug_unify', DebugUnify),
 	(   DebugUnify == '' ->
-format('now I call ~w~n', [Module:Goal]),
+%format('now I call ~w~n', [Module:Goal]),
 	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
 				% but don't call 'call_from_debugger since it is a
 				% control-construct (thus its native codep == NULL)
