@@ -57,6 +57,7 @@
 // Sophie Germain primes
 static size_t magic_sizes[]=
     {
+	7,
 	89,
 	719,
 	3539,
@@ -64,8 +65,8 @@ static size_t magic_sizes[]=
 	215399,
 	2245319,
 	17962559,
-	134191649,
-	1073533199,
+	//134191649,
+	//1073533199,
 	0
     };
 
@@ -127,6 +128,17 @@ static Bool Term_Hash_Rec(WamWord start_word, PlLong depth, HashIncrInfo *hi);
 
 
 /*-------------------------------------------------------------------------*
+ * GC_Hash_Create                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+
+static inline HashTable
+GC_Hash_Create()
+{
+  return Pl_Hash_Alloc_Table(magic_sizes[0], sizeof(GCCopyTermAddr));
+}
+
+/*-------------------------------------------------------------------------*
  * GC_Hash_Insert                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -137,16 +149,18 @@ GC_Hash_Insert(HashTable *tbl, GCCopyTermAddr ta)
   size_t s,i;
   HashTable tmp = 0;
   s = Pl_Hash_Table_Size(*tbl);
-  if (Pl_Hash_Nb_Elements(*tbl) >= s)
+  if (Pl_Hash_Nb_Elements(*tbl) == s)
     {
       i = 0;
       while (magic_sizes[i + 1] != 0 && magic_sizes[i] <= s) i++;
       i = magic_sizes[i];
       if (i > s)
-	tmp = Pl_Hash_Realloc_Table(*tbl, magic_sizes[i]);
+	tmp = Pl_Hash_Realloc_Table(*tbl, i);
       if (tmp != 0)
 	*tbl = tmp;
     }
+  assert( Pl_Hash_Nb_Elements(*tbl) < Pl_Hash_Table_Size(*tbl) ||
+      Pl_Hash_Nb_Elements(*tbl) >= magic_sizes[sizeof(magic_sizes)/sizeof(size_t)-2] );
   return (GCCopyTermAddr *) Pl_Hash_Insert(*tbl, (char *) &ta, 0);
 }
 
@@ -439,7 +453,7 @@ Pl_Copy_Term(WamWord *dst_adr, WamWord *src_adr)
   assert( !Tag_Is_STC(*src_adr) ||  UnTag_Address(*src_adr) == src_adr + 1 );
   assert( !Tag_Is_FDV(*src_adr) ||  UnTag_Address(*src_adr) == src_adr + 1 );
 
-  tbl = Pl_Hash_Alloc_Table(5, sizeof(GCCopyTermAddr));
+  tbl = GC_Hash_Create();
   GC_Copy_Term_Rec(dst_adr, src_adr, &tbl);
   Pl_Hash_Free_Table(tbl);
 #else // BOEHM_GC
