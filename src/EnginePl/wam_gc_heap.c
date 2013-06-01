@@ -327,12 +327,14 @@ Pl_GC_Mem_Alloc(PlULong n)
       }
     }
   while (result != 0);
+#if DEBUG_MEM_GC_DONT_COLLECT>=2
   if (result != 0) {
       x = result + n;
       while (x-- > result) {
 	  *x=0;
       }
   }
+#endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
   assert( Tag_Is_REF(result) );
   assert( result != 0 );
   return result;
