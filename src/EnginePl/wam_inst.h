@@ -91,19 +91,20 @@
 
 	  /* Choice Point Frame */
 
-#define CHOICE_STATIC_SIZE         8
+#define CHOICE_STATIC_SIZE         9
 
 #define ALTB(b)                    (*(CodePtr *)  &(b[-1]))
 #define CPB(b)                     (*(WamCont *)  &(b[-2]))
 #define BCIB(b)                    (*(WamWord *)  &(b[-3]))
 #define EB(b)                      (*(WamWord **) &(b[-4]))
 #define BB(b)                      (*(WamWord **) &(b[-5]))
-#define HB(b)                      (*(WamWord **) &(b[-6]))
-#define TRB(b)                     (*(WamWord **) &(b[-7]))
-#define CSB(b)                     (*(WamWord **) &(b[-8]))
-#define AB(b, a)                   (*(WamWord *)  &(b[-9 - (a)]))
+#define FBB(b)                     (*(WamWord **) &(b[-6]))
+#define HB(b)                      (*(WamWord **) &(b[-7]))
+#define TRB(b)                     (*(WamWord **) &(b[-8]))
+#define CSB(b)                     (*(WamWord **) &(b[-9]))
+#define AB(b, a)                   (*(WamWord *)  &(b[-10 - (a)]))
 
-#define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
+#define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", "FBB", \
                                     "HB", "TRB", "CSB"}
 
 
@@ -127,6 +128,9 @@
 #define Trail_Tag_Value(t, v)      ((PlULong) (v) | (t))
 #define Trail_Tag_Of(w)            ((PlULong) (w) & 0x3)
 #define Trail_Value_Of(w)          ((PlULong) (w) & (~0x3))
+
+#define Trail_Tag_Size(t, n)       (((n) << 2) | ((t) & 0x3))
+#define Trail_Size_Of(w)           ((PlULong) (w) >> 2)
 
 
 
@@ -577,6 +581,7 @@ PlLong chain_len;
 #define Trail_OV(adr)				\
   do						\
     {						\
+      Trail_Push(Trail_Tag_Size(TOV, 3));	\
       Trail_Push(*(adr));			\
       Trail_Push(Trail_Tag_Value(TOV, adr));	\
     }						\
@@ -588,6 +593,7 @@ PlLong chain_len;
 #define Trail_MV(adr, nb)			\
   do						\
     {						\
+      Trail_Push(Trail_Tag_Size(TMV, nb+3));	\
       Mem_Word_Cpy(TR, adr, nb);		\
       TR += nb;					\
       Trail_Push(nb);				\
@@ -601,6 +607,7 @@ PlLong chain_len;
 #define Trail_FC(fct, nb, arg)			\
   do						\
     {						\
+      Trail_Push(Trail_Tag_Size(TFC, nb+4));    \
       Mem_Word_Cpy(TR, arg, nb);		\
       TR += nb;					\
       Trail_Push(nb);				\

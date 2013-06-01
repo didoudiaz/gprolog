@@ -1557,6 +1557,8 @@ Pl_Obtain_Float(WamWord *adr)
   BCIB(cur_B) = BCI;                                       \
   EB(cur_B) = E;                                           \
   BB(cur_B) = old_B;                                       \
+  if (old_B != LSSA)                                       \
+      FBB(old_B) = cur_B;                                  \
   HB(cur_B) = HB1 = H;                                     \
   TRB(cur_B) = TR;                                         \
   CSB(cur_B) = CS;                                         \
@@ -1899,12 +1901,14 @@ Pl_Untrail(WamWord *low_adr)
 
 	case TOV:
 	  *adr = Trail_Pop;
+	  TR--;
 	  break;
 
 	case TMV:
 	  nb = Trail_Pop;
 	  TR -= nb;
 	  Mem_Word_Cpy(adr, TR, nb);
+	  TR--;
 	  break;
 
 	case TFC:		/* TFC */
@@ -1912,6 +1916,7 @@ Pl_Untrail(WamWord *low_adr)
 	  nb = Trail_Pop;
 	  TR -= nb;
 	  (*((int (*)()) adr)) (nb, TR);
+	  TR--;
 	  break;
 
 	default:

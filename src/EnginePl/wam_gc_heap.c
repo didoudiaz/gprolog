@@ -113,161 +113,69 @@ Unregister_GC_Trail_Elem(WamWord **trail)
  *                                                                         *
  * See also Pl_Untrail in wam_inst.c                                       *
  *-------------------------------------------------------------------------*/
-static int
-reverse_trail_elem(WamWord **trp, int d/*direction*/)
-{
-  WamWord word;
-  size_t nb;
-  WamWord *tr = *trp;
-
-  assert( d == 1 || d == -1 );
-
-  word = *tr;
-  switch (Trail_Tag_Of(word))
-    {
-    case TUV:
-      break;
-
-    case TOV:
-      *tr = *(tr+d);
-      tr += d;
-      *tr = word;
-      break;
-
-    case TMV:
-      tr += d;
-      nb = *tr;
-      tr += nb*d;
-
-      *(tr - (nb + 1)*d) = *tr;
-      *(tr -  nb     *d) = *(tr - d);
-
-      *(tr - d) = nb;
-      *tr = word;
-      break;
-
-    case TFC:
-      tr += 2*d;
-      nb = *tr;
-      tr += nb*d;
-
-      *(tr - (nb + 2)*d) = *tr;
-      *(tr -  nb     *d) = *(tr - 2*d);
-
-      *(tr - 2*d) = nb;
-      *tr = word;
-      break;
-
-    default:
-      assert( FALSE );
-      break;
-    }
-
-  *trp = tr;
-  return Trail_Tag_Of(word) != TUV || Trail_Value_Of(word) != 0;
-}
-
 static void
-move_trail_elem(WamWord *dst, WamWord *src)
+move_trail_elem(WamWord **dst, WamWord **src)
 {
   int nb;
   WamWord *p;
 
-  assert( dst <= src );
+  assert( *dst <= *src );
 
-  switch (Trail_Tag_Of(*src))
+  if (Trail_Tag_Of(**src) == TUV)
     {
-    case TUV:
-      if (Trail_Value_Of(*src) != 0)
+      if (Trail_Value_Of(**src) != 0)
 	{
-	  *dst = *src;
-	  Unregister_GC_Trail_Elem((WamWord **)src);
-	  nb = Register_GC_Trail_Elem((WamWord **)dst, (WamWord*)*dst);
+	  **dst = **src;
+	  Unregister_GC_Trail_Elem((WamWord **)*src);
+	  nb = Register_GC_Trail_Elem((WamWord **)*dst, (WamWord*)**dst);
 	  assert( nb == 0 );
+	  (*dst)++;
 	}
-      nb = 0;
-      break;
-
-    case TOV:
-      nb = 2;
-      break;
-
-    case TMV:
-      nb = *(src-1);
-      nb += 2;
-      break;
-
-    case TFC: /* TFC */
-      nb = *(src - 2);
-      nb += 3;
-      break;
-
-    default:
-      assert( FALSE );
-      break;
+      (*src)++;
     }
-
-  p = src - nb;
-  dst = dst - nb;
-
-  while (p < src)
+  else
     {
-      *++dst = *++p;
+      nb = Trail_Size_Of(**src);
+      while (nb-- > 0)
+	{
+	  *(*dst)++ = *(*src)++;
+	}
     }
 }
 
 static void *
 compact_trail(void *data)
 {
-  WamWord *b, *bp, *bn;
-  WamWord *tr, *trm, *trp;
-  size_t res = 0;
+  WamWord *b;
+  WamWord *src, *dst;
 
-  //reverse B blocks
-  bp = bn = b = B;
-  while (b != LSSA && TRB(b) > Trail_Stack)
+  src = b = B;
+  while (src != LSSA && TRB(src) > Trail_Stack)
     {
-      bp = BB(b);
-      BB(b) = bn;
-      bn = b;
-      b = bp;
+      b = src;
+      src = BB(src);
     }
-  b = bn;
+  if (b == src)
+    b = LSSA;
 
-  //reverse trail element headers
-  tr = TR;
-  while (tr > Trail_Stack)
+  dst = src = Trail_Stack;
+  while (src < TR)
     {
-      tr--;
-      reverse_trail_elem(&tr, -1);
-    }
-  assert( tr == Trail_Stack );
-
-  //restore and compact
-  trm = tr;
-  while (tr < TR)
-    {
-      trp = tr;
-      if (reverse_trail_elem(&tr, 1))
-	  trm += tr - trp + 1; // element still exists
-      else
-	  res += tr - trp + 1;
-      move_trail_elem(trm-1, tr);
-      tr++;
-      while (bp != b && tr >= TRB(b))
+      move_trail_elem(&dst, &src);
+      while (b != LSSA && src >= TRB(b))
 	{
-	  assert( tr == TRB(b) );
-	  TRB(b) = trm;
-	  bn = BB(b);
-	  BB(b) = bp;
-	  bp = b;
-	  b = bn;
+	  assert( src == TRB(b) );
+	  TRB(b) = dst;
+	  if (b == B)
+	    b = LSSA;
+	  else
+	    b = FBB(b);
 	}
     }
-  assert( tr == TR );
+  assert( src == TR );
 
-  TR -= res;
-  *(size_t *)data = res;
+  TR = dst;
+  *(size_t *)data = src-dst;
   return data;
 }
 
