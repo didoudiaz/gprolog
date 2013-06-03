@@ -209,10 +209,6 @@ Pl_GC_Mem_Alloc(PlULong n)
 #if DEBUG_MEM_GC_DONT_COLLECT>=2
       result = (WamWord *) malloc(n * sizeof(WamWord));
 #else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
-      if (old_gc_no != GC_gc_no) {
-	  old_gc_no = GC_gc_no;
-	  Pl_GC_Compact_Trail();
-      }
       result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
       if (old_gc_no != GC_gc_no) {
 	  old_gc_no = GC_gc_no;
