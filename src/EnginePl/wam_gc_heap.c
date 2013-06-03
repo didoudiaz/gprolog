@@ -84,7 +84,7 @@ int FC
 Register_GC_Trail_Elem(WamWord **trail, WamWord *adr)
 {
   assert( *trail == adr );
-  if (!Is_A_Local_Adr(adr))
+  if (adr < Local_Stack || adr >= Local_Stack + Local_Size)
     {
       return GC_general_register_disappearing_link((void **)trail, adr);
     }
@@ -99,7 +99,7 @@ Register_GC_Trail_Elem(WamWord **trail, WamWord *adr)
 int FC
 Unregister_GC_Trail_Elem(WamWord **trail)
 {
-  if (!Is_A_Local_Adr(*trail))
+  if (*trail < Local_Stack || *trail >= Local_Stack + Local_Size)
     {
       return GC_unregister_disappearing_link((void **)trail);
     }
