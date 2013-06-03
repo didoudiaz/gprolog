@@ -1509,6 +1509,7 @@ Pl_Term_To_Goal(WamWord term_word, WamWord module_word, WamWord call_info_word)
 
 #ifdef BOEHM_GC
   GC_assert_clean_start_word(term_word);
+  GC_assert_clean_start_word(module_word);
   GC_assert_clean_start_word(call_info_word);
 #endif // BOEHM_GC
 

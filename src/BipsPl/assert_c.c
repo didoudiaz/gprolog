@@ -88,7 +88,7 @@ Pl_Assert_4(WamWord clause_word, WamWord asserta_word,
 
   module = Pl_Get_Head_And_Body_Top(clause_word, &head_word, &body_word);
 
-  body_word = Pl_Term_To_Goal(body_word, module, NOT_A_WAM_WORD);
+  body_word = Pl_Term_To_Goal(body_word, Tag_ATM(module), NOT_A_WAM_WORD);
 
   last_clause = Pl_Add_Dynamic_Clause(module, head_word, body_word, asserta, check_perm, pl_file);
 }
