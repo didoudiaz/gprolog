@@ -13,7 +13,8 @@ AS           = @AS@
 # the name gprolog_win32 is also used inside gp-setup.iss.in
 TMPDIR=/tmp/gprolog_win32
 
-create_bat@EXE_SUFFIX@: create_bat.c
+# put create-bat as a target (not as a dependency) to avoid conflict 32/64 bits
+create-bat: create_bat.c
 	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@create_bat@EXE_SUFFIX@ create_bat.c
 
 compile:
@@ -30,9 +31,9 @@ setup: compile create-setup
 setup-link: compile-link create-setup
 
 
-create-setup: create_bat.exe
+create-setup: create-bat
 	if test $(WITH_MSVC) != no; then cp `which $(AS)` $(TMPDIR)/bin; fi
-	cp create_bat.exe $(TMPDIR)/bin
+	cp create_bat@EXE_SUFFIX@ $(TMPDIR)/bin
 	$(ISCC) gp-setup.iss
 
 ../$(PKG_NAME).tar.gz:

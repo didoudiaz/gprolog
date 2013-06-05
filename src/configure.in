@@ -634,6 +634,29 @@ fi
 
 
 
+
+dnl *********************
+dnl * LD compiler flags *
+dnl *********************
+
+# Check whether -static-libgcc is supported (could add -static-libstdc++ later)
+# This is to avoid on windows a dependency to mingw dll (e.g. libgcc_s_sjlj.dll)
+have_static_libs=no
+if test "$GCC" = yes -a "$WINDOWS" != no; then
+   SAVE_LDFLAGS="$LDFLAGS"
+   LDFLAGS="$LDFLAGS -static-libgcc"
+   AC_MSG_CHECKING([whether gcc accepts -static-libgcc])
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
+    [AC_MSG_RESULT([yes]); have_static_libs=yes],
+    [AC_MSG_RESULT([no])])
+if test "have_static_libs" = no; then
+   LDFLAGS="$SAVE_LDFLAGS"
+fi
+fi
+
+
+
+
 dnl ********************
 dnl * libraries to add *
 dnl ********************

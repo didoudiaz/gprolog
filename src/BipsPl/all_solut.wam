@@ -10,83 +10,100 @@ predicate(system:'$use_all_solut'/0,41,static,private,monofile,built_in,[
 
 
 predicate(system:findall/3,47,static,private,monofile,built_in,[
-    put_atom(findall,3),
-    execute('$findall'/4)]).
-
-
-predicate(system:'$findall'/4,50,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    get_variable(y(3),3),
     put_value(y(2),0),
-    put_value(y(3),1),
+    put_atom(findall,1),
     call('$check_list_arg'/2),
-    put_value(y(0),0),
-    put_value(y(1),1),
+    put_value(y(1),0),
+    put_variable(y(3),1),
     put_variable(y(4),2),
-    put_value(y(3),3),
-    call('$store_solutions'/4),
-    put_unsafe_value(y(4),0),
+    call('$strip_module_nonvar'/3),
+    put_value(y(0),0),
+    put_unsafe_value(y(4),1),
+    put_unsafe_value(y(3),2),
+    put_value(y(2),3),
+    put_atom(findall,4),
+    deallocate,
+    execute('$findall'/5)]).
+
+
+predicate(system:'$findall'/5,52,static,private,monofile,built_in,[
+    allocate(2),
+    get_variable(y(0),3),
+    put_variable(y(1),3),
+    call('$store_solutions'/5),
+    put_unsafe_value(y(1),0),
     put_integer(0,1),
-    put_value(y(2),2),
+    put_value(y(0),2),
     deallocate,
     call_c('Pl_Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:setof/3,58,static,private,monofile,built_in,[
-    allocate(3),
+predicate(system:setof/3,59,static,private,monofile,built_in,[
+    allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
     put_value(y(2),0),
     put_atom(setof,1),
     call('$check_list_arg'/2),
+    put_value(y(1),0),
+    put_variable(y(3),1),
+    put_variable(y(4),2),
+    call('$strip_module_nonvar'/3),
     put_value(y(0),0),
-    put_value(y(1),1),
-    put_value(y(2),2),
-    put_atom(setof,3),
+    put_unsafe_value(y(4),1),
+    put_unsafe_value(y(3),2),
+    put_value(y(2),3),
+    put_atom(setof,4),
     deallocate,
-    execute('$bagof'/4)]).
+    execute('$bagof'/5)]).
 
 
-predicate(system:bagof/3,66,static,private,monofile,built_in,[
-    allocate(3),
+predicate(system:bagof/3,68,static,private,monofile,built_in,[
+    allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
     put_value(y(2),0),
     put_atom(bagof,1),
     call('$check_list_arg'/2),
+    put_value(y(1),0),
+    put_variable(y(3),1),
+    put_variable(y(4),2),
+    call('$strip_module_nonvar'/3),
     put_value(y(0),0),
-    put_value(y(1),1),
-    put_value(y(2),2),
-    put_atom(bagof,3),
+    put_unsafe_value(y(4),1),
+    put_unsafe_value(y(3),2),
+    put_value(y(2),3),
+    put_atom(bagof,4),
     deallocate,
-    execute('$bagof'/4)]).
+    execute('$bagof'/5)]).
 
 
-predicate(system:'$bagof'/4,71,static,private,monofile,built_in,[
-    pragma_arity(5),
-    get_current_choice(x(4)),
+predicate(system:'$bagof'/5,74,static,private,monofile,built_in,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     allocate(5),
-    get_variable(y(0),2),
-    get_variable(y(1),3),
-    get_variable(x(3),1),
-    get_variable(x(2),0),
+    get_variable(y(0),3),
+    get_variable(y(1),4),
+    get_variable(x(4),1),
+    get_variable(x(3),0),
     put_variable(x(1),0),
-    put_variable(y(2),5),
-    call_c('Pl_Free_Variables_4',[boolean],[x(2),x(3),x(0),x(5)]),
-    cut(x(4)),
+    put_variable(y(2),6),
+    call_c('Pl_Free_Variables_4',[boolean],[x(3),x(4),x(0),x(6)]),
+    cut(x(5)),
     put_structure((-)/2,0),
     unify_local_value(y(2)),
-    unify_local_value(x(2)),
-    put_variable(y(3),2),
-    put_value(y(1),3),
-    call('$store_solutions'/4),
+    unify_local_value(x(3)),
+    put_variable(y(3),3),
+    put_value(y(1),4),
+    call('$store_solutions'/5),
     put_value(y(1),0),
     put_integer(3,1),
     call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
@@ -96,7 +113,7 @@ predicate(system:'$bagof'/4,71,static,private,monofile,built_in,[
     call_c('Pl_Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
     put_value(y(1),0),
     put_value(y(4),1),
-    call('$$bagof/4_$aux1'/2),
+    call('$$bagof/5_$aux1'/2),
     put_unsafe_value(y(4),0),
     put_unsafe_value(y(2),1),
     put_value(y(0),2),
@@ -106,23 +123,23 @@ predicate(system:'$bagof'/4,71,static,private,monofile,built_in,[
 label(1),
     trust_me_else_fail,
     allocate(2),
-    get_variable(y(0),2),
-    get_variable(y(1),3),
-    put_variable(x(1),2),
-    call_c('Pl_Recover_Generator_1',[],[x(2)]),
-    put_value(y(0),2),
-    put_value(y(1),3),
-    call('$findall'/4),
+    get_variable(y(0),3),
+    get_variable(y(1),4),
+    put_variable(x(1),3),
+    call_c('Pl_Recover_Generator_1',[],[x(3)]),
+    put_value(y(0),3),
+    put_value(y(1),4),
+    call('$findall'/5),
     put_value(y(0),0),
     put_nil(1),
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(1),0),
     put_value(y(0),1),
     deallocate,
-    execute('$$bagof/4_$aux2'/2)]).
+    execute('$$bagof/5_$aux2'/2)]).
 
 
-predicate(system:'$$bagof/4_$aux2'/2,82,static,private,monofile,local,[
+predicate(system:'$$bagof/5_$aux2'/2,85,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -136,7 +153,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate(system:'$$bagof/4_$aux1'/2,71,static,private,monofile,local,[
+predicate(system:'$$bagof/5_$aux1'/2,74,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -151,21 +168,20 @@ label(1),
     execute(sort/1)]).
 
 
-predicate(system:'$store_solutions'/4,94,static,private,monofile,built_in,[
-    get_variable(x(4),2),
-    get_variable(x(2),0),
-    call_c('Pl_Stop_Mark_1',[],[x(4)]),
+predicate(system:'$store_solutions'/5,97,static,private,monofile,built_in,[
+    get_variable(x(5),3),
+    get_variable(x(3),0),
+    call_c('Pl_Stop_Mark_1',[],[x(5)]),
     put_value(x(1),0),
-    put_value(x(3),1),
-    execute('$$store_solutions/4_$aux1'/3)]).
+    put_value(x(2),1),
+    put_value(x(4),2),
+    execute('$$store_solutions/5_$aux1'/4)]).
 
 
-predicate(system:'$$store_solutions/4_$aux1'/3,94,static,private,monofile,local,[
+predicate(system:'$$store_solutions/5_$aux1'/4,97,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
-    get_variable(y(0),2),
-    put_value(x(1),2),
-    put_atom(user,1),
+    get_variable(y(0),3),
     put_integer(3,3),
     call('$call'/4),
     put_value(y(0),0),
@@ -177,17 +193,17 @@ label(1),
     proceed]).
 
 
-predicate(system:'$group_solutions'/3,105,static,private,monofile,built_in,[
+predicate(system:'$group_solutions'/3,108,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$group_solutions_alt'/0,108,static,private,monofile,built_in,[
+predicate(system:'$group_solutions_alt'/0,111,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:'$check_list_arg'/2,116,static,private,monofile,built_in,[
+predicate(system:'$check_list_arg'/2,119,static,private,monofile,built_in,[
     put_integer(3,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).
