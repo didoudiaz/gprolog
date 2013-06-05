@@ -40,9 +40,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
-#ifdef BOEHM_GC
-#include <gc.h>
-#endif
 
 #include "gp_config.h"
 #include "set_locale.h"
@@ -132,10 +129,7 @@ Pl_Start_Prolog(int argc, char *argv[])
 #endif
 
 #ifdef BOEHM_GC
-  GC_INIT();
-#ifdef DEBUG_MEM_GC_DONT_COLLECT
-  GC_disable();
-#endif /* DEBUG_MEM_GC_DONT_COLLECT */
+  Pl_GC_Init();
 #endif /* BOEHM_GC */
 
   Set_Locale();
@@ -196,6 +190,9 @@ Pl_Start_Prolog(int argc, char *argv[])
     }
 
   Pl_Allocate_Stacks();
+#ifdef BOEHM_GC
+  Pl_GC_Init_Roots();
+#endif /* BOEHM_GC */
   Save_Machine_Regs(init_buff_regs);
 
 #ifndef NO_MACHINE_REG_FOR_REG_BANK

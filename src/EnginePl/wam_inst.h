@@ -573,7 +573,7 @@ PlLong chain_len;
   do						\
     {						\
       Trail_Push(Trail_Tag_Value(TUV, adr));	\
-      Register_GC_Trail_Elem((WamWord **)(TR-1), adr);	\
+      Pl_GC_Register_Trail_Elem((WamWord **)(TR-1));	\
     }						\
   while (0)
 

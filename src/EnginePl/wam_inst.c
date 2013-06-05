@@ -1894,7 +1894,7 @@ Pl_Untrail(WamWord *low_adr)
 #ifdef BOEHM_GC
 	  if (adr == NULL)
 	    continue;
-	  Unregister_GC_Trail_Elem((WamWord **)TR);
+	  Pl_GC_Unregister_Trail_Elem((WamWord **)TR);
 #endif // BOEHM_GC
 	  *adr = Make_Self_Ref(adr);
 	  break;

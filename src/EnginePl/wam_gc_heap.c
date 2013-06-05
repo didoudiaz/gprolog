@@ -67,37 +67,87 @@ size_t pl_gc_bad_alloc_count=0;
 static int old_gc_no=0;
 
 /*---------------------------------*
- * Local functions                 *
- *---------------------------------*/
-
-
-/*---------------------------------*
  * Function Definitions            *
  *---------------------------------*/
 
-
-/*-------------------------------------------------------------------------*
- * Register_GC_Trail_Elem                                                  *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int FC
-Register_GC_Trail_Elem(WamWord **trail, WamWord *adr)
+static inline void
+pre_collect()
 {
-  assert( *trail == adr );
-  if (adr < Local_Stack || adr >= Local_Stack + Local_Size)
+  assert(old_gc_no == GC_gc_no);
+}
+
+static inline int
+post_collect()
+{
+  if (old_gc_no != GC_gc_no)
     {
-      return GC_general_register_disappearing_link((void **)trail, adr);
+      old_gc_no = GC_gc_no;
+      Pl_GC_Compact_Trail();
+      return 1;
     }
   return 0;
 }
 
-
 /*-------------------------------------------------------------------------*
- * Unregister_GC_Trail_Elem                                                *
+ * Pl_GC_Init                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
+void FC
+Pl_GC_Init()
+{
+  GC_INIT();
+#ifdef DEBUG_MEM_GC_DONT_COLLECT
+  GC_disable();
+#endif /* DEBUG_MEM_GC_DONT_COLLECT */
+  old_gc_no = GC_gc_no;
+}
+
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Init_Roots                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Pl_GC_Init_Roots()
+{
+  GC_add_roots(Local_Stack, Local_Stack + Local_Size);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Register_Trail_Elem                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static inline int
+register_trail_elem(WamWord **trail)
+{
+  if (*trail < Local_Stack || *trail >= Local_Stack + Local_Size)
+    {
+      return GC_general_register_disappearing_link((void **)trail, *trail);
+    }
+  return 0;
+}
+
 int FC
-Unregister_GC_Trail_Elem(WamWord **trail)
+Pl_GC_Register_Trail_Elem(WamWord **trail)
+{
+  int result = 0;
+  pre_collect();
+  result = register_trail_elem(trail);
+  if (TR + 1 >= Trail_Stack + Trail_Size)
+    GC_gcollect();
+  post_collect();
+  return result;
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Unregister_Trail_Elem                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+#define unregister_trail_elem Pl_GC_Unregister_Trail_Elem
+
+int FC
+Pl_GC_Unregister_Trail_Elem(WamWord **trail)
 {
   if (*trail < Local_Stack || *trail >= Local_Stack + Local_Size)
     {
@@ -126,8 +176,8 @@ move_trail_elem(WamWord **dst, WamWord **src)
       if (Trail_Value_Of(**src) != 0)
 	{
 	  **dst = **src;
-	  Unregister_GC_Trail_Elem((WamWord **)*src);
-	  nb = Register_GC_Trail_Elem((WamWord **)*dst, (WamWord*)**dst);
+	  unregister_trail_elem((WamWord **)*src);
+	  nb = register_trail_elem((WamWord **)*dst);
 	  assert( nb == 0 );
 	  (*dst)++;
 	}
@@ -203,17 +253,22 @@ Pl_GC_Compact_Trail()
 WamWord * FC
 Pl_GC_Mem_Alloc(PlULong n)
 {
-  WamWord *result = 0, *x;
+  WamWord *result = 0;
   do
     {
 #if DEBUG_MEM_GC_DONT_COLLECT>=2
+      WamWord *x;
       result = (WamWord *) malloc(n * sizeof(WamWord));
-#else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
-      result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
-      if (old_gc_no != GC_gc_no) {
-	  old_gc_no = GC_gc_no;
-	  Pl_GC_Compact_Trail();
+      if (result != 0) {
+	  x = result + n;
+	  while (x-- > result) {
+	      *x=0;
+	  }
       }
+#else /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
+      pre_collect();
+      result = (WamWord *) GC_MALLOC(n * sizeof(WamWord));
+      post_collect();
 #endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
     if (!Tag_Is_REF(result+n-1))
       {
@@ -231,14 +286,6 @@ Pl_GC_Mem_Alloc(PlULong n)
       }
     }
   while (result != 0);
-#if DEBUG_MEM_GC_DONT_COLLECT>=2
-  if (result != 0) {
-      x = result + n;
-      while (x-- > result) {
-	  *x=0;
-      }
-  }
-#endif /* DEBUG_MEM_GC_DONT_COLLECT>=2 */
   assert( Tag_Is_REF(result) );
   assert( result != 0 );
   return result;

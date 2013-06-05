@@ -73,11 +73,13 @@
  *---------------------------------*/
 
 int FC
-Register_GC_Trail_Elem(WamWord **trail, WamWord *adr);
+Pl_GC_Register_Trail_Elem(WamWord **trail);
 
 int FC
-Unregister_GC_Trail_Elem(WamWord **trail);
+Pl_GC_Unregister_Trail_Elem(WamWord **trail);
 
+size_t FC
+Pl_GC_Compact_Trail();
 
 WamWord * FC
 Pl_GC_Mem_Alloc(PlULong n_wamwords);
