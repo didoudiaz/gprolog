@@ -62,6 +62,8 @@ void Pl_Init_Machine(void);
 
 char *Pl_M_Sys_Err_String(int ret_val);
 
+void Pl_M_Profiling_Times(unsigned long long *user, unsigned long long *system);
+
 PlLong Pl_M_User_Time(void);
 
 PlLong Pl_M_System_Time(void);

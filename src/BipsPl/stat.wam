@@ -2,7 +2,7 @@
 % file    : stat.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/stat.pl').
+file_name('/home/nick/masterproef/gprolog/src/BipsPl/stat.pl').
 
 
 predicate(system:'$use_stat'/0,41,static,private,monofile,built_in,[
@@ -18,7 +18,7 @@ predicate(system:statistics/0,44,static,private,monofile,built_in,[
 predicate(system:statistics/2,49,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
-    allocate(5),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
@@ -27,46 +27,56 @@ predicate(system:statistics/2,49,static,private,monofile,built_in,[
     call('$check_stat_key'/1),
     cut(y(2)),
     put_value(y(1),0),
-    put_variable(y(3),1),
-    put_variable(y(4),2),
-    call('$statistics/2_$aux1'/3),
-    put_value(y(0),0),
-    put_unsafe_value(y(3),1),
-    put_unsafe_value(y(4),2),
+    put_value(y(0),1),
+    put_unsafe_value(y(2),2),
     deallocate,
-    execute('$stat'/3)]).
+    execute('$statistics/2_$aux1'/3)]).
 
 
 predicate(system:'$statistics/2_$aux1'/3,49,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
+    get_variable(x(4),1),
     get_list(0),
-    unify_local_value(x(1)),
+    unify_variable(x(1)),
     unify_list,
-    unify_local_value(x(2)),
+    unify_variable(x(2)),
     unify_nil,
     cut(x(3)),
-    proceed,
+    put_value(x(4),0),
+    execute('$stat'/3),
 
 label(1),
+    retry_me_else(2),
+    allocate(1),
+    get_variable(y(0),2),
+    get_variable(x(2),1),
+    get_variable(x(1),0),
+    put_value(x(2),0),
+    call('$stat'/2),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(2),
     trust_me_else_fail,
     put_value(x(0),1),
     put_atom(statistics_value,0),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$check_stat_key'/1,61,static,private,monofile,built_in,[
+predicate(system:'$check_stat_key'/1,64,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
 
 label(1),
-    retry_me_else(23),
+    retry_me_else(31),
     switch_on_term(3,2,fail,fail,fail),
 
 label(2),
-    switch_on_atom([(user_time,4),(runtime,6),(system_time,8),(cpu_time,10),(real_time,12),(local_stack,14),(global_stack,16),(trail_stack,18),(cstr_stack,20),(atoms,22)]),
+    switch_on_atom([(user_time,4),(runtime,6),(system_time,8),(cpu_time,10),(real_time,12),(local_stack,14),(global_stack,16),(trail_stack,18),(cstr_stack,20),(atoms,22),(garbage_collection,24),(gc_cycles,26),(gc_bytes,28),(gc_time,30)]),
 
 label(3),
     try_me_else(5),
@@ -132,20 +142,48 @@ label(20),
     proceed,
 
 label(21),
-    trust_me_else_fail,
+    retry_me_else(23),
 
 label(22),
     get_atom(atoms,0),
     proceed,
 
 label(23),
+    retry_me_else(25),
+
+label(24),
+    get_atom(garbage_collection,0),
+    proceed,
+
+label(25),
+    retry_me_else(27),
+
+label(26),
+    get_atom(gc_cycles,0),
+    proceed,
+
+label(27),
+    retry_me_else(29),
+
+label(28),
+    get_atom(gc_bytes,0),
+    proceed,
+
+label(29),
+    trust_me_else_fail,
+
+label(30),
+    get_atom(gc_time,0),
+    proceed,
+
+label(31),
     trust_me_else_fail,
     put_value(x(0),1),
     put_atom(statistics_key,0),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$stat'/3,89,static,private,monofile,built_in,[
+predicate(system:'$stat'/3,100,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -165,7 +203,7 @@ label(1),
     switch_on_term(3,2,fail,fail,fail),
 
 label(2),
-    switch_on_atom([(system_time,4),(cpu_time,6),(real_time,8),(local_stack,10),(global_stack,12),(trail_stack,14),(cstr_stack,16),(atoms,18)]),
+    switch_on_atom([(system_time,4),(cpu_time,6),(real_time,8),(local_stack,10),(global_stack,12),(trail_stack,14),(cstr_stack,16),(atoms,18),(gc_cycles,20),(gc_bytes,22),(gc_time,24),(garbage_collection,26)]),
 
 label(3),
     try_me_else(5),
@@ -224,15 +262,48 @@ label(16),
     proceed,
 
 label(17),
-    trust_me_else_fail,
+    retry_me_else(19),
 
 label(18),
     get_atom(atoms,0),
     call_c('Pl_Statistics_Atoms_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(19),
+    retry_me_else(21),
+
+label(20),
+    get_atom(gc_cycles,0),
+    call_c('Pl_Statistics_Collection_Cycles_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(21),
+    retry_me_else(23),
+
+label(22),
+    get_atom(gc_bytes,0),
+    call_c('Pl_Statistics_Collected_Bytes_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(23),
+    retry_me_else(25),
+
+label(24),
+    get_atom(gc_time,0),
+    call_c('Pl_Statistics_Collection_Time_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(25),
+    trust_me_else_fail,
+
+label(26),
+    get_atom(garbage_collection,0),
+    put_void(0),
+    call_c('Pl_Statistics_Garbage_Collection_3',[boolean],[x(1),x(2),x(0)]),
     proceed]).
 
 
-predicate(system:'$$stat/3_$aux1'/2,89,static,private,monofile,local,[
+predicate(system:'$$stat/3_$aux1'/2,100,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -251,7 +322,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$stat/3_$aux2'/1,89,static,private,monofile,local,[
+predicate(system:'$$stat/3_$aux2'/1,100,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -272,25 +343,38 @@ label(5),
     proceed]).
 
 
-predicate(system:user_time/1,125,static,private,monofile,built_in,[
+predicate(system:'$stat'/2,147,static,private,monofile,built_in,[
+    get_atom(garbage_collection,0),
+    get_list(1),
+    unify_variable(x(0)),
+    unify_list,
+    unify_variable(x(1)),
+    unify_list,
+    unify_variable(x(2)),
+    unify_void(1),
+    call_c('Pl_Statistics_Garbage_Collection_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(system:user_time/1,154,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[user_time,1]),
     call_c('Pl_User_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:system_time/1,132,static,private,monofile,built_in,[
+predicate(system:system_time/1,161,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system_time,1]),
     call_c('Pl_System_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:cpu_time/1,139,static,private,monofile,built_in,[
+predicate(system:cpu_time/1,168,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[cpu_time,1]),
     call_c('Pl_Cpu_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:real_time/1,146,static,private,monofile,built_in,[
+predicate(system:real_time/1,175,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[real_time,1]),
     call_c('Pl_Real_Time_1',[boolean],[x(0)]),
     proceed]).

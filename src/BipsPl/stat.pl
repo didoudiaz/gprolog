@@ -50,10 +50,13 @@ statistics(Key, Values) :-
 	set_bip_name(statistics, 2),
 	'$check_stat_key'(Key), !,
 	(   Values = [Val1, Val2] ->
-	    true
-	;   '$pl_err_domain'(statistics_value, Values)
-	),
-	'$stat'(Key, Val1, Val2).
+	    '$stat'(Key, Val1, Val2)
+	;
+	    (
+	        '$stat'(Key, Values), !;
+                '$pl_err_domain'(statistics_value, Values)
+	    )
+	).
 
 
 
@@ -79,6 +82,14 @@ statistics(Key, Values) :-
 '$check_stat_key'(cstr_stack).
 
 '$check_stat_key'(atoms).
+
+'$check_stat_key'(garbage_collection).
+
+'$check_stat_key'(gc_cycles).
+
+'$check_stat_key'(gc_bytes).
+
+'$check_stat_key'(gc_time).
 
 '$check_stat_key'(Key) :-
 	'$pl_err_domain'(statistics_key, Key).
@@ -118,6 +129,24 @@ statistics(Key, Values) :-
 
 '$stat'(atoms, Used, Free) :-
 	'$call_c_test'('Pl_Statistics_Atoms_2'(Used, Free)).
+
+'$stat'(gc_cycles, SinceStart, SinceLast) :-
+	'$call_c_test'('Pl_Statistics_Collection_Cycles_2'(SinceStart, SinceLast)).
+
+'$stat'(gc_bytes, SinceStart, SinceLast) :-
+	'$call_c_test'('Pl_Statistics_Collected_Bytes_2'(SinceStart, SinceLast)).
+
+'$stat'(gc_time, SinceStart, SinceLast) :-
+	'$call_c_test'('Pl_Statistics_Collection_Time_2'(SinceStart, SinceLast)).
+
+'$stat'(garbage_collection, Collections, Freed) :-
+	'$call_c_test'('Pl_Statistics_Garbage_Collection_3'(Collections, Freed, _)).
+
+
+
+'$stat'(garbage_collection, [Collections, Freed, Time| _]) :-
+	'$call_c_test'('Pl_Statistics_Garbage_Collection_3'(Collections, Freed, Time)).
+
 
 
 

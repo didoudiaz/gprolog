@@ -235,6 +235,72 @@ Pl_M_Sys_Err_String(int ret_val)
 
 
 
+/*-------------------------------------------------------------------------*/
+/* Pl_Get_Time                                                             */
+/*                                                                         */
+/* Get the process times (in ms).                                          */
+/*-------------------------------------------------------------------------*/
+static inline int
+Pl_Get_Times(unsigned long long *user, unsigned long long *system)
+{
+#if defined(__unix__) && !defined(__CYGWIN__)
+  struct rusage rsr_usage;
+
+  getrusage(RUSAGE_SELF, &rsr_usage);
+
+  if (user)
+    *user = (rsr_usage.ru_utime.tv_sec * 1000ull) +
+        (rsr_usage.ru_utime.tv_usec / 1000);
+  if (system)
+    *system = (rsr_usage.ru_stime.tv_sec * 1000ull) +
+	(rsr_usage.ru_stime.tv_usec / 1000);
+
+  return 0;
+#elif defined(_WIN32) || defined(__CYGWIN__)
+  FILETIME creat_t, exit_t, kernel_t, user_t;
+
+  /* Success on Windows NT */
+  if (GetProcessTimes(GetCurrentProcess(),
+                      &creat_t, &exit_t, &kernel_t, &user_t))
+    {
+      if (user)
+	*user = (((__int64) user_t.dwHighDateTime << 32) +
+			    (__int64) user_t.dwLowDateTime) / 10000;
+      if (system)
+	*system = (((__int64) kernel_t.dwHighDateTime << 32) +
+                            (__int64) kernel_t.dwLowDateTime) / 10000;
+    }
+  else                          /* not implemented on Windows 95/98 */
+    {
+      if (user)
+	*user = (unsigned long long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
+      if (system)
+	*system = 0;
+    }
+
+  return 0;
+#else
+
+  return -1;
+
+#endif
+}
+
+/*-------------------------------------------------------------------------*/
+/* Pl_M_Profiling_Times                                                    */
+/*                                                                         */
+/* returns the user and system time used since                             */
+/*    the start of the process (in ms).                                    */
+/*-------------------------------------------------------------------------*/
+void
+Pl_M_Profiling_Times(unsigned long long *user, unsigned long long *system)
+{
+  if (Pl_Get_Times(user, system))
+    Pl_Fatal_Error("time not available");
+}
+
+
+
 
 /*-------------------------------------------------------------------------*/
 /* M_USER_TIME                                                             */
@@ -244,35 +310,12 @@ Pl_M_Sys_Err_String(int ret_val)
 PlLong
 Pl_M_User_Time(void)
 {
-  PlLong user_time;
+  unsigned long long user_time;
 
-#if defined(__unix__) && !defined(__CYGWIN__)
-  struct rusage rsr_usage;
+  if (Pl_Get_Times(&user_time, 0))
+    Pl_Fatal_Error("user time not available");
 
-  getrusage(RUSAGE_SELF, &rsr_usage);
-
-  user_time = (rsr_usage.ru_utime.tv_sec * 1000) +
-    (rsr_usage.ru_utime.tv_usec / 1000);
-
-#elif defined(_WIN32) || defined(__CYGWIN__)
-  FILETIME creat_t, exit_t, kernel_t, user_t;
-
-  /* Success on Windows NT */
-  if (GetProcessTimes(GetCurrentProcess(),
-                      &creat_t, &exit_t, &kernel_t, &user_t))
-    user_time = (PlLong) (((__int64) user_t.dwHighDateTime << 32) +
-                        (__int64) user_t.dwLowDateTime) / 10000;
-  else                          /* not implemented on Windows 95/98 */
-    user_time = (PlLong) ((double) clock() * 1000 / CLOCKS_PER_SEC);
-
-#else
-
-  Pl_Fatal_Error("user time not available");
-  return 0;
-
-#endif
-
-  return user_time - start_user_time;
+  return (PlLong)user_time - start_user_time;
 }
 
 
@@ -286,35 +329,12 @@ Pl_M_User_Time(void)
 PlLong
 Pl_M_System_Time(void)
 {
-  PlLong system_time;
+  unsigned long long system_time;
 
-#if defined(__unix__) && !defined(__CYGWIN__)
-  struct rusage rsr_usage;
+  if (Pl_Get_Times(0, &system_time))
+    Pl_Fatal_Error("system time not available");
 
-  getrusage(RUSAGE_SELF, &rsr_usage);
-
-  system_time = (rsr_usage.ru_stime.tv_sec * 1000) +
-    (rsr_usage.ru_stime.tv_usec / 1000);
-
-#elif defined(_WIN32) || defined(__CYGWIN__)
-  FILETIME creat_t, exit_t, kernel_t, user_t;
-
-  /* Success on Windows NT */
-  if (GetProcessTimes(GetCurrentProcess(),
-                      &creat_t, &exit_t, &kernel_t, &user_t))
-    system_time = (PlLong) (((__int64) kernel_t.dwHighDateTime << 32) +
-                          (__int64) kernel_t.dwLowDateTime) / 10000;
-  else                          /* not implemented on Windows 95/98 */
-    system_time = 0;
-
-#else
-
-  Pl_Fatal_Error("system time not available");
-  return 0;
-
-#endif
-
-  return system_time - start_system_time;
+  return (PlLong)system_time - start_system_time;
 }
 
 

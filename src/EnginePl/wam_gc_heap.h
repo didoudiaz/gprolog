@@ -71,6 +71,20 @@
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+void FC
+Pl_GC_Init();
+
+void FC
+Pl_GC_Init_Roots();
+
+unsigned long FC
+Pl_GC_Nb_Collections();
+
+unsigned long long FC
+Pl_GC_Collected_Bytes();
+
+PlLong FC
+Pl_GC_Collection_Time_Millis();
 
 int FC
 Pl_GC_Register_Trail_Elem(WamWord **trail);

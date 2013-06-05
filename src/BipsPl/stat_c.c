@@ -59,6 +59,9 @@ static PlLong last_system_time = 0;
 static PlLong last_cpu_time = 0;
 static PlLong last_real_time = 0;
 
+static unsigned long      last_collection_cycles = 0;
+static unsigned long long last_collected_bytes = 0;
+static PlLong	          last_collection_time = 0;
 
 
 
@@ -84,7 +87,7 @@ Pl_Statistics_0(void)
   static char *n[4] = { "user", "system", "cpu", "real" };
   int i;
 
-  Pl_Stream_Printf(pstm, "Memory               limit         in use            free\n\n");
+  Pl_Stream_Printf(pstm, "Memory                  limit         in use            free\n\n");
 
 
   for (i = 0; i < NB_OF_STACKS; i++)
@@ -96,13 +99,13 @@ Pl_Statistics_0(void)
       used /= 1024;
       free /= 1024;
 
-      Pl_Stream_Printf(pstm, "   %-6s stack %10d Kb   %10d Kb   %10d Kb\n",
+      Pl_Stream_Printf(pstm, "     %-6s stack  %10d Kb   %10d Kb   %10d Kb\n",
 		       pl_stk_tbl[i].name, used + free, used, free);
     }
 
 
 #if 1
-  Pl_Stream_Printf(pstm, "   atom   table %10d atoms%10d atoms%10d atoms\n",
+  Pl_Stream_Printf(pstm, "     atom   table  %10d atoms%10d atoms%10d atoms\n",
 		   pl_max_atom , pl_nb_atom, pl_max_atom - pl_nb_atom);
 #else
   Pl_Stream_Printf(pstm, "\nAtoms: %10d  %10d max\n", pl_nb_atom, pl_max_atom);
@@ -127,11 +130,32 @@ Pl_Statistics_0(void)
   last_real_time = t[3];
 
   Pl_Stream_Printf(pstm,
-		"\nTimes              since start      since last\n\n");
+		"\nTimes                 since start      since last\n\n");
 
   for (i = 0; i < 4; i++)
-    Pl_Stream_Printf(pstm, "   %-6s time %11.3f sec %11.3f sec\n",
+    Pl_Stream_Printf(pstm, "     %-6s  time %11.3f sec %11.3f sec\n",
 		  n[i], (double) t[i] / 1000.0, (double) l[i] / 1000.0);
+
+#ifdef BOEHM_GC
+  unsigned long      c = Pl_GC_Nb_Collections();
+  unsigned long long b = Pl_GC_Collected_Bytes();
+  PlLong             m = Pl_GC_Collection_Time_Millis();
+  Pl_Stream_Printf(pstm,
+                "\nGarbage collection    since start      since last\n\n");
+  Pl_Stream_Printf(pstm,
+                  "     #collections %11lu     %11lu\n",
+                    c, c - last_collection_cycles);
+  Pl_Stream_Printf(pstm,
+                  "     collected    %11llu Kb  %11llu Kb\n",
+                    b/1024, (b - last_collected_bytes)/1024);
+  if (m != 0)
+    Pl_Stream_Printf(pstm,
+                  "     time (cpu)   %11.3f sec %11.3f sec\n",
+                    (double)m/ 1000.0, (double)(m - last_collection_time)/ 1000.0);
+  last_collection_cycles = c;
+  last_collected_bytes = b;
+  last_collection_time = m;
+#endif // BOEHM_GC
 }
 
 
@@ -317,6 +341,84 @@ Pl_Statistics_Atoms_2(WamWord used_word, WamWord free_word)
     Pl_Un_Integer_Check(pl_max_atom - pl_nb_atom, free_word);
 }
 
+
+#ifdef BOEHM_GC
+/*-------------------------------------------------------------------------*
+ * Pl_Statistics_Garbage_Collection_2                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Statistics_Garbage_Collection_3(WamWord nb_collections,
+    WamWord nb_freed, WamWord gc_time_millis)
+{
+  PlLong c = (PlLong)Pl_GC_Nb_Collections();
+  PlLong b = (PlLong)Pl_GC_Collected_Bytes();
+  PlLong t = (PlLong)Pl_GC_Collection_Time_Millis();
+  return Pl_Un_Integer_Check(c, nb_collections) &&
+	  Pl_Un_Integer_Check(b, nb_freed) &&
+	  Pl_Un_Integer_Check(t, gc_time_millis);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_Statistics_Garbage_Collection_2                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Statistics_Collection_Cycles_2(WamWord since_start_word, WamWord since_last_word)
+{
+  unsigned long val;
+  PlLong since_start, since_last;
+
+  val = Pl_GC_Nb_Collections();
+  since_start = val;
+  since_last = val - last_collection_cycles;
+  last_collection_cycles = val;
+
+  return Pl_Un_Integer_Check(since_start, since_start_word) &&
+    Pl_Un_Integer_Check(since_last, since_last_word);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_Statistics_Garbage_Collection_2                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Statistics_Collected_Bytes_2(WamWord since_start_word, WamWord since_last_word)
+{
+  size_t val;
+  PlLong since_start, since_last;
+
+  val = Pl_GC_Collected_Bytes();
+  since_start = val;
+  since_last = val - last_collected_bytes;
+  last_collected_bytes = val;
+
+  return Pl_Un_Integer_Check(since_start, since_start_word) &&
+    Pl_Un_Integer_Check(since_last, since_last_word);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_Statistics_Garbage_Collection_2                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Statistics_Collection_Time_2(WamWord since_start_word, WamWord since_last_word)
+{
+  PlLong val;
+  PlLong since_start, since_last;
+
+  val = Pl_GC_Collection_Time_Millis();
+  since_start = val;
+  since_last = val - last_collection_time;
+  last_collection_time = val;
+
+  return Pl_Un_Integer_Check(since_start, since_start_word) &&
+    Pl_Un_Integer_Check(since_last, since_last_word);
+}
+#endif // BOEHM_GC
 
 
 

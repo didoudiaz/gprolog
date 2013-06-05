@@ -52,6 +52,8 @@
  * Constants                       *
  *---------------------------------*/
 
+#define PROFILE_GC "PROFILE_GC"
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -65,6 +67,12 @@ size_t pl_gc_bad_alloc_count=0;
 #define PL_GC_BAD_ALLOC_COUNT_MOD (1024*1024)
 
 static int old_gc_no=0;
+static int profiling_enabled = 0;
+static PlLong profiling_start;
+static PlLong profiling_gc_time = 0;
+static size_t allocation_offset = 0;
+static unsigned long long reclaimed_bytes_heap = 0;
+static unsigned long long reclaimed_bytes_trail = 0;
 
 /*---------------------------------*
  * Function Definitions            *
@@ -73,16 +81,43 @@ static int old_gc_no=0;
 static inline void
 pre_collect()
 {
+  unsigned long long user, system;
   assert(old_gc_no == GC_gc_no);
+  if (profiling_enabled)
+    {
+      Pl_M_Profiling_Times(&user, &system);
+      profiling_start = (PlLong) (user + system);
+    }
 }
 
 static inline int
 post_collect()
 {
+  unsigned long long x;
+  unsigned long long user, system;
   if (old_gc_no != GC_gc_no)
     {
       old_gc_no = GC_gc_no;
-      Pl_GC_Compact_Trail();
+      reclaimed_bytes_trail += Pl_GC_Compact_Trail();
+      if (profiling_enabled)
+	{
+	  Pl_M_Profiling_Times(&user, &system);
+	  profiling_start = (PlLong) (user + system) - profiling_start;
+	  profiling_gc_time += profiling_start;
+	}
+      x = GC_get_heap_size() - GC_get_free_bytes();
+      if (x < allocation_offset)
+	{
+	  allocation_offset = x;
+	}
+      x -= allocation_offset;
+      x = GC_get_total_bytes() - x;
+      while ( x + (1ull<<(sizeof(size_t)*8 - 1)) < reclaimed_bytes_heap)
+	{
+	  x += 1ull<<(sizeof(size_t)*8);
+	}
+      if (x > reclaimed_bytes_heap)
+	reclaimed_bytes_heap = x;
       return 1;
     }
   return 0;
@@ -100,6 +135,9 @@ Pl_GC_Init()
   GC_disable();
 #endif /* DEBUG_MEM_GC_DONT_COLLECT */
   old_gc_no = GC_gc_no;
+  if (getenv(PROFILE_GC))
+    profiling_enabled = 1;
+  allocation_offset = GC_get_heap_size() - GC_get_free_bytes();
 }
 
 /*-------------------------------------------------------------------------*
@@ -110,6 +148,37 @@ void FC
 Pl_GC_Init_Roots()
 {
   GC_add_roots(Local_Stack, Local_Stack + Local_Size);
+}
+
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Nb_Collections                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+unsigned long FC
+Pl_GC_Nb_Collections()
+{
+  return GC_gc_no;
+}
+
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Collected_Bytes                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+unsigned long long FC
+Pl_GC_Collected_Bytes()
+{
+  return reclaimed_bytes_heap + reclaimed_bytes_trail;
+}
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_GC_Nb_Freed_Bytes                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PlLong FC
+Pl_GC_Collection_Time_Millis()
+{
+  return profiling_gc_time;
 }
 
 
@@ -225,7 +294,7 @@ compact_trail(void *data)
   assert( src == TR );
 
   TR = dst;
-  *(size_t *)data = src-dst;
+  *(size_t *)data = (void *)src-(void *)dst;
   return data;
 }
 
