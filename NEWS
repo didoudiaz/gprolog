@@ -1,3 +1,7 @@
+Change in GNU Prolog version 1.4.5:
+
+* fix bug in prolog.h (invalid 64 bits PL_MAX_INTEGER)
+
 Change in GNU Prolog version 1.4.4:
 
 * add Prolog flags c_cc_version_data
