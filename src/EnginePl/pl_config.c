@@ -917,7 +917,7 @@ Generate_Tags(FILE *f, FILE *g)
 
   tag_mask = Mk_Tag_Mask((1 << tag_size) - 1);
 
-  max_integer = (1 << (WORD_SIZE - tag_size - 1)) - 1;
+  max_integer = ((PlLong) 1 << (WORD_SIZE - tag_size - 1)) - 1;
   min_integer = -max_integer - 1;
 
   fprintf(fg_c, "#define PL_MIN_INTEGER\t\t%" PL_FMT_d "\n",  min_integer);
