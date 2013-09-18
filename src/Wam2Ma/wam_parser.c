@@ -57,9 +57,9 @@
  *---------------------------------*/
 
 #define MAX_FCT_ARITY              10
-#define MAX_LINE_LEN               32767
-#define MAX_STR_LEN                4096
-#define MAX_ARGS                   4096
+#define MAX_LINE_LEN               65536
+#define MAX_STR_LEN                32768
+#define MAX_ARGS                   65536 /* for big swith_on_... */
 
 
 
