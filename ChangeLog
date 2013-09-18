@@ -1,6 +1,10 @@
+Wed Sep 18 09:25:06 CEST 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* increase internal compiler data sizes
+
 Thu Jul  4 13:17:07 CEST 2013 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix bug in prolog.h (invalid 64 bits PL_MAX_INTEGER)
+	* fix bug in gprolog.h (invalid 64 bits PL_MAX_INTEGER)
 
 Fri Apr 12 17:17:50 CEST 2013 <Daniel.Diaz@univ-paris1.fr>
 

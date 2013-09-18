@@ -56,10 +56,10 @@
  * Constants                       *
  *---------------------------------*/
 
-#define MAX_LINE_LEN               32767
-#define MAX_STR_LEN                2048
+#define MAX_LINE_LEN               65536
+#define MAX_STR_LEN                32768
 #define MAX_ARGS                   128
-#define MAX_SWITCH_CASES           10240
+#define MAX_SWITCH_CASES           65536
 
 
 

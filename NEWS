@@ -1,6 +1,7 @@
 Change in GNU Prolog version 1.4.5:
 
-* fix bug in prolog.h (invalid 64 bits PL_MAX_INTEGER)
+* increase internal compiler data sizes
+* fix bug in gprolog.h (invalid 64 bits PL_MAX_INTEGER)
 
 Change in GNU Prolog version 1.4.4:
 
