@@ -24,6 +24,8 @@ $(LIBNAME): $(OBJLIB)
 	$(RANLIB) $(LIBNAME)
 
 
+terminal@OBJ_SUFFIX@: terminal.h
+
 clean:
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 

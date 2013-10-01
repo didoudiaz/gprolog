@@ -327,9 +327,14 @@ static void Show_Text_Console(int show);
 
 /* from terminal.h */
 
+#if 0
 #define KEY_CTRL(x)                ((x) & 0x1f)
 #define KEY_ESC(x)                 ((2<<8) | ((x)|0x20))
+#else
 
+#include "../Linedit/terminal.h"
+
+#endif
 
 
 
@@ -685,18 +690,21 @@ static LRESULT CALLBACK
 SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
 {
   LRESULT r;
-  int c, del, repeat, hasCtrl, hasAlt;
+  int c, del, repeat, hasShift, hasAlt, hasCtrl;
   unsigned char pKeyState[256];
+  int modif;
 
   GetKeyboardState(pKeyState);
+  hasShift = (pKeyState[VK_SHIFT] & (unsigned char) 0x80);
+  hasAlt = (pKeyState[VK_MENU] & (unsigned char) 0x80); /* needs WM_SYSKEYDOWN */
   hasCtrl = (pKeyState[VK_CONTROL] & (unsigned char) 0x80);
-  hasAlt = (pKeyState[VK_MENU] & (unsigned char) 0x80);
+
 
   if (msg == WM_CHAR)
     {
       repeat = (int) (mp2 & 0xffff);
-      if (hasCtrl && !hasAlt) // only needed for ^space (for ^A mp1 is already 1, but not for ^space)
-        mp1 = KEY_CTRL(mp1);  // we test !hasAlt because AltGr is the same as Ctrl+Alt
+      if (hasCtrl && !hasAlt) /* only needed for ^space (for ^A mp1 is already 1, but not for ^space) */
+        mp1 = KEY_CTRL(mp1);  /* we test !hasAlt because AltGr is the same as Ctrl+Alt */
 
       del = (mp1 == '\b' || mp1 == KEY_CTRL('D') || isprint(mp1)) ? Delete_Selection() : 0;
 
@@ -709,7 +717,7 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
       return 0;
     }
 
-  if (msg == WM_KEYDOWN)
+  if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) /*  WM_SYSKEYDOWN is to handle left Alt key */
     {
 #if 0                           /* now done by accelerators defined in resources */
       if ((mp1 == 'c' || mp1 == 'C') && hasCtrl)
@@ -723,26 +731,55 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
           return 0;
         }
 #endif
-      c = 0;
+      modif = KEY_MODIF_NONE;
+      if (hasShift)
+	modif |= KEY_MODIF_SHIFT;
+      if (hasAlt)
+	modif |= KEY_MODIF_ALT;
+      if (hasCtrl)
+	modif |= KEY_MODIF_CTRL;
+
+      c = KEY_ID2(modif, mp1);
+
       switch (mp1)
         {
         case VK_NEXT:           /* default vertical scroll behavior */
         case VK_PRIOR:
-          break;
+	  if (!hasCtrl && !hasAlt)
+	    break;
+	  goto return_key;
 
-        case VK_DELETE:
+        case VK_DELETE:		/* default: delete selection */
           if (Delete_Selection())
-            break;    /* else like other keys */
+            break;
+	  goto return_key;
+
+        case VK_HOME:
+        case VK_END:
         case VK_LEFT:
         case VK_RIGHT:
         case VK_UP:
         case VK_DOWN:
-        case VK_HOME:
-        case VK_END:
         case VK_INSERT:
+	case VK_F1:
+#ifndef DEBUG
+	case VK_F2:
+	case VK_F3:
+	case VK_F4:
+#endif
+	case VK_F5:
+	case VK_F6:
+	case VK_F7:
+	case VK_F8:
+	case VK_F9:
+	case VK_F10:
+	case VK_F11:
+	case VK_F12:
+	return_key:
+#if 0
+	  printf("modif: %d   code: %d\n", modif, mp1);
+#endif
           Move_Caret_From_Mouse(0);
-          c = (hasCtrl) ? 2 : 1;
-          c = ((c << 8) | mp1);
           Add_Char_To_Queue(c);
           return 0;
 #if 0
