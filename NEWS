@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5:
 
+* fix terminal ANSI sequence handling in linedit
 * increase internal compiler data sizes
 * fix bug in gprolog.h (invalid 64 bits PL_MAX_INTEGER)
 
