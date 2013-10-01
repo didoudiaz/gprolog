@@ -700,31 +700,78 @@ Pl_LE_Put_Char(int c)
 int
 Pl_LE_Get_Char(void)
 {
-  int c;
-
-  c = GET_CHAR0;
+  int c = GET_CHAR0;
 
   if (c == 0x1b)
     {
-      int esc_c;
+      int esc_c = GET_CHAR0;
 
-      esc_c = GET_CHAR0;
 #if defined(__unix__) || defined(__CYGWIN__)
-      if (esc_c == '[' || esc_c == 'O') /* keyboard ANSI ESC sequence */
+      int modif = 0;
+      int double_bracket = 0;
+      int number[2] = {0, 0};
+      int idx_number = 0;
+
+      if (esc_c == 0x1b)		/* CYGWIN ESC CSI ... = ALT modif + CSI ... */
+	{
+	  modif = 2;		/* ALT */
+	  esc_c = GET_CHAR0;
+	}
+
+      if (esc_c == '[' || esc_c == 'O') /* keyboard ANSI ESC sequence (CSI or SS3) */
         {
-          if ((c = GET_CHAR0) == '[')
-            c = GET_CHAR0;
-          if (isdigit(c))
+          if ((esc_c = GET_CHAR0) == '[') /* CYGWIN ESC [ [ A = F1 ... ESC [ [ E= F5 */
+	    {
+	      esc_c = GET_CHAR0;
+	      double_bracket = 1;
+	    }
+          while(isdigit(esc_c) || esc_c == ';')
             {
-              esc_c = c;
-              c = 0;
-              while (esc_c != '~')
-                {
-                  c = c * 10 + esc_c - '0';
-                  esc_c = GET_CHAR0;
-                }
+	      if (esc_c == ';')
+		idx_number = 1 - idx_number;
+	      else
+		number[idx_number] = number[idx_number] * 10 + esc_c - '0';
+
+	      esc_c = GET_CHAR0;
             }
-          c = (1 << 8) | c;
+
+	  c = number[0];
+	  if (number[1])
+	    modif |= (number[1] - 1);
+
+	  if (isupper(esc_c))
+	    {
+	      if (double_bracket)
+		c = esc_c - 'A' + 11;	/* CYGWIN F1 ..F5 = CSI [ A .. CSI [ E map to 11-15 */
+	      else if (esc_c >= 'P') 	/* ANSY F1 .. F4 SS3 P .. SS3 Q map to 11-15*/
+		c = esc_c - 'P' + 11;
+	      else
+		c = esc_c;
+	    }
+	  else if (esc_c == '^')   	/* CYGWIN CTRL + F1 .. F12 = CSI 11 ^ .. CSI 24 ^ */
+	    {
+	      modif |= KEY_MODIF_CTRL;		/* CTRL */
+	    }
+	  else if (esc_c == '$') 	/* CYGWIN: shift+F11 = CSI 23 $  shift+F12 = CSI 24 $ */
+	    {
+	      modif |= KEY_MODIF_SHIFT;
+	    }
+
+	  if (c == 1) 	/* CYGWIN: Home = CSI 1 ~  End = CSI 4 ~ */
+	    c = 'H';
+	  else if (c == 4)
+	    c = 'F';
+	  else if (c >= 25 && c <= 36) /* CYGWIN: shift+F1 = F11, shift+F2=F12 shift+F3=25 */
+	    {
+	      c = c - ((c <= 26 || c == 29) ? 12 : 13);
+	      modif |= KEY_MODIF_SHIFT;
+	    }
+
+
+          c = KEY_ID2(modif, c);
+#if 0
+	  printf("\n++++ key id: %d (%x)  modif: %d  end char: %c n[0]=%d  n[1]=%d\n", c, c, modif, esc_c, number[0], number[1]);
+#endif
         }
       else
 #endif
@@ -749,12 +796,25 @@ LE_Get_Char0(void)
 
   if (read(fd_in, &c, 1) != 1)
     return KEY_CTRL('D');
+
+#if 0
+  {
+    char s[32];
+    if (isprint(c))
+      s[0] = c, s[1] = '\0';
+    else if (c == 27)
+      strcpy(s, (c == 27) ? "ESC": "???");
+      
+    printf("char0: %d %s\n", c, s);
+  }
+#endif
   return (int) c;
 
 #elif defined(_WIN32)
 
   INPUT_RECORD ir;
   DWORD nb;
+  int modif = 0;
   int c;
 
  read_char:
@@ -772,11 +832,17 @@ LE_Get_Char0(void)
           c = ir.Event.KeyEvent.wVirtualKeyCode;
           if (c < 0x15 || c > 0x87)     /* e.g. CTRL key alone */
             goto read_char;
-          if (ir.Event.KeyEvent.dwControlKeyState &
-              (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED))
-            c = (2 << 8) | c;
-          else
-            c = (1 << 8) | c;
+
+          if (ir.Event.KeyEvent.dwControlKeyState & (SHIFT_PRESSED))
+            modif |= KEY_MODIF_SHIFT;
+
+          if (ir.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
+            modif |= KEY_MODIF_ALT;
+
+          if (ir.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+            modif |= KEY_MODIF_CTRL;
+
+	  c = KEY_ID2(modif, c);
         }
       else if (oem_get)
         {
@@ -795,7 +861,7 @@ LE_Get_Char0(void)
     case FOCUS_EVENT:
       goto read_char;
       break;
-      }
+    }
 
   return c;
 

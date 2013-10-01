@@ -41,96 +41,87 @@
  *---------------------------------*/
 
 
-#define KEY_CTRL(x)                ((x) & 0x1f)
-
-#define KEY_ESC(x)                 ((2<<8) | ((x)|0x20))
-
 #define KEY_BACKSPACE              '\b'
 #define KEY_DELETE                 0x7f
 
+#define KEY_ID(code)               KEY_ID2(KEY_MODIF_NONE, code)
+#define KEY_ID2(modif, code)       (((modif) << 9) | ((1 << 8) | ((code) & 0x7f)))
+
+#define GET_MODIF(x)               (((x) >> 9) & 7)
+#define GET_CODE(x)                ((x) & 0x1ff)
+
+
+#define KEY_CTRL(x)                ((x) & 0x1f)
+
+#define KEY_ESC(x)                 KEY_ID((1 << 7) | (x) | 0x20) /* 0x20 to be case insensitive */
+#define IS_ESC_COMB(x)             ((x) & (1 << 7))
+#define GET_ESC_COMB(x)            ((x) & 0x7f)
+
+
+
+#define KEY_MODIF_NONE             0  /* modifiers (additive) */
+#define KEY_MODIF_SHIFT            1
+#define KEY_MODIF_ALT              2
+#define KEY_MODIF_CTRL             4
 
 #if defined(__unix__) || defined(__CYGWIN__)	/* Unix */
-#define KEY_EXT_FCT_1              ((1<<8) | 11)
-#define KEY_EXT_FCT_2              ((1<<8) | 12)
-#define KEY_EXT_FCT_3              ((1<<8) | 13)
-#define KEY_EXT_FCT_4              ((1<<8) | 14)
-#define KEY_EXT_FCT_5              ((1<<8) | 15)
+#define KEY_EXT_FCT_1              KEY_ID(11)
+#define KEY_EXT_FCT_2              KEY_ID(12)
+#define KEY_EXT_FCT_3              KEY_ID(13)
+#define KEY_EXT_FCT_4              KEY_ID(14)
+#define KEY_EXT_FCT_5              KEY_ID(15)
 
-#define KEY_EXT_FCT_6              ((1<<8) | 17)
-#define KEY_EXT_FCT_7              ((1<<8) | 18)
-#define KEY_EXT_FCT_8              ((1<<8) | 19)
-#define KEY_EXT_FCT_9              ((1<<8) | 20)
-#define KEY_EXT_FCT_10             ((1<<8) | 21)
+#define KEY_EXT_FCT_6              KEY_ID(17)
+#define KEY_EXT_FCT_7              KEY_ID(18)
+#define KEY_EXT_FCT_8              KEY_ID(19)
+#define KEY_EXT_FCT_9              KEY_ID(20)
+#define KEY_EXT_FCT_10             KEY_ID(21)
 
-#define KEY_EXT_FCT_11             ((1<<8) | 23)
-#define KEY_EXT_FCT_12             ((1<<8) | 24)
+#define KEY_EXT_FCT_11             KEY_ID(23)
+#define KEY_EXT_FCT_12             KEY_ID(24)
 
-#define KEY_EXT_UP                 ((1<<8) | 'A')
-#define KEY_EXT_DOWN               ((1<<8) | 'B')
-#define KEY_EXT_RIGHT              ((1<<8) | 'C')
-#define KEY_EXT_LEFT               ((1<<8) | 'D')
+#define KEY_EXT_UP                 KEY_ID('A')
+#define KEY_EXT_DOWN               KEY_ID('B')
+#define KEY_EXT_RIGHT              KEY_ID('C')
+#define KEY_EXT_LEFT               KEY_ID('D')
 
-#define KEY_EXT_HOME               ((1<<8) | 'H')
-#define KEY_EXT_END                ((1<<8) | 'F')
-#define KEY_EXT_PAGE_UP            ((1<<8) | 5)
-#define KEY_EXT_PAGE_DOWN          ((1<<8) | 6)
-#define KEY_EXT_INSERT             ((1<<8) | 2)
-#define KEY_EXT_DELETE             ((1<<8) | 3)
-
-#define KEY_CTRL_EXT_UP            ((1<<8) | 'a')
-#define KEY_CTRL_EXT_DOWN          ((1<<8) | 'b')
-#define KEY_CTRL_EXT_RIGHT         ((1<<8) | 'c')
-#define KEY_CTRL_EXT_LEFT          ((1<<8) | 'd')
-
-#define KEY_CTRL_EXT_HOME          ((1<<8) | 'e')
-#define KEY_CTRL_EXT_END           ((1<<8) | 'f')
-#define KEY_CTRL_EXT_PAGE_UP       ((1<<8) | 'g')
-#define KEY_CTRL_EXT_PAGE_DOWN     ((1<<8) | 'h')
-#define KEY_CTRL_EXT_INSERT        ((1<<8) | 'i')
-#define KEY_CTRL_EXT_DELETE        ((1<<8) | 'j')
+#define KEY_EXT_HOME               KEY_ID('H')
+#define KEY_EXT_END                KEY_ID('F')
+#define KEY_EXT_PAGE_UP            KEY_ID(5)
+#define KEY_EXT_PAGE_DOWN          KEY_ID(6)
+#define KEY_EXT_INSERT             KEY_ID(2)
+#define KEY_EXT_DELETE             KEY_ID(3)
 
 #elif defined(_WIN32)		/* Win32 */
 
 #include <windows.h>
 
-#define KEY_EXT_FCT_1              ((1<<8) | VK_F1)
-#define KEY_EXT_FCT_2              ((1<<8) | VK_F2)
-#define KEY_EXT_FCT_3              ((1<<8) | VK_F3)
-#define KEY_EXT_FCT_4              ((1<<8) | VK_F4)
-#define KEY_EXT_FCT_5              ((1<<8) | VK_F5)
+#define KEY_EXT_FCT_1              KEY_ID(VK_F1)
+#define KEY_EXT_FCT_2              KEY_ID(VK_F2)
+#define KEY_EXT_FCT_3              KEY_ID(VK_F3)
+#define KEY_EXT_FCT_4              KEY_ID(VK_F4)
+#define KEY_EXT_FCT_5              KEY_ID(VK_F5)
 
-#define KEY_EXT_FCT_6              ((1<<8) | VK_F6)
-#define KEY_EXT_FCT_7              ((1<<8) | VK_F7)
-#define KEY_EXT_FCT_8              ((1<<8) | VK_F8)
-#define KEY_EXT_FCT_9              ((1<<8) | VK_F9)
-#define KEY_EXT_FCT_10             ((1<<8) | VK_F10)
+#define KEY_EXT_FCT_6              KEY_ID(VK_F6)
+#define KEY_EXT_FCT_7              KEY_ID(VK_F7)
+#define KEY_EXT_FCT_8              KEY_ID(VK_F8)
+#define KEY_EXT_FCT_9              KEY_ID(VK_F9)
+#define KEY_EXT_FCT_10             KEY_ID(VK_F10)
 
-#define KEY_EXT_FCT_11             ((1<<8) | VK_F11)
-#define KEY_EXT_FCT_12             ((1<<8) | VK_F12)
+#define KEY_EXT_FCT_11             KEY_ID(VK_F11)
+#define KEY_EXT_FCT_12             KEY_ID(VK_F12)
 
-#define KEY_EXT_UP                 ((1<<8) | VK_UP)
-#define KEY_EXT_DOWN               ((1<<8) | VK_DOWN)
-#define KEY_EXT_RIGHT              ((1<<8) | VK_RIGHT)
-#define KEY_EXT_LEFT               ((1<<8) | VK_LEFT)
+#define KEY_EXT_UP                 KEY_ID(VK_UP)
+#define KEY_EXT_DOWN               KEY_ID(VK_DOWN)
+#define KEY_EXT_RIGHT              KEY_ID(VK_RIGHT)
+#define KEY_EXT_LEFT               KEY_ID(VK_LEFT)
 
-#define KEY_EXT_HOME               ((1<<8) | VK_HOME)
-#define KEY_EXT_END                ((1<<8) | VK_END)
-#define KEY_EXT_PAGE_UP            ((1<<8) | VK_PRIOR)
-#define KEY_EXT_PAGE_DOWN          ((1<<8) | VK_NEXT)
-#define KEY_EXT_INSERT             ((1<<8) | VK_INSERT)
-#define KEY_EXT_DELETE             ((1<<8) | VK_DELETE)
-
-#define KEY_CTRL_EXT_UP            ((2<<8) | VK_UP)
-#define KEY_CTRL_EXT_DOWN          ((2<<8) | VK_DOWN)
-#define KEY_CTRL_EXT_RIGHT         ((2<<8) | VK_RIGHT)
-#define KEY_CTRL_EXT_LEFT          ((2<<8) | VK_LEFT)
-
-#define KEY_CTRL_EXT_HOME          ((2<<8) | VK_HOME)
-#define KEY_CTRL_EXT_END           ((2<<8) | VK_END)
-#define KEY_CTRL_EXT_PAGE_UP       ((2<<8) | VK_PRIOR)
-#define KEY_CTRL_EXT_PAGE_DOWN     ((2<<8) | VK_NEXT)
-#define KEY_CTRL_EXT_INSERT        ((2<<8) | VK_INSERT)
-#define KEY_CTRL_EXT_DELETE        ((2<<8) | VK_DELETE)
+#define KEY_EXT_HOME               KEY_ID(VK_HOME)
+#define KEY_EXT_END                KEY_ID(VK_END)
+#define KEY_EXT_PAGE_UP            KEY_ID(VK_PRIOR)
+#define KEY_EXT_PAGE_DOWN          KEY_ID(VK_NEXT)
+#define KEY_EXT_INSERT             KEY_ID(VK_INSERT)
+#define KEY_EXT_DELETE             KEY_ID(VK_DELETE)
 
 #endif
 

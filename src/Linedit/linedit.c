@@ -423,7 +423,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
 
         case KEY_CTRL('U'):     /* erase begin of line */
-        case KEY_CTRL_EXT_HOME:
+        case KEY_ID2(KEY_MODIF_CTRL, KEY_EXT_HOME):
           q = clipboard;
           p = str;
           while (p < pos)       /* add deleted part to clipboard */
@@ -443,7 +443,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
 
         case KEY_CTRL('K'):     /* erase end of line */
-        case KEY_CTRL_EXT_END:
+        case KEY_ID2(KEY_MODIF_CTRL, KEY_EXT_END):
           q = clipboard;
           p = pos;
           while (p < end)       /* add deleted part to clipboard */
@@ -504,7 +504,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
 
         case KEY_ESC('B'):      /* go to previous word */
-        case KEY_CTRL_EXT_LEFT:
+        case KEY_ID2(KEY_MODIF_CTRL, KEY_EXT_LEFT):
           p = (pos == str) ? pos : pos - 1; /* to avoid start of a word */
           p = Skip(p, str, 1, -1);      /* skip separators */
           p = Skip(p, str, 0, -1);      /* skip non separators */
@@ -515,7 +515,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
 
         case KEY_ESC('F'):      /* go to next word */
-        case KEY_CTRL_EXT_RIGHT:
+        case KEY_ID2(KEY_MODIF_CTRL, KEY_EXT_RIGHT):
           p = pos;
           p = Skip(p, end, 0, +1);      /* skip non separators */
           p = Skip(p, end, 1, +1);      /* skip separators */
