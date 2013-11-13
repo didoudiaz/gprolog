@@ -304,6 +304,7 @@ Parse_Env_Var(void)
         fd_out = strtol(p, NULL, 10);
       else
         {
+	  q = buff;
           while(*p && isprint(*p) && !isspace(*p))
             *q++ = *p++;
 

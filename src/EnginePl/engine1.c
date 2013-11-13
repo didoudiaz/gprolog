@@ -65,7 +65,6 @@ WamWord *pl_ensure_reserved;
  * global variable to ensure the stack is not removed.                     *
  *-------------------------------------------------------------------------*/
 
-static long x;
 void
 Pl_Call_Compiled(CodePtr codep)
 {
@@ -116,9 +115,12 @@ Pl_Call_Compiled(CodePtr codep)
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_x86_64_darwin)
-
   register WamWord *rb asm("%r12") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+#ifdef __llvm__		       /* the above does not assign r12 now by Apple gcc = llvm clang */
+  asm("movq _pl_reg_bank@GOTPCREL(%rip), %r12");
+  asm("movq (%r12), %r12");
+#endif
 
 #endif
 

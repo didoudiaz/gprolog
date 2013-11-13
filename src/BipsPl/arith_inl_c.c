@@ -485,10 +485,10 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
     {                                            \
-      if (Flag_Value(strict_iso))           \
+      if (Flag_Value(strict_iso))                \
          Pl_Err_Type(pl_type_float, x);          \
-      else                                       \
-         return x;                               \
+                                                 \
+      return x;                                  \
     }						 \
   else                                           \
     d = Pl_Obtain_Float(UnTag_FLT(x));           \
@@ -499,7 +499,11 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
 #define FtoF(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
-    Pl_Err_Type(pl_type_float, x);               \
+    {                                            \
+      Pl_Err_Type(pl_type_float, x);             \
+                                                 \
+      return x; /* for clang (avoid d uninit) */ \
+    }						 \
   else                                           \
     d = Pl_Obtain_Float(UnTag_FLT(x));           \
   return Make_Tagged_Float(c_op(d))
