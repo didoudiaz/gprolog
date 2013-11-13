@@ -341,7 +341,7 @@ static void
 Scan_Number(StmInf *pstm, Bool integer_only)
 {
   int lg;
-  int radix;
+  int radix, radix_c;
   char *p, *f;
   int c_orig0;
 
@@ -403,8 +403,14 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 	  else
 	    c = '\'';
 	}
-
-      if (c < 0) 		/* \ newline   EOF   newline   tab    other error */
+      else if (c == -2)		/* \ newline */
+	{
+	  Unget_Last_Char;		/* push back \n */
+	  Pl_Stream_Ungetc('\\', pstm); /* push back \  */
+	  Pl_Stream_Ungetc('\'', pstm); /* push back '  */
+	  return;
+	}
+      else if (c < 0) 		/* \ newline   EOF   newline   tab    other error */
 	{
 	  Unget_Last_Char;
 
@@ -412,12 +418,14 @@ Scan_Number(StmInf *pstm, Bool integer_only)
 	  pl_token.line = pstm->line_count + 1;
 	  pl_token.col = pstm->line_pos + 1;
 	  err_msg = "character expected here";
+	  return;
 	}
 
       pl_token.int_num = c;
       return;
     }
 
+  radix_c = c;
   radix = (c == 'b') ? (f = "01", 2) :
     (c == 'o') ? (f = "01234567", 8)
     : (f = "0123456789abcdefABCDEF", 16);
@@ -429,6 +437,15 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       Read_Next_Char(pstm, TRUE);
     }
   *p = '\0';
+
+  /* empty sequence after radix: maybe an operator beginnig with b or o or x:
+   * op(9,yfx,bop) then 0bop 2 is 0 bop 2 */
+  if (p == pl_token.name)
+    {
+      Unget_Last_Char;		/* push back last char */
+      Pl_Stream_Ungetc(radix_c, pstm); /* push back \  */
+      return;
+    }
 
   pl_token.int_num = Str_To_PlLong(pl_token.name, &p, radix);
   goto push_back;

@@ -208,7 +208,7 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 {
   WamWord word, tag_mask;
   int atom;
-  int mode;
+  int mode = STREAM_MODE_READ;	/* to avoid clang warning */
   Bool text;
   StmProp prop;
   char *path;
@@ -1193,7 +1193,7 @@ Pl_Seek_4(WamWord sora_word, WamWord whence_word, WamWord offset_word,
 {
   int stm;
   StmInf *pstm;
-  int whence;
+  int whence = SEEK_SET;	/* to avoid clang warning */
   PlLong offset;
   int atom;
   PlLong p[4];
