@@ -29,29 +29,63 @@ q :-
 	nl.
 
 
-langford(N, L) :-
+/*
+ * Find an assignment of [X1, X2, ..., Xn] (Xi is the position of the first occurrence of i).
+ * For each Xi the constraints are: 
+ *
+ *    Xi in 1..(N+N-1-i)
+ *    if each pair Xi, Xj (i < j) the following holds:
+ *    Xj != Xi
+ *    Xj != Xi + i + 1
+ *    Xj != Xi - j - 1
+ *    Xj != Xi + i - j
+ *
+ * This can be achieved using #=# in set_cstr (but slower at the end)
+ *
+ * Here we keep the list of positions Ui (resp. Vi) is the position of the first (resp. second) occurrence of i
+ * It is possible to only keep one list (i.e. Ui) but seems slower (see file LANGFORD.pl)
+ */
+
+
+langford(N, LD) :-
 	(   N mod 4 =:= 0
 	;   N mod 4 =:= 3
 	), !,
 	length(U, N),
 	length(V, N),
-	append(U, V, UV),
+	append(U, V, L),
 	N2 is N * 2,
 	fd_set_vector_max(N2),
-	fd_domain(UV, 1, N2),
-	fd_all_different(UV),
+	fd_domain(L, 1, N2),
+	fd_all_different(L),
 	set_cstr(U, V, 1),
-	symetric(N, N2, UV),
+	symetric(N, N2, L),
 %	fd_labeling(U, [variable_method(random), value_method(random)]), % sometimes much better
 	fd_labeling(U, [variable_method(ff), value_method(max)]),
-	decode(1, N, UV, L).
+	decode(U, N2, LD).
+
+
+/*
+ * Find an assignment of [X1, X2, ..., Xn] (Xi is the position of the first occurrence of i).
+ * For each Xi the constraints are: 
+ *
+ *    Xi in 1..(N+N-1-i)
+ *    if each pair Xi, Xj (i < j) the following holds:
+ *    Xi != Xj
+ *    Xj != Xi + i + 1
+ *    Xi != Xj + j + 1
+ *    Xi + i + 1 != Xj + j + 1
+ *
+ * This can be achieved using #=# in set_cstr (but slower at the end)
+ */
 
 
 set_cstr([], [], _).
 
 set_cstr([X|U], [Y|V], I) :-
 	I1 is I + 1,
-	Y - X #= I1,         % also avoid some symetries since enforces X < Y
+	Y #= X + I1,         % also avoid some symetries since enforces X < Y
+%	Y #=# X + I1,         % better pruning but slower for big values
 	set_cstr(U, V, I1).
 
 
@@ -62,17 +96,20 @@ symetric(N, N2, UV) :-
 
 
 
-decode(I, N, _, []) :-
-	I > N * 2, !.
 
-decode(I, N, UV, [Z1|L]) :-
+decode(L, N2, LD) :-
+	length(LD, N2),
+	decode1(L, 1, LD).
+
+
+decode1([], _, _).
+
+decode1([X|L], I, LD) :-
+	nth(X, LD, I),
+	Y is X + I + 1,
+	nth(Y, LD, I),	
 	I1 is I + 1,
-	nth(Z, UV, I),
-	(   Z > N ->
-	    Z1 is Z - N
-	;   Z1 = Z
-	),
-	decode(I1, N, UV, L).
+	decode1(L, I1, LD).
 
 
 
