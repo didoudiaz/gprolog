@@ -240,7 +240,6 @@ Add_Atom(char *name, int len, unsigned hash, AtomInf *patom, Bool allocate)
   int c_type;
   Bool identifier;
   Bool graphic;
-  patom = Locate_Atom(name, hash);
 
   if (patom == NULL)
     Error_Table_Full();
@@ -434,6 +433,9 @@ Locate_Atom(char *name, unsigned hash)
 static unsigned
 Hash_String(char *str, int len)
 {
+  if (len == 0)			/* for 1 char string whose code is '\0' */
+    return 0;
+
 #ifdef OPTIM_1_CHAR_ATOM
   if (len == 1)			/* for 1 char strings: key = char */
     return (unsigned) ((unsigned char) (*str));
