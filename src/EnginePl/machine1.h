@@ -91,7 +91,7 @@ int Pl_M_Shell(char *cmd);
 int Pl_M_Spawn(char *arg[]);
 
 int Pl_M_Spawn_Redirect(char *arg[], int detach,
-		     FILE **f_in, FILE **f_out, FILE **f_err);
+			FILE **f_in, FILE **f_out, FILE **f_err);
 
 int Pl_M_Get_Status(int pid);
 
@@ -100,7 +100,6 @@ int Pl_M_Get_Status(int pid);
 char *Pl_M_Mktemp(char *tmp_template);
 
 char *Pl_M_Tempnam(char *dir, char *pfx);
-
 
 
 #define   DBGPRINTF             printf

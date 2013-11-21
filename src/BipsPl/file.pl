@@ -72,3 +72,11 @@ decompose_file_name(Path, Dir, Prefix, Suffix) :-
 prolog_file_name(PlFile, PlFile1) :-
 	set_bip_name(prolog_file_name, 2),
 	'$call_c_test'('Pl_Prolog_File_Name_2'(PlFile, PlFile1)).
+
+
+
+
+'$prolog_file_suffix'(Suffix) :-
+	set_bip_name(prolog_file_suffix, 1),
+	'$call_c_test'('Pl_Prolog_File_Suffix_1'(Suffix)).
+

@@ -1195,11 +1195,13 @@ Get_Current_Word(int select_it)
 }
 
 
+
+
 static void
 Consult_File(void)
 {
-  char *p = Get_Selected_File_Name("Consult...", "pl",
-                                   "Prolog Files (.pl .pro),*.pl;*.pro,All Files,*.*");
+  char *p = Get_Selected_File_Name("Consult...", PROLOG_FILE_SUFFIX,
+                                   "Prolog Files (%s)=%S!All Files=*.*");
 
   if (p == NULL)
     return;
@@ -1236,7 +1238,7 @@ static void
 Insert_File_Name(void)
 {
   char *p = Get_Selected_File_Name("Pick a file name...", NULL,
-                                   "Prolog Files (.pl .pro),*.pl;*.pro,All Files,*.*");
+                                   "Prolog Files (%s)=%S!All Files=*.*");
 
   if (p == NULL)
     return;
@@ -1246,20 +1248,68 @@ Insert_File_Name(void)
   Add_Char_To_Queue('\'');
 }
 
+
+static char *
+Make_Windows_Filter(char *filter)
+{
+  static char buff_filter[128];
+  char suffixes[] = PROLOG_FILE_SUFFIX PROLOG_FILE_SUFFIXES_ALT;
+  char suffix_spac[64], *s1;	/* buff for Prolog suffixes separared by space (%s) */
+  char suffix_star[64], *s2;    /* buff for *.Prolog suffixes separared by semicolon (%S) */
+  int len1 = 0, len2 = 0;
+  char *p, *q;
+
+  /* %s is replaced by Prolog suffixes .xxx .yyy .zzz (space separated)
+   * %S is replaced by Prolog suffixes *.xxx;*.yyy;*.zzz (semi-colon separated)
+   */
+
+  s1 = suffix_spac;
+  s2 = suffix_star;
+
+  for(p = suffixes; *p; p = q + 1)
+    {
+      q = strchr(p, '|');
+      *q = '\0';
+      strcpy(s1, "%s ", p);
+      s1 += strlen(s1);
+      strcpy(s2, "*%s;", p);
+      s2 += strlen(s2);
+      p = q + 1;
+    }
+  s1[-1] = s2[-1] = '\0';	/* skip last separator (space or ;) */
+
+  for(p = buff_filter; *filter; filter++) 
+    {
+      switch(*filter)
+	{
+	case '=':
+	case '!':
+	  *p++ = '\0';
+	  break;
+
+	case '%':			/* %s (space) or %S (star) */
+	  q = (*++filter == 's') ? suffix_spac : suffix_star;
+	  strcpy(p, q);
+	  p += strlen(p);
+	  break;
+
+	default:
+	  *p++ = *filter;
+	}
+    }
+  *p++ = '\0'; *p = '\0';
+  return buff_filter;
+}
+
+
+
+
 static char *
 Get_Selected_File_Name(char *title, char *default_ext, char *filter)
 {
-  char tmp_filter[128], *p;
   static char cwd[MAX_PATH];
   static char last_cwd[MAX_PATH];
   OPENFILENAME ofn;
-
-  for(p = tmp_filter; *filter; filter++, p++) {
-    *p = *filter;
-    if (*p == ',')
-      *p = '\0';
-  }
-  *p++ = '\0'; *p = '\0';
 
   if (GetCurrentDirectory(sizeof(cwd), cwd) != 0 && strcmp(cwd, last_cwd) != 0)
     strcpy(last_cwd, cwd);
@@ -1274,12 +1324,12 @@ Get_Selected_File_Name(char *title, char *default_ext, char *filter)
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = GetActiveWindow();
   ofn.hInstance = GetModuleHandle(NULL);
-  ofn.lpstrFilter = tmp_filter;
+  ofn.lpstrFilter = buff_filter(filter);
   ofn.nFilterIndex = 0;
   ofn.lpstrFile = buff_pathname;
   ofn.nMaxFile = sizeof(buff_pathname);
   ofn.lpstrTitle = title;
-  ofn.lpstrDefExt = default_ext;
+  ofn.lpstrDefExt = (default_ext) ? default_ext + 1 : NULL; /* +1 to skip the priod (.) */
   ofn.lpstrInitialDir = cwd;
   *buff_pathname = '\0';
   ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_PATHMUSTEXIST ;

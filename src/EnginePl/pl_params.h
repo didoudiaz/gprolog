@@ -54,7 +54,11 @@
    also the byte code management */
 
 
+#define PROLOG_FILE_SUFFIX         ".pl"
+#define PROLOG_FILE_SUFFIXES_ALT   "|.pro|.prolog|"
 
 #if 0
 #define META_TERM_HIDDEN
 #endif
+
+

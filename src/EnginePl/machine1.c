@@ -251,7 +251,7 @@ Pl_Init_Machine1(void)
  * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/       *
  *        sysinfo/base/getting_the_system_version.asp                      *
  * then:                                                                   *
- *  - indent (with .indent.pro in src or with -gnu -bap -npcs)             *
+ *  - indent (with -gnu -bap -bad -npcs -cs -l80 -lc80)                    *
  *  - replace function by "static Bool Get_Windows_OS_Name(char *pszOS)"   *
  *  - fix bug replace if(bOsVersionInfoEx != NULL ) return 1; by           *
  *                    if(bOsVersionInfoEx == 0) return FALSE;              *
@@ -1120,6 +1120,7 @@ Pl_M_Tempnam(char *dir, char *pfx)
 
 #endif
 }
+
 
 
 

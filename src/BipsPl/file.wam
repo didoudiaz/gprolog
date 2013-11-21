@@ -37,3 +37,9 @@ predicate(system:prolog_file_name/2,72,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_name,2]),
     call_c('Pl_Prolog_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
+
+
+predicate(system:'$prolog_file_suffix'/1,79,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_suffix,1]),
+    call_c('Pl_Prolog_File_Suffix_1',[boolean],[x(0)]),
+    proceed]).
