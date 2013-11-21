@@ -131,17 +131,24 @@ emit_code_files('', PlFile, WamFile) :-
 	decompose_file_name(PlFile, _, Prefix, Suffix),
 	(   g_read(native_code, t) ->
 	    WamSuffix = '.wam'
-	;   WamSuffix = '.wbc'
+	;
+	    WamSuffix = '.wbc'
 	),
-	(   Suffix = '.pl' ->
+	(   '$prolog_file_suffix'(Suffix) ->
 	    atom_concat(Prefix, WamSuffix, WamFile)
-	;   atom_concat(Prefix, Suffix, WF),
+	;
+	    atom_concat(Prefix, Suffix, WF),
 	    atom_concat(WF, WamSuffix, WamFile)
 	).
 
 emit_code_files(WamFile, _, WamFile).
 
 
+:- if(\+ '$current_predicate_any'('$prolog_file_suffix'/1)).
+'$prolog_file_suffix'('.pl').
+'$prolog_file_suffix'('.pro').
+'$prolog_file_suffix'('.prolog').
+:- endif.
 
 
 emit_code_term(Bytes, Lines) :-

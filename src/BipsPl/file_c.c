@@ -67,6 +67,8 @@
  * Function Prototypes             *
  *---------------------------------*/
 
+static char *Find_Suffix(char *suffixes, char *suffix);
+
 
 
 
@@ -164,8 +166,8 @@ Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
   int atom;
   char *path1;
   int len;
-  char *p;
-  Bool suffix_pl;
+  char *p, *q;
+  char suffixes[] = "|" PROLOG_FILE_SUFFIX PROLOG_FILE_SUFFIXES_ALT;
 
   atom = Pl_Rd_Atom_Check(path1_word);
   path1 = pl_atom_tbl[atom].name;
@@ -188,18 +190,64 @@ Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
   strcpy(pl_glob_buff, path1);
   len = strlen(path1);
 
-  strcpy(pl_glob_buff + len, ".pl");
-  suffix_pl = TRUE;
-  if (access(pl_glob_buff, F_OK))	/* path1.pl does not exist */
+  q = suffixes;
+  do
     {
-      strcpy(pl_glob_buff + len, ".pro");
-      suffix_pl = FALSE;
-      if (access(pl_glob_buff, F_OK))	/* path1.pro does not exist */
-	suffix_pl = TRUE;
-    }
+      p = q + 1;
+      if (*p == '\0')		/* no more suffixes: set default one */
+	{
+	  p = PROLOG_FILE_SUFFIX;
+	  break;
+	}
 
-  sprintf(pl_glob_buff, "%s%s", pl_atom_tbl[atom].name,
-	  (suffix_pl) ? ".pl" : ".pro");
+      q = strchr(p, '|');
+      *q = '\0';
+      strcpy(pl_glob_buff + len, p);
+    }
+  while(access(pl_glob_buff, F_OK)); /* while not found */
+
+  sprintf(pl_glob_buff, "%s%s", pl_atom_tbl[atom].name, p);
 
   return Pl_Un_String_Check(pl_glob_buff, path2_word);
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PROLOG_FILE_SUFFIX_1                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Prolog_File_Suffix_1(WamWord suffix_word)
+{
+  int atom;
+  char *suffix;
+
+  atom = Pl_Rd_Atom_Check(suffix_word);
+  suffix = pl_atom_tbl[atom].name;
+
+  return Find_Suffix("|" PROLOG_FILE_SUFFIX PROLOG_FILE_SUFFIXES_ALT, suffix) != NULL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * FIND_SUFFIX                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char *
+Find_Suffix(char *suffixes, char *suffix)
+
+{
+  char *p;
+  /* TODO: use strcasestr (must be tested in configure.in) */
+
+  if ((p = strstr(suffixes, suffix)) && p[-1] == '|' && p[strlen(suffix)] == '|')
+    return p;
+
+  return NULL;
+}
+
+

@@ -1,3 +1,7 @@
+Thu Nov 21 16:29:57 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* support for alternate Prolog file extension .prolog
+
 Mon Nov 18 18:32:44 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in atoms for 1-char atom '\0' (now acts as the empty atom)

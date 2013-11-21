@@ -51,3 +51,5 @@
 /* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
    also the byte code management */
 
+#define PROLOG_FILE_SUFFIX         ".pl"
+#define PROLOG_FILE_SUFFIXES_ALT   "|.pro|.prolog|"

@@ -59,6 +59,7 @@
 #include <sys/wait.h>
 #endif
 
+#include "../EnginePl/pl_params.h"
 #include "../EnginePl/wam_regs.h"
 
 #include "decode_hexa.c"
@@ -117,8 +118,8 @@
 
 
 
-#define PL_SUFFIX                  ".pl"
-#define PL_SUFFIX_ALTERNATE        ".pro"
+#define PL_SUFFIX                  PROLOG_FILE_SUFFIX
+#define PL_SUFFIX_ALTERNATE        PROLOG_FILE_SUFFIXES_ALT
 #define WAM_SUFFIX                 ".wam"
 #define WBC_SUFFIX                 ".wbc"
 #define MA_SUFFIX                  ".ma"
@@ -220,7 +221,6 @@ char *cc_fd2c_flags = CFLAGS " ";
 
 
 
-
 char *suffixes[] =
   { PL_SUFFIX, WAM_SUFFIX, MA_SUFFIX, ASM_SUFFIX, OBJ_SUFFIX, FD_SUFFIX, C_SUFFIX, NULL };
 
@@ -254,6 +254,8 @@ int Spawn_Decode_Hex(char *arg[]);
 void Delete_Temp_File(char *name);
 
 int Find_File(char *file, char *suff, char *file_path, int ignore_error);
+
+char *Find_Suffix(char *suffixes, char *suffix);
 
 void Pl_Fatal_Error(char *format, ...);
 
@@ -946,6 +948,26 @@ Find_File(char *file, char *suff, char *file_path, int ignore_error)
 
 
 /*-------------------------------------------------------------------------*
+ * FIND_SUFFIX                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Find_Suffix(char *suffixes, char *suffix)
+
+{
+  char *p;
+  /* TODO: use strcasestr (must be tested in configure.in) */
+
+  if ((p = strstr(suffixes, suffix)) && p[-1] == '|' && p[strlen(suffix)] == '|')
+    return p;
+
+  return NULL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_FATAL_ERROR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1382,11 +1404,10 @@ Parse_Arguments(int argc, char *argv[])
 	  break;
       f->file_part = q + 1;
 
-      if (strcasecmp(PL_SUFFIX_ALTERNATE, f->suffix) == 0)
+      if (Find_Suffix(PL_SUFFIX_ALTERNATE, f->suffix))
 	f->type = FILE_PL;
       else
-	if ((q = strstr(C_SUFFIX_ALTERNATE, f->suffix)) &&
-	    q[-1] == '|' && q[strlen(f->suffix)] == '|')
+	if (Find_Suffix(PL_SUFFIX_ALTERNATE, f->suffix))
 	  f->type = FILE_C;
 	else
 	  {
