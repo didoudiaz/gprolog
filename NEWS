@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5:
 
+* set socket option SO_REUSEADDR at socket creation
 * fix problems with Apple gcc = LLVM version 5.0 (clang-500.2.79)
 * remove clang warnings (uninitialized variables)
 * fix bugs in the lexer of the form 0bop 2 when bop is an infix op
