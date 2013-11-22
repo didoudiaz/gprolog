@@ -400,11 +400,11 @@ list_to_term:
       goto finish;
     }
 
-  if (functor_tag != TAG_ATM_MASK)
-    Pl_Err_Type(pl_type_atom, functor_word);
-
   if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
+
+  if (functor_tag != TAG_ATM_MASK)
+    Pl_Err_Type(pl_type_atom, functor_word);
 
   if (tag_mask != TAG_LST_MASK)
     Pl_Err_Type(pl_type_list, list_word);
