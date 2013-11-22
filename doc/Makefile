@@ -86,14 +86,14 @@ logo.pdf: ../gprolog.ico
 dvi: $(DVINAME)
 
 $(DVINAME): $(TEX_SRC) $(IMG_EPS)
-	do_latex -dvi $(TRACE) $(MAIN)
+	./do_latex -dvi $(TRACE) $(MAIN)
 
 
 
 pdf: $(PDFNAME)
 
 $(PDFNAME): $(TEX_SRC)  $(IMG_PDF)
-	do_latex -pdf $(TRACE) $(MAIN)
+	./do_latex -pdf $(TRACE) $(MAIN)
 
 
 ps: $(PSNAME)
