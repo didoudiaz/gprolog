@@ -112,7 +112,7 @@ static void
 Socket_Initializer(void)
 {
 #ifdef _WIN32
-  WORD versReqstd = MAKEWORD( 2, 2);		// Current Winsock 2 DLL's
+  WORD versReqstd = MAKEWORD( 2, 2);		/* Current Winsock 2 DLL's */
   WSADATA wsaData;
   int err;
   int optionValue = SO_SYNCHRONOUS_NONALERT;
@@ -124,8 +124,7 @@ Socket_Initializer(void)
   atom_AF_INET = Pl_Create_Atom("AF_INET");
 
 #ifdef _WIN32
-  if ((err = WSAStartup(versReqstd, &wsaData)) != 0 ||
-      wsaData.wVersion != versReqstd)
+  if ((err = WSAStartup(versReqstd, &wsaData)) != 0 || wsaData.wVersion != versReqstd)
     {
       Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
 		    "warning: cannot find a usable WinSock DLL\n");
@@ -151,6 +150,7 @@ Bool
 Pl_Socket_2(WamWord domain_word, WamWord socket_word)
 {
   int domain;
+  int opt;
 #ifdef _WIN32
   SOCKET sock;
   int proto = IPPROTO_TCP;
@@ -187,6 +187,15 @@ Pl_Socket_2(WamWord domain_word, WamWord socket_word)
 #else
   Os_Test_Error(sock);
 #endif
+
+  /*
+   * disable bind address checking (port can be reused)
+   * else the TIME_WAIT prevent bindings to this address:port
+   * for 2xMSL seconds (delay).
+   */
+
+  opt = 1;  
+  Os_Test_Error(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)));
 
   return Pl_Get_Integer(sock, socket_word);
 }
@@ -331,7 +340,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
-		 WamWord stm_in_word, WamWord stm_out_word)
+		    WamWord stm_in_word, WamWord stm_out_word)
 {
   WamWord word, tag_mask;
   WamWord *stc_adr;
@@ -383,8 +392,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 
       adr_un.sun_family = AF_UNIX;
       strcpy(adr_un.sun_path, path_name);
-      Os_Test_Error(connect
-		    (sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
+      Os_Test_Error(connect(sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
       sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)",
 	      path_name, sock);
 #ifdef _WIN32
@@ -451,7 +459,7 @@ Pl_Socket_Listen_2(WamWord socket_word, WamWord length_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
-		WamWord stm_in_word, WamWord stm_out_word)
+		   WamWord stm_in_word, WamWord stm_out_word)
 {
   int sock, cli_sock;
   socklen_t l;
@@ -496,7 +504,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Assoc_Socket_Streams_3(WamWord socket_word,
-		       WamWord stm_in_word, WamWord stm_out_word)
+			  WamWord stm_in_word, WamWord stm_out_word)
 {
   int stm_in, stm_out;
   char stream_name[256];
@@ -520,8 +528,7 @@ Pl_Assoc_Socket_Streams_3(WamWord socket_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Create_Socket_Streams(int sock, char *stream_name,
-		      int *stm_in, int *stm_out)
+Create_Socket_Streams(int sock, char *stream_name, int *stm_in, int *stm_out)
 {
   int fd;
   FILE *f_in, *f_out;

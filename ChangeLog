@@ -1,3 +1,7 @@
+Fri Nov 22 19:47:45 CET 2013 <Daniel.Diaz@univ-paris1.fr>
+
+	* set socket option SO_REUSEADDR at socket creation
+
 Thu Nov 21 16:29:57 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 	* support for alternate Prolog file extension .prolog
