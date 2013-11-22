@@ -186,34 +186,6 @@ label(1),
     proceed]).
 
 
-predicate('$prolog_file_suffix'/1,148,static,private,monofile,global,[
-    switch_on_term(2,1,fail,fail,fail),
-
-label(1),
-    switch_on_atom([('.pl',3),('.pro',5),('.prolog',7)]),
-
-label(2),
-    try_me_else(4),
-
-label(3),
-    get_atom('.pl',0),
-    proceed,
-
-label(4),
-    retry_me_else(6),
-
-label(5),
-    get_atom('.pro',0),
-    proceed,
-
-label(6),
-    trust_me_else_fail,
-
-label(7),
-    get_atom('.prolog',0),
-    proceed]).
-
-
 predicate(emit_code_term/2,154,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),1),

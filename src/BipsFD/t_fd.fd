@@ -1,5 +1,23 @@
+%{
+Bool Pl_Fd_All_Distinct(WamWord *array);
+%}
 
-foo(fdv i)
+
+foo(fdv I)
 {
- start i in 2..4:1..1
+ start I in 2..4:1..1
+}
+
+
+pl_fd_all_distinct(l_fdv L)
+
+{
+ start Pl_Fd_All_Distinct_Init(L)
+ start Pl_Fd_All_Distinct(L) trigger also on dom(L)
+}
+
+
+pl_fd_all_distinct_dummy(fdv X, l_fdv L)
+{
+ start Pl_Fd_All_Distinct_X_To_L(dom(X), L)
 }

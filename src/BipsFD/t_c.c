@@ -50,3 +50,37 @@ Dist_LE(Range *s1, long s2, long d, long size_y)
 
   Pl_Range_From_Vector(s1);
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_ELEMENT_I                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Fd_Element_I(Range *i, WamWord *l)
+{
+  int n = *l;                   /* I in 1..N in sparse mode */
+
+  Range_Init_Interval(i, 1, n);
+  Pl_Range_Becomes_Sparse(i);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_ALL_DISTINCT                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_All_Distinct(WamWord **array)
+{
+#if 0
+  WamWord *fdv_adr = array[i];
+
+  if (Fd_Variable_Is_Ground(fdv_adr))
+    return Pl_Fd_Tell_Int_Range(fdv_adr, v);
+
+  return Pl_Fd_Tell_Range_Range(fdv_adr, v);
+#endif
+}
