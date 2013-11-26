@@ -285,9 +285,8 @@ e_bloc_load_use([m(V, T, I, Mark)|LUse], LCVarUsed, LWNext, LWInst) :-
 
 
 e_bloc_load_one(fdv, V, I, Mark, LCVarUsed, LWNext, LWInst) :-
-	!,
 	Mark = i(Min, Max, Dom, Val),
-	e_compute_dep_chain(Min, Max, Dom, Val, Chain),
+	e_compute_dep_chain(Min, Max, Dom, Val, Chain), !,
 	e_bloc_load_fdv(Chain, Min, Max, Dom, Val, V, I, LCVarUsed, LWNext, LWInst).
 
 e_bloc_load_one(range, _, I, range(R), _, LWNext, LWInst) :-
@@ -365,26 +364,22 @@ e_bloc_load_fdv(max, _, _, _, _, V, I, LCVarUsed, LWNext, LWInst) :-
 
 
 e_compute_dep_chain(_, _, _, Val, val) :-
-	nonvar(Val),                                               % val used
-	             !.
+	nonvar(Val), !.                                            % val used
 
 e_compute_dep_chain(_, _, Dom, _, dom) :-
-	nonvar(Dom),                                               % dom used
-	             !.
+	nonvar(Dom), !.                                            % dom used
 
 e_compute_dep_chain(Min, Max, _, _, min) :-
 	nonvar(Min),
-	var(Max),                                             % only min used
-	          !.
+	var(Max), !.                                          % only min used
 
 e_compute_dep_chain(Min, Max, _, _, max) :-
 	var(Min),
-	nonvar(Max),                                          % only max used
-	             !.
+	nonvar(Max), !.                                       % only max used
 
-e_compute_dep_chain(Min, Max, _, _, min_max) :-            % min and max used
+e_compute_dep_chain(Min, Max, _, _, min_max) :-
 	nonvar(Min),
-	nonvar(Max).
+	nonvar(Max).                                       % min and max used
 
 
 

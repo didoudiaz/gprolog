@@ -39,7 +39,11 @@
 parse_user_cstr(uc(Name, AFSize, LHVar, Body)) -->
 	head(Name, NbHVar, LHVar),
 	terminal_check('{'),
-	{ g_assign(afsize, NbHVar), retractall(hvar(_)), asserta(hvar(LHVar)), retractall(bname(_, _)) },
+	{ g_assign(afsize, NbHVar),
+	  retractall(hvar(_)),
+	  asserta(hvar(LHVar)),
+	  retractall(bname(_, _))
+	},
 	body(Body),
 	terminal_check('}'), !,
 	{ g_read(afsize, AFSize), close_list(LHVar) }.
@@ -155,7 +159,8 @@ stop_one(BNoStop) -->
 	ident_check(BName),
 	(   { clause(bname(BName, BNoStop), _) } ->
 	    { true }
-	;   sem_error('undeclared bloc name "~a"', [BName])
+	;
+	    sem_error('undeclared bloc name "~a"', [BName])
 	).
 
 
@@ -173,12 +178,22 @@ bloc_lst([]) -->
 
 bloc_one(bl(BNo, LDep, LUse, LWInst, TellFdv, Always)) -->
 	{ clause(hvar(LVar), _) },
+	foreach(LVar, LUse, LWInst1, LWInst, HasForEach),
 	terminal(start),
 	bloc_name(BNo),
-	elem_lst(LVar, LUse, LWInst1, LWInst),
-	forall(LVar, LUse, LWInst2, LWInst1, HasForAll),
-	last_elem(LVar, LUse, TellFdv, LWInst3, LWInst2),
-	{ HasForAll = t -> LWInst3 = [fd_forall_end] ; LWInst3 = [] },
+	elem_lst(LVar, LUse, LWInst2, LWInst1),
+	forall(LVar, LUse, LWInst3, LWInst2, HasForAll),
+	last_elem(LVar, LUse, TellFdv, LWInst4, LWInst3),
+	{ HasForAll = t ->
+	  LWInst4 = [fd_forall_end|LWInst5]
+	;
+	  LWInst4 = LWInst5
+	},
+	{ HasForEach = t ->
+	  LWInst5 = [fd_foreach_end]
+	;
+	  LWInst5 = []
+	},
 	trig(LVar, LUse, LDep),
 	always(Always),
 	{ close_list(LDep), close_list(LUse) }.
@@ -191,7 +206,12 @@ bloc_name(BNo) -->
 	ident_check(BName),
 	(   { clause(bname(BName, _), _) } ->
 	    sem_error('bloc name already used "~a"', [BName])
-	;   { g_read(afsize, BNo), AFSize is BNo + 1, g_assign(afsize, AFSize), assertz(bname(BName, BNo)) }
+	;
+	    { g_read(afsize, BNo),
+	      AFSize is BNo + 1,
+	      g_assign(afsize, AFSize),
+	      assertz(bname(BName, BNo))
+	    }
 	),
 	terminal_check(')').
 
@@ -238,9 +258,15 @@ trig_one(LVar, LDep) -->
 	terminal_check('('),
 	a_var(V),
 	terminal_check(')'),
-	{ get_typeof(LVar, V, T, I), (T \== fdv, T \== l_fdv -> var_check_type(LVar, V, fdv, _, _, _)
+	{ get_typeof(LVar, V, T, I),
+	  (   T \== fdv, T \== l_fdv ->
+	      var_check_type(LVar, V, fdv, _, _, _)
                                                                  % type error
-	                                                                                              ; true), (What = dom -> What1 = dom(_) ; What1 = What), add_marked_var(LDep, V, T, I, What1) }.
+	  ;
+	      true),
+	  (What = dom -> What1 = dom(_) ; What1 = What),
+	  add_marked_var(LDep, V, T, I, What1)
+	}.
 
 
 
@@ -330,13 +356,41 @@ assign_right_value(_, _, _, _, _, _, _) -->
 
 
 
+foreach(LVar, LUse, LWNext, LWInst, t) -->
+	terminal(foreach), !,
+	var_check_new(LVar, V),
+	terminal_check(in),
+	var_check_type(LVar, VL, l_fdv, IL),
+	terminal_check(do),
+	{ add_marked_var(LUse, VL, l_fdv, IL, _),
+	  g_read(afsize, I),    % local var but must in the AF (for tell for instance)
+	  AFSize is I + 1,
+	  g_assign(afsize, AFSize),
+	  add_local_var(LVar, v(V, fdv, I)),
+	  atom_concat(l_fdv, VL, VL1),
+	  LWInst = [fd_foreach(I, VL1)|LWNext]
+	}.
+
+foreach(_, _, LWNext, LWNext, f) -->
+	[].
+
+
+
+
 forall(LVar, LUse, LWNext, LWInst, t) -->
 	terminal(forall), !,
 	var_check_new(LVar, V),
-	terminal_check(of),
+	terminal_check(in),
 	var_check_type(LVar, VL, l_fdv, IL),
 	terminal_check(do),
-	{ add_marked_var(LUse, VL, l_fdv, IL, _), g_read(afsize, I), AFSize is I + 1, g_assign(afsize, AFSize), add_local_var(LVar, v(V, fdv, I)), atom_concat(l_fdv, VL, VL1), LWInst = [fd_forall(I, VL1)|LWNext] }.
+	{ add_marked_var(LUse, VL, l_fdv, IL, _),
+	  g_read(afsize, I),    % local var but must in the AF (for tell for instance)
+	  AFSize is I + 1,
+	  g_assign(afsize, AFSize),
+	  add_local_var(LVar, v(V, fdv, I)),
+	  atom_concat(l_fdv, VL, VL1),
+	  LWInst = [fd_forall(I, VL1)|LWNext]
+	}.
 
 forall(_, _, LWNext, LWNext, f) -->
 	[].
@@ -469,12 +523,17 @@ r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	a_var(V),
-	{ get_typeof(LVar, V, range, I), !, add_marked_var(LUse, V, range, I, range(Range1)) },
+	{ get_typeof(LVar, V, range, I), !,
+	  add_marked_var(LUse, V, range, I, range(Range1)) },
 	{ LWInst = [fd_range_copy(Range, Range1)|LWNext] }.
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	c_fct(LVar, LUse, Head, LArg, LWInst1, LWInst), !,
-	{ length(LArg, N), number_atom(N, NA), atom_concat(arg_, NA, NA1), Args =.. [NA1|LArg], LWInst1 = [fd_range_fct(Head, Range, Args)|LWNext] }.
+	{ length(LArg, N), number_atom(N, NA),
+	  atom_concat(arg_, NA, NA1),
+	  Args =.. [NA1|LArg],
+	  LWInst1 = [fd_range_fct(Head, Range, Args)|LWNext]
+	}.
 
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
