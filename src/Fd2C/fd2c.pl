@@ -40,6 +40,9 @@ fd2c(Args) :-
 	catch(fd2c1(Args), Err, exception(Err)).
 
 
+init :-				% to test under top-level
+	catch(close(stream_fd), _, true),
+	catch(close(stream_c), _, true).
 
 
 fd2c1(Args) :-
@@ -58,12 +61,11 @@ fd2c1(Args) :-
 
 
 
-parse_and_emit([]).
-
 parse_and_emit(LToken) :-
 	(   LToken = [] ->
 	    true
-	;   parse_user_cstr(Cstr, LToken, LToken1),
+	;
+	    parse_user_cstr(Cstr, LToken, LToken1),
 	    emit_user_cstr(Cstr),
 	    parse_and_emit(LToken1)
 	).

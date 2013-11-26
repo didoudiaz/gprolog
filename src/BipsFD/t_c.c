@@ -52,7 +52,7 @@ Dist_LE(Range *s1, long s2, long d, long size_y)
 }
 
 
-
+#if 0
 
 /*-------------------------------------------------------------------------*
  * PL_FD_ELEMENT_I                                                         *
@@ -67,6 +67,7 @@ Pl_Fd_Element_I(Range *i, WamWord *l)
   Pl_Range_Becomes_Sparse(i);
 }
 
+#endif
 
 /*-------------------------------------------------------------------------*
  * PL_FD_ALL_DISTINCT                                                      *
@@ -83,4 +84,5 @@ Pl_Fd_All_Distinct(WamWord **array)
 
   return Pl_Fd_Tell_Range_Range(fdv_adr, v);
 #endif
+  return TRUE;
 }

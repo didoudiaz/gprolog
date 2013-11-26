@@ -101,7 +101,8 @@ skip1(C, Next, C1, Next, Echo) :-
 	(   Echo = t ->
 	    put_code(stream_c, C1),
 	    put_code(stream_c, C)
-	;   true
+	;
+	    true
 	),
 	g_assign(next, C1),
 	fail.
@@ -109,7 +110,8 @@ skip1(C, Next, C1, Next, Echo) :-
 skip1(C, _, _, _, Echo) :-
 	(   Echo = t ->
 	    put_code(stream_c, C)
-	;   true
+	;
+	    true
 	),
 	fail.
 
@@ -120,10 +122,12 @@ one_token(C, Token, C2) :-
 	(   C >= 97,
 	    C =< 122,
 	    C1 = C
-	;   C >= 65,
+	;
+	    C >= 65,
 	    C =< 90,
 	    C1 is C + 97 - 65
-	;   C = 39,
+	;
+	    C = 39,
 	    C1 = C
 	), !,
 	unget_code(stream_fd, C1),
@@ -133,11 +137,13 @@ one_token(C, Token, C2) :-
 	    sub_atom(Token1, 1, _, 0, A),
 	    char_code(AC, C),
 	    atom_concat(AC, A, Token2)
-	;   Token2 = Token1
+	;
+	    Token2 = Token1
 	),
 	(   keyword(Token2) ->
 	    Token = Token2
-	;   Token = ident(Token2)
+	;
+	    Token = ident(Token2)
 	),
 	get_code(stream_fd, C2).
 
@@ -189,8 +195,7 @@ keyword(if).
 keyword(stop).
 
 keyword(forall).
-keyword(of).
+keyword(foreach).
 keyword(do).
-
 keyword(in).
 keyword(max_integer).
