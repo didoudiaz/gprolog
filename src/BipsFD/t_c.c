@@ -69,13 +69,18 @@ Pl_Fd_Element_I(Range *i, WamWord *l)
 
 #endif
 
+#if 0
+
 /*-------------------------------------------------------------------------*
  * PL_FD_ALL_DISTINCT                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Fd_All_Distinct(WamWord **array)
+Pl_Fd_All_Distinct(WamWord *list_word)
 {
+
+
+
 #if 0
   WamWord *fdv_adr = array[i];
 
@@ -86,3 +91,4 @@ Pl_Fd_All_Distinct(WamWord **array)
 #endif
   return TRUE;
 }
+#endif
