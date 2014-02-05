@@ -141,7 +141,7 @@
 
 #define CONSTRAINT_FRAME_SIZE      3
 
-#define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to >>> */
+#define OFFSET_OF_OPTIM_POINTER    1	/* this offset must correspond to >>> */
 
 #define AF_Pointer(cf)             (*(WamWord **)    &(cf[0]))
 #define Optim_Pointer(cf)          (*(PlULong **)    &(cf[1]))	/* >>> this cell */
@@ -227,7 +227,7 @@ void Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF);
 
 void Pl_Fd_Before_Add_Cstr(void);
 
-Bool Pl_Fd_After_Add_Cstr(void);
+Bool Pl_Fd_After_Add_Cstr(Bool result_of_tell);
 
 void Pl_Fd_Stop_Constraint(WamWord *CF);
 

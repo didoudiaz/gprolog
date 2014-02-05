@@ -1,3 +1,7 @@
+Wed Feb  5 15:16:37 CET 2014 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix bugs in the FD solver
+
 Fri Nov 22 19:47:45 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 	* set socket option SO_REUSEADDR at socket creation
