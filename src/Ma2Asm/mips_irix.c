@@ -6,7 +6,7 @@
  * Descr.: translation file for IRIX on MIPS                               *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2013 Daniel Diaz                                     *
+ * Copyright (C) 1999-2014 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

@@ -6,7 +6,7 @@
  * Descr.: FD Operation support - header file                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2013 Daniel Diaz                                     *
+ * Copyright (C) 1999-2014 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
