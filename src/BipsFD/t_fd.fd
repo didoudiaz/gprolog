@@ -9,17 +9,3 @@ foo(fdv I)
  start I in 2..4:1..1
 }
 */
-/*
-pl_fd_all_distinct(l_fdv L)
-
-{
- foreach X in L do start Pl_Fd_All_Distinct_Init(dom(X), L)
- start forall X in L do Pl_Fd_All_Distinct(X, L) trigger also on dom(L) 
-}
-
-
-pl_fd_all_distinct_dummy(fdv X, l_fdv L)
-{
- start Pl_Fd_All_Distinct_X_To_L(dom(X), L)
-}
-*/
