@@ -6,7 +6,7 @@
  * Descr.: DEC-10 I/O compatibility library                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2013 Daniel Diaz                                     *
+ * Copyright (C) 1999-2014 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
