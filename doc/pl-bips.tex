@@ -4000,7 +4000,8 @@ order. Anonymous variables are included in the list \texttt{VL}.
 unified with the list of pairs \texttt{Name = Var} where \texttt{Var} is a
 named variable of the term and \texttt{Name} is the atom associated with the
 name of \texttt{Var}.  Anonymous variables are not included in the list
-\texttt{VNL}.
+\texttt{VNL}. The pairs appear in left-to-right traversal order of their 
+\texttt{Var} in the term.
 
 \item \AddPOD{singletons}\texttt{singletons(SL)}: \texttt{SL} is unified with the
 list of pairs \texttt{Name = Var} where \texttt{Var} is a named variable
@@ -5496,7 +5497,7 @@ See errors associated with \texttt{open/4} \RefSP{open/4}.
 
 \Portability
 
-GNU Prolog predicates.
+GNU Prolog predicates. Deprecated.
 
 \subsubsection{\IdxPBD{seeing/1},
                \IdxPBD{telling/1}}
@@ -5524,7 +5525,7 @@ name of the current output file, if it was opened by \texttt{tell/1} or
 
 \Portability
 
-GNU Prolog predicates.
+GNU Prolog predicates. Deprecated.
 
 \subsubsection{\IdxPBD{seen/0},
                \IdxPBD{told/0}}
@@ -5547,7 +5548,7 @@ told
 
 \Portability
 
-GNU Prolog predicates.
+GNU Prolog predicates. Deprecated.
 
 \subsubsection{\IdxPBD{get0/1},
                \IdxPBD{get/1},
@@ -5578,7 +5579,7 @@ See errors for \texttt{get\_code/2} \RefSP{get-char/2}.
 
 \Portability
 
-GNU Prolog predicates.
+GNU Prolog predicates. Deprecated.
 
 \subsubsection{\IdxPBD{put/1},
                \IdxPBD{tab/1}}
@@ -5605,7 +5606,7 @@ expressions \RefSP{Evaluation-of-an-arithmetic-expression}.
 
 \Portability
 
-GNU Prolog predicates.
+GNU Prolog predicates. Deprecated.
 
 \subsection{Term expansion}
 \label{Term-expansion}
