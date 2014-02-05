@@ -70,8 +70,8 @@ emit_user_cstr(uc(Name, AFSize, LHVar, Body)) :-
 	nl(stream_c),
 	format(stream_c, '   fd_before_add_constraint~n', []),
 	e_call_fct_lst(LFctName),
-	format(stream_c, '   fd_after_add_constraint~n', []),
 	format(stream_c, ' fd_exit_point~n', []),
+	format(stream_c, '   fd_after_add_constraint~n', []),
 	format(stream_c, '   fd_return~n', []),
 	format(stream_c, '~nfd_end_user_constraint~n~n', []).
 

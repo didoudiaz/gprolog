@@ -1098,7 +1098,12 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	}
 
       if (Tag_Is_INT(word2))
-	word = Push_Delayed_Cstr(DC_DIV_X_A_EQ_Z, word1, word2, 0);
+	{
+	  n2 = UnTag_INT(word2);
+	  if (n2 == 0)
+	    return FALSE;
+	  word = Push_Delayed_Cstr(DC_DIV_X_A_EQ_Z, word1, word2, 0);
+	}
       else
 	word = Push_Delayed_Cstr(DC_DIV_X_Y_EQ_Z, word1, word2, 0);
 
@@ -1263,7 +1268,7 @@ Load_Delay_Cstr_Part(void)
 	  MATH_CSTR_3(pl_xy_eq_z, i->res, i->a2, i->a1);
 	  break;
 
-	case DC_DIV_X_A_EQ_Z:
+	case DC_DIV_X_A_EQ_Z:	/* A != 0 has been checked before push in delay stack (see above) */
 	  MATH_CSTR_3(pl_ax_eq_y, i->a2, i->res, i->a1);
 	  break;
 

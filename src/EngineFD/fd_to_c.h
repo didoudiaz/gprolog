@@ -262,11 +262,8 @@
 
 
 #define fd_after_add_constraint			\
-  if (!Pl_Fd_After_Add_Cstr())			\
-    {						\
-      ret_val = FALSE;				\
-      goto lab_exit;				\
-    }
+  ret_val = Pl_Fd_After_Add_Cstr(ret_val);	 /* always followed by fd_return */
+
 
 
 
