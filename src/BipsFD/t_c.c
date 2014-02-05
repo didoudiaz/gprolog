@@ -1,3 +1,36 @@
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : development only                                                *
+ * File  : t_c.c                                                           *
+ * Descr.: test - C part                                                   *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2014 Daniel Diaz                                     *
+ *                                                                         *
+ * GNU Prolog is free software; you can redistribute it and/or modify it   *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; either version 2, or any later version.       *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful, but       *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc.  *
+ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.               *
+ *-------------------------------------------------------------------------*/
+
+/*
+ * You can put your own test code in these files (see DEVELOPMENT)
+ *    t.pl    (Prolog part)
+ *    t_c.c   (C part, eg. foreign code or C code used by your FD constraints)
+ *    t_fd.fd (FD constraint part)
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -24,6 +57,11 @@
  * Function Prototypes             *
  *---------------------------------*/
 
+/*-------------------------------------------------------------------------*
+ *                                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+#if 0
 void
 Dist_LE(Range *s1, long s2, long d, long size_y)
 {
@@ -50,39 +88,5 @@ Dist_LE(Range *s1, long s2, long d, long size_y)
 
   Pl_Range_From_Vector(s1);
 }
-
-
-#if 0
-
-/*-------------------------------------------------------------------------*
- * PL_FD_ELEMENT_I                                                         *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_Fd_Element_I(Range *i, WamWord *l)
-{
-  int n = *l;                   /* I in 1..N in sparse mode */
-
-  Range_Init_Interval(i, 1, n);
-  Pl_Range_Becomes_Sparse(i);
-}
-
 #endif
 
-/*-------------------------------------------------------------------------*
- * PL_FD_ALL_DISTINCT                                                      *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Fd_All_Distinct(WamWord **array)
-{
-#if 0
-  WamWord *fdv_adr = array[i];
-
-  if (Fd_Variable_Is_Ground(fdv_adr))
-    return Pl_Fd_Tell_Int_Range(fdv_adr, v);
-
-  return Pl_Fd_Tell_Range_Range(fdv_adr, v);
-#endif
-  return TRUE;
-}
