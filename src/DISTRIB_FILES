@@ -130,10 +130,13 @@ src/BipsPl/BYTE_CODE
 src/BipsPl/[a-z]??*.pl
 src/BipsPl/[a-z]??*.wam
 src/BipsPl/[a-z]??*.[ch]
+src/BipsPl/t.pl
 
 src/BipsFD/Makefile.in
 src/BipsFD/[a-z][a-z]?*.pl
 src/BipsFD/[a-z][a-z]?*.fd
 src/BipsFD/[a-z][a-z]?*.[ch]
+src/BipsFD/t.pl
+src/BipsFD/t_fd.fd
 
 
