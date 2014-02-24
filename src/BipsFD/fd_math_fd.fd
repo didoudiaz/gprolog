@@ -41,19 +41,43 @@
 #define ite(i, t, e)  ((i) ? (t) : (e))
 #define min2(a,b) ((a<b) ? (a) : (b))
 #define max2(a,b) ((a>b) ? (a) : (b))
-#define add_ab(a,b) 	(ite(a==0, b, ite(b==0, a, \
-			 ite(a<0 && b<0, ite(min_integer + a < b, a+b, min_integer), \
-			 ite(a>0 && b>0, ite(max_integer - a > b, a+b, max_integer),a+b)))))
-#define mult_ab(a,b)  	(ite(a==0 || b==0 , 0, \
-			 ite(a<0 && b<0, ite(max_integer / -a > -b, a*b, max_integer), \
-			 ite(a<0 && b>0, ite(max_integer / b > -a, a*b, min_integer), 	/* it doesn't like division with two negative numbers */ \
-			 ite(a>0 && b<0, ite(max_integer / a > -b, a*b, min_integer), \
-			 ite(a>0 && b>0, ite(max_integer / a > b, a*b, max_integer), 0))))))
 #define is_even(a)		(2*(a/2)==a)
 #define is_odd(a)		(2*(a/2)!=a)
 #define max_exponent(a)	(ite(a>0, Pl_Find_Expon_Dn(a,max_integer), Pl_Find_Expon_Dn(-a,max_integer)))
 #define max_exp_base(a)	(Pl_Nth_Root_Dn(max_integer, a))
 #define closest_to_zero(a,b) (ite(a<=0 && b>=0, 0, ite(b<0, b, a)))
+
+static int inline add_ab(int a, int b)
+{
+   int res = a + b;
+   if (res > max_integer)
+	res = max_integer;
+   else if (res < min_integer)
+	res = min_integer;
+   return res;
+}
+
+
+static int inline sub_ab(int a, int b)
+{
+   int res = a - b;
+   if (res > max_integer)
+	res = max_integer;
+   else if (res < min_integer)
+	res = min_integer;
+   return res;
+}
+
+static int inline mult_ab(int a, int b)
+{
+   int64_t res = ((int64_t)a) * ((int64_t)b);
+   if (res > max_integer){
+	res = max_integer;}
+   else if (res < min_integer){
+	res = min_integer;}
+   return (int) res;
+}
+
 %}
 
 
@@ -525,16 +549,15 @@ pl_x2_eq_y(fdv X, fdv Y)	/* Y >= 0 */
 }
 
 
-/*  TODO: currently busy rewriting to make the code shorter and more efficient */
 
 pl_xy_eq_z(fdv X, fdv Y, fdv Z)
 
-{ 		/*
- start X in min2(min2(ite(min(Y)!=0, min2(min(Z)/<min(Y), max(Z)/<min(Y)), max_integer), 	/* Z / Y *
+{ 	
+ start X in min2(min2(ite(min(Y)!=0, min2(min(Z)/<min(Y), max(Z)/<min(Y)), max_integer), 	/* Z / Y */
 		      ite(max(Y)!=0, min2(min(Z)/<max(Y), max(Z)/<max(Y)), max_integer) ),
-		 min2(ite(min(Y)<=1 && max(Y)>=1, min2(min(Z),max(Z)), max_integer),		/* Z or -Z *
+		 min2(ite(min(Y)<=1 && max(Y)>=1, min2(min(Z),max(Z)), max_integer),		/* Z or -Z */
 		      min2(ite(min(Y)<=-1 && max(Y)>=-1, min2(-min(Z),-max(Z)), max_integer),
-			   ite(min(Z)<=0 && max(Z)>=0, 0, max_integer))))			/* 0 *
+			   ite(min(Z)<=0 && max(Z)>=0, 0, max_integer))))			/* 0 */
 	.. 
 	    max2(max2(ite(min(Y)!=0, max2(min(Z)/<min(Y), max(Z)/<min(Y)), min_integer), 
 		      ite(max(Y)!=0, max2(min(Z)/<max(Y), max(Z)/<max(Y)), min_integer) ),
@@ -559,119 +582,7 @@ pl_xy_eq_z(fdv X, fdv Y, fdv Z)
 		 min2(mult_ab(max(X),min(Y)), mult_ab(max(X),max(Y)))) 
  	..  
 	    max2(max2(mult_ab(min(X),min(Y)), mult_ab(min(X),max(Y))), 
-		 max2(mult_ab(max(X),min(Y)), mult_ab(max(X),max(Y)))) */
-
-start X in ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)<=0, max(Z) /< min(Y),
-			ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)> 0, max(Z) /< max(Y),
-			ite(min(Y)<0 && max(Y)<0 && min(Z)> 0 && max(Z)> 0, max(Z) /< max(Y),
-			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
-			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, ite(min(Z) < -max(Z), min(Z),-max(Z)),
-			ite(min(Y)<0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, -max(Z),
-			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, min(Z) /< min(Y),
-			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, min(Z) /< min(Y),
-			ite(min(Y)>0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, min(Z) /< max(Y),
-			ite(min(Y)==0&& max(Y)==0                         , 0,
-			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)<=0, 0,
-			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)> 0, -max(Z),
-			ite(min(Y)<0 && max(Y)==0&& min(Z)> 0 && max(Z)> 0, -max(Z),
-			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
-			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)> 0, min(Z),
-			ite(min(Y)==0&& max(Y)>0 && min(Z)> 0 && max(Z)> 0, 0,
-			min_integer))))))))))))))))
-..
-			ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)<=0, min(Z) /< max(Y),
-			ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)> 0, min(Z) /< max(Y),
-			ite(min(Y)<0 && max(Y)<0 && min(Z)> 0 && max(Z)> 0, min(Z) /< min(Y),
-			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, -min(Z),
-			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, ite(-min(Z) > max(Z), -min(Z),max(Z)),
-			ite(min(Y)<0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
-			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, max(Z) /< max(Y),
-			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, max(Z) /< min(Y),
-			ite(min(Y)>0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, max(Z) /< min(Y),
-			ite(min(Y)==0&& max(Y)==0                         , 0,
-			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)<=0, -min(Z),
-			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)> 0, -min(Z),
-			ite(min(Y)<0 && max(Y)==0&& min(Z)> 0 && max(Z)> 0, 0,
-			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)<=0, 0,
-			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)> 0, max(Z),
-			ite(min(Y)==0&& max(Y)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
-			max_integer)))))))))))))))) 
-
-start Y in ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)<=0, max(Z) /< min(X),
-			ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)> 0, max(Z) /< max(X),
-			ite(min(X)<0 && max(X)<0 && min(Z)> 0 && max(Z)> 0, max(Z) /< max(X),
-			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
-			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, ite(min(Z) < -max(Z), min(Z),-max(Z)),
-			ite(min(X)<0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, -max(Z),
-			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, min(Z) /< min(X),
-			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, min(Z) /< min(X),
-			ite(min(X)>0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, min(Z) /< max(X),
-			ite(min(X)==0&& max(X)==0                         , 0,
-			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)<=0, 0,
-			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)> 0, -max(Z),
-			ite(min(X)<0 && max(X)==0&& min(Z)> 0 && max(Z)> 0, -max(Z),
-			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
-			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)> 0, min(Z),
-			ite(min(X)==0&& max(X)>0 && min(Z)> 0 && max(Z)> 0, 0,
-			min_integer))))))))))))))))
-..
-			ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)<=0, min(Z) /< max(X),
-			ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)> 0, min(Z) /< max(X),
-			ite(min(X)<0 && max(X)<0 && min(Z)> 0 && max(Z)> 0, min(Z) /< min(X),
-			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, -min(Z),
-			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, ite(-min(Z) > max(Z), -min(Z),max(Z)),
-			ite(min(X)<0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
-			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, max(Z) /< max(X),
-			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, max(Z) /< min(X),
-			ite(min(X)>0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, max(Z) /< min(X),
-			ite(min(X)==0&& max(X)==0                         , 0,
-			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)<=0, -min(Z),
-			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)> 0, -min(Z),
-			ite(min(X)<0 && max(X)==0&& min(Z)> 0 && max(Z)> 0, 0,
-			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)<=0, 0,
-			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)> 0, max(Z),
-			ite(min(X)==0&& max(X)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
-			max_integer))))))))))))))))
-
-			/*        A           B           C            D    */
- start Z in ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)<=0, ite( max_integer /< max(X) > max(Y), max_integer, max(X) * max(Y) ),
-			ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
-			ite(min(X)<0 && max(X)<0 && min(Y)> 0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
-			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
-			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, 
-ite( min_integer /< max(X) > min(Y), min_integer, ite( min(X)*max(Y) > max(X)*min(Y), max(X)*min(Y), min(X)*max(Y)))), /* AD->min,(BC->min,(BC>AD->AD,BC)) */
-			ite(min(X)<0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
-			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
-			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
-			ite(min(X)>0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< min(X) < min(Y), min_integer, min(X) * min(Y) ),
-			ite(min(X)==0&& max(X)==0                         , 0,
-			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
-			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
-			ite(min(X)==0&& max(X)>0 && min(Y)> 0 && max(Y)> 0, 0,
-			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)<=0, 0,
-			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
-			ite(min(X)<0 && max(X)==0&& min(Y)> 0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
-			min_integer))))))))))))))))  
-.. 
-			/*        A           B           C            D    */
-			ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)<=0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
-			ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
-			ite(min(X)<0 && max(X)<0 && min(Y)> 0 && max(Y)> 0, ite( min_integer /< max(X) < min(Y), min_integer, max(X) * min(Y) ),
-			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
-			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< min(X) > min(Y), max_integer, 
-ite( max_integer /< max(X) < max(Y), max_integer, ite( min(X)*min(Y) > max(X)*max(Y), min(X)*min(Y), max(X)*max(Y)))), /* AC->min,(BD->min,(AC>BD->AC,BD)) */
-			ite(min(X)<0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
-			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< min(X) > max(Y), min_integer, min(X) * max(Y) ),
-			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
-			ite(min(X)>0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
-			ite(min(X)==0&& max(X)==0                         , 0,
-			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)<=0, 0,
-			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
-			ite(min(X)==0&& max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
-			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)<=0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
-			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)> 0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
-			ite(min(X)<0 && max(X)==0&& min(Y)> 0 && max(Y)> 0, 0,
-			max_integer)))))))))))))))) 
+		 max2(mult_ab(max(X),min(Y)), mult_ab(max(X),max(Y))))
 }
 
 
