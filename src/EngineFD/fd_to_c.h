@@ -420,7 +420,7 @@
 
 
 #define fd_range_full(r)				\
-  Range_Init_Interval(&R(r), 0, INTERVAL_MAX_INTEGER);
+  Range_Init_Interval(&R(r), INTERVAL_MIN_INTEGER, INTERVAL_MAX_INTEGER);
 
 
 
@@ -612,6 +612,7 @@
  *---------------------------------*/
 
 #define max_integer                INTERVAL_MAX_INTEGER
+#define min_integer                INTERVAL_MIN_INTEGER
 
 
 

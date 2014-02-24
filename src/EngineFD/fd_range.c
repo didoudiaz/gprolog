@@ -1261,12 +1261,12 @@ Pl_Range_Compl(Range *range)
     {
       if (Is_Empty(range))
 	{
-	  range->min = 0;
+	  range->min = INTERVAL_MIN_INTEGER;
 	  range->max = INTERVAL_MAX_INTEGER;
 	  return;
 	}
 
-      if (range->min <= 0)
+      if (range->min <= INTERVAL_MIN_INTEGER)
 	{
 	  if (range->max >= INTERVAL_MAX_INTEGER)
 	    Set_To_Empty(range);
@@ -1282,7 +1282,7 @@ Pl_Range_Compl(Range *range)
       if (range->max >= INTERVAL_MAX_INTEGER)
 	{
 	  range->max = range->min - 1;
-	  range->min = 0;
+	  range->min = INTERVAL_MIN_INTEGER;
 
 	  return;
 	}

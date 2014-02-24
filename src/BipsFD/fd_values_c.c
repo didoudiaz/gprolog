@@ -230,8 +230,10 @@ Pl_Fd_Domain_Var_3(WamWord x_word, WamWord l_word, WamWord u_word)
   int min, max;
 
   min = Pl_Fd_Prolog_To_Value(l_word);
+#ifdef GP_FD_POSITIVE_ONLY
   if (min < 0)
     min = 0;
+#endif
   max = Pl_Fd_Prolog_To_Value(u_word);
 
   return Pl_Fd_Domain_Interval(x_word, min, max);  
@@ -253,8 +255,10 @@ Pl_Fd_Domain_3(WamWord list_word, WamWord l_word, WamWord u_word)
   int min, max;
 
   min = Pl_Fd_Prolog_To_Value(l_word);
+#ifdef GP_FD_POSITIVE_ONLY
   if (min < 0)
     min = 0;
+#endif
   max = Pl_Fd_Prolog_To_Value(u_word);
 
   DEREF(list_word, word, tag_mask);

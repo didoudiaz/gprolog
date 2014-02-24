@@ -199,3 +199,4 @@ keyword(foreach).
 keyword(do).
 keyword(in).
 keyword(max_integer).
+keyword(min_integer).

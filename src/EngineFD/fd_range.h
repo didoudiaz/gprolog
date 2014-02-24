@@ -67,6 +67,10 @@ Range;
  * Global Variables                *
  *---------------------------------*/
 
+#if 0
+#define GP_FD_POSITIVE_ONLY 					/* if set, use only positive integers (for backwards compatibility) */
+#endif
+
 #include "fd_hook_range.h"
 
 	  /* Default definitions (if not defined in fd_hook_range.h) */
@@ -280,7 +284,14 @@ char *Pl_Range_To_String(Range *range);
 #define Is_Not_Empty(range)        ((range)->max >= (range)->min)
 
 
-#define Set_To_Empty(range) (range)->max = (int)(1 << (sizeof(int) * 8 - 1))
+#define Set_To_Empty(range) 				\
+  do							\
+    {							\
+      (range)->min = 0;					\
+      (range)->max = 1;					\
+      (range)->vec = NULL;				\
+    }							\
+  while (0)
 
 
 #define Range_Init_Interval(range, r_min, r_max)	\

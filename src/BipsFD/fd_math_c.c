@@ -102,15 +102,19 @@ Pl_Fd_Eq_2(WamWord le_word, WamWord re_word)
       goto term_load;
 
     case MASK_LEFT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c > 0)
 	return FALSE;
+#endif
 
       PRIM_CSTR_2(pl_x_eq_c, l_word, Tag_INT(-c));
       goto term_load;
 
     case MASK_RIGHT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c < 0)
 	return FALSE;
+#endif
 
       PRIM_CSTR_2(pl_x_eq_c, r_word, Tag_INT(c));
       goto term_load;
@@ -162,21 +166,25 @@ Pl_Fd_Neq_2(WamWord le_word, WamWord re_word)
       goto term_load;
 
     case MASK_LEFT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c > 0)
 	{
 	  Pl_Fd_Prolog_To_Fd_Var(l_word, TRUE);
 	  goto term_load;
 	}
+#endif
 
       PRIM_CSTR_2(pl_x_neq_c, l_word, Tag_INT(-c));
       goto term_load;
 
     case MASK_RIGHT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c < 0)
 	{
 	  Pl_Fd_Prolog_To_Fd_Var(r_word, TRUE);
 	  goto term_load;
 	}
+#endif
 
       PRIM_CSTR_2(pl_x_neq_c, r_word, Tag_INT(c));
       goto term_load;
@@ -231,18 +239,22 @@ Pl_Fd_Lt_2(WamWord le_word, WamWord re_word)
       goto term_load;
 
     case MASK_LEFT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c >= 0)
 	return FALSE;
+#endif
 
       PRIM_CSTR_2(pl_x_lte_c, l_word, Tag_INT(-c - 1));
       goto term_load;
 
     case MASK_RIGHT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c < 0)
 	{
 	  Pl_Fd_Prolog_To_Fd_Var(r_word, TRUE);
 	  goto term_load;
 	}
+#endif
 
       PRIM_CSTR_2(pl_x_gte_c, r_word, Tag_INT(c + 1));
       goto term_load;
@@ -297,18 +309,22 @@ Pl_Fd_Lte_2(WamWord le_word, WamWord re_word)
       goto term_load;
 
     case MASK_LEFT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c > 0)
 	return FALSE;
+#endif
 
       PRIM_CSTR_2(pl_x_lte_c, l_word, Tag_INT(-c));
       goto term_load;
 
     case MASK_RIGHT:
+#ifdef GP_FD_POSITIVE_ONLY 
       if (c <= 0)
 	{
 	  Pl_Fd_Prolog_To_Fd_Var(r_word, TRUE);
 	  goto term_load;
 	}
+#endif
 
       PRIM_CSTR_2(pl_x_gte_c, r_word, Tag_INT(c));
       goto term_load;

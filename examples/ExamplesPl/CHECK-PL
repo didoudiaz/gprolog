@@ -1,0 +1,46 @@
+#!/bin/sh
+
+OTHER_DIR=${1:-~/gprolog-ok/examples/ExamplesPl}
+THIS_DIR=${1:-~/Stage/gprolog-code/examples/ExamplesPl}
+
+
+check () {
+    cmd=$1
+    shift
+    rm -f ~/tmp/check.data
+    touch ~/tmp/check.data
+    d=''
+    while [ $# -ge 1 ]; do
+	d="$d $1"
+	echo $1 >> ~/tmp/check.data
+	shift
+    done
+    printf '*** checking %-15s on %-6s' "$cmd" "$d"
+    cat ~/tmp/check.data | $THIS_DIR/$cmd  >~/tmp/check.1
+    cat ~/tmp/check.data | $OTHER_DIR/$cmd >~/tmp/check.2
+    fgrep -v time ~/tmp/check.1 >~/tmp/check.1a
+    fgrep -v time ~/tmp/check.2 >~/tmp/check.2a
+    t1=`sed -n -e 's/.*total time[^a-z_0-9]*\([0-9][0-9]*\).*/\1/p' ~/tmp/check.1`
+    t2=`sed -n -e 's/.*total time[^a-z_0-9]*\([0-9][0-9]*\).*/\1/p' ~/tmp/check.2`
+    diff ~/tmp/check.1a ~/tmp/check.2a
+    printf '   time: %5d  %5d\n' $t1 $t2
+}
+
+n=50
+check "boyer $n"
+check "browse $n"
+check "cal $n"
+check "chat_parser $n"
+check "crypt $n"
+check "ham $n"
+check "meta_qsort $n"
+check "nand $n"
+check "nrev $n"
+check "poly_10 $n"
+check "queens $n"
+check "queensn $n"
+check "reducer $n"
+#check "sdda $n"
+check "sendmore $n"
+check "tak $n"
+check "zebra $n"

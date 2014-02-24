@@ -39,6 +39,21 @@
 %{
 #include "bips_fd.h"
 #define ite(i, t, e)  ((i) ? (t) : (e))
+#define min2(a,b) ((a<b) ? (a) : (b))
+#define max2(a,b) ((a>b) ? (a) : (b))
+#define add_ab(a,b) 	(ite(a==0, b, ite(b==0, a, \
+			 ite(a<0 && b<0, ite(min_integer + a < b, a+b, min_integer), \
+			 ite(a>0 && b>0, ite(max_integer - a > b, a+b, max_integer),a+b)))))
+#define mult_ab(a,b)  	(ite(a==0 || b==0 , 0, \
+			 ite(a<0 && b<0, ite(max_integer / -a > -b, a*b, max_integer), \
+			 ite(a<0 && b>0, ite(max_integer / b > -a, a*b, min_integer), 	/* it doesn't like division with two negative numbers */ \
+			 ite(a>0 && b<0, ite(max_integer / a > -b, a*b, min_integer), \
+			 ite(a>0 && b>0, ite(max_integer / a > b, a*b, max_integer), 0))))))
+#define is_even(a)		(2*(a/2)==a)
+#define is_odd(a)		(2*(a/2)!=a)
+#define max_exponent(a)	(ite(a>0, Pl_Find_Expon_Dn(a,max_integer), Pl_Find_Expon_Dn(-a,max_integer)))
+#define max_exp_base(a)	(Pl_Nth_Root_Dn(max_integer, a))
+#define closest_to_zero(a,b) (ite(a<=0 && b>=0, 0, ite(b<0, b, a)))
 %}
 
 
@@ -70,8 +85,8 @@ pl_x_eq_y(fdv X, fdv Y)
 pl_x_plus_c_eq_y(fdv X, int C, fdv Y)
 
 {
- start X in min(Y) - C .. max(Y) - C
- start Y in min(X) + C .. max(X) + C
+ start X in add_ab(min(Y), -C) .. add_ab(max(Y), -C)
+ start Y in add_ab(min(X), C) .. add_ab(max(X), C)
 }
 
 
@@ -154,7 +169,7 @@ pl_x_plus_c_neq_y(fdv X, int C, fdv Y)
 pl_x_lt_y(fdv X, fdv Y)
 
 {
- start X in 0 .. max(Y) - 1
+ start X in min_integer .. max(Y) - 1
  start Y in min(X) + 1 .. max_integer
 }
 
@@ -175,7 +190,7 @@ pl_x_lt_y(fdv X, fdv Y)
 pl_x_lte_c(fdv X, int C)
 
 {
- start X in 0 .. C
+ start X in min_integer .. C
 }
 
 
@@ -184,7 +199,7 @@ pl_x_lte_c(fdv X, int C)
 pl_x_lte_y(fdv X, fdv Y)
 
 {
- start X in 0 .. max(Y)
+ start X in min_integer .. max(Y)
  start Y in min(X) .. max_integer
 }
 
@@ -194,8 +209,8 @@ pl_x_lte_y(fdv X, fdv Y)
 pl_x_plus_c_lte_y(fdv X, int C, fdv Y)
 
 {
- start X in 0 .. max(Y) - C
- start Y in min(X) + C .. max_integer
+ start X in min_integer .. add_ab(max(Y), -C)
+ start Y in add_ab(min(X), C) .. max_integer
 }
 
 
@@ -224,8 +239,8 @@ pl_x_gte_c(fdv X, int C)
 pl_x_plus_c_gte_y(fdv X, int C, fdv Y)
 
 {
- start X in min(Y) - C .. max_integer
- start Y in 0 .. max(X) + C
+ start X in add_ab(min(Y), -C) .. max_integer
+ start Y in min_integer .. add_ab(max(X), C)
 }
 
 
@@ -246,8 +261,11 @@ pl_x_plus_c_gte_y(fdv X, int C, fdv Y)
 pl_ax_eq_y(int A, fdv X, fdv Y)
 
 {
- start X in (min(Y)) /> A .. (max(Y)) /< A
- start Y in A*min(X) .. A*max(X)
+ start X in ite(A!=0, min2(min(Y)/<A, max(Y)/<A), min_integer) .. 
+	    ite(A!=0, max2(min(Y)/<A, max(Y)/<A), max_integer)
+ 
+ start Y in min2(mult_ab(A,min(X)),mult_ab(A,max(X))) .. 
+	    max2(mult_ab(A,min(X)),mult_ab(A,max(X)))
 }
 
 
@@ -256,9 +274,9 @@ pl_ax_eq_y(int A, fdv X, fdv Y)
 pl_x_plus_y_eq_z(fdv X, fdv Y, fdv Z)
 
 {
- start X in min(Z) - max(Y) .. max(Z) - min(Y)
- start Y in min(Z) - max(X) .. max(Z) - min(X)
- start Z in min(X) + min(Y) .. max(X) + max(Y)
+ start X in add_ab(min(Z), -max(Y)) .. add_ab(max(Z), -min(Y))
+ start Y in add_ab(min(Z), -max(X)) .. add_ab(max(Z), -min(X))
+ start Z in add_ab(min(X),  min(Y)) .. add_ab(max(X),  max(Y))
 }
 
 
@@ -267,9 +285,12 @@ pl_x_plus_y_eq_z(fdv X, fdv Y, fdv Z)
 pl_ax_plus_y_eq_z(int A, fdv X, fdv Y, fdv Z)
 
 {
- start X in (min(Z) - max(Y)) /> A .. (max(Z) - min(Y)) /< A
- start Y in min(Z) - A*max(X) .. max(Z) - A*min(X)
- start Z in A*min(X) + min(Y) .. A*max(X) + max(Y)
+ start X in ite(A!=0, min2((add_ab(min(Z),-max(Y))) /< A,(add_ab(max(Z),-min(Y))) /< A), min_integer) ..
+	    ite(A!=0, max2((add_ab(min(Z),-max(Y))) /< A,(add_ab(max(Z),-min(Y))) /< A), max_integer)
+ start Y in add_ab(min(Z), - max2(mult_ab(min(X),A), mult_ab(max(X),A)))  .. 
+	    add_ab(max(Z), - min2(mult_ab(min(X),A), mult_ab(max(X),A)))
+ start Z in add_ab(min(Y), min2(mult_ab(min(X),A), mult_ab(max(X),A))) .. 
+	    add_ab(max(Y), max2(mult_ab(min(X),A), mult_ab(max(X),A)))
 }
 
 
@@ -278,9 +299,16 @@ pl_ax_plus_y_eq_z(int A, fdv X, fdv Y, fdv Z)
 pl_ax_plus_by_eq_z(int A, fdv X, int B, fdv Y, fdv Z)
 
 {
- start X in (min(Z) - B*max(Y)) /> A .. (max(Z) - B*min(Y)) /< A
- start Y in (min(Z) - A*max(X)) /> B .. (max(Z) - A*min(X)) /< B
- start Z in A*min(X) + B*min(Y) .. A*max(X) + B*max(Y)
+ start X in ite(A!=0, min2(min2((add_ab(min(Z),-mult_ab(B,min(Y)))) /<A,(add_ab(min(Z),-mult_ab(B,max(Y)))) /<A), 
+		      min2((add_ab(max(Z),-mult_ab(B,min(Y)))) /<A,(add_ab(max(Z),-mult_ab(B,max(Y)))) /<A)), min_integer) .. 
+	    ite(A!=0, max2(max2((add_ab(min(Z),-mult_ab(B,min(Y)))) /<A,(add_ab(min(Z),-mult_ab(B,max(Y)))) /<A), 
+		      max2((add_ab(max(Z),-mult_ab(B,min(Y)))) /<A,(add_ab(max(Z),-mult_ab(B,max(Y)))) /<A)), max_integer)
+ start Y in ite(B!=0, min2(min2((add_ab(min(Z),-mult_ab(A,min(X)))) /<B,(add_ab(min(Z),-mult_ab(A,max(X)))) /<B), 
+		      min2((add_ab(max(Z),-mult_ab(A,min(X)))) /<B,(add_ab(max(Z),-mult_ab(A,max(X)))) /<B)), min_integer) .. 
+	    ite(B!=0, max2(max2((add_ab(min(Z),-mult_ab(A,min(X)))) /<B,(add_ab(min(Z),-mult_ab(A,max(X)))) /<B), 
+		      max2((add_ab(max(Z),-mult_ab(A,min(X)))) /<B,(add_ab(max(Z),-mult_ab(A,max(X)))) /<B)), max_integer)
+ start Z in add_ab(min2(mult_ab(min(X),A),mult_ab(max(X),A)) , min2(mult_ab(min(Y),B),mult_ab(max(Y),B))) ..
+	    add_ab(max2(mult_ab(min(X),A),mult_ab(max(X),A)) , max2(mult_ab(min(Y),B),mult_ab(max(Y),B)))
 }
 
 
@@ -289,23 +317,26 @@ pl_ax_plus_by_eq_z(int A, fdv X, int B, fdv Y, fdv Z)
 pl_x_plus_y_plus_z_eq_t(fdv X, fdv Y, fdv Z, fdv T)
 
 {
- start X in min(T) - max(Y) - max(Z) .. max(T) - min(Y) - min(Z)
- start Y in min(T) - max(X) - max(Z) .. max(T) - min(X) - min(Z)
- start Z in min(T) - max(X) - max(Y) .. max(T) - min(X) - min(Y)
- start T in min(X) + min(Y) + min(Z) .. max(X) + max(Y) + max(Z)
+ start X in add_ab(min(T), - add_ab(max(Y), max(Z))) .. add_ab(max(T), - add_ab(min(Y), min(Z)))
+ start Y in add_ab(min(T), - add_ab(max(X), max(Z))) .. add_ab(max(T), - add_ab(min(X), min(Z)))
+ start Z in add_ab(min(T), - add_ab(max(X), max(Y))) .. add_ab(max(T), - add_ab(min(X), min(Y)))
+ start T in add_ab(min(X), add_ab(min(Y), min(Z))) .. add_ab(max(X), add_ab(max(Y), max(Z)))
 }
-
-
 
 
 pl_ax_plus_y_plus_z_eq_t(int A, fdv X, fdv Y, fdv Z, fdv T)
 
 {
- start X in (min(T) - max(Y) - max(Z)) /> A ..
-            (max(T) - min(Y) - min(Z)) /< A
- start Y in min(T) - A*max(X) - max(Z) .. max(T) - A*min(X) - min(Z)
- start Z in min(T) - A*max(X) - max(Y) .. max(T) - A*min(X) - min(Y)
- start T in A*min(X) + min(Y) + min(Z) .. A*max(X) + max(Y) + max(Z)
+ start X in ite(A!=0, min2((add_ab(min(T),-add_ab(max(Y),max(Z)))) /< A,(add_ab(max(T),-add_ab(min(Y),min(Z)))) /< A), min_integer) ..
+	    ite(A!=0, max2((add_ab(min(T),-add_ab(max(Y),max(Z)))) /< A,(add_ab(max(T),-add_ab(min(Y),min(Z)))) /< A), max_integer)
+
+ start Y in add_ab(min(T), - add_ab(max(Z), max2(mult_ab(min(X),A),mult_ab(max(X),A)))) ..
+	    add_ab(max(T), - add_ab(min(Z), min2(mult_ab(min(X),A),mult_ab(max(X),A))))
+ start Z in add_ab(min(T), - add_ab(max(Y), max2(mult_ab(min(X),A),mult_ab(max(X),A)))) ..
+	    add_ab(max(T), - add_ab(min(Y), min2(mult_ab(min(X),A),mult_ab(max(X),A))))
+
+ start T in add_ab(min(Y), add_ab(min(Z), min2(mult_ab(min(X),A), mult_ab(max(X),A)))) .. 
+	    add_ab(max(Y), add_ab(max(Z), max2(mult_ab(min(X),A), mult_ab(max(X),A))))
 }
 
 
@@ -314,12 +345,20 @@ pl_ax_plus_y_plus_z_eq_t(int A, fdv X, fdv Y, fdv Z, fdv T)
 pl_ax_plus_by_plus_z_eq_t(int A, fdv X, int B, fdv Y, fdv Z, fdv T)
 
 {
- start X in (min(T) - B*max(Y) - max(Z)) /> A ..
-            (max(T) - B*min(Y) - min(Z)) /< A
- start Y in (min(T) - A*max(X) - max(Z)) /> B ..
-            (max(T) - A*min(X) - min(Z)) /< B
- start Z in min(T) - A*max(X) - B*max(Y) .. max(T) - A*min(X) - B*min(Y)
- start T in A*min(X) + B*min(Y) + min(Z) .. A*max(X) + B*max(Y) + max(Z)
+ start X in ite(A!=0, min2(min2((add_ab(add_ab(min(T),-max(Z)),-mult_ab(B,min(Y)))) /<A,(add_ab(add_ab(min(T),-max(Z)),-mult_ab(B,max(Y)))) /<A), 
+		      min2((add_ab(add_ab(max(T),-min(Z)),-mult_ab(B,min(Y)))) /<A,(add_ab(add_ab(max(T),-min(Z)),-mult_ab(B,max(Y)))) /<A)), min_integer) .. 
+	    ite(A!=0, max2(max2((add_ab(add_ab(min(T),-max(Z)),-mult_ab(B,min(Y)))) /<A,(add_ab(add_ab(min(T),-max(Z)),-mult_ab(B,max(Y)))) /<A), 
+		      max2((add_ab(add_ab(max(T),-min(Z)),-mult_ab(B,min(Y)))) /<A,(add_ab(add_ab(max(T),-min(Z)),-mult_ab(B,max(Y)))) /<A)), max_integer)
+ start Y in ite(B!=0, min2(min2((add_ab(add_ab(min(T),-max(Z)),-mult_ab(A,min(X)))) /<B,(add_ab(add_ab(min(T),-max(Z)),-mult_ab(A,max(X)))) /<B), 
+		      min2((add_ab(add_ab(max(T),-min(Z)),-mult_ab(A,min(X)))) /<B,(add_ab(add_ab(max(T),-min(Z)),-mult_ab(A,max(X)))) /<B)), min_integer) .. 
+	    ite(B!=0, max2(max2((add_ab(add_ab(min(T),-max(Z)),-mult_ab(A,min(X)))) /<B,(add_ab(add_ab(min(T),-max(Z)),-mult_ab(A,max(X)))) /<B), 
+		      max2((add_ab(add_ab(max(T),-min(Z)),-mult_ab(A,min(X)))) /<B,(add_ab(add_ab(max(T),-min(Z)),-mult_ab(A,max(X)))) /<B)), max_integer)
+
+ start Z in add_ab(min(T), - add_ab(max2(mult_ab(min(X),A),mult_ab(max(X),A)) , max2(mult_ab(min(Y),B),mult_ab(max(Y),B)))) ..
+	    add_ab(max(T), - add_ab(min2(mult_ab(min(X),A),mult_ab(max(X),A)) , min2(mult_ab(min(Y),B),mult_ab(max(Y),B)))) 
+
+ start T in add_ab(min(Z), add_ab(min2(mult_ab(min(X),A),mult_ab(max(X),A)) , min2(mult_ab(min(Y),B),mult_ab(max(Y),B)))) ..
+	    add_ab(max(Z), add_ab(max2(mult_ab(min(X),A),mult_ab(max(X),A)) , max2(mult_ab(min(Y),B),mult_ab(max(Y),B))))
 }
 
 
@@ -417,56 +456,222 @@ pl_ax_plus_by_plus_z_eq_t_F(int A, fdv X, int B, fdv Y, fdv Z, fdv T)
 	 * Partial AC *
 	 *------------*/
 
+/* Note: for powers, the exponent (N) should be positive (otherwise we'll likely end up with fractions) */
 
-pl_zero_power_n_eq_y(fdv N, fdv Y)
+pl_zero_power_n_eq_y(fdv N, fdv Y) 						/* N >= 0 */
 
 {
- start Y in ite(max(N)==0, 1, 0)..ite(min(N)==0, 1, 0)
- start N in ite(max(Y)==0, 1, 0)..ite(min(Y)==0, max_integer, 0)
+ start Y in ite(max(N)==0 && min(N)==0, 1, 0)..ite(min(N)<=0 && max(N)>=0, 1, 0)
+ start N in ite(max(Y)==0, 1, 0)..ite(min(Y)==0, max_integer, 0) /* Two correct ranges ([-Inf..-1],[1..Inf]), positive range is chosen */
 }
 
 
 
 
 
-pl_a_power_n_eq_y(int A, fdv N, fdv Y)                           /* here A >= 2 */
+pl_a_power_n_eq_y(int A, fdv N, fdv Y)                           /* N >= 0 */
 
-{
- start Y in Pl_Power(A, min(N))..Pl_Power(A, max(N))      /* before to ensure Y >= 1 */
- start N in Pl_Find_Expon_Up(A, min(Y))..Pl_Find_Expon_Dn(A, max(Y))
+{ 
+ start Y in min2(Pl_Power(A, max2(0,min(N))), min2(Pl_Power(A, min2(max_exponent(A), max(N))), 
+	         ite(max(N)==min(N), max_integer, Pl_Power(A, max2(min2(max_exponent(A), max(N))-1,0))))) .. /* Also takes care of negative powers with N-1 */
+	    max2(Pl_Power(A, max2(0,min(N))), max2(Pl_Power(A, min2(max_exponent(A), max(N))), 
+		 ite(max(N)==min(N), min_integer, Pl_Power(A, max2(min2(max_exponent(A), max(N))-1,0)))))
+
+ start N in ite(A<0 && min(Y)<0 && max(Y)==min(Y), Pl_Find_Expon_Up(-A, -min(Y)),
+	    ite(A<0 && min(Y)>0 && max(Y)==min(Y), Pl_Find_Expon_Up(-A, min(Y)),
+	    ite(A<0 && min(Y)<0 && max(Y)>0, 0,
+	    ite(A>0 && min(Y)>0 && max(Y)>0, Pl_Find_Expon_Up(A, min(Y)), max_integer)))) /* max_int for wrong cases */
+	.. 
+	    ite(A<0 && min(Y)<0 && max(Y)==min(Y), Pl_Find_Expon_Dn(-A, -min(Y)),
+	    ite(A<0 && min(Y)>0 && max(Y)==min(Y), Pl_Find_Expon_Dn(-A, min(Y)),
+	    ite(A<0 && min(Y)<0 && max(Y)>0, ite(Pl_Find_Expon_Dn(-A, -min(Y)) != Pl_Find_Expon_Dn(-A, max(Y)), 
+		min2(Pl_Find_Expon_Dn(-A, -min(Y)), Pl_Find_Expon_Dn(-A, max(Y)))+1, Pl_Find_Expon_Dn(-A, -min(Y))), /* min(Y) and max(Y) should differ by 1 exponent */
+	    ite(A>0 && min(Y)>0 && max(Y)>0, Pl_Find_Expon_Dn(A, max(Y)), min_integer))))  /* min_int for wrong cases */
 }
-
 
 
 
 pl_x_power_a_eq_y(fdv X, int A, fdv Y)                            /* here A > 2 */
 
 {
- start Y in Pl_Power(min(X), A)..Pl_Power(max(X), A)
- start X in Pl_Nth_Root_Up(min(Y), A)..Pl_Nth_Root_Dn(max(Y), A)
+ start Y in ite(min(X)<0 && is_odd(A), -Pl_Power(min2(-min(X),max_exp_base(A)),A), 
+		Pl_Power(closest_to_zero(min(X),max(X)),A)) 
+	..
+	    ite(min(X) < -max_exp_base(A) && is_even(A), Pl_Power(max_exp_base(A),A),
+	    ite(max(X) > max_exp_base(A), Pl_Power(max_exp_base(A),A), max2(Pl_Power(max(X),A),Pl_Power(min(X),A))))
+
+
+ start X in ite(A<0, max_integer, 
+	    ite(is_odd(A) && min(Y)<0, - Pl_Nth_Root_Dn(-min(Y), A),
+	    ite(is_even(A) && min(Y)>=0, - Pl_Nth_Root_Dn(max(Y), A),
+	    ite(is_odd(A) && min(Y)>0, Pl_Nth_Root_Dn(min(Y), A),
+	    ite(min(Y)==0, 0, max_integer)))))
+	..
+	    ite(A<0, min_integer, 
+	    ite(is_odd(A) && max(Y)<0, Pl_Nth_Root_Dn(-max(Y), A),
+	    ite(max(Y)>0, Pl_Nth_Root_Dn(max(Y), A),
+	    ite(max(Y)==0, 0, min_integer))))
 }
 
 
 
 
-pl_x2_eq_y(fdv X, fdv Y)
+pl_x2_eq_y(fdv X, fdv Y)	/* Y >= 0 */
 
 {
- start X in Pl_Sqrt_Up(min(Y))..Pl_Sqrt_Dn(max(Y))
- start Y in min(X)*min(X)..max(X)*max(X)
+ start X in ite(max(Y)>=0,- Pl_Sqrt_Dn(max(Y)),max_integer) .. ite(max(Y)>=0,Pl_Sqrt_Dn(max(Y)), min_integer)
+ start Y in mult_ab(closest_to_zero(min(X),max(X)), closest_to_zero(min(X),max(X))) ..
+			max2(mult_ab(max(X),max(X)) , mult_ab(min(X),min(X)))
 }
 
 
-
+/*  TODO: currently busy rewriting to make the code shorter and more efficient */
 
 pl_xy_eq_z(fdv X, fdv Y, fdv Z)
 
-{
- start X in ite(max(Y)==0, 0, min(Z) /> max(Y)) ..
-            ite(min(Y)==0, max_integer, max(Z) /< min(Y))
- start Y in ite(max(X)==0, 0, min(Z) /> max(X)) ..
-            ite(min(X)==0, max_integer, max(Z) /< min(X))
- start Z in min(X)*min(Y)..max(X)*max(Y)
+{ 		/*
+ start X in min2(min2(ite(min(Y)!=0, min2(min(Z)/<min(Y), max(Z)/<min(Y)), max_integer), 	/* Z / Y *
+		      ite(max(Y)!=0, min2(min(Z)/<max(Y), max(Z)/<max(Y)), max_integer) ),
+		 min2(ite(min(Y)<=1 && max(Y)>=1, min2(min(Z),max(Z)), max_integer),		/* Z or -Z *
+		      min2(ite(min(Y)<=-1 && max(Y)>=-1, min2(-min(Z),-max(Z)), max_integer),
+			   ite(min(Z)<=0 && max(Z)>=0, 0, max_integer))))			/* 0 *
+	.. 
+	    max2(max2(ite(min(Y)!=0, max2(min(Z)/<min(Y), max(Z)/<min(Y)), min_integer), 
+		      ite(max(Y)!=0, max2(min(Z)/<max(Y), max(Z)/<max(Y)), min_integer) ),
+		 max2(ite(min(Y)<=1 && max(Y)>=1, max2(min(Z),max(Z)), min_integer),
+		      max2(ite(min(Y)<=-1 && max(Y)>=-1, max2(-min(Z),-max(Z)), min_integer),
+			   ite(min(Z)<=0 && max(Z)>=0, 0, min_integer))))
+
+
+ start Y in min2(min2(ite(min(X)!=0, min2(min(Z)/<min(X), max(Z)/<min(X)), max_integer),
+		      ite(max(X)!=0, min2(min(Z)/<max(X), max(Z)/<max(X)), max_integer) ),
+		 min2(ite(min(X)<=1 && max(X)>=1, min2(min(Z),max(Z)), max_integer),
+		      min2(ite(min(X)<=-1 && max(X)>=-1, min2(-min(Z),-max(Z)), max_integer),
+			   ite(min(Z)<=0 && max(Z)>=0, 0, max_integer))))
+	.. 
+	    max2(max2(ite(min(X)!=0, max2(min(Z)/<min(X), max(Z)/<min(X)), min_integer), 
+		      ite(max(X)!=0, max2(min(Z)/<max(X), max(Z)/<max(X)), min_integer) ),
+		 max2(ite(min(X)<=1 && max(X)>=1, max2(min(Z),max(Z)), min_integer),
+		      max2(ite(min(X)<=-1 && max(X)>=-1, max2(-min(Z),-max(Z)), min_integer),
+			   ite(min(Z)<=0 && max(Z)>=0, 0, min_integer))))
+
+ start Z in min2(min2(mult_ab(min(X),min(Y)), mult_ab(min(X),max(Y))), 
+		 min2(mult_ab(max(X),min(Y)), mult_ab(max(X),max(Y)))) 
+ 	..  
+	    max2(max2(mult_ab(min(X),min(Y)), mult_ab(min(X),max(Y))), 
+		 max2(mult_ab(max(X),min(Y)), mult_ab(max(X),max(Y)))) */
+
+start X in ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)<=0, max(Z) /< min(Y),
+			ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)> 0, max(Z) /< max(Y),
+			ite(min(Y)<0 && max(Y)<0 && min(Z)> 0 && max(Z)> 0, max(Z) /< max(Y),
+			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
+			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, ite(min(Z) < -max(Z), min(Z),-max(Z)),
+			ite(min(Y)<0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, -max(Z),
+			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, min(Z) /< min(Y),
+			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, min(Z) /< min(Y),
+			ite(min(Y)>0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, min(Z) /< max(Y),
+			ite(min(Y)==0&& max(Y)==0                         , 0,
+			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)<=0, 0,
+			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)> 0, -max(Z),
+			ite(min(Y)<0 && max(Y)==0&& min(Z)> 0 && max(Z)> 0, -max(Z),
+			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
+			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)> 0, min(Z),
+			ite(min(Y)==0&& max(Y)>0 && min(Z)> 0 && max(Z)> 0, 0,
+			min_integer))))))))))))))))
+..
+			ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)<=0, min(Z) /< max(Y),
+			ite(min(Y)<0 && max(Y)<0 && min(Z)<=0 && max(Z)> 0, min(Z) /< max(Y),
+			ite(min(Y)<0 && max(Y)<0 && min(Z)> 0 && max(Z)> 0, min(Z) /< min(Y),
+			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, -min(Z),
+			ite(min(Y)<0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, ite(-min(Z) > max(Z), -min(Z),max(Z)),
+			ite(min(Y)<0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
+			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)<=0, max(Z) /< max(Y),
+			ite(min(Y)>0 && max(Y)>0 && min(Z)<=0 && max(Z)> 0, max(Z) /< min(Y),
+			ite(min(Y)>0 && max(Y)>0 && min(Z)> 0 && max(Z)> 0, max(Z) /< min(Y),
+			ite(min(Y)==0&& max(Y)==0                         , 0,
+			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)<=0, -min(Z),
+			ite(min(Y)<0 && max(Y)==0&& min(Z)<=0 && max(Z)> 0, -min(Z),
+			ite(min(Y)<0 && max(Y)==0&& min(Z)> 0 && max(Z)> 0, 0,
+			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)<=0, 0,
+			ite(min(Y)==0&& max(Y)>0 && min(Z)<=0 && max(Z)> 0, max(Z),
+			ite(min(Y)==0&& max(Y)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
+			max_integer)))))))))))))))) 
+
+start Y in ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)<=0, max(Z) /< min(X),
+			ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)> 0, max(Z) /< max(X),
+			ite(min(X)<0 && max(X)<0 && min(Z)> 0 && max(Z)> 0, max(Z) /< max(X),
+			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
+			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, ite(min(Z) < -max(Z), min(Z),-max(Z)),
+			ite(min(X)<0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, -max(Z),
+			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, min(Z) /< min(X),
+			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, min(Z) /< min(X),
+			ite(min(X)>0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, min(Z) /< max(X),
+			ite(min(X)==0&& max(X)==0                         , 0,
+			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)<=0, 0,
+			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)> 0, -max(Z),
+			ite(min(X)<0 && max(X)==0&& min(Z)> 0 && max(Z)> 0, -max(Z),
+			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)<=0, min(Z),
+			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)> 0, min(Z),
+			ite(min(X)==0&& max(X)>0 && min(Z)> 0 && max(Z)> 0, 0,
+			min_integer))))))))))))))))
+..
+			ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)<=0, min(Z) /< max(X),
+			ite(min(X)<0 && max(X)<0 && min(Z)<=0 && max(Z)> 0, min(Z) /< max(X),
+			ite(min(X)<0 && max(X)<0 && min(Z)> 0 && max(Z)> 0, min(Z) /< min(X),
+			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, -min(Z),
+			ite(min(X)<0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, ite(-min(Z) > max(Z), -min(Z),max(Z)),
+			ite(min(X)<0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
+			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)<=0, max(Z) /< max(X),
+			ite(min(X)>0 && max(X)>0 && min(Z)<=0 && max(Z)> 0, max(Z) /< min(X),
+			ite(min(X)>0 && max(X)>0 && min(Z)> 0 && max(Z)> 0, max(Z) /< min(X),
+			ite(min(X)==0&& max(X)==0                         , 0,
+			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)<=0, -min(Z),
+			ite(min(X)<0 && max(X)==0&& min(Z)<=0 && max(Z)> 0, -min(Z),
+			ite(min(X)<0 && max(X)==0&& min(Z)> 0 && max(Z)> 0, 0,
+			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)<=0, 0,
+			ite(min(X)==0&& max(X)>0 && min(Z)<=0 && max(Z)> 0, max(Z),
+			ite(min(X)==0&& max(X)>0 && min(Z)> 0 && max(Z)> 0, max(Z),
+			max_integer))))))))))))))))
+
+			/*        A           B           C            D    */
+ start Z in ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)<=0, ite( max_integer /< max(X) > max(Y), max_integer, max(X) * max(Y) ),
+			ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
+			ite(min(X)<0 && max(X)<0 && min(Y)> 0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
+			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
+			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, 
+ite( min_integer /< max(X) > min(Y), min_integer, ite( min(X)*max(Y) > max(X)*min(Y), max(X)*min(Y), min(X)*max(Y)))), /* AD->min,(BC->min,(BC>AD->AD,BC)) */
+			ite(min(X)<0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
+			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
+			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
+			ite(min(X)>0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< min(X) < min(Y), min_integer, min(X) * min(Y) ),
+			ite(min(X)==0&& max(X)==0                         , 0,
+			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
+			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( min_integer /< max(X) > min(Y), min_integer, max(X) * min(Y) ),
+			ite(min(X)==0&& max(X)>0 && min(Y)> 0 && max(Y)> 0, 0,
+			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)<=0, 0,
+			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
+			ite(min(X)<0 && max(X)==0&& min(Y)> 0 && max(Y)> 0, ite( min_integer /< min(X) < max(Y), min_integer, min(X) * max(Y) ),
+			min_integer))))))))))))))))  
+.. 
+			/*        A           B           C            D    */
+			ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)<=0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
+			ite(min(X)<0 && max(X)<0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
+			ite(min(X)<0 && max(X)<0 && min(Y)> 0 && max(Y)> 0, ite( min_integer /< max(X) < min(Y), min_integer, max(X) * min(Y) ),
+			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
+			ite(min(X)<0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< min(X) > min(Y), max_integer, 
+ite( max_integer /< max(X) < max(Y), max_integer, ite( min(X)*min(Y) > max(X)*max(Y), min(X)*min(Y), max(X)*max(Y)))), /* AC->min,(BD->min,(AC>BD->AC,BD)) */
+			ite(min(X)<0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
+			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)<=0, ite( min_integer /< min(X) > max(Y), min_integer, min(X) * max(Y) ),
+			ite(min(X)>0 && max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
+			ite(min(X)>0 && max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
+			ite(min(X)==0&& max(X)==0                         , 0,
+			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)<=0, 0,
+			ite(min(X)==0&& max(X)>0 && min(Y)<=0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
+			ite(min(X)==0&& max(X)>0 && min(Y)> 0 && max(Y)> 0, ite( max_integer /< max(X) < max(Y), max_integer, max(X) * max(Y) ),
+			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)<=0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
+			ite(min(X)<0 && max(X)==0&& min(Y)<=0 && max(Y)> 0, ite( max_integer /< min(X) > min(Y), max_integer, min(X) * min(Y) ),
+			ite(min(X)<0 && max(X)==0&& min(Y)> 0 && max(Y)> 0, 0,
+			max_integer)))))))))))))))) 
 }
 
 
@@ -546,10 +751,10 @@ pl_min_x_y_eq_z(fdv X, fdv Y, fdv Z)
 {
  start (c1) Z in math_min(min(X), min(Y)) .. max_integer /* Z >= min(X, Y) */
 
- start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c2) Z in min_integer .. max(X)                                /* Z <= X */
  start (c3) X in min(Z) .. max_integer
 
- start (c4) Z in 0      .. max(Y)                                /* Z <= Y */
+ start (c4) Z in min_integer .. max(Y)                                /* Z <= Y */
  start (c5) Y in min(Z) .. max_integer
 
 
@@ -581,10 +786,10 @@ pl_min_x_a_eq_z(fdv X, int A, fdv Z)
 {
  start (c1) Z in math_min(min(X), A) .. max_integer      /* Z >= min(X, A) */
 
- start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c2) Z in min_integer .. max(X)                                /* Z <= X */
  start (c3) X in min(Z) .. max_integer
 
- start      Z in 0 .. A                                          /* Z <= A */
+ start      Z in min_integer .. A                                          /* Z <= A */
 
 
  wait_switch
@@ -608,10 +813,10 @@ pl_min_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
 {
  start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
 
- start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c2) Z in min_integer .. max(X)                                /* Z <= X */
  start (c3) X in min(Z) .. max_integer
 
- start (c4) Z in 0      .. max(Y)                                /* Z <= Y */
+ start (c4) Z in min_integer .. max(Y)                                /* Z <= Y */
  start (c5) Y in min(Z) .. max_integer
 
  wait_switch
@@ -642,10 +847,10 @@ pl_min_x_a_eq_z_F(fdv X, int A, fdv Z)
 {
  start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
 
- start (c2) Z in 0      .. max(X)                                /* Z <= X */
+ start (c2) Z in min_integer .. max(X)                                /* Z <= X */
  start (c3) X in min(Z) .. max_integer
 
- start      Z in 0 .. A                                          /* Z <= A */
+ start      Z in min_integer .. A                                          /* Z <= A */
 
 
  wait_switch
@@ -674,13 +879,13 @@ pl_min_x_a_eq_z_F(fdv X, int A, fdv Z)
 pl_max_x_y_eq_z(fdv X, fdv Y, fdv Z)
 
 {
- start (c1) Z in 0 .. math_max(max(X), max(Y))           /* Z <= max(X, Y) */
+ start (c1) Z in min_integer .. math_max(max(X), max(Y))           /* Z <= max(X, Y) */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)
+ start (c3) X in min_integer .. max(Z)
 
  start (c4) Z in min(Y) .. max_integer                           /* Z >= Y */
- start (c5) Y in 0      .. max(Z)
+ start (c5) Y in min_integer .. max(Z)
 
 
  wait_switch
@@ -709,10 +914,10 @@ pl_max_x_y_eq_z(fdv X, fdv Y, fdv Z)
 pl_max_x_a_eq_z(fdv X, int A, fdv Z)
 
 {
- start (c1) Z in 0 .. math_max(max(X), A)                /* Z <= max(X, A) */
+ start (c1) Z in min_integer .. math_max(max(X), A)                /* Z <= max(X, A) */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)
+ start (c3) X in min_integer .. max(Z)
 
  start      Z in A .. max_integer                                /* Z >= A */
 
@@ -738,10 +943,10 @@ pl_max_x_y_eq_z_F(fdv X, fdv Y, fdv Z)
  start (c1) Z in dom(X) : dom(Y)                         /* Z = X or Z = Y */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)
+ start (c3) X in min_integer .. max(Z)
 
  start (c4) Z in min(Y) .. max_integer                           /* Z >= Y */
- start (c5) Y in 0      .. max(Z)
+ start (c5) Y in min_integer .. max(Z)
 
 
  wait_switch
@@ -773,7 +978,7 @@ pl_max_x_a_eq_z_F(fdv X, int A, fdv Z)
  start (c1) Z in dom(X) : {A}                            /* Z = X or Z = A */
 
  start (c2) Z in min(X) .. max_integer                           /* Z >= X */
- start (c3) X in 0      .. max(Z)
+ start (c3) X in min_integer .. max(Z)
 
  start      Z in A .. max_integer                                /* Z >= A */
 

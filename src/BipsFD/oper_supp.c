@@ -70,10 +70,10 @@ static unsigned Find_Expon_General(unsigned x, unsigned y, unsigned *pxn);
  * PL_POWER                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-unsigned
-Pl_Power(unsigned x, unsigned n)
+PlLong
+Pl_Power(PlLong x, unsigned n)
 {
-  unsigned xn, xp;
+  PlLong xn, xp;
 
   if (n == 0 || x == 1)
     return 1;
@@ -95,8 +95,8 @@ Pl_Power(unsigned x, unsigned n)
       n >>= 1;
     }
 
-  return ((PlLong) xn > 0 && (PlLong) xn <= INTERVAL_MAX_INTEGER)
-    ? xn : INTERVAL_MAX_INTEGER;
+  if ((PlLong) xn < INTERVAL_MIN_INTEGER) return INTERVAL_MIN_INTEGER;
+  return ((PlLong) xn <= INTERVAL_MAX_INTEGER) ? xn : INTERVAL_MAX_INTEGER;
 }
 
 

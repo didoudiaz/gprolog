@@ -1,0 +1,68 @@
+#!/bin/sh
+
+OTHER_DIR=${1:-~/gprolog-ok/examples/ExamplesFD}
+THIS_DIR=${1:-~/Stage/gprolog-code/examples/ExamplesFD}
+
+
+check () {
+    cmd=$1
+    shift
+    rm -f ~/tmp/check.data
+    touch ~/tmp/check.data
+    d=''
+    while [ $# -ge 1 ]; do
+	d="$d $1"
+	echo $1 >> ~/tmp/check.data
+	shift
+    done
+    printf '*** checking %-10s on %-6s' "$cmd" "$d"
+    cat ~/tmp/check.data | $THIS_DIR/$cmd  >~/tmp/check.1
+    cat ~/tmp/check.data | $OTHER_DIR/$cmd >~/tmp/check.2
+    fgrep -v time ~/tmp/check.1 >~/tmp/check.1a
+    fgrep -v time ~/tmp/check.2 >~/tmp/check.2a
+    t1=`sed -n -e 's/time[^a-z_0-9]*\([0-9][0-9]*\)/\1/p' ~/tmp/check.1`
+    t2=`sed -n -e 's/time[^a-z_0-9]*\([0-9][0-9]*\)/\1/p' ~/tmp/check.2`
+    diff ~/tmp/check.1a ~/tmp/check.2a
+    printf '   time: %5d  %5d\n' $t1 $t2
+}
+
+
+check alpha
+check 'alpha ff'
+check bridge
+check cars
+check crypta
+check 'digit8 ff'
+check donald
+check eq10
+check eq20
+check five
+check gardner 5 4
+check magic 100
+check multipl
+check partit 600
+check queens 23
+check queens 26
+check 'queens ff' 130
+check send
+check square 3
+check square 4
+check srq
+check magsq 10
+check qg5 11
+check langford 32
+check interval 256
+check bdiag 8
+check bdonald
+check bpigeon 6 6
+check bpigeon 5 8
+check bpigeon 10 9
+check bqueens 18
+check bqueens 20
+check bramsey 13
+check bramsey 14
+check bschur 13
+check bschur 14
+check bsend
+
+

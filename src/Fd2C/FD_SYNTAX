@@ -93,6 +93,7 @@ cond::=		term
 
 term::=		integer
 	|	'max_integer'
+	|	'min_integer'
 	|	var				type = int
 	|	'min' '(' var ')'		type = fdv
 	|	'max' '(' var ')'		type = fdv

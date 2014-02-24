@@ -52,7 +52,7 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-unsigned Pl_Power(unsigned x, unsigned n);
+PlLong Pl_Power(PlLong x, unsigned n);
 
 unsigned Pl_Nth_Root_Dn(unsigned y, unsigned n);
 

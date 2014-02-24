@@ -173,7 +173,7 @@ static Bool Load_Left_Right_Rec(Bool optim_eq,
 
 static int Compar_Monom(Monom *m1, Monom *m2);
 
-static Bool Load_Term_Into_Word(WamWord e_word, WamWord *load_word);
+static Bool Load_Term_Into_Word(WamWord e_word, WamWord *load_word, Bool require_natural);
 
 static WamWord Push_Delayed_Cstr(int cstr, WamWord a1, WamWord a2,
 				 WamWord a3);
@@ -468,6 +468,7 @@ Load_Left_Right_Rec(Bool optim_eq, WamWord le_word, WamWord re_word,
  * This function loads a term into a (tagged) word.                        *
  * Input:                                                                  *
  *    e_word  : term to load                                               *
+ *    require_natural : indicates wheter load_word should be >= 0          *
  *                                                                         *
  * Output:                                                                 *
  *   load_word: the tagged word containing the loading of the term:        *
@@ -477,7 +478,7 @@ Load_Left_Right_Rec(Bool optim_eq, WamWord le_word, WamWord re_word,
  * it avoids the creation of a useless FD NewVar.                          *
  *-------------------------------------------------------------------------*/
 static Bool
-Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
+Load_Term_Into_Word(WamWord e_word, WamWord *load_word, Bool require_natural)
 {
   int mask;
   WamWord l_word, r_word, word;
@@ -490,8 +491,13 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
 
   if (mask == MASK_EMPTY)
     {
+#ifdef GP_FD_POSITIVE_ONLY
       if (c < 0)
 	return FALSE;
+#else
+      if (require_natural && c < 0)
+	return FALSE;
+#endif
 
       *load_word = Tag_INT(c);
       return TRUE;
@@ -515,8 +521,10 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
       return TRUE;
 
     case MASK_RIGHT:
+#ifdef GP_FD_POSITIVE_ONLY
       if (c < 0)
 	return FALSE;
+#endif
 
       word = New_Tagged_Fd_Variable;
       MATH_CSTR_3(pl_x_plus_y_eq_z, r_word, *load_word, word);
@@ -849,8 +857,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	return TRUE;
       }
 #else
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,0))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -885,8 +893,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
 #endif
 
     case POWER_2:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,1))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -895,8 +903,12 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
+#ifdef GP_FD_POSITIVE_ONLY
 	      if ((n1 = Pl_Power(n1, n2)) < 0)
 		return FALSE;
+#else
+	      n1 = Pl_Power(n1, n2);
+#endif
 
 	      Add_Cst_To_Poly(p, sign, n1);
 	      return TRUE;
@@ -936,8 +948,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
       return TRUE;
 
     case MIN_2:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,0))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -965,8 +977,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
       return TRUE;
 
     case MAX_2:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,0))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -994,8 +1006,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
       return TRUE;
 
     case DIST_2:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,0))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -1034,9 +1046,9 @@ Normalize(WamWord e_word, int sign, Poly *p)
 
     case QUOT_REM_3:
     quot_rem:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2) ||
-	  (i == QUOT_REM_3 && !Load_Term_Into_Word(Arg(adr, 2), &word3)))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,0) ||
+	  (i == QUOT_REM_3 && !Load_Term_Into_Word(Arg(adr, 2), &word3,0)))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -1076,8 +1088,8 @@ Normalize(WamWord e_word, int sign, Poly *p)
       return TRUE;
 
     case DIV_2:
-      if (!Load_Term_Into_Word(le_word, &word1) ||
-	  !Load_Term_Into_Word(re_word, &word2))
+      if (!Load_Term_Into_Word(le_word, &word1,0) ||
+	  !Load_Term_Into_Word(re_word, &word2,0))
 	return FALSE;
 
       if (Tag_Is_INT(word1))
@@ -1273,7 +1285,9 @@ Load_Delay_Cstr_Part(void)
 	  break;
 
 	case DC_DIV_X_Y_EQ_Z:
+#ifdef GP_FD_POSITIVE_ONLY
 	  PRIM_CSTR_2(pl_x_gte_c, i->a2, Tag_INT(1));
+#endif
 	  MATH_CSTR_3(pl_xy_eq_z, i->res, i->a2, i->a1);
 	  break;
 

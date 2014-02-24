@@ -876,7 +876,7 @@ Pl_Fd_New_Variable_Interval(int min, int max)
 WamWord *
 Pl_Fd_New_Variable(void)
 {
-  return Pl_Fd_New_Variable_Interval(0, INTERVAL_MAX_INTEGER);
+  return Pl_Fd_New_Variable_Interval(INTERVAL_MIN_INTEGER, INTERVAL_MAX_INTEGER);
 }
 
 
@@ -1577,7 +1577,7 @@ Pl_Fd_Use_Vector(WamWord *fdv_adr)
     WamWord *save_CS = CS;	/* code of fd_allocate (from fd_to_c.h) */
     CS += pl_vec_size;
 
-    Range_Init_Interval(&range, 0, INTERVAL_MAX_INTEGER);
+    Range_Init_Interval(&range, INTERVAL_MIN_INTEGER, INTERVAL_MAX_INTEGER);
 
     Pl_Range_Becomes_Sparse(&range);
 

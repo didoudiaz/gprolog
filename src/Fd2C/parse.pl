@@ -652,6 +652,9 @@ t_mul(_, _, Term, LWNext, LWNext) -->
 t_mul(_, _, max_integer, LWNext, LWNext) -->
 	terminal(max_integer), !.
 
+t_mul(_, _, min_integer, LWNext, LWNext) -->
+	terminal(min_integer), !.
+
 t_mul(LVar, LUse, Term, LWNext, LWNext) -->
 	terminal(What),
 	{ What = min ; What = max ; What = val },
