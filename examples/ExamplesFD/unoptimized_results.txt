@@ -1,0 +1,37 @@
+*** checking alpha      on          time:   100     81
+*** checking alpha ff   on          time:     1      2
+*** checking bridge     on          time:    12      6
+*** checking cars       on          time:     6      5
+*** checking crypta     on          time:     3      2
+*** checking digit8 ff  on          time:    10      8
+*** checking donald     on          time:    56     24
+*** checking eq10       on          time:     9      2
+*** checking eq20       on          time:    10      4
+*** checking five       on          time:     0      0
+*** checking gardner    on  5 4     time:    27     20
+*** checking magic      on  100     time:    56     46
+*** checking multipl    on          time:   168    122
+*** checking partit     on  600     time:   567    531
+*** checking queens     on  23      time:    23     24
+*** checking queens     on  26      time:   224    221
+*** checking queens ff  on  130     time:    94     96
+*** checking send       on          time:     0      0
+*** checking square     on  3       time:    82     65
+*** checking square     on  4       time:   141    112
+*** checking srq        on          time:     0      0
+*** checking magsq      on  10      time:   120    114
+*** checking qg5        on  11      time:   131    136
+*** checking langford   on  32      time:  1060   1033
+*** checking interval   on  256     time:    38     29
+*** checking bdiag      on  8       time:  1911   1791
+*** checking bdonald    on          time:    22     18
+*** checking bpigeon    on  6 6     time:     9      5
+*** checking bpigeon    on  5 8     time:    31     30
+*** checking bpigeon    on  10 9    time:  2298   2156
+*** checking bqueens    on  18      time:   131    126
+*** checking bqueens    on  20      time:   549    517
+*** checking bramsey    on  13      time:    22     21
+*** checking bramsey    on  14      time:    36     32
+*** checking bschur     on  13      time:     2      1
+*** checking bschur     on  14      time:     2      1
+*** checking bsend      on          time:     3      3

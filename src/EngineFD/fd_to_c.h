@@ -92,8 +92,7 @@
  *---------------------------------*/
 
 #define DivDn(x, y)                ((x) / (y))
-#define DivUp(x, y)                (((x) + (y) - 1) / (y))
-
+#define DivUp(x, y)                ( ((x>=0) == (y>=0)) ? ( (x + y - 1) / (y) ) : ((x) / (y)) ) /* don't round up with negative numbers, possible issue */
 
 #define R(r_no)                    rr##r_no
 

@@ -287,8 +287,8 @@ char *Pl_Range_To_String(Range *range);
 #define Set_To_Empty(range) 				\
   do							\
     {							\
-      (range)->min = 0;					\
-      (range)->max = 1;					\
+      (range)->min = 1;					\
+      (range)->max = 0;					\
       (range)->vec = NULL;				\
     }							\
   while (0)
