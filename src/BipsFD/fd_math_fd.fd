@@ -38,14 +38,15 @@
 
 %{
 #include "bips_fd.h"
-#define ite(i, t, e)  ((i) ? (t) : (e))
-#define min2(a,b) ((a<b) ? (a) : (b))
-#define max2(a,b) ((a>b) ? (a) : (b))
-#define is_even(a)		(2*(a/2)==a)
-#define is_odd(a)		(2*(a/2)!=a)
-#define max_exponent(a)	(ite(a>0, Pl_Find_Expon_Dn(a,max_integer), Pl_Find_Expon_Dn(-a,max_integer)))
-#define max_exp_base(a)	(Pl_Nth_Root_Dn(max_integer, a))
-#define closest_to_zero(a,b) (ite(a<=0 && b>=0, 0, ite(b<0, b, a)))
+#define ite(i, t, e)  		((i) ? (t) : (e))
+#define min2(a,b) 		((a<b) ? (a) : (b))
+#define max2(a,b) 		((a>b) ? (a) : (b))
+#define is_even(a)		(((a) & 1) == 0)
+#define is_odd(a)		(((a) & 1) == 1)
+#define max_exponent(a)		((a>0) ? (Pl_Find_Expon_Dn(a,max_integer)) : (Pl_Find_Expon_Dn(-a,max_integer)))
+#define max_exp_base(a)		(Pl_Nth_Root_Dn(max_integer, (a)))
+#define closest_to_zero(a,b) 	(((a<=0) && (b>=0)) ? (0) : ((b<0) ? (b) : (a)))
+#define abs(a)			((a>0) ? (a) : (-(a))) 
 
 static int inline add_ab(int a, int b)
 {
@@ -56,7 +57,6 @@ static int inline add_ab(int a, int b)
 	res = min_integer;
    return res;
 }
-
 
 static int inline sub_ab(int a, int b)
 {
@@ -71,10 +71,10 @@ static int inline sub_ab(int a, int b)
 static int inline mult_ab(int a, int b)
 {
    int64_t res = ((int64_t)a) * ((int64_t)b);
-   if (res > max_integer){
-	res = max_integer;}
-   else if (res < min_integer){
-	res = min_integer;}
+   if (res > max_integer)
+	res = max_integer;
+   else if (res < min_integer)
+	res = min_integer;
    return (int) res;
 }
 
@@ -316,8 +316,10 @@ pl_x_plus_y_eq_z(fdv X, fdv Y, fdv Z)
 pl_ax_plus_y_eq_z(int A, fdv X, fdv Y, fdv Z)
 
 {
- start X in ite(A!=0, min2((sub_ab(min(Z),max(Y))) /> A,(sub_ab(max(Z),min(Y))) /> A), min_integer) ..
-	    ite(A!=0, max2((sub_ab(min(Z),max(Y))) /< A,(sub_ab(max(Z),min(Y))) /< A), max_integer)
+ start X in ite(A!=0, min2((sub_ab(min(Z),max(Y))) /> A,
+			   (sub_ab(max(Z),min(Y))) /> A), min_integer) ..
+	    ite(A!=0, max2((sub_ab(min(Z),max(Y))) /< A,
+			   (sub_ab(max(Z),min(Y))) /< A), max_integer)
  start Y in sub_ab(min(Z), max2(mult_ab(min(X),A), mult_ab(max(X),A)))  .. 
 	    sub_ab(max(Z), min2(mult_ab(min(X),A), mult_ab(max(X),A)))
  start Z in add_ab(min(Y), min2(mult_ab(min(X),A), mult_ab(max(X),A))) .. 
@@ -330,14 +332,22 @@ pl_ax_plus_y_eq_z(int A, fdv X, fdv Y, fdv Z)
 pl_ax_plus_by_eq_z(int A, fdv X, int B, fdv Y, fdv Z)
 
 {
- start X in ite(A!=0, min2(min2((sub_ab(min(Z),mult_ab(B,min(Y)))) />A,(sub_ab(min(Z),mult_ab(B,max(Y)))) />A), 
-		      min2((sub_ab(max(Z),mult_ab(B,min(Y)))) />A,(sub_ab(max(Z),mult_ab(B,max(Y)))) />A)), min_integer) .. 
-	    ite(A!=0, max2(max2((sub_ab(min(Z),mult_ab(B,min(Y)))) /<A,(sub_ab(min(Z),mult_ab(B,max(Y)))) /<A), 
-		      max2((sub_ab(max(Z),mult_ab(B,min(Y)))) /<A,(sub_ab(max(Z),mult_ab(B,max(Y)))) /<A)), max_integer)
- start Y in ite(B!=0, min2(min2((sub_ab(min(Z),mult_ab(A,min(X)))) />B,(sub_ab(min(Z),mult_ab(A,max(X)))) />B), 
-		      min2((sub_ab(max(Z),mult_ab(A,min(X)))) />B,(sub_ab(max(Z),mult_ab(A,max(X)))) />B)), min_integer) .. 
-	    ite(B!=0, max2(max2((sub_ab(min(Z),mult_ab(A,min(X)))) /<B,(sub_ab(min(Z),mult_ab(A,max(X)))) /<B), 
-		      max2((sub_ab(max(Z),mult_ab(A,min(X)))) /<B,(sub_ab(max(Z),mult_ab(A,max(X)))) /<B)), max_integer)
+ start X in ite(A!=0, min2(min2((sub_ab(min(Z),mult_ab(B,min(Y)))) />A,
+				(sub_ab(min(Z),mult_ab(B,max(Y)))) />A), 
+		      min2((sub_ab(max(Z),mult_ab(B,min(Y)))) />A,
+			   (sub_ab(max(Z),mult_ab(B,max(Y)))) />A)), min_integer) .. 
+	    ite(A!=0, max2(max2((sub_ab(min(Z),mult_ab(B,min(Y)))) /<A,
+				(sub_ab(min(Z),mult_ab(B,max(Y)))) /<A), 
+		      max2((sub_ab(max(Z),mult_ab(B,min(Y)))) /<A,
+			   (sub_ab(max(Z),mult_ab(B,max(Y)))) /<A)), max_integer)
+ start Y in ite(B!=0, min2(min2((sub_ab(min(Z),mult_ab(A,min(X)))) />B,
+				(sub_ab(min(Z),mult_ab(A,max(X)))) />B), 
+		      min2((sub_ab(max(Z),mult_ab(A,min(X)))) />B,
+			   (sub_ab(max(Z),mult_ab(A,max(X)))) />B)), min_integer) .. 
+	    ite(B!=0, max2(max2((sub_ab(min(Z),mult_ab(A,min(X)))) /<B,
+				(sub_ab(min(Z),mult_ab(A,max(X)))) /<B), 
+		      max2((sub_ab(max(Z),mult_ab(A,min(X)))) /<B,
+			   (sub_ab(max(Z),mult_ab(A,max(X)))) /<B)), max_integer)
  start Z in add_ab(min2(mult_ab(min(X),A),mult_ab(max(X),A)) , min2(mult_ab(min(Y),B),mult_ab(max(Y),B))) ..
 	    add_ab(max2(mult_ab(min(X),A),mult_ab(max(X),A)) , max2(mult_ab(min(Y),B),mult_ab(max(Y),B)))
 }
@@ -499,46 +509,47 @@ pl_zero_power_n_eq_y(fdv N, fdv Y) 						/* N >= 0 */
 
 
 
-
+/* (Minor) issue: bounded Y[3,100] : -2 ** Y #= N returns N[2..6], Y[3..64]  (min Y should be 4?) */
 pl_a_power_n_eq_y(int A, fdv N, fdv Y)                           /* N >= 0 */
 
 { 
- start Y in min2(Pl_Power(A, max2(0,min(N))), min2(Pl_Power(A, min2(max_exponent(A), max(N))), 
-	         ite(max(N)==min(N), max_integer, Pl_Power(A, max2(min2(max_exponent(A), max(N))-1,0))))) .. /* Also takes care of negative powers with N-1 */
-	    max2(Pl_Power(A, max2(0,min(N))), max2(Pl_Power(A, min2(max_exponent(A), max(N))), 
-		 ite(max(N)==min(N), min_integer, Pl_Power(A, max2(min2(max_exponent(A), max(N))-1,0)))))
+ start N in 0 .. max_exponent(A) 				/* make sure that N >= 0 and does not exceed A's maximum exponent */
 
- start N in ite(A<0 && min(Y)<0 && max(Y)==min(Y), Pl_Find_Expon_Up(-A, -min(Y)),
-	    ite(A<0 && min(Y)>0 && max(Y)==min(Y), Pl_Find_Expon_Up(-A, min(Y)),
-	    ite(A<0 && min(Y)<0 && max(Y)>0, 0,
-	    ite(A>0 && min(Y)>0 && max(Y)>0, Pl_Find_Expon_Up(A, min(Y)), max_integer)))) /* max_int for wrong cases */
-	.. 
-	    ite(A<0 && min(Y)<0 && max(Y)==min(Y), Pl_Find_Expon_Dn(-A, -min(Y)),
-	    ite(A<0 && min(Y)>0 && max(Y)==min(Y), Pl_Find_Expon_Dn(-A, min(Y)),
-	    ite(A<0 && min(Y)<0 && max(Y)>0, ite(Pl_Find_Expon_Dn(-A, -min(Y)) != Pl_Find_Expon_Dn(-A, max(Y)), 
-		min2(Pl_Find_Expon_Dn(-A, -min(Y)), Pl_Find_Expon_Dn(-A, max(Y)))+1, Pl_Find_Expon_Dn(-A, -min(Y))), /* min(Y) and max(Y) should differ by 1 exponent */
-	    ite(A>0 && min(Y)>0 && max(Y)>0, Pl_Find_Expon_Dn(A, max(Y)), min_integer))))  /* min_int for wrong cases */
+ start Y in Pl_Power(A, ite(A>0, min(N), ite(is_odd(max(N)), max(N), 			/* min(N) or maximum odd N */
+				ite(min(N)==max(N), min(N), max(N)-1))))		/* make sure that max(N)-1 is in the interval */
+		..
+	    Pl_Power(A, ite(A>0, max(N), ite(is_even(max(N)), max(N), 			/* max(N) or maximum even N */
+				ite(min(N)==max(N), min(N), max(N)-1))))		/* make sure that max(N)-1 is in the interval */	
+
+ start N in ite(min(Y)<=1 && max(Y)>=1, 0, 						/* A ^ 0 = 1 */
+		ite(min(Y)<=0 && max(Y)>=0,
+		    ite(min(Y)==max(Y), max_integer, 0), 				/* A ^ N != 0,  	A ^ 0 = 1 */
+		    Pl_Find_Expon_Up(abs(A), abs(closest_to_zero(min(Y),max(Y))))))
+		..
+	    ite(min(Y)==max(Y) && max(Y)==0, min_integer, 				/* A ^ N != 0 */
+		Pl_Find_Expon_Dn(abs(A),max2(abs(min(Y)),abs(max(Y)))))			/* choose max abs Y as result */
 }
-
 
 pl_x_power_a_eq_y(fdv X, int A, fdv Y)                            /* here A > 2 */
 
 {
- start Y in ite(min(X)<0 && is_odd(A), -Pl_Power(min2(-min(X),max_exp_base(A)),A), 
+ start X in - max_exp_base(A) .. max_exp_base(A)		/* reduces overflow checks */
+
+ start Y in ite(min(X)<0 && is_odd(A), -Pl_Power(-min(X),A), 
 		Pl_Power(closest_to_zero(min(X),max(X)),A)) 
 	..
-	    ite(min(X) < -max_exp_base(A) && is_even(A), Pl_Power(max_exp_base(A),A),
-	    ite(max(X) > max_exp_base(A), Pl_Power(max_exp_base(A),A), max2(Pl_Power(max(X),A),Pl_Power(min(X),A))))
+	    ite(min(X) < 0 && is_even(A), Pl_Power(max2(abs(min(X)),max(X)),A), /* choose max abs X as base */
+		Pl_Power(max(X),A))
 
 
  start X in ite(A<0, max_integer, 
 	    ite(is_odd(A) && min(Y)<0, - Pl_Nth_Root_Dn(-min(Y), A),
 	    ite(is_even(A) && min(Y)>=0, - Pl_Nth_Root_Dn(max(Y), A),
-	    ite(is_odd(A) && min(Y)>0, Pl_Nth_Root_Dn(min(Y), A),
+	    ite(is_odd(A) && min(Y)>0, Pl_Nth_Root_Up(min(Y), A),
 	    ite(min(Y)==0, 0, max_integer)))))
 	..
 	    ite(A<0, min_integer, 
-	    ite(is_odd(A) && max(Y)<0, Pl_Nth_Root_Dn(-max(Y), A),
+	    ite(is_odd(A) && max(Y)<0, - Pl_Nth_Root_Up(-max(Y), A),
 	    ite(max(Y)>0, Pl_Nth_Root_Dn(max(Y), A),
 	    ite(max(Y)==0, 0, min_integer))))
 }
@@ -552,7 +563,7 @@ pl_x2_eq_y(fdv X, fdv Y)	/* Y >= 0 */
  start X in ite(max(Y)>=0,min_sqrt(min(X), min(Y), max(Y)), max_integer) .. 
 			ite(max(Y)>=0,Pl_Sqrt_Dn(max(Y)), min_integer)
  
-start Y in mult_ab(closest_to_zero(min(X),max(X)), closest_to_zero(min(X),max(X))) ..
+ start Y in mult_ab(closest_to_zero(min(X),max(X)), closest_to_zero(min(X),max(X))) ..
 			max2(mult_ab(max(X),max(X)) , mult_ab(min(X),min(X)))
 }
 

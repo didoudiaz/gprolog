@@ -73,6 +73,7 @@ static unsigned Find_Expon_General(unsigned x, unsigned y, unsigned *pxn);
 PlLong
 Pl_Power(PlLong x, unsigned n)
 {
+
   PlLong xn, xp;
 
   if (n == 0 || x == 1)

@@ -91,8 +91,9 @@
  * Auxiliary engine macros         *
  *---------------------------------*/
 
-#define DivDn(x, y)                ((x) / (y))
-#define DivUp(x, y)                ( ((x>=0) == (y>=0)) ? ( (x + y - 1) / (y) ) : ((x) / (y)) ) /* don't round up with negative numbers, possible issue */
+#define Same_Sign(x, y) 	(((x) ^ (y)) >= 0)
+#define DivDn(x, y)		((Same_Sign(x, y)) ? ((x) / (y)) : (((x) / (y)) - ((x) % (y) != 0)))
+#define DivUp(x, y)		((Same_Sign(x, y)) ? (((x) / (y)) + ((x) % (y) != 0)) : ((x) / (y)))
 
 #define R(r_no)                    rr##r_no
 
