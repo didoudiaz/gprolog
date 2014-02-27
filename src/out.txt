@@ -5684,7 +5684,7 @@ Domain before expression: X3996: _49110Y3996: _#216945(67108864..268435455)Z3996
 bounded: Y, Z | X:[1..3] Y:[67108864..268435455] Z:[67108864..268435455]
 
 GNU Prolog 1.4.4 (64 bits)
-Compiled Feb 26 2014, 17:00:43 with gcc
+Compiled Feb 27 2014, 14:15:02 with gcc
 By Daniel Diaz
 Copyright (C) 1999-2014 Daniel Diaz
 
