@@ -1,3 +1,7 @@
+Thu Mar  6 16:19:36 CET 2014 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug with linedit when environment varirable LINEDIT=no
+
 Wed Feb  5 15:16:37 CET 2014 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bugs in the FD solver

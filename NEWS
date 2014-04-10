@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5:
 
+* fix a bug with linedit when environment varirable LINEDIT=no
 * fix bugs in the FD solver
 * set socket option SO_REUSEADDR at socket creation
 * fix problems with Apple gcc = LLVM version 5.0 (clang-500.2.79)
