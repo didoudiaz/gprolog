@@ -1263,7 +1263,7 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
   Bool simulate;
 
 #ifndef NO_USE_LINEDIT
-  if (pstm == pl_stm_tbl[pl_stm_stdin]) /* the stdin stream used with linedit */
+  if (pl_le_mode != LE_MODE_DEACTIVATED && pstm == pl_stm_tbl[pl_stm_stdin]) /* the stdin stream used with linedit */
     simulate = FALSE;
   else
 #endif
