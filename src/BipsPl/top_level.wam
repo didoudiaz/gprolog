@@ -2,7 +2,7 @@
 % file    : top_level.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/top_level.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/top_level.pl').
 
 
 predicate(top_level/0,44,static,private,monofile,built_in,[

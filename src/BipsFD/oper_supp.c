@@ -385,53 +385,46 @@ Find_Expon_General(unsigned x, unsigned y, unsigned *pxn)
 void
 Pl_Full_Coeff_Power_Var(Range *y, int a, Range *n)
 {
-  unsigned an, an0;
-  int i, vec_elem;
+  int an, an0, min_n;
+  int i;
 
-  an = Pl_Power(a, n->min);
-
-  Vector_Allocate(y->vec);
-  if (an > (unsigned) pl_vec_max_integer)
-    {
-      y->extra_cstr = TRUE;
-      Set_To_Empty(y);
-      return;
+  //Set_To_Empty(y);
+  if (a == 0) {
+    // 0 or 1
+    y->min = (n->min==0 && n->max==0) ? 1 : 0;
+    if (Pl_Range_Test_Value(n,0)) y->max = 1;
+    else y->max = 0;
+    return;
+  }
+  // a != 0
+  if (Is_Interval(n)) {			/* N is Interval */
+    min_n = math_max(n->min, 0); // only positive N
+    an = Pl_Power(a, min_n);
+    an0 = an;
+    for (i = min_n; i <= n->max; i++) {
+      if (an0 >= INTERVAL_MAX_INTEGER || an0 <= INTERVAL_MIN_INTEGER)
+      	return;
+      an = an0;
+      Pl_Range_Set_Value(y,an);
+      an0 *= a;
     }
-
-  Pl_Vector_Empty(y->vec);
-  y->extra_cstr = FALSE;
-  y->min = an;
-
-  if (Is_Interval(n))		/* N is Interval */
-    {
-      an0 = an;
-      for (i = n->min; i <= n->max; i++)
-	{
-	  if (an0 > (unsigned) pl_vec_max_integer)
-	    goto end_loop;
-
-	  an = an0;
-	  Vector_Set_Value(y->vec, an);
-	  an0 *= a;
-	}
+  }
+  else {				/* N is Sparse */
+    Chunk *chunk = n->first;
+    while (chunk!=NULL) {
+  		min_n = math_max(chunk->min, 0);
+    	an = Pl_Power(a, min_n);
+  		an0 = an;
+  		for (i = min_n; i <= chunk->max; i++) {
+    	  if (an0 >= INTERVAL_MAX_INTEGER || an0 <= INTERVAL_MIN_INTEGER)
+    	    return;
+    	  an = an0;
+    	  Pl_Range_Set_Value(y,an);
+    	  an0 *= a;
+  		}
+      chunk = chunk->next;
     }
-  else				/* N is Sparse */
-    {
-      y->extra_cstr = n->extra_cstr;
-
-      VECTOR_BEGIN_ENUM(n->vec, vec_elem);
-
-      an = Pl_Power(a, vec_elem);
-      if (an > (unsigned) pl_vec_max_integer)
-	goto end_loop;
-
-      Vector_Set_Value(y->vec, an);
-
-      VECTOR_END_ENUM;
-    }
-end_loop:
-
-  y->max = an;
+  }
 }
 
 
@@ -445,50 +438,28 @@ end_loop:
 void
 Pl_Full_Find_Expon(Range *n, int a, Range *y)
 {
-  int e, min;
-  int i, vec_elem;
+  int e;
+  int i;
 
-  Vector_Allocate(n->vec);
-  Pl_Vector_Empty(n->vec);
-  n->extra_cstr = y->extra_cstr;
-
-  min = -1;
-
-
-  if (Is_Interval(y))		/* Y is Interval */
-    {
-      for (i = y->min; i <= y->max; i++)
-	{
-	  e = Pl_Find_Expon_Exact(a, i);
-
-	  if (e >= 0)
-	    {
-	      if (min < 0)
-		min = e;
-
-	      Vector_Set_Value(n->vec, e);
-	    }
-	}
+  //Set_To_Empty(y);
+  if (Is_Interval(y)) {		/* Y is Interval */
+    for (i = y->min; i <= y->max; i++) {
+      e = Pl_Find_Expon_Exact(a, i);
+      if (e >= 0) 
+				Pl_Range_Set_Value(n, e);
     }
-  else				/* Y is Sparse */
-    {
-      VECTOR_BEGIN_ENUM(y->vec, vec_elem);
-
-      e = Pl_Find_Expon_Exact(a, vec_elem);
-
-      if (e >= 0)
-	{
-	  if (min < 0)
-	    min = e;
-
-	  Vector_Set_Value(n->vec, e);
-	}
-
-      VECTOR_END_ENUM;
+  }
+  else {			/* Y is Sparse */
+    Chunk *chunk = y->first;
+    while (chunk!=NULL) {
+			for (i = chunk->min; i <= chunk->max; i++) {
+        e = Pl_Find_Expon_Exact(a, i);
+        if (e >= 0)
+          Pl_Range_Set_Value(n, e);
+      }
+      chunk = chunk->next;
     }
-
-  n->min = min;
-  n->max = e;
+  }
 }
 
 
@@ -501,51 +472,43 @@ Pl_Full_Find_Expon(Range *n, int a, Range *y)
 void
 Pl_Full_Var_Power_Coeff(Range *y, Range *x, int a)
 {
-  unsigned xa;
-  int i, vec_elem;
+  int xa;
+  int i;
 
-  xa = Pl_Power(x->min, a);
+  // base cases (not sure if needed)
+  if (a < 0) {
+    Set_To_Empty(y);
+    return;
+  } else if (a==0) {
+    Set_To_Empty(y);
+    y->min = 1; 
+    y->max = 1;
+    return;
+  } else if (a==1) {
+    return;
+  }
 
-  Vector_Allocate(y->vec);
-  if (xa > (unsigned) pl_vec_max_integer)
-    {
-      y->extra_cstr = TRUE;
-      Set_To_Empty(y);
-      return;
+  
+  if (Is_Interval(x)) {		/* X is Interval */
+    for (i = x->min; i <= x->max; i++) {
+      xa = Pl_Power(i, a);
+      if (xa >= INTERVAL_MAX_INTEGER || xa <= INTERVAL_MIN_INTEGER)
+      	continue;
+      Pl_Range_Set_Value(y, xa);
     }
-
-  Pl_Vector_Empty(y->vec);
-  y->extra_cstr = FALSE;
-  y->min = xa;
-
-  if (Is_Interval(x))		/* X is Interval */
-    {
-      for (i = x->min; i <= x->max; i++)
-	{
-	  xa = Pl_Power(i, a);
-	  if (xa > (unsigned) pl_vec_max_integer)
-	    goto end_loop;
-
-	  Vector_Set_Value(y->vec, xa);
-	}
+  }
+  else {			/* X is Sparse */
+    Chunk *chunk = x->first;
+    while (chunk!=NULL) {
+			for (i = chunk->min; i <= chunk->max; i++) {
+  			xa = Pl_Power(i, a);
+  			if (xa >= INTERVAL_MAX_INTEGER || xa <= INTERVAL_MIN_INTEGER)
+    			continue;
+  			Pl_Range_Set_Value(y, xa);
+      }
+      chunk = chunk->next;
     }
-  else				/* X is Sparse */
-    {
-      y->extra_cstr = x->extra_cstr;
-
-      VECTOR_BEGIN_ENUM(x->vec, vec_elem);
-
-      xa = Pl_Power(vec_elem, a);
-      if (xa > (unsigned) pl_vec_max_integer)
-	goto end_loop;
-
-      Vector_Set_Value(y->vec, xa);
-
-      VECTOR_END_ENUM;
-    }
-end_loop:
-
-  y->max = xa;
+  }
 }
 
 
@@ -558,50 +521,27 @@ end_loop:
 void
 Pl_Full_Nth_Root(Range *x, Range *y, int a)
 {
-  int e, min;
-  int i, vec_elem;
+  int e;
+  int i;
 
-  Vector_Allocate(x->vec);
-  Pl_Vector_Empty(x->vec);
-  x->extra_cstr = y->extra_cstr;
-
-  min = -1;
-
-
-  if (Is_Interval(y))		/* Y is Interval */
-    {
-      for (i = y->min; i <= y->max; i++)
-	{
-	  e = Pl_Nth_Root_Exact(i, a);
-
-	  if (e >= 0)
-	    {
-	      if (min < 0)
-		min = e;
-
-	      Vector_Set_Value(x->vec, e);
-	    }
-	}
-    }
-  else				/* Y is Sparse */
-    {
-      VECTOR_BEGIN_ENUM(y->vec, vec_elem);
-
-      e = Pl_Nth_Root_Exact(vec_elem, a);
-
+	if (Is_Interval(y)) {		/* Y is Interval */
+    for (i = y->min; i <= y->max; i++) {
+      e = Pl_Nth_Root_Exact(i, a);
       if (e >= 0)
-	{
-	  if (min < 0)
-	    min = e;
-
-	  Vector_Set_Value(x->vec, e);
-	}
-
-      VECTOR_END_ENUM;
+        Pl_Range_Set_Value(x, e);
     }
-
-  x->min = min;
-  x->max = e;
+  }
+  else {			/* Y is Sparse */
+    Chunk *chunk = y->first;
+    while (chunk!=NULL) {
+			for (i = chunk->min; i <= chunk->max; i++) {
+			  e = Pl_Nth_Root_Exact(i, a);
+		    if (e >= 0)
+		      Pl_Range_Set_Value(x, e);
+		  }
+      chunk = chunk->next;
+    }
+  }
 }
 
 
@@ -614,51 +554,40 @@ Pl_Full_Nth_Root(Range *x, Range *y, int a)
 void
 Pl_Full_Var_Power_2(Range *y, Range *x)
 {
-  unsigned x2;
-  int i, vec_elem;
+  //printf("Pl_Full_Var_Power_2\n");
+  //printf("y: "); debug_print_chunk(y,1); printf("\n");
+  //printf("x: "); debug_print_chunk(x,1); printf("\n");
+  int i;
+  int min_x, max_x;
+  // max_val is for preventing overflows
+  int max_val = Pl_Sqrt_Dn(INTERVAL_MAX_INTEGER);
 
-  x2 = x->min * x->min;
-
-  Vector_Allocate(y->vec);
-  if (x2 > (unsigned) pl_vec_max_integer)
-    {
-      y->extra_cstr = TRUE;
-      Set_To_Empty(y);
-      return;
+  Set_To_Empty(y);
+  if (Is_Interval(x)) {
+    // -x^2 == x^2 (so make everything positive)
+    min_x = math_min(abs(closest_to_zero(x->min, x->max)), max_val);
+    max_x = math_min(math_max(abs(x->min), abs(x->max)), max_val);
+    //printf("min: %d max: %d\n",min_x, max_x);
+    for (i = min_x; i <= max_x; i++) {
+      // i*i should be < MAX
+      Pl_Range_Set_Value(y,i*i);
     }
-
-  Pl_Vector_Empty(y->vec);
-  y->extra_cstr = FALSE;
-  y->min = x2;
-
-  if (Is_Interval(x))		/* X is Interval */
-    {
-      for (i = x->min; i <= x->max; i++)
-	{
-	  x2 = i * i;
-	  if (x2 > (unsigned) pl_vec_max_integer)
-	    goto end_loop;
-
-	  Vector_Set_Value(y->vec, x2);
-	}
+  }
+  else {
+    Chunk *chunk = x->first;
+    while (chunk!=NULL) {
+			// -x^2 == x^2 (so make everything positive)
+			min_x = math_min(abs(closest_to_zero(chunk->min, chunk->max)), max_val);
+			max_x = math_min(math_max(abs(chunk->min), abs(chunk->max)), max_val);
+			for (i = min_x; i <= max_x; i++) {
+			  // i*i should be < MAX
+			  Pl_Range_Set_Value(y,i*i);
+			}
+      chunk = chunk->next;
     }
-  else				/* X is Sparse */
-    {
-      y->extra_cstr = x->extra_cstr;
-
-      VECTOR_BEGIN_ENUM(x->vec, vec_elem);
-
-      x2 = vec_elem * vec_elem;
-      if (x2 > (unsigned) pl_vec_max_integer)
-	goto end_loop;
-
-      Vector_Set_Value(y->vec, x2);
-
-      VECTOR_END_ENUM;
-    }
-end_loop:
-
-  y->max = x2;
+  }
+  //printf("y min = %d, max = %d: ",y->min, y->max); debug_print_chunk(y,1); printf("\n");
+  //printf("x min = %d, max = %d: ",x->min, x->max); debug_print_chunk(x,1); printf("\n");
 }
 
 
@@ -671,50 +600,42 @@ end_loop:
 void
 Pl_Full_Sqrt_Var(Range *x, Range *y)
 {
-  int e, min;
-  int i, vec_elem;
+  int e;
+  int i;
+  //printf("Pl_Full_Sqrt_Var\n");
+  //printf("X: "); debug_print_chunk(x,1); printf("\n");
+  //printf("Y: "); debug_print_chunk(y,1); printf("\n");
 
-  Vector_Allocate(x->vec);
-  Pl_Vector_Empty(x->vec);
-  x->extra_cstr = y->extra_cstr;
+  // take only positive y
+  // don't take values > (x->max ** 2)
+  int max_val = (x->max < Pl_Sqrt_Up(INTERVAL_MAX_INTEGER)) ? (x->max * x->max) : INTERVAL_MAX_INTEGER;
+  Set_To_Empty(x);
+  // TODO: why bother taking sqrts, just reverse and multiply for the range
 
-  min = -1;
-
-
-  if (Is_Interval(y))		/* Y is Interval */
-    {
-      for (i = y->min; i <= y->max; i++)
-	{
-	  e = Pl_Sqrt_Exact(i);
-
-	  if (e >= 0)
-	    {
-	      if (min < 0)
-		min = e;
-
-	      Vector_Set_Value(x->vec, e);
-	    }
-	}
+  if (Is_Interval(y)) {		/* Y is Interval */
+    for (i = math_max(0,y->min); i <= math_max(0,math_min(max_val,y->max)); i++) {
+	  	e = Pl_Sqrt_Exact(i);
+      if (e >= 0) {
+        Pl_Range_Set_Value(x, -e);
+        Pl_Range_Set_Value(x, e);
+			}
     }
-  else				/* Y is Sparse */
-    {
-      VECTOR_BEGIN_ENUM(y->vec, vec_elem);
-
-      e = Pl_Sqrt_Exact(vec_elem);
-
-      if (e >= 0)
-	{
-	  if (min < 0)
-	    min = e;
-
-	  Vector_Set_Value(x->vec, e);
-	}
-
-      VECTOR_END_ENUM;
+  }
+  else {			/* Y is Sparse */
+    Chunk *chunk = y->first;
+    while (chunk!=NULL) {
+			for (i = math_max(0,chunk->min); i <= math_max(0,math_min(max_val,chunk->max)); i++) {
+  			e = Pl_Sqrt_Exact(i);
+		    if (e >= 0) {
+	        Pl_Range_Set_Value(x, -e);
+	        Pl_Range_Set_Value(x, e);
+				}
+		  }
+      chunk = chunk->next;
     }
-
-  x->min = min;
-  x->max = e;
+  }
+  //printf("X: "); debug_print_chunk(x,1); printf("\n");
+  //printf("Y: "); debug_print_chunk(y,1); printf("\n");
 }
 
 
@@ -729,7 +650,7 @@ Pl_Full_Var_Div_Var(Range *x, Range *z, Range *y)
 {
   if (y->min == 0)
     {
-      Range_Init_Interval(x, 0, INTERVAL_MAX_INTEGER);
+      Range_Init_Interval(x, INTERVAL_MIN_INTEGER, INTERVAL_MAX_INTEGER);
       return;
     }
 

@@ -95,8 +95,8 @@ gen(P, Xs, Ys, Ss, SX, SY) :-
 gen_coords([], [], [], _, _).
 
 gen_coords([S|Ss], [X|Xs], [Y|Ys], SX, SY) :-
-	X #=< SX - S,
-	Y #=< SY - S,
+	X#>= 0 #/\ X #=< SX - S,
+	Y#>= 0 #/\ Y #=< SY - S,
 	gen_coords(Ss, Xs, Ys, SX, SY).
 
 

@@ -2,7 +2,7 @@
 % file    : atom.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/atom.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/atom.pl').
 
 
 predicate('$use_atom'/0,41,static,private,monofile,built_in,[

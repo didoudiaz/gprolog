@@ -2,7 +2,7 @@
 % file    : first_arg.pl
 
 
-file_name('/home/diaz/GP/src/Pl2Wam/first_arg.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/Pl2Wam/first_arg.pl').
 
 
 predicate(find_first_arg/2,39,static,private,monofile,global,[

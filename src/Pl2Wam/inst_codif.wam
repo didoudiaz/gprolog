@@ -2,7 +2,7 @@
 % file    : inst_codif.pl
 
 
-file_name('/home/diaz/GP/src/Pl2Wam/inst_codif.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/Pl2Wam/inst_codif.pl').
 
 
 predicate(alias_stop_instruction/1,41,static,private,monofile,global,[

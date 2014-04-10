@@ -2,7 +2,7 @@
 % file    : utils.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/utils.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/utils.pl').
 
 
 predicate('$term_to_goal'/3,42,static,private,monofile,built_in,[

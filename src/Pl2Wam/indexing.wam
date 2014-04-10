@@ -2,7 +2,7 @@
 % file    : indexing.pl
 
 
-file_name('/home/diaz/GP/src/Pl2Wam/indexing.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/Pl2Wam/indexing.pl').
 
 
 predicate(indexing/2,134,static,private,monofile,global,[

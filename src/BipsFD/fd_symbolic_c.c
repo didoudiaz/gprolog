@@ -153,6 +153,7 @@ Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
 void
 Pl_Fd_Element_I(Range *i, WamWord *l)
 {
+  //printf("Pl_Fd_Element_I (Possibly needs modification)\n");
   int n = *l;			/* I in 1..N in sparse mode */
 
   Range_Init_Interval(i, 1, n);
@@ -169,33 +170,31 @@ Pl_Fd_Element_I(Range *i, WamWord *l)
 void
 Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
 {
+  //printf("Pl_Fd_Element_I_To_V (Should be fixed)\n");
   int val;
   int j;
 
   /* when I changes -> update V */
 
-  Vector_Allocate(v->vec);
-  Pl_Vector_Empty(v->vec);
+  Set_To_Empty(v);
 
-  if (i->min == i->max || Is_Interval(i))
-    {
-      for (j = i->min; j <= i->max; j++)
-	{
-	  val = l[j];
-	  Vector_Set_Value(v->vec, val);
-	}
-    }
-  else
-    {
-      VECTOR_BEGIN_ENUM(i->vec, j);
-
+  if (i->min == i->max || Is_Interval(i)) {
+    for (j = i->min; j <= i->max; j++) {
       val = l[j];
-      Vector_Set_Value(v->vec, val);
-
-      VECTOR_END_ENUM;
+      Pl_Range_Set_Value(v,val);
     }
+  } else { // i is sparse
+    Chunk *chunk = i->first;
+    while (chunk != NULL) {
+      for (j = chunk->min; j <= chunk->max; j++) {
+        val = l[j];
+        Pl_Range_Set_Value(v,val);
+      }
+      chunk = chunk->next;
+    }
+  }
 
-  Pl_Range_From_Vector(v);
+  //printf("range after: %s\n",Pl_Range_To_String(v));
 }
 
 
@@ -208,25 +207,23 @@ Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
 void
 Pl_Fd_Element_V_To_I(Range *i, Range *v, WamWord *l)
 {
+  //printf("Pl_Fd_Element_V_To_I (Should be fixed)\n");
   int val;
   int n;
   int j;
 
   /* when V changes -> update I */
 
-  Vector_Allocate(i->vec);
-  Pl_Vector_Empty(i->vec);
-
+  Set_To_Empty(i);
   n = *l;
 
-  for (j = 1; j <= n; j++)
-    {
-      val = l[j];		/* val=Lj */
-      if (Pl_Range_Test_Value(v, val))
-	Vector_Set_Value(i->vec, j);
-    }
+  for (j = 1; j <= n; j++) {
+    val = l[j];   /* val=Lj */
+    if (Pl_Range_Test_Value(v, val))
+      Pl_Range_Set_Value(i, j);
+  }
 
-  Pl_Range_From_Vector(i);
+  //printf("range after: %s\n",Pl_Range_To_String(i));
 }
 
 
@@ -255,32 +252,30 @@ Pl_Fd_Element_Var_I(Range *i, WamWord *l)
 void
 Pl_Fd_Element_Var_I_To_V(Range *v, Range *i, WamWord **l)
 {
+  //printf("Pl_Fd_Element_Var_I_To_V (Should work)\n");
+
   WamWord *fdv_adr;
   int j;
 
-  v->extra_cstr = FALSE;
-  v->vec = 0;
   Set_To_Empty(v);
 
   /* when I or L changes -> update V */
 
-  if (i->min == i->max || Is_Interval(i))
-    {
-      for (j = i->min; j <= i->max; j++)
-	{
-	  fdv_adr = l[j];
-	  Pl_Range_Union(v, Range(fdv_adr));
-	}
+  if (i->min == i->max || Is_Interval(i)) {
+      for (j = i->min; j <= i->max; j++) {
+	      fdv_adr = l[j];
+	      Pl_Range_Union(v, Range(fdv_adr));
+	    }
+  } else { // i is sparse
+    Chunk *chunk = i->first;
+    while (chunk != NULL) {
+      for (j = chunk->min; j <= chunk->max; j++) {
+        fdv_adr = l[j];
+        Pl_Range_Union(v,Range(fdv_adr));
+      }
+      chunk = chunk->next;
     }
-  else
-    {
-      VECTOR_BEGIN_ENUM(i->vec, j);
-
-      fdv_adr = l[j];
-      Pl_Range_Union(v, Range(fdv_adr));
-
-      VECTOR_END_ENUM;
-    }
+  }
 }
 
 
@@ -293,24 +288,25 @@ Pl_Fd_Element_Var_I_To_V(Range *v, Range *i, WamWord **l)
 void
 Pl_Fd_Element_Var_V_To_I(Range *i, Range *v, WamWord **l)
 {
+  //printf("Pl_Fd_Element_Var_V_To_I (Should work)\n");
+
   WamWord *fdv_adr;
   PlLong n;
   int j;
 
-  Vector_Allocate(i->vec);
-  Pl_Vector_Empty(i->vec);
+  Set_To_Empty(i);
+
   /* when V or L changes -> update I */
 
   n = (PlLong) *l;
 
-  for (j = 1; j <= n; j++)
-    {
-      fdv_adr = l[j];
-      if (!Pl_Range_Test_Null_Inter(Range(fdv_adr), v))
-	  Vector_Set_Value(i->vec, j);
-    }
-
-  Pl_Range_From_Vector(i);
+  for (j = 1; j <= n; j++) {
+    fdv_adr = l[j];
+    if (!Pl_Range_Test_Null_Inter(Range(fdv_adr), v)) 
+	    Pl_Sparse_Set_Value(i, j);
+  }
+  //printf("  range v : %p %s\n", v, Pl_Range_To_String(v));
+  //printf("  range i : %p %s\n", i, Pl_Range_To_String(i));
 }
 
 

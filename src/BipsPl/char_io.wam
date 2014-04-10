@@ -2,7 +2,7 @@
 % file    : char_io.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/char_io.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/char_io.pl').
 
 
 predicate('$use_char_io'/0,41,static,private,monofile,built_in,[

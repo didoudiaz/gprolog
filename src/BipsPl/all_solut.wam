@@ -2,7 +2,7 @@
 % file    : all_solut.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/all_solut.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/all_solut.pl').
 
 
 predicate('$use_all_solut'/0,41,static,private,monofile,built_in,[

@@ -65,13 +65,12 @@
 void
 Dist_LE(Range *s1, long s2, long d, long size_y)
 {
+  /* NB: due to the new Sparse domain representation, this method might *
+   * Not work as expected */
   int x1 = s2 / size_y;
   int y1 = s2 % size_y;
   int x2, y2, n;
   int size_x = size_y;
-
-  Vector_Allocate(s1->vec);
-  Pl_Vector_Empty(s1->vec);
 
   for(x2 = x1 - d; x2 <= x1 + d; x2++)
     {
@@ -83,10 +82,9 @@ Dist_LE(Range *s1, long s2, long d, long size_y)
       n = d - abs(x1 - x2);
       for(y2 = y1 - n; y2 <= y1 + n; y2++)
 	if (y2 >= 0 && y2 < size_y)
-	  Vector_Set_Value(s1->vec, x2 * size_y + y2);
+	  Range_Set_Value(s1, x2 * size_y + y2);
     }
 
-  Pl_Range_From_Vector(s1);
 }
 #endif
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 OTHER_DIR=${1:-~/gprolog-ok/examples/ExamplesFD}
-THIS_DIR=${1:-~/Stage/gprolog-code/examples/ExamplesFD}
+THIS_DIR=${1:-~/Stage/sparse-gprolog-code/examples/ExamplesFD}
 
 
 check () {

@@ -2,7 +2,7 @@
 % file    : consult.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/consult.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/consult.pl').
 
 
 predicate('$use_consult'/0,41,static,private,monofile,built_in,[

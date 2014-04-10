@@ -53,14 +53,11 @@
 #endif
 
 
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
 
 #define MSG_VECTOR_TOO_SMALL       "Warning: Vector too small - maybe lost solutions (FD Var:_%ld)\n"
-
-
 
 
 /*---------------------------------*
@@ -231,16 +228,20 @@ static void Clear_Queue(void);
   do								\
     {								\
       if (Range_Stamp(fdv_adr) != STAMP)			\
-	{							\
-	  Trail_MV(fdv_adr + OFFSET_RANGE, RANGE_SIZE);		\
-	  if (Is_Sparse(Range(fdv_adr)))			\
-	      Trail_MV((WamWord *) Vec(fdv_adr), pl_vec_size);	\
+	    {							\
+	        Trail_MV(fdv_adr + OFFSET_RANGE, RANGE_SIZE);		\
+          if (Is_Sparse(Range(fdv_adr))) {			\
+            Chunk *chunk = First_Chunk(fdv_adr);		\
+            while (chunk != NULL) {				\
+              Trail_MV((WamWord *) chunk, CHUNK_SIZE);		\
+              chunk = chunk->next;				\
+            }							\
+          }							\
 								\
 	  Range_Stamp(fdv_adr) = STAMP;				\
 	}							\
     }								\
   while (0)
-
 
 
 
@@ -283,7 +284,8 @@ static void Clear_Queue(void);
 	  Set_Max_Mask(propag);				\
 	}						\
 							\
-      Vec(fdv_adr) = NULL;				\
+      Range(fdv_adr)->first = NULL; \
+      Range(fdv_adr)->last = NULL; \
       FD_Tag_Value(fdv_adr) = Tag_INT(n);		\
       FD_INT_Date(fdv_adr) = DATE;			\
     }							\
@@ -352,13 +354,8 @@ static void Clear_Queue(void);
       if (propag || (Is_Interval(r) && Is_Sparse(range)))		   \
 	{								   \
 	  Trail_Range_If_Necessary(fdv_adr);				   \
-	  Nb_Elem(fdv_adr) = nb_elem;					   \
-	  Pl_Range_Copy(r, range);				       	   \
-	}								   \
-      else if (r->extra_cstr != (range)->extra_cstr)			   \
-	{								   \
-	  FD_Bind_OV((WamWord *) &(r->extra_cstr), (range->extra_cstr));   \
-	  Set_Dom_Mask(propag);						   \
+	  Nb_Elem(fdv_adr) = nb_elem;			                   \
+	  Pl_Range_Copy(r, range);					   \
 	}								   \
     }									   \
   while (0)
@@ -403,13 +400,15 @@ Pl_Fd_Init_Solver0(void)
   int max_val;
 
 
+
   p = (char *) getenv(ENV_VAR_VECTOR_MAX);
   if (p && *p)
     sscanf(p, "%d", &max_val);
   else
     max_val = DEFAULT_VECTOR_MAX;
 
-  Pl_Define_Vector_Size(max_val);
+  // TODO: do we need a max_val?
+  // Pl_Define_Vector_Size(max_val);
 
   Pl_Fd_Reset_Solver0();
 
@@ -432,6 +431,7 @@ Pl_Fd_Reset_Solver0(void)
   STAMP = 0;
   DATE = 1;
   TP = dummy_fd_var;		/* the queue is empty */
+  //debug_reset_solver();
 }
 
 
@@ -485,7 +485,8 @@ Pl_Fd_Prolog_To_Range(WamWord list_word)
   range = (Range *) CS;
   CS += sizeof(Range) / sizeof(WamWord);
 
-  range->vec = NULL;
+  range->first = NULL;
+  range->last = NULL;
 
   Pl_Fd_List_Int_To_Range(range, list_word);
 
@@ -505,8 +506,8 @@ Pl_Fd_Prolog_To_Value(WamWord arg_word)
   PlLong v = Pl_Rd_Integer_Check(arg_word);
 
 				/* conversion PlLong -> int (Fd only uses int) */
-  if (v < -INTERVAL_MAX_INTEGER)
-    v = -INTERVAL_MAX_INTEGER;
+  if (v < INTERVAL_MIN_INTEGER)
+    v = INTERVAL_MIN_INTEGER;
 
   if (v > INTERVAL_MAX_INTEGER)
     v = INTERVAL_MAX_INTEGER;
@@ -533,9 +534,7 @@ Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
 
   save_list_word = list_word;
 
-  range->extra_cstr = FALSE;
-  Vector_Allocate_If_Necessary(range->vec);
-  Pl_Vector_Empty(range->vec);
+  Set_To_Empty(range);
 
   for (;;)
     {
@@ -554,21 +553,15 @@ Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
       
       val = Pl_Fd_Prolog_To_Value(Car(lst_adr));
 
-      if ((unsigned) val > (unsigned) pl_vec_max_integer)
-	range->extra_cstr = TRUE;
-      else
-	{
-	  Vector_Set_Value(range->vec, val);
-	  n++;
-	}
+      Pl_Range_Set_Value(range, val);
+      //debug_print_chunk(range,1);
+      n++;
 
       list_word = Cdr(lst_adr);
     }
 
   if (n == 0)
     Set_To_Empty(range);
-  else
-    Pl_Range_From_Vector(range);
 }
 
 
@@ -841,6 +834,7 @@ Pl_Fd_New_Variable_Interval(int min, int max)
 {
   WamWord *fdv_adr;
 
+
 #ifdef DEBUG_CHECK_DATES_AND_QUEUE
   Trail_OV(&last_fdv_avr);	/* reserve a cell just before the FD var to link prev FD var (stack) */
   *CS = (WamWord) last_fdv_avr;
@@ -981,7 +975,7 @@ Check_Queue_Consistency(void)
       printf("Checking var:_%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
 #endif
       if (Is_Var_In_Queue(fdv_adr))
-	printf("ERROR QUEUE should be empty but contains var:_#%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
+        printf("ERROR QUEUE should be empty but contains var:_#%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
 
       fdv_adr = prev;
     }
@@ -1034,9 +1028,6 @@ Pl_Fd_Tell_Value(WamWord *fdv_adr, int n)
 
   if (!Pl_Range_Test_Value(Range(fdv_adr), n))
     {
-      if (Extra_Cstr(fdv_adr) && n > pl_vec_max_integer)
-	Pl_Fd_Display_Extra_Cstr(fdv_adr);
-
       return FALSE;
     }
 
@@ -1067,48 +1058,23 @@ start:
 
   r = Range(fdv_adr);
 
-  if (!Pl_Range_Test_Value(r, n))
+  if (!Pl_Range_Test_Value(r, n)) // done if n is not in range 
     return TRUE;
 
-  if (Fd_Variable_Is_Ground(fdv_adr))
+  if (Fd_Variable_Is_Ground(fdv_adr)) // tag value = INT? (otherwise FDV)
     {
-      if (Extra_Cstr(fdv_adr))
-	Pl_Fd_Display_Extra_Cstr(fdv_adr);
-
       return FALSE;
     }
-
   min = r->min;
   max = r->max;
 
 
-  if (Is_Interval(r) && n != min && n != max)
+  if (Is_Interval(r) && n != min && n != max) // interval representation (vec==NULL)
     {
-      if (min > pl_vec_max_integer)
-	{
-	  Pl_Fd_Display_Extra_Cstr(fdv_adr);
-	  return FALSE;
-	}
-
-      if (min == pl_vec_max_integer)
-	{
-	  Pl_Fd_Display_Extra_Cstr(fdv_adr);
-	  Update_Range_From_Int(fdv_adr, min, propag);
-	  All_Propagations(fdv_adr, propag);
-	  return TRUE;
-	}
-
       Trail_Range_If_Necessary(fdv_adr);
       Pl_Range_Becomes_Sparse(r);
       Nb_Elem(fdv_adr) = r->max - r->min + 1;
-      if (r->extra_cstr)	/* the max has been changed */
-	{
-	  propag = MASK_EMPTY;
-	  Set_Max_Mask(propag);
-	  Set_Min_Max_Mask(propag);
-	  Set_Dom_Mask(propag);
-	  All_Propagations(fdv_adr, propag);
-	}
+
       goto start;
     }
 
@@ -1128,7 +1094,7 @@ start:
   propag = MASK_EMPTY;
   Set_Dom_Mask(propag);
   if (Is_Sparse(r))
-    Vector_Reset_Value(r->vec, n);
+    Pl_Sparse_Reset_Value(r, n);
 
   Nb_Elem(fdv_adr)--;
 
@@ -1136,7 +1102,7 @@ start:
     {
       Set_Min_Mask(propag);
       Set_Min_Max_Mask(propag);
-      r->min = (Is_Interval(r)) ? n + 1 : Pl_Vector_Next_After(r->vec, n);
+      r->min = (Is_Interval(r)) ? n + 1 : Pl_Sparse_Next_After(r, n);
       goto do_propag;
     }
 
@@ -1144,7 +1110,7 @@ start:
     {
       Set_Max_Mask(propag);
       Set_Min_Max_Mask(propag);
-      r->max = (Is_Interval(r)) ? n - 1 : Pl_Vector_Next_Before(r->vec, n);
+      r->max = (Is_Interval(r)) ? n - 1 : Pl_Sparse_Next_Before(r, n);
       goto do_propag;
     }
 
@@ -1168,8 +1134,8 @@ Pl_Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range)
 
   if (!Pl_Range_Test_Value(range, n))
     {
-      if (n > pl_vec_max_integer && range->extra_cstr)
-	Pl_Fd_Display_Extra_Cstr(fdv_adr);
+      //if (n > pl_vec_max_integer && range->extra_cstr)
+	//Pl_Fd_Display_Extra_Cstr(fdv_adr);
 
       return FALSE;
     }
@@ -1195,6 +1161,7 @@ Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
   min1 = Min(fdv_adr);
   max1 = Max(fdv_adr);
 
+
   min = math_max(min, min1);
   max = math_min(max, max1);
 
@@ -1216,8 +1183,6 @@ Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
 }
 
 
-
-
 /*-------------------------------------------------------------------------*
  * PL_FD_TELL_RANGE_RANGE                                                  *
  *                                                                         *
@@ -1228,33 +1193,43 @@ Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
   int nb_elem;
   int propag;
   WamWord *save_CS = CS;
+  
 
-  if (range->vec)
-    CS = (WamWord *) range->vec;
-  CS += pl_vec_size;
+  // method is getting called with interval and sparse?
+  if (Is_Sparse(range)) {
+    // make sure that we don't overwrite parts of the range
+    Chunk *chunk = range->first;
+    while (chunk != NULL) {
+       // last chunk does not need to have the highest address
+      CS = math_max(CS, (WamWord *) chunk);
+      chunk = chunk->next;
+    }
+    CS += CHUNK_SIZE;
+
+  } /*else if (Is_Sparse(Range(fdv_adr))) {
+    // allocate room for the same number of Chunks as fdv_adr uses
+    // Intersect will use at most this amount, could be less
+    Chunk *chunk = Range(fdv_adr)->first;
+    while (chunk != NULL) {
+      CS += CHUNK_SIZE;
+      chunk = chunk->next;
+    }
+  } // otherwise, no chunk will be created (stay at interval)*/
 
   Pl_Range_Inter(range, Range(fdv_adr));
 
+
   CS = save_CS;
 
-  if (Is_Empty(range))
-    {
-      if (range->extra_cstr)
-	Pl_Fd_Display_Extra_Cstr(fdv_adr);
+  if (Is_Empty(range)) 
+    return FALSE;
 
-      return FALSE;
-    }
-
-  if (range->min == range->max)
-    {
-      if (range->extra_cstr)
-	Pl_Fd_Display_Extra_Cstr(fdv_adr);
-
-      Update_Range_From_Int(fdv_adr, range->min, propag);
-    }
+  if (range->min == range->max) 
+    Update_Range_From_Int(fdv_adr, range->min, propag);
   else
     {
       nb_elem = Pl_Range_Nb_Elem(range);
+      // copy the range from [range] to fdv_adr
       Update_Range_From_Range(fdv_adr, nb_elem, range, propag);
     }
 
@@ -1559,36 +1534,6 @@ Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2)
 
 
 
-
-/*-------------------------------------------------------------------------*
- * PL_FD_USE_VECTOR                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Fd_Use_Vector(WamWord *fdv_adr)
-{
-  Range range;
-
-  if (Is_Sparse(Range(fdv_adr)))
-    return TRUE;
-
-  Pl_Fd_Before_Add_Cstr();
-  {
-    WamWord *save_CS = CS;	/* code of fd_allocate (from fd_to_c.h) */
-    CS += pl_vec_size;
-
-    Range_Init_Interval(&range, INTERVAL_MIN_INTEGER, INTERVAL_MAX_INTEGER);
-
-    Pl_Range_Becomes_Sparse(&range);
-
-    CS = save_CS;		/* code of fd_deallocate (from fd_to_c.h) */
-  }
-  return Pl_Fd_After_Add_Cstr(Pl_Fd_Tell_Range_Range(fdv_adr, &range));
-}
-
-
-
-
 /*-------------------------------------------------------------------------*
  * PL_FD_CHECK_FOR_BOOL_VAR                                                *
  *                                                                         *
@@ -1662,9 +1607,6 @@ Pl_Fd_Variable_Size0(WamWord *fdv_adr)
 {
   int size = FD_VARIABLE_FRAME_SIZE;
 
-  if (Is_Sparse(Range(fdv_adr)))
-      size += pl_vec_size;
-
   return size;
 }
 
@@ -1707,18 +1649,4 @@ char *
 Pl_Fd_Variable_To_String0(WamWord *fdv_adr)
 {
   return Pl_Range_To_String(Range(fdv_adr));
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_FD_DISPLAY_EXTRA_CSTR                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr)
-{
-  Pl_Stream_Printf(pl_stm_tbl[pl_stm_stdout], MSG_VECTOR_TOO_SMALL,
-		   Cstr_Offset(fdv_adr));
 }

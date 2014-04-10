@@ -126,7 +126,7 @@ power tests (bounded X:[-10..5], Z:[-200..100], C1:2, C2:5):
 
 time : 0
 GNU Prolog 1.4.4 (64 bits)
-Compiled Feb 20 2014, 10:26:11 with gcc
+Compiled Apr  8 2014, 16:28:32 with gcc
 By Daniel Diaz
 Copyright (C) 1999-2014 Daniel Diaz
 

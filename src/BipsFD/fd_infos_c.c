@@ -70,7 +70,9 @@
 Bool
 Pl_Fd_Vector_Max_1(WamWord max_word)
 {
-  return Pl_Un_Integer_Check(pl_vec_max_integer, max_word);
+  //printf("Pl_Fd_Vector_Max_1 (Needs modification)\n");
+  return INTERVAL_MAX_INTEGER;
+  //return Pl_Un_Integer_Check(pl_vec_max_integer, max_word);
 }
 
 
@@ -83,7 +85,8 @@ Pl_Fd_Vector_Max_1(WamWord max_word)
 void
 Pl_Fd_Set_Vector_Max_1(WamWord max_word)
 {
-  Pl_Define_Vector_Size(Pl_Rd_Positive_Check(max_word));
+  //printf("Pl_Fd_Set_Vector_Max_1 (Needs modification)\n");
+  //Pl_Define_Vector_Size(Pl_Rd_Positive_Check(max_word));
 }
 
 
@@ -153,10 +156,11 @@ Pl_Fd_Max_2(WamWord fdv_word, WamWord max_word)
 Bool
 Pl_Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 {
+  printf("Pl_Fd_Dom_2 (Needs modification)\n");
   WamWord word, tag_mask;
   WamWord *fdv_adr;
   int x, end;
-  int vec_elem;
+  //int vec_elem;
 
   Pl_Check_For_Un_List(list_word);
 
@@ -186,14 +190,14 @@ Pl_Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 	}
       else
 	{
-	  VECTOR_BEGIN_ENUM(Vec(fdv_adr), vec_elem);
+	  //VECTOR_BEGIN_ENUM(Vec(fdv_adr), vec_elem);
 
-	  if (!Pl_Get_List(list_word) || !Pl_Unify_Integer(vec_elem))
-	    return FALSE;
+	  //if (!Pl_Get_List(list_word) || !Pl_Unify_Integer(vec_elem))
+	  //  return FALSE;
 
-	  list_word = Pl_Unify_Variable();
+	  //list_word = Pl_Unify_Variable();
 
-	  VECTOR_END_ENUM;
+	  //VECTOR_END_ENUM;
 	}
     }
 
@@ -232,11 +236,12 @@ Pl_Fd_Size_2(WamWord fdv_word, WamWord size_word)
 Bool
 Pl_Fd_Has_Extra_Cstr_1(WamWord fdv_word)
 {
+  return FALSE; /*
   WamWord word, tag_mask;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
 
-  return tag_mask == TAG_FDV_MASK && Extra_Cstr(UnTag_FDV(word));
+  return tag_mask == TAG_FDV_MASK && Extra_Cstr(UnTag_FDV(word));*/
 }
 
 
@@ -249,6 +254,8 @@ Pl_Fd_Has_Extra_Cstr_1(WamWord fdv_word)
 Bool
 Pl_Fd_Has_Vector_1(WamWord fdv_word)
 {
+  printf("Pl_Fd_Has_Vector_1 (Possibly needs modification)\n");
+
   WamWord word, tag_mask;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
@@ -266,9 +273,12 @@ Pl_Fd_Has_Vector_1(WamWord fdv_word)
 Bool
 Pl_Fd_Use_Vector_1(WamWord fdv_word)
 {
+  printf("Pl_Fd_Use_Vector_1 (Needs modification)\n");
+  return FALSE;
+  /*
   WamWord word, tag_mask;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
 
-  return tag_mask == TAG_INT_MASK || Pl_Fd_Use_Vector(UnTag_FDV(word));
+  return tag_mask == TAG_INT_MASK || Pl_Fd_Use_Vector(UnTag_FDV(word));*/
 }

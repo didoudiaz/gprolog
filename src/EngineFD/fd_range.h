@@ -43,23 +43,51 @@
  * Constants                       *
  *---------------------------------*/
 
+/* size of bitvec array in words */
+#define CHUNK_BITVEC_WORD_COUNT 4
+/* size of bitvec array in bits */
+#define CHUNK_BITVEC_SIZE ((CHUNK_BITVEC_WORD_COUNT) * (WORD_SIZE))
+/* constant for the chunk base: if base==CHUNK_INTERVAL_REPRESENTATION, an interval representation is used  */
+/*                              otherwise use sparse representation with bitvec                             */
+#define CHUNK_INTERVAL_REPRESENTATION 1
+
+#define CHUNK_SIZE (sizeof(Chunk) / sizeof(WamWord))
+
+/* The maximum number of chunks that can be created */
+#define MAX_CHUNKS 1000000000
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
 
 typedef PlULong VecWord;
 
-typedef VecWord *Vector;
+typedef VecWord *Vector; // TODO: check if still used
+
+
+typedef struct
+{
+  int base; /* should be a multiple of CHUNK_BITVEC_SIZE */
+  int min;
+  int max;
+  VecWord bitvec[CHUNK_BITVEC_WORD_COUNT];
+  void *prev;
+  void *next;
+}
+Chunk;
 
 typedef struct			/* Ranges are always handled through pointers */
 {
-  Bool extra_cstr;
+  //Bool extra_cstr;  /* should be removed eventually */
   int min;
   int max;
-  Vector vec;
+  //Vector vec; /* should be removed eventually */
+
+  /* for Chunk representation */
+  Chunk *first;
+  Chunk *last;
 }
 Range;
-
 
 
 
@@ -69,6 +97,10 @@ Range;
 
 #if 0
 #define GP_FD_POSITIVE_ONLY 					/* if set, use only positive integers (for backwards compatibility) */
+#endif
+
+#if 0
+#define USE_MALLOC_FOR_CHUNKS
 #endif
 
 #include "fd_hook_range.h"
@@ -93,54 +125,9 @@ Range;
 
 
 
-
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-void Pl_Define_Vector_Size(int max_val);
-
-void Pl_Vector_From_Interval(Vector vec, int min, int max);
-
-int Pl_Vector_Nb_Elem(Vector vec);
-
-int Pl_Vector_Ith_Elem(Vector vec, int n);
-
-int Pl_Vector_Next_After(Vector vec, int n);
-
-int Pl_Vector_Next_Before(Vector vec, int n);
-
-void Pl_Vector_Empty(Vector vec);
-
-void Pl_Vector_Full(Vector vec);
-
-Bool Pl_Vector_Test_Null_Inter(Vector vec, Vector vec1);
-
-void Pl_Vector_Copy(Vector vec, Vector vec1);
-
-void Pl_Vector_Union(Vector vec, Vector vec1);
-
-void Pl_Vector_Inter(Vector vec, Vector vec1);
-
-void Pl_Vector_Compl(Vector vec);
-
-void Pl_Vector_Add_Vector(Vector vec, Vector vec1);
-
-void Pl_Vector_Sub_Vector(Vector vec, Vector vec1);
-
-void Pl_Vector_Mul_Vector(Vector vec, Vector vec1);
-
-void Pl_Vector_Div_Vector(Vector vec, Vector vec1);
-
-void Pl_Vector_Mod_Vector(Vector vec, Vector vec1);
-
-void Pl_Vector_Add_Value(Vector vec, int n);
-
-void Pl_Vector_Mul_Value(Vector vec, int n);
-
-void Pl_Vector_Div_Value(Vector vec, int n);
-
-void Pl_Vector_Mod_Value(Vector vec, int n);
 
 Bool Pl_Range_Test_Value(Range *range, int n);
 
@@ -161,8 +148,6 @@ void Pl_Range_Set_Value(Range *range, int n);
 void Pl_Range_Reset_Value(Range *range, int n);
 
 void Pl_Range_Becomes_Sparse(Range *range);
-
-void Pl_Range_From_Vector(Range *range);
 
 void Pl_Range_Union(Range *range, Range *range1);
 
@@ -191,105 +176,135 @@ void Pl_Range_Mod_Value(Range *range, int n);
 char *Pl_Range_To_String(Range *range);
 
 
-
-
 /*---------------------------------*
- * Vector Management Macros        *
+ * Chunk methods                   *
  *---------------------------------*/
 
-#define Word_No_And_Bit_No(w, b)   (((VecWord) (w) << WORD_SIZE_BITS)|\
-                                     (VecWord) (b))
-#define Word_No(n)                 ((VecWord) (n) >> WORD_SIZE_BITS)
-#define Bit_No(n)                  ((n) & (((VecWord) 1 << WORD_SIZE_BITS)-1))
+Chunk * Pl_Create_Interval_Chunk(int min, int max);
+
+Chunk * Pl_Get_Chunk_For_Value_Recur(Chunk* chunk, int n);
+
+Chunk * Pl_Get_Chunk_For_Value(Range* range, int n);
+
+void Pl_Set_Min_Max_Bitvec_Chunk(Chunk *chunk);
+
+Bool Pl_Sparse_Test_Value(Range *range, int n);
+
+void Pl_Sparse_Set_Value(Range *range, int n);
+
+void Pl_Sparse_Reset_Value(Range *range, int n);
+
+void Pl_Sparse_Inter(Range *range, Range *range1);
+
+void Pl_Sparse_Union(Range *range, Range *range1);
+
+void Pl_Set_Chunk_At_End_Of_Range(Range *range, Chunk *chunk);
+
+void Pl_Set_Chunk_Before_Chunk(Range *range, Chunk *new_chunk, Chunk *old_chunk);
+
+void Pl_Remove_Interval_Chunk(Range *range, Chunk *chunk);
+
+void Pl_Remove_Interval_Chunk_If_Needed(Range *range, Chunk *chunk);
+
+int Pl_Chunk_Count(Range *range);
+
+void Pl_Sparse_Compl(Range *range);
+
+void Pl_Sparse_Mul_Value(Range *range, int n);
+
+void Pl_Sparse_Div_Value(Range *range, int n);
+
+void Pl_Sparse_Add_Value(Range *range, int n);
+
+void Pl_Sparse_Mod_Value(Range *range, int n);
+
+void Pl_Sparse_Mul_Range(Range *range, Range *range1);
+
+void Pl_Sparse_Div_Range(Range *range, Range *range1);
+
+void Pl_Sparse_Add_Range(Range *range, Range *range1);
+
+void Pl_Sparse_Sub_Range(Range *range, Range *range1);
+
+void Pl_Sparse_Mod_Range(Range *range, Range *range1);
+
+int Pl_Sparse_Nb_Elem(Range *range);
+
+int Pl_Sparse_Ith_Elem(Range *range, int i);
+
+int Pl_Sparse_Next_Before(Range *range, int n);
+
+int Pl_Sparse_Next_After(Range *range, int n);
+
+Bool Pl_Sparse_Interval_Test_Null_Inter(Range *range, Range *range1);
+
+Bool Pl_Sparse_Sparse_Test_Null_Inter(Range *range, Range *range1);
+
+void Pl_Merge_Chunk_Lists(Range *range, Chunk *chunk1_first, Chunk *chunk1_last);
+
+/*---------------------------------*
+ * debug methods                   *
+ *---------------------------------*/
+
+void Pl_Err_Resource(int atom);
+
+/*---------------------------------*
+ * Chunk Management Macros           *
+ *---------------------------------*/
 
 
-
-#define Vector_Test_Value(vec, n)  ((vec[Word_No(n)] & ((VecWord) 1 << Bit_No(n))) != 0)
-
-
-
-
-#define Vector_Set_Value(vec, n)   (vec[Word_No(n)] |= ((VecWord) 1 << Bit_No(n)))
-
-
-
-
-#define Vector_Reset_Value(vec, n) (vec[Word_No(n)] &= ~((VecWord) 1 << Bit_No(n)))
-
-
-
-
-#define Vector_Allocate_If_Necessary(vec)	\
-  do						\
-    {						\
-      if (vec == NULL)				\
-	Vector_Allocate(vec);			\
-    }						\
+#define Chunk_Allocate_If_Necessary(chunk) 	\
+  do            				\
+    {           				\
+      if (chunk == NULL)        		\
+	Chunk_Allocate(chunk);     		\
+    }           				\
   while (0)
 
-
-
-
-#define Vector_Allocate(vec)       		\
-  do						\
+/* Allocate with malloc for unit testing */
+/* TODO: update this so that no testing code is in fd_range */
+#ifndef USE_MALLOC_FOR_CHUNKS
+#define Chunk_Allocate(chunk)			\
+  do 						\
     {						\
-      vec = (Vector) RANGE_TOP_STACK;		\
-      RANGE_TOP_STACK += pl_vec_size;		\
+      chunk = (Chunk*) RANGE_TOP_STACK;		\
+      RANGE_TOP_STACK += CHUNK_SIZE;		\
     }						\
   while (0)
+#else
+#define Chunk_Allocate(chunk)     \
+  do            \
+    {           \
+      chunk = (Chunk*) malloc(sizeof(Chunk)); \
+    }           \
+  while (0)
+#endif
 
-
-
-
-	  /* To enumerate a vector use VECTOR_BEGIN_ENUM / VECTOR_END_ENUM *
-	   * macros as follows:                                            *
-	   * ...                                                           *
-	   * VECTOR_BEGIN_ENUM(the_vector,vec_elem)                        *
-	   *    your code (vec_elem contains the current range element)    *
-	   * VECTOR_END_ENUM                                               */
-
-#define VECTOR_BEGIN_ENUM(vec, vec_elem)                              	  \
-{									  \
-  Vector enum_end = vec + pl_vec_size, enum_i = vec;			  \
-  int enum_j;								  \
-  VecWord enum_word;							  \
-									  \
-  vec_elem = 0;								  \
-  do									  \
-    {									  \
-      enum_word = *enum_i;						  \
-      for (enum_j = 0; enum_j++ < WORD_SIZE; enum_word >>= 1, vec_elem++) \
-	{								  \
-	  if (enum_word & 1)						  \
-	    {
-
-
-#define VECTOR_END_ENUM                                              	\
-	    }								\
-	}								\
-    }									\
-  while (++enum_i < enum_end);						\
-}
-
-
+/* Unused macros since no bitvec is used */
+//#define Is_Bitvec_Chunk(Chunk)      ((Chunk->base) != (CHUNK_INTERVAL_REPRESENTATION))
+//#define Is_Interval_Chunk(Chunk)    ((Chunk->base) == (CHUNK_INTERVAL_REPRESENTATION))
+//#define start(Chunk)          ((Is_Bitvec_Chunk(Chunk)) ? (Chunk->base) : (Chunk->min))
+//#define end(Chunk)            ((Is_Bitvec_Chunk(Chunk)) ? ((Chunk->base) + (CHUNK_BITVEC_SIZE) - 1) : (Chunk->max))
 
 
 /*---------------------------------*
  * Range Management Macros         *
  *---------------------------------*/
 
-#define Is_Interval(range)         ((range)->vec == NULL)
-#define Is_Sparse(range)           ((range)->vec != NULL)
+#define Is_Interval(range)         ((range)->first == NULL)
+#define Is_Sparse(range)           ((range)->first != NULL)
 #define Is_Empty(range)            ((range)->min >  (range)->max)
 #define Is_Not_Empty(range)        ((range)->max >= (range)->min)
 
 
+/* TODO: Possible memory waste by not garbage collecting the chunks */
 #define Set_To_Empty(range) 				\
   do							\
     {							\
       (range)->min = 1;					\
       (range)->max = 0;					\
-      (range)->vec = NULL;				\
+      (range)->first = NULL;				\
+      (range)->last = NULL;				\
     }							\
   while (0)
 
@@ -297,10 +312,17 @@ char *Pl_Range_To_String(Range *range);
 #define Range_Init_Interval(range, r_min, r_max)	\
   do							\
     {							\
-      (range)->extra_cstr = FALSE;			\
       (range)->min = (r_min);				\
       (range)->max = (r_max);				\
-      (range)->vec = NULL;				\
+      (range)->first = NULL;				\
+      (range)->last = NULL;				\
     }							\
   while (0)
+
+
+
+
+
+
+
 

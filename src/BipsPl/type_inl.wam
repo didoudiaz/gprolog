@@ -2,7 +2,7 @@
 % file    : type_inl.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/type_inl.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/type_inl.pl').
 
 
 predicate('$use_type_inl'/0,41,static,private,monofile,built_in,[

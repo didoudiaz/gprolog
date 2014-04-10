@@ -2,7 +2,7 @@
 % file    : expand.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/expand.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/expand.pl').
 
 
 predicate('$use_expand'/0,41,static,private,monofile,built_in,[

@@ -42,3 +42,16 @@ clean:
 
 
 distclean: clean
+
+
+check:
+	clear
+	$(CC) $(CFLAGS) -c fd_range.h -I../EnginePl
+	$(CC) $(CFLAGS) -o tests_fd_range -Wall tests_fd_range.c -I../EnginePl
+	./tests_fd_range
+
+
+
+
+
+

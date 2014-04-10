@@ -71,7 +71,6 @@
 
 
 
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -269,8 +268,10 @@
 
 #define fd_allocate				\
 {						\
-  WamWord *save_CS = CS;			\
-  CS += pl_vec_size;
+  WamWord *save_CS = CS;		\
+  CS += CHUNK_SIZE; 
+
+  // todo
 
 
 
@@ -380,7 +381,8 @@
 
 
 #define fd_load_range(r, fp)			\
-  R(r).vec = NULL;				\
+  R(r).first = NULL;        \
+  R(r).last = NULL;        \
   Pl_Range_Copy(&R(r), Frame_Range_Parameter(fp));
 
 
@@ -388,7 +390,8 @@
 
 #define fd_load_dom(r, fv)			\
   fdv_adr = Frame_Variable(fv);			\
-  R(r).vec = NULL;				\
+  R(r).first = NULL;        \
+  R(r).last = NULL;        \
   Pl_Range_Copy(&R(r), Range(fdv_adr));
 
 
@@ -413,7 +416,8 @@
 
 
 #define fd_range_empty(r)			\
-  R(r).vec = NULL;				\
+  R(r).first = NULL;        \
+  R(r).last = NULL;        \
   Set_To_Empty(&R(r));
 
 
@@ -498,7 +502,8 @@
 
 
 #define fd_range_copy(r, r1)			\
-  R(r).vec = NULL;				\
+  R(r).first = NULL;        \
+  R(r).last = NULL;        \
   Pl_Range_Copy(&R(r), &R(r1));
 
 
@@ -507,7 +512,8 @@
 #define fd_range_fct(fct_name, r, args)		\
 {						\
   void fct_name();				\
-  R(r).vec = NULL;				\
+  R(r).first = NULL;        \
+  R(r).last = NULL;        \
   fct_name(&R(r), args);			\
 }
 
@@ -671,7 +677,7 @@ fct_name(WamWord *AF)				\
 
 
 #define fd_local_range_var(r)			\
-  Range R(r);    /*  = {FALSE, 0, 0, NULL} init should be useless  */
+  Range R(r);    /*  = {0, 0, NULL, NULL} init should be useless  */
 
 
 

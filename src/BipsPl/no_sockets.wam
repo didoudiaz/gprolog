@@ -2,7 +2,7 @@
 % file    : no_sockets.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/no_sockets.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/no_sockets.pl').
 
 
 predicate('$use_sockets'/0,41,static,private,monofile,built_in,[

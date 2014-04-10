@@ -2,7 +2,7 @@
 % file    : sort.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/sort.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/sort.pl').
 
 
 predicate('$use_sort'/0,41,static,private,monofile,built_in,[

@@ -2,7 +2,7 @@
 % file    : term_inl.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/term_inl.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/term_inl.pl').
 
 
 predicate('$use_term_inl'/0,41,static,private,monofile,built_in,[

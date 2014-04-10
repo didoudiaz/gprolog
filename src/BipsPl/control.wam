@@ -2,7 +2,7 @@
 % file    : control.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/control.pl').
+file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/control.pl').
 
 
 predicate('$use_control'/0,41,static,private,monofile,built_in,[

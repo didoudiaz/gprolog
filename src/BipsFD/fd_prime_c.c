@@ -114,6 +114,11 @@ Pl_Not_Prime_Range(Range *r)
 static void
 Compute_Prime_Range(void)
 {
+  printf("Compute_Prime_Range (Needs modification)\n");
+  return;
+
+  /*
+  // TODO: reimplement
   int i, j;
   Vector vec, nvec, end;
 
@@ -126,7 +131,7 @@ Compute_Prime_Range(void)
   prime_range.vec = vec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
   not_prime_range.vec = nvec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
 
-  Pl_Vector_Full(vec);
+  //Pl_Vector_Full(vec);
   Vector_Reset_Value(vec, 0);
   Vector_Reset_Value(vec, 1);
 
@@ -138,7 +143,7 @@ Compute_Prime_Range(void)
 	Vector_Reset_Value(vec, j);
 
       j = i;
-      i = Pl_Vector_Next_After(vec, i);
+      i = 0;//Pl_Vector_Next_After(vec, i);
     }
   while (i > 0);
 
@@ -162,5 +167,5 @@ Compute_Prime_Range(void)
     }
   while (vec < end);
 
-  prime_vec_size = pl_vec_size;
+  prime_vec_size = pl_vec_size;*/
 }

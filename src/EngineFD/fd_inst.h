@@ -86,10 +86,9 @@
 
 	  /* Shorthands for Range(fdv_adr)'s fields */
 
-#define Extra_Cstr(fdv_adr)        (Range(fdv_adr)->extra_cstr)
 #define Min(fdv_adr)               (Range(fdv_adr)->min)
 #define Max(fdv_adr)               (Range(fdv_adr)->max)
-#define Vec(fdv_adr)               (Range(fdv_adr)->vec)
+#define First_Chunk(fdv_adr)       (Range(fdv_adr)->first)
 
 
 
@@ -271,8 +270,6 @@ Bool Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
 Bool Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
 
 Bool Pl_Fd_Remove_Value(WamWord *fdv_adr, int n);
-
-Bool Pl_Fd_Use_Vector(WamWord *fdv_adr);
 
 Bool Pl_Fd_Check_For_Bool_Var(WamWord x_word);
 
