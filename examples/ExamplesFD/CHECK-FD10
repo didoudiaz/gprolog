@@ -1,0 +1,80 @@
+#!/bin/sh
+
+OTHER_DIR=${1:-~/gprolog-ok/examples/ExamplesFD}
+THIS_DIR=${1:-~/Stage/sparse-gprolog-code/examples/ExamplesFD}
+
+
+check () {
+    cmd=$1
+    shift
+    rm -f ~/tmp/check.data
+    touch ~/tmp/check.data
+    d=''
+    while [ $# -ge 1 ]; do
+	d="$d $1"
+	echo $1 >> ~/tmp/check.data
+	shift
+    done
+    printf '*** checking %-10s on %-6s' "$cmd" "$d"
+	t3=0
+	t4=0
+
+	for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+	do 
+
+		cat ~/tmp/check.data | $THIS_DIR/$cmd  >~/tmp/check.1
+		cat ~/tmp/check.data | $OTHER_DIR/$cmd >~/tmp/check.2
+		fgrep -v time ~/tmp/check.1 >~/tmp/check.1a
+		fgrep -v time ~/tmp/check.2 >~/tmp/check.2a
+		t1=`sed -n -e 's/time[^a-z_0-9]*\([0-9][0-9]*\)/\1/p' ~/tmp/check.1`
+		t2=`sed -n -e 's/time[^a-z_0-9]*\([0-9][0-9]*\)/\1/p' ~/tmp/check.2`
+
+		t3=`expr $t3 + $t1`
+		t4=`expr $t4 + $t2`
+	
+		diff ~/tmp/check.1a ~/tmp/check.2a
+	
+	done
+	printf '   time:  %5d  %5d\n' $t3 $t4
+}
+
+
+check alpha
+check 'alpha ff'
+check bridge
+check cars
+check crypta
+check 'digit8 ff'
+check donald
+check eq10
+check eq20
+check five
+check gardner 5 4
+check magic 100
+check multipl
+check partit 600
+check queens 23
+check queens 26
+check 'queens ff' 130
+check send
+check square 3
+check square 4
+check srq
+check magsq 10
+check qg5 11
+check langford 32
+check interval 256
+check bdiag 8
+check bdonald
+check bpigeon 6 6
+check bpigeon 5 8
+check bpigeon 10 9
+check bqueens 18
+check bqueens 20
+check bramsey 13
+check bramsey 14
+check bschur 13
+check bschur 14
+check bsend
+
+

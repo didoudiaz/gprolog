@@ -1,0 +1,37 @@
+*** checking alpha      on          time:    460    380
+*** checking alpha ff   on          time:      7     20
+*** checking bridge     on          time:     53     40
+*** checking cars       on          time:     28     27
+*** checking crypta     on          time:     14      7
+*** checking digit8 ff  on          time:    114     70
+*** checking donald     on          time:    199    133
+*** checking eq10       on          time:     31     12
+*** checking eq20       on          time:     33     15
+*** checking five       on          time:      0      0
+*** checking gardner    on  5 4     time:    155    146
+*** checking magic      on  100     time:    330    308
+*** checking multipl    on          time:    689    574
+*** checking partit     on  600     time:   2331   2467
+*** checking queens     on  23      time:    161    114
+*** checking queens     on  26      time:   1867   1083
+*** checking queens ff  on  130     time:    769    564
+*** checking send       on          time:      1      0
+*** checking square     on  3       time:    412    347
+*** checking square     on  4       time:    688    580
+*** checking srq        on          time:      0      2
+*** checking magsq      on  10      time:    697    574
+*** checking qg5        on  11      time:    898    612
+*** checking langford   on  32      time:   7444   5615
+*** checking interval   on  256     time:    150    203
+*** checking bdiag      on  8       time:   8095   7800
+*** checking bdonald    on          time:     97     91
+*** checking bpigeon    on  6 6     time:     48     50
+*** checking bpigeon    on  5 8     time:    153    150
+*** checking bpigeon    on  10 9    time:   9508   9331
+*** checking bqueens    on  18      time:    633    630
+*** checking bqueens    on  20      time:   2541   2418
+*** checking bramsey    on  13      time:    138    110
+*** checking bramsey    on  14      time:    200    192
+*** checking bschur     on  13      time:     15     17
+*** checking bschur     on  14      time:     16     11
+*** checking bsend      on          time:     15      4
