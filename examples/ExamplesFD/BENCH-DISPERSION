@@ -1,0 +1,63 @@
+#!/bin/sh
+
+ORIG_DIR=${1:-~/gprolog-ok/examples/ExamplesFD}
+THIS_DIR=${1:-~/Stage/sparse-gprolog-code/examples/ExamplesFD}
+NEG_DIR=${1:-~/Stage/gprolog-code/examples/ExamplesFD}
+
+
+check () {
+	runs=$1
+    cmd=$2
+    shift
+    rm -f ~/tmp/check.data
+    touch ~/tmp/check.data
+    d=''
+    while [ $# -ge 1 ]; do
+	d="$d $2"
+	echo $2 >> ~/tmp/check.data
+	shift
+    done
+    printf '%-10s %-6s : ' "$cmd" "$d"
+	
+	# get the average
+	avg=0
+    for n in `seq $runs`
+	do 
+		cat ~/tmp/check.data | $ORIG_DIR/$cmd >~/tmp/check.1
+		fgrep -v time ~/tmp/check.1 >~/tmp/check.1a
+		t1=`sed -n -e 's/time[^a-z_0-9]*\([0-9][0-9]*\)/\1/p' ~/tmp/check.1`
+		avg=`expr $avg + $t1`
+	done
+	avg=$(echo "$avg/($runs)" | bc -l)
+	printf ' avg: %0.2f    \t' $avg
+	
+	# get the variance
+	var=0
+    for n in `seq $runs`
+	do 
+		cat ~/tmp/check.data | $ORIG_DIR/$cmd >~/tmp/check.1
+		fgrep -v time ~/tmp/check.1 >~/tmp/check.1a
+		t1=`sed -n -e 's/time[^a-z_0-9]*\([0-9][0-9]*\)/\1/p' ~/tmp/check.1`
+
+		var=$(echo "$var+(($t1-$avg)*($t1-$avg))" | bc -l)
+	done
+	var=$(echo "sqrt($var/$runs)" | bc -l)
+	printf ' st.dev.: %0.2f \n' $var
+}
+
+
+check 100 alpha
+check 100 crypta
+check 100 'digit8 ff'
+check 100 donald
+check 100 eq20
+check 100 magic 100
+check 100 multipl
+check 100 partit 600
+check 100 queens 26
+check 100 'queens ff' 130
+check 100 magsq 10
+check 100 qg5 11
+check 100 langford 32
+check 100 interval 256
+

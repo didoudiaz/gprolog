@@ -43,14 +43,6 @@
  * Constants                       *
  *---------------------------------*/
 
-/* size of bitvec array in words */
-#define CHUNK_BITVEC_WORD_COUNT 4
-/* size of bitvec array in bits */
-#define CHUNK_BITVEC_SIZE ((CHUNK_BITVEC_WORD_COUNT) * (WORD_SIZE))
-/* constant for the chunk base: if base==CHUNK_INTERVAL_REPRESENTATION, an interval representation is used  */
-/*                              otherwise use sparse representation with bitvec                             */
-#define CHUNK_INTERVAL_REPRESENTATION 1
-
 #define CHUNK_SIZE (sizeof(Chunk) / sizeof(WamWord))
 
 /* The maximum number of chunks that can be created */
@@ -67,10 +59,8 @@ typedef VecWord *Vector; // TODO: check if still used
 
 typedef struct
 {
-  int base; /* should be a multiple of CHUNK_BITVEC_SIZE */
   int min;
   int max;
-  VecWord bitvec[CHUNK_BITVEC_WORD_COUNT];
   void *prev;
   void *next;
 }
@@ -78,12 +68,8 @@ Chunk;
 
 typedef struct			/* Ranges are always handled through pointers */
 {
-  //Bool extra_cstr;  /* should be removed eventually */
   int min;
   int max;
-  //Vector vec; /* should be removed eventually */
-
-  /* for Chunk representation */
   Chunk *first;
   Chunk *last;
 }

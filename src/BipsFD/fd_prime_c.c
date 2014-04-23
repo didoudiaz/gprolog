@@ -59,9 +59,15 @@
  * Global Variables                *
  *---------------------------------*/
 
-static int prime_vec_size;
+static int computed_prime_range = 0;
 static Range prime_range;
 static Range not_prime_range;
+/* Choose a maximum value for the prime range      *
+ * max_prime_value = 10^2 ==>         25 primes    *
+ * max_prime_value = 10^3 ==>        168 primes    *
+ * max_prime_value = 10^6 ==>     78,498 primes    *
+ * max_prime_value = 2^29 ==> 28,192,750 primes    */
+static int max_prime_value = 1000;
 
 
 
@@ -72,6 +78,7 @@ static Range not_prime_range;
 
 static void Compute_Prime_Range(void);
 
+static void Add_Value_To_Prime_Range(int value);
 
 
 
@@ -82,7 +89,7 @@ static void Compute_Prime_Range(void);
 void
 Pl_Prime_Range(Range *r)
 {
-  if (prime_vec_size != pl_vec_size)
+  if (!computed_prime_range)
     Compute_Prime_Range();
 
   Pl_Range_Copy(r, &prime_range);
@@ -98,14 +105,23 @@ Pl_Prime_Range(Range *r)
 void
 Pl_Not_Prime_Range(Range *r)
 {
-  if (prime_vec_size != pl_vec_size)
+  if (!computed_prime_range)
     Compute_Prime_Range();
 
   Pl_Range_Copy(r, &not_prime_range);
 }
 
 
-
+static void
+Add_Value_To_Prime_Range(int value) {
+  Chunk *chunk = (Chunk*) Malloc(sizeof(Chunk));
+  chunk->min = value;
+  chunk->max = value;
+  prime_range.last->next = chunk;
+  chunk->prev = prime_range.last;
+  chunk->next = NULL;
+  prime_range.last = chunk;
+}
 
 /*-------------------------------------------------------------------------*
  * COMPUTE_PRIME_RANGE                                                     *
@@ -114,58 +130,76 @@ Pl_Not_Prime_Range(Range *r)
 static void
 Compute_Prime_Range(void)
 {
-  printf("Compute_Prime_Range (Needs modification)\n");
+  // add first few values (for now separate 2 and 3)
+  Chunk *first_chunk = (Chunk*) Malloc(sizeof(Chunk));
+  prime_range.first = first_chunk;
+  first_chunk->min = 2;
+  first_chunk->max = 2;
+  prime_range.last = first_chunk;
+  Add_Value_To_Prime_Range(3);
+  Add_Value_To_Prime_Range(5);
+  Add_Value_To_Prime_Range(7);
+
+  int val = 10;
+  while (val++ < max_prime_value) {
+    // iterate over the chunks until sqrt(val)
+    // search for divisors
+    int sqrt_val = Pl_Sqrt_Dn(val);
+    Chunk *chunk = first_chunk;
+    while (chunk->min <= sqrt_val) {
+      if (val % chunk->min == 0) 
+        break;
+      chunk = chunk->next;
+    }
+    // no divisors found ==> add it to the list
+    if (chunk->min > sqrt_val) {
+      Add_Value_To_Prime_Range(val);
+    }
+  }
+
+  // combine 2 and 3
+  prime_range.first = first_chunk->next;
+  prime_range.first->prev = NULL;
+  prime_range.first->min = 2;
+
+  prime_range.min = prime_range.first->min;
+  prime_range.max = prime_range.last->max;
+
+
+  // not_prime_range
+
+  // first chunk
+  first_chunk->min = INTERVAL_MIN_INTEGER;
+  first_chunk->max = 1;
+  not_prime_range.first = first_chunk;
+  not_prime_range.last = first_chunk;
+
+  // [prev_prime.max + 1 .. prime.min - 1]
+  Chunk *prime_chunk = prime_range.first->next;
+  int prev_max = 3;
+  while (prime_chunk != NULL) {
+    Chunk *chunk = (Chunk*) Malloc(sizeof(Chunk));
+    chunk->min = prev_max + 1;
+    chunk->max = prime_chunk->min - 1;
+    not_prime_range.last->next = chunk;
+    chunk->prev = not_prime_range.last;
+    chunk->next = NULL;
+    not_prime_range.last = chunk;
+    prev_max = prime_chunk->max;
+    prime_chunk = prime_chunk->next;
+  }
+  
+  // last chunk
+  Chunk *chunk = (Chunk*) Malloc(sizeof(Chunk));
+  chunk->min = prev_max + 1;
+  chunk->max = INTERVAL_MAX_INTEGER;
+  not_prime_range.last->next = chunk;
+  chunk->prev = not_prime_range.last;
+  chunk->next = NULL;
+
+  not_prime_range.min = INTERVAL_MIN_INTEGER;
+  not_prime_range.max = INTERVAL_MAX_INTEGER;
+
+  computed_prime_range = 1;
   return;
-
-  /*
-  // TODO: reimplement
-  int i, j;
-  Vector vec, nvec, end;
-
-  if (prime_range.vec)
-    {
-      Free(prime_range.vec);
-      Free(not_prime_range.vec);
-    }
-
-  prime_range.vec = vec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
-  not_prime_range.vec = nvec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
-
-  //Pl_Vector_Full(vec);
-  Vector_Reset_Value(vec, 0);
-  Vector_Reset_Value(vec, 1);
-
-  i = 2;
-  do
-    {
-      j = i;
-      while ((j += i) <= pl_vec_max_integer)
-	Vector_Reset_Value(vec, j);
-
-      j = i;
-      i = 0;//Pl_Vector_Next_After(vec, i);
-    }
-  while (i > 0);
-
-  prime_range.extra_cstr = TRUE;
-  prime_range.min = 2;
-  prime_range.max = j;
-
-  not_prime_range.extra_cstr = TRUE;
-  not_prime_range.min = 0;
-  not_prime_range.max = (j < pl_vec_max_integer) ? pl_vec_max_integer
-    : pl_vec_max_integer - 1;
-
-
-  end = vec + pl_vec_size;
-
-  do
-    {
-      *nvec = ~(*vec);
-      vec++;
-      nvec++;
-    }
-  while (vec < end);
-
-  prime_vec_size = pl_vec_size;*/
 }

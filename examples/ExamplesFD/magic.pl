@@ -62,6 +62,7 @@ constraints([], _, _, 0, 0).
 constraints([X|Xs], L, I, S, S2) :-
 	sum(L, I, X),
 	I1 is I + 1,
+	S1 #>= 0,
 	S1 + X #= S,                                 % redundant constraint 1
 	(   I = 0 ->
 	    S3 = S2

@@ -1132,6 +1132,14 @@ static char * test_Pl_Range_Mul_Value() {
 	Pl_Range_Mul_Value(r,5);
 	range_test("[20..22][30][100..101]*2", r, "100:105:110:150:500:505");
 
+	r = create_range("0..3:5");
+	Pl_Range_Mul_Value(r,-2);
+	range_test("(0..3:5)*2", r, "-10:-6:-4:-2:0");
+
+	r = create_range("-4:0..3:5");
+	Pl_Range_Mul_Value(r,-2);
+	range_test("(-4:0..3:5)*2", r, "-10:-6:-4:-2:0:8");
+
 	return 0;
 }
 
@@ -1145,6 +1153,10 @@ static char * test_Pl_Range_Div_Value() {
 	Range *r = create_range("-15..5");
 	Pl_Range_Div_Value(r,3);
 	range_test("(-15..5)/3", r , "-5..1");
+
+	r = create_range("-15..5");
+	Pl_Range_Div_Value(r,-3);
+	range_test("(-15..5)/-3", r , "-1..5");
 
 	r = create_range("-15..-2");
 	Pl_Range_Div_Value(r,4);
@@ -1167,7 +1179,28 @@ static char * test_Pl_Range_Div_Value() {
 
 	r = create_range("-5..5");
 	Pl_Range_Div_Value(r,0);
-	range_test("((-5..5)/0", r , "1..0");
+	range_test("(-5..5)/0", r , "1..0");
+
+	r = create_range("2:6:10");
+	Pl_Range_Div_Value(r,2);
+	range_test("(2:6:10)/2", r , "1:3:5");
+
+	r = create_range("2:4:6:8:11..21");
+	Pl_Range_Div_Value(r,-2);
+	range_test("(2:4:6:8:11..21)/-2", r , "-10..-6:-4..-1");
+
+	r = create_range("2:6:10");
+	Pl_Range_Div_Value(r,-2);
+	range_test("(2:6:10)/-2", r , "-5:-3:-1");
+
+	// rounding
+	r = create_range("-11..-5:5..11");
+	Pl_Range_Div_Value(r,2);
+	range_test("(-11..-5:5..11)/2", r , "-5..-3:3..5");
+
+	r = create_range("-11..-5:5..11");
+	Pl_Range_Div_Value(r,-2);
+	range_test("(-11..-5:5..11)/-2", r , "-5..-3:3..5");
 
 	return 0;
 }
@@ -1281,15 +1314,344 @@ static char * test_Pl_Range_Mod_Value() {
 	Pl_Range_Mod_Value(r,5);
 	range_test("(-11..-8) mod 5", r, "0..2:4");
 
+	r = create_range("1..100");
+	Pl_Range_Mod_Value(r,5);
+	range_test("(1..100) mod 5", r, "0..4");
+
 	/* Sparse */
 
-	//r = create_range("2:6:10..12:25..40");
-	//Pl_Range_Mod_Value(r,25);
-	//range_test("(2:6:10..12:25..40) mod 25", r, "0..2:4");
+	r = create_range("0..4:");
+	Pl_Range_Mod_Value(r,5);
+	range_test("(0..4:) mod 5", r, "0..4:");
+
+	r = create_range("0:2:4");
+	Pl_Range_Mod_Value(r,5);
+	range_test("(0:2:4) mod 5", r, "0:2:4");
+
+	r = create_range("1..3:5..9");
+	Pl_Range_Mod_Value(r,10);
+	range_test("(1..3:5..9) mod 10", r, "1..3:5..9");
+
+	r = create_range("9..13:15");
+	Pl_Range_Mod_Value(r,10);
+	range_test("(10..13:15) mod 10", r, "0..3:5:9");
+
+	r = create_range("9..13:15:16..18:24");
+	Pl_Range_Mod_Value(r,10);
+	range_test("(9..13:15:16..18:24) mod 10", r, "0..9:");
+
+	r = create_range("-11..-8:");
+	Pl_Range_Mod_Value(r,5);
+	range_test("(-11..-8:) mod 5", r, "0..2:4");
+
+	r = create_range("-1..1:");
+	Pl_Range_Mod_Value(r,-5);
+	range_test("(-1..1) mod (-5)", r, "-4:-1..0");
+
+	return 0;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * test_Pl_Range_Add_Range (Also tests Pl_Sparse_Add_Range)                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char * test_Pl_Range_Add_Range() {
+	
+	Range *r = create_range("20..30");
+	Range *r1 = create_range("1..5");
+
+	/* Interval */
+	Pl_Range_Add_Range(r,r1);
+	range_test("(20..30) + (1..5)", r, "21..35");
+
+	r = create_range("1..5");
+	r1 = create_range("100..500");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(1..5) + (100..500)", r, "101..505");
+
+	r = create_range("1..5");
+	r1 = create_range("100");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(1..5) + (100)", r, "101..105");
+
+	r = create_range("100");
+	r1 = create_range("1..5");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(100) + (1..5)", r, "101..105");
+
+	r = create_range("1..0");
+	r1 = create_range("100");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(Empty) + (100)", r, "1..0");
+
+	r = create_range("-10..-5");
+	r1 = create_range("-20..10");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(-10..-5) + (-20..10)", r, "-30..5");
+
+	/* Sparse */
+
+	r = create_range("20..30:");
+	r1 = create_range("1..5:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(20..30:) + (1..5:)", r, "21..35:");
+
+	r = create_range("1..5:");
+	r1 = create_range("100..500:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(1..5:) + (100..500:)", r, "101..505:");
+
+	r = create_range("1..5:");
+	r1 = create_range("100:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(1..5:) + (100:)", r, "101..105:");
+
+	r = create_range("100:");
+	r1 = create_range("1..5:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(100:) + (1..5:)", r, "101..105:");
+
+	r = create_range("-10..-5:");
+	r1 = create_range("-20..10:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(-10..-5:) + (-20..10:)", r, "-30..5:");
+
+	r = create_range("1:3:5:7");
+	r1 = create_range("2..3:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(1:3:5:7) + (2..3:)", r, "3..10:");
+
+	r = create_range("10..20:40..50");
+	r1 = create_range("2..5:8..10");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(10..20:40..50) + (2..5:8..10)", r, "12..30:42..60");
+
+	r = create_range("10..20:30..50");
+	r1 = create_range("2..5:8..12");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(10..20:30..50) + (2..5:8..12)", r, "12..62:");
+
+	r = create_range("1:3");
+	r1 = create_range("-2..-1:");
+	Pl_Range_Add_Range(r,r1);
+	range_test("(1:3) + (-2..-1:)", r, "-1..2:");
+
+	return 0;
+}
+
+/*-------------------------------------------------------------------------*
+ * test_Pl_Range_Sub_Range (Also tests Pl_Sparse_Sub_Range)                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char * test_Pl_Range_Sub_Range() {
+	
+	Range *r = create_range("20..30");
+	Range *r1 = create_range("1..5");
+
+	/* Interval */
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(20..30) - (1..5)", r, "15..29");
+
+	r = create_range("1..5");
+	r1 = create_range("100..500");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(1..5) - (100..500)", r, "-499..-95");
+
+	r = create_range("1..5");
+	r1 = create_range("100");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(1..5) - (100)", r, "-99..-95");
+
+	r = create_range("100");
+	r1 = create_range("1..5");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(100) - (1..5)", r, "95..99");
+
+	r = create_range("1..0");
+	r1 = create_range("100");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(Empty) - (100)", r, "1..0");
+
+	r = create_range("-10..-5");
+	r1 = create_range("-20..10");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(-10..-5) - (-20..10)", r, "-20..15");
+
+	/* Sparse */
+
+	r = create_range("20..30:");
+	r1 = create_range("1..5:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(20..30:) - (1..5:)", r, "15..29:");
+
+	r = create_range("1..5:");
+	r1 = create_range("100..500:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(1..5:) - (100..500:)", r, "-499..-95:");
+
+	r = create_range("1..5:");
+	r1 = create_range("100:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(1..5:) - (100:)", r, "-99..-95:");
+
+	r = create_range("100:");
+	r1 = create_range("1..5:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(100:) - (1..5:)", r, "95..99:");
+
+	r = create_range("-10..-5:");
+	r1 = create_range("-20..10:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(-10..-5:) - (-20..10:)", r, "-20..15:");
+
+	r = create_range("1:3:5:7");
+	r1 = create_range("2..3:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(1:3:5:7) - (2..3:)", r, "-2..5:");
+
+	r = create_range("10..20:40..50");
+	r1 = create_range("2..5:8..10");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(10..20:40..50) - (2..5:8..10)", r, "0..18:30..48");
+
+	r = create_range("10..20:30..50");
+	r1 = create_range("2..5:8..12");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(10..20:30..50) - (2..5:8..12)", r, "-2..48:");
+
+	r = create_range("1:3");
+	r1 = create_range("-2..-1:");
+	Pl_Range_Sub_Range(r,r1);
+	range_test("(1:3) - (-2..-1:)", r, "2..5:");
+
+	return 0;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * test_Pl_Range_Mul_Range (Also tests Pl_Sparse_Mul_Range)                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char * test_Pl_Range_Mul_Range() {
+	Range *r = create_range("-5..5");
+	Range *r1 = create_range("1");
+
+	Pl_Range_Mul_Range(r,r1);
+	range_test("(-5..5) * (1)", r, "-5..5:");
+
+	r = create_range("-5..5");
+	r1 = create_range("1..0");
+	Pl_Range_Mul_Range(r,r1);
+	range_test("(-5..5) * (Empty)", r, "1..0");
+
+	r = create_range("1..3:5..10");
+	r1 = create_range("2..3");
+	Pl_Range_Mul_Range(r,r1);
+	range_test("(1..3:5..10) * (2..3)", r, "2..4:6:9..10:12:14..16:18:20..21:24:27:30");
+
+	r = create_range("0..3:5");
+	r1 = create_range("-2:2");
+	Pl_Range_Mul_Range(r,r1);
+	range_test("(1..3:5) * (-2:2)", r, "-10:-6:-4:-2:0:2:4:6:10");
+
+	r = create_range("-5:-3..-1:1:5:7:8");
+	r1 = create_range("-3..-2:1");
+	Pl_Range_Mul_Range(r,r1);
+	range_test("(-5:-3..-1:1:5:7:8) * (-3..-2:1)", r, "-24:-21:-16..-14:-10:-5:-3..-1:1..10:15");
 
 
 	return 0;
 }
+
+
+
+/*-------------------------------------------------------------------------*
+ * test_Pl_Range_Div_Range (Also tests Pl_Sparse_Div_Range)                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char * test_Pl_Range_Div_Range() {
+	Range *r = create_range("-5..5");
+	Range *r1 = create_range("1..5");
+
+	Pl_Range_Div_Range(r,r1);
+	range_test("(-5..5) / (1)", r, "-5..5:");
+
+	r = create_range("-5..5");
+	r1 = create_range("1..0");
+	Pl_Range_Div_Range(r,r1);
+	range_test("(-5..5) / (Empty)", r, "1..0");
+
+	r = create_range("2..4:6:9..10:12:14..16:18:20..21:24:27:30");
+	r1 = create_range("2..3");
+	Pl_Range_Div_Range(r,r1);
+	range_test("(2..4:6:9..10:12:14..16:18:20..21:24:27:30) / (2..3)", r, "1..10:12:15");
+
+	r = create_range("-10:-6:-4:-2:0:2:4:6:10");
+	r1 = create_range("-2:2");
+	Pl_Range_Div_Range(r,r1);
+	range_test("(-10:-6:-4:-2:0:2:4:6:10) / (-2:2)", r, "-5:-3..3:5");
+
+	r = create_range("-24:-21:-16..-14:-10:-5:-3..-1:1..10:15");
+	r1 = create_range("2..3");
+	Pl_Range_Div_Range(r,r1);
+	range_test("(-24:-21:-16..-14:-10:-5:-3..-1:1..10:15) / (2..3)", r, "-12:-8..-7:-5:-1:1..5");
+
+	r = create_range("-24:-21:-16..-14:-10:-5:-3..-1:1..10:15");
+	r1 = create_range("-3..-2");
+	Pl_Range_Div_Range(r,r1);
+	range_test("(-24:-21:-16..-14:-10:-5:-3..-1:1..10:15) / (-3..-2)", r, "-5..-1:1:5:7..8:12");
+
+	r = create_range("-100..100");
+	r1 = create_range("-10..10");
+	Pl_Range_Div_Range(r,r1);
+	range_test("(1..100) / (1..10)", r, "-100..100:");
+
+	return 0;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * test_Pl_Range_Mod_Range (Also tests Pl_Sparse_Mod_Range)                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char * test_Pl_Range_Mod_Range() {
+	Range *r = create_range("-5..5");
+	Range *r1 = create_range("1..5");
+
+	Pl_Range_Mod_Range(r,r1);
+	range_test("(-5..5) mod (1..5)", r, "0..4:");
+
+	r = create_range("-1..1");
+	r1 = create_range("-5");
+	Pl_Range_Mod_Range(r,r1);
+	range_test("(-1..1) mod (-5)", r, "-4:-1..0");
+
+	r = create_range("-1..1");
+	r1 = create_range("-5:5");
+	Pl_Range_Mod_Range(r,r1);
+	range_test("(-1..1) mod (-5:5)", r, "-4:-1..1:4");
+
+	r = create_range("-1..1");
+	r1 = create_range("-5..5");
+	Pl_Range_Mod_Range(r,r1);
+	range_test("(-1..1) mod (-5..5)", r, "-4..4:");
+
+	r = create_range("30..35");
+	r1 = create_range("15:17");
+	Pl_Range_Mod_Range(r,r1);
+	range_test("(30..35) mod (15:17)", r, "0..5:13..16");
+
+	return 0;
+}
+
+
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -1572,23 +1934,18 @@ static char * all_tests() {
 	run_test(test_Pl_Range_Div_Value,"Pl_Range_Div_Value");
 	
 	run_test(test_Pl_Range_Add_Value,"Pl_Range_Add_Value");
-	run_test(test_Pl_Range_Mod_Value,"Pl_Range_Mod_Value"); // TODO: sparse (should be bitvec?)
+	run_test(test_Pl_Range_Mod_Value,"Pl_Range_Mod_Value");
 	run_test(test_Pl_Range_Ith_Elem,"Pl_Range_Ith_Elem");
 	run_test(test_Pl_Range_Test_Null_Inter,"Pl_Range_Test_Null_Inter");
 	run_test(test_Pl_Range_Next_Before,"Pl_Range_Next_Before");
 	run_test(test_Pl_Range_Next_After,"Pl_Range_Next_After");
 
-	//run_test(test_Pl_Merge_Chunk_Lists,"Pl_Merge_Chunk_Lists");
-
-	// we need bitvec for other parts
-	//run_test(test_Pl_Range_Mul_Range,"Pl_Range_Mul_Range");
-	//run_test(test_Pl_Range_Div_Range,"Pl_Range_Div_Range");
-	//run_test(test_Pl_Range_Add_Range,"Pl_Range_Add_Range");
-	//run_test(test_Pl_Range_Sub_Range,"Pl_Range_Sub_Range");
-	//run_test(test_Pl_Range_Mod_Range,"Pl_Range_Mod_Range");
+	run_test(test_Pl_Range_Add_Range,"Pl_Range_Add_Range");
+	run_test(test_Pl_Range_Sub_Range,"Pl_Range_Sub_Range");
+	run_test(test_Pl_Range_Mul_Range,"Pl_Range_Mul_Range"); // WIP
+	run_test(test_Pl_Range_Div_Range,"Pl_Range_Div_Range");
+	run_test(test_Pl_Range_Mod_Range,"Pl_Range_Mod_Range");
 	
- 	/* TODO: Bitvec */
-
 	return 0;
 }
  

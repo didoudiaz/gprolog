@@ -1,0 +1,15 @@
+alpha             :  avg: 40.60    	 st.dev.: 3.45 
+crypta            :  avg: 0.72    	 st.dev.: 1.09 
+digit8 ff         :  avg: 5.45    	 st.dev.: 2.47 
+donald            :  avg: 14.38    	 st.dev.: 2.77 
+eq20              :  avg: 1.87    	 st.dev.: 1.57 
+magic       100   :  avg: 30.20    	 st.dev.: 3.01 
+multipl           :  avg: 55.75    	 st.dev.: 3.25 
+partit      600   :  avg: 245.43     st.dev.: 4.51 
+queens      26    :  avg: 107.34     st.dev.: 3.01 
+queens ff   130   :  avg: 57.53    	 st.dev.: 3.49 
+magsq       10    :  avg: 58.45    	 st.dev.: 3.13 
+qg5         11    :  avg: 62.46    	 st.dev.: 2.92 
+langford    32    :  avg: 556.62     st.dev.: 5.40 
+interval    256   :  avg: 23.17    	 st.dev.: 3.67 
+
