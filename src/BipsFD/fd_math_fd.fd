@@ -292,8 +292,8 @@ pl_ax_eq_y(int A, fdv X, fdv Y) 				/* A != 0 */
 {
   start X in ite(A>0, min(Y), max(Y)) /> A    			/* X = Y / A */
           .. ite(A>0, max(Y), min(Y)) /< A
-  start Y in ite(A>0, min(X), max(X)) * A     			/* Y = X * A */
-          .. ite(A>0, max(X), min(X)) * A
+  start Y in mult(ite(A>0, min(X), max(X)) , A)     			/* Y = X * A */
+          .. mult(ite(A>0, max(X), min(X)) , A)
 }
 
 
@@ -316,11 +316,11 @@ pl_ax_plus_y_eq_z(int A, fdv X, fdv Y, fdv Z)			/* A != 0 */
   start X in ite(A>0, min(Z) - max(Y), max(Z) - min(Y)) /> A    /* X = (Z - Y) / A */
           .. ite(A>0, max(Z) - min(Y), min(Z) - max(Y)) /< A
 
-  start Y in min(Z) - ite(A>0, max(X), min(X)) * A   		/* Y = Z - X * A */
-          .. max(Z) - ite(A>0, min(X), max(X)) * A  
+  start Y in min(Z) - mult(ite(A>0, max(X), min(X)) , A)   		/* Y = Z - X * A */
+          .. max(Z) - mult(ite(A>0, min(X), max(X)) , A)  
 
-  start Z in ite(A>0, min(X), max(X)) * A + min(Y)     		/* Z = X * A + Y */
-          .. ite(A>0, max(X), min(X)) * A + max(Y)
+  start Z in mult(ite(A>0, min(X), max(X)) , A) + min(Y)     		/* Z = X * A + Y */
+          .. mult(ite(A>0, max(X), min(X)) , A) + max(Y)
 }
 
 
@@ -336,14 +336,14 @@ pl_ax_plus_by_eq_z(int A, fdv X, int B, fdv Y, fdv Z)
  	           , ( min(Z) - mult(ite(B>0, max(Y), min(Y)), B) ) /< A)
 
  /* Y = (Z - A*X) / B (X does not cause overflows anymore) */
- start Y in ite(B>0, ( min(Z) - ite(A>0, max(X), min(X)) * A ) /> B
- 	           , ( max(Z) - ite(A>0, min(X), max(X)) * A ) /> B)
- 	 .. ite(B>0, ( max(Z) - ite(A>0, min(X), max(X)) * A ) /< B
- 	           , ( min(Z) - ite(A>0, max(X), min(X)) * A ) /< B)
+ start Y in ite(B>0, ( min(Z) - mult(ite(A>0, max(X), min(X)) , A) ) /> B
+ 	           , ( max(Z) - mult(ite(A>0, min(X), max(X)) , A) ) /> B)
+ 	 .. ite(B>0, ( max(Z) - mult(ite(A>0, min(X), max(X)) , A) ) /< B
+ 	           , ( min(Z) - mult(ite(A>0, max(X), min(X)) , A) ) /< B)
 
  /* Z = A*X + B*Y (X and Y do not cause overflows anymore) */
- start Z in ite(A>0, min(X), max(X)) * A + ite(B>0, min(Y), max(Y)) * B
-	 .. ite(A>0, max(X), min(X)) * A + ite(B>0, max(Y), min(Y)) * B
+ start Z in mult(ite(A>0, min(X), max(X)) , A) + mult(ite(B>0, min(Y), max(Y)) , B)
+	 .. mult(ite(A>0, max(X), min(X)) , A) + mult(ite(B>0, max(Y), min(Y)) , B)
 }
 
 
@@ -367,16 +367,16 @@ pl_ax_plus_y_plus_z_eq_t(int A, fdv X, fdv Y, fdv Z, fdv T)
  	 .. ite(A>0, max(T) - min(Z) - min(Y), min(T) - max(Z) - max(Y)) /< A
 
  /* Y = T - Z - A*X  (X does not cause overflows) */
- start Y in min(T) - max(Z) - ite(A>0, max(X), min(X)) * A 
- 	 .. max(T) - min(Z) - ite(A>0, min(X), max(X)) * A
+ start Y in min(T) - max(Z) - mult(ite(A>0, max(X), min(X)) , A) 
+ 	 .. max(T) - min(Z) - mult(ite(A>0, min(X), max(X)) , A)
 
  /* Z = T - Y - A*X */
- start Z in min(T) - max(Y) - ite(A>0, max(X), min(X)) * A 
- 	 .. max(T) - min(Y) - ite(A>0, min(X), max(X)) * A
+ start Z in min(T) - max(Y) - mult(ite(A>0, max(X), min(X)) , A)
+ 	 .. max(T) - min(Y) - mult(ite(A>0, min(X), max(X)) , A)
 
  /* T = A*X + Y + Z */
- start T in ite(A>0, min(X), max(X)) * A  + min(Y) + min(Z) 
- 	 .. ite(A>0, max(X), min(X)) * A  + max(Y) + max(Z) 
+ start T in mult(ite(A>0, min(X), max(X)) , A)  + min(Y) + min(Z) 
+ 	 .. mult(ite(A>0, max(X), min(X)) , A)  + max(Y) + max(Z) 
 }
 
 
@@ -385,25 +385,25 @@ pl_ax_plus_y_plus_z_eq_t(int A, fdv X, fdv Y, fdv Z, fdv T)
 pl_ax_plus_by_plus_z_eq_t(int A, fdv X, int B, fdv Y, fdv Z, fdv T)
 
 {
- /* X = (T - Z - B*Y) / A (Y can cause overflows)*/
+ /* X = (T - Z - B*Y) / A */
  start X in ite(A>0, ( min(T) - max(Z) - mult(ite(B>0, max(Y), min(Y)), B) ) /> A
  	           , ( max(T) - min(Z) - mult(ite(B>0, min(Y), max(Y)), B) ) /> A)
  	 .. ite(A>0, ( max(T) - min(Z) - mult(ite(B>0, min(Y), max(Y)), B) ) /< A
  	           , ( min(T) - max(Z) - mult(ite(B>0, max(Y), min(Y)), B) ) /< A)
 
- /* Y = (T - Z - A*X) / B (X does not cause overflows anymore) */
- start Y in ite(B>0, ( min(T) - max(Z) - ite(A>0, max(X), min(X)) * A ) /> B
- 	           , ( max(T) - min(Z) - ite(A>0, min(X), max(X)) * A ) /> B)
- 	 .. ite(B>0, ( max(T) - min(Z) - ite(A>0, min(X), max(X)) * A ) /< B
- 	           , ( min(T) - max(Z) - ite(A>0, max(X), min(X)) * A ) /< B)
+ /* Y = (T - Z - A*X) / B */
+ start Y in ite(B>0, ( min(T) - max(Z) - mult(ite(A>0, max(X), min(X)) , A) ) /> B
+ 	           , ( max(T) - min(Z) - mult(ite(A>0, min(X), max(X)) , A) ) /> B)
+ 	 .. ite(B>0, ( max(T) - min(Z) - mult(ite(A>0, min(X), max(X)) , A) ) /< B
+ 	           , ( min(T) - max(Z) - mult(ite(A>0, max(X), min(X)) , A) ) /< B)
 
- /* Z = T - A*X - B*Y  (X and Y do not cause overflows anymore) */
- start Z in min(T) - ite(A>0, max(X), min(X)) * A - ite(B>0, max(Y), min(Y)) * B
-	 .. max(T) - ite(A>0, min(X), max(X)) * A - ite(B>0, min(Y), max(Y)) * B
+ /* Z = T - A*X - B*Y */
+ start Z in min(T) - mult(ite(A>0, max(X), min(X)) , A) - mult(ite(B>0, max(Y), min(Y)) , B)
+	 .. max(T) - mult(ite(A>0, min(X), max(X)) , A) - mult(ite(B>0, min(Y), max(Y)) , B)
 
  /* T = A*X + B*Y + Z */
- start T in ite(A>0, min(X), max(X)) * A + ite(B>0, min(Y), max(Y)) * B + min(Z)
-	 .. ite(A>0, max(X), min(X)) * A + ite(B>0, max(Y), min(Y)) * B + max(Z)
+ start T in mult(ite(A>0, min(X), max(X)) , A) + mult(ite(B>0, min(Y), max(Y)) , B) + min(Z)
+	 .. mult(ite(A>0, max(X), min(X)) , A) + mult(ite(B>0, max(Y), min(Y)) , B) + max(Z)
 }
 
 
@@ -568,7 +568,7 @@ pl_x2_eq_y(fdv X, fdv Y)	/* Y >= 0 */
  start X in min_sqrt(min(X), min(Y), max(Y)) 
          .. max_sqrt(max(X), min(Y), max(Y))
  
- start Y in closest_to_zero(min(X), max(X)) * closest_to_zero(min(X), max(X)) 
+ start Y in mult(closest_to_zero(min(X), max(X)) , closest_to_zero(min(X), max(X))) 
          .. ite(abs(min(X)) > max(X), min(X)*min(X), max(X)*max(X))
 }
 
