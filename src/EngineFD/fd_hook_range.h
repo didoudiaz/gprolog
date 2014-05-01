@@ -46,7 +46,7 @@
 #ifdef GP_FD_POSITIVE_ONLY 					/* if set, use only positive integers (for backwards compatibility) */
 #define INTERVAL_MIN_INTEGER       0
 #else
-#define INTERVAL_MIN_INTEGER       - INTERVAL_MAX_INTEGER - 1	
+#define INTERVAL_MIN_INTEGER       - INTERVAL_MAX_INTEGER	
 #endif
 
 

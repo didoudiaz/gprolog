@@ -149,13 +149,6 @@
 
 
 
-	  /* Miscellaneous */
-
-#define ENV_VAR_VECTOR_MAX         "VECTORMAX"
-#define DEFAULT_VECTOR_MAX         127
-#define DEFAULT_VECTOR_MIN         0
-
-
 #define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr)) == INT)
 
 
@@ -174,23 +167,6 @@
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
-#ifdef FD_INST_FILE
-
-WamWord pl_vec_size;
-WamWord pl_vec_max_integer;
-WamWord pl_vec_min_integer;
-
-#else
-
-extern WamWord pl_vec_size;
-extern WamWord pl_vec_max_integer;
-extern WamWord pl_vec_min_integer;
-
-#endif
-
-
-
 
 /*---------------------------------*
  * Function Prototypes             *

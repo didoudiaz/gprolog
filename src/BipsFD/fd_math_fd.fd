@@ -35,8 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* TODO: we should have a unit test suite for this or proving techniques to ensure correct results */
-
 %{
 #include "bips_fd.h"
 #define ite(i, t, e)  		((i) ? (t) : (e))
@@ -621,7 +619,7 @@ pl_xy_eq_z(fdv X, fdv Y, fdv Z)
 pl_a_power_n_eq_y_F(int A, fdv N, fdv Y)                         /* here A >= 2 */
 
 {
- start Y in Pl_Full_Coeff_Power_Var(A, dom(N))  /* to ensure Y < pl_vec_max_integer */
+ start Y in Pl_Full_Coeff_Power_Var(A, dom(N))  /* to ensure Y < max_integer */
  start N in Pl_Full_Find_Expon(A, dom(Y))
 }
 
@@ -631,7 +629,7 @@ pl_a_power_n_eq_y_F(int A, fdv N, fdv Y)                         /* here A >= 2 
 pl_x_power_a_eq_y_F(fdv X, int A, fdv Y)                          /* here A > 2 */
 
 {
- start Y in Pl_Full_Var_Power_Coeff(dom(X), A)  /* to ensure Y < pl_vec_max_integer */
+ start Y in Pl_Full_Var_Power_Coeff(dom(X), A)  /* to ensure Y < max_integer */
  start X in Pl_Full_Nth_Root(dom(Y), A)
 }
 
@@ -641,7 +639,7 @@ pl_x_power_a_eq_y_F(fdv X, int A, fdv Y)                          /* here A > 2 
 pl_x2_eq_y_F(fdv X, fdv Y)
 
 {
- start Y in Pl_Full_Var_Power_2(dom(X))        /* to ensure Y < pl_vec_max_integer */
+ start Y in Pl_Full_Var_Power_2(dom(X))        /* to ensure Y < max_integer */
  start X in Pl_Full_Sqrt_Var(dom(Y))
 }
 

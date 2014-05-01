@@ -1125,7 +1125,7 @@ static char * test_Pl_Range_Mul_Value() {
 	r->min = INTERVAL_MIN_INTEGER;
 	r->max = number;
 	Pl_Range_Mul_Value(r,2);
-	range_test("(MIN..MIN/2+4)*2", r, "-268435456:-268435454:-268435452:-268435450:-268435448");
+	range_test("(MIN..MIN/2+4)*2", r, "-268435454:-268435452:-268435450:-268435448:-268435446");
 
 	// two separate chunks
 	r = create_range("20..22:30:100..101");
@@ -1238,7 +1238,7 @@ static char * test_Pl_Range_Add_Value() {
 
 	r = create_range("-20..30");
 	Pl_Range_Add_Value(r,INTERVAL_MIN_INTEGER);
-	range_test("(-20..30)+MIN", r, "-268435456..-268435426");
+	range_test("(-20..30)+MIN", r, "-268435455..-268435425");
 
 	/* Sparse 1 chunk */
 	r = create_range("20..30:");
@@ -1267,7 +1267,7 @@ static char * test_Pl_Range_Add_Value() {
 
 	r = create_range("-20..30:");
 	Pl_Range_Add_Value(r,INTERVAL_MIN_INTEGER);
-	range_test("[-20..30]+MIN", r, "-268435456..-268435426:");
+	range_test("[-20..30]+MIN", r, "-268435455..-268435425:");
 	
 
 	// tricky cases
@@ -1930,7 +1930,7 @@ static char * all_tests() {
 	run_test(test_Pl_Range_Union,"Pl_Range_Union");
 	run_test(test_Pl_Range_Compl,"Pl_Range_Compl");
 	run_test(test_Pl_Range_Nb_Elem,"Pl_Range_Nb_Elem");
-	run_test(test_Pl_Range_Mul_Value,"Pl_Range_Mul_Value"); // also test too many chunks?
+	run_test(test_Pl_Range_Mul_Value,"Pl_Range_Mul_Value");
 	run_test(test_Pl_Range_Div_Value,"Pl_Range_Div_Value");
 	
 	run_test(test_Pl_Range_Add_Value,"Pl_Range_Add_Value");
@@ -1942,7 +1942,7 @@ static char * all_tests() {
 
 	run_test(test_Pl_Range_Add_Range,"Pl_Range_Add_Range");
 	run_test(test_Pl_Range_Sub_Range,"Pl_Range_Sub_Range");
-	run_test(test_Pl_Range_Mul_Range,"Pl_Range_Mul_Range"); // WIP
+	run_test(test_Pl_Range_Mul_Range,"Pl_Range_Mul_Range");
 	run_test(test_Pl_Range_Div_Range,"Pl_Range_Div_Range");
 	run_test(test_Pl_Range_Mod_Range,"Pl_Range_Mod_Range");
 	

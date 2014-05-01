@@ -57,9 +57,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define MSG_VECTOR_TOO_SMALL       "Warning: Vector too small - maybe lost solutions (FD Var:_%ld)\n"
-
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -396,20 +393,6 @@ Fd_Inst_Initializer(void)
 void
 Pl_Fd_Init_Solver0(void)
 {
-  char *p;
-  int max_val;
-
-
-
-  p = (char *) getenv(ENV_VAR_VECTOR_MAX);
-  if (p && *p)
-    sscanf(p, "%d", &max_val);
-  else
-    max_val = DEFAULT_VECTOR_MAX;
-
-  // TODO: do we need a max_val?
-  // Pl_Define_Vector_Size(max_val);
-
   Pl_Fd_Reset_Solver0();
 
   pl_fd_unify_with_integer = Pl_Fd_Unify_With_Integer0;
@@ -431,7 +414,6 @@ Pl_Fd_Reset_Solver0(void)
   STAMP = 0;
   DATE = 1;
   TP = dummy_fd_var;		/* the queue is empty */
-  //debug_reset_solver();
 }
 
 
@@ -554,7 +536,6 @@ Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
       val = Pl_Fd_Prolog_To_Value(Car(lst_adr));
 
       Pl_Range_Set_Value(range, val);
-      //debug_print_chunk(range,1);
       n++;
 
       list_word = Cdr(lst_adr);
@@ -1069,7 +1050,7 @@ start:
   max = r->max;
 
 
-  if (Is_Interval(r) && n != min && n != max) // interval representation (vec==NULL)
+  if (Is_Interval(r) && n != min && n != max)
     {
       Trail_Range_If_Necessary(fdv_adr);
       Pl_Range_Becomes_Sparse(r);
@@ -1134,9 +1115,6 @@ Pl_Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range)
 
   if (!Pl_Range_Test_Value(range, n))
     {
-      //if (n > pl_vec_max_integer && range->extra_cstr)
-	//Pl_Fd_Display_Extra_Cstr(fdv_adr);
-
       return FALSE;
     }
 

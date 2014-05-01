@@ -201,18 +201,10 @@ Pl_Range_Copy(Range *range, Range *range1)
 
     // remaining chunks
     chunk = chunk->next;
-    //int prev_min = INTERVAL_MIN_INTEGER - 5;
     while(chunk != NULL) {
       copy_chunk = Pl_Create_Interval_Chunk(chunk->min, chunk->max);
       Pl_Set_Chunk_At_End_Of_Range(range, copy_chunk);
 
-      /* Crash the program if chunks are overwritten
-      if (prev_min == chunk->min) {
-        printf("Copy ERROR\n");
-        chunk = NULL;
-        chunk->next = NULL; // segfault to stop the program
-      }
-      prev_min = chunk->min;*/
       chunk = chunk->next;
     }
   }
@@ -920,7 +912,6 @@ char *
 Pl_Range_To_String(Range *range)
 {
   static char buff[4096];
-  //Bool fail_empty = FALSE;
 
   if (Is_Empty(range))
     {
@@ -948,7 +939,6 @@ Pl_Range_To_String(Range *range)
 
   Chunk *chunk = range->first;
   while (chunk != NULL) {
-    //if (chunk->min > chunk->max) fail_empty = TRUE;
 
     if (chunk->min == chunk->max) {
       sprintf(buff + strlen(buff), "%d",
@@ -967,25 +957,11 @@ Pl_Range_To_String(Range *range)
       sprintf(buff + strlen(buff), "%s", WRITE_INTERVALS_SEPARATOR);
   }
 
-  /* crash if empty chunk exists in range
-  if (fail_empty) {
-    printf("%s\n",buff);
-    printf("\nEmpty Chunk ERROR\n");
-    chunk = NULL;
-    chunk->next = chunk;
-  }*/
-
   return buff;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*-------------------------------------------------------------------------*
- * CHUNKS    		                                                   *
+ * CHUNKS    		                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
@@ -1023,8 +999,6 @@ Pl_Get_Chunk_For_Value_Recur(Chunk* chunk, int n) {
  * If no Chunk contains n, return the fist chunk that is > n (for n > range->max: return range->max)     */
 Chunk *
 Pl_Get_Chunk_For_Value(Range* range, int n) { 
-  //assert(Is_Sparse(range));
-  /* TODO: use range->first and range->last for min max, EVERYWHERE*/
   if (range->first->max >= n) 
     return range->first; // first chunk (also if n < min)
   else if (range->last->min <= n) /* Even though the last chunk is found recursively, it is checked now because it is more probable to hit/miss */
@@ -1035,7 +1009,6 @@ Pl_Get_Chunk_For_Value(Range* range, int n) {
 
 Bool 
 Pl_Sparse_Test_Value(Range *range, int n) {
-  //assert(Is_Sparse(range));
 
   Chunk *c = Pl_Get_Chunk_For_Value(range,n);
   return (c->min <= n && c->max >= n);
@@ -1049,7 +1022,6 @@ Pl_Sparse_Set_Value(Range *range, int n) {
 		Pl_Range_Becomes_Sparse(range);
 		return;
 	}
-  //assert(Is_Sparse(range));
   Chunk *chunk = Pl_Get_Chunk_For_Value(range,n);
 
   // Interval Chunk
@@ -1087,9 +1059,7 @@ Pl_Sparse_Set_Value(Range *range, int n) {
 
 void 
 Pl_Sparse_Reset_Value(Range *range, int n) {
-  //assert(Is_Sparse(range));
 
-  /* New code : for now just create another Chunk*/
   Chunk *chunk = Pl_Get_Chunk_For_Value(range, n);
   if (chunk->min <= n && chunk->max >= n) {
     /* boundaries */
@@ -1127,16 +1097,10 @@ Pl_Sparse_Reset_Value(Range *range, int n) {
 void
 Pl_Sparse_Inter(Range *range, Range *range1) {
 
-  //assert(Is_Sparse(range));
-  //assert(Is_Sparse(range1));
-
   /* Don't keep any chunk, try to make new ones because otherwise memory will overlap */
-
   Chunk *chunk, *other_chunk;
   chunk = range->first;
   other_chunk = range1->first;
-  //int aux_chunk_max = chunk->max; // for when chunk->max should be reduced
-  //Bool can_remove_chunk = TRUE; // if TRUE, will remove chunk if no overlap found
 
   /* Stop if we reached the end of a chunk list */
   while (chunk != NULL && other_chunk != NULL) {
@@ -1180,12 +1144,7 @@ Pl_Sparse_Inter(Range *range, Range *range1) {
       other_chunk = other_chunk->next;
     }
   }
-
-	// if last chunk had overlap but still has not reduced its max value
-	//if (!can_remove_chunk && chunk != NULL) chunk->max = aux_chunk_max;
-
   // remove all next chunks
-  //if (chunk != NULL && !can_remove_chunk) chunk = chunk->next;
   while (chunk != NULL) {
 		Chunk *tmp_chunk = chunk->next;
 		Pl_Remove_Interval_Chunk(range,chunk);
@@ -1205,10 +1164,6 @@ Pl_Sparse_Inter(Range *range, Range *range1) {
 
 void
 Pl_Sparse_Union(Range *range, Range *range1) {
-
-  //assert(Is_Sparse(range));
-  //assert(Is_Sparse(range1));
-
 
   Chunk *chunk, *other_chunk;
   chunk = range->first;
@@ -1263,7 +1218,6 @@ Pl_Sparse_Union(Range *range, Range *range1) {
 
 void
 Pl_Set_Chunk_At_End_Of_Range(Range *range, Chunk *chunk) {
-  //assert(Is_Sparse(range));
   range->last->next = chunk;
   chunk->prev = range->last;
   chunk->next = NULL;
@@ -1273,8 +1227,6 @@ Pl_Set_Chunk_At_End_Of_Range(Range *range, Chunk *chunk) {
 
 void
 Pl_Set_Chunk_Before_Chunk(Range *range, Chunk *new_chunk, Chunk *old_chunk) {
-  //assert(Is_Sparse(range));
-
   new_chunk->next = old_chunk;
   new_chunk->prev = old_chunk->prev;
   old_chunk->prev = new_chunk;
@@ -1315,7 +1267,6 @@ Pl_Remove_Interval_Chunk(Range *range, Chunk *chunk) {
 
 void
 Pl_Remove_Interval_Chunk_If_Needed(Range *range, Chunk *chunk) {
-	//assert(Is_Sparse(range));
 	if (chunk->min <= chunk->max) return;
 	/* Remove chunk */
 	Pl_Remove_Interval_Chunk(range,chunk);
@@ -1335,7 +1286,6 @@ Pl_Chunk_Count(Range *range) {
 
 void 
 Pl_Sparse_Compl(Range *range) {
-	//assert(Is_Sparse(range));
 	Chunk *chunk = range->first;
 	// If possible, make first chunk
 	if (range->min > INTERVAL_MIN_INTEGER) {
@@ -1373,7 +1323,6 @@ Pl_Sparse_Compl(Range *range) {
 
 void 
 Pl_Sparse_Mul_Value(Range *range, int n) {
-  //assert(Is_Sparse(range));
   Chunk *chunk = range->first;
   Chunk *new_chunk;
   int min_value = - (abs(INTERVAL_MIN_INTEGER) / abs(n));
@@ -1391,7 +1340,7 @@ Pl_Sparse_Mul_Value(Range *range, int n) {
     int min_c = math_max(chunk->min, min_value);
     int max_c = math_min(chunk->max, max_value);
 
-    /* TODO: prevent the creation of too many chunks
+    /* prevent the creation of too many chunks
     if (max_c - min_c > MAX_CHUNKS) {
       ("WARNING: reduced creation of %d chunks to %d chunks\n", (max_c - min_c), MAX_CHUNKS);
       ("Old bounds: [%d..%d]\n", min_c, max_c);
@@ -1425,8 +1374,6 @@ Pl_Sparse_Mul_Value(Range *range, int n) {
 
 void 
 Pl_Sparse_Div_Value(Range *range, int n) {
-  //assert(Is_Sparse(range));
-  //assert(n != 0);
   Chunk *chunk = range->first;
 
   while (chunk != NULL) {
@@ -1472,7 +1419,6 @@ Pl_Sparse_Div_Value(Range *range, int n) {
 
 void
 Pl_Sparse_Add_Value(Range *range, int n) {
-  //assert(Is_Sparse(range));
   Chunk *chunk = range->first;
   while (chunk != NULL) {
     chunk->min = math_max(chunk->min + n, INTERVAL_MIN_INTEGER);
@@ -1713,7 +1659,6 @@ Pl_Sparse_Mod_Range(Range *range, Range *range1) {
 
 int 
 Pl_Sparse_Nb_Elem(Range *range) {
-  //assert(Is_Sparse(range));
 
   Chunk *chunk = range->first;
   int nb_count = 0;
@@ -1729,14 +1674,10 @@ Pl_Sparse_Nb_Elem(Range *range) {
 
 int 
 Pl_Sparse_Ith_Elem(Range *range, int i) {
-  //assert(Is_Sparse(range));
-
   if (i<= 0) 
     return INTERVAL_MIN_INTEGER-1;
 
   Chunk *chunk = range->first;
-  // TODO: carefully check boundaries
-
   while (chunk != NULL) {
     if (i > chunk->max - chunk->min + 1) {
       i -= chunk->max - chunk->min + 1;
@@ -1752,7 +1693,6 @@ Pl_Sparse_Ith_Elem(Range *range, int i) {
 
 int 
 Pl_Sparse_Next_Before(Range *range, int n) {
-  //assert(Is_Sparse(range));
   n--;
   Chunk *chunk = Pl_Get_Chunk_For_Value(range,n);
 
@@ -1768,7 +1708,6 @@ Pl_Sparse_Next_Before(Range *range, int n) {
 
 int 
 Pl_Sparse_Next_After(Range *range, int n) {
-  //assert(Is_Sparse(range));
   n++;
   Chunk *chunk = Pl_Get_Chunk_For_Value(range,n);
 
@@ -1784,16 +1723,11 @@ Pl_Sparse_Next_After(Range *range, int n) {
 
 Bool 
 Pl_Sparse_Interval_Test_Null_Inter(Range *range, Range *range1) {
-  //assert(Is_Sparse(range));
-  //assert(Is_Interval(range1));
-
   /* If interval range overlaps with part of the sparse range, return FALSE*/
   if (range1->min <= range->min && range1->max >= range->max)
     return FALSE;
 
-
   Chunk *chunk = range->first;
-
   while(chunk!=NULL) {
     if (chunk->max < range1->min)
       chunk = chunk->next;
@@ -1805,8 +1739,6 @@ Pl_Sparse_Interval_Test_Null_Inter(Range *range, Range *range1) {
 
 Bool 
 Pl_Sparse_Sparse_Test_Null_Inter(Range *range, Range *range1) {
-  //assert(Is_Sparse(range));
-  //assert(Is_Sparse(range1));
   Chunk *chunk = range->first;
   Chunk *chunk1 = range1->first;
 
@@ -1822,38 +1754,4 @@ Pl_Sparse_Sparse_Test_Null_Inter(Range *range, Range *range1) {
     }
   }
   return TRUE;
-}
-
-void
-Pl_Merge_Chunk_Lists(Range *range, Chunk *chunk1_first, Chunk *chunk1_last) {
-  /* chunk1 = [chunk1_first]->[]->[]->...->[]->[chunk1_last] */
-  /* chunk1 should not be in range */
-  /* This method assumes that the list of chunks for range and for chunk1
-     are both sorted. This method will merge both chunk lists and combine 
-     Chunks if necessary. */
-
-  /* Check if the chunk list can be appended directly to the range */
-  if (chunk1_first->min > range->max + 1) {
-    range->last->next = chunk1_first;
-    chunk1_first->prev = range->last;
-    range->last = chunk1_last;
-    range->max = chunk1_last->max;
-  } else if (chunk1_last->max + 1 < range->min) {
-    range->first->prev = chunk1_last;
-    chunk1_last->next = range->first;
-    range->first = chunk1_first;
-    range->min = chunk1_first->min;
-  }
-  else {
-    /* Iterate trough both lists and update range*/
-    Chunk *chunk = range->first;
-    
-    while (chunk != NULL) {
-
-      chunk = chunk->next;
-    }
-    range->min = range->first->min;
-    range->max = range->last->max;
-  }
-
 }

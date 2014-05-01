@@ -271,9 +271,6 @@
   WamWord *save_CS = CS;		\
   CS += CHUNK_SIZE; 
 
-  // todo
-
-
 
 
 #define fd_deallocate				\
@@ -677,7 +674,7 @@ fct_name(WamWord *AF)				\
 
 
 #define fd_local_range_var(r)			\
-  Range R(r);    /*  = {0, 0, NULL, NULL} init should be useless  */
+  Range R(r);
 
 
 

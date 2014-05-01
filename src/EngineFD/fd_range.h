@@ -172,8 +172,6 @@ Chunk * Pl_Get_Chunk_For_Value_Recur(Chunk* chunk, int n);
 
 Chunk * Pl_Get_Chunk_For_Value(Range* range, int n);
 
-void Pl_Set_Min_Max_Bitvec_Chunk(Chunk *chunk);
-
 Bool Pl_Sparse_Test_Value(Range *range, int n);
 
 void Pl_Sparse_Set_Value(Range *range, int n);
@@ -226,8 +224,6 @@ Bool Pl_Sparse_Interval_Test_Null_Inter(Range *range, Range *range1);
 
 Bool Pl_Sparse_Sparse_Test_Null_Inter(Range *range, Range *range1);
 
-void Pl_Merge_Chunk_Lists(Range *range, Chunk *chunk1_first, Chunk *chunk1_last);
-
 /*---------------------------------*
  * debug methods                   *
  *---------------------------------*/
@@ -266,13 +262,6 @@ void Pl_Err_Resource(int atom);
   while (0)
 #endif
 
-/* Unused macros since no bitvec is used */
-//#define Is_Bitvec_Chunk(Chunk)      ((Chunk->base) != (CHUNK_INTERVAL_REPRESENTATION))
-//#define Is_Interval_Chunk(Chunk)    ((Chunk->base) == (CHUNK_INTERVAL_REPRESENTATION))
-//#define start(Chunk)          ((Is_Bitvec_Chunk(Chunk)) ? (Chunk->base) : (Chunk->min))
-//#define end(Chunk)            ((Is_Bitvec_Chunk(Chunk)) ? ((Chunk->base) + (CHUNK_BITVEC_SIZE) - 1) : (Chunk->max))
-
-
 /*---------------------------------*
  * Range Management Macros         *
  *---------------------------------*/
@@ -283,7 +272,6 @@ void Pl_Err_Resource(int atom);
 #define Is_Not_Empty(range)        ((range)->max >= (range)->min)
 
 
-/* TODO: Possible memory waste by not garbage collecting the chunks */
 #define Set_To_Empty(range) 				\
   do							\
     {							\

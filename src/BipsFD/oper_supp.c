@@ -554,9 +554,6 @@ Pl_Full_Nth_Root(Range *x, Range *y, int a)
 void
 Pl_Full_Var_Power_2(Range *y, Range *x)
 {
-  //printf("Pl_Full_Var_Power_2\n");
-  //printf("y: "); debug_print_chunk(y,1); printf("\n");
-  //printf("x: "); debug_print_chunk(x,1); printf("\n");
   int i;
   int min_x, max_x;
   // max_val is for preventing overflows
@@ -567,7 +564,6 @@ Pl_Full_Var_Power_2(Range *y, Range *x)
     // -x^2 == x^2 (so make everything positive)
     min_x = math_min(abs(closest_to_zero(x->min, x->max)), max_val);
     max_x = math_min(math_max(abs(x->min), abs(x->max)), max_val);
-    //printf("min: %d max: %d\n",min_x, max_x);
     for (i = min_x; i <= max_x; i++) {
       // i*i should be < MAX
       Pl_Range_Set_Value(y,i*i);
@@ -586,8 +582,6 @@ Pl_Full_Var_Power_2(Range *y, Range *x)
       chunk = chunk->next;
     }
   }
-  //printf("y min = %d, max = %d: ",y->min, y->max); debug_print_chunk(y,1); printf("\n");
-  //printf("x min = %d, max = %d: ",x->min, x->max); debug_print_chunk(x,1); printf("\n");
 }
 
 
@@ -602,15 +596,11 @@ Pl_Full_Sqrt_Var(Range *x, Range *y)
 {
   int e;
   int i;
-  //printf("Pl_Full_Sqrt_Var\n");
-  //printf("X: "); debug_print_chunk(x,1); printf("\n");
-  //printf("Y: "); debug_print_chunk(y,1); printf("\n");
 
   // take only positive y
   // don't take values > (x->max ** 2)
   int max_val = (x->max < Pl_Sqrt_Up(INTERVAL_MAX_INTEGER)) ? (x->max * x->max) : INTERVAL_MAX_INTEGER;
   Set_To_Empty(x);
-  // TODO: why bother taking sqrts, just reverse and multiply for the range
 
   if (Is_Interval(y)) {		/* Y is Interval */
     for (i = math_max(0,y->min); i <= math_max(0,math_min(max_val,y->max)); i++) {
@@ -634,8 +624,6 @@ Pl_Full_Sqrt_Var(Range *x, Range *y)
       chunk = chunk->next;
     }
   }
-  //printf("X: "); debug_print_chunk(x,1); printf("\n");
-  //printf("Y: "); debug_print_chunk(y,1); printf("\n");
 }
 
 

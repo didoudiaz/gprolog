@@ -60,6 +60,16 @@
  *---------------------------------*/
 
 
+/*---------------------------------*
+ * Macros                          *
+ *---------------------------------*/
+
+#define check_bounds(c)						\
+  do {								\
+    if (c<INTERVAL_MIN_INTEGER || c>INTERVAL_MAX_INTEGER) 	\
+	{/*printf("overflow on %d\n",c); */return FALSE;} 	\
+  } while (0)
+
 
 
 /*-------------------------------------------------------------------------*
@@ -106,7 +116,7 @@ Pl_Fd_Eq_2(WamWord le_word, WamWord re_word)
       if (c > 0)
 	return FALSE;
 #endif
-
+      check_bounds(-c);
       PRIM_CSTR_2(pl_x_eq_c, l_word, Tag_INT(-c));
       goto term_load;
 
@@ -115,19 +125,21 @@ Pl_Fd_Eq_2(WamWord le_word, WamWord re_word)
       if (c < 0)
 	return FALSE;
 #endif
-
+      check_bounds(c);
       PRIM_CSTR_2(pl_x_eq_c, r_word, Tag_INT(c));
       goto term_load;
     }
 
   if (c > 0)
     {
+      check_bounds(c);
       MATH_CSTR_3(pl_x_plus_c_eq_y, l_word, Tag_INT(c), r_word);
       goto term_load;
     }
 
   if (c < 0)
     {
+      check_bounds(-c);
       MATH_CSTR_3(pl_x_plus_c_eq_y, r_word, Tag_INT(-c), l_word);
       goto term_load;
     }
@@ -174,6 +186,7 @@ Pl_Fd_Neq_2(WamWord le_word, WamWord re_word)
 	}
 #endif
 
+      check_bounds(-c);
       PRIM_CSTR_2(pl_x_neq_c, l_word, Tag_INT(-c));
       goto term_load;
 
@@ -186,18 +199,21 @@ Pl_Fd_Neq_2(WamWord le_word, WamWord re_word)
 	}
 #endif
 
+      check_bounds(c);
       PRIM_CSTR_2(pl_x_neq_c, r_word, Tag_INT(c));
       goto term_load;
     }
 
   if (c > 0)
     {
+      check_bounds(c);
       PRIM_CSTR_3(pl_x_plus_c_neq_y, l_word, Tag_INT(c), r_word);
       goto term_load;
     }
 
   if (c < 0)
     {
+      check_bounds(-c);
       PRIM_CSTR_3(pl_x_plus_c_neq_y, r_word, Tag_INT(-c), l_word);
       goto term_load;
     }
@@ -244,6 +260,7 @@ Pl_Fd_Lt_2(WamWord le_word, WamWord re_word)
 	return FALSE;
 #endif
 
+      check_bounds(-c - 1);
       PRIM_CSTR_2(pl_x_lte_c, l_word, Tag_INT(-c - 1));
       goto term_load;
 
@@ -256,18 +273,21 @@ Pl_Fd_Lt_2(WamWord le_word, WamWord re_word)
 	}
 #endif
 
+      check_bounds(c + 1);
       PRIM_CSTR_2(pl_x_gte_c, r_word, Tag_INT(c + 1));
       goto term_load;
     }
 
   if (c > 0)
     {
+      check_bounds(c + 1);
       PRIM_CSTR_3(pl_x_plus_c_lte_y, l_word, Tag_INT(c + 1), r_word);
       goto term_load;
     }
 
   if (c < 0)
     {
+      check_bounds(-c - 1);
       PRIM_CSTR_3(pl_x_plus_c_gte_y, r_word, Tag_INT(-c - 1), l_word);
       goto term_load;
     }
@@ -314,6 +334,7 @@ Pl_Fd_Lte_2(WamWord le_word, WamWord re_word)
 	return FALSE;
 #endif
 
+      check_bounds(-c);
       PRIM_CSTR_2(pl_x_lte_c, l_word, Tag_INT(-c));
       goto term_load;
 
@@ -326,18 +347,21 @@ Pl_Fd_Lte_2(WamWord le_word, WamWord re_word)
 	}
 #endif
 
+      check_bounds(c);
       PRIM_CSTR_2(pl_x_gte_c, r_word, Tag_INT(c));
       goto term_load;
     }
 
   if (c > 0)
     {
+      check_bounds(c);
       PRIM_CSTR_3(pl_x_plus_c_lte_y, l_word, Tag_INT(c), r_word);
       goto term_load;
     }
 
   if (c < 0)
     {
+      check_bounds(-c);
       PRIM_CSTR_3(pl_x_plus_c_gte_y, r_word, Tag_INT(-c), l_word);
       goto term_load;
     }
