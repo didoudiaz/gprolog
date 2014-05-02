@@ -380,7 +380,6 @@ Pl_Indomain_2(WamWord x_word, WamWord method_word)
 Bool
 Pl_Indomain_Alt_0(void)
 { 
-  //printf("Pl_Indomain_Alt_0 (Needs modification)\n");
   WamWord *fdv_adr;
   int value_method;
   int value;
@@ -391,7 +390,6 @@ Pl_Indomain_Alt_0(void)
   SYS_VAR_FD_BCKTS++;
 
   fdv_adr = (WamWord *) (A(0) & ~1);
-  //extra_cstr = A(0) & 1;
   value_method = A(1);
   value = A(2);
 
@@ -413,27 +411,14 @@ Pl_Indomain_Alt_0(void)
 
  
   if (!Pl_Fd_Remove_Value(fdv_adr, value))
-    {
-      //if (extra_cstr)
-	//Pl_Fd_Display_Extra_Cstr(fdv_adr);
-
       return FALSE;
-    }
 
   if (Tag_Mask_Of(*fdv_adr) == TAG_INT_MASK)
-    {
-      /*if (extra_cstr)
-	{
-	  * A(0) = fdv_adr; *
-	  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(EXTRA_CSTR_ALT, 0), 1);
-	}*/
       return TRUE;
-    }
 
   value = Select_Value(fdv_adr, value_method);
 
 
-  /*  A(0) = (WamWord) fdv_adr | Extra_Cstr(fdv_adr); */
   A(1) = value_method;		/* can change for METHOD_LIMITS */
   A(2) = value;
 
@@ -452,14 +437,6 @@ Pl_Indomain_Alt_0(void)
 Bool
 Pl_Extra_Cstr_Alt_0(void)
 {
-  printf("Pl_Extra_Cstr_Alt_0 (Needs modification)\n");
-  //WamWord *fdv_adr;
-
-  //fdv_adr = (WamWord *) AB(B, 0);
-
-  //Pl_Delete_Choice_Point(0);
-  //Pl_Fd_Display_Extra_Cstr(fdv_adr);
-
   return FALSE;
 }
 
