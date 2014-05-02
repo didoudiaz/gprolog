@@ -153,7 +153,6 @@ Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
 void
 Pl_Fd_Element_I(Range *i, WamWord *l)
 {
-  //printf("Pl_Fd_Element_I (Possibly needs modification)\n");
   int n = *l;			/* I in 1..N in sparse mode */
 
   Range_Init_Interval(i, 1, n);
@@ -170,7 +169,6 @@ Pl_Fd_Element_I(Range *i, WamWord *l)
 void
 Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
 {
-  //printf("Pl_Fd_Element_I_To_V (Should be fixed)\n");
   int val;
   int j;
 
@@ -194,7 +192,6 @@ Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
     }
   }
 
-  //printf("range after: %s\n",Pl_Range_To_String(v));
 }
 
 
@@ -207,7 +204,6 @@ Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
 void
 Pl_Fd_Element_V_To_I(Range *i, Range *v, WamWord *l)
 {
-  //printf("Pl_Fd_Element_V_To_I (Should be fixed)\n");
   int val;
   int n;
   int j;
@@ -222,8 +218,6 @@ Pl_Fd_Element_V_To_I(Range *i, Range *v, WamWord *l)
     if (Pl_Range_Test_Value(v, val))
       Pl_Range_Set_Value(i, j);
   }
-
-  //printf("range after: %s\n",Pl_Range_To_String(i));
 }
 
 
@@ -252,8 +246,6 @@ Pl_Fd_Element_Var_I(Range *i, WamWord *l)
 void
 Pl_Fd_Element_Var_I_To_V(Range *v, Range *i, WamWord **l)
 {
-  //printf("Pl_Fd_Element_Var_I_To_V (Should work)\n");
-
   WamWord *fdv_adr;
   int j;
 
@@ -288,8 +280,6 @@ Pl_Fd_Element_Var_I_To_V(Range *v, Range *i, WamWord **l)
 void
 Pl_Fd_Element_Var_V_To_I(Range *i, Range *v, WamWord **l)
 {
-  //printf("Pl_Fd_Element_Var_V_To_I (Should work)\n");
-
   WamWord *fdv_adr;
   PlLong n;
   int j;
@@ -305,8 +295,6 @@ Pl_Fd_Element_Var_V_To_I(Range *i, Range *v, WamWord **l)
     if (!Pl_Range_Test_Null_Inter(Range(fdv_adr), v)) 
 	    Pl_Sparse_Set_Value(i, j);
   }
-  //printf("  range v : %p %s\n", v, Pl_Range_To_String(v));
-  //printf("  range i : %p %s\n", i, Pl_Range_To_String(i));
 }
 
 

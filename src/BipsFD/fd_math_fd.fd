@@ -940,7 +940,6 @@ pl_max_x_a_eq_z_F(fdv X, int A, fdv Z)
 	 * Partial AC *
 	 *------------*/
 
-/*TODO: how to do these cases? What is the influence of wait_switch and stop? */
 pl_abs_x_minus_y_eq_z(fdv X, fdv Y, fdv Z)
 
 {

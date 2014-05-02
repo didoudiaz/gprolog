@@ -45,17 +45,9 @@
 
 #define CHUNK_SIZE (sizeof(Chunk) / sizeof(WamWord))
 
-/* The maximum number of chunks that can be created */
-#define MAX_CHUNKS 1000000000
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
-
-typedef PlULong VecWord;
-
-typedef VecWord *Vector; // TODO: check if still used
-
 
 typedef struct
 {
@@ -243,8 +235,9 @@ void Pl_Err_Resource(int atom);
     }           				\
   while (0)
 
-/* Allocate with malloc for unit testing */
-/* TODO: update this so that no testing code is in fd_range */
+/* Allocate with malloc for unit testing of test_fd_range.c */
+/* TODO: update this so that no testing code is in fd_range *
+ * (I haven't found a neat way to do this yet)              */
 #ifndef USE_MALLOC_FOR_CHUNKS
 #define Chunk_Allocate(chunk)			\
   do 						\

@@ -1319,7 +1319,7 @@ Set_Eq(WamWord *exp, int result, WamWord *load_word)
     case MASK_RIGHT:
       if (c < 0)
 	return Pl_Get_Integer(0, *load_word);
-
+  
       MATH_CSTR_3(pl_truth_x_eq_c, r_word, Tag_INT(c), *load_word);
       return TRUE;
     }

@@ -45,7 +45,6 @@
 
 #include "engine_pl.h"
 #include "engine_fd.h"
-//#include <assert.h> /* for making sure that (could be removed later perhaps) */
 
 
 
@@ -55,12 +54,6 @@
  *                                                                         *
  * INTERVAL_MAX_INTEGER: an integer constant corresponding to the greatest *
  *                       value for intervals (i.e. 0..INTERVAL_MAX_INTEGER)*
- *                                                                         *
- * pl_vec_max_integer  : an integer variable corresponding to the greatest *
- *                       value for vectors   (i.e. 0..pl_vec_max_integer). *
- * pl_vec_size         : an integer variable corresponding to the size of a*
- *                       vector in words(i.e. pl_vec_max_integer/WORD_SIZE)*
- *                       (see Pl_Define_Vector_Size() function).           *
  *                                                                         *
  * RANGE_TOP_STACK     : a long * variable corresponding to the top of the *
  *                       stack where are allocated the bit-vectors.        *
@@ -115,11 +108,6 @@
 #define math_max(x, y)             ((x) >= (y) ? (x) : (y))
 #define Same_Sign(x, y)   				 (((x) ^ (y)) >= 0)
 #define Mod(a,b)                   ((Same_Sign(a,b)) ? ((a)%(b)) : ((b) + ((a)%(b))) )
-
-/* Keeps track of the number of chunks created */
-/* Will be incremented at each call of Pl_Create_Interval_Chunk */
-/* Need to reset*/
-int nb_chunks = 0;
 
 /*-------------------------------------------------------------------------*
  * PL_RANGE_TEST_VALUE                                                     *
@@ -975,13 +963,9 @@ Pl_Create_Interval_Chunk(int min, int max) {
   chunk->prev = NULL;
   chunk->next = NULL;
 
-  // TODO: crash (seems to work better than err resource, but remove afterwards)
-  if (nb_chunks++ > MAX_CHUNKS) {
-    printf("Too many Chunks\n");
-    chunk = NULL;
-    chunk->prev = NULL; // segfault (stop program)
-    Pl_Err_Resource(Pl_Create_Atom("too many holes in FD"));
-  }
+  //if (nb_chunks++ > MAX_CHUNKS) {
+  //  Pl_Err_Resource(Pl_Create_Atom("too many holes in FD"));
+  //}
   return chunk;
 }
 
@@ -1339,15 +1323,6 @@ Pl_Sparse_Mul_Value(Range *range, int n) {
     // (MIN_INT <= [min_c * n] , [max_c * n] <= MAX_INT) 
     int min_c = math_max(chunk->min, min_value);
     int max_c = math_min(chunk->max, max_value);
-
-    /* prevent the creation of too many chunks
-    if (max_c - min_c > MAX_CHUNKS) {
-      ("WARNING: reduced creation of %d chunks to %d chunks\n", (max_c - min_c), MAX_CHUNKS);
-      ("Old bounds: [%d..%d]\n", min_c, max_c);
-      min_c = (0 - MAX_CHUNKS) / 2 ; // take 0 as mid-point
-      max_c = min_c + MAX_CHUNKS;
-      ("New bounds: [%d..%d]\n", min_c, max_c);
-    }// */
 
     // for each value in the range, create a chunk containing the multiple
     for (;min_c <= max_c; min_c++) {
