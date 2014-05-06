@@ -1,3 +1,7 @@
+Tue May  6 10:43:33 CEST 2014 <Daniel.Diaz@univ-paris1.fr>
+
+	* add built-in predicate findall/4
+
 Thu Mar  6 16:19:36 CET 2014 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug with linedit when environment varirable LINEDIT=no

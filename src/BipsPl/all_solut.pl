@@ -42,12 +42,15 @@
 
 
 findall(Template, Generator, Instances) :-
-	'$findall'(Template, Generator, Instances, findall).
+	'$findall'(Template, Generator, Instances, [], findall).
 
-'$findall'(Template, Generator, Instances, Func) :-
+findall(Template, Generator, Instances, Tail) :-
+	'$findall'(Template, Generator, Instances, Tail, findall).
+
+'$findall'(Template, Generator, Instances, Tail, Func) :-
 	'$check_list_arg'(Instances, Func),
 	'$store_solutions'(Template, Generator, Stop, Func),
-	'$call_c_test'('Pl_Recover_Solutions_2'(Stop, 0, Instances)).
+	'$call_c_test'('Pl_Recover_Solutions_4'(Stop, 0, Instances, Tail)).
 
 
 
@@ -69,7 +72,7 @@ bagof(Template, Generator, Instances) :-
 	'$call_c_test'('Pl_Free_Variables_4'(Template, Generator, Generator1, Key)), !,
 	'$store_solutions'(Key - Template, Generator1, Stop, Func),
 	set_bip_name(Func, 3),   % for error too_many_variables in C function
-	'$call_c_test'('Pl_Recover_Solutions_2'(Stop, 1, AllInstances)),
+	'$call_c_test'('Pl_Recover_Solutions_4'(Stop, 1, AllInstances, [])),
 	(   Func = bagof ->
 	    keysort(AllInstances)
 	;   sort(AllInstances)
@@ -78,7 +81,7 @@ bagof(Template, Generator, Instances) :-
 
 '$bagof'(Template, _, Instances, Func) :-
 	'$call_c'('Pl_Recover_Generator_1'(Generator)),
-	'$findall'(Template, Generator, Instances, Func),
+	'$findall'(Template, Generator, Instances, Func, []),
 	Instances \== [],
 	(   Func = bagof ->
 	    true

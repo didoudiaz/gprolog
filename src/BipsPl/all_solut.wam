@@ -10,33 +10,41 @@ predicate('$use_all_solut'/0,41,static,private,monofile,built_in,[
 
 
 predicate(findall/3,44,static,private,monofile,built_in,[
-    put_atom(findall,3),
-    execute('$findall'/4)]).
+    put_nil(3),
+    put_atom(findall,4),
+    execute('$findall'/5)]).
 
 
-predicate('$findall'/4,47,static,private,monofile,built_in,[
-    allocate(5),
+predicate(findall/4,47,static,private,monofile,built_in,[
+    put_atom(findall,4),
+    execute('$findall'/5)]).
+
+
+predicate('$findall'/5,50,static,private,monofile,built_in,[
+    allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
     get_variable(y(3),3),
+    get_variable(y(4),4),
     put_value(y(2),0),
-    put_value(y(3),1),
+    put_value(y(4),1),
     call('$check_list_arg'/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_variable(y(4),2),
-    put_value(y(3),3),
+    put_variable(y(5),2),
+    put_value(y(4),3),
     call('$store_solutions'/4),
-    put_unsafe_value(y(4),0),
+    put_unsafe_value(y(5),0),
     put_integer(0,1),
     put_value(y(2),2),
+    put_value(y(3),3),
     deallocate,
-    call_c('Pl_Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Recover_Solutions_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(setof/3,55,static,private,monofile,built_in,[
+predicate(setof/3,58,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -52,7 +60,7 @@ predicate(setof/3,55,static,private,monofile,built_in,[
     execute('$bagof'/4)]).
 
 
-predicate(bagof/3,63,static,private,monofile,built_in,[
+predicate(bagof/3,66,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -68,7 +76,7 @@ predicate(bagof/3,63,static,private,monofile,built_in,[
     execute('$bagof'/4)]).
 
 
-predicate('$bagof'/4,68,static,private,monofile,built_in,[
+predicate('$bagof'/4,71,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -93,7 +101,8 @@ predicate('$bagof'/4,68,static,private,monofile,built_in,[
     put_value(y(3),0),
     put_integer(1,1),
     put_variable(y(4),2),
-    call_c('Pl_Recover_Solutions_2',[boolean],[x(0),x(1),x(2)]),
+    put_nil(3),
+    call_c('Pl_Recover_Solutions_4',[boolean],[x(0),x(1),x(2),x(3)]),
     put_value(y(1),0),
     put_value(y(4),1),
     call('$$bagof/4_$aux1'/2),
@@ -112,7 +121,8 @@ label(1),
     call_c('Pl_Recover_Generator_1',[],[x(2)]),
     put_value(y(0),2),
     put_value(y(1),3),
-    call('$findall'/4),
+    put_nil(4),
+    call('$findall'/5),
     put_value(y(0),0),
     put_nil(1),
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
@@ -122,7 +132,7 @@ label(1),
     execute('$$bagof/4_$aux2'/2)]).
 
 
-predicate('$$bagof/4_$aux2'/2,79,static,private,monofile,local,[
+predicate('$$bagof/4_$aux2'/2,82,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -136,7 +146,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$$bagof/4_$aux1'/2,68,static,private,monofile,local,[
+predicate('$$bagof/4_$aux1'/2,71,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -151,7 +161,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$store_solutions'/4,91,static,private,monofile,built_in,[
+predicate('$store_solutions'/4,94,static,private,monofile,built_in,[
     get_variable(x(4),2),
     get_variable(x(2),0),
     call_c('Pl_Stop_Mark_1',[],[x(4)]),
@@ -160,7 +170,7 @@ predicate('$store_solutions'/4,91,static,private,monofile,built_in,[
     execute('$$store_solutions/4_$aux1'/3)]).
 
 
-predicate('$$store_solutions/4_$aux1'/3,91,static,private,monofile,local,[
+predicate('$$store_solutions/4_$aux1'/3,94,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),
@@ -176,17 +186,17 @@ label(1),
     proceed]).
 
 
-predicate('$group_solutions'/3,102,static,private,monofile,built_in,[
+predicate('$group_solutions'/3,105,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$group_solutions_alt'/0,105,static,private,monofile,built_in,[
+predicate('$group_solutions_alt'/0,108,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$check_list_arg'/2,113,static,private,monofile,built_in,[
+predicate('$check_list_arg'/2,116,static,private,monofile,built_in,[
     put_integer(3,2),
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).
