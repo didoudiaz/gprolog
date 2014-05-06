@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5:
 
+* add built-in predicate findall/4
 * fix a bug with linedit when environment varirable LINEDIT=no
 * fix bugs in the FD solver
 * set socket option SO_REUSEADDR at socket creation

@@ -1786,9 +1786,10 @@ The built-in predicates described in this section invoke \texttt{call/1}
 and \texttt{Goal} is complex it is better to define an auxiliary predicate
 which can then be compiled, and have \texttt{Goal} call this predicate.
 
-\subsubsection{\IdxPBD{findall/3}}
+\subsubsection{\IdxPBD{findall/4}, \IdxPBD{findall/3}}
 
 \begin{TemplatesOneCol}
+findall(?term, +callable\_term, ?list, ?term)
 findall(?term, +callable\_term, ?list)
 
 \end{TemplatesOneCol}
@@ -1802,6 +1803,12 @@ re-executions of \texttt{call(Goal), X = Template} after systematic
 replacement of all variables in \texttt{X} by new variables. Thus, the order
 of the list \texttt{Instances} corresponds to the order in which the proofs
 are found.
+
+\texttt{findall(Template, Goal, Instances, Tail)} is the difference list
+version of \texttt{findall/3}. The result is the difference list
+\texttt{Instances}-\texttt{Tail}. Thus \texttt{findall(Template, Goal,
+  Instances)} is equivalent to \texttt{findall(Template, Goal, Instances,
+  [])}.
 
 \begin{PlErrors}
 
@@ -1823,7 +1830,7 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 \Portability
 
-ISO predicate.
+\texttt{findall/3} is an ISO predicate. \texttt{findall/4} is a GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{bagof/3},
                \IdxPBD{setof/3}}

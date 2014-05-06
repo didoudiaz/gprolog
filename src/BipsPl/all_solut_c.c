@@ -383,12 +383,12 @@ Pl_Store_Solution_1(WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_RECOVER_SOLUTIONS_2                                                  *
+ * PL_RECOVER_SOLUTIONS_4                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
-		       WamWord list_word)
+Pl_Recover_Solutions_4(WamWord stop_word, WamWord handle_key_word,
+		       WamWord list_word, WamWord tail_word)
 {
   int stop;
   int nb_sol;
@@ -434,7 +434,7 @@ Pl_Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
       Free(s);
     }
 
-  q[-1] = NIL_WORD;
+  q[-1] = tail_word;
   return Pl_Unify(Tag_LST(p), list_word);
 }
 
