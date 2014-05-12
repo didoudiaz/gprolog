@@ -42,36 +42,36 @@
 
 
 findall(Template, Generator, Instances) :-
-	'$findall'(Template, Generator, Instances, [], findall).
+	'$findall'(Template, Generator, Instances, [], findall, 3).
 
 findall(Template, Generator, Instances, Tail) :-
-	'$findall'(Template, Generator, Instances, Tail, findall).
+	'$findall'(Template, Generator, Instances, Tail, findall, 4).
 
-'$findall'(Template, Generator, Instances, Tail, Func) :-
-	'$check_list_arg'(Instances, Func),
-	'$store_solutions'(Template, Generator, Stop, Func),
+'$findall'(Template, Generator, Instances, Tail, Func, Arity) :-
+	'$check_list_arg'(Instances, Func, Arity),
+	'$store_solutions'(Template, Generator, Stop, Func, Arity),
 	'$call_c_test'('Pl_Recover_Solutions_4'(Stop, 0, Instances, Tail)).
 
 
 
 
 setof(Template, Goal, Instances) :-
-	'$check_list_arg'(Instances, setof),
-	'$bagof'(Template, Goal, Instances, setof).
+	'$check_list_arg'(Instances, setof, 3),
+	'$bagof'(Template, Goal, Instances, setof, 3).
 %	sort(Instances).
 
 
 
 
 bagof(Template, Generator, Instances) :-
-	'$check_list_arg'(Instances, bagof),
-	'$bagof'(Template, Generator, Instances, bagof).
+	'$check_list_arg'(Instances, bagof, 3),
+	'$bagof'(Template, Generator, Instances, bagof, 3).
 
 
-'$bagof'(Template, Generator, Instances, Func) :-
+'$bagof'(Template, Generator, Instances, Func, Arity) :-
 	'$call_c_test'('Pl_Free_Variables_4'(Template, Generator, Generator1, Key)), !,
-	'$store_solutions'(Key - Template, Generator1, Stop, Func),
-	set_bip_name(Func, 3),   % for error too_many_variables in C function
+	'$store_solutions'(Key - Template, Generator1, Stop, Func, Arity),
+	set_bip_name(Func, Arity),   % for error too_many_variables in C function
 	'$call_c_test'('Pl_Recover_Solutions_4'(Stop, 1, AllInstances, [])),
 	(   Func = bagof ->
 	    keysort(AllInstances)
@@ -79,9 +79,9 @@ bagof(Template, Generator, Instances) :-
 	),
 	'$group_solutions'(AllInstances, Key, Instances).
 
-'$bagof'(Template, _, Instances, Func) :-
+'$bagof'(Template, _, Instances, Func, Arity) :-
 	'$call_c'('Pl_Recover_Generator_1'(Generator)),
-	'$findall'(Template, Generator, Instances, Func, []),
+	'$findall'(Template, Generator, Instances, Func, Arity, []),
 	Instances \== [],
 	(   Func = bagof ->
 	    true
@@ -91,9 +91,9 @@ bagof(Template, Generator, Instances) :-
 
 
 
-'$store_solutions'(Template, Generator, Stop, Func) :-
+'$store_solutions'(Template, Generator, Stop, Func, Arity) :-
 	'$call_c'('Pl_Stop_Mark_1'(Stop)),
-	(   '$call'(Generator, Func, 3, true),
+	(   '$call'(Generator, Func, Arity, true),
 	    '$call_c'('Pl_Store_Solution_1'(Template)),
 	    fail
 	;   true
@@ -113,6 +113,6 @@ bagof(Template, Generator, Instances) :-
 
          % Args testing
 
-'$check_list_arg'(List, Func) :-
-	set_bip_name(Func, 3),
+'$check_list_arg'(List, Func, Arity) :-
+	set_bip_name(Func, Arity),
 	'$check_list_or_partial_list'(List).
