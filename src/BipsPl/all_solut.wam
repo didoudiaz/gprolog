@@ -9,7 +9,7 @@ predicate(system:'$use_all_solut'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:findall/3,49,static,private,monofile,built_in,[
+predicate(system:findall/3,50,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -33,7 +33,7 @@ predicate(system:findall/3,49,static,private,monofile,built_in,[
     execute('$findall'/7)]).
 
 
-predicate(system:findall/4,54,static,private,monofile,built_in,[
+predicate(system:findall/4,55,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -58,7 +58,7 @@ predicate(system:findall/4,54,static,private,monofile,built_in,[
     execute('$findall'/7)]).
 
 
-predicate(system:'$findall'/7,59,static,private,monofile,built_in,[
+predicate(system:'$findall'/7,60,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),3),
     get_variable(y(1),4),
@@ -75,7 +75,7 @@ predicate(system:'$findall'/7,59,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:setof/3,66,static,private,monofile,built_in,[
+predicate(system:setof/3,67,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -98,7 +98,7 @@ predicate(system:setof/3,66,static,private,monofile,built_in,[
     execute('$bagof'/6)]).
 
 
-predicate(system:bagof/3,75,static,private,monofile,built_in,[
+predicate(system:bagof/3,76,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -121,7 +121,7 @@ predicate(system:bagof/3,75,static,private,monofile,built_in,[
     execute('$bagof'/6)]).
 
 
-predicate(system:'$bagof'/6,81,static,private,monofile,built_in,[
+predicate(system:'$bagof'/6,82,static,private,monofile,built_in,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -180,7 +180,7 @@ label(1),
     execute('$$bagof/6_$aux2'/2)]).
 
 
-predicate(system:'$$bagof/6_$aux2'/2,92,static,private,monofile,local,[
+predicate(system:'$$bagof/6_$aux2'/2,93,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -194,7 +194,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate(system:'$$bagof/6_$aux1'/2,81,static,private,monofile,local,[
+predicate(system:'$$bagof/6_$aux1'/2,82,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -209,7 +209,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate(system:'$store_solutions'/6,104,static,private,monofile,built_in,[
+predicate(system:'$store_solutions'/6,105,static,private,monofile,built_in,[
     get_variable(x(6),4),
     get_variable(x(4),0),
     call_c('Pl_Stop_Mark_1',[],[x(3)]),
@@ -220,7 +220,7 @@ predicate(system:'$store_solutions'/6,104,static,private,monofile,built_in,[
     execute('$$store_solutions/6_$aux1'/5)]).
 
 
-predicate(system:'$$store_solutions/6_$aux1'/5,104,static,private,monofile,local,[
+predicate(system:'$$store_solutions/6_$aux1'/5,105,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),4),
@@ -234,17 +234,17 @@ label(1),
     proceed]).
 
 
-predicate(system:'$group_solutions'/3,115,static,private,monofile,built_in,[
+predicate(system:'$group_solutions'/3,116,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$group_solutions_alt'/0,118,static,private,monofile,built_in,[
+predicate(system:'$group_solutions_alt'/0,119,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:'$check_list_arg'/3,126,static,private,monofile,built_in,[
+predicate(system:'$check_list_arg'/3,127,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).
 

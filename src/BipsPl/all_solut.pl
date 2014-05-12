@@ -46,6 +46,7 @@
 :- meta_predicate(setof(?, 0, -)).
 
 
+
 findall(Template, MGenerator, Instances) :-
 	'$check_list_arg'(Instances, findall, 3),
 	'$strip_module_nonvar'(MGenerator, Module, Generator),
