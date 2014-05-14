@@ -195,7 +195,7 @@ Pl_Socket_2(WamWord domain_word, WamWord socket_word)
    */
 
   opt = 1;  
-  Os_Test_Error(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)));
+  Os_Test_Error(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const void *) &opt, sizeof(opt)));
 
   return Pl_Get_Integer(sock, socket_word);
 }
