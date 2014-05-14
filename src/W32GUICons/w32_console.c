@@ -42,6 +42,7 @@
 #include <malloc.h>
 
 #include "../EnginePl/gp_config.h" /* only to know the value of WITH_HTMLHELP */
+#include "../EnginePl/pl_params.h" /* only to know the value of PROLOG_FILE_SUFFIX */
 #include "../EnginePl/set_locale.h"
 
 #include "w32gc_interf.h"          /* only to know Query_Stack() cmd constants */
@@ -1270,9 +1271,9 @@ Make_Windows_Filter(char *filter)
     {
       q = strchr(p, '|');
       *q = '\0';
-      strcpy(s1, "%s ", p);
+      sprintf(s1, "%s ", p);
       s1 += strlen(s1);
-      strcpy(s2, "*%s;", p);
+      sprintf(s2, "*%s;", p);
       s2 += strlen(s2);
       p = q + 1;
     }
@@ -1324,7 +1325,7 @@ Get_Selected_File_Name(char *title, char *default_ext, char *filter)
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = GetActiveWindow();
   ofn.hInstance = GetModuleHandle(NULL);
-  ofn.lpstrFilter = buff_filter(filter);
+  ofn.lpstrFilter = Make_Windows_Filter(filter);
   ofn.nFilterIndex = 0;
   ofn.lpstrFile = buff_pathname;
   ofn.nMaxFile = sizeof(buff_pathname);
