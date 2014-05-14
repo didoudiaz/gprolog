@@ -2,7 +2,7 @@
 % file    : code_gen.pl
 
 
-file_name('/home/vincent/Stage/sparse-gprolog-code/src/Pl2Wam/code_gen.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/code_gen.pl').
 
 
 predicate(code_generation/5,39,static,private,monofile,global,[

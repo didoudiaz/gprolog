@@ -2,7 +2,7 @@
 % file    : syn_sugar.pl
 
 
-file_name('/home/vincent/Stage/sparse-gprolog-code/src/Pl2Wam/syn_sugar.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/syn_sugar.pl').
 
 
 predicate(syntactic_sugar_init_pred/2,40,static,private,monofile,global,[

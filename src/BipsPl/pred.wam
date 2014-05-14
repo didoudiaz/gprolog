@@ -2,7 +2,7 @@
 % file    : pred.pl
 
 
-file_name('/home/vincent/Stage/sparse-gprolog-code/src/BipsPl/pred.pl').
+file_name('/home/diaz/GP/src/BipsPl/pred.pl').
 
 
 predicate('$use_pred'/0,41,static,private,monofile,built_in,[

@@ -2,7 +2,7 @@
 % file    : pl2wam.pl
 
 
-file_name('/home/vincent/Stage/sparse-gprolog-code/src/Pl2Wam/pl2wam.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/pl2wam.pl').
 
 
 predicate(pl2wam/1,39,static,private,monofile,global,[
