@@ -2,7 +2,7 @@ dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT(gprolog, 1.4.4, bug-prolog@gnu.org,,www.gprolog.org)
+AC_INIT(gprolog, 1.4.5, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
