@@ -1,0 +1,9 @@
+#define PROLOG_DIALECT             "@PROLOG_DIALECT@"
+#define PROLOG_NAME                "@PROLOG_NAME@"
+#define PROLOG_VERSION             "@PROLOG_VERSION@"
+#define PROLOG_DATE                "@PROLOG_DATE@"
+#define PROLOG_COPYRIGHT           "@PROLOG_COPYRIGHT@"
+
+#define WIN_TMP_DIR                "@WIN_TMP_DIR@"
+#define WIN_CC_VER                 "@WIN_CC_VER@"
+
