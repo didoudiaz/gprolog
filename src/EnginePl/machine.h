@@ -114,6 +114,10 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #    define M_USED_REGS            {"g6", "g7", 0}
 
+#if defined(M_sparc64)
+
+#    define M_USED_REGS            {"g6", "g7", 0}
+
 #elif defined(M_mips)
 
 #define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \

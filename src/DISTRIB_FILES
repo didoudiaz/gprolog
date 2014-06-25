@@ -75,9 +75,10 @@ src/mkinstalldirs
 src/Win32/Makefile.in
 src/Win32/README
 src/Win32/compile_install
-src/Win32/create-initial.iss
 src/Win32/create_bat.c
-src/Win32/gp-setup.iss.in
+src/Win32/gp-setup.iss
+src/Win32/gp-vars-iss.txt.in
+src/Win32/addcrlf
 
 src/TopComp/Makefile.in
 src/TopComp/[a-z][a-z]?*.[ch]

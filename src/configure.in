@@ -986,11 +986,12 @@ dnl ********************
 dnl * Files generation *
 dnl ********************
 
-OTHER_MAKEFILES=
-for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile Win32/Makefile Win32/gp-setup.iss
+OTHER_DOT_IN_FILES=
+
+for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile Win32/Makefile Win32/gp-vars-iss.txt
 do
     if test -f $i.in; then
-        OTHER_MAKEFILES="$OTHER_MAKEFILES $i"
+        OTHER_DOT_IN_FILES="$OTHER_DOT_IN_FILES $i"
     fi
 done
 
@@ -1007,5 +1008,5 @@ AC_CONFIG_FILES(Makefile
                 BipsPl/Makefile
                 EngineFD/Makefile
                 BipsFD/Makefile
-                $OTHER_MAKEFILES)
+                $OTHER_DOT_IN_FILES)
 AC_OUTPUT
