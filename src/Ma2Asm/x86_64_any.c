@@ -173,7 +173,7 @@ void
 Asm_Start(void)
 {
 
-/* M_x86_64_darwin needs a reg for pl_reg°bank (default is r12 see engine1.c)
+/* M_x86_64_darwin needs a reg for pl_reg_bank (default is r12 see engine1.c)
  * so NO_MACHINE_REG_FOR_REG_BANK is never set (see machine.h). Else this 
  * error occurs '32-bit absolute addressing is not supported for x86-64'
  */
