@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.4.5:
 
+* port to sparc64/OpenBSD
+  (machine kindly provided by Duncan Patton a Campbell)
 * add built-in predicate findall/4
 * fix a bug with linedit when environment varirable LINEDIT=no
 * fix bugs in the FD solver

@@ -87,8 +87,8 @@ int pl_max_atom;		/* to not need atom.o */
 
 PlLong pl_foreign_long[NB_OF_X_REGS];
 double pl_foreign_double[NB_OF_X_REGS];
-PlLong *base_fl = pl_foreign_long;	  /* overwrite var of engine.c */
-double *base_fd = pl_foreign_double; /* overwrite var of engine.c */
+PlLong *pl_base_fl = pl_foreign_long;   /* overwrite var of engine.c */
+double *pl_base_fd = pl_foreign_double; /* overwrite var of engine.c */
 
 
 WamWord stack[4096];
@@ -195,11 +195,13 @@ void ma_test_switch_ret(void);
 
 void (*tbl[]) () =
 {
+#if 1
   test_initializer,
   test_declaration,
   test_pl_jump_and_pl_ret,
   test_pl_call_and_pl_ret_and_pl_fail,
   test_prep_cp_and_here_cp,
+#endif
   test_jump_and_c_ret,
   test_call_c,
   test_move_x_y,
@@ -322,6 +324,7 @@ Allocate(int x)			/* only to update the register for E */
 WamCont save_CP;
 void Save_CP()
 {
+  //printf("in Save_CP\n");
   save_CP = CP;
 }
 
@@ -360,6 +363,7 @@ Call_Pl(void (*code) (), int must_succeed)
 void
 Initializer(void)
 {
+  printf("Inside initializer");
   initialised = 1;
 }
 
@@ -374,6 +378,11 @@ test_initializer(void)
   if (!initialised)
     error();
 #endif
+}
+
+void Several_Calls()
+{
+  Save_CP();
 }
 
 void

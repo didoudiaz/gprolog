@@ -1,3 +1,8 @@
+Fri Jul 11 17:27:36 CEST 2014 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to sparc64/OpenBSD
+	  (machine kindly provided by Duncan Patton a Campbell)
+
 Tue May  6 10:43:33 CEST 2014 <Daniel.Diaz@univ-paris1.fr>
 
 	* add built-in predicate findall/4
