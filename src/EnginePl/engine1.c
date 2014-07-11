@@ -70,7 +70,8 @@ Pl_Call_Compiled(CodePtr codep)
 {
   WamWord reserved_stack_space[1024];
 
-#if defined(M_sparc) && !defined(M_sparc_bsd)
+  /* check why not sparc_bsd ? */
+#if (defined(M_sparc) && !defined(M_sparc_bsd)) || defined(M_sparc64)
   register PlLong * __attribute__ ((unused)) rfl asm("%l2") = pl_base_fl;
   register double * __attribute__ ((unused)) rfd asm("%l3") = pl_base_fd;
   pl_ensure_reserved = (WamWord *) rfl + (PlLong) rfd; /* to avoid gcc remove 2 previous inits ! */
@@ -109,7 +110,7 @@ Pl_Call_Compiled(CodePtr codep)
   register WamWord *rb asm("r15") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_sparc)
+#elif defined(M_sparc) || defined(M_sparc64)
 
   register WamWord *rb asm("%l0") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */

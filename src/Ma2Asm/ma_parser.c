@@ -104,6 +104,7 @@ char *inst[] = {
 
 
 int reload_e;
+int inside_code;
 
 
 char fct_name[MAX_STR_LEN];
@@ -219,6 +220,16 @@ Parse_Ma_File(char *file_name_in, int comment)
 
 #define Pre_Pass() (pass_no < nb_passes)
 
+#define Stop_Previous_Code()			\
+{						\
+  if (!Pre_Pass() && inside_code)		\
+    {						\
+      Code_Stop();				\
+      inside_code = 0;				\
+    }						\
+}
+
+
 static void
 Parser(int pass_no, int nb_passes)
 {
@@ -259,6 +270,7 @@ Parser(int pass_no, int nb_passes)
       switch (k)
 	{
 	case PL_CODE:
+	  Stop_Previous_Code();
 	  global = Read_If_Global(0);
 	  Read_Token(IDENTIFIER);
 	  if (Pre_Pass())
@@ -267,6 +279,7 @@ Parser(int pass_no, int nb_passes)
 	    {
 	      Code_Start(str_val, 1, global);
 	      reload_e = 1;
+	      inside_code = 1;
 	    }
 	  break;
 
@@ -374,6 +387,7 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	case C_CODE:
+	  Stop_Previous_Code();
 	  global = Read_If_Global(!init_already_read);
 
 	  Read_Token(IDENTIFIER);
@@ -387,7 +401,10 @@ Parser(int pass_no, int nb_passes)
 	  if (Pre_Pass())
 	    Decl_Code(strdup(str_val), 0, global);
 	  else
-	    Code_Start(str_val, 0, global);
+	    {
+	      Code_Start(str_val, 0, global);
+	      inside_code = 1;
+	    }
 	  break;
 
 	case C_RET:
@@ -395,6 +412,7 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	case LONG:
+	  Stop_Previous_Code();
 	  global = Read_If_Global(1);
 
 	  Read_Token(IDENTIFIER);

@@ -137,6 +137,9 @@
 /* Define if the cpu is a sparc */
 #undef M_sparc
 
+/* Define if the cpu is a sparc64 */
+#undef M_sparc64
+
 /* Define if the cpu is a ix86 */
 #undef M_ix86
 
@@ -222,6 +225,9 @@
 
 /* Define if the system is a sparc/bsd */
 #undef M_sparc_bsd
+
+/* Define if the system is a sparc64/bsd */
+#undef M_sparc64_bsd
 
 /* Define if the system is a powerpc/linux */
 #undef M_powerpc_linux
