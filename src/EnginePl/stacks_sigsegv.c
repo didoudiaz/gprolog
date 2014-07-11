@@ -446,7 +446,7 @@ SIGSEGV_Handler(int sig, siginfo_t * si)
   Handle_Bad_Address(addr);
 }
 
-#elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd)
+#elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd) || defined(M_sparc64_bsd)
 static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 {

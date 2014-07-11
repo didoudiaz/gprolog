@@ -3,6 +3,7 @@
 
 #define OBJ_INIT initializer_fct
 
+
 #include "../../EnginePl/gp_config.h"
 #include "../../EnginePl/pl_params.h"
 #if 1 /* #if 0, cp ../../EnginePl/wam_archi.h . and customize it if needed */
@@ -10,6 +11,18 @@
 #else
 #include "wam_archi.h"
 #endif
+
+#if 1
+/* to define Reload_E_In_Register() */
+register long *EINREG  asm("%l0");
+
+void
+TRANS_reload_E()
+{
+  EINREG = E;
+}
+#endif
+
 #include "../../EnginePl/machine.h"
 #include "../../EnginePl/obj_chain.h"
 #include "../../EnginePl/wam_inst.h"
@@ -39,13 +52,18 @@ extern double pl_foreign_double[];
 
 /* to define Asm_Start() */
 
-
-
 /* to define Code_Start() (global/not global) and Code_Stop() */
+
+void Dummy();
+void Save_CP();
+void foooo();
 
 void
 TRANS_code_start_global()
 {
+  Dummy();
+  Save_CP();
+  foooo(1,2,3);
 }
 
 
@@ -67,6 +85,14 @@ TRANS_pl_jump()
 _foo1:;
 }
 
+//static
+void check()
+{
+  CodePtr adr = (CodePtr) &&cont;
+  bar(adr);
+ cont:
+  baz(CP);
+}
 
 
 /* to define Pl_Call() */
@@ -255,7 +281,7 @@ void
 TRANS_move_ret_to_mem()
 {
   var = bar(3);
-  v1[4096] = bar(15);
+  v1[4120] = bar(15);
 }
 
 
@@ -387,6 +413,7 @@ intptr_t var_long_common_init128 = 128;
 intptr_t ma_array[5000];
 intptr_t ma_global_var1;
 intptr_t ma_global_var2 = 12345;
+uint64_t ma_global_var2bis = 12345;
 static intptr_t ma_local_var1;
 static intptr_t ma_local_var2 = 128;
 

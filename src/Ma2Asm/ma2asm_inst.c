@@ -69,6 +69,10 @@
 
 #include "sparc_any.c"
 
+#elif defined(M_sparc64)
+
+#include "sparc64_any.c"
+
 #elif defined(M_alpha)
 
 #include "alpha_any.c"
