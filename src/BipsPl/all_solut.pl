@@ -56,6 +56,7 @@ findall(Template, Generator, Instances, Tail) :-
 
 
 setof(Template, Goal, Instances) :-
+	'$check_list_arg'(Instances, setof, 3),
 	'$bagof'(Template, Goal, Instances, setof, 3).
 %	sort(Instances).
 
@@ -63,11 +64,11 @@ setof(Template, Goal, Instances) :-
 
 
 bagof(Template, Generator, Instances) :-
+	'$check_list_arg'(Instances, bagof, 3),
 	'$bagof'(Template, Generator, Instances, bagof, 3).
 
 
 '$bagof'(Template, Generator, Instances, Func, Arity) :-
-	'$check_list_arg'(Instances, Func, Arity),
 	'$call_c_test'('Pl_Free_Variables_4'(Template, Generator, Generator1, Key)), !,
 	'$store_solutions'(Key - Template, Generator1, Stop, Func, Arity),
 	set_bip_name(Func, Arity),   % for error too_many_variables in C function
