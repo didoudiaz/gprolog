@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5:
 
+* fix a bug in bagof/3 when used as findall/3
 * port to sparc64/OpenBSD
   (machine kindly provided by Duncan Patton a Campbell)
 * add built-in predicate findall/4
