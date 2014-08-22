@@ -133,10 +133,10 @@
 
 	  /* Functor/arity */
 
-#define ATOM_MAX_BITS              20
+#define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 9)
 
-#define Functor_Arity(f, n)        (((n) << ATOM_MAX_BITS) | (f))
-#define Functor_Of(word)           ((word) & ((1 << ATOM_MAX_BITS) - 1))
+#define Functor_Arity(f, n)        (((PlULong) (n) << ATOM_MAX_BITS) | (f))
+#define Functor_Of(word)           ((PlULong)(word) & (((PlULong) 1 << ATOM_MAX_BITS) - 1))
 #define Arity_Of(word)             ((PlULong) (word) >> ATOM_MAX_BITS)
 
 
