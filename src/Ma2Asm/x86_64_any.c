@@ -62,6 +62,12 @@
  * Thus 0x...8 - 8 = 0x...0 : OK ! We have to sub to %rsp the space for
  * MAX_C_ARGS_IN_C_CODE*8 (this is OK if MAX_C_ARGS_IN_C_CODE is a multiple
  * of 2). So we have to reserve: MAX_C_ARGS_IN_C_CODE * 8.
+ *
+ * Mac OS X Yosemite (14.0.0) using clang: similar problem when using an 
+ * xmmN regs and movdqa instruction (for integ operations on longs = 64bits). 
+ * It appeared in the chkma utility. Due to a global variable misaligned.
+ * defined initially with  .comm _ma_array,40000,3
+ * problem was fixed using .comm _ma_array,40000,4
  */
 
 
@@ -1191,9 +1197,9 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
       size_bytes = value * 8;
 #ifdef M_x86_64_darwin
       if (!global)
-        Label_Printf(".zerofill __DATA,__bss," UN "%s,%" PL_FMT_d ",3", name, size_bytes);
+        Label_Printf(".zerofill __DATA,__bss," UN "%s,%" PL_FMT_d ",4", name, size_bytes);
       else
-        Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",3", name, size_bytes);
+        Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",4", name, size_bytes);
 #else
 #if defined(M_x86_64_linux) || defined(M_x86_64_sco) || \
     defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
