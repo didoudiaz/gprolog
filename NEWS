@@ -1,8 +1,10 @@
 Change in GNU Prolog version 1.4.5:
 
+* fix a bug with Apple gcc (clang) on x86_64
+* allow to define more atoms with MAX_ATOM env var on 64 bits machines
 * fix a bug in bagof/3 when used as findall/3
 * port to sparc64/OpenBSD
-  (machine kindly provided by Duncan Patton a Campbell)
+  (machine kindly provided by Duncan Patton)
 * add built-in predicate findall/4
 * fix a bug with linedit when environment varirable LINEDIT=no
 * fix bugs in the FD solver

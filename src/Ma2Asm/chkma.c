@@ -38,12 +38,14 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "../EnginePl/pl_long.h"
+
 
 #ifndef FAST  /* see Makefile */
 #define FC /* define FC to force arch_dep.h to no use FC */
 #endif
 
-int pl_max_atom;		/* to not need atom.o */
+PlULong pl_max_atom;		/* to not need atom.o */
 
 #define IF_NO_FD_FILE
 //#include "engine_pl.h"

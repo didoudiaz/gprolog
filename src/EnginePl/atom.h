@@ -126,7 +126,7 @@ AtomInf;
 #ifdef ATOM_FILE
 
 AtomInf *pl_atom_tbl;
-int pl_max_atom;
+PlULong pl_max_atom;
 int pl_nb_atom;
 
 int pl_atom_void;
@@ -158,7 +158,7 @@ char pl_char_conv[256];
 #else
 
 extern AtomInf *pl_atom_tbl;
-extern int pl_max_atom;
+extern PlULong pl_max_atom;
 extern int pl_nb_atom;
 
 extern int pl_atom_void;

@@ -148,8 +148,8 @@ Pl_Init_Atom(void)
   if (pl_max_atom <= ATOM_NIL)
     pl_max_atom = ATOM_NIL + 1;	/* to be sure h([]) % pl_max_atom == ATOM_NIL */
 
-  if (pl_max_atom > (1 << ATOM_MAX_BITS)) /* be sure f/n words can be encoded (see wam_inst.h) */
-    pl_max_atom = (1 << ATOM_MAX_BITS);
+  if (pl_max_atom > (1UL << ATOM_MAX_BITS)) /* be sure f/n words can be encoded (see wam_inst.h) */
+    pl_max_atom = (1UL << ATOM_MAX_BITS);
 
   pl_atom_tbl = (AtomInf *) Calloc(pl_max_atom, sizeof(AtomInf));
   pl_nb_atom = 0;
