@@ -49,7 +49,6 @@
  * get_nil(A)                               put_nil(A)                     *
  * get_list(A)                              put_list(A)                    *
  * get_structure(F/N, A)                    put_structure(F/N, A)          *
- *                                          hide_meta_term(A)              *
  *                                                                         *
  *                                          math_load_value(V, A)          *
  *                                          math_fast_load_value(V, A)     *
