@@ -1,6 +1,11 @@
+Thu Dec  4 15:47:06 CET 2014 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix port to x86_64/OpenBSD
+	  (machine kindly provided by Duncan Patton a Campbell)
+
 Wed Dec  3 17:56:54 CET 2014 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix a bug with Apple gcc (clang) on x86_64
+	* fix a bug with Apple/Yosemite gcc = LVM version 6.0 (clang-600.0.56) on x86_64
 
 Fri Aug 22 15:10:18 CEST 2014 <Daniel.Diaz@univ-paris1.fr>
 
@@ -41,7 +46,7 @@ Mon Nov 18 18:32:44 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
 Tue Nov 12 10:17:10 CET 2013 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix problems with Apple gcc = LLVM version 5.0 (clang-500.2.79)
+	* fix problems with Apple/Mavericks gcc = LLVM version 5.0 (clang-500.2.79) on x86_64
 	* remove clang warnings (uninitialized variables)
 	* fix bugs in the lexer of the form 0bop 2 when bop is an infix op
 

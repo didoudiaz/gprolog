@@ -112,8 +112,8 @@ int Delay_Flush(void);
 
 /* On sparc64 (sparc v9) / OpenBSD we can use the following registers:
  *
- *    %g1 - %g4 mainly temporaries)
- *    %o1 - %o5 argument passing for function call or temporaries)
+ *    %g1 - %g4 mainly temporaries
+ *    %o1 - %o5 argument passing for function call or temporaries
  *    %l0 - %l7 local regs usable because callee saved
  *
  * We can safely use %l registers in Prolog code even if they are callee
@@ -129,7 +129,7 @@ int Delay_Flush(void);
  *
  *    %l1 is used to load E (reloaded after a call to an Allocate function)
  *
- *    %l7 is use for PIC register (on On OpenBSD all code is PIC)
+ *    %l7 is used for PIC register (on On OpenBSD all code is PIC)
  *    NB: it is important to inform the assembler about this passing -K PIC
  *        (see configure.in)
  *

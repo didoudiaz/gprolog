@@ -210,8 +210,8 @@ Asm_Start(void)
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
 
-#ifdef M_x86_64_darwin
-  pic_code = 1;			/* NB: on darwin everything is PIC code */
+#if defined(M_x86_64_darwin) || defined(M_x86_64_bsd)
+  pic_code = 1;			/* NB: on darwin and BSD everything is PIC code */
 #elif defined(_WIN32)
   pic_code = 0;			/* NB: on MinGW nothing is needed for PIC code */
 #endif
@@ -1224,6 +1224,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case INITIAL_VALUE:
       if (global)
         Inst_Printf(".globl", UN "%s", name);
+      Inst_Printf(".align", UN "8");
 #if !(defined(M_x86_64_darwin) || defined(_WIN32))
       Inst_Printf(".size", UN "%s,8", name);
 #endif

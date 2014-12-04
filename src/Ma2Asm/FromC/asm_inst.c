@@ -12,7 +12,7 @@
 #include "wam_archi.h"
 #endif
 
-#if 1
+#if 0
 /* to define Reload_E_In_Register() */
 register long *EINREG  asm("%l0");
 
