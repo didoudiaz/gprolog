@@ -1,5 +1,9 @@
 Change in GNU Prolog version 1.4.5:
 
+* improve error handling for options (e.g. in write_term/3)
+* fix bug with cut in the if-part of if-then(-else)
+* fix port to x86_64/OpenBSD
+  (machine kindly provided by Duncan Patton a Campbell)
 * fix a bug with Apple/Yosemite gcc = LVM version 6.0 (clang-600.0.56) on x86_64
 * allow to define more atoms with MAX_ATOM env var on 64 bits machines
 * fix a bug in bagof/3 when used as findall/3

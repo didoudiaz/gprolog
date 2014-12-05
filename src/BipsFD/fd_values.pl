@@ -141,7 +141,7 @@ fd_labeling(List, Options) :-
 	'$pl_err_instantiation'.
 
 '$get_labeling_options2'(variable_method(X)) :-
-	nonvar(X),                           % same order as in fd_values_c.c
+	'$check_nonvar'(X),                           % same order as in fd_values_c.c
 	(   X = standard,
 	    '$sys_var_write'(0, 0)
 	;   X = first_fail,
@@ -161,7 +161,7 @@ fd_labeling(List, Options) :-
 	).
 
 '$get_labeling_options2'(value_method(X)) :-
-	nonvar(X),                           % same order as in fd_values_c.c
+	'$check_nonvar'(X),                           % same order as in fd_values_c.c
 	(   X = min,
 	    '$sys_var_write'(1, 0)
 	;   X = max,
@@ -177,14 +177,14 @@ fd_labeling(List, Options) :-
 	).
 
 '$get_labeling_options2'(reorder(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_write'(2, 0)
 	;   X = true,
 	    '$sys_var_write'(2, 1)
 	).
 
-'$get_labeling_options2'(backtracks(Bckts)) :-
+'$get_labeling_options2'(backtracks(Bckts)) :- % maybe check Bckts is var or integer ?
 	g_link('$backtracks', Bckts).
 
 '$get_labeling_options2'(X) :-

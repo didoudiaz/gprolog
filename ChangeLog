@@ -1,5 +1,10 @@
+Fri Dec  5 02:55:30 CET 2014 <Daniel.Diaz@univ-paris1.fr>
+
+	* improve error handling for options (e.g. in write_term/3)
+
 Thu Dec  4 15:47:06 CET 2014 <Daniel.Diaz@univ-paris1.fr>
 
+	* fix bug with cut in the if-part of if-then(-else)
 	* fix port to x86_64/OpenBSD
 	  (machine kindly provided by Duncan Patton a Campbell)
 

@@ -100,7 +100,7 @@ label(1),
     proceed]).
 
 
-predicate(normalize_cuts1/3,84,static,private,monofile,global,[
+predicate(normalize_cuts1/3,95,static,private,monofile,global,[
     try_me_else(1),
     get_variable(x(3),0),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(3)]),
@@ -123,23 +123,29 @@ label(4),
     try_me_else(6),
 
 label(5),
-    allocate(5),
+    allocate(7),
     get_variable(y(1),1),
     get_structure((;)/2,0),
     unify_variable(x(0)),
     unify_variable(y(0)),
     call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    put_value(x(2),3),
     put_variable(y(2),1),
-    put_variable(y(3),3),
+    put_variable(y(3),2),
     put_variable(y(4),4),
-    call('$normalize_cuts1/3_$aux1'/5),
+    put_variable(y(5),5),
+    put_variable(y(6),6),
+    call('$normalize_cuts1/3_$aux1'/7),
     put_value(y(2),0),
+    put_value(y(4),1),
+    call(normalize_cuts_in_if/2),
+    put_value(y(3),0),
     put_value(y(1),1),
-    put_value(y(3),2),
+    put_value(y(5),2),
     call(normalize_cuts1/3),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_unsafe_value(y(4),2),
+    put_unsafe_value(y(6),2),
     deallocate,
     execute(normalize_cuts1/3),
 
@@ -147,38 +153,52 @@ label(6),
     retry_me_else(8),
 
 label(7),
+    allocate(3),
+    get_variable(y(1),1),
     get_structure((->)/2,0),
-    unify_variable(x(4)),
     unify_variable(x(0)),
+    unify_variable(y(0)),
     get_structure((;)/2,2),
-    unify_variable(x(2)),
+    unify_variable(x(1)),
     unify_atom(fail),
-    get_structure((',')/2,2),
-    unify_variable(x(3)),
-    unify_structure((',')/2),
-    unify_value(x(4)),
-    unify_structure((',')/2),
-    unify_variable(x(4)),
+    get_structure((',')/2,1),
     unify_variable(x(2)),
-    get_structure('$get_cut_level'/1,3),
+    unify_structure((',')/2),
+    unify_variable(x(1)),
+    unify_structure((',')/2),
     unify_variable(x(3)),
-    get_structure('$cut'/1,4),
-    unify_value(x(3)),
+    unify_variable(y(2)),
+    get_structure('$get_cut_level'/1,2),
+    unify_variable(x(2)),
+    get_structure('$cut'/1,3),
+    unify_value(x(2)),
+    call(normalize_cuts_in_if/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    deallocate,
     execute(normalize_cuts1/3),
 
 label(8),
     retry_me_else(10),
 
 label(9),
+    allocate(3),
+    get_variable(y(1),1),
     get_structure((*->)/2,0),
-    unify_variable(x(3)),
     unify_variable(x(0)),
+    unify_variable(y(0)),
     get_structure((;)/2,2),
-    unify_variable(x(2)),
+    unify_variable(x(1)),
     unify_atom(fail),
-    get_structure((',')/2,2),
-    unify_value(x(3)),
-    unify_variable(x(2)),
+    get_structure((',')/2,1),
+    unify_variable(x(1)),
+    unify_variable(y(2)),
+    call(normalize_cuts_in_if/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(2),2),
+    deallocate,
     execute(normalize_cuts1/3),
 
 label(10),
@@ -309,7 +329,7 @@ label(24),
     execute('$normalize_cuts1/3_$aux3'/2)]).
 
 
-predicate('$normalize_cuts1/3_$aux3'/2,139,static,private,monofile,local,[
+predicate('$normalize_cuts1/3_$aux3'/2,153,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -326,7 +346,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$normalize_cuts1/3_$aux2'/3,119,static,private,monofile,local,[
+predicate('$normalize_cuts1/3_$aux2'/3,133,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -346,7 +366,7 @@ label(1),
     proceed]).
 
 
-predicate('$normalize_cuts1/3_$aux1'/5,88,static,private,monofile,local,[
+predicate('$normalize_cuts1/3_$aux1'/7,99,static,private,monofile,local,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -357,18 +377,18 @@ label(2),
 
 label(3),
     get_structure((->)/2,0),
-    unify_variable(x(5)),
     unify_local_value(x(1)),
-    get_structure((;)/2,2),
+    unify_local_value(x(2)),
+    get_structure((;)/2,3),
     unify_variable(x(0)),
-    unify_local_value(x(4)),
+    unify_local_value(x(6)),
     get_structure((',')/2,0),
     unify_variable(x(0)),
     unify_structure((',')/2),
-    unify_value(x(5)),
+    unify_local_value(x(4)),
     unify_structure((',')/2),
     unify_variable(x(1)),
-    unify_local_value(x(3)),
+    unify_local_value(x(5)),
     get_structure('$get_cut_level'/1,0),
     unify_variable(x(0)),
     get_structure('$cut'/1,1),
@@ -380,18 +400,18 @@ label(4),
 
 label(5),
     get_structure((*->)/2,0),
-    unify_variable(x(5)),
     unify_local_value(x(1)),
-    get_structure((;)/2,2),
+    unify_local_value(x(2)),
+    get_structure((;)/2,3),
     unify_variable(x(0)),
-    unify_local_value(x(4)),
+    unify_local_value(x(6)),
     get_structure((',')/2,0),
     unify_variable(x(0)),
     unify_structure((',')/2),
-    unify_value(x(5)),
+    unify_local_value(x(4)),
     unify_structure((',')/2),
     unify_variable(x(1)),
-    unify_local_value(x(3)),
+    unify_local_value(x(5)),
     get_structure('$get_current_choice'/1,0),
     unify_variable(x(0)),
     get_structure('$soft_cut'/1,1),
@@ -399,7 +419,39 @@ label(5),
     proceed]).
 
 
-predicate(distrib_module_qualif/3,148,static,private,monofile,global,[
+predicate(normalize_cuts_in_if/2,167,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
+    try_me_else(1),
+    allocate(2),
+    get_structure('$force_aux_pred'/1,1),
+    unify_variable(x(1)),
+    get_variable(y(0),2),
+    put_atom(has_cut,2),
+    put_variable(y(1),3),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(3)]),
+    put_atom(has_cut,2),
+    put_atom(f,3),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(2),x(3)]),
+    call(normalize_cuts/2),
+    put_atom(has_cut,1),
+    put_variable(x(0),2),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    put_atom(has_cut,1),
+    put_unsafe_value(y(1),2),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
+    get_atom(t,0),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_value(x(1),0),
+    proceed]).
+
+
+predicate(distrib_module_qualif/3,181,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(12),
@@ -507,7 +559,7 @@ label(12),
     proceed]).
 
 
-predicate(distrib_module_qualif_goal/3,173,static,private,monofile,global,[
+predicate(distrib_module_qualif_goal/3,206,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -528,7 +580,7 @@ label(1),
     proceed]).
 
 
-predicate(normalize_alts/3,183,static,private,monofile,global,[
+predicate(normalize_alts/3,215,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     allocate(1),
@@ -546,7 +598,7 @@ predicate(normalize_alts/3,183,static,private,monofile,global,[
     proceed]).
 
 
-predicate(normalize_alts1/3,190,static,private,monofile,global,[
+predicate(normalize_alts1/3,222,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -556,16 +608,7 @@ predicate(normalize_alts1/3,190,static,private,monofile,global,[
     proceed,
 
 label(1),
-    retry_me_else(7),
-    switch_on_term(3,fail,fail,fail,2),
-
-label(2),
-    switch_on_structure([((',')/2,4),((;)/2,6)]),
-
-label(3),
-    try_me_else(5),
-
-label(4),
+    retry_me_else(2),
     allocate(4),
     get_structure((',')/2,0),
     unify_variable(y(0)),
@@ -587,22 +630,18 @@ label(4),
     deallocate,
     execute(normalize_alts1/3),
 
-label(5),
-    trust_me_else_fail,
-
-label(6),
+label(2),
+    retry_me_else(3),
     allocate(9),
-    get_structure((;)/2,0),
-    unify_variable(y(0)),
-    unify_variable(y(1)),
-    get_variable(y(2),2),
-    put_value(x(1),0),
+    get_variable(y(0),1),
+    get_variable(y(1),2),
+    put_variable(y(2),1),
+    call('$normalize_alts1/3_$aux1'/2),
+    put_value(y(0),0),
     put_nil(1),
     put_variable(y(3),2),
     call(lst_var/3),
-    put_structure((;)/2,0),
-    unify_value(y(0)),
-    unify_value(y(1)),
+    put_value(y(2),0),
     put_nil(1),
     put_variable(y(4),2),
     call(lst_var/3),
@@ -622,7 +661,7 @@ label(6),
     put_variable(y(7),2),
     put_value(y(6),3),
     call(init_aux_pred_name/4),
-    put_value(y(2),0),
+    put_value(y(1),0),
     put_list(1),
     unify_local_value(y(7)),
     unify_local_value(y(5)),
@@ -630,10 +669,8 @@ label(6),
     put_atom(where,0),
     put_variable(x(2),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
-    put_structure((;)/2,0),
-    unify_value(y(0)),
-    unify_value(y(1)),
-    put_value(y(2),1),
+    put_value(y(2),0),
+    put_value(y(1),1),
     put_variable(y(8),3),
     call(linearize/4),
     put_structure(buff_aux_pred/3,0),
@@ -643,7 +680,7 @@ label(6),
     deallocate,
     execute(asserta/1),
 
-label(7),
+label(3),
     trust_me_else_fail,
     allocate(1),
     get_variable(y(0),3),
@@ -654,7 +691,31 @@ label(7),
     proceed]).
 
 
-predicate(init_aux_pred_name/4,216,static,private,monofile,global,[
+predicate('$normalize_alts1/3_$aux1'/2,229,static,private,monofile,local,[
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([((;)/2,3),('$force_aux_pred'/1,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure((;)/2,0),
+    unify_void(2),
+    get_value(x(0),1),
+    proceed,
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_structure('$force_aux_pred'/1,0),
+    unify_local_value(x(1)),
+    proceed]).
+
+
+predicate(init_aux_pred_name/4,249,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     allocate(5),
@@ -684,7 +745,7 @@ predicate(init_aux_pred_name/4,216,static,private,monofile,global,[
     proceed]).
 
 
-predicate('$init_aux_pred_name/4_$aux1'/4,216,static,private,monofile,local,[
+predicate('$init_aux_pred_name/4_$aux1'/4,249,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -719,11 +780,11 @@ label(2),
     proceed]).
 
 
-predicate(linearize/4,231,static,private,monofile,global,[
+predicate(linearize/4,264,static,private,monofile,global,[
     execute('$linearize/4_$aux1'/4)]).
 
 
-predicate('$linearize/4_$aux1'/4,231,static,private,monofile,local,[
+predicate('$linearize/4_$aux1'/4,264,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -755,7 +816,7 @@ label(1),
     execute(linearize1/4)]).
 
 
-predicate(linearize1/4,240,static,private,monofile,global,[
+predicate(linearize1/4,273,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -780,7 +841,7 @@ label(1),
     execute(copy_term/2)]).
 
 
-predicate(lst_var/3,249,static,private,monofile,global,[
+predicate(lst_var/3,282,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -803,11 +864,11 @@ label(1),
     execute(lst_var_args/5)]).
 
 
-predicate(lst_var_args/5,259,static,private,monofile,global,[
+predicate(lst_var_args/5,292,static,private,monofile,global,[
     execute('$lst_var_args/5_$aux1'/5)]).
 
 
-predicate('$lst_var_args/5_$aux1'/5,259,static,private,monofile,local,[
+predicate('$lst_var_args/5_$aux1'/5,292,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -842,7 +903,7 @@ label(1),
     proceed]).
 
 
-predicate(pred_rewriting/2,273,static,private,monofile,global,[
+predicate(pred_rewriting/2,306,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(6),
@@ -1114,7 +1175,7 @@ label(21),
     proceed]).
 
 
-predicate('$pred_rewriting/2_$aux2'/1,286,static,private,monofile,local,[
+predicate('$pred_rewriting/2_$aux2'/1,319,static,private,monofile,local,[
     try_me_else(1),
     get_atom(is,0),
     proceed,
@@ -1125,7 +1186,7 @@ label(1),
     execute(math_cmp_functor_name/2)]).
 
 
-predicate('$pred_rewriting/2_$aux1'/3,277,static,private,monofile,local,[
+predicate('$pred_rewriting/2_$aux1'/3,310,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1151,7 +1212,7 @@ label(1),
     proceed]).
 
 
-predicate(test_c_call_allowed/1,346,static,private,monofile,global,[
+predicate(test_c_call_allowed/1,379,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1170,7 +1231,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(not_dangerous_c_call/1,356,static,private,monofile,global,[
+predicate(not_dangerous_c_call/1,389,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1194,7 +1255,7 @@ label(4),
     execute(not_dangerous_c_call/1)]).
 
 
-predicate(add_wrapper_to_dyn_clause/4,366,static,private,monofile,global,[
+predicate(add_wrapper_to_dyn_clause/4,399,static,private,monofile,global,[
     allocate(5),
     get_variable(y(0),1),
     get_structure((+)/2,2),
@@ -1222,7 +1283,7 @@ predicate(add_wrapper_to_dyn_clause/4,366,static,private,monofile,global,[
     execute(assertz/1)]).
 
 
-predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,366,static,private,monofile,local,[
+predicate('$add_wrapper_to_dyn_clause/4_$aux1'/3,399,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1246,7 +1307,7 @@ label(1),
     execute(head_wrapper/3)]).
 
 
-predicate(head_wrapper/3,376,static,private,monofile,global,[
+predicate(head_wrapper/3,409,static,private,monofile,global,[
     put_list(4),
     unify_void(1),
     unify_variable(x(3)),
@@ -1258,7 +1319,7 @@ predicate(head_wrapper/3,376,static,private,monofile,global,[
     proceed]).
 
 
-predicate(meta_pred_rewriting/2,384,static,private,monofile,global,[
+predicate(meta_pred_rewriting/2,417,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1297,7 +1358,7 @@ label(1),
     proceed]).
 
 
-predicate(meta_pred_rewrite_args/5,396,static,private,monofile,global,[
+predicate(meta_pred_rewrite_args/5,429,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1338,7 +1399,7 @@ label(1),
     proceed]).
 
 
-predicate(meta_pred_rewrite_arg/3,410,static,private,monofile,global,[
+predicate(meta_pred_rewrite_arg/3,443,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),

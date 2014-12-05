@@ -164,7 +164,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	'$pl_err_instantiation'.
 
 '$get_open_options2'(type(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = text,
 	    '$sys_var_set_bit'(0, 0)
 	;   X = binary,
@@ -172,7 +172,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	).
 
 '$get_open_options2'(reposition(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 1)
 	;   X = true,
@@ -181,7 +181,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	'$sys_var_set_bit'(0, 2).
 
 '$get_open_options2'(eof_action(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = error,
 	    '$sys_var_reset_bit'(0, 4),
 	    '$sys_var_reset_bit'(0, 3)
@@ -195,7 +195,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	'$sys_var_set_bit'(0, 5).
 
 '$get_open_options2'(buffering(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = none,
 	    '$sys_var_reset_bit'(0, 7),
 	    '$sys_var_reset_bit'(0, 6)
@@ -217,7 +217,7 @@ open(SourceSink, Mode, Stream, Options) :-
 	).
 
 '$get_open_options2'(mirror(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(X = '$stream'(MStm), integer(MStm) ; atom(X)),
 	!,
 	'$call_c'('Pl_Check_Valid_Mirror_1'(X)),
@@ -290,7 +290,7 @@ close(SorA, Options) :-
 	'$pl_err_instantiation'.
 
 '$get_close_options2'(force(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 0)
 	;   X = true,
