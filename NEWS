@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5 (Dec 2014):
 
+* improve memory limitation of acyclic_term/1
 * improve term output (write/1 and friends)
 * improve error handling for options (e.g. in write_term/3)
 * fix bug with cut in the if-part of if-then(-else)
