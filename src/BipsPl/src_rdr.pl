@@ -128,7 +128,7 @@ sr_open(FileOrStream, D, Options) :-
 '$get_sr_options2'(T) :-
 	functor(T, F, 1),
 	arg(1, T, A),
-	nonvar(A),
+	'$check_nonvar'(A),
 	'$sr_treat_pass_no'(F, _, SubMaskPos),
 	BitPass is SubMaskPos * 2,
 	BitTreat is BitPass + 1,
@@ -136,7 +136,7 @@ sr_open(FileOrStream, D, Options) :-
 	'$sr_set_treat_pass_bits'(A, BitPass, BitTreat).
 
 '$get_sr_options2'(restart(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 16)
         ;   X = true,
@@ -144,7 +144,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(reflect_eof(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 17)
         ;   X = true,
@@ -152,7 +152,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(undo_directives(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 18)
         ;   X = true,
@@ -160,7 +160,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(write_error(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 19)
         ;   X = true,
@@ -168,6 +168,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(output_stream(SorA)) :-
+	'$check_nonvar'(SorA),
 	g_link('$sr_output_stream', SorA),
         '$sys_var_write'(1, 1).
 

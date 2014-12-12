@@ -47,19 +47,64 @@
 #include "bips_pl.h"
 
 
-				/* spaces for non-assoc op (fx, xfx, xf) */
+		/* spaces for non-assoc op (fx, xfx, xf) */
 #if 0
-#define NO_SPACE_ARGS_FOR_NON_ASSOC_OP
+#define SPACE_ARGS_RESTRICTED
 #endif
-				/* spaces around the | inside lists */
-#if 1
-#define NO_SPACE_ARGS_FOR_LIST_PIPE
+
+		/* spaces around the | inside lists */
+#if 0
+#define SPACE_ARGS_FOR_LIST_PIPE
 #endif
+
 				/* spaces around the : (module qualification) */
 #if 1
 #define NO_SPACE_ARGS_FOR_COLON
 #endif
 
+
+
+ /* The output of the term -(T) using operator notation requires some attention if 
+  * the notation representation of T starts with a number. It is important to disinguish
+  * between the compound term -(1) and the integer -1.
+  *
+  * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is not defined, we can simply use a space
+  *    -(1) can be output as - 1
+  *
+  * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is defined we need brackets. 
+  *    -(1) can be output as - (1)    NB: -(1) is also OK but does not show the op notation
+  * 
+  * The following macros control how brackets are handled around T (or part of T). For this
+  * we consider 2 cases (pointed out by Ulrich Neumerkel).
+  *
+  *    - (1^2) which is -(^(1,2)) and can produce - (1^2) or - (1)^2
+  *    - (a^2) which is -(^(a,2)) and can produce - (a^2) or -a^2 
+  *
+  * OP_MINUS_BRACKETS_SIMPLE: to homegenize the output and to simplify the implementation, 
+  * brackets are used around T if T is a positive number or an {infix,postifx} op term
+  *
+  *    writeq(- (1^2)) produces - (1^2)
+  *    writeq(- (a^2)) produces - (a^2)
+  *
+  * OP_MINUS_BRACKETS_SHORTEST: avoids useless brackets else the bracketed is as short as 
+  * possible. opening ( is before T, and closing ) can be inside T
+  *
+  *    writeq(- (1^2)) produces - (1)^2
+  *    writeq(- (a^2)) produces -a^2
+  *
+  * OP_MINUS_BRACKETS_MIXED: avoids useless brackets else the whole T is bracketed.
+  *
+  *    writeq(- (1^2)) produces - (1^2)   as in OP_MINUS_BRACKETS_SIMPLE
+  *    writeq(- (a^2)) produces -a^2      as in OP_MINUS_BRACKETS_SHORTEST
+  */
+
+#if 0
+#define OP_MINUS_BRACKETS_SIMPLE
+#elif 0
+#define OP_MINUS_BRACKETS_SHORTEST
+#else
+#define OP_MINUS_BRACKETS_MIXED
+#endif
 
 
 
@@ -118,8 +163,9 @@ static Bool portrayed;
 
 static WamWord *name_number_above_H;
 
+static Bool last_is_space;	/* to avoid duplicate spaces (e.g. with space_args) */
 static int last_prefix_op = W_NO_PREFIX_OP;
-static Bool *p_bracket_minus;
+static Bool *p_bracket_op_minus;
 
 
 
@@ -140,20 +186,21 @@ static void Show_Term(int depth, int prec, int context, WamWord term_word);
 
 static void Show_Global_Var(WamWord *adr);
 
-static void Show_Atom(int context, int atom);
-
-static void Show_Integer(PlLong x);
-
 #ifndef NO_USE_FD_SOLVER
 static void Show_Fd_Variable(WamWord *fdv_adr);
 #endif
 
+static void Show_Atom(int context, int atom);
+
+static void Show_Integer(PlLong x);
+
 static void Show_Float(double x);
+
+static void Show_Number_Str(char *str);
 
 static void Show_List_Arg(int depth, WamWord *lst_adr);
 
-static void Show_Structure(int depth, int prec, int context,
-			   WamWord *stc_adr);
+static void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
 
 static Bool Try_Portray(WamWord word);
 
@@ -196,6 +243,8 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 
   name_number_above_H = above_H;
 
+  last_is_space = FALSE;
+  last_prefix_op = W_NO_PREFIX_OP;
   pl_last_writing = W_NOTHING;
 
   Show_Term(depth, prec, (prec >= 1200) ? GENERAL_TERM : INSIDE_ANY_OP, term_word);
@@ -205,7 +254,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 
 
 /*-------------------------------------------------------------------------*
- * PL_WRITE_SIMPLE                                                         *
+ * PL_WRITE                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
@@ -213,8 +262,7 @@ Pl_Write(WamWord term_word)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_output];
 
-  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL,
-		term_word);
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, term_word);
   /* like write/1 */
 }
 
@@ -228,7 +276,11 @@ Pl_Write(WamWord term_word)
 static void
 Out_Space(void)
 {
-  Pl_Stream_Putc(' ', pstm_o);
+  if (!last_is_space)		/* avoid 2 consecutive space separators */
+    {
+      Pl_Stream_Putc(' ', pstm_o);
+      last_is_space = TRUE;
+    }
   pl_last_writing = W_NOTHING;
 }
 
@@ -244,6 +296,11 @@ Out_Char(int c)
 {
   Need_Space(c);
   Pl_Stream_Putc(c, pstm_o);
+#if 0		     /* actually, we do not use Out_Char to display spaces */
+  last_is_space = (c == ' ');  /* use isspace ? */
+#else
+  last_is_space = FALSE;
+#endif
 }
 
 
@@ -258,6 +315,17 @@ Out_String(char *str)
 {
   Need_Space(*str);
   Pl_Stream_Puts(str, pstm_o);
+
+ /* Do not take into account space in strings , e.g.
+  * write_term('ab ' + c,[space_args(true)]).
+  * will output ab  + c
+  * to only have one space, simply activate the macro
+  */
+#if 0
+  last_is_space = (str[strlen(str) - 1] == ' '); /* use isspace ? */
+#else 
+  last_is_space = FALSE;
+#endif
 }
 
 
@@ -302,18 +370,19 @@ Need_Space(int c)
     }
 
   if (space || (c == '(' && last_prefix_op != W_NO_PREFIX_OP))
-    Pl_Stream_Putc(' ', pstm_o);
+    Out_Space();
   else if (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS)
     {
-#ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
-      Pl_Stream_Putc(' ', pstm_o);
-#else
-      (*p_bracket_minus)++;
-      /* to show it is an operator notation we also display a space (not strictly necessary) */
-#if 1
-      Pl_Stream_Putc(' ', pstm_o); 
+#ifndef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES
+      Out_Space();	     /* a space is enough to show - is an operator */
+#else			     /* we need brackets  to show - is an operator */
+      (*p_bracket_op_minus)++;
+	
+#if 1	/* to show it is an op notation display a space (not strictly necessary) */
+      Out_Space();
 #endif
-      Pl_Stream_Putc('(', pstm_o);
+
+      Out_Char('(');
 #endif
     }
 
@@ -463,11 +532,9 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       if (ignore_op)
 	{
 	  Out_String("'.'(");
-	  Show_Term(depth - 1, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM,
-		    Car(adr));
+	  Show_Term(depth - 1, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(adr));
 	  Out_Char(',');
-	  Show_Term(depth - 1, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM,
-		    Cdr(adr));
+	  Show_Term(depth - 1, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Cdr(adr));
 	  Out_Char(')');
 	}
       else
@@ -502,6 +569,31 @@ Show_Global_Var(WamWord *adr)
 
   pl_last_writing = W_IDENTIFIER;
 }
+
+
+
+
+
+
+#ifndef NO_USE_FD_SOLVER
+/*-------------------------------------------------------------------------*
+ * SHOW_FD_VARIABLE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Show_Fd_Variable(WamWord *fdv_adr)
+{
+  char str[32];
+
+  sprintf(str, "_#%d(", (int) Cstr_Offset(fdv_adr));
+  Out_String(str);
+
+  Out_String(Fd_Variable_To_String(fdv_adr));
+  Out_Char(')');
+
+  pl_last_writing = W_IDENTIFIER;
+}
+#endif
 
 
 
@@ -613,37 +705,10 @@ static void
 Show_Integer(PlLong x)
 {
   char str[32];
-
   sprintf(str, "%" PL_FMT_d, x);
-  Out_String(str);
-
-  if (*str == '0' && str[1] == '\0')
-    pl_last_writing = W_NUMBER_0;
-  else
-    pl_last_writing = W_NUMBER;
+  Show_Number_Str(str);
 }
 
-
-
-#ifndef NO_USE_FD_SOLVER
-/*-------------------------------------------------------------------------*
- * SHOW_FD_VARIABLE                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Show_Fd_Variable(WamWord *fdv_adr)
-{
-  char str[32];
-
-  sprintf(str, "_#%d(", (int) Cstr_Offset(fdv_adr));
-  Out_String(str);
-
-  Out_String(Fd_Variable_To_String(fdv_adr));
-  Out_Char(')');
-
-  pl_last_writing = W_IDENTIFIER;
-}
-#endif
 
 
 
@@ -654,9 +719,42 @@ Show_Fd_Variable(WamWord *fdv_adr)
 static void
 Show_Float(double x)
 {
-  Out_String(Pl_Float_To_String(x));
+  Show_Number_Str(Pl_Float_To_String(x));
+}
 
-  pl_last_writing = W_NUMBER;
+
+
+/*-------------------------------------------------------------------------*
+ * SHOW_NUMBER_STR                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Show_Number_Str(char *str)
+{
+#ifdef OP_MINUS_BRACKETS_SHORTEST
+  int cur_bracket_op_minus = (last_prefix_op == W_PREFIX_OP_MINUS) ? *p_bracket_op_minus : -1;
+#endif
+
+  Out_String(str);
+
+  /* Suppose a term -(15)^8   which is -(^(15,8))
+   * we are here on the number 15, ie. the "-" has been displayed
+   * The Out_String(str) displayed " (15" and *p_bracket_op_minus has been incremented
+   * If nothing is done, the closing ) will be displayed after ^8 resulting in - (15^8)
+   * With the next test we detect it and close the ) after the 15 resulting in - (15)^8
+   * Both are OK (the first on corresponds to OP_MINUS_BRACKETS_SIMPLE/MIXED) 
+   */
+
+#ifdef OP_MINUS_BRACKETS_SHORTEST
+  if (cur_bracket_op_minus >= 0 && cur_bracket_op_minus != *p_bracket_op_minus) 
+    {
+      Out_Char(')');
+      (*p_bracket_op_minus)--;
+      pl_last_writing = W_NOTHING;
+    }
+  else
+#endif
+    pl_last_writing = (*str == '0' && str[1] == '\0') ? W_NUMBER_0 : W_NUMBER;
 }
 
 
@@ -667,10 +765,10 @@ Show_Float(double x)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
-#ifdef NO_SPACE_ARGS_FOR_LIST_PIPE
-#define SHOW_LIST_PIPE Out_Char('|')
-#else
+#ifdef SPACE_ARGS_FOR_LIST_PIPE
 #define SHOW_LIST_PIPE if (space_args) Out_String(" | "); else Out_Char('|')
+#else
+#define SHOW_LIST_PIPE Out_Char('|')
 #endif
 
 static void
@@ -904,23 +1002,23 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       last_prefix_op = W_PREFIX_OP_ANY;
 
       if (space_args
-#ifdef NO_SPACE_ARGS_FOR_NON_ASSOC_OP	/* space_args -> space after fx operator */
+#if SPACE_ARGS_RESTRICTED	/* space_args -> space after fx operator */
 	  && oper->prec > oper->right
 #endif
 	  )
 	Out_Space();
-      else
-	if (strcmp(pl_atom_tbl[functor].name, "-") == 0)
-	  {
-	    last_prefix_op = W_PREFIX_OP_MINUS;
-	    p_bracket_minus = &bracket;
-	  }
+
+      if (strcmp(pl_atom_tbl[functor].name, "-") == 0)
+	{
+	  last_prefix_op = W_PREFIX_OP_MINUS;
+	  p_bracket_op_minus = &bracket;
+	}
 
       Show_Term(depth, oper->right, INSIDE_ANY_OP, Arg(stc_adr, 0));
       last_prefix_op = W_NO_PREFIX_OP;
 
       /* Here we need a while(bracket--) instead of if(bracket) because
-       * in some cases with the minus op and additional bracket is needed.
+       * in some cases with the minus op an additional bracket is needed.
        * Example: with op(100, xfx, &) (recall the prec of - is 200). 
        * The term ((-(1)) & b must be displayed as: (- (1)) & b
        * Concerning the sub-term - (1), the first ( is emitted  10 lines above
@@ -939,7 +1037,11 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (arity == 1 && (oper = Pl_Lookup_Oper(functor, POSTFIX)))
     {
     postfix:
-      if (oper->prec > prec)
+      if (oper->prec > prec 
+#ifdef OP_MINUS_BRACKETS_SIMPLE
+	  ||  last_prefix_op == W_PREFIX_OP_MINUS
+#endif
+	  )
 	{
 	  Out_Char('(');
 	  bracket = TRUE;
@@ -951,7 +1053,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
       if (space_args
-#ifdef NO_SPACE_ARGS_FOR_NON_ASSOC_OP	/* space_args -> space before xf operator */
+#if SPACE_ARGS_RESTRICTED	/* space_args -> space before xf operator */
 	  && oper->prec > oper->left
 #endif
 	  )
@@ -970,13 +1072,18 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
     {
       if (oper->prec > prec || (context == INSIDE_LEFT_ASSOC_OP &&
 				(oper->prec == oper->right
-				 && oper->prec == prec)))
+				 && oper->prec == prec))
+#ifdef OP_MINUS_BRACKETS_SIMPLE
+	  ||  last_prefix_op == W_PREFIX_OP_MINUS
+#endif
+	  )
 	{			/* prevent also the case: T xfy U yf(x) */
 	  Out_Char('(');
 	  bracket = TRUE;
 	}
 
-      context =	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
+      context =
+	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
@@ -1004,8 +1111,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	    if (pl_atom_tbl[functor].prop.type == IDENTIFIER_ATOM ||
 		pl_atom_tbl[functor].prop.type == OTHER_ATOM ||
 		(space_args
-#ifdef NO_SPACE_ARGS_FOR_NON_ASSOC_OP	/* space_args -> space around xfx operators */
-		 && (oper->left != oper->prec && oper->right != oper->prec)
+#ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
+		 && oper->left != oper->prec && oper->right != oper->prec
 #endif
 #ifdef NO_SPACE_ARGS_FOR_COLON
 		 && (functor != ATOM_CHAR(':'))

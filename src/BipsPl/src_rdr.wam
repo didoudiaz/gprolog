@@ -126,28 +126,28 @@ predicate(system:'$get_sr_options2'/1,124,static,private,monofile,built_in,[
 
 label(1),
     retry_me_else(2),
-    allocate(2),
-    get_variable(x(2),0),
-    put_variable(x(0),1),
-    put_integer(1,3),
-    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(2),x(1),x(3)]),
+    allocate(3),
+    put_variable(y(0),1),
+    put_integer(1,2),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     put_integer(1,1),
-    put_variable(y(0),3),
-    call_c('Pl_Blt_Arg',[fast_call,boolean],[x(1),x(2),x(3)]),
-    put_value(y(0),1),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(1)]),
-    put_void(1),
     put_variable(y(1),2),
+    call_c('Pl_Blt_Arg',[fast_call,boolean],[x(1),x(0),x(2)]),
+    put_value(y(1),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    put_void(1),
+    put_variable(y(2),2),
     call('$sr_treat_pass_no'/3),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
-    math_load_value(y(1),0),
+    math_load_value(y(2),0),
     put_integer(2,1),
     call_c('Pl_Fct_Mul',[fast_call,x(1)],[x(0),x(1)]),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
     math_load_value(x(1),0),
     call_c('Pl_Fct_Inc',[fast_call,x(2)],[x(0)]),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_open,3]),
-    put_unsafe_value(y(0),0),
+    put_unsafe_value(y(1),0),
     deallocate,
     execute('$sr_set_treat_pass_bits'/3),
 
@@ -162,48 +162,69 @@ label(4),
     try_me_else(6),
 
 label(5),
+    allocate(1),
     get_structure(restart/1,0),
-    unify_variable(x(0)),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    deallocate,
     execute('$$get_sr_options2/1_$aux1'/1),
 
 label(6),
     retry_me_else(8),
 
 label(7),
+    allocate(1),
     get_structure(reflect_eof/1,0),
-    unify_variable(x(0)),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    deallocate,
     execute('$$get_sr_options2/1_$aux2'/1),
 
 label(8),
     retry_me_else(10),
 
 label(9),
+    allocate(1),
     get_structure(undo_directives/1,0),
-    unify_variable(x(0)),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    deallocate,
     execute('$$get_sr_options2/1_$aux3'/1),
 
 label(10),
     retry_me_else(12),
 
 label(11),
+    allocate(1),
     get_structure(write_error/1,0),
-    unify_variable(x(0)),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    deallocate,
     execute('$$get_sr_options2/1_$aux4'/1),
 
 label(12),
     trust_me_else_fail,
 
 label(13),
+    allocate(1),
     get_structure(output_stream/1,0),
-    unify_variable(x(1)),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
     put_atom('$sr_output_stream',0),
+    put_value(y(0),1),
     call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
     put_integer(1,0),
     put_integer(1,1),
+    deallocate,
     execute('$sys_var_write'/2),
 
 label(14),
@@ -313,7 +334,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(system:'$sr_treat_pass_no'/3,182,static,private,monofile,built_in,[
+predicate(system:'$sr_treat_pass_no'/3,183,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -392,7 +413,7 @@ label(17),
     proceed]).
 
 
-predicate(system:'$sr_set_treat_pass_bits'/3,194,static,private,monofile,built_in,[
+predicate(system:'$sr_set_treat_pass_bits'/3,195,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -455,7 +476,7 @@ label(9),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(system:'$sr_open_new_prolog_file'/1,213,static,private,monofile,built_in,[
+predicate(system:'$sr_open_new_prolog_file'/1,214,static,private,monofile,built_in,[
     put_variable(x(1),2),
     call_c('Pl_Prolog_File_Name_2',[],[x(0),x(2)]),
     put_atom(false,0),
@@ -463,7 +484,7 @@ predicate(system:'$sr_open_new_prolog_file'/1,213,static,private,monofile,built_
     proceed]).
 
 
-predicate(system:sr_change_options/2,225,static,private,monofile,built_in,[
+predicate(system:sr_change_options/2,226,static,private,monofile,built_in,[
     allocate(0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_change_options,2]),
     call_c('Pl_SR_Check_Descriptor_1',[],[x(0)]),
@@ -474,18 +495,18 @@ predicate(system:sr_change_options/2,225,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:sr_close/1,234,static,private,monofile,built_in,[
+predicate(system:sr_close/1,235,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_close,1]),
     call_c('Pl_SR_Close_1',[],[x(0)]),
     proceed]).
 
 
-predicate(system:sr_new_pass/1,240,static,private,monofile,built_in,[
+predicate(system:sr_new_pass/1,241,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_new_pass,1]),
     execute('$sr_new_pass/1_$aux1'/1)]).
 
 
-predicate(system:'$sr_new_pass/1_$aux1'/1,240,static,private,monofile,local,[
+predicate(system:'$sr_new_pass/1_$aux1'/1,241,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -501,7 +522,7 @@ label(1),
     execute('$pl_err_permission'/3)]).
 
 
-predicate(system:sr_read_term/4,250,static,private,monofile,built_in,[
+predicate(system:sr_read_term/4,251,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     allocate(6),
@@ -541,7 +562,7 @@ predicate(system:sr_read_term/4,250,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$sr_read_term/4_$aux2'/2,250,static,private,monofile,local,[
+predicate(system:'$sr_read_term/4_$aux2'/2,251,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -560,7 +581,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_read_term/4_$aux1'/3,250,static,private,monofile,local,[
+predicate(system:'$sr_read_term/4_$aux1'/3,251,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -577,7 +598,7 @@ label(1),
     execute('$sr_error_from_exception'/2)]).
 
 
-predicate(system:'$sr_treat_term'/2,277,static,private,monofile,built_in,[
+predicate(system:'$sr_treat_term'/2,278,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -628,7 +649,7 @@ label(2),
     proceed]).
 
 
-predicate(system:'$$sr_treat_term/2_$aux3'/2,285,static,private,monofile,local,[
+predicate(system:'$$sr_treat_term/2_$aux3'/2,286,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -642,7 +663,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$sr_treat_term/2_$aux2'/4,285,static,private,monofile,local,[
+predicate(system:'$$sr_treat_term/2_$aux2'/4,286,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -666,7 +687,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$sr_treat_term/2_$aux1'/2,277,static,private,monofile,local,[
+predicate(system:'$$sr_treat_term/2_$aux1'/2,278,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -683,7 +704,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_exec_directive'/2,310,static,private,monofile,built_in,[
+predicate(system:'$sr_exec_directive'/2,311,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -702,7 +723,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_directive1'/2,320,static,private,monofile,built_in,[
+predicate(system:'$sr_directive1'/2,321,static,private,monofile,built_in,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -830,7 +851,7 @@ label(17),
     execute('$sr_stop_module'/3)]).
 
 
-predicate(system:'$$sr_directive1/2_$aux3'/2,346,static,private,monofile,local,[
+predicate(system:'$$sr_directive1/2_$aux3'/2,347,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -848,7 +869,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$sr_directive1/2_$aux2'/2,337,static,private,monofile,local,[
+predicate(system:'$$sr_directive1/2_$aux2'/2,338,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -865,7 +886,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$$sr_directive1/2_$aux1'/4,323,static,private,monofile,local,[
+predicate(system:'$$sr_directive1/2_$aux1'/4,324,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -897,7 +918,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_op_type'/2,370,static,private,monofile,built_in,[
+predicate(system:'$sr_op_type'/2,371,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -960,7 +981,7 @@ label(15),
     proceed]).
 
 
-predicate(system:'$sr_start_module'/3,381,static,private,monofile,built_in,[
+predicate(system:'$sr_start_module'/3,382,static,private,monofile,built_in,[
     get_variable(x(3),0),
     put_variable(x(0),4),
     call_c('Pl_SR_Start_Module_3',[],[x(3),x(1),x(4)]),
@@ -968,7 +989,7 @@ predicate(system:'$sr_start_module'/3,381,static,private,monofile,built_in,[
     execute('$$sr_start_module/3_$aux1'/2)]).
 
 
-predicate(system:'$$sr_start_module/3_$aux1'/2,381,static,private,monofile,local,[
+predicate(system:'$$sr_start_module/3_$aux1'/2,382,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -985,7 +1006,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_stop_module'/3,390,static,private,monofile,built_in,[
+predicate(system:'$sr_stop_module'/3,391,static,private,monofile,built_in,[
     get_variable(x(3),0),
     put_variable(x(0),4),
     call_c('Pl_SR_Stop_Module_3',[],[x(3),x(1),x(4)]),
@@ -993,7 +1014,7 @@ predicate(system:'$sr_stop_module'/3,390,static,private,monofile,built_in,[
     execute('$$sr_stop_module/3_$aux1'/2)]).
 
 
-predicate(system:'$$sr_stop_module/3_$aux1'/2,390,static,private,monofile,local,[
+predicate(system:'$$sr_stop_module/3_$aux1'/2,391,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1010,18 +1031,18 @@ label(1),
     proceed]).
 
 
-predicate(system:sr_current_descriptor/1,399,static,private,monofile,built_in,[
+predicate(system:sr_current_descriptor/1,400,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_current_descriptor,1]),
     call_c('Pl_SR_Current_Descriptor_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:'$sr_current_descriptor_alt'/0,406,static,private,monofile,built_in,[
+predicate(system:'$sr_current_descriptor_alt'/0,407,static,private,monofile,built_in,[
     call_c('Pl_SR_Current_Descriptor_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(system:sr_get_stream/2,412,static,private,monofile,built_in,[
+predicate(system:sr_get_stream/2,413,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_stream,2]),
@@ -1035,73 +1056,73 @@ predicate(system:sr_get_stream/2,412,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:sr_get_module/3,420,static,private,monofile,built_in,[
+predicate(system:sr_get_module/3,421,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_module,3]),
     call_c('Pl_SR_Get_Module_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:sr_get_file_name/2,427,static,private,monofile,built_in,[
+predicate(system:sr_get_file_name/2,428,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_file_name,2]),
     call_c('Pl_SR_Get_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:sr_get_position/3,434,static,private,monofile,built_in,[
+predicate(system:sr_get_position/3,435,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_position,3]),
     call_c('Pl_SR_Get_Position_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:sr_get_include_list/2,441,static,private,monofile,built_in,[
+predicate(system:sr_get_include_list/2,442,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_include_list,2]),
     call_c('Pl_SR_Get_Include_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:sr_get_include_stream_list/2,448,static,private,monofile,built_in,[
+predicate(system:sr_get_include_stream_list/2,449,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_include_stream_list,2]),
     call_c('Pl_SR_Get_Include_Stream_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:sr_get_size_counters/3,455,static,private,monofile,built_in,[
+predicate(system:sr_get_size_counters/3,456,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_size_counters,3]),
     call_c('Pl_SR_Get_Size_Counters_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:sr_get_error_counters/3,462,static,private,monofile,built_in,[
+predicate(system:sr_get_error_counters/3,463,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_get_error_counters,3]),
     call_c('Pl_SR_Get_Error_Counters_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:sr_set_error_counters/3,469,static,private,monofile,built_in,[
+predicate(system:sr_set_error_counters/3,470,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_set_error_counters,3]),
     call_c('Pl_SR_Set_Error_Counters_3',[],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:sr_write_message/4,476,static,private,monofile,built_in,[
+predicate(system:sr_write_message/4,477,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_write_message,4]),
     call_c('Pl_SR_Write_Message_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:sr_write_message/6,483,static,private,monofile,built_in,[
+predicate(system:sr_write_message/6,484,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_write_message,6]),
     call_c('Pl_SR_Write_Message_6',[],[x(0),x(1),x(2),x(3),x(4),x(5)]),
     proceed]).
 
 
-predicate(system:sr_write_message/8,490,static,private,monofile,built_in,[
+predicate(system:sr_write_message/8,491,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sr_write_message,8]),
     call_c('Pl_SR_Write_Message_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
     proceed]).
 
 
-predicate(system:sr_write_error/2,497,static,private,monofile,built_in,[
+predicate(system:sr_write_error/2,498,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1132,7 +1153,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_write_error/2_$aux1'/6,497,static,private,monofile,local,[
+predicate(system:'$sr_write_error/2_$aux1'/6,498,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     call_c('Pl_SR_Write_Message_4',[],[x(1),x(2),x(3),x(4)]),
@@ -1144,7 +1165,7 @@ label(1),
     proceed]).
 
 
-predicate(system:sr_write_error/4,511,static,private,monofile,built_in,[
+predicate(system:sr_write_error/4,512,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1182,7 +1203,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_write_error/4_$aux1'/4,511,static,private,monofile,local,[
+predicate(system:'$sr_write_error/4_$aux1'/4,512,static,private,monofile,local,[
     try_me_else(1),
     get_value(x(1),0),
     get_value(x(3),2),
@@ -1193,7 +1214,7 @@ label(1),
     proceed]).
 
 
-predicate(system:sr_write_error/6,522,static,private,monofile,built_in,[
+predicate(system:sr_write_error/6,523,static,private,monofile,built_in,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1235,7 +1256,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_write_error/6_$aux1'/4,522,static,private,monofile,local,[
+predicate(system:'$sr_write_error/6_$aux1'/4,523,static,private,monofile,local,[
     try_me_else(1),
     get_value(x(1),0),
     get_value(x(3),2),
@@ -1246,7 +1267,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_get_format_args_error'/6,534,static,private,monofile,built_in,[
+predicate(system:'$sr_get_format_args_error'/6,535,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -1261,7 +1282,7 @@ label(1),
     execute('$sr_simpl_error'/5)]).
 
 
-predicate(system:'$sr_simpl_error'/5,545,static,private,monofile,built_in,[
+predicate(system:'$sr_simpl_error'/5,546,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(8),
@@ -1327,7 +1348,7 @@ label(8),
     proceed]).
 
 
-predicate(system:sr_error_from_exception/2,568,static,private,monofile,built_in,[
+predicate(system:sr_error_from_exception/2,569,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1340,7 +1361,7 @@ predicate(system:sr_error_from_exception/2,568,static,private,monofile,built_in,
     execute('$sr_error_from_exception'/2)]).
 
 
-predicate(system:'$sr_error_from_exception/2_$aux1'/1,568,static,private,monofile,local,[
+predicate(system:'$sr_error_from_exception/2_$aux1'/1,569,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1353,7 +1374,7 @@ label(1),
     proceed]).
 
 
-predicate(system:'$sr_error_from_exception'/2,577,static,private,monofile,built_in,[
+predicate(system:'$sr_error_from_exception'/2,578,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(7),

@@ -590,7 +590,7 @@ terminal_rec:
 
 
 
-
+#if 0
 /*-------------------------------------------------------------------------*
  * PL_ACYCLIC_TERM_1                                                       *
  *                                                                         *
@@ -654,6 +654,149 @@ Pl_Acyclic_Term_1(WamWord start_word)
   return TRUE;
 }
 
+
+#else
+
+/*-------------------------------------------------------------------------*
+ * PL_ACYCLIC_TERM_1                                                       *
+ *                                                                         *
+ * This is implemented in linear time markink each sub-term (LST or STC)   *
+ * with a special mark (NB we cannot use NOT_A_WAM_WORD, <REF,0> since it  * 
+ * would be dereferenced. So we use <LST,0>                                *
+ *                                                                         *
+ * This implementation no longer uses the C-stack for recursion.           *
+ * Instead it uses the heap (could be another stack).                      *
+ * The acyclic stack records both the mark to undo and the terms to check. *
+ *                                                                         *
+ * save/restore record:                                                    *
+ * | .................. | <- sp                                            *
+ * | adr to restore | 1 | bit0 = 1 for this kind of entry                  *
+ * | value to restore   |                                                  *
+ *                                                                         *
+ * term to check record:                                                   *
+ * | .................. | <- sp                                            *
+ * | adr to check       | bit0 = 0 for this kind of entry                  *
+ * | arity remaining    | nb of arguments to be checked (at adr; adr+1,...)*
+ *                                                                         *
+ * NB, this implementation does not take into account sharing. This could  *
+ * be done with another mark (eg. <LST,1>) to indicate that a term has been*
+ * checked and it is cycle-free. When this mark is encountered, it is not  *
+ * necessary to check it again. At the end, these marked words are also    *
+ * restored. However, handling shareing requires more memory.              *
+ * Anyway, the current simple and enough until a full support for cyclic   *
+ * terms is implemented, at least in the unification: X=f(X), Y=f(Y), X=Y. *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Acyclic_Term_1(WamWord start_word)
+
+#define CYCLIC_MARK Tag_LST(0)
+
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  WamWord *adr1;
+  int arity;
+  Bool ok = TRUE;
+  WamWord *mark_base = H;
+  WamWord *mark_sp = mark_base;
+
+  *mark_sp++ = (WamWord) 1;	/* arity */
+  *mark_sp++ = (WamWord) &start_word; /* addr to check */
+
+#if 0
+#define DEBUG
+#endif
+
+#ifdef DEBUG
+  DBGPRINTF("+++ START test acyclic_term %p = %lx\n", &start_word, start_word);
+#endif
+
+  while (mark_sp > mark_base)
+    {
+      word = mark_sp[-1];
+
+      if (word & 1)		/* a restore operation */
+	{
+	  word = (word >> 1) << 1;
+	  adr = (WamWord *) word;
+	  word = mark_sp[-2];
+	  *adr = word;
+#ifdef DEBUG
+	  DBGPRINTF("restore addr %p = %lx ", adr, word);
+	  if (ok)
+	    Pl_Write(word);
+	  DBGPRINTF("\n");
+#endif
+	pop_and_cont:
+	  mark_sp -= 2;
+	  continue;
+	}
+
+      if (!ok)
+	goto pop_and_cont;
+
+      adr = (WamWord *) word;
+      start_word = *adr;
+
+#ifdef DEBUG
+      DBGPRINTF("check addr %p = %lx (after this it remains %ld args to check in this structure)\n", adr, start_word, mark_sp[-2]);
+#endif
+
+      if (--mark_sp[-2] == 0)
+	mark_sp -= 2;		/* pop since last arg */
+      else
+	mark_sp[-1] = (WamWord) (adr + 1);
+
+      DEREF(start_word, word, tag_mask);
+      if (word == CYCLIC_MARK)	/* marked = cyclic */
+	{
+	  ok = FALSE;
+#ifdef DEBUG
+	  DBGPRINTF("*** CYCLE DETECTED ***\n");
+#endif
+	  continue;
+	}
+
+
+      if (tag_mask == TAG_LST_MASK)
+	{
+	  adr1 = UnTag_LST(word);
+	  arity = 2;
+	  adr1 = &Car(adr1);
+	}
+      else if (tag_mask == TAG_STC_MASK)
+	{
+	  adr1 = UnTag_STC(word);
+	  arity = Arity(adr1);
+	  adr1 = &Arg(adr1, 0);
+	}
+      else
+	continue;
+
+      *mark_sp++ = (WamWord) start_word;
+      *mark_sp++ = (WamWord) adr | 1;
+#ifdef DEBUG
+      DBGPRINTF("save addr %p = %lx\n", adr, start_word);
+      //Pl_Write(word);
+#endif
+
+      *adr = CYCLIC_MARK;	/* mark it */
+
+      *mark_sp++ = (WamWord) arity;
+      *mark_sp++ = (WamWord) adr1;
+#ifdef DEBUG
+      DBGPRINTF("push: to check addr %p arity: %d\n", adr1, arity);
+#endif
+    }
+
+#ifdef DEBUG
+  DBGPRINTF("+++ END   test acyclic: addr %p = %lx result: %s\n", &start_word, start_word, 
+	    (ok) ? "OK": "CYCLIC");
+#endif
+
+  return ok;
+}
+#endif
 
 
 

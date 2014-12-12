@@ -155,11 +155,24 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$get_pred_indic'/5,192,static,private,monofile,built_in,[
+predicate(system:'$check_nonvar'/1,192,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    execute('$pl_err_instantiation'/0)]).
+
+
+predicate(system:'$get_pred_indic'/5,203,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(system:'$get_pred_indic_var'/5,196,static,private,monofile,built_in,[
+predicate(system:'$get_pred_indic_var'/5,207,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_Var_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).

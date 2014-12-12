@@ -189,6 +189,17 @@
 
 
 
+'$check_nonvar'(X) :-
+	nonvar(X), !.
+
+'$check_nonvar'(_) :-
+	'$pl_err_instantiation'.
+
+
+
+
+
+
 '$get_pred_indic'(PI, DefModule, Module, Func, Arity) :-
 	'$call_c_test'('Pl_Get_Pred_Indic_5'(PI, DefModule, Module, Func, Arity)).
 

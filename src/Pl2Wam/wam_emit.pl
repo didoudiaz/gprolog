@@ -151,6 +151,7 @@ emit_code_files(WamFile, _, WamFile).
 :- endif.
 
 
+
 emit_code_term(Bytes, Lines) :-
 	g_read(streamwamfile, Stream),
 	character_count(Stream, Bytes),
