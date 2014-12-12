@@ -242,20 +242,34 @@ label(6),
     retry_me_else(8),
 
 label(7),
+    allocate(1),
     get_structure(from/1,0),
-    unify_variable(x(1)),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     put_atom('$bind_from',0),
+    put_value(y(0),1),
     call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    deallocate,
     proceed,
 
 label(8),
     retry_me_else(10),
 
 label(9),
+    allocate(1),
     get_structure(next/1,0),
-    unify_variable(x(1)),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     put_atom('$bind_next',0),
+    put_value(y(0),1),
     call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    deallocate,
     proceed,
 
 label(10),
@@ -283,7 +297,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(numbervars/1,162,static,private,monofile,built_in,[
+predicate(numbervars/1,164,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,1]),
@@ -296,7 +310,7 @@ predicate(numbervars/1,162,static,private,monofile,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate(numbervars/3,168,static,private,monofile,built_in,[
+predicate(numbervars/3,170,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),

@@ -392,7 +392,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 
       /* test if it is a negative number */
       if (pl_token.name[0] == '-' && pl_token.name[1] == '\0'
-#ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
+#ifndef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES
 	  && isdigit(Pl_Scan_Peek_Char(pstm_i, TRUE))
 #endif
 	  )
@@ -416,7 +416,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	    }
 
 	  /* '-' not followed by a number, pushback this token */
-	  /* (cannot occur ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES) */
+	  /* (cannot occur ifndef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES) */
 
 	  Unget_Token;
 

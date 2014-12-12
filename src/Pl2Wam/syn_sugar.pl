@@ -65,7 +65,18 @@ normalize_cuts(Body, Body2) :-
 	).
 
 
-	/* NB: difference between cut and soft cut
+
+	/* About cut transparency in IF-THEN and IF-THEN-ELSE
+	 *  (IF -> THEN)         <==>  (call(IF) -> THEN)
+	 *  (IF -> THEN ; ELSE)  <==>  (call(IF) -> THEN ; ELSE)
+	 *
+	 * Thus the IF part is not transparent (ie. opaque) for the cut
+	 * (the cut is local to the IF)
+	 */
+
+
+	/* NB: difference between cut and soft cut:
+	 *
    	 * cut: a cut generates a '$get_cut_level'(V) followed by a '$cut'(V)
 	 *      '$get_cut_level'(V) will give rise to a copy from X(arity) to V
 	 *      (see code_gen.pl). The initialization of X(arity) is done once
@@ -73,7 +84,7 @@ normalize_cuts(Body, Body2) :-
 	 *      thus X(arity) is saved in choice-points. The initialization is
 	 *      done by a WAM instruction get_current_choice(x(Arity)) (indexing.pl)
 	 *
-	 * soft cut: give rise to a '$get_current_choice'(V) followed by a '$cut'(V)
+	 * soft cut: gives rise to a '$get_current_choice'(V) followed by a '$soft_cut'(V)
 	 *      '$get_current_choice'(V) is translated as a WAM instruction
 	 *      get_current_choice(V).
 	 *
@@ -87,22 +98,25 @@ normalize_cuts1(X, CutVar, P) :-
 
 normalize_cuts1((If ; R), CutVar, Body) :-
 	nonvar(If),
-	(   If = (P -> Q), Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; R1)
+	(   If = (P -> Q), Body = ('$get_cut_level'(CutVar1), P1, '$cut'(CutVar1), Q1 ; R1)
 	;
-	    If = (P *-> Q), Body = ('$get_current_choice'(CutVar1), P, '$soft_cut'(CutVar1), Q1 ; R1)
+	    If = (P *-> Q), Body = ('$get_current_choice'(CutVar1), P1, '$soft_cut'(CutVar1), Q1 ; R1)
 	),
+	normalize_cuts_in_if(P, P1),
 	normalize_cuts1(Q, CutVar, Q1),
 	normalize_cuts1(R, CutVar, R1).
 
 normalize_cuts1((P -> Q), CutVar, Body) :-
-	Body = ('$get_cut_level'(CutVar1), P, '$cut'(CutVar1), Q1 ; fail),
+	Body = ('$get_cut_level'(CutVar1), P1, '$cut'(CutVar1), Q1 ; fail),
+	normalize_cuts_in_if(P, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
 	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
 	% However a cut in the test part (P) should be local to P (as in P -> Q).
 	% Hence we replace P *-> Q by P *-> Q1 ; fail
 
-normalize_cuts1((P *-> Q), CutVar, ((P, Q1) ; fail)) :-
+normalize_cuts1((P *-> Q), CutVar, ((P1, Q1) ; fail)) :-
+	normalize_cuts_in_if(P, P1),
 	normalize_cuts1(Q, CutVar, Q1).
 
 normalize_cuts1(!, CutVar, '$cut'(CutVar)) :-
@@ -144,6 +158,25 @@ normalize_cuts1(P, _, P1) :-
 
 
 
+	/* A cut in the if-part is local (if-part is opaque)
+	 * If a cut appears we have to create an aux predicate
+	 * for this we use a '$force_aux_pred'/1 term.
+	 * If there is no if, nothing has to be done.
+	 */
+
+normalize_cuts_in_if(P, '$force_aux_pred'(P1)) :-
+	g_read(has_cut, SaveHasCut),
+	g_assign(has_cut, f),
+	normalize_cuts(P, P1),
+	g_read(has_cut, HasCut),
+	g_assign(has_cut, SaveHasCut),
+	HasCut = t, !.
+
+normalize_cuts_in_if(P, P).
+
+
+
+
 
 distrib_module_qualif((P ; Q), M, (P1 ; Q1)) :-
 	!,
@@ -179,7 +212,6 @@ distrib_module_qualif_goal(G, M, M:G).
 
 
 
-
 normalize_alts(Body, Head, Body1) :-
 	functor(Head, Pred, N),
 	g_assign(head_functor, Pred),
@@ -194,9 +226,10 @@ normalize_alts1((P, Q), RestC, (P1, Q1)) :-
 	normalize_alts1(P, (RestC, Q), P1),
 	normalize_alts1(Q, (RestC, P), Q1).
 
-normalize_alts1((P ; Q), RestC, AuxPred) :-
+normalize_alts1(Body0, RestC, AuxPred) :-
+	( Body0 = (_ ; _), Body = Body0 ; Body0 = '$force_aux_pred'(Body) ),
 	lst_var(RestC, [], VarRestC),
-	lst_var((P ; Q), [], VarAlt),
+	lst_var(Body, [], VarAlt),
 	set_inter(VarAlt, VarRestC, V),
 	length(V, N1),
 	g_read(head_functor, Pred),
@@ -204,7 +237,7 @@ normalize_alts1((P ; Q), RestC, AuxPred) :-
 	init_aux_pred_name(Pred, N, AuxName, N1),
 	AuxPred =.. [AuxName|V],
 	g_read(where, Where),
-	linearize((P ; Q), AuxPred, Where, LAuxSrcCl),
+	linearize(Body, AuxPred, Where, LAuxSrcCl),
 	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
 
 normalize_alts1(P, _, P1) :-

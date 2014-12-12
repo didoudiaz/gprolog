@@ -160,7 +160,7 @@ write_term(_, _, _).
 	'$pl_err_instantiation'.
 
 '$get_write_options2'(quoted(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 0)
 	;   X = true,
@@ -168,7 +168,7 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'(ignore_ops(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 1)
 	;   X = true,
@@ -176,7 +176,7 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'(numbervars(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 2)
 	;   X = true,
@@ -184,7 +184,7 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'(namevars(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 3)
 	;   X = true,
@@ -192,11 +192,12 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'('$above'(X)) :- % "above" choice-point for numbervars/namevars
+	'$check_nonvar'(X),
 	integer(X),
 	'$sys_var_write'(3, X).
 
 '$get_write_options2'(space_args(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 4)
 	;   X = true,
@@ -204,7 +205,7 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'(portrayed(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 5)
 	;   X = true,
@@ -212,14 +213,17 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'(variable_names(VarNames)) :-
+	list_or_partial_list(VarNames),
 	'$sys_var_set_bit'(0, 6),
 	'$name_variables'(VarNames).
 
 '$get_write_options2'(max_depth(X)) :-
+	'$check_nonvar'(X),
 	integer(X),
 	'$sys_var_write'(1, X).
 
 '$get_write_options2'(priority(X)) :-
+	'$check_nonvar'(X),
 	integer(X),
 	'$sys_var_write'(2, X).
 

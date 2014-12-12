@@ -122,19 +122,22 @@ read_term(SorA, Term, Options) :-
 	'$pl_err_instantiation'.
 
 '$get_read_options2'(variables(Vars)) :-
+	list_or_partial_list(Vars),
 	g_link('$read_variables', Vars),
 	'$sys_var_set_bit'(0, 0).
 
 '$get_read_options2'(variable_names(VarNames)) :-
+	list_or_partial_list(VarNames),
 	g_link('$read_variable_names', VarNames),
 	'$sys_var_set_bit'(0, 1).
 
 '$get_read_options2'(singletons(SinglNames)) :-
+	list_or_partial_list(SinglNames),
 	g_link('$read_singletons', SinglNames),
 	'$sys_var_set_bit'(0, 2).
 
 '$get_read_options2'(syntax_error(X)) :-
-	nonvar(X),
+	'$check_nonvar'(X),
 	(   X = error,
 	    '$sys_var_write'(1, 0)             % same order as in flag_supp.h
 	;   X = warning,
@@ -144,7 +147,7 @@ read_term(SorA, Term, Options) :-
 	).
 
 '$get_read_options2'(end_of_term(X)) :-
-	nonvar(X),                            % same order as in parse_supp.h
+	'$check_nonvar'(X),
 	(   X = dot,
 	    '$sys_var_reset_bit'(0, 3)
 	;   X = eof,

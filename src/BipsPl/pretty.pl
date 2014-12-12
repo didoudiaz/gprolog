@@ -142,9 +142,11 @@ bind_variables(Term, Options) :-
 	g_link('$bind_exclude', Exclude).
 
 '$get_bind_variables_options2'(from(From)) :-
+	'$check_nonvar'(From), integer(From),
 	g_link('$bind_from', From).
 
 '$get_bind_variables_options2'(next(Next)) :-
+	'$check_nonvar'(Next), integer(Next),
 	g_link('$bind_next', Next).
 
 '$get_bind_variables_options2'(numbervars) :-
