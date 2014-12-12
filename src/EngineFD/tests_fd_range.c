@@ -1950,17 +1950,17 @@ static char * all_tests() {
 }
  
 int main(int argc, char **argv) {
-	printf("\n\n");
-	char *result = all_tests();
-	if (result != 0) {
-		printf("\n\nTEST FAIL: %s\n\n%s\n\nIn %s\n\n", result, test_message, last_test);
-	}
-	else {
-		printf("ALL TESTS PASSED\n");
-	}
-	printf("\n\n");
+	char *result;
+	printf("FD tests (range implementation)\n");
+  	result = all_tests();
 	printf("Methods tested:  %d\n", methods_tested);
 	printf("Total Tests run: %d\n", tests_run);
+	if (result != 0) {
+		printf("\nTEST FAIL: %s\n\n%s\n\nIn %s\n\n", result, test_message, last_test);
+	}
+	else {
+		printf("All FD tests passed\n");
+	}
 
 	return result != 0;
 }
