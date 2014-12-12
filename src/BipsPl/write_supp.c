@@ -57,9 +57,9 @@
 #define SPACE_ARGS_FOR_LIST_PIPE
 #endif
 
-				/* spaces around the : (module qualification) */
-#if 1
-#define NO_SPACE_ARGS_FOR_COLON
+		/* spaces around the : (module qualification) */
+#if 0
+#define SPACE_ARGS_FOR_COLON
 #endif
 
 
@@ -1114,7 +1114,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 #ifdef SPACE_ARGS_RESTRICTED	/* space_args -> space around xfx operators */
 		 && oper->left != oper->prec && oper->right != oper->prec
 #endif
-#ifdef NO_SPACE_ARGS_FOR_COLON
+#ifndef SPACE_ARGS_FOR_COLON
 		 && (functor != ATOM_CHAR(':'))
 #endif
 		 ))
