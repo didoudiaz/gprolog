@@ -1224,7 +1224,11 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case INITIAL_VALUE:
       if (global)
         Inst_Printf(".globl", UN "%s", name);
-      Inst_Printf(".align", UN "8");
+#ifdef M_x86_64_darwin
+      Inst_Printf(".align", "3");
+#else
+      Inst_Printf(".align", "8");
+#endif
 #if !(defined(M_x86_64_darwin) || defined(_WIN32))
       Inst_Printf(".size", UN "%s,8", name);
 #endif
