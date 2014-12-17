@@ -286,7 +286,7 @@ label(18),
     get_structure(variable_names/1,0),
     unify_variable(y(0)),
     put_value(y(0),0),
-    call_c('Pl_Blt_List_Or_Partial_List',[fast_call,boolean],[x(0)]),
+    call('$check_nonvar'/1),
     put_integer(0,0),
     put_integer(6,1),
     call('$sys_var_set_bit'/2),
@@ -483,38 +483,49 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(system:'$name_variables'/1,235,static,private,monofile,built_in,[
+predicate(system:'$name_variables'/1,236,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
-    switch_on_term(1,2,fail,4,fail),
+    try_me_else(1),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    execute('$pl_err_instantiation'/0),
 
 label(1),
-    try_me_else(3),
+    trust_me_else_fail,
+    switch_on_term(2,3,fail,5,fail),
 
 label(2),
+    try_me_else(4),
+
+label(3),
     get_nil(0),
     proceed,
 
-label(3),
+label(4),
     trust_me_else_fail,
 
-label(4),
-    allocate(1),
+label(5),
+    allocate(4),
     get_list(0),
     unify_variable(x(0)),
-    unify_variable(y(0)),
+    unify_variable(y(2)),
     get_structure((=)/2,0),
-    unify_variable(x(0)),
-    unify_variable(x(3)),
-    get_variable(x(2),1),
-    put_value(x(3),1),
-    call('$$name_variables/1_$aux1'/3),
+    unify_variable(y(0)),
+    unify_variable(y(1)),
+    get_variable(y(3),1),
     put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_value(y(3),2),
+    call('$$name_variables/1_$aux1'/3),
+    put_value(y(2),0),
     deallocate,
     execute('$name_variables'/1)]).
 
 
-predicate(system:'$$name_variables/1_$aux1'/3,237,static,private,monofile,local,[
+predicate(system:'$$name_variables/1_$aux1'/3,242,static,private,monofile,local,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -534,18 +545,18 @@ label(1),
     proceed]).
 
 
-predicate(system:'$is_valid_var_name'/1,243,static,private,monofile,built_in,[
+predicate(system:'$is_valid_var_name'/1,249,static,private,monofile,built_in,[
     call_c('Pl_Is_Valid_Var_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:nl/0,248,static,private,monofile,built_in,[
+predicate(system:nl/0,254,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,0]),
     call_c('Pl_Nl_0',[],[]),
     proceed]).
 
 
-predicate(system:nl/1,252,static,private,monofile,built_in,[
+predicate(system:nl/1,258,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,1]),
     call_c('Pl_Nl_1',[],[x(0)]),
     proceed]).

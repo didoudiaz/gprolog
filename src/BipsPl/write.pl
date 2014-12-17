@@ -213,7 +213,7 @@ write_term(_, _, _).
 	).
 
 '$get_write_options2'(variable_names(VarNames)) :-
-	list_or_partial_list(VarNames),
+	'$check_nonvar'(VarNames),
 	'$sys_var_set_bit'(0, 6),
 	'$name_variables'(VarNames).
 
@@ -232,9 +232,15 @@ write_term(_, _, _).
 
 
 
+
+'$name_variables'(X) :-
+	var(X), !,
+	'$pl_err_instantiation'.
+
 '$name_variables'([]).
 
 '$name_variables'([Name = Var|VarNames]) :-
+	'$check_nonvar'(Name),
 	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true),
 	'$name_variables'(VarNames).
 
