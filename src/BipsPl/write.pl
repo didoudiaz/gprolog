@@ -241,7 +241,9 @@ write_term(_, _, _).
 
 '$name_variables'([Name = Var|VarNames]) :-
 	'$check_nonvar'(Name),
-	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true),
+	atom(Name),
+%	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true), % to check the validity of the atom
+	(Var = '$VARNAME'(Name), ! ; true), 
 	'$name_variables'(VarNames).
 
 

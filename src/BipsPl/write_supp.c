@@ -915,7 +915,9 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       if (tag_mask == TAG_ATM_MASK)
 	{
 	  p = pl_atom_tbl[UnTag_ATM(word)].name;
+#if 0				/* check the validity of the atom */
 	  if (Is_Valid_Var_Name(p))
+#endif
 	    {
 	      Out_String(p);
 	      pl_last_writing = W_IDENTIFIER;
