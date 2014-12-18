@@ -4387,11 +4387,12 @@ other options). The default value is \texttt{false}.
 \item \AddPOD{variable\_names}\texttt{variable\_names(VNL)}: \texttt{VNL} is
 a list of pairs \texttt{Name = Var} where \texttt{Var} is a
 variable and \texttt{Name} is the atom associated with the
-name of \texttt{Var}. Each variable \texttt{Var} is written as atom
+name of \texttt{Var}. Each variable \texttt{Var} is written as the atom
 \texttt{Name} (with \texttt{quoted(false)}) iff a term 
-\texttt{Name = Var} is an element of the list \texttt{VNL}. If \texttt{Name}
-is not atom or does not respect the syntax of variable names the pair is
-ignored. If several pairs exist for the same variable name the first one applies.
+\texttt{Name = Var} is an element of the list \texttt{VNL}.
+% If \texttt{Name} is not atom or does not respect the syntax of 
+% variable names the pair is ignored. 
+If several pairs exist for the same variable name the first one applies.
 
 \item \AddPOD{space\_args}\texttt{space\_args(true}/\texttt{false)}: if
 \texttt{true} an extra space character is emitted after each comma

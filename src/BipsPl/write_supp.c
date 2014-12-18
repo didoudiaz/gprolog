@@ -904,7 +904,6 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   char str[32];
   Bool bracket;
   Bool surround_space;
-  char *p;
 
 
   depth--;
@@ -914,15 +913,21 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       if (tag_mask == TAG_ATM_MASK)
 	{
-	  p = pl_atom_tbl[UnTag_ATM(word)].name;
 #if 0				/* check the validity of the atom */
+	  char *p = pl_atom_tbl[UnTag_ATM(word)].name;
 	  if (Is_Valid_Var_Name(p))
-#endif
 	    {
 	      Out_String(p);
 	      pl_last_writing = W_IDENTIFIER;
 	      return;
 	    }
+#else  				/* accept any atom - call Show_Atom to set pl_last_writing */
+	  int save_quoted = quoted;
+	  quoted = FALSE;
+	  Show_Atom(GENERAL_TERM, UnTag_ATM(word)); /* could pass context instead of GENERAL_TERM */
+	  quoted = save_quoted;	      
+	  return;
+#endif
 	}
     }
 
