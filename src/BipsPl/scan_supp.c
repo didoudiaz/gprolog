@@ -210,7 +210,7 @@ start_scan:
       Read_Next_Char(pstm, TRUE);
       if (c0 == '.' && (c == EOF || (c_type & (LA | CM))))
 	{
-	  if (c_type == CM)
+	  if (c_type != EOF)
 	    Unget_Last_Char;
 
 	  pl_token.type = TOKEN_FULL_STOP;
