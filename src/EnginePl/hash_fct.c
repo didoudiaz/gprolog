@@ -6,7 +6,7 @@
  * Descr.: hash function                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2014 Daniel Diaz                                     *
+ * Copyright (C) 1999-2015 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -372,8 +372,8 @@ Pl_Hash_Incr_Double(HashIncrInfo *hi, double x)
 
 
 /* multiplier to use maximum bits of mantissa (according to target type)
- * To be exact should be (UINT64_MAX + 1.0) (something like 1<<64
- * Does not for for MSVC: max is 1 << 63 because it exceeds signed int 64 bits */
+ * To be exact should be (UINT64_MAX + 1.0) (something like 1<<64)
+ * Does not work for MSVC: max is 1 << 63 because it exceeds signed int 64 bits */
 
 #if 0
 #define DEBUG

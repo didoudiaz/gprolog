@@ -6,7 +6,7 @@
  * Descr.: meta call management                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2014 Daniel Diaz                                     *
+ * Copyright (C) 1999-2015 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
