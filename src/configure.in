@@ -20,7 +20,7 @@ PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION=$PACKAGE_VERSION
 PROLOG_DATE=`pl_date`
-PROLOG_COPYRIGHT='Copyright (C) 1999-2014 Daniel Diaz'
+PROLOG_COPYRIGHT='Copyright (C) 1999-2015 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_DIALECT
 GPLC=gplc
@@ -238,15 +238,15 @@ AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
 
 dnl determine if MinGW and Windows path associated to posix path /tmp
-dnl needs AC_CANONICAL_BUILD
+dnl (needs AC_CANONICAL_BUILD)
 
 case "$build_os" in
-    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`;;
+    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
     mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
 esac
 
-dnl determine if MinGW
-dnl needs AC_CANONICAL_HOST
+dnl determine if use MinGW
+dnl (needs AC_CANONICAL_HOST)
 
 case "$host_os" in
     mingw*) MINGW=yes; WIN_CC_VER=mingw;;
@@ -652,10 +652,27 @@ if test "$GCC" = yes -a "$WINDOWS" != no; then
    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
     [AC_MSG_RESULT([yes]); have_static_libs=yes],
     [AC_MSG_RESULT([no])])
-if test "have_static_libs" = no; then
+if test "$have_static_libs" = no; then
    LDFLAGS="$SAVE_LDFLAGS"
 fi
 fi
+
+# On windows, check whether ld accepts an option 
+# to disable the large address awareness, else use 
+# peflags -l0 EXECUTABLE.EXE for each created executable (e.g. pl2wam.exe)
+accept_disable_large_address_aware=no
+if test "$GCC" = yes -a "$CYGWIN" = yes; then
+   SAVE_LDFLAGS="$LDFLAGS"
+   LDFLAGS="$LDFLAGS -Wl,--disable-large-address-aware"
+   AC_MSG_CHECKING([whether gcc accepts -Wl,--disable-large-address-aware])
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
+    [AC_MSG_RESULT([yes]); accept_disable_large_address_aware=yes],
+    [AC_MSG_RESULT([no])])
+if test "$accept_disable_large_address_aware" = no; then
+   LDFLAGS="$SAVE_LDFLAGS"
+fi
+fi
+
 
 
 

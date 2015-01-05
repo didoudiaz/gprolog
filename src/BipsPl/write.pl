@@ -6,7 +6,7 @@
  * Descr.: term output (write/1 and friends) management                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2014 Daniel Diaz                                     *
+ * Copyright (C) 1999-2015 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -241,7 +241,9 @@ write_term(_, _, _).
 
 '$name_variables'([Name = Var|VarNames]) :-
 	'$check_nonvar'(Name),
-	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true),
+	atom(Name),
+%	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true), % to check the validity of the atom
+	(Var = '$VARNAME'(Name), ! ; true), 
 	'$name_variables'(VarNames).
 
 

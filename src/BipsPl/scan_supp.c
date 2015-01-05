@@ -6,7 +6,7 @@
  * Descr.: scanner support                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2014 Daniel Diaz                                     *
+ * Copyright (C) 1999-2015 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -210,7 +210,7 @@ start_scan:
       Read_Next_Char(pstm, TRUE);
       if (c0 == '.' && (c == EOF || (c_type & (LA | CM))))
 	{
-	  if (c_type == CM)
+	  if (c_type != EOF)
 	    Unget_Last_Char;
 
 	  pl_token.type = TOKEN_FULL_STOP;
