@@ -5,11 +5,11 @@
 file_name('/home/diaz/GP/src/BipsPl/oper.pl').
 
 
-predicate(system:'$use_oper'/0,41,static,private,monofile,built_in,[
+predicate('$use_oper'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:op/3,43,static,private,monofile,built_in,[
+predicate(op/3,43,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -24,7 +24,7 @@ predicate(system:op/3,43,static,private,monofile,built_in,[
     execute('$op/3_$aux1'/3)]).
 
 
-predicate(system:'$op/3_$aux1'/3,43,static,private,monofile,local,[
+predicate('$op/3_$aux1'/3,43,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -44,7 +44,7 @@ label(1),
     execute('$op1'/3)]).
 
 
-predicate(system:'$op1'/3,52,static,private,monofile,built_in,[
+predicate('$op1'/3,52,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -74,17 +74,17 @@ label(4),
     execute('$op1'/3)]).
 
 
-predicate(system:'$op2'/3,59,static,private,monofile,built_in,[
+predicate('$op2'/3,59,static,private,monofile,built_in,[
     call_c('Pl_Op_3',[],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:current_op/3,65,static,private,monofile,built_in,[
+predicate(current_op/3,65,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_op,3]),
     call_c('Pl_Current_Op_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:'$current_op_alt'/0,70,static,private,monofile,built_in,[
+predicate('$current_op_alt'/0,70,static,private,monofile,built_in,[
     call_c('Pl_Current_Op_Alt_0',[boolean],[]),
     proceed]).
