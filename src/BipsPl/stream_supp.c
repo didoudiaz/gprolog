@@ -1252,6 +1252,19 @@ Basic_Call_Fct_Putc(int c, StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_PB_Empty_Buffer                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_PB_Empty_Buffer(StmInf *pstm)
+{
+  PB_Init(pstm->pb_char)
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_STREAM_GET_KEY                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1271,13 +1284,11 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 
   Before_Reading(pstm, file);
 
-#if 0  /* no longer works since read/1 does not consume \n after final dot */
   if (!PB_Is_Empty(pstm->pb_char))
     {
       PB_Pop(pstm->pb_char, c);
     }
   else
-#endif
     {
       Start_Protect_Regs_For_Signal;
       if (simulate)

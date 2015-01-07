@@ -887,19 +887,24 @@ label(1),
     proceed]).
 
 
-predicate(flush_output/0,391,static,private,monofile,built_in,[
+predicate('$PB_empty_buffer'/1,391,static,private,monofile,built_in,[
+    call_c('Pl_PB_Empty_Buffer_1',[],[x(0)]),
+    proceed]).
+
+
+predicate(flush_output/0,397,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[flush_output,0]),
     call_c('Pl_Flush_Output_0',[],[]),
     proceed]).
 
 
-predicate(flush_output/1,395,static,private,monofile,built_in,[
+predicate(flush_output/1,401,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[flush_output,1]),
     call_c('Pl_Flush_Output_1',[],[x(0)]),
     proceed]).
 
 
-predicate(current_stream/1,402,static,private,monofile,built_in,[
+predicate(current_stream/1,408,static,private,monofile,built_in,[
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_stream,1]),
     put_variable(y(0),1),
@@ -909,17 +914,17 @@ predicate(current_stream/1,402,static,private,monofile,built_in,[
     execute('$current_stream'/1)]).
 
 
-predicate('$current_stream'/1,410,static,private,monofile,built_in,[
+predicate('$current_stream'/1,416,static,private,monofile,built_in,[
     call_c('Pl_Current_Stream_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate('$current_stream_alt'/0,414,static,private,monofile,built_in,[
+predicate('$current_stream_alt'/0,420,static,private,monofile,built_in,[
     call_c('Pl_Current_Stream_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(stream_property/2,420,static,private,monofile,built_in,[
+predicate(stream_property/2,426,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(3),
@@ -935,7 +940,7 @@ predicate(stream_property/2,420,static,private,monofile,built_in,[
     execute('$stream_property/2_$aux1'/3)]).
 
 
-predicate('$stream_property/2_$aux1'/3,420,static,private,monofile,local,[
+predicate('$stream_property/2_$aux1'/3,426,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -964,7 +969,7 @@ label(1),
     execute('$stream_property1'/2)]).
 
 
-predicate('$check_stream_prop'/1,435,static,private,monofile,built_in,[
+predicate('$check_stream_prop'/1,441,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     proceed,
@@ -1080,7 +1085,7 @@ label(28),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$stream_property1'/2,468,static,private,monofile,built_in,[
+predicate('$stream_property1'/2,474,static,private,monofile,built_in,[
     switch_on_term(3,1,fail,fail,2),
 
 label(1),
@@ -1206,19 +1211,19 @@ label(26),
     proceed]).
 
 
-predicate(at_end_of_stream/0,509,static,private,monofile,built_in,[
+predicate(at_end_of_stream/0,515,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[at_end_of_stream,0]),
     call_c('Pl_At_End_Of_Stream_0',[boolean],[]),
     proceed]).
 
 
-predicate(at_end_of_stream/1,513,static,private,monofile,built_in,[
+predicate(at_end_of_stream/1,519,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[at_end_of_stream,1]),
     call_c('Pl_At_End_Of_Stream_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(current_alias/2,520,static,private,monofile,built_in,[
+predicate(current_alias/2,526,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_alias,2]),
@@ -1230,7 +1235,7 @@ predicate(current_alias/2,520,static,private,monofile,built_in,[
     execute('$current_alias/2_$aux1'/2)]).
 
 
-predicate('$current_alias/2_$aux1'/2,520,static,private,monofile,local,[
+predicate('$current_alias/2_$aux1'/2,526,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1252,17 +1257,17 @@ label(1),
     execute('$current_alias'/2)]).
 
 
-predicate('$current_alias'/2,532,static,private,monofile,built_in,[
+predicate('$current_alias'/2,538,static,private,monofile,built_in,[
     call_c('Pl_Current_Alias_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_alias_alt'/0,535,static,private,monofile,built_in,[
+predicate('$current_alias_alt'/0,541,static,private,monofile,built_in,[
     call_c('Pl_Current_Alias_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(current_mirror/2,541,static,private,monofile,built_in,[
+predicate(current_mirror/2,547,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_mirror,2]),
@@ -1279,69 +1284,69 @@ predicate(current_mirror/2,541,static,private,monofile,built_in,[
     execute('$current_mirror'/2)]).
 
 
-predicate('$current_mirror'/2,551,static,private,monofile,built_in,[
+predicate('$current_mirror'/2,557,static,private,monofile,built_in,[
     call_c('Pl_Current_Mirror_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$current_mirror_alt'/0,554,static,private,monofile,built_in,[
+predicate('$current_mirror_alt'/0,560,static,private,monofile,built_in,[
     call_c('Pl_Current_Mirror_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate(stream_position/2,560,static,private,monofile,built_in,[
+predicate(stream_position/2,566,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[stream_position,2]),
     execute('$stream_position'/2)]).
 
 
-predicate('$stream_position'/2,565,static,private,monofile,built_in,[
+predicate('$stream_position'/2,571,static,private,monofile,built_in,[
     call_c('Pl_Stream_Position_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(set_stream_position/2,571,static,private,monofile,built_in,[
+predicate(set_stream_position/2,577,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_stream_position,2]),
     call_c('Pl_Set_Stream_Position_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(seek/4,578,static,private,monofile,built_in,[
+predicate(seek/4,584,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[seek,4]),
     call_c('Pl_Seek_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(character_count/2,585,static,private,monofile,built_in,[
+predicate(character_count/2,591,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[character_count,2]),
     call_c('Pl_Character_Count_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(line_count/2,592,static,private,monofile,built_in,[
+predicate(line_count/2,598,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[line_count,2]),
     call_c('Pl_Line_Count_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(line_position/2,599,static,private,monofile,built_in,[
+predicate(line_position/2,605,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[line_position,2]),
     call_c('Pl_Line_Position_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(stream_line_column/3,606,static,private,monofile,built_in,[
+predicate(stream_line_column/3,612,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[stream_line_column,3]),
     call_c('Pl_Stream_Line_Column_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(set_stream_line_column/3,613,static,private,monofile,built_in,[
+predicate(set_stream_line_column/3,619,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_stream_line_column,3]),
     call_c('Pl_Set_Stream_Line_Column_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(open_input_atom_stream/2,626,static,private,monofile,built_in,[
+predicate(open_input_atom_stream/2,632,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[open_input_atom_stream,2]),
@@ -1358,7 +1363,7 @@ predicate(open_input_atom_stream/2,626,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_input_chars_stream/2,635,static,private,monofile,built_in,[
+predicate(open_input_chars_stream/2,641,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[open_input_chars_stream,2]),
@@ -1375,7 +1380,7 @@ predicate(open_input_chars_stream/2,635,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_input_codes_stream/2,644,static,private,monofile,built_in,[
+predicate(open_input_codes_stream/2,650,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[open_input_codes_stream,2]),
@@ -1392,7 +1397,7 @@ predicate(open_input_codes_stream/2,644,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_input_atom_stream/1,653,static,private,monofile,built_in,[
+predicate(close_input_atom_stream/1,659,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[close_input_atom_stream,1]),
@@ -1405,7 +1410,7 @@ predicate(close_input_atom_stream/1,653,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_input_chars_stream/1,661,static,private,monofile,built_in,[
+predicate(close_input_chars_stream/1,667,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[close_input_chars_stream,1]),
@@ -1418,7 +1423,7 @@ predicate(close_input_chars_stream/1,661,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_input_codes_stream/1,669,static,private,monofile,built_in,[
+predicate(close_input_codes_stream/1,675,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[close_input_codes_stream,1]),
@@ -1431,7 +1436,7 @@ predicate(close_input_codes_stream/1,669,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_output_atom_stream/1,677,static,private,monofile,built_in,[
+predicate(open_output_atom_stream/1,683,static,private,monofile,built_in,[
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[open_output_atom_stream,1]),
     put_variable(y(0),1),
@@ -1445,7 +1450,7 @@ predicate(open_output_atom_stream/1,677,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_output_chars_stream/1,686,static,private,monofile,built_in,[
+predicate(open_output_chars_stream/1,692,static,private,monofile,built_in,[
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[open_output_chars_stream,1]),
     put_variable(y(0),1),
@@ -1459,7 +1464,7 @@ predicate(open_output_chars_stream/1,686,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_output_codes_stream/1,695,static,private,monofile,built_in,[
+predicate(open_output_codes_stream/1,701,static,private,monofile,built_in,[
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[open_output_codes_stream,1]),
     put_variable(y(0),1),
@@ -1473,7 +1478,7 @@ predicate(open_output_codes_stream/1,695,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_output_atom_stream/2,704,static,private,monofile,built_in,[
+predicate(close_output_atom_stream/2,710,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1488,7 +1493,7 @@ predicate(close_output_atom_stream/2,704,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_output_chars_stream/2,712,static,private,monofile,built_in,[
+predicate(close_output_chars_stream/2,718,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1503,7 +1508,7 @@ predicate(close_output_chars_stream/2,712,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_output_codes_stream/2,720,static,private,monofile,built_in,[
+predicate(close_output_codes_stream/2,726,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
