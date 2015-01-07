@@ -1271,11 +1271,13 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 
   Before_Reading(pstm, file);
 
+#if 0  /* no longer works since read/1 does not consume \n after final dot */
   if (!PB_Is_Empty(pstm->pb_char))
     {
       PB_Pop(pstm->pb_char, c);
     }
   else
+#endif
     {
       Start_Protect_Regs_For_Signal;
       if (simulate)
