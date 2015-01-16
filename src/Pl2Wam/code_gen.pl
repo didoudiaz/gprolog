@@ -287,7 +287,7 @@ gen_load_arg_lst([Arg|LArg], [Reg|LReg], WamNext, WamArg) :-
 
 	% gen_load_arg(Arg, Reg, WamNext, WamArg)
 
-gen_load_arg(var(VarName, Info), Reg, WamNext, [WamInst|WamNext]) :-
+gen_load_arg(var(VarName, Info), Reg, WamNext, WamCode) :-
 	(   var(Info) ->
 	    (   VarName == x(void) ->
 	        WamInst = put_void(Reg)
@@ -295,16 +295,27 @@ gen_load_arg(var(VarName, Info), Reg, WamNext, [WamInst|WamNext]) :-
 		(   VarName = x(_) ->
 	            Info = in_heap
 	        ;
-		    Info = unsafe
+		    Info = unsafe,
+		    (   g_read(last_pred, t) -> % can occur for false y var by optim: p :- _=B, dummy, r(B).
+			WamInstBis = put_unsafe_value(VarName, Reg)
+		    ;
+			true
+		    )
 	        ),
 	        WamInst = put_variable(VarName, Reg)
 	    )
 	;
+		    
 	    Info = unsafe,
 	    g_read(last_pred, t) ->
 	    WamInst = put_unsafe_value(VarName, Reg)
 	;
 	    WamInst = put_value(VarName, Reg)
+	),
+	(   var(WamInstBis) ->
+	    WamCode = [WamInst|WamNext]
+	;
+	    WamCode = [WamInst, WamInstBis|WamNext]
 	).
 
 gen_load_arg(atm(A), Reg, WamNext, [put_atom(A, Reg)|WamNext]).
