@@ -230,7 +230,8 @@ break :-
 	read_term_from_atom(Goal, X, [end_of_term(eof), variable_names(QueryVars)]).
 
 '$read_query'(X, QueryVars) :-
-	read_term(top_level_input, X, [variable_names(QueryVars)]).
+	read_term(top_level_input, X, [variable_names(QueryVars)]),
+	'$PB_empty_buffer'(top_level_input).
 
 
 

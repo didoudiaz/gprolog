@@ -143,12 +143,13 @@ emit_code_files('', PlFile, WamFile) :-
 
 emit_code_files(WamFile, _, WamFile).
 
-
+/*
 :- if(\+ '$current_predicate_any'('$prolog_file_suffix'/1)).
 '$prolog_file_suffix'('.pl').
 '$prolog_file_suffix'('.pro').
 '$prolog_file_suffix'('.prolog').
 :- endif.
+*/
 
 
 

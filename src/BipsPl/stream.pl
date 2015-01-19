@@ -388,6 +388,12 @@ set_stream_buffering(_, Buffering) :-
 
 
 
+'$PB_empty_buffer'(SorA) :-
+	'$call_c'('Pl_PB_Empty_Buffer_1'(SorA)).
+
+
+
+
 flush_output :-
 	set_bip_name(flush_output, 0),
 	'$call_c'('Pl_Flush_Output_0').
