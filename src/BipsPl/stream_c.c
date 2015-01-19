@@ -537,6 +537,23 @@ Pl_Close_Stm(int stm, Bool force)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_PB_EMPTY_BUFFER_1                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_PB_Empty_Buffer_1(WamWord sora_word)
+{
+  int stm;
+
+  stm = (sora_word == NOT_A_WAM_WORD)
+    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+
+  Pl_PB_Empty_Buffer(pl_stm_tbl[stm]);
+}
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_FLUSH_OUTPUT_1                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/

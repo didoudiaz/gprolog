@@ -374,10 +374,11 @@ int Pl_Io_Fileno_Of_Stream(int stm);
 
 
 
-
-int Pl_Stream_Getc(StmInf *pstm);
+void Pl_PB_Empty_Buffer(StmInf *pstm);
 
 int Pl_Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
+
+int Pl_Stream_Getc(StmInf *pstm);
 
 void Pl_Stream_Ungetc(int c, StmInf *pstm);
 

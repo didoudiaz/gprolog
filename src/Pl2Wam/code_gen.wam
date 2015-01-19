@@ -1060,16 +1060,22 @@ label(3),
     try_me_else(5),
 
 label(4),
-    get_variable(x(5),2),
-    get_variable(x(4),1),
+    allocate(4),
+    get_variable(y(0),2),
+    get_variable(y(1),3),
+    get_variable(x(3),1),
     get_structure(var/2,0),
     unify_variable(x(1)),
     unify_variable(x(0)),
-    get_list(3),
-    unify_variable(x(2)),
-    unify_local_value(x(5)),
-    put_value(x(4),3),
-    execute('$gen_load_arg/4_$aux1'/4),
+    put_variable(y(2),2),
+    put_variable(y(3),4),
+    call('$gen_load_arg/4_$aux1'/5),
+    put_unsafe_value(y(3),0),
+    put_value(y(1),1),
+    put_unsafe_value(y(2),2),
+    put_value(y(0),3),
+    deallocate,
+    execute('$gen_load_arg/4_$aux2'/4),
 
 label(5),
     retry_me_else(7),
@@ -1169,7 +1175,7 @@ label(16),
     unify_variable(x(1)),
     unify_variable(y(0)),
     put_variable(y(3),2),
-    call('$gen_load_arg/4_$aux2'/4),
+    call('$gen_load_arg/4_$aux3'/4),
     put_value(y(0),0),
     put_atom(body,1),
     put_variable(y(4),2),
@@ -1190,7 +1196,7 @@ label(16),
     execute(gen_subterm_arg_lst/3)]).
 
 
-predicate('$gen_load_arg/4_$aux2'/4,324,static,private,monofile,local,[
+predicate('$gen_load_arg/4_$aux3'/4,335,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1212,26 +1218,47 @@ label(1),
     proceed]).
 
 
-predicate('$gen_load_arg/4_$aux1'/4,290,static,private,monofile,local,[
+predicate('$gen_load_arg/4_$aux2'/4,290,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
-    get_variable(x(5),3),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(4)),
+    get_list(1),
+    unify_local_value(x(2)),
+    unify_local_value(x(3)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_list(1),
+    unify_local_value(x(2)),
+    unify_list,
+    unify_local_value(x(0)),
+    unify_local_value(x(3)),
+    proceed]).
+
+
+predicate('$gen_load_arg/4_$aux1'/5,290,static,private,monofile,local,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
+    try_me_else(1),
+    get_variable(x(6),3),
     get_variable(x(3),0),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(3)]),
-    cut(x(4)),
+    cut(x(5)),
     put_value(x(1),0),
     put_value(x(2),1),
-    put_value(x(5),2),
-    execute('$gen_load_arg/4_$aux3'/4),
+    put_value(x(6),2),
+    execute('$gen_load_arg/4_$aux4'/5),
 
 label(1),
     retry_me_else(2),
     get_atom(unsafe,0),
     put_atom(last_pred,0),
-    put_atom(t,5),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(5)]),
-    cut(x(4)),
+    put_atom(t,4),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(4)]),
+    cut(x(5)),
     get_structure(put_unsafe_value/2,2),
     unify_local_value(x(1)),
     unify_local_value(x(3)),
@@ -1245,14 +1272,14 @@ label(2),
     proceed]).
 
 
-predicate('$gen_load_arg/4_$aux3'/4,290,static,private,monofile,local,[
-    pragma_arity(5),
-    get_current_choice(x(4)),
+predicate('$gen_load_arg/4_$aux4'/5,290,static,private,monofile,local,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     put_structure(x/1,3),
     unify_atom(void),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(3)]),
-    cut(x(4)),
+    cut(x(5)),
     get_structure(put_void/1,1),
     unify_local_value(x(2)),
     proceed,
@@ -1264,8 +1291,10 @@ label(1),
     get_variable(y(1),1),
     get_variable(y(2),2),
     put_value(x(3),1),
+    put_value(x(4),2),
     put_value(y(0),0),
-    call('$gen_load_arg/4_$aux4'/2),
+    put_value(y(2),3),
+    call('$gen_load_arg/4_$aux5'/4),
     put_value(y(1),0),
     get_structure(put_variable/2,0),
     unify_local_value(y(0)),
@@ -1274,23 +1303,45 @@ label(1),
     proceed]).
 
 
-predicate('$gen_load_arg/4_$aux4'/2,290,static,private,monofile,local,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
+predicate('$gen_load_arg/4_$aux5'/4,290,static,private,monofile,local,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
     get_structure(x/1,0),
     unify_void(1),
-    cut(x(2)),
+    cut(x(4)),
     get_atom(in_heap,1),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    get_atom(unsafe,1),
+    get_variable(x(4),1),
+    get_variable(x(1),0),
+    get_atom(unsafe,4),
+    put_value(x(2),0),
+    put_value(x(3),2),
+    execute('$gen_load_arg/4_$aux6'/3)]).
+
+
+predicate('$gen_load_arg/4_$aux6'/3,290,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
+    try_me_else(1),
+    put_atom(last_pred,4),
+    put_atom(t,5),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(4),x(5)]),
+    cut(x(3)),
+    get_structure(put_unsafe_value/2,0),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
     proceed]).
 
 
-predicate(flat_stc_arg_lst/5,340,static,private,monofile,global,[
+predicate(flat_stc_arg_lst/5,351,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     switch_on_term(2,3,fail,1,fail),
@@ -1400,7 +1451,7 @@ label(9),
     execute(flat_stc_arg_lst/5)]).
 
 
-predicate('$flat_stc_arg_lst/5_$aux2'/3,352,static,private,monofile,local,[
+predicate('$flat_stc_arg_lst/5_$aux2'/3,363,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1423,7 +1474,7 @@ label(1),
     proceed]).
 
 
-predicate('$flat_stc_arg_lst/5_$aux1'/2,346,static,private,monofile,local,[
+predicate('$flat_stc_arg_lst/5_$aux1'/2,357,static,private,monofile,local,[
     try_me_else(1),
     put_atom('$mt',1),
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
@@ -1436,7 +1487,7 @@ label(1),
     proceed]).
 
 
-predicate(simple_stc_arg/1,362,static,private,monofile,global,[
+predicate(simple_stc_arg/1,373,static,private,monofile,global,[
     switch_on_term(2,9,fail,fail,1),
 
 label(1),
@@ -1474,7 +1525,7 @@ label(9),
     proceed]).
 
 
-predicate(gen_subterm_arg_lst/3,375,static,private,monofile,global,[
+predicate(gen_subterm_arg_lst/3,386,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1512,7 +1563,7 @@ label(4),
     execute('$gen_subterm_arg_lst/3_$aux1'/6)]).
 
 
-predicate('$gen_subterm_arg_lst/3_$aux1'/6,377,static,private,monofile,local,[
+predicate('$gen_subterm_arg_lst/3_$aux1'/6,388,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1542,7 +1593,7 @@ label(1),
     execute(gen_subterm_arg_lst/3)]).
 
 
-predicate(gen_compte_void/4,390,static,private,monofile,global,[
+predicate(gen_compte_void/4,401,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1568,7 +1619,7 @@ label(1),
     proceed]).
 
 
-predicate(gen_subterm_arg/3,400,static,private,monofile,global,[
+predicate(gen_subterm_arg/3,411,static,private,monofile,global,[
     switch_on_term(2,9,fail,fail,1),
 
 label(1),
@@ -1645,7 +1696,7 @@ label(11),
     execute(gen_subterm_arg_lst/3)]).
 
 
-predicate('$gen_subterm_arg/3_$aux2'/3,417,static,private,monofile,local,[
+predicate('$gen_subterm_arg/3_$aux2'/3,428,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1664,7 +1715,7 @@ label(1),
     proceed]).
 
 
-predicate('$gen_subterm_arg/3_$aux1'/3,400,static,private,monofile,local,[
+predicate('$gen_subterm_arg/3_$aux1'/3,411,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1690,11 +1741,11 @@ label(2),
     proceed]).
 
 
-predicate(gen_list_integers/3,429,static,private,monofile,global,[
+predicate(gen_list_integers/3,440,static,private,monofile,global,[
     execute('$gen_list_integers/3_$aux1'/3)]).
 
 
-predicate('$gen_list_integers/3_$aux1'/3,429,static,private,monofile,local,[
+predicate('$gen_list_integers/3_$aux1'/3,440,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1715,7 +1766,7 @@ label(1),
     proceed]).
 
 
-predicate(special_form/2,443,static,private,monofile,global,[
+predicate(special_form/2,454,static,private,monofile,global,[
     get_structure(put_variable/2,0),
     unify_variable(x(2)),
     unify_variable(x(0)),
@@ -1726,7 +1777,7 @@ predicate(special_form/2,443,static,private,monofile,global,[
     proceed]).
 
 
-predicate(dummy_instruction/2,448,static,private,monofile,global,[
+predicate(dummy_instruction/2,459,static,private,monofile,global,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -1757,7 +1808,7 @@ label(5),
     proceed]).
 
 
-predicate(equal/4,490,static,private,monofile,global,[
+predicate(equal/4,501,static,private,monofile,global,[
     try_me_else(1),
     get_value(x(3),2),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
@@ -1859,7 +1910,7 @@ label(8),
     execute(warn/2)]).
 
 
-predicate('$equal/4_$aux2'/6,517,static,private,monofile,local,[
+predicate('$equal/4_$aux2'/6,528,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1886,7 +1937,7 @@ label(1),
     execute(gen_unif_arg/4)]).
 
 
-predicate('$equal/4_$aux3'/5,517,static,private,monofile,local,[
+predicate('$equal/4_$aux3'/5,528,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1908,7 +1959,7 @@ label(1),
     execute(inline_unif_reg_term/5)]).
 
 
-predicate('$equal/4_$aux1'/6,504,static,private,monofile,local,[
+predicate('$equal/4_$aux1'/6,515,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1935,7 +1986,7 @@ label(1),
     execute(gen_unif_arg/4)]).
 
 
-predicate('$equal/4_$aux4'/5,504,static,private,monofile,local,[
+predicate('$equal/4_$aux4'/5,515,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -1957,7 +2008,7 @@ label(1),
     execute(inline_unif_reg_term/5)]).
 
 
-predicate(equal_lst/4,542,static,private,monofile,global,[
+predicate(equal_lst/4,553,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1991,14 +2042,14 @@ label(4),
     execute(equal_lst/4)]).
 
 
-predicate(inline_unif_reg_term/5,551,static,private,monofile,global,[
+predicate(inline_unif_reg_term/5,562,static,private,monofile,global,[
     get_variable(x(5),2),
     get_variable(x(2),1),
     put_value(x(5),1),
     execute('$inline_unif_reg_term/5_$aux1'/5)]).
 
 
-predicate('$inline_unif_reg_term/5_$aux1'/5,551,static,private,monofile,local,[
+predicate('$inline_unif_reg_term/5_$aux1'/5,562,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -2030,7 +2081,7 @@ label(1),
     execute(gen_unif_arg/4)]).
 
 
-predicate('$inline_unif_reg_term/5_$aux2'/4,551,static,private,monofile,local,[
+predicate('$inline_unif_reg_term/5_$aux2'/4,562,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2056,7 +2107,7 @@ label(1),
     proceed]).
 
 
-predicate(load_math_expr/4,586,static,private,monofile,global,[
+predicate(load_math_expr/4,597,static,private,monofile,global,[
     try_me_else(12),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -2137,7 +2188,7 @@ label(12),
     execute(error/2)]).
 
 
-predicate('$load_math_expr/4_$aux2'/4,586,static,private,monofile,local,[
+predicate('$load_math_expr/4_$aux2'/4,597,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2164,7 +2215,7 @@ label(1),
     proceed]).
 
 
-predicate('$load_math_expr/4_$aux1'/1,586,static,private,monofile,local,[
+predicate('$load_math_expr/4_$aux1'/1,597,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -2179,7 +2230,7 @@ label(1),
     proceed]).
 
 
-predicate(load_math_expr1/6,613,static,private,monofile,global,[
+predicate(load_math_expr1/6,624,static,private,monofile,global,[
     try_me_else(11),
     switch_on_term(3,1,fail,fail,fail),
 
@@ -2323,7 +2374,7 @@ label(13),
     execute(error/2)]).
 
 
-predicate('$load_math_expr1/6_$aux1'/3,625,static,private,monofile,local,[
+predicate('$load_math_expr1/6_$aux1'/3,636,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2338,7 +2389,7 @@ label(1),
     execute(math_exp_functor_name/3)]).
 
 
-predicate(load_math_arg_lst/4,644,static,private,monofile,global,[
+predicate(load_math_arg_lst/4,655,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2374,7 +2425,7 @@ label(4),
     execute(load_math_arg_lst/4)]).
 
 
-predicate(fast_exp_functor_name/3,653,static,private,monofile,global,[
+predicate(fast_exp_functor_name/3,664,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -2592,7 +2643,7 @@ label(48),
     proceed]).
 
 
-predicate(math_exp_functor_name/3,679,static,private,monofile,global,[
+predicate(math_exp_functor_name/3,690,static,private,monofile,global,[
     switch_on_term(4,1,fail,fail,fail),
 
 label(1),
@@ -3154,7 +3205,7 @@ label(113),
     proceed]).
 
 
-predicate(fast_cmp_functor_name/2,750,static,private,monofile,global,[
+predicate(fast_cmp_functor_name/2,761,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -3209,7 +3260,7 @@ label(13),
     proceed]).
 
 
-predicate(math_cmp_functor_name/2,757,static,private,monofile,global,[
+predicate(math_cmp_functor_name/2,768,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -3264,7 +3315,7 @@ label(13),
     proceed]).
 
 
-predicate(load_c_call_args/5,778,static,private,monofile,global,[
+predicate(load_c_call_args/5,789,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -3300,7 +3351,7 @@ label(1),
     proceed]).
 
 
-predicate(load_by_reg_arg_lst/4,789,static,private,monofile,global,[
+predicate(load_by_reg_arg_lst/4,800,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -3336,7 +3387,7 @@ label(4),
     execute(load_by_reg_arg_lst/4)]).
 
 
-predicate(load_by_value_arg_lst/4,798,static,private,monofile,global,[
+predicate(load_by_value_arg_lst/4,809,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -3370,7 +3421,7 @@ label(4),
     execute(load_by_value_arg_lst/4)]).
 
 
-predicate(load_by_value_arg/4,805,static,private,monofile,global,[
+predicate(load_by_value_arg/4,816,static,private,monofile,global,[
     try_me_else(12),
     switch_on_term(2,9,fail,fail,1),
 
@@ -3442,7 +3493,7 @@ label(12),
     execute(gen_load_arg/4)]).
 
 
-predicate(c_fct_name/4,835,static,private,monofile,global,[
+predicate(c_fct_name/4,846,static,private,monofile,global,[
     switch_on_term(4,1,fail,fail,fail),
 
 label(1),
@@ -3949,7 +4000,7 @@ label(93),
     proceed]).
 
 
-predicate(gen_inline_pred/5,465,static,private,monofile,global,[
+predicate(gen_inline_pred/5,476,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(14),
@@ -4171,7 +4222,7 @@ label(16),
     proceed]).
 
 
-predicate('$gen_inline_pred/5_$aux2'/2,823,static,private,monofile,local,[
+predicate('$gen_inline_pred/5_$aux2'/2,834,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -4192,7 +4243,7 @@ label(1),
     proceed]).
 
 
-predicate('$gen_inline_pred/5_$aux1'/2,739,static,private,monofile,local,[
+predicate('$gen_inline_pred/5_$aux1'/2,750,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),

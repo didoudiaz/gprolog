@@ -253,20 +253,20 @@ Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
   HashScan scan;
   PredInf *pred;
   PredInf *last_pred;
-  WamCont code, code1;
-  WamCont last_code = 0;
+  PlULong code, code1;
+  PlULong last_code = 0;
   int func, arity;
 
 
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
-  code = (WamCont) ALTB(b);
+  code = (PlULong) ALTB(b);
 
   for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
        pred = (PredInf *) Pl_Hash_Next(&scan))
     {
-      code1 = (WamCont) (pred->codep);
+      code1 = (PlULong) (pred->codep);
       if (code >= code1 && code1 >= last_code)
 	{
 	  last_pred = pred;

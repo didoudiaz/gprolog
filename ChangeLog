@@ -1,3 +1,7 @@
+Fri Jan 16 19:25:51 CET 2015  <Daniel.Diaz@univ-paris1.fr>
+
+	fix a bug in the compiler
+
 Thu Dec 18 08:59:45 CET 2014 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix a bug in read/1
