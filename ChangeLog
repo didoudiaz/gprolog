@@ -1,6 +1,10 @@
-Fri Jan 16 19:25:51 CET 2015  <Daniel.Diaz@univ-paris1.fr>
+Tue Feb 17 11:39:11 CET 2015 <Daniel.Diaz@univ-paris1.fr>
 
-	fix a bug in the compiler
+	* fix a bug in select/5 under Windows
+
+Fri Jan 16 19:25:51 CET 2015 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in the compiler
 
 Thu Dec 18 08:59:45 CET 2014 <Daniel.Diaz@univ-paris1.fr>
 
