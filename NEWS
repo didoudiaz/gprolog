@@ -1,6 +1,7 @@
 Change in GNU Prolog version 1.4.5 (Dec 2014):
 
-fix a bug in the compiler
+* fix a bug in select/5 under Windows
+* fix a bug in the compiler
 * fix a bug in read/1
 * fix large address awarenes under cygwin32 (configure.in)
 * improve memory limitation of acyclic_term/1

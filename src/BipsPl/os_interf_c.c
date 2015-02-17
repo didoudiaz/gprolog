@@ -1269,7 +1269,7 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
 	    Pl_Err_Domain(pl_domain_selectable_item, word);
 	}
 
-#ifdef FD_SETSIZE
+#if !defined(_WIN32) && defined(FD_SETSIZE)	/* not true on Windows */
       if (fd >= FD_SETSIZE)
 	{
 	  errno = EBADF;
