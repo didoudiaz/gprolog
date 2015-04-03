@@ -1,5 +1,6 @@
-Change in GNU Prolog version 1.4.5 (Dec 2014):
+Change in GNU Prolog version 1.4.5 (April 2014):
 
+* fix a bug in findall/4
 * fix a bug in select/5 under Windows
 * fix a bug in the compiler
 * fix a bug in read/1

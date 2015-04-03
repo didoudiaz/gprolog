@@ -400,7 +400,7 @@ Pl_Recover_Solutions_4(WamWord stop_word, WamWord handle_key_word,
   nb_sol = sol->sol_no - stop;
 
   if (nb_sol == 0)
-    return Pl_Get_Nil(list_word);
+    return Pl_Unify(list_word, tail_word);
 
   handle_key = Pl_Rd_Integer(handle_key_word);
   key_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: key vars */
