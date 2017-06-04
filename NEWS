@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.4.5 (April 2014):
 
+* fix a bug on linux witg gcc 6.3.0 (or binutils): needs PIC code
 * fix a bug in findall/4
 * fix a bug in select/5 under Windows
 * fix a bug in the compiler
