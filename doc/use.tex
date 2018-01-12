@@ -938,22 +938,21 @@ compilation:
 \IdxKD{-o} \Param{FILE}, \IdxKD{--output} \Param{FILE} & use
 \Param{FILE} as the name of the output file \\
 
-\IdxKD{-W}, \IdxKD{--wam-for-native} & stop after producing WAM files(s)
-\\
+\IdxKD{-W}, \IdxKD{--wam-for-native} & stop after producing WAM file(s)\\
 
 \IdxKD{-w}, \IdxKD{--wam-for-byte-code} & stop after producing WAM for
 byte-code file(s) (force \texttt{--no-call-c}) \\
 
 \IdxKD{-M}, \IdxKD{--mini-assembly} & stop after producing mini-assembly
-files(s) \\
+file(s) \\
 
-\IdxKD{-S}, \IdxKD{--assembly} & stop after producing assembly files (s)
+\IdxKD{-S}, \IdxKD{--assembly} & stop after producing assembly file(s)
 \\
 
-\IdxKD{-F}, \IdxKD{--fd-to-c} & stop after producing C files(s) from FD
+\IdxKD{-F}, \IdxKD{--fd-to-c} & stop after producing C file(s) from FD
 constraint definition file(s) \\
 
-\IdxKD{-c}, \IdxKD{--object} & stop after producing object files(s) \\
+\IdxKD{-c}, \IdxKD{--object} & stop after producing object file(s) \\
 
 \IdxKD{--temp-dir} \Param{PATH} & use \Param{PATH} as directory
 for temporary files \\
@@ -1044,7 +1043,18 @@ arithmetics) \\
 
 \SPart{Linker options}:
 
+%%% TO BE REMOVED
+
+% \begin{CmdOptions}
+% \index{linker}linker FFFFF & ADD DDDDD \\
+% \end{CmdOptions}
+
+% dddddd
+
+%%% END TO BE REMOVED
+
 \begin{CmdOptions}
+
 \IdxKD{--linker} \Param{FILE} & use \Param{FILE} as linker \\
 
 \IdxKD{--local-size} \Param{N} & set default local stack size to
@@ -1065,6 +1075,8 @@ arithmetics) \\
 (use default sizes) \\
 
 \IdxKD{--gui-console} & link with the \Idx{GUI console} (windows only)\\
+
+\IdxKD{--new-top-level} & link the \Idx{top-level} main (to recognize top-level command-line options) \\
 
 \IdxKD{--no-top-level} & do not link the \Idx{top-level} (force
 \IdxK{--no-debugger}) \\
@@ -1303,6 +1315,12 @@ Example: as before where some predicates of \texttt{prog.pl} call C functions
 defined in \texttt{utils.c}:
 
 \OneLine{\% gplc -o my\_top\_level prog.pl utils.c}
+
+To obtain a fully extended executable, it is desirable to accept the same set
+of opions as the original top-level, see
+\RefSP{The-GNU-Prolog-interactive-interpreter}, e.g. \IdxK{--init-goal}. For this it is necessary to link \IdxK{main()} function used by the original top-level. This can be achieved passing the \IdxK{--new-top-level} to \texttt{gplc}:
+
+\OneLine{\% gplc --new-top-level -o my\_top\_level prog.pl utils.c}
 
 In conclusion, defining a particular top-level is nothing else but a
 particular case of the native-code compilation. It is simple to do and very

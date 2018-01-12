@@ -89,6 +89,7 @@
 #define OBJ_FILE_ALL_PL_BIPS       "all_pl_bips"
 #define OBJ_FILE_ALL_FD_BIPS       "all_fd_bips"
 #define OBJ_FILE_TOP_LEVEL         "top_level"
+#define OBJ_FILE_TOP_LEVEL_MAIN    "top_level_main"
 #define OBJ_FILE_DEBUGGER          "debugger"
 
 #define EXE_FILE_PL2WAM            "pl2wam"
@@ -167,8 +168,7 @@ char *start_path;
 
 int devel_mode = 0;
 char *devel_dir[] = {
-  "EnginePl", "BipsPl", "EngineFD", "BipsFD", "Linedit", "W32GUICons",
-  NULL };
+  "EnginePl", "BipsPl", "EngineFD", "BipsFD", "Linedit", "W32GUICons", "TopComp", NULL };
 
 
 FileInf *file_lopt;
@@ -188,6 +188,7 @@ int needs_stack_file = 0;
 
 int bc_mode = 0;
 int gui_console = 0;
+int new_top_level = 0;
 int no_top_level = 0;
 int min_pl_bips = 0;
 int min_fd_bips = 0;
@@ -717,6 +718,12 @@ Link_Cmd(void)
     }
 #endif
 
+  if (new_top_level)
+    {
+      Find_File(OBJ_FILE_TOP_LEVEL_MAIN, OBJ_SUFFIX, buff + strlen(buff), 0);
+      strcat(buff, " ");
+    }
+
   if (!no_top_level)
     {
       Find_File(OBJ_FILE_TOP_LEVEL, OBJ_SUFFIX, buff + strlen(buff), 0);
@@ -930,8 +937,7 @@ Find_File(char *file, char *suff, char *file_path, int ignore_error)
   else
     for (pdev = devel_dir; *pdev; pdev++)
       {
-	sprintf(file_path, "%s" DIR_SEP_S "%s" DIR_SEP_S "%s", start_path,
-		*pdev, name);
+	sprintf(file_path, "%s" DIR_SEP_S "%s" DIR_SEP_S "%s", start_path, *pdev, name);
 	if (access(file_path, F_OK) == 0)
 	  return 1;
       }
@@ -1290,11 +1296,21 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--new-top-level"))
+	    {
+	      Record_Link_Warn_Option(i);
+	      no_top_level = 0;
+	      no_debugger = 0;
+	      new_top_level = 1;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--no-top-level"))
 	    {
 	      Record_Link_Warn_Option(i);
 	      no_top_level = 1;
 	      no_debugger = 1;
+	      new_top_level = 0;
 	      continue;
 	    }
 
@@ -1334,6 +1350,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      Record_Link_Warn_Option(i);
 	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = 1;
+	      new_top_level = 0;
 	      if (Check_Arg(i, "--min-size"))
 		strip = 1;
 	      continue;
@@ -1344,6 +1361,7 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      no_pl_lib = no_fd_lib = 1;
 	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = 1;
+	      new_top_level = 0;
 	      continue;
 	    }
 
@@ -1433,6 +1451,9 @@ Parse_Arguments(int argc, char *argv[])
       nb_file++;
       f++;
     }
+
+  if (no_top_level)
+    new_top_level = 0;
 
 
   if (f == file_lopt)
@@ -1527,6 +1548,7 @@ Display_Help(void)
   L("  --max-atom N                set default atom   table size to N atoms");
   L("  --fixed-sizes               do not consult environment variables at run-time");
   L("  --gui-console               link the Win32 GUI console");
+  L("  --new-top-level             link the top-level main (to recognize top-level command-line options)");
   L("  --no-top-level              do not link the top-level (force --no-debugger)");
   L("  --no-debugger               do not link the Prolog/WAM debugger");
   L("  --min-pl-bips               link only used Prolog built-in predicates");
