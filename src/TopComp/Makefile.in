@@ -11,6 +11,10 @@ EXECS     = $(GPLC)@EXE_SUFFIX@ $(HEXGPLC)@EXE_SUFFIX@
 ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
 
 
+.c@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS)' $*.c
+
+
 first: $(EXECS)
 
 $(GPLC)@EXE_SUFFIX@: top_comp.c copying.c ../EnginePl/wam_regs.h \
@@ -27,8 +31,8 @@ all: $(ALL_EXECS)
 
 top-level: $(TOP_LEVEL)@EXE_SUFFIX@
 
-$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level.c
-	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ -C '$(CFLAGS)' top_level.c
+$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level_main.o
+	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ -C '$(CFLAGS)' top_level_main.o
 
 
 

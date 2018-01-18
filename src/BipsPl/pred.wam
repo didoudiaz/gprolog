@@ -1134,16 +1134,21 @@ predicate('$aux_name'/1,275,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$father_of_aux_name'/3,281,static,private,monofile,built_in,[
+predicate('$not_aux_name'/1,281,static,private,monofile,built_in,[
+    call_c('Pl_Not_Aux_Name_1',[boolean],[x(0)]),
+    proceed]).
+
+
+predicate('$father_of_aux_name'/3,287,static,private,monofile,built_in,[
     call_c('Pl_Father_Of_Aux_Name_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$pred_without_aux'/4,287,static,private,monofile,built_in,[
+predicate('$pred_without_aux'/4,293,static,private,monofile,built_in,[
     call_c('Pl_Pred_Without_Aux_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$make_aux_name'/4,293,static,private,monofile,built_in,[
+predicate('$make_aux_name'/4,299,static,private,monofile,built_in,[
     call_c('Pl_Make_Aux_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

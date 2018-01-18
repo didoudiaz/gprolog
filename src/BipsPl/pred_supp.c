@@ -174,8 +174,9 @@ Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 
 
 /*-------------------------------------------------------------------------*
- * PL_CREATE_PRED_MULTIFILE                                                *
+ * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
  *                                                                         *
+ * (e.g. called by pl2wam to create a multifile pred)                      *
  *-------------------------------------------------------------------------*/
 void
 Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)

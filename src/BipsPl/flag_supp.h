@@ -164,6 +164,8 @@ FlagInf *Pl_New_Prolog_Flag(char *name, Bool modifiable, FlagType type, PlLong v
 
 #define SYS_VAR_FD_BCKTS            (pl_sys_var[4])
 
+#define SYS_VAR_LISTING_ANY         (pl_sys_var[5])
+
 #define SYS_VAR_TOP_LEVEL           (pl_sys_var[10])
 #define SYS_VAR_LINEDIT             (pl_sys_var[12])
 #define SYS_VAR_DEBUGGER            (pl_sys_var[13])
