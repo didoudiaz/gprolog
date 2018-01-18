@@ -871,7 +871,11 @@ label(1),
     execute('$get_pred_indic_var'/5)]).
 
 
+<<<<<<< HEAD
 predicate(system:'$listing_all'/3,335,static,private,monofile,built_in,[
+=======
+predicate('$listing_all'/1,325,static,private,monofile,built_in,[
+>>>>>>> master
     try_me_else(1),
     allocate(5),
     get_variable(y(0),0),
@@ -918,6 +922,7 @@ label(1),
     proceed]).
 
 
+<<<<<<< HEAD
 predicate(system:'$$listing_all/3_$aux1'/2,335,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
@@ -950,6 +955,21 @@ predicate(system:'$listing_one_collect'/5,352,static,private,monofile,built_in,[
     get_variable(y(3),3),
     get_variable(y(4),4),
     put_structure((:)/2,0),
+=======
+predicate('$listing_one_pi'/3,335,static,private,monofile,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(2),0),
+    call('$$listing_one_pi/3_$aux1'/1),
+    put_structure('$predicate_property_pi_any'/2,0),
+    unify_local_value(y(2)),
+    unify_atom(native_code),
+    call((\+)/1),
+    put_value(y(2),0),
+    put_structure(prolog_file/1,1),
+>>>>>>> master
     unify_local_value(y(0)),
     unify_structure((/)/2),
     unify_local_value(y(1)),
@@ -965,9 +985,44 @@ predicate(system:'$listing_one_collect'/5,352,static,private,monofile,built_in,[
     execute('$$listing_one_collect/5_$aux1'/5)]).
 
 
+<<<<<<< HEAD
 predicate(system:'$$listing_one_collect/5_$aux1'/5,352,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
+=======
+predicate('$$listing_one_pi/3_$aux1'/1,335,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_integer(5,0),
+    put_integer(0,1),
+    call('$sys_var_read'/2),
+    cut(y(1)),
+    put_value(y(0),0),
+    deallocate,
+    execute('$current_predicate'/1),
+
+label(1),
+    trust_me_else_fail,
+    allocate(1),
+    get_variable(y(0),0),
+    put_value(y(0),0),
+    call('$current_predicate_any'/1),
+    put_value(y(0),0),
+    get_structure((/)/2,0),
+    unify_variable(x(0)),
+    unify_void(1),
+    deallocate,
+    execute('$not_aux_name'/1)]).
+
+
+predicate('$listing_one'/1,361,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+>>>>>>> master
     try_me_else(1),
     call_c('Pl_Pred_Prop_Native_Code_2',[boolean],[x(0),x(1),x(2)]),
     cut(x(5)),

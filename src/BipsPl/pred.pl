@@ -307,6 +307,12 @@ predicate_property(MHead, Property) :-
 
 
 
+'$not_aux_name'(Name) :-
+	'$call_c_test'('Pl_Not_Aux_Name_1'(Name)).
+
+
+
+
 '$father_of_aux_name'(Name, FatherName, FatherArity) :-
 	'$call_c_test'('Pl_Father_Of_Aux_Name_3'(Name, FatherName, FatherArity)).
 

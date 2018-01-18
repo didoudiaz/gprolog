@@ -169,3 +169,20 @@ Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 	  aux_nb);
   return Pl_Create_Allocate_Atom(pl_glob_buff);
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
+ *                                                                         *
+ * (e.g. called by pl2wam to create a multifile pred)                      *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)
+{
+  Pl_BC_Start_Emit_0();
+  Pl_BC_Emit_Inst_Execute_Native(func, arity, codep);
+  Pl_BC_Stop_Emit_0();
+}
+

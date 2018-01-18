@@ -94,10 +94,10 @@
 
 % General environments
 
+   % below we use m{4.5cm} instead of p{4.5cm} to avoid vertical alignment problems
 \newenvironment{CmdOptions}%
-   {\begin{tabular}{p{4.5cm}l}}%
+   {\begin{tabular}{m{4.5cm}l}}%
    {\end{tabular}}
-
 
 \newenvironment{ItemizeThreeCols}%
    {\begin{multicols}{3}\raggedcolumns\begin{itemize}}%

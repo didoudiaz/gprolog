@@ -315,7 +315,8 @@ load(MFile) :-
 
 listing :-
 	set_bip_name(listing, 0),
-	'$listing_all'(user, _, _). %FIXME what to do with a meta_pred without argument ?
+	'$sys_var_write'(5, 0),
+	'$listing_all'(_).
 
 
 
@@ -324,10 +325,49 @@ listing(MPI) :-
 	'$strip_module_var'(MPI, Module, PI),
 	(   atom(PI) ->
 	    Func = PI
+%	;   var(PI) ->
+%	    '$pl_err_instantiation'
 	;
 	    '$get_pred_indic_var'(PI, Module, _, Func, Arity)
 	),
+	'$sys_var_write'(5, 0),
 	'$listing_all'(Module, Func, Arity).
+
+listing(N) :-
+	atom(N), !,
+	'$listing_all'(N / _).
+
+listing(PI) :-
+	'$listing_all'(PI).
+
+/* TODO with modules (code without modules)
+
+	% same but also shows '$xxx' predicates
+
+'$listing_any' :-
+	set_bip_name('$listing_any', 0),
+	'$sys_var_write'(5, 1),	
+	'$listing_all'(_).
+
+
+
+'$listing_any'(PI) :-
+	set_bip_name('$listing_any', 1),
+	'$sys_var_write'(5, 1),
+	var(PI), !,
+	'$pl_err_instantiation'.
+
+'$listing_any'(N) :-
+	atom(N), !,
+	'$listing_all'(N / _).
+
+'$listing_any'(PI) :-
+	'$listing_all'(PI).
+
+*/
+
+
+
 
 /* NEW version which orders the output by file then by line number */
 
@@ -349,6 +389,7 @@ listing(MPI) :-
 '$listing_all'(_, _, _).
 
 
+<<<<<<< HEAD
 '$listing_one_collect'(Module, Func, Arity, File, Line) :-
 	'$current_predicate'(Module:Func/Arity),
    	(   '$call_c_test'('Pl_Pred_Prop_Native_Code_2'(Module, Func, Arity)) ->
@@ -357,6 +398,17 @@ listing(MPI) :-
 	    '$call_c_test'('Pl_Pred_Prop_Prolog_File_3'(Module, Func, Arity, File)),
 	    '$call_c_test'('Pl_Pred_Prop_Prolog_Line_3'(Module, Func, Arity, Line))
 	).
+=======
+'$listing_one_pi'(File, Line, PI) :-
+	(   '$sys_var_read'(5, 0) ->
+	    '$current_predicate'(PI)
+	;
+	    '$current_predicate_any'(PI), PI = Pred / _, '$not_aux_name'(Pred)
+	),
+	\+ '$predicate_property_pi_any'(PI, native_code),
+	'$predicate_property_pi_any'(PI, prolog_file(File)),
+	'$predicate_property_pi_any'(PI, prolog_line(Line)).
+>>>>>>> master
 
 
 

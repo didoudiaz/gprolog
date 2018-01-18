@@ -55,10 +55,10 @@ safe([X|L]) :-
 noattack([], _, _).
 
 
-noattack([Y|L],X,I):-
-	I1 is I+1,
-	noattack(L,X,I1),
-	diff(X,Y,I).
+noattack([Y|L], X, I):-
+	I1 is I + 1,
+	noattack(L, X, I1),
+	diff(X, Y ,I).
 
 /*
 % slower version (term. rec) (original PVH's version)
@@ -73,10 +73,10 @@ diff(X, Y, I) :-
 	fd_tell(diff(X, Y, I)).
 
 /*
-diff(X,Y,I):-
-	X#\=Y,
-	X#\=Y+I,
-	X+I#\=Y.
+diff(X, Y, I):-
+	X #\= Y,
+	X #\= Y + I,
+	X+I #\= Y.
 */
 
 lab(normal, L) :-

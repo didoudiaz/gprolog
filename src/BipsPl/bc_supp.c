@@ -803,7 +803,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
  * Each clause has been compiled to native code (aux pred).                *
  * We here create a call to this clause.                                   *
  * This function is called between Pl_BC_Start_Emit_0 and Pl_BC_Stop_Emit_0*
- * The buffer always bc has enough room for our 3 or 4 words.              *
+ * The buffer bc has always enough room for our 3 or 4 words.              *
  *-------------------------------------------------------------------------*/
 static void
 BC_Emit_Inst_Execute_Native(int module, int func, int arity, CodePtr codep)

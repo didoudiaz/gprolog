@@ -925,7 +925,7 @@ EXFD_FILES='Makefile ??*.pl ??*.fd'
 
 
 B="$GPLC $HEXGPLC $TOP_LEVEL pl2wam wam2ma ma2asm"
-O="top_level all_pl_bips debugger"
+O="top_level_main top_level all_pl_bips debugger"
 L="$LIB_ENGINE_PL $LIB_BIPS_PL"
 
 if test "$USE_LINEDIT" = yes; then
