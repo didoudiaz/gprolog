@@ -804,7 +804,7 @@ nospyall.
 	        format(debugger_output, 'native code predicate ~a/~d~n', [N, A])
 	    ;
 		'$call_c'('Pl_Reset_Debug_Call_Code_0'),
-		listing(PI),
+		'$listing_any'(PI),
 	        nl(debugger_output),
 		'$call_c'('Pl_Set_Debug_Call_Code_0')
 	    )

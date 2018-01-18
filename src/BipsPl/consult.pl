@@ -273,12 +273,14 @@ load(File) :-
 
 listing :-
 	set_bip_name(listing, 0),
+	'$sys_var_write'(5, 0),
 	'$listing_all'(_).
 
 
 
 listing(PI) :-
 	set_bip_name(listing, 1),
+	'$sys_var_write'(5, 0),
 	var(PI), !,
 	'$pl_err_instantiation'.
 
@@ -288,6 +290,33 @@ listing(N) :-
 
 listing(PI) :-
 	'$listing_all'(PI).
+
+
+
+	% same but also shows '$xxx' predicates
+
+'$listing_any' :-
+	set_bip_name('$listing_any', 0),
+	'$sys_var_write'(5, 1),	
+	'$listing_all'(_).
+
+
+
+'$listing_any'(PI) :-
+	set_bip_name('$listing_any', 1),
+	'$sys_var_write'(5, 1),
+	var(PI), !,
+	'$pl_err_instantiation'.
+
+'$listing_any'(N) :-
+	atom(N), !,
+	'$listing_all'(N / _).
+
+'$listing_any'(PI) :-
+	'$listing_all'(PI).
+
+
+
 
 
 
@@ -304,7 +333,11 @@ listing(PI) :-
 
 
 '$listing_one_pi'(File, Line, PI) :-
-	'$current_predicate'(PI),
+	(   '$sys_var_read'(5, 0) ->
+	    '$current_predicate'(PI)
+	;
+	    '$current_predicate_any'(PI), PI = Pred / _, '$not_aux_name'(Pred)
+	),
 	\+ '$predicate_property_pi_any'(PI, native_code),
 	'$predicate_property_pi_any'(PI, prolog_file(File)),
 	'$predicate_property_pi_any'(PI, prolog_line(Line)).

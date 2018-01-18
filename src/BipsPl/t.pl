@@ -138,3 +138,4 @@ a:- q, fail ; true.
 
 :-	initialization(a).
 */
+
