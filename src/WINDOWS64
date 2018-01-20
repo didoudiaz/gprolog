@@ -50,15 +50,15 @@ Strictly speaking i686-... are not needed here (since we are interested in 64 bi
 Using original mingw64 packages
 
 If you are under MSYS or if you prefer a more recent version under Cygwin,
-you can dowload mingw64 from the official site: http://mingw-w64.sourceforge.net/
+you can download mingw64 from the official site: http://mingw-w64.sourceforge.net/
 From the left menu:
 - "What do I download ?", read it to know what you download
 - "WIN64 Downloads" (to run under a 64 bits Windows)
 - "WIN32 Downloads" (to run under a 32 or 64 bits Windows)
 NB: on each arch (32 or 64) you can produce 32 bits (prefix i686) or 64 bits (prefix x86_64) code.
  
-You can either chose Automated Buils or Personal Builds (in this one I use
-rubenvb buils which also include gdb).
+You can either chose Automated Builds or Personal Builds (in this one I use
+rubenvb builds which also include gdb).
 
 
 HTML Help
@@ -110,7 +110,7 @@ then
 ------------------------------------
 
 See the same section in file WINDOWS (it is basically the same process). Be sure
-yuo run a cygwin which invokes the 64 bits version of the MSVC++ compiler
+you run a cygwin which invokes the 64 bits version of the MSVC++ compiler
 to check run 'cl' and see if  you obtain something with a x64 like:
    Microsoft (R) C/C++ Optimizing Compiler Version 17.00.50727.1 for x64
 
@@ -134,3 +134,7 @@ Currently hardware detection of stack overflows does not work
 
 
 
+
+LocalWords:  mingw64 mingw-w64 cygwin cygwin mingw objs rubenvb htmlhtlp.h
+LocalWords:  x86_64-w64-mingw32-gcc.exe Optimizing vcvarsall.bat yasm.exe
+LocalWords:  yasm-win64.exe

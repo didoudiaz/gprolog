@@ -2,7 +2,7 @@
 % file    : all_pl_bips.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/all_pl_bips.pl').
+file_name('/Users/diaz/GP/src/BipsPl/all_pl_bips.pl').
 
 
 predicate('$use_all_pl_bips'/0,39,static,private,monofile,global,[

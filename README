@@ -110,7 +110,7 @@ and the compiler using:
 
 	gplc FILE
 
-The simpliest way to compile a Prolog file 'prog.pl' is then:
+The simplest way to compile a Prolog file 'prog.pl' is then:
 
 	gplc prog.pl
 
@@ -212,3 +212,5 @@ http://www.gnu.org/licenses/.
 Remark: versions of GNU Prolog prior to 1.4.0 were entirely released under
 the GNU General Public License (GPL).
 
+
+LocalWords:  wamcc sparc irix gplc prog.pl mingw-as.exe

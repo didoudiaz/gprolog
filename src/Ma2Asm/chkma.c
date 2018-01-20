@@ -374,9 +374,9 @@ void
 test_initializer(void)
 {
 #ifdef _MSC_VER
-  printf("c_code intializer (ignored)...\n");
+  printf("c_code initializer (ignored)...\n");
 #else
-  printf("c_code intializer...\n");
+  printf("c_code initializer...\n");
   if (!initialised)
     error();
 #endif

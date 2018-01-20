@@ -2,7 +2,7 @@
 % file    : flag.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/flag.pl').
+file_name('/Users/diaz/GP/src/BipsPl/flag.pl').
 
 
 predicate('$use_flag'/0,41,static,private,monofile,built_in,[

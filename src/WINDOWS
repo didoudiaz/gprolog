@@ -36,7 +36,7 @@ and encounter some problems with permissions (e.g. for execute). You
 can add options for the mount of the remote directory. Add noacl,exec
 in the options for the mount point in /etc/fstab.
 
-You can set some environmant variables in the .bat launching cygwin
+You can set some environment variables in the .bat launching cygwin
 (e.g. c:\cygwin\cygwin.bat) since environment variables are inherited by the
 Cygwin shell. For instance if you use MSVC++ you can add to cygwin.bat
 for the 32 bits version of MSVC:
@@ -127,13 +127,13 @@ more recent version) : Microsoft Windows SDK for Windows 7 and .NET Framework
 Once installed, you have to launch cygwin with the correct PATH, INCLUDE, LIB
 environment variables. There is a .bat file provided with the MS compiler
 e.g. vcvarsall.bat (or older versions: vcvarvs32.bat or vsvar32.bat). See above
-on how to execute this .bat in the cygwin.bat lauching script.
+on how to execute this .bat in the cygwin.bat launching script.
 
 NB: for MSVC6.0: its lib directory should appear before the lib
 directory of the SDK (else an error occurs when linking the GUI console).
 See also: http://msdn.microsoft.com/en-us/library/f2ccy3wt%28v=VS.100%29.aspx 
 
-Another way to lauch a cygwin (or MSYS) shell with correct environment
+Another way to launch a cygwin (or MSYS) shell with correct environment
 variables is to launch a DOS prompt window and to execute the vcvarsall.bat
 (or better to execute the "Developer Command Prompt for VS" (from the Windows
 Start Menu | MVS | VS Tools). Then execute cygwin (generally using c:\cygwin\cygwin.bat).
@@ -243,3 +243,8 @@ To have an icon (desktop and/or quick launch bar)
    create a shortcut on the desktop and/or quick launch bar
    modify icon if wanted (take it from runemacs.exe or emacs-w32.exe)
    modify the starting directory (set your cygwin home)
+
+LocalWords:  mingw64 cygwin1.dll cygwin noacl,exec vcvarsall.bat msys chm
+LocalWords:  vcvarvs32.bat vsvar32.bat mingw-as.exe hhvars.bat htmlhel.lib
+LocalWords:  mingw libhtmlhelp.a lhtmlhelp drectve unrecognized runemacs.exe
+LocalWords:  diaz

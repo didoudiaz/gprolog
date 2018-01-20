@@ -6,7 +6,7 @@
 See file README for a list of currently available ports:
 
 The file PROBLEMS contains a list of known problems/limitations depending on 
-the architecure. Please consult it before reporting a problem.
+the architecture. Please consult it before reporting a problem.
 
 
 
@@ -54,14 +54,14 @@ These other directories are optional:
 
    EXAMPLES_DIR the directory for the examples, contains:
       EXAMPLES_DIR/ExamplsPl  some classical Prolog examples
-      EXAMPLES_DIR/ExamplesFD some examples using FD constraint solving
+      EXAMPLES_DIR/ExamplesFD≈ some examples using FD constraint solving
 
 Default directory values and associated configuration options are as follows:
 
    The value of INSTALL_DIR is as follows:
 
       - PREFIX/gprolog-VERSION_NUMBER (this is the default)
-	the default value of PREFIX is /usr/local but can be explicitely
+	the default value of PREFIX is /usr/local but can be explicitly
         specified using --prefix=PREFIX
 
       - another location can be specified using --with-install-dir=INSTALL_DIR
@@ -73,7 +73,7 @@ Default directory values and associated configuration options are as follows:
    The value of LINKS_DIR is as follows:
 
       - EPREFIX/bin. The value of EPREFIX is the same as PREFIX but can be
-        explicitely specified using --exec-prefix=EPREFIX
+        explicitly specified using --exec-prefix=EPREFIX
 
       - another location can be specified --with-links-dir=LINKS_DIR
 
@@ -140,7 +140,7 @@ Options to control the location of other components:
   --without-doc-dir                do not install the documentation
 
   --with-html-dir=HTML_DIR         specify HTML_DIR
-  --without-thml-dir               do not install the HTML documentation
+  --without-html-dir               do not install the HTML documentation
 
   --with-examples-dir=EXAMPLES_DIR specify EXAMPLESS_DIR
   --without-examples-dir           do not install the examples
@@ -241,7 +241,7 @@ Setting up environment variables
 
 To be able to execute GNU Prolog from anywhere the directory LINKS_DIR should
 be a part of your PATH environment variable (generally this directory is
-already in the PATH variable). However, if no links have been creeated
+already in the PATH variable). However, if no links have been created
 (either --without-links-dir has been specified or in case of default in-place
 installation) you should add the directory INSTALL_DIR/bin to your PATH
 variable. This can be done as follows (let us suppose INSTALL_DIR is

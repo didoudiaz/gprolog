@@ -2,7 +2,7 @@
 % file    : dec10io.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/dec10io.pl').
+file_name('/Users/diaz/GP/src/BipsPl/dec10io.pl').
 
 
 predicate('$use_dec10io'/0,41,static,private,monofile,built_in,[

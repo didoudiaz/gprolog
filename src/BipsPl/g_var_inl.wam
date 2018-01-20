@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.4.4
+% compiler: GNU Prolog 1.4.5
 % file    : g_var_inl.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/g_var_inl.pl').
+file_name('/Users/diaz/GP/src/BipsPl/g_var_inl.pl').
 
 
 predicate('$use_g_var_inl'/0,41,static,private,monofile,built_in,[
