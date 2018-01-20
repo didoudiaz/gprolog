@@ -229,6 +229,11 @@ close_last_prolog_file :-
 
 
 
+get_current_prolog_file(PlFile) :-
+	g_read(open_file_stack, [PlFile * _|_]).
+
+
+
 
           % Read of a predicate
 
@@ -1046,20 +1051,20 @@ flag_bit(multi, 8).
 
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	(   retract(pred_info(F, N, X))
-	;   X = 0
+	(   retract(pred_info(F, N, InfoMask))
+	;   InfoMask = 0
 	), !,
-	X1 is X \/ 1 << Bit,
-	assertz(pred_info(F, N, X1)).
+	InfoMask1 is InfoMask \/ 1 << Bit,
+	assertz(pred_info(F, N, InfoMask1)).
 
 
 
 
 unset_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	retract(pred_info(F, N, X)), !,
-	X1 is X /\ \ (1 << Bit),
-	assertz(pred_info(F, N, X1)).
+	retract(pred_info(F, N, InfoMask)), !,
+	InfoMask1 is InfoMask /\ \ (1 << Bit),
+	assertz(pred_info(F, N, InfoMask1)).
 
 unset_pred_info(_, _, _).
 
@@ -1068,8 +1073,8 @@ unset_pred_info(_, _, _).
 
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	clause(pred_info(F, N, X), _),
-	X /\ 1 << Bit > 0 .
+	clause(pred_info(F, N, InfoMask), _),
+	InfoMask /\ 1 << Bit > 0 .
 
 
 
