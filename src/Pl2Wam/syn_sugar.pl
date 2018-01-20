@@ -231,14 +231,14 @@ normalize_alts1(Body0, RestC, AuxPred) :-
 	lst_var(RestC, [], VarRestC),
 	lst_var(Body, [], VarAlt),
 	set_inter(VarAlt, VarRestC, V),
-	length(V, N1),
+	length(V, AuxN),
 	g_read(head_functor, Pred),
 	g_read(head_arity, N),
-	init_aux_pred_name(Pred, N, AuxName, N1),
+	init_aux_pred_name(Pred, N, AuxName, AuxN),
 	AuxPred =.. [AuxName|V],
 	g_read(where, Where),
 	linearize(Body, AuxPred, Where, LAuxSrcCl),
-	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
+	asserta(buff_aux_pred(AuxName, AuxN, LAuxSrcCl)).
 
 normalize_alts1(P, _, P1) :-
 	pred_rewriting(P, P1), !.
@@ -246,15 +246,15 @@ normalize_alts1(P, _, P1) :-
 
 
 
-init_aux_pred_name(Pred, N, AuxName, N1) :-
+init_aux_pred_name(Pred, N, AuxName, AuxN) :-
 	g_read(aux, Aux),
 	Aux1 is Aux + 1,
 	g_assign(aux, Aux1),
 	'$make_aux_name'(Pred, N, Aux, AuxName),
 	(   test_pred_info(bpl, Pred, N),
-	    set_pred_info(bpl, AuxName, N1)
+	    set_pred_info(bpl, AuxName, AuxN)
 	;   test_pred_info(bfd, Pred, N),
-	    set_pred_info(bfd, AuxName, N1)
+	    set_pred_info(bfd, AuxName, AuxN)
 	;   true
 	), !.
 
