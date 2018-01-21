@@ -229,11 +229,6 @@ close_last_prolog_file :-
 
 
 
-get_current_prolog_file(PlFile) :-
-	g_read(open_file_stack, [PlFile * _|_]).
-
-
-
 
           % Read of a predicate
 

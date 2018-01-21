@@ -36,12 +36,25 @@
  *-------------------------------------------------------------------------*/
 
 
-
-syntactic_sugar_init_pred(Pred, _) :-
+    /* for multifile predicate p/n we cannot use a seq aux number from 1
+     * since it can cause aux pred name clashes between two Prolog files
+     * clauses for p/n if they use alternatives.
+     */
+syntactic_sugar_init_pred(Pred, _, _) :-
 	'$aux_name'(Pred), !.
 
-syntactic_sugar_init_pred(_, _) :-
-	g_assign(aux, 1).
+syntactic_sugar_init_pred(Pred, N, PlFile) :-
+	(   g_read(native_code, f), test_pred_info(multi, Pred, N) ->
+	    randomize,
+	    term_hash(PlFile, H),
+	    Max = 1000000,
+	    random(1, Max, R),
+	    Aux is abs(H + R),
+	    format('file: ~w  ~w/~w aux: ~w~n', [PlFile, Pred, N, Aux])
+	;
+	    Aux = 1
+	),
+	g_assign(aux, Aux).
 
 
 

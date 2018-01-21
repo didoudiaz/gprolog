@@ -99,9 +99,9 @@ compile_and_emit_pred(f, Pred, N, LSrcCl) :-
 compile_emit_inits(Pred, N, LSrcCl, PlFile1, PlLine) :-
 	g_assign(cur_func, Pred),
 	g_assign(cur_arity, N),
-	syntactic_sugar_init_pred(Pred, N),
 	LSrcCl = [[PlFile * _|_] + (PlLine - _) + _|_],
-	absolute_file_name(PlFile, PlFile1).
+	absolute_file_name(PlFile, PlFile1),
+	syntactic_sugar_init_pred(Pred, N, PlFile1).
 
 
 
