@@ -95,6 +95,7 @@ Pl_Init_Oper(void)
   ADD_OPER(1200, XFX, "-->");
 
   ADD_OPER(1200, FX, ":-");
+  ADD_OPER(1200, FX, "?-");
 
   ADD_OPER(1105, XFY, "|");
 
