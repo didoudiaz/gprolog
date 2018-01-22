@@ -2,7 +2,7 @@
 % file    : no_le_interf.pl
 
 
-file_name('/Users/diaz/GP/src/BipsPl/no_le_interf.pl').
+file_name('/home/diaz/GP/src/BipsPl/no_le_interf.pl').
 
 
 predicate('$use_le_interf'/0,41,static,private,monofile,built_in,[

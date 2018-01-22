@@ -2,7 +2,7 @@
 % file    : internal.pl
 
 
-file_name('/Users/diaz/GP/src/Pl2Wam/internal.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/internal.pl').
 
 
 predicate(internal_format/6,73,static,private,monofile,global,[

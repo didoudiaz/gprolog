@@ -36,21 +36,32 @@
  *-------------------------------------------------------------------------*/
 
 
-    /* for multifile predicate p/n we cannot use a seq aux number from 1
-     * since it can cause aux pred name clashes between two Prolog files
-     * clauses for p/n if they use alternatives.
+    /* for auxiliary predicates we do not restart the aux counter
+     * but instead we continue sequentially.
+     * All aux predicates stemming from p/n have the same prefix
+     * (father pred p/n).
      */
+  
 syntactic_sugar_init_pred(Pred, _, _) :-
 	'$aux_name'(Pred), !.
+
+    /* Caution: the aux predicates stemming from a multifile pred p/n can
+     * cause name clashes when compiled to byte-code.
+     * These aux pred names are named p/n_$aux<K> where K is a seq number.
+     * Since these predicates are also stored in the global predicate table
+     * 2 clauses for p/n (defined in p1.pl and p2.pl) giving rise to aux
+     * predicates will produce 2 clasinhg p/n_$aux1.
+     * We here use the hash of the file name and a random number for the
+     * starting aux number.
+     */
 
 syntactic_sugar_init_pred(Pred, N, PlFile) :-
 	(   g_read(native_code, f), test_pred_info(multi, Pred, N) ->
 	    randomize,
 	    term_hash(PlFile, H),
-	    Max = 1000000,
+	    Max is (1 << 26),
 	    random(1, Max, R),
-	    Aux is abs(H + R),
-	    format('file: ~w  ~w/~w aux: ~w~n', [PlFile, Pred, N, Aux])
+	    Aux is (H + R) /\ (Max - 1) % avoid negative number
 	;
 	    Aux = 1
 	),
@@ -261,7 +272,7 @@ normalize_alts1(P, _, P1) :-
 
 init_aux_pred_name(Pred, N, AuxName, AuxN) :-
 	g_read(aux, Aux),
-	Aux1 is Aux + 1,
+	Aux1 is (Aux + 1) /\ (1 << 26 - 1),  % avoid negative numbers
 	g_assign(aux, Aux1),
 	'$make_aux_name'(Pred, N, Aux, AuxName),
 	(   test_pred_info(bpl, Pred, N),

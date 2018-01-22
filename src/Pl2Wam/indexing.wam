@@ -2,7 +2,7 @@
 % file    : indexing.pl
 
 
-file_name('/Users/diaz/GP/src/Pl2Wam/indexing.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/indexing.pl').
 
 
 predicate(indexing/2,134,static,private,monofile,global,[

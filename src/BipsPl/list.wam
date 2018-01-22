@@ -2,7 +2,7 @@
 % file    : list.pl
 
 
-file_name('/Users/diaz/GP/src/BipsPl/list.pl').
+file_name('/home/diaz/GP/src/BipsPl/list.pl').
 
 
 predicate('$use_list'/0,41,static,private,monofile,built_in,[
