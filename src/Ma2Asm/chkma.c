@@ -115,6 +115,8 @@ static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
  * Function Prototypes             *
  *---------------------------------*/
 
+void Avoid_Warning_Double(double d) {}
+
 void test_initializer(void);
 
 void test_declaration(void);
@@ -550,6 +552,7 @@ test_arg_double1(double a, double b, double c, double d, double e, double f)
       d != 12.456 || e != -1.3e-102 || f != -3.141593)
     error();
   x++;
+  Avoid_Warning_Double(loc_d);
 }
 
 
@@ -996,7 +999,6 @@ test_switch_ret2(int k)
 }
 
 #endif
-
 
 
 /*--- dummy functions needed by engine.c ---*/

@@ -277,6 +277,7 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(foreign_only, f),
 	g_assign(call_c, t),
 	g_assign(inline, t),
+	g_assign(optim_fail, t), % does not correspond to a command-line option (TODO ?)
 	g_assign(reorder, t),
 	g_assign(reg_opt, 2),
 	g_assign(opt_last_subterm, t),

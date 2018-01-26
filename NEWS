@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.4.5 (Jan 2018):
 
+* fix bug when consulting multifile predicates with alternatives
+* add ?- ISO prefix operator
 * add gplc option --new-top-level (add top-level command-line option handling)
 * fix a bug on linux witg gcc 6.3.0 (or binutils): needs PIC code
 * fix a bug in findall/4

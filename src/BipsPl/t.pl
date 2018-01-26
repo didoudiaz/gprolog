@@ -138,4 +138,31 @@ a:- q, fail ; true.
 
 :-	initialization(a).
 */
+/*
+condition_opaque_to_cut_3(1) :-
+	(   ! *-> 
+	    true
+	;   fail
+	).
+condition_opaque_to_cut_3(2).
+*/
 
+soft(1) :-
+	(   ! *-> 
+	    write(a)
+	;   fail
+	).
+soft(2).
+
+hard(1) :-
+	(   ! -> 
+	    true
+	;   fail
+	).
+hard(2).
+
+
+q :- soft(X), write(X), nl, fail.
+q.
+
+:- initialization(q).

@@ -320,8 +320,8 @@ read_predicate1(Pred, N, LSrcCl) :-
 read_predicate1(Pred, N, LSrcCl) :-
 	Pred = end_of_file,
 	N = 0,
-	LSrcCl = [],                                            % end of file
-	             !.
+	LSrcCl = [], !.                                         % end of file
+
 
 
 
@@ -1037,7 +1037,7 @@ flag_bit(pub, 2).
 flag_bit(bpl, 3).
 flag_bit(bfd, 4).
 flag_bit(discontig, 5).
-flag_bit(cut, 6).
+flag_bit(need_cut_level, 6).
 flag_bit(meta, 7).
 flag_bit(multi, 8).
 

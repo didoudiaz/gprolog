@@ -473,9 +473,13 @@ dummy_instruction(put_value(x(X), X), f).
 
 	% Cut inline ('$get_cut_level'/1, '$get_current_choice'/1, '$cut'/1, '$soft_cut'/1)
 
+gen_inline_pred('$get_cut_level', 1, [var(VarName, Info)], WamNext, WamNext) :-
+	var(Info),
+	VarName == x(void), !. % the cut level is not actually used (not needed)
+
 gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	cur_pred(Pred, N),
-	set_pred_info(cut, Pred, N),
+	set_pred_info(need_cut_level, Pred, N),
 	gen_unif_arg(Arg, N, WamNext, WamArg).
 
 gen_inline_pred('$get_current_choice', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-

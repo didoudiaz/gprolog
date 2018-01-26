@@ -809,6 +809,9 @@ predicate(cmd_line_args/3,269,static,private,monofile,global,[
     put_atom(inline,1),
     put_atom(t,2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
+    put_atom(optim_fail,1),
+    put_atom(t,2),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_atom(reorder,1),
     put_atom(t,2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
@@ -861,7 +864,7 @@ label(1),
     proceed]).
 
 
-predicate(cmd_line_args/1,299,static,private,monofile,global,[
+predicate(cmd_line_args/1,300,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
@@ -891,7 +894,7 @@ label(4),
     execute(cmd_line_args/1)]).
 
 
-predicate(cmd_line_arg1/3,306,static,private,monofile,global,[
+predicate(cmd_line_arg1/3,307,static,private,monofile,global,[
     try_me_else(52),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -1209,7 +1212,7 @@ label(53),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux5'/1,413,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux5'/1,414,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1229,7 +1232,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/0,397,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux4'/0,398,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1250,7 +1253,7 @@ label(1),
     execute(stop/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,324,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux3'/0,325,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -1271,7 +1274,7 @@ label(1),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux2'/1,309,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux2'/1,310,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1291,7 +1294,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux1'/3,309,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux1'/3,310,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1319,7 +1322,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate(display_copying/0,427,static,private,monofile,global,[
+predicate(display_copying/0,428,static,private,monofile,global,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1362,31 +1365,31 @@ predicate(display_copying/0,427,static,private,monofile,global,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,444,static,private,monofile,global,[
+predicate(prolog_name/1,445,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,447,static,private,monofile,global,[
+predicate(prolog_version/1,448,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,450,static,private,monofile,global,[
+predicate(prolog_date/1,451,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,453,static,private,monofile,global,[
+predicate(prolog_copyright/1,454,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,461,static,private,monofile,global,[
+predicate(h/1,462,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -1579,7 +1582,7 @@ label(54),
     proceed]).
 
 
-predicate(go/0,493,static,private,monofile,global,[
+predicate(go/0,494,static,private,monofile,global,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1588,5 +1591,5 @@ predicate(go/0,493,static,private,monofile,global,[
     execute(pl2wam/1)]).
 
 
-directive(497,user,[
+directive(498,user,[
     execute(go/0)]).
