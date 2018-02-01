@@ -43,8 +43,8 @@
 	g_assign('$call_call_info', CallInfo),
 	g_assign('$new_term', f),
 	'$term_to_goal1'(P, P1),
-	g_read('$new_term', t),                               % GC: case P=P1
-	                        !.
+	g_read('$new_term', t), !.                            % GC: case P=P1
+	                        
 
 '$term_to_goal'(P, _, P).
 

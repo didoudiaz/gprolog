@@ -54,7 +54,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-static int save_call_info;
+static PlLong save_call_info;
 
 
 
@@ -72,7 +72,7 @@ static int save_call_info;
  *-------------------------------------------------------------------------*/
 void
 Pl_Save_Call_Info_3(WamWord func_word, WamWord arity_word,
-		 WamWord debug_call_word)
+		    WamWord debug_call_word)
 {
   int func, arity;
   Bool debug_call;
