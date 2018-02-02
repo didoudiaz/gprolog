@@ -107,7 +107,7 @@ static void Call_Prolog_Fail(void);
 
 static void Call_Prolog_Success(void);
 
-static Bool Call_Next(CodePtr codep);
+static int Call_Next(CodePtr codep);
 
 void Pl_Call_Compiled(CodePtr codep);   /* defined in engine1.c */
 
@@ -350,27 +350,29 @@ Pl_Try_Execute_Top_Level(void)
  * Start_Prolog reserve the space for a feint choice point, i.e ALTB can be*
  * safely modified.                                                        *
  *                                                                         *
- * Call_Prolog returns TRUE if the predicate has succeed, FALSE otherwise. *
- * The called predicate can be non-deterministic.                          *
+ * Returns: 0 (FALSE), 1 (TRUE), 2 (EXCEPTION)                             *
+ * In case of TRUE alternative can remain (non-deterministic predicate)    *
+ * EXCEPTION occurs if handled by the called predicate (see foreign_supp.c *
+ * and throw_c.c)                                                          *
  *-------------------------------------------------------------------------*/
-Bool
+int
 Pl_Call_Prolog(CodePtr codep)
 {
   WamWord *query_b = B;
   WamCont save_CP = CP;
   WamCont save_ALTB = ALTB(query_b);
-  Bool ok;
+  int ret;
 
   ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
 
   CP = Adjust_CP(Call_Prolog_Success);
 
-  ok = Call_Next(codep);
+  ret = Call_Next(codep);
 
   CP = save_CP;                 /* restore continuation */
   ALTB(query_b) = save_ALTB;    /* restore choice point */
 
-  return ok;
+  return ret;
 }
 
 
@@ -381,24 +383,24 @@ Pl_Call_Prolog(CodePtr codep)
  *                                                                         *
  * Call_Prolog_Next_Sol bactracks over the next solution.                  *
  *-------------------------------------------------------------------------*/
-Bool
+int
 Pl_Call_Prolog_Next_Sol(WamWord *query_b)
 {
   WamCont save_CP = CP;
   WamCont save_ALTB = ALTB(query_b);
-  Bool ok;
+  int ret;
 
   ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
 
   CP = Adjust_CP(Call_Prolog_Success);  /* should be useless since */
   /* alternative will restore CP */
 
-  ok = Call_Next(ALTB(B));
+  ret = Call_Next(ALTB(B));
 
   CP = save_CP;                 /* restore continuation */
   ALTB(query_b) = save_ALTB;    /* restore choice point */
 
-  return ok;
+  return ret;
 }
 
 
@@ -436,8 +438,10 @@ Pl_Keep_Rest_For_Prolog(WamWord *query_b)
  * we handle a stack of jumpers (i.e. contexts) directely in the C stack.  *
  * The global variables p_jumper is the top of the stack and points to the *
  * current jumper. Similarly for the stack of machine register save buffers*
+ *                                                                         *
+ * Returns: 0 (FALSE), 1 (TRUE), 2 (EXCEPTION)                             *
  *-------------------------------------------------------------------------*/
-static Bool
+static int
 Call_Next(CodePtr codep)
 {
   int jmp_val;
@@ -476,10 +480,10 @@ Call_Next(CodePtr codep)
 #if 0
       Restore_All_Regs(buff_save_all_regs);
 #endif
-      return FALSE;
+      return FALSE;		/* 0 (FALSE) */
     }
 
-  return jmp_val;               /* 1 (TRUE) or 3 (exception) */
+  return jmp_val;               /* 1 (TRUE) or 2 (EXCEPTION) */
 }
 
 

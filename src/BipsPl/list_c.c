@@ -314,7 +314,7 @@ Bool Pl_Member_3(void)
 #if 1
       if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK)
 	{
-	  Assign_B(BB(B));  /* cut (if failure faster then Pl_Delete_Choice_Point() */
+	  Assign_B(BB(B));  /* cut (if failure faster than Pl_Delete_Choice_Point() */
 	  return ok;
 	}
 #endif
