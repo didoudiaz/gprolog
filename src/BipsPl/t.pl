@@ -146,7 +146,7 @@ condition_opaque_to_cut_3(1) :-
 	).
 condition_opaque_to_cut_3(2).
 */
-
+/*
 soft(1) :-
 	(   ! *-> 
 	    write(a)
@@ -167,7 +167,7 @@ q.
 
 :- initialization(q).
 
-
+*/
 setup_call_cleanup(Setup, Goal, Cleanup) :-
 	set_bip_name(setup_call_cleanup, 3),
 	call(Setup), !,
@@ -186,7 +186,7 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 	    nonvar(Ball), !,
 	    '$scc_exec_cleanup_and_throw'(Cleanup, Ball)
 	;
-	    true
+	    true % some choice-points remain, cleanup not yet executed (must be suspended)
 	).
 
 '$scc_exec_cleanup'(Cleanup) :-

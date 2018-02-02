@@ -16,11 +16,16 @@ pl_date()
     LC_ALL=C date '+%b %e %Y'
 }
 
+pl_year()
+{
+    LC_ALL=C date '+%Y'
+}
+
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION=$PACKAGE_VERSION
 PROLOG_DATE=`pl_date`
-PROLOG_COPYRIGHT='Copyright (C) 1999-2015 Daniel Diaz'
+PROLOG_COPYRIGHT="Copyright (C) 1999-`pl_year` Daniel Diaz"
 
 TOP_LEVEL=$PROLOG_DIALECT
 GPLC=gplc

@@ -1,3 +1,7 @@
+Thu Feb 1 15:40:29 2018 CET 2018 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in soft-cut (when a cut appears in the if-part)
+
 Mon Jan 22 14:58:59 CET 2018 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug when consulting multifile predicates with alternatives

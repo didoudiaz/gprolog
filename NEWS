@@ -1,5 +1,6 @@
-Change in GNU Prolog version 1.4.5 (Jan 2018):
+Change in GNU Prolog version 1.4.5 (Feb 2018):
 
+* fix a bug in soft-cut (when a cut appears in the if-part)
 * fix bug when consulting multifile predicates with alternatives
 * add ?- ISO prefix operator
 * add gplc option --new-top-level (add top-level command-line option handling)
