@@ -117,14 +117,13 @@ void Pl_Set_Heap_Actual_Start(WamWord *heap_actual_start);
 
 
 
-void Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system,
-			  CodePtr proc);
+void Pl_Execute_Directive(int pl_file, int pl_line, Bool is_system, CodePtr proc);
 
 Bool Pl_Try_Execute_Top_Level(void);
 
-Bool Pl_Call_Prolog(CodePtr codep);
+int Pl_Call_Prolog(CodePtr codep);
 
-Bool Pl_Call_Prolog_Next_Sol(WamWord *query_b);
+int Pl_Call_Prolog_Next_Sol(WamWord *query_b);
 
 void Pl_Keep_Rest_For_Prolog(WamWord *query_b);
 

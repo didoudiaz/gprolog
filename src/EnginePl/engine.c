@@ -350,7 +350,7 @@ Pl_Try_Execute_Top_Level(void)
  * Start_Prolog reserve the space for a feint choice point, i.e ALTB can be*
  * safely modified.                                                        *
  *                                                                         *
- * Returns: 0 (FALSE), 1 (TRUE), 2 (EXCEPTION)                             *
+ * Return: 0 (FALSE), 1 (TRUE), 2 (EXCEPTION)                              *
  * In case of TRUE alternative can remain (non-deterministic predicate)    *
  * EXCEPTION occurs if handled by the called predicate (see foreign_supp.c *
  * and throw_c.c)                                                          *
@@ -382,6 +382,7 @@ Pl_Call_Prolog(CodePtr codep)
  * PL_CALL_PROLOG_NEXT_SOL                                                 *
  *                                                                         *
  * Call_Prolog_Next_Sol bactracks over the next solution.                  *
+ * Return: same as Pl_Call_Prolog                                          *
  *-------------------------------------------------------------------------*/
 int
 Pl_Call_Prolog_Next_Sol(WamWord *query_b)
@@ -392,8 +393,7 @@ Pl_Call_Prolog_Next_Sol(WamWord *query_b)
 
   ALTB(query_b) = (CodePtr) Call_Prolog_Fail;   /* modify choice point */
 
-  CP = Adjust_CP(Call_Prolog_Success);  /* should be useless since */
-  /* alternative will restore CP */
+  CP = Adjust_CP(Call_Prolog_Success);  /* should be useless since alternative will restore CP */
 
   ret = Call_Next(ALTB(B));
 
@@ -439,7 +439,7 @@ Pl_Keep_Rest_For_Prolog(WamWord *query_b)
  * The global variables p_jumper is the top of the stack and points to the *
  * current jumper. Similarly for the stack of machine register save buffers*
  *                                                                         *
- * Returns: 0 (FALSE), 1 (TRUE), 2 (EXCEPTION)                             *
+ * Return: 0 (FALSE), 1 (TRUE), 2 (EXCEPTION)                              *
  *-------------------------------------------------------------------------*/
 static int
 Call_Next(CodePtr codep)
