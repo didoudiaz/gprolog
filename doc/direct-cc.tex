@@ -103,6 +103,12 @@ indicator is \texttt{Pred} is a multifle procedure (the clauses of
 \texttt{Pred} can reside in several source files). This directive is only
 supported by GNU Prolog since version 1.4.0.
 
+The native compilation scheme of GNU Prolog requires that each Prolog source
+file refering to a multifile predicate \texttt{Pred} must include a
+\texttt{multifile(Pred)} directive even if no clause are defined in this file
+for \texttt{Pred} (i.e. \texttt{Pred} is only called by other predicates in
+this source file).
+
 \Portability
 
 ISO directive.
