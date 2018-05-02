@@ -1,3 +1,14 @@
+lgt_current_output(S) :-
+	current_output(S), !.
+
+lgt_current_output(S) :-
+	current_stream(S), !,
+	fail.
+
+lgt_current_output(S) :-
+	set_bip_name(current_output, 1),
+	'$pl_err_existence'(stream, S).
+
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
