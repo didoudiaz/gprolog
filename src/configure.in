@@ -406,6 +406,7 @@ case "$host" in
     i*86*dragonfly*)   AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
     i*86*bsd*)         AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
     i*86*cygwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_cygwin)  AC_DEFINE(M_ix86_cygwin);;
+    x86_64*cygwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
     i*86*mingw*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
     i*86*win32*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
     i*86*darwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_darwin)  AC_DEFINE(M_ix86_darwin);;
@@ -413,7 +414,7 @@ case "$host" in
     powerpc*darwin*)   AC_DEFINE(M_powerpc) AC_DEFINE(M_darwin)  AC_DEFINE(M_powerpc_darwin);;
     powerpc*bsd*)      AC_DEFINE(M_powerpc) AC_DEFINE(M_bsd)     AC_DEFINE(M_powerpc_bsd);;
 
-    *)                 AC_MSG_ERROR(unsupported architecture)
+    *)                 AC_MSG_ERROR(unsupported architecture $host)
 esac
 
 dnl M_win64 ==> M_win32

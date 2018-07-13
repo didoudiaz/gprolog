@@ -698,7 +698,11 @@ Pl_M_Absolute_Path_Name(char *src)
 
 #if defined(__CYGWIN__)
 
+#if 0
   cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
+#else
+  cygwin_conv_path(CCP_WIN_A_TO_POSIX, buff[1 - res], buff[res], MAXPATHLEN);
+#endif
   res = 1 - res;
 
 #endif
