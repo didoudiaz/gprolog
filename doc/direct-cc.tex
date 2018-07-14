@@ -136,12 +136,13 @@ In order to allow multiple definitions, \texttt{Pred} can also be a list of
 predicate indicators or a sequence of predicate indicators using
 \texttt{','/2} as separator.
 
-A multifile predicate cannot be directly called from a file where it is not
-declared as multifile (the native compiler must know the called predicate is
-multifile). Workarounds: either call it via a meta-call (e.g. using
-\texttt{call/1}) or declare it as multifile in the calling source file). A
-good habit is to encapsulate a multifile predicate in a monofile predicate
-which invokes it (external call only invoke the monofile wrapper predicate).
+A multifile predicate (declared with a \IdxDi{multifile/1} directive) cannot
+be directly called from a file where it is not declared as multifile (the
+native compiler must know the called predicate is multifile). Workarounds:
+either call it via a meta-call (e.g. using \texttt{call/1}) or declare it as
+multifile in the calling source file). A good habit is to encapsulate a
+multifile predicate in a monofile predicate which invokes it (external call
+only invoke the monofile wrapper predicate).
 
 \Portability
 
