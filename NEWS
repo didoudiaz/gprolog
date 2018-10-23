@@ -1,3 +1,7 @@
+Change in GNU Prolog version 1.4.6
+
+* fix problem with old gcc (gcc < 6 does not produce PIE code by default)
+
 Change in GNU Prolog version 1.4.5 (Feb 2018):
 
 * fix a bug in soft-cut (when a cut appears in the if-part)
