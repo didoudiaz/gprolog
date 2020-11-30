@@ -275,6 +275,14 @@ PlLong Pl_Rd_Positive_Check(PlTerm term);
 
 PlLong Pl_Rd_Positive(PlTerm term);
 
+int Pl_Rd_C_Int_Check(WamWord start_word);
+
+int Pl_Rd_C_Int(WamWord start_word);
+
+int Pl_Rd_C_Int_Positive_Check(WamWord start_word);
+
+int Pl_Rd_C_Int_Positive(WamWord start_word);
+
 double Pl_Rd_Float_Check(PlTerm term);
 
 double Pl_Rd_Float(PlTerm term);

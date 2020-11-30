@@ -154,6 +154,7 @@
 
 #define ENV_VAR_VECTOR_MAX         "VECTORMAX"
 #define DEFAULT_VECTOR_MAX         127
+#define VECTOR_MAX_LIMIT           1000000
 
 
 #define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr)) == INT)

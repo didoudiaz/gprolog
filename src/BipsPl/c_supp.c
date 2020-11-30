@@ -281,6 +281,81 @@ Pl_Rd_Positive(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PLLONG_TO_C_INT                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static
+int PlLong_To_C_Int(PlLong x, WamWord start_word) {
+
+#if SIZEOF_LONG > SIZEOF_INT
+
+#define C_INT_MIN (-(1L << (8 * SIZEOF_INT - 1)))
+#define C_INT_MAX ( (1L << (8 * SIZEOF_INT - 1)) - 1)
+
+  if (x < C_INT_MIN || x > C_INT_MAX)
+    Pl_Err_Domain(pl_representation_integer_32bits, start_word);
+
+#endif
+
+  return x;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_C_INT_CHECK                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_C_Int_Check(WamWord start_word)
+{
+  return PlLong_To_C_Int(Pl_Rd_Integer_Check(start_word), start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_C_INT                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_C_Int(WamWord start_word)
+{
+  return PlLong_To_C_Int(Pl_Rd_Integer(start_word), start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_C_INT_POSITIVE_CHECK                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_C_Int_Positive_Check(WamWord start_word)
+{
+  return PlLong_To_C_Int(Pl_Rd_Positive_Check(start_word), start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_C_INT_POSITIVE                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_C_Int_Positive(WamWord start_word)
+{
+  return PlLong_To_C_Int(Pl_Rd_Positive(start_word), start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_RD_FLOAT_CHECK                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/

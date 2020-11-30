@@ -48,7 +48,7 @@ fd_vector_max(Max) :-
 
 fd_set_vector_max(Max) :-
 	set_bip_name(fd_set_vector_max, 1),
-	'$call_c'('Pl_Fd_Set_Vector_Max_1'(Max)).
+	'$call_c_test'('Pl_Fd_Set_Vector_Max_1'(Max)).
 
 
 

@@ -511,7 +511,9 @@ F_predicate(ArgVal arg[])
       prop &= ~MASK_PRED_NATIVE_CODE; /* if multifile it needs to be emulated */
     }
   else
-    Syntax_Error("multifile or multifile expected");
+    {
+      Syntax_Error("multifile or multifile expected");
+    }
 
 
 

@@ -216,7 +216,7 @@ Pl_Socket_Close_1(WamWord socket_word)
   SOCKET sock;
 #endif
 
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
   if (sock < 2)
     {
       errno = EBADF;
@@ -257,7 +257,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   static int atom_host_name = -1; /* not created in an init since */
 				  /* establishes a connection */
 
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
 
 
   DEREF(address_word, word, tag_mask);
@@ -313,7 +313,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   port = 0;
   DEREF(Arg(stc_adr, 1), word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
-    port = Pl_Rd_Integer_Check(word);
+    port = Pl_Rd_C_Int_Check(word);
 
   adr_in.sin_port = htons((unsigned short) port);
   adr_in.sin_family = AF_INET;
@@ -358,7 +358,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
   int stm_in, stm_out;
   char stream_name[256];
 
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
 
   DEREF(address_word, word, tag_mask);
 
@@ -404,7 +404,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 #endif
   /* case AF_INET */
   host_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
-  port = Pl_Rd_Integer_Check(Arg(stc_adr, 1));
+  port = Pl_Rd_C_Int_Check(Arg(stc_adr, 1));
 
   host_entry = gethostbyname(host_name);
   if (host_entry == NULL)
@@ -443,8 +443,8 @@ Pl_Socket_Listen_2(WamWord socket_word, WamWord length_word)
   int sock;
   int length;
 
-  sock = Pl_Rd_Integer_Check(socket_word);
-  length = Pl_Rd_Integer_Check(length_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
+  length = Pl_Rd_C_Int_Check(length_word);
 
   Os_Test_Error(listen(sock, length));
   return TRUE;
@@ -470,7 +470,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
 
 
   l = sizeof(adr_in);
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
 
   cli_sock = accept(sock, (struct sockaddr *) &adr_in, &l);
 
@@ -509,7 +509,7 @@ Pl_Assoc_Socket_Streams_3(WamWord socket_word,
   int stm_in, stm_out;
   char stream_name[256];
 
-  int sock = Pl_Rd_Integer_Check(socket_word);
+  int sock = Pl_Rd_C_Int_Check(socket_word);
 
   sprintf(stream_name, "socket_stream(assoc(%d))", sock);
   if (!Create_Socket_Streams(sock, stream_name, &stm_in, &stm_out))

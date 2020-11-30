@@ -89,6 +89,14 @@
 
 #include "x86_64_any.c"
 
+#elif defined(M_arm32)
+
+#include "arm32_any.c"
+
+#elif defined(M_arm64)
+
+#include "arm64_any.c"
+
 #endif
 
 #endif

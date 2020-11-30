@@ -68,7 +68,7 @@
 void
 Pl_Set_Seed_1(WamWord seed_word)
 {
-  Pl_M_Set_Seed(Pl_Rd_Positive_Check(seed_word));
+  Pl_M_Set_Seed(Pl_Rd_C_Int_Positive_Check(seed_word));
 }
 
 

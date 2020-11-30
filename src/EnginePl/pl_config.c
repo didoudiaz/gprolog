@@ -552,8 +552,8 @@ Generate_Regs(FILE *f, FILE *g)
   char str_base[32] = "";
   char *used_regs[] = M_USED_REGS;
   char **p = used_regs;
-  RegInf reg[10][50];
-  int nb_reg[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  RegInf reg[15][50];
+  int nb_reg[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   RegInf *dp;
   int total_nb_reg = 0;
   int nb_not_alloc = 0;

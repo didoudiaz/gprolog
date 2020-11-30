@@ -149,6 +149,11 @@
 /* Define if the cpu is a x86-64 */
 #undef M_x86_64
 
+/* Define if the cpu is a arm32 (armv7, armhf) */
+#undef M_arm32
+
+/* Define if the cpu is a arm4 (arch64) */
+#undef M_arm64
 
 /* Define if the OS is an SGI IRIX */
 #undef M_irix
@@ -253,6 +258,12 @@
 /* Define if the system is a x86-64/darwin */
 #undef M_x86_64_darwin
 
+/* Define if the system is a arm32/linux */
+#undef M_arm32_linux
+
+/* Define if the system is a arm64/linux */
+#undef M_arm64_linux
+
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
@@ -314,6 +325,7 @@
 #define LIB_BIPS_FD                any
 
 
+#define SIZEOF_INT                 any
 #define SIZEOF_LONG                any
 #define SIZEOF_VOIDP               any
 

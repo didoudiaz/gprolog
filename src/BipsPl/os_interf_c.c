@@ -1259,7 +1259,7 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
       lst_adr = UnTag_LST(word);
       DEREF(Car(lst_adr), word, tag_mask);
       if (tag_mask == TAG_INT_MASK)
-	fd = Pl_Rd_Positive_Check(word);
+	fd = Pl_Rd_C_Int_Positive_Check(word);
       else
 	{
 	  stm = Pl_Get_Stream_Or_Alias(word, check);
@@ -1366,7 +1366,7 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
   int atom;
   int i;
 
-  pid = Pl_Rd_Integer_Check(pid_word);
+  pid = Pl_Rd_C_Int_Check(pid_word);
 
   DEREF(signal_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
@@ -1381,7 +1381,7 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
 	  }
     }
   else
-    sig = Pl_Rd_Integer_Check(word);
+    sig = Pl_Rd_C_Int_Check(word);
 
 #ifdef _WIN32
   {
@@ -1420,7 +1420,7 @@ Pl_Wait_2(WamWord pid_word, WamWord status_word)
   int pid;
   int status;
 
-  pid = Pl_Rd_Integer_Check(pid_word);
+  pid = Pl_Rd_C_Int_Check(pid_word);
   Pl_Check_For_Un_Integer(status_word);
 
   status  = Pl_M_Get_Status(pid);

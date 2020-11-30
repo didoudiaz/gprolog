@@ -136,6 +136,7 @@ int pl_representation_in_character_code;
 int pl_representation_max_arity;
 int pl_representation_max_integer;
 int pl_representation_min_integer;
+int pl_representation_integer_32bits;
 int pl_representation_too_many_variables;	/* for Pl_Copy_Term(),... */
 
 int pl_evluation_float_overflow;
@@ -240,6 +241,7 @@ extern int pl_representation_in_character_code;
 extern int pl_representation_max_arity;
 extern int pl_representation_max_integer;
 extern int pl_representation_min_integer;
+extern int pl_representation_integer_32bits;
 extern int pl_representation_too_many_variables;/* for Pl_Copy_Term(),... */
 
 

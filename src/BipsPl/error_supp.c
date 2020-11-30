@@ -227,6 +227,7 @@ Error_Supp_Initializer(void)
   pl_representation_max_arity = Pl_Create_Atom("max_arity");
   pl_representation_max_integer = Pl_Create_Atom("max_integer");
   pl_representation_min_integer = Pl_Create_Atom("min_integer");
+  pl_representation_integer_32bits = Pl_Create_Atom("integer_32bits");
   pl_representation_too_many_variables = Pl_Create_Atom("too_many_variables");
 				/* for Pl_Copy_Term(),... */
 
