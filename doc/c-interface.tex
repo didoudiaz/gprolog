@@ -847,26 +847,35 @@ interface when an input argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-PlLong  Pl_Rd_Integer_Check  (PlTerm term)
-PlLong  Pl_Rd_Positive_Check (PlTerm term)
-double  Pl_Rd_Float_Check    (PlTerm term)
-double  Pl_Rd_Number_Check   (PlTerm term)
-int     Pl_Rd_Atom_Check     (PlTerm term)
-int     Pl_Rd_Boolean_Check  (PlTerm term)
-int     Pl_Rd_Char_Check     (PlTerm term)
-int     Pl_Rd_In_Char_Check  (PlTerm term)
-int     Pl_Rd_Code_Check     (PlTerm term)
-int     Pl_Rd_In_Code_Check  (PlTerm term)
-int     Pl_Rd_Byte_Check     (PlTerm term)
-int     Pl_Rd_In_Byte_Check  (PlTerm term)
-char   *Pl_Rd_String_Check   (PlTerm term)
-char   *Pl_Rd_Chars_Check    (PlTerm term)
-char   *Pl_Rd_Codes_Check    (PlTerm term)
-int     Pl_Rd_Chars_Str_Check(PlTerm term, char *str)
-int     Pl_Rd_Codes_Str_Check(PlTerm term, char *str)
+PlLong  Pl_Rd_Integer_Check       (PlTerm term)
+PlLong  Pl_Rd_Positive_Check      (PlTerm term)
+int     Pl_Rd_C_Int_Check         (PlTerm term)
+int     Pl_Rd_C_Int_Positive_Check(PlTerm term)
+double  Pl_Rd_Float_Check         (PlTerm term)
+double  Pl_Rd_Number_Check        (PlTerm term)
+int     Pl_Rd_Atom_Check          (PlTerm term)
+int     Pl_Rd_Boolean_Check       (PlTerm term)
+int     Pl_Rd_Char_Check          (PlTerm term)
+int     Pl_Rd_In_Char_Check       (PlTerm term)
+int     Pl_Rd_Code_Check          (PlTerm term)
+int     Pl_Rd_In_Code_Check       (PlTerm term)
+int     Pl_Rd_Byte_Check          (PlTerm term)
+int     Pl_Rd_In_Byte_Check       (PlTerm term)
+char   *Pl_Rd_String_Check        (PlTerm term)
+char   *Pl_Rd_Chars_Check         (PlTerm term)
+char   *Pl_Rd_Codes_Check         (PlTerm term)
+int     Pl_Rd_Chars_Str_Check     (PlTerm term, char *str)
+int     Pl_Rd_Codes_Str_Check     (PlTerm term, char *str)
 \end{verbatim}
 \end{Indentation}
 
+The function \texttt{Pl\_Rd\_C\_Int\_Check()} is similar to
+\texttt{Pl\_Rd\_Integer\_Check()} but returns a C \texttt{int} instead
+of a \texttt{PlLong}. If the Prolog integer does not fit into a C
+\texttt{int}, a \texttt{representation\_error} is raised (this can
+occur on 64-bits machine with \texttt{int} on 32-bits). Similarly for
+\texttt{Pl\_Rd\_C\_Int\_Positive\_Check()}.
+  
 All functions returning a C string (\texttt{char *}) use a same buffer. The
 function \texttt{Pl\_Rd\_Chars\_Str\_Check()} is similar to
 \texttt{Pl\_Rd\_Chars\_Check()} but accepts as argument a string to store the
