@@ -1,3 +1,9 @@
+Tue Dec  1 18:35:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to arm/Linux (32 bits=armv7 and 64 bits=aarch64) - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+	* fix problem with gcc 10 which needs explicitly -fcommon
+
 Mon Nov 30 18:14:35 CET 2020 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bugs when Prolog integers are internally converted to C int (on 64 bits machine)

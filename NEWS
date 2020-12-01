@@ -1,5 +1,8 @@
 Change in GNU Prolog version 1.4.6
 
+* port to arm/Linux (32 bits=armv7 and 64 bits=aarch64) - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* fix problem with gcc 10 which needs explicitly -fcommon
 * fix bugs when Prolog integers are internally converted to C int (on 64 bits machine)
 * fix problem with old gcc (gcc < 6 does not produce PIE code by default)
 

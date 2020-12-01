@@ -517,7 +517,16 @@ dnl    case "$host" in
 dnl       powerpc*darwin*)        RANLIB="$RANLIB -c";;
 dnl    esac
 
+
+dnl From version 10, gcc has changed the default from -fcommon to -fno-common
+dnl We need -fcommon, force it.
+
+if test "$GCC" = yes; then
+   CFLAGS_MACHINE="$CFLAGS_MACHINE -fcommon"
 fi
+
+fi
+
 
 SAVE_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS_MACHINE $CFLAGS"
