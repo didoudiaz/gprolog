@@ -500,7 +500,7 @@ Pl_Close_Stm(int stm, Bool force)
 
   Pl_Stream_Flush(pstm);
 
-  if (stm == pl_stm_stdin || stm == pl_stm_stdout)
+  if (stm == pl_stm_stdin || stm == pl_stm_stdout || stm == pl_stm_stderr)
     return;
 
   if (stm == pl_stm_top_level_input || stm == pl_stm_top_level_output)
@@ -561,7 +561,6 @@ void
 Pl_Flush_Output_1(WamWord sora_word)
 {
   int stm;
-
 
   stm = (sora_word == NOT_A_WAM_WORD)
     ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);

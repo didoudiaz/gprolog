@@ -1,3 +1,8 @@
+Thu Dec  3 13:12:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix bug when closing user_error
+	* fix a bug in phrase/2-3
+
 Tue Dec  1 18:35:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to arm/Linux (32 bits=armv7 and 64 bits=aarch64) - many thanks to

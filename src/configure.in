@@ -525,6 +525,11 @@ if test "$GCC" = yes; then
    CFLAGS_MACHINE="$CFLAGS_MACHINE -fcommon"
 fi
 
+if test "$GCC" = yes; then
+   CFLAGS="$CFLAGS -Wno-char-subscripts"
+fi
+
+
 fi
 
 

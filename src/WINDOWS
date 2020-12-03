@@ -15,7 +15,7 @@ However, even to compile a source distribution of GNU Prolog with MSVC, you
 need a Unix-like environment (providing standard Unix tools like: make, rm,
 cp, ...). You can either use Cygwin or MinGW/MSYS for this.
 
-NB: The current version DOES NOT accept spaces in pathnames. Do not
+NB: The current gprolog version DOES NOT accept spaces in pathnames. Do not
 uncompress your source distribution under a pathname containing spaces. Do
 not install it under a pathname containing spaces.
 
@@ -218,18 +218,15 @@ Consult doc/README for more information about HTML Help Formats.
 ----------------------
 
 get it from http://ftp.gnu.org/gnu/emacs/windows/
-and install it under c:\emacs-<version>, e.g. c:\emacs-24.2
+and install it under c:\emacs-<version>, e.g. c:\emacs-27.1
 
 The executables to run are
    bin\runemacs.exe (to double-click, ie. close the console)
    bin\emacs.exe (to use from a shell)
 
-Define your .emacs in your HOME directory (let's say c:\cygwin\home\diaz)
-
-then in c:\emacs-24.2\site-lisp create the file site-start.el with:
-(setenv "HOME" "c:/cygwin/home/diaz")
-
-it wil then execute the .emacs file in your HOME directory
+Define your HOME environment variable in windows (e.g c:\cygwin\home\diaz).
+For more info: https://www.gnu.org/software/emacs/manual/html_node/emacs/Windows-HOME.html
+Then create your .emacs file in your HOME directory
 
 
 7) Using cygwin Emacs
