@@ -37,7 +37,12 @@
 
 #define M_Indirect_Goto(p_lab) {register long adr=(long) p_lab; _asm jmp adr}
 
-#else
+#elif defined(__clang__) /* indirect goto does not work with clang */
+	/* see https://github.com/cslarsen/loop-inline-asm */
+//#define M_Indirect_Goto(p_lab) { __asm__("movq %[addr], %%rax\n" "jmpq *%%rax\n" : : [addr] "r" (p_lab));}
+#define M_Indirect_Goto(p_lab) { __asm__("jmpq *%%rax\n" : : [addr] "a" (p_lab));}
+
+#else /* GCC standard case (the above jmpq should work also) */
 
 #define M_Indirect_Goto(p_lab) {goto *(void*) p_lab;}
 

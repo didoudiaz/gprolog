@@ -30,6 +30,7 @@ TRANS_reload_E()
 
 #include "mach.h"
 
+
 #define YY(k) Y(E,k)
 extern unsigned var;
 extern void *label;
@@ -249,9 +250,10 @@ TRANS_jump_ret()
 #if defined(M_ix86_win32)
   register intptr_t adr = (intptr_t) bar(12, "toto");
 
-  _asm
-  {
-  jmp adr}
+  _asm { jmp adr }
+#elif defined(__clang__)
+  register intptr_t adr = (intptr_t) bar(12, "toto");
+  M_Indirect_Goto(adr);
 #else
   goto *bar(12, "toto");
 #endif
@@ -281,7 +283,7 @@ void
 TRANS_move_ret_to_mem()
 {
   var = bar(3);
-  v1[4120] = bar(15);
+  v1[40] = bar(15);
 }
 
 
