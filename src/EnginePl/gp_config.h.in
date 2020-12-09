@@ -252,6 +252,9 @@
 /* Define if the system is a x86-64/bsd */
 #undef M_x86_64_bsd
 
+/* Define if the system is a x86-64/cygwin */ /* NB: cygwin64 is not supported, deactivated in configure.in */
+#undef M_x86_64_cygwin
+
 /* Define if the system is a x86-64/mingw */
 #undef M_x86_64_mingw
 

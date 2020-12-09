@@ -13,19 +13,20 @@ I have then added some finishing touches.
 1) Compiling with mingw64
 -------------------------
 
-I have tested it under x86-64/Windows 7 and 8. I use Cygwin or MSYS as compilation
+I have tested it under x86-64/Windows 7, 8 and 10. I use Cygwin or MSYS as compilation
 environment (see file WINDOWS). I used mingw-w64 which delivers a complete
 toolchain (runtime, headers, and libs) for developing 64 bit (x64), as well
 as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
-from http://mingw-w64.sourceforge.net/ or, for cygwin, with the cygwin setup.exe 
-utility (selecting the mingw package).
+from http://mingw-w64.sourceforge.net/ or, under cygwin64, with the cygwin setup-x86_64.exe 
+utility selecting the packages: mingw64-i686-gcc-core and/or mingw64-x86_64-gcc-core
+which both add other needed packages like binutils, headers, ...
 
-Tested with mingw64/mingw32 gcc version 4.5.3, 4.6.3 and 4.7.0
+Tested with mingw64/mingw32 gcc version 4.5.3, 4.6.3, 4.7.0 and 10.2.0
 
 With the cygwin package things are installed in:
 
    /usr/x86_64-w64-mingw32/  and in  /usr/i686-w64-mingw32/
-      bin
+      bin <- some binutils non-prefixed binaries
       lib
       lib64
       sys-root
@@ -34,7 +35,7 @@ With the cygwin package things are installed in:
       sys-root/mingw/include
       sys-root/mingw/lib
 
-The toolchain executables are all prefixed with:
+The toolchain executables in /usr/bin are all prefixed with:
 
    x86_64-w64-mingw32 (e.g. x86_64-w64-mingw32-gcc.exe) 
    to produce 64 bits objs/execs/libs/...
@@ -64,25 +65,26 @@ rubenvb builds which also include gdb).
 HTML Help
 ---------
 
-To use HtmlHelp you maybe need to copy:
+To use HtmlHelp the C compiler needs a header file and a library.
+NB: under cygwin they should be provided by both mingw64-i686 and/or mingw64-x86_64 toolchains
+If not present, install the microsoft SDK (see also WINDOWS). Files should be in
+C:\Program Files (x86)\Windows Kits or in C:/Program Files (x86)/Microsoft SDKs/Windows
 
-   the header file:
+The header file is HtmlHelp.h and the libs (32 and 64 bits) are named Htmlhelp.lib.
 
-   htmlhtlp.h  in /usr/x86_64-w64-mingw32/sys-root/mingw/include/htmlhelp.h
-   htmlhtlp.h  in /usr/i686-w64-mingw32/sys-root/mingw/include/htmlhelp.h
+Example of locations:
+   C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\HtmlHelp.h
+   C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64\Htmlhelp.lib
+   C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x86\Htmlhelp.lib
 
+Under cygwin/mingw, if you don't have these files, copy them in the toolchain
+from Windows Kits (NB: libs must be renamed as .a) :
 
-   the lib (beware to copy the adequate version of the lib 32 != 64)
+   copy htmlHelp.h   in /usr/x86_64-w64-mingw32/sys-root/mingw/include/htmlhelp.h
+   copy HtmlHelp.h   in /usr/i686-w64-mingw32/sys-root/mingw/include/htmlhelp.h
 
-   copy + rename the 64 bits version of Htmlhelp.lib as
-   /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
-   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64
-   or in C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86)
-
-   copy + rename the 32 bits version of Htmlhelp.lib as
-   /usr/i686-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
-   (you can find it for instance in C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/
-   or in C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x64)
+   copy Htmlhelp.lib in /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
+   copy Htmlhelp.lib in /usr/i686-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
 
 
 Configuration

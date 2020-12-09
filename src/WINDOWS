@@ -7,15 +7,15 @@ mingw64 (which also provides a 32 bits version of gcc).
 This file describes how to compile GNU Prolog on Windows machines.
 There are actually 3 ports:
 
-   - pure Win32   with MS Visual C++ (MSVC++)
-   - pure Win32   with MinGW  (gcc) or mingw64 gcc
-   - using Cygwin with Cygwin (gcc) or mingw64 gcc
+   - pure Win32 with MS Visual C++ (MSVC++)
+   - pure Win32 with mingw (gcc 32 bits) or with mingw64 (gcc 32 bits)
+   - using cygwin with Cygwin 32 bits (gcc) or with mingw64 (gcc 32 bits)
 
 However, even to compile a source distribution of GNU Prolog with MSVC, you
 need a Unix-like environment (providing standard Unix tools like: make, rm,
-cp, ...). You can either use Cygwin or MinGW/MSYS for this.
+cp, ...). You can either use Cygwin or mingw or mingw64.
 
-NB: The current gprolog version DOES NOT accept spaces in pathnames. Do not
+NB: this version of gprolog DOES NOT accept spaces in pathnames. Do not
 uncompress your source distribution under a pathname containing spaces. Do
 not install it under a pathname containing spaces.
 
@@ -55,9 +55,9 @@ can add something like "C:\Program Files\HTML Help Workshop" to your PATH in
 the .bat file (or '/cygdrive/c/Program Files/HTML Help Workshop' in your
 .bashrc file). For example to add Inno Setup:
 
-   PATH=$PATH:'/c/Program Files/Inno Setup 5'
+   PATH=$PATH:'/c/Program Files/Inno Setup 6'
 or
-   PATH=$PATH:'/c/Program Files (x86)/Inno Setup 5'
+   PATH=$PATH:'/c/Program Files (x86)/Inno Setup 6'
 
 The gcc version provided by Cygwin is a cygwin port of gcc (it uses
 cygwin1.dll). By default it generates a code using cygwin1.dll. This DLL is a

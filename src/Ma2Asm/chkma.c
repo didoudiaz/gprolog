@@ -42,7 +42,10 @@
 
 
 #ifndef FAST  /* see Makefile */
-#define FC /* define FC to force arch_dep.h to no use FC */
+#ifdef FC
+#undef FC
+#endif
+#define FC /* define FC to force arch_dep.h to not use FC */
 #endif
 
 PlULong pl_max_atom;		/* to not need atom.o */
