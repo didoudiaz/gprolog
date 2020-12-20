@@ -668,7 +668,7 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
 	       Bool backtrack, Bool copy)
 {
   WamWord word, tag_mask;
-  int arity;
+  PlLong arity;
   Bool same_init_value;
   WamWord init_word;
   WamWord lst_word;
@@ -929,7 +929,7 @@ Get_Target_From_Selector(WamWord *stc_adr)
 {
   WamWord word, tag_mask;
   WamWord *adr, word1;
-  int arg_no;
+  PlLong arg_no;
   GTarget *gt;
 
   gt = Get_Target_From_Gvar(Arg(stc_adr, 0));
@@ -945,7 +945,7 @@ Get_Target_From_Selector(WamWord *stc_adr)
   if (tag_mask == STC)
     {
       adr = UnTag_STC(word);
-      if (arg_no < 1 || arg_no > Arity(adr))
+      if (arg_no < 1 || (PlULong) arg_no > Arity(adr))
 	goto error;
 
       gt->g_arg = &Arg(adr, arg_no - 1);

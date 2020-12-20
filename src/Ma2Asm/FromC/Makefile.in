@@ -8,6 +8,8 @@ CFLAGS = @CFLAGS@ -Wno-implicit-function-declaration
 #CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer
 CFLAGS = -Wno-implicit-function-declaration -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
 
+# for cl.exe use /FA to obtain assembly
+#CFLAGS= /FA
 #CFLAGS= /Ox /Oy
 
 opt:

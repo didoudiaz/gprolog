@@ -582,7 +582,7 @@ Pl_Gen_New_Atom(char *prefix)
 int
 Pl_Find_Next_Atom(int last_atom)
 {
-  while (++last_atom < pl_max_atom)
+  while ((PlULong) ++last_atom < pl_max_atom)
     {
       if (pl_atom_tbl[last_atom].name)
 	return last_atom;

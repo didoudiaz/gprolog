@@ -127,7 +127,7 @@ AtomInf;
 
 AtomInf *pl_atom_tbl;
 PlULong pl_max_atom;
-int pl_nb_atom;
+PlULong pl_nb_atom;
 
 int pl_atom_void;
 int pl_atom_curly_brackets;
@@ -152,7 +152,7 @@ char pl_char_conv[256];
 
 extern AtomInf *pl_atom_tbl;
 extern PlULong pl_max_atom;
-extern int pl_nb_atom;
+extern PlULong pl_nb_atom;
 
 extern int pl_atom_void;
 extern int pl_atom_curly_brackets;
