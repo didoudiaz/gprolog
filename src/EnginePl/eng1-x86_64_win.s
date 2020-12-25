@@ -109,7 +109,10 @@ Pl_Call_Prolog_Success:
         .comm   p_jumper, 8, 4
 */
 
-/* In MSVC Community 2019 x64 we exprienced a new bug.
+/*
+   MSVC Community 2019 x64 uses stack unwinding and this crashes gprolog.
+   (see also comment in arch_dep.h for Mingw64-gcc)
+
    Under Microsoft Visual Studio I debugged chkma.exe (in Ma2Asm) and discovered
    the error is due to setjmp/longjmp. Indeed, now longjmp unwinds the stack and this
    causes a segmentation fault (the problem appears in ntdll!RtlUnwindEx).
@@ -118,10 +121,10 @@ Pl_Call_Prolog_Success:
    A similar problem is reported here:
    https://blog.lazym.io/2020/09/21/Unicorn-Devblog-setjmp-longjmp-on-Windows/
 
-   There is a portion of code in longjmp (in __longjmp_internal) which does
-   first a test on shallow stack and the if the first field of jmp_buf
+   There is a portion of code in longjmp (in __longjmp_internal) which first does
+   a test on shallow stack and then checks the first field of jmp_buf
    (which contains the address of the frame jmp_buf or 0). If it is != 0
-   the unwind is done (else this part is ignored).
+   the unwind is done (else this part is ignored). The unwinds crashes gprolog.
 
    Several solutions:
    1) provide a setjmp which put 0 in the first field (and keep original longjmp)
@@ -164,13 +167,20 @@ Pl_Call_Prolog_Success:
 	SETJMP_FLOAT128 Xmm15;  // F0
     } _JUMP_BUFFER;
 
+   I declare several entries (without and with leading underscores) in case of...
 */
 
 	.p2align	4,,15
-	.globl	Pl_MSVC_Win64_setjmp
-	.def	Pl_MSVC_Win64_setjmp; .scl 2; .type 32; .endef
-Pl_MSVC_Win64_setjmp:
-	xorq	%rdx,%rdx	   /* this was to the original MSVC version (ensured original longjmp works) */
+	.globl	setjmp
+	.def	setjmp; .scl 2; .type 32; .endef
+	.globl	_setjmp
+	.def	_setjmp; .scl 2; .type 32; .endef
+	.globl	__setjmp
+	.def	__setjmp; .scl 2; .type 32; .endef
+setjmp:
+_setjmp:
+__setjmp:
+	xorq	%rdx,%rdx	   /* this was added to the original MSVC version (ensured original longjmp works) */
 	movq	%rdx,(%rcx)        /* jmp_buf->Frame */
 	movq	%rbx,0x8(%rcx)	   /* jmp_buf->Rbx */	 
 	leaq	0x8(%rsp),%rax	                       
@@ -201,9 +211,15 @@ Pl_MSVC_Win64_setjmp:
 
 
 	.p2align	4,,15
-	.globl	Pl_MSVC_Win64_longjmp
-	.def	Pl_MSVC_Win64_longjmp; .scl 2; .type 32; .endef
-Pl_MSVC_Win64_longjmp:
+	.globl	longjmp
+	.def	longjmp; .scl 2; .type 32; .endef
+	.globl	_longjmp
+	.def	_longjmp; .scl 2; .type 32; .endef
+	.globl	__longjmp
+	.def	__longjmp; .scl 2; .type 32; .endef
+longjmp:
+_longjmp:
+__longjmp:
 	test	%rdx,%rdx
 	jne	LJ10
 	incq	%rdx
@@ -230,6 +246,6 @@ LJ10:
 	movdqa	0xD0(%rcx),%xmm13  /* jmp_buf->Xmm13 */
 	movdqa	0xE0(%rcx),%xmm14  /* jmp_buf->Xmm14 */
 	movdqa	0xF0(%rcx),%xmm15  /* jmp_buf->Xmm15 */
-	movq	0x05(%rcx),%rdx    /* jmp_buf->Rip */
+	movq	0x50(%rcx),%rdx    /* jmp_buf->Rip */
 	movq	0x10(%rcx),%rsp    /* jmp_buf->Rsp */
 	jmp	*%rdx
