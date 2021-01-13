@@ -2,7 +2,7 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : stacks_sigsegv.c                                                *
+ * File  : stacks_sigsegv.h                                                *
  * Descr.: stack hardware overflow detection (SIGSEGV) - header file       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
