@@ -207,8 +207,8 @@ void (*tbl[]) () =
   test_declaration,
   test_pl_jump_and_pl_ret,
   test_pl_call_and_pl_ret_and_pl_fail,
+//#else
   test_prep_cp_and_here_cp,
-#endif
   test_jump_and_c_ret,
   test_call_c,
   test_move_x_y,
@@ -231,6 +231,7 @@ void (*tbl[]) () =
   test_move_ret_fl,
   test_move_ret_fd,
   test_switch_ret,
+ #endif
   NULL
 };
 
@@ -375,6 +376,7 @@ Initializer(void)
 }
 
 
+#if 1
 void
 test_initializer(void)
 {
@@ -435,7 +437,6 @@ test_pl_call_and_pl_ret_and_pl_fail(void)
 
 
 
-#if 1
 void
 test_prep_cp_and_here_cp(void)
 {

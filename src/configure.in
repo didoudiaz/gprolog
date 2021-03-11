@@ -238,6 +238,7 @@ dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
 dnl cannot be put in the then and the else part !!! so repeat the test !
 
 AC_PROG_CC
+AC_PROG_CC_STDC
 
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
@@ -246,7 +247,7 @@ dnl determine if MinGW and Windows path associated to posix path /tmp
 dnl (needs AC_CANONICAL_BUILD)
 
 case "$build_os" in
-    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
+    cygwin*|*msys*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
     mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
 esac
 
@@ -406,7 +407,8 @@ case "$host" in
     i*86*dragonfly*)   AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
     i*86*bsd*)         AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
     i*86*cygwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_cygwin)  AC_DEFINE(M_ix86_cygwin);;
-#    x86_64*cygwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
+    x86_64*cygwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
+    x86_64*msys*)      AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
     i*86*mingw*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
     i*86*win32*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
     i*86*darwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_darwin)  AC_DEFINE(M_ix86_darwin);;
@@ -563,6 +565,7 @@ AC_CHECK_DECLS([htole32, bswap_32], [], [],
 
 SAVE_LIBS="$LIBS"
 LIBS="$LIBS -lm"
+AC_CHECK_FUNCS(fpclass _fpclass isnan isinf)
 AC_CHECK_FUNCS(atanh acosh asinh)
 SAVE_LIBS="$LIBS"
 

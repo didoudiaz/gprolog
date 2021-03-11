@@ -39,6 +39,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef HAVE_FLOAT_H
+#include <float.h>
+#endif
 
 #define OBJ_INIT Arith_Initializer
 
@@ -259,6 +262,68 @@ Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 
 
 
+#define PL_FP_NAN        0
+#define PL_FP_INFINITE   1
+#define PL_FP_ZERO       2
+#define PL_FP_SUBNORMAL  3
+#define PL_FP_NORMAL     4
+
+
+
+int
+Pl_Classify_Double(double x)
+{
+#ifdef fpclassify 
+  switch(fpclassify(x))
+    {
+    case FP_NAN:
+      return PL_FP_NAN;
+    case FP_INFINITE:
+      return PL_FP_INFINITE;
+    case FP_SUBNORMAL:
+      return PL_FP_SUBNORMAL;
+    }
+#elif defined(HAVE_FPCLASS)
+  switch(fpclass(x))
+    {
+    case FP_SNAN:
+    case FP_QNAN:
+      return PL_FP_NAN;
+    case FP_NINF:
+    case FP_PINF:
+      return PL_FP_INFINITE;
+    case FP_NDENORM:                    /* pos/neg denormalized non-zero */
+    case FP_PDENORM:
+      return PL_FP_SUBNORMAL;
+    }
+#elif defined(HAVE__FPCLASS)
+  switch(_fpclass(x))
+    {
+    case _FPCLASS_SNAN:
+    case _FPCLASS_QNAN:
+      return PL_FP_NAN;
+    case _FPCLASS_NINF:
+    case _FPCLASS_PINF:
+      return PL_FP_INFINITE;
+    case _FPCLASS_ND:
+    case _FPCLASS_PD:
+      return PL_FP_SUBNORMAL;
+    }
+#else
+#ifdef HAVE_ISNAN
+  if (isnan(x))
+    return PL_FP_NAN;
+#endif
+#ifdef HAVE_ISINF
+  if (isinf(x))
+    return PL_FP_INFINITE;
+#endif
+#endif
+  return PL_FP_NORMAL;
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * MAKE_TAGGED_FLOAT                                                       *
@@ -267,7 +332,22 @@ Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 static WamWord
 Make_Tagged_Float(double d)
 {
-  WamWord x = Tag_FLT(H);
+  WamWord x;
+
+  switch(Pl_Classify_Double(d))
+    {
+    case PL_FP_NAN:
+      Pl_Err_Evaluation(pl_evaluation_undefined);
+
+    case PL_FP_INFINITE:
+      Pl_Err_Evaluation(pl_evaluation_float_overflow);
+
+    case PL_FP_SUBNORMAL:
+      Pl_Err_Evaluation(pl_evaluation_underflow);
+    }
+
+
+  x = Tag_FLT(H);
 
   Pl_Global_Push_Float(d);
 
@@ -275,7 +355,7 @@ Make_Tagged_Float(double d)
 }
 
 
-
+  
 
 /*-------------------------------------------------------------------------*
  * TO_DOUBLE                                                               *
@@ -421,7 +501,7 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
 
 #define C_Mul(x, y)  ((x) * (y))
 
-#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(pl_evluation_zero_divisor), 0))
+#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(pl_evaluation_zero_divisor), 0))
 
 #define Identity(x)  (x)
 
@@ -564,7 +644,7 @@ Pl_Fct_Fast_Div(WamWord x, WamWord y)
   PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx / vy);
 }
@@ -576,7 +656,7 @@ Pl_Fct_Fast_Rem(WamWord x, WamWord y)
   PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx % vy);
 }
@@ -589,7 +669,7 @@ Pl_Fct_Fast_Mod(WamWord x, WamWord y)
   PlLong m;
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   m = vx % vy;
 
@@ -607,7 +687,7 @@ Pl_Fct_Fast_Div2(WamWord x, WamWord y)
   PlLong m;
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   m = vx % vy;
 

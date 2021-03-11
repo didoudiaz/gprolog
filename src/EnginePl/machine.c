@@ -504,8 +504,8 @@ Pl_M_Host_Name_From_Adr(char *host_address)
   struct in_addr iadr;
 
 #if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
-    defined(M_ix86_cygwin) || defined(M_ix86_solaris)  || \
-    defined(_WIN32)
+    defined(M_ix86_solaris) || \
+    defined(_WIN32) || defined(__CYGWIN__)
   if ((iadr.s_addr = inet_addr(host_address)) == -1)
 #else
   if (inet_aton(host_address, &iadr) == 0)
@@ -696,13 +696,9 @@ Pl_M_Absolute_Path_Name(char *src)
 
 #else  /* __unix__ || __CYGWIN__ */
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) && !defined(__MSYS__)
 
-#if 0
-  cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
-#else
-  cygwin_conv_path(CCP_WIN_A_TO_POSIX, buff[1 - res], buff[res], MAXPATHLEN);
-#endif
+  cygwin_conv_pathx(CCP_WIN_A_TO_POSIX, buff[1 - res], buff[res], MAXPATHLEN);
   res = 1 - res;
 
 #endif

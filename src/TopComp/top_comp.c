@@ -74,6 +74,13 @@
 #define DEBUG
 #endif
 
+/* Windows64 : allows for LARGEADDRESSAWARE (LAA)
+ * if yes, needs RIP-related addressing (see x86_64_any.c)
+ * if no, pass option /LARGEADDRESSAWARE:NO to cl
+ */
+#if 1 
+#define LARGE_ADDRESS_AWARE 1
+#endif
 
 
 
@@ -780,7 +787,7 @@ Link_Cmd(void)
   strcat(buff, "/ignore:4089 ");
   if (!has_gui_console)
     strcat(buff, "/subsystem:console ");
-#ifdef M_x86_64
+#if defined(M_x86_64) && !defined(LARGE_ADDRESS_AWARE)
   strcat(buff, "/LARGEADDRESSAWARE:NO ");
 #endif
 #endif

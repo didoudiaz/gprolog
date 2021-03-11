@@ -129,6 +129,7 @@
 #define strcasecmp                 stricmp
 #define strncasecmp                strnicmp
 #define spawnvp                    _spawnvp
+#define isnan                      _isnan
 #endif
 
 #ifndef F_OK
@@ -189,7 +190,7 @@
 
 
 
-#if defined(M_ix86_cygwin) || defined(M_ix86_sco)
+#if defined(__CYGWIN__) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
 #elif defined(_WIN32)
 #define Set_Line_Buf(s)            setbuf(s, NULL)

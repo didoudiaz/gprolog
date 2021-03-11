@@ -41,6 +41,14 @@
 #include <string.h>
 #include <limits.h>
 
+/* Windows64 : allows for LARGEADDRESSAWARE (LAA)
+ * if yes, needs RIP-related addressing
+ * if no, pass option /LARGEADDRESSAWARE:NO to cl (in top_comp.c)
+ */
+#if 1 
+#define LARGE_ADDRESS_AWARE 1
+#endif
+
 
 /* For M_x86_64_linux/solaris: an important point is that C stack must be
  * aligned on 16 bytes else some problems occurs with double.
@@ -48,7 +56,7 @@
  * an error will occur.
  * Just before calling a function %rsp is 16bytes aligned, %rsp = 0x...0
  * (4 low bits = 0). The callq instruction pushes the return address, so at
- * the entry of a function, %rsp is 0x...8. Gcc then adjusts (via subq)
+ * the entry of a function, %rsp is 0x...8. GCC then adjusts (via subq)
  * %rsp to be 0x...0 before calling a function. We mimic the same modifying
  * Call_Compiled to force %rsp to be 0x...0 when arriving in a Prolog code.
  * So a Prolog code can call C functions safely.
@@ -122,7 +130,11 @@ char asm_reg_cp[20];
 
 int w_label = 0;
 
-#ifdef _WIN32
+#if defined(__CYGWIN__) && !defined(_WIN32)
+#define _WIN32 /* ensure Microsoft ABI */
+#endif
+
+#if defined(_WIN32) /* Microsoft ABI */
 #define MAX_PR_ARGS 4
 static int pr_arg_no;
 static const char *gpr_arg[MAX_PR_ARGS] = {
@@ -132,7 +144,7 @@ static const char *gpr_arg[MAX_PR_ARGS] = {
 static const char *fpr_arg[MAX_PR_ARGS] = {
   "%xmm0", "%xmm1", "%xmm2", "%xmm3"
 };
-#else
+#else /* System V AMD64 ABI */
 #define MAX_GPR_ARGS 6
 static int gpr_arg_no;
 static const char *gpr_arg[MAX_GPR_ARGS] = {
@@ -392,7 +404,7 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
-  if (pic_code)
+  if (LARGE_ADDRESS_AWARE || pic_code)
     {
       Inst_Printf("leaq", CONT_LABEL_FMT "(%%rip),%%r10", w_label);
       Inst_Printf("movq", "%%r10,%s", asm_reg_cp);
@@ -696,7 +708,7 @@ Call_C_Arg_String(int offset, int str_no)
 {
   BEFORE_ARG;
 
-  if (pic_code)
+  if (LARGE_ADDRESS_AWARE || pic_code)
     {
       Inst_Printf("leaq", "%s%d(%%rip),%s", STRING_PREFIX, str_no, r_aux);
       if (!r_eq_r_aux)
@@ -741,7 +753,16 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
   else
     {
       if (adr_of)
-	Inst_Printf("movq", "$" "%s+%d,%s", name, index * 8, r);
+	{
+	  if (LARGE_ADDRESS_AWARE)
+	    {
+	      Inst_Printf("leaq", "%s+%d(%%rip),%s", name, index * 8, r_aux);
+	      if (!r_eq_r_aux)
+		Inst_Printf("movq", "%s,%s", r_aux, r);
+	    }
+	  else
+	    Inst_Printf("movq", "$" "%s+%d,%s", name, index * 8, r);
+	}
       else
 	{
 	  Inst_Printf("movq", "%s+%d(%%rip),%s", name, index * 8, r_aux);
@@ -840,7 +861,16 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
   else
     {
       if (adr_of)
-	Inst_Printf("movq", "$" UN "pl_foreign_long+%d, %s", index * 8, r);
+	{
+	  if (LARGE_ADDRESS_AWARE)
+	    {
+	      Inst_Printf("leaq", UN "pl_foreign_long+%d(%%rip),%s", index * 8, r_aux);
+	      if (!r_eq_r_aux)
+		Inst_Printf("movq", "%s,%s", r_aux, r);
+	    }
+	  else
+	    Inst_Printf("movq", "$" UN "pl_foreign_long+%d, %s", index * 8, r);
+	}
       else
 	{
 	  Inst_Printf("movq", UN "pl_foreign_long+%d(%%rip),%s", index * 8, r_aux);
@@ -876,9 +906,18 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
 	}
       else
 	{
-	  Inst_Printf("movq", "$" UN "pl_foreign_double+%d, %s", index * 8, r_aux);
-	  if (!r_eq_r_aux)
-	    Inst_Printf("movq", "%s,%s", r_aux, r);
+	  if (LARGE_ADDRESS_AWARE)
+	    {
+	      Inst_Printf("leaq", UN "pl_foreign_double+%d(%%rip),%s", index * 8, r_aux);
+	      if (!r_eq_r_aux)
+		Inst_Printf("movq", "%s,%s", r_aux, r);
+	    }
+	  else
+	    {
+	      Inst_Printf("movq", "$" UN "pl_foreign_double+%d, %s", index * 8, r_aux);
+	      if (!r_eq_r_aux)
+		Inst_Printf("movq", "%s,%s", r_aux, r);
+	    }
 	}
       
       AFTER_ARG;

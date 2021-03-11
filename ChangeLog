@@ -1,3 +1,6 @@
+Thu Feb  2 19:24:23 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+	* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
+
 Thu Dec  3 13:12:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix bug when closing user_error

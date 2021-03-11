@@ -56,9 +56,9 @@
 
 #include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
 
-#if defined(__unix__) || defined(__CYGWIN__)
+#if !defined(__MSYS__) && (defined(__unix__) || defined(__CYGWIN__))
 #include <unistd.h>
-#elif defined(_WIN32)
+#elif defined(_WIN32) || defined(__MSYS__)
 #include <windows.h>
 #endif
 
@@ -154,7 +154,7 @@ static char *Stack_Overflow_Err_Msg(int stk_nb);
 
 
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__MSYS__)
 
 /*-------------------------------------------------------------------------*
  * GETPAGESIZE                                                             *
@@ -179,7 +179,7 @@ getpagesize(void)
 static void *
 Virtual_Mem_Alloc(void *addr, int length)
 {
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__MSYS__)
 
   addr = (void *) VirtualAlloc(addr, length,
 			       MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -230,7 +230,7 @@ Virtual_Mem_Alloc(void *addr, int length)
 static void
 Virtual_Mem_Free(void *addr, int length)
 {
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__MSYS__)
 
   if (!VirtualFree(addr, 0, MEM_RELEASE))
     Pl_Fatal_Error(ERR_CANNOT_FREE, GetLastError());
@@ -258,7 +258,7 @@ static void
 Virtual_Mem_Protect(void *addr, int length)
 {
   WamWord *end = (WamWord *) addr;
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__MSYS__)
   DWORD old_prot;
 
   if (!VirtualProtect(addr, length, PAGE_NOACCESS, &old_prot))
@@ -272,6 +272,10 @@ Virtual_Mem_Protect(void *addr, int length)
     if (munmap((void *) addr, length) == -1)
       Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
 
+#endif
+
+#ifdef DEBUG
+  DBGPRINTF("Protect at %p len: %d\n", addr, length);
 #endif
   end[-16] = M_MAGIC1;
   end[-32] = M_MAGIC2;           /* and rest (end[-1,...]) should be 0 */
@@ -370,12 +374,18 @@ Pl_Allocate_Stacks(void)
 
   Install_SIGSEGV_Handler();	/* install the real (and unique) SIGSEGV handler */
   Pl_Push_SIGSEGV_Handler(Default_SIGSEGV_Handler); /* install initial user SIGSEGV handler */
+
+#if 0 /* cause an exception */
+  addr -= page_size;
+  addr = pl_stk_tbl[1].stack - 128;
+  *addr = 123;
+#endif
 }
 
 
 
 
-#if defined(__unix__) || defined(__CYGWIN__)|| defined(_WIN64)
+#if !defined(__MSYS__) && (defined(__unix__) || defined(__CYGWIN__))
 
 /*-------------------------------------------------------------------------*
  * SIGSEGV_HANDLER                                                         *
@@ -495,7 +505,7 @@ SIGSEGV_Handler(int sig)	/* cannot detect fault addr */
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static LONG WINAPI 
-Win32_Exception_Handler(LPEXCEPTION_POINTERS ei)
+Win32_Exception_Handler(PEXCEPTION_POINTERS ei)
 {
   void *addr;
   switch(ei->ExceptionRecord->ExceptionCode)  
@@ -528,9 +538,9 @@ Win32_Exception_Handler(LPEXCEPTION_POINTERS ei)
 static void
 Install_SIGSEGV_Handler(void)
 {
-#if defined(HAVE_WORKING_SIGACTION) || \
+#if !defined(__MSYS__) && (defined(HAVE_WORKING_SIGACTION) || \
   defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-  defined(M_ix86_sco) || defined(M_x86_64_solaris)
+  defined(M_ix86_sco) || defined(M_x86_64_solaris))
 
   struct sigaction act;
 
@@ -543,9 +553,10 @@ Install_SIGSEGV_Handler(void)
   sigaction(SIGBUS, &act, NULL);
 #  endif
 
-#elif defined(_WIN32) && !defined(_WIN64)
+#elif defined(_WIN32) || defined(__MSYS__)
 
-  SetUnhandledExceptionFilter(Win32_Exception_Handler);
+  AddVectoredExceptionHandler(1, Win32_Exception_Handler);
+  //  SetUnhandledExceptionFilter(Win32_Exception_Handler);
 
 #else
 

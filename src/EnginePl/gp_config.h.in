@@ -74,8 +74,21 @@
 /* Define if you have the sigsetjmp function */
 #undef HAVE_SIGSETJMP
 
+/* NB: fpclassify is a macro, see BipsPl/arith_inl_c.c */
+/* Define if you have the fpclass function */
+#undef HAVE_FPCLASS
+
+/* Define if you have the _fpclass function (windows) */
+#undef HAVE__FPCLASS
+
+/* Define if you have the isnan function */
+#undef HAVE_ISNAN
+
+/* Define if you have the isinf function */
+#undef HAVE_ISINF
+
 /* Define if you have the asinh function */
-#undef HAVE_SINH
+#undef HAVE_ASINH
 
 /* Define if you have the acosh function */
 #undef HAVE_ACOSH

@@ -231,11 +231,11 @@ Error_Supp_Initializer(void)
   pl_representation_too_many_variables = Pl_Create_Atom("too_many_variables");
 				/* for Pl_Copy_Term(),... */
 
-  pl_evluation_float_overflow = Pl_Create_Atom("float_overflow");
-  pl_evluation_int_overflow = Pl_Create_Atom("int_overflow");
-  pl_evluation_undefined = Pl_Create_Atom("undefined");
-  pl_evluation_underflow = Pl_Create_Atom("underflow");
-  pl_evluation_zero_divisor = Pl_Create_Atom("zero_divisor");
+  pl_evaluation_float_overflow = Pl_Create_Atom("float_overflow");
+  pl_evaluation_int_overflow = Pl_Create_Atom("int_overflow");
+  pl_evaluation_undefined = Pl_Create_Atom("undefined");
+  pl_evaluation_underflow = Pl_Create_Atom("underflow");
+  pl_evaluation_zero_divisor = Pl_Create_Atom("zero_divisor");
 
 
   pl_resource_print_object_not_linked = Pl_Create_Atom("print_object_not_linked");
