@@ -845,6 +845,10 @@ Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
+  
+  if (vx != 1 && vy <= -1)
+    Pl_Err_Type(pl_type_float, x);
+
   double r = Integ_Pow(vx, vy);
   PlLong p = Double_To_PlLong(r);
   return Tag_INT(p);
