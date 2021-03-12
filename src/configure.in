@@ -543,7 +543,7 @@ AC_CHECK_SIZEOF(void*)
 AC_CHECK_HEADERS(sys/ioctl_compat.h sys/siginfo.h termios.h malloc.h endian.h sys/endian.h byteswap.h float.h)
 AC_FUNC_MMAP
 dnl use one day AC_CHECK_DECL instead of AC_CHECK_FUNC ? but add the include
-dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc, htole32, bswap_32])
+dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc])
 
 AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
 dnl NB: OpenBSD/spac64 needs stdin.h before sys/endian.h

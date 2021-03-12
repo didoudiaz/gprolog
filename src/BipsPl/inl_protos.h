@@ -158,6 +158,16 @@ Bool FC Pl_Blt_G_Test_Reset_Bit(WamWord x, WamWord y);
 
 	  /* from arith_inl_c.c */
 
+#define PL_FP_NAN                  0
+#define PL_FP_INFINITE             1
+#define PL_FP_ZERO                 2
+#define PL_FP_SUBNORMAL            3
+#define PL_FP_NORMAL               4
+
+int Pl_Classify_Double(double x);
+
+double Pl_NaN(void);
+
 void FC Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr);
 
 void FC Pl_Math_Load_Value(WamWord start_word, WamWord *word_adr);
