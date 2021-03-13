@@ -50,6 +50,9 @@ all: config
 config:
 	cd EnginePl; $(MAKE) config
 
+doc:
+	(cd ../doc; $(MAKE) all)
+
 # --- INSTALL --- #
 
 install-strip:
@@ -96,7 +99,7 @@ uninstall-links:
 
 # --- Documentation --- #
 
-install-doc:
+install-doc: doc
 	if test $(DOC_DIR) != none; then \
 	   ./mkinstalldirs $(DOC_DIR); \
 	   (F=`cd ../doc; echo $(DOC_FILES)`; \
@@ -192,7 +195,7 @@ distpath=$(distdir)/$(PKG_NAME)
 dist: check_doc $(PKG_NAME).tar.gz
 
 check_doc:
-	(cd ../doc; make all)
+	(cd ../doc; $(MAKE) all)
 
 $(PKG_NAME).tar.gz: copy_dist_tree
 	(cd $(distdir); tar cf $(ROOT_DIR)/src/$(PKG_NAME).tar $(PKG_NAME))

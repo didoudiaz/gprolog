@@ -138,7 +138,7 @@ while test $# -gt 0 ; do
         -silent)  redir=">/dev/null";;
 	-trace)   trace=1;;
 	-h|-help) usage;;
-	-*)       echo "unrecognized option $1 - use -f for help"; exit 1;;
+	-*)       echo "unrecognized option $1 - use -h for help"; exit 1;;
 	*)        file_list="$file_list $1";;
     esac
     shift

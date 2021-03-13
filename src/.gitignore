@@ -8,7 +8,6 @@ LocalStuff
 Release
 TestsPl
 DevUtils
-configure
 config.status
 config.cache
 autom4te.cache
