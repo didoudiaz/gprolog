@@ -336,7 +336,8 @@ int Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 	       StmFct fct_flush, StmFct fct_close,
 	       StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
 
-int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text);
+int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
+				 Bool force_eof_reset);
 
 int Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
 

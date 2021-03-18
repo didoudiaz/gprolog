@@ -1032,7 +1032,7 @@ Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
 
   sprintf(pl_glob_buff, "popen_stream('%.1024s')", cmd);
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
-  stm = Pl_Add_Stream_For_Stdio_Desc(f, atom, mode, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f, atom, mode, TRUE, FALSE);
   pl_stm_tbl[stm]->fct_close = (StmFct) pclose;
 
   return Pl_Get_Integer(stm, stm_word);
@@ -1082,13 +1082,13 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   sprintf(pl_glob_buff, "exec_stream('%.1024s')", cmd);
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE, FALSE);
   Pl_Get_Integer(stm, stm_in_word);
 #ifdef DEBUG
   DBGPRINTF("Added Stream Input: %d\n", stm);
 #endif
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   Pl_Get_Integer(stm, stm_out_word);
 
@@ -1096,7 +1096,7 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   DBGPRINTF("Added Stream Output: %d\n", stm);
 #endif
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   Pl_Get_Integer(stm, stm_err_word);
 #ifdef DEBUG
@@ -1130,14 +1130,14 @@ Pl_Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
   Os_Test_Error_Null((f_in = fdopen(p[0], "rt")));
   sprintf(pl_glob_buff, "pipe_stream_in");
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   Pl_Get_Integer(stm, stm_in_word);
 
   Os_Test_Error_Null((f_out = fdopen(p[1], "wt")));
   sprintf(pl_glob_buff, "pipe_stream_out");
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE, FALSE);
   Pl_Get_Integer(stm, stm_out_word);
 
   return TRUE;

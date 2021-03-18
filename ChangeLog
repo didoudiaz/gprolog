@@ -1,3 +1,11 @@
+Thu Mar 18 10:55:43 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* set eof_action to reset for standard input/output/error streams even if not a tty
+
+Fri Mar 12 17:51:43 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* add float_overflow and undefined for float arithmetic functions
+
 Thu Feb  2 19:24:23 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 	* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
 

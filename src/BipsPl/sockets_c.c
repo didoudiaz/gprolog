@@ -550,13 +550,13 @@ Create_Socket_Streams(int sock, char *stream_name, int *stm_in, int *stm_out)
 
   atom = Pl_Create_Allocate_Atom(stream_name);
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   pl_stm_tbl[stm]->prop.other = 4;
 
   *stm_in = stm;
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.other = 4;
 
   *stm_out = stm;
