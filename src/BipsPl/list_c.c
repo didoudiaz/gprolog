@@ -453,8 +453,12 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
 	}
 
       if (tag_mask != TAG_LST_MASK)
+#if 1
+	Pl_Err_Type(pl_type_list, word);
+#else
 	return FALSE;
-
+#endif
+      
       len++;
       if ((PlULong) n < (PlULong) len)
 	return FALSE;

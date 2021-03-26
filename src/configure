@@ -663,6 +663,7 @@ MAKE_ENGINE1_SRC
 MAKE_FD_DIRS
 MAKE_W32GC_DIRS
 MAKE_LE_DIRS
+TOP_LEVEL_LIBS
 EXFD_FILES
 EXC_FILES
 EXPL_FILES
@@ -2493,6 +2494,8 @@ LIB_ENGINE_PL=libengine_pl
 LIB_BIPS_PL=libbips_pl
 LIB_ENGINE_FD=libengine_fd
 LIB_BIPS_FD=libbips_fd
+
+
 
 
 
@@ -6677,6 +6680,14 @@ if test "$USE_GUI_CONSOLE" = yes; then
 fi
 
 LIB_FILES=$L
+
+
+
+TOP_LEVEL_LIBS=
+for i in $L; do
+    TOP_LEVEL_LIBS="$TOP_LEVEL_LIBS ../"`ls */$i`
+done
+
 
 
 

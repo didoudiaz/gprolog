@@ -111,6 +111,8 @@ AC_SUBST(EXPL_FILES)
 AC_SUBST(EXC_FILES)
 AC_SUBST(EXFD_FILES)
 
+AC_SUBST(TOP_LEVEL_LIBS)
+
 AC_SUBST(MAKE_LE_DIRS)
 AC_SUBST(MAKE_W32GC_DIRS)
 AC_SUBST(MAKE_FD_DIRS)
@@ -1002,6 +1004,15 @@ if test "$USE_GUI_CONSOLE" = yes; then
 fi
 
 LIB_FILES=$L
+
+
+dnl all libraries needed for the top-level (will be used in TopComp, then the ../ prefix)
+
+TOP_LEVEL_LIBS=
+for i in $L; do
+    TOP_LEVEL_LIBS="$TOP_LEVEL_LIBS ../"`ls */$i`
+done
+
 
 
 

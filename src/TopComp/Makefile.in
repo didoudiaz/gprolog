@@ -6,6 +6,7 @@ HEXGPLC         = @HEXGPLC@
 CC              = @CC@ @CFLAGS_MACHINE@
 CFLAGS          = @CFLAGS@
 LDLIBS          = @LDLIBS@
+TOP_LEVEL_LIBS  = @TOP_LEVEL_LIBS@
 
 EXECS     = $(GPLC)@EXE_SUFFIX@ $(HEXGPLC)@EXE_SUFFIX@
 ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
@@ -35,7 +36,7 @@ all: $(ALL_EXECS)
 
 top-level: $(TOP_LEVEL)@EXE_SUFFIX@
 
-$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level_main@OBJ_SUFFIX@
+$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level_main@OBJ_SUFFIX@ $(TOP_LEVEL_LIBS)
 	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ -C '$(CFLAGS)' top_level_main@OBJ_SUFFIX@
 
 

@@ -49,6 +49,7 @@ findall(Template, Generator, Instances, Tail) :-
 
 '$findall'(Template, Generator, Instances, Tail, Func, Arity) :-
 	'$check_list_arg'(Instances, Func, Arity),
+	'$check_list_arg'(Tail, Func, Arity),
 	'$store_solutions'(Template, Generator, Stop, Func, Arity),
 	'$call_c_test'('Pl_Recover_Solutions_4'(Stop, 0, Instances, Tail)).
 
