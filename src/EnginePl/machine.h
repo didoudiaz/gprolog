@@ -142,11 +142,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #    define M_USED_REGS            {"5", "6", "8", "9", "10", 0}
 
 #elif defined(M_arm64)
+	/* on arm64/darwin cannot use x19 (but on arm64/linux it is usable), do not use x29 (frame pointer) */
+#    define M_USED_REGS            {"x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
 
-	/* do not use x29 (frame pointer) */
-#    define M_USED_REGS            {"19", "20", "21", "22", "23", "24", "25", "26", "27", "28", 0}
 
-/* on M_x86_64_darwin Lion r12-r15 do not work (why ?) */
+	/* on M_x86_64_darwin Lion r12-r15 do not work (why ?) */
 #elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(M_x86_64_darwin)
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}

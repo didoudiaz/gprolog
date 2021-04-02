@@ -265,7 +265,7 @@
 /* Define if the system is a x86-64/bsd */
 #undef M_x86_64_bsd
 
-/* Define if the system is a x86-64/cygwin */ /* NB: cygwin64 is not supported, deactivated in configure.in */
+/* Define if the system is a x86-64/cygwin */
 #undef M_x86_64_cygwin
 
 /* Define if the system is a x86-64/mingw */
@@ -279,6 +279,9 @@
 
 /* Define if the system is a arm64/linux */
 #undef M_arm64_linux
+
+/* Define if the system is a arm64/darwin (e.g. Apple arm M1/MacOS)*/
+#undef M_arm64_darwin
 
 
 /* Define if building universal (internal helper macro) */

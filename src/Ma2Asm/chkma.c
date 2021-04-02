@@ -527,7 +527,7 @@ test_arg_int(void)
 
 
 void FC
-test_arg_int1(int a, int b, int c, int d)
+test_arg_int1(PlLong a, PlLong b, PlLong c, PlLong d)
 {
   if (a != 12 || b != -1 || c != 4095 || d != 123456789)
     error();
@@ -575,7 +575,7 @@ void test_arg_mixed(void)
 
 
 void FC
-test_arg_mixed1(int ai, double a, double b, int bi, int ci, double c, int di)
+test_arg_mixed1(PlLong ai, double a, double b, PlLong bi, PlLong ci, double c, PlLong di)
 {
 #ifdef DEBUG
   printf("Results: ai %d, a %g, b %g, bi %d, c %g, ci %d, di %d\n", ai, a, b, bi, c, ci, di);
@@ -771,10 +771,16 @@ test_call_c_lot_args(void)
 void FC
 test_call_c_lot_args1(WamWord n0, WamWord n1, WamWord n2, WamWord n3,
 		      WamWord n4, WamWord n5,
-		      void (*a) (), PlLong b, int c, int d, double e, char *f,
+		      void (*a) (), PlLong b, PlLong c, PlLong d, double e, char *f,
 		      WamWord g, WamWord *h, WamWord i, WamWord *j,
 		      WamWord k, WamWord *l, WamWord m, WamWord *n, double o)
 {
+  #if 0
+  if (!(n0 != 0 || n1 != 0 || n2 != 0 || n3 != 0 || n4 != 0 || n5 != 0 ||
+      a != test_call_c_lot_args || b != 128 || c != 4095 || d != 123456789
+	))
+    puts("OK");
+#endif
   if (n0 != 0 || n1 != 0 || n2 != 0 || n3 != 0 || n4 != 0 || n5 != 0 ||
       a != test_call_c_lot_args || b != 128 || c != 4095 || d != 123456789
       || e != -3.141593 || strcmp(f, "abcd\01489def\n\r") || g != 123987
@@ -996,7 +1002,7 @@ test_switch_ret1(void)
 
 
 void FC
-test_switch_ret2(int k)
+test_switch_ret2(PlLong k)
 {
   if (k != i)
     error();

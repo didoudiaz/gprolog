@@ -8,12 +8,12 @@ code::=		prolog_code
 comment::=	';' ... '\n'
 
 
-prolog_code::=	'pl_code' ( 'local' | 'global' ) label inst...
+prolog_code::=	'pl_code' ( 'local' | 'global' ) pl_name inst...
 
-c_code::=	'c_code' ( 'initializer' | 'local' | 'global' ) label inst...
+c_code::=	'c_code' ( 'initializer' | 'local' | 'global' ) fct_name inst...
 
-inst::=		'pl_jump' pl_label	Prolog jump to a predicate
-		'pl_call' pl_label      Prolog call a predicate
+inst::=		'pl_jump' pl_name	Prolog jump to a predicate
+		'pl_call' pl_name      Prolog call a predicate
 		'pl_fail'               Prolog fail
 		'pl_ret'                Prolog return
 
@@ -38,7 +38,7 @@ inst::=		'pl_jump' pl_label	Prolog jump to a predicate
 
 		'c_ret'			C return
 
-decl::=		'long' ( 'local' | 'global' ) ident
+decl::=		'long' ( 'local' | 'global' ) var_name
 		[ '=' integer | '(' integer ')' ]
 
 
@@ -55,16 +55,19 @@ swt_arg::=	mem
 
 fct_name::= 	ident
 
+pl_name::=	ident
+
 label	::=	ident
 
-pl_label::=	ident
-
 mem	::=	ident [ '(' integer ')' ]
+
+var_name ::=	ident
+
 
 *** Tokens ***
 
 ident   ::= 	C identifier
-integer ::= 	C int
+integer ::= 	C integer (32 ou 64 bits)
 float   ::= 	C double
 string  ::= 	C string
 reg     ::= 	( 'X'  | 'Y'  ) '(' integer ')' WAM X/Y reg
