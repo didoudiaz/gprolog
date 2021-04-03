@@ -123,6 +123,15 @@ Pl_Call_Compiled(CodePtr codep)
   asm("movq (%r12), %r12");
 #endif
 
+#elif defined(M_arm64_darwin)
+  register WamWord *rb asm("x20") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+#ifdef __llvm__		       /* the above does not assign x20 now by Apple gcc = llvm clang */
+    asm("adrp x20, _pl_reg_bank@GOTPAGE");
+    asm("ldr  x20, [x20, _pl_reg_bank@GOTPAGEOFF]");
+    asm("ldr  x20, [x20]");
+#endif
+
 #endif
 
 #endif /* !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK) */

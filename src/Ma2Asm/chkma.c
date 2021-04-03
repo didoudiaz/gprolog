@@ -363,6 +363,7 @@ Call_Pl(void (*code) (), int must_succeed)
 {
   int ok = Pl_Call_Prolog(code);
 
+  //  printf("returning with ok: %d  must_succeed: %d\n", ok, must_succeed);
   if (ok != must_succeed)
     error();
 }

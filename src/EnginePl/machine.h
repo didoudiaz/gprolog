@@ -143,7 +143,8 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #elif defined(M_arm64)
 	/* on arm64/darwin cannot use x19 (but on arm64/linux it is usable), do not use x29 (frame pointer) */
-#    define M_USED_REGS            {"x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
+//#    define M_USED_REGS            {"x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
+#    define M_USED_REGS            {"x20", "x21", "x22", "x23", "x24", 0}
 
 
 	/* on M_x86_64_darwin Lion r12-r15 do not work (why ?) */
@@ -163,9 +164,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
+
 /* In any case M_x86_64_darwin needs a reg for pl_reg_bank (default is r12)
  * else Ma2Asm produces code ending with the following error:
  * '32-bit absolute addressing is not supported for x86-64'
+ * (see engine1.c)
  */
 #if defined(NO_USE_REGS) && !defined(NO_MACHINE_REG_FOR_REG_BANK) && \
   defined(M_x86_64) && !defined(M_x86_64_darwin)

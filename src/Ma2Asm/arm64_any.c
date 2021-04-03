@@ -121,7 +121,6 @@ int nb_dbl = 0;
 int dbl_lc_no = 0;
 int dbl_reg_no;
 
-char asm_reg_bank[20];
 char asm_reg_e[20];
 
 int w_label = 0;
@@ -155,10 +154,11 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_BANK
-  strcpy(asm_reg_bank, MAP_REG_BANK);
+#define ASM_REG_BANK MAP_REG_BANK
 #else
-  strcpy(asm_reg_bank, "x10");
+#define ASM_REG_BANK "x20"	/* see engine1.c. If NO_MACHINE_REG_FOR_REG_BANK see load_reg_bank */
 #endif
+
 
 #ifdef MAP_REG_E
   sprintf(asm_reg_e, MAP_REG_E);
@@ -346,15 +346,19 @@ void load_address(char* r, char* addr) {
 }
 #endif
 
-// perhaps keep track of
-// when we have pl_reg_bank in r3 so avoiding too many hops?
+// perhaps keep track of when we have pl_reg_bank in x20 so avoiding too many hops?
+// DD: not needed since pl_reg_bank is in x20 even with --disable-regs (see engine1.c)
+// except if NO_MACHINE_REG_FOR_REG_BANK is defined in machine.h for this arch.
 
 void load_reg_bank(void) {
-#ifndef MAP_REG_BANK
-  load_contents(asm_reg_bank, UN_EXT "pl_reg_bank");
-  Inst_Printf("ldr", "%s, [%s]", asm_reg_bank, asm_reg_bank);
+#ifdef NO_MACHINE_REG_FOR_REG_BANK
+  load_contents(ASM_REG_BANK, UN_EXT "pl_reg_bank");
+  Inst_Printf("ldr", "%s, [%s]", ASM_REG_BANK, ASM_REG_BANK);
 #endif
 }
+
+
+
 /*-------------------------------------------------------------------------*
  * RELOAD_E_IN_REGISTER                                                    *
  *                                                                         *
@@ -364,7 +368,7 @@ Reload_E_In_Register(void)
 {
 #ifndef MAP_REG_E
   load_reg_bank();
-  Inst_Printf("ldr", "%s, [%s, #%d]" CMT(REIR), asm_reg_e, asm_reg_bank, MAP_OFFSET_E);
+  Inst_Printf("ldr", "%s, [%s, #%d]" CMT(REIR), asm_reg_e, ASM_REG_BANK, MAP_OFFSET_E);
   // increment_reg(asm_reg_e, MAP_OFFSET_E);
 #endif
 }
@@ -400,7 +404,7 @@ Prep_CP(void)
 #else
   load_address("x2", cont_lbl);
   load_reg_bank();
-  Inst_Printf("str", "x2, [%s, #%d]", asm_reg_bank, MAP_OFFSET_CP);
+  Inst_Printf("str", "x2, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_CP);
 #endif
 }
 
@@ -446,7 +450,7 @@ Pl_Fail(void)
   Inst_Printf("ldr", "x30, [" MAP_REG_B ", #-8]" CMT(FAIL));
 #else
   load_reg_bank();
-  Inst_Printf("ldr", "x30, [%s, #%d]", asm_reg_bank, MAP_OFFSET_B);
+  Inst_Printf("ldr", "x30, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_B);
   Inst_Printf("ldr", "x30, [x30, #-8]" CMT(FAIL));
 #endif
   Inst_Printf("ret", "");
@@ -466,7 +470,7 @@ Pl_Ret(void)
   Inst_Printf("ret", MAP_REG_CP CMT(RET));
 #else
   load_reg_bank();
-  Inst_Printf("ldr", "x30, [%s, #%d]" CMT(RET), asm_reg_bank, MAP_OFFSET_CP);
+  Inst_Printf("ldr", "x30, [%s, #%d]" CMT(RET), ASM_REG_BANK, MAP_OFFSET_CP);
   Inst_Printf("ret", "");
 #endif
 }
@@ -495,7 +499,7 @@ void
 Move_From_Reg_X(int index)
 {
   load_reg_bank();
-  Inst_Printf("ldr", "x2, [%s, #%d]" CMT(MFRX), asm_reg_bank, index * BPW);
+  Inst_Printf("ldr", "x2, [%s, #%d]" CMT(MFRX), ASM_REG_BANK, index * BPW);
 }
 
 
@@ -524,7 +528,7 @@ void
 Move_To_Reg_X(int index)
 {
   load_reg_bank();
-  Inst_Printf("str", "x2, [%s, #%d]" CMT(M2RX), asm_reg_bank, index * BPW);
+  Inst_Printf("str", "x2, [%s, #%d]" CMT(M2RX), ASM_REG_BANK, index * BPW);
 }
 
 
@@ -703,7 +707,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
   BEFORE_ARG;
 
   load_reg_bank();
-  Inst_Printf("mov", "%s, %s" CMT(CARX), r, asm_reg_bank);
+  Inst_Printf("mov", "%s, %s" CMT(CARX), r, ASM_REG_BANK);
 
   if (adr_of)
     increment_reg(r, index * BPW);
@@ -859,7 +863,7 @@ void
 Move_Ret_To_Reg_X(int index)
 {				/* similar to Move_To_Reg_X */
   load_reg_bank();
-  Inst_Printf("str", "x0, [%s, #%d]" CMT(R2RX), asm_reg_bank, index * BPW);
+  Inst_Printf("str", "x0, [%s, #%d]" CMT(R2RX), ASM_REG_BANK, index * BPW);
 }
 
 
