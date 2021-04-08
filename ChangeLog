@@ -1,3 +1,7 @@
+Thu Apr  8 15:26:46 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to arm64/darwin (new Apple M1/MacOS architecture)
+
 Fri Mar 26 15:33:49 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 
 	* add error case to findall/4 (detects when Tail is not a list)
@@ -11,12 +15,12 @@ Fri Mar 12 17:51:43 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 	* add float_overflow and undefined for float arithmetic functions
 
 Thu Feb  2 19:24:23 CET 2021 <Daniel.Diaz@univ-paris1.fr>
-	
+
 	* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
 
 Thu Dec  3 13:12:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix bug when closing user_error
+	* fix a bug when closing user_error
 	* fix a bug in phrase/2-3
 
 Tue Dec  1 18:35:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>

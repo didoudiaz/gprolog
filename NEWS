@@ -1,11 +1,16 @@
-Change in GNU Prolog version 1.4.6
+Change in GNU Prolog version 1.5.0
 
-* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
+* port to arm64/darwin (new Apple M1/MacOS architecture)
 * port to arm/Linux (32 bits=armv7 and 64 bits=aarch64) - many thanks to
   Jasper Taylor <jasper@simulistics.com>
+* add error case to findall/4 (detects when Tail is not a list)
+* set eof_action to reset for standard input/output/error streams even if not a tty
+* add float_overflow and undefined for float arithmetic functions
+* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
+* fix a bug when closing user_error
+* fix a bug in phrase/2-3
 * fix problem with gcc 10 which needs explicitly -fcommon
 * fix bugs when Prolog integers are internally converted to C int (on 64 bits machine)
-* fix problem with old gcc (gcc < 6 does not produce PIE code by default)
 
 Change in GNU Prolog version 1.4.5 (Feb 2018):
 
