@@ -956,11 +956,13 @@ EXFD_FILES='Makefile ??*.pl ??*.fd'
 B="$GPLC $HEXGPLC $TOP_LEVEL pl2wam wam2ma ma2asm"
 O="top_level_main top_level all_pl_bips debugger"
 L="$LIB_ENGINE_PL $LIB_BIPS_PL"
+T="../EnginePl/$LIB_ENGINE_PL ../BipsPl/$LIB_BIPS_PL"
 
 if test "$USE_LINEDIT" = yes; then
     MAKE_LE_DIRS='$(LE_DIRS)'
     MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
     L="$L $LIB_LINEDIT"
+    T="$T ../Linedit/$LIB_LINEDIT"
 else
     MAKE_LE_DIRS=
     MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
@@ -987,6 +989,7 @@ if test "$USE_FD_SOLVER" = yes; then
     MAKE_FD_DIRS='$(FD_DIRS)'
     B="$B fd2c"
     L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
+    T="$T ../EngineFD/$LIB_ENGINE_FD ../BipsFD/$LIB_BIPS_FD"
     O="$O all_fd_bips"
 else
     MAKE_FD_DIRS=
@@ -1006,14 +1009,7 @@ fi
 
 LIB_FILES=$L
 
-
-dnl all libraries needed for the top-level (will be used in TopComp, then the ../ prefix)
-
-TOP_LEVEL_LIBS=
-for i in $L; do
-    TOP_LEVEL_LIBS="$TOP_LEVEL_LIBS ../"`ls */$i`
-done
-
+TOP_LEVEL_LIBS=$T
 
 
 
