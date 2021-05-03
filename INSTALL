@@ -67,8 +67,9 @@ Default directory values and associated configuration options are as follows:
       - another location can be specified using --with-install-dir=INSTALL_DIR
 
       - the source distribution directory (i.e. where reside this INSTALL file)
-        This in-place installation can be specified using --prefix=in-place or
-        --with-install-dir=in-place
+        This "in-place" installation is obtained using --with-install-dir=in-place
+	or --prefix=/in-place
+	(NB: recent autoconf needs an absolut path for --prefix, hence the /in-place)
 
    The value of LINKS_DIR is as follows:
 

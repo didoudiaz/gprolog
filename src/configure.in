@@ -843,7 +843,7 @@ dnl *-------------*
 dnl * INSTALL_DIR *
 dnl *-------------*
 
-if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
+if test "$prefix" = /in-place -o "$WITH_INSTALL_DIR" = in-place; then
     IN_PLACE=yes
     INSTALL_DIR=$ROOT_DIR
     test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
@@ -912,7 +912,7 @@ case "$WITH_EXAMPLES_DIR" in
     '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
     *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
-if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
+if same_directory "$EXAMPLES_DIR" $ROOT_DIR/examples; then
     EXAMPLES_DIR=none
 fi
 

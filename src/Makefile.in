@@ -99,9 +99,10 @@ uninstall-links:
 
 # --- Documentation --- #
 
-install-doc: doc
+install-doc:
 	if test $(DOC_DIR) != none; then \
 	   ./mkinstalldirs $(DOC_DIR); \
+	   (cd ../doc; $(MAKE) all); \
 	   (F=`cd ../doc; echo $(DOC_FILES)`; \
 	   for i in $$F; do $(INSTALL_DATA) ../doc/$$i $(DOC_DIR); done); \
 	fi
