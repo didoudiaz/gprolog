@@ -6,7 +6,7 @@
  * Descr.: copying notice for --version option                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -52,7 +52,7 @@ Mk_Copying_Message(char *sub_part)
   else
     sprintf(buff, "%s %s\n", PROLOG_NAME, PROLOG_VERSION);
 
-  strcat(buff, "By Daniel Diaz\n"
+  strcat(buff, 
 #ifdef ADDITIONAL_INFORMATION
          ADDITIONAL_INFORMATION
 #endif

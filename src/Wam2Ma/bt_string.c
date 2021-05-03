@@ -6,7 +6,7 @@
  * Descr.: string dico management (file included by wam2ma.c and ma2asm.c) *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

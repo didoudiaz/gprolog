@@ -1,5 +1,5 @@
 	Windows compilation/installation instructions
-                         Daniel Diaz
+	---------------------------------------------
 
 NB: for Windows 64 bits ALSO read the file WINDOWS64. See also this file to use
 mingw64 (which also provides a 32 bits version of gcc).

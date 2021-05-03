@@ -1337,11 +1337,9 @@ predicate(display_copying/0,428,static,private,monofile,global,[
     unify_local_value(y(1)),
     unify_nil,
     call(format/2),
-    put_atom('By Daniel Diaz~n',0),
-    put_nil(1),
-    call(format/2),
     put_value(y(2),0),
     call(write/1),
+    call(nl/0),
     call(nl/0),
     put_atom('~a comes with ABSOLUTELY NO WARRANTY.~n',0),
     put_list(1),
@@ -1365,31 +1363,31 @@ predicate(display_copying/0,428,static,private,monofile,global,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,445,static,private,monofile,global,[
+predicate(prolog_name/1,444,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,448,static,private,monofile,global,[
+predicate(prolog_version/1,447,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,451,static,private,monofile,global,[
+predicate(prolog_date/1,450,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,454,static,private,monofile,global,[
+predicate(prolog_copyright/1,453,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,462,static,private,monofile,global,[
+predicate(h/1,461,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -1582,7 +1580,7 @@ label(54),
     proceed]).
 
 
-predicate(go/0,494,static,private,monofile,global,[
+predicate(go/0,493,static,private,monofile,global,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1591,5 +1589,5 @@ predicate(go/0,494,static,private,monofile,global,[
     execute(pl2wam/1)]).
 
 
-directive(498,user,[
+directive(497,user,[
     execute(go/0)]).

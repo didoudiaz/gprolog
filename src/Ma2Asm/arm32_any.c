@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux on arm 32 bits (e.g. armv6l/armv7hf) *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
- * Copyright (C) 1999-2020 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

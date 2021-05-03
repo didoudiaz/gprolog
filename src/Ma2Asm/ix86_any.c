@@ -6,7 +6,7 @@
  * Descr.: translation file for Linux/Cygwin/mingw32/... on intel x86      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

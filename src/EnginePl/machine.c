@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -594,8 +594,8 @@ Pl_M_Get_Working_Dir(void)
 char *
 Pl_M_Absolute_Path_Name(char *src)
 {
-  static char buff1[MAXPATHLEN];
-  static char buff2[MAXPATHLEN];
+  static char buff1[MAXPATHLEN + 10]; /* + 10 to avoid gcc warning */
+  static char buff2[MAXPATHLEN + 10];
   char *dst, *base_dst;
   char *p, *q;
   char c;
@@ -709,7 +709,7 @@ Pl_M_Absolute_Path_Name(char *src)
 
   if (src[0] != '/')      /* add current directory */
     {
-      sprintf(dst, "%s/%s", Pl_M_Get_Working_Dir(), src);
+      sprintf(dst, "%s/%.*s", Pl_M_Get_Working_Dir(), MAXPATHLEN, src); /* precise MAXPATHLEN to avoid gcc warning */
       SWAP_SRC_DST;
     }
 
