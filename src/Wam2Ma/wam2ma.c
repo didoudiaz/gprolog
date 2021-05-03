@@ -366,9 +366,9 @@ void Display_Help(void);
 
 
 
-#define FORMAT_LABEL(l)       "Lpred%d_%" PL_FMT_d, cur_pred_no, (l)
+#define FORMAT_LABEL(l)       ".pred%d_%" PL_FMT_d, cur_pred_no, (l)
 
-#define FORMAT_SUB_LABEL(sl)  "Lpred%d_sub_%" PL_FMT_d, cur_pred_no, (sl)
+#define FORMAT_SUB_LABEL(sl)  ".pred%d_sub_%" PL_FMT_d, cur_pred_no, (sl)
 
 
 #define CREATE_CHOICE_INST(l)                                               \

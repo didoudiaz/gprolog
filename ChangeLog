@@ -1,6 +1,14 @@
-Thu Apr  8 15:26:46 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+Mon May  3 13:04:24 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
-	* port to arm64/darwin (new Apple M1/MacOS architecture)
+	* port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
+	* port to arm64 (aarch64)/Linux (armv8) - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+	* port to arm32/Linux (armv6, armv7) - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+
+Mon May  3 13:04:24 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in absolute_file_name, '/src/../' returned '' now '/'
 
 Fri Mar 26 15:33:49 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 
@@ -25,8 +33,6 @@ Thu Dec  3 13:12:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
 
 Tue Dec  1 18:35:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
 
-	* port to arm/Linux (32 bits=armv7 and 64 bits=aarch64) - many thanks to
-	  Jasper Taylor <jasper@simulistics.com>
 	* fix problem with gcc 10 which needs explicitly -fcommon
 
 Mon Nov 30 18:14:35 CET 2020 <Daniel.Diaz@univ-paris1.fr>

@@ -65,9 +65,9 @@ char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
 
-int w_label = 0;
+int dbl_label = 0;
 
-static char dbl_arg_buffer[8192] = "\0";	/* a temp buffer for the double arguments */
+static char dbl_arg_buffer[1024 * 1024] = "\0";	/* a temp buffer for the double arguments */
 
 char act_routine[512] = "\0";	/* remembers the actual routine we are building */
 
@@ -88,76 +88,6 @@ char *inline_asm_data[] = { NULL };
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-
-/*-------------------------------------------------------------------------*
- * INLINED CODE                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-/* all %s will be replaced with the function's name
- * all %d will be replaced with the current nb_inlines
- */
-static long nb_inlines = 0;
-static char *def_inlines[] = {
-  /* name            code */
-  0, 0				/* end of list */
-};
-
-
-
-/*-------------------------------------------------------------------------*
- * MAKE_INLINE                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-/* when it finds a function to inline it will do so immediatly and return 1
- * else it fails and returns 0
- */
-static int
-make_inline(char *fct_name, int nb_args)
-{
-  char *fp;
-  int counter;
-
-  return 0;			/* not yet */
-
-  /* user can set an environment variable to control this */
-  if (!getenv("GPROLOG_ASM_INLINE"))
-    return 0;
-
-  counter = 0;
-  while (def_inlines[counter])
-    {
-      if (strcmp(fct_name, def_inlines[counter]) == 0)
-	{
-	  /* found code to inline, emit */
-	  fp = def_inlines[++counter];
-	  while (*fp != '\0')
-	    {
-	      if (*fp == '%' && *(fp + 1) == 's')
-		{
-		  String_Out(fct_name);
-		  fp++;
-		}
-	      else if (*fp == '%' && *(fp + 1) == 'd')
-		{
-		  Int_Out(nb_inlines);
-		  fp++;
-		}
-	      else
-		{
-		  Char_Out(*fp);
-		}
-	      fp++;
-	    }
-	  nb_inlines++;
-	  return 1;
-	}
-      counter++;
-    }
-  return 0;
-}
-
-
 
 
 /*-------------------------------------------------------------------------*
@@ -339,10 +269,10 @@ void
 Prep_CP(void)
 {
 #ifdef MAP_REG_CP
-  Inst_Printf("la", "%s,.Lcont%d", asm_reg_cp, w_label);	/* CP = .Lcont%d */
+  Inst_Printf("la", "%s,%s", asm_reg_cp, Label_Cont_New());
 #else
-  Inst_Printf("la", "$13,.Lcont%d", w_label);
-  Inst_Printf("sw", "$13,%s", asm_reg_cp);	/* CP = .Lcont%d */
+  Inst_Printf("la", "$13,%s", Label_Cont_New());
+  Inst_Printf("sw", "$13,%s", asm_reg_cp);
 #endif
 }
 
@@ -356,7 +286,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 
@@ -557,10 +487,9 @@ Call_C_Arg_Double(int offset, double dbl_val)
 {
   char buf[1024];
 
-  sprintf(buf, "\t.align 3\n.LD%d:\n\t.double %1.20e\n", w_label++,
-	  dbl_val);
+  sprintf(buf, "\t.align 3\n.LD%d:\n\t.double %1.20e\n", dbl_label, dbl_val);
   strcat(dbl_arg_buffer, buf);
-  Inst_Printf("la", "$24,.LD%d", (w_label - 1));
+  Inst_Printf("la", "$24,.LD%d", dbl_label++);
   switch (offset)
     {
     case 0:
@@ -1039,9 +968,9 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Inst_Printf("bne", "$2,$0,.Lcont%d", w_label);
+  Inst_Printf("bne", "$2,$0,%s", Label_Cont_New());
   Pl_Fail();
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 

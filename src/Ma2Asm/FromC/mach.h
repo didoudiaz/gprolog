@@ -86,6 +86,10 @@
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
 
+#elif defined(M_arm32) || defined(M_arm64)
+
+#    define M_Direct_Goto(lab)     {asm("b " M_Asm_Symbol(lab)); return;}
+
 #endif
 
 

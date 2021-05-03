@@ -1,8 +1,11 @@
 Change in GNU Prolog version 1.5.0
 
-* port to arm64/darwin (new Apple M1/MacOS architecture)
-* port to arm/Linux (32 bits=armv7 and 64 bits=aarch64) - many thanks to
+* port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
+* port to arm64 (aarch64)/Linux (armv8) - many thanks to
   Jasper Taylor <jasper@simulistics.com>
+* port to arm32/Linux (armv6, armv7) - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* fix a bug in absolute_file_name, '/src/../' returned '' now '/'
 * add error case to findall/4 (detects when Tail is not a list)
 * set eof_action to reset for standard input/output/error streams even if not a tty
 * add float_overflow and undefined for float arithmetic functions

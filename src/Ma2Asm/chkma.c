@@ -40,6 +40,10 @@
 #include <string.h>
 #include "../EnginePl/pl_long.h"
 
+#if 0
+#define DEBUG
+#endif
+
 
 #ifndef FAST  /* see Makefile */
 #ifdef FC
@@ -63,6 +67,8 @@ PlULong pl_max_atom;		/* to not need atom.o */
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
+
+#define YY(k) Y(E,k)
 
 #if 1
 
@@ -88,6 +94,8 @@ PlULong pl_max_atom;		/* to not need atom.o */
  * Global Variables                *
  *---------------------------------*/
 
+/* Recall: PlLong, PlTerm and WamWord are synonyms (all are intptr_t) */
+
 /* these 4 lines are get from foreign_supp.c */
 
 PlLong pl_foreign_long[NB_OF_X_REGS];
@@ -96,12 +104,12 @@ PlLong *pl_base_fl = pl_foreign_long;   /* overwrite var of engine.c */
 double *pl_base_fd = pl_foreign_double; /* overwrite var of engine.c */
 
 
-WamWord stack[4096];
+WamWord stack[1024 * 128];
 
 int initialised = 0;
 PlLong x;
 PlLong ret;
-PlLong swt[] = { 0, 4, 15, 4095, 123456, 2456789, -1 };
+PlLong swt[] = { 0, 4, 15, 4095, 123456, 2456789, -257, -999999 };
 PlLong i;
 
 PlLong MA_ARRAY[5000];
@@ -286,11 +294,11 @@ main(int argc, char *argv[])
 #else
   B = stack;
 #endif
-  E = B + 1024;
-  printf("pl_reg_bank=&X(0):%#" PL_FMT_x "   B:%#" PL_FMT_x "   E:%#" PL_FMT_x "  &Y(0):%#" PL_FMT_x "\n",
-	 (PlULong) pl_reg_bank, (PlULong) B, (PlULong) E, (PlULong) &Y(E, 0));
+  E = B + 1024*20;		/* To allow hign Y-index testing */
+  printf("pl_reg_bank=&X(0):%p   B:%p   E:%p  &Y(0):%p\n",
+	 pl_reg_bank, B, E, &YY(0));
 
-  printf("stack:%#" PL_FMT_x "\n", (PlULong) stack);
+  printf("stack:%p\n", stack);
 
 
   //  { PlLong *disp_stack(); printf("rsp : %p\n", disp_stack()); }
@@ -302,7 +310,7 @@ main(int argc, char *argv[])
     }
 
   Restore_Machine_Regs(init_buff_regs);
-  printf("MA checks suceeded\n");
+  printf("MA checks succeeded\n");
   return 0;
 }
 
@@ -317,7 +325,7 @@ Init_CP(WamCont p)
 				/* can be called by MA code to print a PlLong */
 void Write_Long(PlLong x)
 {
-  printf("\nValue x: %#" PL_FMT_x "\n", x);
+  printf("\nValue x: %" PL_FMT_d " =  %#" PL_FMT_x "\n", x, x);
 }
 
 
@@ -342,6 +350,25 @@ void Restore_CP()
 {
   CP = save_CP;
 }
+
+
+
+
+#define CHECK_RESULT(name_var, var, val, test, fmt, type)	\
+  if (test) \
+    { \
+      printf("*** %s is " fmt " instead of " fmt "\n", name_var, var, (type) (val)); \
+      error(); \
+    }
+
+
+#define CHECK_RESULT_LONG(var, val) CHECK_RESULT(#var, var, val, (var) != (val), "%" PL_FMT_d, PlLong)
+
+#define CHECK_RESULT_DOUBLE(var, val) CHECK_RESULT(#var, var, val, (var) != (val), "%.8g", double)
+
+#define CHECK_RESULT_ADDR(var, val) CHECK_RESULT(#var, var, val, (PlLong *) (var) != (PlLong *) (val), "%p", PlLong *)
+
+#define CHECK_RESULT_STRING(var, val) CHECK_RESULT(#var, var, val, strcmp((var), (val)), "<%s>", char *)
 
 
 
@@ -372,7 +399,7 @@ Call_Pl(void (*code) (), int must_succeed)
 void
 Initializer(void)
 {
-  printf("Inside initializer");
+  printf("Inside initializer\n");
   initialised = 1;
 }
 
@@ -409,11 +436,8 @@ test_declaration(void)
   for (i = 0; i < 5000; i++)
     MA_ARRAY[i] = i;
 
-  if (MA_GLOBAL_VAR2 != 12345)
-    error();
-
-  if (MA_LOCAL_VAR2 != 0)
-    error();
+  CHECK_RESULT_LONG(MA_GLOBAL_VAR2, 12345);
+  CHECK_RESULT_LONG(MA_LOCAL_VAR2, 0);
 }
 
 
@@ -458,16 +482,19 @@ test_jump_and_c_ret(void)
 }
 
 
-
+/* test_call_c before test_move_x_y because we need to call a 
+ * C function in almost all tests, e.g. Allocate() 
+ */
 
 void
 test_call_c(void)
 {
   printf("call_c(void)...\n");
   x = 0;
+
   Call_Pl(ma_test_call_c, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
@@ -487,12 +514,18 @@ test_move_x_y(void)
   X(0) = 24680;
   X(10) = 13579;
   X(255) = 123456789;
-  Y(E, 0) = -1;
-  Y(E, 9) = -1;
-  Y(E, 15) = -1;
+  YY(0) = -1;
+  YY(9) = -1;
+  YY(15) = -1;
+  
   Call_Pl(ma_test_move_x_y, 1);
-  if (Y(E, 3) != 24680 || Y(E, 0) != 13579 || Y(E, 15) != 123456789)
-    error();
+
+  CHECK_RESULT_LONG(YY(3), 24680);
+  CHECK_RESULT_LONG(YY(0), 13579);
+  CHECK_RESULT_LONG(YY(15), 123456789);
+  CHECK_RESULT_LONG(YY(15000), 123456789);
+
+  CHECK_RESULT_LONG(X(0), 24680);
 }
 
 
@@ -502,15 +535,20 @@ void
 test_move_y_x(void)
 {
   printf("move Y(i) to X(j)...\n");
-  Y(E, 0) = 24680;
-  Y(E, 10) = 13579;
-  Y(E, 23) = 123456789;
+  YY(0) = 24680;
+  YY(10) = 13579;
+  YY(23) = 123456789;
+  YY(16000) = 2718281;
   X(0) = -1;
   X(12) = -1;
   X(31) = -1;
+
   Call_Pl(ma_test_move_y_x, 1);
-  if (X(0) != 24680 || X(31) != 13579 || X(12) != 123456789)
-    error();
+
+  CHECK_RESULT_LONG(X(0), 24680);
+  CHECK_RESULT_LONG(X(31), 13579);
+  CHECK_RESULT_LONG(X(12), 123456789);
+  CHECK_RESULT_LONG(X(254), 2718281);
 }
 
 
@@ -521,17 +559,21 @@ test_arg_int(void)
 {
   printf("call_c(int)...\n");
   x = 0;
+
   Call_Pl(ma_test_arg_int, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
 test_arg_int1(PlLong a, PlLong b, PlLong c, PlLong d)
 {
-  if (a != 12 || b != -1 || c != 4095 || d != 123456789)
-    error();
+  CHECK_RESULT_LONG(a, 12);
+  CHECK_RESULT_LONG(b, -1);
+  CHECK_RESULT_LONG(c, 4095);
+  CHECK_RESULT_LONG(d, 123456789);
+
   x++;
 }
 
@@ -543,9 +585,10 @@ test_arg_double(void)
 {
   printf("call_c(double)...\n");
   x = 0;
+
   Call_Pl(ma_test_arg_double, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
@@ -553,9 +596,15 @@ void FC
 test_arg_double1(double a, double b, double c, double d, double e, double f)
 {
   static double loc_d; loc_d = a + c + f; // check some double alignment
-  if (a != 12.456 || b != -1.3e-102 || c != -3.141593 ||
-      d != 12.456 || e != -1.3e-102 || f != -3.141593)
-    error();
+
+  CHECK_RESULT_DOUBLE(a, 12.456);
+  CHECK_RESULT_DOUBLE(b, -1.3e-102);
+  CHECK_RESULT_DOUBLE(c, -3.141593);
+
+  CHECK_RESULT_DOUBLE(d, 12.456);
+  CHECK_RESULT_DOUBLE(e, -1.3e-102);
+  CHECK_RESULT_DOUBLE(f, -3.141593);
+
   x++;
   Avoid_Warning_Double(loc_d);
 }
@@ -569,21 +618,25 @@ void test_arg_mixed(void)
 {
   printf("call_c(mixed)...\n");
   x = 0;
+
   Call_Pl(ma_test_arg_mixed, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
+
 }
 
 
 void FC
 test_arg_mixed1(PlLong ai, double a, double b, PlLong bi, PlLong ci, double c, PlLong di)
 {
-#ifdef DEBUG
-  printf("Results: ai %d, a %g, b %g, bi %d, c %g, ci %d, di %d\n", ai, a, b, bi, c, ci, di);
-#endif
-  if (a != 12.456 || b != -1.3e-102 || c != -3.141593 ||
-      ai != -19 || bi != 365 || ci != 987654321 || di != -110101)
-    error();
+  CHECK_RESULT_LONG(ai, -19);
+  CHECK_RESULT_DOUBLE(a, 12.456);
+  CHECK_RESULT_DOUBLE(b, -1.3e-102);
+  CHECK_RESULT_LONG(bi, 365);
+  CHECK_RESULT_LONG(ci, 987654321);
+  CHECK_RESULT_DOUBLE(c, -3.141593);
+  CHECK_RESULT_LONG(di, -110101);
+
   x++;
 }
 
@@ -595,21 +648,19 @@ test_arg_string(void)
 {
   printf("call_c(string)...\n");
   x = 0;
+
   Call_Pl(ma_test_arg_string, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
 test_arg_string1(char *a, char *b)
 {
-#ifdef DEBUG
-  printf("b:<%s>\n", a);
-  printf("a:<%s>\n", b);
-#endif
-  if (strcmp(a, "a string") || strcmp(b, "abcd\01489d\37711ef\n\r"))
-    error();
+  CHECK_RESULT_STRING(a, "a string");
+  CHECK_RESULT_STRING(b, "abcd\01489d\37711ef\n\r");
+
   x++;
 }
 
@@ -623,22 +674,21 @@ test_arg_mem_l(void)
   x = 0;
 
   Call_Pl(ma_test_arg_mem_l, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
 test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f)
 {
-  // JAT: needed more detail here
-#ifdef DEBUG
-  printf("Results: a %" PL_FMT_d ", b %" PL_FMT_d ", c %p (test_arg_m_l %p), d %" PL_FMT_d " (MA_ARRAY[0] %" PL_FMT_d "), e %" PL_FMT_d " (MA_ARRAY[4097] %" PL_FMT_d "), f %p (&MA_ARRAY[4500] %p)\n",
-         a,b,c,test_arg_mem_l,d,MA_ARRAY[0],e,MA_ARRAY[4097],f,&MA_ARRAY[4500]);
-#endif
-  if (a != 128 || b != 12345 || c != (PlLong *) test_arg_mem_l
-      || d != MA_ARRAY[0] || e != MA_ARRAY[4097] || f != &MA_ARRAY[4500])
-    error();
+  CHECK_RESULT_LONG(a, 128);
+  CHECK_RESULT_LONG(b, 12345);
+  CHECK_RESULT_ADDR(c, test_arg_mem_l);
+  CHECK_RESULT_LONG(d, MA_ARRAY[0]);
+  CHECK_RESULT_LONG(e, MA_ARRAY[4097]);
+  CHECK_RESULT_ADDR(f, &MA_ARRAY[4500]);
+
   x++;
 }
 
@@ -652,17 +702,21 @@ test_arg_x(void)
   x = 0;
   X(0) = 123987;
   X(255) = 987654321;
+
   Call_Pl(ma_test_arg_x, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
-test_arg_x1(WamWord a, WamWord *b, WamWord c, WamWord *d)
+test_arg_x1(PlLong a, PlLong *b, PlLong c, PlLong *d)
 {
-  if (a != 123987 || b != &X(0) || c != 987654321 || d != &X(128))
-    error();
+  CHECK_RESULT_LONG(a, 123987);
+  CHECK_RESULT_ADDR(b, &X(0));
+  CHECK_RESULT_LONG(c, 987654321);
+  CHECK_RESULT_ADDR(d, &X(128));
+
   x++;
 }
 
@@ -674,19 +728,25 @@ test_arg_y(void)
 {
   printf("call_c(Y())...\n");
   x = 0;
-  Y(E, 0) = 1928374;
-  Y(E, 12) = 456789;
+  YY(0) = 1928374;
+  YY(12) = 456789;
+  YY(17000) = 123456;
+
   Call_Pl(ma_test_arg_y, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
-test_arg_y1(WamWord a, WamWord *b, WamWord c, WamWord *d)
+test_arg_y1(PlLong a, PlLong *b, PlLong c, PlLong *d, PlLong e)
 {
-  if (a != 1928374 || b != &Y(E, 0) || c != 456789 || d != &Y(E, 6))
-    error();
+  CHECK_RESULT_LONG(a, 1928374);
+  CHECK_RESULT_ADDR(b, &YY(0));
+  CHECK_RESULT_LONG(c, 456789);
+  CHECK_RESULT_ADDR(d, &YY(6));
+  CHECK_RESULT_LONG(e, 123456);
+
   x++;
 }
 
@@ -702,20 +762,19 @@ test_arg_fl_array(void)
   pl_foreign_long[10] = 14;
 
   Call_Pl(ma_test_arg_fl_array, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
 test_arg_fl_array1(PlLong a, PlLong b, PlLong *c, PlLong *d)
 {
-#ifdef DEBUG
-  printf("a=%d b=%d c=%x e=%x (fl=%x fl+56=%x)\n",
-	 a, b, c, d, pl_foreign_long, pl_foreign_long + 56);
-#endif
-  if (a != 12 || b != 14 || c != pl_foreign_long || d != pl_foreign_long + 56)
-    error();
+  CHECK_RESULT_LONG(a, 12);
+  CHECK_RESULT_LONG(b, 14);
+  CHECK_RESULT_ADDR(c, pl_foreign_long);
+  CHECK_RESULT_ADDR(d, pl_foreign_long + 56);
+
   x++;
 }
 
@@ -730,19 +789,20 @@ test_arg_fd_array(void)
   pl_foreign_double[0] = 1.2e30;
   pl_foreign_double[47] = -1.234567;
 
-
   Call_Pl(ma_test_arg_fd_array, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
 test_arg_fd_array1(double a, double b, double *c, double *d)
 {
-  if (a != 1.2e30 || b != -1.234567 || c != pl_foreign_double
-      || d != pl_foreign_double + 127)
-    error();
+  CHECK_RESULT_DOUBLE(a, 1.2e30);
+  CHECK_RESULT_DOUBLE(b, -1.234567);
+  CHECK_RESULT_ADDR(c, pl_foreign_double);
+  CHECK_RESULT_ADDR(d, pl_foreign_double + 127);
+
   x++;
 }
 
@@ -758,36 +818,44 @@ test_call_c_lot_args(void)
   X(0) = 123987;
   X(255) = 987654321;
 
-  Y(E, 0) = 1928374;
-  Y(E, 12) = 456789;
+  YY(0) = 1928374;
+  YY(12) = 456789;
 
-  //#ifndef M_powerpc_linux
   Call_Pl(ma_test_call_c_lot_args, 1);
-  if (x != 1)
-    error();
-  //#endif
+
+  CHECK_RESULT_LONG(x, 1);
 }
 
 
 void FC
-test_call_c_lot_args1(WamWord n0, WamWord n1, WamWord n2, WamWord n3,
-		      WamWord n4, WamWord n5,
+test_call_c_lot_args1(PlLong n0, PlLong n1, PlLong n2, PlLong n3,
+		      PlLong n4, PlLong n5,
 		      void (*a) (), PlLong b, PlLong c, PlLong d, double e, char *f,
-		      WamWord g, WamWord *h, WamWord i, WamWord *j,
-		      WamWord k, WamWord *l, WamWord m, WamWord *n, double o)
+		      PlLong g, PlLong *h, PlLong i, PlLong *j,
+		      PlLong k, PlLong *l, PlLong m, PlLong *n, double o)
 {
-  #if 0
-  if (!(n0 != 0 || n1 != 0 || n2 != 0 || n3 != 0 || n4 != 0 || n5 != 0 ||
-      a != test_call_c_lot_args || b != 128 || c != 4095 || d != 123456789
-	))
-    puts("OK");
-#endif
-  if (n0 != 0 || n1 != 0 || n2 != 0 || n3 != 0 || n4 != 0 || n5 != 0 ||
-      a != test_call_c_lot_args || b != 128 || c != 4095 || d != 123456789
-      || e != -3.141593 || strcmp(f, "abcd\01489def\n\r") || g != 123987
-      || h != &X(0) || i != 987654321 || j != &X(128) || k != 1928374
-      || l != &Y(E, 0) || m != 456789 || n != &Y(E, 6) || o != 1.23456)
-    error();
+  CHECK_RESULT_LONG(n0, 0);
+  CHECK_RESULT_LONG(n1, 0);
+  CHECK_RESULT_LONG(n2, 0);
+  CHECK_RESULT_LONG(n3, 0);
+  CHECK_RESULT_LONG(n4, 0);
+  CHECK_RESULT_LONG(n5, 0);
+  CHECK_RESULT_ADDR(a, test_call_c_lot_args);
+  CHECK_RESULT_LONG(b, 128);
+  CHECK_RESULT_LONG(c, 4095);
+  CHECK_RESULT_LONG(d, 123456789);
+  CHECK_RESULT_DOUBLE(e, -3.141593);
+  CHECK_RESULT_STRING(f, "abcd\01489def\n\r");
+  CHECK_RESULT_LONG(g, 123987);
+  CHECK_RESULT_ADDR(h, &X(0));
+  CHECK_RESULT_LONG(i, 987654321);
+  CHECK_RESULT_ADDR(j, &X(128));
+  CHECK_RESULT_LONG(k, 1928374);
+  CHECK_RESULT_ADDR(l, &YY(0));
+  CHECK_RESULT_LONG(m, 456789);
+  CHECK_RESULT_ADDR(n, &YY(6));
+  CHECK_RESULT_DOUBLE(o, 1.23456);
+
   x++;
 }
 
@@ -799,9 +867,10 @@ test_jump_ret(void)
 {
   printf("call_c()+jump_ret...\n");
   x = 0;
+
   Call_Pl(ma_test_jump_ret, 1);
-  if (x != 2)
-    error();
+
+  CHECK_RESULT_LONG(x, 2);
 }
 
 
@@ -809,9 +878,9 @@ PlLong FC
 test_jump_ret1(PlLong addr)
 {
 #ifdef DEBUG
-  extern void ma_test_jump_ret1();
+  void ma_test_jump_ret1();
 
-  printf("%x %x\n", addr, ma_test_jump_ret1);
+  printf("addr: %p ma_test_jump_ret1: %p\n", (PlLong *) addr, ma_test_jump_ret1);
 #endif
   x++;
   return addr;
@@ -839,8 +908,8 @@ test_fail_ret(void)
   x = 0;
   ret = 1;
   Call_Pl(ma_test_fail_ret, 1);
-  if (x != 1)
-    error();
+
+  CHECK_RESULT_LONG(x, 1);
 
   ret = 0;
   Call_Pl(ma_test_fail_ret, 0);
@@ -864,11 +933,12 @@ test_move_ret_mem(void)
   x = 0;
 
   Call_Pl(ma_test_move_ret_mem, 1);
-  if (x != 3)
-    error();
-  if (MA_GLOBAL_VAR1 != 123456789 || MA_ARRAY[64] != 123456789 ||
-      MA_ARRAY[4097] != 123456789)
-    error();
+
+  CHECK_RESULT_LONG(x, 3);
+
+  CHECK_RESULT_LONG(MA_GLOBAL_VAR1, 123456789);
+  CHECK_RESULT_LONG(MA_ARRAY[64], 123456789);
+  CHECK_RESULT_LONG(MA_ARRAY[4097], 123456789);
 }
 
 
@@ -889,11 +959,13 @@ test_move_ret_x(void)
   x = 0;
   X(0) = -1;
   X(255) = -1;
+
   Call_Pl(ma_test_move_ret_x, 1);
-  if (x != 2)
-    error();
-  if (X(0) != 1234987 || X(255) != 45678)
-    error();
+
+  CHECK_RESULT_LONG(x, 2);
+  CHECK_RESULT_LONG(X(0), 1234987);
+  CHECK_RESULT_LONG(X(255), 45678);
+
 }
 
 
@@ -912,13 +984,14 @@ test_move_ret_y(void)
 {
   printf("call_c()+move_ret Y()...\n");
   x = 0;
-  Y(E, 0) = -1;
-  Y(E, 11) = -1;
+  YY(0) = -1;
+  YY(11) = -1;
+
   Call_Pl(ma_test_move_ret_y, 1);
-  if (x != 2)
-    error();
-  if (Y(E, 0) != 1234987 || Y(E, 11) != 45678)
-    error();
+
+  CHECK_RESULT_LONG(x, 2);
+  CHECK_RESULT_LONG(YY(0), 1234987);
+  CHECK_RESULT_LONG(YY(18000), 45678);
 }
 
 
@@ -939,11 +1012,12 @@ test_move_ret_fl(void)
   x = 0;
   pl_foreign_long[0] = -1;
   pl_foreign_long[11] = -1;
+
   Call_Pl(ma_test_move_ret_fl, 1);
-  if (x != 2)
-    error();
-  if (pl_foreign_long[0] != 1234987 || pl_foreign_long[11] != 45678)
-    error();
+
+  CHECK_RESULT_LONG(x, 2);
+  CHECK_RESULT_LONG(pl_foreign_long[0], 1234987);
+  CHECK_RESULT_LONG(pl_foreign_long[11], 45678);
 }
 
 
@@ -964,11 +1038,12 @@ test_move_ret_fd(void)
   x = 0;
   pl_foreign_double[0] = -1.0;
   pl_foreign_double[11] = -1;
+
   Call_Pl(ma_test_move_ret_fd, 1);
-  if (x != 2)
-    error();
-  if (pl_foreign_double[0] != 1.234987 || pl_foreign_double[11] != -3.141593)
-    error();
+
+  CHECK_RESULT_LONG(x, 2);
+  CHECK_RESULT_DOUBLE(pl_foreign_double[0], 1.234987);
+  CHECK_RESULT_DOUBLE(pl_foreign_double[11], -3.141593);
 }
 
 
@@ -988,10 +1063,10 @@ test_switch_ret(void)
   printf("call_c()+switch_ret...\n");
 
   ALTB(B) = (WamCont) error;
-  for (i = 0; swt[i] >= 0; i++)
+  for (i = 0; swt[i] != -999999; i++)
     Call_Pl(ma_test_switch_ret, 1);
 
-  Call_Pl(ma_test_switch_ret, 0);	/* here swt[i]= -1 switch should fail */
+  Call_Pl(ma_test_switch_ret, 0);	/* here swt[i] = -999999 switch should fail */
 }
 
 
@@ -1005,8 +1080,7 @@ test_switch_ret1(void)
 void FC
 test_switch_ret2(PlLong k)
 {
-  if (k != i)
-    error();
+  CHECK_RESULT_LONG(k, i);
 }
 
 #endif

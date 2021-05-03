@@ -280,19 +280,19 @@ main(void)
     );
 #endif
 
-  printf("Use machine regs. : %s\n",
-#ifndef NO_USE_REGS
-         "Yes"
-#else
-         "No"
-#endif
-    );
-
   Write_GProlog_Cst();
 
   Generate_Archi();
 
   Write_C_Compiler_Info();
+
+  printf("Use machine regs. : "
+#ifndef NO_USE_REGS
+         "Yes (%d used)\n", nb_of_used_mach_regs
+#else
+         "No\n"
+#endif
+    );
 
 
 #if 0
@@ -305,9 +305,14 @@ main(void)
 
   printf("Used register(s)  : ");
 
-  for (i = 0; i < nb_of_used_mach_regs; i++)
-    printf("%s (%s)  ", used_mach_reg[i].mach_reg_name, used_mach_reg[i].pl_reg_name);
-  printf("\n");
+  if (nb_of_used_mach_regs)
+    {
+      for (i = 0; i < nb_of_used_mach_regs; i++)
+	printf("%s (%s)  ", used_mach_reg[i].mach_reg_name, used_mach_reg[i].pl_reg_name);
+      printf("\n");
+    }
+  else
+    printf("none\n");
 
 
   printf("\n");
@@ -361,7 +366,8 @@ Write_C_Compiler_Info(void)
 {
   int i;
 
-  fputc('\n', fw_r);
+  fprintf(fw_r, "\n#define NB_USED_MACHINE_REGS\t%d\n\n", nb_of_used_mach_regs);
+  
   fprintf(fw_r, "#define CFLAGS_REGS\t\t\"");
   for (i = 0; i < nb_of_used_mach_regs; i++)
     {

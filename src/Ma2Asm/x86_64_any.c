@@ -41,6 +41,25 @@
 #include <string.h>
 #include <limits.h>
 
+
+
+
+/* x86_64/darwin needs a reg for pl_reg_bank (default is r12 see engine1.c)
+ * so NO_MACHINE_REG_FOR_REG_BANK is never set (see machine.h). Else this 
+ * error occurs '32-bit absolute addressing is not supported for x86-64'
+ */
+
+#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#define ASM_REG_BANK "pl_reg_bank"
+#elif defined(MAP_REG_BANK)
+#define ASM_REG_BANK "%" MAP_REG_BANK
+#else
+#define ASM_REG_BANK "%r12"
+#endif
+
+
+
+
 /* Windows64 : allows for LARGEADDRESSAWARE (LAA)
  * if yes, needs RIP-related addressing
  * if no, pass option /LARGEADDRESSAWARE:NO to cl (in top_comp.c)
@@ -50,7 +69,7 @@
 #endif
 
 
-/* For M_x86_64_linux/solaris: an important point is that C stack must be
+/* For x86_64/linux or solaris: an important point is that C stack must be
  * aligned on 16 bytes else some problems occurs with double.
  * If this is not done and if the called function performs a movaps %xmm0,xx
  * an error will occur.
@@ -91,16 +110,12 @@
 
 #define UN                         "_"
 
-#define CONT_LABEL_FMT             "Ltmp%d"
-
 #else
 
 #define STRING_PREFIX              ".LC"
 #define DOUBLE_PREFIX              ".LCD"
 
 #define UN
-
-#define CONT_LABEL_FMT             ".Lcont%d"
 
 #endif
 
@@ -127,8 +142,6 @@ static int dbl_lc_no = 0;
 char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
-
-int w_label = 0;
 
 #if defined(__CYGWIN__) && !defined(_WIN32)
 #define _WIN32 /* ensure Microsoft ABI */
@@ -159,6 +172,7 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
   "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 };
 #endif
+
           /* variables for ma_parser.c / ma2asm.c */
 
 int can_produce_pic_code = 1;
@@ -174,6 +188,8 @@ int call_c_reverse_args = 0;
 char *inline_asm_data[] = { NULL };
 
 
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -183,6 +199,8 @@ static char *Off_Reg_Bank(int offset);
 #define LITTLE_INT(X) ((X) >= INT_MIN && (X) <= INT_MAX)
 
 
+
+
 /*-------------------------------------------------------------------------*
  * ASM_START                                                               *
  *                                                                         *
@@ -190,20 +208,6 @@ static char *Off_Reg_Bank(int offset);
 void
 Asm_Start(void)
 {
-
-/* M_x86_64_darwin needs a reg for pl_reg_bank (default is r12 see engine1.c)
- * so NO_MACHINE_REG_FOR_REG_BANK is never set (see machine.h). Else this 
- * error occurs '32-bit absolute addressing is not supported for x86-64'
- */
-
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
-#define ASM_REG_BANK "pl_reg_bank"
-#elif defined(MAP_REG_BANK)
-#define ASM_REG_BANK "%" MAP_REG_BANK
-#else
-#define ASM_REG_BANK "%r12"
-#endif
-
 #ifdef MAP_REG_E
   sprintf(asm_reg_e, "%%%s", MAP_REG_E);
 #else
@@ -406,12 +410,12 @@ Prep_CP(void)
 {
   if (LARGE_ADDRESS_AWARE || pic_code)
     {
-      Inst_Printf("leaq", CONT_LABEL_FMT "(%%rip),%%r10", w_label);
+      Inst_Printf("leaq", "%s(%%rip),%%r10", Label_Cont_New());
       Inst_Printf("movq", "%%r10,%s", asm_reg_cp);
     }
   else
     {
-      Inst_Printf("movq", "$" CONT_LABEL_FMT ",%s", w_label, asm_reg_cp);
+      Inst_Printf("movq", "$%s,%s", Label_Cont_New(), asm_reg_cp);
     }
 }
 
@@ -425,7 +429,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(CONT_LABEL_FMT ":", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 

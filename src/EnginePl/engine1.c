@@ -116,6 +116,7 @@ Pl_Call_Compiled(CodePtr codep)
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #elif defined(M_x86_64_darwin)
+
   register WamWord *rb asm("%r12") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 #ifdef __llvm__		       /* the above does not assign r12 now by Apple gcc = llvm clang */
@@ -123,7 +124,13 @@ Pl_Call_Compiled(CodePtr codep)
   asm("movq (%r12), %r12");
 #endif
 
-#elif defined(M_arm64_darwin)
+#elif defined(M_arm32)
+
+  register WamWord *rb asm("r10") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
+#elif defined(M_arm64)
+
   register WamWord *rb asm("x20") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 #ifdef __llvm__		       /* the above does not assign x20 now by Apple gcc = llvm clang */

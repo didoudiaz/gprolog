@@ -4821,10 +4821,6 @@ case "$host" in
    $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_arm64_linux 1" >>confdefs.h
 ;;
-    arm*darwin*)       $as_echo "#define M_arm64 1" >>confdefs.h
-   $as_echo "#define M_darwin 1" >>confdefs.h
-  $as_echo "#define M_arm64_darwin 1" >>confdefs.h
-;;
     aarch64*darwin*)   $as_echo "#define M_arm64 1" >>confdefs.h
    $as_echo "#define M_darwin 1" >>confdefs.h
   $as_echo "#define M_arm64_darwin 1" >>confdefs.h

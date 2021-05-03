@@ -105,7 +105,7 @@ typedef struct			/* Stream properties              */
   unsigned eof_action:2;	/* see STREAM_EOF_ACTION_xxx defs */
   unsigned buffering:2;		/* see STREAM_BUFFERING_xxx defs  */
   unsigned special_close:1;	/* does it need a special close ? */
-  unsigned other:8;		/* other prop (1,2,3=term_streams */
+  unsigned other:5;		/* other prop (1,2,3=term_streams */
 }				/*             4=socket_stream)   */
 StmProp;
 

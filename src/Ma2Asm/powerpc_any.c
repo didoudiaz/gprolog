@@ -99,7 +99,6 @@ char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
 
-int w_label = 0;
 
 	  /* variables for ma_parser.c / ma2asm.c */
 
@@ -286,13 +285,12 @@ void
 Prep_CP(void)
 {
 #ifndef MAP_REG_CP
-  Inst_Printf("addis", R(9) ",0," HI(.Lcont%d), w_label);
-  Inst_Printf("addi", R(9) "," R(9) "," LO(.Lcont%d), w_label);
+  Inst_Printf("addis", R(9) ",0," HI(%s), Label_Cont_New());
+  Inst_Printf("addi", R(9) "," R(9) "," LO(%s), Label_Cont_Get());
   Inst_Printf("stw", R(9) ",%s", asm_reg_cp);
 #else
-  Inst_Printf("addis", "%s,0," HI(.Lcont%d), asm_reg_cp, w_label);
-  Inst_Printf("addi", "%s,%s," LO(.Lcont%d), asm_reg_cp, asm_reg_cp,
-	      w_label);
+  Inst_Printf("addis", "%s,0," HI(%s), asm_reg_cp, Label_Cont_New());
+  Inst_Printf("addi", "%s,%s," LO(%s), asm_reg_cp, asm_reg_cp, Label_Cont_Get());
 #endif
 }
 
@@ -306,7 +304,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 
@@ -752,9 +750,9 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("cmpwi", CR(1) "," R(3) ",0");
-  Inst_Printf("bne", CR(1) ",.Lcont%d", w_label);
+  Inst_Printf("bne", CR(1) ",%s", Label_Cont_New());
   Inst_Printf("b", UN "fail");
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 

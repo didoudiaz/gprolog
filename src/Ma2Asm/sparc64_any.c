@@ -66,8 +66,6 @@ char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
 
-int w_label = 0;
-
 char cur_fct_label[1024];
 
 int pic_helper_ready = 0;
@@ -491,13 +489,13 @@ Prep_CP(void)
 
 #if 1
   /* .Lcont - 8 to (un)adjust CP */
-  Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-(.Lcont%d-.-8)),%%g1", w_label);
-  Delay_Printf("or", "%%g1,%%lo(_GLOBAL_OFFSET_TABLE_-(.Lcont%d-.-8)),%%g1", w_label);
+  Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-(%s-.-8)),%%g1", Label_Cont_New());
+  Delay_Printf("or", "%%g1,%%lo(_GLOBAL_OFFSET_TABLE_-(%s-.-8)),%%g1", Label_Cont_Get());
   Delay_Printf("sub","%%l7,%%g1,%%g1");
   Delay_Printf("stx", "%%g1,%s", asm_reg_cp);
 #else
-  Delay_Printf("sethi", "%%hi(.Lcont%d),%%g1", w_label);
-  Delay_Printf("or", "%%g1,%%lo(.Lcont%d),%%g1", w_label);
+  Delay_Printf("sethi", "%%hi(%s),%%g1", Label_Cont_New());
+  Delay_Printf("or", "%%g1,%%lo(%s),%%g1", Label_Cont_Get());
   Delay_Printf("ldx", "[%%l7+%%g1],%%g1");
   Delay_Printf("sub", "%%g1,8,%%g1"); /* -8 to (un)adjust CP */
   Delay_Printf("stx", "%%g1,%s", asm_reg_cp);
@@ -514,7 +512,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
   pic_helper_ready = 0;
 }
 

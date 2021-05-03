@@ -139,7 +139,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #elif defined(M_arm32)
 
 	/* do not use r7 (frame pointer) */
-#    define M_USED_REGS            {"5", "6", "8", "9", "10", 0}
+#    define M_USED_REGS            {"r5", "r6", "r8", "r9", "r10", 0}
 
 #elif defined(M_arm64) && !defined(__llvm__) /* clang/llvm do not yet handle Global Register Variables */
 
@@ -162,6 +162,12 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #if defined(M_ix86) // && !defined(_WIN32) // && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
+
+#if 0 // defined(M_arm64) // force a NO_MACHINE_REG_FOR_REG_BANK for a given arch
+#define NO_MACHINE_REG_FOR_REG_BANK
+#endif
+
+
 
 
 /* In any case M_x86_64_darwin needs a reg for pl_reg_bank (default is r12)

@@ -1,12 +1,12 @@
 GPLC   = @GPLC@
 CC     = @CC@
-CFLAGS = @CFLAGS@ -Wno-implicit-function-declaration
+CFLAGS = @CFLAGS@
 
 # other local variables
 
 #CFLAGS    = -O3
 #CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer
-CFLAGS = -Wno-implicit-function-declaration -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
+CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
 
 # for cl.exe use /FA to obtain assembly
 #CFLAGS= /FA

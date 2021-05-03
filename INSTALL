@@ -16,8 +16,8 @@ Installing the source distribution
 1) Introduction
 ---------------
 
-** Win32 preamble **
-	To compile GNU-Prolog under win32 see file src/WINDOWS.
+** Windows preamble **
+	To compile GNU-Prolog under Windows see file src/WINDOWS.
 
 The following tools are required to compile and install the source package:
    gcc, as, ranlib (if needed), sh, mkdir, cp, rm, sed, test,...
@@ -192,6 +192,32 @@ linked files in ~/bin/i586 use
 To configure the package for an in-place installation:
 
    ./configure --prefix=in-place
+
+
+To specify another C compiler:
+
+   1) if the binary is called gcc, you can simply set the PATH so that the
+      desired version be selected when your run gcc
+      (use gcc --version or gcc --version -v for more info)
+
+   2) define the CC variable before invoking ./configure.
+      For instance to use the original gcc instead of clang on mac:
+      CC=gcc-10 ./configure
+      or
+      CC=/opt/homebrew/bin/gcc-10 ./configure
+      (see also file src/MACOS)
+
+   3) to use a complete toolchain with prefixed binaries with PREFIX
+      use ./configure --host PREFIX
+      E.g. a mingw64 toolchain with binaries prefixed with x86_64-w64-mingw32
+      ./configure --host=x86_64-w64-mingw32
+      this will look for x86_64-w64-mingw32-gcc.exe and  x86_64-w64-mingw32-ar.exe,...
+
+To specify another assembler, do similarly replacing CC by AS:
+
+   e.g. AS=gas ./configure
+   or   AS='gcc -c'
+
 
 
 4) Compiling the package locally

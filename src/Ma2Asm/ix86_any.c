@@ -41,7 +41,24 @@
 #include <string.h>
 
 
-/* For M_ix86_darwin: an important point is the C stack must be aligned
+
+
+
+/* If no register is mapped for pl_reg_bank, %ebx is used (see engine1.c)
+ */
+
+#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#define ASM_REG_BANK UN "pl_reg_bank"
+#elif defined(MAP_REG_BANK)
+#define ASM_REG_BANK "%" MAP_REG_BANK
+#else
+#define ASM_REG_BANK "%ebx"
+#endif
+
+
+
+
+/* For ix86/darwin: an important point is the C stack must be aligned
  * on 16 bytes. It is possible to use gcc option -mstackrealign but
  * it produces bigger and slower code (and uses %ecx as register).
  * If this is not done and if the called function performs a movdqa
@@ -65,6 +82,8 @@
  */
 
 
+
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -86,6 +105,7 @@
 
 
 
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -100,8 +120,6 @@ extern int pic_code;
 char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
-
-int w_label = 0;
 
 char *fc_arg_regs[] = FC_SET_OF_REGISTERS;
 int stack_offset = 0;		/* offset wrt esp to store the next argument in the stack */
@@ -173,14 +191,6 @@ void Emit_Stub(int str_no, char *name);
 void
 Asm_Start(void)
 {
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
-#define ASM_REG_BANK UN "pl_reg_bank"
-#elif defined(MAP_REG_BANK)
-#define ASM_REG_BANK "%" MAP_REG_BANK
-#else
-#define ASM_REG_BANK "%ebx"
-#endif
-
 #ifdef MAP_REG_E
   sprintf(asm_reg_e, "%%%s", MAP_REG_E);
 #else
@@ -230,6 +240,7 @@ Off_Reg_Bank(int offset)
 
   return str;
 }
+
 
 
 
@@ -301,6 +312,7 @@ Load_PB_Reg(void)
   load_pb_reg = 0;
 }
 #endif
+
 
 
 
@@ -416,10 +428,10 @@ Prep_CP(void)
 {
 #ifdef M_ix86_darwin
   Load_PB_Reg();
-  Inst_Printf("leal", "Lcont%d-%s,%%eax", w_label, pb_label);
+  Inst_Printf("leal", "%s-%s,%%eax", Label_Cont_New(), pb_label);
   Inst_Printf("movl", "%%eax,%s", asm_reg_cp);
 #else
-  Inst_Printf("movl", "$.Lcont%d,%s", w_label, asm_reg_cp);
+  Inst_Printf("movl", "$%s,%s", Label_Cont_New(), asm_reg_cp);
 #endif
 }
 
@@ -433,7 +445,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf("%scont%d:", local_symb_prefix, w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 #ifdef M_ix86_darwin
   load_pb_reg = 1;
 #endif

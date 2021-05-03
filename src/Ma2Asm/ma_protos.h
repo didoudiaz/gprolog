@@ -59,6 +59,16 @@
  * Type Definitions                *
  *---------------------------------*/
 
+typedef struct
+{
+  char *prefix;
+  int no;
+  char label[256];
+} LabelGen;
+
+
+
+
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
@@ -87,9 +97,16 @@ extern int reload_e;
 
 #ifndef MA2ASM_FILE
 
+extern int comment;
 extern int pic_code;
 
 #endif
+
+
+/* local label generator for continuations (always available) 
+ * see macros Label_Cont_XXX() below
+ */
+LabelGen lg_cont;
 
 
 
@@ -117,9 +134,26 @@ void Decl_Long(char *name, int global, VType vtype, PlLong value);
 
 	  /* defined in ma2asm.c - used by mappers */
 
+void Label_Gen_Init(LabelGen *g, char *prefix);
+
+char *Label_Gen_New(LabelGen *g);
+
+char *Label_Gen_Get(LabelGen *g);
+
+int Label_Gen_No(LabelGen *g);
+
+#define Label_Cont_New() Label_Gen_New(&lg_cont)
+#define Label_Cont_Get() Label_Gen_Get(&lg_cont)
+#define Label_Cont_No()  Label_Gen_No(&lg_cont)
+
+
 int Is_Code_Defined(char *name);
 
-int Get_Long_Infos(char *name, int *global, VType *vtype, int *value);
+int Get_Code_Infos(char *name, int *prolog, int *global);
+
+int Get_Long_Infos(char *name, int *global, VType *vtype, PlLong *value);
+
+int Scope_Of_Symbol(char *name);
 
 void Label_Printf(char *label, ...) GCCPRINTF(1);
 

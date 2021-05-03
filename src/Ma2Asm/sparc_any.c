@@ -76,8 +76,6 @@ char asm_reg_e[20];
 char asm_reg_b[20];
 char asm_reg_cp[20];
 
-int w_label = 0;
-
 char *delay_op;
 char delay_operands[1024];
 
@@ -265,8 +263,8 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
-  Inst_Printf("sethi", "%%hi(.Lcont%d-8),%%g1", w_label);
-  Inst_Printf("or", "%%g1,%%lo(.Lcont%d-8),%%g1", w_label);
+  Inst_Printf("sethi", "%%hi(%s-8),%%g1", Label_Cont_New());
+  Inst_Printf("or", "%%g1,%%lo(%s-8),%%g1", Label_Cont_Get());
   Inst_Printf("st", "%%g1,%s", asm_reg_cp);
 }
 
@@ -280,7 +278,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 

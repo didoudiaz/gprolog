@@ -1,19 +1,19 @@
-ma::=		code...
+ma ::=		code...
 
-code::=		prolog_code
+code ::=	prolog_code
 	|	c_code
 	|	decl
 	|	comment
 
-comment::=	';' ... '\n'
+comment ::=	';' ... '\n'
 
 
-prolog_code::=	'pl_code' ( 'local' | 'global' ) pl_name inst...
+prolog_code ::=	'pl_code' ( 'local' | 'global' ) pl_name inst...
 
-c_code::=	'c_code' ( 'initializer' | 'local' | 'global' ) fct_name inst...
+c_code ::=	'c_code' ( 'initializer' | 'local' | 'global' ) fct_name inst...
 
-inst::=		'pl_jump' pl_name	Prolog jump to a predicate
-		'pl_call' pl_name      Prolog call a predicate
+inst ::=	'pl_jump' pl_name	Prolog jump to a predicate
+		'pl_call' pl_name       Prolog call a predicate
 		'pl_fail'               Prolog fail
 		'pl_ret'                Prolog return
 
@@ -38,38 +38,43 @@ inst::=		'pl_jump' pl_name	Prolog jump to a predicate
 
 		'c_ret'			C return
 
-decl::=		'long' ( 'local' | 'global' ) var_name
+decl ::=	'long' ( 'local' | 'global' ) var_name
 		[ '=' integer | '(' integer ')' ]
 
 
-fct_arg::=	integer
+fct_arg ::=	integer
 	|	float
 	|	string
-        |       & label                   NB: & label = special case of & mem
+        |       & label				NB: & label = special case of & mem
 	|	[ '&' ] mem
 	|	[ '&' ] reg
 	|	[ '&' ] f_array
 
-swt_arg::=	mem
+swt_arg  ::=	mem
 	|       integer
 
-fct_name::= 	ident
+fct_name ::= 	ident
 
-pl_name::=	ident
+pl_name ::=	ident
 
-label	::=	ident
+label ::=	ident
 
-mem	::=	ident [ '(' integer ')' ]
+mem ::=		ident [ index ]
 
-var_name ::=	ident
+var_named ::=	ident
+
+reg ::= 	( 'X'  | 'Y'  ) index 		WAM X/Y reg
+
+f_array ::= 	( 'FL' | 'FD' ) index 		foreign long/double array element
+
+index ::=   	'(' integer ')'
+	| 	'[' integer ']'
+
 
 
 *** Tokens ***
 
-ident   ::= 	C identifier
+ident   ::= 	C identifier extended to allow a prefix dot (could be used for local symbols, TODO)
 integer ::= 	C integer (32 ou 64 bits)
 float   ::= 	C double
-string  ::= 	C string
-reg     ::= 	( 'X'  | 'Y'  ) '(' integer ')' WAM X/Y reg
-f_array ::= 	( 'FL' | 'FD' ) '(' integer ')' foreign long/double array element
-
+string  ::= 	C string (including \n, \r, \",... and \ZZZ in octal notation)

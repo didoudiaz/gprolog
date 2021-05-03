@@ -59,9 +59,6 @@
 
 #define DEFAULT_OUTPUT_SUFFIX      ASM_SUFFIX
 
-#define MASK_LONG_GLOBAL           1
-#define MASK_LONG_INITIALIZED      2
-
 
 
 
@@ -71,19 +68,19 @@
 
 typedef struct
 {
+  int prolog;			/* 0: C, 1: Prolog */
+  int global;			/* 0: local, 1:global, 2: initializer (C, thus prolog == 0) */
+}
+CodeInf;
+
+
+typedef struct
+{
   int global;
   VType vtype;			/* NONE, INITIAL_VALUE, ARRAY_SZIE */
   PlLong value;
 }
 LongInf;
-
-
-typedef struct
-{
-  int prolog;
-  int global;
-}
-CodeInf;
 
 
 
@@ -109,6 +106,8 @@ BTString bt_long;
 
 char *initializer_fct = NULL;
 
+char local_label[64];
+int local_label_count = 0;
 
 
 
@@ -175,8 +174,11 @@ main(int argc, char *argv[])
   Init_Inline_Data();
 
   BT_String_Init(&bt_string);
-  BT_String_Init(&bt_code);	/* only fill if Pre_Pass is asked */
+  BT_String_Init(&bt_code);	/* only filled if pre_pass is asked */
   BT_String_Init(&bt_long);
+
+  Label_Gen_Init(&lg_cont, "cont");	/* available for any mapper */
+  
   Asm_Start();
 
   if (!Parse_Ma_File(file_name_in, comment))
@@ -538,7 +540,7 @@ Decl_Long(char *name, int global, VType vtype, PlLong value)
  * DECL_CODE                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void				/* called by Pre_Pass */
+void				/* called if pre_pass */
 Decl_Code(char *name, int prolog, int global)
 {
   CodeInf *p;
@@ -552,10 +554,65 @@ Decl_Code(char *name, int prolog, int global)
 
 
 
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_INIT                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Label_Gen_Init(LabelGen *g, char *prefix)
+{
+  g->prefix = prefix;
+  g->no = 0;
+  g->label[0] = '\0';
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_NEW                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Label_Gen_New(LabelGen *g)
+{
+  sprintf(g->label, "%s%s%d", local_symb_prefix, g->prefix, ++g->no);
+  return g->label;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_GET                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Label_Gen_Get(LabelGen *g)
+{
+  return g->label;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_NO                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Label_Gen_No(LabelGen *g)
+{
+  return g->no;
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * IS_CODE_DEFINED                                                         *
  *                                                                         *
+ * Needs a pre-pass.                                                       *
  *-------------------------------------------------------------------------*/
 int
 Is_Code_Defined(char *name)
@@ -564,12 +621,38 @@ Is_Code_Defined(char *name)
 }
 
 
+
+
+/*-------------------------------------------------------------------------*
+ * GET_CODE_INFOS                                                          *
+ *                                                                         *
+ * Needs a pre-pass.                                                       *
+ *-------------------------------------------------------------------------*/
+int
+Get_Code_Infos(char *name, int *prolog, int *global)
+{
+  BTNode *b = BT_String_Lookup(&bt_code, name);
+  CodeInf *p;
+
+  if (b == NULL)
+    return 0;
+
+  p = (CodeInf *) b->info;
+  *prolog = p->prolog;
+  *global = p->global;
+  return 1;
+}
+
+
+
+
 /*-------------------------------------------------------------------------*
  * GET_LONG_INFOS                                                          *
  *                                                                         *
+ * Needs a pre-pas.                                                        *
  *-------------------------------------------------------------------------*/
 int
-Get_Long_Infos(char *name, int *global, VType *vtype, int *value)
+Get_Long_Infos(char *name, int *global, VType *vtype, PlLong *value)
 {
   BTNode *b = BT_String_Lookup(&bt_long, name);
   LongInf *p;
@@ -582,6 +665,45 @@ Get_Long_Infos(char *name, int *global, VType *vtype, int *value)
   *vtype = p->vtype;
   *value = p->value;
   return 1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SCOPE_OF_SYMBOL                                                         *
+ *                                                                         *
+ * Need a pre-pass.                                                        *
+ * Returns 0: global symbol, 1: local code, 2: other local symbol (long,..)*
+ *-------------------------------------------------------------------------*/
+
+/* A symbol not defined (not encountered neither as code nor long) can be:
+ * - foreign_long, foreign_double (thus external)
+ * - an external predicate or C function (e.g. function associated to a WAM 
+ *   instruction like Get_Integer() or Pl_Un_Term() which is generated when 
+ *   compiling foreign directive).
+ * - a local label (for branching) or local symbol (strings, double constants)
+ * Only the last case is local and we know it begins with . or L
+ */
+int
+Scope_Of_Symbol(char *name)
+{
+  int global, prolog;
+  PlLong value;
+  VType vtype;
+
+  /* test local symbols first since they are not recoded in bt_code/bt_long */
+
+  if (*name == '.' || strncmp(name, local_symb_prefix, strlen(local_symb_prefix)) == 0)
+    return 2;
+
+  if (Get_Code_Infos(name, &prolog, &global))	/* global = 0, 1, 2 see ma2asm.c */
+      return (global == 1) ? 0 : 1;
+
+  if (Get_Long_Infos(name, &global, &vtype, &value))	/* global = 0 or 1 */
+      return (global == 1) ? 0 : 2;
+
+  return 0;			/* not defined, considered as global (code/data) */
 }
 
 
@@ -616,7 +738,6 @@ void
 Inst_Printf(char *op, char *operands, ...)
 {
   va_list arg_ptr;
-
 
   va_start(arg_ptr, operands);
 

@@ -95,6 +95,11 @@ enum
  * Global Variables                *
  *---------------------------------*/
 
+/* pre_pass: first pass to discover all defined symbols.
+ * TODO: we could extend MA to explicitely specify local symbols
+ * (e.g. using a prefix like . or a declaration, see MA_SYNTAX)
+ */
+
 int needs_pre_pass;		/* can be overwritten by mappers */
 
 char *inst[] = {
@@ -607,9 +612,16 @@ Read_Switch(void)
 static int
 Read_Index(void)
 {
-  Read_Token('(');
+  int k = Scanner();		/* accepts (index) or [index] syntax */
+  if (k == '(')
+    k = ')';
+  else if (k == '[')
+    k = ']';
+  else
+    Syntax_Error("( index ) or [ index ] expected");
+
   Read_Token(INTEGER);
-  Read_Token(')');
+  Read_Token(k);
 
   return int_val;
 }
@@ -624,7 +636,7 @@ Read_Index(void)
 static int
 Read_Optional_Index(void)
 {
-  return (*cur_line_p == '(') ? Read_Index() : 0;
+  return (*cur_line_p == '(' || *cur_line_p == '[') ? Read_Index() : 0;
 }
 
 
@@ -726,8 +738,7 @@ Scanner(void)
 	      p = cur_line_p + strlen(cur_line_p) - 1;
 	      if (*p == '\n')
 		*p = '\0';
-	      Label_Printf("\t%s %6d: %s", comment_prefix, cur_line_no,
-			   cur_line_p);
+	      Label_Printf("\t%s %6d: %s", comment_prefix, cur_line_no, cur_line_p);
 	    }
 	}
     }
@@ -756,9 +767,16 @@ Scanner(void)
       return STRING;
     }
 
-  if (isalpha(*cur_line_p) || *cur_line_p == '_')	/* identifier */
+  if (isalpha(*cur_line_p) || *cur_line_p == '_' || *cur_line_p == '.')	/* identifier */
     {
       p = str_val;
+      if (*cur_line_p == '.') /* local label: replace . by target assembler local prefix */
+	{
+	  strcpy(p, local_symb_prefix);
+	  p += strlen(p);
+	  cur_line_p++;
+	}
+
       while (isalnum(*cur_line_p) || *cur_line_p == '_')
 	*p++ = *cur_line_p++;
 

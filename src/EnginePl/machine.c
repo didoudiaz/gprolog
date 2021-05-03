@@ -594,13 +594,15 @@ Pl_M_Get_Working_Dir(void)
 char *
 Pl_M_Absolute_Path_Name(char *src)
 {
-  static char buff[2][MAXPATHLEN];
-  int res = 0;
-  char *dst;
+  static char buff1[MAXPATHLEN];
+  static char buff2[MAXPATHLEN];
+  char *dst, *base_dst;
   char *p, *q;
   char c;
 
-  dst = buff[res];
+#define SWAP_SRC_DST { char *tmp = src; src = dst; dst = tmp; }
+
+  dst = buff1;
   while ((*dst++ = *src))       /* expand $VARNAME and %VARNAME% (Win32) */
     {
       c = *src++;
@@ -608,7 +610,7 @@ Pl_M_Absolute_Path_Name(char *src)
 #if defined(_WIN32) || defined(__CYGWIN__)
           || c == '%'
 #endif
-        )
+	  )
         {
           p = dst;
           while (isalnum(*src) || *src == '_')
@@ -637,9 +639,11 @@ Pl_M_Absolute_Path_Name(char *src)
     }
   *dst = '\0';
 
-  if (buff[res][0] == '~')
+  src = buff1;
+  dst = buff2;
+  if (src[0] == '~')
     {
-      if (Is_Dir_Sep(buff[res][1]) || buff[res][1] == '\0') /* ~/... cf $HOME */
+      if (Is_Dir_Sep(src[1]) || src[1] == '\0') /* ~/... cf $HOME */
         {
 	  q = NULL;;
           if ((p = getenv("HOME")) == NULL)
@@ -654,41 +658,41 @@ Pl_M_Absolute_Path_Name(char *src)
 	    }
 	  if (q == NULL)
 	    q = "";
-          sprintf(buff[1 - res], "%s%s/%s", q, p, buff[res] + 1);
-          res = 1 - res;
+          sprintf(dst, "%s%s/%s", q, p, src + 1);
+	  SWAP_SRC_DST;
         }
 #if defined(__unix__) || defined(__CYGWIN__)
       else                      /* ~user/... read passwd */
         {
           struct passwd *pw;
 
-          p = buff[res] + 1;
+          p = src + 1;
           while (*p && !Is_Dir_Sep(*p))
             p++;
 
-          buff[res][0] = *p;
+          src[0] = *p;
           *p = '\0';
-          if ((pw = getpwnam(buff[res] + 1)) == NULL)
+          if ((pw = getpwnam(src + 1)) == NULL)
             return NULL;
 
-          *p = buff[res][0];
+          *p = src[0];
 
-          sprintf(buff[1 - res], "%s/%s", pw->pw_dir, p);
-          res = 1 - res;
+          sprintf(dst, "%s/%s", pw->pw_dir, p);
+	  SWAP_SRC_DST;
         }
 #endif
     }
 
-  if (strcmp(buff[res], "user") == 0)   /* prolog special file 'user' */
-    return buff[res];
+  if (strcmp(src, "user") == 0)   /* prolog special file 'user' */
+    return src;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
-  if (_fullpath(buff[1 - res], buff[res], MAXPATHLEN) == NULL)
+  if (_fullpath(dst, src, MAXPATHLEN) == NULL)
     return NULL;
 
-  res = 1 - res;
-  for (dst = buff[res]; *dst; dst++)    /* \ becomes / */
+  SWAP_SRC_DST;
+  for (dst = src; *dst; dst++)    /* \ becomes / */
     if (*dst == '\\')
       *dst = '/';
 
@@ -698,21 +702,18 @@ Pl_M_Absolute_Path_Name(char *src)
 
 #if defined(__CYGWIN__) && !defined(__MSYS__)
 
-  cygwin_conv_pathx(CCP_WIN_A_TO_POSIX, buff[1 - res], buff[res], MAXPATHLEN);
-  res = 1 - res;
+  cygwin_conv_pathx(CCP_WIN_A_TO_POSIX, dst, src, MAXPATHLEN);
+  SWAP_SRC_DST;
 
 #endif
 
-  if (buff[res][0] != '/')      /* add current directory */
+  if (src[0] != '/')      /* add current directory */
     {
-      sprintf(buff[1 - res], "%s/%s", Pl_M_Get_Working_Dir(), buff[res]);
-      res = 1 - res;
+      sprintf(dst, "%s/%s", Pl_M_Get_Working_Dir(), src);
+      SWAP_SRC_DST;
     }
 
-  src = buff[res];
-  res = 1 - res;
-  dst = buff[res];
-
+  base_dst = dst;
   while ((*dst++ = *src))
     {
       if (*src++ != '/')
@@ -735,14 +736,12 @@ Pl_M_Absolute_Path_Name(char *src)
         continue;
       /* case /../ */
       src += 2;
-      p = dst - 2;
-      while (p >= buff[res] && *p != '/')
-        p--;
+      dst -= 2;
+      while (dst >= base_dst && *dst != '/')
+        dst--;
 
-      if (p < buff[res])
+      if (dst < base_dst)
         return NULL;
-
-      dst = p;
     }
 
   dst--;                        /* dst points the \0 */
@@ -756,10 +755,13 @@ Pl_M_Absolute_Path_Name(char *src)
 #define MIN_PREFIX 1            /* unix  minimal path /    */
 #endif
 
-  if (dst - buff[res] > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
+  if (dst - base_dst < MIN_PREFIX) /* all removed, e.g. with /src/../ then add / */
+    strcpy(dst, "/");
+
+  if (dst - base_dst > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
     dst[-1] = '\0';             /* remove last / or \ */
 
-  return buff[res];
+  return base_dst;
 }
 
 
