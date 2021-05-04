@@ -649,7 +649,7 @@ Get_Code_Infos(char *name, int *prolog, int *global)
 /*-------------------------------------------------------------------------*
  * GET_LONG_INFOS                                                          *
  *                                                                         *
- * Needs a pre-pas.                                                        *
+ * Needs a pre-pass.                                                       *
  *-------------------------------------------------------------------------*/
 int
 Get_Long_Infos(char *name, int *global, VType *vtype, PlLong *value)

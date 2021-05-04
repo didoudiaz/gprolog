@@ -37,6 +37,7 @@ before trying to rebuild the manual:
      HeVeA can be obtained at http://hevea.inria.fr/
    - The HTML Help compiler is needed to rebuild the HTML Help version
      (see below).
+   - ImageMagick version >= 7 is needed (convert) for the icon -> logo
 
 
 
