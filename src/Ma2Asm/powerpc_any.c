@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : powerpc_any.c                                                   *
- * Descr.: translation file for Linux/Darwin (MacOsX) on PowerPC           *
+ * Descr.: translation file PowerPC                                        *
  * Author: Daniel Diaz and Lindsey Spratt                                  *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -40,6 +40,8 @@
 #include <string.h>
 
 
+/* Supported arch: powerpc (32 bits) on Linux, Darwin (MacOS)
+ */
 
 
 /*---------------------------------*

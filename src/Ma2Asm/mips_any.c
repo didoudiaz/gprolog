@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
- * File  : mips_irix.c                                                     *
- * Descr.: translation file for IRIX on MIPS                               *
+ * File  : mips_any.c                                                      *
+ * Descr.: translation file MIPS                                           *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -40,6 +40,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+
+
+/* Supported arch: mips 32 bits on IRIX
+ */
 
 
 

@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : ix86_any.c                                                      *
- * Descr.: translation file for Linux/Cygwin/mingw32/... on intel x86      *
+ * Descr.: translation file for intel ix86                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -40,6 +40,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+/* Supported arch: ix86 (32 bits) on Linux, BSD
+ *                 Solaris, SCO, MinGW, Cygwin, Windows, Darwin (MacOS)
+ *
+ * ARM A32 instruction set                                                                                      
+ * https://developer.arm.com/documentation/dui0801/k/A32-and-T32-Instructions?lang=en
+ */
 
 
 

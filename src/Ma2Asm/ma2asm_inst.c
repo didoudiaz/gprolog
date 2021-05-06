@@ -77,9 +77,9 @@
 
 #include "alpha_any.c"
 
-#elif defined(M_mips_irix)
+#elif defined(M_mips)
 
-#include "mips_irix.c"
+#include "mips_any.c"
 
 #elif defined(M_powerpc)
 

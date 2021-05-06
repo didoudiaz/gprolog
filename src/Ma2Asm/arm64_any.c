@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : arm64_any.c                                                     *
- * Descr.: translation file for Linux on arm64 (aarch64) (e.g. armv8)      *
+ * Descr.: translation file arm 64 bits (aarch64)                          *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -39,7 +39,10 @@
 #include <string.h>
 
 
-/* AArch64 Instruction Set Architecture
+/* Supported arch: arm 64 bits (aarch64) (e.g. armv8) 
+ *                 on Linux, Darwin (MacOS)
+ *
+ * AArch64 Instruction Set Architecture
  * https://developer.arm.com/documentation/102374/0101
  *
  * ARM A64 instruction set

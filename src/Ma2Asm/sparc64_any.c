@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : sparc64_any.c                                                   *
- * Descr.: translation file for BSD on sparc64                             *
+ * Descr.: translation file for sparc 64 bits                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -38,6 +38,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+
+
+/* Supported arch: sparc64 on Solaris, SunOS, BSD
+ */
 
 
 

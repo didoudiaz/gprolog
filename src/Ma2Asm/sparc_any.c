@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : sparc_any.c                                                     *
- * Descr.: translation file for SunOs/Solaris on sparc                     *
+ * Descr.: translation file for sparc 32 bits                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -39,6 +39,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+
+
+/* Supported arch: sparc64 on Solaris, SunOS, BSD
+ */
 
 
 
@@ -85,7 +89,7 @@ char delay_operands[1024];
 	  /* variables for ma_parser.c / ma2asm.c */
 int can_produce_pic_code = 0;
 #if 0
-char *comment_prefix = "#";  /* does not work on solaris 9 */
+char *comment_prefix = "#";  /* does not work on Solaris 9 */
 #else
 char *comment_prefix = "!";
 #endif

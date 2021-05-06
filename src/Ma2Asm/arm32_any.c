@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : arm32_any.c                                                     *
- * Descr.: translation file for Linux on arm 32 bits (e.g. armv6l/armv7hf) *
+ * Descr.: translation file for arm 32 bits                                *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -39,9 +39,13 @@
 #include <string.h>
 
 
-/* ARM A32 instruction set                                                                                      
+/* Supported arch: arm 32 bits (e.g. armv6l/armv7hf) on GNU/Linux
+ *
+ * ARM A32 instruction set                                                                                      
  * https://developer.arm.com/documentation/dui0801/k/A32-and-T32-Instructions?lang=en
  */
+
+
 
 
 /* pl_reg_bank is normally the first mapped register. If it is not mapped 

@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : x86_64_any.c                                                    *
- * Descr.: translation file for Linux on AMD x86-64                        *
+ * Descr.: translation file for AMD x86-64                                 *
  * Author: Gwenole Beauchesne, Ozaki Kiichi and Daniel Diaz                *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz and Gwenole Beauchesne              *
@@ -42,6 +42,11 @@
 #include <limits.h>
 
 
+/* Supported arch: x86_64 (64 bits) on Linux, BSD, Darwin (MacOS)
+ *                 Solaris, MinGW, Cygwin, Windows
+ */
+
+
 
 
 /* x86_64/darwin needs a reg for pl_reg_bank (default is r12 see engine1.c)
@@ -69,11 +74,11 @@
 #endif
 
 
-/* For x86_64/linux or solaris: an important point is that C stack must be
- * aligned on 16 bytes else some problems occurs with double.
+/* For x86_64 (Linux or Solaris): the C stack must be aligned on 16-bytes 
+ * else some problems occur with double.
  * If this is not done and if the called function performs a movaps %xmm0,xx
  * an error will occur.
- * Just before calling a function %rsp is 16bytes aligned, %rsp = 0x...0
+ * Just before calling a function %rsp is 16-bytes aligned, %rsp = 0x...0
  * (4 low bits = 0). The callq instruction pushes the return address, so at
  * the entry of a function, %rsp is 0x...8. GCC then adjusts (via subq)
  * %rsp to be 0x...0 before calling a function. We mimic the same modifying

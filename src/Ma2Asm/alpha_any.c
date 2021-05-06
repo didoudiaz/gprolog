@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : alpha_any.c                                                     *
- * Descr.: translation file for Linux/OSF on alpha                         *
+ * Descr.: translation file for alpha-based architectures                  *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
  * Copyright (C) 1999-2021 Daniel Diaz                                     *
@@ -42,6 +42,10 @@
 #include <string.h>
 
 
+/* Supported arch: alpha (64 bits) on Linux, OSF1
+ */
+
+
 
 
 /*---------------------------------*
@@ -51,6 +55,9 @@
 #define STRING_PREFIX              "$LC"
 
 #define MAX_C_ARGS_IN_C_CODE       32
+
+
+
 
 /*---------------------------------*
  * Type Definitions                *
