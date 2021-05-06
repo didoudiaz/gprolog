@@ -173,4 +173,5 @@ names:
 	@echo "HTMLTGZNAME=$(HTMLTGZNAME)"         >>$(NAMES_FILE)
 	@echo "HTMLNODETGZNAME=$(HTMLNODETGZNAME)" >>$(NAMES_FILE)
 
-for-release: all dist-dvi dist-html names
+for-release: all names
+
