@@ -688,6 +688,7 @@ Pl_M_Absolute_Path_Name(char *src)
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
+  base_dst = dst;
   if (_fullpath(dst, src, MAXPATHLEN) == NULL)
     return NULL;
 
