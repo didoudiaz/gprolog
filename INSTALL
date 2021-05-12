@@ -8,6 +8,8 @@ See file README for a list of currently available ports:
 The file PROBLEMS contains a list of known problems/limitations depending on 
 the architecture. Please consult it before reporting a problem.
 
+See files WINDOWS or MACOS for information on these architectures.
+
 
 
 Installing the source distribution
@@ -26,8 +28,9 @@ The installation process is as follows:
 
    cd src				go to source directory
    ./configure [OPTIONS]		configure the system
-   make					compile locally the package
-   make install or (make install-strip)	install the package
+   make					compile locally
+   make doc				compile locally the documentation (maybe not needed)
+   make install or (make install-strip)	install the package (maybe needs root privileges)
 
 you can check the result of the local compilation using:
 

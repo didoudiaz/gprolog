@@ -128,10 +128,14 @@ clean-all:
 	rm -f $(HTMLNAME)
 	(cd html_node ; rm -f .hhc *.hhk *.css *.hrf *_motif.gif *.png *.html)
 
+
 clean-aux:
-	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf *.image.tex *.fls aux-pdf aux-ps
+	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf *.image.tex *.fls
+	rm -rf aux-pdf aux-ps
+
 
 clean-full: clean-aux clean-all
+
 
 clean-test:
 	rm -f ?.dvi ?.pdf ?.html ?.ps ?.info ?.txt
@@ -170,3 +174,11 @@ names:
 
 for-release: all names
 
+
+check_doc_is_done: $(DVINAME) $(PDFNAME) $(PSNAME) $(HTMLNAME)
+	if [ "$(id -u)" -e 0 ]; then \
+	   echo 'Warning you are root, not recommended to build the documentation, use'; \
+	   echo 'make doc as normal user'; \
+	   exit 1; \
+	fi
+	$(MAKE) all

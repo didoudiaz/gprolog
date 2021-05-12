@@ -102,7 +102,6 @@ uninstall-links:
 install-doc:
 	if test $(DOC_DIR) != none; then \
 	   ./mkinstalldirs $(DOC_DIR); \
-	   (cd ../doc; $(MAKE) all); \
 	   (F=`cd ../doc; echo $(DOC_FILES)`; \
 	   for i in $$F; do $(INSTALL_DATA) ../doc/$$i $(DOC_DIR); done); \
 	fi
@@ -193,10 +192,8 @@ distclean:
 distdir=/tmp
 distpath=$(distdir)/$(PKG_NAME)
 
-dist: check_doc $(PKG_NAME).tar.gz
+dist: doc $(PKG_NAME).tar.gz
 
-check_doc:
-	(cd ../doc; $(MAKE) all)
 
 $(PKG_NAME).tar.gz: copy_dist_tree
 	(cd $(distdir); tar cf $(ROOT_DIR)/src/$(PKG_NAME).tar $(PKG_NAME))
