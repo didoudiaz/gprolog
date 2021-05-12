@@ -11,6 +11,8 @@
 *.def
 *.out
 *.chw
+*.fdb_latexmk
+*.fls
 TO_DO
 LocalStuff
 gprolog.html
@@ -23,4 +25,3 @@ html_node/*.html
 html_node/*_motif.gif
 html_node/*_motif.svg
 html_node/*.png
-

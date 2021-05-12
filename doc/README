@@ -30,8 +30,8 @@ Each version can be reconstructed using the Makefile (type 'make help' for
 a brief summary of available targets). Be sure to have the following environment
 before trying to rebuild the manual:
 
-   - LaTeX2e (with standard packages) is needed to rebuild the DVI version.
-   - dvips is needed to rebuild the PostScript version from the DVI.
+   - LaTeX2e with standard packages
+   - mklatex
    - pdflatex is needed to rebuild the PDF version.
    - HeVeA (version >= 1.06) is required to rebuild the HTML version.
      HeVeA can be obtained at http://hevea.inria.fr/
@@ -208,4 +208,3 @@ and in custom.hva
 Use as follows:
 
 \SSSect{\texttt{var/1}, \texttt{nonvar/1}} {\AddPBD{var/1} \AddPBD{nonvar/1}}
-
