@@ -141,13 +141,13 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 	/* do not use r7 (frame pointer) */
 #    define M_USED_REGS            {"r5", "r6", "r8", "r9", "r10", 0}
 
-#elif defined(M_arm64) && !defined(__llvm__) /* clang/llvm do not yet handle Global Register Variables */
+#elif defined(M_arm64) && !defined(__clang__) /* clang/llvm do not yet handle Global Register Variables */
 
 	/* do not use x29 (frame pointer) */
 #    define M_USED_REGS            {"x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
 
 
-#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__llvm__)
+#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 

@@ -1098,8 +1098,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--inline-asm") || Check_Arg(i, "--full-inline-asm") ||
-	      Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC")) /* TODO pass --pic to gcc as -fPIC for C code */
+	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC")) /* TODO pass --pic to gcc as -fPIC for C code */
 	    {		
 	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
@@ -1536,8 +1535,6 @@ Display_Help(void)
   L("Mini-assembly to assembly translator options:");
   L("  --comment                   include comments in the output file");
   L("  --pic                       produce position independent code (PIC)");
-  L("  --inline-asm                inline some C calls as asm instructions");
-  L("  --full-inline-asm           inline most C calls as asm instructions");
   L(" ");
   L("C Compiler options:");
   L("  --c-compiler FILE           use FILE as C compiler/linker");

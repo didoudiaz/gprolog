@@ -196,42 +196,13 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef union
-{
-  double d;
-  int w[2];
-}Dbl_2x32;
-
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
 
-double dbl_tbl[MAX_DOUBLES_IN_PRED];
-int nb_dbl = 0;
-int dbl_lc_no = 0;
+char asm_reg_e[32];
+
 int dbl_reg_no;
-
-char asm_reg_e[20];
-
-
-	  /* variables for ma_parser.c / ma2asm.c */
-
-int needs_pre_pass = 1;		/* overwritte var of ma_parser.c */
-
-int can_produce_pic_code = 0;
-char *comment_prefix = "#";
-#ifdef M_darwin
-char *local_symb_prefix = "L";
-#else
-char *local_symb_prefix = ".L";
-#endif
-int strings_need_null = 0;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
@@ -239,6 +210,124 @@ char *inline_asm_data[] = { NULL };
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+
+/*-------------------------------------------------------------------------*
+ * INIT_MAPPER                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Init_Mapper(void)
+{
+  mi.needs_pre_pass = TRUE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "#";
+
+#ifdef M_darwin
+  mi.local_symb_prefix = "L";
+#else
+  mi.local_symb_prefix = ".L";
+#endif
+
+  mi.strings_need_null = FALSE;
+  mi.needs_dico_double = TRUE;
+  mi.call_c_reverse_args = FALSE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ASM_START                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Asm_Start(void)
+{
+#ifdef MAP_REG_E
+  strcpy(asm_reg_e, MAP_REG_E);
+#else
+  strcpy(asm_reg_e, "x25");
+#endif
+
+  Label_Printf(".text");
+#if 0				/* see Fail_Ret() */
+  Label("fail");
+  Pl_Fail();
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ASM_STOP                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Asm_Stop(void)
+{
+#ifdef __ELF__
+  Inst_Printf(".section", ".note.GNU-stack,\"\"");
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CODE_START                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Code_Start(char *label, Bool prolog, int global)
+{
+  Label_Printf("");
+#ifdef M_darwin
+  Inst_Printf(".p2align", "2");
+#else
+  Inst_Printf(".p2align", "3,,7");
+  Inst_Printf(".type", UN_EXT "%s, %%function", label);
+#endif
+  if (global)
+    Inst_Printf(".global", UN_EXT "%s", label);
+
+  Label_Printf("");
+  Label_Printf(UN_EXT "%s:", label);
+
+  if (!prolog)
+    {
+      Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
+      Inst_Printf("str", "x30, [sp]"); /* save lr (x30) */
+    }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CODE_STOP                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Code_Stop(char *label, Bool prolog, int global)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL                                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Label(char *label)		/* only used for a local label */
+{
+  Label_Printf("");
+  Label_Printf("%s:", label);
+}
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -315,7 +404,9 @@ Load_Immediate(char *r, PlULong int_val)
 #ifdef USE_LDR_PSEUDO_OP
   Inst_Printf("ldr", "%s, =%" PL_FMT_d, r, int_val);
 #else
-  int slice, shift = 0, wipe = 1;
+  int slice, shift = 0;
+  Bool wipe = TRUE;
+
   if (comment)
     Inst_Printf("", "# load %s = %" PL_FMT_u, r, int_val);
 
@@ -327,7 +418,7 @@ Load_Immediate(char *r, PlULong int_val)
 	  if (wipe)
 	    {
 	      Inst_Printf("movz", "%s, #%d, LSL %d", r, slice, shift);
-	      wipe = 0;
+	      wipe = FALSE;
 	    }
 	  else
 	    Inst_Printf("movk", "%s, #%d, LSL %d", r, slice, shift);
@@ -362,113 +453,6 @@ Load_Address(char *r, char *addr)
       Inst_Printf("adrp", "%s, " GOT_PAGE_FMT, r, UN_EXT, addr);
       Inst_Printf("ldr", "%s, [%s, " GOT_PAGEOFF_FMT "]", r, r, UN_EXT, addr);
     }
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ASM_START                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Asm_Start(void)
-{
-#ifdef MAP_REG_E
-  strcpy(asm_reg_e, MAP_REG_E);
-#else
-  strcpy(asm_reg_e, "x25");
-#endif
-
-  Label_Printf(".text");
-#if 0				/* see Fail_Ret() */
-  Label("fail");
-  Pl_Fail();
-#endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ASM_STOP                                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Asm_Stop(void)
-{
-#ifdef __ELF__
-  Inst_Printf(".section", ".note.GNU-stack,\"\"");
-#endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * CODE_START                                                              *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Code_Start(char *label, int prolog, int global)
-{
-  int i;
-  int x = dbl_lc_no - nb_dbl;
-
-  Inst_Printf(".align", "3");
-  for (i = 0; i < nb_dbl; i++)
-    {
-      Label_Printf("%s%d:", DOUBLE_PREFIX, x++);
-      Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", dbl_tbl[i]);
-    }
-
-  nb_dbl = 0;
-
-  Label_Printf("");
-#ifdef M_darwin
-  Inst_Printf(".p2align", "2");
-#else
-  Inst_Printf(".align", "2");
-  Inst_Printf(".p2align", "3,,7");
-  Inst_Printf(".type", UN_EXT "%s, %%function", label);
-#endif
-  if (global)
-    Inst_Printf(".global", UN_EXT "%s", label);
-
-  Label_Printf("");
-  Label_Printf(UN_EXT "%s:", label);
-
-  if (!prolog)
-    {
-      Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
-      Inst_Printf("str", "x30, [sp]"); /* save lr (x30) */
-    }
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * CODE_STOP                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Code_Stop(void)
-{
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * LABEL                                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Label(char *label)		/* only used for a local label */
-{
-  Label_Printf("");
-  Label_Printf("%s:", label);
 }
 
 
@@ -696,8 +680,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   dbl_reg_no = 0;
 }
@@ -759,18 +742,16 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
-  char dbl_locn[12], dbl_reg[8];
+  char label[12];
 
-  sprintf(dbl_locn, "%s%d", DOUBLE_PREFIX, dbl_lc_no++);
-  sprintf(dbl_reg, "d%d", dbl_reg_no++);
-  dbl_tbl[nb_dbl++] = dbl_val;
+  sprintf(label, "%s%d", DOUBLE_PREFIX, d->dbl_no);
 
-  Load_Address(r, dbl_locn);
-  Inst_Printf("ldr", "%s, [%s]", dbl_reg, r);
+  Load_Address(r, label);
+  Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
 
   AFTER_ARG_DBL;
 
@@ -785,7 +766,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   BEFORE_ARG;
 
@@ -807,7 +788,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -829,7 +810,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -854,7 +835,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -877,7 +858,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_long", index);
 }
@@ -890,7 +871,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_double", index);
@@ -911,7 +892,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   Inst_Printf("bl", UN_EXT "%s", fct_name);
 }
@@ -924,12 +905,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -1110,7 +1087,7 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
   /* str1.8 implies 8 bytes alignment, flags: M=Merge, S=Strings A=Alloc */
   /* then add a .align 3 before each string entry or a .space n after each string */
@@ -1145,7 +1122,54 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+#ifdef M_darwin
+  Inst_Printf(".section", "__TEXT,__literal8,8byte_literals");
+#else
+  Inst_Printf(".section", ".rodata.cst8,\"aM\",@progbits,8");
+#endif
+  Inst_Printf(".align", "3");
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
+  Inst_Printf(".long", "%d", d->dbl.i32[0]);
+  Inst_Printf(".long", "%d", d->dbl.i32[1]);
+
+  //  Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", d->dbl.val);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1157,7 +1181,7 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
   Label_Printf(".data");
   Inst_Printf(".align", "4");
@@ -1205,7 +1229,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 

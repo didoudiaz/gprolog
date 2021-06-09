@@ -4733,6 +4733,10 @@ case "$host" in
     $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_ix86_linux 1" >>confdefs.h
 ;;
+    i*86*darwin*)      $as_echo "#define M_ix86 1" >>confdefs.h
+    $as_echo "#define M_darwin 1" >>confdefs.h
+  $as_echo "#define M_ix86_darwin 1" >>confdefs.h
+;;
     i*86*solaris*)     $as_echo "#define M_ix86 1" >>confdefs.h
     $as_echo "#define M_solaris 1" >>confdefs.h
  $as_echo "#define M_ix86_solaris 1" >>confdefs.h
@@ -4761,13 +4765,13 @@ case "$host" in
     $as_echo "#define M_win32 1" >>confdefs.h
    $as_echo "#define M_ix86_win32 1" >>confdefs.h
    WINDOWS=32;;
-    i*86*darwin*)      $as_echo "#define M_ix86 1" >>confdefs.h
-    $as_echo "#define M_darwin 1" >>confdefs.h
-  $as_echo "#define M_ix86_darwin 1" >>confdefs.h
-;;
     x86_64*linux*)     $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_linux 1" >>confdefs.h
    $as_echo "#define M_x86_64_linux 1" >>confdefs.h
+;;
+    x86_64*darwin*)    $as_echo "#define M_x86_64 1" >>confdefs.h
+  $as_echo "#define M_darwin 1" >>confdefs.h
+  $as_echo "#define M_x86_64_darwin 1" >>confdefs.h
 ;;
     x86_64*dragonfly*) $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_bsd 1" >>confdefs.h
@@ -4789,10 +4793,6 @@ case "$host" in
   $as_echo "#define M_win64 1" >>confdefs.h
    $as_echo "#define M_x86_64_win64 1" >>confdefs.h
  WINDOWS=64;;
-    x86_64*darwin*)    $as_echo "#define M_x86_64 1" >>confdefs.h
-  $as_echo "#define M_darwin 1" >>confdefs.h
-  $as_echo "#define M_x86_64_darwin 1" >>confdefs.h
-;;
     x86_64*cygwin*)    $as_echo "#define M_x86_64 1" >>confdefs.h
   $as_echo "#define M_cygwin 1" >>confdefs.h
   $as_echo "#define M_x86_64_cygwin 1" >>confdefs.h

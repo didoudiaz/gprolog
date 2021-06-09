@@ -36,7 +36,8 @@
  *-------------------------------------------------------------------------*/
 
 
-#include "../EnginePl/pl_long.h"
+#include "../EnginePl/pl_long.h" /* ensure stdint.h */
+#include "../EnginePl/bool.h"
 
 #if 0
 #define CHECK_PRINTF_ARGS
@@ -61,10 +62,43 @@
 
 typedef struct
 {
+  Bool can_produce_pic_code;
+  Bool needs_pre_pass;
+  char *comment_prefix;
+  char *local_symb_prefix;
+  Bool strings_need_null;
+  Bool needs_dico_double;
+  Bool call_c_reverse_args;
+}
+MapperInfo;
+
+
+
+
+typedef struct
+{
+  int dbl_no;	 		/* no in the dico double (or -1 if no dico) */
+  char *dbl_str;		/* as read in the MA file (can be a %a printf format) */
+  Bool dbl_human;		/* is dbl_str human readable (or encoded, e.g. %d printf) ? */
+  char *dbl_cmt;		/* a string usable for a comment */
+  union {
+    double val;			/* the double value */
+    int64_t i64;		/* its 64 bits representation */
+    int32_t i32[2];		/* its 2x32 bits representation */
+  }dbl;
+}
+DoubleInf;
+
+
+
+
+typedef struct
+{
   char *prefix;
   int no;
   char label[256];
-} LabelGen;
+}
+LabelGen;
 
 
 
@@ -72,20 +106,6 @@ typedef struct
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
-	  /* defined in mapper files */
-
-#ifndef MAPPER_FILE
-
-extern int can_produce_pic_code;
-extern char *comment_prefix;
-extern char *local_symb_prefix;
-extern int strings_need_null;
-extern int call_c_reverse_args;
-extern char *inline_asm_data[];
-
-#endif
-
 
 	  /* defined in ma_parser.c */
 
@@ -97,16 +117,14 @@ extern int reload_e;
 
 #ifndef MA2ASM_FILE
 
-extern int comment;
-extern int pic_code;
+extern Bool comment;
+extern Bool pic_code;
+extern MapperInfo mi;
+extern LabelGen lg_cont; /* used by macros Label_Cont_XXX() below */
 
 #endif
 
 
-/* local label generator for continuations (always available) 
- * see macros Label_Cont_XXX() below
- */
-LabelGen lg_cont;
 
 
 
@@ -120,11 +138,11 @@ LabelGen lg_cont;
 
 void Declare_Initializer(char *initializer_fct);
 
-void Call_C(char *fct_name, int fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
+void Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
 
 void Switch_Ret(int nb_swt, SwtInf swt[]);
 
-void Decl_Code(char *name, int prolog, int global);
+void Decl_Code(char *name, Bool prolog, int global);
 
 void Decl_Long(char *name, int global, VType vtype, PlLong value);
 
@@ -170,13 +188,15 @@ void Int_Out(int d);
 
 	  /* defined in mapper files */
 
+void Init_Mapper(void);
+
 void Asm_Start(void);
 
 void Asm_Stop(void);
 
-void Code_Start(char *label, int prolog, int global);
+void Code_Start(char *label, Bool prolog, int global);
 
-void Code_Stop(void);
+void Code_Stop(char *label, Bool prolog, int global);
 
 void Label(char *label);
 
@@ -204,28 +224,27 @@ void Move_To_Reg_X(int index);
 
 void Move_To_Reg_Y(int index);
 
-void Call_C_Start(char *fct_name, int fc, int nb_args,
-		  int nb_args_in_words, char **p_inline);
+void Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words);
 
 int Call_C_Arg_Int(int offset, PlLong int_val);
 
-int Call_C_Arg_Double(int offset, double dbl_val);
+int Call_C_Arg_Double(int offset, DoubleInf *d);
 
-int Call_C_Arg_String(int offset, int str_no);
+int Call_C_Arg_String(int offset, int str_no, char *asciiz);
 
-int Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index);
+int Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index);
 
-int Call_C_Arg_Reg_X(int offset, int adr_of, int index);
+int Call_C_Arg_Reg_X(int offset, Bool adr_of, int index);
 
-int Call_C_Arg_Reg_Y(int offset, int adr_of, int index);
+int Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index);
 
-int Call_C_Arg_Foreign_L(int offset, int adr_of, int index);
+int Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index);
 
-int Call_C_Arg_Foreign_D(int offset, int adr_of, int index);
+int Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index);
 
-void Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words);
+void Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words);
 
-void Call_C_Stop(char *fct_name, int nb_args, char **p_inline);
+void Call_C_Stop(char *fct_name, int nb_args);
 
 void Call_C_Adjust_Stack(int nb_pushes);
 
@@ -256,6 +275,12 @@ void Dico_String_Start(int nb);
 void Dico_String(int str_no, char *asciiz);
 
 void Dico_String_Stop(int nb);
+
+void Dico_Double_Start(int nb);
+
+void Dico_Double(DoubleInf *d);
+
+void Dico_Double_Stop(int nb);
 
 void Dico_Long_Start(int nb);
 

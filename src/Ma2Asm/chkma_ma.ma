@@ -102,7 +102,7 @@ pl_code global ma_test_arg_int
 	pl_ret
 
 pl_code global ma_test_arg_double
-	call_c fast test_arg_double1(12.456, -1.3e-102, -3.141593, 12.456, -1.3e-102, -3.141593)
+	call_c fast test_arg_double1(12.456, -1.3e-102, -3.141593, 12.456, -1.3e-102, -3.141593) ;last argument can be given as printf %a format, -0x1.921fb82c2bd7fp+1
 	pl_ret
 
 pl_code global ma_test_arg_mixed
@@ -197,7 +197,7 @@ pl_code global ma_test_move_ret_fd
 
 pl_code global ma_test_switch_ret
 	call_c fast test_switch_ret1()
-	switch_ret (0=sl0, 4=sl1, 15=sl2, 4095=sl3, 123456=sl4, 2456789=sl5, -257=sl6)
+	switch_ret (0=sl0, 4=sl1, 15=sl2, 4095=sl3, 123456=sl4, 2456789=sl5, -257=sl6, 3=sl7, 8=sl8, 328=sl9, -9=sl10)
 
 sl0:	call_c fast test_switch_ret2(0)
 	pl_ret
@@ -218,6 +218,18 @@ sl5:	call_c fast test_switch_ret2(5)
 	pl_ret
 
 sl6:	call_c fast test_switch_ret2(6)
+	pl_ret
+
+sl7:	call_c fast test_switch_ret2(7)
+	pl_ret
+
+sl8:	call_c fast test_switch_ret2(8)
+	pl_ret
+
+sl9:	call_c fast test_switch_ret2(9)
+	pl_ret
+
+sl10:	call_c fast test_switch_ret2(10)
 	pl_ret
 
 

@@ -54,7 +54,12 @@
 
 #define STRING_PREFIX              ".LC"
 
+#define DOUBLE_PREFIX              ".LD"
+
 #define MAX_C_ARGS_IN_C_CODE       32
+
+
+
 
 /*---------------------------------*
  * Type Definitions                *
@@ -64,34 +69,38 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[20];
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_bank[20];		/* enough big sizes to avoid compiler warnings */
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
-int dbl_label = 0;
-
-static char dbl_arg_buffer[1024 * 1024] = "\0";	/* a temp buffer for the double arguments */
-
-char act_routine[512] = "\0";	/* remembers the actual routine we are building */
-
-int inPrologCode = 0;	/* whether we are currently compiling a prolog code */
-
-	  /* variables for ma_parser.c / ma2asm.c */
-
-int can_produce_pic_code = 0;
-char *comment_prefix = "#";
-char *local_symb_prefix = ".L";
-int strings_need_null = 1;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INIT_MAPPER                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Init_Mapper(void)
+{
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "#";
+  mi.local_symb_prefix = ".L";
+  mi.strings_need_null = TRUE;
+  mi.needs_dico_double = TRUE;
+  mi.call_c_reverse_args = FALSE;
+}
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -137,8 +146,7 @@ Asm_Start(void)
   Inst_Printf("# asm_reg_b ", asm_reg_b);
   Inst_Printf("# asm_reg_cp ", asm_reg_cp);
 
-  Label_Printf("\t.section\t.text");
-
+  Inst_Printf(".section", ".text");
 }
 
 
@@ -151,14 +159,6 @@ Asm_Start(void)
 void
 Asm_Stop(void)
 {
-  /* we are printing the fixed doubles at the end of the file,
-   * they will appear in the data section */
-  if (dbl_arg_buffer[0] != '\0')
-    {
-      Label_Printf(".section\t.rodata");
-      Label_Printf(dbl_arg_buffer);
-      dbl_arg_buffer[0] = '\0';
-    }
 }
 
 
@@ -169,12 +169,8 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(char *label, Bool prolog, int global)
 {
-
-  if (act_routine[0] != '\0')
-    Code_Stop();		/* we first have to close the previous code */
-
   Inst_Printf(".text", "");
   Inst_Printf(".align", "2");
   Inst_Printf(".ent", "%s", label);
@@ -183,13 +179,9 @@ Code_Start(char *label, int prolog, int global)
 
   Label(label);
 
-  /* remember this label */
-  strcpy(act_routine, label);
-
   if (prolog)
     {
       /* prolog code does not need any stack space */
-      inPrologCode = 1;
       Inst_Printf(".frame", "$sp,0,$31");
       Inst_Printf(".mask", "0x00000000,0");
       Inst_Printf(".fmask", "0x00000000,0");
@@ -197,8 +189,6 @@ Code_Start(char *label, int prolog, int global)
   else
     {
       /* for c code we need to save some registers */
-      inPrologCode = 0;
-      /* */
       Inst_Printf(".frame", "$sp,%d,$31", MAX_C_ARGS_IN_C_CODE * 8 + 16);
       Inst_Printf(".mask", "0x10000000,-16");
       Inst_Printf(".fmask", "0x00000000,0");
@@ -216,11 +206,9 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(char *label, Bool prolog, int global)
 {
-  Inst_Printf(".end", "%s", act_routine);
-
-  act_routine[0] = '\0';
+  Inst_Printf(".end", "%s", label);
 }
 
 
@@ -431,8 +419,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
 }
 
@@ -487,13 +474,9 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  char buf[1024];
-
-  sprintf(buf, "\t.align 3\n.LD%d:\n\t.double %1.20e\n", dbl_label, dbl_val);
-  strcat(dbl_arg_buffer, buf);
-  Inst_Printf("la", "$24,.LD%d", dbl_label++);
+  Inst_Printf("la", "$24,%s%d", DOUBLE_PREFIX, d->dbl_no);
   switch (offset)
     {
     case 0:
@@ -535,7 +518,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   switch (offset)
     {
@@ -578,7 +561,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   char dest[8];
 
@@ -637,7 +620,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   char dest[8];
 
@@ -702,7 +685,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   char dest[8];
 
@@ -771,7 +754,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   char dest[8];
 
@@ -830,7 +813,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   char dest[8];
 
@@ -924,16 +907,14 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-/*  if (!make_inline (fct_name, nb_args)) { */
   Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
   Inst_Printf("sd", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
   Inst_Printf("la", "$25,%s", fct_name);
   Inst_Printf("jal", "$25");
   Inst_Printf("ld", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
   Inst_Printf("ld", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
-/*  } */
 }
 
 
@@ -944,7 +925,7 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
 }
 
@@ -1116,9 +1097,9 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
-  Label_Printf(".section\t.rodata");
+  Inst_Printf(".section", ".rodata");
   Inst_Printf(".align", "3");
 }
 
@@ -1145,7 +1126,43 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+  Inst_Printf(".section", ".rodata");
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+  Inst_Printf(".align 3", "");
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
+  Inst_Printf(".double", "%1.17g", d->dbl.val);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1157,9 +1174,9 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
-  Label_Printf(".section\t.sdata");
+  Inst_Printf(".section", ".sdata");
   Inst_Printf(".align", "3");
 }
 
@@ -1178,7 +1195,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-      Label_Printf(".section\t.bss");
+      Inst_Printf(".section", ".bss");
       if (!global)
 	{
 	  Label_Printf("%s:", name);
@@ -1193,7 +1210,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
       break;
 
     case INITIAL_VALUE:
-      Label_Printf(".section\t.rodata");
+      Inst_Printf(".section", ".rodata");
       if (global)
 	{
 	  Inst_Printf(".globl", "%s", name);
@@ -1221,7 +1238,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 
@@ -1235,15 +1252,6 @@ Dico_Long_Stop(int nb_longs)
 void
 Data_Start(char *initializer_fct)
 {
-  /* last routine has to be closed first */
-  if (act_routine[0] != '\0')
-    {
-      Inst_Printf("j", "$31");
-      Inst_Printf(".end", "%s", act_routine);
-
-      act_routine[0] = '\0';
-    }
-
   if (initializer_fct == NULL)
     return;
 

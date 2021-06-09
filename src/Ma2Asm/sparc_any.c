@@ -53,7 +53,7 @@
 
 #define STRING_PREFIX              ".LC"
 
-#ifdef M_sparc_sunos
+#ifdef M_sunos
 
 #define UN                         "_"
 
@@ -75,29 +75,13 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[20];
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_bank[20];		/* enough big sizes to avoid compiler warnings */
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
 char *delay_op;
 char delay_operands[1024];
-
-
-
-
-	  /* variables for ma_parser.c / ma2asm.c */
-int can_produce_pic_code = 0;
-#if 0
-char *comment_prefix = "#";  /* does not work on Solaris 9 */
-#else
-char *comment_prefix = "!";
-#endif
-char *local_symb_prefix = "L";
-int strings_need_null = 1;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
@@ -110,19 +94,24 @@ void Delay_Printf(char *op, char *operands, ...);
 
 
 
-#define LITTLE_INT(int_val)     ((unsigned) ((int_val)+4096) < 8192)
+#define LITTLE_INT(int_val)     ((unsigned) ((int_val) + 4096) < 8192)
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SOURCE_LINE                                                             *
+ * INIT_MAPPER                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-Source_Line(int line_no, char *cmt)
+void Init_Mapper(void)
 {
-  Label_Printf("\t! %6d: %s", line_no, cmt);
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "!";	/* NB: # does not work on Solaris 9 */
+  mi.local_symb_prefix = "L";
+  mi.strings_need_null = TRUE;
+  mi.needs_dico_double = FALSE;
+  mi.call_c_reverse_args = FALSE;
 }
 
 
@@ -185,11 +174,11 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(char *label, Bool prolog, int global)
 {
   Label_Printf("");
   Inst_Printf(".align", "4");
-#if defined(M_sparc_solaris) || defined(M_sparc_bsd)
+#if defined(M_solaris) || defined(M_bsd)
   Inst_Printf(".type", UN "%s,#function", label);
 #endif
   Inst_Printf(".proc", "020");
@@ -211,7 +200,7 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(char *label, Bool prolog, int global)
 {
 }
 
@@ -417,8 +406,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   delay_op = NULL;
 }
@@ -429,7 +417,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 
 #define BEFORE_ARG				\
 {						\
-  char r[4];					\
+  char r[32];					\
 						\
   if (offset < MAX_ARGS_IN_REGS)		\
     sprintf(r, "%%o%d", offset);		\
@@ -476,14 +464,12 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  int *p = (int *) &dbl_val;
-
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%d),%s", p[0], r);
-  Delay_Printf("or", "%s,%%lo(%d),%s", r, p[0], r);
+  Delay_Printf("sethi", "%%hi(%d),%s", d->dbl.i32[0], r);
+  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->dbl.i32[0], r);
 
   AFTER_ARG;
 
@@ -491,8 +477,8 @@ Call_C_Arg_Double(int offset, double dbl_val)
 
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%d),%s", p[1], r);
-  Delay_Printf("or", "%s,%%lo(%d),%s", r, p[1], r);
+  Delay_Printf("sethi", "%%hi(%d),%s", d->dbl.i32[1], r);
+  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->dbl.i32[1], r);
 
   AFTER_ARG;
 
@@ -507,7 +493,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   BEFORE_ARG;
 
@@ -527,7 +513,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -550,7 +536,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -572,7 +558,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -594,7 +580,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -616,7 +602,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     {
@@ -654,7 +640,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   Inst_Printf("call", UN "%s", fct_name);
   if (delay_op)
@@ -671,12 +657,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -856,7 +838,7 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
   Inst_Printf(".section", "\".rodata\"");
 }
@@ -884,7 +866,39 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -896,9 +910,9 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
-#ifdef M_sparc_sunos
+#ifdef M_sunos
   Label_Printf(".data");
 #else
   Inst_Printf(".section", "\".data\"");
@@ -916,13 +930,12 @@ Dico_Long_Start(int nb_longs)
 void
 Dico_Long(char *name, int global, VType vtype, PlLong value)
 {
-
   switch (vtype)
     {
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-#ifdef M_sparc_sunos
+#ifdef M_sunos
       if (!global)
 	Inst_Printf(".reserve", UN "%s,%ld,\"bss\",4", name, value * 4);
       else
@@ -935,14 +948,14 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
       break;
 
     case INITIAL_VALUE:
-#if defined(M_sparc_solaris) || defined(M_sparc_bsd)
+#if defined(M_solaris) || defined(M_bsd)
       Inst_Printf(".type", UN "%s,#object", name);
       Inst_Printf(".size", UN "%s,4", name);
 #endif
       if (global)
 	Inst_Printf(".global", UN "%s", name);
       Label_Printf(UN "%s:", name);
-#ifdef M_sparc_sunos
+#ifdef M_sunos
       Inst_Printf(".word", "%ld", value);
 #else
       Inst_Printf(".uaword", "%ld", value);
@@ -959,7 +972,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 
@@ -1004,7 +1017,6 @@ void
 Delay_Printf(char *op, char *operands, ...)
 {
   va_list arg_ptr;
-
 
   if (delay_op)
     Inst_Out(delay_op, delay_operands);

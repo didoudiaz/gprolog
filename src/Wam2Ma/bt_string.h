@@ -53,7 +53,7 @@ typedef struct btnode
 #if WORD_SIZE == 64
   int filler;		/* to preserve 64-bits align for info=PlLong (to avoid a SIGBUS) */
 #endif
-  char info[32];	/* a buffer to store some information */
+  char info[128];	/* a buffer to store some information */
   PBTNode left;
   PBTNode right;
 }
@@ -75,8 +75,6 @@ typedef void (*BTStrLstFct) (int no, char *str, void *info);
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
-
 
 
 /*---------------------------------*

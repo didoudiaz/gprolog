@@ -3,43 +3,38 @@ ma ::=		code...
 code ::=	prolog_code
 	|	c_code
 	|	decl
-	|	comment
-
-comment ::=	';' ... '\n'
-
 
 prolog_code ::=	'pl_code' ( 'local' | 'global' ) pl_name inst...
 
 c_code ::=	'c_code' ( 'initializer' | 'local' | 'global' ) fct_name inst...
 
 inst ::=	'pl_jump' pl_name	Prolog jump to a predicate
-		'pl_call' pl_name       Prolog call a predicate
-		'pl_fail'               Prolog fail
-		'pl_ret'                Prolog return
+	|	'pl_call' pl_name       Prolog call a predicate
+	|	'pl_fail'               Prolog fail
+	|	'pl_ret'                Prolog return
 
-		label ':'		declare a label
+	|	label ':'		declare a label
 
-		'jump' label            jump to a label
+	|	'jump' label            jump to a label
 
-		'move' reg1 ',' reg2	move wam reg1 to reg2
+	|	'move' reg1 ',' reg2	move wam reg1 to reg2
 
-		'prep_cp'		save in CP address of next here_cp
-		'here_cp'		define the address of prev prep_cp
+	|	'prep_cp'		save in CP address of next here_cp
+	|	'here_cp'		define the address of prev prep_cp
 		
-		'call_c' [ 'fast' ] fct_name '(' fct_arg ','...')'
+	|	'call_c' [ 'fast' ] fct_name '(' fct_arg ','...')'
 					call a C function (fc = fast call)
-		'jump_ret'		jump at the returned value
-		'fail_ret'              if returned value==0 then 'pl_fail'
-		'move_ret' ( mem | reg | f_array )
+					
+	|	'jump_ret'		jump at the returned value
+	|	'fail_ret'              if returned value==0 then 'pl_fail'
+	|	'move_ret' ( mem | reg | f_array )
                                        move returned value
-		'switch_ret' '(' swt_arg '=' label ',' ...)
-					switch on returned value
-					else 'pl_fail'
+	|	'switch_ret' '(' swt_arg '=' label ',' ...)
+					switch on returned value else 'pl_fail'
 
-		'c_ret'			C return
+	|	'c_ret'			C return
 
-decl ::=	'long' ( 'local' | 'global' ) var_name
-		[ '=' integer | '(' integer ')' ]
+decl ::=	'long' ( 'local' | 'global' ) var_name [ '=' integer | '(' integer ')' ]
 
 
 fct_arg ::=	integer
@@ -71,10 +66,14 @@ index ::=   	'(' integer ')'
 	| 	'[' integer ']'
 
 
-
 *** Tokens ***
 
-ident   ::= 	C identifier extended to allow a prefix dot (could be used for local symbols, TODO)
+ident   ::= 	C identifier extended to allow a prefix dot
 integer ::= 	C integer (32 ou 64 bits)
-float   ::= 	C double
+float   ::= 	C double readable by strtod, accept C99 %a printf format, e.g. 3.14 -> 0x1.91eb851eb851fp+1
 string  ::= 	C string (including \n, \r, \",... and \ZZZ in octal notation)
+
+
+a comment starts with a semicolon untile the newline  ';' ... '\n'
+
+

@@ -106,10 +106,10 @@ double *pl_base_fd = pl_foreign_double; /* overwrite var of engine.c */
 
 WamWord stack[1024 * 128];
 
-int initialised = 0;
+Bool initialised = FALSE;
 PlLong x;
 PlLong ret;
-PlLong swt[] = { 0, 4, 15, 4095, 123456, 2456789, -257, -999999 };
+PlLong swt[] = { 0, 4, 15, 4095, 123456, 2456789, -257, 3, 8, 328, -9, -999999 };
 PlLong i;
 
 PlLong MA_ARRAY[5000];
@@ -400,7 +400,7 @@ void
 Initializer(void)
 {
   printf("Inside initializer\n");
-  initialised = 1;
+  initialised = TRUE;
 }
 
 

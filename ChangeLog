@@ -1,3 +1,9 @@
+Wed Jun  9 15:20:19 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to Termux on aarch64/android
+	* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
+	* restructure and improve the code of all MA-ASM mappers
+
 Mon May  3 13:04:24 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
 	* port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)

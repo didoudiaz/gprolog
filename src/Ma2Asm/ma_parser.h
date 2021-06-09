@@ -37,6 +37,7 @@
 
 
 #include "../EnginePl/pl_long.h"
+#include "../EnginePl/bool.h"
 
 
 /*---------------------------------*
@@ -66,27 +67,12 @@ ArgTyp;
 
 typedef struct
 {
-  char *name;
-  int index;
-}
-Mem;
-
-
-
-
-typedef struct
-{
   ArgTyp type;
-  int adr_of;
-  union
-  {
-    char *str_val;		/* for string */
-    PlLong int_val;		/* for integer */
-    double dbl_val;		/* for double */
-    Mem mem;			/* for mem */
-    int index;			/* for X() Y() FL() FD() */
-  }
-  t;
+  Bool adr_of;
+  char *str_val;		/* for STRING, MEM, FLOAT */
+  PlLong int_val;		/* for INTEGER */
+  double dbl_val;		/* for FLOAT */
+  int index;			/* for MEM, X() Y() FL() FD() */
 }
 ArgInf;
 

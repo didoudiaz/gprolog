@@ -35,6 +35,8 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/pl_long.h"
+#include "../EnginePl/bool.h"
 
 
 /*---------------------------------*

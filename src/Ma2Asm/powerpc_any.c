@@ -56,7 +56,7 @@
 #define MAX_DOUBLES_IN_PRED        2048
 
 
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
 
 #define UN
 #define R(reg)                     #reg
@@ -97,20 +97,18 @@ int dbl_lc_no = 0;
 int dbl_reg_no;
 
 char asm_reg_bank[20];
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
 
 	  /* variables for ma_parser.c / ma2asm.c */
 
-int can_produce_pic_code = 0;
+Bool can_produce_pic_code = FALSE;
 char *comment_prefix = "#";
 char *local_symb_prefix = ".L";
-int strings_need_null = 0;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
+Bool strings_need_null = FALSE;
+Bool call_c_reverse_args = FALSE;
 
 
 
@@ -188,7 +186,7 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(char *label, Bool prolog, int global)
 {
   int i;
   int x = dbl_lc_no - nb_dbl;
@@ -203,7 +201,7 @@ Code_Start(char *label, int prolog, int global)
 
   Label_Printf("");
   Inst_Printf(".align", "2");
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
   Inst_Printf(".type", "%s,@function", label);
 #endif
 
@@ -231,7 +229,7 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(char *label, Bool prolog, int global)
 {
 }
 
@@ -439,8 +437,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   dbl_reg_no = 0;
 }
@@ -448,7 +445,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 
 
 
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
 
 #define STACK_OFFSET(offset)   offset * 4 - 24
 #define DBL_RET_WORDS          0
@@ -479,7 +476,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 }
 
 
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
 
 #define AFTER_ARG_DBL						\
 }
@@ -525,7 +522,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, int dbl_no, double dbl_val)
 {
   BEFORE_ARG;
 
@@ -549,7 +546,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   BEFORE_ARG;
 
@@ -569,7 +566,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -593,7 +590,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -615,7 +612,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -637,7 +634,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -661,12 +658,12 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
   Inst_Printf("addis", "%s,0," HI_UN(pl_foreign_double+%d), r,
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
 	      index * 4
 #else
 	      index * 8
@@ -699,7 +696,7 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
 #if 0	/* only useful to call varargs functions - not the case here */
   if (dbl_reg_no == 0)
@@ -719,12 +716,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -897,10 +890,10 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
-  Label_Printf(".section\t.rodata");
+#if defined(M_linux) || defined(M_bsd)
+  Inst_Printf(".section", ".rodata");
 #else
   Label_Printf(".cstring");
 #endif
@@ -917,7 +910,7 @@ void
 Dico_String(int str_no, char *asciiz)
 {
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
   Inst_Printf(".string", "%s", asciiz);
 #else
   Inst_Printf(".asciz", "%s", asciiz);
@@ -932,7 +925,7 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
 {
 }
 
@@ -944,7 +937,7 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
   Label_Printf(".data");
   Inst_Printf(".align", "4");
@@ -965,7 +958,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-#if defined(M_powerpc_linux) || defined(M_powerpc_bsd)
+#if defined(M_linux) || defined(M_bsd)
       if (!global)
 	Inst_Printf(".local", UN "%s", name);
       Inst_Printf(".comm", UN "%s,%ld,4", name, value * 4);
@@ -994,7 +987,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 
@@ -1011,7 +1004,7 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-#ifdef M_powerpc_linux
+#ifdef M_linux
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
   Inst_Printf(".align", "2");
   Inst_Printf(".long", UN "%s", initializer_fct);

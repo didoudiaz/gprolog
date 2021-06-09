@@ -42,6 +42,7 @@
 #include <limits.h>
 
 
+
 /* Supported arch: x86_64 (64 bits) on Linux, BSD, Darwin (MacOS)
  *                 Solaris, MinGW, Cygwin, Windows
  */
@@ -108,7 +109,7 @@
  *---------------------------------*/
 
 
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
 
 #define STRING_PREFIX              "L_.str"
 #define DOUBLE_PREFIX              "LCPI"
@@ -127,8 +128,6 @@
 #define MAX_C_ARGS_IN_C_CODE       32 /* must be a multiple of 2 */
 #define RESERVED_STACK_SPACE       MAX_C_ARGS_IN_C_CODE * 8
 
-#define MAX_DOUBLES_IN_PRED        2048
-
 
 
 
@@ -140,13 +139,9 @@
  * Global Variables                *
  *---------------------------------*/
 
-static double dbl_tbl[MAX_DOUBLES_IN_PRED];
-static int nb_dbl = 0;
-static int dbl_lc_no = 0;
-
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
 #if defined(__CYGWIN__) && !defined(_WIN32)
 #define _WIN32 /* ensure Microsoft ABI */
@@ -178,20 +173,6 @@ static const char *fpr_arg[MAX_FPR_ARGS] = {
 };
 #endif
 
-          /* variables for ma_parser.c / ma2asm.c */
-
-int can_produce_pic_code = 1;
-char *comment_prefix = "#";
-#ifdef M_x86_64_darwin
-char *local_symb_prefix = "L";
-#else
-char *local_symb_prefix = ".L";
-#endif
-int strings_need_null = 0;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
-
 
 
 
@@ -202,6 +183,30 @@ char *inline_asm_data[] = { NULL };
 static char *Off_Reg_Bank(int offset);
 
 #define LITTLE_INT(X) ((X) >= INT_MIN && (X) <= INT_MAX)
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INIT_MAPPER                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Init_Mapper(void)
+{
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = TRUE;
+  mi.comment_prefix = "#";
+
+#ifdef M_darwin
+  mi.local_symb_prefix = "L";
+#else
+  mi.local_symb_prefix = ".L";
+#endif
+
+  mi.strings_need_null = FALSE;
+  mi.needs_dico_double = TRUE;
+  mi.call_c_reverse_args = FALSE;
+}
 
 
 
@@ -231,15 +236,15 @@ Asm_Start(void)
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
 
-#if defined(M_x86_64_darwin) || defined(M_x86_64_bsd)
-  pic_code = 1;                 /* NB: on darwin and BSD everything is PIC code */
-#elif defined(M_x86_64_linux) && __GNUC__ >= 6 /* gcc >= 6 needs PIC for linux */
-  pic_code = 1;
+#if defined(M_darwin) || defined(M_bsd)
+  pic_code = TRUE;  		/* NB: on darwin and BSD everything is PIC code */
+#elif defined(M_linux) && __GNUC__ >= 6 /* gcc >= 6 needs PIC for linux */
+  pic_code = TRUE;
 #elif defined(_WIN32)
-  pic_code = 0;			/* NB: on MinGW nothing is needed for PIC code */
+  pic_code = FALSE;  		/* NB: on MinGW nothing is needed for PIC code */
 #endif
 
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Inst_Printf(".section", "__TEXT,__text,regular,pure_instructions");
   Inst_Printf(".align", "4, 0x90");
 #else
@@ -294,29 +299,10 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(char *label, Bool prolog, int global)
 {
-  int i;
-  int x = dbl_lc_no - nb_dbl;
-
-  for (i = 0; i < nb_dbl; i++)
-    {
-      union
-      {
-        double d;
-        unsigned int w[2];
-      } dbl;
-
-      dbl.d = dbl_tbl[i];
-
-      Label_Printf("%s%d:", DOUBLE_PREFIX, x++);
-      Inst_Printf(".long", "%d", dbl.w[0]);
-      Inst_Printf(".long", "%d", dbl.w[1]);
-    }
-  nb_dbl = 0;
-
   Label_Printf("");
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Inst_Printf(".align", "4, 0x90");
 #else
 #if 1				/* old code */
@@ -324,7 +310,7 @@ Code_Start(char *label, int prolog, int global)
 #else
   Inst_Printf(".align", "16");
 #endif
-#if defined(M_x86_64_linux) || defined(M_x86_64_bsd) || defined(M_x86_64_sco)
+#if defined(M_linux) || defined(M_bsd) || defined(M_sco)
   Inst_Printf(".type", "%s,@function", label);
 #endif
 #endif
@@ -352,7 +338,7 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(char *label, Bool prolog, int global)
 {
 }
 
@@ -395,7 +381,7 @@ Reload_E_In_Register(void)
 void
 Pl_Jump(char *label)
 {
-#ifndef M_x86_64_darwin
+#ifndef M_darwin
   if (pic_code)
     Inst_Printf("jmp", UN "%s@PLT", label);
   else
@@ -497,7 +483,7 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
-#ifndef M_x86_64_darwin
+#ifndef M_darwin
   if (pic_code)
     Inst_Printf("jmp", UN "%s@PLT", label);
   else
@@ -565,8 +551,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-             char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
 #ifdef _WIN32
   pr_arg_no = 0;
@@ -580,13 +565,13 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 #define BEFORE_ARG                                      \
 {                                                       \
   char r[10], *r_aux;                                   \
-  int r_eq_r_aux = 0;                                   \
+  int r_eq_r_aux = FALSE;                               \
                                                         \
   if (pr_arg_no < MAX_PR_ARGS)                          \
     {                                                   \
       strcpy(r, gpr_arg[pr_arg_no++]);                  \
       r_aux = r;                                        \
-      r_eq_r_aux = 1;                                   \
+      r_eq_r_aux = TRUE;                                \
     }                                                   \
   else                                                  \
     {                                                   \
@@ -599,13 +584,13 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 #define BEFORE_FPR_ARG                                  \
 {                                                       \
   char r[10], *r_aux;                                   \
-  int r_eq_r_aux = 0;                                   \
+  int r_eq_r_aux = FALSE;                               \
                                                         \
   if (pr_arg_no < MAX_PR_ARGS)                          \
     {                                                   \
       strcpy(r, fpr_arg[pr_arg_no++]);                  \
       r_aux = r;                                        \
-      r_eq_r_aux = 1;                                   \
+      r_eq_r_aux = TRUE;                                \
     }                                                   \
   else                                                  \
     {                                                   \
@@ -620,13 +605,13 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 #define BEFORE_ARG                                      \
 {                                                       \
   char r[10], *r_aux;                                   \
-  int r_eq_r_aux = 0;                                   \
+  int r_eq_r_aux = FALSE;                               \
                                                         \
   if (gpr_arg_no < MAX_GPR_ARGS)                        \
     {                                                   \
       strcpy(r, gpr_arg[gpr_arg_no++]);                 \
       r_aux = r;                                        \
-      r_eq_r_aux = 1;                                   \
+      r_eq_r_aux = TRUE;                                \
     }                                                   \
   else                                                  \
     {                                                   \
@@ -639,13 +624,13 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 #define BEFORE_FPR_ARG                                  \
 {                                                       \
   char r[10], *r_aux;                                   \
-  int r_eq_r_aux = 0;                                   \
+  int r_eq_r_aux = FALSE;                               \
                                                         \
   if (fpr_arg_no < MAX_FPR_ARGS)                        \
     {                                                   \
       strcpy(r, fpr_arg[fpr_arg_no++]);                 \
       r_aux = r;                                        \
-      r_eq_r_aux = 1;                                   \
+      r_eq_r_aux = TRUE;                                \
     }                                                   \
   else                                                  \
     {                                                   \
@@ -692,13 +677,11 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_FPR_ARG;
 
-  dbl_tbl[nb_dbl++] = dbl_val;
-
-  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, dbl_lc_no++, r_aux);
+  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, d->dbl_no, r_aux);
   if (!r_eq_r_aux)
     Inst_Printf("movq", "%s,%s", r_aux, r);
 
@@ -713,7 +696,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   BEFORE_ARG;
 
@@ -742,7 +725,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -791,7 +774,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -827,7 +810,7 @@ finish:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -850,7 +833,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -899,7 +882,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     {
@@ -961,9 +944,9 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-#ifndef M_x86_64_darwin
+#ifndef M_darwin
   if (pic_code)
     Inst_Printf("call", UN "%s@PLT", fct_name);
   else
@@ -979,12 +962,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -1176,12 +1155,12 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Inst_Printf(".section", UN "_TEXT,__cstring,cstring_literals");
 #else
-  Label_Printf(".section\t.rodata");
+  Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
 #endif
 }
 
@@ -1194,7 +1173,7 @@ void
 Dico_String(int str_no, char *asciiz)
 {
   Label_Printf("%s%d:", STRING_PREFIX, str_no);
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Inst_Printf(".asciz", "%s", asciiz);
 #else
   Inst_Printf(".string", "%s", asciiz);
@@ -1207,7 +1186,48 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+#ifdef M_darwin
+  //  Inst_Printf(".section", UN "_TEXT,__cdouble,cdouble_literals");
+#else
+  Inst_Printf(".section", ".rodata.cst8,\"aM\",@progbits,8");
+#endif
+  Inst_Printf(".align", "8");
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
+  Inst_Printf(".long", "%d", d->dbl.i32[0]);
+  Inst_Printf(".long", "%d", d->dbl.i32[1]);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1219,9 +1239,9 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Inst_Printf(".section", "__DATA,__data");
   Inst_Printf(".align", "3");
 #else
@@ -1245,14 +1265,13 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
       value = 1;                /* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
       size_bytes = value * 8;
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
       if (!global)
         Label_Printf(".zerofill __DATA,__bss," UN "%s,%" PL_FMT_d ",4", name, size_bytes);
       else
         Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",4", name, size_bytes);
 #else
-#if defined(M_x86_64_linux) || defined(M_x86_64_sco) || \
-    defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
+#if defined(M_linux) || defined(M_sco) || defined(M_solaris) || defined(M_bsd)
       if (!global)
         Inst_Printf(".local", UN "%s", name);
 #else
@@ -1274,12 +1293,12 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case INITIAL_VALUE:
       if (global)
         Inst_Printf(".globl", UN "%s", name);
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
       Inst_Printf(".align", "3");
 #else
       Inst_Printf(".align", "8");
 #endif
-#if !(defined(M_x86_64_darwin) || defined(_WIN32))
+#if !(defined(M_darwin) || defined(_WIN32))
       Inst_Printf(".size", UN "%s,8", name);
 #endif
       Label_Printf(UN "%s:", name);
@@ -1294,9 +1313,9 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Label_Printf("\n\n.subsections_via_symbols");
 #endif
 }
@@ -1318,12 +1337,12 @@ Data_Start(char *initializer_fct)
   Inst_Printf(".section", ".GPLC$m");
 #elif defined(__CYGWIN__) || defined(_WIN32)
   Inst_Printf(".section", ".ctors,\"aw\"");
-#elif defined(M_x86_64_darwin)
+#elif defined(M_darwin)
   Inst_Printf(".section", "__DATA,__mod_init_func,mod_init_funcs");
 #else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
 #endif
-#ifdef M_x86_64_darwin
+#ifdef M_darwin
   Inst_Printf(".align", "3");
 #else
   Inst_Printf(".align", "8");

@@ -81,14 +81,20 @@
 
 
 
-/* To load an immediate (constant or label) use the pseudo-instruction:
- *    ldr, =immediate or address
- * the assembler tries replace it by one instruction 
+/* To load a 32 bits  immediate (constant or label) use the pseudo-instruction:
+ *    ldr r, =immediate or address
+ * the assembler tries to replace it by one instruction 
  * (mov, mvn on armv6, movw/movt on armv7).
+ *
+ * Similarly to load a 64bis immediate (double) use the pseudo-instruction:
+ *    vldr.64 r, =immediate (hexa representation)
+ * the assembler tries to replace it by a vmov.
+ *
  * If not possible, it places the constant in a literal pool and generates a 
  * pc-relative ldr instruction that reads the constant from the literal pool.
- * For this reson, the pool must not be too far else we obtain an error:
+ * For this reson, the pool must not be too far else we obtain an error, e.g.:
  *    invalid literal constant: pool needs to be closer
+ *    co-processor offset out of range
  * We can inform the assembler to force the emission of the pool with 
  *    .ltorg directive
  * We try to emit it ASAP (e.g. after a branching). We also use a mechanisme
@@ -113,13 +119,9 @@
 
 #define BPW                        4
 #define MAX_ARGS_IN_REGS           4
-#define MAX_DOUBLES_IN_REGS        8
 
 #define MAX_C_ARGS_IN_C_CODE       32
 #define RESERVED_STACK_SPACE       (MAX_C_ARGS_IN_C_CODE - MAX_ARGS_IN_REGS) * BPW
-
-
-#define MAX_DOUBLES_IN_PRED        2048
 
 
 #define UN                         ""
@@ -131,42 +133,19 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef union
-{
-  double d;
-  int w[2];
-}Dbl_2x32;
-
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
 
-int dbl_lc_no = 0;
-int dbl_reg_no;
+char asm_reg_e[32];
 
-char asm_reg_e[20];
+int dbl_reg_no;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 LabelGen lg_pool;
 #else
 LabelGen lg_addr;
 #endif
-
-
-	  /* variables for ma_parser.c / ma2asm.c */
-
-int needs_pre_pass = 0;		/* overwritte var of ma_parser.c */
-
-int can_produce_pic_code = 0;
-char *comment_prefix = "#";
-char *local_symb_prefix = ".L";
-int strings_need_null = 0;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
@@ -177,11 +156,128 @@ char *inline_asm_data[] = { NULL };
 
 
 /*-------------------------------------------------------------------------*
+ * INIT_MAPPER                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Init_Mapper(void)
+{
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "#";
+  mi.local_symb_prefix = ".L";
+  mi.strings_need_null = FALSE;
+  mi.needs_dico_double = FALSE;
+  mi.call_c_reverse_args = FALSE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ASM_START                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Asm_Start(void)
+{
+#ifdef MAP_REG_E
+  strcpy(asm_reg_e, MAP_REG_E);
+#else
+  strcpy(asm_reg_e, "r11");
+#endif
+
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+  Label_Gen_Init(&lg_pool, "pool");
+#else
+  Label_Gen_Init(&lg_addr, "addr");
+#endif
+
+  Inst_Printf(".syntax", "unified");
+  Label_Printf(".text");
+#if 0                           /* see Fail_Ret() */
+  Label("fail");
+  Pl_Fail();
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ASM_STOP                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Asm_Stop(void)
+{
+#ifdef __ELF__
+  Inst_Printf(".section", ".note.GNU-stack,\"\"");
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CODE_START                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Code_Start(char *label, Bool prolog, int global)
+{
+  Label_Printf("");
+  Inst_Printf(".align", "2");
+  Inst_Printf(".fpu", "vfp");
+  Inst_Printf(".type", "%s, %%function", label);
+
+  if (global)
+    Inst_Printf(".global", "%s", label);
+
+  Label(label);
+
+  if (!prolog)
+    {
+      Inst_Printf("push", "{r4, lr}");
+      Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
+    }
+
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CODE_STOP                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Code_Stop(char *label, Bool prolog, int global)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL                                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Label(char *label)
+{
+  Label_Printf("");
+  Label_Printf("%s:", label);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * EMIT_POOL                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_Pool(int after_call_c)
+Emit_Pool(Bool after_call_c)
 {
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
   static int call_c_since_emit_pool = 0;
@@ -308,108 +404,10 @@ Load_Address(char *r, char *addr)
    * limits we have to include address as a literal... */
   Inst_Printf("ldr", "%s, %s-4", r, Label_Gen_New(&lg_addr));
   Inst_Printf("b", Label_Gen_Get(&lg_addr));
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
   Inst_Printf(".word", "%s", addr);
   Label_Printf("%s:", Label_Gen_Get(&lg_addr));
 #endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ASM_START                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Asm_Start(void)
-{
-#ifdef MAP_REG_E
-  strcpy(asm_reg_e, MAP_REG_E);
-#else
-  strcpy(asm_reg_e, "r11");
-#endif
-
-#ifdef USE_LDR_PSEUDO_OP_AND_POOL
-  Label_Gen_Init(&lg_pool, "pool");
-#else
-  Label_Gen_Init(&lg_addr, "addr");
-#endif
-  
-  Label_Printf(".text");
-#if 0                           /* see Fail_Ret() */
-  Label("fail");
-  Pl_Fail();
-#endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * ASM_STOP                                                                *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Asm_Stop(void)
-{
-#ifdef __ELF__
-  Inst_Printf(".section", ".note.GNU-stack,\"\"");
-#endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * CODE_START                                                              *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Code_Start(char *label, int prolog, int global)
-{
-  Label_Printf("");
-  Inst_Printf(".align", "2");
-  Inst_Printf(".fpu", "vfp");
-  Inst_Printf(".type", "%s, %%function", label);
-
-  if (global)
-    Inst_Printf(".global", "%s", label);
-
-  Label(label);
-
-  if (!prolog)
-    {
-      Inst_Printf("push", "{r4, lr}");
-      Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
-    }
-
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * CODE_STOP                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Code_Stop(void)
-{
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * LABEL                                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Label(char *label)
-{
-  Label_Printf("");
-  Label_Printf("%s:", label);
 }
 
 
@@ -439,7 +437,7 @@ void
 Pl_Jump(char *label)
 {
   Inst_Printf("b", "%s", label);
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
 }
 
 
@@ -471,7 +469,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 
@@ -507,7 +505,7 @@ Pl_Fail(void)
   Inst_Printf("ldr", "r3, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_B);
   Inst_Printf("ldr", "pc, [r3, #-4]");
 #endif
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
 }
 
 
@@ -526,7 +524,7 @@ Pl_Ret(void)
   Load_Reg_Bank();
   Inst_Printf("ldr", "pc, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_CP);
 #endif
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
 }
 
 
@@ -540,7 +538,7 @@ void
 Jump(char *label)
 {
   Inst_Printf("b", "%s", label);
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
 }
 
 
@@ -635,8 +633,7 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   dbl_reg_no = 0;
 }
@@ -698,25 +695,32 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf*d)
 {
   BEFORE_ARG;
 
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+
+  Inst_Printf("vldr.64", "d%d, =0x%08x%08x", dbl_reg_no++, d->dbl.i32[1], d->dbl.i32[0]);
+
+#else
+
+  static int dbl_lc_no = 0;
   Inst_Printf("b", "%s%d", DOUBLE_PREFIX, dbl_lc_no);
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
   Inst_Printf(".align", "2");
 #if 0
   Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", dbl_val);
 #else
-  Dbl_2x32 z;
-  z.d = dbl_val;
-  Inst_Printf(".word", "%d", z.w[0]);
-  Inst_Printf(".word", "%d", z.w[1]);
+  Inst_Printf(".word", "%d", d->dbl.i32[0]);
+  Inst_Printf(".word", "%d", d->dbl.i32[1]);
 #endif
   Label_Printf("%s%d:", DOUBLE_PREFIX, dbl_lc_no);
-  Inst_Printf("vldr.64", "d%d, %s%d-8",
-	      dbl_reg_no++, DOUBLE_PREFIX, dbl_lc_no++);
+  Inst_Printf("vldr.64", "d%d, %s%d-8", dbl_reg_no++, DOUBLE_PREFIX, dbl_lc_no++);
 
+#endif
+
+  
   AFTER_ARG_DBL;
 
   return DBL_RET_WORDS;
@@ -730,7 +734,7 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   BEFORE_ARG;
 
@@ -752,7 +756,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -774,7 +778,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -799,7 +803,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -822,7 +826,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_long", index);
 }
@@ -835,7 +839,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_double", index * 2);
@@ -859,10 +863,10 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   Inst_Printf("bl", "%s", fct_name);
-  Emit_Pool(1);			/* only if too many call_c */
+  Emit_Pool(TRUE);		/* only if too many call_c */
 }
 
 
@@ -873,12 +877,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -892,7 +892,7 @@ void
 Jump_Ret(void)
 {
   Inst_Printf("mov", "pc, r0");
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
 }
 
 
@@ -912,7 +912,7 @@ Fail_Ret(void)
 #else
   Pl_Fail();
 #endif
-  Emit_Pool(0);				     /* take advantage of branching to emit the pool */
+  Emit_Pool(FALSE);			     /* take advantage of branching to emit the pool */
   Label_Printf("%s:", Label_Cont_Get());
 }
 
@@ -1054,7 +1054,7 @@ C_Ret(void)
 #endif
   Inst_Printf("add", "sp, #%d", RESERVED_STACK_SPACE);
   Inst_Printf("pop", "{r4, pc}");
-  Emit_Pool(0);
+  Emit_Pool(FALSE);
 }
 
 
@@ -1065,7 +1065,7 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
   /* str1.4 implies 4 bytes alignment, flags: M=Merge, S=Strings A=Alloc */
   /* then add a .align 2 before each string entry or a .space n after each string */
@@ -1100,7 +1100,39 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1112,7 +1144,7 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
   Label_Printf(".data");
   Inst_Printf(".align", "4");
@@ -1156,7 +1188,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 

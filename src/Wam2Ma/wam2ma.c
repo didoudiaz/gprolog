@@ -175,7 +175,7 @@ typedef struct directinf
 {
   BTNode *pl_file;
   int pl_line;
-  int system;
+  Bool system;
   DirectP next;
 }
 Direct;
@@ -188,7 +188,7 @@ Direct;
 
 char *file_name_in;
 char *file_name_out;
-int comment;
+Bool comment;
 
 FILE *file_out;
 
@@ -476,9 +476,9 @@ F_predicate(ArgVal arg[])
 {
   BTNode *atom_module = NULL;
   BTNode *atom_functor;
-  int module_user_system = 0;
+  Bool module_user_system = FALSE;
   int prop;
-  int local_symbol = 0;
+  Bool local_symbol = FALSE;
 	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
   Args6(MP_N(module, functor, arity), INTEGER(pl_line),
 	STR(static_dynamic), STR(public_private), STR(mono_multi), STR(built_in_local_global));
@@ -517,13 +517,12 @@ F_predicate(ArgVal arg[])
 
 
 
-    local_symbol = 0;
   if (strcmp(built_in_local_global, "built_in") == 0)
     prop |= MASK_PRED_BUILTIN;
   else if (strcmp(built_in_local_global, "built_in_fd") == 0)
     prop |= MASK_PRED_BUILTIN_FD;
   else if (strcmp(built_in_local_global, "local") == 0)
-    local_symbol = 1;
+    local_symbol = TRUE;
   else if (strcmp(built_in_local_global, "user") != 0 &&
 	   strcmp(built_in_local_global, "global") != 0)
     Syntax_Error("built_in, built_in_fd, local or global (or user) expected");
@@ -552,7 +551,7 @@ F_predicate(ArgVal arg[])
     }
   atom_module = BT_String_Add(&bt_atom, module);
   if (strcmp(module, "user") == 0 || strcmp(module, "system") == 0)
-    module_user_system = 1;
+    module_user_system = TRUE;
 
 
   cur_pred->module = atom_module;
@@ -598,7 +597,7 @@ void
 F_directive(ArgVal arg[])
 {
   Direct *p;
-  int system;
+  Bool system;
 	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
   Args2(INTEGER(pl_line), STR(user_system));
 
@@ -607,9 +606,9 @@ F_directive(ArgVal arg[])
 
 
   if (strcmp(user_system, "system") == 0)
-    system = 1;
+    system = TRUE;
   else if (strcmp(user_system, "user") == 0)
-    system = 0;
+    system = FALSE;
   else
     Syntax_Error("user or system expected");
 
@@ -618,8 +617,7 @@ F_directive(ArgVal arg[])
   p = (Direct *) malloc(sizeof(Direct));
   if (p == NULL)
     {
-      fprintf(stderr, "Cannot allocate memory for directive #%d\n",
-	      cur_direct_no);
+      fprintf(stderr, "Cannot allocate memory for directive #%d\n", cur_direct_no);
       exit(1);
     }
 
@@ -784,11 +782,9 @@ F_get_structure(ArgVal arg[])
 {
   Args2(F_N(atom, n), INTEGER(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Get_Structure_Tagged(fn(%d),X(%" PL_FMT_d "))", f_n_no,
-	      a);
+  Inst_Printf("call_c", FAST "Pl_Get_Structure_Tagged(fn(%d),X(%" PL_FMT_d "))", f_n_no, a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Get_Structure(at(%d),%" PL_FMT_d ",X(%" PL_FMT_d "))", atom->no,
-	      n, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Structure(at(%d),%" PL_FMT_d ",X(%" PL_FMT_d "))", atom->no, n, a);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -1656,11 +1652,11 @@ void
 F_call_c(ArgVal arg[])
 {
   int ret = 0;			/* 1: boolean, 2: jump, 3: move */
-  int fast_call = 0;
-  int tagged = 0;
-  int set_cp = 0;
+  Bool fast_call = FALSE;
+  Bool tagged = FALSE;
+  Bool set_cp = FALSE;
   char *str;
-  int adr_of;
+  Bool adr_of;
   PlLong ret_xy;
   char ret_c;
   int i;
@@ -1694,11 +1690,11 @@ F_call_c(ArgVal arg[])
       else if (strcmp(c_option, "jump") == 0)
 	ret = 2;
       else if (strcmp(c_option, "fast_call") == 0)
-	fast_call = 1;
+	fast_call = TRUE;
       else if (strcmp(c_option, "tagged") == 0)
-	tagged = 1;
+	tagged = TRUE;
       else if (strcmp(c_option, "set_cp") == 0)
-	set_cp = 1;
+	set_cp = TRUE;
     }
 
   LOAD_INTEGER(nb_elem);
@@ -1713,7 +1709,7 @@ F_call_c(ArgVal arg[])
   fprintf(file_out, "%s(", fct_name);
 
   i = 0;
-  adr_of = 0;
+  adr_of = FALSE;
   goto write_a_arg;
   while(i < nb_elem)
     {
@@ -1730,7 +1726,7 @@ F_call_c(ArgVal arg[])
 	      if ((i < nb_elem - 1 && *(PlLong *) (top+1) == X_Y) ||
 		  (i < nb_elem - 2 && *(PlLong *) (top+1) == ATOM && *(PlLong *) (top+3) == INTEGER))
 		{
-		  adr_of = 1;
+		  adr_of = TRUE;
 		  i++;
 		  top++;
 		  goto write_a_arg;
@@ -1745,7 +1741,7 @@ F_call_c(ArgVal arg[])
 	      LOAD_INTEGER(aux_arity);
 	      Encode_Hexa(NULL, aux_functor, aux_arity, buff_hexa);
 	      fprintf(file_out, "&%s", buff_hexa);
-	      adr_of = 0;
+	      adr_of = FALSE;
 	    }
 	  else if (tagged)
 	    {
@@ -1774,7 +1770,7 @@ F_call_c(ArgVal arg[])
 	  if (adr_of)
 	    {
 	      fprintf(file_out, "&");
-	      adr_of = 0;
+	      adr_of = FALSE;
 	    }
 	  fprintf(file_out, "%c(%" PL_FMT_d ")", c, xy);
 	  break;
@@ -2326,7 +2322,7 @@ Parse_Arguments(int argc, char *argv[])
 
 
   file_name_in = file_name_out = NULL;
-  comment = 0;
+  comment = FALSE;
 
   for (i = 1; i < argc; i++)
     {
@@ -2347,7 +2343,7 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--comment"))
 	    {
-	      comment = 1;
+	      comment = TRUE;
 	      continue;
 	    }
 

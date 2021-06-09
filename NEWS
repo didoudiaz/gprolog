@@ -1,5 +1,8 @@
 Change in GNU Prolog version 1.5.0
 
+* port to Termux on aarch64/android
+* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
+* restructure and improve the code of all MA-ASM mappers
 * port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
 * port to arm64 (aarch64)/Linux (armv8) - many thanks to
   Jasper Taylor <jasper@simulistics.com>

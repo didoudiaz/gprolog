@@ -65,33 +65,19 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[20];
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_bank[20];		/* enough big sizes to avoid compiler warnings */
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
 char cur_fct_label[1024];
 
-int pic_helper_ready = 0;
+Bool pic_helper_ready = FALSE;
 
 char buff[1024];
-int delay_active = 0;
+int delay_active = FALSE;
 char *delay_op = NULL;
 char delay_operands[1024];
-
-
-
-
-
-	  /* variables for ma_parser.c / ma2asm.c */
-int can_produce_pic_code = 1;
-
-char *comment_prefix = "!";
-char *local_symb_prefix = "L";
-int strings_need_null = 1;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
@@ -145,13 +131,18 @@ int Delay_Flush(void);
 
 
 /*-------------------------------------------------------------------------*
- * SOURCE_LINE                                                             *
+ * INIT_MAPPER                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-Source_Line(int line_no, char *cmt)
+void Init_Mapper(void)
 {
-  Label_Printf("\t! %6d: %s", line_no, cmt);
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "!";	/* NB: # does not work on Solaris 9 */
+  mi.local_symb_prefix = "L";
+  mi.strings_need_null = TRUE;
+  mi.needs_dico_double = FALSE;
+  mi.call_c_reverse_args = FALSE;
 }
 
 
@@ -223,12 +214,12 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(char *label, Bool prolog, int global)
 {
   Label_Printf("");
   Delay_Printf(".align", "4");
   Delay_Printf(".align", "32");
-#if defined(M_sparc64_solaris) || defined(M_sparc64_bsd)
+#if defined(M_solaris) || defined(M_bsd)
   Delay_Printf(".type", UN "%s,#function", label);
 #endif
   Delay_Printf(".proc", "020");
@@ -241,7 +232,7 @@ Code_Start(char *label, int prolog, int global)
   if (!prolog)
     Delay_Printf("save", "%%sp,-192,%%sp");
 
-  pic_helper_ready = 0;
+  pic_helper_ready = FALSE;
   strcpy(cur_fct_label, label);
 }
 
@@ -253,7 +244,7 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(char *label, Bool prolog, int global)
 {
   /* this directive is mandatory else asm call are wrong (PC relative) */
   Delay_Printf(".size", "%s,.-%s", cur_fct_label, cur_fct_label);
@@ -288,7 +279,7 @@ Ensure_PIC_Helper(void)
   Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-4), %%l7");
   Delay_Printf("call", "__sparc_get_pc_thunk.l7");
   Delay_Printf("add", "%%l7, %%lo(_GLOBAL_OFFSET_TABLE_+4), %%l7");
-  pic_helper_ready = 1;
+  pic_helper_ready = TRUE;
 
 }
 
@@ -323,21 +314,22 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
   int upper32 = value >> 32;
   int lower32 = value;
   char *upper_dstreg = tmpreg;
-  int need_hh22_p = 0, need_hm10_p = 0, need_hi22_p = 0, need_lo10_p = 0;
-  int need_xor10_p = 0;
+  Bool need_hh22_p, need_hm10_p, need_hi22_p, need_lo10_p, need_xor10_p = FALSE;
+
+  need_hh22_p = need_hm10_p = need_hi22_p = need_lo10_p = need_xor10_p = FALSE;
 
   /* What to output depends on the number if it's constant.
      Compute that first, then output what we've decided upon.  */
  
   /* Only need hh22 if `or' insn can't handle constant.  */
   if (!OK_FOR_SIMM13(upper32))
-    need_hh22_p = 1;
+    need_hh22_p = TRUE;
 
   /* Does bottom part (after sethi) have bits?  */
   if ((need_hh22_p && (upper32 & 0x3ff) != 0)
       /* No hh22, but does upper32 still have bits we can't set from lower32?  */
       || (! need_hh22_p && upper32 != 0 && upper32 != -1))
-    need_hm10_p = 1;
+    need_hm10_p = TRUE;
 
   /* If the lower half is all zero, we build the upper half directly into the dst reg.  */
   if (lower32 != 0
@@ -350,10 +342,10 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
 	     insn unless the upper 32 bits are all ones.  */
 	  || (lower32 < 0 && upper32 != -1)
 	  || (lower32 >= 0 && upper32 == -1))
-	need_hi22_p = 1;
+	need_hi22_p = TRUE;
 
       if (need_hi22_p && upper32 == -1)
-	need_xor10_p = 1;
+	need_xor10_p = TRUE;
 
       /* Does bottom part (after sethi) have bits?  */
       else if ((need_hi22_p && (lower32 & 0x3ff) != 0)
@@ -361,7 +353,7 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
 	       || (! need_hi22_p && (lower32 & 0x1fff) != 0)
 	       /* Need `or' if we didn't set anything else.  */
 	       || (! need_hi22_p && ! need_hh22_p && ! need_hm10_p))
-	need_lo10_p = 1;
+	need_lo10_p = TRUE;
     }
   else
     /* Output directly to dst reg if lower 32 bits are all zero.  */
@@ -416,7 +408,7 @@ Load_Long_Into_Reg(PlLong x, char *reg)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Load_Mem_Into_Reg(char *mem_base_reg, int displ, int adr_of, char *reg)
+Load_Mem_Into_Reg(char *mem_base_reg, int displ, Bool adr_of, char *reg)
 {
   static char tmp[32];
   char *str_displ;
@@ -517,7 +509,7 @@ void
 Here_CP(void)
 {
   Label_Printf("%s:", Label_Cont_Get());
-  pic_helper_ready = 0;
+  pic_helper_ready = FALSE;
 }
 
 
@@ -536,7 +528,7 @@ Pl_Call(char *label)
 #else
   Delay_Printf("stx", "%%o7,%s", asm_reg_cp);	/* delay slot */
 #endif
-  pic_helper_ready = 0;
+  pic_helper_ready = FALSE;
 }
 
 
@@ -558,7 +550,7 @@ Pl_Fail(void)
 
   Delay_Printf("call", "%%o0");
   Delay_Printf("nop", "");	/* delay slot */
-  pic_helper_ready = 0;
+  pic_helper_ready = FALSE;
 }
 
 
@@ -578,7 +570,7 @@ Pl_Ret(void)
   Delay_Printf("jmp", "%%o0+8");
 #endif
   Delay_Printf("nop", "");	/* delay slot */
-  pic_helper_ready = 0;
+  pic_helper_ready = FALSE;
 }
 
 
@@ -655,10 +647,9 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  delay_active = 1;
+  delay_active = TRUE;
   delay_op = NULL;
 }
 
@@ -730,13 +721,11 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  long *p = (long *) &dbl_val;
-
   BEFORE_FP_ARG;
 
-  Load_Long_Into_Reg(*p, r);
+  Load_Long_Into_Reg(d->dbl.i64, r);
 
   AFTER_FP_ARG;
 
@@ -768,7 +757,7 @@ Load_Mem_Base_Into_Reg(char *label, int displ, char *reg)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, int str_no, char *asciiz)
 {
   BEFORE_ARG;
 
@@ -790,7 +779,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -810,7 +799,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -829,7 +818,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -848,7 +837,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -867,7 +856,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     {
@@ -898,9 +887,9 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  delay_active = 0;		/* stop the delay, so Delay_Printf is a Delay_Printf */
+  delay_active = FALSE;		/* stop the delay, so Delay_Printf is a Delay_Printf */
 
   Delay_Printf("call", UN "%s,0", fct_name);
   if (!Delay_Flush())		/* emit the delay insn to fill the delay slot */
@@ -915,12 +904,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -1100,7 +1085,7 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
   Delay_Printf(".section", ".rodata.str1.8,\"aMS\",@progbits,1");
 }
@@ -1128,7 +1113,39 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1140,7 +1157,7 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
   Delay_Printf(".section", "\".data\"");
   Delay_Printf(".align", "8");
@@ -1162,7 +1179,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case NONE:
       value = 1;		/* then in case ARRAY_SIZE */
     case ARRAY_SIZE:
-#ifdef M_sparc64_sunos
+#ifdef M_sunos
       if (!global)
 	Delay_Printf(".reserve", UN "%s,%ld,\"bss\",8", name, value * 8);
       else
@@ -1177,7 +1194,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
     case INITIAL_VALUE:
       if (global)
 	Delay_Printf(".globl", UN "%s", name);
-#if defined(M_sparc64_solaris) || defined(M_sparc64_bsd)
+#if defined(M_solaris) || defined(M_bsd)
       Delay_Printf(".align", "8", name);
       Delay_Printf(".type", UN "%s,#object", name);
       Delay_Printf(".size", UN "%s,8", name);
@@ -1196,7 +1213,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 

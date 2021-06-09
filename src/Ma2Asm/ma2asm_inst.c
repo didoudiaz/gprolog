@@ -54,8 +54,10 @@
 
 #if 0				/* to force the inclusion of a mapper */
 
-#define M_ix86_darwin
-#include "ix86_any.c"
+#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
+#define FC_MAX_ARGS_IN_REGS 3
+#undef M_mips
+#include "mips_any.c"
 
 #else
 
@@ -96,6 +98,10 @@
 #elif defined(M_arm64)
 
 #include "arm64_any.c"
+
+#else
+
+#error __FILE__ " no MA mapper file included"
 
 #endif
 

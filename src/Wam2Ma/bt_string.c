@@ -97,8 +97,7 @@ BT_String_Add(BTString *bt_str, char *str)
 
   if ((bt_node = (BTNode *) malloc(sizeof(BTNode))) == NULL)
     {
-      fprintf(stderr, "Cannot allocate memory for BT string: %s\n",
-	      str);
+      fprintf(stderr, "Cannot allocate memory for BT string: %s\n", str);
       exit(1);
     }
 
