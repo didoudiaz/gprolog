@@ -141,14 +141,14 @@
 
 
 
-/* Define if the cpu is a mips */
-#undef M_mips
+/* Define if the cpu is a mips32 */
+#undef M_mips32
 
 /* Define if the cpu is an alpha */
 #undef M_alpha
 
-/* Define if the cpu is a sparc */
-#undef M_sparc
+/* Define if the cpu is a sparc32 */
+#undef M_sparc32
 
 /* Define if the cpu is a sparc64 */
 #undef M_sparc64
@@ -156,8 +156,8 @@
 /* Define if the cpu is a ix86 */
 #undef M_ix86
 
-/* Define if the cpu is a powerpc */
-#undef M_powerpc
+/* Define if the cpu is a ppc32 */
+#undef M_ppc32
 
 /* Define if the cpu is a x86-64 */
 #undef M_x86_64
@@ -202,8 +202,8 @@
 #undef M_bsd
 
 
-/* Define if the system is an mips/irix */
-#undef M_mips_irix
+/* Define if the system is an mips32/irix */
+#undef M_mips32_irix
 
 /* Define if the system is an alpha/linux */
 #undef M_alpha_linux
@@ -235,26 +235,26 @@
 /* Define if the system is a ix86/solaris */
 #undef M_ix86_solaris
 
-/* Define if the system is a sparc/solaris */
-#undef M_sparc_solaris
+/* Define if the system is a sparc32/solaris */
+#undef M_sparc32_solaris
 
-/* Define if the system is a sparc/sunos */
-#undef M_sparc_sunos
+/* Define if the system is a sparc32/sunos */
+#undef M_sparc32_sunos
 
-/* Define if the system is a sparc/bsd */
-#undef M_sparc_bsd
+/* Define if the system is a sparc32/bsd */
+#undef M_sparc32_bsd
 
 /* Define if the system is a sparc64/bsd */
 #undef M_sparc64_bsd
 
-/* Define if the system is a powerpc/linux */
-#undef M_powerpc_linux
+/* Define if the system is a ppc32/linux */
+#undef M_ppc32_linux
 
-/* Define if the system is a powerpc/darwin */
-#undef M_powerpc_darwin
+/* Define if the system is a ppc32/darwin */
+#undef M_ppc32_darwin
 
-/* Define if the system is a powerpc/bsd */
-#undef M_powerpc_bsd
+/* Define if the system is a ppc32/bsd */
+#undef M_ppc32_bsd
 
 /* Define if the system is a x86-64/linux */
 #undef M_x86_64_linux

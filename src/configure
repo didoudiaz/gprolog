@@ -4701,25 +4701,25 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 WINDOWS=no
 
 case "$host" in
-    mips*irix*)        $as_echo "#define M_mips 1" >>confdefs.h
-    $as_echo "#define M_irix 1" >>confdefs.h
-    $as_echo "#define M_mips_irix 1" >>confdefs.h
+    mips*irix*)        $as_echo "#define M_mips32 1" >>confdefs.h
+  $as_echo "#define M_irix 1" >>confdefs.h
+    $as_echo "#define M_mips32_irix 1" >>confdefs.h
 ;;
     sparc64*bsd*)      $as_echo "#define M_sparc64 1" >>confdefs.h
  $as_echo "#define M_bsd 1" >>confdefs.h
      $as_echo "#define M_sparc64_bsd 1" >>confdefs.h
 ;;
-    sparc*sunos*)      $as_echo "#define M_sparc 1" >>confdefs.h
-   $as_echo "#define M_sunos 1" >>confdefs.h
-   $as_echo "#define M_sparc_sunos 1" >>confdefs.h
+    sparc*sunos*)      $as_echo "#define M_sparc32 1" >>confdefs.h
+ $as_echo "#define M_sunos 1" >>confdefs.h
+   $as_echo "#define M_sparc32_sunos 1" >>confdefs.h
 ;;
-    sparc*solaris*)    $as_echo "#define M_sparc 1" >>confdefs.h
-   $as_echo "#define M_solaris 1" >>confdefs.h
- $as_echo "#define M_sparc_solaris 1" >>confdefs.h
+    sparc*solaris*)    $as_echo "#define M_sparc32 1" >>confdefs.h
+ $as_echo "#define M_solaris 1" >>confdefs.h
+ $as_echo "#define M_sparc32_solaris 1" >>confdefs.h
 ;;
-    sparc*bsd*)        $as_echo "#define M_sparc 1" >>confdefs.h
-   $as_echo "#define M_bsd 1" >>confdefs.h
-     $as_echo "#define M_sparc_bsd 1" >>confdefs.h
+    sparc*bsd*)        $as_echo "#define M_sparc32 1" >>confdefs.h
+ $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_sparc32_bsd 1" >>confdefs.h
 ;;
     alpha*osf*)        $as_echo "#define M_alpha 1" >>confdefs.h
    $as_echo "#define M_osf 1" >>confdefs.h
@@ -4801,17 +4801,17 @@ case "$host" in
   $as_echo "#define M_cygwin 1" >>confdefs.h
   $as_echo "#define M_x86_64_cygwin 1" >>confdefs.h
 ;;
-    powerpc*linux*)    $as_echo "#define M_powerpc 1" >>confdefs.h
- $as_echo "#define M_linux 1" >>confdefs.h
-   $as_echo "#define M_powerpc_linux 1" >>confdefs.h
+    powerpc*linux*)    $as_echo "#define M_ppc32 1" >>confdefs.h
+   $as_echo "#define M_linux 1" >>confdefs.h
+   $as_echo "#define M_ppc32_linux 1" >>confdefs.h
 ;;
-    powerpc*darwin*)   $as_echo "#define M_powerpc 1" >>confdefs.h
- $as_echo "#define M_darwin 1" >>confdefs.h
-  $as_echo "#define M_powerpc_darwin 1" >>confdefs.h
+    powerpc*darwin*)   $as_echo "#define M_ppc32 1" >>confdefs.h
+   $as_echo "#define M_darwin 1" >>confdefs.h
+  $as_echo "#define M_ppc32_darwin 1" >>confdefs.h
 ;;
-    powerpc*bsd*)      $as_echo "#define M_powerpc 1" >>confdefs.h
- $as_echo "#define M_bsd 1" >>confdefs.h
-     $as_echo "#define M_powerpc_bsd 1" >>confdefs.h
+    powerpc*bsd*)      $as_echo "#define M_ppc32 1" >>confdefs.h
+   $as_echo "#define M_bsd 1" >>confdefs.h
+     $as_echo "#define M_ppc32_bsd 1" >>confdefs.h
 ;;
     arm*linux*)        $as_echo "#define M_arm32 1" >>confdefs.h
    $as_echo "#define M_linux 1" >>confdefs.h

@@ -228,7 +228,7 @@
 
 	  /* CP management */
 
-#if defined(M_sparc) || defined(M_sparc64)
+#if defined(M_sparc32) || defined(M_sparc64)
 
 #define Adjust_CP(cp)              ((WamCont) ((PlULong) (cp) - 8))
 #define UnAdjust_CP(cp)            ((WamCont) ((PlULong) (cp) + 8))

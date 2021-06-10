@@ -327,7 +327,7 @@ Load_PB_Reg(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, Bool prolog, int global)
+Code_Start(CodeInf *c)
 {
 #ifdef M_solaris
   Inst_Printf(".align", "4");
@@ -336,15 +336,15 @@ Code_Start(char *label, Bool prolog, int global)
   Inst_Printf(".p2align", "4,,15");
 #endif
 #if defined(M_linux) || defined(M_bsd) || defined(M_sco)
-  Inst_Printf(".type", UN "%s,@function", label);
+  Inst_Printf(".type", UN "%s,@function", c->name);
 #endif
 
-  if (global)
-    Label_Printf(".globl " UN "%s", label);
+  if (c->global)
+    Label_Printf(".globl " UN "%s", c->name);
 
-  Label(label);
+  Label(c->name);
 
-  if (!prolog)
+  if (!c->prolog)
     {
 #ifdef M_darwin
       Inst_Printf("pushl", "%s", DARWIN_PB_REG);
@@ -362,7 +362,7 @@ Code_Start(char *label, Bool prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(char *label, Bool prolog, int global)
+Code_Stop(CodeInf *c)
 {
 }
 
@@ -731,10 +731,7 @@ int
 Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
 #ifdef M_darwin
-  int global;
-  PlLong value;
-  VType vtype;
-  int is_a_long;
+  LongInf *l = Get_Long_Infos(name);
 #endif
 
   BEFORE_ARG;
@@ -742,10 +739,9 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 #ifdef M_darwin
 
   Load_PB_Reg();
-  is_a_long = Get_Long_Infos(name, &global, &vtype, &value);
 
-  if ((is_a_long && global && vtype != INITIAL_VALUE) ||
-      (!is_a_long && !Is_Code_Defined(name))) /* external code */
+  if ((l && l->global && l->vtype != INITIAL_VALUE) ||
+      (!l && !Is_Code_Defined(name))) /* external code */
     {
       BT_String_Add(&bt_non_lazy, name); /* strdup done by parser */
       Inst_Printf("movl", "L_%s$non_lazy_ptr-%s,%s", name, pb_label, r_aux);
@@ -1207,44 +1203,43 @@ Dico_Long_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
 #if defined(M_linux) || defined(M_sco) || \
     defined(M_solaris) || defined(M_bsd)
-      if (!global)
-	Inst_Printf(".local", UN "%s", name);
-      Inst_Printf(".comm", UN "%s,%ld,4", name, value * 4);
+      if (!l->global)
+	Inst_Printf(".local", UN "%s", l->name);
+      Inst_Printf(".comm", UN "%s,%ld,4", l->name, l->value * 4);
 #else
-      if (!global)
+      if (!l->global)
 #ifdef M_darwin
-	Inst_Printf(".lcomm", UN "%s,%ld,2", name, value * 4);
+	Inst_Printf(".lcomm", UN "%s,%ld,2", l->name, l->value * 4);
 #else
-	Inst_Printf(".lcomm", UN "%s,%ld", name, value * 4);
+	Inst_Printf(".lcomm", UN "%s,%ld", l->name, l->value * 4);
 #endif
       else
-	Inst_Printf(".comm", UN "%s,%ld", name, value * 4);
+	Inst_Printf(".comm", UN "%s,%ld", l->name, l->value * 4);
 #endif
       break;
 
     case INITIAL_VALUE:
-      if (global)
-	Label_Printf(".globl " UN "%s", name);
+      if (l->global)
+	Label_Printf(".globl " UN "%s", l->name);
 #ifdef M_darwin
       Inst_Printf(".align", "2");
 #else
       Inst_Printf(".align", "4");
 #if !defined(__CYGWIN__) && !defined(_WIN32)
-      Inst_Printf(".type", UN "%s,@object", name);
-      Inst_Printf(".size", UN "%s,4", name);
+      Inst_Printf(".type", UN "%s,@object", l->name);
+      Inst_Printf(".size", UN "%s,4", l->name);
 #endif
 #endif
-      Label_Printf(UN "%s:", name);
-      Inst_Printf(".long", "%ld", value);
+      Label_Printf(UN "%s:", l->name);
+      Inst_Printf(".long", "%ld", l->value);
       break;
     }
 }

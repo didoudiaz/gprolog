@@ -477,7 +477,7 @@ F_predicate(ArgVal arg[])
   BTNode *atom_module = NULL;
   BTNode *atom_functor;
   Bool module_user_system = FALSE;
-  int prop;
+  int prop = 0;			/* init for the compiler */
   Bool local_symbol = FALSE;
 	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
   Args6(MP_N(module, functor, arity), INTEGER(pl_line),
@@ -597,7 +597,7 @@ void
 F_directive(ArgVal arg[])
 {
   Direct *p;
-  Bool system;
+  Bool system = FALSE;		/* init for the compiler */
 	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
   Args2(INTEGER(pl_line), STR(user_system));
 
@@ -630,8 +630,7 @@ F_directive(ArgVal arg[])
   direct_end = p;
 
   if (comment)
-    Label_Printf("\n\n; *** %s Directive (%s:%d)",
-		 (system) ? "System" : "User", cur_pl_file->str, pl_line);
+    Label_Printf("\n\n; *** %s Directive (%s:%d)", (system) ? "System" : "User", cur_pl_file->str, pl_line);
 
   Label_Printf("\n\npl_code local directive_%d", cur_direct_no);
 }
@@ -1657,8 +1656,8 @@ F_call_c(ArgVal arg[])
   Bool set_cp = FALSE;
   char *str;
   Bool adr_of;
-  PlLong ret_xy;
-  char ret_c;
+  PlLong ret_xy = 0;		/* init for the compiler */
+  char ret_c = 0;		/* init for the compiler */
   int i;
 
   DEF_STR(c_option);

@@ -223,19 +223,19 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, Bool prolog, int global)
+Code_Start(CodeInf *c)
 {
   Label_Printf("");
   Inst_Printf(".align", "2");
   Inst_Printf(".fpu", "vfp");
-  Inst_Printf(".type", "%s, %%function", label);
+  Inst_Printf(".type", "%s, %%function", c->name);
 
-  if (global)
-    Inst_Printf(".global", "%s", label);
+  if (c->global)
+    Inst_Printf(".global", "%s", c->name);
 
-  Label(label);
+  Label(c->name);
 
-  if (!prolog)
+  if (!c->prolog)
     {
       Inst_Printf("push", "{r4, lr}");
       Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
@@ -251,7 +251,7 @@ Code_Start(char *label, Bool prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(char *label, Bool prolog, int global)
+Code_Stop(CodeInf *c)
 {
 }
 
@@ -1158,24 +1158,23 @@ Dico_Long_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE: 		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
-      if (!global)
-	Inst_Printf(".lcomm", "%s,%" PL_FMT_d, name, value * BPW);
+      if (!l->global)
+	Inst_Printf(".lcomm", "%s,%" PL_FMT_d, l->name, l->value * BPW);
       else
-	Inst_Printf(".comm", UN "%s,%" PL_FMT_d, name, value * BPW);
+	Inst_Printf(".comm", UN "%s,%" PL_FMT_d, l->name, l->value * BPW);
       break;
 
     case INITIAL_VALUE:
-      if (global)
-	Inst_Printf(".global", "%s", name);
-      Label_Printf("%s:", name);
-      Inst_Printf(".long", "%" PL_FMT_d, value);
+      if (l->global)
+	Inst_Printf(".global", "%s", l->name);
+      Label_Printf("%s:", l->name);
+      Inst_Printf(".long", "%" PL_FMT_d, l->value);
       break;
     }
 }

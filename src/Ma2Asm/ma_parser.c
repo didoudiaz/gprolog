@@ -216,13 +216,13 @@ Parse_Ma_File(char *file_name_in, int comment)
 
 #define Pre_Pass() (pass_no < nb_passes)
 
-#define Stop_Previous_Code()						\
-{									\
-  if (!Pre_Pass() && inside_code)					\
-    {									\
-      Code_Stop(cur_code_label, cur_code_prolog, cur_code_global);	\
-      inside_code = FALSE;						\
-    }									\
+#define Stop_Previous_Code()			\
+{						\
+  if (!Pre_Pass() && inside_code)		\
+    {						\
+      Code_Stop(&cur_code);			\
+      inside_code = FALSE;			\
+    }						\
 }
 
 
@@ -230,13 +230,11 @@ static void
 Parser(int pass_no, int nb_passes)
 {
   Bool inside_code = FALSE;
-  char *cur_code_label;
-  Bool cur_code_prolog;
-  int cur_code_global;
-  Bool init_already_read = FALSE;
-  char **in, *name;
+  Bool initializer_defined = FALSE;
+  CodeInf cur_code = {};	/* some init for the compiler */
+  LongInf l;
+  char **in;
   int k, i;
-  int global;
 
   if (Pre_Pass())
     keep_source_lines = FALSE;
@@ -271,15 +269,16 @@ Parser(int pass_no, int nb_passes)
 	{
 	case PL_CODE:
 	  Stop_Previous_Code();
-	  cur_code_global = Read_If_Global(FALSE);
-	  cur_code_prolog = TRUE;
+	  cur_code.prolog = TRUE;
+	  cur_code.global = Read_If_Global(FALSE);
+	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
-	  cur_code_label = strdup(str_val);
+	  cur_code.name = strdup(str_val);
 	  if (Pre_Pass())
-	    Decl_Code(cur_code_label, cur_code_prolog, cur_code_global);
+	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
 	  else
 	    {
-	      Code_Start(cur_code_label, cur_code_prolog, cur_code_global);
+	      Code_Start(&cur_code);
 	      reload_e = TRUE;
 	      inside_code = TRUE;
 	    }
@@ -287,22 +286,24 @@ Parser(int pass_no, int nb_passes)
 
 	case C_CODE:
 	  Stop_Previous_Code();
-	  cur_code_global = Read_If_Global(!init_already_read);
-	  cur_code_prolog = FALSE;
+	  cur_code.prolog = FALSE;
+	  cur_code.global = Read_If_Global(!initializer_defined);
+	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
-	  cur_code_label = strdup(str_val);
-	  if (cur_code_global == 2)
+	  cur_code.name = strdup(str_val);
+	  if (cur_code.global == 2)
 	    {
-	      init_already_read = TRUE;
-	      cur_code_global = 0;
+	      initializer_defined = TRUE;
+	      cur_code.global = FALSE;
+	      cur_code.initializer = TRUE;
 	      if (!Pre_Pass())
-		Declare_Initializer(cur_code_label);
+		Declare_Initializer(cur_code.name);
 	    }
 	  if (Pre_Pass())
-	    Decl_Code(cur_code_label, cur_code_prolog, cur_code_global);
+	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
 	  else
 	    {
-	      Code_Start(cur_code_label, cur_code_prolog, cur_code_global);
+	      Code_Start(&cur_code);
 	      inside_code = TRUE;
 	    }
 	  break;
@@ -416,39 +417,51 @@ Parser(int pass_no, int nb_passes)
 
 	case LONG:
 	  Stop_Previous_Code();
-	  global = Read_If_Global(TRUE);
-
+	  l.global = Read_If_Global(FALSE);
 	  Read_Token(IDENTIFIER);
-	  name = strdup(str_val);
+	  l.name = strdup(str_val);
 	  if ((i = Read_Optional_Index()) > 0)	/* array */
 	    {
-	      Decl_Long(name, global, ARRAY_SIZE, i);
-	      break;
+	      l.vtype = ARRAY_SIZE;
+	      l.value = i;
 	    }
-
-	  while (isspace(*cur_line_p))
-	    cur_line_p++;
-	  if (*cur_line_p != '=')
+	  else
 	    {
-	      Decl_Long(name, global, NONE, 1); /* default: NONE as value = 1 (value = array size = 1) */
-	      break;
+	      while (isspace(*cur_line_p))
+		cur_line_p++;
+	      if (*cur_line_p != '=')
+		{
+		  l.vtype = NONE;
+		  l.value = 1; /* value = 1, so it can be considered by mappers as an ARRAY_SIZE with size = 1 */
+		}
+	      else
+		{
+		  cur_line_p++;		/* skip the = */
+		  Read_Token(INTEGER);
+		  l.vtype = INITIAL_VALUE;
+		  l.value = int_val;
+		}
 	    }
-	  cur_line_p++;		/* skip the = */
-	  Read_Token(INTEGER);
-	  Decl_Long(name, global, INITIAL_VALUE, int_val);
+	  Decl_Long(&l);	/* a malloc+copy done by Decl_Long */
 	  break;
 
 	default:		/* label: */
 	  if (*in == NULL)
 	    {
+	      CodeInf c_lab;
+	      c_lab.name = strdup(str_val);
+	      c_lab.prolog = FALSE;
+	      c_lab.initializer = FALSE;
+	      c_lab.global = FALSE;
 	      Read_Token(':');
 	      if (Pre_Pass())
-		Decl_Code(strdup(str_val), TRUE, global); /* record label (inside prolog or C does not really matter) */
+		Decl_Code(&c_lab); /* record label (considered as C code) */
 	      else
 		Label(str_val);
 	    }
 	}
     }
+  Stop_Previous_Code();		/* in case the last code is not followed by any declaration */
 }
 
 

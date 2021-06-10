@@ -89,16 +89,6 @@ SwtInf;
 
 
 
-typedef enum
-{
-  NONE,
-  ARRAY_SIZE,
-  INITIAL_VALUE
-}
-VType;
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/

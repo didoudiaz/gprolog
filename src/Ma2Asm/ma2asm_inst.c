@@ -54,10 +54,12 @@
 
 #if 0				/* to force the inclusion of a mapper */
 
-#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
+#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" }; /* for ix86 */
 #define FC_MAX_ARGS_IN_REGS 3
-#undef M_mips
-#include "mips_any.c"
+#define M_arm64
+#undef M_linux
+#define M_darwin
+#include "arm64_any.c"
 
 #else
 
@@ -67,9 +69,9 @@
 
 #include "ix86_any.c"
 
-#elif defined(M_sparc)
+#elif defined(M_sparc32)
 
-#include "sparc_any.c"
+#include "sparc32_any.c"
 
 #elif defined(M_sparc64)
 
@@ -79,13 +81,13 @@
 
 #include "alpha_any.c"
 
-#elif defined(M_mips)
+#elif defined(M_mips32)
 
-#include "mips_any.c"
+#include "mips32_any.c"
 
-#elif defined(M_powerpc)
+#elif defined(M_ppc32)
 
-#include "powerpc_any.c"
+#include "ppc32_any.c"
 
 #elif defined(M_x86_64)
 

@@ -62,7 +62,7 @@ reg ::= 	( 'X'  | 'Y'  ) index 		WAM X/Y reg
 
 f_array ::= 	( 'FL' | 'FD' ) index 		foreign long/double array element
 
-index ::=   	'(' integer ')'
+index ::=   	'(' integer ')'			accepts both syntax
 	| 	'[' integer ']'
 
 
@@ -70,10 +70,8 @@ index ::=   	'(' integer ')'
 
 ident   ::= 	C identifier extended to allow a prefix dot
 integer ::= 	C integer (32 ou 64 bits)
-float   ::= 	C double readable by strtod, accept C99 %a printf format, e.g. 3.14 -> 0x1.91eb851eb851fp+1
+float   ::= 	C double readable by strtod, accepts C99 %a printf format, e.g. 3.14 -> 0x1.91eb851eb851fp+1
 string  ::= 	C string (including \n, \r, \",... and \ZZZ in octal notation)
 
 
-a comment starts with a semicolon untile the newline  ';' ... '\n'
-
-
+a comment starts with a semicolon until the newline  ';' ... '\n'

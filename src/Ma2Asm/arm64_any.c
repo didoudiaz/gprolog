@@ -279,22 +279,22 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, Bool prolog, int global)
+Code_Start(CodeInf *c)
 {
   Label_Printf("");
 #ifdef M_darwin
   Inst_Printf(".p2align", "2");
 #else
   Inst_Printf(".p2align", "3,,7");
-  Inst_Printf(".type", UN_EXT "%s, %%function", label);
+  Inst_Printf(".type", UN_EXT "%s, %%function", c->name);
 #endif
-  if (global)
-    Inst_Printf(".global", UN_EXT "%s", label);
+  if (c->global)
+    Inst_Printf(".global", UN_EXT "%s", c->name);
 
   Label_Printf("");
-  Label_Printf(UN_EXT "%s:", label);
+  Label_Printf(UN_EXT "%s:", c->name);
 
-  if (!prolog)
+  if (!c->prolog)
     {
       Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
       Inst_Printf("str", "x30, [sp]"); /* save lr (x30) */
@@ -309,7 +309,7 @@ Code_Start(char *label, Bool prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(char *label, Bool prolog, int global)
+Code_Stop(CodeInf *c)
 {
 }
 
@@ -1195,28 +1195,27 @@ Dico_Long_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
-      if (!global)
-	Inst_Printf(".lcomm", "%s,%" PL_FMT_d, name, value * BPW);
+      if (!l->global)
+	Inst_Printf(".lcomm", "%s,%" PL_FMT_d, l->name, l->value * BPW);
       else
-	Inst_Printf(".comm", UN_EXT "%s,%" PL_FMT_d ",8", name, value * BPW);
+	Inst_Printf(".comm", UN_EXT "%s,%" PL_FMT_d ",8", l->name, l->value * BPW);
       break;
 
     case INITIAL_VALUE:
-      if (global)
+      if (l->global)
 	{
-	  Inst_Printf(".global", UN_EXT "%s", name);
-	  Label_Printf(UN_EXT "%s:", name);
+	  Inst_Printf(".global", UN_EXT "%s", l->name);
+	  Label_Printf(UN_EXT "%s:", l->name);
 	}
       else
-	Label_Printf("%s:", name);
-      Inst_Printf(".xword", "%" PL_FMT_d, value);
+	Label_Printf("%s:", l->name);
+      Inst_Printf(".xword", "%" PL_FMT_d, l->value);
       break;
     }
 }

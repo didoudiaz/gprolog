@@ -203,7 +203,7 @@
 #define W32_GUI_CONSOLE
 #endif
 
-#ifdef M_sparc_sunos
+#ifdef M_sparc32_sunos
 #define __USE_FIXED_PROTOTYPES__
 #endif
 

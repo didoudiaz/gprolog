@@ -392,7 +392,7 @@ Pl_Allocate_Stacks(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 #if defined(HAVE_WORKING_SIGACTION) || \
-  defined(M_sparc_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
+  defined(M_sparc32_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
 
 static void
 SIGSEGV_Handler(int sig, siginfo_t *sip)
@@ -401,7 +401,7 @@ SIGSEGV_Handler(int sig, siginfo_t *sip)
   Handle_Bad_Address(addr);
 }
 
-#elif defined(M_sparc_sunos)
+#elif defined(M_sparc32_sunos)
 
 static void
 SIGSEGV_Handler(int sig, int code, int scp, void *addr)
@@ -437,7 +437,7 @@ SIGSEGV_Handler(int sig, struct sigcontext scp)
   Handle_Bad_Address(addr);
 }
 
-#elif defined(M_powerpc_linux)
+#elif defined(M_ppc32_linux)
 
 static void
 SIGSEGV_Handler(int sig, struct sigcontext scp)
@@ -456,7 +456,7 @@ SIGSEGV_Handler(int sig, siginfo_t * si)
   Handle_Bad_Address(addr);
 }
 
-#elif defined(M_ix86_bsd) || defined(M_powerpc_bsd) || defined(M_sparc_bsd) || defined(M_sparc64_bsd)
+#elif defined(M_ix86_bsd) || defined(M_ppc32_bsd) || defined(M_sparc32_bsd) || defined(M_sparc64_bsd)
 static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
 {
@@ -473,7 +473,7 @@ SIGSEGV_Handler(int sig, siginfo_t *sip, void *scp)
   Handle_Bad_Address(addr);
 }
 
-#elif defined(M_mips_irix)
+#elif defined(M_mips32_irix)
 
 static void
 SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
@@ -539,7 +539,7 @@ static void
 Install_SIGSEGV_Handler(void)
 {
 #if !defined(__MSYS__) && (defined(HAVE_WORKING_SIGACTION) || \
-  defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
+  defined(M_sparc32_solaris) || defined(M_ix86_solaris) || \
   defined(M_ix86_sco) || defined(M_x86_64_solaris))
 
   struct sigaction act;

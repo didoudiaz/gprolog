@@ -51,6 +51,9 @@
 #include "ma_protos.h"
 
 
+#if 0
+#define DEBUG
+#endif
 
 
 /*---------------------------------*
@@ -66,26 +69,6 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef struct
-{
-  Bool prolog;			/* FALSE: C, TRUE: Prolog */
-  int global;			/* 0: local, 1:global, 2: initializer (C, thus prolog == 0) */
-}
-CodeInf;
-
-
-typedef struct
-{
-  int global;
-  VType vtype;			/* NONE, INITIAL_VALUE, ARRAY_SZIE */
-  PlLong value;
-}
-LongInf;
-
-
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
@@ -97,7 +80,7 @@ Bool comment;
 Bool pic_code;
 Bool ignore_fc;
 
-MapperInfo mi;
+MapperInf mi;
 
 LabelGen lg_cont; /* local label generator for continuations (always available) see macros Label_Cont_XXX() */
 
@@ -118,6 +101,7 @@ int local_label_count = 0;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
 
 void Invoke_Dico_Long(int no, char *name, void *info);
 
@@ -244,9 +228,8 @@ main(int argc, char *argv[])
 void
 Invoke_Dico_Long(int no, char *name, void *info)
 {
-  LongInf *p = (LongInf *) info;
-
-  Dico_Long(name, p->global, p->vtype, p->value);
+  LongInf *l = (LongInf *) info;
+  Dico_Long(l);
 }
 
 
@@ -328,6 +311,146 @@ void
 Declare_Initializer(char *init_fct)
 {				/* init_fct: strdup done by the parser */
   initializer_fct = init_fct;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DECL_CODE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void				/* called if pre_pass */
+Decl_Code(CodeInf *c)
+{
+  CodeInf *c1;
+  /* needs to create a copy of c (malloc)
+   * actually donne by BT_String_Add 
+   */
+
+		/* name: strdup done by the parser */
+  c1 = (CodeInf *) &BT_String_Add(&bt_code, c->name)->info;
+  *c1 = *c;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DECL_LONG                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Decl_Long(LongInf *l)
+{
+  LongInf *l1;
+  /* needs to create a copy of c (malloc)
+   * actually donne by BT_String_Add 
+   */
+
+		/* name: strdup done by the parser */
+  l1 = (LongInf *) &BT_String_Add(&bt_long, l->name)->info;
+  *l1 = *l;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * IS_CODE_DEFINED                                                         *
+ *                                                                         *
+ * Needs a pre-pass.                                                       *
+ *-------------------------------------------------------------------------*/
+int
+Is_Code_Defined(char *name)
+{
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  return (BT_String_Lookup(&bt_code, name) != NULL);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_CODE_INFOS                                                          *
+ *                                                                         *
+ * Needs a pre-pass.                                                       *
+ *-------------------------------------------------------------------------*/
+CodeInf *
+Get_Code_Infos(char *name)
+{
+  BTNode *b = BT_String_Lookup(&bt_code, name);
+
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  return (b == NULL) ? NULL : (CodeInf *) &b->info;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_LONG_INFOS                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+LongInf *
+Get_Long_Infos(char *name)
+{
+  BTNode *b = BT_String_Lookup(&bt_long, name);
+
+  return (b == NULL) ? NULL : (LongInf *) &b->info;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SCOPE_OF_SYMBOL                                                         *
+ *                                                                         *
+ * Need a pre-pass.                                                        *
+ * Returns 0: global symbol, 1: local code, 2: other local symbol (long,..)*
+ *-------------------------------------------------------------------------*/
+
+/* A symbol not defined (not encountered neither as code nor long) can be:
+ * - foreign_long, foreign_double (thus external)
+ * - an external predicate or C function (e.g. function associated to a WAM 
+ *   instruction like Get_Integer() or Pl_Un_Term() which is generated when 
+ *   compiling foreign directive).
+ * - a local label (for branching) or local symbol (strings, double constants)
+ * Only the last case is local and we know it begins with . or L
+ */
+int
+Scope_Of_Symbol(char *name)
+{
+  CodeInf *c;
+  LongInf *l;
+
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  /* test local symbols first since they are not recoded in bt_code/bt_long */
+
+  if (*name == '.' || strncmp(name, mi.local_symb_prefix, strlen(mi.local_symb_prefix)) == 0)
+    return 2;
+
+  c = Get_Code_Infos(name);
+  if (c)
+    return (c->global) ? 0 : 1;
+
+  l = Get_Long_Infos(name);
+  if (l)
+    return (l->global) ? 0 : 2;
+
+  return 0;			/* not defined, considered as global (code/data) */
 }
 
 
@@ -499,44 +622,6 @@ Switch_Cmp_Int(SwtInf *c1, SwtInf *c2)
 
 
 /*-------------------------------------------------------------------------*
- * DECL_LONG                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Decl_Long(char *name, int global, VType vtype, PlLong value)
-{
-  LongInf *p;
-
-		/* name: strdup done by the parser */
-  p = (LongInf *) BT_String_Add(&bt_long, name)->info;
-
-  p->global = global;
-  p->vtype = vtype;
-  p->value = value;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * DECL_CODE                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void				/* called if pre_pass */
-Decl_Code(char *name, Bool prolog, int global)
-{
-  CodeInf *p;
-
-		/* name: strdup done by the parser */
-  p = (CodeInf *) BT_String_Add(&bt_code, name)->info;
-
-  p->prolog = prolog;
-  p->global = global;
-}
-
-
-
-/*-------------------------------------------------------------------------*
  * LABEL_GEN_INIT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -586,116 +671,6 @@ int
 Label_Gen_No(LabelGen *g)
 {
   return g->no;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * IS_CODE_DEFINED                                                         *
- *                                                                         *
- * Needs a pre-pass.                                                       *
- *-------------------------------------------------------------------------*/
-int
-Is_Code_Defined(char *name)
-{
-  if (!mi.needs_pre_pass)
-    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
-
-  return (BT_String_Lookup(&bt_code, name) != NULL);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * GET_CODE_INFOS                                                          *
- *                                                                         *
- * Needs a pre-pass.                                                       *
- *-------------------------------------------------------------------------*/
-Bool
-Get_Code_Infos(char *name, Bool *prolog, int *global)
-{
-  BTNode *b = BT_String_Lookup(&bt_code, name);
-  CodeInf *p;
-
-  if (!mi.needs_pre_pass)
-    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
-
-  if (b == NULL)
-    return FALSE;
-
-  p = (CodeInf *) b->info;
-  *prolog = p->prolog;
-  *global = p->global;
-  return TRUE;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * GET_LONG_INFOS                                                          *
- *                                                                         *
- * Needs a pre-pass.                                                       *
- *-------------------------------------------------------------------------*/
-int
-Get_Long_Infos(char *name, int *global, VType *vtype, PlLong *value)
-{
-  BTNode *b = BT_String_Lookup(&bt_long, name);
-  LongInf *p;
-
-  if (b == NULL)
-    return 0;
-
-  p = (LongInf *) b->info;
-  *global = p->global;
-  *vtype = p->vtype;
-  *value = p->value;
-  return 1;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * SCOPE_OF_SYMBOL                                                         *
- *                                                                         *
- * Need a pre-pass.                                                        *
- * Returns 0: global symbol, 1: local code, 2: other local symbol (long,..)*
- *-------------------------------------------------------------------------*/
-
-/* A symbol not defined (not encountered neither as code nor long) can be:
- * - foreign_long, foreign_double (thus external)
- * - an external predicate or C function (e.g. function associated to a WAM 
- *   instruction like Get_Integer() or Pl_Un_Term() which is generated when 
- *   compiling foreign directive).
- * - a local label (for branching) or local symbol (strings, double constants)
- * Only the last case is local and we know it begins with . or L
- */
-int
-Scope_Of_Symbol(char *name)
-{
-  int global;
-  Bool prolog;
-  PlLong value;
-  VType vtype;
-
-  if (!mi.needs_pre_pass)
-    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
-
-  /* test local symbols first since they are not recoded in bt_code/bt_long */
-
-  if (*name == '.' || strncmp(name, mi.local_symb_prefix, strlen(mi.local_symb_prefix)) == 0)
-    return 2;
-
-  if (Get_Code_Infos(name, &prolog, &global))	/* global = 0, 1, 2 see ma2asm.c */
-    return (global == 1) ? 0 : 1;
-
-  if (Get_Long_Infos(name, &global, &vtype, &value))	/* global = 0 or 1 */
-    return (global == 1) ? 0 : 2;
-
-  return 0;			/* not defined, considered as global (code/data) */
 }
 
 

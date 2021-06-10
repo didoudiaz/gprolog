@@ -190,7 +190,7 @@ Pl_Init_Machine(void)
 char *
 Pl_M_Sys_Err_String(int ret_val)
 {
-#ifdef M_sparc_sunos
+#ifdef M_sparc32_sunos
   extern char *sys_errlist[];
   extern int sys_nerr;
 #endif
@@ -220,7 +220,7 @@ Pl_M_Sys_Err_String(int ret_val)
 #endif
 
 
-#if defined(M_sparc_sunos)
+#if defined(M_sparc32_sunos)
   str = (errno >= 0 && errno < sys_nerr) ? sys_errlist[errno] : NULL;
 #else
   str = strerror(errno);
@@ -503,8 +503,7 @@ Pl_M_Host_Name_From_Adr(char *host_address)
   struct hostent *host_entry;
   struct in_addr iadr;
 
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
-    defined(M_ix86_solaris) || \
+#if defined(M_sparc32_sunos) || defined(M_sparc32_solaris) || defined(M_ix86_solaris) || \
     defined(_WIN32) || defined(__CYGWIN__)
   if ((iadr.s_addr = inet_addr(host_address)) == -1)
 #else
@@ -591,11 +590,15 @@ Pl_M_Get_Working_Dir(void)
  *                                                                         *
  * returns an absolute file name.                                          *
  *-------------------------------------------------------------------------*/
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
 char *
 Pl_M_Absolute_Path_Name(char *src)
 {
-  static char buff1[MAXPATHLEN + 10]; /* + 10 to avoid gcc warning */
-  static char buff2[MAXPATHLEN + 10];
+  static char buff1[MAXPATHLEN];
+  static char buff2[MAXPATHLEN];
   char *dst, *base_dst;
   char *p, *q;
   char c;
@@ -764,6 +767,9 @@ Pl_M_Absolute_Path_Name(char *src)
 
   return base_dst;
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
 

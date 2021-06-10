@@ -70,8 +70,6 @@ char asm_reg_e[32];
 char asm_reg_b[32];
 char asm_reg_cp[32];
 
-char cur_fct_label[1024];
-
 Bool pic_helper_ready = FALSE;
 
 char buff[1024];
@@ -214,7 +212,7 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, Bool prolog, int global)
+Code_Start(CodeInf *c)
 {
   Label_Printf("");
   Delay_Printf(".align", "4");
@@ -224,16 +222,15 @@ Code_Start(char *label, Bool prolog, int global)
 #endif
   Delay_Printf(".proc", "020");
 
-  if (global)
-    Delay_Printf(".global", UN "%s", label);
+  if (c->global)
+    Delay_Printf(".global", UN "%s", c->name);
 
-  Label(label);
+  Label(c->name);
 
-  if (!prolog)
+  if (!c->prolog)
     Delay_Printf("save", "%%sp,-192,%%sp");
 
   pic_helper_ready = FALSE;
-  strcpy(cur_fct_label, label);
 }
 
 
@@ -244,10 +241,10 @@ Code_Start(char *label, Bool prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(char *label, Bool prolog, int global)
+Code_Stop(CodeInf *c)
 {
-  /* this directive is mandatory else asm call are wrong (PC relative) */
-  Delay_Printf(".size", "%s,.-%s", cur_fct_label, cur_fct_label);
+  /* this directive is mandatory else asm calls are wrong (PC relative) */
+  Delay_Printf(".size", "%s,.-%s", c->name, c->name);
 }
 
 
@@ -659,7 +656,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define BEFORE_ARG				\
 {						\
-  char r[4];					\
+  char r[32];					\
 						\
   if (offset < MAX_ARGS_IN_REGS)		\
     sprintf(r, "%%o%d", offset);		\
@@ -669,10 +666,9 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define STACK_BIAS 2047
 #define STACK_OFFSET(offset) (STACK_BIAS + 176 + ((offset) - MAX_ARGS_IN_REGS) * 8)
 
-#define AFTER_ARG					\
-  if (offset >= MAX_ARGS_IN_REGS)			\
-    Delay_Printf("stx","%s,[%%sp+%d]", r,		\
-		 STACK_OFFSET(offset));			\
+#define AFTER_ARG							\
+  if (offset >= MAX_ARGS_IN_REGS)					\
+    Delay_Printf("stx","%s,[%%sp+%d]", r, STACK_OFFSET(offset));	\
 }
 
 
@@ -1171,36 +1167,35 @@ Dico_Long_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
 
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
 #ifdef M_sunos
-      if (!global)
-	Delay_Printf(".reserve", UN "%s,%ld,\"bss\",8", name, value * 8);
+      if (!l->global)
+	Delay_Printf(".reserve", UN "%s,%ld,\"bss\",8", l->name, l->value * 8);
       else
-	Delay_Printf(".common", UN "%s,%ld,\"bss\"", name, value * 8);
+	Delay_Printf(".common", UN "%s,%ld,\"bss\"", l->name, l->value * 8);
 #else
-      if (!global)
-	Delay_Printf(".local", UN "%s", name);
-      Delay_Printf(".common", UN "%s,%ld,8", name, value * 8);
+      if (!l->global)
+	Delay_Printf(".local", UN "%s", l->name);
+      Delay_Printf(".common", UN "%s,%ld,8", l->name, l->value * 8);
 #endif
       break;
 
     case INITIAL_VALUE:
-      if (global)
-	Delay_Printf(".globl", UN "%s", name);
+      if (l->global)
+	Delay_Printf(".globl", UN "%s", l->name);
 #if defined(M_solaris) || defined(M_bsd)
-      Delay_Printf(".align", "8", name);
-      Delay_Printf(".type", UN "%s,#object", name);
-      Delay_Printf(".size", UN "%s,8", name);
+      Delay_Printf(".align", "8", l->name);
+      Delay_Printf(".type", UN "%s,#object", l->name);
+      Delay_Printf(".size", UN "%s,8", l->name);
 #endif
-      Label_Printf(UN "%s:", name);
-      Delay_Printf(".xword", "%ld", value);
+      Label_Printf(UN "%s:", l->name);
+      Delay_Printf(".xword", "%ld", l->value);
       break;
     }
 }

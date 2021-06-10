@@ -110,11 +110,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
  * Register Definitions            *
  *---------------------------------*/
 
-#if defined(M_sparc)
+#if defined(M_sparc32)
 
 #    define M_USED_REGS            {"g6", "g7", 0}
 
-#elif defined(M_mips)
+#elif defined(M_mips32)
 
 #define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
                                     "$21", "$22", "$23", 0}
@@ -132,7 +132,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
 
-#elif defined(M_powerpc)
+#elif defined(M_ppc32)
 
 #    define M_USED_REGS            {"15", "20", 0}
 

@@ -70,14 +70,48 @@ typedef struct
   Bool needs_dico_double;
   Bool call_c_reverse_args;
 }
-MapperInfo;
+MapperInf;
 
 
 
 
 typedef struct
 {
-  int dbl_no;	 		/* no in the dico double (or -1 if no dico) */
+  char *name;			/* name of predicate/fct (label) */
+  Bool prolog;			/* is prolog code ? (or C code which includes initializer) */
+  Bool initializer;		/* is it an initialize (implies !prolog) */
+  Bool global;			/* is it global ? */
+}
+CodeInf;
+
+
+
+
+typedef enum
+{
+  NONE,				/* symbol is an uninitialized long (should be in a 0 init section like bss) */
+  INITIAL_VALUE,		/* symbol is an initilialized symbol (see value) */
+  ARRAY_SIZE,			/* symbol is an array of uninitialized longs (value = array size, section like bss) */
+}
+VType;
+
+
+typedef struct
+{
+  char *name;			/* name of the long symbol */
+  Bool global;			/* is it global ? */
+  VType vtype;			/* what we find in value: NONE (and value=1), INITIAL_VALUE, ARRAY_SZIE */
+  PlLong value;			/* the value */
+}
+LongInf;
+
+
+
+
+typedef struct
+{
+  char *name;			/* name of the long symbol */
+  int dbl_no;	 		/* no in the dico double (or -1 if !needs_dico_double) */
   char *dbl_str;		/* as read in the MA file (can be a %a printf format) */
   Bool dbl_human;		/* is dbl_str human readable (or encoded, e.g. %d printf) ? */
   char *dbl_cmt;		/* a string usable for a comment */
@@ -94,9 +128,9 @@ DoubleInf;
 
 typedef struct
 {
-  char *prefix;
-  int no;
-  char label[256];
+  char *prefix;			/* prefix of generated labels */
+  int no;			/* current label no */
+  char label[256];		/* current label */
 }
 LabelGen;
 
@@ -119,7 +153,7 @@ extern int reload_e;
 
 extern Bool comment;
 extern Bool pic_code;
-extern MapperInfo mi;
+extern MapperInf mi;
 extern LabelGen lg_cont; /* used by macros Label_Cont_XXX() below */
 
 #endif
@@ -138,19 +172,27 @@ extern LabelGen lg_cont; /* used by macros Label_Cont_XXX() below */
 
 void Declare_Initializer(char *initializer_fct);
 
+void Decl_Code(CodeInf *c);
+
+void Decl_Long(LongInf *l);
+
 void Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
 
 void Switch_Ret(int nb_swt, SwtInf swt[]);
-
-void Decl_Code(char *name, Bool prolog, int global);
-
-void Decl_Long(char *name, int global, VType vtype, PlLong value);
-
 
 
 
 
 	  /* defined in ma2asm.c - used by mappers */
+
+int Is_Code_Defined(char *name);
+
+CodeInf *Get_Code_Infos(char *name);
+
+LongInf *Get_Long_Infos(char *name);
+
+int Scope_Of_Symbol(char *name);
+
 
 void Label_Gen_Init(LabelGen *g, char *prefix);
 
@@ -165,14 +207,6 @@ int Label_Gen_No(LabelGen *g);
 #define Label_Cont_No()  Label_Gen_No(&lg_cont)
 
 
-int Is_Code_Defined(char *name);
-
-int Get_Code_Infos(char *name, int *prolog, int *global);
-
-int Get_Long_Infos(char *name, int *global, VType *vtype, PlLong *value);
-
-int Scope_Of_Symbol(char *name);
-
 void Label_Printf(char *label, ...) GCCPRINTF(1);
 
 void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
@@ -186,7 +220,7 @@ void String_Out(char *s);
 void Int_Out(int d);
 
 
-	  /* defined in mapper files */
+	  /* defined in each mappers used by parser and ma2asm */
 
 void Init_Mapper(void);
 
@@ -194,9 +228,9 @@ void Asm_Start(void);
 
 void Asm_Stop(void);
 
-void Code_Start(char *label, Bool prolog, int global);
+void Code_Start(CodeInf *c);
 
-void Code_Stop(char *label, Bool prolog, int global);
+void Code_Stop(CodeInf *c);
 
 void Label(char *label);
 
@@ -284,7 +318,7 @@ void Dico_Double_Stop(int nb);
 
 void Dico_Long_Start(int nb);
 
-void Dico_Long(char *name, int global, VType vtype, PlLong value);
+void Dico_Long(LongInf *l);
 
 void Dico_Long_Stop(int nb);
 

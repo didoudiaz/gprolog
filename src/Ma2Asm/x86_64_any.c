@@ -299,7 +299,7 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, Bool prolog, int global)
+Code_Start(CodeInf *c)
 {
   Label_Printf("");
 #ifdef M_darwin
@@ -311,16 +311,16 @@ Code_Start(char *label, Bool prolog, int global)
   Inst_Printf(".align", "16");
 #endif
 #if defined(M_linux) || defined(M_bsd) || defined(M_sco)
-  Inst_Printf(".type", "%s,@function", label);
+  Inst_Printf(".type", "%s,@function", c->name);
 #endif
 #endif
 
-  if (global)
-    Inst_Printf(".globl", UN "%s", label);
+  if (c->global)
+    Inst_Printf(".globl", UN "%s", c->name);
 
-  Label(label);
+  Label(c->name);
 
-  if (!prolog)
+  if (!c->prolog)
     {
       /* Save callee-saved registers. However, don't explicitly
          preserve %r12-%r15 since they are already handled as global
@@ -338,7 +338,7 @@ Code_Start(char *label, Bool prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(char *label, Bool prolog, int global)
+Code_Stop(CodeInf *c)
 {
 }
 
@@ -1256,53 +1256,52 @@ Dico_Long_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
   PlLong size_bytes;
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;                /* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
-      size_bytes = value * 8;
+      size_bytes = l->value * 8;
 #ifdef M_darwin
-      if (!global)
-        Label_Printf(".zerofill __DATA,__bss," UN "%s,%" PL_FMT_d ",4", name, size_bytes);
+      if (!l->global)
+        Label_Printf(".zerofill __DATA,__bss," UN "%s,%" PL_FMT_d ",4", l->name, size_bytes);
       else
-        Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",4", name, size_bytes);
+        Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",4", l->name, size_bytes);
 #else
 #if defined(M_linux) || defined(M_sco) || defined(M_solaris) || defined(M_bsd)
-      if (!global)
-        Inst_Printf(".local", UN "%s", name);
+      if (!l->global)
+        Inst_Printf(".local", UN "%s", l->name);
 #else
-      if (!global)
-        Inst_Printf(".lcomm", UN "%s,%" PL_FMT_d, name, size_bytes);
+      if (!l->global)
+        Inst_Printf(".lcomm", UN "%s,%" PL_FMT_d, l->name, size_bytes);
       else
 #endif
 #if 1				/* work for all */
-      Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",8", name, size_bytes);
+      Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",8", l->name, size_bytes);
 #else  /* this does not work under MinGW - not used for the moment */
-      if (value < 4)
-	Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",8", name, size_bytes);
+      if (l->value < 4)
+	Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",8", l->name, size_bytes);
       else
-	Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",32", name, size_bytes);
+	Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",32", l->name, size_bytes);
 #endif
 #endif
       break;
 
     case INITIAL_VALUE:
-      if (global)
-        Inst_Printf(".globl", UN "%s", name);
+      if (l->global)
+        Inst_Printf(".globl", UN "%s", l->name);
 #ifdef M_darwin
       Inst_Printf(".align", "3");
 #else
       Inst_Printf(".align", "8");
 #endif
 #if !(defined(M_darwin) || defined(_WIN32))
-      Inst_Printf(".size", UN "%s,8", name);
+      Inst_Printf(".size", UN "%s,8", l->name);
 #endif
-      Label_Printf(UN "%s:", name);
-      Inst_Printf(".quad", "%" PL_FMT_d, value);
+      Label_Printf(UN "%s:", l->name);
+      Inst_Printf(".quad", "%" PL_FMT_d, l->value);
       break;
     }
 }

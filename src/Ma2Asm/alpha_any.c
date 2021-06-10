@@ -42,7 +42,7 @@
 #include <string.h>
 
 
-/* Supported arch: alpha (64 bits) on Linux, OSF1
+/* Supported arch: alpha (64 bits) on Linux, OSF
  */
 
 
@@ -162,16 +162,16 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, Bool prolog, int global)
+Code_Start(CodeInf *c)
 {
   Inst_Printf(".align", "5");
-  if (global)
-    Inst_Printf(".globl", "%s", label);
-  Inst_Printf(".ent", "%s", label);
+  if (c->global)
+    Inst_Printf(".globl", "%s", c->name);
+  Inst_Printf(".ent", "%s", c->name);
 
-  Label(label);
+  Label(c->name);
 
-  if (prolog)
+  if (c->prolog)
     {
       /* prolog code does not need any stack space */
       Inst_Printf(".frame", "$30,0,$26,0");
@@ -200,9 +200,9 @@ Code_Start(char *label, Bool prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(char *label, Bool prolog, int global)
+Code_Stop(CodeInf *c)
 {
-  Inst_Printf(".end", "%s", label);
+  Inst_Printf(".end", "%s", c->name);
 }
 
 
@@ -1144,35 +1144,34 @@ Dico_Long_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
       Inst_Printf(".align", "3");
 #ifdef M_linux
       Inst_Printf(".section", ".bss");
 #endif
-      if (!global)
+      if (!l->global)
 	{
 #ifdef M_linux
-	  Inst_Printf(".type", "%s,@object", name);
-	  Inst_Printf(".size", "%s,%ld", name, value * 8);
+	  Inst_Printf(".type", "%s,@object", l->name);
+	  Inst_Printf(".size", "%s,%ld", l->name, l->value * 8);
 	  Inst_Printf(".align", "3");
-	  Label_Printf("%s:", name);
-	  Inst_Printf(".zero", "%ld", value * 8);
+	  Label_Printf("%s:", l->name);
+	  Inst_Printf(".zero", "%ld", l->value * 8);
 #else
-	  Inst_Printf(".lcomm", "%s,%ld", name, value * 8);
+	  Inst_Printf(".lcomm", "%s,%ld", l->name, l->value * 8);
 #endif
 	}
       else
 	{
 #ifdef M_linux
-	  Inst_Printf(".comm", "%s,%ld,8", name, value * 8);
+	  Inst_Printf(".comm", "%s,%ld,8", l->name, l->value * 8);
 #else
-	  Inst_Printf(".comm", "%s,%ld", name, value * 8);
+	  Inst_Printf(".comm", "%s,%ld", l->name, l->value * 8);
 #endif
 	}
       break;
@@ -1181,26 +1180,26 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
 #ifdef M_linux
       Inst_Printf(".section", ".sdata,\"aw\"");
 #endif
-      if (global)
+      if (l->global)
 	{
-	  Inst_Printf(".globl", "%s", name);
+	  Inst_Printf(".globl", "%s", l->name);
 	  Inst_Printf(".align", "3");
 #ifdef M_linux
-	  Inst_Printf(".type", "%s,@object", name);
-	  Inst_Printf(".size", "%s,8", name);
+	  Inst_Printf(".type", "%s,@object", l->name);
+	  Inst_Printf(".size", "%s,8", l->name);
 #endif
-	  Label_Printf("%s:", name);
-	  Inst_Printf(".quad", "%ld", value);
+	  Label_Printf("%s:", l->name);
+	  Inst_Printf(".quad", "%ld", l->value);
 	}
       else
 	{
 	  Inst_Printf(".align", "3");
 #ifdef M_linux
-	  Inst_Printf(".type", "%s,@object", name);
-	  Inst_Printf(".size", "%s,8", name);
+	  Inst_Printf(".type", "%s,@object", l->name);
+	  Inst_Printf(".size", "%s,8", l->name);
 #endif
-	  Label_Printf("%s:", name);
-	  Inst_Printf(".quad", "%ld", value);
+	  Label_Printf("%s:", l->name);
+	  Inst_Printf(".quad", "%ld", l->value);
 	}
       break;
     }
