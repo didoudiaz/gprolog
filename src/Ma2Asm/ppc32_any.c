@@ -455,7 +455,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define BEFORE_ARG				\
 {						\
-  char r[4];					\
+  char r[32];					\
   if (offset < MAX_ARGS_IN_REGS)		\
     sprintf(r, R(%d), offset + 3);		\
   else						\

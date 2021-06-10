@@ -59,7 +59,7 @@
 #define M_arm64
 #undef M_linux
 #define M_darwin
-#include "arm64_any.c"
+#include "x86_64_any.c"
 
 #else
 
