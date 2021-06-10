@@ -333,7 +333,7 @@ Pl_Find_Expon_Exact(unsigned x, unsigned y)
 /*-------------------------------------------------------------------------*
  * FIND_EXPON_GENERAL                                                      *
  *                                                                         *
- * X must be >1 and Y must be >0                                           *
+ * X must be > 1 and Y must be > 0                                         *
  *-------------------------------------------------------------------------*/
 static unsigned
 Find_Expon_General(unsigned x, unsigned y, unsigned *pxn)
@@ -444,7 +444,7 @@ end_loop:
 void
 Pl_Full_Find_Expon(Range *n, int a, Range *y)
 {
-  int e, min;
+  int e = 0, min;		/* init for the compiler */
   int i, vec_elem;
 
   Vector_Allocate(n->vec);
@@ -557,7 +557,7 @@ end_loop:
 void
 Pl_Full_Nth_Root(Range *x, Range *y, int a)
 {
-  int e, min;
+  int e = 0, min;		/* init for the compiler */
   int i, vec_elem;
 
   Vector_Allocate(x->vec);
@@ -670,7 +670,7 @@ end_loop:
 void
 Pl_Full_Sqrt_Var(Range *x, Range *y)
 {
-  int e, min;
+  int e = 0, min;		/* init for the compiler */
   int i, vec_elem;
 
   Vector_Allocate(x->vec);

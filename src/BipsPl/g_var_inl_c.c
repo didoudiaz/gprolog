@@ -670,8 +670,8 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
   WamWord word, tag_mask;
   PlLong arity;
   Bool same_init_value;
-  WamWord init_word;
-  WamWord lst_word;
+  WamWord init_word = 0;	/* init for the compiler */
+  WamWord lst_word = 0;		/* init for the compiler */
   PlLong new_size, size;
   GVarElt *p;
   int i;

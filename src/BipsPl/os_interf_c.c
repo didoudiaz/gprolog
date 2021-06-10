@@ -1004,7 +1004,7 @@ Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
 {
   char *cmd;
   int atom;
-  int mode;
+  int mode = 0;			/* init for the compiler */
   int stm;
   FILE *f;
   char open_str[10];

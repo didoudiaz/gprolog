@@ -529,7 +529,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   int op;
   int size_bc;
   BCWord w;			/* code-op word */
-  unsigned w1, w2, w3;		/* additional words */
+  unsigned w1, w2, w3 = 0;	/* additional words */ /* init for the compiler */
   PlLong l;
   int nb_word;
   C64To32 cv;

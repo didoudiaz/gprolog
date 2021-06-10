@@ -304,7 +304,7 @@ Pl_Blt_Univ(WamWord term_word, WamWord list_word)
   WamWord *adr;
   WamWord car_word;
   int lst_length;
-  WamWord *arg1_adr;
+  WamWord *arg1_adr = NULL;	/* init for the compiler */
   WamWord *term_adr, *lst_adr, *stc_adr;
   WamWord functor_word, functor_tag;
   int functor;

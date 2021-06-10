@@ -94,7 +94,7 @@ WamCont
 Pl_Call_Closure(int atom_bip, int arity_rest)
 {
   int func, arity_clos, arity;
-  WamWord *arg_adr;
+  WamWord *arg_adr = NULL;	/* init for the compiler */
   PredInf *pred;
   WamWord *w;
   int i;

@@ -948,7 +948,7 @@ Pl_Stdio_Is_Repositionable(FILE *f)
 void
 Pl_Stdio_Set_Buffering(FILE *f, int buffering)
 {
-  int buff_flag;
+  int buff_flag = 0;		/* init for the compiler */
 
   switch (buffering)
     {

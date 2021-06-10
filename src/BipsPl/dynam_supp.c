@@ -230,7 +230,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   int func, arity;
   PredInf *pred;
   int index_no;
-  PlLong key;
+  PlLong key = 0;		/* init for the compiler */
   DynCInf *clause;
   DynPInf *dyn;
   char **p_ind_htbl;

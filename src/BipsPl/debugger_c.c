@@ -245,14 +245,13 @@ Pl_Remove_One_Choice_Point_1(WamWord b_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word,
-		    WamWord lastb_word)
+Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word, WamWord lastb_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
   HashScan scan;
   PredInf *pred;
-  PredInf *last_pred;
+  PredInf *last_pred = NULL;	/* init for the compiler */
   PlULong code, code1;
   PlULong last_code = 0;
   int func, arity;
@@ -1173,7 +1172,7 @@ Detect_Pred_From_Code(PlLong *codep)
   HashScan scan;
   PredInf *pred;
   PredInf *last_pred = NULL;
-  PlLong dist, d;
+  PlLong dist = 0, d;		/* init for the compiler */
 
   for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
        pred = (PredInf *) Pl_Hash_Next(&scan))

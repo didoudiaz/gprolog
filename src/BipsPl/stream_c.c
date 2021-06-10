@@ -691,7 +691,7 @@ Bool
 Pl_Stream_Prop_Mode_2(WamWord mode_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
@@ -798,7 +798,7 @@ Bool
 Pl_Stream_Prop_Eof_Action_2(WamWord eof_action_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
@@ -831,7 +831,7 @@ Bool
 Pl_Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
@@ -874,7 +874,7 @@ Bool
 Pl_Stream_Prop_End_Of_Stream_2(WamWord end_of_stream_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
