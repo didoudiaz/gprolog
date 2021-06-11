@@ -107,7 +107,7 @@ void Invoke_Dico_Long(int no, char *name, void *info);
 
 void Invoke_Dico_Double(int no, char *name, void *info);
 
-DoubleInf *Treat_Double(char *dbl_str, double dbl_val);
+DoubleInf *Treat_Double(char *ma_str, double dbl_val);
 
 void Switch_Rec(int start, int stop, SwtInf swt[]);
 
@@ -240,12 +240,12 @@ Invoke_Dico_Long(int no, char *name, void *info)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Invoke_Dico_Double(int no, char *dbl_str, void *info)
+Invoke_Dico_Double(int no, char *ma_str, void *info)
 {
   DoubleInf *d = (DoubleInf *) info;
 
   if (comment)
-    Inst_Printf("", "%s %s", mi.comment_prefix, d->dbl_cmt);
+    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
       
   Dico_Double(d);
 }
@@ -262,39 +262,39 @@ Invoke_Dico_Double(int no, char *dbl_str, void *info)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DoubleInf *
-Treat_Double(char *dbl_str, double dbl_val)
+Treat_Double(char *ma_str, double dbl_val)
 {
   static DoubleInf dbl_info;
   DoubleInf *d;
-  char *p = dbl_str;
+  char *p = ma_str;
   static char cmt[64];
 
   if (mi.needs_dico_double)
     {
-      BTNode *b = BT_String_Add(&bt_double, dbl_str);
+      BTNode *b = BT_String_Add(&bt_double, ma_str);
       d = (DoubleInf *) &b->info;
-      d->dbl_no = b->no;
+      d->no = b->no;
     }
   else
     {
       d = &dbl_info;
-      d->dbl_no = -1;
+      d->no = -1;
     }
-  d->dbl_str = dbl_str;
-  d->dbl.val = dbl_val;
+  d->ma_str = ma_str;
+  d->v.dbl = dbl_val;
 
   /* check if the double read in MA file is given in a human-readable form */
   while(*p && strchr("0123456789.-eE", *p))
     p++;
 
-  d->dbl_human = (*p == '\0');
+  d->is_ma_str_human = (*p == '\0');
 
-  if (d->dbl_human)
-    d->dbl_cmt = d->dbl_str;
+  if (d->is_ma_str_human)
+    d->cmt_str = d->ma_str;
   else
     {
-      sprintf(cmt, "%s = %1.17g", dbl_str, dbl_val);
-      d->dbl_cmt = strdup(cmt);
+      sprintf(cmt, "%s = %1.17g", ma_str, dbl_val);
+      d->cmt_str = strdup(cmt);
     }
 
   return d;
@@ -490,7 +490,7 @@ Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[])
 	case FLOAT:		/* strdup done by the parser */
 	  d = Treat_Double(arg[i].str_val, arg[i].dbl_val);
 	  if (comment)
-	    Inst_Printf("", "%s %s", mi.comment_prefix, d->dbl_cmt);
+	    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
 	  offset += Call_C_Arg_Double(offset, d);
 	  break;
 

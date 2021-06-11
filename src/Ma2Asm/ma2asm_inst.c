@@ -52,16 +52,29 @@
 #define Y_OFFSET(index)   ((- ENVIR_STATIC_SIZE - 1 - index) * sizeof(PlLong))
 
 
-#if 0				/* to force the inclusion of a mapper */
+#if 1 				/* to force the inclusion of a mapper */
+#define COMPILE_ONE_MAPPER	/* then complete below the arch to compile */
+#endif
+
+
+#if defined(COMPILE_MAPPER) || defined(COMPILE_ONE_MAPPER)
+
+#include "mappers_undef.h"
 
 #define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" }; /* for ix86 */
 #define FC_MAX_ARGS_IN_REGS 3
+
+#ifndef COMPILE_MAPPER
+				/* complete the arch to compile */
 #define M_arm64
-#undef M_linux
 #define M_darwin
-#include "x86_64_any.c"
+#define M_arm64_darwin
 
 #else
+
+#include "mapper_force.h"
+
+#endif
 
 	  /* include machine-dependent mapper file */
 

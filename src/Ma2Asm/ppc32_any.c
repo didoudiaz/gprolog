@@ -520,8 +520,8 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
-  Inst_Printf("addis", "%s,0," HI(%s%d), r, DOUBLE_PREFIX, d->dbl_no);
-  Inst_Printf("lfd", F(%d) "," LO(%s%d) "(%s)", ++dbl_reg_no, DOUBLE_PREFIX, d->dbl_no, r);
+  Inst_Printf("addis", "%s,0," HI(%s%d), r, DOUBLE_PREFIX, d->no);
+  Inst_Printf("lfd", F(%d) "," LO(%s%d) "(%s)", ++dbl_reg_no, DOUBLE_PREFIX, d->no, r);
 
   AFTER_ARG_DBL;
 
@@ -945,8 +945,8 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
-  Inst_Printf(".double", "%.17g", d->dbl.val);
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Inst_Printf(".double", "%.17g", d->v.dbl);
 }
 
 

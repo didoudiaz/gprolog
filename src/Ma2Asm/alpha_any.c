@@ -470,7 +470,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 int
 Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  Inst_Printf("lda", "$1,%s%d", DOUBLE_PREFIX, d->dbl_no);
+  Inst_Printf("lda", "$1,%s%d", DOUBLE_PREFIX, d->no);
   switch (offset)
     {
     case 0:
@@ -1104,8 +1104,8 @@ void
 Dico_Double(DoubleInf *d)
 {
   Inst_Printf(".align 3", "");
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
-  Inst_Printf(".t_floating", "%1.17g", d->dbl.val);
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Inst_Printf(".t_floating", "%1.17g", d->v.dbl);
 }
 
 

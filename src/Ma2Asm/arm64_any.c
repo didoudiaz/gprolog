@@ -748,7 +748,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   char label[12];
 
-  sprintf(label, "%s%d", DOUBLE_PREFIX, d->dbl_no);
+  sprintf(label, "%s%d", DOUBLE_PREFIX, d->no);
 
   Load_Address(r, label);
   Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
@@ -1156,11 +1156,11 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
-  Inst_Printf(".long", "%d", d->dbl.i32[0]);
-  Inst_Printf(".long", "%d", d->dbl.i32[1]);
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Inst_Printf(".long", "%d", d->v.i32[0]);
+  Inst_Printf(".long", "%d", d->v.i32[1]);
 
-  //  Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", d->dbl.val);
+  //  Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", d->v.dbl);
 }
 
 

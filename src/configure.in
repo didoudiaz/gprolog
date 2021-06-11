@@ -390,6 +390,7 @@ WINDOWS=no
 
 case "$host" in
     mips*irix*)        AC_DEFINE(M_mips32)  AC_DEFINE(M_irix)    AC_DEFINE(M_mips32_irix);;
+    sparc64*solaris*)  AC_DEFINE(M_sparc64) AC_DEFINE(M_solaris) AC_DEFINE(M_sparc64_solaris);;
     sparc64*bsd*)      AC_DEFINE(M_sparc64) AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc64_bsd);;
     sparc*sunos*)      AC_DEFINE(M_sparc32) AC_DEFINE(M_sunos)   AC_DEFINE(M_sparc32_sunos);;
     sparc*solaris*)    AC_DEFINE(M_sparc32) AC_DEFINE(M_solaris) AC_DEFINE(M_sparc32_solaris);;

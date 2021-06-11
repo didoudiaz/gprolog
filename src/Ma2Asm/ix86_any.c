@@ -679,7 +679,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", "$%d,%s", d->dbl.i32[0], r);
+  Inst_Printf("movl", "$%d,%s", d->v.i32[0], r);
 
   AFTER_ARG;
 
@@ -687,7 +687,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", "$%d,%s", d->dbl.i32[1], r);
+  Inst_Printf("movl", "$%d,%s", d->v.i32[1], r);
 
   AFTER_ARG;
 

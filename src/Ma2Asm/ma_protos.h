@@ -111,15 +111,15 @@ LongInf;
 typedef struct
 {
   char *name;			/* name of the long symbol */
-  int dbl_no;	 		/* no in the dico double (or -1 if !needs_dico_double) */
-  char *dbl_str;		/* as read in the MA file (can be a %a printf format) */
-  Bool dbl_human;		/* is dbl_str human readable (or encoded, e.g. %d printf) ? */
-  char *dbl_cmt;		/* a string usable for a comment */
+  int no;	 		/* no in the dico double (or -1 if !needs_dico_double) */
+  char *ma_str;		/* as read in the MA file (can be a %a printf format) */
+  Bool is_ma_str_human;		/* is ma_str human readable (or encoded, e.g. %d printf) ? */
+  char *cmt_str;		/* a string usable for a comment */
   union {
-    double val;			/* the double value */
+    double dbl;			/* the double value */
     int64_t i64;		/* its 64 bits representation */
     int32_t i32[2];		/* its 2x32 bits representation */
-  }dbl;
+  }v;
 }
 DoubleInf;
 

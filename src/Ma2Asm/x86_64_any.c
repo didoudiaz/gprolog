@@ -681,7 +681,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_FPR_ARG;
 
-  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, d->dbl_no, r_aux);
+  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, d->no, r_aux);
   if (!r_eq_r_aux)
     Inst_Printf("movq", "%s,%s", r_aux, r);
 
@@ -1158,7 +1158,7 @@ void
 Dico_String_Start(int nb)
 {
 #ifdef M_darwin
-  Inst_Printf(".section", UN "_TEXT,__cstring,cstring_literals");
+  Inst_Printf(".section", "__TEXT,__cstring,cstring_literals");
 #else
   Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
 #endif
@@ -1201,7 +1201,7 @@ void
 Dico_Double_Start(int nb)
 {
 #ifdef M_darwin
-  //  Inst_Printf(".section", UN "_TEXT,__cdouble,cdouble_literals");
+  Inst_Printf(".section", "__TEXT,__literal8,8byte_literals");
 #else
   Inst_Printf(".section", ".rodata.cst8,\"aM\",@progbits,8");
 #endif
@@ -1216,9 +1216,13 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->dbl_no);
-  Inst_Printf(".long", "%d", d->dbl.i32[0]);
-  Inst_Printf(".long", "%d", d->dbl.i32[1]);
+  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+#if 1
+  Inst_Printf(".quad", "%ld", d->v.i64);
+#else
+  Inst_Printf(".long", "%d", d->v.i32[0]);
+  Inst_Printf(".long", "%d", d->v.i32[1]);
+#endif
 }
 
 

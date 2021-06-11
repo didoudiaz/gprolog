@@ -592,6 +592,9 @@ Pl_M_Get_Working_Dir(void)
  *-------------------------------------------------------------------------*/
 #ifdef __GNUC__
 #pragma GCC diagnostic push
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#endif
 #pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
 char *

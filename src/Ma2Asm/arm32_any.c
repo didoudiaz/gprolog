@@ -701,7 +701,7 @@ Call_C_Arg_Double(int offset, DoubleInf*d)
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 
-  Inst_Printf("vldr.64", "d%d, =0x%08x%08x", dbl_reg_no++, d->dbl.i32[1], d->dbl.i32[0]);
+  Inst_Printf("vldr.64", "d%d, =0x%08x%08x", dbl_reg_no++, d->v.i32[1], d->v.i32[0]);
 
 #else
 
@@ -712,8 +712,8 @@ Call_C_Arg_Double(int offset, DoubleInf*d)
 #if 0
   Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", dbl_val);
 #else
-  Inst_Printf(".word", "%d", d->dbl.i32[0]);
-  Inst_Printf(".word", "%d", d->dbl.i32[1]);
+  Inst_Printf(".word", "%d", d->v.i32[0]);
+  Inst_Printf(".word", "%d", d->v.i32[1]);
 #endif
   Label_Printf("%s%d:", DOUBLE_PREFIX, dbl_lc_no);
   Inst_Printf("vldr.64", "d%d, %s%d-8", dbl_reg_no++, DOUBLE_PREFIX, dbl_lc_no++);

@@ -40,7 +40,7 @@
 #include <stdarg.h>
 
 
-/* Supported arch: sparc64 on Solaris, SunOS, BSD
+/* Supported arch: sparc64 on Solaris, BSD
  */
 
 
@@ -218,7 +218,7 @@ Code_Start(CodeInf *c)
   Delay_Printf(".align", "4");
   Delay_Printf(".align", "32");
 #if defined(M_solaris) || defined(M_bsd)
-  Delay_Printf(".type", UN "%s,#function", label);
+  Delay_Printf(".type", UN "%s,#function", c->name);
 #endif
   Delay_Printf(".proc", "020");
 
@@ -721,7 +721,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_FP_ARG;
 
-  Load_Long_Into_Reg(d->dbl.i64, r);
+  Load_Long_Into_Reg(d->v.i64, r);
 
   AFTER_FP_ARG;
 

@@ -179,7 +179,7 @@ Code_Start(CodeInf *c)
   Label_Printf("");
   Inst_Printf(".align", "4");
 #if defined(M_solaris) || defined(M_bsd)
-  Inst_Printf(".type", UN "%s,#function", label);
+  Inst_Printf(".type", UN "%s,#function", c->name);
 #endif
   Inst_Printf(".proc", "020");
 
@@ -468,8 +468,8 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%d),%s", d->dbl.i32[0], r);
-  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->dbl.i32[0], r);
+  Delay_Printf("sethi", "%%hi(%d),%s", d->v.i32[0], r);
+  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->v.i32[0], r);
 
   AFTER_ARG;
 
@@ -477,8 +477,8 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%d),%s", d->dbl.i32[1], r);
-  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->dbl.i32[1], r);
+  Delay_Printf("sethi", "%%hi(%d),%s", d->v.i32[1], r);
+  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->v.i32[1], r);
 
   AFTER_ARG;
 
