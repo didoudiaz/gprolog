@@ -51,8 +51,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define STRING_PREFIX              ".LC"
-
 #ifdef M_sunos
 
 #define UN                         "_"
@@ -109,8 +107,9 @@ void Init_Mapper(void)
   mi.can_produce_pic_code = FALSE;
   mi.comment_prefix = "!";	/* NB: # does not work on Solaris 9 */
   mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD"; /* not used */
   mi.strings_need_null = TRUE;
-  mi.needs_dico_double = FALSE;
   mi.call_c_reverse_args = FALSE;
 }
 
@@ -493,12 +492,12 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%s%d),%s", STRING_PREFIX, str_no, r);
-  Delay_Printf("or", "%s,%%lo(%s%d),%s", r, STRING_PREFIX, str_no, r);
+  Delay_Printf("sethi", "%%hi(%s),%s", s->symb, r);
+  Delay_Printf("or", "%s,%%lo(%s),%s", r, s->symb, r);
 
   AFTER_ARG;
 
@@ -851,11 +850,11 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
   Inst_Printf(".align", "8");
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Inst_Printf(".asciz", "%s", asciiz);
+  Label_Printf("%s:", s->symb);
+  Inst_Printf(".asciz", "%s", s->str);
 }
 
 

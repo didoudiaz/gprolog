@@ -52,10 +52,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define STRING_PREFIX              "$LC"
-
-#define DOUBLE_PREFIX              "$LD"
-
 #define MAX_C_ARGS_IN_C_CODE       32
 
 
@@ -92,8 +88,9 @@ void Init_Mapper(void)
   mi.can_produce_pic_code = FALSE;
   mi.comment_prefix = "#";
   mi.local_symb_prefix = "$";
+  mi.string_symb_prefix = "$LC";
+  mi.double_symb_prefix =  "$LD";
   mi.strings_need_null = TRUE;
-  mi.needs_dico_double = TRUE;
   mi.call_c_reverse_args = FALSE;
 }
 
@@ -470,7 +467,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 int
 Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  Inst_Printf("lda", "$1,%s%d", DOUBLE_PREFIX, d->no);
+  Inst_Printf("lda", "$1,%s", d->symb);
   switch (offset)
     {
     case 0:
@@ -506,30 +503,30 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   switch (offset)
     {
     case 0:
-      Inst_Printf("lda", "$16,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$16,%s", s->symb);
       break;
     case 1:
-      Inst_Printf("lda", "$17,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$17,%s", s->symb);
       break;
     case 2:
-      Inst_Printf("lda", "$18,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$18,%s", s->symb);
       break;
     case 3:
-      Inst_Printf("lda", "$19,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$19,%s", s->symb);
       break;
     case 4:
-      Inst_Printf("lda", "$20,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$20,%s", s->symb);
       break;
     case 5:
-      Inst_Printf("lda", "$21,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$21,%s", s->symb);
       break;
     default:
-      Inst_Printf("lda", "$1,%s%d", STRING_PREFIX, str_no);
+      Inst_Printf("lda", "$1,%s", s->symb);
       Inst_Printf("stq", "$1,%d($30)", (offset - 6) * 8);
     }
   return 1;
@@ -1060,10 +1057,10 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Inst_Printf(".ascii", "%s", asciiz);
+  Label_Printf("%s:", s->symb);
+  Inst_Printf(".ascii", "%s", s->str);
 }
 
 
@@ -1104,7 +1101,7 @@ void
 Dico_Double(DoubleInf *d)
 {
   Inst_Printf(".align 3", "");
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Label_Printf("%s:", d->symb);
   Inst_Printf(".t_floating", "%1.17g", d->v.dbl);
 }
 

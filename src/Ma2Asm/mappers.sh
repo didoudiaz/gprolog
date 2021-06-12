@@ -1,5 +1,26 @@
 #!/bin/bash
 
+# this script checks the compilation of all mappers to check for regressions
+#
+# mappers.sh unset
+#    creates the a header file to unset all arch macros
+#
+# mappers.sh cp
+#    compile all mappers and copy chkma_ma.s in a compile dir for future check
+#
+# mappers.sh diff
+#    compile all mappers and diff them with files in the compile dir
+#
+# NB: the produced files are not "correct" because some depend on other
+# definitions, e.g. defs in machine.h depending on macros defined by ./configure
+#
+# Anyway on the same platform it can serve to make a diff.
+#
+# This reduces the gap a bit:
+#
+# ./configure --with-c-flags=debug --disable-regs
+
+
 file_undef_h=mappers_undef.h
 
 file_force_h=mapper_force.h
@@ -11,16 +32,15 @@ file_log=$compile_dir/mappers.log
 file_asm=chkma_ma.s
 
 
-
-undef_macro()
+usage()
 {
-    echo >>$file_undef_h
-    echo "#ifdef $1" >>$file_undef_h
-    echo "#undef $1" >>$file_undef_h
-    echo "#endif" >>$file_undef_h
+    echo "   usage: $0 (undef | cp | diff) [arch...]"
+    echo
+    echo "   if no arch is specified, use all archs found in ../configure"
+    echo "   else each arch is of the form proc/os"
 }
 
-collect_all_arch()
+collect_archs()
 {
     echo `grep ') *AC_DEFINE(M_' ../configure.in | awk  '{printf("%s/%s\n",$2,$3)}'|sed 's/AC_DEFINE(M_//g;s/)//g'|sort|uniq`
 }
@@ -41,26 +61,31 @@ undef_one()
 }
 
 
-undef_all_arch()
+undef_archs()
 {
-    echo "/* created by mappers.sh from ../configure.in */" >$file_undef_h
+    echo "/* created by mappers.sh */" >$file_undef_h
 
-    set `collect_all_arch`
-
-    while [ $# -gt 0 ]; do
-	proc_os=$1
-	undef_one $1
-	shift
+    
+    for a in $archs; do
+	undef_one $a
     done
     echo undefs are in headef file: $file_undef_h
 }
+
+undef_macro()
+{
+    echo >>$file_undef_h
+    echo "#ifdef $1" >>$file_undef_h
+    echo "#undef $1" >>$file_undef_h
+    echo "#endif" >>$file_undef_h
+}
+
 
 errors=0
 
 test_one()
 {
-    oper=$1
-    proc_os=$2
+    proc_os=$1
     proc=`echo $proc_os|cut -d/ -f1`
     os=`echo $proc_os|cut -d/ -f2`
     proc_os=${proc}_${os}
@@ -73,10 +98,11 @@ test_one()
     echo "#define M_$proc" >$file_force_h
     echo "#define M_$os" >>$file_force_h
     echo "#define M_${proc}_$os" >>$file_force_h
-    
+
+    echo "rm -f ma2asm_inst.o"  >>$file_log
     rm -f ma2asm_inst.o
-     echo "make DEF_MAPPER='-DCOMPILE_MAPPER' $file_asm" >>$file_log
-    if make DEF_MAPPER='-DCOMPILE_MAPPER' $file_asm >>$file_log 2>&1; then
+     echo "make FORCE_MAP='-DFORCE_MAPPER=2' $file_asm" >>$file_log
+    if make FORCE_MAP='-DFORCE_MAPPER=2' $file_asm >>$file_log 2>&1; then
 	if [ $oper = cp ]; then
 	    echo "   creating $compile_dir/$proc_os.s"
 	    echo "cp $file_asm $compile_dir/$proc_os.s" >>$file_log
@@ -85,7 +111,7 @@ test_one()
 	    echo "diff $file_asm $compile_dir/$proc_os.s" >>$file_log
 	    if ! diff $file_asm $compile_dir/$proc_os.s >>$file_log 2>&1 ; then
 		echo
-		echo "***** DIFF ERROR $file_asm $compile_dir/$proc_os.s"
+		echo "***** ERROR diff $file_asm $compile_dir/$proc_os.s"
 		echo
 		errors=$((errors + 1))
 	    fi
@@ -93,42 +119,38 @@ test_one()
 	fi
     else
 	echo
-	echo "***** COMPILATION ERROR"
+	echo "***** ERROR COMPILATION"
 	echo
 	errors=$((errors + 1))
     fi
 }
 
-test_all_arch()
+test_archs()
 {
-    oper=$1
-    
     [ -d $compile_dir ] || mkdir $compile_dir || exit 1
     echo "compiling all" `date` >$file_log
     
-    set `collect_all_arch`
-    echo $l
-
-    while [ $# -gt 0 ]; do
-	test_one $oper $1
-	shift
+    for a in $archs; do
+	test_one $a
     done
 
+    rm -f ma2asm_inst.o
     echo
     echo log file $file_log
     echo $errors errors
     test $errors = 0
 }
 
-if [ "$1" = undef ]; then
-    undef_all_arch
-elif [ "$1" = diff ]; then
-    test_all_arch diff
-elif [ "$1" = cp ]; then
-    test_all_arch cp
-else
-    echo "   usage: $0 undef | cp | diff"
-    exit
-fi
+oper="$1"
+shift
+archs=${*:-`collect_archs`}
+
+case $oper in
+    undef|unset)  undef_archs;;
+    cp)           test_archs cp;;
+    diff)         test_archs diff;;
+    *)            usage; exit;;
+esac
+
 
 

@@ -48,9 +48,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define STRING_PREFIX              ".LC"
-#define DOUBLE_PREFIX              ".LCD"
-
 #define MAX_C_ARGS_IN_C_CODE       32
 
 #define MAX_DOUBLES_IN_PRED        2048
@@ -122,9 +119,10 @@ void Init_Mapper(void)
   mi.needs_pre_pass = FALSE;
   mi.can_produce_pic_code = FALSE;
   mi.comment_prefix = "#";
-  mi.local_symb_prefix = ".L";
+  mi.local_symb_prefix = ".L";	/* TODO check local symbol on darwin */
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD";
   mi.strings_need_null = FALSE;
-  mi.needs_dico_double = TRUE;
   mi.call_c_reverse_args = FALSE;
 }
 
@@ -520,8 +518,8 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
-  Inst_Printf("addis", "%s,0," HI(%s%d), r, DOUBLE_PREFIX, d->no);
-  Inst_Printf("lfd", F(%d) "," LO(%s%d) "(%s)", ++dbl_reg_no, DOUBLE_PREFIX, d->no, r);
+  Inst_Printf("addis", "%s,0," HI(%s), r, d->symb);
+  Inst_Printf("lfd", F(%d) "," LO(%s) "(%s)", ++dbl_reg_no, d->symb, r);
 
   AFTER_ARG_DBL;
 
@@ -536,12 +534,12 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
-  Inst_Printf("addis", "%s,0," HI(%s%d), r, STRING_PREFIX, str_no);
-  Inst_Printf("addi", "%s,%s," LO(%s%d), r, r, STRING_PREFIX, str_no);
+  Inst_Printf("addis", "%s,0," HI(%s), r, s->symb);
+  Inst_Printf("addi", "%s,%s," LO(%s), r, r, s->symb);
 
   AFTER_ARG;
 
@@ -897,13 +895,13 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
+  Label_Printf("%s:", s->symb);
 #if defined(M_linux) || defined(M_bsd)
-  Inst_Printf(".string", "%s", asciiz);
+  Inst_Printf(".string", "%s", s->str);
 #else
-  Inst_Printf(".asciz", "%s", asciiz);
+  Inst_Printf(".asciz", "%s", s->str);
 #endif
 }
 
@@ -945,7 +943,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Label_Printf("%s:", d->symb);
   Inst_Printf(".double", "%.17g", d->v.dbl);
 }
 

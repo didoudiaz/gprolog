@@ -4705,6 +4705,10 @@ case "$host" in
   $as_echo "#define M_irix 1" >>confdefs.h
     $as_echo "#define M_mips32_irix 1" >>confdefs.h
 ;;
+    sparc64*solaris*)  $as_echo "#define M_sparc64 1" >>confdefs.h
+ $as_echo "#define M_solaris 1" >>confdefs.h
+ $as_echo "#define M_sparc64_solaris 1" >>confdefs.h
+;;
     sparc64*bsd*)      $as_echo "#define M_sparc64 1" >>confdefs.h
  $as_echo "#define M_bsd 1" >>confdefs.h
      $as_echo "#define M_sparc64_bsd 1" >>confdefs.h

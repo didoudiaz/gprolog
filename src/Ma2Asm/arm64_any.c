@@ -99,12 +99,8 @@
  *---------------------------------*/
 
 #ifdef M_darwin
-#define STRING_PREFIX              "L.str."
-#define DOUBLE_PREFIX              "LCPI"
 #define ASM_DOUBLE_DIRECTIV_PREFIX ""
 #else
-#define STRING_PREFIX              ".LC"
-#define DOUBLE_PREFIX              ".LCD"
 #define ASM_DOUBLE_DIRECTIV_PREFIX "0d"
 #endif
 
@@ -224,12 +220,15 @@ void Init_Mapper(void)
 
 #ifdef M_darwin
   mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = "L.str.";
+  mi.double_symb_prefix =  "LCPI";
 #else
   mi.local_symb_prefix = ".L";
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD";
 #endif
 
   mi.strings_need_null = FALSE;
-  mi.needs_dico_double = TRUE;
   mi.call_c_reverse_args = FALSE;
 }
 
@@ -748,7 +747,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   char label[12];
 
-  sprintf(label, "%s%d", DOUBLE_PREFIX, d->no);
+  sprintf(label, "%s", d->symb);
 
   Load_Address(r, label);
   Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
@@ -766,13 +765,13 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
   char labl[16];
 
-  sprintf(labl, "%s%d", STRING_PREFIX, str_no);
+  sprintf(labl, "%s", s->symb);
   Load_Address(r, labl);
 
   AFTER_ARG;
@@ -1106,12 +1105,12 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
   /* gas .align on arm is same as .p2align, .align 3 means multiple of 2^3 = 8 */
   Inst_Printf(".align", "3");	/* on darwin, gcc emits this .align, clang do not... */
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Inst_Printf(".asciz", "%s", asciiz);
+  Label_Printf("%s:", s->symb);
+  Inst_Printf(".asciz", "%s", s->str);
 }
 
 
@@ -1156,7 +1155,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Label_Printf("%s:", d->symb);
   Inst_Printf(".long", "%d", d->v.i32[0]);
   Inst_Printf(".long", "%d", d->v.i32[1]);
 

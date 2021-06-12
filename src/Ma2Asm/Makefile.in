@@ -2,7 +2,9 @@ GPLC   = @GPLC@
 CC     = @CC@ @CFLAGS_MACHINE@
 CFLAGS = @CFLAGS@
 LDLIBS = @LDLIBS@
-DEF_MAPPER=
+
+# set by mappers.sh
+FORCE_MAP =
 
 all: ma2asm@EXE_SUFFIX@
 
@@ -16,7 +18,7 @@ ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Wam2Ma/bt_string.c \
 ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
                ix86_any.c ppc32_any.c sparc32_any.c sparc64_any.c \
                mips32_any.c alpha_any.c x86_64_any.c arm32_any.c arm64_any.c
-	$(CC) $(CFLAGS) $(DEF_MAPPER) -c ma2asm_inst.c
+	$(CC) $(CFLAGS) $(FORCE_MAP) -c ma2asm_inst.c
 
 ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \
                     ma2asm_inst@OBJ_SUFFIX@ ma2asm_inst.c

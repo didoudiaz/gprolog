@@ -34,14 +34,40 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+#include "../EnginePl/gp_config.h"
 
+#if 0 				/* to force the inclusion of a mapper */
+#define FORCE_MAPPER 1		/* then complete below the arch to compile */
+#endif
+
+#ifdef FORCE_MAPPER
+
+#include "mappers_undef.h"
+
+#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" }; /* for ix86 */
+#define FC_MAX_ARGS_IN_REGS 3
+
+#if FORCE_MAPPER == 1		/* user mapper - complete the arch to compile */
+
+#define M_arm64
+#define M_darwin
+#define M_arm64_darwin
+
+#else  				/* mapper defined in mapper_force.h (see mappers.h) */
+
+#include "mapper_force.h"
+
+#endif
+
+#endif	/* !FORCE_MAPPER */
+
+/* ----------------- */
 
 #define MAPPER_FILE
 
 #include "ma_parser.h"
 #include "ma_protos.h"
 
-#include "../EnginePl/gp_config.h"
 #include "../EnginePl/wam_regs.h"
 #define FRAMES_ONLY
 #include "../EnginePl/wam_inst.h"
@@ -51,30 +77,6 @@
 
 #define Y_OFFSET(index)   ((- ENVIR_STATIC_SIZE - 1 - index) * sizeof(PlLong))
 
-
-#if 1 				/* to force the inclusion of a mapper */
-#define COMPILE_ONE_MAPPER	/* then complete below the arch to compile */
-#endif
-
-
-#if defined(COMPILE_MAPPER) || defined(COMPILE_ONE_MAPPER)
-
-#include "mappers_undef.h"
-
-#define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" }; /* for ix86 */
-#define FC_MAX_ARGS_IN_REGS 3
-
-#ifndef COMPILE_MAPPER
-				/* complete the arch to compile */
-#define M_arm64
-#define M_darwin
-#define M_arm64_darwin
-
-#else
-
-#include "mapper_force.h"
-
-#endif
 
 	  /* include machine-dependent mapper file */
 
@@ -117,8 +119,6 @@
 #else
 
 #error __FILE__ " no MA mapper file included"
-
-#endif
 
 #endif
 

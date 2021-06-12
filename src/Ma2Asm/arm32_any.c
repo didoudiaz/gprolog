@@ -112,9 +112,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define STRING_PREFIX              ".LC"
-#define DOUBLE_PREFIX              ".LCD"
-
 #define ASM_DOUBLE_DIRECTIV_PREFIX "0d"
 
 #define BPW                        4
@@ -165,8 +162,9 @@ void Init_Mapper(void)
   mi.can_produce_pic_code = FALSE;
   mi.comment_prefix = "#";
   mi.local_symb_prefix = ".L";
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD";
   mi.strings_need_null = FALSE;
-  mi.needs_dico_double = FALSE;
   mi.call_c_reverse_args = FALSE;
 }
 
@@ -706,7 +704,7 @@ Call_C_Arg_Double(int offset, DoubleInf*d)
 #else
 
   static int dbl_lc_no = 0;
-  Inst_Printf("b", "%s%d", DOUBLE_PREFIX, dbl_lc_no);
+  Inst_Printf("b", "%s%d", mi.double_symb_prefix, dbl_lc_no);
   Emit_Pool(FALSE);
   Inst_Printf(".align", "2");
 #if 0
@@ -715,8 +713,8 @@ Call_C_Arg_Double(int offset, DoubleInf*d)
   Inst_Printf(".word", "%d", d->v.i32[0]);
   Inst_Printf(".word", "%d", d->v.i32[1]);
 #endif
-  Label_Printf("%s%d:", DOUBLE_PREFIX, dbl_lc_no);
-  Inst_Printf("vldr.64", "d%d, %s%d-8", dbl_reg_no++, DOUBLE_PREFIX, dbl_lc_no++);
+  Label_Printf("%s%d:", mi.double_symb_prefix, dbl_lc_no);
+  Inst_Printf("vldr.64", "d%d, %s%d-8", dbl_reg_no++, mi.double_symb_prefix, dbl_lc_no++);
 
 #endif
 
@@ -734,14 +732,11 @@ Call_C_Arg_Double(int offset, DoubleInf*d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
-  char labl[16];
-
-  sprintf(labl, "%s%d", STRING_PREFIX, str_no);
-  Load_Address(r, labl);
+  Load_Address(r, s->symb);
 
   AFTER_ARG;
 
@@ -1081,14 +1076,14 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
   /* gas .align on arm is same as .p2align, .align 2 means multiple of 2^2 = 4 */
   Inst_Printf(".align", "2");
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Inst_Printf(".asciz", "%s", asciiz);
+  Label_Printf("%s:", s->symb);
+  Inst_Printf(".asciz", "%s", s->str);
 #if 0 /* NB: .space 0 generates a Warning: .space repeat count is zero, ignored */
-  Inst_Printf(".space", "4 - (.-%s%d) % 4", STRING_PREFIX, str_no);
+  Inst_Printf(".space", "4 - (.-%s) % 4", s->symb);
 #endif
 }
 

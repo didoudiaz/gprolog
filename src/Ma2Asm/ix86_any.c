@@ -95,8 +95,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define STRING_PREFIX              ".LC"
-
 #define MAX_C_ARGS_IN_C_CODE       32 /* must be a multiple of 4 for darwin */
 #define RESERVED_STACK_SPACE       MAX_C_ARGS_IN_C_CODE * 4 + 4
 
@@ -144,6 +142,8 @@ static char *Off_Reg_Bank(int offset);
 #ifdef M_darwin
 
 #define DARWIN_PB_REG "%ebp"	/* PIC BASE (PB) customization */
+#define DARWIN_PB_REG_SHORT (&DARWIN_PB_REG[2]) /* only bp from %ebp */
+
 Bool load_pb_reg = FALSE;
 int pb_label_no = 0;
 char pb_label[32];
@@ -177,13 +177,16 @@ void Init_Mapper(void)
 
 #ifdef M_darwin
   mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = "L.str.";
+  mi.double_symb_prefix =  "LCPI"; /* not used */
   mi.strings_need_null = TRUE;
 #else
   mi.local_symb_prefix = ".L";
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD"; /* not used */
   mi.strings_need_null = FALSE;
 #endif
 
-  mi.needs_dico_double = FALSE;
   mi.call_c_reverse_args = FALSE;
 
 #ifdef M_darwin
@@ -278,9 +281,9 @@ Asm_Stop(void)
 
   Inst_Printf(".subsections_via_symbols", "");
   Inst_Printf(".section", "__TEXT,__textcoal_nt,coalesced,pure_instructions");
-  Label_Printf(".weak_definition\t___i686.get_pc_thunk.%s", DARWIN_PB_REG + 2);
-  Label_Printf(".private_extern ___i686.get_pc_thunk.%s", DARWIN_PB_REG + 2);
-  Label_Printf("___i686.get_pc_thunk.%s:", DARWIN_PB_REG + 2);
+  Label_Printf(".weak_definition\t___i686.get_pc_thunk.%s", DARWIN_PB_REG_SHORT);
+  Label_Printf(".private_extern ___i686.get_pc_thunk.%s", DARWIN_PB_REG_SHORT);
+  Label_Printf("___i686.get_pc_thunk.%s:", DARWIN_PB_REG_SHORT);
   Inst_Printf("movl", "(%%esp), %s", DARWIN_PB_REG);
   Inst_Printf("ret", "");
 #endif
@@ -311,7 +314,7 @@ Load_PB_Reg(void)
   if (!load_pb_reg)
     return;
   int i;
-  Inst_Printf("call", "___i686.get_pc_thunk.%s", DARWIN_PB_REG + 2);
+  Inst_Printf("call", "___i686.get_pc_thunk.%s", DARWIN_PB_REG_SHORT);
   i = sprintf(pb_label, "\"L%011d$pb\"", ++pb_label_no);
   Label_Printf("%s:", pb_label);
   sprintf(pb_label + i, "(%s)", DARWIN_PB_REG);
@@ -595,7 +598,11 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 
 #ifdef __GNUC__			/* ignore r_aux/r_eq_r_aux not always used */
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic push
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#endif
+#pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
 
 
@@ -618,6 +625,10 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
       stack_offset++;					\
       r_aux = (eax_used_as_fc_reg) ? "%esi" : "%eax";	\
     }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
 /* In GCC 3, the 3 first args are passed via registers if they are
@@ -702,17 +713,17 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
 #ifdef M_darwin
   Load_PB_Reg();
-  Inst_Printf("leal", "%s%d-%s,%s", STRING_PREFIX, str_no, pb_label, r_aux);
+  Inst_Printf("leal", "%s-%s,%s", s->symb, pb_label, r_aux);
   if (!r_eq_r_aux)
     Inst_Printf("movl", "%s,%s", r_aux, r);
 #else
-  Inst_Printf("movl", "$%s%d,%s", STRING_PREFIX, str_no, r);
+  Inst_Printf("movl", "$%s,%s", s->symb, r);
 #endif
 
   AFTER_ARG;
@@ -1123,13 +1134,13 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
+  Label_Printf("%s:", s->symb);
 #ifdef M_darwin
-  Inst_Printf(".ascii", "%s", asciiz);
+  Inst_Printf(".ascii", "%s", s->str);
 #else
-  Inst_Printf(".string", "%s", asciiz);
+  Inst_Printf(".string", "%s", s->str);
 #endif
 }
 

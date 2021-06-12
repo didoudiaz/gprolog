@@ -66,8 +66,9 @@ typedef struct
   Bool needs_pre_pass;
   char *comment_prefix;
   char *local_symb_prefix;
+  char *string_symb_prefix;
+  char *double_symb_prefix;
   Bool strings_need_null;
-  Bool needs_dico_double;
   Bool call_c_reverse_args;
 }
 MapperInf;
@@ -78,11 +79,40 @@ MapperInf;
 typedef struct
 {
   char *name;			/* name of predicate/fct (label) */
-  Bool prolog;			/* is prolog code ? (or C code which includes initializer) */
-  Bool initializer;		/* is it an initialize (implies !prolog) */
+  Bool prolog;			/* is it prolog ? (or C code which can be an initializer) */
+  Bool initializer;		/* is it an initializer (implies !prolog) */
   Bool global;			/* is it global ? */
 }
 CodeInf;
+
+
+
+
+typedef struct
+{
+  int no;			/* no in the dico string */
+  char *str;			/* the string (contains surrounding ") */
+  char *symb;			/* the symbol (label) associated to the string */
+}
+StringInf;
+
+
+
+
+typedef struct
+{
+  int no;	 		/* no in the dico double */
+  char *ma_str;			/* as read in the MA file (can be a %a printf format) */
+  Bool is_ma_str_human;		/* is ma_str human readable (or encoded, e.g. %d printf) ? */
+  char *cmt_str;		/* a string usable for a comment */
+  char *symb;			/* the symbol (label) associated to the double */
+  union {
+    double dbl;			/* the double value */
+    int64_t i64;		/* its 64 bits representation */
+    int32_t i32[2];		/* its 2x32 bits representation */
+  }v;
+}
+DoubleInf;
 
 
 
@@ -104,24 +134,6 @@ typedef struct
   PlLong value;			/* the value */
 }
 LongInf;
-
-
-
-
-typedef struct
-{
-  char *name;			/* name of the long symbol */
-  int no;	 		/* no in the dico double (or -1 if !needs_dico_double) */
-  char *ma_str;		/* as read in the MA file (can be a %a printf format) */
-  Bool is_ma_str_human;		/* is ma_str human readable (or encoded, e.g. %d printf) ? */
-  char *cmt_str;		/* a string usable for a comment */
-  union {
-    double dbl;			/* the double value */
-    int64_t i64;		/* its 64 bits representation */
-    int32_t i32[2];		/* its 2x32 bits representation */
-  }v;
-}
-DoubleInf;
 
 
 
@@ -264,7 +276,7 @@ int Call_C_Arg_Int(int offset, PlLong int_val);
 
 int Call_C_Arg_Double(int offset, DoubleInf *d);
 
-int Call_C_Arg_String(int offset, int str_no, char *asciiz);
+int Call_C_Arg_String(int offset, StringInf *s);
 
 int Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index);
 
@@ -306,7 +318,7 @@ void C_Ret(void);
 
 void Dico_String_Start(int nb);
 
-void Dico_String(int str_no, char *asciiz);
+void Dico_String(StringInf *s);
 
 void Dico_String_Stop(int nb);
 

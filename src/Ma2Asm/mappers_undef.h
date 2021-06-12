@@ -1,4 +1,4 @@
-/* created by mappers.sh from ../configure.in */
+/* created by mappers.sh */
 
 /* alpha / linux */
 

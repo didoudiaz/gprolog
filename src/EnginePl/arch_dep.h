@@ -265,8 +265,7 @@
 				/* Fast call macros */
 #if defined(M_ix86)
 
-/* FC_MAX_ARGS_IN_REGS can be decreased (0, 1, 2) - but the inline_asm_data
- * is compiled with 3, if changed, change inlined code in mapper */
+/* FC_MAX_ARGS_IN_REGS can be decreased (0, 1, 2) */
 
 #define COULD_COMPILE_FOR_FC
 #ifdef __GNUC__

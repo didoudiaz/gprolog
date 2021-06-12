@@ -102,12 +102,15 @@ int local_label_count = 0;
  * Function Prototypes             *
  *---------------------------------*/
 
+void Invoke_Dico_String(int no, char *str, void *info);
 
-void Invoke_Dico_Long(int no, char *name, void *info);
+void Invoke_Dico_Double(int no, char *str, void *info);
 
-void Invoke_Dico_Double(int no, char *name, void *info);
+void Invoke_Dico_Long(int no, char *str, void *info);
 
-DoubleInf *Treat_Double(char *ma_str, double dbl_val);
+StringInf *Record_String(char *str);
+
+DoubleInf *Record_Double(char *ma_str, double dbl_val);
 
 void Switch_Rec(int start, int stop, SwtInf swt[]);
 
@@ -161,8 +164,10 @@ main(int argc, char *argv[])
   mi.can_produce_pic_code = FALSE;
   mi.needs_pre_pass = FALSE;
   mi.comment_prefix = "#";
+  mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = "LC";
+  mi.double_symb_prefix = "LD";
   mi.strings_need_null = FALSE;
-  mi.needs_dico_double = TRUE;
   mi.call_c_reverse_args = FALSE;
 
   Init_Mapper();
@@ -188,7 +193,7 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_String_Start(n);
-      BT_String_List(&bt_string, (BTStrLstFct) Dico_String);
+      BT_String_List(&bt_string, Invoke_Dico_String);
       Dico_String_Stop(n);
     }
 
@@ -222,6 +227,38 @@ main(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
+ * INVOKE_DICO_STRING                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Invoke_Dico_String(int no, char *str, void *info)
+{
+  StringInf *d = (StringInf *) info;
+  Dico_String(d);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INVOKE_DICO_DOUBLE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Invoke_Dico_Double(int no, char *str, void *info)
+{
+  DoubleInf *d = (DoubleInf *) info;
+
+  if (comment)
+    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
+      
+  Dico_Double(d);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * INVOKE_DICO_LONG                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -236,54 +273,44 @@ Invoke_Dico_Long(int no, char *name, void *info)
 
 
 /*-------------------------------------------------------------------------*
- * INVOKE_DICO_DOUBLE                                                      *
+ * RECORD_STRING                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-Invoke_Dico_Double(int no, char *ma_str, void *info)
+StringInf *
+Record_String(char *str)
 {
-  DoubleInf *d = (DoubleInf *) info;
-
-  if (comment)
-    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
-      
-  Dico_Double(d);
+  char label[32];
+  BTNode *b = BT_String_Add(&bt_string, str);
+  StringInf *s = (StringInf *) &b->info;
+  s->no = b->no;
+  s->str = str;
+  sprintf(label, "%s%d", mi.string_symb_prefix, s->no);
+  s->symb = strdup(label);
+  return s;
 }
 
 
 
-
-
-
-
-
 /*-------------------------------------------------------------------------*
- * TREAT_DOUBLE                                                            *
+ * RECORD_DOUBLE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 DoubleInf *
-Treat_Double(char *ma_str, double dbl_val)
+Record_Double(char *ma_str, double dbl_val)
 {
-  static DoubleInf dbl_info;
-  DoubleInf *d;
-  char *p = ma_str;
+  char label[32];
+  char *p;
   static char cmt[64];
-
-  if (mi.needs_dico_double)
-    {
-      BTNode *b = BT_String_Add(&bt_double, ma_str);
-      d = (DoubleInf *) &b->info;
-      d->no = b->no;
-    }
-  else
-    {
-      d = &dbl_info;
-      d->no = -1;
-    }
+  BTNode *b = BT_String_Add(&bt_double, ma_str);
+  DoubleInf *d = (DoubleInf *) &b->info;
+  d->no = b->no;
   d->ma_str = ma_str;
+  sprintf(label, "%s%d", mi.double_symb_prefix, d->no);
+  d->symb = strdup(label);
   d->v.dbl = dbl_val;
 
   /* check if the double read in MA file is given in a human-readable form */
+  p = ma_str;
   while(*p && strchr("0123456789.-eE", *p))
     p++;
 
@@ -466,7 +493,7 @@ Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[])
   unsigned i;			/* unsigned is important for the loop */
   int inc;
   int offset = 0;
-  int no;
+  StringInf *s;
   DoubleInf *d;
 
   if (ignore_fc)
@@ -488,17 +515,17 @@ Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[])
 	  break;
 
 	case FLOAT:		/* strdup done by the parser */
-	  d = Treat_Double(arg[i].str_val, arg[i].dbl_val);
+	  d = Record_Double(arg[i].str_val, arg[i].dbl_val);
 	  if (comment)
 	    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
 	  offset += Call_C_Arg_Double(offset, d);
 	  break;
 
 	case STRING:		/* strdup done by the parser */
-	  no = BT_String_Add(&bt_string, arg[i].str_val)->no;
+	  s = Record_String(arg[i].str_val);
 	  if (comment)
-	    Inst_Printf("", "%s %s", mi.comment_prefix, arg[i].str_val);
-	  offset += Call_C_Arg_String(offset, no, arg[i].str_val);
+	    Inst_Printf("", "%s %s", mi.comment_prefix, s->str);
+	  offset += Call_C_Arg_String(offset, s);
 	  break;
 
 	case MEM:

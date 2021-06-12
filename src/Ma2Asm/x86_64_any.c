@@ -111,15 +111,9 @@
 
 #ifdef M_darwin
 
-#define STRING_PREFIX              "L_.str"
-#define DOUBLE_PREFIX              "LCPI"
-
 #define UN                         "_"
 
 #else
-
-#define STRING_PREFIX              ".LC"
-#define DOUBLE_PREFIX              ".LCD"
 
 #define UN
 
@@ -199,12 +193,15 @@ void Init_Mapper(void)
 
 #ifdef M_darwin
   mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = "L_.str";
+  mi.double_symb_prefix =  "LCPI";
 #else
   mi.local_symb_prefix = ".L";
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD";
 #endif
 
   mi.strings_need_null = FALSE;
-  mi.needs_dico_double = TRUE;
   mi.call_c_reverse_args = FALSE;
 }
 
@@ -681,7 +678,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_FPR_ARG;
 
-  Inst_Printf("movsd", "%s%d(%%rip),%s", DOUBLE_PREFIX, d->no, r_aux);
+  Inst_Printf("movsd", "%s(%%rip),%s", d->symb, r_aux);
   if (!r_eq_r_aux)
     Inst_Printf("movq", "%s,%s", r_aux, r);
 
@@ -696,19 +693,19 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no, char *asciiz)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
   if (LARGE_ADDRESS_AWARE || pic_code)
     {
-      Inst_Printf("leaq", "%s%d(%%rip),%s", STRING_PREFIX, str_no, r_aux);
+      Inst_Printf("leaq", "%s(%%rip),%s", s->symb, r_aux);
       if (!r_eq_r_aux)
 	Inst_Printf("movq", "%s,%s", r_aux, r);
     }
   else
     {
-      Inst_Printf("movq", "$%s%d,%s", STRING_PREFIX, str_no, r_aux);
+      Inst_Printf("movq", "$%s,%s", s->symb, r_aux);
       if (!r_eq_r_aux)
 	Inst_Printf("movq", "%s,%s", r_aux, r);
     }
@@ -1098,9 +1095,8 @@ Cmp_Ret_And_Int(PlLong int_val)
     Inst_Printf("cmpq", "$%" PL_FMT_d ",%%rax", int_val);
   else
     {
-      /* %rdx is second integral return value. At this stage, it is
-         bound to be dead since we only deal with primitive object
-         types.  */
+      /* %rdx is second integral return value. At this stage, it is bound
+       * to be dead since we only deal with primitive object types. */
       Inst_Printf("movabsq", "$%" PL_FMT_d ",%%rdx", int_val);
       Inst_Printf("cmpq", "%%rdx,%%rax", int_val);
     }
@@ -1170,13 +1166,13 @@ Dico_String_Start(int nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
+  Label_Printf("%s:", s->symb);
 #ifdef M_darwin
-  Inst_Printf(".asciz", "%s", asciiz);
+  Inst_Printf(".asciz", "%s", s->str);
 #else
-  Inst_Printf(".string", "%s", asciiz);
+  Inst_Printf(".string", "%s", s->str);
 #endif
 }
 
@@ -1216,7 +1212,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Label_Printf("%s%d:", DOUBLE_PREFIX, d->no);
+  Label_Printf("%s:", d->symb);
 #if 1
   Inst_Printf(".quad", "%ld", d->v.i64);
 #else
