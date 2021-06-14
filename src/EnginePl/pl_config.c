@@ -294,6 +294,11 @@ main(void)
 #endif
     );
 
+#if defined(NO_MACHINE_REG_FOR_REG_BANK)
+  printf("                     NO_MACHINE_REG_FOR_REG_BANK is SET\n");
+#endif
+
+  
 
 #if 0
   fprintf(fg_c, "/* end of automatically generated part */\n");

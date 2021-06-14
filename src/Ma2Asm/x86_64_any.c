@@ -53,10 +53,12 @@
 /* x86_64/darwin needs a reg for pl_reg_bank (default is r12 see engine1.c)
  * so NO_MACHINE_REG_FOR_REG_BANK is never set (see machine.h). Else this 
  * error occurs '32-bit absolute addressing is not supported for x86-64'
+ * On x86_64/linux, NO_MACHINE_REG_FOR_REG_BANK should work but can be 
+ * easily undone in machine.h if problem occurs without register for pl_reg_bank
  */
 
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
-#define ASM_REG_BANK "pl_reg_bank"
+#define ASM_REG_BANK "pl_reg_bank(%rip)"
 #elif defined(MAP_REG_BANK)
 #define ASM_REG_BANK "%" MAP_REG_BANK
 #else
@@ -236,7 +238,7 @@ Asm_Start(void)
 #if defined(M_darwin) || defined(M_bsd)
   pic_code = TRUE;  		/* NB: on darwin and BSD everything is PIC code */
 #elif defined(M_linux) && __GNUC__ >= 6 /* gcc >= 6 needs PIC for linux */
-  pic_code = TRUE;
+  pic_code = FALSE;
 #elif defined(_WIN32)
   pic_code = FALSE;  		/* NB: on MinGW nothing is needed for PIC code */
 #endif
@@ -262,10 +264,10 @@ Asm_Start(void)
 static char *
 Off_Reg_Bank(int offset)
 {
-  static char str[20];
+  static char str[32];
 
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
-  sprintf(str, ASM_REG_BANK "+%d", offset);
+  sprintf(str, "%d+%s", offset, ASM_REG_BANK);
 #else
   sprintf(str, "%d(%s)", offset, ASM_REG_BANK);
 #endif
@@ -558,6 +560,15 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #endif
 }
 
+#ifdef __GNUC__                 /* ignore r_aux/r_eq_r_aux not always used */
+#pragma GCC diagnostic push
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#endif
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
+
+
 #ifdef _WIN32
 #define BEFORE_ARG                                      \
 {                                                       \
@@ -643,6 +654,13 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define AFTER_FPR_ARG                                   \
 }
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -777,15 +795,13 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 
   if (adr_of)
     {
+#ifndef NO_MACHINE_REG_FOR_REG_BANK
       if (!r_eq_r_aux && index == 0)
         {
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
-          Inst_Printf("movq", "$%s,%s", ASM_REG_BANK, r);
-#else
           Inst_Printf("movq", "%s,%s", ASM_REG_BANK, r);
-#endif
           goto finish;
         }
+#endif
       Inst_Printf("leaq", "%s,%s", Off_Reg_Bank(index * 8), r_aux);
     }
   else

@@ -170,13 +170,16 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 
 
-/* In any case M_x86_64_darwin needs a reg for pl_reg_bank (default is r12)
+/* In any case x86_64/darwin needs a reg for pl_reg_bank (default is r12)
  * else Ma2Asm produces code ending with the following error:
  * '32-bit absolute addressing is not supported for x86-64'
- * (see engine1.c)
+ * (see engine1.c/x86_64_any.c)
+ *
+ * To force a machine reg (r12) for x86_64/linux replace in the next line
+ * by !defined(M_x86_64)
  */
 #if defined(NO_USE_REGS) && !defined(NO_MACHINE_REG_FOR_REG_BANK) && \
-  defined(M_x86_64) && !defined(M_x86_64_darwin)
+  !defined(M_x86_64) && !defined(M_x86_64_darwin)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 

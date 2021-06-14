@@ -54,7 +54,7 @@
  * it is because:
  *
  * 1) no registers are used (either none available or --disable-regs).
- *    In that case if is loaded in a callee-save register by engine1.c
+ *    In that case it is loaded in a callee-save register by engine1.c
  *    (see ASM_REG_BANK)
  *
  * 2) or because NO_MACHINE_REG_FOR_REG_BANK is defined (debug only ?).

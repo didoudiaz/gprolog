@@ -150,16 +150,6 @@ main(int argc, char *argv[])
 {
   int n;
 
-  Parse_Arguments(argc, argv);
-
-  if (file_name_out == NULL)
-    file_out = stdout;
-  else if ((file_out = fopen(file_name_out, "wt")) == NULL)
-    {
-      fprintf(stderr, "cannot open output file %s\n", file_name_out);
-      exit(1);
-    }
-
   /* some default values */
   mi.can_produce_pic_code = FALSE;
   mi.needs_pre_pass = FALSE;
@@ -171,6 +161,16 @@ main(int argc, char *argv[])
   mi.call_c_reverse_args = FALSE;
 
   Init_Mapper();
+
+  Parse_Arguments(argc, argv);
+
+  if (file_name_out == NULL)
+    file_out = stdout;
+  else if ((file_out = fopen(file_name_out, "wt")) == NULL)
+    {
+      fprintf(stderr, "cannot open output file %s\n", file_name_out);
+      exit(1);
+    }
 
   BT_String_Init(&bt_code); 		/* only filled if pre_pass is activated */
   BT_String_Init(&bt_long);
@@ -824,8 +824,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      if (++i >= argc)
 		{
-		  fprintf(stderr, "FILE missing after %s option\n",
-			  argv[i - 1]);
+		  fprintf(stderr, "FILE missing after %s option\n", argv[i - 1]);
 		  exit(1);
 		}
 
