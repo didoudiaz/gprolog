@@ -1723,7 +1723,7 @@ Pl_Range_To_String(Range *range)
       return buff;
     }
 
-  sprintf(buff, "%s", WRITE_BEGIN_RANGE);
+  strcpy(buff, WRITE_BEGIN_RANGE);
 
   VECTOR_BEGIN_ENUM(range->vec, vec_elem);
   if (limit1 == -1)

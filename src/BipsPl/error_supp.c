@@ -396,11 +396,12 @@ Pl_Context_Error_1(WamWord err_word)
 static char *
 Context_Error_String(void)
 {
-  static char buff[256];
+  static char buff[1024];
 
-  sprintf(buff, "%s", pl_atom_tbl[cur_bip_func].name);
-  if (cur_bip_arity >= 0)
-    sprintf(buff + strlen(buff), "/%d", cur_bip_arity);
+  if (cur_bip_arity < 0)
+    return pl_atom_tbl[cur_bip_func].name;
+
+  sprintf(buff + strlen(buff), "%s/%d", pl_atom_tbl[cur_bip_func].name, cur_bip_arity);
 
   return buff;
 }

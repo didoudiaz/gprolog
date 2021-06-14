@@ -105,28 +105,28 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_BANK
-  sprintf(asm_reg_bank, "%s", MAP_REG_BANK);
+  strcpy(asm_reg_bank, MAP_REG_BANK);
 #else
   strcpy(asm_reg_bank, "$9");
 #endif
   Inst_Printf("# asm_reg_bank ", asm_reg_bank);
 
 #ifdef MAP_REG_E
-  sprintf(asm_reg_e, "%s", MAP_REG_E);
+  strcpy(asm_reg_e, MAP_REG_E);
 #else
   sprintf(asm_reg_e, "%d(%s)", MAP_OFFSET_E, asm_reg_bank);
 #endif
   Inst_Printf("# REG_E ", asm_reg_e);
 
 #ifdef MAP_REG_B
-  sprintf(asm_reg_b, "%s", MAP_REG_B);
+  strcpy(asm_reg_b, MAP_REG_B);
 #else
   sprintf(asm_reg_b, "%d(%s)", MAP_OFFSET_B, asm_reg_bank);
 #endif
   Inst_Printf("# REG_B ", asm_reg_b);
 
 #ifdef MAP_REG_CP
-  sprintf(asm_reg_cp, "%s", MAP_REG_CP);
+  strcpy(asm_reg_cp, MAP_REG_CP);
 #else
   sprintf(asm_reg_cp, "%d(%s)", MAP_OFFSET_CP, asm_reg_bank);
 #endif
@@ -547,25 +547,25 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
   switch (offset)
     {
     case 0:
-      sprintf(dest, "%s", "$16");
+      strcpy(dest, "$16");
       break;
     case 1:
-      sprintf(dest, "%s", "$17");
+      strcpy(dest, "$17");
       break;
     case 2:
-      sprintf(dest, "%s", "$18");
+      strcpy(dest, "$18");
       break;
     case 3:
-      sprintf(dest, "%s", "$19");
+      strcpy(dest, "$19");
       break;
     case 4:
-      sprintf(dest, "%s", "$20");
+      strcpy(dest, "$20");
       break;
     case 5:
-      sprintf(dest, "%s", "$21");
+      strcpy(dest, "$21");
       break;
     default:
-      sprintf(dest, "%s", "$1");
+      strcpy(dest, "$1");
       break;
     }
 
@@ -600,25 +600,25 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
   switch (offset)
     {
     case 0:
-      sprintf(dest, "%s", "$16");
+      strcpy(dest, "$16");
       break;
     case 1:
-      sprintf(dest, "%s", "$17");
+      strcpy(dest, "$17");
       break;
     case 2:
-      sprintf(dest, "%s", "$18");
+      strcpy(dest, "$18");
       break;
     case 3:
-      sprintf(dest, "%s", "$19");
+      strcpy(dest, "$19");
       break;
     case 4:
-      sprintf(dest, "%s", "$20");
+      strcpy(dest, "$20");
       break;
     case 5:
-      sprintf(dest, "%s", "$21");
+      strcpy(dest, "$21");
       break;
     default:
-      sprintf(dest, "%s", "$1");
+      strcpy(dest, "$1");
       break;
     }
 
@@ -659,25 +659,25 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
   switch (offset)
     {
     case 0:
-      sprintf(dest, "%s", "$16");
+      strcpy(dest, "$16");
       break;
     case 1:
-      sprintf(dest, "%s", "$17");
+      strcpy(dest, "$17");
       break;
     case 2:
-      sprintf(dest, "%s", "$18");
+      strcpy(dest, "$18");
       break;
     case 3:
-      sprintf(dest, "%s", "$19");
+      strcpy(dest, "$19");
       break;
     case 4:
-      sprintf(dest, "%s", "$20");
+      strcpy(dest, "$20");
       break;
     case 5:
-      sprintf(dest, "%s", "$21");
+      strcpy(dest, "$21");
       break;
     default:
-      sprintf(dest, "%s", "$1");
+      strcpy(dest, "$1");
       break;
     }
 
@@ -722,25 +722,25 @@ Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
   switch (offset)
     {
     case 0:
-      sprintf(dest, "%s", "$16");
+      strcpy(dest, "$16");
       break;
     case 1:
-      sprintf(dest, "%s", "$17");
+      strcpy(dest, "$17");
       break;
     case 2:
-      sprintf(dest, "%s", "$18");
+      strcpy(dest, "$18");
       break;
     case 3:
-      sprintf(dest, "%s", "$19");
+      strcpy(dest, "$19");
       break;
     case 4:
-      sprintf(dest, "%s", "$20");
+      strcpy(dest, "$20");
       break;
     case 5:
-      sprintf(dest, "%s", "$21");
+      strcpy(dest, "$21");
       break;
     default:
-      sprintf(dest, "%s", "$1");
+      strcpy(dest, "$1");
       break;
     }
 
@@ -777,25 +777,25 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
       switch (offset)
 	{
 	case 0:
-	  sprintf(dest, "%s", "$16");
+	  strcpy(dest, "$16");
 	  break;
 	case 1:
-	  sprintf(dest, "%s", "$17");
+	  strcpy(dest, "$17");
 	  break;
 	case 2:
-	  sprintf(dest, "%s", "$18");
+	  strcpy(dest, "$18");
 	  break;
 	case 3:
-	  sprintf(dest, "%s", "$19");
+	  strcpy(dest, "$19");
 	  break;
 	case 4:
-	  sprintf(dest, "%s", "$20");
+	  strcpy(dest, "$20");
 	  break;
 	case 5:
-	  sprintf(dest, "%s", "$21");
+	  strcpy(dest, "$21");
 	  break;
 	default:
-	  sprintf(dest, "%s", "$1");
+	  strcpy(dest, "$1");
 	  break;
 	}
       Inst_Printf("lda", "%s,pl_foreign_double+%d", dest, index * 8);
@@ -810,25 +810,25 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
       switch (offset)
 	{
 	case 0:
-	  sprintf(dest, "%s", "$f16");
+	  strcpy(dest, "$f16");
 	  break;
 	case 1:
-	  sprintf(dest, "%s", "$f17");
+	  strcpy(dest, "$f17");
 	  break;
 	case 2:
-	  sprintf(dest, "%s", "$f18");
+	  strcpy(dest, "$f18");
 	  break;
 	case 3:
-	  sprintf(dest, "%s", "$f19");
+	  strcpy(dest, "$f19");
 	  break;
 	case 4:
-	  sprintf(dest, "%s", "$f20");
+	  strcpy(dest, "$f20");
 	  break;
 	case 5:
-	  sprintf(dest, "%s", "$f21");
+	  strcpy(dest, "$f21");
 	  break;
 	default:
-	  sprintf(dest, "%s", "$f1");
+	  strcpy(dest, "$f1");
 	  break;
 	}
       Inst_Printf("lda", "$1,pl_foreign_double+%d", index * 8);

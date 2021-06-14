@@ -745,11 +745,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
-  char label[12];
-
-  sprintf(label, "%s", d->symb);
-
-  Load_Address(r, label);
+  Load_Address(r, d->symb);
   Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
 
   AFTER_ARG_DBL;
@@ -769,10 +765,7 @@ Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
-  char labl[16];
-
-  sprintf(labl, "%s", s->symb);
-  Load_Address(r, labl);
+  Load_Address(r, s->symb);
 
   AFTER_ARG;
 
