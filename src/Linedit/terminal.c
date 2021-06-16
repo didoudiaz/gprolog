@@ -36,14 +36,6 @@
  *-------------------------------------------------------------------------*/
 
 
-/* copy this from try_sigaction.c */
-
-#if defined(M_ix86_sco)
-#define _XOPEN_SOURCE 700
-#define _XOPEN_SOURCE_EXTENDED
-#endif
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +44,10 @@
 #include <signal.h>
 
 #include "../EnginePl/gp_config.h"
+
+#if 1
+#define DEBUG
+#endif
 
 #if defined(__unix__) || defined(__CYGWIN__)
 

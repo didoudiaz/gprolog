@@ -1114,7 +1114,7 @@ Cmp_Ret_And_Int(PlLong int_val)
       /* %rdx is second integral return value. At this stage, it is bound
        * to be dead since we only deal with primitive object types. */
       Inst_Printf("movabsq", "$%" PL_FMT_d ",%%rdx", int_val);
-      Inst_Printf("cmpq", "%%rdx,%%rax", int_val);
+      Inst_Printf("cmpq", "%%rdx,%%rax");
     }
 }
 
@@ -1230,7 +1230,7 @@ Dico_Double(DoubleInf *d)
 {
   Label_Printf("%s:", d->symb);
 #if 1
-  Inst_Printf(".quad", "%ld", d->v.i64);
+  Inst_Printf(".quad", "%lld", d->v.i64);
 #else
   Inst_Printf(".long", "%d", d->v.i32[0]);
   Inst_Printf(".long", "%d", d->v.i32[1]);

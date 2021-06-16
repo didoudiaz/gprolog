@@ -165,5 +165,9 @@ void Pl_LE_Put_Char(int c);
 
 int Pl_LE_Get_Char(void);
 
-
+#ifdef DEBUG
+void Debug_TTY_Printf(char *fmt, ...) ATTR_PRINTF(1);;
+#else
+#define Debug_TTY_Printf(fmt, ...)
+#endif
 

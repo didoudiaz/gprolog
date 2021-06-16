@@ -8,6 +8,9 @@ FORCE_MAP =
 
 all: ma2asm@EXE_SUFFIX@
 
+force-mapper:
+	$(MAKE) FORCE_MAP=-DFORCE_MAP=2
+
 ma_parser@OBJ_SUFFIX@: ma_parser.c ma_parser.h ma_protos.h
 	$(CC) $(CFLAGS) -c ma_parser.c
 

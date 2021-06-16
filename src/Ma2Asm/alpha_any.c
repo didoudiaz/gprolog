@@ -109,28 +109,24 @@ Asm_Start(void)
 #else
   strcpy(asm_reg_bank, "$9");
 #endif
-  Inst_Printf("# asm_reg_bank ", asm_reg_bank);
 
 #ifdef MAP_REG_E
   strcpy(asm_reg_e, MAP_REG_E);
 #else
   sprintf(asm_reg_e, "%d(%s)", MAP_OFFSET_E, asm_reg_bank);
 #endif
-  Inst_Printf("# REG_E ", asm_reg_e);
 
 #ifdef MAP_REG_B
   strcpy(asm_reg_b, MAP_REG_B);
 #else
   sprintf(asm_reg_b, "%d(%s)", MAP_OFFSET_B, asm_reg_bank);
 #endif
-  Inst_Printf("# REG_B ", asm_reg_b);
 
 #ifdef MAP_REG_CP
   strcpy(asm_reg_cp, MAP_REG_CP);
 #else
   sprintf(asm_reg_cp, "%d(%s)", MAP_OFFSET_CP, asm_reg_bank);
 #endif
-  Inst_Printf("# REG_CP ", asm_reg_cp);
 
   Inst_Printf(".set", "noat");
   Inst_Printf(".set", "noreorder");

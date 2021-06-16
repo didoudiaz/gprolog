@@ -39,16 +39,6 @@
 #include "../EnginePl/pl_long.h" /* ensure stdint.h */
 #include "../EnginePl/bool.h"
 
-#if 0
-#define CHECK_PRINTF_ARGS
-#endif
-
-#ifdef CHECK_PRINTF_ARGS
-#define GCCPRINTF(x) __attribute__((format(printf, x, x + 1)))
-#else
-#define GCCPRINTF(x)
-#endif
-
 
 
 
@@ -219,9 +209,9 @@ int Label_Gen_No(LabelGen *g);
 #define Label_Cont_No()  Label_Gen_No(&lg_cont)
 
 
-void Label_Printf(char *label, ...) GCCPRINTF(1);
+void Label_Printf(char *label, ...) ATTR_PRINTF(1);
 
-void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
+void Inst_Printf(char *op, char *operands, ...) ATTR_PRINTF(2);
 
 void Inst_Out(char *op, char *operands);
 

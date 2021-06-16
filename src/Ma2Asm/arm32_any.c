@@ -61,6 +61,9 @@
  *    so we here check no registers are used at all !
  */
 
+#if defined(NO_MACHINE_REG_FOR_REG_BANK)
+#error NO_MACHINE_REG_FOR_REG_BANK
+#endif
 #if defined(NO_MACHINE_REG_FOR_REG_BANK) && NB_USED_MACHINE_REGS > 0
 #error NO_MACHINE_REG_FOR_REG_BANK can only be defined if no registers are used at all (use --disable_regs)
 #endif
@@ -285,7 +288,7 @@ Emit_Pool(Bool after_call_c)
   
   if (after_call_c)		/* after a call to a C fct needs a branch over the pool */
     {
-      Inst_Printf("b", Label_Gen_New(&lg_pool));
+      Inst_Printf("b", "%s", Label_Gen_New(&lg_pool));
       Inst_Printf(".ltorg", "");
       Label_Printf("%s:", Label_Gen_Get(&lg_pool));
     }
@@ -901,7 +904,7 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("cmp", "r0, #0");
-  Inst_Printf("bne", Label_Cont_New());
+  Inst_Printf("bne", "%s", Label_Cont_New());
 #if 0				/* see Asm_Start() */
   Inst_Printf("b", "fail");
 #else

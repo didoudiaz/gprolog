@@ -116,32 +116,34 @@ Asm_Start(void)
 #ifdef MAP_REG_E
   strcpy(asm_reg_e, MAP_REG_E);
 #else
-/* strcpy(asm_reg_e,"$21"); */
+/* strcpy(asm_reg_e, "$21"); */
   sprintf(asm_reg_e, "%d(%s)", MAP_OFFSET_E, asm_reg_bank);
 #endif
 
 #ifdef MAP_REG_B
   strcpy(asm_reg_b, MAP_REG_B);
 #else
-/* sprintf(asm_reg_b,"$18"); */
+/* strcpy(asm_reg_b, "$18"); */
   sprintf(asm_reg_b, "%d(%s)", MAP_OFFSET_B, asm_reg_bank);
 #endif
 
 #ifdef MAP_REG_CP
   strcpy(asm_reg_cp, MAP_REG_CP);
 #else
-/* sprintf(asm_reg_cp,"$20"); */
+/* strcpy(asm_reg_cp,"$20"); */
   sprintf(asm_reg_cp, "%d(%s)", MAP_OFFSET_CP, asm_reg_bank);
 #endif
 
-  Inst_Printf(".option", "pic2");	/* gcc uses this */
-  Inst_Printf("#.set", "noat");
-  Inst_Printf("#.set", "noreorder");	/* let the assembler reorder instructions */
-
+#if 0
   Inst_Printf("# asm_reg_bank ", asm_reg_bank);
   Inst_Printf("# asm_reg_e ", asm_reg_e);
   Inst_Printf("# asm_reg_b ", asm_reg_b);
   Inst_Printf("# asm_reg_cp ", asm_reg_cp);
+#endif
+  
+  Inst_Printf(".option", "pic2");	/* gcc uses this */
+  Inst_Printf("#.set", "noat");
+  Inst_Printf("#.set", "noreorder");	/* let the assembler reorder instructions */
 
   Inst_Printf(".section", ".text");
 }
@@ -433,31 +435,31 @@ Call_C_Arg_Int(int offset, PlLong int_val)
   switch (offset)
     {
     case 0:
-      Inst_Printf("li", "$4,%d", int_val);
+      Inst_Printf("li", "$4,%ld", int_val);
       break;
     case 1:
-      Inst_Printf("li", "$5,%d", int_val);
+      Inst_Printf("li", "$5,%ld", int_val);
       break;
     case 2:
-      Inst_Printf("li", "$6,%d", int_val);
+      Inst_Printf("li", "$6,%ld", int_val);
       break;
     case 3:
-      Inst_Printf("li", "$7,%d", int_val);
+      Inst_Printf("li", "$7,%ld", int_val);
       break;
     case 4:
-      Inst_Printf("li", "$8,%d", int_val);
+      Inst_Printf("li", "$8,%ld", int_val);
       break;
     case 5:
-      Inst_Printf("li", "$9,%d", int_val);
+      Inst_Printf("li", "$9,%ld", int_val);
       break;
     case 6:
-      Inst_Printf("li", "$10,%d", int_val);
+      Inst_Printf("li", "$10,%ld", int_val);
       break;
     case 7:
-      Inst_Printf("li", "$11,%d", int_val);
+      Inst_Printf("li", "$11,%ld", int_val);
       break;
     default:
-      Inst_Printf("li", "$24,%d", int_val);
+      Inst_Printf("li", "$24,%ld", int_val);
       Inst_Printf("sw", "$24,%d($sp)", (offset - 8) * 8 + 4);
     }
   return 1;
@@ -1038,7 +1040,7 @@ Move_Ret_To_Foreign_D(int index)
 void
 Cmp_Ret_And_Int(PlLong int_val)
 {
-  Inst_Printf("li", "$24,%d", int_val);
+  Inst_Printf("li", "$24,%ld", int_val);
   Inst_Printf("sub", "$12,$2,$24");	/* $2 - $24 -> $12 */
 }
 
@@ -1196,12 +1198,12 @@ Dico_Long(LongInf *l)
 	{
 	  Label_Printf("%s:", l->name);
 	  Inst_Printf(".align", "3");
-	  Inst_Printf(".space", "%d", l->value * 4);
+	  Inst_Printf(".space", "%ld", l->value * 4);
 	  /* Inst_Printf(".popsection",""); */
 	}
       else
 	{
-	  Inst_Printf(".comm", "%s,%d", l->name, l->value * 4);
+	  Inst_Printf(".comm", "%s,%ld", l->name, l->value * 4);
 	}
       break;
 
@@ -1213,14 +1215,14 @@ Dico_Long(LongInf *l)
 	  Inst_Printf(".align", "3");
 	  Inst_Printf(".size", "%s,4", l->name);
 	  Label_Printf("%s:", l->name);
-	  Inst_Printf(".word", "%d", l->value);
+	  Inst_Printf(".word", "%ld", l->value);
 	}
       else
 	{
 	  Inst_Printf(".align", "3");
 	  Inst_Printf(".size", "%s,4", l->name);
 	  Label_Printf("%s:", l->name);
-	  Inst_Printf(".word", "%d", l->value);
+	  Inst_Printf(".word", "%ld", l->value);
 	}
       break;
     }

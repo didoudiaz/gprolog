@@ -128,7 +128,10 @@
  *
  * Common points:
  *    A global symbol is visible from everywhere (has a .global asm directive).
- *      and is referenced via the GOT (Global Offset Table).
+ *    and is referenced via the GOT (Global Offset Table).
+ *    Seems always PIC code 
+ *    (on linux use .LANCHORn labels to optimize loadings in the same region ?)
+ *
  *    A local symbol is only visible in the source.
  *    Some instructions only work with a local symbol, e.g. bgt label (label must be local)
  *    Due to RISC approach, an address is loaded (PC-relative) with 2 instructions 
@@ -215,7 +218,7 @@ int dbl_reg_no;
 void Init_Mapper(void)
 {
   mi.needs_pre_pass = TRUE;
-  mi.can_produce_pic_code = FALSE;
+  mi.can_produce_pic_code = TRUE;
   mi.comment_prefix = "#";
 
 #ifdef M_darwin
@@ -925,7 +928,7 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("cmp", "x0, #0");
-  Inst_Printf("bne", Label_Cont_New());
+  Inst_Printf("bne", "%s", Label_Cont_New());
 #if 0				/* see Asm_Start() */
   Inst_Printf("b", "fail");
 #else

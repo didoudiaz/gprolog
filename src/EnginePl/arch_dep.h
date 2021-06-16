@@ -39,6 +39,16 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
+/* for signals (see try_sigaction.c) */
+
+#if defined(M_ix86_sco)
+#define _XOPEN_SOURCE 700
+#define _XOPEN_SOURCE_EXTENDED
+#endif
+
+
+
+
 #define CPP_STR1(s) #s
 #define CPP_STR(s) CPP_STR1(s)
 
@@ -89,6 +99,16 @@
 #else
 #define COMPILED_AT "unknown date"
 #endif
+
+
+/* check printf arguments */
+
+#ifdef __GNUC__
+#define ATTR_PRINTF(x) __attribute__((format(printf, x, x + 1)))
+#else
+#define ATTR_PRINTF(x)
+#endif
+
 
 
 
@@ -218,7 +238,7 @@
 
 
 
-#if !defined(_WIN32) && !defined(__unix__)
+#if !defined(_WIN32) && !defined(__unix__) /* maybe too radical */
 #define __unix__
 #endif
 

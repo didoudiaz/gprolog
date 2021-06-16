@@ -75,7 +75,7 @@
 #include "../EnginePl/pl_params.h"
 #include "../EnginePl/obj_chain.h"
 
-#define Y_OFFSET(index)   ((- ENVIR_STATIC_SIZE - 1 - index) * sizeof(PlLong))
+#define Y_OFFSET(index)   ((int) ((- ENVIR_STATIC_SIZE - 1 - index) * sizeof(PlLong)))
 
 
 	  /* include machine-dependent mapper file */

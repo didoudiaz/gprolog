@@ -158,28 +158,35 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #endif
 
 
-
+/* for some archs, we prefer to not aalloc pl_reg_bank in a reg
+ * saving it for a WAM register
+ */
 #if defined(M_ix86) // && !defined(_WIN32) // && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
-#if 0 // defined(M_arm64) // force a NO_MACHINE_REG_FOR_REG_BANK for a given arch
+
+/* In no regs are used (--disable-regs => NO_USE_REGS), we normally also
+ * define NO_MACHINE_REG_FOR_REG_BANK to avoid pl_reg_bank to be in a reg.
+ * 
+ * Some archs need pl_reg_bank in a register. For instance x86_64/darwin 
+ * needs a reg for pl_reg_bank (default is r12) else Ma2Asm produces code 
+ * ending with the following error:
+ * '32-bit absolute addressing is not supported for x86-64'
+ *
+ * To force a machine reg for a given arch add it as !defined(M_arch) below
+ * and initialize this register in engine1.c
+ * E.g. to force a reg (def is r12) for x86_64/linux replace in the next line
+ * by !defined(M_x86_64)
+ */
+#if defined(NO_USE_REGS) && !defined(NO_MACHINE_REG_FOR_REG_BANK) && \
+  !defined(M_x86_64) && !defined(M_x86_64_darwin) && !defined(M_arm32) && !defined(M_arm64)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
 
-
-
-/* In any case x86_64/darwin needs a reg for pl_reg_bank (default is r12)
- * else Ma2Asm produces code ending with the following error:
- * '32-bit absolute addressing is not supported for x86-64'
- * (see engine1.c/x86_64_any.c)
- *
- * To force a machine reg (r12) for x86_64/linux replace in the next line
- * by !defined(M_x86_64)
- */
-#if defined(NO_USE_REGS) && !defined(NO_MACHINE_REG_FOR_REG_BANK) && \
-  !defined(M_x86_64) && !defined(M_x86_64_darwin)
+/* To really force NO_MACHINE_REG_FOR_REG_BANK (testing) */
+#if 0 /* or e.g. defined(M_arm64) */
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
