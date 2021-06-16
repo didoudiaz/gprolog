@@ -29,8 +29,9 @@ compile_dir=~/mappers-dir
 
 file_log=$compile_dir/mappers.log
 
-file_asm=chkma_ma.s
+file_ma=chkma_ma.ma
 
+verbose=0
 
 usage()
 {
@@ -42,7 +43,7 @@ usage()
 
 collect_archs()
 {
-    echo `grep ') *AC_DEFINE(M_' ../configure.in | awk  '{printf("%s/%s\n",$2,$3)}'|sed 's/AC_DEFINE(M_//g;s/)//g'|sort|uniq`
+    echo `grep ') *AC_DEFINE(M_' ../configure.in|awk '{printf("%s/%s\n",$2,$3)}'|sed 's/AC_DEFINE(M_//g;s/)//g'|sort|uniq`
 }
 
 undef_one()
@@ -99,23 +100,33 @@ test_one()
     echo "#define M_$os" >>$file_force_h
     echo "#define M_${proc}_$os" >>$file_force_h
 
+    f1=/tmp/$proc_os.s
+    f2=$compile_dir/$proc_os.s
+    
     echo "rm -f ma2asm_inst.o"  >>$file_log
-    rm -f ma2asm_inst.o
-     echo "make FORCE_MAP='-DFORCE_MAPPER=2' $file_asm" >>$file_log
-    if make FORCE_MAP='-DFORCE_MAPPER=2' $file_asm >>$file_log 2>&1; then
-	if [ $oper = cp ]; then
-	    echo "   creating $compile_dir/$proc_os.s"
-	    echo "cp $file_asm $compile_dir/$proc_os.s" >>$file_log
-	    cp $file_asm $compile_dir/$proc_os.s
-	else
-	    echo "diff $file_asm $compile_dir/$proc_os.s" >>$file_log
-	    if ! diff $file_asm $compile_dir/$proc_os.s >>$file_log 2>&1 ; then
-		echo
-		echo "***** ERROR diff $file_asm $compile_dir/$proc_os.s"
-		echo
-		errors=$((errors + 1))
+    make clean >/dev/null 2>&1
+    echo "make FORCE_MAP='-DFORCE_MAPPER=2'" >>$file_log
+    if make FORCE_MAP='-DFORCE_MAPPER=2' >>$file_log 2>&1; then
+	echo "ma2asm --comment $file_ma -o $f1" >>$file_log
+	if ma2asm --comment $file_ma -o $f1; then
+	    if [ $oper = cp ]; then
+		echo "   creating $f2"
+		echo "cp $f1 $f2" >>$file_log
+		cp $f1 $f2
+	    else
+		echo "diff $f1 $f2" >>$file_log
+		if ! diff $f1 $f2 >>$file_log 2>&1 ; then
+		    echo
+		    echo "***** ERROR diff $f1 $f2"
+		    echo
+		    errors=$((errors + 1))
+		fi
 	    fi
-
+	else
+	    echo
+	    echo "***** ERROR ma2asm --comment $file_ma -o $f1"
+	    echo
+	    errors=$((errors + 1))
 	fi
     else
 	echo
@@ -144,6 +155,12 @@ test_archs()
 oper="$1"
 shift
 archs=${*:-`collect_archs`}
+
+if [ $verbose = 1 ]; then
+    echo $archs | tr ' ' '\n'
+    echo
+fi
+       
 
 case $oper in
     undef|unset)  undef_archs;;

@@ -1325,8 +1325,7 @@ Completion_Print_All(void)
   nb_in_last_line = ((comp_nb_match - 1) % nb_in_a_line) + 1;
   nb_miss_in_last_line = nb_in_a_line - nb_in_last_line;
 
-  spaces = (nb_in_a_line == 1)
-    ? 0 : (col - nb_in_a_line * comp_match_max_lg) / nb_in_a_line;
+  spaces = (nb_in_a_line == 1) ? 0 : (col - nb_in_a_line * comp_match_max_lg) / nb_in_a_line;
 
 
   if (nb_lines > NB_MATCH_LINES_BEFORE_ASK)     /* too many matchings ? */

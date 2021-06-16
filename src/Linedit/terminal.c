@@ -36,12 +36,20 @@
  *-------------------------------------------------------------------------*/
 
 
+/* copy this from try_sigaction.c */
+
+#if defined(M_ix86_sco)
+#define _XOPEN_SOURCE 700
+#define _XOPEN_SOURCE_EXTENDED
+#endif
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include "../EnginePl/gp_config.h"
 
@@ -152,6 +160,10 @@ static void Choose_Fd_Out(void);
 static void Set_TTY_Mode(TermIO *old, TermIO *new);
 
 #endif
+
+static void Install_Resize_Handler();
+
+static void Resize_Handler();
 
 static int LE_Get_Char0(void);
 
@@ -389,6 +401,7 @@ Pl_LE_Open_Terminal(void)
     }
 
   Pl_LE_Screen_Size(&nb_rows, &nb_cols);
+  Install_Resize_Handler();
 
   pos = 0;
 
@@ -458,9 +471,100 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
   new->c_cc[VTIME] = 1;         /* TIME */
 
   new->c_cc[VINTR] = -1;        /* deactivate SIGINT signal */
+
+#if 0 /* TODO compare our settings with BSD raw mode */
+  new->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+  new->c_oflag &= ~OPOST;
+  new->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+  new->c_cflag &= ~(CSIZE | PARENB);
+  new->c_cflag |= CS8;
+#endif
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_CURSOR_POSITION                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Get_Cursor_Position(int *row, int *col)
+{
+  char buf[32];
+  int i;
+  int r, c;
+
+  *row = *col = 0;		   /* default (error) values */
+
+  strcpy(buf, "\033[6n");
+  if (write(fd_out, buf, strlen(buf)) != strlen(buf))
+    return 0;
+
+  for(i = 0; i < sizeof(buf) - 1; i ++)
+    {
+      if (read(fd_in, buf + i, 1) != 1)
+	return 0;
+
+      if (buf[i] == 0)
+	printf("\n\nOCCURS ++++++++++++++++++++++++++++++++++\n\n");
+      if (buf[i] == 'R')
+	break;
+    }
+  buf[i] = '\0';
+  printf("\n\nread <%s>\n\n*****************", buf+1);
+
+  if (buf[0] != '\033' || buf[1] != '[' || sscanf(buf + 2, "%d;%d", &r, &c) != 2 ||
+      r < 0 || r > 999 || c < 0 || c > 999)
+    return 0;
+
+  *row = r;
+  *col = c;
+  return 1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INSTALL_RESIZE_HANDLER                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Install_Resize_Handler()
+{
+#if defined(HAVE_WORKING_SIGACTION) ||                          \
+  defined(M_sparc32_solaris) || defined(M_ix86_solaris) ||      \
+  defined(M_ix86_sco) || defined(M_x86_64_solaris)
+
+  struct sigaction act;
+
+  act.sa_sigaction = (void (*)()) Resize_Handler;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_RESTART;
+  sigaction(SIGWINCH, &act, NULL);
+
+#else
+
+  signal(SIGWINCH, (void (*)()) Resize_Handler);
+
 #endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * RESIZE_HANDLER                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Resize_Handler()
+{
+  Pl_LE_Screen_Size(&nb_rows, &nb_cols);
+}
+
+#endif /* defined(__unix__) || defined(__CYGWIN__) */
 
 
 
@@ -477,13 +581,22 @@ Pl_LE_Screen_Size(int *row, int *col)
 
   if (!is_tty_out)
     {
-      row = col = 0;
+      *row = *col = 0;
       return;
     }
 
-  ioctl(fd_out, TIOCGWINSZ, &ws);
-  nb_rows = *row = ws.ws_row;
-  nb_cols = *col = ws.ws_col;
+  ws.ws_row = ws.ws_col = 0;	/* default (error) values */
+  if (ioctl(fd_out, TIOCGWINSZ, &ws) != -1)
+    {				/* under lldb ioctl fails (workaround use: process launch -tty) but here we ask /dev/tty */
+      int fd = open("/dev/tty", O_RDONLY);
+      if (fd != -1)
+	{
+	  ioctl(fd, TIOCGWINSZ, &ws);
+	  close (fd);
+	}
+    }
+  *row = ws.ws_row;
+  *col = ws.ws_col;
 
 #elif defined(_WIN32)
 
@@ -502,6 +615,9 @@ Pl_LE_Screen_Size(int *row, int *col)
 
 #endif
 }
+
+
+
 
 
 
@@ -615,6 +731,15 @@ Pl_LE_Put_Char(int c)
       switch(c)
         {
         case '\b':
+#if 1
+	  {
+  char buf[100];
+  int r, c;
+  Get_Cursor_Position(&r, &c);
+  sprintf(buf, "echo \"POS: row:%d  col:%d\">/dev/pts/3", r, c);
+  system(buf);
+	  }
+#endif
           if (pos == 0)
             {
               pos = nb_cols - 1;
@@ -654,7 +779,7 @@ Pl_LE_Put_Char(int c)
   if (c != '\b')
     {
       if (oem_put)
-	{
+	{@<
 	  char buff[2];
 
 	  buff[0] = c;
