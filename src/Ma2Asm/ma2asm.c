@@ -118,10 +118,6 @@ void Switch_Equal(SwtInf *c);
 
 int Switch_Cmp_Int(SwtInf *c1, SwtInf *c2);
 
-void Label_Printf(char *label, ...);
-
-void Inst_Printf(char *op, char *operands, ...);
-
 void Inst_Out(char *op, char *operands);
 
 void Char_Out(char c);

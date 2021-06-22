@@ -42,12 +42,10 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdarg.h>
+#include <errno.h>
 
 #include "../EnginePl/gp_config.h"
-
-#if 1
-#define DEBUG
-#endif
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -113,6 +111,7 @@ static int use_ansi;
 static int fd_in = 0;           /* not changed */
 #endif
 static int fd_out = -1;
+static FILE *file_dbg = NULL;	/* activate DEBUG and set LINEDIT env var dbg=/dev/ttyxxx */
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -124,7 +123,7 @@ static TermIO old_stty_out;
 static TermIO new_stty_out;
 
 static int nb_rows, nb_cols;
-static int pos;
+static int term_pos;
 
 #elif defined(_WIN32)
 
@@ -155,11 +154,11 @@ static void Choose_Fd_Out(void);
 
 static void Set_TTY_Mode(TermIO *old, TermIO *new);
 
-#endif
-
 static void Install_Resize_Handler();
 
 static void Resize_Handler();
+
+#endif
 
 static int LE_Get_Char0(void);
 
@@ -262,9 +261,8 @@ Pl_LE_Initialize(void)
 static void
 Parse_Env_Var(void)
 {
-  char *p;
+  char *p, *q, *r;
   char buff[1024];
-  char *q;
 
   use_linedit = use_gui = use_ansi = 1; /* default */
 
@@ -289,7 +287,7 @@ Parse_Env_Var(void)
 
 #ifdef _WIN32
   if ((q = strstr(p, "cp=")) != NULL && isdigit(q[3]))
-    code_page = strtol(q + 3, NULL, 10), printf("cp read:%d\n", code_page);
+    code_page = strtol(q + 3, NULL, 10);
 
   if (strstr(p, "oem_put=n") != NULL)
     oem_put = 0;
@@ -304,21 +302,33 @@ Parse_Env_Var(void)
     oem_get = 1;
 #endif
 
-  if ((p = strstr(p, "out=")) != NULL)
+  if ((q = strstr(p, "out=")) != NULL)
     {
-      p += 4;
+      q += 4;
 
       if (isdigit(*p))
         fd_out = strtol(p, NULL, 10);
       else
         {
-	  q = buff;
-          while(*p && isprint(*p) && !isspace(*p))
-            *q++ = *p++;
+	  r = buff;
+          while(*q && isprint(*q) && !isspace(*q))
+            *q++ = *r++;
 
-          *q = '\0';
+          *r = '\0';
           fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
         }
+    }
+
+  if ((q = strstr(p, "dbg=")) != NULL)
+    {
+      q += 4;
+
+      r = buff;
+      while(*q && isprint(*q) && !isspace(*q))
+	*r++ = *q++;
+
+      *r = '\0';
+      file_dbg = fopen(buff, "wt");
     }
 
   return;
@@ -327,43 +337,48 @@ Parse_Env_Var(void)
 
 
 
-#if defined(__unix__) || defined(__CYGWIN__)
-
+#ifdef DEBUG
 /*-------------------------------------------------------------------------*
- * CHOOSE_FD_OUT                                                           *
+ * DEBUG_PRINTF                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Choose_Fd_Out(void)
+void
+Debug_Printf(char *fmt, ...)
 {
-  int fd[3] = { 1, 0, 2 };      /* order fd list to try to find a tty */
-  int i, try;
-  int mask;
-  char *p;
+  va_list arg_ptr;
 
-  for(i = 0; i < 3 && fd_out < 0; i++)
-    {
-      try = fd[i];
+  if (file_dbg == NULL)
+    return;
 
-      if (!isatty(try))
-        continue;
+  va_start(arg_ptr, fmt);
 
-      mask = fcntl(try, F_GETFL);
-      if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
-        {
-          fd_out = try;
-          break;
-        }
+  vfprintf(file_dbg, fmt, arg_ptr);
 
-      if ((p = ttyname(try)) != NULL)
-        fd_out = open(p, O_WRONLY);
-    }
+  va_end(arg_ptr);
+  fputc('\n', file_dbg);
+  fflush(file_dbg);
+}
 
-  if (fd_out < 0)
-    fd_out = 1;
 
+
+
+/*-------------------------------------------------------------------------*
+ * DEBUG_CHECK_POSITIONS                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Debug_Check_Positions(int lin_pos)
+{
+#if defined(__unix__) || defined(__CYGWIN__)
+
+  int l = Pl_LE_Get_Prompt_Length();
+  if ((lin_pos + l) % nb_cols != term_pos)
+    Debug_Printf("********* ERROR linedit pos %d  + prompt len %d != pos %d  (%% nb cols: %d)\n", lin_pos, l, term_pos, nb_cols);
+
+#endif
 }
 #endif
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -399,7 +414,7 @@ Pl_LE_Open_Terminal(void)
   Pl_LE_Screen_Size(&nb_rows, &nb_cols);
   Install_Resize_Handler();
 
-  pos = 0;
+  term_pos = 0;
 
 #elif defined(_WIN32)
 
@@ -450,6 +465,47 @@ Pl_LE_Close_Terminal(void)
 #if defined(__unix__) || defined(__CYGWIN__)
 
 /*-------------------------------------------------------------------------*
+ * CHOOSE_FD_OUT                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Choose_Fd_Out(void)
+{
+  int fd[3] = { 1, 0, 2 };      /* order fd list to try to find a tty */
+  int i, try;
+  int mask;
+  char *p;
+
+  for(i = 0; i < 3 && fd_out < 0; i++)
+    {
+      try = fd[i];
+
+      if (!isatty(try))
+        continue;
+
+      mask = fcntl(try, F_GETFL);
+      if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
+        {
+          fd_out = try;
+          break;
+        }
+
+      if ((p = ttyname(try)) != NULL)
+	{
+	  fd_out = open(p, O_WRONLY); /* could be O_RDWR to read ansi seq answer from terminal, e.g. read cursor position */
+	  Debug_Printf("found a tty %d name: %s  fd: %d\n", try, p, fd_out);
+	  break;
+	}
+    }
+
+  if (fd_out < 0)
+    fd_out = 1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * SET_TTY_MODE                                                            *
  *                                                                         *
  * Mode cbreak (raw mode).                                                 *
@@ -481,60 +537,15 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
 
 
 /*-------------------------------------------------------------------------*
- * GET_CURSOR_POSITION                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-Get_Cursor_Position(int *row, int *col)
-{
-  char buf[32];
-  int i;
-  int r, c;
-
-  *row = *col = 0;		   /* default (error) values */
-
-  strcpy(buf, "\033[6n");
-  if (write(fd_out, buf, strlen(buf)) != strlen(buf))
-    return 0;
-
-  for(i = 0; i < sizeof(buf) - 1; i ++)
-    {
-      if (read(fd_in, buf + i, 1) != 1)
-	return 0;
-
-      if (buf[i] == 0)
-	printf("\n\nOCCURS ++++++++++++++++++++++++++++++++++\n\n");
-      if (buf[i] == 'R')
-	break;
-    }
-  buf[i] = '\0';
-  printf("\n\nread <%s>\n\n*****************", buf+1);
-
-  if (buf[0] != '\033' || buf[1] != '[' || sscanf(buf + 2, "%d;%d", &r, &c) != 2 ||
-      r < 0 || r > 999 || c < 0 || c > 999)
-    return 0;
-
-  *row = r;
-  *col = c;
-  return 1;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * INSTALL_RESIZE_HANDLER                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
 Install_Resize_Handler()
 {
-#if defined(HAVE_WORKING_SIGACTION) ||                          \
-  defined(M_sparc32_solaris) || defined(M_ix86_solaris) ||      \
-  defined(M_ix86_sco) || defined(M_x86_64_solaris)
+#if defined(HAVE_WORKING_SIGACTION) || defined(M_solaris) || defined(M_sco)
 
   struct sigaction act;
-
   act.sa_sigaction = (void (*)()) Resize_Handler;
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_RESTART;
@@ -558,6 +569,8 @@ static void
 Resize_Handler()
 {
   Pl_LE_Screen_Size(&nb_rows, &nb_cols);
+  if (nb_cols > 0)
+    term_pos = (Pl_LE_Get_Current_Position() + Pl_LE_Get_Prompt_Length()) % nb_cols;
 }
 
 #endif /* defined(__unix__) || defined(__CYGWIN__) */
@@ -580,9 +593,9 @@ Pl_LE_Screen_Size(int *row, int *col)
       *row = *col = 0;
       return;
     }
-
+  
   ws.ws_row = ws.ws_col = 0;	/* default (error) values */
-  if (ioctl(fd_out, TIOCGWINSZ, &ws) != -1)
+  if (ioctl(fd_out, TIOCGWINSZ, &ws) == -1 || ws.ws_row == 0 || ws.ws_col == 0)
     {				/* under lldb ioctl fails (workaround use: process launch -tty) but here we ask /dev/tty */
       int fd = open("/dev/tty", O_RDONLY);
       if (fd != -1)
@@ -594,6 +607,8 @@ Pl_LE_Screen_Size(int *row, int *col)
   *row = ws.ws_row;
   *col = ws.ws_col;
 
+  Debug_Printf("size: %d x %d\n", *col, *row);
+
 #elif defined(_WIN32)
 
   CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -602,6 +617,7 @@ Pl_LE_Screen_Size(int *row, int *col)
     {
       *row = csbi.dwSize.Y;
       *col = csbi.dwSize.X;
+      /* alternative: *col = csbi.srWindow.Bottom - csbi.srWindow.Top + 1; */
     }
   else
     {
@@ -611,9 +627,6 @@ Pl_LE_Screen_Size(int *row, int *col)
 
 #endif
 }
-
-
-
 
 
 
@@ -718,54 +731,78 @@ void
 Pl_LE_Put_Char(int c)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
-  char c0 = c;
+  static char buf[20];
+  int n, m;
+
+  /* recognize \a \n \b and normal characters
+   * \b sends a \b to the terminal. But it cannot wrap around backward
+   * we thus use a term_pos to know if we need to go up one line "by hand"
+   * NB: term_pos is incremented on each char, so it counts the prompt length
+   *
+   * We also use it at the end of a line to force the cursor on the beginning
+   * of the next line (see remark below).
+   *
+   * In any case, term_pos is not stricly necessary and can be computed from
+   * the current pos in linedit. This is what is done in Resize_Handler.
+   */
+
+  
+  buf[0] = c;
+  buf[1] = '\0';
 
   if (use_ansi)
     {
-      char buf[20];
-
       switch(c)
         {
         case '\b':
-#if 1
-	  {
-  char buf[100];
-  int r, c;
-  Get_Cursor_Position(&r, &c);
-  sprintf(buf, "echo \"POS: row:%d  col:%d\">/dev/pts/3", r, c);
-  system(buf);
-	  }
-#endif
-          if (pos == 0)
+          if (term_pos == 0)
             {
-              pos = nb_cols - 1;
-              sprintf(buf, "\033[A\033[%dC", pos);
-              if (write(fd_out, buf, strlen(buf))) /* to avoid gcc warning warn_unused_result */
-		{
-		}
-
-
-              return;
+	      Debug_Printf("\n++++++ UP\n");
+              term_pos = nb_cols - 1;
+              sprintf(buf, "\033[A\033[%dC", term_pos); /* cursor at end of previous line */
             }
-          pos--;
+	  else
+	    term_pos--;
           break;
 
         case '\a':
           break;
 
         case '\n':
-          pos = 0;
+          term_pos = 0;
           break;
 
         default:
-          if (++pos > nb_cols)
-            pos = 1;
+	  /* On some terminals, when displaying the last character of a line, 
+	   * the cursor remains on the last column (instead of advancing to 
+	   * beginning of next line) and only does a nl on the next character.
+	   * So, add a space + \b if on last column to force newline
+	   * (we do not add \n since when resizing the screen the newlines stay there)
+	   */
+	  if (++term_pos >= nb_cols && nb_cols > 0)
+	    { 
+	      Debug_Printf("\n====== ADD SPACE TO FORCE NEWLINE after char:%c  pos:%d\n", c, term_pos);
+	      buf[1] = ' ';
+	      buf[2] = '\b';
+	      buf[3] = '\0';
+	      term_pos = 0;	/* like a \n */
+	    }
         }
     }
  
-  c0 = c;
-  if (write(fd_out, &c0, 1))  /* to avoid gcc warning warn_unused_result */
+  
+  n = strlen(buf);
+  while((m = write(fd_out, buf, strlen(buf))) != n)
     {
+      if (m >= 0)
+	{
+	  n -= m;
+	}
+      else if (errno != EINTR && errno != EAGAIN) /* && errno != EWOULDBLOCK)*/
+	{
+	  fprintf(stderr, "ERROR trying to write on fd: %d, errno: %d\n", fd_out, errno);
+	  break;
+	}
     }
 
 #elif defined(_WIN32)
@@ -775,7 +812,7 @@ Pl_LE_Put_Char(int c)
   if (c != '\b')
     {
       if (oem_put)
-	{@<
+	{
 	  char buff[2];
 
 	  buff[0] = c;

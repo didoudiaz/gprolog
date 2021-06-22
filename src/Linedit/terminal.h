@@ -36,6 +36,11 @@
  *-------------------------------------------------------------------------*/
 
 
+#if 0
+#define DEBUG
+#endif
+
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -166,8 +171,10 @@ void Pl_LE_Put_Char(int c);
 int Pl_LE_Get_Char(void);
 
 #ifdef DEBUG
-void Debug_TTY_Printf(char *fmt, ...) ATTR_PRINTF(1);;
+void Debug_Printf(char *fmt, ...) ATTR_PRINTF(1);
+void Debug_Check_Positions(int lin_pos);
 #else
-#define Debug_TTY_Printf(fmt, ...)
+#define Debug_Printf(fmt, ...)
+#define Debug_Check_Positions(lin_pos)
 #endif
 

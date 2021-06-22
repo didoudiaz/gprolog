@@ -193,8 +193,7 @@ static int History_Get_Line(char *str, int hist_no);
 
 
 
-static char *Completion_Do_Match(char *prefix, int prefix_length,
-                                 int *rest_length);
+static char *Completion_Do_Match(char *prefix, int prefix_length, int *rest_length);
 
 static void Completion_Print_All(void);
 
@@ -283,12 +282,13 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
   Pl_LE_Open_Terminal();
   global_str = str;
+  global_pos = pos;
+  global_end = end;
 
 #ifdef TREAT_BUFFERED_CHARS     /* treat buffered lines (for paste) */
   while (KBD_IS_NOT_EMPTY)
     {
-      if (end - str >= size || ((c = Pl_LE_Get_Char()) == '\n') ||
-          c == '\r')
+      if (end - str >= size || ((c = Pl_LE_Get_Char()) == '\n') || c == '\r')
         {
           RE_DISPLAY_LINE;
           goto return_is_read;
@@ -314,6 +314,8 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
     {
       global_pos = pos;
       global_end = end;
+
+      Debug_Check_Positions(pos - str);
 
       c = Pl_LE_Get_Char();
     one_char:
@@ -618,13 +620,13 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
         case '\r':
         return_is_read:
           FORWD(end - pos, pos); /* go to EOL to avoid multi-line */
-        /* truncation on the output */
-        *end = '\0';
-        History_Add_Line(str, end - str);
-        if (end - str < size)   /* '\n' can be added */
-          *end++ = '\n';
-        *end = '\0';
-        goto finish;
+	  /* truncation on the output */
+	  *end = '\0';
+	  History_Add_Line(str, end - str);
+	  if (end - str < size)   /* '\n' can be added */
+	    *end++ = '\n';
+	  *end = '\0';
+	  goto finish;
 
 
         case KEY_CTRL('P'):     /* history: recall previous line */
