@@ -53,7 +53,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-
+#include <sys/stat.h>
 
 #if defined(HAVE_SYS_IOCTL_COMPAT_H)
 #include <sys/ioctl_compat.h>
@@ -90,6 +90,10 @@ typedef struct termio TermIO;
 #include "linedit.h"
 
 
+/* Interesting infos: The Open Group Base Specifications Issue 7
+ * Chapter 11. General Terminal Interface
+ * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap11.html#tag_11
+ */
 
 
 /*---------------------------------*
@@ -117,6 +121,7 @@ static FILE *file_dbg = NULL;	/* activate DEBUG and set LINEDIT env var dbg=/dev
 
 static int is_tty_in;
 static int is_tty_out;
+static int same_tty;
 static TermIO old_stty_in;
 static TermIO new_stty_in;
 static TermIO old_stty_out;
@@ -149,6 +154,8 @@ static int interrupt_key;
 static void Parse_Env_Var(void);
 
 #if defined(__unix__) || defined(__CYGWIN__)
+
+static int Same_File(int fd1, int fd2);
 
 static void Choose_Fd_Out(void);
 
@@ -372,7 +379,8 @@ void Debug_Check_Positions(int lin_pos)
 
   int l = Pl_LE_Get_Prompt_Length();
   if ((lin_pos + l) % nb_cols != term_pos)
-    Debug_Printf("********* ERROR linedit pos %d  + prompt len %d != pos %d  (%% nb cols: %d)\n", lin_pos, l, term_pos, nb_cols);
+    Debug_Printf("********* ERROR lin_pos %d  + prompt_len %d) %% nb_cols %d = %d != term_pos %d\n",
+		 lin_pos, l, nb_cols, (lin_pos + l) % nb_cols, term_pos);
 
 #endif
 }
@@ -412,6 +420,12 @@ Pl_LE_Open_Terminal(void)
     }
 
   Pl_LE_Screen_Size(&nb_rows, &nb_cols);
+
+  same_tty = Same_File(fd_in, fd_out);
+
+  Debug_Printf("Initial size: %dx%d\n", nb_cols, nb_rows);
+  Debug_Printf("Same TTY: %d\n", same_tty);
+
   Install_Resize_Handler();
 
   term_pos = 0;
@@ -434,6 +448,18 @@ Pl_LE_Open_Terminal(void)
 }
 
 
+/*-------------------------------------------------------------------------*
+ * SAME_FILE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Same_File(int fd1, int fd2)
+{
+  struct stat stat1, stat2;
+
+  return (fstat(fd1, &stat1) != -1 && fstat(fd2, &stat2) != -1 &&
+    stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
+}
 
 
 /*-------------------------------------------------------------------------*
@@ -568,9 +594,15 @@ Install_Resize_Handler()
 static void
 Resize_Handler()
 {
-  Pl_LE_Screen_Size(&nb_rows, &nb_cols);
-  if (nb_cols > 0)
-    term_pos = (Pl_LE_Get_Current_Position() + Pl_LE_Get_Prompt_Length()) % nb_cols;
+  int r, c;
+  Pl_LE_Screen_Size(&r, &c);
+  if (c > 0 && r > 0 && (r != nb_rows || c != nb_cols))
+    {
+      Debug_Printf("Resize: %dx%d\n", c, r);
+      nb_rows = r;
+      nb_cols = c;
+      term_pos = (Pl_LE_Get_Current_Position() + Pl_LE_Get_Prompt_Length()) % nb_cols;
+    }
 }
 
 #endif /* defined(__unix__) || defined(__CYGWIN__) */
@@ -606,8 +638,6 @@ Pl_LE_Screen_Size(int *row, int *col)
     }
   *row = ws.ws_row;
   *col = ws.ws_col;
-
-  Debug_Printf("size: %d x %d\n", *col, *row);
 
 #elif defined(_WIN32)
 
@@ -752,6 +782,12 @@ Pl_LE_Put_Char(int c)
 
   if (use_ansi)
     {
+      /* If stdin/stdout use different tty, SIGWINCH only catch the main tty resizes.
+       * In that case, we here systematically check if size changed.
+       */
+      if (!same_tty)
+	Resize_Handler();
+
       switch(c)
         {
         case '\b':
@@ -761,7 +797,7 @@ Pl_LE_Put_Char(int c)
               term_pos = nb_cols - 1;
               sprintf(buf, "\033[A\033[%dC", term_pos); /* cursor at end of previous line */
             }
-	  else
+	  else 
 	    term_pos--;
           break;
 
@@ -792,17 +828,10 @@ Pl_LE_Put_Char(int c)
  
   
   n = strlen(buf);
-  while((m = write(fd_out, buf, strlen(buf))) != n)
+  if (write(fd_out, buf, strlen(buf)) != n)
     {
-      if (m >= 0)
-	{
-	  n -= m;
-	}
-      else if (errno != EINTR && errno != EAGAIN) /* && errno != EWOULDBLOCK)*/
-	{
-	  fprintf(stderr, "ERROR trying to write on fd: %d, errno: %d\n", fd_out, errno);
-	  break;
-	}
+      /* loop if errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ? */
+      Debug_Printf("ERROR trying to write on fd: %d, errno: %d\n", fd_out, errno);
     }
 
 #elif defined(_WIN32)
@@ -929,7 +958,7 @@ Pl_LE_Get_Char(void)
 
           c = KEY_ID2(modif, c);
 #if 0
-	  printf("\n++++ key id: %d (%x)  modif: %d  end char: %c n[0]=%d  n[1]=%d\n", c, c, modif, esc_c, number[0], number[1]);
+	  Debug_Printf("\n++++ key id: %d (%x)  modif: %d  end char: %c n[0]=%d  n[1]=%d\n", c, c, modif, esc_c, number[0], number[1]);
 #endif
         }
       else
@@ -964,7 +993,7 @@ LE_Get_Char0(void)
     else if (c == 27)
       strcpy(s, (c == 27) ? "ESC": "???");
       
-    printf("char0: %d %s\n", c, s);
+    Debug_Printf("char0: %d %s\n", c, s);
   }
 #endif
   return (int) c;
