@@ -74,7 +74,7 @@
 
 #    define M_Direct_Goto(lab)     {_asm {jmp M_Asm_Symbol(lab)}; return;}
 
-#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
+#elif defined(M_x86_64)
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
 

@@ -448,18 +448,6 @@ Pl_LE_Open_Terminal(void)
 }
 
 
-/*-------------------------------------------------------------------------*
- * SAME_FILE                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-Same_File(int fd1, int fd2)
-{
-  struct stat stat1, stat2;
-
-  return (fstat(fd1, &stat1) != -1 && fstat(fd2, &stat2) != -1 &&
-    stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
-}
 
 
 /*-------------------------------------------------------------------------*
@@ -526,6 +514,22 @@ Choose_Fd_Out(void)
 
   if (fd_out < 0)
     fd_out = 1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SAME_FILE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Same_File(int fd1, int fd2)
+{
+  struct stat stat1, stat2;
+
+  return (fstat(fd1, &stat1) != -1 && fstat(fd2, &stat2) != -1 &&
+    stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
 }
 
 
@@ -762,7 +766,7 @@ Pl_LE_Put_Char(int c)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
   static char buf[20];
-  int n, m;
+  int n;
 
   /* recognize \a \n \b and normal characters
    * \b sends a \b to the terminal. But it cannot wrap around backward

@@ -1171,8 +1171,10 @@ Dico_String_Start(int nb)
 {
 #ifdef M_darwin
   Inst_Printf(".section", "__TEXT,__cstring,cstring_literals");
-#else
+#elif !defined(__WIN32)
   Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
+#else
+  Inst_Printf(".section", ".rodata");  
 #endif
 }
 
@@ -1214,8 +1216,10 @@ Dico_Double_Start(int nb)
 {
 #ifdef M_darwin
   Inst_Printf(".section", "__TEXT,__literal8,8byte_literals");
-#else
+#elif !defined(_WIN32)
   Inst_Printf(".section", ".rodata.cst8,\"aM\",@progbits,8");
+#else
+  Inst_Printf(".section", ".rodata");  
 #endif
   Inst_Printf(".align", "8");
 }
@@ -1230,7 +1234,7 @@ Dico_Double(DoubleInf *d)
 {
   Label_Printf("%s:", d->symb);
 #if 1
-  Inst_Printf(".quad", "%lld", d->v.i64);
+  Inst_Printf(".quad", "%lld", (long long) d->v.i64);
 #else
   Inst_Printf(".long", "%d", d->v.i32[0]);
   Inst_Printf(".long", "%d", d->v.i32[1]);
