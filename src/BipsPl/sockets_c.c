@@ -60,6 +60,7 @@
 #ifdef SUPPORT_AF_UNIX
 #include <sys/un.h>
 #endif
+
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -244,7 +245,6 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 {
   WamWord word, tag_mask;
   WamWord *stc_adr;
-  int dom;
   int sock;
   int port;
   socklen_t l;
@@ -273,18 +273,8 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 
   stc_adr = UnTag_STC(word);
 
-#ifdef SUPPORT_AF_UNIX
+#ifdef SUPPORT_AF_UNIX		/* case AF_UNIX */
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
-    dom = AF_UNIX;
-  else
-#endif
-    if (Functor_Arity(atom_AF_INET, 2) == Functor_And_Arity(stc_adr))
-      dom = AF_INET;
-    else
-      goto err_domain;
-
-#ifdef SUPPORT_AF_UNIX
-  if (dom == AF_UNIX)
     {
       path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
       if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
@@ -297,6 +287,9 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
       return TRUE;
     }
 #endif
+  if (Functor_Arity(atom_AF_INET, 2) != Functor_And_Arity(stc_adr))
+    goto err_domain;
+
   /* case AF_INET */
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);
@@ -344,7 +337,6 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 {
   WamWord word, tag_mask;
   WamWord *stc_adr;
-  int dom;
   int sock;
   int port;
   char *host_name;
@@ -373,18 +365,8 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 
   stc_adr = UnTag_STC(word);
 
-#ifdef SUPPORT_AF_UNIX
+#ifdef SUPPORT_AF_UNIX		/* case AF_UNIX */
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
-    dom = AF_UNIX;
-  else
-#endif
-  if (Functor_Arity(atom_AF_INET, 2) == Functor_And_Arity(stc_adr))
-    dom = AF_INET;
-  else
-    goto err_domain;
-
-#ifdef SUPPORT_AF_UNIX
-  if (dom == AF_UNIX)
     {
       path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
       if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
@@ -393,8 +375,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
       adr_un.sun_family = AF_UNIX;
       strcpy(adr_un.sun_path, path_name);
       Os_Test_Error(connect(sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
-      sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)",
-	      path_name, sock);
+      sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)", path_name, sock);
 #ifdef _WIN32
 	  /* Check for in-progress connection */
 	  Os_Test_Error( send(sock, "", 0, 0) );
@@ -402,6 +383,9 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
       goto create_streams;
     }
 #endif
+  if (Functor_Arity(atom_AF_INET, 2) != Functor_And_Arity(stc_adr))
+    goto err_domain;
+
   /* case AF_INET */
   host_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
   port = Pl_Rd_C_Int_Check(Arg(stc_adr, 1));
@@ -412,8 +396,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 
   adr_in.sin_family = AF_INET;
   adr_in.sin_port = htons((unsigned short) port);
-  memcpy(&adr_in.sin_addr, host_entry->h_addr_list[0],
-	 host_entry->h_length);
+  memcpy(&adr_in.sin_addr, host_entry->h_addr_list[0], host_entry->h_length);
 
   Os_Test_Error(connect(sock, (struct sockaddr *) &adr_in, sizeof(adr_in)));
   sprintf(stream_name, "socket_stream(connect('AF_INET'('%s',%d)),%d)",
@@ -484,8 +467,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
       Pl_Get_Atom(Pl_Create_Allocate_Atom(cli_ip_adr), client_word);
     }
 
-  sprintf(stream_name, "socket_stream(accept('%s'),%d)", cli_ip_adr,
-	  cli_sock);
+  sprintf(stream_name, "socket_stream(accept('%s'),%d)", cli_ip_adr, cli_sock);
 
   if (!Create_Socket_Streams(cli_sock, stream_name, &stm_in, &stm_out))
     return FALSE;

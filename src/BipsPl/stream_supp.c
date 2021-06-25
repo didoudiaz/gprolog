@@ -960,7 +960,7 @@ Pl_Stdio_Set_Buffering(FILE *f, int buffering)
       buff_flag = _IOLBF;
 #ifdef _WIN32
 #ifndef NO_USE_LINEDIT
-      if (!pl_le_mode != LE_MODE_HOOK)	/* in Win32 console app, line buff = full */
+      if (pl_le_mode != LE_MODE_HOOK)	/* in Win32 console app, line buff = full */
 #endif
 	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif

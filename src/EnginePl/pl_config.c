@@ -295,7 +295,7 @@ main(void)
     );
 
 #if defined(NO_MACHINE_REG_FOR_REG_BANK)
-  printf("                     NO_MACHINE_REG_FOR_REG_BANK is SET\n");
+  printf("                    NO_MACHINE_REG_FOR_REG_BANK is SET\n");
 #endif
 
   

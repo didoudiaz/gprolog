@@ -300,7 +300,7 @@ Asm_Stop(void)
 void
 Code_Start(CodeInf *c)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
 #ifdef M_darwin
   Inst_Printf(".align", "4, 0x90");
 #else
@@ -351,7 +351,7 @@ Code_Stop(CodeInf *c)
 void
 Label(char *label)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
   Label_Printf(UN "%s:", label);
 }
 
@@ -1156,7 +1156,7 @@ C_Ret(void)
 {
   Inst_Printf("addq", "$%d,%%rsp", RESERVED_STACK_SPACE);
   Inst_Printf("popq", "%%rbx");
-  Inst_Printf("ret", "");
+  Inst_Printf("ret", "%s", "");
 }
 
 
@@ -1171,7 +1171,7 @@ Dico_String_Start(int nb)
 {
 #ifdef M_darwin
   Inst_Printf(".section", "__TEXT,__cstring,cstring_literals");
-#elif !defined(__WIN32)
+#elif !defined(_WIN32)
   Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
 #else
   Inst_Printf(".section", ".rodata");  

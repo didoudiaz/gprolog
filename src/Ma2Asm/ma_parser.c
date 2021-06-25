@@ -231,7 +231,7 @@ Parser(int pass_no, int nb_passes)
 {
   Bool inside_code = FALSE;
   Bool initializer_defined = FALSE;
-  CodeInf cur_code = {};	/* some init for the compiler */
+  CodeInf cur_code;		/* some init for the compiler */
   LongInf l;
   char **in;
   int k, i;

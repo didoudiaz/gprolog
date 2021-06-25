@@ -103,7 +103,7 @@
 
 /* check printf arguments */
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(M_win64) /* gcc on mingw64 warns about PRIdPTR in x86_64_any.c ??? */
 #define ATTR_PRINTF(x) __attribute__((format(printf, x, x + 1)))
 #else
 #define ATTR_PRINTF(x)
