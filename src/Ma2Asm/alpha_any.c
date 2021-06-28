@@ -1096,7 +1096,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Inst_Printf(".align 3", "");
+  Inst_Printf(".align 3", "%s", "");
   Label_Printf("%s:", d->symb);
   Inst_Printf(".t_floating", "%1.17g", d->v.dbl);
 }

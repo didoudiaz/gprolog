@@ -213,7 +213,7 @@ Asm_Stop(void)
 void
 Code_Start(CodeInf *c)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
   Delay_Printf(".align", "4");
   Delay_Printf(".align", "32");
 #if defined(M_solaris) || defined(M_bsd)
@@ -464,7 +464,7 @@ void
 Pl_Jump(char *label)
 {
   Delay_Printf("call", UN "%s,0", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -545,7 +545,7 @@ Pl_Fail(void)
 #endif
 
   Delay_Printf("call", "%%o0");
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
   pic_helper_ready = FALSE;
 }
 
@@ -565,7 +565,7 @@ Pl_Ret(void)
   Delay_Printf("ldx", "%s,%%o0", asm_reg_cp);
   Delay_Printf("jmp", "%%o0+8");
 #endif
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
   pic_helper_ready = FALSE;
 }
 
@@ -580,7 +580,7 @@ void
 Jump(char *label)
 {
   Delay_Printf("ba", UN "%s", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -887,7 +887,7 @@ Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
   Delay_Printf("call", UN "%s,0", fct_name);
   if (!Delay_Flush())		/* emit the delay insn to fill the delay slot */
-    Delay_Printf("nop", "");	/* else fill it with a nop */
+    Delay_Printf("nop", "%s", "");	/* else fill it with a nop */
 }
 
 
@@ -913,7 +913,7 @@ void
 Jump_Ret(void)
 {
   Delay_Printf("jmp", "%%o0");
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -930,7 +930,7 @@ Fail_Ret(void)
 
 #if 0
   Delay_Printf("be", UN "fail");
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 #else
 
   Delay_Printf("be", UN "%s+4", "fail"); /* use delay slot */
@@ -1040,7 +1040,7 @@ void
 Jump_If_Equal(char *label)
 {
   Delay_Printf("be", UN "%s", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1054,7 +1054,7 @@ void
 Jump_If_Greater(char *label)
 {
   Delay_Printf("bg", UN "%s", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1067,8 +1067,8 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Delay_Printf("ret", "");
-  Delay_Printf("restore", "");	/* delay slot */
+  Delay_Printf("ret", "%s", "");
+  Delay_Printf("restore", "%s", "");	/* delay slot */
 }
 
 

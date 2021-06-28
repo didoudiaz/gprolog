@@ -283,7 +283,7 @@ Asm_Stop(void)
 void
 Code_Start(CodeInf *c)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
 #ifdef M_darwin
   Inst_Printf(".p2align", "2");
 #else
@@ -293,7 +293,7 @@ Code_Start(CodeInf *c)
   if (c->global)
     Inst_Printf(".global", UN_EXT "%s", c->name);
 
-  Label_Printf("");
+  Label_Printf("%s", "");
   Label_Printf(UN_EXT "%s:", c->name);
 
   if (!c->prolog)
@@ -325,7 +325,7 @@ Code_Stop(CodeInf *c)
 void
 Label(char *label)		/* only used for a local label */
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
   Label_Printf("%s:", label);
 }
 
@@ -1071,7 +1071,7 @@ C_Ret(void)
 {
   Inst_Printf("ldr", "x30, [sp]");
   Inst_Printf("add", "sp, sp, #%d", RESERVED_STACK_SPACE);
-  Inst_Printf("ret", "");
+  Inst_Printf("ret", "%s", "");
 }
 
 

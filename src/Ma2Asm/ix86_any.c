@@ -223,7 +223,7 @@ Asm_Start(void)
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
 
-  Inst_Printf(".text", "");
+  Inst_Printf(".text", "%s", "");
 
   Label("fail");
   Pl_Fail();
@@ -267,25 +267,25 @@ Asm_Stop(void)
 #ifdef M_darwin
   if (bt_non_lazy.nb_elem)
     {
-      Inst_Printf(".section __IMPORT,__pointers,non_lazy_symbol_pointers", "");
+      Inst_Printf(".section __IMPORT,__pointers,non_lazy_symbol_pointers", "%s", "");
       BT_String_List(&bt_non_lazy, Emit_Non_Lazy);
     }
 
   if (bt_stub.nb_elem)
     {
-      Inst_Printf(".section __IMPORT,__jump_table,symbol_stubs,self_modifying_code+pure_instructions,5", "");
+      Inst_Printf(".section __IMPORT,__jump_table,symbol_stubs,self_modifying_code+pure_instructions,5", "%s", "");
 
       BT_String_List(&bt_stub, Emit_Stub);
     }
 
 
-  Inst_Printf(".subsections_via_symbols", "");
+  Inst_Printf(".subsections_via_symbols", "%s", "");
   Inst_Printf(".section", "__TEXT,__textcoal_nt,coalesced,pure_instructions");
   Label_Printf(".weak_definition\t___i686.get_pc_thunk.%s", DARWIN_PB_REG_SHORT);
   Label_Printf(".private_extern ___i686.get_pc_thunk.%s", DARWIN_PB_REG_SHORT);
   Label_Printf("___i686.get_pc_thunk.%s:", DARWIN_PB_REG_SHORT);
   Inst_Printf("movl", "(%%esp), %s", DARWIN_PB_REG);
-  Inst_Printf("ret", "");
+  Inst_Printf("ret", "%s", "");
 #endif
 }
 
@@ -303,7 +303,7 @@ Emit_Stub(int str_no, char *name, void *unused_info)
 {
   Label_Printf("L_%s$stub:", name);
   Label_Printf(".indirect_symbol _%s", name);
-  Inst_Printf("hlt ; hlt ; hlt ; hlt ; hlt", "");
+  Inst_Printf("hlt ; hlt ; hlt ; hlt ; hlt", "%s", "");
 }
 
 
@@ -379,7 +379,7 @@ Code_Stop(CodeInf *c)
 void
 Label(char *label)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
 #if 0
   Inst_Printf(".align", "4");
 #endif
@@ -1102,7 +1102,7 @@ C_Ret(void)
 #ifdef M_darwin
   Inst_Printf("popl", "%s", DARWIN_PB_REG);
 #endif
-  Inst_Printf("ret", "");
+  Inst_Printf("ret", "%s", "");
 }
 
 
@@ -1120,7 +1120,7 @@ Dico_String_Start(int nb)
 #elif defined(M_solaris)
   Inst_Printf(".section", ".rodata");
 #elif defined(M_darwin)
-  Inst_Printf(".cstring", "");
+  Inst_Printf(".cstring", "%s", "");
 #else
   Inst_Printf(".section", ".rodata.str1.1,\"aMS\",@progbits,1");
 #endif
@@ -1198,7 +1198,7 @@ Dico_Double_Stop(int nb)
 void
 Dico_Long_Start(int nb)
 {
-  Inst_Printf(".data", "");
+  Inst_Printf(".data", "%s", "");
 #ifdef M_darwin
   Inst_Printf(".align", "2");
 #else
@@ -1281,7 +1281,7 @@ Data_Start(char *initializer_fct)
     return;
 
 #ifdef M_darwin
-  Inst_Printf(".mod_init_func", "");
+  Inst_Printf(".mod_init_func", "%s", "");
   Inst_Printf(".align", "2");
   Inst_Printf(".long", UN "%s", initializer_fct);
 

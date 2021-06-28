@@ -226,7 +226,7 @@ Asm_Stop(void)
 void
 Code_Start(CodeInf *c)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
   Inst_Printf(".align", "2");
   Inst_Printf(".fpu", "vfp");
   Inst_Printf(".type", "%s, %%function", c->name);
@@ -266,7 +266,7 @@ Code_Stop(CodeInf *c)
 void
 Label(char *label)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
   Label_Printf("%s:", label);
 }
 
@@ -289,12 +289,12 @@ Emit_Pool(Bool after_call_c)
   if (after_call_c)		/* after a call to a C fct needs a branch over the pool */
     {
       Inst_Printf("b", "%s", Label_Gen_New(&lg_pool));
-      Inst_Printf(".ltorg", "");
+      Inst_Printf(".ltorg", "%s", "");
       Label_Printf("%s:", Label_Gen_Get(&lg_pool));
     }
   else
     {
-      Inst_Printf(".ltorg", "");
+      Inst_Printf(".ltorg", "%s", "");
     }
   call_c_since_emit_pool = 0;
 #endif

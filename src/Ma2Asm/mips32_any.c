@@ -170,7 +170,7 @@ Asm_Stop(void)
 void
 Code_Start(CodeInf *c)
 {
-  Inst_Printf(".text", "");
+  Inst_Printf(".text", "%s", "");
   Inst_Printf(".align", "2");
   Inst_Printf(".ent", "%s", c->name);
   if (c->global)
@@ -325,7 +325,7 @@ void
 Pl_Ret(void)
 {
   Inst_Printf(".align", "3");
-  Inst_Printf("# nop", "");	/* I don't really know why, but it helps ;-) */
+  Inst_Printf("# nop", "%s", "");	/* I don't really know why, but it helps ;-) */
 #ifdef MAP_REG_CP
   Inst_Printf("move", "$25,%s", asm_reg_cp);
 #else
@@ -1150,7 +1150,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Inst_Printf(".align 3", "");
+  Inst_Printf(".align 3", "%s", "");
   Label_Printf("%s:", d->symb);
   Inst_Printf(".double", "%1.17g", d->v.dbl);
 }
@@ -1199,7 +1199,7 @@ Dico_Long(LongInf *l)
 	  Label_Printf("%s:", l->name);
 	  Inst_Printf(".align", "3");
 	  Inst_Printf(".space", "%ld", l->value * 4);
-	  /* Inst_Printf(".popsection",""); */
+	  /* Inst_Printf(".popsection", "%s", ""); */
 	}
       else
 	{

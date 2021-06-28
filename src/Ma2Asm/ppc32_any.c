@@ -333,7 +333,7 @@ Pl_Fail(void)
 #endif
 
   Inst_Printf("mtctr", R(9));
-  Inst_Printf("bctr", "");
+  Inst_Printf("bctr", "%s", "");
 }
 
 
@@ -353,7 +353,7 @@ Pl_Ret(void)
   Inst_Printf("mtctr", "%s", asm_reg_cp);
 #endif
 
-  Inst_Printf("bctr", "");
+  Inst_Printf("bctr", "%s", "");
 }
 
 
@@ -719,7 +719,7 @@ void
 Jump_Ret(void)
 {
   Inst_Printf("mtctr", R(3));
-  Inst_Printf("bctr", "");
+  Inst_Printf("bctr", "%s", "");
 }
 
 
@@ -867,7 +867,7 @@ C_Ret(void)
   Inst_Printf("lwz", R(0) ",%d(" R(1) ")", (MAX_C_ARGS_IN_C_CODE + 1) * 4);
   Inst_Printf("mtlr", R(0));
   Inst_Printf("addi", R(1) "," R(1) ",%d", MAX_C_ARGS_IN_C_CODE * 4);
-  Inst_Printf("blr", "");
+  Inst_Printf("blr", "%s", "");
 }
 
 
