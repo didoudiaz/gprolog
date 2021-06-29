@@ -228,10 +228,15 @@ if test "$build_alias" != ''; then
     WIN_CONF_OPT="$WIN_CONF_OPT --build=$build_alias"
 fi
 
+comp=`basename "$CC" .exe`
+if test "$comp" = "cl"; then
+   WITH_MSVC=yes
+else
+   test "$WITH_MSVC" != no && CC=cl
+fi
 
 if test "$WITH_MSVC" != no; then
-    echo "using MSVC++ as C compiler"
-    CC=cl
+    echo "using MSVC++ as C compiler ($CC)"
     WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc"
 fi
 

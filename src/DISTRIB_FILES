@@ -24,7 +24,7 @@ doc/[a-z][a-z]?*.pdf
 doc/[a-z][a-z]?*.chm
 doc/[a-z][a-z]?*.html
 doc/html_node/[a-z][a-z]?*.html
-doc/html_node/[a-z][a-z]?*.gif
+doc/html_node/[a-z][a-z]?*.png
 doc/html_node/[a-z][a-z]?*.hh[ckp]
 doc/html_node/[a-z][a-z]?*.tex
 doc/html_node/[a-z][a-z]?*.css
