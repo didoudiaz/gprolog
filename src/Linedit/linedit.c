@@ -88,7 +88,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define LINEDIT_VERSION            "2.5"
+#define LINEDIT_VERSION            "2.6"
 
 #define MAX_HISTORY_LINES          64
 #define MAX_SEPARATORS             256
