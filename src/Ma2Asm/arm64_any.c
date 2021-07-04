@@ -86,9 +86,19 @@
 /* To load an immediate (constant or label) use the pseudo-instruction:
  *    ldr, =immediate or address
  * the assembler replaces by a sequence of mov and movk
+ *
+ * However, as can also place the constant in a literal pool and generates a 
+ * pc-relative ldr instruction that reads the constant from the literal pool.
+ * For this reson, the pool must not be too far else we obtain an error, e.g.:
+ *    Error: pc-relative load offset out of range
+ * We can inform the assembler to force the emission of the pool with 
+ *    .ltorg directive
+ * We try to emit it ASAP (e.g. after a branching). We also use a mechanisme
+ * to force the pool emission when a maximum number of call_c is reached.
  */
 #if 1
-#define USE_LDR_PSEUDO_OP
+#define USE_LDR_PSEUDO_OP_AND_POOL
+#define MAX_CALL_C_BEFORE_EMIT_POOL 500
 #endif
 
 
@@ -203,6 +213,10 @@ char asm_reg_e[32];
 
 int dbl_reg_no;
 
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+LabelGen lg_pool;
+#endif
+
 
 
 
@@ -249,6 +263,10 @@ Asm_Start(void)
   strcpy(asm_reg_e, MAP_REG_E);
 #else
   strcpy(asm_reg_e, "x25");
+#endif
+
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+  Label_Gen_Init(&lg_pool, "pool");
 #endif
 
   Label_Printf(".text");
@@ -333,6 +351,36 @@ Label(char *label)		/* only used for a local label */
 
 
 /*-------------------------------------------------------------------------*
+ * EMIT_POOL                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Emit_Pool(Bool after_call_c)
+{
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+  static int call_c_since_emit_pool = 0;
+
+  if (after_call_c && ++call_c_since_emit_pool < MAX_CALL_C_BEFORE_EMIT_POOL)
+    return;
+  
+  if (after_call_c)		/* after a call to a C fct needs a branch over the pool */
+    {
+      Inst_Printf("b", "%s", Label_Gen_New(&lg_pool));
+      Inst_Printf(".ltorg", "%s", "");
+      Label_Printf("%s:", Label_Gen_Get(&lg_pool));
+    }
+  else
+    {
+      Inst_Printf(".ltorg", "%s", "");
+    }
+  call_c_since_emit_pool = 0;
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * NEAREST_IMMEDIATE                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -403,7 +451,7 @@ Increment_Reg(char *r, int int_val)
 void
 Load_Immediate(char *r, PlULong int_val)
 {
-#ifdef USE_LDR_PSEUDO_OP
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
   Inst_Printf("ldr", "%s, =%" PL_FMT_d, r, int_val);
 #else
   int slice, shift = 0;
@@ -484,6 +532,7 @@ void
 Pl_Jump(char *label)
 {
   Inst_Printf("b", UN_EXT "%s", label);
+  Emit_Pool(FALSE);
 }
 
 
@@ -515,6 +564,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
+  Emit_Pool(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 
@@ -551,6 +601,7 @@ Pl_Fail(void)
   Inst_Printf("ldr", "x11, [x11, #-8]");
 #endif
   Inst_Printf("ret", "x11");	/* prefer ret to br since hints it is a function return and optimize branch prediction */
+  Emit_Pool(FALSE);
 }
 
 
@@ -570,6 +621,7 @@ Pl_Ret(void)
   Inst_Printf("ldr", "x11, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_CP);
   Inst_Printf("ret", "x11");
 #endif
+  Emit_Pool(FALSE);
 }
 
 
@@ -583,6 +635,7 @@ void
 Jump(char *label)
 {
   Inst_Printf("b", "%s", label);
+  Emit_Pool(FALSE);
 }
 
 
@@ -748,9 +801,12 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+  Inst_Printf("ldr", "d%d, =%ld", dbl_reg_no++, d->v.i64);
+#else
   Load_Address(r, d->symb);
   Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
-
+#endif
   AFTER_ARG_DBL;
 
   return DBL_RET_WORDS;
@@ -890,6 +946,7 @@ void
 Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   Inst_Printf("bl", UN_EXT "%s", fct_name);
+  Emit_Pool(TRUE);		/* only if too many call_c */
 }
 
 
@@ -915,6 +972,7 @@ void
 Jump_Ret(void)
 {
   Inst_Printf("ret", "x0");
+  Emit_Pool(FALSE);
 }
 
 
@@ -934,6 +992,7 @@ Fail_Ret(void)
 #else
   Pl_Fail();
 #endif
+  Emit_Pool(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 
@@ -1072,6 +1131,7 @@ C_Ret(void)
   Inst_Printf("ldr", "x30, [sp]");
   Inst_Printf("add", "sp, sp, #%d", RESERVED_STACK_SPACE);
   Inst_Printf("ret", "%s", "");
+  Emit_Pool(FALSE);
 }
 
 
@@ -1135,12 +1195,16 @@ Dico_String_Stop(int nb)
 void
 Dico_Double_Start(int nb)
 {
+#ifndef USE_LDR_PSEUDO_OP_AND_POOL
+  
 #ifdef M_darwin
   Inst_Printf(".section", "__TEXT,__literal8,8byte_literals");
 #else
   Inst_Printf(".section", ".rodata.cst8,\"aM\",@progbits,8");
 #endif
   Inst_Printf(".align", "3");
+
+#endif
 }
 
 
@@ -1151,11 +1215,14 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
+#ifndef USE_LDR_PSEUDO_OP_AND_POOL
+
   Label_Printf("%s:", d->symb);
   Inst_Printf(".long", "%d", d->v.i32[0]);
   Inst_Printf(".long", "%d", d->v.i32[1]);
 
   //  Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", d->v.dbl);
+#endif
 }
 
 
