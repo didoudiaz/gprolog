@@ -802,7 +802,18 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
   BEFORE_ARG;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
+#if defined(__clang__) || defined(M_darwin)
+   /* Stupid Bug in llvm asm parser, ldr pseudo instruction with a 64 immediate 
+    * needs an X reg (D reg is not accepted), while gas aarch64/linux accepts it !
+    * decompose via an ldr X reg, =imm64 + fmov 
+    * NB: we test __clang__ or M_darwin since on darwin as is provided by llvm 
+    * (even gcc-11 uses llvm as) 
+    */
+  Inst_Printf("ldr", "x10, =%ld", d->v.i64);
+  Inst_Printf("fmov", "d%d, x10", dbl_reg_no++);
+#else
   Inst_Printf("ldr", "d%d, =%ld", dbl_reg_no++, d->v.i64);
+#endif
 #else
   Load_Address(r, d->symb);
   Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
