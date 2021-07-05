@@ -188,7 +188,7 @@ Code_Start(CodeInf *c)
   Label(c->name);
 
   if (!c->prolog)
-    Inst_Printf("save", "%%sp,-104,%%sp");
+    Inst_Printf("save", "%%sp, -104, %%sp");
 }
 
 
@@ -227,7 +227,7 @@ void
 Reload_E_In_Register(void)
 {
 #ifndef MAP_REG_E
-  Inst_Printf("ld", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
+  Inst_Printf("ld", "[%s+%d], %s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
 #endif
 }
 
@@ -255,9 +255,9 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
-  Inst_Printf("sethi", "%%hi(%s-8),%%g1", Label_Cont_New());
-  Inst_Printf("or", "%%g1,%%lo(%s-8),%%g1", Label_Cont_Get());
-  Inst_Printf("st", "%%g1,%s", asm_reg_cp);
+  Inst_Printf("sethi", "%%hi(%s-8), %%g1", Label_Cont_New());
+  Inst_Printf("or", "%%g1, %%lo(%s-8), %%g1", Label_Cont_Get());
+  Inst_Printf("st", "%%g1, %s", asm_reg_cp);
 }
 
 
@@ -283,11 +283,11 @@ Here_CP(void)
 void
 Pl_Call(char *label)
 {
-  Inst_Printf("call", UN "%s,0", label);
+  Inst_Printf("call", UN "%s, 0", label);
 #ifdef MAP_REG_CP
-  Inst_Printf("mov", "%%o7,%s", asm_reg_cp);	/* delay slot */
+  Inst_Printf("mov", "%%o7, %s", asm_reg_cp);	/* delay slot */
 #else
-  Inst_Printf("st", "%%o7,%s", asm_reg_cp);	/* delay slot */
+  Inst_Printf("st", "%%o7, %s", asm_reg_cp);	/* delay slot */
 #endif
 }
 
@@ -302,10 +302,10 @@ void
 Pl_Fail(void)
 {
 #ifdef MAP_REG_B
-  Inst_Printf("ld", "[%s-4],%%o0", asm_reg_b);
+  Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
 #else
-  Inst_Printf("ld", "%s,%%o0", asm_reg_b);
-  Inst_Printf("ld", "[%%o0-4],%%o0");
+  Inst_Printf("ld", "%s, %%o0", asm_reg_b);
+  Inst_Printf("ld", "[%%o0-4], %%o0");
 #endif
 
   Inst_Printf("call", "%%o0");
@@ -325,7 +325,7 @@ Pl_Ret(void)
 #ifdef MAP_REG_CP
   Inst_Printf("jmp", "%s+8", asm_reg_cp);
 #else
-  Inst_Printf("ld", "%s,%%o0", asm_reg_cp);
+  Inst_Printf("ld", "%s, %%o0", asm_reg_cp);
   Inst_Printf("jmp", "%%o0+8");
 #endif
   Inst_Printf("nop", "%s", "");	/* delay slot */
@@ -355,7 +355,7 @@ Jump(char *label)
 void
 Move_From_Reg_X(int index)
 {
-  Inst_Printf("ld", "[%s+%d],%%o0", asm_reg_bank, index * 4);
+  Inst_Printf("ld", "[%s+%d], %%o0", asm_reg_bank, index * 4);
 }
 
 
@@ -368,7 +368,7 @@ Move_From_Reg_X(int index)
 void
 Move_From_Reg_Y(int index)
 {
-  Inst_Printf("ld", "[%s%+d],%%o0", asm_reg_e, Y_OFFSET(index));
+  Inst_Printf("ld", "[%s%+d], %%o0", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -381,7 +381,7 @@ Move_From_Reg_Y(int index)
 void
 Move_To_Reg_X(int index)
 {
-  Inst_Printf("st", "%%o0,[%s+%d]", asm_reg_bank, index * 4);
+  Inst_Printf("st", "%%o0, [%s+%d]", asm_reg_bank, index * 4);
 }
 
 
@@ -394,7 +394,7 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-  Inst_Printf("st", "%%o0,[%s%+d]", asm_reg_e, Y_OFFSET(index));
+  Inst_Printf("st", "%%o0, [%s%+d]", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -426,7 +426,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define AFTER_ARG					\
   if (offset >= MAX_ARGS_IN_REGS)			\
-    Delay_Printf("st","%s,[%%sp+%d]", r,		\
+    Delay_Printf("st", "%s, [%%sp+%d]", r,		\
                  92 + (offset - MAX_ARGS_IN_REGS) * 4);	\
 }
 
@@ -443,11 +443,11 @@ Call_C_Arg_Int(int offset, PlLong int_val)
   BEFORE_ARG;
 
   if (LITTLE_INT(int_val))
-    Delay_Printf("mov", "%ld,%s", int_val, r);
+    Delay_Printf("mov", "%ld, %s", int_val, r);
   else
     {
-      Delay_Printf("sethi", "%%hi(%ld),%s", int_val, r);
-      Delay_Printf("or", "%s,%%lo(%ld),%s", r, int_val, r);
+      Delay_Printf("sethi", "%%hi(%ld), %s", int_val, r);
+      Delay_Printf("or", "%s, %%lo(%ld), %s", r, int_val, r);
     }
 
   AFTER_ARG;
@@ -467,8 +467,8 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%d),%s", d->v.i32[0], r);
-  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->v.i32[0], r);
+  Delay_Printf("sethi", "%%hi(%d), %s", d->v.i32[0], r);
+  Delay_Printf("or", "%s, %%lo(%d), %s", r, d->v.i32[0], r);
 
   AFTER_ARG;
 
@@ -476,8 +476,8 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%d),%s", d->v.i32[1], r);
-  Delay_Printf("or", "%s,%%lo(%d),%s", r, d->v.i32[1], r);
+  Delay_Printf("sethi", "%%hi(%d), %s", d->v.i32[1], r);
+  Delay_Printf("or", "%s, %%lo(%d), %s", r, d->v.i32[1], r);
 
   AFTER_ARG;
 
@@ -496,8 +496,8 @@ Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(%s),%s", s->symb, r);
-  Delay_Printf("or", "%s,%%lo(%s),%s", r, s->symb, r);
+  Delay_Printf("sethi", "%%hi(%s), %s", s->symb, r);
+  Delay_Printf("or", "%s, %%lo(%s), %s", r, s->symb, r);
 
   AFTER_ARG;
 
@@ -516,11 +516,11 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
-  Delay_Printf("sethi", "%%hi(" UN "%s+%d),%s", name, index * 4, r);
+  Delay_Printf("sethi", "%%hi(" UN "%s+%d), %s", name, index * 4, r);
   if (adr_of)
-    Delay_Printf("or", "%s,%%lo(" UN "%s+%d),%s", r, name, index * 4, r);
+    Delay_Printf("or", "%s, %%lo(" UN "%s+%d), %s", r, name, index * 4, r);
   else
-    Delay_Printf("ld", "[%s+%%lo(" UN "%s+%d)],%s", r, name, index * 4, r);
+    Delay_Printf("ld", "[%s+%%lo(" UN "%s+%d)], %s", r, name, index * 4, r);
 
   AFTER_ARG;
 
@@ -540,9 +540,9 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Delay_Printf("add", "%s,%d,%s", asm_reg_bank, index * 4, r);
+    Delay_Printf("add", "%s, %d, %s", asm_reg_bank, index * 4, r);
   else
-    Delay_Printf("ld", "[%s+%d],%s", asm_reg_bank, index * 4, r);
+    Delay_Printf("ld", "[%s+%d], %s", asm_reg_bank, index * 4, r);
 
   AFTER_ARG;
 
@@ -562,9 +562,9 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Delay_Printf("add", "%s,%+d,%s", asm_reg_e, Y_OFFSET(index), r);
+    Delay_Printf("add", "%s, %+d, %s", asm_reg_e, Y_OFFSET(index), r);
   else
-    Delay_Printf("ld", "[%s%+d],%s", asm_reg_e, Y_OFFSET(index), r);
+    Delay_Printf("ld", "[%s%+d], %s", asm_reg_e, Y_OFFSET(index), r);
 
   AFTER_ARG;
 
@@ -584,9 +584,9 @@ Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Delay_Printf("add", "%%l2,%d,%s", index * 4, r);
+    Delay_Printf("add", "%%l2, %d, %s", index * 4, r);
   else
-    Delay_Printf("ld", "[%%l2+%d],%s", index * 4, r);
+    Delay_Printf("ld", "[%%l2+%d], %s", index * 4, r);
 
   AFTER_ARG;
 
@@ -607,7 +607,7 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
     {
       BEFORE_ARG;
 
-      Delay_Printf("add", "%%l3,%d,%s", index * 8, r);
+      Delay_Printf("add", "%%l3, %d, %s", index * 8, r);
 
       AFTER_ARG;
 
@@ -616,7 +616,7 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 
   BEFORE_ARG;
 
-  Delay_Printf("ld", "[%%l3+%d],%s", index * 8, r);
+  Delay_Printf("ld", "[%%l3+%d], %s", index * 8, r);
 
   AFTER_ARG;
 
@@ -624,7 +624,7 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 
   BEFORE_ARG;
 
-  Delay_Printf("ld", "[%%l3+%d],%s", index * 8 + 4, r);
+  Delay_Printf("ld", "[%%l3+%d], %s", index * 8 + 4, r);
 
   AFTER_ARG;
 
@@ -684,7 +684,7 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Inst_Printf("cmp", "%%o0,0");
+  Inst_Printf("cmp", "%%o0, 0");
 
 #if 0
   Inst_Printf("be", UN "fail");
@@ -693,9 +693,9 @@ Fail_Ret(void)
 
   Inst_Printf("be", UN "%s+4", "fail");
 #ifdef MAP_REG_B
-  Inst_Printf("ld", "[%s-4],%%o0", asm_reg_b);
+  Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
 #else
-  Inst_Printf("ld", "%s,%%o0", asm_reg_b);
+  Inst_Printf("ld", "%s, %%o0", asm_reg_b);
 #endif
 
 #endif
@@ -711,8 +711,8 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
-  Inst_Printf("sethi", "%%hi(" UN "%s+%d),%%o1", name, index * 4);
-  Inst_Printf("st", "%%o0,[%%o1+%%lo(" UN "%s+%d)]", name, index * 4);
+  Inst_Printf("sethi", "%%hi(" UN "%s+%d), %%o1", name, index * 4);
+  Inst_Printf("st", "%%o0, [%%o1+%%lo(" UN "%s+%d)]", name, index * 4);
 }
 
 
@@ -725,7 +725,7 @@ Move_Ret_To_Mem_L(char *name, int index)
 void
 Move_Ret_To_Reg_X(int index)
 {				/* same as Move_To_Reg_X */
-  Inst_Printf("st", "%%o0,[%s+%d]", asm_reg_bank, index * 4);
+  Inst_Printf("st", "%%o0, [%s+%d]", asm_reg_bank, index * 4);
 }
 
 
@@ -738,7 +738,7 @@ Move_Ret_To_Reg_X(int index)
 void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
-  Inst_Printf("st", "%%o0,[%s%+d]", asm_reg_e, Y_OFFSET(index));
+  Inst_Printf("st", "%%o0, [%s%+d]", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -751,7 +751,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("st", "%%o0,[%%l2+%d]", index * 4);
+  Inst_Printf("st", "%%o0, [%%l2+%d]", index * 4);
 }
 
 
@@ -764,7 +764,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("std", "%%f0,[%%l3+%d]", index * 8);
+  Inst_Printf("std", "%%f0, [%%l3+%d]", index * 8);
 }
 
 
@@ -778,12 +778,12 @@ void
 Cmp_Ret_And_Int(PlLong int_val)
 {
   if (LITTLE_INT(int_val))
-    Inst_Printf("cmp", "%%o0,%ld", int_val);
+    Inst_Printf("cmp", "%%o0, %ld", int_val);
   else
     {
-      Inst_Printf("sethi", "%%hi(%ld),%%o1", int_val);
-      Inst_Printf("or", "%%o1,%%lo(%ld),%%o1", int_val);
-      Inst_Printf("cmp", "%%o0,%%o1");
+      Inst_Printf("sethi", "%%hi(%ld), %%o1", int_val);
+      Inst_Printf("or", "%%o1, %%lo(%ld), %%o1", int_val);
+      Inst_Printf("cmp", "%%o0, %%o1");
     }
 }
 

@@ -227,7 +227,7 @@ Code_Start(CodeInf *c)
   Label(c->name);
 
   if (!c->prolog)
-    Delay_Printf("save", "%%sp,-192,%%sp");
+    Delay_Printf("save", "%%sp, -192, %%sp");
 
   pic_helper_ready = FALSE;
 }
@@ -243,7 +243,7 @@ void
 Code_Stop(CodeInf *c)
 {
   /* this directive is mandatory else asm calls are wrong (PC relative) */
-  Delay_Printf(".size", "%s,.-%s", c->name, c->name);
+  Delay_Printf(".size", "%s, .-%s", c->name, c->name);
 }
 
 
@@ -290,7 +290,7 @@ void
 Reload_E_In_Register(void)
 {
 #ifndef MAP_REG_E
-  Delay_Printf("ldx", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
+  Delay_Printf("ldx", "[%s+%d], %s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
 #endif
 }
 
@@ -360,27 +360,27 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
 #define MK_SIMM10_13(x, want10)  ((x) & ((want10) ?  0x3ff : 0x1fff))
 
   if (need_hh22_p)
-    Delay_Printf("sethi", "%d,%s", MK_IMM22(upper32), upper_dstreg);
+    Delay_Printf("sethi", "%d, %s", MK_IMM22(upper32), upper_dstreg);
 
   if (need_hi22_p)
-    Delay_Printf("sethi", "%d,%s", MK_IMM22(need_xor10_p ? ~lower32 : lower32), dstreg);
+    Delay_Printf("sethi", "%d, %s", MK_IMM22(need_xor10_p ? ~lower32 : lower32), dstreg);
 
   if (need_hm10_p)
-    Delay_Printf("or", "%s,%ld,%s", (need_hh22_p ? upper_dstreg : "%g0"), MK_SIMM10_13(upper32, need_hh22_p), upper_dstreg);
+    Delay_Printf("or", "%s, %ld, %s", (need_hh22_p ? upper_dstreg : "%g0"), MK_SIMM10_13(upper32, need_hh22_p), upper_dstreg);
 
   if (need_lo10_p)
-    Delay_Printf("or", "%s,%ld,%s", (need_hi22_p ? dstreg : "%g0"), MK_SIMM10_13(lower32, need_hi22_p), dstreg);
+    Delay_Printf("or", "%s, %ld, %s", (need_hi22_p ? dstreg : "%g0"), MK_SIMM10_13(lower32, need_hi22_p), dstreg);
 
   /* If we needed to build the upper part, shift it into place.  */
   if (need_hh22_p || need_hm10_p)
-    Delay_Printf("sllx", "%s,32,%s", upper_dstreg, upper_dstreg);
+    Delay_Printf("sllx", "%s, 32, %s", upper_dstreg, upper_dstreg);
 
   /* To get -1 in upper32, we do sethi %hi(~x), r; xor r, -0x400 | x, r.  */
   if (need_xor10_p)
-    Delay_Printf("xor", "%s,%ld,%s", dstreg, 0x1c00 | (lower32 & 0x3ff), dstreg);
+    Delay_Printf("xor", "%s, %ld, %s", dstreg, 0x1c00 | (lower32 & 0x3ff), dstreg);
   /* If we needed to build both upper and lower parts, OR them together.  */
   else if ((need_hh22_p || need_hm10_p) && (need_hi22_p || need_lo10_p))
-    Delay_Printf("or", "%s,%s,%s", dstreg, upper_dstreg, dstreg);
+    Delay_Printf("or", "%s, %s, %s", dstreg, upper_dstreg, dstreg);
  }
 
 
@@ -421,9 +421,9 @@ Load_Mem_Into_Reg(char *mem_base_reg, int displ, Bool adr_of, char *reg)
     }
 
   if (!adr_of)
-    Delay_Printf("ldx", "[%s+%s],%s", mem_base_reg, str_displ, reg);
+    Delay_Printf("ldx", "[%s+%s], %s", mem_base_reg, str_displ, reg);
   else if (displ != 0 || strcmp(mem_base_reg, reg) != 0) /* avoid  add r,0,r = nop */
-    Delay_Printf("add", "%s,%s,%s", mem_base_reg, str_displ, reg);
+    Delay_Printf("add", "%s, %s, %s", mem_base_reg, str_displ, reg);
 }
 
 
@@ -450,7 +450,7 @@ Store_Reg_Into_Mem(char *reg, char *mem_base_reg, int displ)
       Load_Long_Into_Reg(displ, str_displ);
     }
 
-  Delay_Printf((reg[1] != 'f') ? "stx" : "std", "%s,[%s+%s]", reg, mem_base_reg, str_displ);
+  Delay_Printf((reg[1] != 'f') ? "stx" : "std", "%s, [%s+%s]", reg, mem_base_reg, str_displ);
 }
 
 
@@ -463,7 +463,7 @@ Store_Reg_Into_Mem(char *reg, char *mem_base_reg, int displ)
 void
 Pl_Jump(char *label)
 {
-  Delay_Printf("call", UN "%s,0", label);
+  Delay_Printf("call", UN "%s, 0", label);
   Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
@@ -481,16 +481,16 @@ Prep_CP(void)
 
 #if 1
   /* .Lcont - 8 to (un)adjust CP */
-  Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-(%s-.-8)),%%g1", Label_Cont_New());
-  Delay_Printf("or", "%%g1,%%lo(_GLOBAL_OFFSET_TABLE_-(%s-.-8)),%%g1", Label_Cont_Get());
-  Delay_Printf("sub","%%l7,%%g1,%%g1");
-  Delay_Printf("stx", "%%g1,%s", asm_reg_cp);
+  Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-(%s-.-8)), %%g1", Label_Cont_New());
+  Delay_Printf("or", "%%g1, %%lo(_GLOBAL_OFFSET_TABLE_-(%s-.-8)), %%g1", Label_Cont_Get());
+  Delay_Printf("sub", "%%l7, %%g1, %%g1");
+  Delay_Printf("stx", "%%g1, %s", asm_reg_cp);
 #else
-  Delay_Printf("sethi", "%%hi(%s),%%g1", Label_Cont_New());
-  Delay_Printf("or", "%%g1,%%lo(%s),%%g1", Label_Cont_Get());
-  Delay_Printf("ldx", "[%%l7+%%g1],%%g1");
-  Delay_Printf("sub", "%%g1,8,%%g1"); /* -8 to (un)adjust CP */
-  Delay_Printf("stx", "%%g1,%s", asm_reg_cp);
+  Delay_Printf("sethi", "%%hi(%s), %%g1", Label_Cont_New());
+  Delay_Printf("or", "%%g1, %%lo(%s), %%g1", Label_Cont_Get());
+  Delay_Printf("ldx", "[%%l7+%%g1], %%g1");
+  Delay_Printf("sub", "%%g1, 8, %%g1"); /* -8 to (un)adjust CP */
+  Delay_Printf("stx", "%%g1, %s", asm_reg_cp);
 #endif
 }
 
@@ -518,11 +518,11 @@ Here_CP(void)
 void
 Pl_Call(char *label)
 {
-  Delay_Printf("call", UN "%s,0", label);
+  Delay_Printf("call", UN "%s, 0", label);
 #ifdef MAP_REG_CP
-  Delay_Printf("mov", "%%o7,%s", asm_reg_cp);	/* delay slot */
+  Delay_Printf("mov", "%%o7, %s", asm_reg_cp);	/* delay slot */
 #else
-  Delay_Printf("stx", "%%o7,%s", asm_reg_cp);	/* delay slot */
+  Delay_Printf("stx", "%%o7, %s", asm_reg_cp);	/* delay slot */
 #endif
   pic_helper_ready = FALSE;
 }
@@ -538,10 +538,10 @@ void
 Pl_Fail(void)
 {
 #ifdef MAP_REG_B
-  Delay_Printf("ldx", "[%s-8],%%o0", asm_reg_b);
+  Delay_Printf("ldx", "[%s-8], %%o0", asm_reg_b);
 #else
-  Delay_Printf("ldx", "%s,%%o0", asm_reg_b);
-  Delay_Printf("ldx", "[%%o0-8],%%o0");
+  Delay_Printf("ldx", "%s, %%o0", asm_reg_b);
+  Delay_Printf("ldx", "[%%o0-8], %%o0");
 #endif
 
   Delay_Printf("call", "%%o0");
@@ -562,7 +562,7 @@ Pl_Ret(void)
 #ifdef MAP_REG_CP
 
 #else
-  Delay_Printf("ldx", "%s,%%o0", asm_reg_cp);
+  Delay_Printf("ldx", "%s, %%o0", asm_reg_cp);
   Delay_Printf("jmp", "%%o0+8");
 #endif
   Delay_Printf("nop", "%s", "");	/* delay slot */
@@ -667,7 +667,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define AFTER_ARG							\
   if (offset >= MAX_ARGS_IN_REGS)					\
-    Delay_Printf("stx","%s,[%%sp+%d]", r, STACK_OFFSET(offset));	\
+    Delay_Printf("stx", "%s, [%%sp+%d]", r, STACK_OFFSET(offset));	\
 }
 
 
@@ -682,11 +682,11 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define AFTER_ARG_DOUBLE						\
   if (offset < MAX_FP_ARGS_IN_REGS)					\
     {									\
-      Delay_Printf("stx","%s,[%%fp+2023]", r);				\
-      Delay_Printf("ldd","[%%fp+2023],%%f%d", offset * 2);		\
+      Delay_Printf("stx", "%s, [%%fp+2023]", r);				\
+      Delay_Printf("ldd", "[%%fp+2023], %%f%d", offset * 2);		\
     }									\
  else									\
-    Delay_Printf("stx","%s,[%%sp+%d]", r, STACK_OFFSET(offset));	\
+    Delay_Printf("stx", "%s, [%%sp+%d]", r, STACK_OFFSET(offset));	\
 }
 
 
@@ -739,9 +739,9 @@ Load_Mem_Base_Into_Reg(char *label, int displ, char *reg)
 {
   Ensure_PIC_Helper();
 
-  Delay_Printf("sethi", "%%hi(%s),%s", label, reg);
-  Delay_Printf("or", "%s,%%lo(%s),%s", reg, label, reg);
-  Delay_Printf("ldx", "[%%l7+%s],%s", reg, reg);
+  Delay_Printf("sethi", "%%hi(%s), %s", label, reg);
+  Delay_Printf("or", "%s, %%lo(%s), %s", reg, label, reg);
+  Delay_Printf("ldx", "[%%l7+%s], %s", reg, reg);
 }
 
 
@@ -885,7 +885,7 @@ Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   delay_active = FALSE;		/* stop the delay, so Delay_Printf is a Delay_Printf */
 
-  Delay_Printf("call", UN "%s,0", fct_name);
+  Delay_Printf("call", UN "%s, 0", fct_name);
   if (!Delay_Flush())		/* emit the delay insn to fill the delay slot */
     Delay_Printf("nop", "%s", "");	/* else fill it with a nop */
 }
@@ -926,7 +926,7 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Delay_Printf("cmp", "%%o0,0");
+  Delay_Printf("cmp", "%%o0, 0");
 
 #if 0
   Delay_Printf("be", UN "fail");
@@ -935,9 +935,9 @@ Fail_Ret(void)
 
   Delay_Printf("be", UN "%s+4", "fail"); /* use delay slot */
 #ifdef MAP_REG_B
-  Delay_Printf("ldx", "[%s-8],%%o0", asm_reg_b); /* use first insn of Pl_Fail  */
+  Delay_Printf("ldx", "[%s-8], %%o0", asm_reg_b); /* use first insn of Pl_Fail  */
 #else
-  Delay_Printf("ldx", "%s,%%o0", asm_reg_b);
+  Delay_Printf("ldx", "%s, %%o0", asm_reg_b);
 #endif
 
 #endif
@@ -1020,11 +1020,11 @@ void
 Cmp_Ret_And_Int(PlLong int_val)
 {
   if (OK_FOR_SIMM13(int_val))
-    Delay_Printf("cmp", "%%o0,%ld", int_val);
+    Delay_Printf("cmp", "%%o0, %ld", int_val);
   else
     {
       Load_Long_Into_Reg(int_val, "%g1");
-      Delay_Printf("cmp", "%%o0,%%g1");
+      Delay_Printf("cmp", "%%o0, %%g1");
     }
 
 }

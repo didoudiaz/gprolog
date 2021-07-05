@@ -130,7 +130,7 @@ Asm_Start(void)
 #ifdef MAP_REG_CP
   strcpy(asm_reg_cp, MAP_REG_CP);
 #else
-/* strcpy(asm_reg_cp,"$20"); */
+/* strcpy(asm_reg_cp, "$20"); */
   sprintf(asm_reg_cp, "%d(%s)", MAP_OFFSET_CP, asm_reg_bank);
 #endif
 
@@ -191,9 +191,9 @@ Code_Start(CodeInf *c)
       Inst_Printf(".frame", "$sp,%d,$31", MAX_C_ARGS_IN_C_CODE * 8 + 16);
       Inst_Printf(".mask", "0x10000000,-16");
       Inst_Printf(".fmask", "0x00000000,0");
-      Inst_Printf("subu", "$sp,$sp,%d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
-      Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-      Inst_Printf("sd", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
+      Inst_Printf("subu", "$sp, $sp, %d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
+      Inst_Printf("sd", "$gp, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
+      Inst_Printf("sd", "$31, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
     }
 }
 
@@ -245,7 +245,7 @@ Reload_E_In_Register(void)
 void
 Pl_Jump(char *label)
 {
-  Inst_Printf("la", "$25,%s", label);
+  Inst_Printf("la", "$25, %s", label);
   Inst_Printf("j", "$25");
 }
 
@@ -260,10 +260,10 @@ void
 Prep_CP(void)
 {
 #ifdef MAP_REG_CP
-  Inst_Printf("la", "%s,%s", asm_reg_cp, Label_Cont_New());
+  Inst_Printf("la", "%s, %s", asm_reg_cp, Label_Cont_New());
 #else
-  Inst_Printf("la", "$13,%s", Label_Cont_New());
-  Inst_Printf("sw", "$13,%s", asm_reg_cp);
+  Inst_Printf("la", "$13, %s", Label_Cont_New());
+  Inst_Printf("sw", "$13, %s", asm_reg_cp);
 #endif
 }
 
@@ -306,10 +306,10 @@ void
 Pl_Fail(void)
 {
 #ifdef MAP_REG_B
-  Inst_Printf("lw", "$25,-4(%s)", asm_reg_b);
+  Inst_Printf("lw", "$25, -4(%s)", asm_reg_b);
 #else
-  Inst_Printf("lw", "$13,%s", asm_reg_b);
-  Inst_Printf("lw", "$25,-4($13)");
+  Inst_Printf("lw", "$13, %s", asm_reg_b);
+  Inst_Printf("lw", "$25, -4($13)");
 #endif
   Inst_Printf("j", "$25");
 }
@@ -327,9 +327,9 @@ Pl_Ret(void)
   Inst_Printf(".align", "3");
   Inst_Printf("# nop", "%s", "");	/* I don't really know why, but it helps ;-) */
 #ifdef MAP_REG_CP
-  Inst_Printf("move", "$25,%s", asm_reg_cp);
+  Inst_Printf("move", "$25, %s", asm_reg_cp);
 #else
-  Inst_Printf("lw", "$25,%s", asm_reg_cp);
+  Inst_Printf("lw", "$25, %s", asm_reg_cp);
 #endif
   Inst_Printf("j", "$25");
 }
@@ -344,7 +344,7 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
-  Inst_Printf("la", "$25,%s", label);
+  Inst_Printf("la", "$25, %s", label);
   Inst_Printf("j", "$25");
 }
 
@@ -358,7 +358,7 @@ Jump(char *label)
 void
 Move_From_Reg_X(int index)
 {
-  Inst_Printf("lw", "$24,%d(%s)", 4 * index, asm_reg_bank);	/* asm_reg_bank */
+  Inst_Printf("lw", "$24, %d(%s)", 4 * index, asm_reg_bank);	/* asm_reg_bank */
 }
 
 
@@ -372,10 +372,10 @@ void
 Move_From_Reg_Y(int index)
 {
 #ifdef MAP_REG_E
-  Inst_Printf("lw", "$24,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("lw", "$24, %d(%s)", Y_OFFSET(index), asm_reg_e);
 #else
-  Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("lw", "$24,%d($13)", Y_OFFSET(index));
+  Inst_Printf("lw", "$13, %s", asm_reg_e);
+  Inst_Printf("lw", "$24, %d($13)", Y_OFFSET(index));
 #endif
 }
 
@@ -389,7 +389,7 @@ Move_From_Reg_Y(int index)
 void
 Move_To_Reg_X(int index)
 {
-  Inst_Printf("sw", "$24,%d(%s)", 4 * index, asm_reg_bank);
+  Inst_Printf("sw", "$24, %d(%s)", 4 * index, asm_reg_bank);
 }
 
 
@@ -403,10 +403,10 @@ void
 Move_To_Reg_Y(int index)
 {
 #ifdef MAP_REG_E
-  Inst_Printf("sw", "$24,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("sw", "$24, %d(%s)", Y_OFFSET(index), asm_reg_e);
 #else
-  Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("sw", "$24,%d($13)", Y_OFFSET(index));
+  Inst_Printf("lw", "$13, %s", asm_reg_e);
+  Inst_Printf("sw", "$24, %d($13)", Y_OFFSET(index));
 #endif
 }
 
@@ -435,32 +435,32 @@ Call_C_Arg_Int(int offset, PlLong int_val)
   switch (offset)
     {
     case 0:
-      Inst_Printf("li", "$4,%ld", int_val);
+      Inst_Printf("li", "$4, %ld", int_val);
       break;
     case 1:
-      Inst_Printf("li", "$5,%ld", int_val);
+      Inst_Printf("li", "$5, %ld", int_val);
       break;
     case 2:
-      Inst_Printf("li", "$6,%ld", int_val);
+      Inst_Printf("li", "$6, %ld", int_val);
       break;
     case 3:
-      Inst_Printf("li", "$7,%ld", int_val);
+      Inst_Printf("li", "$7, %ld", int_val);
       break;
     case 4:
-      Inst_Printf("li", "$8,%ld", int_val);
+      Inst_Printf("li", "$8, %ld", int_val);
       break;
     case 5:
-      Inst_Printf("li", "$9,%ld", int_val);
+      Inst_Printf("li", "$9, %ld", int_val);
       break;
     case 6:
-      Inst_Printf("li", "$10,%ld", int_val);
+      Inst_Printf("li", "$10, %ld", int_val);
       break;
     case 7:
-      Inst_Printf("li", "$11,%ld", int_val);
+      Inst_Printf("li", "$11, %ld", int_val);
       break;
     default:
-      Inst_Printf("li", "$24,%ld", int_val);
-      Inst_Printf("sw", "$24,%d($sp)", (offset - 8) * 8 + 4);
+      Inst_Printf("li", "$24, %ld", int_val);
+      Inst_Printf("sw", "$24, %d($sp)", (offset - 8) * 8 + 4);
     }
   return 1;
 }
@@ -475,36 +475,36 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 int
 Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  Inst_Printf("la", "$24,%s", d->symb);
+  Inst_Printf("la", "$24, %s", d->symb);
   switch (offset)
     {
     case 0:
-      Inst_Printf("l.d", "$f12,($24)");
+      Inst_Printf("l.d", "$f12, ($24)");
       break;
     case 1:
-      Inst_Printf("l.d", "$f13,($24)");
+      Inst_Printf("l.d", "$f13, ($24)");
       break;
     case 2:
-      Inst_Printf("l.d", "$f14,($24)");
+      Inst_Printf("l.d", "$f14, ($24)");
       break;
     case 3:
-      Inst_Printf("l.d", "$f15,($24)");
+      Inst_Printf("l.d", "$f15, ($24)");
       break;
     case 4:
-      Inst_Printf("l.d", "$f16,($24)");
+      Inst_Printf("l.d", "$f16, ($24)");
       break;
     case 5:
-      Inst_Printf("l.d", "$f17,($24)");
+      Inst_Printf("l.d", "$f17, ($24)");
       break;
     case 6:
-      Inst_Printf("l.d", "$f18,($24)");
+      Inst_Printf("l.d", "$f18, ($24)");
       break;
     case 7:
-      Inst_Printf("l.d", "$f19,($24)");
+      Inst_Printf("l.d", "$f19, ($24)");
       break;
     default:
-      Inst_Printf("l.d", "$f1,($24)");
-      Inst_Printf("s.d", "$f1,%d($sp)", (offset - 8) * 8);
+      Inst_Printf("l.d", "$f1, ($24)");
+      Inst_Printf("s.d", "$f1, %d($sp)", (offset - 8) * 8);
     }
   return 1;
 }
@@ -522,32 +522,32 @@ Call_C_Arg_String(int offset, StringInf *s)
   switch (offset)
     {
     case 0:
-      Inst_Printf("la", "$4,%s", s->symb);
+      Inst_Printf("la", "$4, %s", s->symb);
       break;
     case 1:
-      Inst_Printf("la", "$5,%s", s->symb);
+      Inst_Printf("la", "$5, %s", s->symb);
       break;
     case 2:
-      Inst_Printf("la", "$6,%s", s->symb);
+      Inst_Printf("la", "$6, %s", s->symb);
       break;
     case 3:
-      Inst_Printf("la", "$7,%s", s->symb);
+      Inst_Printf("la", "$7, %s", s->symb);
       break;
     case 4:
-      Inst_Printf("la", "$8,%s", s->symb);
+      Inst_Printf("la", "$8, %s", s->symb);
       break;
     case 5:
-      Inst_Printf("la", "$9,%s", s->symb);
+      Inst_Printf("la", "$9, %s", s->symb);
       break;
     case 6:
-      Inst_Printf("la", "$10,%s", s->symb);
+      Inst_Printf("la", "$10, %s", s->symb);
       break;
     case 7:
-      Inst_Printf("la", "$11,%s", s->symb);
+      Inst_Printf("la", "$11, %s", s->symb);
       break;
     default:
-      Inst_Printf("la", "$24,%s", s->symb);
-      Inst_Printf("sw", "$24,%d($sp)", (offset - 8) * 8 + 4);
+      Inst_Printf("la", "$24, %s", s->symb);
+      Inst_Printf("sw", "$24, %d($sp)", (offset - 8) * 8 + 4);
     }
   return 1;
 }
@@ -597,16 +597,16 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 
   if (!adr_of)
     {
-      Inst_Printf("la", "$25,%s", name);
-      Inst_Printf("lw", "%s,%d($25)", dest, index * 4);
+      Inst_Printf("la", "$25, %s", name);
+      Inst_Printf("lw", "%s, %d($25)", dest, index * 4);
     }
   else
     {
-      Inst_Printf("la", "%s,%s+%d", dest, name, index * 4);
+      Inst_Printf("la", "%s, %s+%d", dest, name, index * 4);
     }
   if (offset > 7)
     {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
+      Inst_Printf("sw", "%s, %d($sp)", dest, (offset - 8) * 8 + 4);
     }
   return 1;
 }
@@ -656,22 +656,22 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 
   if (!adr_of)
     {
-      Inst_Printf("lw", "%s,%d(%s)", dest, index * 4, asm_reg_bank);
+      Inst_Printf("lw", "%s, %d(%s)", dest, index * 4, asm_reg_bank);
     }
   else
     {
       if (index == 0)
 	{
-	  Inst_Printf("move", "%s,%s", dest, asm_reg_bank);
+	  Inst_Printf("move", "%s, %s", dest, asm_reg_bank);
 	}
       else
 	{
-	  Inst_Printf("la", "%s,%d(%s)", dest, index * 4, asm_reg_bank);
+	  Inst_Printf("la", "%s, %d(%s)", dest, index * 4, asm_reg_bank);
 	}
     }
   if (offset > 7)
     {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
+      Inst_Printf("sw", "%s, %d($sp)", dest, (offset - 8) * 8 + 4);
     }
   return 1;
 }
@@ -722,24 +722,24 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
   if (!adr_of)
     {
 #ifdef MAP_REG_E
-      Inst_Printf("lw", "%s,%d(%s)", dest, Y_OFFSET(index), asm_reg_e);
+      Inst_Printf("lw", "%s, %d(%s)", dest, Y_OFFSET(index), asm_reg_e);
 #else
-      Inst_Printf("lw", "$12,%s", asm_reg_e);
-      Inst_Printf("lw", "%s,%d($12)", dest, Y_OFFSET(index));
+      Inst_Printf("lw", "$12, %s", asm_reg_e);
+      Inst_Printf("lw", "%s, %d($12)", dest, Y_OFFSET(index));
 #endif
     }
   else
     {
 #ifdef MAP_REG_E
-      Inst_Printf("la", "%s,%d(%s)", dest, Y_OFFSET(index), asm_reg_e);
+      Inst_Printf("la", "%s, %d(%s)", dest, Y_OFFSET(index), asm_reg_e);
 #else
-      Inst_Printf("lw", "$12,%s", asm_reg_e);
-      Inst_Printf("la", "%s,%d($12)", dest, Y_OFFSET(index));
+      Inst_Printf("lw", "$12, %s", asm_reg_e);
+      Inst_Printf("la", "%s, %d($12)", dest, Y_OFFSET(index));
 #endif
     }
   if (offset > 7)
     {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
+      Inst_Printf("sw", "%s, %d($sp)", dest, (offset - 8) * 8 + 4);
     }
 
   return 1;
@@ -788,18 +788,18 @@ Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
       break;
     }
 
-  Inst_Printf("la", "$2,pl_foreign_long");
+  Inst_Printf("la", "$2, pl_foreign_long");
   if (!adr_of)
     {
-      Inst_Printf("lw", "%s,%d($2)", dest, index * 4);
+      Inst_Printf("lw", "%s, %d($2)", dest, index * 4);
     }
   else
     {
-      Inst_Printf("la", "%s,%d($2)", dest, index * 4);
+      Inst_Printf("la", "%s, %d($2)", dest, index * 4);
     }
   if (offset > 7)
     {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
+      Inst_Printf("sw", "%s, %d($sp)", dest, (offset - 8) * 8 + 4);
     }
   return 1;
 }
@@ -848,11 +848,11 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 	  strcpy(dest, "$24");
 	  break;
 	}
-      Inst_Printf("la", "%s,pl_foreign_double", dest);
-      Inst_Printf("addu", "%s,%s,%d", dest, dest, index * 8);
+      Inst_Printf("la", "%s, pl_foreign_double", dest);
+      Inst_Printf("addu", "%s, %s, %d", dest, dest, index * 8);
       if (offset > 7)
 	{
-	  Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8);
+	  Inst_Printf("sw", "%s, %d($sp)", dest, (offset - 8) * 8);
 	}
       return 1;
     }
@@ -888,11 +888,11 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 	  strcpy(dest, "$f1");
 	  break;
 	}
-      Inst_Printf("la", "$25,pl_foreign_double");
-      Inst_Printf("l.d", "%s,%d($25)", dest, index * 8);
+      Inst_Printf("la", "$25, pl_foreign_double");
+      Inst_Printf("l.d", "%s, %d($25)", dest, index * 8);
       if (offset > 7)
 	{
-	  Inst_Printf("s.d", "%s,%d($sp)", dest, (offset - 8) * 8);
+	  Inst_Printf("s.d", "%s, %d($sp)", dest, (offset - 8) * 8);
 	}
       return 1;
     }
@@ -908,12 +908,12 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 void
 Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-  Inst_Printf("sd", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
-  Inst_Printf("la", "$25,%s", fct_name);
+  Inst_Printf("sd", "$gp, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
+  Inst_Printf("sd", "$31, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
+  Inst_Printf("la", "$25, %s", fct_name);
   Inst_Printf("jal", "$25");
-  Inst_Printf("ld", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-  Inst_Printf("ld", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
+  Inst_Printf("ld", "$gp, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
+  Inst_Printf("ld", "$31, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
 }
 
 
@@ -938,7 +938,7 @@ Call_C_Stop(char *fct_name, int nb_args)
 void
 Jump_Ret(void)
 {
-  Inst_Printf("move", "$25,$2");
+  Inst_Printf("move", "$25, $2");
   Inst_Printf("j", "$25");
 }
 
@@ -952,7 +952,7 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Inst_Printf("bne", "$2,$0,%s", Label_Cont_New());
+  Inst_Printf("bne", "$2, $0, %s", Label_Cont_New());
   Pl_Fail();
   Label_Printf("%s:", Label_Cont_Get());
 }
@@ -967,8 +967,8 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
-  Inst_Printf("la", "$13,%s", name);
-  Inst_Printf("sw", "$2,%d($13)", index * 4);
+  Inst_Printf("la", "$13, %s", name);
+  Inst_Printf("sw", "$2, %d($13)", index * 4);
 }
 
 
@@ -981,7 +981,7 @@ Move_Ret_To_Mem_L(char *name, int index)
 void
 Move_Ret_To_Reg_X(int index)
 {				/* same as Move_To_Reg_X */
-  Inst_Printf("sw", "$2,%d(%s)", index * 4, asm_reg_bank);
+  Inst_Printf("sw", "$2, %d(%s)", index * 4, asm_reg_bank);
 }
 
 
@@ -995,10 +995,10 @@ void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
 #ifdef MAP_REG_E
-  Inst_Printf("sw", "$2,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("sw", "$2, %d(%s)", Y_OFFSET(index), asm_reg_e);
 #else
-  Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("sw", "$2,%d($13)", Y_OFFSET(index));
+  Inst_Printf("lw", "$13, %s", asm_reg_e);
+  Inst_Printf("sw", "$2, %d($13)", Y_OFFSET(index));
 #endif
 }
 
@@ -1012,8 +1012,8 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("la", "$13,pl_foreign_long");
-  Inst_Printf("sw", "$2,%d($13)", index * 4);
+  Inst_Printf("la", "$13, pl_foreign_long");
+  Inst_Printf("sw", "$2, %d($13)", index * 4);
 }
 
 
@@ -1026,8 +1026,8 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("la", "$13,pl_foreign_double");
-  Inst_Printf("s.d", "$f0,%d($13)", index * 8);
+  Inst_Printf("la", "$13, pl_foreign_double");
+  Inst_Printf("s.d", "$f0, %d($13)", index * 8);
 }
 
 
@@ -1040,8 +1040,8 @@ Move_Ret_To_Foreign_D(int index)
 void
 Cmp_Ret_And_Int(PlLong int_val)
 {
-  Inst_Printf("li", "$24,%ld", int_val);
-  Inst_Printf("sub", "$12,$2,$24");	/* $2 - $24 -> $12 */
+  Inst_Printf("li", "$24, %ld", int_val);
+  Inst_Printf("sub", "$12, $2, $24");	/* $2 - $24 -> $12 */
 }
 
 
@@ -1054,7 +1054,7 @@ Cmp_Ret_And_Int(PlLong int_val)
 void
 Jump_If_Equal(char *label)
 {
-  Inst_Printf("beqz", "$12,%s", label);	/* $2 == 0 */
+  Inst_Printf("beqz", "$12, %s", label);	/* $2 == 0 */
 }
 
 
@@ -1069,7 +1069,7 @@ Jump_If_Greater(char *label)
 {
   /* this is based on the comparison we did with Cmp_Ret_And_Int */
   /* means this is more or less a Jump_If_Not_Equal ! */
-  Inst_Printf("bgtz", "$12,%s", label);	/* $3 == 1 */
+  Inst_Printf("bgtz", "$12, %s", label);	/* $3 == 1 */
 }
 
 
@@ -1082,9 +1082,9 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Inst_Printf("ld", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-  Inst_Printf("ld", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
-  Inst_Printf("addiu", "$sp,$sp,%d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
+  Inst_Printf("ld", "$gp, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
+  Inst_Printf("ld", "$31, %d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
+  Inst_Printf("addiu", "$sp, $sp, %d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
   Inst_Printf("j", "$31");
 }
 

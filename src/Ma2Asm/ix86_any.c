@@ -353,7 +353,7 @@ Code_Start(CodeInf *c)
       Inst_Printf("pushl", "%s", DARWIN_PB_REG);
 #endif
       Inst_Printf("pushl", "%%esi"); /* used as r_aux when %eax is a FC reg */
-      Inst_Printf("subl", "$%d,%%esp", RESERVED_STACK_SPACE);
+      Inst_Printf("subl", "$%d, %%esp", RESERVED_STACK_SPACE);
     }
 }
 
@@ -400,7 +400,7 @@ void
 Reload_E_In_Register(void)
 {
 #ifndef MAP_REG_E
-  Inst_Printf("movl", "%s,%s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
+  Inst_Printf("movl", "%s, %s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
 #endif
 }
 
@@ -437,10 +437,10 @@ Prep_CP(void)
 {
 #ifdef M_darwin
   Load_PB_Reg();
-  Inst_Printf("leal", "%s-%s,%%eax", Label_Cont_New(), pb_label);
-  Inst_Printf("movl", "%%eax,%s", asm_reg_cp);
+  Inst_Printf("leal", "%s-%s, %%eax", Label_Cont_New(), pb_label);
+  Inst_Printf("movl", "%%eax, %s", asm_reg_cp);
 #else
-  Inst_Printf("movl", "$%s,%s", Label_Cont_New(), asm_reg_cp);
+  Inst_Printf("movl", "$%s, %s", Label_Cont_New(), asm_reg_cp);
 #endif
 }
 
@@ -488,7 +488,7 @@ Pl_Fail(void)
 #ifdef MAP_REG_B
   Inst_Printf("jmp", "*-4(%s)", asm_reg_b);
 #else
-  Inst_Printf("movl", "%s,%%eax", asm_reg_b);
+  Inst_Printf("movl", "%s, %%eax", asm_reg_b);
   Inst_Printf("jmp", "*-4(%%eax)");
 #endif
 }
@@ -533,7 +533,7 @@ Jump(char *label)
 void
 Move_From_Reg_X(int index)
 {
-  Inst_Printf("movl", "%s,%%eax", Off_Reg_Bank(index * 4));
+  Inst_Printf("movl", "%s, %%eax", Off_Reg_Bank(index * 4));
 }
 
 
@@ -546,7 +546,7 @@ Move_From_Reg_X(int index)
 void
 Move_From_Reg_Y(int index)
 {
-  Inst_Printf("movl", "%d(%s),%%eax", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("movl", "%d(%s), %%eax", Y_OFFSET(index), asm_reg_e);
 }
 
 
@@ -559,7 +559,7 @@ Move_From_Reg_Y(int index)
 void
 Move_To_Reg_X(int index)
 {
-  Inst_Printf("movl", "%%eax,%s", Off_Reg_Bank(index * 4));
+  Inst_Printf("movl", "%%eax, %s", Off_Reg_Bank(index * 4));
 }
 
 
@@ -572,7 +572,7 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-  Inst_Printf("movl", "%%eax,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("movl", "%%eax, %d(%s)", Y_OFFSET(index), asm_reg_e);
 }
 
 
@@ -671,7 +671,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 {
   BEFORE_ARG;
 
-  Inst_Printf("movl", "$%ld,%s", int_val, r);
+  Inst_Printf("movl", "$%ld, %s", int_val, r);
 
   AFTER_ARG;
 
@@ -690,7 +690,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", "$%d,%s", d->v.i32[0], r);
+  Inst_Printf("movl", "$%d, %s", d->v.i32[0], r);
 
   AFTER_ARG;
 
@@ -698,7 +698,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", "$%d,%s", d->v.i32[1], r);
+  Inst_Printf("movl", "$%d, %s", d->v.i32[1], r);
 
   AFTER_ARG;
 
@@ -719,11 +719,11 @@ Call_C_Arg_String(int offset, StringInf *s)
 
 #ifdef M_darwin
   Load_PB_Reg();
-  Inst_Printf("leal", "%s-%s,%s", s->symb, pb_label, r_aux);
+  Inst_Printf("leal", "%s-%s, %s", s->symb, pb_label, r_aux);
   if (!r_eq_r_aux)
-    Inst_Printf("movl", "%s,%s", r_aux, r);
+    Inst_Printf("movl", "%s, %s", r_aux, r);
 #else
-  Inst_Printf("movl", "$%s,%s", s->symb, r);
+  Inst_Printf("movl", "$%s, %s", s->symb, r);
 #endif
 
   AFTER_ARG;
@@ -755,35 +755,35 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
       (!l && !Is_Code_Defined(name))) /* external code */
     {
       BT_String_Add(&bt_non_lazy, name); /* strdup done by parser */
-      Inst_Printf("movl", "L_%s$non_lazy_ptr-%s,%s", name, pb_label, r_aux);
+      Inst_Printf("movl", "L_%s$non_lazy_ptr-%s, %s", name, pb_label, r_aux);
       if (adr_of)
 	{
 	  if (index > 0)
-	    Inst_Printf("addl", "$%d,%s", index * 4, r_aux);
+	    Inst_Printf("addl", "$%d, %s", index * 4, r_aux);
 	}
       else
-	Inst_Printf("movl", "%d(%s),%s", index * 4, r_aux, r_aux);
+	Inst_Printf("movl", "%d(%s), %s", index * 4, r_aux, r_aux);
     }
   else
     {
       if (adr_of)
-	Inst_Printf("leal", "%d+_%s-%s,%s", index * 4, name, pb_label, r_aux);
+	Inst_Printf("leal", "%d+_%s-%s, %s", index * 4, name, pb_label, r_aux);
       else
-	Inst_Printf("movl", "%d+_%s-%s,%s", index * 4, name, pb_label, r_aux);
+	Inst_Printf("movl", "%d+_%s-%s, %s", index * 4, name, pb_label, r_aux);
     }
 
   if (!r_eq_r_aux)
-    Inst_Printf("movl", "%s,%s", r_aux, r);
+    Inst_Printf("movl", "%s, %s", r_aux, r);
 
 #else /* !M_darwin */
 
   if (adr_of)
-    Inst_Printf("movl", "$" UN "%s+%d,%s", name, index * 4, r);
+    Inst_Printf("movl", "$" UN "%s+%d, %s", name, index * 4, r);
   else
     {
-      Inst_Printf("movl", UN "%s+%d,%s", name, index * 4, r_aux);
+      Inst_Printf("movl", UN "%s+%d, %s", name, index * 4, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movl", "%s,%s", r_aux, r);
+	Inst_Printf("movl", "%s, %s", r_aux, r);
     }
 
 #endif
@@ -810,23 +810,22 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
       if (!r_eq_r_aux && index == 0)
 	{
 #ifdef NO_MACHINE_REG_FOR_REG_BANK
-	  Inst_Printf("movl", "$%s,%s", ASM_REG_BANK, r);
+	  Inst_Printf("movl", "$%s, %s", ASM_REG_BANK, r);
 #else
-	  Inst_Printf("movl", "%s,%s", ASM_REG_BANK, r);
+	  Inst_Printf("movl", "%s, %s", ASM_REG_BANK, r);
 #endif
 	  goto finish;
 	}
-      Inst_Printf("leal", "%s,%s", Off_Reg_Bank(index * 4), r_aux);
+      Inst_Printf("leal", "%s, %s", Off_Reg_Bank(index * 4), r_aux);
     }
   else
-    Inst_Printf("movl", "%s,%s", Off_Reg_Bank(index * 4), r_aux);
+    Inst_Printf("movl", "%s, %s", Off_Reg_Bank(index * 4), r_aux);
 
   if (!r_eq_r_aux)
-    Inst_Printf("movl", "%s,%s", r_aux, r);
+    Inst_Printf("movl", "%s, %s", r_aux, r);
 
- finish:
-  ;    /* gcc3 does not like use of label at end of compound statement */
   AFTER_ARG;
+ finish:
 
   return 1;
 }
@@ -844,12 +843,12 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Inst_Printf("leal", "%d(%s),%s", Y_OFFSET(index), asm_reg_e, r_aux);
+    Inst_Printf("leal", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
   else
-    Inst_Printf("movl", "%d(%s),%s", Y_OFFSET(index), asm_reg_e, r_aux);
+    Inst_Printf("movl", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
 
   if (!r_eq_r_aux)
-    Inst_Printf("movl", "%s,%s", r_aux, r);
+    Inst_Printf("movl", "%s, %s", r_aux, r);
 
   AFTER_ARG;
 
@@ -887,15 +886,15 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 #ifdef M_darwin
 
   Load_PB_Reg();
-  Inst_Printf("movl", "L_pl_foreign_double$non_lazy_ptr-%s,%s", pb_label, r_aux);
-  Inst_Printf("movsd", "%d(%s),%%xmm0", index * 8, r_aux);
-  Inst_Printf("movsd", "%%xmm0,%s", r);
+  Inst_Printf("movl", "L_pl_foreign_double$non_lazy_ptr-%s, %s", pb_label, r_aux);
+  Inst_Printf("movsd", "%d(%s), %%xmm0", index * 8, r_aux);
+  Inst_Printf("movsd", "%%xmm0, %s", r);
   stack_offset++;
 
 #else /* !M_darwin */
 
-  Inst_Printf("movl", UN "pl_foreign_double+%d,%s", index * 8, r_aux);
-  Inst_Printf("movl", "%s,%s", r_aux, r);
+  Inst_Printf("movl", UN "pl_foreign_double+%d, %s", index * 8, r_aux);
+  Inst_Printf("movl", "%s, %s", r_aux, r);
 
   AFTER_ARG;
 
@@ -903,8 +902,8 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 
   BEFORE_HALF_ARG_DOUBLE;
 
-  Inst_Printf("movl", UN "pl_foreign_double+%d,%%eax", index * 8 + 4);
-  Inst_Printf("movl", "%%eax,%s", r);
+  Inst_Printf("movl", UN "pl_foreign_double+%d, %%eax", index * 8 + 4);
+  Inst_Printf("movl", "%%eax, %s", r);
 
 #endif
 
@@ -933,7 +932,7 @@ Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
        */
       Inst_Printf("call", "@%s@%d", fct_name, nb_args_in_words * sizeof(int));
       if (stack_offset > 0)
-	Inst_Printf("subl", "$%d,%%esp", stack_offset * 4);
+	Inst_Printf("subl", "$%d, %%esp", stack_offset * 4);
       return;
     }
 #endif
@@ -976,7 +975,7 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Inst_Printf("testl", "%%eax,%%eax");
+  Inst_Printf("testl", "%%eax, %%eax");
   Inst_Printf("je", UN "fail");
 }
 
@@ -990,7 +989,7 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
-  Inst_Printf("movl", "%%eax," UN "%s+%d", name, index * 4);
+  Inst_Printf("movl", "%%eax, " UN "%s+%d", name, index * 4);
 }
 
 
@@ -1003,7 +1002,7 @@ Move_Ret_To_Mem_L(char *name, int index)
 void
 Move_Ret_To_Reg_X(int index)
 {				/* same as Move_To_Reg_X */
-  Inst_Printf("movl", "%%eax,%s", Off_Reg_Bank(index * 4));
+  Inst_Printf("movl", "%%eax, %s", Off_Reg_Bank(index * 4));
 }
 
 
@@ -1016,7 +1015,7 @@ Move_Ret_To_Reg_X(int index)
 void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
-  Inst_Printf("movl", "%%eax,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("movl", "%%eax, %d(%s)", Y_OFFSET(index), asm_reg_e);
 }
 
 
@@ -1029,7 +1028,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("movl", "%%eax," UN "pl_foreign_long+%d", index * 4);
+  Inst_Printf("movl", "%%eax, " UN "pl_foreign_long+%d", index * 4);
 }
 
 
@@ -1056,9 +1055,9 @@ void
 Cmp_Ret_And_Int(PlLong int_val)
 {
   if (int_val == 0)
-    Inst_Printf("testl", "%%eax,%%eax");
+    Inst_Printf("testl", "%%eax, %%eax");
   else
-    Inst_Printf("cmpl", "$%ld,%%eax", int_val);
+    Inst_Printf("cmpl", "$%ld, %%eax", int_val);
 }
 
 
@@ -1097,7 +1096,7 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Inst_Printf("addl", "$%d,%%esp", RESERVED_STACK_SPACE);
+  Inst_Printf("addl", "$%d, %%esp", RESERVED_STACK_SPACE);
   Inst_Printf("popl", "%%esi");
 #ifdef M_darwin
   Inst_Printf("popl", "%s", DARWIN_PB_REG);

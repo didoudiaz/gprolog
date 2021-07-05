@@ -622,6 +622,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
       r_aux = "%rax";                                   \
     }
 
+
 #define BEFORE_ARG_DOUBLE                               \
 {                                                       \
   char r[32], *r_aux;                                   \
@@ -642,10 +643,15 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
     }
 #endif
 
+
 #define AFTER_ARG                                       \
+  if (!r_eq_r_aux)					\
+    Inst_Printf("movq", "%s, %s", r_aux, r);            \
 }
 
-#define AFTER_ARG_DOUBLE                                \
+#define AFTER_ARG_DOUBLE			        \
+  if (!r_eq_r_aux)                                      \
+    Inst_Printf("movq", "%s, %s", r_aux, r);            \
 }
 
 
@@ -666,16 +672,16 @@ Call_C_Arg_Int(int offset, PlLong int_val)
   BEFORE_ARG;
 
   if (LITTLE_INT(int_val))
-    Inst_Printf("movq", "$%" PL_FMT_d ", %s", int_val, r);
-  else
     {
-      Inst_Printf("movabsq", "$%" PL_FMT_d ", %s", int_val, r_aux);
-      if (!r_eq_r_aux)
-        Inst_Printf("movq", "%s, %s", r_aux, r);
+      Inst_Printf("movq", "$%" PL_FMT_d ", %s", int_val, r); /* optim */
+      goto finish;
     }
+  else
+    Inst_Printf("movabsq", "$%" PL_FMT_d ", %s", int_val, r_aux);
 
   AFTER_ARG;
 
+ finish:
   return 1;
 }
 
@@ -690,8 +696,6 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
   BEFORE_ARG_DOUBLE;
 
   Inst_Printf("movsd", "%s(%%rip), %s", d->symb, r_aux);
-  if (!r_eq_r_aux)
-    Inst_Printf("movq", "%s, %s", r_aux, r);
 
   AFTER_ARG_DOUBLE;
 
@@ -709,17 +713,9 @@ Call_C_Arg_String(int offset, StringInf *s)
   BEFORE_ARG;
 
   if (LARGE_ADDRESS_AWARE || pic_code)
-    {
-      Inst_Printf("leaq", "%s(%%rip), %s", s->symb, r_aux);
-      if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s, %s", r_aux, r);
-    }
+    Inst_Printf("leaq", "%s(%%rip), %s", s->symb, r_aux);
   else
-    {
-      Inst_Printf("movq", "$%s, %s", s->symb, r_aux);
-      if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s, %s", r_aux, r);
-    }
+    Inst_Printf("movq", "$%s, %s", s->symb, r_aux);
   
 
   AFTER_ARG;
@@ -747,8 +743,6 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 	}
       else
 	Inst_Printf("movq", "%d(%s), %s", index * 8, r_aux, r_aux);
-      if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s, %s", r_aux, r);
     }
   else
     {
@@ -757,17 +751,13 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 	  if (LARGE_ADDRESS_AWARE)
 	    {
 	      Inst_Printf("leaq", "%s+%d(%%rip), %s", name, index * 8, r_aux);
-	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s, %s", r_aux, r);
-	    }
+ 	    }
 	  else
 	    Inst_Printf("movq", "$" "%s+%d, %s", name, index * 8, r);
 	}
       else
 	{
 	  Inst_Printf("movq", "%s+%d(%%rip), %s", name, index * 8, r_aux);
-	  if (!r_eq_r_aux)
-	    Inst_Printf("movq", "%s, %s", r_aux, r);
 	}
     }
 
@@ -791,8 +781,8 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
       if (!r_eq_r_aux && index == 0)
         {
-          Inst_Printf("movq", "%s, %s", ASM_REG_BANK, r);
-          goto finish;
+          Inst_Printf("movq", "%s, %s", ASM_REG_BANK, r); /* optim */
+	  goto finish;
         }
 #endif
       Inst_Printf("leaq", "%s, %s", Off_Reg_Bank(index * 8), r_aux);
@@ -800,13 +790,9 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
   else
     Inst_Printf("movq", "%s, %s", Off_Reg_Bank(index * 8), r_aux);
 
-  if (!r_eq_r_aux)
-    Inst_Printf("movq", "%s, %s", r_aux, r);
-
-finish:
-  ;                             /* gcc3 does not like use of label at end of compound statement */
   AFTER_ARG;
 
+finish:
   return 1;
 }
 
@@ -825,8 +811,6 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
   else
     Inst_Printf("movq", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
 
-  if (!r_eq_r_aux)
-    Inst_Printf("movq", "%s, %s", r_aux, r);
 
   AFTER_ARG;
 
@@ -853,27 +837,19 @@ Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 	}
       else
 	Inst_Printf("movq", "%d(%s), %s", index * 8, r_aux, r_aux);
-      if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s, %s", r_aux, r);
     }
   else
     {
       if (adr_of)
 	{
 	  if (LARGE_ADDRESS_AWARE)
-	    {
-	      Inst_Printf("leaq", UN "pl_foreign_long+%d(%%rip), %s", index * 8, r_aux);
-	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s, %s", r_aux, r);
-	    }
+	    Inst_Printf("leaq", UN "pl_foreign_long+%d(%%rip), %s", index * 8, r_aux);
 	  else
-	    Inst_Printf("movq", "$" UN "pl_foreign_long+%d, %s", index * 8, r);
+	    Inst_Printf("movq", "$" UN "pl_foreign_long+%d, %s", index * 8, r_aux);
 	}
       else
 	{
 	  Inst_Printf("movq", UN "pl_foreign_long+%d(%%rip), %s", index * 8, r_aux);
-	  if (!r_eq_r_aux)
-	    Inst_Printf("movq", "%s, %s", r_aux, r);
 	}
     }
 
@@ -899,23 +875,13 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 	  Inst_Printf("movq", UN "pl_foreign_double@GOTPCREL(%%rip), %s", r_aux);
 	  if (index != 0)
 	    Inst_Printf("addq", "$%d, %s", index * 8, r_aux);
-	  if (!r_eq_r_aux)
-	    Inst_Printf("movq", "%s, %s", r_aux, r);
 	}
       else
 	{
 	  if (LARGE_ADDRESS_AWARE)
-	    {
-	      Inst_Printf("leaq", UN "pl_foreign_double+%d(%%rip), %s", index * 8, r_aux);
-	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s, %s", r_aux, r);
-	    }
+	    Inst_Printf("leaq", UN "pl_foreign_double+%d(%%rip), %s", index * 8, r_aux);
 	  else
-	    {
-	      Inst_Printf("movq", "$" UN "pl_foreign_double+%d, %s", index * 8, r_aux);
-	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s, %s", r_aux, r);
-	    }
+	    Inst_Printf("movq", "$" UN "pl_foreign_double+%d, %s", index * 8, r_aux);
 	}
       
       AFTER_ARG;
@@ -934,9 +900,6 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
       Inst_Printf("movsd", UN "pl_foreign_double+%d(%%rip), %s", index * 8, r_aux);
     }
   
-  if (!r_eq_r_aux)
-    Inst_Printf("movsd", "%s, %s", r_aux, r);
-
   AFTER_ARG_DOUBLE;
 
   return 1;

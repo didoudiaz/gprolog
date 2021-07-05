@@ -114,8 +114,8 @@ test_one()
 		echo "cp $f1 $f2" >>$file_log
 		cp $f1 $f2
 	    else
-		echo "diff $f1 $f2" >>$file_log
-		if ! diff $f1 $f2 >>$file_log 2>&1 ; then
+		echo "diff -w $f1 $f2" >>$file_log
+		if ! diff -w $f1 $f2 >>$file_log 2>&1 ; then
 		    echo
 		    echo "***** ERROR diff $f1 $f2"
 		    echo

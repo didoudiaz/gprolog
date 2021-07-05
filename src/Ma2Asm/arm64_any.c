@@ -117,7 +117,7 @@
 
 #define BPW                        8
 #define MAX_ARGS_IN_REGS           8
-#define MAX_DOUBLES_IN_REGS        8
+#define MAX_ARGS_DOUBLE_IN_REGS    8
 
 #define MAX_C_ARGS_IN_C_CODE       32
 
@@ -127,8 +127,6 @@
 
 /* Round up x to p where x is positive and p is a power of 2 */
 #define Round_Up_Pow2(x, p)  (((x) + ((p) - 1)) & (-(p)))
-
-#define MAX_DOUBLES_IN_PRED        2048
 
 
 
@@ -211,6 +209,7 @@
 
 char asm_reg_e[32];
 
+int arg_reg_no;
 int arg_dbl_reg_no;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
@@ -737,22 +736,21 @@ Move_To_Reg_Y(int index)
 void
 Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
+  arg_reg_no = 0;
   arg_dbl_reg_no = 0;
 }
 
 
 
 
-#define STACK_OFFSET(offset)   (offset_excl_doubles - MAX_ARGS_IN_REGS) * BPW
-#define DBL_RET_WORDS          2
+#define STACK_OFFSET(offset)   (offset - arg_reg_no - arg_dbl_reg_no) * BPW
 
 #define BEFORE_ARG					\
 {							\
   char r[32];						\
-  int offset_excl_doubles = offset-2*arg_dbl_reg_no;	\
 							\
-  if (offset_excl_doubles < MAX_ARGS_IN_REGS)		\
-    sprintf(r, "x%d", offset_excl_doubles + 0);		\
+  if (arg_reg_no < MAX_ARGS_IN_REGS)		        \
+    sprintf(r, "x%d", arg_reg_no++);		        \
   else							\
     strcpy(r, "x9");
 
@@ -762,25 +760,24 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG_DOUBLE				\
 {                                                       \
   char r[32];						\
-  int offset_excl_doubles = offset-2*arg_dbl_reg_no;	\
 							\
-  if (offset_excl_doubles < MAX_ARGS_IN_REGS)		\
-    sprintf(r, "x%d", offset_excl_doubles + 0);		\
+  if (arg_dbl_reg_no < MAX_ARGS_DOUBLE_IN_REGS)		\
+    sprintf(r, "d%d", arg_dbl_reg_no++);		\
   else							\
-    strcpy(r, "x9");
+    strcpy(r, "d9");
 
 
 
 
 #define AFTER_ARG					\
-  if (offset_excl_doubles >= MAX_ARGS_IN_REGS)	{       \
-    Inst_Printf("str", "%s, [sp, #%d]", r,		\
-		STACK_OFFSET(offset_excl_doubles));	\
-  }                                             	\
+  if (arg_reg_no >= MAX_ARGS_IN_REGS)       \
+    Inst_Printf("str", "%s, [sp, #%d]", r, STACK_OFFSET(offset));	\
 }
 
 
 #define AFTER_ARG_DOUBLE				\
+  if (arg_dbl_reg_no >= MAX_ARGS_DOUBLE_IN_REGS)       \
+    Inst_Printf("str", "%s, [sp, #%d]", r, STACK_OFFSET(offset));	\
 }
 
 
@@ -834,7 +831,7 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
   AFTER_ARG_DOUBLE;
 
-  return DBL_RET_WORDS;
+  return 2;
 }
 
 
@@ -959,7 +956,7 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 
   AFTER_ARG_DOUBLE;
 
-  return DBL_RET_WORDS;
+  return 2;
 }
 
 
