@@ -139,34 +139,31 @@ char asm_reg_e[32];
 char asm_reg_b[32];
 char asm_reg_cp[32];
 
+int arg_reg_no;
+int arg_dbl_reg_no;		/* unused on Microsoft ABI, same as arg_dbl_reg_no */
+
+
 #if defined(__CYGWIN__) && !defined(_WIN32)
-#define _WIN32 /* ensure Microsoft ABI */
+#define _WIN32 /* ensure Microsoft ABI on cygwin */
 #endif
 
-#if defined(_WIN32) /* Microsoft ABI */
-#define MAX_PR_ARGS 4
-static int pr_arg_no;
-static const char *gpr_arg[MAX_PR_ARGS] = {
-  "%rcx", "%rdx", "%r8", "%r9"
-};
+#ifdef _WIN32 /* Microsoft ABI */
 
-static const char *fpr_arg[MAX_PR_ARGS] = {
-  "%xmm0", "%xmm1", "%xmm2", "%xmm3"
-};
+#define MAX_ARGS_IN_REGS 4
+char *arg_reg_name[MAX_ARGS_IN_REGS] = { "%rcx", "%rdx", "%r8", "%r9" };
+
+#define MAX_ARGS_DOUBLE_IN_REGS 4
+char *arg_dbl_reg_name[MAX_ARGS_DOUBLE_IN_REGS] = { "%xmm0", "%xmm1", "%xmm2", "%xmm3" };
+
 #else /* System V AMD64 ABI */
-#define MAX_GPR_ARGS 6
-static int gpr_arg_no;
-static const char *gpr_arg[MAX_GPR_ARGS] = {
-  "%rdi", "%rsi", "%rdx",
-  "%rcx", "%r8", "%r9"
-};
 
-#define MAX_FPR_ARGS 8
-static int fpr_arg_no;
-static const char *fpr_arg[MAX_FPR_ARGS] = {
-  "%xmm0", "%xmm1", "%xmm2", "%xmm3",
-  "%xmm4", "%xmm5", "%xmm6", "%xmm7"
-};
+#define MAX_ARGS_IN_REGS 6
+
+char *arg_reg_name[MAX_ARGS_IN_REGS] = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
+
+#define MAX_ARGS_DOUBLE_IN_REGS 8
+char *arg_dbl_reg_name[MAX_ARGS_DOUBLE_IN_REGS] = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
+
 #endif
 
 
@@ -325,7 +322,7 @@ Code_Start(CodeInf *c)
          preserve %r12-%r15 since they are already handled as global
          -ffixed ones.  */
       Inst_Printf("pushq", "%%rbx");
-      Inst_Printf("subq", "$%d,%%rsp", RESERVED_STACK_SPACE);
+      Inst_Printf("subq", "$%d, %%rsp", RESERVED_STACK_SPACE);
     }
 }
 
@@ -366,7 +363,7 @@ void
 Reload_E_In_Register(void)
 {
 #ifndef MAP_REG_E
-  Inst_Printf("movq", "%s,%s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
+  Inst_Printf("movq", "%s, %s", Off_Reg_Bank(MAP_OFFSET_E), asm_reg_e);
 #endif
 }
 
@@ -400,12 +397,12 @@ Prep_CP(void)
 {
   if (LARGE_ADDRESS_AWARE || pic_code)
     {
-      Inst_Printf("leaq", "%s(%%rip),%%r10", Label_Cont_New());
-      Inst_Printf("movq", "%%r10,%s", asm_reg_cp);
+      Inst_Printf("leaq", "%s(%%rip), %%r10", Label_Cont_New());
+      Inst_Printf("movq", "%%r10, %s", asm_reg_cp);
     }
   else
     {
-      Inst_Printf("movq", "$%s,%s", Label_Cont_New(), asm_reg_cp);
+      Inst_Printf("movq", "$%s, %s", Label_Cont_New(), asm_reg_cp);
     }
 }
 
@@ -450,7 +447,7 @@ Pl_Fail(void)
 #ifdef MAP_REG_B
   Inst_Printf("jmp", "*-8(%s)", asm_reg_b);
 #else
-  Inst_Printf("movq", "%s,%%rdx", asm_reg_b);
+  Inst_Printf("movq", "%s, %%rdx", asm_reg_b);
   Inst_Printf("jmp", "*-8(%%rdx)");
 #endif
 }
@@ -500,7 +497,7 @@ Jump(char *label)
 void
 Move_From_Reg_X(int index)
 {
-  Inst_Printf("movq", "%s,%%rdx", Off_Reg_Bank(index * 8));
+  Inst_Printf("movq", "%s, %%rdx", Off_Reg_Bank(index * 8));
 }
 
 
@@ -513,7 +510,7 @@ Move_From_Reg_X(int index)
 void
 Move_From_Reg_Y(int index)
 {
-  Inst_Printf("movq", "%d(%s),%%rdx", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("movq", "%d(%s), %%rdx", Y_OFFSET(index), asm_reg_e);
 }
 
 
@@ -526,7 +523,7 @@ Move_From_Reg_Y(int index)
 void
 Move_To_Reg_X(int index)
 {
-  Inst_Printf("movq", "%%rdx,%s", Off_Reg_Bank(index * 8));
+  Inst_Printf("movq", "%%rdx, %s", Off_Reg_Bank(index * 8));
 }
 
 
@@ -539,7 +536,7 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-  Inst_Printf("movq", "%%rdx,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("movq", "%%rdx, %d(%s)", Y_OFFSET(index), asm_reg_e);
 }
 
 
@@ -552,12 +549,8 @@ Move_To_Reg_Y(int index)
 void
 Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-#ifdef _WIN32
-  pr_arg_no = 0;
-#else
-  gpr_arg_no = 0;
-  fpr_arg_no = 0;
-#endif
+  arg_reg_no = 0;
+  arg_dbl_reg_no = 0;
 }
 
 #ifdef __GNUC__                 /* ignore r_aux/r_eq_r_aux not always used */
@@ -572,12 +565,12 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #ifdef _WIN32
 #define BEFORE_ARG                                      \
 {                                                       \
-  char r[10], *r_aux;                                   \
+  char r[32], *r_aux;                                   \
   int r_eq_r_aux = FALSE;                               \
                                                         \
-  if (pr_arg_no < MAX_PR_ARGS)                          \
+  if (arg_reg_no < MAX_ARGS_IN_REGS)                    \
     {                                                   \
-      strcpy(r, gpr_arg[pr_arg_no++]);                  \
+      strcpy(r, arg_reg_name[arg_reg_no++]);            \
       r_aux = r;                                        \
       r_eq_r_aux = TRUE;                                \
     }                                                   \
@@ -589,14 +582,14 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
       r_aux = "%rax";                                   \
     }
 
-#define BEFORE_FPR_ARG                                  \
+#define BEFORE_ARG_DOUBLE                               \
 {                                                       \
-  char r[10], *r_aux;                                   \
+  char r[32], *r_aux;                                   \
   int r_eq_r_aux = FALSE;                               \
                                                         \
-  if (pr_arg_no < MAX_PR_ARGS)                          \
+  if (arg_reg_no < MAX_ARGS_DOUBLE_IN_REGS)             \
     {                                                   \
-      strcpy(r, fpr_arg[pr_arg_no++]);                  \
+      strcpy(r, arg_dbl_reg_name[arg_reg_no++]);        \
       r_aux = r;                                        \
       r_eq_r_aux = TRUE;                                \
     }                                                   \
@@ -612,37 +605,37 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define BEFORE_ARG                                      \
 {                                                       \
-  char r[10], *r_aux;                                   \
+  char r[32], *r_aux;                                   \
   int r_eq_r_aux = FALSE;                               \
                                                         \
-  if (gpr_arg_no < MAX_GPR_ARGS)                        \
+  if (arg_reg_no < MAX_ARGS_IN_REGS)                    \
     {                                                   \
-      strcpy(r, gpr_arg[gpr_arg_no++]);                 \
+      strcpy(r, arg_reg_name[arg_reg_no++]);            \
       r_aux = r;                                        \
       r_eq_r_aux = TRUE;                                \
     }                                                   \
   else                                                  \
     {                                                   \
-      int nwords = offset - gpr_arg_no - fpr_arg_no;    \
+      int nwords = offset - arg_reg_no - arg_dbl_reg_no;\
                                                         \
       sprintf(r, "%d(%%rsp)", nwords * 8);              \
       r_aux = "%rax";                                   \
     }
 
-#define BEFORE_FPR_ARG                                  \
+#define BEFORE_ARG_DOUBLE                               \
 {                                                       \
-  char r[10], *r_aux;                                   \
+  char r[32], *r_aux;                                   \
   int r_eq_r_aux = FALSE;                               \
                                                         \
-  if (fpr_arg_no < MAX_FPR_ARGS)                        \
+  if (arg_dbl_reg_no < MAX_ARGS_DOUBLE_IN_REGS)         \
     {                                                   \
-      strcpy(r, fpr_arg[fpr_arg_no++]);                 \
+      strcpy(r, arg_dbl_reg_name[arg_dbl_reg_no++]);    \
       r_aux = r;                                        \
       r_eq_r_aux = TRUE;                                \
     }                                                   \
   else                                                  \
     {                                                   \
-      int nwords = offset - gpr_arg_no - fpr_arg_no;    \
+      int nwords = offset - arg_reg_no - arg_dbl_reg_no;\
                                                         \
       sprintf(r, "%d(%%rsp)", nwords * 8);              \
       r_aux = "%xmm8";                                  \
@@ -652,7 +645,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define AFTER_ARG                                       \
 }
 
-#define AFTER_FPR_ARG                                   \
+#define AFTER_ARG_DOUBLE                                \
 }
 
 
@@ -673,12 +666,12 @@ Call_C_Arg_Int(int offset, PlLong int_val)
   BEFORE_ARG;
 
   if (LITTLE_INT(int_val))
-    Inst_Printf("movq", "$%" PL_FMT_d ",%s", int_val, r);
+    Inst_Printf("movq", "$%" PL_FMT_d ", %s", int_val, r);
   else
     {
-      Inst_Printf("movabsq", "$%" PL_FMT_d ",%s", int_val, r_aux);
+      Inst_Printf("movabsq", "$%" PL_FMT_d ", %s", int_val, r_aux);
       if (!r_eq_r_aux)
-        Inst_Printf("movq", "%s,%s", r_aux, r);
+        Inst_Printf("movq", "%s, %s", r_aux, r);
     }
 
   AFTER_ARG;
@@ -694,13 +687,13 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 int
 Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  BEFORE_FPR_ARG;
+  BEFORE_ARG_DOUBLE;
 
-  Inst_Printf("movsd", "%s(%%rip),%s", d->symb, r_aux);
+  Inst_Printf("movsd", "%s(%%rip), %s", d->symb, r_aux);
   if (!r_eq_r_aux)
-    Inst_Printf("movq", "%s,%s", r_aux, r);
+    Inst_Printf("movq", "%s, %s", r_aux, r);
 
-  AFTER_FPR_ARG;
+  AFTER_ARG_DOUBLE;
 
   return 1;
 }
@@ -717,15 +710,15 @@ Call_C_Arg_String(int offset, StringInf *s)
 
   if (LARGE_ADDRESS_AWARE || pic_code)
     {
-      Inst_Printf("leaq", "%s(%%rip),%s", s->symb, r_aux);
+      Inst_Printf("leaq", "%s(%%rip), %s", s->symb, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s,%s", r_aux, r);
+	Inst_Printf("movq", "%s, %s", r_aux, r);
     }
   else
     {
-      Inst_Printf("movq", "$%s,%s", s->symb, r_aux);
+      Inst_Printf("movq", "$%s, %s", s->symb, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s,%s", r_aux, r);
+	Inst_Printf("movq", "%s, %s", r_aux, r);
     }
   
 
@@ -746,16 +739,16 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 
   if (pic_code)
     {
-      Inst_Printf("movq", UN "%s@GOTPCREL(%%rip),%s", name, r_aux);
+      Inst_Printf("movq", UN "%s@GOTPCREL(%%rip), %s", name, r_aux);
       if (adr_of)
 	{
 	  if (index != 0)
-	    Inst_Printf("addq", "$%d,%s", index * 8, r_aux);
+	    Inst_Printf("addq", "$%d, %s", index * 8, r_aux);
 	}
       else
-	Inst_Printf("movq", "%d(%s),%s", index * 8, r_aux, r_aux);
+	Inst_Printf("movq", "%d(%s), %s", index * 8, r_aux, r_aux);
       if (!r_eq_r_aux)
-	Inst_Printf("movq", "%s,%s", r_aux, r);
+	Inst_Printf("movq", "%s, %s", r_aux, r);
     }
   else
     {
@@ -763,18 +756,18 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 	{
 	  if (LARGE_ADDRESS_AWARE)
 	    {
-	      Inst_Printf("leaq", "%s+%d(%%rip),%s", name, index * 8, r_aux);
+	      Inst_Printf("leaq", "%s+%d(%%rip), %s", name, index * 8, r_aux);
 	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s,%s", r_aux, r);
+		Inst_Printf("movq", "%s, %s", r_aux, r);
 	    }
 	  else
-	    Inst_Printf("movq", "$" "%s+%d,%s", name, index * 8, r);
+	    Inst_Printf("movq", "$" "%s+%d, %s", name, index * 8, r);
 	}
       else
 	{
-	  Inst_Printf("movq", "%s+%d(%%rip),%s", name, index * 8, r_aux);
+	  Inst_Printf("movq", "%s+%d(%%rip), %s", name, index * 8, r_aux);
 	  if (!r_eq_r_aux)
-	    Inst_Printf("movq", "%s,%s", r_aux, r);
+	    Inst_Printf("movq", "%s, %s", r_aux, r);
 	}
     }
 
@@ -798,17 +791,17 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
       if (!r_eq_r_aux && index == 0)
         {
-          Inst_Printf("movq", "%s,%s", ASM_REG_BANK, r);
+          Inst_Printf("movq", "%s, %s", ASM_REG_BANK, r);
           goto finish;
         }
 #endif
-      Inst_Printf("leaq", "%s,%s", Off_Reg_Bank(index * 8), r_aux);
+      Inst_Printf("leaq", "%s, %s", Off_Reg_Bank(index * 8), r_aux);
     }
   else
-    Inst_Printf("movq", "%s,%s", Off_Reg_Bank(index * 8), r_aux);
+    Inst_Printf("movq", "%s, %s", Off_Reg_Bank(index * 8), r_aux);
 
   if (!r_eq_r_aux)
-    Inst_Printf("movq", "%s,%s", r_aux, r);
+    Inst_Printf("movq", "%s, %s", r_aux, r);
 
 finish:
   ;                             /* gcc3 does not like use of label at end of compound statement */
@@ -828,12 +821,12 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
   BEFORE_ARG;
 
   if (adr_of)
-    Inst_Printf("leaq", "%d(%s),%s", Y_OFFSET(index), asm_reg_e, r_aux);
+    Inst_Printf("leaq", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
   else
-    Inst_Printf("movq", "%d(%s),%s", Y_OFFSET(index), asm_reg_e, r_aux);
+    Inst_Printf("movq", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
 
   if (!r_eq_r_aux)
-    Inst_Printf("movq", "%s,%s", r_aux, r);
+    Inst_Printf("movq", "%s, %s", r_aux, r);
 
   AFTER_ARG;
 
@@ -869,16 +862,16 @@ Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 	{
 	  if (LARGE_ADDRESS_AWARE)
 	    {
-	      Inst_Printf("leaq", UN "pl_foreign_long+%d(%%rip),%s", index * 8, r_aux);
+	      Inst_Printf("leaq", UN "pl_foreign_long+%d(%%rip), %s", index * 8, r_aux);
 	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s,%s", r_aux, r);
+		Inst_Printf("movq", "%s, %s", r_aux, r);
 	    }
 	  else
 	    Inst_Printf("movq", "$" UN "pl_foreign_long+%d, %s", index * 8, r);
 	}
       else
 	{
-	  Inst_Printf("movq", UN "pl_foreign_long+%d(%%rip),%s", index * 8, r_aux);
+	  Inst_Printf("movq", UN "pl_foreign_long+%d(%%rip), %s", index * 8, r_aux);
 	  if (!r_eq_r_aux)
 	    Inst_Printf("movq", "%s, %s", r_aux, r);
 	}
@@ -913,15 +906,15 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 	{
 	  if (LARGE_ADDRESS_AWARE)
 	    {
-	      Inst_Printf("leaq", UN "pl_foreign_double+%d(%%rip),%s", index * 8, r_aux);
+	      Inst_Printf("leaq", UN "pl_foreign_double+%d(%%rip), %s", index * 8, r_aux);
 	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s,%s", r_aux, r);
+		Inst_Printf("movq", "%s, %s", r_aux, r);
 	    }
 	  else
 	    {
 	      Inst_Printf("movq", "$" UN "pl_foreign_double+%d, %s", index * 8, r_aux);
 	      if (!r_eq_r_aux)
-		Inst_Printf("movq", "%s,%s", r_aux, r);
+		Inst_Printf("movq", "%s, %s", r_aux, r);
 	    }
 	}
       
@@ -929,22 +922,22 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
       return 1;
     }
 
-  BEFORE_FPR_ARG;
+  BEFORE_ARG_DOUBLE;
 
   if (pic_code)
     {
-      Inst_Printf("movq", UN "pl_foreign_double@GOTPCREL(%%rip),%%r10");
+      Inst_Printf("movq", UN "pl_foreign_double@GOTPCREL(%%rip), %%r10");
       Inst_Printf("movsd", "%d(%%r10), %s", index * 8, r_aux);
     }
   else
     {
-      Inst_Printf("movsd", UN "pl_foreign_double+%d(%%rip),%s", index * 8, r_aux);
+      Inst_Printf("movsd", UN "pl_foreign_double+%d(%%rip), %s", index * 8, r_aux);
     }
   
   if (!r_eq_r_aux)
     Inst_Printf("movsd", "%s, %s", r_aux, r);
 
-  AFTER_FPR_ARG;
+  AFTER_ARG_DOUBLE;
 
   return 1;
 }
@@ -1002,7 +995,7 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Inst_Printf("test", "%%rax,%%rax");
+  Inst_Printf("test", "%%rax, %%rax");
   Inst_Printf("je", UN "fail");
 }
 
@@ -1018,12 +1011,12 @@ Move_Ret_To_Mem_L(char *name, int index)
 {
   if (pic_code)
     {
-      Inst_Printf("movq", UN "%s@GOTPCREL(%%rip)," "%%r10", name);
-      Inst_Printf("movq", "%%rax," "%d(%%r10)", index * 8);
+      Inst_Printf("movq", UN "%s@GOTPCREL(%%rip), " "%%r10", name);
+      Inst_Printf("movq", "%%rax, " "%d(%%r10)", index * 8);
     }
   else
     {
-      Inst_Printf("movq", "%%rax," "%s+%d(%%rip)", name, index * 8);
+      Inst_Printf("movq", "%%rax, " "%s+%d(%%rip)", name, index * 8);
     }
 }
 
@@ -1037,7 +1030,7 @@ Move_Ret_To_Mem_L(char *name, int index)
 void
 Move_Ret_To_Reg_X(int index)
 {                               /* similar to Move_To_Reg_X */
-  Inst_Printf("movq", "%%rax,%s", Off_Reg_Bank(index * 8));
+  Inst_Printf("movq", "%%rax, %s", Off_Reg_Bank(index * 8));
 }
 
 
@@ -1050,7 +1043,7 @@ Move_Ret_To_Reg_X(int index)
 void
 Move_Ret_To_Reg_Y(int index)
 {                               /* similar to Move_To_Reg_Y */
-  Inst_Printf("movq", "%%rax,%d(%s)", Y_OFFSET(index), asm_reg_e);
+  Inst_Printf("movq", "%%rax, %d(%s)", Y_OFFSET(index), asm_reg_e);
 }
 
 
@@ -1065,12 +1058,12 @@ Move_Ret_To_Foreign_L(int index)
 {
   if (pic_code)
     {
-      Inst_Printf("movq", UN "pl_foreign_long@GOTPCREL(%%rip)," "%%r10");
-      Inst_Printf("movq", "%%rax," "%d(%%r10)", index * 8);
+      Inst_Printf("movq", UN "pl_foreign_long@GOTPCREL(%%rip), " "%%r10");
+      Inst_Printf("movq", "%%rax, " "%d(%%r10)", index * 8);
     }
   else
     {
-      Inst_Printf("movq", "%%rax," UN "pl_foreign_long+%d(%%rip)", index * 8);
+      Inst_Printf("movq", "%%rax, " UN "pl_foreign_long+%d(%%rip)", index * 8);
     }
 }
 
@@ -1086,12 +1079,12 @@ Move_Ret_To_Foreign_D(int index)
 {
   if (pic_code)
     {
-      Inst_Printf("movq", UN "pl_foreign_double@GOTPCREL(%%rip)," "%%r10");
-      Inst_Printf("movsd", "%%xmm0," "%d(%%r10)", index * 8);
+      Inst_Printf("movq", UN "pl_foreign_double@GOTPCREL(%%rip), " "%%r10");
+      Inst_Printf("movsd", "%%xmm0, " "%d(%%r10)", index * 8);
     }
   else
     {
-      Inst_Printf("movsd", "%%xmm0," UN "pl_foreign_double+%d(%%rip)", index * 8);
+      Inst_Printf("movsd", "%%xmm0, " UN "pl_foreign_double+%d(%%rip)", index * 8);
     }
 }
 
@@ -1106,15 +1099,15 @@ void
 Cmp_Ret_And_Int(PlLong int_val)
 {
   if (int_val == 0)
-    Inst_Printf("testq", "%%rax,%%rax");
+    Inst_Printf("testq", "%%rax, %%rax");
   else if (LITTLE_INT(int_val))
-    Inst_Printf("cmpq", "$%" PL_FMT_d ",%%rax", int_val);
+    Inst_Printf("cmpq", "$%" PL_FMT_d ", %%rax", int_val);
   else
     {
       /* %rdx is second integral return value. At this stage, it is bound
        * to be dead since we only deal with primitive object types. */
-      Inst_Printf("movabsq", "$%" PL_FMT_d ",%%rdx", int_val);
-      Inst_Printf("cmpq", "%%rdx,%%rax");
+      Inst_Printf("movabsq", "$%" PL_FMT_d ", %%rdx", int_val);
+      Inst_Printf("cmpq", "%%rdx, %%rax");
     }
 }
 
@@ -1154,7 +1147,7 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Inst_Printf("addq", "$%d,%%rsp", RESERVED_STACK_SPACE);
+  Inst_Printf("addq", "$%d, %%rsp", RESERVED_STACK_SPACE);
   Inst_Printf("popq", "%%rbx");
   Inst_Printf("ret", "%s", "");
 }

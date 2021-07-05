@@ -211,7 +211,7 @@
 
 char asm_reg_e[32];
 
-int dbl_reg_no;
+int arg_dbl_reg_no;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 LabelGen lg_pool;
@@ -737,7 +737,7 @@ Move_To_Reg_Y(int index)
 void
 Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  dbl_reg_no = 0;
+  arg_dbl_reg_no = 0;
 }
 
 
@@ -746,14 +746,27 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define STACK_OFFSET(offset)   (offset_excl_doubles - MAX_ARGS_IN_REGS) * BPW
 #define DBL_RET_WORDS          2
 
-#define BEFORE_ARG				\
-{						\
- char r[16];  /* 4 is enough but avoid gcc warning, see -Wformat-overflow */ \
- int offset_excl_doubles = offset-2*dbl_reg_no; \
-   						\
-  if (offset_excl_doubles < MAX_ARGS_IN_REGS)	\
-    sprintf(r, "x%d", offset_excl_doubles + 0);	\
-  else						\
+#define BEFORE_ARG					\
+{							\
+  char r[32];						\
+  int offset_excl_doubles = offset-2*arg_dbl_reg_no;	\
+							\
+  if (offset_excl_doubles < MAX_ARGS_IN_REGS)		\
+    sprintf(r, "x%d", offset_excl_doubles + 0);		\
+  else							\
+    strcpy(r, "x9");
+
+
+
+
+#define BEFORE_ARG_DOUBLE				\
+{                                                       \
+  char r[32];						\
+  int offset_excl_doubles = offset-2*arg_dbl_reg_no;	\
+							\
+  if (offset_excl_doubles < MAX_ARGS_IN_REGS)		\
+    sprintf(r, "x%d", offset_excl_doubles + 0);		\
+  else							\
     strcpy(r, "x9");
 
 
@@ -767,7 +780,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 }
 
 
-#define AFTER_ARG_DBL					\
+#define AFTER_ARG_DOUBLE				\
 }
 
 
@@ -799,7 +812,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 int
 Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  BEFORE_ARG;
+  BEFORE_ARG_DOUBLE;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 #if defined(__clang__) || defined(M_darwin)
@@ -810,15 +823,16 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
     * (even gcc-11 uses llvm as) 
     */
   Inst_Printf("ldr", "x10, =%ld", d->v.i64);
-  Inst_Printf("fmov", "d%d, x10", dbl_reg_no++);
+  Inst_Printf("fmov", "d%d, x10", arg_dbl_reg_no++);
 #else
-  Inst_Printf("ldr", "d%d, =%ld", dbl_reg_no++, d->v.i64);
+  Inst_Printf("ldr", "d%d, =%ld", arg_dbl_reg_no++, d->v.i64);
 #endif
 #else
   Load_Address(r, d->symb);
-  Inst_Printf("ldr", "d%d, [%s]", dbl_reg_no++, r);
+  Inst_Printf("ldr", "d%d, [%s]", arg_dbl_reg_no++, r);
 #endif
-  AFTER_ARG_DBL;
+
+  AFTER_ARG_DOUBLE;
 
   return DBL_RET_WORDS;
 }
@@ -937,11 +951,13 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_double", index);
-  BEFORE_ARG;
+
+  BEFORE_ARG_DOUBLE;
 
   Load_Address("x7", "pl_foreign_double");
-  Inst_Printf("ldr", "d%d, [x7, %d]", dbl_reg_no++, index * BPW);
-  AFTER_ARG_DBL;
+  Inst_Printf("ldr", "d%d, [x7, %d]", arg_dbl_reg_no++, index * BPW);
+
+  AFTER_ARG_DOUBLE;
 
   return DBL_RET_WORDS;
 }

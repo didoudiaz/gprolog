@@ -673,13 +673,13 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 #define MAX_FP_ARGS_IN_REGS 16
 
-#define BEFORE_FP_ARG				\
+#define BEFORE_ARG_DOUBLE			\
 {						\
-  char *r = "%g1";				 /* load in a temp */
+  char *r = "%g1";   /* load in a temp */
 
 
       /* floating point args in %f0, %f2, %f4 (double precision) */
-#define AFTER_FP_ARG							\
+#define AFTER_ARG_DOUBLE						\
   if (offset < MAX_FP_ARGS_IN_REGS)					\
     {									\
       Delay_Printf("stx","%s,[%%fp+2023]", r);				\
@@ -718,11 +718,11 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 int
 Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  BEFORE_FP_ARG;
+  BEFORE_ARG_DOUBLE;
 
   Load_Long_Into_Reg(d->v.i64, r);
 
-  AFTER_FP_ARG;
+  AFTER_ARG_DOUBLE;
 
   return 1;
 }
@@ -864,11 +864,11 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
     }
 
 
-  BEFORE_FP_ARG;
+  BEFORE_ARG_DOUBLE;
 
   Load_Mem_Into_Reg("%l3", index * 8, adr_of, r);
 
-  AFTER_FP_ARG;
+  AFTER_ARG_DOUBLE;
 
   return 1;
 }

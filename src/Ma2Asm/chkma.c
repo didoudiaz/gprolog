@@ -828,17 +828,17 @@ test_call_c_lot_args(void)
 
 
 void FC
-test_call_c_lot_args1(PlLong n0, PlLong n1, PlLong n2, PlLong n3,
-		      PlLong n4, PlLong n5,
+test_call_c_lot_args1(double n0, PlLong n1, double n2, PlLong n3, double n4, PlLong n5,
 		      void (*a) (), PlLong b, PlLong c, PlLong d, double e, char *f,
 		      PlLong g, PlLong *h, PlLong i, PlLong *j,
-		      PlLong k, PlLong *l, PlLong m, PlLong *n, double o)
+		      PlLong k, PlLong *l, PlLong m, PlLong *n,
+		      double d1, double d2, double d3, double d4, double d5, double d6)
 {
-  CHECK_RESULT_LONG(n0, 0);
+  CHECK_RESULT_DOUBLE(n0, 0.1);
   CHECK_RESULT_LONG(n1, 0);
-  CHECK_RESULT_LONG(n2, 0);
+  CHECK_RESULT_DOUBLE(n2, 0.2);
   CHECK_RESULT_LONG(n3, 0);
-  CHECK_RESULT_LONG(n4, 0);
+  CHECK_RESULT_DOUBLE(n4, 0.3);
   CHECK_RESULT_LONG(n5, 0);
   CHECK_RESULT_ADDR(a, test_call_c_lot_args);
   CHECK_RESULT_LONG(b, 128);
@@ -854,7 +854,12 @@ test_call_c_lot_args1(PlLong n0, PlLong n1, PlLong n2, PlLong n3,
   CHECK_RESULT_ADDR(l, &YY(0));
   CHECK_RESULT_LONG(m, 456789);
   CHECK_RESULT_ADDR(n, &YY(6));
-  CHECK_RESULT_DOUBLE(o, 1.23456);
+  CHECK_RESULT_DOUBLE(d1, 1.1);
+  CHECK_RESULT_DOUBLE(d2, 2.2);
+  CHECK_RESULT_DOUBLE(d3, 3.3);
+  CHECK_RESULT_DOUBLE(d4, 4.4);
+  CHECK_RESULT_DOUBLE(d5, 5.5);
+  CHECK_RESULT_DOUBLE(d6, 6.6);
 
   x++;
 }

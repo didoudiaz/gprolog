@@ -364,21 +364,19 @@ test_call_c_arg_fd_array(void)
 void
 test_call_c_lot_args(void)
 {
-  void FC test_call_c_lot_args1(PlLong n0, PlLong n1, PlLong n2, PlLong n3,
-				PlLong n4, PlLong n5,
+  void FC test_call_c_lot_args1(double n0, PlLong n1, double n2, PlLong n3, double n4, PlLong n5,
 				void (*a) (), PlLong b, PlLong c, PlLong d, double e, char *f,
 				PlLong g, PlLong *h, PlLong i, PlLong *j,
 				PlLong k, PlLong *l, PlLong m, PlLong *n, double o);
   
-  test_call_c_lot_args1(0, 0, 0, 0, 0, 0, &test_call_c_lot_args1, ma_local_var2, 4095, 123456789, -3.141593, "abcd\01489def\n\r", X(0), &X(0), X(255), &X(128), YY(0), &YY(0), YY(12), &YY(6), 1.23456);
+  test_call_c_lot_args1(0.1, 0, 0.2, 0, 0.3, 0, &test_call_c_lot_args1, ma_local_var2, 4095, 123456789, -3.141593, "abcd\01489def\n\r", X(0), &X(0), X(255), &X(128), YY(0), &YY(0), YY(12), &YY(6), 1.23456);
 }
 
 void
 test_call_c_lot_args2(void)
 {
   /*  &label,var,int, double,         string */
-  bar(3, 4, 5, 6, 7, 8, 9, 10, foo, var, 12, 4098, -4095, (double) 1.20e-10,
-      "this is a string", "a\14b");
+  bar(3, 4, 5, 6, 7, 8, 9, 10, foo, var, 12, 4098, -4095, (double) 1.20e-10, "this is a string", "a\14b");
 
   /* regs / &regs */
   bar1(0, 0, 0, 0, 0, 0, X(2), &X(4), YY(0), &YY(12));
@@ -393,6 +391,12 @@ test_call_c_lot_args3(void)
   my_func(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19);
 }
 
+
+void test_call_c_lot_args_dbl(void)
+{
+  void my_lot_dbl(double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double);
+  my_lot_dbl(1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.10, 11.11, 12.12, 13.13, 14.14, 15.15, 16.16, 17.17, 18.18, 19.19, 20.20);
+}
 
 
 /* to define Jump_Ret() */

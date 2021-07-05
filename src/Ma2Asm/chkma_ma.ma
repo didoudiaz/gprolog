@@ -138,7 +138,7 @@ pl_code global ma_test_arg_fd_array
 
 pl_code global ma_test_call_c_lot_args
 	call_c fast Allocate(1)
-	call_c fast test_call_c_lot_args1(0, 0, 0, 0, 0, 0, &test_call_c_lot_args, ma_local_var2, 4095, 123456789, -3.141593, "abcd\01489def\n\r", X(0), &X(0), X(255), &X(128), Y(0), &Y(0), Y(12), &Y(6), 1.23456)
+	call_c fast test_call_c_lot_args1(0.1, 0, 0.2, 0, 0.3, 0, &test_call_c_lot_args, ma_local_var2, 4095, 123456789, -3.141593, "abcd\01489def\n\r", X(0), &X(0), X(255), &X(128), Y(0), &Y(0), Y(12), &Y(6), 1.1, 2.2, 3.3, 4.4, 5.5, 6.6)
 	pl_ret
 
 pl_code global ma_test_jump_ret
