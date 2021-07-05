@@ -566,7 +566,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG                                      \
 {                                                       \
   char r[32], *r_aux;                                   \
-  int r_eq_r_aux = FALSE;                               \
+  Bool r_eq_r_aux = FALSE;                              \
                                                         \
   if (arg_reg_no < MAX_ARGS_IN_REGS)                    \
     {                                                   \
@@ -585,7 +585,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG_DOUBLE                               \
 {                                                       \
   char r[32], *r_aux;                                   \
-  int r_eq_r_aux = FALSE;                               \
+  Bool r_eq_r_aux = FALSE;                              \
                                                         \
   if (arg_reg_no < MAX_ARGS_DOUBLE_IN_REGS)             \
     {                                                   \
@@ -606,7 +606,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG                                      \
 {                                                       \
   char r[32], *r_aux;                                   \
-  int r_eq_r_aux = FALSE;                               \
+  Bool r_eq_r_aux = FALSE;                              \
                                                         \
   if (arg_reg_no < MAX_ARGS_IN_REGS)                    \
     {                                                   \
@@ -626,7 +626,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG_DOUBLE                               \
 {                                                       \
   char r[32], *r_aux;                                   \
-  int r_eq_r_aux = FALSE;                               \
+  Bool r_eq_r_aux = FALSE;                              \
                                                         \
   if (arg_dbl_reg_no < MAX_ARGS_DOUBLE_IN_REGS)         \
     {                                                   \

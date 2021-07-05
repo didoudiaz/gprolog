@@ -117,8 +117,10 @@
 
 #define ASM_DOUBLE_DIRECTIV_PREFIX "0d"
 
+
 #define BPW                        4
 #define MAX_ARGS_IN_REGS           4
+#define MAX_ARGS_DOUBLE_IN_REGS    8
 
 #define MAX_C_ARGS_IN_C_CODE       32
 #define RESERVED_STACK_SPACE       (MAX_C_ARGS_IN_C_CODE - MAX_ARGS_IN_REGS) * BPW
@@ -139,7 +141,8 @@
 
 char asm_reg_e[32];
 
-int dbl_reg_no;
+int arg_reg_no;
+int arg_dbl_reg_no;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 LabelGen lg_pool;
@@ -636,38 +639,54 @@ Move_To_Reg_Y(int index)
 void
 Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  dbl_reg_no = 0;
+  arg_reg_no = 0;
+  arg_dbl_reg_no = 0;
 }
 
 
 
 
-#define STACK_OFFSET(offset)   (offset_excl_doubles - MAX_ARGS_IN_REGS) * BPW
-#define DBL_RET_WORDS          2
+#define STACK_OFFSET(offset)   (offset - arg_reg_no - 2 * arg_dbl_reg_no) * BPW
 
-#define BEFORE_ARG				\
-{						\
- char r[16];  /* 4 is enough but avoid gcc warning, see -Wformat-overflow */ \
- int offset_excl_doubles = offset-2*dbl_reg_no; \
-   						\
-  if (offset_excl_doubles < MAX_ARGS_IN_REGS)	\
-    sprintf(r, "r%d", offset_excl_doubles + 0);	\
-  else						\
-    strcpy(r, "r4");
+#define BEFORE_ARG					\
+{                                                       \
+  char r[32];						\
+  Bool in_reg = FALSE;					\
+							\
+  if (arg_reg_no < MAX_ARGS_IN_REGS)			\
+    {							\
+      sprintf(r, "r%d", arg_reg_no++);			\
+      in_reg = TRUE;					\
+    }							\
+  else							\
+    strcpy(r, "r9");
+
+
+
+
+#define BEFORE_ARG_DOUBLE				\
+{                                                       \
+  char r[32];						\
+  Bool in_reg = FALSE;					\
+							\
+  if (arg_dbl_reg_no < MAX_ARGS_DOUBLE_IN_REGS)		\
+    {							\
+      sprintf(r, "d%d", arg_dbl_reg_no++);		\
+      in_reg = TRUE;					\
+    }							\
+  else							\
+    strcpy(r, "r9");
 
 
 
 
 #define AFTER_ARG					\
-  if (offset_excl_doubles >= MAX_ARGS_IN_REGS)	{       \
-    Inst_Printf("str", "%s, [sp, #%d]", r,		\
-		STACK_OFFSET(offset_excl_doubles));	\
-  }                                             	\
+  if (!in_reg)       					\
+    Inst_Printf("str", "%s, [sp, #%d]", r, STACK_OFFSET(offset)); \
 }
 
 
-#define AFTER_ARG_DBL					\
-}
+#define AFTER_ARG_DOUBLE  AFTER_ARG
 
 
 
@@ -696,13 +715,13 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, DoubleInf*d)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  BEFORE_ARG;
+  BEFORE_ARG_DOUBLE;
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 
-  Inst_Printf("vldr.64", "d%d, =0x%08x%08x", dbl_reg_no++, d->v.i32[1], d->v.i32[0]);
+  Inst_Printf("vldr.64", "%s, =0x%08x%08x", r, d->v.i32[1], d->v.i32[0]);
 
 #else
 
@@ -717,14 +736,13 @@ Call_C_Arg_Double(int offset, DoubleInf*d)
   Inst_Printf(".word", "%d", d->v.i32[1]);
 #endif
   Label_Printf("%s%d:", mi.double_symb_prefix, dbl_lc_no);
-  Inst_Printf("vldr.64", "d%d, %s%d-8", dbl_reg_no++, mi.double_symb_prefix, dbl_lc_no++);
+  Inst_Printf("vldr.64", "%s, %s%d-8", r, mi.double_symb_prefix, dbl_lc_no++);
 
 #endif
 
-  
-  AFTER_ARG_DBL;
+  AFTER_ARG_DOUBLE;
 
-  return DBL_RET_WORDS;
+  return 2;
 }
 
 
@@ -842,15 +860,15 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
   if (adr_of)
     return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_double", index * 2);
 
-  BEFORE_ARG;
+  BEFORE_ARG_DOUBLE;
 
   Inst_Printf("ldr", "r3, =pl_foreign_double");
   Increment_Reg("r3", index * 8);
-  Inst_Printf("vldr.64", "d%d, [r3]", dbl_reg_no++);
+  Inst_Printf("vldr.64", "%s, [r3]", r);
 
-  AFTER_ARG_DBL;
+  AFTER_ARG_DOUBLE;
 
-  return DBL_RET_WORDS;
+  return 2;
 }
 
 

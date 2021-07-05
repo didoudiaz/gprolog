@@ -746,11 +746,15 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define STACK_OFFSET(offset)   (offset - arg_reg_no - arg_dbl_reg_no) * BPW
 
 #define BEFORE_ARG					\
-{							\
+{                                                       \
   char r[32];						\
+  Bool in_reg = FALSE;					\
 							\
-  if (arg_reg_no < MAX_ARGS_IN_REGS)		        \
-    sprintf(r, "x%d", arg_reg_no++);		        \
+  if (arg_reg_no < MAX_ARGS_IN_REGS)			\
+    {							\
+      sprintf(r, "x%d", arg_reg_no++);			\
+      in_reg = TRUE;					\
+    }							\
   else							\
     strcpy(r, "x9");
 
@@ -760,25 +764,26 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG_DOUBLE				\
 {                                                       \
   char r[32];						\
+  Bool in_reg = FALSE;					\
 							\
   if (arg_dbl_reg_no < MAX_ARGS_DOUBLE_IN_REGS)		\
-    sprintf(r, "d%d", arg_dbl_reg_no++);		\
+    {							\
+      sprintf(r, "d%d", arg_dbl_reg_no++);		\
+      in_reg = TRUE;					\
+    }							\
   else							\
-    strcpy(r, "d9");
+    strcpy(r, "x9");
 
 
 
 
 #define AFTER_ARG					\
-  if (arg_reg_no >= MAX_ARGS_IN_REGS)       \
-    Inst_Printf("str", "%s, [sp, #%d]", r, STACK_OFFSET(offset));	\
+  if (!in_reg)       					\
+    Inst_Printf("str", "%s, [sp, #%d]", r, STACK_OFFSET(offset)); \
 }
 
 
-#define AFTER_ARG_DOUBLE				\
-  if (arg_dbl_reg_no >= MAX_ARGS_DOUBLE_IN_REGS)       \
-    Inst_Printf("str", "%s, [sp, #%d]", r, STACK_OFFSET(offset));	\
-}
+#define AFTER_ARG_DOUBLE  AFTER_ARG
 
 
 
@@ -813,25 +818,28 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
 #if defined(__clang__) || defined(M_darwin)
-   /* Stupid Bug in llvm asm parser, ldr pseudo instruction with a 64 immediate 
+   /* Bug in llvm asm parser: ldr pseudo instruction with a 64 immediate 
     * needs an X reg (D reg is not accepted), while gas aarch64/linux accepts it !
     * decompose via an ldr X reg, =imm64 + fmov 
     * NB: we test __clang__ or M_darwin since on darwin as is provided by llvm 
     * (even gcc-11 uses llvm as) 
     */
-  Inst_Printf("ldr", "x10, =%ld", d->v.i64);
-  Inst_Printf("fmov", "d%d, x10", arg_dbl_reg_no++);
-#else
-  Inst_Printf("ldr", "d%d, =%ld", arg_dbl_reg_no++, d->v.i64);
+  if (in_reg)
+    {
+      Inst_Printf("ldr", "x9, =%ld", d->v.i64);
+      Inst_Printf("fmov", "%s, x9", r);
+    }
+  else
 #endif
+    Inst_Printf("ldr", "%s, =%ld", r, d->v.i64);
 #else
-  Load_Address(r, d->symb);
-  Inst_Printf("ldr", "d%d, [%s]", arg_dbl_reg_no++, r);
+  Load_Address("x9", d->symb);
+  Inst_Printf("ldr", "%s, [x9]", r);
 #endif
 
   AFTER_ARG_DOUBLE;
 
-  return 2;
+  return 1;
 }
 
 
@@ -952,11 +960,11 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
   BEFORE_ARG_DOUBLE;
 
   Load_Address("x7", "pl_foreign_double");
-  Inst_Printf("ldr", "d%d, [x7, %d]", arg_dbl_reg_no++, index * BPW);
+  Inst_Printf("ldr", "%s, [x7, %d]", r, index * BPW);
 
   AFTER_ARG_DOUBLE;
 
-  return 2;
+  return 1;
 }
 
 
