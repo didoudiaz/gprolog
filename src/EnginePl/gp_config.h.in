@@ -6,7 +6,7 @@
  * Descr.: general configuration file (handled by autoconf) - header file  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -74,8 +74,21 @@
 /* Define if you have the sigsetjmp function */
 #undef HAVE_SIGSETJMP
 
+/* NB: fpclassify is a macro, see BipsPl/arith_inl_c.c */
+/* Define if you have the fpclass function */
+#undef HAVE_FPCLASS
+
+/* Define if you have the _fpclass function (windows) */
+#undef HAVE__FPCLASS
+
+/* Define if you have the isnan function */
+#undef HAVE_ISNAN
+
+/* Define if you have the isinf function */
+#undef HAVE_ISINF
+
 /* Define if you have the asinh function */
-#undef HAVE_SINH
+#undef HAVE_ASINH
 
 /* Define if you have the acosh function */
 #undef HAVE_ACOSH
@@ -128,14 +141,14 @@
 
 
 
-/* Define if the cpu is a mips */
-#undef M_mips
+/* Define if the cpu is a mips32 */
+#undef M_mips32
 
 /* Define if the cpu is an alpha */
 #undef M_alpha
 
-/* Define if the cpu is a sparc */
-#undef M_sparc
+/* Define if the cpu is a sparc32 */
+#undef M_sparc32
 
 /* Define if the cpu is a sparc64 */
 #undef M_sparc64
@@ -143,12 +156,17 @@
 /* Define if the cpu is a ix86 */
 #undef M_ix86
 
-/* Define if the cpu is a powerpc */
-#undef M_powerpc
+/* Define if the cpu is a ppc32 */
+#undef M_ppc32
 
 /* Define if the cpu is a x86-64 */
 #undef M_x86_64
 
+/* Define if the cpu is a arm32 (armv7, armhf) */
+#undef M_arm32
+
+/* Define if the cpu is a arm4 (arch64) */
+#undef M_arm64
 
 /* Define if the OS is an SGI IRIX */
 #undef M_irix
@@ -184,8 +202,8 @@
 #undef M_bsd
 
 
-/* Define if the system is an mips/irix */
-#undef M_mips_irix
+/* Define if the system is an mips32/irix */
+#undef M_mips32_irix
 
 /* Define if the system is an alpha/linux */
 #undef M_alpha_linux
@@ -217,26 +235,26 @@
 /* Define if the system is a ix86/solaris */
 #undef M_ix86_solaris
 
-/* Define if the system is a sparc/solaris */
-#undef M_sparc_solaris
+/* Define if the system is a sparc32/solaris */
+#undef M_sparc32_solaris
 
-/* Define if the system is a sparc/sunos */
-#undef M_sparc_sunos
+/* Define if the system is a sparc32/sunos */
+#undef M_sparc32_sunos
 
-/* Define if the system is a sparc/bsd */
-#undef M_sparc_bsd
+/* Define if the system is a sparc32/bsd */
+#undef M_sparc32_bsd
 
 /* Define if the system is a sparc64/bsd */
 #undef M_sparc64_bsd
 
-/* Define if the system is a powerpc/linux */
-#undef M_powerpc_linux
+/* Define if the system is a ppc32/linux */
+#undef M_ppc32_linux
 
-/* Define if the system is a powerpc/darwin */
-#undef M_powerpc_darwin
+/* Define if the system is a ppc32/darwin */
+#undef M_ppc32_darwin
 
-/* Define if the system is a powerpc/bsd */
-#undef M_powerpc_bsd
+/* Define if the system is a ppc32/bsd */
+#undef M_ppc32_bsd
 
 /* Define if the system is a x86-64/linux */
 #undef M_x86_64_linux
@@ -247,11 +265,23 @@
 /* Define if the system is a x86-64/bsd */
 #undef M_x86_64_bsd
 
+/* Define if the system is a x86-64/cygwin */
+#undef M_x86_64_cygwin
+
 /* Define if the system is a x86-64/mingw */
 #undef M_x86_64_mingw
 
 /* Define if the system is a x86-64/darwin */
 #undef M_x86_64_darwin
+
+/* Define if the system is a arm32/linux */
+#undef M_arm32_linux
+
+/* Define if the system is a arm64/linux */
+#undef M_arm64_linux
+
+/* Define if the system is a arm64/darwin (e.g. Apple arm M1/MacOS)*/
+#undef M_arm64_darwin
 
 
 /* Define if building universal (internal helper macro) */
@@ -314,6 +344,7 @@
 #define LIB_BIPS_FD                any
 
 
+#define SIZEOF_INT                 any
 #define SIZEOF_LONG                any
 #define SIZEOF_VOIDP               any
 

@@ -6,7 +6,7 @@
  * Descr.: operator management - C part                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -116,7 +116,7 @@ void
 Pl_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   int atom_op;
-  int prec;
+  PlLong prec;
   int atom_specif;
   int i;
   int type, left, right;

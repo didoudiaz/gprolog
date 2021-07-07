@@ -6,7 +6,7 @@
  * Descr.: machine dependent features - Header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -110,11 +110,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
  * Register Definitions            *
  *---------------------------------*/
 
-#if defined(M_sparc)
+#if defined(M_sparc32)
 
 #    define M_USED_REGS            {"g6", "g7", 0}
 
-#elif defined(M_mips)
+#elif defined(M_mips32)
 
 #define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
                                     "$21", "$22", "$23", 0}
@@ -132,12 +132,22 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
 
-#elif defined(M_powerpc)
+#elif defined(M_ppc32)
 
 #    define M_USED_REGS            {"15", "20", 0}
 
-/* on M_x86_64_darwin Lion r12-r15 do not work (why ?) */
-#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(M_x86_64_darwin)
+#elif defined(M_arm32)
+
+	/* do not use r7 (frame pointer) */
+#    define M_USED_REGS            {"r5", "r6", "r8", "r9", "r10", 0}
+
+#elif defined(M_arm64) && !defined(__clang__) /* clang/llvm do not yet handle Global Register Variables */
+
+	/* do not use x29 (frame pointer) */
+#    define M_USED_REGS            {"x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
+
+
+#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 
@@ -148,17 +158,35 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #endif
 
 
-
+/* for some archs, we prefer to not aalloc pl_reg_bank in a reg
+ * saving it for a WAM register
+ */
 #if defined(M_ix86) // && !defined(_WIN32) // && !defined(NO_USE_REGS)
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
-/* In any case M_x86_64_darwin needs a reg for pl_reg_bank (default is r12)
- * else Ma2Asm produces code ending with the following error:
+
+/* In no regs are used (--disable-regs => NO_USE_REGS), we normally also
+ * define NO_MACHINE_REG_FOR_REG_BANK to avoid pl_reg_bank to be in a reg.
+ * 
+ * Some archs need pl_reg_bank in a register. For instance x86_64/darwin 
+ * needs a reg for pl_reg_bank (default is r12) else Ma2Asm produces code 
+ * ending with the following error:
  * '32-bit absolute addressing is not supported for x86-64'
+ *
+ * To force a machine reg for a given arch add it as !defined(M_arch) below
+ * and initialize this register in engine1.c
+ * E.g. to force a reg (def is r12) for x86_64/linux replace in the next line
+ * by !defined(M_x86_64)
  */
 #if defined(NO_USE_REGS) && !defined(NO_MACHINE_REG_FOR_REG_BANK) && \
-  defined(M_x86_64) && !defined(M_x86_64_darwin)
+  !defined(M_x86_64) && !defined(M_x86_64_darwin) && !defined(M_arm32) && !defined(M_arm64)
+#define NO_MACHINE_REG_FOR_REG_BANK
+#endif
+
+
+/* To really force NO_MACHINE_REG_FOR_REG_BANK (testing) */
+#if 0 /* or e.g. defined(M_arm64) */
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 

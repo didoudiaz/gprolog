@@ -6,7 +6,7 @@
  * Descr.: parser support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -566,8 +566,7 @@ Parse_Args_Of_Functor(int atom)
 static WamWord
 Parse_Bracketed_Term(void)
 {
-  WamWord term;
-
+  WamWord term = 0;		/* init for the compiler */
 
   switch (pl_token.punct)
     {
@@ -612,7 +611,7 @@ static WamWord
 Parse_List(Bool can_be_empty)
 {
   WamWord term;
-  WamWord car_word, cdr_word;
+  WamWord car_word, cdr_word = 0; /* init for the compiler */
 
 
   car_word = Parse_Term(MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, TRUE);
@@ -842,8 +841,8 @@ Pl_Read_Number(StmInf *pstm)
 WamWord
 Pl_Read_Token(StmInf *pstm)
 {
-  WamWord term, arg;
-  int func, atom;
+  WamWord term, arg = 0;	/* init for the compiler */
+  int func = 0, atom;		/* init for the compiler */
   char *err_msg;
 
   if ((err_msg = Pl_Scan_Token(pstm, FALSE)) != NULL)

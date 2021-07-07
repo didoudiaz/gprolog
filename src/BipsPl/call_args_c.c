@@ -6,7 +6,7 @@
  * Descr.: meta call management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -94,7 +94,7 @@ WamCont
 Pl_Call_Closure(int atom_bip, int arity_rest)
 {
   int func, arity_clos, arity;
-  WamWord *arg_adr;
+  WamWord *arg_adr = NULL;	/* init for the compiler */
   PredInf *pred;
   WamWord *w;
   int i;

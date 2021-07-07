@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : expand.pl
 
 
@@ -82,7 +82,7 @@ predicate(phrase/3,77,static,private,monofile,built_in,[
 
 
 predicate('$phrase'/4,83,static,private,monofile,built_in,[
-    allocate(6),
+    allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
@@ -93,19 +93,20 @@ predicate('$phrase'/4,83,static,private,monofile,built_in,[
     put_value(y(0),0),
     call('$$phrase/4_$aux1'/1),
     put_value(y(0),0),
-    put_value(y(1),1),
-    put_variable(y(4),2),
-    put_variable(y(5),3),
+    put_variable(y(4),1),
+    put_variable(y(5),2),
+    put_variable(y(6),3),
     call('$dcg_trans_body'/4),
-    put_value(y(5),0),
+    put_value(y(1),0),
+    get_value(y(4),0),
+    put_value(y(2),0),
+    get_value(y(5),0),
+    put_unsafe_value(y(6),0),
     put_atom(phrase,1),
     put_value(y(3),2),
     put_atom(true,3),
-    call('$call'/4),
-    put_value(y(2),0),
-    get_value(y(4),0),
     deallocate,
-    proceed]).
+    execute('$call'/4)]).
 
 
 predicate('$$phrase/4_$aux1'/1,83,static,private,monofile,local,[
@@ -121,11 +122,11 @@ label(1),
     proceed]).
 
 
-predicate('$dcg_trans_rule'/2,99,static,private,monofile,built_in,[
+predicate('$dcg_trans_rule'/2,100,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,105,static,private,monofile,built_in,[
+predicate('$dcg_trans_body'/4,106,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

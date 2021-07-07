@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : read_file.pl
 
 
@@ -2881,7 +2881,7 @@ predicate(flag_bit/2,1034,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([(def,3),(dyn,5),(pub,7),(bpl,9),(bfd,11),(discontig,13),(cut,15),(meta,17),(multi,19)]),
+    switch_on_atom([(def,3),(dyn,5),(pub,7),(bpl,9),(bfd,11),(discontig,13),(need_cut_level,15),(meta,17),(multi,19)]),
 
 label(2),
     try_me_else(4),
@@ -2935,7 +2935,7 @@ label(14),
     retry_me_else(16),
 
 label(15),
-    get_atom(cut,0),
+    get_atom(need_cut_level,0),
     get_integer(6,1),
     proceed,
 

@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable support                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -286,7 +286,7 @@ Fct_Set_On_Off(FlagInf *flag, WamWord value_word)
 static WamWord
 Fct_Get_Err(FlagInf *flag)
 {
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   switch (flag->value)
     {
@@ -336,7 +336,7 @@ Fct_Set_Err(FlagInf *flag, WamWord value_word)
 static WamWord
 Fct_Get_Quotes(FlagInf *flag)
 {
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   switch (flag->value)
     {

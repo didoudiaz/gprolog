@@ -1,10 +1,6 @@
                                 GNU PROLOG
                                 ==========
 
-			      by Daniel Diaz
-			   Daniel.Diaz@univ-paris1.fr
-
-
 INTRODUCTION
 ************
 
@@ -63,9 +59,9 @@ PORTS
 GNU Prolog is currently ported to the following architectures:
 
    - ix86 / GNU/Linux
-   - ix86 / Win32 using Cygwin (see file src/WINDOWS)
-   - ix86 / Win32 using MinGW  (see file src/WINDOWS)
-   - ix86 / Win32 using MSVC++ (see file src/WINDOWS)
+   - ix86 / Win32 using Cygwin (see file src/WINDOWS-OLD)
+   - ix86 / Win32 using MinGW  (see file src/WINDOWS-OLD)
+   - ix86 / Win32 using MSVC++ (see file src/WINDOWS-OLD)
    - ix86 / SCO
    - ix86 / Solaris
    - ix86 / FreeBSD
@@ -74,8 +70,8 @@ GNU Prolog is currently ported to the following architectures:
    - ix86 / Darwin (Mac OS X)
    - x86_64 / GNU/Linux
    - x86_64 / Solaris
-   - x86_64 / Win64 using MinGW64 (see file src/WINDOWS64)
-   - x86_64 / Win64 using MSVC++  (see file src/WINDOWS64)
+   - x86_64 / Win64 using MinGW64 (see file src/WINDOWS)
+   - x86_64 / Win64 using MSVC++  (see file src/WINDOWS)
    - x86_64 / Darwin (Mac OS X)
    - PowerPC / GNU/Linux
    - PowerPC / Darwin (Mac OS X)
@@ -83,11 +79,14 @@ GNU Prolog is currently ported to the following architectures:
    - sparc / SunOS (4.1.3 or higher)
    - sparc / Solaris
    - sparc / NetBSD
+   - sparc64 / Solaris
    - sparc64 / OpenBSD
    - alpha / GNU/Linux
    - alpha / OSF1
    - mips / irix
-
+   - arm 32bits / GNU/Linux (armv6, armv7) 
+   - arm 64bits (aarch64)/ GNU/Linux (armv8)
+   - arm 64bits (aarch64) / Darwin (Mac OS X) (armv8)
 
 
 INSTALLATION
@@ -110,7 +109,7 @@ and the compiler using:
 
 	gplc FILE
 
-The simpliest way to compile a Prolog file 'prog.pl' is then:
+The simplest way to compile a Prolog file 'prog.pl' is then:
 
 	gplc prog.pl
 
@@ -128,15 +127,14 @@ In Microsoft Windows if you intend to use the gplc compiler as described in
 the documentation you need to ascertain the following conditions are
 met:
 
-   - for the port compiled with MS Visual C++ (tested with version
-     6.0 and Visual C++ 2005 Express Edition) you'll need to have
+   - for the port compiled with Microsoft Visual C++ (aka MSVC++)
+     (tested with Microsoft Visual Studio 2019 Community) you'll need
      MinGW as.exe (renamed as mingw-as.exe) installed and the cl.exe
      compiler (used mainly as linker by GNU Prolog) available in 
      your session path (alternatively link.exe is used).
 
-   - for the ports compiled either with MinGW or Cygwin, the gcc
-     toolchain must be installed and available in your session
-     path.
+   - for the ports compiled either with MinGW, the gcc toolchain
+     must be installed and available in your session path.
 
 Observing these needs you'll also will be able to do the mixed
 language programming, as the examples included in the ExamplesC

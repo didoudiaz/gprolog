@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -404,7 +404,7 @@ Pl_Remove_Predicate_2(WamWord name_word, WamWord arity_word)
   int func, arity;
 
   func = Pl_Rd_Atom_Check(name_word);
-  arity = Pl_Rd_Integer_Check(arity_word);
+  arity = Pl_Rd_C_Int_Check(arity_word);
 
   Pl_Update_Dynamic_Pred(func, arity, 2, -1);
 }

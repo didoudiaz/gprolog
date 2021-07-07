@@ -6,7 +6,7 @@
  * Descr.: FD Range Implementation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -468,7 +468,6 @@ Pl_Range_Inter(Range *range, Range *range1)
     return;
   }
 
-
   if (swt == 0)			/* Interval with Interval */
   {
     range->min = math_max(range->min, range1->min);
@@ -479,7 +478,6 @@ Pl_Range_Inter(Range *range, Range *range1)
     Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
   {
-
     Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
 
     range1 = &r;
@@ -923,7 +921,7 @@ Pl_Range_To_String(Range *range)
     }
 
   // sparse
-  sprintf(buff, "%s", WRITE_BEGIN_RANGE);
+  strcpy(buff, WRITE_BEGIN_RANGE);
 
   Chunk *chunk = range->first;
   while (chunk != NULL) {

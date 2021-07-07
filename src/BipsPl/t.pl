@@ -1,3 +1,14 @@
+lgt_current_output(S) :-
+	current_output(S), !.
+
+lgt_current_output(S) :-
+	current_stream(S), !,
+	fail.
+
+lgt_current_output(S) :-
+	set_bip_name(current_output, 1),
+	'$pl_err_existence'(stream, S).
+
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
@@ -6,7 +17,7 @@
  * Descr.: test - Prolog part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -138,4 +149,74 @@ a:- q, fail ; true.
 
 :-	initialization(a).
 */
+/*
+condition_opaque_to_cut_3(1) :-
+	(   ! *-> 
+	    true
+	;   fail
+	).
+condition_opaque_to_cut_3(2).
+*/
+/*
+soft(1) :-
+	(   ! *-> 
+	    write(a)
+	;   fail
+	).
+soft(2).
 
+hard(1) :-
+	(   ! -> 
+	    true
+	;   fail
+	).
+hard(2).
+
+
+q :- soft(X), write(X), nl, fail.
+q.
+
+:- initialization(q).
+
+*/
+setup_call_cleanup(Setup, Goal, Cleanup) :-
+	set_bip_name(setup_call_cleanup, 3),
+	call(Setup), !,
+	(   var(Cleanup) ->
+	    '$pl_err_instantiation'
+	;
+	    callable(Cleanup) ->
+	    true
+	;
+	    '$pl_err_type'(callable, Cleanup)
+	),
+        catch('$call_det'(Goal, Det), Ball, true),
+	(   Det == true, !,
+	    '$scc_exec_cleanup'(Cleanup)
+	;
+	    nonvar(Ball), !,
+	    '$scc_exec_cleanup_and_throw'(Cleanup, Ball)
+	;
+	    true % some choice-points remain, cleanup not yet executed (must be suspended)
+	).
+
+'$scc_exec_cleanup'(Cleanup) :-
+	'$call'(Cleanup, setup_call_cleanup, 3, true), !.
+
+'$scc_exec_cleanup'(_Cleanup).
+
+
+'$scc_exec_cleanup_and_throw'(Cleanup, Ball) :-
+	'$catch'('$scc_exec_cleanup'(Cleanup), Ball1, '$scc_exec_cleanup_raised'(Ball1), setup_call_cleanup, 3, true),
+	throw(Ball).
+
+
+'$scc_exec_cleanup_raised'(Error) :-
+	Error = error(_, setup_call_cleanup/3),
+	!,
+	throw(Error).
+
+'$scc_exec_cleanup_raised'(_).
+
+
+p(_,_):-call(_).

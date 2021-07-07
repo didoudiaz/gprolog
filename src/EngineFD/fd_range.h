@@ -6,7 +6,7 @@
  * Descr.: FD Range Implementation - header file                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -247,11 +247,11 @@ void Pl_Err_Resource(int atom);
     }						\
   while (0)
 #else
-#define Chunk_Allocate(chunk)     \
-  do            \
-    {           \
-      chunk = (Chunk*) malloc(sizeof(Chunk)); \
-    }           \
+#define Chunk_Allocate(chunk)     		\
+  do            				\
+    {           				\
+      chunk = (Chunk*) malloc(sizeof(Chunk)); 	\
+    }           				\
   while (0)
 #endif
 

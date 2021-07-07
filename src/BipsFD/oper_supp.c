@@ -6,7 +6,7 @@
  * Descr.: FD Operation support                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -334,7 +334,7 @@ Pl_Find_Expon_Exact(unsigned x, unsigned y)
 /*-------------------------------------------------------------------------*
  * FIND_EXPON_GENERAL                                                      *
  *                                                                         *
- * X must be >1 and Y must be >0                                           *
+ * X must be > 1 and Y must be > 0                                         *
  *-------------------------------------------------------------------------*/
 static unsigned
 Find_Expon_General(unsigned x, unsigned y, unsigned *pxn)

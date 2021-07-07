@@ -6,7 +6,7 @@
  * Descr.: sockets management - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -60,6 +60,7 @@
 #ifdef SUPPORT_AF_UNIX
 #include <sys/un.h>
 #endif
+
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -216,7 +217,7 @@ Pl_Socket_Close_1(WamWord socket_word)
   SOCKET sock;
 #endif
 
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
   if (sock < 2)
     {
       errno = EBADF;
@@ -244,7 +245,6 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 {
   WamWord word, tag_mask;
   WamWord *stc_adr;
-  int dom;
   int sock;
   int port;
   socklen_t l;
@@ -257,7 +257,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   static int atom_host_name = -1; /* not created in an init since */
 				  /* establishes a connection */
 
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
 
 
   DEREF(address_word, word, tag_mask);
@@ -273,18 +273,8 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
 
   stc_adr = UnTag_STC(word);
 
-#ifdef SUPPORT_AF_UNIX
+#ifdef SUPPORT_AF_UNIX		/* case AF_UNIX */
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
-    dom = AF_UNIX;
-  else
-#endif
-    if (Functor_Arity(atom_AF_INET, 2) == Functor_And_Arity(stc_adr))
-      dom = AF_INET;
-    else
-      goto err_domain;
-
-#ifdef SUPPORT_AF_UNIX
-  if (dom == AF_UNIX)
     {
       path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
       if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
@@ -297,6 +287,9 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
       return TRUE;
     }
 #endif
+  if (Functor_Arity(atom_AF_INET, 2) != Functor_And_Arity(stc_adr))
+    goto err_domain;
+
   /* case AF_INET */
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);
@@ -313,7 +306,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   port = 0;
   DEREF(Arg(stc_adr, 1), word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
-    port = Pl_Rd_Integer_Check(word);
+    port = Pl_Rd_C_Int_Check(word);
 
   adr_in.sin_port = htons((unsigned short) port);
   adr_in.sin_family = AF_INET;
@@ -344,7 +337,6 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 {
   WamWord word, tag_mask;
   WamWord *stc_adr;
-  int dom;
   int sock;
   int port;
   char *host_name;
@@ -358,7 +350,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
   int stm_in, stm_out;
   char stream_name[256];
 
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
 
   DEREF(address_word, word, tag_mask);
 
@@ -373,18 +365,8 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 
   stc_adr = UnTag_STC(word);
 
-#ifdef SUPPORT_AF_UNIX
+#ifdef SUPPORT_AF_UNIX		/* case AF_UNIX */
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
-    dom = AF_UNIX;
-  else
-#endif
-  if (Functor_Arity(atom_AF_INET, 2) == Functor_And_Arity(stc_adr))
-    dom = AF_INET;
-  else
-    goto err_domain;
-
-#ifdef SUPPORT_AF_UNIX
-  if (dom == AF_UNIX)
     {
       path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
       if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
@@ -393,8 +375,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
       adr_un.sun_family = AF_UNIX;
       strcpy(adr_un.sun_path, path_name);
       Os_Test_Error(connect(sock, (struct sockaddr *) &adr_un, sizeof(adr_un)));
-      sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)",
-	      path_name, sock);
+      sprintf(stream_name, "socket_stream(connect('AF_UNIX'('%s')),%d)", path_name, sock);
 #ifdef _WIN32
 	  /* Check for in-progress connection */
 	  Os_Test_Error( send(sock, "", 0, 0) );
@@ -402,9 +383,12 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
       goto create_streams;
     }
 #endif
+  if (Functor_Arity(atom_AF_INET, 2) != Functor_And_Arity(stc_adr))
+    goto err_domain;
+
   /* case AF_INET */
   host_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
-  port = Pl_Rd_Integer_Check(Arg(stc_adr, 1));
+  port = Pl_Rd_C_Int_Check(Arg(stc_adr, 1));
 
   host_entry = gethostbyname(host_name);
   if (host_entry == NULL)
@@ -412,8 +396,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
 
   adr_in.sin_family = AF_INET;
   adr_in.sin_port = htons((unsigned short) port);
-  memcpy(&adr_in.sin_addr, host_entry->h_addr_list[0],
-	 host_entry->h_length);
+  memcpy(&adr_in.sin_addr, host_entry->h_addr_list[0], host_entry->h_length);
 
   Os_Test_Error(connect(sock, (struct sockaddr *) &adr_in, sizeof(adr_in)));
   sprintf(stream_name, "socket_stream(connect('AF_INET'('%s',%d)),%d)",
@@ -443,8 +426,8 @@ Pl_Socket_Listen_2(WamWord socket_word, WamWord length_word)
   int sock;
   int length;
 
-  sock = Pl_Rd_Integer_Check(socket_word);
-  length = Pl_Rd_Integer_Check(length_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
+  length = Pl_Rd_C_Int_Check(length_word);
 
   Os_Test_Error(listen(sock, length));
   return TRUE;
@@ -470,7 +453,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
 
 
   l = sizeof(adr_in);
-  sock = Pl_Rd_Integer_Check(socket_word);
+  sock = Pl_Rd_C_Int_Check(socket_word);
 
   cli_sock = accept(sock, (struct sockaddr *) &adr_in, &l);
 
@@ -484,8 +467,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
       Pl_Get_Atom(Pl_Create_Allocate_Atom(cli_ip_adr), client_word);
     }
 
-  sprintf(stream_name, "socket_stream(accept('%s'),%d)", cli_ip_adr,
-	  cli_sock);
+  sprintf(stream_name, "socket_stream(accept('%s'),%d)", cli_ip_adr, cli_sock);
 
   if (!Create_Socket_Streams(cli_sock, stream_name, &stm_in, &stm_out))
     return FALSE;
@@ -509,7 +491,7 @@ Pl_Assoc_Socket_Streams_3(WamWord socket_word,
   int stm_in, stm_out;
   char stream_name[256];
 
-  int sock = Pl_Rd_Integer_Check(socket_word);
+  int sock = Pl_Rd_C_Int_Check(socket_word);
 
   sprintf(stream_name, "socket_stream(assoc(%d))", sock);
   if (!Create_Socket_Streams(sock, stream_name, &stm_in, &stm_out))
@@ -550,13 +532,13 @@ Create_Socket_Streams(int sock, char *stream_name, int *stm_in, int *stm_out)
 
   atom = Pl_Create_Allocate_Atom(stream_name);
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
   pl_stm_tbl[stm]->prop.other = 4;
 
   *stm_in = stm;
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE, FALSE);
   pl_stm_tbl[stm]->prop.other = 4;
 
   *stm_out = stm;

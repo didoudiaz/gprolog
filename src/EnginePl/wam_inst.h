@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -133,7 +133,8 @@
 
 	  /* Functor/arity */
 
-#define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 9)
+				   /* reserve 10 bits for the arity */
+#define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 10)
 
 #define Functor_Arity(f, n)        (((PlULong) (n) << ATOM_MAX_BITS) | (f))
 #define Functor_Of(word)           ((PlULong)(word) & (((PlULong) 1 << ATOM_MAX_BITS) - 1))
@@ -227,7 +228,7 @@
 
 	  /* CP management */
 
-#if defined(M_sparc) || defined(M_sparc64)
+#if defined(M_sparc32) || defined(M_sparc64)
 
 #define Adjust_CP(cp)              ((WamCont) ((PlULong) (cp) - 8))
 #define UnAdjust_CP(cp)            ((WamCont) ((PlULong) (cp) + 8))

@@ -1,0 +1,247 @@
+	Windows compilation/installation instructions
+	---------------------------------------------
+
+NB: for Windows 64 bits ALSO read the file WINDOWS64. See also this file to use
+mingw64 (which also provides a 32 bits version of gcc).
+
+This file describes how to compile GNU Prolog on Windows machines.
+There are actually 3 ports:
+
+   - pure Win32 with MS Visual C++ (MSVC++)
+   - pure Win32 with mingw (gcc 32 bits) or with mingw64 (gcc 32 bits)
+   - using cygwin with Cygwin 32 bits (gcc) or with mingw64 (gcc 32 bits)
+
+However, even to compile a source distribution of GNU Prolog with MSVC, you
+need a Unix-like environment (providing standard Unix tools like: make, rm,
+cp, ...). You can either use Cygwin or mingw or mingw64.
+
+NB: this version of gprolog DOES NOT accept spaces in pathnames. Do not
+uncompress your source distribution under a pathname containing spaces. Do
+not install it under a pathname containing spaces.
+
+
+1) Installing and configuring Cygwin
+------------------------------------
+
+Cygwin is a Unix-like environment for Windows. It consists of two parts:
+   - a DLL (cygwin1.dll) which acts as a Linux emulation layer providing
+     substantial Linux API functionality.  
+   - a collection of tools, which provide Linux look and feel.
+
+Refer to www.cygwin.com to properly install Cygwin. The resulting
+system is installed under something like c:\cygwin.
+
+NB: If you want to share a file system (Network Drive under Windows)
+and encounter some problems with permissions (e.g. for execute). You
+can add options for the mount of the remote directory. Add noacl,exec
+in the options for the mount point in /etc/fstab.
+
+You can set some environment variables in the .bat launching cygwin
+(e.g. c:\cygwin\cygwin.bat) since environment variables are inherited by the
+Cygwin shell. For instance if you use MSVC++ you can add to cygwin.bat
+for the 32 bits version of MSVC:
+
+   call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat"
+
+or for the 64 bits version of MSVC:
+
+   call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x64
+
+You can also modify your .bashrc file to set the PATH variable for the tools
+you will use.
+
+Similarly if you want to use the Microsoft HTML Help Workshop (see below) you
+can add something like "C:\Program Files\HTML Help Workshop" to your PATH in
+the .bat file (or '/cygdrive/c/Program Files/HTML Help Workshop' in your
+.bashrc file). For example to add Inno Setup:
+
+   PATH=$PATH:'/c/Program Files/Inno Setup 6'
+or
+   PATH=$PATH:'/c/Program Files (x86)/Inno Setup 6'
+
+The gcc version provided by Cygwin is a cygwin port of gcc (it uses
+cygwin1.dll). By default it generates a code using cygwin1.dll. This DLL is a
+layer which emulates POSIX on the top of Windows (Win32).
+
+
+2) Installing and configuring MinGW/MSYS
+----------------------------------------
+
+MinGW (Minimalist GNU For Windows) is a collection of freely available and
+freely distributable Windows specific header files and import libraries
+combined with GNU toolsets that allow one to produce native Windows programs
+that do not rely on any 3rd-party C runtime DLLs.
+
+MSYS is A Minimal SYStem to provide POSIX/Bourne configure scripts the
+ability to execute and create a Makefile used by make.
+
+Refer to www.mingw.org for more information (how to get MinGW/MSYS and all
+needed tools).
+
+NB: if you want to share the same home as in cygwin set HOME variable in
+/etc/profile (juste before the test if [ -z "$HOME" ]...)
+
+NB: if you want your .bash_profile to be executed, add this line at the end
+of /etc/profile (in c:\msys\1.0\etc):
+if [ -f "$HOME/.bash_profile" ]; then source "$HOME/.bash_profile"; fi
+
+NB: if you want to use the same /tmp as under cygwin (let us say c:\cygwin\tmp)
+add this lines in the msys.bat launching msys (e.g. in c:\MinGW\msys\1.0\msys.bat)
+
+SET TEMP=c:\cygwin\tmp
+SET TMP=c:\cygwin\tmp
+SET TMPDIR=c:\cygwin\tmp
+
+The gcc version provided by MinGW is a native win32 port of gcc. It generates
+a code for native win32.
+
+By default, under MinGW/MSYS, the Win32 GUI console is compiled. For this you
+need the HTML Help Workshop. See below on how to get/install it. You can
+avoid the GUI console using ./configure --disable-gui-console (see INSTALL).
+
+
+3) Compiling GNU Prolog using Cygwin or MinGW/MSYS
+--------------------------------------------------
+
+Launch a shell (Cygwin or MSYS) and follow the classical installation
+procedure (see ../INSTALL file), i.e.:
+
+	./configure
+	make
+	make install
+
+The default gcc will be used (the one using cygwin1.dll and producing code
+using cygwin1.dll) under cygwin and native win32 gcc under msys.
+
+
+4) Compiling GNU Prolog using MSVC++
+------------------------------------
+
+You need MSVC++. GNU Prolog has been tested with Microsoft Visual Studio 2012 
+(Professional Edition, i.e. cl.exe version 17.00).
+
+NB: with previous MSVC version it was also necessary to install this SDK (or
+more recent version) : Microsoft Windows SDK for Windows 7 and .NET Framework
+4 from http://www.microsoft.com/downloads/dlx/en-us/listdetailsview.aspx?FamilyID=6b6c21d2-2006-4afa-9702-529fa782d63b
+
+Once installed, you have to launch cygwin with the correct PATH, INCLUDE, LIB
+environment variables. There is a .bat file provided with the MS compiler
+e.g. vcvarsall.bat (or older versions: vcvarvs32.bat or vsvar32.bat). See above
+on how to execute this .bat in the cygwin.bat launching script.
+
+NB: for MSVC6.0: its lib directory should appear before the lib
+directory of the SDK (else an error occurs when linking the GUI console).
+See also: http://msdn.microsoft.com/en-us/library/f2ccy3wt%28v=VS.100%29.aspx 
+
+Another way to launch a cygwin (or MSYS) shell with correct environment
+variables is to launch a DOS prompt window and to execute the vcvarsall.bat
+(or better to execute the "Developer Command Prompt for VS" (from the Windows
+Start Menu | MVS | VS Tools). Then execute cygwin (generally using c:\cygwin\cygwin.bat).
+
+NB: cygwin provides a /bin/link.exe command which can shadow the Microsoft
+linker (also called link.exe). If you encounter problem the simplest way to
+solve it is to rename /bin/link.exe of cygwin.
+
+Finally, you need the MinGW assembler (called as.exe). Copy it under a
+directory inside your PATH (for instance in /bin) under the name mingw-as.exe.
+A version can be found at:
+
+http://gprolog.org/mingw-as.exe
+
+
+Once MSVC++ and the SDK are well installed use --with-msvc at configure time:
+
+	./configure --with-msvc
+	make
+	make install
+
+By default, the GUI console is compiled (sources in W32GUICons) unless you
+use ./configure --disable-gui-console. See the ../INSTALL file for further
+information. Even if compiled with the GUI it is possible to avoid it (and
+run in console mode) a Prolog program setting the environment variable
+LINEDIT to a string containing gui=no, e.g. 
+
+bash:
+   export LINEDIT='gui=no', 
+windows:
+   SET LINEDIT=gui=no.
+
+
+
+5) Using Microsoft HTML Help
+----------------------------
+
+NB: This is useless in recent MS Visual Studio 2012
+
+If you compile under native Win32 with the GUI Console (see above), you can
+have a direct access to the GNU Prolog manual (with contextual help, index,
+table of contents, search). For this we use the Microsoft HMLT Help facility.
+which is the standard help system for the Win32 platforms (replacing old
+WinHelp). It is mainly based on HTML files + add-ons (table of contents,
+index, search facilities,...). A SDK is freely available as a "HTML Help
+Workshop". There are 2 parts: a compiler to create a .chm version of the
+documentation (see doc/README) and a library that makes it possible to use
+this file from a C program. 
+
+There is a configure option to prevent the use of HtmlHelp or to use a
+dynamically loaded version: use
+
+   --disable-htmlhelp          to completely disable HtmlHelp
+   --enable-htmlhelp[=static]  to use HtmlHelp statically  linked (default)
+   --enable-htmlhelp=dynamic   to use HtmlHelp dynamically linked
+
+You can get the Microsoft HTML-Help Workshop from
+http://go.microsoft.com/fwlink/?linkid=14188 (file htmlhelp.exe). In order to
+access to the compiler you have to add "C:\Program Files\HTML Help Workshop"
+to your PATH (see file hhvars.bat above).
+
+If you have the SDK (see above) the header file htmlhelp.h and the library
+htmlhel.lib are already present. Else copy them from the workshop directory.
+
+For MinGW (I suppose you are under MSYS and mingw is in /c/MinGw):
+	cp /c/Program\ Files/HTML\ Help\ Workshop/include/* /c/MinGW/include/.
+	cp /c/Program\ Files/HTML\ Help\ Workshop/lib/htmlhelp.lib /c/MinGW/lib/libhtmlhelp.a
+
+Note: libhtmlhelp.a follows Unix standards for libs. The lib prefix make it possible 
+to use the gcc option -lhtmlhelp (linker option). The .a suffix can be replaced by .lib.
+
+Note: when building the GUI console a warning can be displayed by the linker
+due to some directive placed by MS link.exe in the .lib. It does not
+matter. The message looks like:
+
+      Warning: .drectve `-defaultlib:uuid.lib ' unrecognized
+
+Consult doc/README for more information about HTML Help Formats.
+
+
+6) Using Windows Emacs
+----------------------
+
+get it from http://ftp.gnu.org/gnu/emacs/windows/
+and install it under c:\emacs-<version>, e.g. c:\emacs-27.1
+
+The executables to run are
+   bin\runemacs.exe (to double-click, ie. close the console)
+   bin\emacs.exe (to use from a shell)
+
+Define your HOME environment variable in windows (e.g c:\cygwin\home\diaz).
+For more info: https://www.gnu.org/software/emacs/manual/html_node/emacs/Windows-HOME.html
+Then create your .emacs file in your HOME directory
+
+
+7) Using cygwin Emacs
+---------------------
+
+install emacs-w32 (cygwin package). Then
+   cp /bin/emacs-w32.exe /bin/emacs.exe
+
+To have an icon (desktop and/or quick launch bar)
+   copy runemacs.exe in the cygwin /bin (see above for runemacs.exe)
+   create a shortcut on the desktop and/or quick launch bar
+   modify icon if wanted (take it from runemacs.exe or emacs-w32.exe)
+   modify the starting directory (set your cygwin home)
+
+LocalWords:  mingw64 cygwin1.dll cygwin noacl,exec vcvarsall.bat msys chm
+LocalWords:  vcvarvs32.bat vsvar32.bat mingw-as.exe hhvars.bat htmlhel.lib
+LocalWords:  mingw libhtmlhelp.a lhtmlhelp drectve unrecognized runemacs.exe
+LocalWords:  diaz

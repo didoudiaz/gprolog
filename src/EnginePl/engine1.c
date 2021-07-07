@@ -6,7 +6,7 @@
  * Descr.: general engine                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -38,6 +38,11 @@
 
 #include "engine_pl.h"
 
+#ifdef M_darwin
+#define UN "_"
+#else
+#define UN
+#endif
 
 WamWord *pl_ensure_reserved;
 
@@ -70,8 +75,8 @@ Pl_Call_Compiled(CodePtr codep)
 {
   WamWord reserved_stack_space[1024];
 
-  /* check why not sparc_bsd ? */
-#if (defined(M_sparc) && !defined(M_sparc_bsd)) || defined(M_sparc64)
+  /* check why not sparc32_bsd ? */
+#if (defined(M_sparc32) && !defined(M_sparc32_bsd)) || defined(M_sparc64)
   register PlLong * __attribute__ ((unused)) rfl asm("%l2") = pl_base_fl;
   register double * __attribute__ ((unused)) rfd asm("%l3") = pl_base_fd;
   pl_ensure_reserved = (WamWord *) rfl + (PlLong) rfd; /* to avoid gcc remove 2 previous inits ! */
@@ -90,40 +95,64 @@ Pl_Call_Compiled(CodePtr codep)
 
   _asm mov ebx, pl_reg_bank
 
-#elif defined(M_mips_irix)
+#elif defined(M_mips32)
 
   register WamWord *rb asm("$16") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_alpha_linux) || defined(M_alpha_osf)
+#elif defined(M_alpha)
 
   register WamWord *rb asm("$9") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_powerpc_linux)
+#elif defined(M_ppc32_linux)
 
   register WamWord *rb asm("15") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_powerpc_darwin)
+#elif defined(M_ppc32_darwin)
 
   register WamWord *rb asm("r15") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_sparc) || defined(M_sparc64)
+#elif defined(M_sparc32) || defined(M_sparc64)
 
   register WamWord *rb asm("%l0") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
-#elif defined(M_x86_64_darwin)
+#elif defined(M_arm32)
+
+  register WamWord *rb asm("r10") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
+#elif defined(M_arm64)
+
+  register WamWord *rb asm("x20") = pl_reg_bank;
+  pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+#ifdef __clang__		       /* the above does not assign x20 with clang */
+#ifdef M_darwin
+  asm("adrp x20, " UN "pl_reg_bank@GOTPAGE");
+  asm("ldr  x20, [x20, " UN "pl_reg_bank@GOTPAGEOFF]");
+  asm("ldr  x20, [x20]");
+#else
+  /* this PIC code is mandatory on darwin ; could be simplified on linux (but ready for PIC) */
+  asm("adrp x20, :got:" UN "pl_reg_bank");
+  asm("ldr  x20, [x20, :got_lo12:" UN "pl_reg_bank]");
+  asm("ldr  x20, [x20]");
+#endif
+#endif /* clang */
+
+#elif defined(M_x86_64)
   register WamWord *rb asm("%r12") = pl_reg_bank;
   pl_ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
-#ifdef __llvm__		       /* the above does not assign r12 now by Apple gcc = llvm clang */
-  asm("movq _pl_reg_bank@GOTPCREL(%rip), %r12");
+#ifdef __clang__		       /* the above does not assign r12 with clang */
+  /* this PIC code is mandatory on darwin ; could be simplified on linux (but ready for PIC) */
+  /* on linux this is enough: asm("movq pl_reg_bank, %r12"); */
+  asm("movq " UN "pl_reg_bank@GOTPCREL(%rip), %r12");
   asm("movq (%r12), %r12");
-#endif
+#endif /* clang */
 
-#endif
+#endif /* end of architectures switch */
 
 #endif /* !defined(NO_MACHINE_REG_FOR_REG_BANK) && !defined(MAP_REG_BANK) */
 

@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : pl2wam.pl
 
 
@@ -220,16 +220,16 @@ label(5),
 
 predicate(compile_emit_inits/5,99,static,private,monofile,global,[
     allocate(3),
-    get_variable(y(0),2),
-    get_variable(y(1),3),
-    get_variable(y(2),4),
-    put_atom(cur_func,2),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(2),x(0)]),
-    put_atom(cur_arity,2),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(2),x(1)]),
-    call(syntactic_sugar_init_pred/2),
-    put_value(y(0),0),
-    get_list(0),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),3),
+    put_atom(cur_func,0),
+    put_value(y(0),1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    put_atom(cur_arity,0),
+    put_value(y(1),1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    get_list(2),
     unify_variable(x(0)),
     unify_void(1),
     get_structure((+)/2,0),
@@ -238,7 +238,7 @@ predicate(compile_emit_inits/5,99,static,private,monofile,global,[
     get_structure((+)/2,0),
     unify_variable(x(0)),
     unify_structure((-)/2),
-    unify_local_value(y(2)),
+    unify_local_value(x(4)),
     unify_void(1),
     get_list(0),
     unify_variable(x(0)),
@@ -246,9 +246,13 @@ predicate(compile_emit_inits/5,99,static,private,monofile,global,[
     get_structure((*)/2,0),
     unify_variable(x(0)),
     unify_void(1),
+    put_value(y(2),1),
+    call(absolute_file_name/2),
+    put_value(y(0),0),
     put_value(y(1),1),
+    put_value(y(2),2),
     deallocate,
-    execute(absolute_file_name/2)]).
+    execute(syntactic_sugar_init_pred/3)]).
 
 
 predicate(compile_lst_clause/2,109,static,private,monofile,global,[
@@ -805,6 +809,9 @@ predicate(cmd_line_args/3,269,static,private,monofile,global,[
     put_atom(inline,1),
     put_atom(t,2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
+    put_atom(optim_fail,1),
+    put_atom(t,2),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_atom(reorder,1),
     put_atom(t,2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
@@ -857,7 +864,7 @@ label(1),
     proceed]).
 
 
-predicate(cmd_line_args/1,299,static,private,monofile,global,[
+predicate(cmd_line_args/1,300,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
@@ -887,7 +894,7 @@ label(4),
     execute(cmd_line_args/1)]).
 
 
-predicate(cmd_line_arg1/3,306,static,private,monofile,global,[
+predicate(cmd_line_arg1/3,307,static,private,monofile,global,[
     try_me_else(52),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -1205,7 +1212,7 @@ label(53),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux5'/1,413,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux5'/1,414,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1225,7 +1232,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/0,397,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux4'/0,398,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1246,7 +1253,7 @@ label(1),
     execute(stop/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,324,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux3'/0,325,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -1267,7 +1274,7 @@ label(1),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux2'/1,309,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux2'/1,310,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1287,7 +1294,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux1'/3,309,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux1'/3,310,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1315,7 +1322,7 @@ label(1),
     execute(abort/0)]).
 
 
-predicate(display_copying/0,427,static,private,monofile,global,[
+predicate(display_copying/0,428,static,private,monofile,global,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1330,11 +1337,9 @@ predicate(display_copying/0,427,static,private,monofile,global,[
     unify_local_value(y(1)),
     unify_nil,
     call(format/2),
-    put_atom('By Daniel Diaz~n',0),
-    put_nil(1),
-    call(format/2),
     put_value(y(2),0),
     call(write/1),
+    call(nl/0),
     call(nl/0),
     put_atom('~a comes with ABSOLUTELY NO WARRANTY.~n',0),
     put_list(1),

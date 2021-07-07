@@ -2,7 +2,7 @@ dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT(gprolog, 1.4.5, bug-prolog@gnu.org,,www.gprolog.org)
+AC_INIT(gprolog, 1.5.0, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -16,11 +16,16 @@ pl_date()
     LC_ALL=C date '+%b %e %Y'
 }
 
+pl_year()
+{
+    LC_ALL=C date '+%Y'
+}
+
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
 PROLOG_VERSION=$PACKAGE_VERSION
 PROLOG_DATE=`pl_date`
-PROLOG_COPYRIGHT='Copyright (C) 1999-2015 Daniel Diaz'
+PROLOG_COPYRIGHT="Copyright (C) 1999-`pl_year` Daniel Diaz"
 
 TOP_LEVEL=$PROLOG_DIALECT
 GPLC=gplc
@@ -105,6 +110,8 @@ AC_SUBST(HTML_FILES)
 AC_SUBST(EXPL_FILES)
 AC_SUBST(EXC_FILES)
 AC_SUBST(EXFD_FILES)
+
+AC_SUBST(TOP_LEVEL_LIBS)
 
 AC_SUBST(MAKE_LE_DIRS)
 AC_SUBST(MAKE_W32GC_DIRS)
@@ -221,10 +228,15 @@ if test "$build_alias" != ''; then
     WIN_CONF_OPT="$WIN_CONF_OPT --build=$build_alias"
 fi
 
+comp=`basename "$CC" .exe`
+if test "$comp" = "cl"; then
+   WITH_MSVC=yes
+else
+   test "$WITH_MSVC" != no && CC=cl
+fi
 
 if test "$WITH_MSVC" != no; then
-    echo "using MSVC++ as C compiler"
-    CC=cl
+    echo "using MSVC++ as C compiler ($CC)"
     WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc"
 fi
 
@@ -233,6 +245,7 @@ dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
 dnl cannot be put in the then and the else part !!! so repeat the test !
 
 AC_PROG_CC
+AC_PROG_CC_STDC
 
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
@@ -241,7 +254,7 @@ dnl determine if MinGW and Windows path associated to posix path /tmp
 dnl (needs AC_CANONICAL_BUILD)
 
 case "$build_os" in
-    cygwin*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
+    cygwin*|*msys*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
     mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
 esac
 
@@ -381,21 +394,16 @@ dnl *******************************
 WINDOWS=no
 
 case "$host" in
-    mips*irix*)        AC_DEFINE(M_mips)    AC_DEFINE(M_irix)    AC_DEFINE(M_mips_irix);;
+    mips*irix*)        AC_DEFINE(M_mips32)  AC_DEFINE(M_irix)    AC_DEFINE(M_mips32_irix);;
+    sparc64*solaris*)  AC_DEFINE(M_sparc64) AC_DEFINE(M_solaris) AC_DEFINE(M_sparc64_solaris);;
     sparc64*bsd*)      AC_DEFINE(M_sparc64) AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc64_bsd);;
-    sparc*sunos*)      AC_DEFINE(M_sparc)   AC_DEFINE(M_sunos)   AC_DEFINE(M_sparc_sunos);;
-    sparc*solaris*)    AC_DEFINE(M_sparc)   AC_DEFINE(M_solaris) AC_DEFINE(M_sparc_solaris);;
-    sparc*bsd*)        AC_DEFINE(M_sparc)   AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc_bsd);;
+    sparc*sunos*)      AC_DEFINE(M_sparc32) AC_DEFINE(M_sunos)   AC_DEFINE(M_sparc32_sunos);;
+    sparc*solaris*)    AC_DEFINE(M_sparc32) AC_DEFINE(M_solaris) AC_DEFINE(M_sparc32_solaris);;
+    sparc*bsd*)        AC_DEFINE(M_sparc32) AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc32_bsd);;
     alpha*osf*)        AC_DEFINE(M_alpha)   AC_DEFINE(M_osf)     AC_DEFINE(M_alpha_osf);;
     alpha*linux*)      AC_DEFINE(M_alpha)   AC_DEFINE(M_linux)   AC_DEFINE(M_alpha_linux);;
-    x86_64*linux*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_linux)   AC_DEFINE(M_x86_64_linux);;
-    x86_64*dragonfly*) AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
-    x86_64*bsd*)       AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
-    x86_64*solaris*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_solaris) AC_DEFINE(M_x86_64_solaris);;
-    x86_64*mingw*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
-    x86_64*win64*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
-    x86_64*darwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_darwin)  AC_DEFINE(M_x86_64_darwin);;
     i*86*linux*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_linux)   AC_DEFINE(M_ix86_linux);;
+    i*86*darwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_darwin)  AC_DEFINE(M_ix86_darwin);;
     i*86*solaris*)     AC_DEFINE(M_ix86)    AC_DEFINE(M_solaris) AC_DEFINE(M_ix86_solaris);;
     i*86*sco*)         AC_DEFINE(M_ix86)    AC_DEFINE(M_sco)     AC_DEFINE(M_ix86_sco);;
     i*86*dragonfly*)   AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
@@ -403,12 +411,22 @@ case "$host" in
     i*86*cygwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_cygwin)  AC_DEFINE(M_ix86_cygwin);;
     i*86*mingw*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
     i*86*win32*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
-    i*86*darwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_darwin)  AC_DEFINE(M_ix86_darwin);;
-    powerpc*linux*)    AC_DEFINE(M_powerpc) AC_DEFINE(M_linux)   AC_DEFINE(M_powerpc_linux);;
-    powerpc*darwin*)   AC_DEFINE(M_powerpc) AC_DEFINE(M_darwin)  AC_DEFINE(M_powerpc_darwin);;
-    powerpc*bsd*)      AC_DEFINE(M_powerpc) AC_DEFINE(M_bsd)     AC_DEFINE(M_powerpc_bsd);;
-
-    *)                 AC_MSG_ERROR(unsupported architecture)
+    x86_64*linux*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_linux)   AC_DEFINE(M_x86_64_linux);;
+    x86_64*darwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_darwin)  AC_DEFINE(M_x86_64_darwin);;
+    x86_64*dragonfly*) AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
+    x86_64*bsd*)       AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
+    x86_64*solaris*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_solaris) AC_DEFINE(M_x86_64_solaris);;
+    x86_64*mingw*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    x86_64*win64*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    x86_64*cygwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
+    x86_64*msys*)      AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
+    powerpc*linux*)    AC_DEFINE(M_ppc32)   AC_DEFINE(M_linux)   AC_DEFINE(M_ppc32_linux);;
+    powerpc*darwin*)   AC_DEFINE(M_ppc32)   AC_DEFINE(M_darwin)  AC_DEFINE(M_ppc32_darwin);;
+    powerpc*bsd*)      AC_DEFINE(M_ppc32)   AC_DEFINE(M_bsd)     AC_DEFINE(M_ppc32_bsd);;
+    arm*linux*)        AC_DEFINE(M_arm32)   AC_DEFINE(M_linux)   AC_DEFINE(M_arm32_linux);;
+    aarch64*linux*)    AC_DEFINE(M_arm64)   AC_DEFINE(M_linux)   AC_DEFINE(M_arm64_linux);;
+    aarch64*darwin*)   AC_DEFINE(M_arm64)   AC_DEFINE(M_darwin)  AC_DEFINE(M_arm64_darwin);;
+    *)                 AC_MSG_ERROR(unsupported architecture $host)
 esac
 
 dnl M_win64 ==> M_win32
@@ -509,16 +527,31 @@ dnl    case "$host" in
 dnl       powerpc*darwin*)        RANLIB="$RANLIB -c";;
 dnl    esac
 
+
+dnl From version 10, gcc has changed the default from -fcommon to -fno-common
+dnl We need -fcommon, force it.
+
+if test "$GCC" = yes; then
+   CFLAGS_MACHINE="$CFLAGS_MACHINE -fcommon"
 fi
+
+if test "$GCC" = yes; then
+   CFLAGS="$CFLAGS -Wno-char-subscripts"
+fi
+
+
+fi
+
 
 SAVE_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS_MACHINE $CFLAGS"
+AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(void*)
 AC_CHECK_HEADERS(sys/ioctl_compat.h sys/siginfo.h termios.h malloc.h endian.h sys/endian.h byteswap.h float.h)
 AC_FUNC_MMAP
 dnl use one day AC_CHECK_DECL instead of AC_CHECK_FUNC ? but add the include
-dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc, htole32, bswap_32])
+dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc])
 
 AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
 dnl NB: OpenBSD/spac64 needs stdin.h before sys/endian.h
@@ -540,6 +573,7 @@ AC_CHECK_DECLS([htole32, bswap_32], [], [],
 
 SAVE_LIBS="$LIBS"
 LIBS="$LIBS -lm"
+AC_CHECK_FUNCS(fpclass _fpclass isnan isinf)
 AC_CHECK_FUNCS(atanh acosh asinh)
 SAVE_LIBS="$LIBS"
 
@@ -801,7 +835,7 @@ same_directory()
 
 ROOT_DIR=`(cd .. ; pwd)`
 if test -x /bin/cygpath.exe; then
-    ROOT_DIR1=`cygpath -a -w ..`
+    ROOT_DIR1=`cygpath -a -m ..`
 else
     ROOT_DIR1=$ROOT_DIR
 fi
@@ -815,7 +849,7 @@ dnl *-------------*
 dnl * INSTALL_DIR *
 dnl *-------------*
 
-if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
+if test "$prefix" = /in-place -o "$WITH_INSTALL_DIR" = in-place; then
     IN_PLACE=yes
     INSTALL_DIR=$ROOT_DIR
     test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
@@ -884,7 +918,7 @@ case "$WITH_EXAMPLES_DIR" in
     '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
     *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
-if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
+if same_directory "$EXAMPLES_DIR" $ROOT_DIR/examples; then
     EXAMPLES_DIR=none
 fi
 
@@ -927,11 +961,13 @@ EXFD_FILES='Makefile ??*.pl ??*.fd'
 B="$GPLC $HEXGPLC $TOP_LEVEL pl2wam wam2ma ma2asm"
 O="top_level_main top_level all_pl_bips debugger"
 L="$LIB_ENGINE_PL $LIB_BIPS_PL"
+T="../EnginePl/$LIB_ENGINE_PL ../BipsPl/$LIB_BIPS_PL"
 
 if test "$USE_LINEDIT" = yes; then
     MAKE_LE_DIRS='$(LE_DIRS)'
     MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
     L="$L $LIB_LINEDIT"
+    T="$T ../Linedit/$LIB_LINEDIT"
 else
     MAKE_LE_DIRS=
     MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
@@ -958,6 +994,7 @@ if test "$USE_FD_SOLVER" = yes; then
     MAKE_FD_DIRS='$(FD_DIRS)'
     B="$B fd2c"
     L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
+    T="$T ../EngineFD/$LIB_ENGINE_FD ../BipsFD/$LIB_BIPS_FD"
     O="$O all_fd_bips"
 else
     MAKE_FD_DIRS=
@@ -976,6 +1013,8 @@ if test "$USE_GUI_CONSOLE" = yes; then
 fi
 
 LIB_FILES=$L
+
+TOP_LEVEL_LIBS=$T
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: main file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -180,9 +180,8 @@ display_copying :-
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
 	format('FD Constraints to C Compiler (~a) ~a~n', [Name, Version]),
-	format('By Daniel Diaz~n', []),
 	write(Copyright),
-	nl,
+	nl, nl,
 	format('~a comes with ABSOLUTELY NO WARRANTY.~n', [Name]),
 	format('You may redistribute copies of ~a~n', [Name]),
 	format('under the terms of the GNU Lesser General Public License.~n', []),

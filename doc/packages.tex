@@ -1,15 +1,3 @@
-% replaced by usepackage{ifpdf}
-%\newif\ifpdf
-%\ifx\pdfoutput\undefined
-%   \pdffalse % we are not running PDFLaTeX
-%\else
-%   \ifnum\pdfoutput=0
-%      \pdffalse  % we are not running PDFLaTeX
-%   \else
-%      \pdfoutput=1 \pdftrue  % we are running PDFLaTeX
-%   \fi
-%\fi
-
 \documentclass[twoside]{article}
 
 \usepackage{hevea}
@@ -24,18 +12,14 @@
 %\usepackage{longtable}
 
 \usepackage{ifpdf}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
 %HEVEA \pdffalse
 
-\ifpdf
-	\usepackage[pdftex]{graphicx}
-	\usepackage[pdftex=true]{hyperref}
-	\hypersetup{%
-	  pdftitle     = {GNU-Prolog Manual},
-	  pdfsubject   = {GNU-Prolog Manual},
-	  pdfkeywords  = {GNU-Prolog, Prolog, Finite Domain Constraints},
-	  pdfauthor    = {Daniel Diaz}
-	}
-\else
-	\usepackage[dvips]{graphicx}
-%	\usepackage{epsfig}
-\fi
+\hypersetup{%
+  pdftitle     = {GNU-Prolog Manual},
+  pdfsubject   = {GNU-Prolog Manual},
+  pdfkeywords  = {GNU-Prolog, Prolog, ISO Prolog, Prolog Compiler, Finite Domain Constraints},
+  pdfauthor    = {Daniel Diaz}
+}

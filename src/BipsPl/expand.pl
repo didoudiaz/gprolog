@@ -6,7 +6,7 @@
  * Descr.: term expansion management                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -89,9 +89,10 @@ phrase(DcgBody, In, Out) :-
 	),
 	% '$check_list_or_partial_list'(In),
 	% '$check_list_or_partial_list'(Out),
-	'$dcg_trans_body'(DcgBody, In, Out1, Body),
-	'$call'(Body, phrase, Arity, true),
-	Out = Out1.
+	'$dcg_trans_body'(DcgBody, In1, Out1, Body),
+	In = In1,
+	Out = Out1, % is it important to put Out = Out1 after the '$call' ?
+	'$call'(Body, phrase, Arity, true).
 
 
 

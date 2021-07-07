@@ -2,11 +2,11 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
- * File  : mips_irix.c                                                     *
- * Descr.: translation file for IRIX on MIPS                               *
- * Author: Alexander Diemand, Daniel Diaz                                  *
+ * File  : sparc32_any.c                                                   *
+ * Descr.: translation file for sparc 32 bits                              *
+ * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,10 +36,13 @@
  *-------------------------------------------------------------------------*/
 
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <stdarg.h>
 #include <string.h>
+#include <stdarg.h>
+
+
+/* Supported arch: sparc64 on Solaris, SunOS, BSD
+ */
 
 
 
@@ -48,9 +51,19 @@
  * Constants                       *
  *---------------------------------*/
 
-#define STRING_PREFIX              ".LC"
+#ifdef M_sunos
 
-#define MAX_C_ARGS_IN_C_CODE       32
+#define UN                         "_"
+
+#else
+
+#define UN
+
+#endif
+
+
+
+
 
 /*---------------------------------*
  * Type Definitions                *
@@ -60,28 +73,14 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[20];
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_bank[20];		/* enough big sizes to avoid compiler warnings */
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
-int w_label = 0;
+char *delay_op;
+char delay_operands[1024];
 
-static char dbl_arg_buffer[8192] = "\0";	/* a temp buffer for the double arguments */
-
-char act_routine[512] = "\0";	/* remembers the actual routine we are building */
-
-int inPrologCode = 0;	/* whether we are currently compiling a prolog code */
-
-	  /* variables for ma_parser.c / ma2asm.c */
-
-int can_produce_pic_code = 0;
-char *comment_prefix = "#";
-char *local_symb_prefix = ".L";
-int strings_need_null = 1;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
@@ -89,72 +88,29 @@ char *inline_asm_data[] = { NULL };
  * Function Prototypes             *
  *---------------------------------*/
 
+void Delay_Printf(char *op, char *operands, ...);
 
-/*-------------------------------------------------------------------------*
- * INLINED CODE                                                            *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-/* all %s will be replaced with the function's name
- * all %d will be replaced with the current nb_inlines
- */
-static long nb_inlines = 0;
-static char *def_inlines[] = {
-  /* name            code */
-  0, 0				/* end of list */
-};
+
+
+#define LITTLE_INT(int_val)     ((unsigned) ((int_val) + 4096) < 8192)
+
 
 
 
 /*-------------------------------------------------------------------------*
- * MAKE_INLINE                                                             *
+ * INIT_MAPPER                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-/* when it finds a function to inline it will do so immediatly and return 1
- * else it fails and returns 0
- */
-static int
-make_inline(char *fct_name, int nb_args)
+void Init_Mapper(void)
 {
-  char *fp;
-  int counter;
-
-  return 0;			/* not yet */
-
-  /* user can set an environment variable to control this */
-  if (!getenv("GPROLOG_ASM_INLINE"))
-    return 0;
-
-  counter = 0;
-  while (def_inlines[counter])
-    {
-      if (strcmp(fct_name, def_inlines[counter]) == 0)
-	{
-	  /* found code to inline, emit */
-	  fp = def_inlines[++counter];
-	  while (*fp != '\0')
-	    {
-	      if (*fp == '%' && *(fp + 1) == 's')
-		{
-		  String_Out(fct_name);
-		  fp++;
-		}
-	      else if (*fp == '%' && *(fp + 1) == 'd')
-		{
-		  Int_Out(nb_inlines);
-		  fp++;
-		}
-	      else
-		{
-		  Char_Out(*fp);
-		}
-	      fp++;
-	    }
-	  nb_inlines++;
-	  return 1;
-	}
-      counter++;
-    }
-  return 0;
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "!";	/* NB: # does not work on Solaris 9 */
+  mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = ".LCD"; /* not used */
+  mi.strings_need_null = TRUE;
+  mi.call_c_reverse_args = FALSE;
 }
 
 
@@ -168,43 +124,33 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_BANK
-  sprintf(asm_reg_bank, "%s", MAP_REG_BANK);
+  sprintf(asm_reg_bank, "%%%s", MAP_REG_BANK);
 #else
-  strcpy(asm_reg_bank, "$16");
+  strcpy(asm_reg_bank, "%l0");
 #endif
 
 #ifdef MAP_REG_E
-  sprintf(asm_reg_e, "%s", MAP_REG_E);
+  sprintf(asm_reg_e, "%%%s", MAP_REG_E);
 #else
-/* strcpy(asm_reg_e,"$21"); */
-  sprintf(asm_reg_e, "%d(%s)", MAP_OFFSET_E, asm_reg_bank);
+  strcpy(asm_reg_e, "%l1");
 #endif
 
 #ifdef MAP_REG_B
-  sprintf(asm_reg_b, "%s", MAP_REG_B);
+  sprintf(asm_reg_b, "%%%s", MAP_REG_B);
 #else
-/* sprintf(asm_reg_b,"$18"); */
-  sprintf(asm_reg_b, "%d(%s)", MAP_OFFSET_B, asm_reg_bank);
+  sprintf(asm_reg_b, "[%s+%d]", asm_reg_bank, MAP_OFFSET_B);
 #endif
 
 #ifdef MAP_REG_CP
-  sprintf(asm_reg_cp, "%s", MAP_REG_CP);
+  sprintf(asm_reg_cp, "%%%s", MAP_REG_CP);
 #else
-/* sprintf(asm_reg_cp,"$20"); */
-  sprintf(asm_reg_cp, "%d(%s)", MAP_OFFSET_CP, asm_reg_bank);
+  sprintf(asm_reg_cp, "[%s+%d]", asm_reg_bank, MAP_OFFSET_CP);
 #endif
 
-  Inst_Printf(".option", "pic2");	/* gcc uses this */
-  Inst_Printf("#.set", "noat");
-  Inst_Printf("#.set", "noreorder");	/* let the assembler reorder instructions */
+  Label_Printf(".text");
 
-  Inst_Printf("# asm_reg_bank ", asm_reg_bank);
-  Inst_Printf("# asm_reg_e ", asm_reg_e);
-  Inst_Printf("# asm_reg_b ", asm_reg_b);
-  Inst_Printf("# asm_reg_cp ", asm_reg_cp);
-
-  Label_Printf("\t.section\t.text");
-
+  Label("fail");
+  Pl_Fail();
 }
 
 
@@ -217,14 +163,6 @@ Asm_Start(void)
 void
 Asm_Stop(void)
 {
-  /* we are printing the fixed doubles at the end of the file,
-   * they will appear in the data section */
-  if (dbl_arg_buffer[0] != '\0')
-    {
-      Label_Printf(".section\t.rodata");
-      Label_Printf(dbl_arg_buffer);
-      dbl_arg_buffer[0] = '\0';
-    }
 }
 
 
@@ -235,43 +173,22 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(CodeInf *c)
 {
+  Label_Printf("%s", "");
+  Inst_Printf(".align", "4");
+#if defined(M_solaris) || defined(M_bsd)
+  Inst_Printf(".type", UN "%s,#function", c->name);
+#endif
+  Inst_Printf(".proc", "020");
 
-  if (act_routine[0] != '\0')
-    Code_Stop();		/* we first have to close the previous code */
+  if (c->global)
+    Inst_Printf(".global", UN "%s", c->name);
 
-  Inst_Printf(".text", "");
-  Inst_Printf(".align", "2");
-  Inst_Printf(".ent", "%s", label);
-  if (global)
-    Inst_Printf(".globl", "%s", label);
+  Label(c->name);
 
-  Label(label);
-
-  /* remember this label */
-  strcpy(act_routine, label);
-
-  if (prolog)
-    {
-      /* prolog code does not need any stack space */
-      inPrologCode = 1;
-      Inst_Printf(".frame", "$sp,0,$31");
-      Inst_Printf(".mask", "0x00000000,0");
-      Inst_Printf(".fmask", "0x00000000,0");
-    }
-  else
-    {
-      /* for c code we need to save some registers */
-      inPrologCode = 0;
-      /* */
-      Inst_Printf(".frame", "$sp,%d,$31", MAX_C_ARGS_IN_C_CODE * 8 + 16);
-      Inst_Printf(".mask", "0x10000000,-16");
-      Inst_Printf(".fmask", "0x00000000,0");
-      Inst_Printf("subu", "$sp,$sp,%d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
-      Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-      Inst_Printf("sd", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
-    }
+  if (!c->prolog)
+    Inst_Printf("save", "%%sp, -104, %%sp");
 }
 
 
@@ -282,11 +199,8 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(CodeInf *c)
 {
-  Inst_Printf(".end", "%s", act_routine);
-
-  act_routine[0] = '\0';
 }
 
 
@@ -299,7 +213,7 @@ Code_Stop(void)
 void
 Label(char *label)
 {
-  Label_Printf("\n%s:", label);
+  Label_Printf("\n" UN "%s:", label);
 }
 
 
@@ -312,6 +226,9 @@ Label(char *label)
 void
 Reload_E_In_Register(void)
 {
+#ifndef MAP_REG_E
+  Inst_Printf("ld", "[%s+%d], %s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
+#endif
 }
 
 
@@ -324,8 +241,8 @@ Reload_E_In_Register(void)
 void
 Pl_Jump(char *label)
 {
-  Inst_Printf("la", "$25,%s", label);
-  Inst_Printf("j", "$25");
+  Inst_Printf("call", UN "%s", label);
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -338,12 +255,9 @@ Pl_Jump(char *label)
 void
 Prep_CP(void)
 {
-#ifdef MAP_REG_CP
-  Inst_Printf("la", "%s,.Lcont%d", asm_reg_cp, w_label);	/* CP = .Lcont%d */
-#else
-  Inst_Printf("la", "$13,.Lcont%d", w_label);
-  Inst_Printf("sw", "$13,%s", asm_reg_cp);	/* CP = .Lcont%d */
-#endif
+  Inst_Printf("sethi", "%%hi(%s-8), %%g1", Label_Cont_New());
+  Inst_Printf("or", "%%g1, %%lo(%s-8), %%g1", Label_Cont_Get());
+  Inst_Printf("st", "%%g1, %s", asm_reg_cp);
 }
 
 
@@ -356,7 +270,7 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
+  Label_Printf("%s:", Label_Cont_Get());
 }
 
 
@@ -369,9 +283,12 @@ Here_CP(void)
 void
 Pl_Call(char *label)
 {
-  Prep_CP();
-  Pl_Jump(label);
-  Here_CP();
+  Inst_Printf("call", UN "%s, 0", label);
+#ifdef MAP_REG_CP
+  Inst_Printf("mov", "%%o7, %s", asm_reg_cp);	/* delay slot */
+#else
+  Inst_Printf("st", "%%o7, %s", asm_reg_cp);	/* delay slot */
+#endif
 }
 
 
@@ -385,12 +302,14 @@ void
 Pl_Fail(void)
 {
 #ifdef MAP_REG_B
-  Inst_Printf("lw", "$25,-4(%s)", asm_reg_b);
+  Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
 #else
-  Inst_Printf("lw", "$13,%s", asm_reg_b);
-  Inst_Printf("lw", "$25,-4($13)");
+  Inst_Printf("ld", "%s, %%o0", asm_reg_b);
+  Inst_Printf("ld", "[%%o0-4], %%o0");
 #endif
-  Inst_Printf("j", "$25");
+
+  Inst_Printf("call", "%%o0");
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -403,14 +322,13 @@ Pl_Fail(void)
 void
 Pl_Ret(void)
 {
-  Inst_Printf(".align", "3");
-  Inst_Printf("# nop", "");	/* I don't really know why, but it helps ;-) */
 #ifdef MAP_REG_CP
-  Inst_Printf("move", "$25,%s", asm_reg_cp);
+  Inst_Printf("jmp", "%s+8", asm_reg_cp);
 #else
-  Inst_Printf("lw", "$25,%s", asm_reg_cp);
+  Inst_Printf("ld", "%s, %%o0", asm_reg_cp);
+  Inst_Printf("jmp", "%%o0+8");
 #endif
-  Inst_Printf("j", "$25");
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -423,8 +341,8 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
-  Inst_Printf("la", "$25,%s", label);
-  Inst_Printf("j", "$25");
+  Inst_Printf("ba", UN "%s", label);
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -437,7 +355,7 @@ Jump(char *label)
 void
 Move_From_Reg_X(int index)
 {
-  Inst_Printf("lw", "$24,%d(%s)", 4 * index, asm_reg_bank);	/* asm_reg_bank */
+  Inst_Printf("ld", "[%s+%d], %%o0", asm_reg_bank, index * 4);
 }
 
 
@@ -450,12 +368,7 @@ Move_From_Reg_X(int index)
 void
 Move_From_Reg_Y(int index)
 {
-#ifdef MAP_REG_E
-  Inst_Printf("lw", "$24,%d(%s)", Y_OFFSET(index), asm_reg_e);
-#else
-  Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("lw", "$24,%d($13)", Y_OFFSET(index));
-#endif
+  Inst_Printf("ld", "[%s%+d], %%o0", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -468,7 +381,7 @@ Move_From_Reg_Y(int index)
 void
 Move_To_Reg_X(int index)
 {
-  Inst_Printf("sw", "$24,%d(%s)", 4 * index, asm_reg_bank);
+  Inst_Printf("st", "%%o0, [%s+%d]", asm_reg_bank, index * 4);
 }
 
 
@@ -481,12 +394,7 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-#ifdef MAP_REG_E
-  Inst_Printf("sw", "$24,%d(%s)", Y_OFFSET(index), asm_reg_e);
-#else
-  Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("sw", "$24,%d($13)", Y_OFFSET(index));
-#endif
+  Inst_Printf("st", "%%o0, [%s%+d]", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -497,9 +405,29 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
+  delay_op = NULL;
+}
+
+
+
+#define MAX_ARGS_IN_REGS 6
+
+#define BEFORE_ARG				\
+{						\
+  char r[32];					\
+						\
+  if (offset < MAX_ARGS_IN_REGS)		\
+    sprintf(r, "%%o%d", offset);		\
+  else						\
+    strcpy(r, "%l7");
+
+
+#define AFTER_ARG					\
+  if (offset >= MAX_ARGS_IN_REGS)			\
+    Delay_Printf("st", "%s, [%%sp+%d]", r,		\
+                 92 + (offset - MAX_ARGS_IN_REGS) * 4);	\
 }
 
 
@@ -512,36 +440,18 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 int
 Call_C_Arg_Int(int offset, PlLong int_val)
 {
-  switch (offset)
+  BEFORE_ARG;
+
+  if (LITTLE_INT(int_val))
+    Delay_Printf("mov", "%ld, %s", int_val, r);
+  else
     {
-    case 0:
-      Inst_Printf("li", "$4,%d", int_val);
-      break;
-    case 1:
-      Inst_Printf("li", "$5,%d", int_val);
-      break;
-    case 2:
-      Inst_Printf("li", "$6,%d", int_val);
-      break;
-    case 3:
-      Inst_Printf("li", "$7,%d", int_val);
-      break;
-    case 4:
-      Inst_Printf("li", "$8,%d", int_val);
-      break;
-    case 5:
-      Inst_Printf("li", "$9,%d", int_val);
-      break;
-    case 6:
-      Inst_Printf("li", "$10,%d", int_val);
-      break;
-    case 7:
-      Inst_Printf("li", "$11,%d", int_val);
-      break;
-    default:
-      Inst_Printf("li", "$24,%d", int_val);
-      Inst_Printf("sw", "$24,%d($sp)", (offset - 8) * 8 + 4);
+      Delay_Printf("sethi", "%%hi(%ld), %s", int_val, r);
+      Delay_Printf("or", "%s, %%lo(%ld), %s", r, int_val, r);
     }
+
+  AFTER_ARG;
+
   return 1;
 }
 
@@ -553,45 +463,25 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  char buf[1024];
+  BEFORE_ARG;
 
-  sprintf(buf, "\t.align 3\n.LD%d:\n\t.double %1.20e\n", w_label++,
-	  dbl_val);
-  strcat(dbl_arg_buffer, buf);
-  Inst_Printf("la", "$24,.LD%d", (w_label - 1));
-  switch (offset)
-    {
-    case 0:
-      Inst_Printf("l.d", "$f12,($24)");
-      break;
-    case 1:
-      Inst_Printf("l.d", "$f13,($24)");
-      break;
-    case 2:
-      Inst_Printf("l.d", "$f14,($24)");
-      break;
-    case 3:
-      Inst_Printf("l.d", "$f15,($24)");
-      break;
-    case 4:
-      Inst_Printf("l.d", "$f16,($24)");
-      break;
-    case 5:
-      Inst_Printf("l.d", "$f17,($24)");
-      break;
-    case 6:
-      Inst_Printf("l.d", "$f18,($24)");
-      break;
-    case 7:
-      Inst_Printf("l.d", "$f19,($24)");
-      break;
-    default:
-      Inst_Printf("l.d", "$f1,($24)");
-      Inst_Printf("s.d", "$f1,%d($sp)", (offset - 8) * 8);
-    }
-  return 1;
+  Delay_Printf("sethi", "%%hi(%d), %s", d->v.i32[0], r);
+  Delay_Printf("or", "%s, %%lo(%d), %s", r, d->v.i32[0], r);
+
+  AFTER_ARG;
+
+  offset++;
+
+  BEFORE_ARG;
+
+  Delay_Printf("sethi", "%%hi(%d), %s", d->v.i32[1], r);
+  Delay_Printf("or", "%s, %%lo(%d), %s", r, d->v.i32[1], r);
+
+  AFTER_ARG;
+
+  return 2;
 }
 
 
@@ -602,38 +492,15 @@ Call_C_Arg_Double(int offset, double dbl_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, StringInf *s)
 {
-  switch (offset)
-    {
-    case 0:
-      Inst_Printf("la", "$4,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 1:
-      Inst_Printf("la", "$5,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 2:
-      Inst_Printf("la", "$6,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 3:
-      Inst_Printf("la", "$7,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 4:
-      Inst_Printf("la", "$8,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 5:
-      Inst_Printf("la", "$9,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 6:
-      Inst_Printf("la", "$10,%s%d", STRING_PREFIX, str_no);
-      break;
-    case 7:
-      Inst_Printf("la", "$11,%s%d", STRING_PREFIX, str_no);
-      break;
-    default:
-      Inst_Printf("la", "$24,%s%d", STRING_PREFIX, str_no);
-      Inst_Printf("sw", "$24,%d($sp)", (offset - 8) * 8 + 4);
-    }
+  BEFORE_ARG;
+
+  Delay_Printf("sethi", "%%hi(%s), %s", s->symb, r);
+  Delay_Printf("or", "%s, %%lo(%s), %s", r, s->symb, r);
+
+  AFTER_ARG;
+
   return 1;
 }
 
@@ -645,54 +512,18 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
-  char dest[8];
+  BEFORE_ARG;
 
-  switch (offset)
-    {
-    case 0:
-      sprintf(dest, "%s", "$4");
-      break;
-    case 1:
-      sprintf(dest, "%s", "$5");
-      break;
-    case 2:
-      sprintf(dest, "%s", "$6");
-      break;
-    case 3:
-      sprintf(dest, "%s", "$7");
-      break;
-    case 4:
-      sprintf(dest, "%s", "$8");
-      break;
-    case 5:
-      sprintf(dest, "%s", "$9");
-      break;
-    case 6:
-      sprintf(dest, "%s", "$10");
-      break;
-    case 7:
-      sprintf(dest, "%s", "$11");
-      break;
-    default:
-      sprintf(dest, "%s", "$24");
-      break;
-    }
-
-  if (!adr_of)
-    {
-      Inst_Printf("la", "$25,%s", name);
-      Inst_Printf("lw", "%s,%d($25)", dest, index * 4);
-    }
+  Delay_Printf("sethi", "%%hi(" UN "%s+%d), %s", name, index * 4, r);
+  if (adr_of)
+    Delay_Printf("or", "%s, %%lo(" UN "%s+%d), %s", r, name, index * 4, r);
   else
-    {
-      Inst_Printf("la", "%s,%s+%d", dest, name, index * 4);
-    }
-  if (offset > 7)
-    {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
-    }
+    Delay_Printf("ld", "[%s+%%lo(" UN "%s+%d)], %s", r, name, index * 4, r);
+
+  AFTER_ARG;
+
   return 1;
 }
 
@@ -704,60 +535,17 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  BEFORE_ARG;
 
-  switch (offset)
-    {
-    case 0:
-      sprintf(dest, "%s", "$4");
-      break;
-    case 1:
-      sprintf(dest, "%s", "$5");
-      break;
-    case 2:
-      sprintf(dest, "%s", "$6");
-      break;
-    case 3:
-      sprintf(dest, "%s", "$7");
-      break;
-    case 4:
-      sprintf(dest, "%s", "$8");
-      break;
-    case 5:
-      sprintf(dest, "%s", "$9");
-      break;
-    case 6:
-      sprintf(dest, "%s", "$10");
-      break;
-    case 7:
-      sprintf(dest, "%s", "$11");
-      break;
-    default:
-      sprintf(dest, "%s", "$24");
-      break;
-    }
-
-  if (!adr_of)
-    {
-      Inst_Printf("lw", "%s,%d(%s)", dest, index * 4, asm_reg_bank);
-    }
+  if (adr_of)
+    Delay_Printf("add", "%s, %d, %s", asm_reg_bank, index * 4, r);
   else
-    {
-      if (index == 0)
-	{
-	  Inst_Printf("move", "%s,%s", dest, asm_reg_bank);
-	}
-      else
-	{
-	  Inst_Printf("la", "%s,%d(%s)", dest, index * 4, asm_reg_bank);
-	}
-    }
-  if (offset > 7)
-    {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
-    }
+    Delay_Printf("ld", "[%s+%d], %s", asm_reg_bank, index * 4, r);
+
+  AFTER_ARG;
+
   return 1;
 }
 
@@ -769,63 +557,16 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  BEFORE_ARG;
 
-  switch (offset)
-    {
-    case 0:
-      sprintf(dest, "%s", "$4");
-      break;
-    case 1:
-      sprintf(dest, "%s", "$5");
-      break;
-    case 2:
-      sprintf(dest, "%s", "$6");
-      break;
-    case 3:
-      sprintf(dest, "%s", "$7");
-      break;
-    case 4:
-      sprintf(dest, "%s", "$8");
-      break;
-    case 5:
-      sprintf(dest, "%s", "$9");
-      break;
-    case 6:
-      sprintf(dest, "%s", "$10");
-      break;
-    case 7:
-      sprintf(dest, "%s", "$11");
-      break;
-    default:
-      sprintf(dest, "%s", "$24");
-      break;
-    }
-
-  if (!adr_of)
-    {
-#ifdef MAP_REG_E
-      Inst_Printf("lw", "%s,%d(%s)", dest, Y_OFFSET(index), asm_reg_e);
-#else
-      Inst_Printf("lw", "$12,%s", asm_reg_e);
-      Inst_Printf("lw", "%s,%d($12)", dest, Y_OFFSET(index));
-#endif
-    }
+  if (adr_of)
+    Delay_Printf("add", "%s, %+d, %s", asm_reg_e, Y_OFFSET(index), r);
   else
-    {
-#ifdef MAP_REG_E
-      Inst_Printf("la", "%s,%d(%s)", dest, Y_OFFSET(index), asm_reg_e);
-#else
-      Inst_Printf("lw", "$12,%s", asm_reg_e);
-      Inst_Printf("la", "%s,%d($12)", dest, Y_OFFSET(index));
-#endif
-    }
-  if (offset > 7)
-    {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
-    }
+    Delay_Printf("ld", "[%s%+d], %s", asm_reg_e, Y_OFFSET(index), r);
+
+  AFTER_ARG;
 
   return 1;
 }
@@ -838,54 +579,17 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  BEFORE_ARG;
 
-  switch (offset)
-    {
-    case 0:
-      sprintf(dest, "%s", "$4");
-      break;
-    case 1:
-      sprintf(dest, "%s", "$5");
-      break;
-    case 2:
-      sprintf(dest, "%s", "$6");
-      break;
-    case 3:
-      sprintf(dest, "%s", "$7");
-      break;
-    case 4:
-      sprintf(dest, "%s", "$8");
-      break;
-    case 5:
-      sprintf(dest, "%s", "$9");
-      break;
-    case 6:
-      sprintf(dest, "%s", "$10");
-      break;
-    case 7:
-      sprintf(dest, "%s", "$11");
-      break;
-    default:
-      sprintf(dest, "%s", "$24");
-      break;
-    }
-
-  Inst_Printf("la", "$2,pl_foreign_long");
-  if (!adr_of)
-    {
-      Inst_Printf("lw", "%s,%d($2)", dest, index * 4);
-    }
+  if (adr_of)
+    Delay_Printf("add", "%%l2, %d, %s", index * 4, r);
   else
-    {
-      Inst_Printf("la", "%s,%d($2)", dest, index * 4);
-    }
-  if (offset > 7)
-    {
-      Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8 + 4);
-    }
+    Delay_Printf("ld", "[%%l2+%d], %s", index * 4, r);
+
+  AFTER_ARG;
+
   return 1;
 }
 
@@ -897,90 +601,34 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
-  char dest[8];
-
   if (adr_of)
     {
-      switch (offset)
-	{
-	case 0:
-	  sprintf(dest, "%s", "$4");
-	  break;
-	case 1:
-	  sprintf(dest, "%s", "$5");
-	  break;
-	case 2:
-	  sprintf(dest, "%s", "$6");
-	  break;
-	case 3:
-	  sprintf(dest, "%s", "$7");
-	  break;
-	case 4:
-	  sprintf(dest, "%s", "$8");
-	  break;
-	case 5:
-	  sprintf(dest, "%s", "$9");
-	  break;
-	case 6:
-	  sprintf(dest, "%s", "$10");
-	  break;
-	case 7:
-	  sprintf(dest, "%s", "$11");
-	  break;
-	default:
-	  sprintf(dest, "%s", "$24");
-	  break;
-	}
-      Inst_Printf("la", "%s,pl_foreign_double", dest);
-      Inst_Printf("addu", "%s,%s,%d", dest, dest, index * 8);
-      if (offset > 7)
-	{
-	  Inst_Printf("sw", "%s,%d($sp)", dest, (offset - 8) * 8);
-	}
+      BEFORE_ARG;
+
+      Delay_Printf("add", "%%l3, %d, %s", index * 8, r);
+
+      AFTER_ARG;
+
       return 1;
     }
-  else
-    {
-      switch (offset)
-	{
-	case 0:
-	  sprintf(dest, "%s", "$f12");
-	  break;
-	case 1:
-	  sprintf(dest, "%s", "$f13");
-	  break;
-	case 2:
-	  sprintf(dest, "%s", "$f14");
-	  break;
-	case 3:
-	  sprintf(dest, "%s", "$f15");
-	  break;
-	case 4:
-	  sprintf(dest, "%s", "$f16");
-	  break;
-	case 5:
-	  sprintf(dest, "%s", "$f17");
-	  break;
-	case 6:
-	  sprintf(dest, "%s", "$f18");
-	  break;
-	case 7:
-	  sprintf(dest, "%s", "$f19");
-	  break;
-	default:
-	  sprintf(dest, "%s", "$f1");
-	  break;
-	}
-      Inst_Printf("la", "$25,pl_foreign_double");
-      Inst_Printf("l.d", "%s,%d($25)", dest, index * 8);
-      if (offset > 7)
-	{
-	  Inst_Printf("s.d", "%s,%d($sp)", dest, (offset - 8) * 8);
-	}
-      return 1;
-    }
+
+  BEFORE_ARG;
+
+  Delay_Printf("ld", "[%%l3+%d], %s", index * 8, r);
+
+  AFTER_ARG;
+
+  offset++;
+
+  BEFORE_ARG;
+
+  Delay_Printf("ld", "[%%l3+%d], %s", index * 8 + 4, r);
+
+  AFTER_ARG;
+
+  return 2;
 }
 
 
@@ -991,16 +639,13 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-/*  if (!make_inline (fct_name, nb_args)) { */
-  Inst_Printf("sd", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-  Inst_Printf("sd", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
-  Inst_Printf("la", "$25,%s", fct_name);
-  Inst_Printf("jal", "$25");
-  Inst_Printf("ld", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-  Inst_Printf("ld", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8);
-/*  } */
+  Inst_Printf("call", UN "%s", fct_name);
+  if (delay_op)
+    Inst_Out(delay_op, delay_operands);
+  else
+    Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1011,7 +656,7 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
 }
 
@@ -1025,8 +670,8 @@ Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
 void
 Jump_Ret(void)
 {
-  Inst_Printf("move", "$25,$2");
-  Inst_Printf("j", "$25");
+  Inst_Printf("jmp", "%%o0");
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1039,9 +684,21 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Inst_Printf("bne", "$2,$0,.Lcont%d", w_label);
-  Pl_Fail();
-  Label_Printf(".Lcont%d:", w_label++);
+  Inst_Printf("cmp", "%%o0, 0");
+
+#if 0
+  Inst_Printf("be", UN "fail");
+  Inst_Printf("nop", "%s", "");	/* delay slot */
+#else
+
+  Inst_Printf("be", UN "%s+4", "fail");
+#ifdef MAP_REG_B
+  Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
+#else
+  Inst_Printf("ld", "%s, %%o0", asm_reg_b);
+#endif
+
+#endif
 }
 
 
@@ -1054,8 +711,8 @@ Fail_Ret(void)
 void
 Move_Ret_To_Mem_L(char *name, int index)
 {
-  Inst_Printf("la", "$13,%s", name);
-  Inst_Printf("sw", "$2,%d($13)", index * 4);
+  Inst_Printf("sethi", "%%hi(" UN "%s+%d), %%o1", name, index * 4);
+  Inst_Printf("st", "%%o0, [%%o1+%%lo(" UN "%s+%d)]", name, index * 4);
 }
 
 
@@ -1068,7 +725,7 @@ Move_Ret_To_Mem_L(char *name, int index)
 void
 Move_Ret_To_Reg_X(int index)
 {				/* same as Move_To_Reg_X */
-  Inst_Printf("sw", "$2,%d(%s)", index * 4, asm_reg_bank);
+  Inst_Printf("st", "%%o0, [%s+%d]", asm_reg_bank, index * 4);
 }
 
 
@@ -1081,12 +738,7 @@ Move_Ret_To_Reg_X(int index)
 void
 Move_Ret_To_Reg_Y(int index)
 {				/* same as Move_To_Reg_Y */
-#ifdef MAP_REG_E
-  Inst_Printf("sw", "$2,%d(%s)", Y_OFFSET(index), asm_reg_e);
-#else
-  Inst_Printf("lw", "$13,%s", asm_reg_e);
-  Inst_Printf("sw", "$2,%d($13)", Y_OFFSET(index));
-#endif
+  Inst_Printf("st", "%%o0, [%s%+d]", asm_reg_e, Y_OFFSET(index));
 }
 
 
@@ -1099,8 +751,7 @@ Move_Ret_To_Reg_Y(int index)
 void
 Move_Ret_To_Foreign_L(int index)
 {
-  Inst_Printf("la", "$13,pl_foreign_long");
-  Inst_Printf("sw", "$2,%d($13)", index * 4);
+  Inst_Printf("st", "%%o0, [%%l2+%d]", index * 4);
 }
 
 
@@ -1113,8 +764,7 @@ Move_Ret_To_Foreign_L(int index)
 void
 Move_Ret_To_Foreign_D(int index)
 {
-  Inst_Printf("la", "$13,pl_foreign_double");
-  Inst_Printf("s.d", "$f0,%d($13)", index * 8);
+  Inst_Printf("std", "%%f0, [%%l3+%d]", index * 8);
 }
 
 
@@ -1127,8 +777,14 @@ Move_Ret_To_Foreign_D(int index)
 void
 Cmp_Ret_And_Int(PlLong int_val)
 {
-  Inst_Printf("li", "$24,%d", int_val);
-  Inst_Printf("sub", "$12,$2,$24");	/* $2 - $24 -> $12 */
+  if (LITTLE_INT(int_val))
+    Inst_Printf("cmp", "%%o0, %ld", int_val);
+  else
+    {
+      Inst_Printf("sethi", "%%hi(%ld), %%o1", int_val);
+      Inst_Printf("or", "%%o1, %%lo(%ld), %%o1", int_val);
+      Inst_Printf("cmp", "%%o0, %%o1");
+    }
 }
 
 
@@ -1141,7 +797,8 @@ Cmp_Ret_And_Int(PlLong int_val)
 void
 Jump_If_Equal(char *label)
 {
-  Inst_Printf("beqz", "$12,%s", label);	/* $2 == 0 */
+  Inst_Printf("be", UN "%s", label);
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1154,9 +811,8 @@ Jump_If_Equal(char *label)
 void
 Jump_If_Greater(char *label)
 {
-  /* this is based on the comparison we did with Cmp_Ret_And_Int */
-  /* means this is more or less a Jump_If_Not_Equal ! */
-  Inst_Printf("bgtz", "$12,%s", label);	/* $3 == 1 */
+  Inst_Printf("bg", UN "%s", label);
+  Inst_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1169,10 +825,8 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Inst_Printf("ld", "$gp,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 8);
-  Inst_Printf("ld", "$31,%d($sp)", MAX_C_ARGS_IN_C_CODE * 8 + 0);
-  Inst_Printf("addiu", "$sp,$sp,%d", MAX_C_ARGS_IN_C_CODE * 8 + 16);
-  Inst_Printf("j", "$31");
+  Inst_Printf("ret", "%s", "");
+  Inst_Printf("restore", "%s", "");	/* delay slot */
 }
 
 
@@ -1183,10 +837,9 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
-  Label_Printf(".section\t.rodata");
-  Inst_Printf(".align", "3");
+  Inst_Printf(".section", "\".rodata\"");
 }
 
 
@@ -1197,11 +850,11 @@ Dico_String_Start(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
-
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Inst_Printf(".ascii", "%s", asciiz);
+  Inst_Printf(".align", "8");
+  Label_Printf("%s:", s->symb);
+  Inst_Printf(".asciz", "%s", s->str);
 }
 
 
@@ -1212,7 +865,39 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1224,10 +909,14 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
-  Label_Printf(".section\t.sdata");
-  Inst_Printf(".align", "3");
+#ifdef M_sunos
+  Label_Printf(".data");
+#else
+  Inst_Printf(".section", "\".data\"");
+#endif
+  Inst_Printf(".align", "4");
 }
 
 
@@ -1238,44 +927,37 @@ Dico_Long_Start(int nb_longs)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
-      Label_Printf(".section\t.bss");
-      if (!global)
-	{
-	  Label_Printf("%s:", name);
-	  Inst_Printf(".align", "3");
-	  Inst_Printf(".space", "%d", value * 4);
-	  /* Inst_Printf(".popsection",""); */
-	}
+#ifdef M_sunos
+      if (!l->global)
+	Inst_Printf(".reserve", UN "%s,%ld,\"bss\",4", l->name, l->value * 4);
       else
-	{
-	  Inst_Printf(".comm", "%s,%d", name, value * 4);
-	}
+	Inst_Printf(".common", UN "%s,%ld,\"bss\"", l->name, l->value * 4);
+#else
+      if (!l->global)
+	Inst_Printf(".local", UN "%s", l->name);
+      Inst_Printf(".common", UN "%s,%ld,4", l->name, l->value * 4);
+#endif
       break;
 
     case INITIAL_VALUE:
-      Label_Printf(".section\t.rodata");
-      if (global)
-	{
-	  Inst_Printf(".globl", "%s", name);
-	  Inst_Printf(".align", "3");
-	  Inst_Printf(".size", "%s,4", name);
-	  Label_Printf("%s:", name);
-	  Inst_Printf(".word", "%d", value);
-	}
-      else
-	{
-	  Inst_Printf(".align", "3");
-	  Inst_Printf(".size", "%s,4", name);
-	  Label_Printf("%s:", name);
-	  Inst_Printf(".word", "%d", value);
-	}
+#if defined(M_solaris) || defined(M_bsd)
+      Inst_Printf(".type", UN "%s,#object", l->name);
+      Inst_Printf(".size", UN "%s,4", l->name);
+#endif
+      if (l->global)
+	Inst_Printf(".global", UN "%s", l->name);
+      Label_Printf(UN "%s:", l->name);
+#ifdef M_sunos
+      Inst_Printf(".word", "%ld", l->value);
+#else
+      Inst_Printf(".uaword", "%ld", l->value);
+#endif
       break;
     }
 }
@@ -1288,7 +970,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 
@@ -1302,20 +984,12 @@ Dico_Long_Stop(int nb_longs)
 void
 Data_Start(char *initializer_fct)
 {
-  /* last routine has to be closed first */
-  if (act_routine[0] != '\0')
-    {
-      Inst_Printf("j", "$31");
-      Inst_Printf(".end", "%s", act_routine);
-
-      act_routine[0] = '\0';
-    }
-
   if (initializer_fct == NULL)
     return;
 
-  Inst_Printf(".section", ".ctors,\"aw\",@progbits");
-  Inst_Printf(".word", "%s", initializer_fct);
+  Inst_Printf(".section", "\".ctors\",#alloc,#write");
+  Inst_Printf(".align", "4");
+  Inst_Printf(".long", UN "%s", initializer_fct);
 }
 
 
@@ -1328,4 +1002,25 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DELAY_PRINTF                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Delay_Printf(char *op, char *operands, ...)
+{
+  va_list arg_ptr;
+
+  if (delay_op)
+    Inst_Out(delay_op, delay_operands);
+
+  va_start(arg_ptr, operands);
+
+  delay_op = op;
+  vsprintf(delay_operands, operands, arg_ptr);
 }

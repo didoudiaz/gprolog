@@ -6,7 +6,7 @@
  * Descr.: mini-assembler parser                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -95,20 +95,17 @@ enum
  * Global Variables                *
  *---------------------------------*/
 
-int needs_pre_pass;		/* can be overwritten by mappers */
-
 char *inst[] = {
   "pl_code", "pl_jump", "prep_cp", "here_cp", "pl_call", "pl_fail",
   "pl_ret", "jump", "move", "call_c", "jump_ret", "fail_ret", "move_ret",
   "switch_ret", "c_code", "c_ret", "long", NULL };
 
 
-int reload_e;
-int inside_code;
+Bool reload_e;
 
 
 char fct_name[MAX_STR_LEN];
-int fc;
+Bool fc;
 int nb_args;
 int nb_args_in_words;		/* args counted in words (e.g. 32 bits) */
 ArgInf arg[MAX_ARGS];
@@ -147,7 +144,7 @@ double dbl_val;
 
 static void Parser(int pass_no, int nb_passes);
 
-static int Read_If_Global(int initializer);
+static int Read_If_Global(Bool initializer);
 
 static void Read_Function(void);
 
@@ -172,7 +169,7 @@ int
 Parse_Ma_File(char *file_name_in, int comment)
 {
   int ret_val;
-  int i, nb_passes = needs_pre_pass + 1;
+  int i, nb_passes = mi.needs_pre_pass + 1; /* pre-pass is to discover all defined symbols */
 
 
   if (file_name_in == NULL)
@@ -190,8 +187,7 @@ Parse_Ma_File(char *file_name_in, int comment)
     {
       if (i == 2 && fseek(file_in, 0, SEEK_SET) == -1)
 	{
-	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n",
-		  file_name_in);
+	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", file_name_in);
 	  return 0;
 	}
 
@@ -224,8 +220,8 @@ Parse_Ma_File(char *file_name_in, int comment)
 {						\
   if (!Pre_Pass() && inside_code)		\
     {						\
-      Code_Stop();				\
-      inside_code = 0;				\
+      Code_Stop(&cur_code);			\
+      inside_code = FALSE;			\
     }						\
 }
 
@@ -233,13 +229,15 @@ Parse_Ma_File(char *file_name_in, int comment)
 static void
 Parser(int pass_no, int nb_passes)
 {
-  int init_already_read = 0;
-  char **in, *name;
+  Bool inside_code = FALSE;
+  Bool initializer_defined = FALSE;
+  CodeInf cur_code;		/* some init for the compiler */
+  LongInf l;
+  char **in;
   int k, i;
-  int global;
 
   if (Pre_Pass())
-    keep_source_lines = 0;
+    keep_source_lines = FALSE;
 
   cur_line_p = cur_line_str;
   cur_line_str[0] = '\0';
@@ -271,22 +269,49 @@ Parser(int pass_no, int nb_passes)
 	{
 	case PL_CODE:
 	  Stop_Previous_Code();
-	  global = Read_If_Global(0);
+	  cur_code.prolog = TRUE;
+	  cur_code.global = Read_If_Global(FALSE);
+	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
+	  cur_code.name = strdup(str_val);
 	  if (Pre_Pass())
-	    Decl_Code(strdup(str_val), 1, global);
+	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
 	  else
 	    {
-	      Code_Start(str_val, 1, global);
-	      reload_e = 1;
-	      inside_code = 1;
+	      Code_Start(&cur_code);
+	      reload_e = TRUE;
+	      inside_code = TRUE;
+	    }
+	  break;
+
+	case C_CODE:
+	  Stop_Previous_Code();
+	  cur_code.prolog = FALSE;
+	  cur_code.global = Read_If_Global(!initializer_defined);
+	  cur_code.initializer = FALSE;
+	  Read_Token(IDENTIFIER);
+	  cur_code.name = strdup(str_val);
+	  if (cur_code.global == 2)
+	    {
+	      initializer_defined = TRUE;
+	      cur_code.global = FALSE;
+	      cur_code.initializer = TRUE;
+	      if (!Pre_Pass())
+		Declare_Initializer(cur_code.name);
+	    }
+	  if (Pre_Pass())
+	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
+	  else
+	    {
+	      Code_Start(&cur_code);
+	      inside_code = TRUE;
 	    }
 	  break;
 
 	case PL_JUMP:
 	  Read_Token(IDENTIFIER);
 	  Pl_Jump(str_val);
-	  reload_e = 1;
+	  reload_e = TRUE;
 	  break;
 
 	case PREP_CP:
@@ -300,23 +325,23 @@ Parser(int pass_no, int nb_passes)
 	case PL_CALL:
 	  Read_Token(IDENTIFIER);
 	  Pl_Call(str_val);
-	  reload_e = 1;
+	  reload_e = TRUE;
 	  break;
 
 	case PL_FAIL:
 	  Pl_Fail();
-	  reload_e = 1;
+	  reload_e = TRUE;
 	  break;
 
 	case PL_RET:
 	  Pl_Ret();
-	  reload_e = 1;
+	  reload_e = TRUE;
 	  break;
 
 	case JUMP:
 	  Read_Token(IDENTIFIER);
 	  Jump(str_val);
-	  reload_e = 1;
+	  reload_e = TRUE;
 	  break;
 
 	case MOVE:
@@ -344,7 +369,7 @@ Parser(int pass_no, int nb_passes)
 
 	case JUMP_RET:
 	  Jump_Ret();
-	  reload_e = 1;
+	  reload_e = TRUE;
 	  break;
 
 	case FAIL_RET:
@@ -386,66 +411,57 @@ Parser(int pass_no, int nb_passes)
 	  Switch_Ret(nb_swt, swt);
 	  break;
 
-	case C_CODE:
-	  Stop_Previous_Code();
-	  global = Read_If_Global(!init_already_read);
-
-	  Read_Token(IDENTIFIER);
-	  if (global == 2)
-	    {
-	      init_already_read = 1;
-	      global = 0;
-	      if (!Pre_Pass())
-		Declare_Initializer(strdup(str_val));
-	    }
-	  if (Pre_Pass())
-	    Decl_Code(strdup(str_val), 0, global);
-	  else
-	    {
-	      Code_Start(str_val, 0, global);
-	      inside_code = 1;
-	    }
-	  break;
-
 	case C_RET:
 	  C_Ret();
 	  break;
 
 	case LONG:
 	  Stop_Previous_Code();
-	  global = Read_If_Global(1);
-
+	  l.global = Read_If_Global(FALSE);
 	  Read_Token(IDENTIFIER);
-	  name = strdup(str_val);
+	  l.name = strdup(str_val);
 	  if ((i = Read_Optional_Index()) > 0)	/* array */
 	    {
-	      Decl_Long(name, global, ARRAY_SIZE, i);
-	      break;
+	      l.vtype = ARRAY_SIZE;
+	      l.value = i;
 	    }
-
-	  while (isspace(*cur_line_p))
-	    cur_line_p++;
-	  if (*cur_line_p != '=')
+	  else
 	    {
-	      Decl_Long(name, global, NONE, 1); /* default: NONE as value = 1 (value = array size = 1) */
-	      break;
+	      while (isspace(*cur_line_p))
+		cur_line_p++;
+	      if (*cur_line_p != '=')
+		{
+		  l.vtype = NONE;
+		  l.value = 1; /* value = 1, so it can be considered by mappers as an ARRAY_SIZE with size = 1 */
+		}
+	      else
+		{
+		  cur_line_p++;		/* skip the = */
+		  Read_Token(INTEGER);
+		  l.vtype = INITIAL_VALUE;
+		  l.value = int_val;
+		}
 	    }
-	  cur_line_p++;		/* skip the = */
-	  Read_Token(INTEGER);
-	  Decl_Long(name, global, INITIAL_VALUE, int_val);
+	  Decl_Long(&l);	/* a malloc+copy done by Decl_Long */
 	  break;
 
-	default:
+	default:		/* label: */
 	  if (*in == NULL)
 	    {
+	      CodeInf c_lab;
+	      c_lab.name = strdup(str_val);
+	      c_lab.prolog = FALSE;
+	      c_lab.initializer = FALSE;
+	      c_lab.global = FALSE;
 	      Read_Token(':');
 	      if (Pre_Pass())
-		Decl_Code(strdup(str_val), 1, global);
+		Decl_Code(&c_lab); /* record label (considered as C code) */
 	      else
 		Label(str_val);
 	    }
 	}
     }
+  Stop_Previous_Code();		/* in case the last code is not followed by any declaration */
 }
 
 
@@ -456,7 +472,7 @@ Parser(int pass_no, int nb_passes)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Read_If_Global(int initializer)
+Read_If_Global(Bool initializer)
 {
   if (Scanner() != IDENTIFIER)
     goto err;
@@ -491,11 +507,11 @@ Read_Function(void)
 {
   int k;
 
-  fc = 0;
+  fc = FALSE;
   Read_Token(IDENTIFIER);
   if (strcmp(str_val, "fast") == 0)
     {
-      fc = 1;
+      fc = TRUE;
       Read_Token(IDENTIFIER);
     }
 
@@ -510,45 +526,49 @@ Read_Function(void)
   for (;;)
     {
       arg[nb_args].type = k;
-      arg[nb_args].adr_of = 0;
+      arg[nb_args].adr_of = FALSE;
     one_arg:
       switch (k)
 	{
 	case '&':
 	  k = Scanner();
-	  if (k != IDENTIFIER && k != X_REG && k != Y_REG && k != FL_ARRAY
-	      && k != FD_ARRAY)
+	  if (k != IDENTIFIER && k != X_REG && k != Y_REG && k != FL_ARRAY && k != FD_ARRAY)
 	    Syntax_Error("identifier, X(...), Y(...), FL(...) or FD(...) expected");
 	  arg[nb_args].type = k;
-	  arg[nb_args].adr_of = 1;
+	  arg[nb_args].adr_of = TRUE;
 	  goto one_arg;
 
 	case STRING:
-	  arg[nb_args].t.str_val = strdup(str_val);
+	  arg[nb_args].str_val = strdup(str_val);
 	  break;
 
 	case INTEGER:
-	  arg[nb_args].t.int_val = int_val;
+	  arg[nb_args].int_val = int_val;
 	  break;
 
 	case FLOAT:
-	  nb_args_in_words++;	/* double count 1 word more */
-	  arg[nb_args].t.dbl_val = dbl_val;
+#if WORD_SIZE < 64
+	  nb_args_in_words++;	/* double count 1 word more for 32 bits machines */
+#endif
+	  arg[nb_args].str_val = strdup(str_val);
+	  arg[nb_args].dbl_val = dbl_val;
 	  break;
 
 	case IDENTIFIER:
 	  arg[nb_args].type = MEM;
-	  arg[nb_args].t.mem.name = strdup(str_val);
-	  arg[nb_args].t.mem.index = Read_Optional_Index();
+	  arg[nb_args].str_val = strdup(str_val);
+	  arg[nb_args].index = Read_Optional_Index();
 	  break;
 
 	case FD_ARRAY:
+#if WORD_SIZE < 64
 	  if (arg[nb_args].adr_of == 0)
-	    nb_args_in_words++;	/* double count 1 word more */
+	    nb_args_in_words++;	/* double count 1 word more for 32 bits machines */
+#endif
 	case FL_ARRAY:
 	case X_REG:
 	case Y_REG:
-	  arg[nb_args].t.index = Read_Index();
+	  arg[nb_args].index = Read_Index();
 	  break;
 	}
 
@@ -607,9 +627,16 @@ Read_Switch(void)
 static int
 Read_Index(void)
 {
-  Read_Token('(');
+  int k = Scanner();		/* accepts (index) or [index] syntax */
+  if (k == '(')
+    k = ')';
+  else if (k == '[')
+    k = ']';
+  else
+    Syntax_Error("( index ) or [ index ] expected");
+
   Read_Token(INTEGER);
-  Read_Token(')');
+  Read_Token(k);
 
   return int_val;
 }
@@ -624,7 +651,7 @@ Read_Index(void)
 static int
 Read_Optional_Index(void)
 {
-  return (*cur_line_p == '(') ? Read_Index() : 0;
+  return (*cur_line_p == '(' || *cur_line_p == '[') ? Read_Index() : 0;
 }
 
 
@@ -726,8 +753,7 @@ Scanner(void)
 	      p = cur_line_p + strlen(cur_line_p) - 1;
 	      if (*p == '\n')
 		*p = '\0';
-	      Label_Printf("\t%s %6d: %s", comment_prefix, cur_line_no,
-			   cur_line_p);
+	      Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
 	    }
 	}
     }
@@ -746,7 +772,7 @@ Scanner(void)
 	}
 
       cur_line_p++;
-      if (strings_need_null)
+      if (mi.strings_need_null)
 	{
 	  *p++ = '\\';
 	  *p++ = '0';
@@ -756,9 +782,16 @@ Scanner(void)
       return STRING;
     }
 
-  if (isalpha(*cur_line_p) || *cur_line_p == '_')	/* identifier */
+  if (isalpha(*cur_line_p) || *cur_line_p == '_' || *cur_line_p == '.')	/* identifier */
     {
       p = str_val;
+      if (*cur_line_p == '.') /* local label: replace . by target assembler local prefix */
+	{
+	  strcpy(p, mi.local_symb_prefix);
+	  p += strlen(p);
+	  cur_line_p++;
+	}
+
       while (isalnum(*cur_line_p) || *cur_line_p == '_')
 	*p++ = *cur_line_p++;
 
@@ -772,7 +805,7 @@ Scanner(void)
 	  if (reload_e)
 	    {
 	      Reload_E_In_Register();
-	      reload_e = 0;
+	      reload_e = FALSE;
 	    }
 	  return Y_REG;
 	}
@@ -797,9 +830,13 @@ Scanner(void)
       cur_line_p = p;
       return INTEGER;
     }
-  /* float */
-  dbl_val = d;
+
+  				/* float */
+  strncpy(str_val, cur_line_p, p1 - cur_line_p);
+  str_val[p1 - cur_line_p] = '\0';
   cur_line_p = p1;
+  dbl_val = d;
+  
   return FLOAT;
 }
 

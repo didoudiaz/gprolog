@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : all_solut.pl
 
 
@@ -34,6 +34,10 @@ predicate('$findall'/6,50,static,private,monofile,built_in,[
     put_value(y(4),1),
     put_value(y(5),2),
     call('$check_list_arg'/3),
+    put_value(y(3),0),
+    put_value(y(4),1),
+    put_value(y(5),2),
+    call('$check_list_arg'/3),
     put_value(y(0),0),
     put_value(y(1),1),
     put_variable(y(6),2),
@@ -49,7 +53,7 @@ predicate('$findall'/6,50,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(setof/3,58,static,private,monofile,built_in,[
+predicate(setof/3,59,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -67,7 +71,7 @@ predicate(setof/3,58,static,private,monofile,built_in,[
     execute('$bagof'/5)]).
 
 
-predicate(bagof/3,66,static,private,monofile,built_in,[
+predicate(bagof/3,67,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -85,7 +89,7 @@ predicate(bagof/3,66,static,private,monofile,built_in,[
     execute('$bagof'/5)]).
 
 
-predicate('$bagof'/5,71,static,private,monofile,built_in,[
+predicate('$bagof'/5,72,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -144,7 +148,7 @@ label(1),
     execute('$$bagof/5_$aux2'/2)]).
 
 
-predicate('$$bagof/5_$aux2'/2,82,static,private,monofile,local,[
+predicate('$$bagof/5_$aux2'/2,83,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -158,7 +162,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$$bagof/5_$aux1'/2,71,static,private,monofile,local,[
+predicate('$$bagof/5_$aux1'/2,72,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -173,7 +177,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$store_solutions'/5,94,static,private,monofile,built_in,[
+predicate('$store_solutions'/5,95,static,private,monofile,built_in,[
     get_variable(x(5),3),
     get_variable(x(3),0),
     call_c('Pl_Stop_Mark_1',[],[x(2)]),
@@ -183,7 +187,7 @@ predicate('$store_solutions'/5,94,static,private,monofile,built_in,[
     execute('$$store_solutions/5_$aux1'/4)]).
 
 
-predicate('$$store_solutions/5_$aux1'/4,94,static,private,monofile,local,[
+predicate('$$store_solutions/5_$aux1'/4,95,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),3),
@@ -198,16 +202,16 @@ label(1),
     proceed]).
 
 
-predicate('$group_solutions'/3,105,static,private,monofile,built_in,[
+predicate('$group_solutions'/3,106,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$group_solutions_alt'/0,108,static,private,monofile,built_in,[
+predicate('$group_solutions_alt'/0,109,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$check_list_arg'/3,116,static,private,monofile,built_in,[
+predicate('$check_list_arg'/3,117,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).

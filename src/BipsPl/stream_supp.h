@@ -6,7 +6,7 @@
  * Descr.: stream support - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -105,7 +105,7 @@ typedef struct			/* Stream properties              */
   unsigned eof_action:2;	/* see STREAM_EOF_ACTION_xxx defs */
   unsigned buffering:2;		/* see STREAM_BUFFERING_xxx defs  */
   unsigned special_close:1;	/* does it need a special close ? */
-  unsigned other:8;		/* other prop (1,2,3=term_streams */
+  unsigned other:5;		/* other prop (1,2,3=term_streams */
 }				/*             4=socket_stream)   */
 StmProp;
 
@@ -336,7 +336,8 @@ int Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 	       StmFct fct_flush, StmFct fct_close,
 	       StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
 
-int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text);
+int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
+				 Bool force_eof_reset);
 
 int Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
 

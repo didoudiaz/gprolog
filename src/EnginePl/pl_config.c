@@ -6,7 +6,7 @@
  * Descr.: C Compiler options and WAM Configuration                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -280,20 +280,25 @@ main(void)
     );
 #endif
 
-  printf("Use machine regs. : %s\n",
-#ifndef NO_USE_REGS
-         "Yes"
-#else
-         "No"
-#endif
-    );
-
   Write_GProlog_Cst();
 
   Generate_Archi();
 
   Write_C_Compiler_Info();
 
+  printf("Use machine regs. : "
+#ifndef NO_USE_REGS
+         "Yes (%d used)\n", nb_of_used_mach_regs
+#else
+         "No\n"
+#endif
+    );
+
+#if defined(NO_MACHINE_REG_FOR_REG_BANK)
+  printf("                    NO_MACHINE_REG_FOR_REG_BANK is SET\n");
+#endif
+
+  
 
 #if 0
   fprintf(fg_c, "/* end of automatically generated part */\n");
@@ -305,9 +310,14 @@ main(void)
 
   printf("Used register(s)  : ");
 
-  for (i = 0; i < nb_of_used_mach_regs; i++)
-    printf("%s (%s)  ", used_mach_reg[i].mach_reg_name, used_mach_reg[i].pl_reg_name);
-  printf("\n");
+  if (nb_of_used_mach_regs)
+    {
+      for (i = 0; i < nb_of_used_mach_regs; i++)
+	printf("%s (%s)  ", used_mach_reg[i].mach_reg_name, used_mach_reg[i].pl_reg_name);
+      printf("\n");
+    }
+  else
+    printf("none\n");
 
 
   printf("\n");
@@ -361,7 +371,8 @@ Write_C_Compiler_Info(void)
 {
   int i;
 
-  fputc('\n', fw_r);
+  fprintf(fw_r, "\n#define NB_USED_MACHINE_REGS\t%d\n\n", nb_of_used_mach_regs);
+  
   fprintf(fw_r, "#define CFLAGS_REGS\t\t\"");
   for (i = 0; i < nb_of_used_mach_regs; i++)
     {
@@ -552,8 +563,8 @@ Generate_Regs(FILE *f, FILE *g)
   char str_base[32] = "";
   char *used_regs[] = M_USED_REGS;
   char **p = used_regs;
-  RegInf reg[10][50];
-  int nb_reg[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  RegInf reg[15][50];
+  int nb_reg[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   RegInf *dp;
   int total_nb_reg = 0;
   int nb_not_alloc = 0;

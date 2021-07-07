@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : call.pl
 
 
@@ -46,15 +46,45 @@ label(1),
 
 
 predicate(call_det/2,57,static,private,monofile,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[call_det,2]),
+    put_value(y(1),0),
+    call('$call_det/2_$aux1'/1),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    deallocate,
+    execute('$call_det'/2)]).
+
+
+predicate('$call_det/2_$aux1'/1,57,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
+    put_atom(false,2),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
+    put_atom(true,2),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
+    cut(x(1)),
+    put_value(x(0),1),
+    put_atom(boolean,0),
+    execute('$pl_err_type'/2),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$call_det'/2,67,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_value(y(1),0),
-    call('$call_det/2_$aux1'/1),
     put_variable(y(2),0),
     call('$get_current_B'/1),
     put_value(y(0),0),
-    put_atom(call_det,1),
+    put_atom('$call_det',1),
     put_integer(2,2),
     put_atom(true,3),
     call('$call'/4),
@@ -64,10 +94,10 @@ predicate(call_det/2,57,static,private,monofile,built_in,[
     put_unsafe_value(y(2),1),
     put_value(y(1),2),
     deallocate,
-    execute('$call_det/2_$aux2'/3)]).
+    execute('$$call_det/2_$aux1'/3)]).
 
 
-predicate('$call_det/2_$aux2'/3,57,static,private,monofile,local,[
+predicate('$$call_det/2_$aux1'/3,67,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -85,39 +115,19 @@ label(1),
     proceed]).
 
 
-predicate('$call_det/2_$aux1'/1,57,static,private,monofile,local,[
-    pragma_arity(2),
-    get_current_choice(x(1)),
-    try_me_else(1),
-    call_c('Pl_Blt_Non_Var',[fast_call,boolean],[x(0)]),
-    put_atom(false,2),
-    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
-    put_atom(true,2),
-    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(2)]),
-    cut(x(1)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[call,2]),
-    put_value(x(0),1),
-    put_atom(boolean,0),
-    execute('$pl_err_type'/2),
-
-label(1),
-    trust_me_else_fail,
-    proceed]).
-
-
-predicate('$call'/4,76,static,private,monofile,built_in,[
+predicate('$call'/4,79,static,private,monofile,built_in,[
     call_c('Pl_Save_Call_Info_3',[],[x(1),x(2),x(3)]),
     put_integer(0,1),
     execute('$call1'/2)]).
 
 
-predicate('$call1'/2,80,static,private,monofile,built_in,[
+predicate('$call1'/2,83,static,private,monofile,built_in,[
     put_integer(1,2),
     call_c('Pl_Load_Call_Info_Arg_1',[],[x(2)]),
     execute('$call_internal'/2)]).
 
 
-predicate('$call_internal'/2,84,static,private,monofile,built_in,[
+predicate('$call_internal'/2,87,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -135,7 +145,7 @@ predicate('$call_internal'/2,84,static,private,monofile,built_in,[
     execute('$call_internal1'/2)]).
 
 
-predicate('$$call_internal/2_$aux1'/1,84,static,private,monofile,local,[
+predicate('$$call_internal/2_$aux1'/1,87,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -148,13 +158,13 @@ label(1),
     proceed]).
 
 
-predicate('$call_internal1'/2,94,static,private,monofile,built_in,[
+predicate('$call_internal1'/2,97,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$call_internal_with_cut'/3,101,static,private,monofile,built_in,[
+predicate('$call_internal_with_cut'/3,104,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(23),
@@ -301,7 +311,7 @@ label(23),
     proceed]).
 
 
-predicate('$call_internal_or'/4,151,static,private,monofile,built_in,[
+predicate('$call_internal_or'/4,154,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(6),
@@ -353,7 +363,7 @@ label(7),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$$call_internal_or/4_$aux2'/5,158,static,private,monofile,local,[
+predicate('$$call_internal_or/4_$aux2'/5,161,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),1),
@@ -376,7 +386,7 @@ label(1),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$$call_internal_or/4_$aux1'/6,151,static,private,monofile,local,[
+predicate('$$call_internal_or/4_$aux1'/6,154,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),1),
@@ -399,17 +409,17 @@ label(1),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$call_from_debugger'/2,174,static,private,monofile,built_in,[
+predicate('$call_from_debugger'/2,177,static,private,monofile,built_in,[
     put_integer(0,2),
     call_c('Pl_BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(false/0,179,static,private,monofile,built_in,[
+predicate(false/0,182,static,private,monofile,built_in,[
     fail]).
 
 
-predicate(forall/2,183,static,private,monofile,built_in,[
+predicate(forall/2,186,static,private,monofile,built_in,[
     get_variable(x(2),0),
     put_structure((',')/2,0),
     unify_local_value(x(2)),
@@ -422,11 +432,11 @@ predicate(forall/2,183,static,private,monofile,built_in,[
     execute('$not'/3)]).
 
 
-predicate('$not'/3,187,static,private,monofile,built_in,[
+predicate('$not'/3,190,static,private,monofile,built_in,[
     execute('$$not/3_$aux1'/3)]).
 
 
-predicate('$$not/3_$aux1'/3,187,static,private,monofile,local,[
+predicate('$$not/3_$aux1'/3,190,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),

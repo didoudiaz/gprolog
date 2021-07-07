@@ -6,7 +6,7 @@
  * Descr.: list library  - C part                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -314,7 +314,7 @@ Bool Pl_Member_3(void)
 #if 1
       if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK)
 	{
-	  Assign_B(BB(B));  /* cut (if failure faster then Pl_Delete_Choice_Point() */
+	  Assign_B(BB(B));  /* cut (if failure faster than Pl_Delete_Choice_Point() */
 	  return ok;
 	}
 #endif
@@ -453,8 +453,12 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
 	}
 
       if (tag_mask != TAG_LST_MASK)
+#if 1
+	Pl_Err_Type(pl_type_list, word);
+#else
 	return FALSE;
-
+#endif
+      
       len++;
       if ((PlULong) n < (PlULong) len)
 	return FALSE;

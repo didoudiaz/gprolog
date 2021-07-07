@@ -1,5 +1,28 @@
-Change in GNU Prolog version 1.4.5 (Jan 2018):
+Change in GNU Prolog version 1.5.0
 
+* port to Termux on aarch64/android
+* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
+* restructure and improve the code of all MA-ASM mappers
+* port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
+* port to arm64 (aarch64)/Linux (armv8) - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* port to arm32/Linux (armv6, armv7) - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* fix a bug in absolute_file_name, '/src/../' returned '' now '/'
+* add error case to findall/4 (detects when Tail is not a list)
+* set eof_action to reset for standard input/output/error streams even if not a tty
+* add float_overflow and undefined for float arithmetic functions
+* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
+* fix a bug when closing user_error
+* fix a bug in phrase/2-3
+* fix problem with gcc 10 which needs explicitly -fcommon
+* fix bugs when Prolog integers are internally converted to C int (on 64 bits machine)
+
+Change in GNU Prolog version 1.4.5 (Feb 2018):
+
+* fix a bug in soft-cut (when a cut appears in the if-part)
+* fix bug when consulting multifile predicates with alternatives
+* add ?- ISO prefix operator
 * add gplc option --new-top-level (add top-level command-line option handling)
 * fix a bug on linux witg gcc 6.3.0 (or binutils): needs PIC code
 * fix a bug in findall/4
