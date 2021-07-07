@@ -6,7 +6,7 @@
  * Descr.: operator table management                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -95,6 +95,7 @@ Pl_Init_Oper(void)
   ADD_OPER(1200, XFX, "-->");
 
   ADD_OPER(1200, FX, ":-");
+  ADD_OPER(1200, FX, "?-");
 
   ADD_OPER(1150, FX, "discontiguous");
   ADD_OPER(1150, FX, "dynamic");

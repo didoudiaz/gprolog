@@ -6,7 +6,7 @@
  * Descr.: file consulting                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -371,6 +371,7 @@ listing(PI) :-
 
 /* NEW version which orders the output by file then by line number */
 
+/* TODO: report the new listing_all from master branch */
 
 '$listing_all'(Module, Func, Arity) :- % setof: for each File returns a sorted list [Line-PI,...]
 	g_assign('$last_module', Module),
@@ -389,7 +390,6 @@ listing(PI) :-
 '$listing_all'(_, _, _).
 
 
-<<<<<<< HEAD
 '$listing_one_collect'(Module, Func, Arity, File, Line) :-
 	'$current_predicate'(Module:Func/Arity),
    	(   '$call_c_test'('Pl_Pred_Prop_Native_Code_2'(Module, Func, Arity)) ->
@@ -398,17 +398,6 @@ listing(PI) :-
 	    '$call_c_test'('Pl_Pred_Prop_Prolog_File_3'(Module, Func, Arity, File)),
 	    '$call_c_test'('Pl_Pred_Prop_Prolog_Line_3'(Module, Func, Arity, Line))
 	).
-=======
-'$listing_one_pi'(File, Line, PI) :-
-	(   '$sys_var_read'(5, 0) ->
-	    '$current_predicate'(PI)
-	;
-	    '$current_predicate_any'(PI), PI = Pred / _, '$not_aux_name'(Pred)
-	),
-	\+ '$predicate_property_pi_any'(PI, native_code),
-	'$predicate_property_pi_any'(PI, prolog_file(File)),
-	'$predicate_property_pi_any'(PI, prolog_line(Line)).
->>>>>>> master
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: Prolog hexadecimal decoding filter                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -279,8 +279,7 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--version"))
 	    {
-	      fprintf(stderr, "Prolog/Hexa Filter                    ");
-	      fprintf(stderr, "                    Daniel Diaz - 1998\n");
+	      fprintf(stderr, "Prolog/Hexa Filter");
 	      fprintf(stderr, "%s version %s\n", HEXGPLC, HEXGPLC_VERSION);
 	      exit(0);
 	    }

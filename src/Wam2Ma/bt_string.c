@@ -6,7 +6,7 @@
  * Descr.: string dico management (file included by wam2ma.c and ma2asm.c) *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -97,8 +97,7 @@ BT_String_Add(BTString *bt_str, char *str)
 
   if ((bt_node = (BTNode *) malloc(sizeof(BTNode))) == NULL)
     {
-      fprintf(stderr, "Cannot allocate memory for BT string: %s\n",
-	      str);
+      fprintf(stderr, "Cannot allocate memory for BT string: %s\n", str);
       exit(1);
     }
 

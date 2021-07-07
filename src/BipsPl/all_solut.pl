@@ -6,7 +6,7 @@
  * Descr.: all solution collector management                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -48,16 +48,16 @@
 
 
 findall(Template, MGenerator, Instances) :-
-	'$check_list_arg'(Instances, findall, 3),
 	'$strip_module_nonvar'(MGenerator, Module, Generator),
 	'$findall'(Template, Generator, Module, Instances, [], findall, 3).
 
 findall(Template, MGenerator, Instances, Tail) :-
-	'$check_list_arg'(Instances, findall, 4),
 	'$strip_module_nonvar'(MGenerator, Module, Generator),
 	'$findall'(Template, Generator, Module, Instances, Tail, findall, 4).
 
 '$findall'(Template, Generator, Module, Instances, Tail, Func, Arity) :-
+	'$check_list_arg'(Instances, Func, Arity),
+	'$check_list_arg'(Tail, Func, Arity),
 	'$store_solutions'(Template, Generator, Module, Stop, Func, Arity),
 	'$call_c_test'('Pl_Recover_Solutions_4'(Stop, 0, Instances, Tail)).
 

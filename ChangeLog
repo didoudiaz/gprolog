@@ -1,3 +1,63 @@
+Wed Jun  9 15:20:19 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to Termux on aarch64/android
+	* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
+	* restructure and improve the code of all MA-ASM mappers
+
+Mon May  3 13:04:24 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
+	* port to arm64 (aarch64)/Linux (armv8) - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+	* port to arm32/Linux (armv6, armv7) - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+
+Mon May  3 13:04:24 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in absolute_file_name, '/src/../' returned '' now '/'
+
+Fri Mar 26 15:33:49 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* add error case to findall/4 (detects when Tail is not a list)
+
+Thu Mar 18 10:55:43 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* set eof_action to reset for standard input/output/error streams even if not a tty
+
+Fri Mar 12 17:51:43 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* add float_overflow and undefined for float arithmetic functions
+
+Thu Feb  2 19:24:23 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
+
+Thu Dec  3 13:12:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug when closing user_error
+	* fix a bug in phrase/2-3
+
+Tue Dec  1 18:35:23 CET 2020 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix problem with gcc 10 which needs explicitly -fcommon
+
+Mon Nov 30 18:14:35 CET 2020 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix bugs when Prolog integers are internally converted to C int (on 64 bits machine)
+
+Tue Oct 23 17:34:21 CEST 2018 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix problem with old gcc (gcc < 6 does not produce PIE code by default)
+
+Thu Feb 1 15:40:29 2018 CET 2018 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix a bug in soft-cut (when a cut appears in the if-part)
+
+Mon Jan 22 14:58:59 CET 2018 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix bug when consulting multifile predicates with alternatives
+	* add ?- ISO prefix operator
+
 Fri Jan 12 17:01:53 CET 2018 <Daniel.Diaz@univ-paris1.fr>
 
 	* add gplc option --new-top-level (add top-level command-line option handling)

@@ -6,7 +6,7 @@
  * Descr.: top Level                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -50,9 +50,8 @@ top_level :-
 	current_prolog_flag(c_cc, CC),
 	format(top_level_output, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
 	format(top_level_output, 'Compiled ~a with ~a~n', [Date, CC]),
-	write(top_level_output, 'By Daniel Diaz'),
-	nl,
 	format(top_level_output, '~a~n', [Copyright]),
+	nl,
 	g_assign('$top_level_cur_module', user),
 	break.
 

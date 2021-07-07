@@ -6,7 +6,7 @@
  * Descr.: basic terminal operations - header file                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,6 +34,11 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+
+
+#if 0
+#define DEBUG
+#endif
 
 
 /*---------------------------------*
@@ -165,5 +170,11 @@ void Pl_LE_Put_Char(int c);
 
 int Pl_LE_Get_Char(void);
 
-
+#ifdef DEBUG
+void Debug_Printf(char *fmt, ...) ATTR_PRINTF(1);
+void Debug_Check_Positions(int lin_pos);
+#else
+#define Debug_Printf(fmt, ...)
+#define Debug_Check_Positions(lin_pos)
+#endif
 

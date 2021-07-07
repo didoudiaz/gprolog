@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable management - C Part             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -694,7 +694,7 @@ Pl_Argument_Value_2(WamWord i_word, WamWord a_word)
 {
   int i;
 
-  i = Pl_Rd_Positive_Check(i_word);
+  i = Pl_Rd_C_Int_Positive_Check(i_word);
   if (i >= pl_os_argc)
     return FALSE;
 

@@ -6,7 +6,7 @@
  * Descr.: main file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -99,9 +99,9 @@ compile_and_emit_pred(f, Pred, N, LSrcCl) :-
 compile_emit_inits(Pred, N, LSrcCl, PlFile1, PlLine) :-
 	g_assign(cur_func, Pred),
 	g_assign(cur_arity, N),
-	syntactic_sugar_init_pred(Pred, N),
 	LSrcCl = [[PlFile * _|_] + (PlLine - _) + _|_],
-	absolute_file_name(PlFile, PlFile1).
+	absolute_file_name(PlFile, PlFile1),
+	syntactic_sugar_init_pred(Pred, N, PlFile1).
 
 
 
@@ -277,6 +277,7 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(foreign_only, f),
 	g_assign(call_c, t),
 	g_assign(inline, t),
+	g_assign(optim_fail, t), % does not correspond to a command-line option (TODO ?)
 	g_assign(reorder, t),
 	g_assign(reg_opt, 2),
 	g_assign(opt_last_subterm, t),
@@ -429,9 +430,8 @@ display_copying :-
 	prolog_version(Version),
 	prolog_copyright(Copyright),
 	format('Prolog to Wam Compiler (~a) ~a~n', [Name, Version]),
-	format('By Daniel Diaz~n', []),
 	write(Copyright),
-	nl,
+	nl, nl,
 	format('~a comes with ABSOLUTELY NO WARRANTY.~n', [Name]),
 	format('You may redistribute copies of ~a~n', [Name]),
 	format('under the terms of the GNU Lesser General Public License~n', []),

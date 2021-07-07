@@ -6,7 +6,7 @@
  * Descr.: basic terminal operations                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,12 +36,14 @@
  *-------------------------------------------------------------------------*/
 
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <errno.h>
 
 #include "../EnginePl/gp_config.h"
 
@@ -51,7 +53,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-
+#include <sys/stat.h>
 
 #if defined(HAVE_SYS_IOCTL_COMPAT_H)
 #include <sys/ioctl_compat.h>
@@ -88,6 +90,10 @@ typedef struct termio TermIO;
 #include "linedit.h"
 
 
+/* Interesting infos: The Open Group Base Specifications Issue 7
+ * Chapter 11. General Terminal Interface
+ * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap11.html#tag_11
+ */
 
 
 /*---------------------------------*
@@ -109,18 +115,20 @@ static int use_ansi;
 static int fd_in = 0;           /* not changed */
 #endif
 static int fd_out = -1;
+static FILE *file_dbg = NULL;	/* activate DEBUG and set LINEDIT env var dbg=/dev/ttyxxx */
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
 static int is_tty_in;
 static int is_tty_out;
+static int same_tty;
 static TermIO old_stty_in;
 static TermIO new_stty_in;
 static TermIO old_stty_out;
 static TermIO new_stty_out;
 
 static int nb_rows, nb_cols;
-static int pos;
+static int term_pos;
 
 #elif defined(_WIN32)
 
@@ -147,9 +155,15 @@ static void Parse_Env_Var(void);
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
+static int Same_File(int fd1, int fd2);
+
 static void Choose_Fd_Out(void);
 
 static void Set_TTY_Mode(TermIO *old, TermIO *new);
+
+static void Install_Resize_Handler();
+
+static void Resize_Handler();
 
 #endif
 
@@ -254,9 +268,8 @@ Pl_LE_Initialize(void)
 static void
 Parse_Env_Var(void)
 {
-  char *p;
+  char *p, *q, *r;
   char buff[1024];
-  char *q;
 
   use_linedit = use_gui = use_ansi = 1; /* default */
 
@@ -281,7 +294,7 @@ Parse_Env_Var(void)
 
 #ifdef _WIN32
   if ((q = strstr(p, "cp=")) != NULL && isdigit(q[3]))
-    code_page = strtol(q + 3, NULL, 10), printf("cp read:%d\n", code_page);
+    code_page = strtol(q + 3, NULL, 10);
 
   if (strstr(p, "oem_put=n") != NULL)
     oem_put = 0;
@@ -296,21 +309,33 @@ Parse_Env_Var(void)
     oem_get = 1;
 #endif
 
-  if ((p = strstr(p, "out=")) != NULL)
+  if ((q = strstr(p, "out=")) != NULL)
     {
-      p += 4;
+      q += 4;
 
       if (isdigit(*p))
         fd_out = strtol(p, NULL, 10);
       else
         {
-	  q = buff;
-          while(*p && isprint(*p) && !isspace(*p))
-            *q++ = *p++;
+	  r = buff;
+          while(*q && isprint(*q) && !isspace(*q))
+            *q++ = *r++;
 
-          *q = '\0';
+          *r = '\0';
           fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
         }
+    }
+
+  if ((q = strstr(p, "dbg=")) != NULL)
+    {
+      q += 4;
+
+      r = buff;
+      while(*q && isprint(*q) && !isspace(*q))
+	*r++ = *q++;
+
+      *r = '\0';
+      file_dbg = fopen(buff, "wt");
     }
 
   return;
@@ -319,43 +344,49 @@ Parse_Env_Var(void)
 
 
 
-#if defined(__unix__) || defined(__CYGWIN__)
-
+#ifdef DEBUG
 /*-------------------------------------------------------------------------*
- * CHOOSE_FD_OUT                                                           *
+ * DEBUG_PRINTF                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Choose_Fd_Out(void)
+void
+Debug_Printf(char *fmt, ...)
 {
-  int fd[3] = { 1, 0, 2 };      /* order fd list to try to find a tty */
-  int i, try;
-  int mask;
-  char *p;
+  va_list arg_ptr;
 
-  for(i = 0; i < 3 && fd_out < 0; i++)
-    {
-      try = fd[i];
+  if (file_dbg == NULL)
+    return;
 
-      if (!isatty(try))
-        continue;
+  va_start(arg_ptr, fmt);
 
-      mask = fcntl(try, F_GETFL);
-      if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
-        {
-          fd_out = try;
-          break;
-        }
+  vfprintf(file_dbg, fmt, arg_ptr);
 
-      if ((p = ttyname(try)) != NULL)
-        fd_out = open(p, O_WRONLY);
-    }
+  va_end(arg_ptr);
+  fputc('\n', file_dbg);
+  fflush(file_dbg);
+}
 
-  if (fd_out < 0)
-    fd_out = 1;
 
+
+
+/*-------------------------------------------------------------------------*
+ * DEBUG_CHECK_POSITIONS                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Debug_Check_Positions(int lin_pos)
+{
+#if defined(__unix__) || defined(__CYGWIN__)
+
+  int l = Pl_LE_Get_Prompt_Length();
+  if ((lin_pos + l) % nb_cols != term_pos)
+    Debug_Printf("********* ERROR lin_pos %d  + prompt_len %d) %% nb_cols %d = %d != term_pos %d\n",
+		 lin_pos, l, nb_cols, (lin_pos + l) % nb_cols, term_pos);
+
+#endif
 }
 #endif
+
+
 
 
 /*-------------------------------------------------------------------------*
@@ -390,7 +421,14 @@ Pl_LE_Open_Terminal(void)
 
   Pl_LE_Screen_Size(&nb_rows, &nb_cols);
 
-  pos = 0;
+  same_tty = Same_File(fd_in, fd_out);
+
+  Debug_Printf("Initial size: %dx%d\n", nb_cols, nb_rows);
+  Debug_Printf("Same TTY: %d\n", same_tty);
+
+  Install_Resize_Handler();
+
+  term_pos = 0;
 
 #elif defined(_WIN32)
 
@@ -441,6 +479,63 @@ Pl_LE_Close_Terminal(void)
 #if defined(__unix__) || defined(__CYGWIN__)
 
 /*-------------------------------------------------------------------------*
+ * CHOOSE_FD_OUT                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Choose_Fd_Out(void)
+{
+  int fd[3] = { 1, 0, 2 };      /* order fd list to try to find a tty */
+  int i, try;
+  int mask;
+  char *p;
+
+  for(i = 0; i < 3 && fd_out < 0; i++)
+    {
+      try = fd[i];
+
+      if (!isatty(try))
+        continue;
+
+      mask = fcntl(try, F_GETFL);
+      if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
+        {
+          fd_out = try;
+          break;
+        }
+
+      if ((p = ttyname(try)) != NULL)
+	{
+	  fd_out = open(p, O_WRONLY); /* could be O_RDWR to read ansi seq answer from terminal, e.g. read cursor position */
+	  Debug_Printf("found a tty %d name: %s  fd: %d\n", try, p, fd_out);
+	  break;
+	}
+    }
+
+  if (fd_out < 0)
+    fd_out = 1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SAME_FILE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Same_File(int fd1, int fd2)
+{
+  struct stat stat1, stat2;
+
+  return (fstat(fd1, &stat1) != -1 && fstat(fd2, &stat2) != -1 &&
+    stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * SET_TTY_MODE                                                            *
  *                                                                         *
  * Mode cbreak (raw mode).                                                 *
@@ -458,9 +553,63 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
   new->c_cc[VTIME] = 1;         /* TIME */
 
   new->c_cc[VINTR] = -1;        /* deactivate SIGINT signal */
+
+#if 0 /* TODO compare our settings with BSD raw mode */
+  new->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+  new->c_oflag &= ~OPOST;
+  new->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+  new->c_cflag &= ~(CSIZE | PARENB);
+  new->c_cflag |= CS8;
+#endif
 }
 
+
+
+
+/*-------------------------------------------------------------------------*
+ * INSTALL_RESIZE_HANDLER                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Install_Resize_Handler()
+{
+#if defined(HAVE_WORKING_SIGACTION) || defined(M_solaris) || defined(M_sco)
+
+  struct sigaction act;
+  act.sa_sigaction = (void (*)()) Resize_Handler;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_RESTART;
+  sigaction(SIGWINCH, &act, NULL);
+
+#else
+
+  signal(SIGWINCH, (void (*)()) Resize_Handler);
+
 #endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * RESIZE_HANDLER                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Resize_Handler()
+{
+  int r, c;
+  Pl_LE_Screen_Size(&r, &c);
+  if (c > 0 && r > 0 && (r != nb_rows || c != nb_cols))
+    {
+      Debug_Printf("Resize: %dx%d\n", c, r);
+      nb_rows = r;
+      nb_cols = c;
+      term_pos = (Pl_LE_Get_Current_Position() + Pl_LE_Get_Prompt_Length()) % nb_cols;
+    }
+}
+
+#endif /* defined(__unix__) || defined(__CYGWIN__) */
 
 
 
@@ -477,13 +626,22 @@ Pl_LE_Screen_Size(int *row, int *col)
 
   if (!is_tty_out)
     {
-      row = col = 0;
+      *row = *col = 0;
       return;
     }
-
-  ioctl(fd_out, TIOCGWINSZ, &ws);
-  nb_rows = *row = ws.ws_row;
-  nb_cols = *col = ws.ws_col;
+  
+  ws.ws_row = ws.ws_col = 0;	/* default (error) values */
+  if (ioctl(fd_out, TIOCGWINSZ, &ws) == -1 || ws.ws_row == 0 || ws.ws_col == 0)
+    {				/* under lldb ioctl fails (workaround use: process launch -tty) but here we ask /dev/tty */
+      int fd = open("/dev/tty", O_RDONLY);
+      if (fd != -1)
+	{
+	  ioctl(fd, TIOCGWINSZ, &ws);
+	  close (fd);
+	}
+    }
+  *row = ws.ws_row;
+  *col = ws.ws_col;
 
 #elif defined(_WIN32)
 
@@ -493,6 +651,7 @@ Pl_LE_Screen_Size(int *row, int *col)
     {
       *row = csbi.dwSize.Y;
       *col = csbi.dwSize.X;
+      /* alternative: *col = csbi.srWindow.Bottom - csbi.srWindow.Top + 1; */
     }
   else
     {
@@ -606,45 +765,77 @@ void
 Pl_LE_Put_Char(int c)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
-  char c0 = c;
+  static char buf[20];
+  int n;
+
+  /* recognize \a \n \b and normal characters
+   * \b sends a \b to the terminal. But it cannot wrap around backward
+   * we thus use a term_pos to know if we need to go up one line "by hand"
+   * NB: term_pos is incremented on each char, so it counts the prompt length
+   *
+   * We also use it at the end of a line to force the cursor on the beginning
+   * of the next line (see remark below).
+   *
+   * In any case, term_pos is not stricly necessary and can be computed from
+   * the current pos in linedit. This is what is done in Resize_Handler.
+   */
+
+  
+  buf[0] = c;
+  buf[1] = '\0';
 
   if (use_ansi)
     {
-      char buf[20];
+      /* If stdin/stdout use different tty, SIGWINCH only catch the main tty resizes.
+       * In that case, we here systematically check if size changed.
+       */
+      if (!same_tty)
+	Resize_Handler();
 
       switch(c)
         {
         case '\b':
-          if (pos == 0)
+          if (term_pos == 0)
             {
-              pos = nb_cols - 1;
-              sprintf(buf, "\033[A\033[%dC", pos);
-              if (write(fd_out, buf, strlen(buf))) /* to avoid gcc warning warn_unused_result */
-		{
-		}
-
-
-              return;
+	      Debug_Printf("\n++++++ UP\n");
+              term_pos = nb_cols - 1;
+              sprintf(buf, "\033[A\033[%dC", term_pos); /* cursor at end of previous line */
             }
-          pos--;
+	  else 
+	    term_pos--;
           break;
 
         case '\a':
           break;
 
         case '\n':
-          pos = 0;
+          term_pos = 0;
           break;
 
         default:
-          if (++pos > nb_cols)
-            pos = 1;
+	  /* On some terminals, when displaying the last character of a line, 
+	   * the cursor remains on the last column (instead of advancing to 
+	   * beginning of next line) and only does a nl on the next character.
+	   * So, add a space + \b if on last column to force newline
+	   * (we do not add \n since when resizing the screen the newlines stay there)
+	   */
+	  if (++term_pos >= nb_cols && nb_cols > 0)
+	    { 
+	      Debug_Printf("\n====== ADD SPACE TO FORCE NEWLINE after char:%c  pos:%d\n", c, term_pos);
+	      buf[1] = ' ';
+	      buf[2] = '\b';
+	      buf[3] = '\0';
+	      term_pos = 0;	/* like a \n */
+	    }
         }
     }
  
-  c0 = c;
-  if (write(fd_out, &c0, 1))  /* to avoid gcc warning warn_unused_result */
+  
+  n = strlen(buf);
+  if (write(fd_out, buf, strlen(buf)) != n)
     {
+      /* loop if errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ? */
+      Debug_Printf("ERROR trying to write on fd: %d, errno: %d\n", fd_out, errno);
     }
 
 #elif defined(_WIN32)
@@ -771,7 +962,7 @@ Pl_LE_Get_Char(void)
 
           c = KEY_ID2(modif, c);
 #if 0
-	  printf("\n++++ key id: %d (%x)  modif: %d  end char: %c n[0]=%d  n[1]=%d\n", c, c, modif, esc_c, number[0], number[1]);
+	  Debug_Printf("\n++++ key id: %d (%x)  modif: %d  end char: %c n[0]=%d  n[1]=%d\n", c, c, modif, esc_c, number[0], number[1]);
 #endif
         }
       else
@@ -806,7 +997,7 @@ LE_Get_Char0(void)
     else if (c == 27)
       strcpy(s, (c == 27) ? "ESC": "???");
       
-    printf("char0: %d %s\n", c, s);
+    Debug_Printf("char0: %d %s\n", c, s);
   }
 #endif
   return (int) c;

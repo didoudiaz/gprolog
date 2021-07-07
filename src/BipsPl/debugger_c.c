@@ -6,7 +6,7 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -245,15 +245,16 @@ Pl_Remove_One_Choice_Point_1(WamWord b_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Choice_Point_Info_5(WamWord b_word, 
-		       WamWord module_word, WamWord func_word, WamWord arity_word,
-		       WamWord lastb_word)
+Pl_Choice_Point_Info_5(WamWord b_word, WamWord module_word, WamWord func_word, WamWord arity_word, WamWord lastb_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
   PredInf *pred;
 
-
+  /* TODO Check why this is so different from master branch, also the cast 
+   * It has been changed in module branch (see commit clean uses of PlLong *, WamCont and CodePtr, 2013-03-07)
+   * for Detect_Pred_From_Code (in master PlLong *, here CodePtr ? */
+  
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
@@ -924,7 +925,7 @@ Print_Wam_Word(WamWord *word_adr)
 
       case SHORT_UNS:
 	value = (WamWord) UnTag_Short_Uns(word);
-	if (tag == ATM && value >= 0 && value < pl_max_atom &&
+	if (tag == ATM && Is_Valid_Atom(value) &&
 	    pl_atom_tbl[value].name != NULL)
 	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%" PL_FMT_d,
 			VALUE_PART_LENGTH, pl_atom_tbl[value].name,
@@ -981,7 +982,7 @@ Print_Wam_Word(WamWord *word_adr)
   functor = Functor_Of(word);
   arity = Arity_Of(word);
 
-  if (functor >= 0 && functor < pl_max_atom && pl_atom_tbl[functor].name != NULL
+  if (Is_Valid_Atom(functor) && pl_atom_tbl[functor].name != NULL
       && arity >= 0 && arity <= MAX_ARITY)
     Pl_Stream_Printf(pstm_o, "%12s/%-3d", pl_atom_tbl[functor].name, arity);
 }
@@ -1114,7 +1115,7 @@ Modify_Wam_Word(WamWord *word_adr)
       word = Str_To_PlLong(read_arg[0], &p, 0);
       if (*p != '\0')
 	word = (PlLong) Pl_Create_Allocate_Atom(read_arg[0]);
-      else if (word < 0 || word >= pl_max_atom)
+      else if (!Is_Valid_Atom(word))
 	goto err;
 
       *word_adr = Functor_Arity(word, i);

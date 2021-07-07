@@ -6,7 +6,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -278,6 +278,14 @@ PlLong Pl_Rd_Integer(PlTerm term);
 PlLong Pl_Rd_Positive_Check(PlTerm term);
 
 PlLong Pl_Rd_Positive(PlTerm term);
+
+int Pl_Rd_C_Int_Check(PlTerm start_word);
+
+int Pl_Rd_C_Int(PlTerm start_word);
+
+int Pl_Rd_C_Int_Positive_Check(PlTerm start_word);
+
+int Pl_Rd_C_Int_Positive(PlTerm start_word);
 
 double Pl_Rd_Float_Check(PlTerm term);
 

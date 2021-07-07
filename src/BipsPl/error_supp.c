@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -229,14 +229,15 @@ Error_Supp_Initializer(void)
   pl_representation_max_arity = Pl_Create_Atom("max_arity");
   pl_representation_max_integer = Pl_Create_Atom("max_integer");
   pl_representation_min_integer = Pl_Create_Atom("min_integer");
+  pl_representation_integer_32bits = Pl_Create_Atom("integer_32bits");
   pl_representation_too_many_variables = Pl_Create_Atom("too_many_variables");
 				/* for Pl_Copy_Term(),... */
 
-  pl_evluation_float_overflow = Pl_Create_Atom("float_overflow");
-  pl_evluation_int_overflow = Pl_Create_Atom("int_overflow");
-  pl_evluation_undefined = Pl_Create_Atom("undefined");
-  pl_evluation_underflow = Pl_Create_Atom("underflow");
-  pl_evluation_zero_divisor = Pl_Create_Atom("zero_divisor");
+  pl_evaluation_float_overflow = Pl_Create_Atom("float_overflow");
+  pl_evaluation_int_overflow = Pl_Create_Atom("int_overflow");
+  pl_evaluation_undefined = Pl_Create_Atom("undefined");
+  pl_evaluation_underflow = Pl_Create_Atom("underflow");
+  pl_evaluation_zero_divisor = Pl_Create_Atom("zero_divisor");
 
 
   pl_resource_print_object_not_linked = Pl_Create_Atom("print_object_not_linked");
@@ -421,11 +422,12 @@ Pl_Context_Error_1(WamWord err_word)
 static char *
 Context_Error_String(void)
 {
-  static char buff[256];
+  static char buff[1024];
 
-  sprintf(buff, "%s", pl_atom_tbl[cur_bip_func].name);
-  if (cur_bip_arity >= 0)
-    sprintf(buff + strlen(buff), "/%d", cur_bip_arity);
+  if (cur_bip_arity < 0)
+    return pl_atom_tbl[cur_bip_func].name;
+
+  sprintf(buff + strlen(buff), "%s/%d", pl_atom_tbl[cur_bip_func].name, cur_bip_arity);
 
   return buff;
 }

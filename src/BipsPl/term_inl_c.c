@@ -6,7 +6,7 @@
  * Descr.: term (inline) management - C part                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -196,7 +196,7 @@ Pl_Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
 {
   WamWord *arg_adr;
   int func, arity;
-  int arg_no;
+  PlLong arg_no;
 
   Pl_Set_C_Bip_Name("arg", 3);
 
@@ -205,7 +205,7 @@ Pl_Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
 
   Pl_Unset_C_Bip_Name();
 
-  return (unsigned) arg_no < (unsigned) arity &&
+  return (unsigned long) arg_no < (unsigned long) arity &&
     Pl_Unify(sub_term_word, arg_adr[arg_no]);
 }
 
@@ -222,7 +222,7 @@ Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
   WamWord word, tag_mask;
   WamWord *adr;
   WamWord tag_functor;
-  int arity;
+  PlLong arity;
   Bool res;
 
 
@@ -304,7 +304,7 @@ Pl_Blt_Univ(WamWord term_word, WamWord list_word)
   WamWord *adr;
   WamWord car_word;
   int lst_length;
-  WamWord *arg1_adr;
+  WamWord *arg1_adr = NULL;	/* init for the compiler */
   WamWord *term_adr, *lst_adr, *stc_adr;
   WamWord functor_word, functor_tag;
   int functor;
@@ -526,7 +526,7 @@ Pl_Term_Ref_2(WamWord term_word, WamWord ref_word)
 {
   WamWord word, tag_mask;
   WamWord word1, *adr;
-  int ref;
+  PlLong ref;
 				/* my own DEREF here to get the address */
   adr = NULL;			/* added this */
   word = term_word;

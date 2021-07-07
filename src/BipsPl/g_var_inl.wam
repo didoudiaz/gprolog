@@ -1,94 +1,94 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : g_var_inl.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/g_var_inl.pl').
 
 
-predicate(system:'$use_g_var_inl'/0,41,static,private,monofile,built_in,[
+predicate('$use_g_var_inl'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:g_assign/2,44,static,private,monofile,built_in,[
+predicate(g_assign/2,44,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_assignb/2,50,static,private,monofile,built_in,[
+predicate(g_assignb/2,50,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Assignb',[fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_link/2,56,static,private,monofile,built_in,[
+predicate(g_link/2,56,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_read/2,62,static,private,monofile,built_in,[
+predicate(g_read/2,62,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_array_size/2,68,static,private,monofile,built_in,[
+predicate(g_array_size/2,68,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Array_Size',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_inc/1,73,static,private,monofile,built_in,[
+predicate(g_inc/1,73,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Inc',[fast_call],[x(0)]),
     proceed]).
 
 
-predicate(system:g_inco/2,77,static,private,monofile,built_in,[
+predicate(g_inco/2,77,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Inco',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_inc/2,81,static,private,monofile,built_in,[
+predicate(g_inc/2,81,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Inc_2',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_inc/3,85,static,private,monofile,built_in,[
+predicate(g_inc/3,85,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Inc_3',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:g_dec/1,91,static,private,monofile,built_in,[
+predicate(g_dec/1,91,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Dec',[fast_call],[x(0)]),
     proceed]).
 
 
-predicate(system:g_deco/2,95,static,private,monofile,built_in,[
+predicate(g_deco/2,95,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Deco',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_dec/2,99,static,private,monofile,built_in,[
+predicate(g_dec/2,99,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Dec_2',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_dec/3,103,static,private,monofile,built_in,[
+predicate(g_dec/3,103,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Dec_3',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:g_set_bit/2,109,static,private,monofile,built_in,[
+predicate(g_set_bit/2,109,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Set_Bit',[fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_reset_bit/2,115,static,private,monofile,built_in,[
+predicate(g_reset_bit/2,115,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Reset_Bit',[fast_call],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_test_set_bit/2,121,static,private,monofile,built_in,[
+predicate(g_test_set_bit/2,121,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Test_Set_Bit',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:g_test_reset_bit/2,127,static,private,monofile,built_in,[
+predicate(g_test_reset_bit/2,127,static,private,monofile,built_in,[
     call_c('Pl_Blt_G_Test_Reset_Bit',[fast_call,boolean],[x(0),x(1)]),
     proceed]).

@@ -1,15 +1,15 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : read.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/read.pl').
 
 
-predicate(system:'$use_read'/0,41,static,private,monofile,built_in,[
+predicate('$use_read'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read/1,49,static,private,monofile,built_in,[
+predicate(read/1,49,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read,1]),
@@ -20,7 +20,7 @@ predicate(system:read/1,49,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read/2,54,static,private,monofile,built_in,[
+predicate(read/2,54,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -33,7 +33,7 @@ predicate(system:read/2,54,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_term/2,76,static,private,monofile,built_in,[
+predicate(read_term/2,76,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -53,12 +53,12 @@ predicate(system:read_term/2,76,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_term/3,83,static,private,monofile,built_in,[
+predicate(read_term/3,83,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_term,3]),
     execute('$read_term'/3)]).
 
 
-predicate(system:'$read_term'/3,87,static,private,monofile,built_in,[
+predicate('$read_term'/3,87,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -79,7 +79,7 @@ predicate(system:'$read_term'/3,87,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$set_read_defaults'/0,95,static,private,monofile,built_in,[
+predicate('$set_read_defaults'/0,95,static,private,monofile,built_in,[
     allocate(0),
     put_integer(0,0),
     put_integer(0,1),
@@ -90,7 +90,7 @@ predicate(system:'$set_read_defaults'/0,95,static,private,monofile,built_in,[
     execute('$sys_var_write'/2)]).
 
 
-predicate(system:'$get_read_options'/4,102,static,private,monofile,built_in,[
+predicate('$get_read_options'/4,102,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -122,7 +122,7 @@ predicate(system:'$get_read_options'/4,102,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$get_read_options1'/1,113,static,private,monofile,built_in,[
+predicate('$get_read_options1'/1,113,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
@@ -150,7 +150,7 @@ label(4),
     execute('$get_read_options1'/1)]).
 
 
-predicate(system:'$get_read_options2'/1,120,static,private,monofile,built_in,[
+predicate('$get_read_options2'/1,120,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -234,7 +234,7 @@ label(13),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(system:'$$get_read_options2/1_$aux2'/1,149,static,private,monofile,local,[
+predicate('$$get_read_options2/1_$aux2'/1,149,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -259,7 +259,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate(system:'$$get_read_options2/1_$aux1'/1,139,static,private,monofile,local,[
+predicate('$$get_read_options2/1_$aux1'/1,139,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -293,7 +293,7 @@ label(7),
     execute('$sys_var_write'/2)]).
 
 
-predicate(system:read_atom/1,163,static,private,monofile,built_in,[
+predicate(read_atom/1,163,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_atom,1]),
@@ -304,7 +304,7 @@ predicate(system:read_atom/1,163,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_atom/2,169,static,private,monofile,built_in,[
+predicate(read_atom/2,169,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -317,7 +317,7 @@ predicate(system:read_atom/2,169,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_integer/1,177,static,private,monofile,built_in,[
+predicate(read_integer/1,177,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_integer,1]),
@@ -328,7 +328,7 @@ predicate(system:read_integer/1,177,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_integer/2,183,static,private,monofile,built_in,[
+predicate(read_integer/2,183,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -341,7 +341,7 @@ predicate(system:read_integer/2,183,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_number/1,191,static,private,monofile,built_in,[
+predicate(read_number/1,191,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_number,1]),
@@ -352,7 +352,7 @@ predicate(system:read_number/1,191,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_number/2,197,static,private,monofile,built_in,[
+predicate(read_number/2,197,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -365,36 +365,36 @@ predicate(system:read_number/2,197,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_token/1,205,static,private,monofile,built_in,[
+predicate(read_token/1,205,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_token,1]),
     call_c('Pl_Read_Token_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:read_token/2,209,static,private,monofile,built_in,[
+predicate(read_token/2,209,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_token,2]),
     call_c('Pl_Read_Token_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:last_read_start_line_column/2,215,static,private,monofile,built_in,[
+predicate(last_read_start_line_column/2,215,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[last_read_start_line_column,2]),
     call_c('Pl_Last_Read_Start_Line_Column_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:char_conversion/2,222,static,private,monofile,built_in,[
+predicate(char_conversion/2,222,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[char_conversion,2]),
     call_c('Pl_Char_Conversion_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:current_char_conversion/2,229,static,private,monofile,built_in,[
+predicate(current_char_conversion/2,229,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_char_conversion,2]),
     call_c('Pl_Current_Char_Conversion_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:'$current_char_conversion_alt'/0,236,static,private,monofile,built_in,[
+predicate('$current_char_conversion_alt'/0,236,static,private,monofile,built_in,[
     call_c('Pl_Current_Char_Conversion_Alt_0',[boolean],[]),
     proceed]).

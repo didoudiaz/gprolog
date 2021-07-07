@@ -6,7 +6,9 @@
 See file README for a list of currently available ports:
 
 The file PROBLEMS contains a list of known problems/limitations depending on 
-the architecure. Please consult it before reporting a problem.
+the architecture. Please consult it before reporting a problem.
+
+See files WINDOWS or MACOS for information on these architectures.
 
 
 
@@ -16,8 +18,8 @@ Installing the source distribution
 1) Introduction
 ---------------
 
-** Win32 preamble **
-	To compile GNU-Prolog under win32 see file src/WINDOWS.
+** Windows preamble **
+	To compile GNU-Prolog under Windows see file src/WINDOWS.
 
 The following tools are required to compile and install the source package:
    gcc, as, ranlib (if needed), sh, mkdir, cp, rm, sed, test,...
@@ -26,8 +28,9 @@ The installation process is as follows:
 
    cd src				go to source directory
    ./configure [OPTIONS]		configure the system
-   make					compile locally the package
-   make install or (make install-strip)	install the package
+   make					compile locally
+   make doc				compile locally the documentation (maybe not needed)
+   make install or (make install-strip)	install the package (maybe needs root privileges)
 
 you can check the result of the local compilation using:
 
@@ -54,26 +57,27 @@ These other directories are optional:
 
    EXAMPLES_DIR the directory for the examples, contains:
       EXAMPLES_DIR/ExamplsPl  some classical Prolog examples
-      EXAMPLES_DIR/ExamplesFD some examples using FD constraint solving
+      EXAMPLES_DIR/ExamplesFD≈ some examples using FD constraint solving
 
 Default directory values and associated configuration options are as follows:
 
    The value of INSTALL_DIR is as follows:
 
       - PREFIX/gprolog-VERSION_NUMBER (this is the default)
-	the default value of PREFIX is /usr/local but can be explicitely
+	the default value of PREFIX is /usr/local but can be explicitly
         specified using --prefix=PREFIX
 
       - another location can be specified using --with-install-dir=INSTALL_DIR
 
       - the source distribution directory (i.e. where reside this INSTALL file)
-        This in-place installation can be specified using --prefix=in-place or
-        --with-install-dir=in-place
+        This "in-place" installation is obtained using --with-install-dir=in-place
+	or --prefix=/in-place
+	(NB: recent autoconf needs an absolut path for --prefix, hence the /in-place)
 
    The value of LINKS_DIR is as follows:
 
       - EPREFIX/bin. The value of EPREFIX is the same as PREFIX but can be
-        explicitely specified using --exec-prefix=EPREFIX
+        explicitly specified using --exec-prefix=EPREFIX
 
       - another location can be specified --with-links-dir=LINKS_DIR
 
@@ -140,7 +144,7 @@ Options to control the location of other components:
   --without-doc-dir                do not install the documentation
 
   --with-html-dir=HTML_DIR         specify HTML_DIR
-  --without-thml-dir               do not install the HTML documentation
+  --without-html-dir               do not install the HTML documentation
 
   --with-examples-dir=EXAMPLES_DIR specify EXAMPLESS_DIR
   --without-examples-dir           do not install the examples
@@ -194,6 +198,32 @@ To configure the package for an in-place installation:
    ./configure --prefix=in-place
 
 
+To specify another C compiler:
+
+   1) if the binary is called gcc, you can simply set the PATH so that the
+      desired version be selected when your run gcc
+      (use gcc --version or gcc --version -v for more info)
+
+   2) define the CC variable before invoking ./configure.
+      For instance to use the original gcc instead of clang on mac:
+      CC=gcc-10 ./configure
+      or
+      CC=/opt/homebrew/bin/gcc-10 ./configure
+      (see also file src/MACOS)
+
+   3) to use a complete toolchain with prefixed binaries with PREFIX
+      use ./configure --host PREFIX
+      E.g. a mingw64 toolchain with binaries prefixed with x86_64-w64-mingw32
+      ./configure --host=x86_64-w64-mingw32
+      this will look for x86_64-w64-mingw32-gcc.exe and  x86_64-w64-mingw32-ar.exe,...
+
+To specify another assembler, do similarly replacing CC by AS:
+
+   e.g. AS=gas ./configure
+   or   AS='gcc -c'
+
+
+
 4) Compiling the package locally
 --------------------------------
 
@@ -241,7 +271,7 @@ Setting up environment variables
 
 To be able to execute GNU Prolog from anywhere the directory LINKS_DIR should
 be a part of your PATH environment variable (generally this directory is
-already in the PATH variable). However, if no links have been creeated
+already in the PATH variable). However, if no links have been created
 (either --without-links-dir has been specified or in case of default in-place
 installation) you should add the directory INSTALL_DIR/bin to your PATH
 variable. This can be done as follows (let us suppose INSTALL_DIR is

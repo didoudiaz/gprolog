@@ -6,7 +6,7 @@
  * Descr.: random number generator management - C part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -68,7 +68,7 @@
 void
 Pl_Set_Seed_1(WamWord seed_word)
 {
-  Pl_M_Set_Seed(Pl_Rd_Positive_Check(seed_word));
+  Pl_M_Set_Seed(Pl_Rd_C_Int_Positive_Check(seed_word));
 }
 
 

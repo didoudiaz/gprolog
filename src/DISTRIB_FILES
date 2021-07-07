@@ -24,7 +24,7 @@ doc/[a-z][a-z]?*.pdf
 doc/[a-z][a-z]?*.chm
 doc/[a-z][a-z]?*.html
 doc/html_node/[a-z][a-z]?*.html
-doc/html_node/[a-z][a-z]?*.gif
+doc/html_node/[a-z][a-z]?*.png
 doc/html_node/[a-z][a-z]?*.hh[ckp]
 doc/html_node/[a-z][a-z]?*.tex
 doc/html_node/[a-z][a-z]?*.css
@@ -59,7 +59,9 @@ src/SETVARS
 src/CSHSETVARS
 src/DOSSETVARS.BAT
 src/WINDOWS
-src/WINDOWS64
+src/WINDOWS-OLD
+src/WINDOWS64-OLD
+src/MACOS
 src/README
 src/AUTOCONF-INFO
 src/DEVELOPMENT

@@ -6,7 +6,7 @@
  * Descr.: read/1 and friends - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -95,8 +95,8 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Read_Term_5(WamWord sora_word, WamWord term_word,
-	    WamWord vars_word, WamWord var_names_word,
-	    WamWord sing_names_word)
+	       WamWord vars_word, WamWord var_names_word,
+	       WamWord sing_names_word)
 {
   WamWord word;
   int stm;
@@ -188,11 +188,10 @@ Pl_Read_Term_5(WamWord sora_word, WamWord term_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Read_Term_4(WamWord term_word,
-	    WamWord vars_word, WamWord var_names_word,
-	    WamWord sing_names_word)
+	       WamWord vars_word, WamWord var_names_word,
+	       WamWord sing_names_word)
 {
-  return Pl_Read_Term_5(NOT_A_WAM_WORD, term_word, vars_word, var_names_word,
-		     sing_names_word);
+  return Pl_Read_Term_5(NOT_A_WAM_WORD, term_word, vars_word, var_names_word, sing_names_word);
 }
 
 
@@ -461,8 +460,7 @@ Pl_Current_Char_Conversion_Alt_0(void)
   int c_in1, c_out1;
 
 
-  Pl_Update_Choice_Point((CodePtr)
-		      Prolog_Predicate(CURRENT_CHAR_CONVERSION_ALT, 0), 0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_CHAR_CONVERSION_ALT, 0), 0);
 
   in_char_word = AB(B, 0);
   out_char_word = AB(B, 1);

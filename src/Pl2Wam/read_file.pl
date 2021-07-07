@@ -6,7 +6,7 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -324,7 +324,6 @@ read_predicate1(Pred, N, LSrcCl) :-
 	Pred = end_of_file,
 	N = 0,
 	LSrcCl = [], !.                                         % end of file
-	             
 
 
 
@@ -923,7 +922,7 @@ add_module_export_info(Pred/N) :-
 	).
 
 
-
+:- op(700, xfx, as).		% can be removed 
 
 add_module_import_info([], _) :-
 	!.
@@ -1231,7 +1230,7 @@ flag_bit(pub, 2).
 flag_bit(bpl, 3).
 flag_bit(bfd, 4).
 flag_bit(discontig, 5).
-flag_bit(cut, 6).
+flag_bit(need_cut_level, 6).
 flag_bit(meta, 7).
 flag_bit(multi, 8).
 
@@ -1240,20 +1239,20 @@ flag_bit(multi, 8).
 
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	(   retract(pred_info(F, N, X))
-	;   X = 0
+	(   retract(pred_info(F, N, InfoMask))
+	;   InfoMask = 0
 	), !,
-	X1 is X \/ 1 << Bit,
-	assertz(pred_info(F, N, X1)).
+	InfoMask1 is InfoMask \/ 1 << Bit,
+	assertz(pred_info(F, N, InfoMask1)).
 
 
 
 
 unset_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	retract(pred_info(F, N, X)), !,
-	X1 is X /\ \ (1 << Bit),
-	assertz(pred_info(F, N, X1)).
+	retract(pred_info(F, N, InfoMask)), !,
+	InfoMask1 is InfoMask /\ \ (1 << Bit),
+	assertz(pred_info(F, N, InfoMask1)).
 
 unset_pred_info(_, _, _).
 
@@ -1262,8 +1261,8 @@ unset_pred_info(_, _, _).
 
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	clause(pred_info(F, N, X), _),
-	X /\ 1 << Bit > 0, !.
+	clause(pred_info(F, N, InfoMask), _), 
+	InfoMask /\ 1 << Bit > 0, !.
 
 test_pred_info(bpl, F, N) :- % an exported pred in system is a built_in - remove if not wanted
 	g_read(module, system),

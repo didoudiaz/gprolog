@@ -37,7 +37,17 @@
 
 #define M_Indirect_Goto(p_lab) {register long adr=(long) p_lab; _asm jmp adr}
 
-#else
+#elif defined(__clang__) && defined(M_x86_64) /* indirect goto does not work with clang */
+//#define M_Indirect_Goto(p_lab) { __asm__("movq %[addr], %%rax\n" "jmpq *%%rax\n" : : [addr] "r" (p_lab));}
+//#define M_Indirect_Goto(p_lab) { __asm__("jmpq *%%rax\n" : : "a" (p_lab));}
+#define M_Indirect_Goto(p_lab) { __asm__("jmpq *%0\n" : : "r" (p_lab));}
+
+#elif defined(__clang__) && defined(M_arm64) /* indirect goto does not work with clang */
+//#define M_Indirect_Goto(p_lab) { __asm__("movq %[addr], %%rax\n" "jmpq *%%rax\n" : : [addr] "r" (p_lab));}
+//#define M_Indirect_Goto(p_lab) { __asm__("jmpq *%%rax\n" : : "a" (p_lab));}
+#define M_Indirect_Goto(p_lab) { __asm__("br %0\n" : : "r" (p_lab));}
+
+#else /* GCC standard case (the above jmpq should work also) */
 
 #define M_Indirect_Goto(p_lab) {goto *(void*) p_lab;}
 
@@ -64,7 +74,7 @@
 
 #    define M_Direct_Goto(lab)     {_asm {jmp M_Asm_Symbol(lab)}; return;}
 
-#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris) || defined(M_x86_64_bsd)
+#elif defined(M_x86_64)
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
 
@@ -75,6 +85,10 @@
 #elif defined(M_m68k_NeXT)
 
 #    define M_Direct_Goto(lab)     {asm("jmp " M_Asm_Symbol(lab)); return;}
+
+#elif defined(M_arm32) || defined(M_arm64)
+
+#    define M_Direct_Goto(lab)     {asm("b " M_Asm_Symbol(lab)); return;}
 
 #endif
 

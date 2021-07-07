@@ -6,7 +6,7 @@
  * Descr.: parser                                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -48,7 +48,6 @@
 #include "wam_parser.h"
 #include "wam_protos.h"
 
-#include "../EnginePl/pl_long.h"
 
 
 
@@ -273,7 +272,7 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
   ParseInf *in = what;
   ArgVal *top = arg;
   int i, k;
-  int fct_called = 0;
+  Bool fct_called = FALSE;
 
   k = Scanner(0);
   if (k == 0 && what == decl)			/* end of file */
@@ -299,7 +298,7 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 	  if (in->arg_type[i] == LIST_INST)
 	    {
 	      (*in->fct) (arg);
-	      fct_called = 1;
+	      fct_called = TRUE;
 
 	      Read_Token('[');
 	      for (;;)

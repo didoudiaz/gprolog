@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -101,6 +101,12 @@
 #include <htmlhelp.h>
 
 #if WITH_HTMLHELP == 1 && defined(__GNUC__)
+#ifndef M_ix86
+#ifdef __fastcall
+#undef __fastcall
+#endif
+#define __fastcall
+#endif
 void __fastcall __GSHandlerCheck() {}
 void __fastcall __security_check_cookie(unsigned* p) {}
 unsigned* __security_cookie;
@@ -1257,7 +1263,6 @@ Make_Windows_Filter(char *filter)
   char suffixes[] = PROLOG_FILE_SUFFIX PROLOG_FILE_SUFFIXES_ALT;
   char suffix_spac[64], *s1;	/* buff for Prolog suffixes separared by space (%s) */
   char suffix_star[64], *s2;    /* buff for *.Prolog suffixes separared by semicolon (%S) */
-  int len1 = 0, len2 = 0;
   char *p, *q;
 
   /* %s is replaced by Prolog suffixes .xxx .yyy .zzz (space separated)
@@ -1496,11 +1501,7 @@ Get_CHM_Help_Path(char *path)
 #endif
 
   if (devel_mode)
-    {
-      sprintf(path, "%s\\..\\doc\\gprolog.chm", p);
-      if (access(path, F_OK) != 0)
-        sprintf(path, "%s\\..\\..\\doc\\gprolog.chm", p);
-    }
+    sprintf(path, "%s\\..\\doc\\gprolog.chm", p);
   else
     sprintf(path, "%s\\doc\\gprolog.chm", p);
   return 1;
@@ -1978,7 +1979,7 @@ Find_Text_Console_Handle(void)
   char uniq_title[256];
 
   GetConsoleTitle(save_title, sizeof(save_title));
-  sprintf(uniq_title, "%ld/%ld", GetTickCount(), GetCurrentProcessId());
+  sprintf(uniq_title, "%ld/%ld", (long) GetTickCount(), (long) GetCurrentProcessId());
   SetConsoleTitle(uniq_title);
   Sleep(40); // wait to be sure the title is displayed
   hwnd = FindWindow(NULL, uniq_title);

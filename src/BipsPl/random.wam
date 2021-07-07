@@ -1,38 +1,38 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : random.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/random.pl').
 
 
-predicate(system:'$use_random'/0,41,static,private,monofile,built_in,[
+predicate('$use_random'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:randomize/0,45,static,private,monofile,built_in,[
+predicate(randomize/0,45,static,private,monofile,built_in,[
     call_c('Pl_M_Randomize',[],[]),
     proceed]).
 
 
-predicate(system:set_seed/1,51,static,private,monofile,built_in,[
+predicate(set_seed/1,51,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_seed,1]),
     call_c('Pl_Set_Seed_1',[],[x(0)]),
     proceed]).
 
 
-predicate(system:get_seed/1,58,static,private,monofile,built_in,[
+predicate(get_seed/1,58,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_seed,1]),
     call_c('Pl_Get_Seed_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:random/1,65,static,private,monofile,built_in,[
+predicate(random/1,65,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[random,1]),
     call_c('Pl_Random_1',[],[x(0)]),
     proceed]).
 
 
-predicate(system:random/3,72,static,private,monofile,built_in,[
+predicate(random/3,72,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[random,3]),
     call_c('Pl_Random_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

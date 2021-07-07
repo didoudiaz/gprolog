@@ -6,7 +6,7 @@
  * Descr.: stream selection and control management - C part                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -500,7 +500,7 @@ Pl_Close_Stm(int stm, Bool force)
 
   Pl_Stream_Flush(pstm);
 
-  if (stm == pl_stm_stdin || stm == pl_stm_stdout)
+  if (stm == pl_stm_stdin || stm == pl_stm_stdout || stm == pl_stm_stderr)
     return;
 
   if (stm == pl_stm_top_level_input || stm == pl_stm_top_level_output)
@@ -561,7 +561,6 @@ void
 Pl_Flush_Output_1(WamWord sora_word)
 {
   int stm;
-
 
   stm = (sora_word == NOT_A_WAM_WORD)
     ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
@@ -692,7 +691,7 @@ Bool
 Pl_Stream_Prop_Mode_2(WamWord mode_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
@@ -799,7 +798,7 @@ Bool
 Pl_Stream_Prop_Eof_Action_2(WamWord eof_action_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
@@ -832,7 +831,7 @@ Bool
 Pl_Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 
@@ -875,7 +874,7 @@ Bool
 Pl_Stream_Prop_End_Of_Stream_2(WamWord end_of_stream_word, WamWord stm_word)
 {
   int stm;
-  int atom;
+  int atom = 0;			/* init for the compiler */
 
   stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
 

@@ -6,7 +6,7 @@
  * Descr.: meta call management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -93,8 +93,8 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   int caller_arity = arity_rest + 1;
   int module, func, arity_clos, arity;
   WamWord goal_word;
-  WamWord *arg_adr;
-#if 0
+  WamWord *arg_adr = NULL;	/* init for the compiler */
+#if 0				/* TODO check why it is so different from master branch */
   PredInf *pred;
   WamWord *w;
   int i;

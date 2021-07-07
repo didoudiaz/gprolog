@@ -1,4 +1,3 @@
-ROOT_DIR1     = @ROOT_DIR1@
 LIB_ENGINE_PL = @LIB_ENGINE_PL@
 GPLC          = @GPLC@
 CC            = @CC@ @CFLAGS_MACHINE@

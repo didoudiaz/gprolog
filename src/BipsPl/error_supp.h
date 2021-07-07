@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -138,13 +138,14 @@ int pl_representation_in_character_code;
 int pl_representation_max_arity;
 int pl_representation_max_integer;
 int pl_representation_min_integer;
+int pl_representation_integer_32bits;
 int pl_representation_too_many_variables;	/* for Pl_Copy_Term(),... */
 
-int pl_evluation_float_overflow;
-int pl_evluation_int_overflow;
-int pl_evluation_undefined;
-int pl_evluation_underflow;
-int pl_evluation_zero_divisor;
+int pl_evaluation_float_overflow;
+int pl_evaluation_int_overflow;
+int pl_evaluation_undefined;
+int pl_evaluation_underflow;
+int pl_evaluation_zero_divisor;
 
 
 int pl_resource_print_object_not_linked; 	/* for print and format */
@@ -244,14 +245,15 @@ extern int pl_representation_in_character_code;
 extern int pl_representation_max_arity;
 extern int pl_representation_max_integer;
 extern int pl_representation_min_integer;
+extern int pl_representation_integer_32bits;
 extern int pl_representation_too_many_variables;/* for Pl_Copy_Term(),... */
 
 
-extern int pl_evluation_float_overflow;
-extern int pl_evluation_int_overflow;
-extern int pl_evluation_undefined;
-extern int pl_evluation_underflow;
-extern int pl_evluation_zero_divisor;
+extern int pl_evaluation_float_overflow;
+extern int pl_evaluation_int_overflow;
+extern int pl_evaluation_undefined;
+extern int pl_evaluation_underflow;
+extern int pl_evaluation_zero_divisor;
 
 
 extern int resource_too_many_open_streams; 	/* for streams */

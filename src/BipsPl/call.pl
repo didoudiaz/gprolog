@@ -6,7 +6,7 @@
  * Descr.: meta call management                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -59,13 +59,16 @@ once(Goal) :-
 :- meta_predicate(call_det(0, ?)).
 
 call_det(Goal, Deterministic) :-
+	set_bip_name(call_det, 2),
 	(   nonvar(Deterministic),
 	    Deterministic \== false,
 	    Deterministic \== true ->
-	    set_bip_name(call, 2),
 	    '$pl_err_type'(boolean, Deterministic)
 	;   true
 	),
+	'$call_det'(Goal, Deterministic).
+	
+'$call_det'(Goal, Deterministic) :-
 	'$get_current_B'(B),
 	call(Goal),
 	'$get_current_B'(B1),

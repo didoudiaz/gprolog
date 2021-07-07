@@ -45,7 +45,7 @@ You should obtain something like:
 
 reg_bank=&X(0):0x8052a00   B:0x8053ac0   E:0x8054ac0  &Y(0):0x8054ab0
 stack:0x8053ac0
-test 1: c_code intializer...
+test 1: c_code initializer...
 test 1  OK
 test 2: long local/global ...
 test 2  OK
@@ -97,7 +97,7 @@ test 25: call_c()+move_ret FD()...
 test 25  OK
 test 26: call_c()+switch_ret...
 test 26  OK
-MA checks suceeded
+MA checks succeeded
 
 (you can use make clean-chkma to erase chkma objects/execs)
 
@@ -114,7 +114,7 @@ initialize them). Normally this should be OK but you can test it.
    make test_oc
    ./test_oc
 
-This will find 5 modules and display somthing like:
+This will find 5 modules and display something like:
 
 starting...
 object <object #5> found  &name:0x804c200
@@ -124,7 +124,7 @@ object <object #2> found  &name:0x804c1a0
 object <object #1> found  &name:0x804c180
 finished - OK !
 
-The important point to check is if 5 modules are found and peferably in reverse
+The important point to check is if 5 modules are found and preferably in reverse
 order. If not you have to debug the file EnginePl/obj_chain.c. Since 1.3.0 we use gcc
 __atribute__((constructor)).
 
@@ -135,7 +135,7 @@ __atribute__((constructor)).
 to check if the stack overflow detection is ok. See file EnginePl/machine.c (function
 SIGSEGV_Handler). The important point here is to obtain the address which caused the
 SIGSEGV (the rest of the function detects which stack is involved from that
-addresss).  look at the files EnginePl/*_SIGSEGV.C
+address).  look at the files EnginePl/*_SIGSEGV.C
 
 
 
@@ -158,7 +158,7 @@ things to test:
 	ctrl/c (prg TEST_CTRLC.c)
 
 7) Once all compile fine and pl2wam and gprolog executables are created you can check
-the bootstraping by:
+the bootstrapping by:
 
    cd Pl2Wam
    make check
@@ -170,3 +170,6 @@ the same for Built-ins;
    make check
    Bootstrap Prolog Bips OK
 
+
+LocalWords:  asm_inst.s asm_inst.c chkma label,mem initialize clean-test_oc
+LocalWords:  linedit

@@ -1,15 +1,15 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : dec10io.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/dec10io.pl').
 
 
-predicate(system:'$use_dec10io'/0,41,static,private,monofile,built_in,[
+predicate('$use_dec10io'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$find_existing_stream'/3,45,static,private,monofile,built_in,[
+predicate('$find_existing_stream'/3,45,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(11),
@@ -73,7 +73,6 @@ label(11),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_local_value(y(2)),
-    put_meta_term(system,0,0),
     put_void(1),
     call(clause/2),
     cut(y(3)),
@@ -101,7 +100,7 @@ label(12),
     execute(stream_property/2)]).
 
 
-predicate(system:'$$find_existing_stream/3_$aux1'/3,53,static,private,monofile,local,[
+predicate('$$find_existing_stream/3_$aux1'/3,53,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -126,16 +125,16 @@ predicate(system:'$$find_existing_stream/3_$aux1'/3,53,static,private,monofile,l
 label(1),
     trust_me_else_fail,
     allocate(0),
-    put_structure('$dec10_stream'/3,3),
+    get_variable(x(3),0),
+    put_structure('$dec10_stream'/3,0),
     unify_local_value(x(1)),
-    unify_local_value(x(0)),
+    unify_local_value(x(3)),
     unify_local_value(x(2)),
-    put_meta_term(system,3,0),
     call(retract/1),
     fail]).
 
 
-predicate(system:see/1,73,static,private,monofile,built_in,[
+predicate(see/1,73,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -156,7 +155,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(system:'$see/1_$aux1'/2,73,static,private,monofile,local,[
+predicate('$see/1_$aux1'/2,73,static,private,monofile,local,[
     try_me_else(1),
     put_atom(input,2),
     execute('$find_existing_stream'/3),
@@ -176,12 +175,11 @@ label(1),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_atom(input),
-    put_meta_term(system,0,0),
     deallocate,
     execute(assertz/1)]).
 
 
-predicate(system:seeing/1,89,static,private,monofile,built_in,[
+predicate(seeing/1,89,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(3),
@@ -199,7 +197,7 @@ predicate(system:seeing/1,89,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:seen/0,97,static,private,monofile,built_in,[
+predicate(seen/0,97,static,private,monofile,built_in,[
     pragma_arity(1),
     get_current_choice(x(0)),
     allocate(2),
@@ -216,7 +214,7 @@ predicate(system:seen/0,97,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$seen/0_$aux1'/1,97,static,private,monofile,local,[
+predicate('$seen/0_$aux1'/1,97,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_void(0),
@@ -228,7 +226,7 @@ label(1),
     proceed]).
 
 
-predicate(system:tell/1,107,static,private,monofile,built_in,[
+predicate(tell/1,107,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -249,7 +247,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(system:'$tell/1_$aux1'/2,107,static,private,monofile,local,[
+predicate('$tell/1_$aux1'/2,107,static,private,monofile,local,[
     try_me_else(1),
     put_atom(output,2),
     execute('$find_existing_stream'/3),
@@ -269,12 +267,11 @@ label(1),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_atom(output),
-    put_meta_term(system,0,0),
     deallocate,
     execute(assertz/1)]).
 
 
-predicate(system:telling/1,123,static,private,monofile,built_in,[
+predicate(telling/1,123,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(3),
@@ -292,7 +289,7 @@ predicate(system:telling/1,123,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:told/0,131,static,private,monofile,built_in,[
+predicate(told/0,131,static,private,monofile,built_in,[
     pragma_arity(1),
     get_current_choice(x(0)),
     allocate(2),
@@ -309,7 +306,7 @@ predicate(system:told/0,131,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$told/0_$aux1'/1,131,static,private,monofile,local,[
+predicate('$told/0_$aux1'/1,131,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_void(0),
@@ -321,7 +318,7 @@ label(1),
     proceed]).
 
 
-predicate(system:append/1,140,static,private,monofile,built_in,[
+predicate(append/1,140,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -342,7 +339,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(system:'$append/1_$aux1'/2,140,static,private,monofile,local,[
+predicate('$append/1_$aux1'/2,140,static,private,monofile,local,[
     try_me_else(1),
     put_atom(output,2),
     execute('$find_existing_stream'/3),
@@ -362,18 +359,17 @@ label(1),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_atom(output),
-    put_meta_term(system,0,0),
     deallocate,
     execute(assertz/1)]).
 
 
-predicate(system:get0/1,156,static,private,monofile,built_in,[
+predicate(get0/1,156,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get0,1]),
     call_c('Pl_Get_Code_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:get/1,162,static,private,monofile,built_in,[
+predicate(get/1,162,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get,1]),
@@ -386,7 +382,7 @@ predicate(system:get/1,162,static,private,monofile,built_in,[
     execute('$get/1_$aux1'/2)]).
 
 
-predicate(system:'$get/1_$aux1'/2,162,static,private,monofile,local,[
+predicate('$get/1_$aux1'/2,162,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -404,13 +400,13 @@ label(1),
     proceed]).
 
 
-predicate(system:put/1,171,static,private,monofile,built_in,[
+predicate(put/1,171,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put,1]),
     call_c('Pl_Put_Code_1',[],[x(0)]),
     proceed]).
 
 
-predicate(system:skip/1,176,static,private,monofile,built_in,[
+predicate(skip/1,176,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(2),
@@ -428,7 +424,7 @@ predicate(system:skip/1,176,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$check_in_character_code'/1,186,static,private,monofile,built_in,[
+predicate('$check_in_character_code'/1,186,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -449,7 +445,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate(system:'$$check_in_character_code/1_$aux1'/1,189,static,private,monofile,local,[
+predicate('$$check_in_character_code/1_$aux1'/1,189,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -470,7 +466,7 @@ label(1),
     execute('$pl_err_representation'/1)]).
 
 
-predicate(system:tab/1,201,static,private,monofile,built_in,[
+predicate(tab/1,201,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[tab,1]),

@@ -6,7 +6,7 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -39,6 +39,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef HAVE_FLOAT_H
+#include <float.h>
+#endif
 
 #define OBJ_INIT Arith_Initializer
 
@@ -50,7 +53,7 @@
 #endif
 
 
-/* PI */
+/* PI and E */
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932384
@@ -117,6 +120,8 @@ static WamWord Make_Tagged_Float(double d);
 static double To_Double(WamWord x);
 
 static WamWord Load_Math_Expression(WamWord exp);
+
+static double Integ_Pow(double x, double y);
 
 
 
@@ -223,6 +228,117 @@ Pl_Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_CLASSIFY_DOUBLE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Classify_Double(double x)
+{
+#ifdef fpclassify 
+  switch(fpclassify(x))
+    {
+    case FP_NAN:
+      return PL_FP_NAN;
+    case FP_INFINITE:
+      return PL_FP_INFINITE;
+    case FP_SUBNORMAL:
+      return PL_FP_SUBNORMAL;
+    }
+#elif defined(HAVE_FPCLASS)
+  switch(fpclass(x))
+    {
+    case FP_SNAN:
+    case FP_QNAN:
+      return PL_FP_NAN;
+    case FP_NINF:
+    case FP_PINF:
+      return PL_FP_INFINITE;
+    case FP_NDENORM:
+    case FP_PDENORM:
+      return PL_FP_SUBNORMAL;
+    }
+#elif defined(HAVE__FPCLASS)
+  switch(_fpclass(x))
+    {
+    case _FPCLASS_SNAN:
+    case _FPCLASS_QNAN:
+      return PL_FP_NAN;
+    case _FPCLASS_NINF:
+    case _FPCLASS_PINF:
+      return PL_FP_INFINITE;
+    case _FPCLASS_ND:
+    case _FPCLASS_PD:
+      return PL_FP_SUBNORMAL;
+    }
+#else
+#ifdef HAVE_ISNAN
+  if (isnan(x))
+    return PL_FP_NAN;
+#endif
+#ifdef HAVE_ISINF
+  if (isinf(x))
+    return PL_FP_INFINITE;
+#endif
+#endif
+  return PL_FP_NORMAL;
+}
+
+
+
+static void
+Check_Double_Errors(double x)
+{
+  switch(Pl_Classify_Double(x))
+    {
+    case PL_FP_NAN:
+      Pl_Err_Evaluation(pl_evaluation_undefined);
+
+    case PL_FP_INFINITE:
+      Pl_Err_Evaluation(pl_evaluation_float_overflow);
+      
+#if 0  /* ignored for the moment, maybe add prolog_flags to control this, see swi */
+    case PL_FP_SUBNORMAL:
+      Pl_Err_Evaluation(pl_evaluation_underflow);
+#endif
+    }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_NAN                                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+double
+Pl_NaN(void)
+{
+#ifdef NAN
+  return NAN;
+#else
+  return 0.0 / 0.0;
+#endif
+}
+
+
+
+static PlLong
+Double_To_PlLong(double d)
+{
+  Check_Double_Errors(d);
+
+  PlLong x = (PlLong) d;
+  if ((double) x != d)
+      Pl_Err_Evaluation(pl_evaluation_int_overflow);
+    
+  return x;
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_MATH_LOAD_VALUE                                                      *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -267,7 +383,11 @@ Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 static WamWord
 Make_Tagged_Float(double d)
 {
-  WamWord x = Tag_FLT(H);
+  WamWord x;
+
+  Check_Double_Errors(d);
+
+  x = Tag_FLT(H);
 
   Pl_Global_Push_Float(d);
 
@@ -275,7 +395,7 @@ Make_Tagged_Float(double d)
 }
 
 
-
+  
 
 /*-------------------------------------------------------------------------*
  * TO_DOUBLE                                                               *
@@ -421,7 +541,7 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
 
 #define C_Mul(x, y)  ((x) * (y))
 
-#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(pl_evluation_zero_divisor), 0))
+#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(pl_evaluation_zero_divisor), 0))
 
 #define Identity(x)  (x)
 
@@ -564,7 +684,7 @@ Pl_Fct_Fast_Div(WamWord x, WamWord y)
   PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx / vy);
 }
@@ -576,7 +696,7 @@ Pl_Fct_Fast_Rem(WamWord x, WamWord y)
   PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx % vy);
 }
@@ -589,7 +709,7 @@ Pl_Fct_Fast_Mod(WamWord x, WamWord y)
   PlLong m;
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   m = vx % vy;
 
@@ -607,7 +727,7 @@ Pl_Fct_Fast_Div2(WamWord x, WamWord y)
   PlLong m;
 
   if (vy == 0)
-    Pl_Err_Evaluation(pl_evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   m = vx % vy;
 
@@ -725,7 +845,12 @@ Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
-  PlLong p = (PlLong) pow(vx, vy);
+  
+  if (vx != 1 && vy <= -1)
+    Pl_Err_Type(pl_type_float, x);
+
+  double r = Integ_Pow(vx, vy);
+  PlLong p = Double_To_PlLong(r);
   return Tag_INT(p);
 }
 
@@ -907,9 +1032,22 @@ Pl_Fct_Max(WamWord x, WamWord y)
 WamWord FC
 Pl_Fct_Integer_Pow(WamWord x, WamWord y)
 {
-  IFxIFtoIF(x, y, pow, Pl_Fct_Fast_Integer_Pow);
+  IFxIFtoIF(x, y, Integ_Pow, Pl_Fct_Fast_Integer_Pow);
 }
 
+
+/* ISO Tech Corr. 3 9.3.10 - special error cases for integer power (^)/2 */
+static double
+Integ_Pow(double x, double y)
+{
+  if (x == 0.0 && y < 0)
+    return Pl_NaN();
+
+  if (x == 1.0)
+    return x;
+  
+  return pow(x, y);
+}
 
 
 WamWord FC

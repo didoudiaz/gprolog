@@ -6,7 +6,7 @@
  * Descr.: pass 1: syntactic sugar removing                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,12 +36,36 @@
  *-------------------------------------------------------------------------*/
 
 
-
-syntactic_sugar_init_pred(Pred, _) :-
+    /* for auxiliary predicates we do not restart the aux counter
+     * but instead we continue sequentially.
+     * All aux predicates stemming from p/n have the same prefix
+     * (father pred p/n).
+     */
+  
+syntactic_sugar_init_pred(Pred, _, _) :-
 	'$aux_name'(Pred), !.
 
-syntactic_sugar_init_pred(_, _) :-
-	g_assign(aux, 1).
+    /* Caution: the aux predicates stemming from a multifile pred p/n can
+     * cause name clashes when compiled to byte-code.
+     * These aux pred names are named p/n_$aux<K> where K is a seq number.
+     * Since these predicates are also stored in the global predicate table
+     * 2 clauses for p/n (defined in p1.pl and p2.pl) giving rise to aux
+     * predicates will produce 2 clasinhg p/n_$aux1.
+     * We here use the hash of the file name and a random number for the
+     * starting aux number.
+     */
+
+syntactic_sugar_init_pred(Pred, N, PlFile) :-
+	(   g_read(native_code, f), test_pred_info(multi, Pred, N) ->
+	    randomize,
+	    term_hash(PlFile, H),
+	    Max is (1 << 26),
+	    random(1, Max, R),
+	    Aux is (H + R) /\ (Max - 1) % avoid negative number
+	;
+	    Aux = 1
+	),
+	g_assign(aux, Aux).
 
 
 
@@ -51,133 +75,184 @@ syntactic_sugar(SrcCl, Head, Body2) :-
 	;   SrcCl = Head,
 	    Body = true
 	), !,
-	normalize_cuts(Body, Body1),
+	normalize_cuts(Body, Body1, _HasCut),
 	normalize_alts(Body1, Head, Body2).
 
 
+ /*
+  * Cuts
+  *
+  * The compilation of cut in p/n requires to:
+  *    1) copy the value of B at the entry of the p/n
+  *    2) restore B with this copy when the cut ! occurs
+  *
+  * In 1), the instruction to copy B must occur before the code of any clause
+  * (i.e. before any choice-point creation of the predicate).
+  * Here, we generate a '$get_cut_level'(V) at the beginning of a clause
+  * contianing cuts and a '$cut'(V) for each effective cut.
+  *
+  * If p/n (with args in X(0)..X(n-1)) has cuts, B is copied into X(n)
+  * with a get_current_choice(X(n)) instruction. This must occur before any
+  * choice-point creation instruction (in indexing.pl).
+  * NB: if X(n) is used for the cut level, it must be saved in choice-points
+  * in the case of a cut occurs in a following clause. For this we generate a
+  * pragma_arity(N+1) which adjust the number of arguments to save in the
+  * choice-points (indexing.pl).
+  *
+  * A '$get_cut_level'(V) will give rise to a simple copy instruction X(n)->V
+  * (in code_gen.pl).
+  * A '$cut'(V) will produce a cut(V) WAM instruction.
+  * 
+  *
+  * If-Then/If-Then-Else
+  *
+  * (If -> Then) is rewritten as
+  *   '$get_current_choice'(X), If, '$cut'(X).
+  *
+  * (If -> Then ; Else) is rewritten as
+  *   ('$get_cut_level'(X), If, '$cut'(X), Then ; Else)
+  * which will give rise to an auxiliary predicate:
+  *
+  *   'p/n_$auxK' :- '$get_cut_level'(X), If, '$cut'(X), Then.
+  *   'p/n_$auxK' :- Else.
+  * 
+  * Soft-Cut
+  *
+  * A soft-cut preserve the alternatives of If and only "cut" the Else
+  * alternative. For this the soft_cut(B') WAM instruction "forgets" the
+  * choice-point pointed by B' (choice-points are traversed from the top B
+  * until B' is encountered ; it is then unlinked).
+  * While a cut instruction points to the last choice-point to keep) a
+  * a  soft-cut instruction points to the choice-point to kill.
+  *
+  * (If *-> Then) is equivalent to and rewritten as
+  *   (If, Then)
+  *
+  * (If *-> Then ; Else) is rewritten as
+  *   '$get_current_choice'(X), If, '$soft_cut'(X), Then ; Else
+  * which will give rise to an auxiliary predicate:
+  *   'p/n_$auxK' :- '$get_current_choice'(X), If, '$soft_cut'(X), Then
+  *   'p/n_$auxK' :- Else.
+  *
+  * Cut opacity:
+  *
+  * In -> or *->, the If part is not transparent to cut (ie. opaque). A cut in
+  * the If part is thus local to the If (think to a call(If) instead of If).
+  * e.g. (If -> Then ; Else)  <==>  (call(If) -> Then ; Else)
+  *
+  * If a cut occurs in If, '$cut'(X) is produced to restore B to the
+  * choice point recorded just before the If. Cuts in Then or Else give rise
+  * to a classical '$cut'(V) as explained at the beginning.
+  */
 
-normalize_cuts(Body, Body2) :-
-	g_assign(has_cut, f),
+normalize_cuts(Body, Body2, HasCut) :-
 	get_module_of_cur_pred(Module), % to solve module qualification
-	normalize_cuts1(Body, Module, CutVar, Body1), !,
-	(   g_read(has_cut, t) ->
+	normalize_cuts1(Body, Module, CutVar, Body1, HasCut), !,
+	(   HasCut == t ->
 	    Body2 = ('$get_cut_level'(CutVar), Body1)
-	;   Body2 = Body1
+	;
+	    Body2 = Body1
 	).
 
 
-	/* About cut transparency in IF-THEN and IF-THEN-ELSE
-	 *  (IF -> THEN)         <==>  (call(IF) -> THEN)
-	 *  (IF -> THEN ; ELSE)  <==>  (call(IF) -> THEN ; ELSE)
-	 *
-	 * Thus the IF part is not transparent (ie. opaque) for the cut
-	 * (the cut is local to the IF)
-	 */
 
 
-	/* NB: difference between cut and soft cut:
-	 *
-   	 * cut: a cut generates a '$get_cut_level'(V) followed by a '$cut'(V)
-	 *      '$get_cut_level'(V) will give rise to a copy from X(arity) to V
-	 *      (see code_gen.pl). The initialization of X(arity) is done once
-	 *      at the beginning of the predicate (before any choice-point creation)
-	 *      thus X(arity) is saved in choice-points. The initialization is
-	 *      done by a WAM instruction get_current_choice(x(Arity)) (indexing.pl)
-	 *
-	 * soft cut: gives rise to a '$get_current_choice'(V) followed by a '$soft_cut'(V)
-	 *      '$get_current_choice'(V) is translated as a WAM instruction
-	 *      get_current_choice(V).
-	 *
-	 * Thus, a cut points to the last choice-point to keep while a soft cut
-	 * points to the choice-point to kill.
-	 */
-
-normalize_cuts1(P, Module, CutVar, P1) :-
+normalize_cuts1(P, Module, CutVar, P1, HasCut) :-
 	var(P),
-	normalize_cuts1(call(P), Module, CutVar, P1).
+	normalize_cuts1(call(P), Module, CutVar, P1, HasCut).
 
-normalize_cuts1((If ; R), Module, CutVar, Body) :-
-	nonvar(If),
-	(   If = (P -> Q), Body = ('$get_cut_level'(CutVar1), P1, '$cut'(CutVar1), Q1 ; R1)
+normalize_cuts1(!, _Module, CutVar, '$cut'(CutVar), t).
+
+normalize_cuts1((IfThen ; R), Module, CutVar, Body, HasCut) :-
+	nonvar(IfThen),
+	(   IfThen = (P -> Q),
+	    Body1 = ('$get_cut_level'(CutVar1), P1, '$cut'(CutVar1), Q1 ; R1)
 	;
-	    If = (P *-> Q), Body = ('$get_current_choice'(CutVar1), P1, '$soft_cut'(CutVar1), Q1 ; R1)
+	    IfThen = (P *-> Q),
+	    Body1 = ('$get_current_choice'(CutVar1), P1, '$soft_cut'(CutVar1), Q1 ; R1)
 	),
-	normalize_cuts_in_if(P, P1),
-	normalize_cuts1(Q, Module, CutVar, Q1),
-	normalize_cuts1(R, Module, CutVar, R1).
+	normalize_cuts1(R, Module, CutVar, R1, HasCut),
+	(   g_read(optim_fail, t), R1 == fail ->
+	    normalize_cuts1(IfThen, Module, CutVar, Body, HasCut)
+	;
+	    normalize_cuts_in_if(P, P1),
+	    normalize_cuts1(Q, Module, CutVar, Q1, HasCut),
+	    Body = Body1
+	).
 
-normalize_cuts1((P -> Q), Module, CutVar, Body) :-
-	Body = ('$get_cut_level'(CutVar1), P1, '$cut'(CutVar1), Q1 ; fail),
-	normalize_cuts_in_if(P, P1),
-	normalize_cuts1(Q, Module, CutVar, Q1).
+normalize_cuts1((P -> Q), Module, CutVar, Body, HasCut) :-
+	normalize_cuts1(P, Module, CutVar1, P1, _HasCut1),
+	normalize_cuts1(Q, Module, CutVar, Q1, HasCut),
+	Body = ('$get_current_choice'(CutVar1), P1, '$cut'(CutVar1), Q1).
 
 	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
-	% However a cut in the test part (P) should be local to P (as in P -> Q).
-	% Hence we replace P *-> Q by P *-> Q1 ; fail
-
-normalize_cuts1((P *-> Q), Module, CutVar, ((P1, Q1) ; fail)) :-
+normalize_cuts1((P *-> Q), Module, CutVar, (P1, Q1), HasCut) :-
 	normalize_cuts_in_if(P, P1),
-	normalize_cuts1(Q, Module, CutVar, Q1).
+	normalize_cuts1(Q, Module, CutVar, Q1, HasCut).
 
-normalize_cuts1(!, _, CutVar, '$cut'(CutVar)) :-
-	g_assign(has_cut, t).
+normalize_cuts1((P ; Q), Module, CutVar, Body, HasCut) :-
+	normalize_cuts1(P, Module, CutVar, P1, HasCut),
+	normalize_cuts1(Q, Module, CutVar, Q1, HasCut),
+	(   g_read(optim_fail, t), P1 == fail, Body = Q1
+	;
+	    g_read(optim_fail, t), Q1 == fail, Body = P1
+	;
+	    Body = (P1; Q1)
+	).
+	    
+normalize_cuts1((P, Q), Module, CutVar, (P1, Q1), HasCut) :-
+	normalize_cuts1(P, Module, CutVar, P1, HasCut),
+	normalize_cuts1(Q, Module, CutVar, Q1, HasCut).
 
-normalize_cuts1((P, Q), Module, CutVar, (P1, Q1)) :-
-	normalize_cuts1(P, Module, CutVar, P1),
-	normalize_cuts1(Q, Module, CutVar, Q1).
+normalize_cuts1(Module:G, _, CutVar, Body, HasCut) :-
+	check_module_name(Module, true),
+	normalize_cuts1(G, Module, CutVar, G1, HasCut),
+	distrib_module_qualif(G1, Module, G2),
+	(   G2 = M2:_, var(M2) ->
+	    normalize_cuts1(call(G2), Module, CutVar, Body, _)
+	;
+	    Body = G2
+	).
 
-normalize_cuts1((P ; Q), Module, CutVar, (P1 ; Q1)) :-
-	normalize_cuts1(P, Module, CutVar, P1),
-	normalize_cuts1(Q, Module, CutVar, Q1).
-
-normalize_cuts1(Module:G, _, CutVar, G1) :-
-	check_module_name_qualif(Module),
-	normalize_cuts1(G, Module, CutVar, G1).
-
-normalize_cuts1(call(G), Module, _, '$call'(G, Module, CallerFunc, CallerArity)) :-
-%	get_module_of_cur_pred(CallerModule),  % FIXME use it when implementing CallerMFA
+normalize_cuts1(call(G), Module, _, '$call'(G, Module, CallerFunc, CallerArity, true), _HasCut) :-
+%	get_module_of_cur_pred(CallerModule), % then use a '$call'(G, Module, CallerModule, CallerFunc, CallerArity, true) when CallerMFA available
 	cur_pred_without_aux(CallerFunc, CallerArity).
 
-normalize_cuts1(catch(G, C, R), Module, _, '$catch'(G, C, R, Module, CallerFunc, CallerArity)) :-
-%	get_module_of_cur_pred(CallerModule),  % FIXME use it when implementing CallerMFA
+normalize_cuts1(catch(G, C, R), Module, _, '$catch'(G, C, R, Module, CallerFunc, CallerArity, true), _HasCut) :-
+%	get_module_of_cur_pred(CallerModule), % then use a '$catch'(G, C, R, Module, CallerModule, CallerFunc, CallerArity, true) when CallerMFA available
 	cur_pred_without_aux(CallerFunc, CallerArity).
 
-normalize_cuts1(throw(B), _, _, '$throw'(B, CallerModule, CallerFunc, CallerArity)) :-
-	get_module_of_cur_pred(CallerModule),
+normalize_cuts1(throw(B), Module, _, '$throw'(B, Module, CallerFunc, CallerArity, true), _HasCut) :-
 	cur_pred_without_aux(CallerFunc, CallerArity).
 
-normalize_cuts1(P, Module, CutVar, P1) :-
-	callable(P),
-	(   var(Module) ->
-	    normalize_cuts1(call(P), Module, CutVar, P1)
+normalize_cuts1(P, Module, _, P1, _HasCut) :-
+      	callable(P),
+        (   meta_pred_rewriting(P, P1) % TODO what to do with Module ?
 	;
 	    useless_module_qualification(Module, P) ->
 	    P1 = P
 	;
 	    P1 = Module:P
 	).
-	
-normalize_cuts1(P, _Module, _CutVar, _P1) :-
+
+normalize_cuts1(P, _Module, _, _P1, _HasCut) :-
 	error('body goal is not callable (~q)', [P]).
 
 
 
+
 	/* A cut in the if-part is local (if-part is opaque)
-	 * If a cut appears we have to create an aux predicate
-	 * for this we use a '$force_aux_pred'/1 term.
-	 * If there is no if, nothing has to be done.
+	 * If a cut appears we have to get the current choice point
+	 * at the entry of the if-part and use it for cuts in the if-part.
 	 */
 
-normalize_cuts_in_if(P, '$force_aux_pred'(P1)) :-
-	g_read(has_cut, SaveHasCut),
-	g_assign(has_cut, f),
-	normalize_cuts(P, P1),
-	g_read(has_cut, HasCut),
-	g_assign(has_cut, SaveHasCut),
-	HasCut = t, !.
-
-normalize_cuts_in_if(P, P).
-
+normalize_cuts_in_if(P, Body) :-
+	normalize_cuts1(P, CutVar, P1, HasCut),
+	(   HasCut == t ->
+	    Body = ('$get_current_choice'(CutVar), P1)
+	;
+	    Body = P1
+	).
 
 
 
@@ -187,7 +262,7 @@ useless_module_qualification(system, _).
 useless_module_qualification(user, _).
 
 useless_module_qualification(Module, _) :-
-	    get_module_of_cur_pred(Module).
+	get_module_of_cur_pred(Module).
 
 useless_module_qualification(Module, P) :-
 	'$get_module_of_goal'(Module, P, system).     
@@ -209,19 +284,19 @@ normalize_alts1((P, Q), RestC, (P1, Q1)) :-
 	normalize_alts1(P, (RestC, Q), P1),
 	normalize_alts1(Q, (RestC, P), Q1).
 
-normalize_alts1(Body0, RestC, AuxPred) :-
-	( Body0 = (_ ; _), Body = Body0 ; Body0 = '$force_aux_pred'(Body) ),
+normalize_alts1(Body, RestC, AuxPred) :-
+	functor(Body, ';', 2),
 	lst_var(RestC, [], VarRestC),
 	lst_var(Body, [], VarAlt),
 	set_inter(VarAlt, VarRestC, V),
-	length(V, N1),
+	length(V, AuxN),
 	g_read(head_functor, Pred),
 	g_read(head_arity, N),
-	init_aux_pred_name(Pred, N, AuxName, N1),
+	init_aux_pred_name(Pred, N, AuxName, AuxN),
 	AuxPred =.. [AuxName|V],
 	g_read(where, Where),
 	linearize(Body, AuxPred, Where, LAuxSrcCl),
-	asserta(buff_aux_pred(AuxName, N1, LAuxSrcCl)).
+	asserta(buff_aux_pred(AuxName, AuxN, LAuxSrcCl)).
 
 normalize_alts1(P, _, P2) :-
 	meta_pred_rewriting(P, P1),
@@ -230,15 +305,15 @@ normalize_alts1(P, _, P2) :-
 
 
 
-init_aux_pred_name(Pred, N, AuxName, N1) :-
+init_aux_pred_name(Pred, N, AuxName, AuxN) :-
 	g_read(aux, Aux),
-	Aux1 is Aux + 1,
+	Aux1 is (Aux + 1) /\ (1 << 26 - 1),  % avoid negative numbers
 	g_assign(aux, Aux1),
 	'$make_aux_name'(Pred, N, Aux, AuxName),
-	(   test_pred_info(bpl, Pred, N),
-	    set_pred_info(bpl, AuxName, N1)
+	(   test_pred_info(bpl, Pred, N), % useful ?
+	    set_pred_info(bpl, AuxName, AuxN)
 	;   test_pred_info(bfd, Pred, N),
-	    set_pred_info(bfd, AuxName, N1)
+	    set_pred_info(bfd, AuxName, AuxN)
 	;   true
 	), !.
 
@@ -250,13 +325,14 @@ linearize(Body, AuxPred, Where, LAuxSrcCl) :-
 	    linearize(Q, AuxPred, Where, LAuxSrcCl1),
 	    linearize1(P, AuxPred, Where, LAuxSrcCl2),
 	    append(LAuxSrcCl2, LAuxSrcCl1, LAuxSrcCl)
-	;   linearize1(Body, AuxPred, Where, LAuxSrcCl)
+	;
+	    linearize1(Body, AuxPred, Where, LAuxSrcCl)
 	).
 
-
+/* should no longer occurs since detected in normalize_cuts - to be removed
 linearize1(fail, _, _, []) :-
-	!.
-
+	g_read(optim_fail, t), !.
+*/
 linearize1(P, AuxPred, Where, [Where + AltP]) :-
 	copy_term((AuxPred :- P), AltP).
 

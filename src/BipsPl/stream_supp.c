@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -227,7 +227,7 @@ Init_Stream_Supp(void)
   pl_use_le_prompt = TRUE;
 
   pl_stm_stdin = Pl_Add_Stream_For_Stdio_Desc(stdin, pl_atom_user_input,
-					      STREAM_MODE_READ, TRUE);
+					      STREAM_MODE_READ, TRUE, TRUE);
 
 #ifndef NO_USE_LINEDIT
   if (pl_le_mode == LE_MODE_HOOK || (pl_le_mode == LE_MODE_TTY && isatty(0)))
@@ -249,7 +249,7 @@ Init_Stream_Supp(void)
 
 
   pl_stm_stdout = Pl_Add_Stream_For_Stdio_Desc(stdout, pl_atom_user_output,
-					       STREAM_MODE_WRITE, TRUE);
+					       STREAM_MODE_WRITE, TRUE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
@@ -267,7 +267,7 @@ Init_Stream_Supp(void)
 
 
   pl_stm_stderr = Pl_Add_Stream_For_Stdio_Desc(stderr, pl_atom_user_error,
-					       STREAM_MODE_WRITE, TRUE);
+					       STREAM_MODE_WRITE, TRUE, TRUE);
 
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
 		/* ok for both GUI and console EOM<->ANSI conversion */
@@ -349,7 +349,8 @@ Pl_Prop_And_Stdio_Mode(int mode, Bool text, char *open_str)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
+Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
+			     Bool force_eof_reset)
 {
   char open_str[10];
   StmProp prop = Pl_Prop_And_Stdio_Mode(mode, text, open_str);
@@ -359,7 +360,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text)
     STREAM_BUFFERING_LINE;
 
   Pl_Stdio_Set_Buffering(f, prop.buffering);
-  if (isatty(fileno(f)))
+  if (force_eof_reset || isatty(fileno(f)))
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
   return Pl_Add_Stream(atom_path, (PlLong) f, prop,
@@ -387,7 +388,7 @@ Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
 
   atom_path = Pl_Create_Allocate_Atom(path);
 
-  return Pl_Add_Stream_For_Stdio_Desc(f, atom_path, mode, text);
+  return Pl_Add_Stream_For_Stdio_Desc(f, atom_path, mode, text, FALSE);
 }
 
 
@@ -947,7 +948,7 @@ Pl_Stdio_Is_Repositionable(FILE *f)
 void
 Pl_Stdio_Set_Buffering(FILE *f, int buffering)
 {
-  int buff_flag;
+  int buff_flag = 0;		/* init for the compiler */
 
   switch (buffering)
     {
@@ -959,7 +960,7 @@ Pl_Stdio_Set_Buffering(FILE *f, int buffering)
       buff_flag = _IOLBF;
 #ifdef _WIN32
 #ifndef NO_USE_LINEDIT
-      if (!pl_le_mode != LE_MODE_HOOK)	/* in Win32 console app, line buff = full */
+      if (pl_le_mode != LE_MODE_HOOK)	/* in Win32 console app, line buff = full */
 #endif
 	buff_flag = _IONBF;	/* I prefer no buffering */
 #endif

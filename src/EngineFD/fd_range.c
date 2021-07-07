@@ -6,7 +6,7 @@
  * Descr.: FD Range Implementation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -1153,7 +1153,7 @@ Pl_Range_Union(Range *range, Range *range1)
   int swt = (Is_Sparse(range) << 1) + Is_Sparse(range1);
   Range r;
   Bool extra_cstr;
-
+  
   if (swt == 0)			/* Interval with Interval */
     {
       if (Is_Not_Empty(range) && Is_Not_Empty(range1) &&
@@ -1166,6 +1166,7 @@ Pl_Range_Union(Range *range, Range *range1)
 	}
 
       Pl_Range_Becomes_Sparse(range);
+      r.vec = NULL;
       Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
       Pl_Range_Becomes_Sparse(range1);
@@ -1174,6 +1175,7 @@ Pl_Range_Union(Range *range, Range *range1)
     Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
+      r.vec = NULL;
       Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
       Pl_Range_Becomes_Sparse(range1);
@@ -1225,6 +1227,7 @@ Pl_Range_Inter(Range *range, Range *range1)
     Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
+      r.vec = NULL;
       Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
       Pl_Range_Becomes_Sparse(range1);
@@ -1338,6 +1341,7 @@ Pl_Range_Add_Range(Range *range, Range *range1)
     Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
+      r.vec = NULL;
       Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
       Pl_Range_Becomes_Sparse(range1);
@@ -1388,6 +1392,7 @@ Pl_Range_Sub_Range(Range *range, Range *range1)
     Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
+      r.vec = NULL;
       Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
       Pl_Range_Becomes_Sparse(range1);
@@ -1718,7 +1723,7 @@ Pl_Range_To_String(Range *range)
       return buff;
     }
 
-  sprintf(buff, "%s", WRITE_BEGIN_RANGE);
+  strcpy(buff, WRITE_BEGIN_RANGE);
 
   VECTOR_BEGIN_ENUM(range->vec, vec_elem);
   if (limit1 == -1)

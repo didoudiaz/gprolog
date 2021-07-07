@@ -6,7 +6,7 @@
  * Descr.: FD variable information management - C part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -80,10 +80,14 @@ Pl_Fd_Vector_Max_1(WamWord max_word)
  * PL_FD_SET_VECTOR_MAX_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+Bool
 Pl_Fd_Set_Vector_Max_1(WamWord max_word)
 {
-  Pl_Define_Vector_Size(Pl_Rd_Positive_Check(max_word));
+  PlLong max = Pl_Rd_Positive_Check(max_word);
+  if (max > VECTOR_MAX_LIMIT)
+    return FALSE;
+  Pl_Define_Vector_Size(max);
+  return TRUE;
 }
 
 

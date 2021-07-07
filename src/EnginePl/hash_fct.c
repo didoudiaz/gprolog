@@ -6,7 +6,7 @@
  * Descr.: hash function                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -118,11 +118,13 @@ ROTL32(uint32_t x, int8_t r)
   return (x << r) | (x >> (32 - r));
 }
 
+#if 0				/* to avoid compiler warning about unused function */
 static FORCE_INLINE uint64_t
 ROTL64(uint64_t x, int8_t r)
 {
   return (x << r) | (x >> (64 - r));
 }
+#endif
 
 #endif /* !defined(_MSC_VER) */
 

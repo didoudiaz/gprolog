@@ -6,7 +6,7 @@
  * Descr.: architecture dependent features - Header file                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -38,6 +38,16 @@
 
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
+
+/* for signals (see try_sigaction.c) */
+
+#if defined(M_ix86_sco)
+#define _XOPEN_SOURCE 700
+#define _XOPEN_SOURCE_EXTENDED
+#endif
+
+
+
 
 #define CPP_STR1(s) #s
 #define CPP_STR(s) CPP_STR1(s)
@@ -91,6 +101,16 @@
 #endif
 
 
+/* check printf arguments */
+
+#if defined(__GNUC__) && !defined(M_win64) /* gcc on mingw64 warns about PRIdPTR in x86_64_any.c ??? */
+#define ATTR_PRINTF(x) __attribute__((format(printf, x, x + 1)))
+#else
+#define ATTR_PRINTF(x)
+#endif
+
+
+
 
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -129,6 +149,7 @@
 #define strcasecmp                 stricmp
 #define strncasecmp                strnicmp
 #define spawnvp                    _spawnvp
+#define isnan                      _isnan
 #endif
 
 #ifndef F_OK
@@ -189,7 +210,7 @@
 
 
 
-#if defined(M_ix86_cygwin) || defined(M_ix86_sco)
+#if defined(__CYGWIN__) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
 #elif defined(_WIN32)
 #define Set_Line_Buf(s)            setbuf(s, NULL)
@@ -202,7 +223,7 @@
 #define W32_GUI_CONSOLE
 #endif
 
-#ifdef M_sparc_sunos
+#ifdef M_sparc32_sunos
 #define __USE_FIXED_PROTOTYPES__
 #endif
 
@@ -217,7 +238,7 @@
 
 
 
-#if !defined(_WIN32) && !defined(__unix__)
+#if !defined(_WIN32) && !defined(__unix__) /* maybe too radical */
 #define __unix__
 #endif
 
@@ -232,7 +253,7 @@
 #define siglongjmp longjmp
 #endif
 
-#if defined(_WIN64) && !defined(_MSC_VER)
+#if defined(_WIN64) && !defined(_MSC_VER) && !defined(__CYGWIN__)
 /* Mingw64-gcc implements setjmp with msvcrt's _setjmp. This _setjmp
  * has an additional (hidden) argument. If it is NULL, longjmp will NOT do
  * stack unwinding (needed for SEH). By default the the second argument is
@@ -264,8 +285,7 @@
 				/* Fast call macros */
 #if defined(M_ix86)
 
-/* FC_MAX_ARGS_IN_REGS can be decreased (0, 1, 2) - but the inline_asm_data
- * is compiled with 3, if changed, change inlined code in mapper */
+/* FC_MAX_ARGS_IN_REGS can be decreased (0, 1, 2) */
 
 #define COULD_COMPILE_FOR_FC
 #ifdef __GNUC__

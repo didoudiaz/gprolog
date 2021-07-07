@@ -50,6 +50,9 @@ all: config
 config:
 	cd EnginePl; $(MAKE) config
 
+doc:
+	(cd ../doc; $(MAKE) all)
+
 # --- INSTALL --- #
 
 install-strip:
@@ -189,10 +192,8 @@ distclean:
 distdir=/tmp
 distpath=$(distdir)/$(PKG_NAME)
 
-dist: check_doc $(PKG_NAME).tar.gz
+dist: doc $(PKG_NAME).tar.gz
 
-check_doc:
-	(cd ../doc; make all)
 
 $(PKG_NAME).tar.gz: copy_dist_tree
 	(cd $(distdir); tar cf $(ROOT_DIR)/src/$(PKG_NAME).tar $(PKG_NAME))

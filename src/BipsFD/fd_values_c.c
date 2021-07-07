@@ -6,7 +6,7 @@
  * Descr.: FD variable values management - C part                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -540,7 +540,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
 {
   WamWord **array;
   WamWord **p, **end;
-  CmpFct cmp_meth;
+  CmpFct cmp_meth = NULL;	/* init for the compiler */
   PlLong n;
   int i;
   WamWord *fdv_adr;

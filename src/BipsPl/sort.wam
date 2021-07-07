@@ -1,15 +1,15 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : sort.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/sort.pl').
 
 
-predicate(system:'$use_sort'/0,41,static,private,monofile,built_in,[
+predicate('$use_sort'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:sort/2,44,static,private,monofile,built_in,[
+predicate(sort/2,44,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -24,7 +24,7 @@ predicate(system:sort/2,44,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:msort/2,52,static,private,monofile,built_in,[
+predicate(msort/2,52,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -39,7 +39,7 @@ predicate(system:msort/2,52,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:keysort/2,60,static,private,monofile,built_in,[
+predicate(keysort/2,60,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -54,7 +54,7 @@ predicate(system:keysort/2,60,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:sort/1,68,static,private,monofile,built_in,[
+predicate(sort/1,68,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sort,1]),
@@ -67,7 +67,7 @@ predicate(system:sort/1,68,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:msort/1,76,static,private,monofile,built_in,[
+predicate(msort/1,76,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[msort,1]),
@@ -80,7 +80,7 @@ predicate(system:msort/1,76,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:keysort/1,84,static,private,monofile,built_in,[
+predicate(keysort/1,84,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[keysort,1]),

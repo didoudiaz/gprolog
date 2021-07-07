@@ -6,7 +6,7 @@
  * Descr.: code generation - header file                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,17 +36,8 @@
  *-------------------------------------------------------------------------*/
 
 
-#include "../EnginePl/pl_long.h"
-
-#if 0
-#define CHECK_PRINTF_ARGS
-#endif
-
-#ifdef CHECK_PRINTF_ARGS
-#define GCCPRINTF(x) __attribute__((format(printf, x, x + 1)))
-#else
-#define GCCPRINTF(x)
-#endif
+#include "../EnginePl/pl_long.h" /* ensure stdint.h */
+#include "../EnginePl/bool.h"
 
 
 
@@ -59,23 +50,98 @@
  * Type Definitions                *
  *---------------------------------*/
 
+typedef struct
+{
+  Bool can_produce_pic_code;
+  Bool needs_pre_pass;
+  char *comment_prefix;
+  char *local_symb_prefix;
+  char *string_symb_prefix;
+  char *double_symb_prefix;
+  Bool strings_need_null;
+  Bool call_c_reverse_args;
+}
+MapperInf;
+
+
+
+
+typedef struct
+{
+  char *name;			/* name of predicate/fct (label) */
+  Bool prolog;			/* is it prolog ? (or C code which can be an initializer) */
+  Bool initializer;		/* is it an initializer (implies !prolog) */
+  Bool global;			/* is it global ? */
+}
+CodeInf;
+
+
+
+
+typedef struct
+{
+  int no;			/* no in the dico string */
+  char *str;			/* the string (contains surrounding ") */
+  char *symb;			/* the symbol (label) associated to the string */
+}
+StringInf;
+
+
+
+
+typedef struct
+{
+  int no;	 		/* no in the dico double */
+  char *ma_str;			/* as read in the MA file (can be a %a printf format) */
+  Bool is_ma_str_human;		/* is ma_str human readable (or encoded, e.g. %d printf) ? */
+  char *cmt_str;		/* a string usable for a comment */
+  char *symb;			/* the symbol (label) associated to the double */
+  union {
+    double dbl;			/* the double value */
+    int64_t i64;		/* its 64 bits representation */
+    int32_t i32[2];		/* its 2x32 bits representation */
+  }v;
+}
+DoubleInf;
+
+
+
+
+typedef enum
+{
+  NONE,				/* symbol is an uninitialized long (should be in a 0 init section like bss) */
+  INITIAL_VALUE,		/* symbol is an initilialized symbol (see value) */
+  ARRAY_SIZE,			/* symbol is an array of uninitialized longs (value = array size, section like bss) */
+}
+VType;
+
+
+typedef struct
+{
+  char *name;			/* name of the long symbol */
+  Bool global;			/* is it global ? */
+  VType vtype;			/* what we find in value: NONE (and value=1), INITIAL_VALUE, ARRAY_SZIE */
+  PlLong value;			/* the value */
+}
+LongInf;
+
+
+
+
+typedef struct
+{
+  char *prefix;			/* prefix of generated labels */
+  int no;			/* current label no */
+  char label[256];		/* current label */
+}
+LabelGen;
+
+
+
+
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
-
-	  /* defined in mapper files */
-
-#ifndef MAPPER_FILE
-
-extern int can_produce_pic_code;
-extern char *comment_prefix;
-extern char *local_symb_prefix;
-extern int strings_need_null;
-extern int call_c_reverse_args;
-extern char *inline_asm_data[];
-
-#endif
-
 
 	  /* defined in ma_parser.c */
 
@@ -87,9 +153,14 @@ extern int reload_e;
 
 #ifndef MA2ASM_FILE
 
-extern int pic_code;
+extern Bool comment;
+extern Bool pic_code;
+extern MapperInf mi;
+extern LabelGen lg_cont; /* used by macros Label_Cont_XXX() below */
 
 #endif
+
+
 
 
 
@@ -103,14 +174,13 @@ extern int pic_code;
 
 void Declare_Initializer(char *initializer_fct);
 
-void Call_C(char *fct_name, int fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
+void Decl_Code(CodeInf *c);
+
+void Decl_Long(LongInf *l);
+
+void Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
 
 void Switch_Ret(int nb_swt, SwtInf swt[]);
-
-void Decl_Code(char *name, int prolog, int global);
-
-void Decl_Long(char *name, int global, VType vtype, PlLong value);
-
 
 
 
@@ -119,11 +189,29 @@ void Decl_Long(char *name, int global, VType vtype, PlLong value);
 
 int Is_Code_Defined(char *name);
 
-int Get_Long_Infos(char *name, int *global, VType *vtype, int *value);
+CodeInf *Get_Code_Infos(char *name);
 
-void Label_Printf(char *label, ...) GCCPRINTF(1);
+LongInf *Get_Long_Infos(char *name);
 
-void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
+int Scope_Of_Symbol(char *name);
+
+
+void Label_Gen_Init(LabelGen *g, char *prefix);
+
+char *Label_Gen_New(LabelGen *g);
+
+char *Label_Gen_Get(LabelGen *g);
+
+int Label_Gen_No(LabelGen *g);
+
+#define Label_Cont_New() Label_Gen_New(&lg_cont)
+#define Label_Cont_Get() Label_Gen_Get(&lg_cont)
+#define Label_Cont_No()  Label_Gen_No(&lg_cont)
+
+
+void Label_Printf(char *label, ...) ATTR_PRINTF(1);
+
+void Inst_Printf(char *op, char *operands, ...) ATTR_PRINTF(2);
 
 void Inst_Out(char *op, char *operands);
 
@@ -134,15 +222,17 @@ void String_Out(char *s);
 void Int_Out(int d);
 
 
-	  /* defined in mapper files */
+	  /* defined in each mappers used by parser and ma2asm */
+
+void Init_Mapper(void);
 
 void Asm_Start(void);
 
 void Asm_Stop(void);
 
-void Code_Start(char *label, int prolog, int global);
+void Code_Start(CodeInf *c);
 
-void Code_Stop(void);
+void Code_Stop(CodeInf *c);
 
 void Label(char *label);
 
@@ -170,28 +260,27 @@ void Move_To_Reg_X(int index);
 
 void Move_To_Reg_Y(int index);
 
-void Call_C_Start(char *fct_name, int fc, int nb_args,
-		  int nb_args_in_words, char **p_inline);
+void Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words);
 
 int Call_C_Arg_Int(int offset, PlLong int_val);
 
-int Call_C_Arg_Double(int offset, double dbl_val);
+int Call_C_Arg_Double(int offset, DoubleInf *d);
 
-int Call_C_Arg_String(int offset, int str_no);
+int Call_C_Arg_String(int offset, StringInf *s);
 
-int Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index);
+int Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index);
 
-int Call_C_Arg_Reg_X(int offset, int adr_of, int index);
+int Call_C_Arg_Reg_X(int offset, Bool adr_of, int index);
 
-int Call_C_Arg_Reg_Y(int offset, int adr_of, int index);
+int Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index);
 
-int Call_C_Arg_Foreign_L(int offset, int adr_of, int index);
+int Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index);
 
-int Call_C_Arg_Foreign_D(int offset, int adr_of, int index);
+int Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index);
 
-void Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words);
+void Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words);
 
-void Call_C_Stop(char *fct_name, int nb_args, char **p_inline);
+void Call_C_Stop(char *fct_name, int nb_args);
 
 void Call_C_Adjust_Stack(int nb_pushes);
 
@@ -219,13 +308,19 @@ void C_Ret(void);
 
 void Dico_String_Start(int nb);
 
-void Dico_String(int str_no, char *asciiz);
+void Dico_String(StringInf *s);
 
 void Dico_String_Stop(int nb);
 
+void Dico_Double_Start(int nb);
+
+void Dico_Double(DoubleInf *d);
+
+void Dico_Double_Stop(int nb);
+
 void Dico_Long_Start(int nb);
 
-void Dico_Long(char *name, int global, VType vtype, PlLong value);
+void Dico_Long(LongInf *l);
 
 void Dico_Long_Stop(int nb);
 

@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -255,7 +255,7 @@ Pl_Add_Dynamic_Clause(int module, WamWord head_word, WamWord body_word,
   int func, arity;
   PredInf *pred;
   int index_no;
-  PlLong key;
+  PlLong key = 0;		/* init for the compiler */
   DynCInf *clause;
   DynPInf *dyn;
   char **p_ind_htbl;

@@ -1,16 +1,16 @@
-% compiler: GNU Prolog 1.4.5
+% compiler: GNU Prolog 1.5.0
 % file    : reg_alloc.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/reg_alloc.pl').
 
 
-predicate(user:allocate_registers/1,98,static,private,monofile,global,[
+predicate(allocate_registers/1,98,static,private,monofile,global,[
     put_void(1),
     execute(allocate_registers/2)]).
 
 
-predicate(user:allocate_registers/2,102,static,private,monofile,global,[
+predicate(allocate_registers/2,102,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -31,7 +31,7 @@ predicate(user:allocate_registers/2,102,static,private,monofile,global,[
     execute(assign_lst_tmp/2)]).
 
 
-predicate(user:'$allocate_registers/2_$aux1'/3,102,static,private,monofile,local,[
+predicate('$allocate_registers/2_$aux1'/3,102,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -48,7 +48,7 @@ label(1),
     proceed]).
 
 
-predicate(user:aliases/3,116,static,private,monofile,global,[
+predicate(aliases/3,116,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(1,2,fail,4,fail),
@@ -84,7 +84,7 @@ label(4),
     execute(aliases/3)]).
 
 
-predicate(user:'$aliases/3_$aux1'/3,118,static,private,monofile,local,[
+predicate('$aliases/3_$aux1'/3,118,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -112,7 +112,7 @@ label(1),
     execute(aliases1/3)]).
 
 
-predicate(user:aliases1/3,127,static,private,monofile,global,[
+predicate(aliases1/3,127,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(1,2,fail,4,fail),
@@ -146,7 +146,7 @@ label(4),
     execute(aliases1/3)]).
 
 
-predicate(user:'$aliases1/3_$aux1'/3,129,static,private,monofile,local,[
+predicate('$aliases1/3_$aux1'/3,129,static,private,monofile,local,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -193,7 +193,7 @@ label(7),
     execute(add_alias/4)]).
 
 
-predicate(user:add_alias/4,143,static,private,monofile,global,[
+predicate(add_alias/4,143,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -224,7 +224,7 @@ label(4),
     execute('$add_alias/4_$aux1'/6)]).
 
 
-predicate(user:'$add_alias/4_$aux1'/6,145,static,private,monofile,local,[
+predicate('$add_alias/4_$aux1'/6,145,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -255,14 +255,14 @@ label(1),
     execute(add_alias/4)]).
 
 
-predicate(user:find_aliases_of/3,156,static,private,monofile,global,[
+predicate(find_aliases_of/3,156,static,private,monofile,global,[
     get_list(0),
     unify_variable(x(0)),
     unify_variable(x(3)),
     execute('$find_aliases_of/3_$aux1'/4)]).
 
 
-predicate(user:'$find_aliases_of/3_$aux1'/4,156,static,private,monofile,local,[
+predicate('$find_aliases_of/3_$aux1'/4,156,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -279,7 +279,7 @@ label(1),
     execute(find_aliases_of/3)]).
 
 
-predicate(user:remove_aliases_of/3,165,static,private,monofile,global,[
+predicate(remove_aliases_of/3,165,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -300,7 +300,7 @@ label(4),
     execute('$remove_aliases_of/3_$aux1'/4)]).
 
 
-predicate(user:'$remove_aliases_of/3_$aux1'/4,167,static,private,monofile,local,[
+predicate('$remove_aliases_of/3_$aux1'/4,167,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -326,7 +326,7 @@ label(1),
     execute(remove_aliases_of/3)]).
 
 
-predicate(user:'$remove_aliases_of/3_$aux2'/3,167,static,private,monofile,local,[
+predicate('$remove_aliases_of/3_$aux2'/3,167,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -349,7 +349,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$remove_aliases_of/3_$aux3'/1,167,static,private,monofile,local,[
+predicate('$remove_aliases_of/3_$aux3'/1,167,static,private,monofile,local,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -369,7 +369,7 @@ label(4),
     proceed]).
 
 
-predicate(user:create_lst_tmp/4,184,static,private,monofile,global,[
+predicate(create_lst_tmp/4,184,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     switch_on_term(1,2,fail,4,fail),
@@ -415,7 +415,7 @@ label(4),
     execute(handle_lst_code/6)]).
 
 
-predicate(user:handle_lst_code/6,194,static,private,monofile,global,[
+predicate(handle_lst_code/6,194,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -453,7 +453,7 @@ label(4),
     execute(handle_one_code/7)]).
 
 
-predicate(user:handle_one_code/7,203,static,private,monofile,global,[
+predicate(handle_one_code/7,203,static,private,monofile,global,[
     switch_on_term(2,fail,fail,fail,1),
 
 label(1),
@@ -525,7 +525,7 @@ label(7),
     execute(handle_one_code/7)]).
 
 
-predicate(user:'$handle_one_code/7_$aux2'/7,220,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux2'/7,220,static,private,monofile,local,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -554,7 +554,7 @@ label(1),
     execute('$handle_one_code/7_$aux4'/6)]).
 
 
-predicate(user:'$handle_one_code/7_$aux4'/6,220,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux4'/6,220,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -594,7 +594,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$handle_one_code/7_$aux5'/3,220,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux5'/3,220,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -612,7 +612,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$handle_one_code/7_$aux3'/4,220,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux3'/4,220,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -634,7 +634,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$handle_one_code/7_$aux1'/7,203,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux1'/7,203,static,private,monofile,local,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -690,7 +690,7 @@ label(1),
     execute('$handle_one_code/7_$aux7'/5)]).
 
 
-predicate(user:'$handle_one_code/7_$aux7'/5,203,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux7'/5,203,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -707,7 +707,7 @@ label(1),
     proceed]).
 
 
-predicate(user:'$handle_one_code/7_$aux6'/4,203,static,private,monofile,local,[
+predicate('$handle_one_code/7_$aux6'/4,203,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -729,7 +729,7 @@ label(1),
     proceed]).
 
 
-predicate(user:constraints/4,247,static,private,monofile,global,[
+predicate(constraints/4,247,static,private,monofile,global,[
     get_variable(x(4),2),
     get_variable(x(2),1),
     get_variable(x(1),0),
@@ -737,7 +737,7 @@ predicate(user:constraints/4,247,static,private,monofile,global,[
     execute('$constraints/4_$aux1'/4)]).
 
 
-predicate(user:'$constraints/4_$aux1'/4,247,static,private,monofile,local,[
+predicate('$constraints/4_$aux1'/4,247,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -763,7 +763,7 @@ label(1),
     proceed]).
 
 
-predicate(user:update_tmp/5,257,static,private,monofile,global,[
+predicate(update_tmp/5,257,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -801,7 +801,7 @@ label(4),
     execute('$update_tmp/5_$aux1'/10)]).
 
 
-predicate(user:'$update_tmp/5_$aux1'/10,259,static,private,monofile,local,[
+predicate('$update_tmp/5_$aux1'/10,259,static,private,monofile,local,[
     pragma_arity(11),
     get_current_choice(x(10)),
     try_me_else(1),
@@ -843,7 +843,7 @@ label(1),
     execute(update_tmp/5)]).
 
 
-predicate(user:remove_tmp/5,273,static,private,monofile,global,[
+predicate(remove_tmp/5,273,static,private,monofile,global,[
     get_variable(x(6),4),
     get_variable(x(4),3),
     get_variable(x(9),1),
@@ -858,7 +858,7 @@ predicate(user:remove_tmp/5,273,static,private,monofile,global,[
     execute('$remove_tmp/5_$aux1'/9)]).
 
 
-predicate(user:'$remove_tmp/5_$aux1'/9,273,static,private,monofile,local,[
+predicate('$remove_tmp/5_$aux1'/9,273,static,private,monofile,local,[
     pragma_arity(10),
     get_current_choice(x(9)),
     try_me_else(1),
@@ -880,7 +880,7 @@ label(1),
     execute(remove_tmp/5)]).
 
 
-predicate(user:make_imposs/4,287,static,private,monofile,global,[
+predicate(make_imposs/4,287,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -913,7 +913,7 @@ label(4),
     execute(make_imposs/4)]).
 
 
-predicate(user:'$make_imposs/4_$aux1'/4,289,static,private,monofile,local,[
+predicate('$make_imposs/4_$aux1'/4,289,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -932,7 +932,7 @@ label(1),
     proceed]).
 
 
-predicate(user:assign_lst_tmp/2,301,static,private,monofile,global,[
+predicate(assign_lst_tmp/2,301,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),1),
     get_variable(x(1),0),
@@ -948,7 +948,7 @@ predicate(user:assign_lst_tmp/2,301,static,private,monofile,global,[
     execute(assign_values/3)]).
 
 
-predicate(user:'$assign_lst_tmp/2_$aux1'/3,301,static,private,monofile,local,[
+predicate('$assign_lst_tmp/2_$aux1'/3,301,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -966,7 +966,7 @@ label(1),
     execute(no_wish/3)]).
 
 
-predicate(user:assign_wishes/2,312,static,private,monofile,global,[
+predicate(assign_wishes/2,312,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1010,7 +1010,7 @@ label(4),
     execute(assign_wishes/2)]).
 
 
-predicate(user:'$assign_wishes/2_$aux1'/4,314,static,private,monofile,local,[
+predicate('$assign_wishes/2_$aux1'/4,314,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1030,7 +1030,7 @@ label(1),
     proceed]).
 
 
-predicate(user:collapse_tmps/7,326,static,private,monofile,global,[
+predicate(collapse_tmps/7,326,static,private,monofile,global,[
     pragma_arity(8),
     get_current_choice(x(7)),
     switch_on_term(2,3,fail,1,fail),
@@ -1133,7 +1133,7 @@ label(9),
     execute(collapse_tmps/7)]).
 
 
-predicate(user:'$collapse_tmps/7_$aux1'/3,328,static,private,monofile,local,[
+predicate('$collapse_tmps/7_$aux1'/3,328,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     proceed,
@@ -1145,7 +1145,7 @@ label(1),
     execute(set_elt/2)]).
 
 
-predicate(user:try_a_whish/3,348,static,private,monofile,global,[
+predicate(try_a_whish/3,348,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1166,7 +1166,7 @@ label(1),
     proceed]).
 
 
-predicate(user:no_wish/3,356,static,private,monofile,global,[
+predicate(no_wish/3,356,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1206,7 +1206,7 @@ label(4),
     execute(no_wish/3)]).
 
 
-predicate(user:'$no_wish/3_$aux1'/4,358,static,private,monofile,local,[
+predicate('$no_wish/3_$aux1'/4,358,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1223,7 +1223,7 @@ label(1),
     proceed]).
 
 
-predicate(user:assign_values/3,368,static,private,monofile,global,[
+predicate(assign_values/3,368,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1264,7 +1264,7 @@ label(4),
     execute(assign_values/3)]).
 
 
-predicate(user:'$assign_values/3_$aux1'/3,370,static,private,monofile,local,[
+predicate('$assign_values/3_$aux1'/3,370,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1281,7 +1281,7 @@ label(1),
     proceed]).
 
 
-predicate(user:find_hole/3,382,static,private,monofile,global,[
+predicate(find_hole/3,382,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
@@ -1319,7 +1319,7 @@ label(7),
     execute('$find_hole/3_$aux1'/4)]).
 
 
-predicate(user:'$find_hole/3_$aux1'/4,388,static,private,monofile,local,[
+predicate('$find_hole/3_$aux1'/4,388,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1344,7 +1344,7 @@ label(1),
     execute(find_hole/3)]).
 
 
-predicate(user:'$find_hole/3_$aux2'/3,388,static,private,monofile,local,[
+predicate('$find_hole/3_$aux2'/3,388,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1361,7 +1361,7 @@ label(1),
     proceed]).
 
 
-predicate(user:set_add/3,403,static,private,monofile,global,[
+predicate(set_add/3,403,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
@@ -1407,7 +1407,7 @@ label(7),
     execute(set_add/3)]).
 
 
-predicate(user:set_delete/3,414,static,private,monofile,global,[
+predicate(set_delete/3,414,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,fail,fail,1,fail),
@@ -1440,7 +1440,7 @@ label(5),
     execute(set_delete/3)]).
 
 
-predicate(user:set_elt/2,424,static,private,monofile,global,[
+predicate(set_elt/2,424,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(2,fail,fail,1,fail),
@@ -1470,7 +1470,7 @@ label(5),
     execute(set_elt/2)]).
 
 
-predicate(user:set_inter/3,433,static,private,monofile,global,[
+predicate(set_inter/3,433,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
@@ -1519,7 +1519,7 @@ label(7),
     execute(set_inter/3)]).
 
 
-predicate(user:set_union/3,445,static,private,monofile,global,[
+predicate(set_union/3,445,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
@@ -1569,7 +1569,7 @@ label(7),
     execute(set_union/3)]).
 
 
-predicate(user:set_diff/3,457,static,private,monofile,global,[
+predicate(set_diff/3,457,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1599,7 +1599,7 @@ label(4),
     execute(set_diff/3)]).
 
 
-predicate(user:'$set_diff/3_$aux1'/4,459,static,private,monofile,local,[
+predicate('$set_diff/3_$aux1'/4,459,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),

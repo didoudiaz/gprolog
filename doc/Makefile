@@ -33,7 +33,7 @@ TRACE=
 
 
 .SUFFIXES:
-.SUFFIXES: .html .hva .pdf .gif .png .eps .ps .dvi .aux .toc .idx .tex $(SUFFIXES)
+.SUFFIXES: .html .hva .pdf .gif .png .eps .ps .dvi .aux .toc .idx .fls .tex $(SUFFIXES)
 
 help:
 	@echo
@@ -46,8 +46,8 @@ help:
 	@echo 'make html       make HTML versions      (needs HeVeA)'
 	@echo 'make chm        make HTMLHelp version   (needs hhc - Win32 only)'
 	@echo
-	@echo 'make clean      remove all temporary files'
-	@echo 'make distclean  remove all versions and auxiliary files'
+	@echo 'make clean      remove all auxiliary files'
+	@echo 'make distclean  remove all auxiliary files/directories'
 	@echo 'make clean-all  remove all versions'
 	@echo
 	@echo 'make help       this help'
@@ -83,23 +83,18 @@ logo.pdf: ../gprolog.ico
 
 
 
-dvi: $(DVINAME)
-
-$(DVINAME): $(TEX_SRC) $(IMG_EPS)
-	./do_latex -dvi $(TRACE) $(MAIN)
-
-
-
 pdf: $(PDFNAME)
 
 $(PDFNAME): $(TEX_SRC)  $(IMG_PDF)
-	./do_latex -pdf $(TRACE) $(MAIN)
+	latexmk -norc -pdf -aux-directory=aux-pdf $(MAIN)
+
+dvi: ps
 
 
 ps: $(PSNAME)
 
-$(PSNAME): $(DVINAME)
-	dvips -o $(PSNAME) -D 300 $(DVINAME)
+$(PSNAME):
+	latexmk -norc -ps -dvi -aux-directory=aux-ps $(MAIN)
 
 
 
@@ -115,28 +110,32 @@ html_node/index.html: $(HTMLNAME)
 
 chm: $(CHMNAME)
 
-$(CHMNAME): $(HTMLNAME) html_node/hh-$(PREFIX).hhp html_node/index.html
+$(CHMNAME): html_node/hh-$(PREFIX).hhp html_node/index.html
 	-(cd html_node; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) ..) 2>/dev/null || exit 0
 
 clean:
-	rm -f $(PREFIX).aux $(PREFIX).toc $(PREFIX).ind $(PREFIX).idx $(PREFIX).log  $(PREFIX).out $(PREFIX).ilg
-	rm -f $(PREFIX).pdf.aux $(PREFIX).pdf.toc $(PREFIX).pdf.ind $(PREFIX).pdf.idx
-	rm -f $(PREFIX).dvi.aux $(PREFIX).dvi.toc $(PREFIX).dvi.ind $(PREFIX).dvi.idx
+	latexmk -norc -c -aux-directory=aux-pdf $(MAIN)
+	latexmk -norc -c -aux-directory=aux-ps $(MAIN)
 	rm -rf $(PREFIX)*.htoc $(PREFIX)*.haux $(PREFIX)*.hind $(PREFIX)*.hrf
 
 
-distclean: clean-aux
+distclean: clean
+	rm -rf aux-pdf aux-ps
 
 
 clean-all:
 	rm -f $(DVINAME) $(PDFNAME) $(PSNAME) $(CHMNAME)
 	rm -f $(HTMLNAME)
-	(cd html_node ; rm -f *.hhc *.hhk *.css *.hrf *_motif.gif *.png *.html)
+	(cd html_node ; rm -f .hhc *.hhk *.css *.hrf *_motif.gif *.png *.html)
+
 
 clean-aux:
-	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf *.image.tex 
+	rm -f *.aux *.toc *.ind *.idx *.log *.haux *.htoc *.hidx *.hind *.out *.ilg *.hrf *.image.tex *.fls
+	rm -rf aux-pdf aux-ps
 
-clean-full: clean-all clean-aux
+
+clean-full: clean-aux clean-all
+
 
 clean-test:
 	rm -f ?.dvi ?.pdf ?.html ?.ps ?.info ?.txt
@@ -173,4 +172,13 @@ names:
 	@echo "HTMLTGZNAME=$(HTMLTGZNAME)"         >>$(NAMES_FILE)
 	@echo "HTMLNODETGZNAME=$(HTMLNODETGZNAME)" >>$(NAMES_FILE)
 
-for-release: all dist-dvi dist-html names
+for-release: all names
+
+
+check_doc_is_done: $(DVINAME) $(PDFNAME) $(PSNAME) $(HTMLNAME)
+	if [ "$(id -u)" -e 0 ]; then \
+	   echo 'Warning you are root, not recommended to build the documentation, use'; \
+	   echo 'make doc as normal user'; \
+	   exit 1; \
+	fi
+	$(MAKE) all

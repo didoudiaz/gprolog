@@ -6,7 +6,7 @@
  * Descr.: C interface support - header file                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -59,6 +59,14 @@ PlLong Pl_Rd_Integer(WamWord start_word);
 PlLong Pl_Rd_Positive_Check(WamWord start_word);
 
 PlLong Pl_Rd_Positive(WamWord start_word);
+
+int Pl_Rd_C_Int_Check(WamWord start_word);
+
+int Pl_Rd_C_Int(WamWord start_word);
+
+int Pl_Rd_C_Int_Positive_Check(WamWord start_word);
+
+int Pl_Rd_C_Int_Positive(WamWord start_word);
 
 double Pl_Rd_Float_Check(WamWord start_word);
 

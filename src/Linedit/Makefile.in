@@ -26,6 +26,9 @@ $(LIBNAME): $(OBJLIB)
 
 terminal@OBJ_SUFFIX@: terminal.h
 
+linedit@OBJ_SUFFIX@: linedit.h terminal.h ctrl_c.h
+
+
 clean:
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 

@@ -3,10 +3,10 @@
  *                                                                         *
  * Part  : mini-assembler to assembler translator                          *
  * File  : sparc64_any.c                                                   *
- * Descr.: translation file for BSD on sparc64                             *
+ * Descr.: translation file for sparc 64 bits                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2015 Daniel Diaz                                     *
+ * Copyright (C) 1999-2021 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -40,13 +40,15 @@
 #include <stdarg.h>
 
 
+/* Supported arch: sparc64 on Solaris, BSD
+ */
+
+
 
 
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
-
-#define STRING_PREFIX              ".LC"
 
 #define UN
 
@@ -61,35 +63,17 @@
  * Global Variables                *
  *---------------------------------*/
 
-char asm_reg_bank[20];
-char asm_reg_e[20];
-char asm_reg_b[20];
-char asm_reg_cp[20];
+char asm_reg_bank[20];		/* enough big sizes to avoid compiler warnings */
+char asm_reg_e[32];
+char asm_reg_b[32];
+char asm_reg_cp[32];
 
-int w_label = 0;
-
-char cur_fct_label[1024];
-
-int pic_helper_ready = 0;
+Bool pic_helper_ready = FALSE;
 
 char buff[1024];
-int delay_active = 0;
+int delay_active = FALSE;
 char *delay_op = NULL;
 char delay_operands[1024];
-
-
-
-
-
-	  /* variables for ma_parser.c / ma2asm.c */
-int can_produce_pic_code = 1;
-
-char *comment_prefix = "!";
-char *local_symb_prefix = "L";
-int strings_need_null = 1;
-int call_c_reverse_args = 0;
-
-char *inline_asm_data[] = { NULL };
 
 
 
@@ -143,13 +127,19 @@ int Delay_Flush(void);
 
 
 /*-------------------------------------------------------------------------*
- * SOURCE_LINE                                                             *
+ * INIT_MAPPER                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-Source_Line(int line_no, char *cmt)
+void Init_Mapper(void)
 {
-  Label_Printf("\t! %6d: %s", line_no, cmt);
+  mi.needs_pre_pass = FALSE;
+  mi.can_produce_pic_code = FALSE;
+  mi.comment_prefix = "!";	/* NB: # does not work on Solaris 9 */
+  mi.local_symb_prefix = "L";	/* TODO check local symbol */
+  mi.string_symb_prefix = ".LC";
+  mi.double_symb_prefix = "LCD"; /* not used */
+  mi.strings_need_null = TRUE;
+  mi.call_c_reverse_args = FALSE;
 }
 
 
@@ -221,26 +211,25 @@ Asm_Stop(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Start(char *label, int prolog, int global)
+Code_Start(CodeInf *c)
 {
-  Label_Printf("");
+  Label_Printf("%s", "");
   Delay_Printf(".align", "4");
   Delay_Printf(".align", "32");
-#if defined(M_sparc64_solaris) || defined(M_sparc64_bsd)
-  Delay_Printf(".type", UN "%s,#function", label);
+#if defined(M_solaris) || defined(M_bsd)
+  Delay_Printf(".type", UN "%s,#function", c->name);
 #endif
   Delay_Printf(".proc", "020");
 
-  if (global)
-    Delay_Printf(".global", UN "%s", label);
+  if (c->global)
+    Delay_Printf(".global", UN "%s", c->name);
 
-  Label(label);
+  Label(c->name);
 
-  if (!prolog)
-    Delay_Printf("save", "%%sp,-192,%%sp");
+  if (!c->prolog)
+    Delay_Printf("save", "%%sp, -192, %%sp");
 
-  pic_helper_ready = 0;
-  strcpy(cur_fct_label, label);
+  pic_helper_ready = FALSE;
 }
 
 
@@ -251,10 +240,10 @@ Code_Start(char *label, int prolog, int global)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Code_Stop(void)
+Code_Stop(CodeInf *c)
 {
-  /* this directive is mandatory else asm call are wrong (PC relative) */
-  Delay_Printf(".size", "%s,.-%s", cur_fct_label, cur_fct_label);
+  /* this directive is mandatory else asm calls are wrong (PC relative) */
+  Delay_Printf(".size", "%s, .-%s", c->name, c->name);
 }
 
 
@@ -286,7 +275,7 @@ Ensure_PIC_Helper(void)
   Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-4), %%l7");
   Delay_Printf("call", "__sparc_get_pc_thunk.l7");
   Delay_Printf("add", "%%l7, %%lo(_GLOBAL_OFFSET_TABLE_+4), %%l7");
-  pic_helper_ready = 1;
+  pic_helper_ready = TRUE;
 
 }
 
@@ -301,7 +290,7 @@ void
 Reload_E_In_Register(void)
 {
 #ifndef MAP_REG_E
-  Delay_Printf("ldx", "[%s+%d],%s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
+  Delay_Printf("ldx", "[%s+%d], %s", asm_reg_bank, MAP_OFFSET_E, asm_reg_e);
 #endif
 }
 
@@ -321,21 +310,22 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
   int upper32 = value >> 32;
   int lower32 = value;
   char *upper_dstreg = tmpreg;
-  int need_hh22_p = 0, need_hm10_p = 0, need_hi22_p = 0, need_lo10_p = 0;
-  int need_xor10_p = 0;
+  Bool need_hh22_p, need_hm10_p, need_hi22_p, need_lo10_p, need_xor10_p = FALSE;
+
+  need_hh22_p = need_hm10_p = need_hi22_p = need_lo10_p = need_xor10_p = FALSE;
 
   /* What to output depends on the number if it's constant.
      Compute that first, then output what we've decided upon.  */
  
   /* Only need hh22 if `or' insn can't handle constant.  */
   if (!OK_FOR_SIMM13(upper32))
-    need_hh22_p = 1;
+    need_hh22_p = TRUE;
 
   /* Does bottom part (after sethi) have bits?  */
   if ((need_hh22_p && (upper32 & 0x3ff) != 0)
       /* No hh22, but does upper32 still have bits we can't set from lower32?  */
       || (! need_hh22_p && upper32 != 0 && upper32 != -1))
-    need_hm10_p = 1;
+    need_hm10_p = TRUE;
 
   /* If the lower half is all zero, we build the upper half directly into the dst reg.  */
   if (lower32 != 0
@@ -348,10 +338,10 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
 	     insn unless the upper 32 bits are all ones.  */
 	  || (lower32 < 0 && upper32 != -1)
 	  || (lower32 >= 0 && upper32 == -1))
-	need_hi22_p = 1;
+	need_hi22_p = TRUE;
 
       if (need_hi22_p && upper32 == -1)
-	need_xor10_p = 1;
+	need_xor10_p = TRUE;
 
       /* Does bottom part (after sethi) have bits?  */
       else if ((need_hi22_p && (lower32 & 0x3ff) != 0)
@@ -359,7 +349,7 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
 	       || (! need_hi22_p && (lower32 & 0x1fff) != 0)
 	       /* Need `or' if we didn't set anything else.  */
 	       || (! need_hi22_p && ! need_hh22_p && ! need_hm10_p))
-	need_lo10_p = 1;
+	need_lo10_p = TRUE;
     }
   else
     /* Output directly to dst reg if lower 32 bits are all zero.  */
@@ -370,27 +360,27 @@ Synthetize_Setx(long value, char *tmpreg, char *dstreg)
 #define MK_SIMM10_13(x, want10)  ((x) & ((want10) ?  0x3ff : 0x1fff))
 
   if (need_hh22_p)
-    Delay_Printf("sethi", "%d,%s", MK_IMM22(upper32), upper_dstreg);
+    Delay_Printf("sethi", "%d, %s", MK_IMM22(upper32), upper_dstreg);
 
   if (need_hi22_p)
-    Delay_Printf("sethi", "%d,%s", MK_IMM22(need_xor10_p ? ~lower32 : lower32), dstreg);
+    Delay_Printf("sethi", "%d, %s", MK_IMM22(need_xor10_p ? ~lower32 : lower32), dstreg);
 
   if (need_hm10_p)
-    Delay_Printf("or", "%s,%ld,%s", (need_hh22_p ? upper_dstreg : "%g0"), MK_SIMM10_13(upper32, need_hh22_p), upper_dstreg);
+    Delay_Printf("or", "%s, %ld, %s", (need_hh22_p ? upper_dstreg : "%g0"), MK_SIMM10_13(upper32, need_hh22_p), upper_dstreg);
 
   if (need_lo10_p)
-    Delay_Printf("or", "%s,%ld,%s", (need_hi22_p ? dstreg : "%g0"), MK_SIMM10_13(lower32, need_hi22_p), dstreg);
+    Delay_Printf("or", "%s, %ld, %s", (need_hi22_p ? dstreg : "%g0"), MK_SIMM10_13(lower32, need_hi22_p), dstreg);
 
   /* If we needed to build the upper part, shift it into place.  */
   if (need_hh22_p || need_hm10_p)
-    Delay_Printf("sllx", "%s,32,%s", upper_dstreg, upper_dstreg);
+    Delay_Printf("sllx", "%s, 32, %s", upper_dstreg, upper_dstreg);
 
   /* To get -1 in upper32, we do sethi %hi(~x), r; xor r, -0x400 | x, r.  */
   if (need_xor10_p)
-    Delay_Printf("xor", "%s,%ld,%s", dstreg, 0x1c00 | (lower32 & 0x3ff), dstreg);
+    Delay_Printf("xor", "%s, %ld, %s", dstreg, 0x1c00 | (lower32 & 0x3ff), dstreg);
   /* If we needed to build both upper and lower parts, OR them together.  */
   else if ((need_hh22_p || need_hm10_p) && (need_hi22_p || need_lo10_p))
-    Delay_Printf("or", "%s,%s,%s", dstreg, upper_dstreg, dstreg);
+    Delay_Printf("or", "%s, %s, %s", dstreg, upper_dstreg, dstreg);
  }
 
 
@@ -414,7 +404,7 @@ Load_Long_Into_Reg(PlLong x, char *reg)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Load_Mem_Into_Reg(char *mem_base_reg, int displ, int adr_of, char *reg)
+Load_Mem_Into_Reg(char *mem_base_reg, int displ, Bool adr_of, char *reg)
 {
   static char tmp[32];
   char *str_displ;
@@ -431,9 +421,9 @@ Load_Mem_Into_Reg(char *mem_base_reg, int displ, int adr_of, char *reg)
     }
 
   if (!adr_of)
-    Delay_Printf("ldx", "[%s+%s],%s", mem_base_reg, str_displ, reg);
+    Delay_Printf("ldx", "[%s+%s], %s", mem_base_reg, str_displ, reg);
   else if (displ != 0 || strcmp(mem_base_reg, reg) != 0) /* avoid  add r,0,r = nop */
-    Delay_Printf("add", "%s,%s,%s", mem_base_reg, str_displ, reg);
+    Delay_Printf("add", "%s, %s, %s", mem_base_reg, str_displ, reg);
 }
 
 
@@ -460,7 +450,7 @@ Store_Reg_Into_Mem(char *reg, char *mem_base_reg, int displ)
       Load_Long_Into_Reg(displ, str_displ);
     }
 
-  Delay_Printf((reg[1] != 'f') ? "stx" : "std", "%s,[%s+%s]", reg, mem_base_reg, str_displ);
+  Delay_Printf((reg[1] != 'f') ? "stx" : "std", "%s, [%s+%s]", reg, mem_base_reg, str_displ);
 }
 
 
@@ -473,8 +463,8 @@ Store_Reg_Into_Mem(char *reg, char *mem_base_reg, int displ)
 void
 Pl_Jump(char *label)
 {
-  Delay_Printf("call", UN "%s,0", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("call", UN "%s, 0", label);
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -491,16 +481,16 @@ Prep_CP(void)
 
 #if 1
   /* .Lcont - 8 to (un)adjust CP */
-  Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-(.Lcont%d-.-8)),%%g1", w_label);
-  Delay_Printf("or", "%%g1,%%lo(_GLOBAL_OFFSET_TABLE_-(.Lcont%d-.-8)),%%g1", w_label);
-  Delay_Printf("sub","%%l7,%%g1,%%g1");
-  Delay_Printf("stx", "%%g1,%s", asm_reg_cp);
+  Delay_Printf("sethi", "%%hi(_GLOBAL_OFFSET_TABLE_-(%s-.-8)), %%g1", Label_Cont_New());
+  Delay_Printf("or", "%%g1, %%lo(_GLOBAL_OFFSET_TABLE_-(%s-.-8)), %%g1", Label_Cont_Get());
+  Delay_Printf("sub", "%%l7, %%g1, %%g1");
+  Delay_Printf("stx", "%%g1, %s", asm_reg_cp);
 #else
-  Delay_Printf("sethi", "%%hi(.Lcont%d),%%g1", w_label);
-  Delay_Printf("or", "%%g1,%%lo(.Lcont%d),%%g1", w_label);
-  Delay_Printf("ldx", "[%%l7+%%g1],%%g1");
-  Delay_Printf("sub", "%%g1,8,%%g1"); /* -8 to (un)adjust CP */
-  Delay_Printf("stx", "%%g1,%s", asm_reg_cp);
+  Delay_Printf("sethi", "%%hi(%s), %%g1", Label_Cont_New());
+  Delay_Printf("or", "%%g1, %%lo(%s), %%g1", Label_Cont_Get());
+  Delay_Printf("ldx", "[%%l7+%%g1], %%g1");
+  Delay_Printf("sub", "%%g1, 8, %%g1"); /* -8 to (un)adjust CP */
+  Delay_Printf("stx", "%%g1, %s", asm_reg_cp);
 #endif
 }
 
@@ -514,8 +504,8 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Label_Printf(".Lcont%d:", w_label++);
-  pic_helper_ready = 0;
+  Label_Printf("%s:", Label_Cont_Get());
+  pic_helper_ready = FALSE;
 }
 
 
@@ -528,13 +518,13 @@ Here_CP(void)
 void
 Pl_Call(char *label)
 {
-  Delay_Printf("call", UN "%s,0", label);
+  Delay_Printf("call", UN "%s, 0", label);
 #ifdef MAP_REG_CP
-  Delay_Printf("mov", "%%o7,%s", asm_reg_cp);	/* delay slot */
+  Delay_Printf("mov", "%%o7, %s", asm_reg_cp);	/* delay slot */
 #else
-  Delay_Printf("stx", "%%o7,%s", asm_reg_cp);	/* delay slot */
+  Delay_Printf("stx", "%%o7, %s", asm_reg_cp);	/* delay slot */
 #endif
-  pic_helper_ready = 0;
+  pic_helper_ready = FALSE;
 }
 
 
@@ -548,15 +538,15 @@ void
 Pl_Fail(void)
 {
 #ifdef MAP_REG_B
-  Delay_Printf("ldx", "[%s-8],%%o0", asm_reg_b);
+  Delay_Printf("ldx", "[%s-8], %%o0", asm_reg_b);
 #else
-  Delay_Printf("ldx", "%s,%%o0", asm_reg_b);
-  Delay_Printf("ldx", "[%%o0-8],%%o0");
+  Delay_Printf("ldx", "%s, %%o0", asm_reg_b);
+  Delay_Printf("ldx", "[%%o0-8], %%o0");
 #endif
 
   Delay_Printf("call", "%%o0");
-  Delay_Printf("nop", "");	/* delay slot */
-  pic_helper_ready = 0;
+  Delay_Printf("nop", "%s", "");	/* delay slot */
+  pic_helper_ready = FALSE;
 }
 
 
@@ -572,11 +562,11 @@ Pl_Ret(void)
 #ifdef MAP_REG_CP
 
 #else
-  Delay_Printf("ldx", "%s,%%o0", asm_reg_cp);
+  Delay_Printf("ldx", "%s, %%o0", asm_reg_cp);
   Delay_Printf("jmp", "%%o0+8");
 #endif
-  Delay_Printf("nop", "");	/* delay slot */
-  pic_helper_ready = 0;
+  Delay_Printf("nop", "%s", "");	/* delay slot */
+  pic_helper_ready = FALSE;
 }
 
 
@@ -590,7 +580,7 @@ void
 Jump(char *label)
 {
   Delay_Printf("ba", UN "%s", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -653,10 +643,9 @@ Move_To_Reg_Y(int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
-	     char **p_inline)
+Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  delay_active = 1;
+  delay_active = TRUE;
   delay_op = NULL;
 }
 
@@ -666,7 +655,7 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 
 #define BEFORE_ARG				\
 {						\
-  char r[4];					\
+  char r[32];					\
 						\
   if (offset < MAX_ARGS_IN_REGS)		\
     sprintf(r, "%%o%d", offset);		\
@@ -676,29 +665,28 @@ Call_C_Start(char *fct_name, int fc, int nb_args, int nb_args_in_words,
 #define STACK_BIAS 2047
 #define STACK_OFFSET(offset) (STACK_BIAS + 176 + ((offset) - MAX_ARGS_IN_REGS) * 8)
 
-#define AFTER_ARG					\
-  if (offset >= MAX_ARGS_IN_REGS)			\
-    Delay_Printf("stx","%s,[%%sp+%d]", r,		\
-		 STACK_OFFSET(offset));			\
+#define AFTER_ARG							\
+  if (offset >= MAX_ARGS_IN_REGS)					\
+    Delay_Printf("stx", "%s, [%%sp+%d]", r, STACK_OFFSET(offset));	\
 }
 
 
 #define MAX_FP_ARGS_IN_REGS 16
 
-#define BEFORE_FP_ARG				\
+#define BEFORE_ARG_DOUBLE			\
 {						\
-  char *r = "%g1";				 /* load in a temp */
+  char *r = "%g1";   /* load in a temp */
 
 
       /* floating point args in %f0, %f2, %f4 (double precision) */
-#define AFTER_FP_ARG							\
+#define AFTER_ARG_DOUBLE						\
   if (offset < MAX_FP_ARGS_IN_REGS)					\
     {									\
-      Delay_Printf("stx","%s,[%%fp+2023]", r);				\
-      Delay_Printf("ldd","[%%fp+2023],%%f%d", offset * 2);		\
+      Delay_Printf("stx", "%s, [%%fp+2023]", r);				\
+      Delay_Printf("ldd", "[%%fp+2023], %%f%d", offset * 2);		\
     }									\
  else									\
-    Delay_Printf("stx","%s,[%%sp+%d]", r, STACK_OFFSET(offset));	\
+    Delay_Printf("stx", "%s, [%%sp+%d]", r, STACK_OFFSET(offset));	\
 }
 
 
@@ -728,15 +716,13 @@ Call_C_Arg_Int(int offset, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Double(int offset, double dbl_val)
+Call_C_Arg_Double(int offset, DoubleInf *d)
 {
-  long *p = (long *) &dbl_val;
+  BEFORE_ARG_DOUBLE;
 
-  BEFORE_FP_ARG;
+  Load_Long_Into_Reg(d->v.i64, r);
 
-  Load_Long_Into_Reg(*p, r);
-
-  AFTER_FP_ARG;
+  AFTER_ARG_DOUBLE;
 
   return 1;
 }
@@ -753,9 +739,9 @@ Load_Mem_Base_Into_Reg(char *label, int displ, char *reg)
 {
   Ensure_PIC_Helper();
 
-  Delay_Printf("sethi", "%%hi(%s),%s", label, reg);
-  Delay_Printf("or", "%s,%%lo(%s),%s", reg, label, reg);
-  Delay_Printf("ldx", "[%%l7+%s],%s", reg, reg);
+  Delay_Printf("sethi", "%%hi(%s), %s", label, reg);
+  Delay_Printf("or", "%s, %%lo(%s), %s", reg, label, reg);
+  Delay_Printf("ldx", "[%%l7+%s], %s", reg, reg);
 }
 
 
@@ -766,14 +752,13 @@ Load_Mem_Base_Into_Reg(char *label, int displ, char *reg)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_String(int offset, int str_no)
+Call_C_Arg_String(int offset, StringInf *s)
 {
   BEFORE_ARG;
 
   Ensure_PIC_Helper();
 
-  sprintf(buff, "%s%d", STRING_PREFIX, str_no);
-  Load_Mem_Base_Into_Reg(buff, 0, r);
+  Load_Mem_Base_Into_Reg(s->symb, 0, r);
 
   AFTER_ARG;
 
@@ -788,7 +773,7 @@ Call_C_Arg_String(int offset, int str_no)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
+Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
   BEFORE_ARG;
 
@@ -808,7 +793,7 @@ Call_C_Arg_Mem_L(int offset, int adr_of, char *name, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_X(int offset, int adr_of, int index)
+Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -827,7 +812,7 @@ Call_C_Arg_Reg_X(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
+Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -846,7 +831,7 @@ Call_C_Arg_Reg_Y(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
   BEFORE_ARG;
 
@@ -865,7 +850,7 @@ Call_C_Arg_Foreign_L(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
+Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
   if (adr_of)
     {
@@ -879,11 +864,11 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
     }
 
 
-  BEFORE_FP_ARG;
+  BEFORE_ARG_DOUBLE;
 
   Load_Mem_Into_Reg("%l3", index * 8, adr_of, r);
 
-  AFTER_FP_ARG;
+  AFTER_ARG_DOUBLE;
 
   return 1;
 }
@@ -896,13 +881,13 @@ Call_C_Arg_Foreign_D(int offset, int adr_of, int index)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
+Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
-  delay_active = 0;		/* stop the delay, so Delay_Printf is a Delay_Printf */
+  delay_active = FALSE;		/* stop the delay, so Delay_Printf is a Delay_Printf */
 
-  Delay_Printf("call", UN "%s,0", fct_name);
+  Delay_Printf("call", UN "%s, 0", fct_name);
   if (!Delay_Flush())		/* emit the delay insn to fill the delay slot */
-    Delay_Printf("nop", "");	/* else fill it with a nop */
+    Delay_Printf("nop", "%s", "");	/* else fill it with a nop */
 }
 
 
@@ -913,12 +898,8 @@ Call_C_Invoke(char *fct_name, int fc, int nb_args, int nb_args_in_words)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C_Stop(char *fct_name, int nb_args, char **p_inline)
+Call_C_Stop(char *fct_name, int nb_args)
 {
-#ifndef MAP_REG_E
-  if (p_inline && INL_ACCESS_INFO(p_inline))
-    reload_e = 1;
-#endif
 }
 
 
@@ -932,7 +913,7 @@ void
 Jump_Ret(void)
 {
   Delay_Printf("jmp", "%%o0");
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -945,18 +926,18 @@ Jump_Ret(void)
 void
 Fail_Ret(void)
 {
-  Delay_Printf("cmp", "%%o0,0");
+  Delay_Printf("cmp", "%%o0, 0");
 
 #if 0
   Delay_Printf("be", UN "fail");
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 #else
 
   Delay_Printf("be", UN "%s+4", "fail"); /* use delay slot */
 #ifdef MAP_REG_B
-  Delay_Printf("ldx", "[%s-8],%%o0", asm_reg_b); /* use first insn of Pl_Fail  */
+  Delay_Printf("ldx", "[%s-8], %%o0", asm_reg_b); /* use first insn of Pl_Fail  */
 #else
-  Delay_Printf("ldx", "%s,%%o0", asm_reg_b);
+  Delay_Printf("ldx", "%s, %%o0", asm_reg_b);
 #endif
 
 #endif
@@ -1039,11 +1020,11 @@ void
 Cmp_Ret_And_Int(PlLong int_val)
 {
   if (OK_FOR_SIMM13(int_val))
-    Delay_Printf("cmp", "%%o0,%ld", int_val);
+    Delay_Printf("cmp", "%%o0, %ld", int_val);
   else
     {
       Load_Long_Into_Reg(int_val, "%g1");
-      Delay_Printf("cmp", "%%o0,%%g1");
+      Delay_Printf("cmp", "%%o0, %%g1");
     }
 
 }
@@ -1059,7 +1040,7 @@ void
 Jump_If_Equal(char *label)
 {
   Delay_Printf("be", UN "%s", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1073,7 +1054,7 @@ void
 Jump_If_Greater(char *label)
 {
   Delay_Printf("bg", UN "%s", label);
-  Delay_Printf("nop", "");	/* delay slot */
+  Delay_Printf("nop", "%s", "");	/* delay slot */
 }
 
 
@@ -1086,8 +1067,8 @@ Jump_If_Greater(char *label)
 void
 C_Ret(void)
 {
-  Delay_Printf("ret", "");
-  Delay_Printf("restore", "");	/* delay slot */
+  Delay_Printf("ret", "%s", "");
+  Delay_Printf("restore", "%s", "");	/* delay slot */
 }
 
 
@@ -1098,7 +1079,7 @@ C_Ret(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Start(int nb_consts)
+Dico_String_Start(int nb)
 {
   Delay_Printf(".section", ".rodata.str1.8,\"aMS\",@progbits,1");
 }
@@ -1111,11 +1092,11 @@ Dico_String_Start(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String(int str_no, char *asciiz)
+Dico_String(StringInf *s)
 {
   Delay_Printf(".align", "8");
-  Label_Printf("%s%d:", STRING_PREFIX, str_no);
-  Delay_Printf(".asciz", "%s", asciiz);
+  Label_Printf("%s:", s->symb);
+  Delay_Printf(".asciz", "%s", s->str);
 }
 
 
@@ -1126,7 +1107,39 @@ Dico_String(int str_no, char *asciiz)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_String_Stop(int nb_consts)
+Dico_String_Stop(int nb)
+{
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_START                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Start(int nb)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double(DoubleInf *d)
+{
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DICO_DOUBLE_STOP                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Dico_Double_Stop(int nb)
 {
 }
 
@@ -1138,7 +1151,7 @@ Dico_String_Stop(int nb_consts)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Start(int nb_longs)
+Dico_Long_Start(int nb)
 {
   Delay_Printf(".section", "\".data\"");
   Delay_Printf(".align", "8");
@@ -1152,36 +1165,35 @@ Dico_Long_Start(int nb_longs)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long(char *name, int global, VType vtype, PlLong value)
+Dico_Long(LongInf *l)
 {
 
-  switch (vtype)
+  switch (l->vtype)
     {
-    case NONE:
-      value = 1;		/* then in case ARRAY_SIZE */
+    case NONE:		/* in case ARRAY_SIZE since its value = 1 (see parser) */
     case ARRAY_SIZE:
-#ifdef M_sparc64_sunos
-      if (!global)
-	Delay_Printf(".reserve", UN "%s,%ld,\"bss\",8", name, value * 8);
+#ifdef M_sunos
+      if (!l->global)
+	Delay_Printf(".reserve", UN "%s,%ld,\"bss\",8", l->name, l->value * 8);
       else
-	Delay_Printf(".common", UN "%s,%ld,\"bss\"", name, value * 8);
+	Delay_Printf(".common", UN "%s,%ld,\"bss\"", l->name, l->value * 8);
 #else
-      if (!global)
-	Delay_Printf(".local", UN "%s", name);
-      Delay_Printf(".common", UN "%s,%ld,8", name, value * 8);
+      if (!l->global)
+	Delay_Printf(".local", UN "%s", l->name);
+      Delay_Printf(".common", UN "%s,%ld,8", l->name, l->value * 8);
 #endif
       break;
 
     case INITIAL_VALUE:
-      if (global)
-	Delay_Printf(".globl", UN "%s", name);
-#if defined(M_sparc64_solaris) || defined(M_sparc64_bsd)
-      Delay_Printf(".align", "8", name);
-      Delay_Printf(".type", UN "%s,#object", name);
-      Delay_Printf(".size", UN "%s,8", name);
+      if (l->global)
+	Delay_Printf(".globl", UN "%s", l->name);
+#if defined(M_solaris) || defined(M_bsd)
+      Delay_Printf(".align", "8", l->name);
+      Delay_Printf(".type", UN "%s,#object", l->name);
+      Delay_Printf(".size", UN "%s,8", l->name);
 #endif
-      Label_Printf(UN "%s:", name);
-      Delay_Printf(".xword", "%ld", value);
+      Label_Printf(UN "%s:", l->name);
+      Delay_Printf(".xword", "%ld", l->value);
       break;
     }
 }
@@ -1194,7 +1206,7 @@ Dico_Long(char *name, int global, VType vtype, PlLong value)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Dico_Long_Stop(int nb_longs)
+Dico_Long_Stop(int nb)
 {
 }
 
