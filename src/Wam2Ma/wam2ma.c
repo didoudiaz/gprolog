@@ -479,7 +479,6 @@ F_predicate(ArgVal arg[])
   Bool module_user_system = FALSE;
   int prop = 0;			/* init for the compiler */
   Bool local_symbol = FALSE;
-	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
   Args6(MP_N(module, functor, arity), INTEGER(pl_line),
 	STR(static_dynamic), STR(public_private), STR(mono_multi), STR(built_in_local_global));
 
@@ -576,7 +575,7 @@ F_predicate(ArgVal arg[])
 
   /* do not qualif with module in Encode_Hexa if:
    *    - it is not an exported predicate (i.e. it is a local_symbol)
-   *    - it owns to module 'user' or 'system'
+   *    - it belongs to module 'user' or 'system'
    */
 
   Encode_Hexa((local_symbol || module_user_system) ? NULL : module, functor, arity, buff_hexa + 1);
@@ -598,7 +597,6 @@ F_directive(ArgVal arg[])
 {
   Direct *p;
   Bool system = FALSE;		/* init for the compiler */
-	/* ArgsN macro must be last or need C99 mode (under MSVC++ use -TP) */
   Args2(INTEGER(pl_line), STR(user_system));
 
   if (cur_pl_file == NULL)

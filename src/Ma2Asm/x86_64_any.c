@@ -1190,7 +1190,7 @@ Dico_Double(DoubleInf *d)
 {
   Label_Printf("%s:", d->symb);
 #if 1
-  Inst_Printf(".quad", "%lld", (long long) d->v.i64);
+  Inst_Printf(".quad", "%" FMT64_d, d->v.i64);
 #else
   Inst_Printf(".long", "%d", d->v.i32[0]);
   Inst_Printf(".long", "%d", d->v.i32[1]);

@@ -826,12 +826,12 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
     */
   if (in_reg)
     {
-      Inst_Printf("ldr", "x9, =%ld", d->v.i64);
+      Inst_Printf("ldr", "x9, =%" FMT64_d, d->v.i64);
       Inst_Printf("fmov", "%s, x9", r);
     }
   else
 #endif
-    Inst_Printf("ldr", "%s, =%ld", r, d->v.i64);
+    Inst_Printf("ldr", "%s, =%" FMT64_d, r, d->v.i64);
 #else
   Load_Address("x9", d->symb);
   Inst_Printf("ldr", "%s, [x9]", r);
