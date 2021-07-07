@@ -156,9 +156,9 @@ normalize_cuts(Body, Body2, HasCut) :-
 
 
 
-normalize_cuts1(X, CutVar, P, HasCut) :-
-	var(X),
-	normalize_cuts1(call(X), CutVar, P, HasCut).
+normalize_cuts1(P, CutVar, P1, HasCut) :-
+	var(P),
+	normalize_cuts1(call(P), CutVar, P1, HasCut).
 
 normalize_cuts1(!, CutVar, '$cut'(CutVar), t).
 
@@ -203,11 +203,11 @@ normalize_cuts1((P, Q), CutVar, (P1, Q1), HasCut) :-
 	normalize_cuts1(P, CutVar, P1, HasCut),
 	normalize_cuts1(Q, CutVar, Q1, HasCut).
 
-normalize_cuts1(M:G, CutVar, Body, HasCut) :-
-	check_module_name(M, true),
+normalize_cuts1(Module:G, CutVar, Body, HasCut) :-
+	check_module_name(Module, true),
 	normalize_cuts1(G, CutVar, G1, HasCut),
-	distrib_module_qualif(G1, M, G2),
-	(   G2 = M3:_, var(M3) ->
+	distrib_module_qualif(G1, Module, G2),
+	(   G2 = M2:_, var(M2) ->
 	    normalize_cuts1(call(G2), CutVar, Body, _)
 	;
 	    Body = G2
@@ -229,6 +229,7 @@ normalize_cuts1(P, _, P1, _HasCut) :-
 	;
 	    error('body goal is not callable (~q)', [P])
 	).
+
 
 
 
