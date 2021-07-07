@@ -5,44 +5,44 @@
 file_name('/home/diaz/GP/src/BipsPl/le_interf.pl').
 
 
-predicate('$use_le_interf'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_le_interf'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(get_linedit_prompt/1,44,static,private,monofile,built_in,[
+predicate(system:get_linedit_prompt/1,44,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_linedit_prompt,1]),
     call_c('Pl_Get_Linedit_Prompt_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate('$get_linedit_prompt'/1,51,static,private,monofile,built_in,[
+predicate(system:'$get_linedit_prompt'/1,51,static,private,monofile,built_in,[
     call_c('Pl_Get_Linedit_Prompt_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(set_linedit_prompt/1,57,static,private,monofile,built_in,[
+predicate(system:set_linedit_prompt/1,57,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_linedit_prompt,1]),
     call_c('Pl_Set_Linedit_Prompt_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$set_linedit_prompt'/1,64,static,private,monofile,built_in,[
+predicate(system:'$set_linedit_prompt'/1,64,static,private,monofile,built_in,[
     call_c('Pl_Set_Linedit_Prompt_1',[],[x(0)]),
     proceed]).
 
 
-predicate(add_linedit_completion/1,70,static,private,monofile,built_in,[
+predicate(system:add_linedit_completion/1,70,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[add_linedit_completion,1]),
     call_c('Pl_Add_Linedit_Completion_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(find_linedit_completion/2,77,static,private,monofile,built_in,[
+predicate(system:find_linedit_completion/2,77,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[find_linedit_completion,2]),
     call_c('Pl_Find_Linedit_Completion_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$find_linedit_completion_alt'/0,83,static,private,monofile,built_in,[
+predicate(system:'$find_linedit_completion_alt'/0,83,static,private,monofile,built_in,[
     call_c('Pl_Find_Linedit_Completion_Alt_0',[boolean],[]),
     proceed]).

@@ -5,23 +5,23 @@
 file_name('/home/diaz/GP/src/BipsPl/print.pl').
 
 
-predicate('$use_print'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_print'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(print/1,44,static,private,monofile,built_in,[
+predicate(system:print/1,44,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print,1]),
     call_c('Pl_Print_1',[],[x(0)]),
     proceed]).
 
 
-predicate(print/2,48,static,private,monofile,built_in,[
+predicate(system:print/2,48,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print,2]),
     call_c('Pl_Print_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$try_portray'/1,55,static,private,monofile,built_in,[
+predicate(system:'$try_portray'/1,55,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
@@ -63,7 +63,7 @@ label(1),
     proceed]).
 
 
-predicate(get_print_stream/1,68,static,private,monofile,built_in,[
+predicate(system:get_print_stream/1,68,static,private,monofile,built_in,[
     allocate(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_print_stream,1]),
     put_variable(y(0),1),

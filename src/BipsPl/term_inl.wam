@@ -5,116 +5,116 @@
 file_name('/home/diaz/GP/src/BipsPl/term_inl.pl').
 
 
-predicate('$use_term_inl'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_term_inl'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(compare/3,44,static,private,monofile,built_in,[
+predicate(system:compare/3,44,static,private,monofile,built_in,[
     call_c('Pl_Blt_Compare',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate((==)/2,48,static,private,monofile,built_in,[
+predicate(system:(==)/2,48,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((\==)/2,51,static,private,monofile,built_in,[
+predicate(system:(\==)/2,51,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@<)/2,54,static,private,monofile,built_in,[
+predicate(system:(@<)/2,54,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Lt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@=<)/2,57,static,private,monofile,built_in,[
+predicate(system:(@=<)/2,57,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Lte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@>)/2,60,static,private,monofile,built_in,[
+predicate(system:(@>)/2,60,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Gt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((@>=)/2,63,static,private,monofile,built_in,[
+predicate(system:(@>=)/2,63,static,private,monofile,built_in,[
     call_c('Pl_Blt_Term_Gte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(arg/3,69,static,private,monofile,built_in,[
+predicate(system:arg/3,69,static,private,monofile,built_in,[
     call_c('Pl_Blt_Arg',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(functor/3,75,static,private,monofile,built_in,[
+predicate(system:functor/3,75,static,private,monofile,built_in,[
     call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate((=..)/2,81,static,private,monofile,built_in,[
+predicate(system:(=..)/2,81,static,private,monofile,built_in,[
     call_c('Pl_Blt_Univ',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(copy_term/2,87,static,private,monofile,built_in,[
+predicate(system:copy_term/2,87,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[copy_term,2]),
     call_c('Pl_Copy_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(setarg/3,94,static,private,monofile,built_in,[
+predicate(system:setarg/3,94,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[setarg,3]),
     put_atom(true,3),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(setarg/4,99,static,private,monofile,built_in,[
+predicate(system:setarg/4,99,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[setarg,4]),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(term_ref/2,106,static,private,monofile,built_in,[
+predicate(system:term_ref/2,106,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_ref,2]),
     call_c('Pl_Term_Ref_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(term_variables/2,112,static,private,monofile,built_in,[
+predicate(system:term_variables/2,112,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_variables,2]),
     call_c('Pl_Term_Variables_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(term_variables/3,117,static,private,monofile,built_in,[
+predicate(system:term_variables/3,117,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_variables,3]),
     call_c('Pl_Term_Variables_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(subsumes_term/2,123,static,private,monofile,built_in,[
+predicate(system:subsumes_term/2,123,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[subsumes_term,2]),
     call_c('Pl_Subsumes_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(acyclic_term/1,129,static,private,monofile,built_in,[
+predicate(system:acyclic_term/1,129,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[acyclic_term,1]),
     call_c('Pl_Acyclic_Term_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(term_hash/4,135,static,private,monofile,built_in,[
+predicate(system:term_hash/4,135,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_hash,4]),
     call_c('Pl_Term_Hash_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(term_hash/2,139,static,private,monofile,built_in,[
+predicate(system:term_hash/2,139,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_hash,2]),
     call_c('Pl_Term_Hash_2',[boolean],[x(0),x(1)]),
     proceed]).

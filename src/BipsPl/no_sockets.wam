@@ -5,5 +5,5 @@
 file_name('/home/diaz/GP/src/BipsPl/no_sockets.pl').
 
 
-predicate('$use_sockets'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_sockets'/0,41,static,private,monofile,built_in,[
     proceed]).

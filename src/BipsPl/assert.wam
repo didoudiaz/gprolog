@@ -5,11 +5,11 @@
 file_name('/home/diaz/GP/src/BipsPl/assert.pl').
 
 
-predicate('$use_assert'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_assert'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(asserta/1,46,static,private,monofile,built_in,[
+predicate(system:asserta/1,46,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[asserta,1]),
     put_integer(1,1),
     put_integer(1,2),
@@ -17,7 +17,7 @@ predicate(asserta/1,46,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate(assertz/1,53,static,private,monofile,built_in,[
+predicate(system:assertz/1,53,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[assertz,1]),
     put_integer(0,1),
     put_integer(1,2),
@@ -25,18 +25,18 @@ predicate(assertz/1,53,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate('$assert'/4,60,static,private,monofile,built_in,[
+predicate(system:'$assert'/4,60,static,private,monofile,built_in,[
     call_c('Pl_Assert_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(retract/1,67,static,private,monofile,built_in,[
+predicate(system:retract/1,67,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retract,1]),
     call_c('Pl_Retract_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(retractall/1,74,static,private,monofile,built_in,[
+predicate(system:retractall/1,74,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retractall,1]),
     call_c('Pl_Retractall_1',[],[x(0)]),
@@ -47,7 +47,7 @@ label(1),
     proceed]).
 
 
-predicate(clause/2,86,static,private,monofile,built_in,[
+predicate(system:clause/2,86,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -61,27 +61,70 @@ predicate(clause/2,86,static,private,monofile,built_in,[
     execute('$clause'/3)]).
 
 
-predicate('$clause'/3,92,static,private,monofile,built_in,[
+predicate(system:'$clause'/3,92,static,private,monofile,built_in,[
     call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(abolish/1,108,static,private,monofile,built_in,[
+predicate(system:abolish/1,108,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[abolish,1]),
     call_c('Pl_Abolish_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$scan_dyn_test_alt'/0,115,static,private,monofile,built_in,[
+predicate(system:'$scan_dyn_test_alt'/0,115,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$scan_dyn_fail_alt'/0,118,static,private,monofile,built_in,[
+predicate(system:'$scan_dyn_fail_alt'/0,118,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[],[]),
     fail]).
 
 
-predicate('$scan_dyn_jump_alt'/0,122,static,private,monofile,built_in,[
+predicate(system:'$scan_dyn_jump_alt'/0,122,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[jump],[]),
     proceed]).
+
+
+directive(43,system,[
+    put_atom(user,0),
+    put_structure(asserta/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(44,system,[
+    put_atom(user,0),
+    put_structure(assertz/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(65,system,[
+    put_atom(user,0),
+    put_structure(retract/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(72,system,[
+    put_atom(user,0),
+    put_structure(retractall/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(84,system,[
+    put_atom(user,0),
+    put_structure(clause/2,1),
+    unify_atom(:),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(106,system,[
+    put_atom(user,0),
+    put_structure(abolish/1,1),
+    unify_atom(:),
+    execute('$declare_meta_predicate'/2)]).

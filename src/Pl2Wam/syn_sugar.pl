@@ -175,7 +175,7 @@ normalize_cuts1((IfThen ; R), Module, CutVar, Body, HasCut) :-
 	(   g_read(optim_fail, t), R1 == fail ->
 	    normalize_cuts1(IfThen, Module, CutVar, Body, HasCut)
 	;
-	    normalize_cuts_in_if(P, P1),
+	    normalize_cuts_in_if(P, Module, P1),
 	    normalize_cuts1(Q, Module, CutVar, Q1, HasCut),
 	    Body = Body1
 	).
@@ -187,7 +187,7 @@ normalize_cuts1((P -> Q), Module, CutVar, Body, HasCut) :-
 
 	% P *-> Q alone (i.e. not inside a ;) is logically the same as P, Q. 
 normalize_cuts1((P *-> Q), Module, CutVar, (P1, Q1), HasCut) :-
-	normalize_cuts_in_if(P, P1),
+	normalize_cuts_in_if(P, Module, P1),
 	normalize_cuts1(Q, Module, CutVar, Q1, HasCut).
 
 normalize_cuts1((P ; Q), Module, CutVar, Body, HasCut) :-
@@ -206,8 +206,7 @@ normalize_cuts1((P, Q), Module, CutVar, (P1, Q1), HasCut) :-
 
 normalize_cuts1(Module:G, _, CutVar, Body, HasCut) :-
 	check_module_name(Module, true),
-	normalize_cuts1(G, Module, CutVar, G1, HasCut),
-	distrib_module_qualif(G1, Module, G2),
+	normalize_cuts1(G, Module, CutVar, G2, HasCut),
 	(   G2 = M2:_, var(M2) ->
 	    normalize_cuts1(call(G2), Module, CutVar, Body, _)
 	;
@@ -246,8 +245,8 @@ normalize_cuts1(P, _Module, _, _P1, _HasCut) :-
 	 * at the entry of the if-part and use it for cuts in the if-part.
 	 */
 
-normalize_cuts_in_if(P, Body) :-
-	normalize_cuts1(P, CutVar, P1, HasCut),
+normalize_cuts_in_if(P, Module, Body) :-
+	normalize_cuts1(P, Module, CutVar, P1, HasCut),
 	(   HasCut == t ->
 	    Body = ('$get_current_choice'(CutVar), P1)
 	;

@@ -5,71 +5,64 @@
 file_name('/home/diaz/GP/src/BipsPl/arith_inl.pl').
 
 
-predicate('$use_arith_inl'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_arith_inl'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate((is)/2,44,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
-    math_load_value(x(1),1),
+predicate(system:(is)/2,44,static,private,monofile,built_in,[
+    math_fast_load_value(x(1),1),
     get_value(x(0),1),
     proceed]).
 
 
-predicate((=:=)/2,47,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=:=,2]),
-    math_load_value(x(0),0),
-    math_load_value(x(1),1),
-    call_c('Pl_Blt_Eq',[fast_call,boolean],[x(0),x(1)]),
+predicate(system:(=:=)/2,47,static,private,monofile,built_in,[
+    math_fast_load_value(x(0),0),
+    math_fast_load_value(x(1),1),
+    call_c('Pl_Blt_Fast_Eq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((=\=)/2,50,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=\=,2]),
-    math_load_value(x(0),0),
-    math_load_value(x(1),1),
-    call_c('Pl_Blt_Neq',[fast_call,boolean],[x(0),x(1)]),
+predicate(system:(=\=)/2,50,static,private,monofile,built_in,[
+    math_fast_load_value(x(0),0),
+    math_fast_load_value(x(1),1),
+    call_c('Pl_Blt_Fast_Neq',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((<)/2,53,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[<,2]),
-    math_load_value(x(0),0),
-    math_load_value(x(1),1),
-    call_c('Pl_Blt_Lt',[fast_call,boolean],[x(0),x(1)]),
+predicate(system:(<)/2,53,static,private,monofile,built_in,[
+    math_fast_load_value(x(0),0),
+    math_fast_load_value(x(1),1),
+    call_c('Pl_Blt_Fast_Lt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((=<)/2,56,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=<,2]),
-    math_load_value(x(0),0),
-    math_load_value(x(1),1),
-    call_c('Pl_Blt_Lte',[fast_call,boolean],[x(0),x(1)]),
+predicate(system:(=<)/2,56,static,private,monofile,built_in,[
+    math_fast_load_value(x(0),0),
+    math_fast_load_value(x(1),1),
+    call_c('Pl_Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((>)/2,59,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
-    math_load_value(x(0),0),
-    math_load_value(x(1),1),
-    call_c('Pl_Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
+predicate(system:(>)/2,59,static,private,monofile,built_in,[
+    math_fast_load_value(x(0),0),
+    math_fast_load_value(x(1),1),
+    call_c('Pl_Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate((>=)/2,62,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
-    math_load_value(x(0),0),
-    math_load_value(x(1),1),
-    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(1)]),
+predicate(system:(>=)/2,62,static,private,monofile,built_in,[
+    math_fast_load_value(x(0),0),
+    math_fast_load_value(x(1),1),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$arith_eval'/2,66,static,private,monofile,built_in,[
+predicate(system:'$arith_eval'/2,66,static,private,monofile,built_in,[
     call_c('Pl_Arith_Eval_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(succ/2,70,static,private,monofile,built_in,[
+predicate(system:succ/2,70,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[succ,2]),
     call_c('Pl_Succ_2',[boolean],[x(0),x(1)]),
     proceed]).

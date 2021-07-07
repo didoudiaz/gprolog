@@ -5,17 +5,17 @@
 file_name('/home/diaz/GP/src/BipsPl/utils.pl').
 
 
-predicate('$get_head_and_body'/4,41,static,private,monofile,built_in,[
+predicate(system:'$get_head_and_body'/4,41,static,private,monofile,built_in,[
     call_c('Pl_Get_Head_And_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$term_to_goal'/4,44,static,private,monofile,built_in,[
+predicate(system:'$term_to_goal'/4,44,static,private,monofile,built_in,[
     call_c('Pl_Term_To_Goal_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$check_list'/1,118,static,private,monofile,built_in,[
+predicate(system:'$check_list'/1,118,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -36,7 +36,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_list_or_partial_list'/1,131,static,private,monofile,built_in,[
+predicate(system:'$check_list_or_partial_list'/1,131,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -51,7 +51,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_atom_or_atom_list'/1,140,static,private,monofile,built_in,[
+predicate(system:'$check_atom_or_atom_list'/1,140,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -69,7 +69,7 @@ label(1),
     proceed]).
 
 
-predicate('$check_atom_or_atom_list1'/1,147,static,private,monofile,built_in,[
+predicate(system:'$check_atom_or_atom_list1'/1,147,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -105,7 +105,7 @@ label(6),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_atom_or_atom_list2'/1,161,static,private,monofile,built_in,[
+predicate(system:'$check_atom_or_atom_list2'/1,161,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -127,7 +127,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_head'/1,179,static,private,monofile,built_in,[
+predicate(system:'$check_head'/1,179,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -140,7 +140,7 @@ label(1),
     execute('$$check_head/1_$aux1'/1)]).
 
 
-predicate('$$check_head/1_$aux1'/1,183,static,private,monofile,local,[
+predicate(system:'$$check_head/1_$aux1'/1,183,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -155,7 +155,7 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$check_nonvar'/1,192,static,private,monofile,built_in,[
+predicate(system:'$check_nonvar'/1,192,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -168,11 +168,11 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$get_pred_indic'/5,203,static,private,monofile,built_in,[
+predicate(system:'$get_pred_indic'/5,203,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate('$get_pred_indic_var'/5,207,static,private,monofile,built_in,[
+predicate(system:'$get_pred_indic_var'/5,207,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_Var_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).

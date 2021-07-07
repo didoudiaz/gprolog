@@ -5,11 +5,11 @@
 file_name('/home/diaz/GP/src/BipsPl/expand.pl').
 
 
-predicate('$use_expand'/0,41,static,private,monofile,built_in,[
+predicate(system:'$use_expand'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(expand_term/2,48,static,private,monofile,built_in,[
+predicate(system:expand_term/2,48,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),1),
     put_variable(y(1),1),
@@ -20,7 +20,7 @@ predicate(expand_term/2,48,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$expand_term1'/2,52,static,private,monofile,built_in,[
+predicate(system:'$expand_term1'/2,52,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(1),
@@ -31,7 +31,7 @@ predicate('$expand_term1'/2,52,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$$expand_term1/2_$aux1'/2,52,static,private,monofile,local,[
+predicate(system:'$$expand_term1/2_$aux1'/2,52,static,private,monofile,local,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     get_value(x(0),1),
@@ -52,7 +52,7 @@ label(3),
     proceed]).
 
 
-predicate('$call_term_expansion'/2,64,static,private,monofile,built_in,[
+predicate(system:'$call_term_expansion'/2,64,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -63,25 +63,26 @@ predicate('$call_term_expansion'/2,64,static,private,monofile,built_in,[
     put_structure(term_expansion/2,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
-    put_atom('$call_term_expansion',1),
-    put_integer(2,2),
-    put_atom(true,3),
+    put_atom(system,1),
+    put_atom('$call_term_expansion',2),
+    put_integer(2,3),
+    put_atom(true,4),
     deallocate,
-    execute('$call'/4)]).
+    execute('$call'/5)]).
 
 
-predicate(phrase/2,74,static,private,monofile,built_in,[
+predicate(system:phrase/2,74,static,private,monofile,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(phrase/3,80,static,private,monofile,built_in,[
+predicate(system:phrase/3,80,static,private,monofile,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate('$phrase'/4,86,static,private,monofile,built_in,[
+predicate(system:'$phrase'/4,86,static,private,monofile,built_in,[
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -110,7 +111,7 @@ predicate('$phrase'/4,86,static,private,monofile,built_in,[
     execute('$call'/5)]).
 
 
-predicate('$$phrase/4_$aux1'/1,86,static,private,monofile,local,[
+predicate(system:'$$phrase/4_$aux1'/1,86,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -123,11 +124,28 @@ label(1),
     proceed]).
 
 
-predicate('$dcg_trans_rule'/2,103,static,private,monofile,built_in,[
+predicate(system:'$dcg_trans_rule'/2,103,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,109,static,private,monofile,built_in,[
+predicate(system:'$dcg_trans_body'/4,109,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
+
+
+directive(71,system,[
+    put_atom(user,0),
+    put_structure(phrase/2,1),
+    unify_integer(2),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
+
+
+directive(72,system,[
+    put_atom(user,0),
+    put_structure(phrase/3,1),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    execute('$declare_meta_predicate'/2)]).
