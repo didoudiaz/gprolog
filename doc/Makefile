@@ -126,7 +126,7 @@ distclean: clean
 clean-all:
 	rm -f $(DVINAME) $(PDFNAME) $(PSNAME) $(CHMNAME)
 	rm -f $(HTMLNAME)
-	(cd html_node ; rm -f .hhc *.hhk *.css *.hrf *_motif.gif *.png *.html)
+	(cd html_node ; rm -f .hhc *.hhk *.css *.hrf *.png *.html)
 
 
 clean-aux:
@@ -154,7 +154,7 @@ copy: $(DVINAME) $(PSNAME) $(PDFNAME) $(HTMLNAME) $(CHMNAME) names
 	cp $(DVINAME) $(IMG_EPS) $(PSNAME) $(PDFNAME) $(HTMLNAME) $(IMG_PNG) $(CHMNAME) $(COPY_PATH)/.
 	tar cf - $(DVINAME) $(IMG_EPS) | gzip > $(COPY_PATH)/$(DVITGZNAME)
 	tar cf - $(HTMLNAME) $(IMG_PNG) | gzip > $(COPY_PATH)/$(HTMLTGZNAME)
-	( cd html_node ; tar cf - index.html $(PREFIX)*.html $(PREFIX)*.css *.gif *.png| gzip > $(COPY_PATH)/$(HTMLNODETGZNAME) )
+	( cd html_node ; tar cf - index.html $(PREFIX)*.html $(PREFIX)*.css *.png| gzip > $(COPY_PATH)/$(HTMLNODETGZNAME) )
 
 NAMES_FILE=$(COPY_PATH)/doc_names
 
