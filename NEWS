@@ -1,13 +1,14 @@
 Change in GNU Prolog version 1.5.0
 
-* port to Termux on aarch64/android
-* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
-* restructure and improve the code of all MA-ASM mappers
+* Source repository moved to GiHub https://github.com/didoudiaz/gprolog
 * port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
 * port to arm64 (aarch64)/Linux (armv8) - many thanks to
   Jasper Taylor <jasper@simulistics.com>
 * port to arm32/Linux (armv6, armv7) - many thanks to
   Jasper Taylor <jasper@simulistics.com>
+* port to Termux on aarch64/android
+* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
+* restructure and improve the code of all MA-ASM mappers
 * fix a bug in absolute_file_name, '/src/../' returned '' now '/'
 * add error case to findall/4 (detects when Tail is not a list)
 * set eof_action to reset for standard input/output/error streams even if not a tty
