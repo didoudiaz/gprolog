@@ -6762,6 +6762,9 @@ length(?list, ?integer)
 
 \begin{PlErrors}
 
+\ErrCond{\texttt{Length} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Length)}
+
 \ErrCond{\texttt{Length} is an integer $<$ 0}
 \ErrTerm{domain\_error(not\_less\_than\_zero, Length)}
 
@@ -7842,6 +7845,8 @@ other Prolog systems. When turned off the following relaxations apply:
   \texttt{{\bs}e} (escape) are accepted.
 
 \item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor}, \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
+
+\item \texttt{length/2} emits a \texttt{type\_error} if the first argument is not a list.
 
 \end{itemize}
 
