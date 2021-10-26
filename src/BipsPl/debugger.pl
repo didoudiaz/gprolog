@@ -559,7 +559,7 @@ nospyall.
 	NewAncLst = [a(Goal, Module, Invoc1, Index1, B)|OldAncLst],
 	setarg(1, DebugInfo, Invoc1),
 	setarg(2, DebugInfo, NewAncLst),
-%format('starting of call ~w',[Module:Goal]), disp_B(''),
+%format('DBG: starting of call ~w',[Module:Goal]), disp_B(''),
 	'$debug_call1'(Goal, Module, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, Invoc, OldAncLst).
 
 
@@ -568,11 +568,11 @@ nospyall.
 
 
 '$debug_call1'(Goal, Module, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, _, OldAncLst) :-
-%format('goal is ~w  Call Info:~w~n', [Module:Goal, CallInfo]),
+%format('DBG: Goal is ~w  Call Info:~w~n', [Module:Goal, CallInfo]),
 	'$get_current_B'(B),
 	'$catch_internal'('$debug_call_port'(Goal, Module, CallInfo, Invoc1, Index1, NewAncLst), Ball, '$debug_exception_port'(Goal, Module, Invoc1, Index1, NewAncLst, Ball), system, 0),
 	'$get_current_B'(B1),
-%format(' after effective call: ~w  B(start):%#x B1(end):%#x~n', [Module:Goal, B, B1]),
+%format('DBG: after effective call: ~w  B(start):%#x B1(end):%#x~n', [Module:Goal, B, B1]),
 %disp_B('before end call'),
 	'$debug_end_call'(Goal, Module, Invoc1, Index1, NewAncLst, DebugInfo, OldAncLst),
 %disp_B('after end call and before test determin'),
@@ -603,7 +603,7 @@ nospyall.
 	'$debug_port'(Goal, Module, Invoc, Index, AncLst, call),
 	g_read('$debug_unify', DebugUnify),
 	(   DebugUnify == '' ->
-%format('now I call ~w~n', [Module:Goal]),
+%format('DBG: now I call ~w~n', [Module:Goal]),
 	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
 				% but don't call 'call_from_debugger since it is a
 				% control-construct (thus its native codep == NULL)

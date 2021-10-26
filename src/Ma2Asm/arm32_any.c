@@ -675,7 +675,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
       in_reg = TRUE;					\
     }							\
   else							\
-    strcpy(r, "r9");
+    strcpy(r, "d9");
 
 
 
@@ -686,7 +686,10 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 }
 
 
-#define AFTER_ARG_DOUBLE  AFTER_ARG
+#define AFTER_ARG_DOUBLE				\
+  if (!in_reg)       					\
+    Inst_Printf("vstr.64", "%s, [sp, #%d]", r, STACK_OFFSET(offset)); \
+}
 
 
 

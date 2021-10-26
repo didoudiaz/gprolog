@@ -2,6 +2,7 @@ LIB_ENGINE_PL = @LIB_ENGINE_PL@
 GPLC          = @GPLC@
 CC            = @CC@ @CFLAGS_MACHINE@
 CFLAGS        = @CFLAGS@
+LDFLAGS       = @LDFLAGS@
 AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
 
@@ -35,7 +36,7 @@ $(LIBNAME): $(OBJLIB)
 config: pl_config@EXE_SUFFIX@ wam_regs.h
 
 pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h stacks_sigsegv.h wam_archi.def
-	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
 
 
 wam_regs.h: pl_config@EXE_SUFFIX@ machine.h stacks_sigsegv.h wam_archi.def
@@ -49,10 +50,10 @@ gp_config.h:
 
 
 cpp_headers@EXE_SUFFIX@: cpp_headers.c
-	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
 
 try_sigaction@EXE_SUFFIX@: try_sigaction.c
-	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@try_sigaction@EXE_SUFFIX@ try_sigaction.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@try_sigaction@EXE_SUFFIX@ try_sigaction.c
 
 
 

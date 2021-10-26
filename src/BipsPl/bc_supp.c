@@ -242,8 +242,7 @@ static WamCont BC_Emulate_Clause(DynCInf *clause);
 
 static WamCont BC_Emulate_Byte_Code(BCWord *bc);
 
-static void Prep_Debug_Call(int module, int func, int arity,
-			    int caller_func, int caller_arity);
+static void Prep_Debug_Call(int module, int func, int arity, int caller_func, int caller_arity);
 
 
 
@@ -370,8 +369,7 @@ Byte_Code_Initializer(void)
 
   nb_op = p - op_tbl;
 
-  qsort(op_tbl, nb_op, sizeof(op_tbl[0]),
-	(int (*)(const void *, const void *)) Compar_Inst_Code_Op);
+  qsort(op_tbl, nb_op, sizeof(op_tbl[0]), (int (*)(const void *, const void *)) Compar_Inst_Code_Op);
 
 
   bc_nb_block = 1;
@@ -941,6 +939,7 @@ Execute_Pred(int module, int func, int arity, WamWord *arg_adr, WamWord call_inf
   PredInf *pred;
   int i;
 
+  /* check difference with master branch since changes occured after - not merged */
   pred = Pl_Lookup_Pred_Visible(module, func, arity);
   if (pred == NULL)
     {				/* case: fail/0 from '$call_from_debugger' */
@@ -1294,7 +1293,14 @@ BC_Emulate_Clause(DynCInf *clause)
 
   bc = (BCWord *) clause->byte_code;
 
-  if (bc)			/* emulated code */
+  /* Issue #12: infinite loop when debugger is active on Call ports for dynamic/multifile compiled code.
+   * Each clause of such a predicate gives rise to both an assert (suitable for interpretation) and
+   * a native code which is invoked by BC with a EXECUTE_NATIVE instruction (CALL_NATIVE exists but
+   * not yet used). See in .wam call_c to Pl_Emit_BC_Execute_Wrapper and Pl_BC_Emit_Inst_Execute_Native.
+   * To fix the issue: either do not use BC if debug is active (use interpreted code - see below)
+   * or do not call the debugger inside EXECUTE_NATIVE (and CALL_NATIVE for consistency ?)
+   */
+  if (bc && !debug_call)	/* emulated code (see above for test !debug_call) */
     return BC_Emulate_Byte_Code(bc);
 
   module = clause->dyn->pred->mod->module; /* traverse back links to obtain module */
@@ -1681,6 +1687,7 @@ bc_loop:
       glob_pred = pred;
       return NULL;		/* to then call BC_Emulate_Pred */
 
+      /* check difference with master branch since changes occured after - not merged */
     case CALL_NATIVE:
     case EXECUTE_NATIVE:
       module = BC2_Atom(w);

@@ -1,5 +1,6 @@
-CC     = @CC@ @CFLAGS_MACHINE@
-CFLAGS = @CFLAGS@
+CC      = @CC@ @CFLAGS_MACHINE@
+CFLAGS  = @CFLAGS@
+LDFLAGS = @LDFLAGS@
 
 
 all: wam2ma@EXE_SUFFIX@
@@ -12,7 +13,7 @@ wam2ma@OBJ_SUFFIX@: wam2ma.c wam_parser.h bt_string.c ../TopComp/copying.c
 	$(CC) $(CFLAGS) -c wam2ma.c
 
 wam2ma@EXE_SUFFIX@: wam2ma@OBJ_SUFFIX@ wam_parser@OBJ_SUFFIX@
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@wam2ma@EXE_SUFFIX@ wam2ma@OBJ_SUFFIX@ wam_parser@OBJ_SUFFIX@
+	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@wam2ma@EXE_SUFFIX@ wam2ma@OBJ_SUFFIX@ wam_parser@OBJ_SUFFIX@
 
 
 clean:

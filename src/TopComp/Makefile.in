@@ -4,7 +4,7 @@ GPLC            = @GPLC@
 CFLAGS          = @CFLAGS@
 HEXGPLC         = @HEXGPLC@
 CC              = @CC@ @CFLAGS_MACHINE@
-CFLAGS          = @CFLAGS@
+LDFLAGS         = @LDFLAGS@
 LDLIBS          = @LDLIBS@
 TOP_LEVEL_LIBS  = @TOP_LEVEL_LIBS@
 
@@ -24,10 +24,10 @@ first: $(EXECS)
 
 $(GPLC)@EXE_SUFFIX@: top_comp.c copying.c ../EnginePl/wam_regs.h \
          ../EnginePl/gp_config.h ../EnginePl/machine1.c decode_hexa.c copying.c prolog_path.c
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c $(LDLIBS)
 
 $(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@$(HEXGPLC)@EXE_SUFFIX@ hexfilter.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@$(HEXGPLC)@EXE_SUFFIX@ hexfilter.c
 
 
 

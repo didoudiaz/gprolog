@@ -403,8 +403,9 @@ Pl_Memberchk_2(WamWord elem_word, WamWord list_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Length_2(WamWord list_word, WamWord n_word)
+Pl_Length_2(WamWord start_list_word, WamWord n_word)
 {
+  WamWord list_word = start_list_word;
   WamWord word, tag_mask;
   WamWord *adr;
   PlLong n, len = 0;
@@ -453,15 +454,33 @@ Pl_Length_2(WamWord list_word, WamWord n_word)
 	}
 
       if (tag_mask != TAG_LST_MASK)
-#if 1
-	Pl_Err_Type(pl_type_list, word);
-#else
-	return FALSE;
+	{
+#if 1	/* length/2 tries to emit a type_error if not a list.
+	 * Only activated if strict_iso is on (see Issue #7) since the template is 
+	 * length(?term, ?integer) in the Prolog Prologue:
+	 * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
+	 * Not yet ISO but validated in Lexinton's minutes:
+	 * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
+         */
+	  if (!Flag_Value(strict_iso))
+	    Pl_Err_Type(pl_type_list, start_list_word);
 #endif
+	  return FALSE;
+	}
+
       
       len++;
       if ((PlULong) n < (PlULong) len)
-	return FALSE;
+	{
+#if 1 /* see above comment */
+	  if (!Flag_Value(strict_iso))
+	    {
+	      if (!Pl_Blt_List_Or_Partial_List(word))
+		Pl_Err_Type(pl_type_list, start_list_word);
+	    }
+#endif
+	  return FALSE;
+	}
 
       adr = UnTag_LST(word);
       list_word = Cdr(adr);
