@@ -1,14 +1,3 @@
-lgt_current_output(S) :-
-	current_output(S), !.
-
-lgt_current_output(S) :-
-	current_stream(S), !,
-	fail.
-
-lgt_current_output(S) :-
-	set_bip_name(current_output, 1),
-	'$pl_err_existence'(stream, S).
-
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
@@ -179,6 +168,7 @@ q.
 :- initialization(q).
 
 */
+/*
 setup_call_cleanup(Setup, Goal, Cleanup) :-
 	set_bip_name(setup_call_cleanup, 3),
 	call(Setup), !,
@@ -220,3 +210,33 @@ setup_call_cleanup(Setup, Goal, Cleanup) :-
 
 
 p(_,_):-call(_).
+*/
+
+
+
+
+/*
+
+lgt_current_output(S) :-
+	current_output(S), !.
+
+lgt_current_output(S) :-
+	current_stream(S), !,
+	fail.
+
+lgt_current_output(S) :-
+	set_bip_name(current_output, 1),
+	'$pl_err_existence'(stream, S).
+
+*/
+
+
+:- multifile(p/0).
+:- dynamic(p/0).
+
+p.
+p:-write(toto),nl.
+
+
+%:- initialization((trace, p)).
+%foo:-write(a),write(b),nl.

@@ -230,8 +230,7 @@ static WamCont BC_Emulate_Clause(DynCInf *clause);
 
 static WamCont BC_Emulate_Byte_Code(BCWord *bc);
 
-static void Prep_Debug_Call(int func, int arity, int caller_func,
-			    int caller_arity);
+static void Prep_Debug_Call(int func, int arity, int caller_func, int caller_arity);
 
 
 
@@ -325,8 +324,7 @@ Byte_Code_Initializer(void)
 
   nb_op = p - op_tbl;
 
-  qsort(op_tbl, nb_op, sizeof(op_tbl[0]),
-	(int (*)(const void *, const void *)) Compar_Inst_Code_Op);
+  qsort(op_tbl, nb_op, sizeof(op_tbl[0]), (int (*)(const void *, const void *)) Compar_Inst_Code_Op);
 
 
   bc_nb_block = 1;
@@ -828,7 +826,7 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
  *-------------------------------------------------------------------------*/
 WamCont
 Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
-			WamWord first_call_word)
+			   WamWord first_call_word)
 {
   int func, arity;
   WamWord *arg_adr;
@@ -839,8 +837,7 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
 
   debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
 
-  if (pl_debug_call_code != NULL && debug_call &&
-      (first_call_word & (1 << TAG_SIZE_LOW)))
+  if (pl_debug_call_code != NULL && debug_call && (first_call_word & (1 << TAG_SIZE_LOW)))
     {
       A(0) = pred_word;
       A(1) = call_info_word;
@@ -954,7 +951,14 @@ BC_Emulate_Clause(DynCInf *clause)
 
   bc = (BCWord *) clause->byte_code;
 
-  if (bc)			/* emulated code */
+  /* Issue #12: infinite loop when debugger is active on Call ports for dynamic/multifile compiled code.
+   * Each clause of such a predicate gives rise to both an assert (suitable for interpretation) and
+   * a native code which is invoked by BC with a EXECUTE_NATIVE instruction (CALL_NATIVE exists but
+   * not yet used). See in .wam call_c to Pl_Emit_BC_Execute_Wrapper and Pl_BC_Emit_Inst_Execute_Native.
+   * To fix the issue: either do not use BC if debug is active (use interpreted code - see below)
+   * or do not call the debugger inside EXECUTE_NATIVE (and CALL_NATIVE for consistency ?)
+   */
+  if (bc && !debug_call)	/* emulated code (see above for test !debug_call) */
     return BC_Emulate_Byte_Code(bc);
 				/* interpreted code */
   Pl_Copy_Clause_To_Heap(clause, &head_word, &body_word);
@@ -1366,6 +1370,7 @@ bc_loop:
       bc++;
       codep = (WamCont) (cv.p);
 #endif
+      /* Issue #12: alternative fix could be to never call the debugger here */
       if (pl_debug_call_code != NULL && debug_call)
 	{
 	  Prep_Debug_Call(func, arity, 0, 0);

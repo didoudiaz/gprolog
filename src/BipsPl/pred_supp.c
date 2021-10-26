@@ -165,8 +165,7 @@ Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 {
   func = Pl_Pred_Without_Aux(func, arity, &arity);
 
-  sprintf(pl_glob_buff, "$%s/%d%s%d", pl_atom_tbl[func].name, arity, AUX_STR,
-	  aux_nb);
+  sprintf(pl_glob_buff, "$%s/%d%s%d", pl_atom_tbl[func].name, arity, AUX_STR, aux_nb);
   return Pl_Create_Allocate_Atom(pl_glob_buff);
 }
 
@@ -176,7 +175,7 @@ Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 /*-------------------------------------------------------------------------*
  * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
  *                                                                         *
- * (e.g. called by pl2wam to create a multifile pred)                      *
+ * (e.g. called by pl2wam for each clause of a dynamic or multifile pred)  *
  *-------------------------------------------------------------------------*/
 void
 Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)

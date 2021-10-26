@@ -1,3 +1,10 @@
+Change in GNU Prolog version 1.5.1
+
+* fix problem in arm32 mapper when passing more than 8 double to a C function
+* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is on
+* fix infinite loop in debugger for multifile/dynamic predicates (issue #12)
+* improve Makefiles with patches sent by Keri Harris on July 2021
+
 Change in GNU Prolog version 1.5.0
 
 * Source repository moved to GiHub https://github.com/didoudiaz/gprolog
