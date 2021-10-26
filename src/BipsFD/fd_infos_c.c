@@ -90,13 +90,26 @@ Pl_Fd_Set_Vector_Max_1(WamWord max_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_FD_MIN_INTEGER_1                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Min_Integer_1(WamWord min_word)
+{
+  return Pl_Un_Integer_Check(INTERVAL_MIN_INTEGER, min_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_FD_MAX_INTEGER_1                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Fd_Max_Integer_1(WamWord inf_word)
+Pl_Fd_Max_Integer_1(WamWord max_word)
 {
-  return Pl_Un_Integer_Check(INTERVAL_MAX_INTEGER, inf_word);
+  return Pl_Un_Integer_Check(INTERVAL_MAX_INTEGER, max_word);
 }
 
 

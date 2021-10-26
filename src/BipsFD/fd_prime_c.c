@@ -65,9 +65,15 @@ static Range not_prime_range;
 /* Choose a maximum value for the prime range      *
  * max_prime_value = 10^2 ==>         25 primes    *
  * max_prime_value = 10^3 ==>        168 primes    *
- * max_prime_value = 10^6 ==>     78,498 primes    *
- * max_prime_value = 2^29 ==> 28,192,750 primes    */
+ * max_prime_value = 10^4 ==>       1229 primes    *
+ * max_prime_value = 10^5 ==>       9592 primes    *
+ * max_prime_value = 10^6 ==>     78,498 primes    */
+
+#if 0
 static int max_prime_value = 1000;
+#else
+static int max_prime_value = 10000;
+#endif
 
 
 

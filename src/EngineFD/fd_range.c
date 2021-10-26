@@ -897,7 +897,7 @@ Pl_Range_Mod_Value(Range *range, int n)
 char *
 Pl_Range_To_String(Range *range)
 {
-  static char buff[4096];
+  static char buff[100 * 1024];
 
   if (Is_Empty(range))
     {

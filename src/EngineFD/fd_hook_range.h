@@ -41,12 +41,16 @@
  *---------------------------------*/
 
 #define RANGE_TOP_STACK            CS
-#define INTERVAL_MAX_INTEGER       ((int)(((PlLong)1<<(32-TAG_SIZE-1))-1))	/* only 32 bits (even on 64 bits machine) */
+#if 0
+#define INTERVAL_MAX_INTEGER       ((int)(((PlLong)1<<(32-TAG_SIZE-1))-1))	/* only 32 bits (even on 64 bits machine) - ie. 268435455 */
+#else /* in practice limit it more to avoid (many) intermediate overflows */
+#define INTERVAL_MAX_INTEGER       100000000
+#endif
 
 #ifdef GP_FD_POSITIVE_ONLY 					/* if set, use only positive integers (for backwards compatibility) */
 #define INTERVAL_MIN_INTEGER       0
 #else
-#define INTERVAL_MIN_INTEGER       - INTERVAL_MAX_INTEGER	
+#define INTERVAL_MIN_INTEGER       (- INTERVAL_MAX_INTEGER)
 #endif
 
 

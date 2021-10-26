@@ -52,9 +52,15 @@ fd_set_vector_max(Max) :-
 
 
 
-fd_max_integer(Inf) :-
+
+fd_min_integer(Min) :-
+	set_bip_name(fd_min_integer, 1),
+	'$call_c_test'('Pl_Fd_Min_Integer_1'(Min)).
+
+
+fd_max_integer(Max) :-
 	set_bip_name(fd_max_integer, 1),
-	'$call_c_test'('Pl_Fd_Max_Integer_1'(Inf)).
+	'$call_c_test'('Pl_Fd_Max_Integer_1'(Max)).
 
 
 
