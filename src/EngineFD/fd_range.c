@@ -1699,7 +1699,7 @@ Pl_Range_To_String(Range *range)
   int vec_elem;
   int limit1 = -1;
   int limit2;
-  static char buff[4096];
+  static char buff[100 * 1024];
 
 
   if (Is_Empty(range))
