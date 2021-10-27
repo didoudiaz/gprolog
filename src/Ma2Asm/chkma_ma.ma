@@ -133,7 +133,8 @@ pl_code global ma_test_arg_fl_array
 
 pl_code global ma_test_arg_fd_array
 	call_c fast Allocate(1)
-	call_c fast test_arg_fd_array1(FD(0), FD(47), &FD(0), &FD(127))
+	call_c fast test_arg_fd_array1(1, 2, 3, 4, FD(0), FD(47), &FD(0), &FD(127))
+;	call_c fast test_arg_fd_array1(FD(0), FD(47), &FD(0), &FD(127))
 	pl_ret
 
 pl_code global ma_test_call_c_lot_args

@@ -138,7 +138,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #elif defined(M_arm32)
 
-	/* do not use r7 (frame pointer) */
+	/* do not use r7 (frame pointer in Thumb code) */
 #    define M_USED_REGS            {"r5", "r6", "r8", "r9", "r10", 0}
 
 #elif defined(M_arm64) && !defined(__clang__) /* clang/llvm do not yet handle Global Register Variables */
