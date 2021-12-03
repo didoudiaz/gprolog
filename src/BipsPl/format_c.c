@@ -102,7 +102,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
     str = pl_atom_tbl[UnTag_ATM(word)].name;
   else
     {
-      strcpy(buff, Pl_Rd_Codes_Check(format_word));
+      strcpy(buff, Pl_Rd_Chars_Or_Codes_Check(format_word));
       str = buff;
     }
   Format(pstm, str, &args_word);

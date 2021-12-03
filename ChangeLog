@@ -1,3 +1,7 @@
+Fri Dec  3 02:42:24 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #9: format/2-3 now also accept a list of character for format
+
 Tue Oct 26 11:25:45 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix problem in arm32 mapper when passing more than 8 double to a C function

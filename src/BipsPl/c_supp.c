@@ -837,6 +837,38 @@ Pl_Rd_Codes(WamWord start_word)
 
 
 
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_CHARS_OR_CODES_CHECK                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Rd_Chars_Or_Codes_Check(WamWord start_word)
+{
+  Pl_Rd_Chars_Or_Codes_Str_Check(start_word, pl_glob_buff);
+  return pl_glob_buff;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_CHARS_OR_CODES                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Rd_Chars_Or_Codes(WamWord start_word)
+{
+  Pl_Rd_Chars_Or_Codes_Str(start_word, pl_glob_buff);
+  return pl_glob_buff;
+}
+
+
+
+
 /*-------------------------------------------------------------------------*
  * PL_RD_CHARS_STR_CHECK                                                   *
  *                                                                         *
@@ -975,6 +1007,89 @@ Pl_Rd_Codes_Str(WamWord start_word, char *str)
       lst_adr = UnTag_LST(word);
 
       *str++ = Pl_Rd_Code_Check(Car(lst_adr));
+      n++;
+
+      start_word = Cdr(lst_adr);
+    }
+
+  *str = '\0';
+  return n;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_CHARS_OR_CODES_STR_CHECK                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_Chars_Or_Codes_Str_Check(WamWord start_word, char *str)
+{
+  WamWord word, tag_mask;
+  WamWord save_start_word;
+  WamWord *lst_adr;
+  int n = 0;
+  Bool is_chars = TRUE;		/* only known after first element read */
+
+  save_start_word = start_word;
+
+  for (;;)
+    {
+      DEREF(start_word, word, tag_mask);
+
+      if (tag_mask == TAG_REF_MASK)
+	Pl_Err_Instantiation();
+
+      if (word == NIL_WORD)
+	break;
+
+      if (tag_mask != TAG_LST_MASK)
+	Pl_Err_Type(pl_type_list, save_start_word);
+
+      lst_adr = UnTag_LST(word);
+
+      if (n == 0)
+	is_chars = Pl_Builtin_Atom(Car(lst_adr));
+      
+      *str++ = (is_chars) ? Pl_Rd_Char_Check(Car(lst_adr)) : Pl_Rd_Code_Check(Car(lst_adr));
+      n++;
+
+      start_word = Cdr(lst_adr);
+    }
+
+  *str = '\0';
+  return n;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_CHARS_OR_CODES_STR                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_Chars_Or_Codes_Str(WamWord start_word, char *str)
+{
+  WamWord word, tag_mask;
+  WamWord *lst_adr;
+  int n = 0;
+  Bool is_chars = TRUE;		/* only known after first element read */
+
+  for (;;)
+    {
+      DEREF(start_word, word, tag_mask);
+
+      if (word == NIL_WORD)
+	break;
+
+      lst_adr = UnTag_LST(word);
+
+      if (n == 0)
+	is_chars = Pl_Builtin_Atom(Car(lst_adr));
+      
+      *str++ = (is_chars) ? Pl_Rd_Char_Check(Car(lst_adr)) : Pl_Rd_Code_Check(Car(lst_adr));
       n++;
 
       start_word = Cdr(lst_adr);
