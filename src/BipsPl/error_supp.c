@@ -181,6 +181,7 @@ Error_Supp_Initializer(void)
 				/* for g_vars */
   pl_domain_stream_seek_method = Pl_Create_Atom("stream_seek_method"); /* for seek/4 */
   pl_domain_format_control_sequence = Pl_Create_Atom("format_control_sequence");
+  pl_domain_format_radix = Pl_Create_Atom("radix");
 				/* for format/2-3 */
   pl_domain_os_path = Pl_Create_Atom("os_path");/* for absolute_file_name/2 */
   pl_domain_os_file_permission = Pl_Create_Atom("os_file_permission");

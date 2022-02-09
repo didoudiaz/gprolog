@@ -316,8 +316,11 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'R':
               x = Arg_Integer(&lst_adr);
 
-              if (!has_n || n < 2 || n > 36)
-                n = 8;
+              if (!has_n)
+                  n = 8;
+              else if (n < 2 || n > 36)
+                  Pl_Err_Domain(pl_domain_format_radix,
+                                Tag_INT(n));
 
               k = ((*format == 'r') ? 'a' : 'A') - 10;
 
@@ -369,7 +372,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'q':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-			    WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
+                WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
               break;
 
             case 'p':           /* only work if print.pl is linked */
