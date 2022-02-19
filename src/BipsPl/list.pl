@@ -221,6 +221,7 @@ length(L, N) :-
 
 
 length(L, N) :-
+	L \== N,
 	'$call_c_test'('Pl_Length_2'(L, N)).
 
 
