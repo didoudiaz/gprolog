@@ -221,6 +221,10 @@ length(L, N) :-
 
 
 length(L, N) :-
+	(	var(L) ->
+		L \== N
+	;	true
+	),
 	'$call_c_test'('Pl_Length_2'(L, N)).
 
 
