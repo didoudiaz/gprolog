@@ -330,39 +330,19 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
   char *path_name;
   Bool res;
   char *name;
-
-#ifdef _WIN32
-  PlLong h;
-  struct _finddata_t d;
-  static char buff[MAXPATHLEN];
-#else
   DIR *dir;
   struct dirent *cur_entry;
-#endif
-
 
   Pl_Check_For_Un_List(list_word);
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef _WIN32
-  sprintf(buff, "%s\\*.*", path_name);
-  h = _findfirst(buff, &d);	/* instead of Win32 FindFirstFile since uses errno */
-  Os_Test_Error(h);
-#else
-  dir = opendir(path_name);
+  dir = opendir(path_name);	/* on windows: see opendir in ../EnginePl/arch_dep.c */
   Os_Test_Error_Null(dir);
-#endif
 
-#ifdef _WIN32
-  do
-    {
-      name = d.name;
-#else
   while ((cur_entry = readdir(dir)) != NULL)
     {
       name = cur_entry->d_name;
-#endif
       if (!Pl_Get_List(list_word) || !Pl_Unify_Atom(Pl_Create_Allocate_Atom(name)))
 	{
 	  res = FALSE;
@@ -371,18 +351,11 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
 
       list_word = Pl_Unify_Variable();
     }
-#ifdef _WIN32
-  while (_findnext(h, &d) == 0);
-#endif
 
   res = Pl_Get_Nil(list_word);
 
 finish:
-#ifdef _WIN32
-  _findclose(h);
-#else
   closedir(dir);
-#endif
 
   return res;
 }
@@ -567,7 +540,7 @@ Flag_Of_Permission(WamWord perm_word, Bool is_a_directory)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
-			       WamWord path_name_word)
+				  WamWord path_name_word)
 {
   char *path_name;
 
@@ -587,7 +560,7 @@ Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_File_Prop_Real_File_Name_2(WamWord real_path_name_word,
-			   WamWord path_name_word)
+			      WamWord path_name_word)
 {
   char *path_name = Get_Path_Name(path_name_word);
 
@@ -756,7 +729,7 @@ Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
-		 WamWord path_name_word)
+		    WamWord path_name_word)
 {
   char *dir;
   char *prefix;
@@ -1054,7 +1027,7 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   int stm;
   FILE *f_in, *f_out, *f_err;
   int pid;
-  int mask = SYS_VAR_OPTION_MASK;
+  int mask = (int) SYS_VAR_OPTION_MASK;
   int atom;
   char err[1024];
 
@@ -1209,8 +1182,8 @@ Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
     p = NULL;
   else
     {
-      t.tv_sec = (PlLong) (time_out / 1000);
-      t.tv_usec = (PlLong) (fmod(time_out, 1000) * 1000);
+      t.tv_sec = (long) (time_out / 1000);
+      t.tv_usec = (long) (fmod(time_out, 1000) * 1000);
       p = &t;
     }
 
@@ -1312,7 +1285,7 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       DEREF(Car(lst_adr), word, tag_mask);
 
       if (tag_mask == TAG_INT_MASK)
-	fd = UnTag_INT(word);
+	fd = (int) UnTag_INT(word);
       else
 	{
 	  stm = Pl_Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
@@ -1371,7 +1344,7 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
   DEREF(signal_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(word);
+      atom = (int) UnTag_ATM(word);
       sig = -1;
       for (i = 0; i < nb_sig; i++)
 	if (tsig[i].atom == atom)

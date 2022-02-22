@@ -565,8 +565,8 @@ Pl_SR_New_Pass_1(WamWord desc_word)
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Add_Directive_7(WamWord type_word,
-		   WamWord d1_word, WamWord d2_word, WamWord d3_word,
-		   WamWord u1_word, WamWord u2_word, WamWord u3_word)
+		      WamWord d1_word, WamWord d2_word, WamWord d3_word,
+		      WamWord u1_word, WamWord u2_word, WamWord u3_word)
 {
   SRInf *sr = cur_sr;
   SRDirect *d;
@@ -780,7 +780,7 @@ Pl_SR_Update_Position_0(void)
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Start_Module_3(WamWord module_name_word, WamWord interface_word,
-		  WamWord err_word)
+		     WamWord err_word)
 {
   SRInf *sr = cur_sr;
   int atom_module_name = Pl_Rd_Atom_Check(module_name_word);
@@ -859,7 +859,7 @@ Pl_SR_Start_Module_3(WamWord module_name_word, WamWord interface_word,
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Stop_Module_3(WamWord module_name_word, WamWord interface_word,
-		 WamWord err_word)
+		    WamWord err_word)
 {
   SRInf *sr = cur_sr;
   int atom_module_name = Pl_Rd_Atom_Check(module_name_word);
@@ -1028,7 +1028,7 @@ Pl_SR_Get_Stm_2(WamWord desc_word, WamWord stm_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_SR_Get_Module_3(WamWord desc_word, WamWord module_name_word,
-		WamWord interface_word)
+		   WamWord interface_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRModule *m = sr->cur_module;
@@ -1153,7 +1153,7 @@ Pl_SR_Get_Include_Stream_List_2(WamWord desc_word, WamWord list_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word,
-		       WamWord lines_word)
+			  WamWord lines_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file;
@@ -1184,7 +1184,7 @@ Pl_SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_SR_Get_Error_Counters_3(WamWord desc_word, WamWord errors_word,
-			WamWord warnings_word)
+			   WamWord warnings_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
 
@@ -1204,7 +1204,7 @@ Pl_SR_Get_Error_Counters_3(WamWord desc_word, WamWord errors_word,
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Set_Error_Counters_3(WamWord desc_word, WamWord errors_word,
-			WamWord warnings_word)
+			   WamWord warnings_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
   int errors = Pl_Rd_Integer_Check(errors_word);
@@ -1272,7 +1272,7 @@ Get_Descriptor(WamWord desc_word, Bool accept_none)
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Write_Message_4(WamWord desc_word,
-		   WamWord type_word, WamWord format_word, WamWord args_word)
+		      WamWord type_word, WamWord format_word, WamWord args_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
@@ -1308,8 +1308,8 @@ Pl_SR_Write_Message_4(WamWord desc_word,
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Write_Message_6(WamWord desc_word,
-		   WamWord l1_word, WamWord l2c_word,
-		   WamWord type_word, WamWord format_word, WamWord args_word)
+		      WamWord l1_word, WamWord l2c_word,
+		      WamWord type_word, WamWord format_word, WamWord args_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
@@ -1344,9 +1344,9 @@ Pl_SR_Write_Message_6(WamWord desc_word,
  *-------------------------------------------------------------------------*/
 void
 Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word,
-		   WamWord file_name_word,
-		   WamWord l1_word, WamWord l2c_word,
-		   WamWord type_word, WamWord format_word, WamWord args_word)
+		      WamWord file_name_word,
+		      WamWord l1_word, WamWord l2c_word,
+		      WamWord type_word, WamWord format_word, WamWord args_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;

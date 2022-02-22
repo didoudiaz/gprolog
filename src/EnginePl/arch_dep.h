@@ -127,6 +127,7 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
+/*#pragma warning(disable : 4244) /* possible loss of data */
 #endif
 
 #define MAXPATHLEN                 1024
@@ -149,7 +150,9 @@
 #define strcasecmp                 stricmp
 #define strncasecmp                strnicmp
 #define spawnvp                    _spawnvp
+#ifndef isnan
 #define isnan                      _isnan
+#endif
 #endif
 
 #ifndef F_OK
@@ -403,6 +406,50 @@ typedef struct _excp_lst
 #endif
 
 #endif /* defined(USE_SEH) */
+
+#ifdef _WIN32
+
+/* Provided by arch_dep.c */
+
+int Pl_Win_Error_To_Errno();
+
+/* see unix <dirent.h> */
+
+struct dirent	     	
+{
+  long d_ino;
+  unsigned short d_reclen;
+  unsigned char d_type;
+  char d_name[MAXPATHLEN];
+};
+  
+  
+#define DT_UNKNOWN      0 /* d_type: file types.  */
+#define DT_FIFO         1
+#define DT_CHR          2
+#define DT_DIR          4
+#define DT_BLK          6
+#define DT_REG          8
+#define DT_LNK          10
+#define DT_SOCK         12
+#define DT_WHT          14
+
+struct DIR
+{
+  char *dirname;
+  struct dirent ret;          /* Used to return to caller */
+  void *handle;		      /* equivalent of windows HANDLE (avoid to include windows.h) */
+};
+
+typedef struct DIR DIR;
+  
+/* Protoypes */
+
+DIR *opendir(char *dir_path);
+struct dirent *readdir(DIR *dir);
+int closedir(DIR *dir);
+
+#endif
 
 #endif /* !_ARCH_DEP_H */
 
