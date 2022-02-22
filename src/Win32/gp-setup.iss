@@ -1,5 +1,5 @@
 ; GNU Prolog
-; Copyright (C) 1999-2021 Daniel Diaz 
+; Copyright (C) 1999-2022 Daniel Diaz 
 ;
 ; WIN32 installation script for Inno Setup
 
