@@ -180,7 +180,7 @@ write.wam:       write.pl
 src_rdr.wam:   	 src_rdr.pl
 
 check:
-	@../Pl2Wam/check_boot -a [a-z][a-z]*.wam && echo Bootstrap Prolog Bips OK
+	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo Bootstrap Prolog Bips OK
 
 
 

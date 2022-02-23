@@ -1,3 +1,9 @@
+Wed 23 Feb 2022 01:03:44 PM CET <Daniel.Diaz@univ-paris1.fr>:
+
+	* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
+	* fix issue #4 : directory_files/2 now uses native Win32 functions
+	* fix small problem when bootstrapping due to Makefiles
+
 Fri Dec  3 02:42:24 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #9: format/2-3 now also accept a list of character for format
