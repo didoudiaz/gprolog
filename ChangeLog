@@ -3,6 +3,7 @@ Wed 23 Feb 2022 01:03:44 PM CET <Daniel.Diaz@univ-paris1.fr>:
 	* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
 	* fix issue #4 : directory_files/2 now uses native Win32 functions
 	* fix small problem when bootstrapping due to Makefiles
+	* fix format/2-3 to throw a domain error on invalid radix
 
 Fri Dec  3 02:42:24 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 
@@ -14,7 +15,7 @@ Tue Oct 26 11:25:45 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
 Thu Oct 21 15:45:07 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is on
+	* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is off
 
 Thu Oct 14 16:01:16 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 

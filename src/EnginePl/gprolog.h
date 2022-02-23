@@ -156,6 +156,7 @@ extern int pl_domain_g_array_index;
 extern int pl_domain_g_argument_selector;
 extern int pl_domain_stream_seek_method;
 extern int pl_domain_format_control_sequence;
+extern int pl_domain_radix;
 extern int pl_domain_os_path;
 extern int pl_domain_os_file_permission;
 extern int pl_domain_selectable_item;
@@ -776,6 +777,7 @@ typedef PlFIOArg FIOArg;
 #define domain_g_argument_selector pl_domain_g_argument_selector
 #define domain_stream_seek_method pl_domain_stream_seek_method
 #define domain_format_control_sequence pl_domain_format_control_sequence
+#define domain_radix pl_domain_radix
 #define domain_os_path pl_domain_os_path
 #define domain_os_file_permission pl_domain_os_file_permission
 #define domain_selectable_item pl_domain_selectable_item

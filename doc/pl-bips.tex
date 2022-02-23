@@ -4680,9 +4680,13 @@ variable nor a character code}
 \ErrCond{\texttt{SorA} is neither a variable nor a stream-term or alias}
 \ErrTerm{domain\_error(stream\_or\_alias, SorA)}
 
-\ErrCond{an element \texttt{E} of Format is not a valid format control
+\ErrCond{an element \texttt{E} of \texttt{Format} is not a valid format control
 sequence}
 \ErrTerm{domain\_error(format\_control\_sequence, E)}
+
+\ErrCond{an element of the \texttt{Format} is of the form \texttt{\~{}Nr} or
+  \texttt{\~{}NR} but the radix \texttt{N} is not a valid radix}
+\ErrTerm{domain\_error(format\_control\_sequence, N)}
 
 \ErrCond{the \texttt{Arguments} list does not contain sufficient elements}
 \ErrTerm{domain\_error(non\_empty\_list, [])}

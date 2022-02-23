@@ -95,6 +95,7 @@ int pl_domain_g_array_index;			/* for g_vars */
 int pl_domain_g_argument_selector;		/* for g_vars */
 int pl_domain_stream_seek_method;		/* for seek/4 */
 int pl_domain_format_control_sequence;		/* for format/2-3 */
+int pl_domain_radix;		        	/* for format/2-3 */
 int pl_domain_os_path;				/* for absolute_file_name/2 */
 int pl_domain_os_file_permission;		/* for file_permission/2 */
 int pl_domain_selectable_item;			/* for select_read/3 */
@@ -198,6 +199,7 @@ extern int pl_domain_g_array_index;		/* for g_vars */
 extern int pl_domain_g_argument_selector;	/* for g_vars */
 extern int pl_domain_stream_seek_method;	/* for seek/4 */
 extern int pl_domain_format_control_sequence;	/* for format/2-3 */
+extern int pl_domain_radix;			/* for format/2-3 */
 extern int pl_domain_os_path;			/* for absolute_file_name/2 */
 extern int pl_domain_os_file_permission; 	/* for file_permission/2 */
 extern int pl_domain_selectable_item; 		/* for select_read/3 */
