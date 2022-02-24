@@ -90,6 +90,10 @@
 
 #    define M_Direct_Goto(lab)     {asm("b " M_Asm_Symbol(lab)); return;}
 
+#elif defined(M_mips32) || defined(M_riscv64)
+
+#    define M_Direct_Goto(lab)     {asm("j " M_Asm_Symbol(lab)); return;}
+
 #endif
 
 

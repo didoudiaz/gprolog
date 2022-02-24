@@ -147,6 +147,10 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 #    define M_USED_REGS            {"x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
 
 
+#elif defined(M_riscv64)
+
+#    define M_USED_REGS            {"s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", 0}
+
 #elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}

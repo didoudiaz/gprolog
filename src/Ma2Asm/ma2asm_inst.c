@@ -116,6 +116,10 @@
 
 #include "arm64_any.c"
 
+#elif defined(M_riscv64)
+
+#include "riscv64_any.c"
+
 #else
 
 #error __FILE__ " no MA mapper file included"
