@@ -1,9 +1,10 @@
-Wed 23 Feb 2022 01:03:44 PM CET <Daniel.Diaz@univ-paris1.fr>:
+Thu Feb 24 09:12:00 CET 2022
 
+	* fix the length/2 predicate to make length(L, L) fail instead of crashing (pr #19)
 	* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
 	* fix issue #4 : directory_files/2 now uses native Win32 functions
 	* fix small problem when bootstrapping due to Makefiles
-	* fix format/2-3 to throw a domain error on invalid radix
+	* fix format/2-3 to throw a domain error on invalid radix (pr #16)
 
 Fri Dec  3 02:42:24 CET 2021 <Daniel.Diaz@univ-paris1.fr>
 

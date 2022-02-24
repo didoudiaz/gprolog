@@ -440,8 +440,12 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
 
       if (tag_mask == TAG_REF_MASK)
 	{
-	  if (n < 0)		/* non-deterministic case */
-	    break;
+	  if (n < 0)		/* both args are vars */
+	    {
+	      if (word == n_word) /* same variable: length(L, L) should fail */
+		return FALSE;
+	      break;		/* non-deterministic case */
+	    }
 
 	  if (n == len)
 	      return Pl_Get_Nil(word); /* return is TRUE */

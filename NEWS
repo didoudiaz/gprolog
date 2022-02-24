@@ -1,9 +1,10 @@
 Change in GNU Prolog version 1.5.1
 
+* fix the length/2 predicate to make length(L, L) fail instead of crashing (pr #19)
 * fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
 * fix issue #4: directory_files/2 now uses native Win32 functions
 * fix small problem when bootstrapping due to Makefiles
-* fix format/2-3 to throw a domain error on invalid radix
+* fix format/2-3 to throw a domain error on invalid radix (pr #16)
 * fix issue #9: format/2-3 now also accept a list of character for format
 * fix problem in arm32 mapper when passing more than 8 double to a C function
 * fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is off
@@ -12,7 +13,7 @@ Change in GNU Prolog version 1.5.1
 
 Change in GNU Prolog version 1.5.0
 
-* Source repository moved to GiHub https://github.com/didoudiaz/gprolog
+* source repository moved to GiHub https://github.com/didoudiaz/gprolog
 * port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
 * port to arm64 (aarch64)/Linux (armv8) - many thanks to
   Jasper Taylor <jasper@simulistics.com>

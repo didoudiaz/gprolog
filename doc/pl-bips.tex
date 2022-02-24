@@ -1642,7 +1642,8 @@ dynamic. Internal system procedures whose name begins
 with \texttt{'\$'} are not found. A user-defined procedure is found
 even when it has no clauses. A user-defined procedure is not found if
 it has been abolished. To conform to the ISO reference, built-in predicates
-are not found except if the \IdxPF{strict\_iso} \Idx{Prolog flag} is switched off \RefSP{set-prolog-flag/2}. This predicate is re-executable on
+are not found except if the \IdxPF{strict\_iso} \Idx{Prolog flag} is switched
+off \RefSP{set-prolog-flag/2}. This predicate is re-executable on
 backtracking.
 
 \begin{PlErrors}
@@ -4548,12 +4549,15 @@ Format sequence  & type of the argument & Description \\
 
 \hline\hline
 
-\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal number of characters to print using spaces on the right if needed (default: the length of the atom) \\
+\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal
+                         number of characters to print using spaces on the right
+                         if needed (default: the length of the atom) \\
 
 \hline
 
 \texttt{\~{}Nc} & character code & print the character associated with the
-code. \texttt{N} is the number of times to print the character (default: 1)\\
+                                   code. \texttt{N} is the number of times to
+                                   print the character (default: 1)\\
 
 \hline
 
@@ -4568,40 +4572,42 @@ code. \texttt{N} is the number of times to print the character (default: 1)\\
                                \texttt{printf("\%f",Arg)} else
                                \texttt{printf("\%.Nf",Arg)}.
 \linebreak
-Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE}, \texttt{\~{}Ng} and \texttt{\~{}NG} \\
+                                     Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE},
+                                     \texttt{\~{}Ng} and \texttt{\~{}NG} \\
 
 \hline
 
 \texttt{\~{}Nd} & integer expression & print the argument. \texttt{N} is the
-number of digits after the decimal point. If \texttt{N} is 0 no
-decimal point is printed (default: 0)\\
+                                       number of digits after the decimal point.
+                                       If \texttt{N} is 0 no decimal point is printed (default: 0)\\
 
 \hline
 
 \texttt{\~{}ND} & integer expression & identical to \texttt{\~{}Nd} except
-that \texttt{','} separates groups of three digits to the left of the
-decimal point \\
+                                       that \texttt{','} separates groups of
+                                       three digits to the left of the
+                                       decimal point \\
 
 \hline
 
 \texttt{\~{}Nr} & integer expression & print the argument according to the
-radix \texttt{N}. 2 $\leq$ \texttt{N} $\leq$ 36 (default: 8). The letters
-\texttt{a-z} denote digits $>$ 9 \\
+                                       radix \texttt{N}. 2 $\leq$ \texttt{N} $\leq$ 36 (default: 8).
+                                       The letters \texttt{a-z} denote digits $>$ 9 \\
 
 \hline
 
 \texttt{\~{}NR} & integer expression & identical to \texttt{\~{}Nr} except
-that the letters \texttt{A-Z} denote digits $>$ 9 \\
+                                       that the letters \texttt{A-Z} denote digits $>$ 9 \\
 
 \hline
 
 \texttt{\~{}Ns} & character code list & print exactly \texttt{N} characters
-(default: the length of the list) \\
+                                        (default: the length of the list) \\
 
 \hline
 
 \texttt{\~{}NS} & character list & print exactly \texttt{N} characters
-(default: the length of the list) \\
+                                   (default: the length of the list) \\
 
 \hline
 
@@ -4610,22 +4616,22 @@ that the letters \texttt{A-Z} denote digits $>$ 9 \\
 \hline
 
 \texttt{\~{}k} & term & pass the argument to
-\IdxPB{write\_canonical/1} \RefSP{write-term/3} \\
+                        \IdxPB{write\_canonical/1} \RefSP{write-term/3} \\
 
 \hline
 
 \texttt{\~{}p} & term & pass the argument to \IdxPB{print/1}
-\RefSP{write-term/3} \\
+                        \RefSP{write-term/3} \\
 
 \hline
 
 \texttt{\~{}q} & term & pass the argument to \IdxPB{writeq/1}
-\RefSP{write-term/3} \\
+                        \RefSP{write-term/3} \\
 
 \hline
 
 \texttt{\~{}w} & term & pass the argument to \IdxPB{write/1}
-\RefSP{write-term/3} \\
+                        \RefSP{write-term/3} \\
 
 \hline
 
@@ -4646,9 +4652,11 @@ of a line \\
 
 \hline
 
-\texttt{\%F} & atom, integer or float expression & interface to the C
-function \texttt{printf(3)} for outputting atoms (C string), integers and
-floating point numbers. \texttt{*} are also allowed. \\
+\texttt{\%F} & atom, integer or float expression & interface to the C function
+                                                   \texttt{printf(3)} for outputting
+                                                   atoms (C string), integers and
+                                                   floating point numbers.
+                                                   \texttt{*} are also allowed. \\
 
 \hline
 \end{tabular}
@@ -6753,6 +6761,7 @@ of \texttt{List1}.
 GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{length/2}}
+\label{length/2}
 
 \begin{TemplatesOneCol}
 length(?list, ?integer)
@@ -6771,6 +6780,11 @@ length(?list, ?integer)
 
 \ErrCond{\texttt{Length} is an integer $<$ 0}
 \ErrTerm{domain\_error(not\_less\_than\_zero, Length)}
+
+\ErrCond{\texttt{List} is neither a list nor a partial list and the
+\IdxPF{strict\_iso} \Idx{Prolog flag} is switched off \RefSP{set-prolog-flag/2}}
+\ErrTerm{type\_error(list, List)}
+
 
 \end{PlErrors}
 
@@ -7848,10 +7862,10 @@ other Prolog systems. When turned off the following relaxations apply:
   accepted and returns 39, the \Idx{escape sequence} \texttt{{\bs}s} (space) and
   \texttt{{\bs}e} (escape) are accepted.
 
-\item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor}, \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
+\item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor},
+  \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
 
-\item \texttt{length/2} emits a \texttt{type\_error} if the first argument is not a list.
-
+\item \IdxPB{length/2} emits a \texttt{type\_error} if the first argument is not a list \RefSP{length/2}.
 \end{itemize}
 
 \begin{PlErrors}
@@ -7953,8 +7967,8 @@ current\_bip\_name(?atom, ?arity)
 \Description
 
 \texttt{current\_bip\_name(Functor, Arity)} succeeds if \texttt{Functor} and
-\texttt{Arity} correspond to the context of the error \RefSP{General-format-and-error-context} (if \texttt{Arity} $<$ 0 only \texttt{Functor} is
-significant).
+\texttt{Arity} correspond to the context of the error \RefSP{General-format-and-error-context}
+(if \texttt{Arity} $<$ 0 only \texttt{Functor} is significant).
 
 \begin{PlErrors}
 
@@ -7982,7 +7996,8 @@ read\_pl\_state\_file(+source\_sink)
 \Description
 
 \texttt{write\_pl\_state\_file(FileName)} writes onto \texttt{FileName} all
-information that influences the parsing of a term \RefSP{Term-input/output}. This allows a sub-process written in Prolog to read this
+information that influences the parsing of a term \RefSP{Term-input/output}.
+This allows a sub-process written in Prolog to read this
 file and then process any Prolog term as done by the parent process. This
 file can also be passed as argument of the \IdxK{--pl-state} option when
 invoking \IdxK{gplc} \RefSP{Using-the-compiler}. More precisely the
@@ -7994,8 +8009,9 @@ following elements are saved:
 
 \item the character conversion table \RefSP{char-conversion/2}.
 
-\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes}, \IdxPF{back\_quotes}, \IdxPF{singleton\_warning}, \IdxPF{suspicious\_warning} and \IdxPF{multifile\_warning} \Idx{Prolog flag}s
-\RefSP{set-prolog-flag/2}.
+\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes}, \IdxPF{back\_quotes},
+  \IdxPF{singleton\_warning}, \IdxPF{suspicious\_warning} and \IdxPF{multifile\_warning} \Idx{Prolog flag}s
+  \RefSP{set-prolog-flag/2}.
 
 \end{itemize}
 
