@@ -240,6 +240,7 @@ Error_Supp_Initializer(void)
 
   pl_resource_print_object_not_linked = Pl_Create_Atom("print_object_not_linked");
 				/* for print and format */
+  pl_resource_finite_memory = Pl_Create_Atom("finite_memory"); /* e.g. for length(L, L) */
   if (pl_fd_init_solver)		/* FD solver linked */
     {
       pl_resource_too_big_fd_constraint = Pl_Create_Atom("too_big_fd_constraint");

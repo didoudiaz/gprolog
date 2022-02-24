@@ -205,6 +205,7 @@ extern int pl_evluation_zero_divisor;
 
 
 extern int pl_resource_print_object_not_linked;
+extern int pl_resource_finite_memory;
 extern int pl_resource_too_big_fd_constraint;
 
 
@@ -470,13 +471,11 @@ PlBool Pl_Un_Proper_List_Check(int n, PlTerm *arg, PlTerm term);
 
 PlBool Pl_Un_Proper_List(int n, PlTerm *arg, PlTerm term);
 
-PlBool Pl_Un_Compound_Check(int func, int arity, PlTerm *arg,
-		       PlTerm term);
+PlBool Pl_Un_Compound_Check(int func, int arity, PlTerm *arg, PlTerm term);
 
 PlBool Pl_Un_Compound(int func, int arity, PlTerm *arg, PlTerm term);
 
-PlBool Pl_Un_Callable_Check(int func, int arity, PlTerm *arg,
-		       PlTerm term);
+PlBool Pl_Un_Callable_Check(int func, int arity, PlTerm *arg, PlTerm term);
 
 PlBool Pl_Un_Callable(int func, int arity, PlTerm *arg, PlTerm term);
 
@@ -827,6 +826,7 @@ typedef PlFIOArg FIOArg;
 
 
 #define resource_print_object_not_linked pl_resource_print_object_not_linked
+#define resource_finite_memory pl_resource_finite_memory
 #define resource_too_big_fd_constraint pl_resource_too_big_fd_constraint
 
 

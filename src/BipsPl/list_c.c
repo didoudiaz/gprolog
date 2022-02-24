@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include <errno.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -442,15 +443,22 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
 	{
 	  if (n < 0)		/* both arguments are variables */
 	    {
-#if 1        /* It makes senselength(L, L) fail.
-              * Only activated if strict_iso is on (see Issue #20) since procedural
-              * definition in the Prolog Prologue:
+             /* (issue #20) what about length(L, L): Loop, failure or error ?
+              * failure is not compliant with procedural definition in the 
+              * Prolog Prologue:
 	      * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
               * Not yet ISO but validated in Lexinton's minutes:
               * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
+	      *
+	      * loop and error are compliant. We here implement a resource_error
+	      * failure would be OK if associated to !strict_iso
 	      */
-	      if (!Flag_Value(strict_iso) && word == n_word) 
-		return FALSE;
+#if 0
+	      if (word == n_word && !Flag_Value(strict_iso)) /* failure if strict_iso */
+		  return FALSE;
+#elif 1
+	      if (word == n_word) /* resource_error */
+		Pl_Err_Resource(pl_resource_finite_memory);
 #endif
 	      break;		/* non-deterministic case */
 	    }

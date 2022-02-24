@@ -1,3 +1,7 @@
+Thu Feb 24 16:27:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)
+
 Thu Feb 24 11:55:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #17: CTRL+C as first action under top-level causes a segmentation fault

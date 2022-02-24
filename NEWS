@@ -1,7 +1,7 @@
 Change in GNU Prolog version 1.5.1
 
 * fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
-* modify length/2 to make length(L, L) fail if the strict_iso flag is off (related to pr #19)
+* fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)
 * fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
 * fix issue #4: directory_files/2 now uses native Win32 functions
 * fix small problem when bootstrapping due to Makefiles

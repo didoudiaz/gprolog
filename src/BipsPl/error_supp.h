@@ -148,6 +148,7 @@ int pl_evaluation_zero_divisor;
 
 
 int pl_resource_print_object_not_linked; 	/* for print and format */
+int pl_resource_finite_memory;			/* e.g. for length(L, L) */
 int pl_resource_too_big_fd_constraint; 		/* for FD */
 
 
@@ -254,7 +255,7 @@ extern int pl_evaluation_underflow;
 extern int pl_evaluation_zero_divisor;
 
 
-extern int resource_too_many_open_streams; 	/* for streams */
+extern int pl_resource_finite_memory;		/* e.g. for length(L, L) */
 extern int pl_resource_print_object_not_linked; /* for print and format */
 extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 

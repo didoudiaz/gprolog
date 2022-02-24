@@ -639,9 +639,17 @@ name of the resource. \Param{Resource} is one of:
 
 \item \texttt{print\_object\_not\_linked}
 
+\item \texttt{finite\_memory}
+
 \item \texttt{too\_big\_fd\_constraint}
 
 \end{ItemizeThreeCols}
+
+A \texttt{resource\_error(finite\_memory)} indicates that a memory
+overflow will occur (it is predictable) and that upgrading memory (to
+a larger finite one) would not help. This can happen, in an infinite
+retry-fail process consuming more and more memory, e.g. for the goal
+\texttt{length(L, L)}.
 
 The system predicate \texttt{'\$pl\_err\_resource'(Resource)} raises this
 error in the current error context \RefSP{General-format-and-error-context}.

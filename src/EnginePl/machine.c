@@ -221,15 +221,15 @@ Pl_M_Sys_Err_String(int ret_val)
 
 
 #if defined(M_sparc32_sunos)
-  str = (errno >= 0 && errno < sys_nerr) ? sys_errlist[errno] : NULL;
+  str = (ret_val >= 0 && ret_val < sys_nerr) ? sys_errlist[ret_val] : NULL;
 #else
-  str = strerror(errno);
+  str = strerror(ret_val);
 #endif
 
   if (str)
     return str;
 
-  sprintf(buff, UNKNOWN_SYS_ERRNO, errno);
+  sprintf(buff, UNKNOWN_SYS_ERRNO, ret_val);
   return buff;
 }
 
