@@ -156,6 +156,7 @@ break :-
 	;   write(top_level_output, Prompt)
 	),
 	flush_output(top_level_output),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$read_query'(X, QueryVars),
 	(   '$sys_var_read'(12, 1) ->
 	    '$set_linedit_prompt'(UserPrompt)

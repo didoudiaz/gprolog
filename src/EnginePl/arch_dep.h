@@ -127,7 +127,7 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
-/*#pragma warning(disable : 4244) /* possible loss of data */
+/*#pragma warning(disable : 4244)*/ /* possible loss of data */
 #endif
 
 #define MAXPATHLEN                 1024
