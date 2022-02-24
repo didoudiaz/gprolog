@@ -1,14 +1,14 @@
 Change in GNU Prolog version 1.5.1
 
 * fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
-* fix the length/2 predicate to make length(L, L) fail instead of crashing (pr #19)
+* modify length/2 to make length(L, L) fail if the strict_iso flag is off (related to pr #19)
 * fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
 * fix issue #4: directory_files/2 now uses native Win32 functions
 * fix small problem when bootstrapping due to Makefiles
 * fix format/2-3 to throw a domain error on invalid radix (pr #16)
 * fix issue #9: format/2-3 now also accept a list of character for format
 * fix problem in arm32 mapper when passing more than 8 double to a C function
-* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is off
+* fix issue #7: length/2 now emits a type_error(list) only if the strict_iso flag is off
 * fix infinite loop in debugger for multifile/dynamic predicates (issue #12)
 * improve Makefiles with patches sent by Keri Harris on July 2021
 

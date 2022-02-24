@@ -6771,7 +6771,8 @@ length(?list, ?integer)
 \Description
 
 \texttt{length(List, Length)} succeeds if \texttt{Length} is the length of
-\texttt{List}.
+\texttt{List}. If the \IdxPF{strict\_iso} \Idx{Prolog flag} is switched
+off \RefSP{set-prolog-flag/2}, \texttt{length(L, L)} and friends fail (instead of looping).
 
 \begin{PlErrors}
 
@@ -7865,7 +7866,8 @@ other Prolog systems. When turned off the following relaxations apply:
 \item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor},
   \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
 
-\item \IdxPB{length/2} emits a \texttt{type\_error} if the first argument is not a list \RefSP{length/2}.
+\item the behavior of \IdxPB{length/2} is affected \RefSP{length/2}. It emits a \texttt{type\_error}
+  if the first argument is not a list. It fails on cases like \texttt{length(L, L)} instead of looping.
 \end{itemize}
 
 \begin{PlErrors}

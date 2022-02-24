@@ -1,7 +1,7 @@
-Thu Feb 24 09:57:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+Thu Feb 24 11:55:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
-	* fix the length/2 predicate to make length(L, L) fail instead of crashing (pr #19)
+	* modify length/2 to make length(L, L) fail if the strict_iso flag is off (related to pr #19)
 	* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
 	* fix issue #4: directory_files/2 now uses native Win32 functions
 	* fix small problem when bootstrapping due to Makefiles
@@ -17,7 +17,7 @@ Tue Oct 26 11:25:45 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
 Thu Oct 21 15:45:07 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is off
+	* fix issue #7: length/2 now emits a type_error(list) only if the strict_iso flag is off
 
 Thu Oct 14 16:01:16 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 

@@ -440,15 +440,23 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
 
       if (tag_mask == TAG_REF_MASK)
 	{
-	  if (n < 0)		/* both args are vars */
+	  if (n < 0)		/* both arguments are variables */
 	    {
-	      if (word == n_word) /* same variable: length(L, L) should fail */
+#if 1        /* It makes senselength(L, L) fail.
+              * Only activated if strict_iso is on (see Issue #20) since procedural
+              * definition in the Prolog Prologue:
+	      * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
+              * Not yet ISO but validated in Lexinton's minutes:
+              * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
+	      */
+	      if (!Flag_Value(strict_iso) && word == n_word) 
 		return FALSE;
+#endif
 	      break;		/* non-deterministic case */
 	    }
 
 	  if (n == len)
-	      return Pl_Get_Nil(word); /* return is TRUE */
+	    return Pl_Get_Nil(word); /* return is TRUE */
 
 	  Pl_Get_List(word);
 	  Pl_Unify_Void(1);
@@ -459,13 +467,13 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
 
       if (tag_mask != TAG_LST_MASK)
 	{
-#if 1	/* length/2 tries to emit a type_error if not a list.
-	 * Only activated if strict_iso is on (see Issue #7) since the template is 
-	 * length(?term, ?integer) in the Prolog Prologue:
-	 * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
-	 * Not yet ISO but validated in Lexinton's minutes:
-	 * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
-         */
+#if 1	 /* length/2 tries to emit a type_error if not a list.
+	  * Only activated if strict_iso is on (see Issue #7) since the template is 
+	  * length(?term, ?integer) in the Prolog Prologue:
+	  * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
+	  * Not yet ISO but validated in Lexinton's minutes:
+	  * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
+          */
 	  if (!Flag_Value(strict_iso))
 	    Pl_Err_Type(pl_type_list, start_list_word);
 #endif
@@ -490,7 +498,7 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
       list_word = Cdr(adr);
     }
 
-		/* non-deterministic case */
+  /* non-deterministic case */
   A(0) = list_word;
   A(1) = n_word;
   A(2) = Tag_INT(len);
