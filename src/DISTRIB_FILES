@@ -15,7 +15,6 @@ doc/[a-z][a-z_-]?*.tex
 doc/[a-z][a-z_-]?*.sty
 doc/[a-z][a-z_-]?*.hva
 doc/[a-z][a-z_-]?*.fig
-doc/[a-z][a-z_-]?*.gif
 doc/[a-z][a-z_-]?*.eps
 doc/[a-z][a-z_-]?*.png
 doc/[a-z][a-z_-]?*.dvi
