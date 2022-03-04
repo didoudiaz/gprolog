@@ -2,6 +2,7 @@ Change in GNU Prolog version 1.5.1
 
 * port to RISC-V 64 bits/Linux - many thanks to
   Jasper Taylor <jasper@simulistics.com>
+* fix issue #22: math evaluation raises a float_overflow instead of int_overflow
 * fix issue #21: bug in append/3
 * fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
 * fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)

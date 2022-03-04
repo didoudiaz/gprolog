@@ -285,8 +285,13 @@ Pl_Classify_Double(double x)
 
 
 
+
+/*-------------------------------------------------------------------------*
+ * CHECK_DOUBLE_ERRORS                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
 static void
-Check_Double_Errors(double x)
+Check_Double_Errors(double x, Bool for_int)
 {
   switch(Pl_Classify_Double(x))
     {
@@ -294,7 +299,10 @@ Check_Double_Errors(double x)
       Pl_Err_Evaluation(pl_evaluation_undefined);
 
     case PL_FP_INFINITE:
-      Pl_Err_Evaluation(pl_evaluation_float_overflow);
+      if (for_int)
+	Pl_Err_Evaluation(pl_evaluation_int_overflow);
+      else
+	Pl_Err_Evaluation(pl_evaluation_float_overflow);
       
 #if 0  /* ignored for the moment, maybe add prolog_flags to control this, see swi */
     case PL_FP_SUBNORMAL:
@@ -325,7 +333,7 @@ Pl_NaN(void)
 static PlLong
 Double_To_PlLong(double d)
 {
-  Check_Double_Errors(d);
+  Check_Double_Errors(d, TRUE);
 
   PlLong x = (PlLong) d;
   if ((double) x != d)
@@ -385,7 +393,7 @@ Make_Tagged_Float(double d)
 {
   WamWord x;
 
-  Check_Double_Errors(d);
+  Check_Double_Errors(d, FALSE);
 
   x = Tag_FLT(H);
 

@@ -1,5 +1,6 @@
-Fri Mar  4 11:17:24 CET 2022
+Fri Mar  4 11:29:00 CET 2022
 
+	* fix issue #22: math evaluation raises a float_overflow instead of int_overflow
 	* fix issue #21: bug in append/3
 	* port to RISC-V 64 bits/Linux - many thanks to
 	  Jasper Taylor <jasper@simulistics.com>
