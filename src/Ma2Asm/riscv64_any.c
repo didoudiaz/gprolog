@@ -43,6 +43,8 @@
 
 /* Supported arch: RISC-V 64 bits on GNU/Linux
  *
+ * https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf
+ *
  *  Integer Register Convention
  *  Register ABI name Meaning                                Saver
  *     x0     zero    Hard-wired zero                        n/a

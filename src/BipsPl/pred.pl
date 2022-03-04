@@ -195,7 +195,7 @@ predicate_property(Head, _) :-
 '$prop_meta_pred'(;, 2, ;(0,0)).
 '$prop_meta_pred'(->, 2, ->(0,0)).
 '$prop_meta_pred'(*->, 2, *->(0,0)).
-'$prop_meta_pred'(call, 0, call(0)).
+'$prop_meta_pred'(call, 1, call(0)).
 '$prop_meta_pred'(catch, 3, catch(0, ?, 0)).
 
 % the built-ins
