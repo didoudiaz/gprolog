@@ -336,7 +336,7 @@ Double_To_PlLong(double d)
   Check_Double_Errors(d, TRUE);
 
   PlLong x = (PlLong) d;
-  if ((double) x != d)
+  if ((double) x != d || x < INT_LOWEST_VALUE || x > INT_GREATEST_VALUE)
       Pl_Err_Evaluation(pl_evaluation_int_overflow);
     
   return x;
