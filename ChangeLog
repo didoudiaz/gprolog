@@ -1,3 +1,8 @@
+Fri Mar  4 10:52:48 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* port to RISC-V 64 bits/Linux - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+
 Thu Feb 24 16:27:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)

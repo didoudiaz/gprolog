@@ -149,7 +149,8 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #elif defined(M_riscv64)
 
-#    define M_USED_REGS            {"s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", 0}
+	/* using s1-s5 causes problem with CTRL+C with -O3 */
+#    define M_USED_REGS            {/*"s1", "s2", "s3", "s4", "s5",*/ "s6", "s7", "s8", "s9", "s10", "s11", 0}
 
 #elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
 

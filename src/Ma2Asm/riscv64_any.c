@@ -42,6 +42,31 @@
 #include <string.h>
 
 /* Supported arch: RISC-V 64 bits on GNU/Linux
+ *
+ *  Integer Register Convention
+ *  Register ABI name Meaning                                Saver
+ *     x0     zero    Hard-wired zero                        n/a
+ *     x1      ra     Return address                         Caller
+ *     x2      sp     Stack pointer                          Callee
+ *     x3      gp     Global pointer                         n/a
+ *     x4      tp     Thread pointer                         n/a
+ *   x5-x7    t0-t2   Temporary registers                    Caller
+ *     x8     s0/fp   Callee-saved register / Frame pointer  Callee
+ *     x9      s1     Callee-saved register                  Callee
+ *  x10-x11  a0-a1    Function arguments / Return value      Caller
+ *  x12-x17  a2-a7    Function arguments                     Caller
+ *  x18-x27  s2-s11   Callee-saved registers                 Callee
+ *  x28-x31  t3-t6    Temporary registers                    Caller
+ *
+ *
+ *  Floating-point Register Convention
+ *  Register ABI name Meaning                                Saver
+ *   f0-f7   ft0-ft7  Temporary registers                    Caller
+ *   f8-f9   fs0-fs1  Callee-saved registers                 Callee
+ *  f10-f11  fa0-fa1  Function arguments / return value      Caller
+ *  f12-f17  fa2-fa7  Function arguments                     Caller
+ *  f18-f27  fs2-fs11 Callee-saved registers                 Callee
+ *  f28-f31  ft8-ft11 Temporary registers                    Caller
  */
 
 
@@ -530,7 +555,7 @@ Call_C_Arg_String(int offset, StringInf *s)
 int
 Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 {
-  char dest[8];
+  char dest[20];
 
   offset -= dbl_args_so_far;
   if (offset < MAX_ARGS_IN_REGS)
@@ -564,7 +589,7 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
 int
 Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  char dest[20];
 
   offset -= dbl_args_so_far;
   if (offset < MAX_ARGS_IN_REGS)
@@ -605,7 +630,7 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 int
 Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  char dest[20];
 
   offset -= dbl_args_so_far;
   if (offset < MAX_ARGS_IN_REGS)
@@ -651,7 +676,7 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
 int
 Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  char dest[20];
 
   offset -= dbl_args_so_far;
   if (offset < MAX_ARGS_IN_REGS)
@@ -685,7 +710,7 @@ Call_C_Arg_Foreign_L(int offset, Bool adr_of, int index)
 int
 Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 {
-  char dest[8];
+  char dest[20];
 
   if (adr_of)
     return Call_C_Arg_Mem_L(offset, adr_of, "pl_foreign_double", index);
