@@ -1,4 +1,8 @@
-Fri Mar  4 16:42:00 CET 2022
+Wed Mar  9 17:41:41 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #23: add built-in predicate copy_file/2
+
+Fri Mar  4 16:42:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #10: missing int_overflow
 	* fix issue #22: math evaluation raises a float_overflow instead of int_overflow

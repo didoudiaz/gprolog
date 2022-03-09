@@ -8906,6 +8906,53 @@ whose pathname is \texttt{PathName1} to \texttt{PathName2}. See
 
 GNU Prolog predicate.
 
+\subsubsection{\IdxPBD{copy\_file/2}}
+
+\begin{TemplatesOneCol}
+copy\_file(+atom, +atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{copy\_file(PathName1, PathName2)} copies the file whose
+pathname is \texttt{PathName1} to \texttt{PathName2} (which can be a
+file or a directory, in which case the destination file is created
+inside that directory). See \IdxPB{absolute\_file\_name/2} for
+information about the syntax of \texttt{PathName1} and
+\texttt{PathName2} \RefSP{absolute-file-name/2}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{PathName1} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{PathName1} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, PathName1)}
+
+\ErrCond{\texttt{PathName1} is an atom but not a valid pathname}
+\ErrTerm{domain\_error(os\_path, PathName1)}
+
+\ErrCond{\texttt{PathName2} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{PathName2} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, PathName2)}
+
+\ErrCond{\texttt{PathName2} is an atom but not a valid pathname}
+\ErrTerm{domain\_error(os\_path, PathName2)}
+
+\ErrCond{an operating system error occurs and value of the
+\texttt{os\_error} Prolog flag is \texttt{error}
+\RefSP{set-prolog-flag/2}}
+\ErrTerm{system\_error(\textit{atom explaining the error})}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
 \subsubsection{\IdxPBD{delete\_file/1},
                \IdxPBD{unlink/1}}
 

@@ -510,9 +510,9 @@ Pl_Unknown_Pred_Error(int func, int arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Os_Error(int ret_val)
+Pl_Os_Error(int err_no)
 {
-  char *err_str = Pl_M_Sys_Err_String(ret_val);
+  char *err_str = Pl_M_Sys_Err_String(err_no);
 
   if (Flag_Value(os_error) == PF_ERR_ERROR)
     Pl_Err_System(Pl_Create_Allocate_Atom(err_str));

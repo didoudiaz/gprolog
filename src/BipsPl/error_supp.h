@@ -34,6 +34,7 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+#include <errno.h>
 
 
 /*---------------------------------*
@@ -285,7 +286,7 @@ void Pl_Syntax_Error(int flag_value);
 
 void Pl_Unknown_Pred_Error(int func, int arity);
 
-void Pl_Os_Error(int ret_val);
+void Pl_Os_Error(int err_no);
 
 void Pl_Err_Instantiation(void);
 
@@ -313,7 +314,7 @@ void Pl_Err_System(int pl_atom_error);
   do {						\
     if ((tst) == NULL)				\
       {						\
-	Pl_Os_Error(-1);			\
+	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
   } while(0)
@@ -324,7 +325,7 @@ void Pl_Err_System(int pl_atom_error);
     int _tst = (tst);				\
     if (_tst < 0)				\
       {						\
-	Pl_Os_Error(_tst);			\
+	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
   } while(0)

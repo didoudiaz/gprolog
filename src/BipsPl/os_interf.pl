@@ -82,6 +82,13 @@ rename_file(PathName1, PathName2) :-
 
 
 
+copy_file(PathName1, PathName2) :-
+	set_bip_name(copy_file, 2),
+	'$call_c_test'('Pl_Copy_File_2'(PathName1, PathName2)).
+
+
+
+
 unlink(PathName) :-
 	set_bip_name(unlink, 2),
 	'$call_c'('Pl_Unlink_1'(PathName)).

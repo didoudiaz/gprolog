@@ -60,7 +60,7 @@
 
 void Pl_Init_Machine(void);
 
-char *Pl_M_Sys_Err_String(int ret_val);
+char *Pl_M_Sys_Err_String(int err_no);
 
 PlLong Pl_M_User_Time(void);
 
@@ -88,12 +88,19 @@ char *Pl_M_Get_Working_Dir(void);
 
 Bool Pl_M_Set_Working_Dir(char *path);
 
+char *Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash);
+
 char *Pl_M_Absolute_Path_Name(char *src);
 
 Bool Pl_M_Is_Absolute_File_Name(char *path);
 
 char *Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, 
 			       char **base, char **suffix);
+
+Bool Pl_M_Path_Ends_With_Dir(char *path);
+
+int Pl_M_Is_Dir_Name(char *path, Bool inexistent_as_error);
+
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 

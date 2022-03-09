@@ -193,7 +193,7 @@ Virtual_Mem_Alloc(void *addr, int length)
     fd = open("/dev/zero", 0);
 
   if (fd == -1)
-    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_M_Sys_Err_String(-1));
+    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_M_Sys_Err_String(errno));
 #endif /* !MAP_ANON */
 
   addr = (void *) mmap((void *) addr, length, PROT_READ | PROT_WRITE,
@@ -238,7 +238,7 @@ Virtual_Mem_Free(void *addr, int length)
 #elif defined(HAVE_MMAP)
 
   if (munmap((void *) addr, length) == -1)
-    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
+    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
 
 #else
 
@@ -270,7 +270,7 @@ Virtual_Mem_Protect(void *addr, int length)
   if (mprotect((void *) addr, length, PROT_NONE) == -1)
 #  endif
     if (munmap((void *) addr, length) == -1)
-      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(-1));
+      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
 
 #endif
 

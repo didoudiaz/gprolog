@@ -130,7 +130,9 @@ static int nb_sig;
 
 static int Flag_Of_Permission(WamWord perm_word, Bool is_a_directory);
 
-static char *Get_Path_Name(WamWord path_name_word);
+static char *Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash);
+
+#define Get_Path_Name(p)  Get_Path_Name0(p, TRUE)
 
 static Bool Date_Time_To_Prolog(time_t *t, WamWord date_time_word);
 
@@ -378,6 +380,88 @@ Pl_Rename_File_2(WamWord path_name1_word, WamWord path_name2_word)
 
   Os_Test_Error(rename(path_name1, path_name2));
 
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_COPY_FILE_2                                                          *
+ *                                                                         *
+ * We could use some OS-dependent utility to be faster, e.g.:              *
+ * on WinXX: use CopyFileA(src, dst, false);                               *
+ * on MacOS: copyfile(src, dst, NULL, COPYFILE_DATA);                      *
+ * on Linux: sendfile(dst_fd, src_fd, NULL, stat_buf.st_size);             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
+{
+  char path_name1[MAXPATHLEN];
+  char *path_name2;
+  FILE *f_in = NULL, *f_out = NULL;
+  int is_dir;
+  char *base, *suffix;
+  int size_rd;
+  char buff[BUFSIZ];
+
+  strcpy(path_name1, Get_Path_Name(path_name1_word));
+  path_name2 = Get_Path_Name0(path_name2_word, FALSE);
+
+  if ((f_in = fopen(path_name1, "rb")) == NULL)
+    {
+      int err_no;
+    error:
+      err_no = errno;
+      if (f_in != NULL)
+	fclose(f_in);
+      if (f_out != NULL)
+	fclose(f_out);
+      errno = err_no;
+      Os_Test_Error(-1);
+    }
+
+  is_dir = Pl_M_Is_Dir_Name(path_name2, FALSE);
+  if (is_dir < 0)
+    goto error;
+  if (is_dir)
+    {
+      Pl_M_Decompose_File_Name(path_name1, FALSE, &base, &suffix);
+      sprintf(path_name2 + strlen(path_name2), "/%s", base);
+    }
+
+  if ((f_out = fopen(path_name2, "wb")) == NULL)
+    goto error;
+
+  while((size_rd = fread(buff, 1, BUFSIZ, f_in)) > 0)
+    {
+      int size_left = size_rd;
+      int try_wr = 0;
+      char *p = buff;
+      while(size_left > 0)
+	{
+	  int size_wr = fwrite(p, 1, size_left, f_out);
+	  if (size_wr > 0)
+	    {
+	      size_left -= size_wr;
+	      p += size_wr;
+	      continue;
+	    }
+	  
+	  if (size_wr == 0)
+	    errno = EAGAIN;
+
+	  if ((errno != EAGAIN && errno != EINTR) || ++try_wr >= 5)
+	    goto error;
+	}
+    }
+
+  if (size_rd < 0)
+    goto error;
+
+  fclose(f_in);
+  fclose(f_out);
+  
   return TRUE;
 }
 
@@ -1406,16 +1490,16 @@ Pl_Wait_2(WamWord pid_word, WamWord status_word)
 
 
 /*-------------------------------------------------------------------------*
- * GET_PATH_NAME                                                           *
+ * GET_PATH_NAME0                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static char *
-Get_Path_Name(WamWord path_name_word)
+Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash)
 {
   char *path_name;
 
   path_name = Pl_Rd_String_Check(path_name_word);
-  if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+  if ((path_name = Pl_M_Absolute_Path_Name0(path_name, del_trail_slash)) == NULL)
     Pl_Err_Domain(pl_domain_os_path, path_name_word);
 
   return path_name;
