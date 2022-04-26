@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "engine_pl.h"
 
@@ -58,7 +59,7 @@ DblInt;
  * Function Prototypes             *
  *---------------------------------*/
 
-static SwtInf *Locate_Swt_Element(SwtTbl t, int size, long key);
+static SwtInf *Locate_Swt_Element(SwtTbl t, int size, long key) FC;
 
 
 
@@ -68,7 +69,7 @@ static SwtInf *Locate_Swt_Element(SwtTbl t, int size, long key);
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Create_Functor_Arity_Tagged(char *func_str, int arity)
 {
   int func = Create_Atom(func_str);
@@ -85,7 +86,7 @@ Create_Functor_Arity_Tagged(char *func_str, int arity)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 
-SwtTbl
+SwtTbl FC
 Create_Swt_Table(int size)
 {
   SwtTbl t;
@@ -105,7 +106,7 @@ Create_Swt_Table(int size)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
 {
   SwtInf *swt = Locate_Swt_Element(t, size, atom);
@@ -122,7 +123,7 @@ Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
 		       CodePtr codep)
 {
@@ -140,7 +141,7 @@ Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
  * LOCATE_SWT_ELEMENT                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static SwtInf *
+static SwtInf * FC
 Locate_Swt_Element(SwtTbl t, int size, long key)
 {
   int n;
@@ -176,7 +177,7 @@ Locate_Swt_Element(SwtTbl t, int size, long key)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Atom_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -199,7 +200,7 @@ Get_Atom_Tagged(WamWord w, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Atom(int atom, WamWord start_word)
 {
   return Get_Atom_Tagged(Tag_ATM(atom), start_word);
@@ -213,7 +214,7 @@ Get_Atom(int atom, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Integer_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -241,7 +242,7 @@ Get_Integer_Tagged(WamWord w, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Integer(long n, WamWord start_word)
 {
   return Get_Integer_Tagged(Tag_INT(n), start_word);
@@ -255,7 +256,7 @@ Get_Integer(long n, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Float(double n, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -279,7 +280,7 @@ Get_Float(double n, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Nil(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -302,7 +303,7 @@ Get_Nil(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_List(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -332,7 +333,7 @@ Get_List(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Structure_Tagged(WamWord w, WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -371,7 +372,7 @@ Get_Structure_Tagged(WamWord w, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Get_Structure(int func, int arity, WamWord start_word)
 {
   return Get_Structure_Tagged(Functor_Arity(func, arity), start_word);
@@ -385,7 +386,7 @@ Get_Structure(int func, int arity, WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_X_Variable(void)
 {
   WamWord res_word;
@@ -406,7 +407,7 @@ Put_X_Variable(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Y_Variable(WamWord *y_adr)
 {
   return *y_adr = Make_Self_Ref(y_adr);
@@ -420,7 +421,7 @@ Put_Y_Variable(WamWord *y_adr)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Unsafe_Value(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -448,7 +449,7 @@ Put_Unsafe_Value(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Atom_Tagged(WamWord w)
 {
   return w;
@@ -462,7 +463,7 @@ Put_Atom_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Atom(int atom)
 {
   return Tag_ATM(atom);
@@ -476,7 +477,7 @@ Put_Atom(int atom)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Integer_Tagged(WamWord w)
 {
   return w;
@@ -490,7 +491,7 @@ Put_Integer_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Integer(long n)
 {
   return Tag_INT(n);
@@ -504,7 +505,7 @@ Put_Integer(long n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Float(double n)
 {
   WamWord res_word;
@@ -522,7 +523,7 @@ Put_Float(double n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Nil(void)
 {
   return NIL_WORD;
@@ -536,7 +537,7 @@ Put_Nil(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_List(void)
 {
   S = WRITE_MODE;
@@ -551,7 +552,7 @@ Put_List(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Structure_Tagged(WamWord w)
 {
   WamWord *cur_H = H;
@@ -569,7 +570,7 @@ Put_Structure_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Put_Structure(int func, int arity)
 {
   return Put_Structure_Tagged(Functor_Arity(func, arity));
@@ -583,7 +584,7 @@ Put_Structure(int func, int arity)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Unify_Variable(void)
 {
   WamWord tag_mask, word;
@@ -614,7 +615,7 @@ Unify_Variable(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Unify_Void(int n)
 {
   WamWord *cur_H;
@@ -643,7 +644,7 @@ Unify_Void(int n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Value(WamWord start_word)
 {
   if (S != WRITE_MODE)
@@ -661,7 +662,7 @@ Unify_Value(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Local_Value(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -691,7 +692,7 @@ Unify_Local_Value(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Atom_Tagged(WamWord w)
 {
   WamWord word, tag_mask;
@@ -722,7 +723,7 @@ Unify_Atom_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Atom(int atom)
 {
   return Unify_Atom_Tagged(Tag_ATM(atom));
@@ -736,7 +737,7 @@ Unify_Atom(int atom)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Integer_Tagged(WamWord w)
 {
   WamWord word, tag_mask;
@@ -771,7 +772,7 @@ Unify_Integer_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Integer(long n)
 {
   return Unify_Integer_Tagged(Tag_INT(n));
@@ -785,7 +786,7 @@ Unify_Integer(long n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Nil(void)
 {
   WamWord word, tag_mask;
@@ -815,7 +816,7 @@ Unify_Nil(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_List(void)
 {
   WamWord *cur_H;
@@ -838,7 +839,7 @@ Unify_List(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Structure_Tagged(WamWord w)
 {
   WamWord *cur_H;
@@ -862,7 +863,7 @@ Unify_Structure_Tagged(WamWord w)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Unify_Structure(int func, int arity)
 {
   return Unify_Structure_Tagged(Functor_Arity(func, arity));
@@ -875,7 +876,7 @@ Unify_Structure(int func, int arity)
  * GLOBALIZE_IF_IN_LOCAL                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Globalize_If_In_Local(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -900,7 +901,7 @@ Globalize_If_In_Local(WamWord start_word)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Allocate(int n)
 {
   WamWord *old_E = E;
@@ -933,7 +934,7 @@ Allocate(int n)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Deallocate(void)
 {
   WamWord *cur_E = E;
@@ -951,7 +952,7 @@ Deallocate(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-CodePtr
+CodePtr FC
 Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 	       CodePtr c_lst, CodePtr c_stc)
 {
@@ -978,7 +979,7 @@ Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 {
   WamWord word, tag_mask;
@@ -1002,7 +1003,7 @@ Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm)
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 {
   WamWord word, tag_mask;
@@ -1026,7 +1027,7 @@ Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc)
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 {
   WamWord word, tag_mask;
@@ -1053,7 +1054,7 @@ Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst)
 
 
 
-CodePtr
+CodePtr FC
 Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
 {
   WamWord word, tag_mask;
@@ -1089,7 +1090,7 @@ Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-CodePtr
+CodePtr FC
 Switch_On_Atom(SwtTbl t, int size)
 {
   SwtInf *swt;
@@ -1111,7 +1112,7 @@ Switch_On_Atom(SwtTbl t, int size)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-long
+long FC
 Switch_On_Integer(void)
 {
   return UnTag_INT(A(0));
@@ -1129,7 +1130,7 @@ Switch_On_Integer(void)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-CodePtr
+CodePtr FC
 Switch_On_Structure(SwtTbl t, int size)
 {
   SwtInf *swt;
@@ -1142,12 +1143,52 @@ Switch_On_Structure(SwtTbl t, int size)
 
 
 
+#ifdef USE_WATERMARK
+
+/*-------------------------------------------------------------------------*/
+/* CREATE_WATER_MARK                                                       */
+/*                                                                         */
+/* Request warning if backtracking is not complete.                        */
+/*-------------------------------------------------------------------------*/
+
+int        wmark_count = 0;            /* number of active watermarks */
+Watermark  wmark[MAXWMARK];            /* The stack of watermarks */
+WatermarkP wmp = wmark-1;              /* Top of watermark stack */
+
+void FC
+Create_Water_Mark (void (*fun)(), void *par)
+{
+  if (++wmark_count >= MAXWMARK) {
+    Fatal_Error ("Watermark stack size (%d) exceeded! - aborting", MAXWMARK);
+  }
+  ++wmp;
+  wmp->Bvalue     = B;
+  wmp->destructor = fun;
+  wmp->parameter  = par;
+}
+
+void FC
+Update_Water_Mark (void (*fun)(), void *par)
+{
+  if (wmark_count > 0) {
+    wmp->destructor = fun;
+    wmp->parameter  = par;
+  }
+  else {
+    fprintf(stderr, "warning: Update_Water_Mark called with empty stack!\n");
+  }
+}
+
+#endif /* USE_WATERMARK */
+
+
+
 /*-------------------------------------------------------------------------*
  * LOAD_CUT_LEVEL                                                          *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Load_Cut_Level(WamWord *word_adr)
 {
   *word_adr = From_B_To_WamWord(B);
@@ -1161,7 +1202,7 @@ Load_Cut_Level(WamWord *word_adr)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Cut(WamWord b_word)
 {
   Assign_B(From_WamWord_To_B(b_word));
@@ -1178,7 +1219,7 @@ Cut(WamWord b_word)
  * GLOBAL_PUSH_FLOAT                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Global_Push_Float(double n)
 {
   DblInt di;
@@ -1198,7 +1239,7 @@ Global_Push_Float(double n)
  * OBTAIN_FLOAT                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-double
+double FC
 Obtain_Float(WamWord *adr)
 {
   DblInt di;
@@ -1270,7 +1311,7 @@ Obtain_Float(WamWord *adr)
 
 
 
-void
+void FC
 Create_Choice_Point(CodePtr codep_alt, int arity)
 {
   int i;
@@ -1283,7 +1324,7 @@ Create_Choice_Point(CodePtr codep_alt, int arity)
 
 
 
-void
+void FC
 Create_Choice_Point1(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(1);
@@ -1294,7 +1335,7 @@ Create_Choice_Point1(CodePtr codep_alt)
 
 
 
-void
+void FC
 Create_Choice_Point2(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(2);
@@ -1306,7 +1347,7 @@ Create_Choice_Point2(CodePtr codep_alt)
 
 
 
-void
+void FC
 Create_Choice_Point3(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(3);
@@ -1319,7 +1360,7 @@ Create_Choice_Point3(CodePtr codep_alt)
 
 
 
-void
+void FC
 Create_Choice_Point4(CodePtr codep_alt)
 {
   CREATE_CHOICE_COMMON_PART(4);
@@ -1339,7 +1380,7 @@ Create_Choice_Point4(CodePtr codep_alt)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 
-void
+void FC
 Update_Choice_Point(CodePtr codep_alt, int arity)
 {
   int i;
@@ -1352,7 +1393,7 @@ Update_Choice_Point(CodePtr codep_alt, int arity)
 
 
 
-void
+void FC
 Update_Choice_Point1(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1363,7 +1404,7 @@ Update_Choice_Point1(CodePtr codep_alt)
 
 
 
-void
+void FC
 Update_Choice_Point2(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1375,7 +1416,7 @@ Update_Choice_Point2(CodePtr codep_alt)
 
 
 
-void
+void FC
 Update_Choice_Point3(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1388,7 +1429,7 @@ Update_Choice_Point3(CodePtr codep_alt)
 
 
 
-void
+void FC
 Update_Choice_Point4(CodePtr codep_alt)
 {
   UPDATE_CHOICE_COMMON_PART;
@@ -1407,7 +1448,7 @@ Update_Choice_Point4(CodePtr codep_alt)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Delete_Choice_Point(int arity)
 {
   int i;
@@ -1420,7 +1461,7 @@ Delete_Choice_Point(int arity)
 
 
 
-void
+void FC
 Delete_Choice_Point1(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1431,7 +1472,7 @@ Delete_Choice_Point1(void)
 
 
 
-void
+void FC
 Delete_Choice_Point2(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1443,7 +1484,7 @@ Delete_Choice_Point2(void)
 
 
 
-void
+void FC
 Delete_Choice_Point3(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1456,7 +1497,7 @@ Delete_Choice_Point3(void)
 
 
 
-void
+void FC
 Delete_Choice_Point4(void)
 {
   DELETE_CHOICE_COMMON_PART;
@@ -1474,7 +1515,7 @@ Delete_Choice_Point4(void)
  * UNTRAIL                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+void FC
 Untrail(WamWord *low_adr)
 {
   WamWord word;
@@ -1536,3 +1577,348 @@ Untrail(WamWord *low_adr)
 #define OCCURS_CHECK
 
 #include "unify.c"
+
+
+
+/* --- Contexts --- */
+
+
+#define cur_K X(255)
+#define cur_CK X(254)
+static WamWord stamp_K;
+static WamWord stamp_CK;
+
+WamCont Cxt_Call_Tagged(WamWord key, WamWord call_K) FC;
+
+WamCont Cxt_Call(int func, int arity, WamWord call_K) FC;
+
+void Cxt_Assign_K(WamWord new_K) FC;
+
+Bool Cxt_Arg_Load(int arg_no, WamWord term_word, WamWord *sub_term_word) FC;
+
+Bool Cxt_Arg_Unify(int arg_no, WamWord term_word, WamWord sub_term_word) FC;
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_INIT                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Cxt_Init(void)
+{
+  cur_K = NIL_WORD;
+  cur_CK = NIL_WORD;
+  stamp_K = 0;
+  stamp_CK = 0;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_ASSIGN_K                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Cxt_Assign_K(WamWord new_K)
+{
+  if (stamp_K != STAMP)
+    {
+      if (new_K == cur_K)
+	return;
+
+      Trail_OV(&cur_K);
+      Trail_OV(&stamp_K);
+      stamp_K = STAMP;
+    }
+  cur_K = new_K;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_ASSIGN_CK                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Cxt_Assign_CK(WamWord new_CK)
+{
+  if (stamp_CK != STAMP)
+    {
+      if (new_CK == cur_CK)
+	return;
+
+      Trail_OV(&cur_CK);
+      Trail_OV(&stamp_CK);
+      stamp_CK = STAMP;
+    }
+  cur_CK = new_CK;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_LOOKUP_PRED_WITH_K                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+PredInf * FC
+Cxt_Lookup_Pred_With_K(long key, WamWord cxt_call_K)
+{
+  WamWord call_K = cxt_call_K;
+  WamWord word, tag_mask;
+  WamWord *lst_adr;
+  int atom, arity;
+  char *ctable;
+  PredInf *pred;
+
+  Cxt_Assign_CK(cxt_call_K);
+
+#if 1
+
+  for (;;)
+    {
+      DEREF(call_K, word, tag_mask);
+
+      if (tag_mask == TAG_STC_MASK) { /* non-list context */
+	atom = Functor(UnTag_STC(word));
+	arity = Arity(UnTag_STC(word));
+	lst_adr = NULL;
+      }
+      else if (tag_mask != TAG_LST_MASK)
+	break;
+      else {
+	lst_adr = UnTag_LST(word);
+	DEREF(Car(lst_adr), word, tag_mask);
+
+	if (tag_mask == TAG_ATM_MASK) {
+	  atom = UnTag_ATM(word);
+	  arity = 0;
+	}
+	else if (tag_mask == TAG_STC_MASK) {
+	  atom = Functor(UnTag_STC(word));
+	  arity = Arity(UnTag_STC(word));
+	}
+	else
+	  goto next;		/* or display an error ? */
+      }
+
+      if (atom_tbl[atom].modules &&
+	  (ctable = atom_tbl[atom].modules[arity]) &&
+	  (pred = (PredInf *) Hash_Find(ctable, key)))
+	{
+	  Cxt_Assign_K(call_K);
+	  return pred;
+	}
+    next:
+      if (lst_adr)
+	call_K = Cdr(lst_adr);
+      else
+	break;
+    }
+				/* IS IT CORRECT ??? */
+  Cxt_Assign_K(cxt_call_K);
+  return (PredInf *) Hash_Find(pred_tbl, key);
+
+#else  /* FIXME: TRY THIS (lookup in global first) LATER... */
+
+  if ((pred = (PredInf *) Hash_Find(pred_tbl, key))) {
+    printf ("Cxt_Lookup_Pred_With_K(%s/%d): found global\n",
+	    atom_tbl[Functor_Of(key)].name,
+	    Arity_Of(key));
+    return pred;
+  }
+
+  for (;;) {
+    DEREF(call_K, word, tag_mask);
+
+    if (tag_mask != TAG_LST_MASK)
+      break;
+
+    lst_adr = UnTag_LST(word);
+    DEREF(Car(lst_adr), word, tag_mask);
+
+    if (tag_mask == TAG_STC_MASK) { /* non-atomic: regular case */
+      atom = Functor(UnTag_STC(word));
+      arity = Arity(UnTag_STC(word));
+    }
+    else if (tag_mask == TAG_ATM_MASK) { /* atomic: like ATOM/0 */
+      atom = UnTag_ATM(word);
+      arity = 0;
+    }
+    else
+      goto next;		/* or display an error ? */
+
+    if (atom_tbl[atom].modules &&
+	(ctable = atom_tbl[atom].modules[arity]) &&
+	(pred = (PredInf *) Hash_Find(ctable, key)))
+      {			/* found it */
+	Cxt_Assign_K(call_K);
+	printf ("Cxt_Lookup_Pred_With_K(%s/%d): found in %s/%d\n",
+		atom_tbl[Functor_Of(key)].name,
+		Arity_Of(key),
+		atom_tbl[atom].name,
+		arity);
+	return pred;
+      }
+  next:
+    call_K = Cdr(lst_adr);
+  }
+				/* IS IT CORRECT ??? */
+  Cxt_Assign_K(cxt_call_K);
+  return (PredInf *) Hash_Find(pred_tbl, key);
+
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_LOOKUP_PRED                                                         *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+PredInf * FC
+Cxt_Lookup_Pred(long key)
+{
+  return Cxt_Lookup_Pred_With_K(key, cur_K);
+}
+
+#include "../BipsPl/error_supp.h"
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_CALL_TAGGED                                                         *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamCont FC
+Cxt_Call_Tagged(WamWord key, WamWord cxt_call_K)
+{
+  PredInf *pred = Cxt_Lookup_Pred_With_K(key, cxt_call_K);
+  WamCont BC_Emulate_Pred(int, void *);
+
+  if (pred == NULL)
+    {
+      WamWord call_K = cxt_call_K;
+      static char pseudo_bip_name[512];
+      char *p = pseudo_bip_name;
+//    int n = 0;
+//    int l = sizeof (pseudo_bip_name);
+      char *sep = "";
+      WamWord *lst_adr;
+      WamWord word, tag_mask;
+
+      strcpy(pseudo_bip_name, "context([");
+      p += strlen(p);
+      for (;;) {
+	DEREF(call_K, word, tag_mask);
+
+	if (tag_mask != TAG_LST_MASK)
+	  break;
+
+	lst_adr = UnTag_LST(word);
+	DEREF(Car(lst_adr), word, tag_mask);
+
+	if (tag_mask == TAG_ATM_MASK)
+	  sprintf (p, "%s%s/%d", sep, atom_tbl[UnTag_ATM(word)].name, 0);
+	else if (tag_mask == TAG_STC_MASK)
+	  sprintf (p, "%s%s/%ld", sep,
+		   atom_tbl[Functor(UnTag_STC(word))].name,
+		   Arity(UnTag_STC(word)));
+	else
+	  goto next;		/* or display an error ? */
+
+	p += strlen(p);
+	sep = ", ";
+
+      next:
+	call_K = Cdr(lst_adr);
+      }
+      sprintf (p, "])");
+      
+      Set_C_Bip_Name(pseudo_bip_name, -1); /* FIXME: properly dump context */
+      Unknown_Pred_Error(Functor_Of(key), Arity_Of(key));
+
+      return ALTB(B);		/* i.e. fail */
+    }
+
+  if (pred->codep)
+    return (WamCont) pred->codep;
+  else if (pred->dyn)
+    return BC_Emulate_Pred ((int) key, pred->dyn);
+  else
+    return ALTB(B);		/* fail for dynamic w/o any clauses */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_CALL                                                                *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamCont FC
+Cxt_Call(int func, int arity, WamWord cxt_call_K)
+{
+  return Cxt_Call_Tagged(Functor_Arity(func, arity), cxt_call_K);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_ARG_LOAD                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool FC
+Cxt_Arg_Load(int arg_no, WamWord term_word, WamWord *sub_term_adr)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+
+  DEREF(term_word, word, tag_mask);
+
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+      if ((unsigned) arg_no >= (unsigned) Arity(adr))
+	return FALSE;
+      *sub_term_adr = Arg(adr, arg_no);
+      return TRUE;
+    }
+
+  if (tag_mask == TAG_LST_MASK)
+    {
+      adr = UnTag_LST(word);
+      if ((unsigned) arg_no >= 2)
+	return FALSE;
+      *sub_term_adr = (arg_no == 0) ? Car(adr) : Cdr(adr);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CXT_ARG_UNIFY                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool FC
+Cxt_Arg_Unify(int arg_no, WamWord term_word, WamWord sub_term_word)
+{
+  WamWord word;
+
+  if (!Cxt_Arg_Load(arg_no, term_word, &word))
+    return FALSE;
+
+  return Unify(sub_term_word, word);
+}

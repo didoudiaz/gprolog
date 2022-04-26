@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : pl_params.h                                                     *
- * Descr.: parameter header file                                           *
+ * File  : headers.h                                                       *
+ * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2002 Daniel Diaz                                     *
@@ -22,22 +22,29 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id: pl_params.h,v 1.4 2006/07/17 18:19:20 spa Exp $ */
+/* $Id: headers.h,v 1.1.1.1 2003/04/08 09:42:52 spa Exp $ */
 
-#define MAX_OBJECT                 10240
+#ifndef _GPROLOG_H
+#define _GPROLOG_H
 
-#define START_PRED_TBL_SIZE        4096
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define START_MODULE_PRED_TBL_SIZE 128
+#include "engine_pl.h"
+#include "bips_pl.h"
 
-#define START_OPER_TBL_SIZE        1024
 
-#define ATOM_SIZE                  24
-#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
+#ifndef NO_USE_FD_SOLVER
 
-#define NB_OF_X_REGS               256
-#define MAX_ARITY                  (NB_OF_X_REGS - 1)
+#include "engine_fd.h"
+#include "bips_fd.h"
 
-/* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
-   also the byte code management */
+#endif /* NO_USE_FD_SOLVER */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
 

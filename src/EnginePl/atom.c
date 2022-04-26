@@ -225,7 +225,7 @@ Init_Atom(void)
  * CREATE_ALLOCATE_ATOM                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Create_Allocate_Atom(char *name)
 {
   AtomInf *patom;
@@ -252,7 +252,7 @@ Create_Allocate_Atom(char *name)
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Create_Atom(char *name)
 {
   AtomInf *patom;
@@ -275,6 +275,7 @@ Create_Atom(char *name)
   nb_atom++;
 
   patom->name = name;
+  patom->modules = NULL;	/* first time around it's got no units */
   prop.needs_scan = FALSE;
 
   identifier = graphic = (*name != '\0');
@@ -346,7 +347,7 @@ finish:
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-WamWord
+WamWord FC
 Create_Atom_Tagged(char *name)
 {
   return Tag_ATM(Create_Atom(name));
@@ -360,7 +361,7 @@ Create_Atom_Tagged(char *name)
  *                                                                         *
  * return the atom key or -1 if not exist.                                 *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Find_Atom(char *name)
 {
   AtomInf *patom;
@@ -450,8 +451,8 @@ Hash_String(char *str)
  * Find a new atom (gensym) beginning by a given prefix.                   *
  * hash<0 for any input or the index of the free atom to produce.          *
  *-------------------------------------------------------------------------*/
-int
-Gen_New_Atom(char *prefix, int hash)
+int FC
+Gen_New_Atom(unsigned char *prefix, int hash)
 {
   AtomInf *patom;
 
@@ -480,13 +481,13 @@ Gen_New_Atom(char *prefix, int hash)
 static char *
 Gen_Sym(unsigned char *prefix, int gen_sym_hash)
 {
-  unsigned pl = strlen(prefix);
-  unsigned hp = Hash_String(prefix);
+  unsigned pl = strlen((char *) prefix);
+  unsigned hp = Hash_String((char *) prefix);
   unsigned x, i;
   unsigned radix_p;
   char *str;
 
-  strcpy(gen_sym_buff, prefix);
+  strcpy(gen_sym_buff, (char *) prefix);
   str = gen_sym_buff + pl;
 
   x = (gen_sym_hash - hp) % MAX_ATOM;
@@ -532,7 +533,7 @@ Gen_Sym(unsigned char *prefix, int gen_sym_hash)
  *                                                                         *
  * returns the atom next after 'last_atom' (-1 to start) or -1 at the end  *
  *-------------------------------------------------------------------------*/
-int
+int FC
 Find_Next_Atom(int last_atom)
 {
   while (++last_atom < MAX_ATOM)

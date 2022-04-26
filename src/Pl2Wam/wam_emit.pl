@@ -32,7 +32,7 @@
  * get_value(V, A)                          put_value(V, A)                *
  *                                          put_unsafe_value(y(Y), A)      *
  * get_atom(F, A)                           put_atom(F, A)                 *
- * get_integer(I, A)                        put_integer(N, A)              *
+ * get_integer(N, A)                        put_integer(N, A)              *
  * get_float(D, A)                          put_float(D, A)                *
  * get_nil(A)                               put_nil(A)                     *
  * get_list(A)                              put_list(A)                    *

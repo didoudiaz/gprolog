@@ -74,7 +74,7 @@ Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
   int stm;
   StmInf *pstm;
   char *str;
-  char buff[2048];
+  char *buff;			/* increased from 2K */
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
@@ -90,6 +90,7 @@ Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
     str = atom_tbl[UnTag_ATM(word)].name;
   else
     {
+      buff = alloca (1+strlen (Rd_Codes_Check (format_word)));
       strcpy(buff, Rd_Codes_Check(format_word));
       str = buff;
     }
@@ -134,8 +135,10 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
   int i, k;
   char *format_stack[256];
   char **top_stack = format_stack;
-  char buff[2048];
+  char *buff;
+  int nbytes = 32*2048;		/* increased from 2K */
 
+  buff = alloca (nbytes);
 
   *top_stack++ = format;
   do

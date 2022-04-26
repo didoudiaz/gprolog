@@ -675,7 +675,7 @@ static void
 Bind_Variable(WamWord *adr, WamWord word)
 {
   int i, j;
-  char buff[16];
+  char buff[256];		/* FIXME: up from 16 */
 
   while (glob_dico_var[nb_to_try] && nb_to_try < MAX_VAR_IN_TERM)
     nb_to_try++;

@@ -55,7 +55,7 @@
 
 #define ENVIR_STATIC_SIZE          4
 
-#define CPE(e)                     ((WamCont)   (e[-1]))
+#define CPE(e)                     (*(WamCont *)   &(e[-1]))
 #define BCIE(e)                    ((WamWord)   (e[-2]))
 #define EE(e)                      ((WamWord *) (e[-3]))
 #define NBYE(e)                    ((WamWord)   (e[-4]))
@@ -67,10 +67,10 @@
 
 #define ENVIR_STATIC_SIZE          3
 
-#define CPE(e)                     ((WamCont)   (e[-1]))
-#define BCIE(e)                    ((WamWord)   (e[-2]))
-#define EE(e)                      ((WamWord *) (e[-3]))
-#define Y(e, y)                    ((WamWord)   (e[-4 - (y)]))
+#define CPE(e)                     (*(WamCont *)   &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)   &(e[-2]))
+#define EE(e)                      (*(WamWord **)  &(e[-3]))
+#define Y(e, y)                    (*(WamWord *)   &(e[-4 - (y)]))
 
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 
@@ -81,15 +81,15 @@
 
 #define CHOICE_STATIC_SIZE         8
 
-#define ALTB(b)                    ((CodePtr)   (b[-1]))
-#define CPB(b)                     ((WamCont)   (b[-2]))
-#define BCIB(b)                    ((WamWord)   (b[-3]))
-#define EB(b)                      ((WamWord *) (b[-4]))
-#define BB(b)                      ((WamWord *) (b[-5]))
-#define HB(b)                      ((WamWord *) (b[-6]))
-#define TRB(b)                     ((WamWord *) (b[-7]))
-#define CSB(b)                     ((WamWord *) (b[-8]))
-#define AB(b, a)                   ((WamWord)   (b[-9 - (a)]))
+#define ALTB(b)                    (*(CodePtr *)   &(b[-1]))
+#define CPB(b)                     (*(WamCont *)   &(b[-2]))
+#define BCIB(b)                    (*(WamWord *)   &(b[-3]))
+#define EB(b)                      (*(WamWord **)  &(b[-4]))
+#define BB(b)                      (*(WamWord **)  &(b[-5]))
+#define HB(b)                      (*(WamWord **)  &(b[-6]))
+#define TRB(b)                     (*(WamWord **)  &(b[-7]))
+#define CSB(b)                     (*(WamWord **)  &(b[-8]))
+#define AB(b, a)                   (*(WamWord *)   &(b[-9 - (a)]))
 
 #define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
                                     "HB", "TRB", "CSB"}
@@ -514,9 +514,79 @@ long chain_len;
   while (0)
 
 
+/* -- context support ------------------------------------------------------ */
 
+#ifdef UnTag_ATM
+
+static inline PredInf * FC
+Cxt_Lookup_Pred_In (int key, WamWord unit, int arity)
+{
+  int unit_atom = UnTag_ATM (unit);
+  void *ptable = pred_tbl;
+
+  if (unit_atom && unit_atom != ATOM_NIL &&
+      atom_tbl[unit_atom].modules && atom_tbl[unit_atom].modules[arity])
+    ptable = atom_tbl[unit_atom].modules[arity];
+  else
+    ptable = pred_tbl;
+
+  return (PredInf *) Hash_Find (ptable, key);
+}
+
+#endif
+
+/* ------------------------------------------------------------------------- */
+
+
+#ifndef FRAMES_ONLY
+#ifndef USE_WATERMARK
+
+/* -- regular GNU Prolog w/o watermark code -------------------------------- */
+
+#define Call_CP_Destructors(b)     0
+#define Create_Water_Mark(a,b)
+#define Update_Water_Mark(a,b)
 
 #define Assign_B(newB)              (B = (newB), HB1 = HB(B))
+
+#else
+
+/* -- support for watermarks ----------------------------------------------- */
+
+#define Assign_B(newB)      (B = (newB), HB1 = HB(B), Call_CP_Destructors(B))
+
+#ifndef MAXWMARK                       /* Number of active watermarks */
+#define MAXWMARK 10240                 /* ie. pending destructors */
+#endif
+
+typedef struct Watermark {             /* A watermark on the stack: */
+  WamWord *Bvalue;                     /* Choice-point */
+  void (*destructor) ();               /* Function to call */
+  void *parameter;                     /* parameter to above */
+} Watermark, *WatermarkP;
+
+extern int        wmark_count;         /* number of active watermarks */
+extern Watermark  wmark[];             /* The stack of watermarks */
+extern WatermarkP wmp;                 /* Top of watermark stack */
+
+static inline WamWord *Call_CP_Destructors (WamWord *TargetB)
+{
+  while ((wmark_count > 0) && (TargetB < wmp->Bvalue)) {
+    (*wmp->destructor) (wmp->parameter);
+
+    --wmp;
+    --wmark_count;
+  }
+  return TargetB;
+}
+
+void Create_Water_Mark (void (*fun)(), void *par) FC;
+void Update_Water_Mark (void (*fun)(), void *par) FC;
+
+/* ------------------------------------------------------------------------- */
+#endif /* USE_WATERMARK */
+#endif /* FRAMES_ONLY */
+
 
 #define Delete_Last_Choice_Point()  Assign_B(BB(B))
 

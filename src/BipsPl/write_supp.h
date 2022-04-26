@@ -70,6 +70,6 @@ void Write_Simple(WamWord term_word);
 
 void Write_A_Char(StmInf *pstm, int c);
 
-char *Float_To_String(double d);
+char *Float_To_String(double d, char *buffer);
 
 int Get_Print_Stm(void);

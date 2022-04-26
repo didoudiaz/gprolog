@@ -97,6 +97,8 @@ typedef struct			/* Atom information               */
 {				/* ------------------------------ */
   char *name;			/* key is <name> (the string)     */
   AtomProp prop;		/* associated properties          */
+  char **modules;		/* module predicate tables        */
+				/* (indexed with the arity)       */
 }
 AtomInf;
 
@@ -173,7 +175,7 @@ WamWord Create_Atom_Tagged(char *name) FC;
 
 int Find_Atom(char *name) FC;
 
-int Gen_New_Atom(char *prefix, int hash) FC;
+int Gen_New_Atom(unsigned char *prefix, int hash) FC;
 
 int Find_Next_Atom(int last_atom) FC;
 

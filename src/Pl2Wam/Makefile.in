@@ -1,10 +1,12 @@
 GPLC      = @GPLC@
 GPLCFLAGS = --fast-math
 OBJS      = pl2wam@OBJ_SUFFIX@ read_file@OBJ_SUFFIX@ bip_list@OBJ_SUFFIX@ \
+            context@OBJ_SUFFIX@ \
             syn_sugar@OBJ_SUFFIX@ internal@OBJ_SUFFIX@ code_gen@OBJ_SUFFIX@ \
             reg_alloc@OBJ_SUFFIX@ inst_codif@OBJ_SUFFIX@ \
             first_arg@OBJ_SUFFIX@ indexing@OBJ_SUFFIX@ wam_emit@OBJ_SUFFIX@
 PLS       = pl2wam.pl read_file.pl bip_list.pl syn_sugar.pl internal.pl \
+            context.pl \
             code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
             indexing.pl wam_emit.pl
 
@@ -45,6 +47,7 @@ distclean: clean
 pl2wam.wam:     pl2wam.pl
 read_file.wam:  read_file.pl
 bip_list.wam:   bip_list.pl
+context.wam:    context.pl
 syn_sugar.wam:  syn_sugar.pl
 internal.wam:   internal.pl
 code_gen.wam:   code_gen.pl

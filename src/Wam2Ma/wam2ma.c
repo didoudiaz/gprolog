@@ -70,7 +70,7 @@
 #define DEFAULT_OUTPUT_SUFFIX      ".ma"
 
 #define MAX_PRED_NAME_LENGTH       2048
-#define MAX_HEXA_LENGTH            MAX_PRED_NAME_LENGTH * 2 + 2 + 16
+#define MAX_HEXA_LENGTH            (MAX_PRED_NAME_LENGTH * 2 + 2) * 2 + 16
 #define MAX_LABEL_LENGTH           32
 
 
@@ -145,6 +145,7 @@ typedef struct predinf
   int arity;
   int line_no;
   int prop;
+  BTNode *cxt_unit;
   BTNode *pl_file;
   int pl_line;
   SwtTbl *swt_tbl[3];
@@ -183,6 +184,12 @@ BTString bt_tagged_atom;
 BTString bt_tagged_f_n;
 
 
+BTNode *cxt_cur_unit;
+char cxt_unit_for_next_call[MAX_LABEL_LENGTH];
+int cxt_arity_for_next_call = 0;
+
+int dynamic = 0;
+
 BTNode *cur_pl_file;
 
 char buff_hexa[MAX_HEXA_LENGTH];
@@ -219,7 +226,9 @@ void Display_Help(void);
 
 char *Compute_Hexa(unsigned char *str, char *hexa);
 
-void Make_Native_Hexa_Symbol(Pred *p, char *buff);
+void Native_Hexa_Symbol(char *cxt_unit, int uarity,
+			char *functor, int arity,
+			char *buff);
 
 void Emit_Obj_Initializer(void);
 
@@ -241,6 +250,15 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 
 
 
+
+#define Native_Hexa_Symbol_For_Pred(p, buff)				\
+  Native_Hexa_Symbol((p->cxt_unit) ? p->cxt_unit->str : NULL,		\
+		     (p->cxt_unit) ? p->cxt_unit->arity : 0,		\
+		     p->functor->str, p->arity, buff)
+
+
+
+
 #define Check_Arg(i, str)      (strncmp(argv[i], str, strlen(argv[i]))==0)
 
 
@@ -256,6 +274,7 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #define DEF_FLOAT(n)          double n
 
 #define DEF_X_Y(xy)           long xy; char c
+#define DEF_X_Y1(c, xy)	      long xy; char c
 
 #define DEF_F_N_0(atom, n)    DEF_ATOM(atom); DEF_INTEGER(n)
 #define DEF_F_N_1(atom, n)    DEF_STR(str_##atom); DEF_INTEGER(n); int f_n_no
@@ -265,6 +284,8 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #else
 #define DEF_F_N(atom, n)      DEF_F_N_0(atom, n)
 #endif
+
+#define DEF_STR_N(str, n)     DEF_STR(str); DEF_INTEGER(n);
 
 #define DEF_P_N(hexa, n)      DEF_PRED(hexa); DEF_INTEGER(n)
 
@@ -295,6 +316,8 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 
 #define LOAD_X_Y(xy)          Get_Arg(top, long, xy); \
                               if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
+#define LOAD_X_Y1(c, xy)      Get_Arg(top, long, xy); \
+                              if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
 
 #define LOAD_F_N_0(atom, n)   LOAD_ATOM_0(atom); LOAD_INTEGER(n)
 #define LOAD_F_N_1(atom, n)   LOAD_STR(str_##atom); LOAD_INTEGER(n);\
@@ -305,6 +328,8 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 #else
 #define LOAD_F_N(atom, n)     LOAD_F_N_0(atom, n)
 #endif
+
+#define LOAD_STR_N(str, n)    LOAD_STR(str); LOAD_INTEGER(n);
 
 #define LOAD_P_N(hexa, n)     LOAD_PRED(hexa); LOAD_INTEGER(n)
 
@@ -437,14 +462,21 @@ Compute_Hexa(unsigned char *str, char *hexa)
 
 
 /*-------------------------------------------------------------------------*
- * MAKE_NATIVE_HEXA_SYMBOL                                                 *
+ * NATIVE_HEXA_SYMBOL                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Make_Native_Hexa_Symbol(Pred *p, char *buff)
+Native_Hexa_Symbol(char *cxt_unit, int uarity,
+		   char *functor, int arity, char *buff)
 {
-  buff = Compute_Hexa(p->functor->str, buff);
-  sprintf(buff, "_%d", p->arity);
+  if (cxt_unit && cxt_unit[0])
+{
+      buff = Compute_Hexa(cxt_unit, buff);
+      sprintf(buff, "_%d__", uarity);
+      buff += strlen(buff);
+    }
+  buff = Compute_Hexa(functor, buff);
+  sprintf(buff, "_%d", arity);
 }
 
 
@@ -479,7 +511,8 @@ Emit_Obj_Initializer(void)
 
   Label_Printf("\n");
 
-  Label_Printf("c_code  initializer Object_Initializer\n");
+  Label_Printf("c_code  %s Object_Initializer\n",
+	       dynamic? "global": "initializer");
 
   Inst_Printf("call_c", "New_Object(&System_Directives,&User_Directives)");
 
@@ -496,15 +529,24 @@ Emit_Obj_Initializer(void)
 	{
 	  q = buff_hexa;
 	  *q++ = '&';
-	  Make_Native_Hexa_Symbol(p, q);
+	  Native_Hexa_Symbol_For_Pred(p, q);
 	}
       else
 	strcpy(buff_hexa, "0");
 
+      if (p->cxt_unit)
+	Inst_Printf("call_c", FAST 
+		    "Create_Pred_Module(at(%d),%d,at(%d),%d,at(%d),%d,%d,%s)",
+		    p->cxt_unit->no,
+		    p->cxt_unit->arity,
+		    p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		    p->prop, buff_hexa);
+      else
       Inst_Printf("call_c", FAST "Create_Pred(at(%d),%d,at(%d),%d,%d,%s)",
 		  p->functor->no, p->arity, p->pl_file->no, p->pl_line,
 		  p->prop, buff_hexa);
       
+
 
       cur_pred_no++;		/* for FORMAT_LABEL */
 
@@ -567,7 +609,7 @@ Emit_Exec_Directives(void)
   Direct *p;
 
   fputc('\n', file_out);
-  Label_Printf("c_code  local System_Directives\n");
+  Label_Printf("c_code  %s System_Directives\n", dynamic? "global": "local");
 
   i = 0;
   for (p = dummy_direct_start.next; p; p = p->next)
@@ -583,7 +625,7 @@ Emit_Exec_Directives(void)
   Inst_Printf("c_ret", "");
 
   fputc('\n', file_out);
-  Label_Printf("c_code  local User_Directives\n");
+  Label_Printf("c_code  %s User_Directives\n", dynamic? "global": "local");
 
   i = 0;
   for (p = dummy_direct_start.next; p; p = p->next)
@@ -740,6 +782,7 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
 
   cur_pred->functor = atom;
   cur_pred->arity = arity;
+  cur_pred->cxt_unit = cxt_cur_unit;
   cur_pred->pl_file = cur_pl_file;
   cur_pred->pl_line = pl_line;
   cur_pred->prop = prop;
@@ -755,7 +798,7 @@ New_Predicate(char *functor, int arity, int pl_line, int dynamic,
     Label_Printf("\n\n; *** Predicate: %s/%d (%s:%d)",
 		 functor, arity, cur_pl_file->str, pl_line);
 
-  Make_Native_Hexa_Symbol(cur_pred, buff_hexa);
+  Native_Hexa_Symbol_For_Pred(cur_pred, buff_hexa);
   Label_Printf("\n\npl_code global %s", buff_hexa);
 }
 
@@ -1375,9 +1418,13 @@ F_deallocate(ArgVal arg[])
 void
 F_call(ArgVal arg[])
 {
-  Args1(P_N(hexa, n));
+  Args1(STR_N(functor, arity));
 
-  Inst_Printf("pl_call", "%s_%ld", hexa, n);
+  Native_Hexa_Symbol(cxt_unit_for_next_call, cxt_arity_for_next_call,
+		     functor, arity, buff_hexa);
+  cxt_unit_for_next_call[0] = 0;
+
+  Inst_Printf("pl_call", "%s", buff_hexa);
 }
 
 
@@ -1390,9 +1437,13 @@ F_call(ArgVal arg[])
 void
 F_execute(ArgVal arg[])
 {
-  Args1(P_N(hexa, n));
+  Args1(STR_N(functor, arity));
 
-  Inst_Printf("pl_jump", "%s_%ld", hexa, n);
+  Native_Hexa_Symbol(cxt_unit_for_next_call, cxt_arity_for_next_call,
+		     functor, arity, buff_hexa);
+  cxt_unit_for_next_call[0] = 0;
+
+  Inst_Printf("pl_jump", "%s", buff_hexa);
 }
 
 
@@ -1805,8 +1856,8 @@ F_call_c(ArgVal arg[])
   int set_cp = 0;
   char *str;
   int adr_of_xy;
-  long ret_xy;
-  char ret_c;
+  long ret_xy = 0;
+  char ret_c = 0;
   int i;
 
   DEF_STR(c_option);
@@ -2056,7 +2107,8 @@ F_foreign_call_c(ArgVal arg[])
 
 	      if (s_dup)
 		{
-		  Inst_Printf("call_c", "strdup(FL(%d))", i);
+		  Inst_Printf("call_c", "Strdup_Check(FL(%d),\"call generated by %s\",%d)",
+			      i, __FILE__, __LINE__);
 		  Inst_Printf("move_ret", "FL(%d)", i);
 		}
 	    }
@@ -2190,6 +2242,12 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--dynamic"))
+	    {
+	      dynamic = 1;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--version"))
 	    {
 	      Display_Copying("WAM to Mini-Assembly Compiler");
@@ -2260,3 +2318,127 @@ Display_Help(void)
 }
 
 #undef L
+
+
+/* --- Contexts --- */
+
+/*-------------------------------------------------------------------------*
+ * CXT_UNIT_NAME                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Cxt_Unit_Name(char *unit_name, int arity)
+{
+  if (strcmp(unit_name, "[]") == 0)
+    cxt_cur_unit = NULL;
+  else {
+    cxt_cur_unit = BT_String_Add(&bt_atom, unit_name);
+    cxt_cur_unit->arity = arity;
+  }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CXT_EXECUTE                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_cxt_execute(ArgVal arg[])
+{
+  Args2(F_N(atom, n), X_Y(xy));
+
+#ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
+  Inst_Printf("call_c", FAST "Cxt_Call_Tagged(fn(%d),%c(%d))", 
+	      f_n_no, c, xy);
+#else
+  Inst_Printf("call_c", FAST "Cxt_Call(at(%d),%ld,%c(%d))",
+	      atom->no, n, c, xy);
+#endif
+  Inst_Printf("jump_ret", "");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CXT_CALL                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_cxt_call(ArgVal arg[])
+{
+  Inst_Printf("prep_cp", "");
+  F_cxt_execute(arg);
+  Inst_Printf("here_cp", "");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CXT_ASSIGN_K                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_cxt_assign_K(ArgVal arg[])
+{
+  Args1(X_Y(xy));
+
+  Inst_Printf("call_c", FAST "Cxt_Assign_K(%c(%d))", c, xy);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CXT_UNIT_FOR_NEXT_CALL                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_cxt_unit_for_next_call(ArgVal arg[])
+{
+  register char *p;
+  Args1(F_N(atom, n));
+
+  sprintf (cxt_unit_for_next_call, "%s", str_atom);
+  for (p=cxt_unit_for_next_call; *p && *p != '/'; ++p)
+    ;
+  *p = 0;
+  cxt_arity_for_next_call = n;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CXT_ARG_UNIFY                                                         *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_cxt_arg_unify(ArgVal arg[])
+{
+  Args3(INTEGER(i), X_Y(xy), X_Y1(c1, xy1));
+
+  Inst_Printf("call_c", FAST "Cxt_Arg_Unify(%d,%c(%d),%c(%d))",
+	      i - 1, c, xy, c1, xy1);
+  Inst_Printf("fail_ret", "");
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * F_CXT_ARG_LOAD                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+F_cxt_arg_load(ArgVal arg[])
+{
+  Args3(INTEGER(i), X_Y(xy), X_Y1(c1, xy1));
+
+  Inst_Printf("call_c", FAST "Cxt_Arg_Load(%d,%c(%d),&%c(%d))",
+	      i - 1, c, xy, c1, xy1);
+  Inst_Printf("fail_ret", "");
+}

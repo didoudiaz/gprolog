@@ -40,6 +40,9 @@
 /* Define if you have a mallopt function */
 #undef HAVE_MALLOPT
 
+/* Define if you have a mkstemp function */
+#undef HAVE_MKSTEMP
+
 /* Define inline keyword */
 #undef inline
 
@@ -67,7 +70,11 @@
 /* Define if you don't want to include the FD constraint solver */
 #undef NO_USE_FD_SOLVER
 
+/* Define if you want to use the foreign destructor in choicepoint functions */
+#undef USE_WATERMARK
 
+/* Define if you want to use dynamically-loadable objects */
+#undef USE_DYNAMIC
 
 
 /* Define if the cpu is a mips */
@@ -85,6 +92,8 @@
 /* Define if the cpu is a powerpc */
 #undef M_powerpc
 
+/* Define if the cpu is a x86-64 */
+#undef M_x86_64
 
 
 /* Define if the OS is an SGI IRIX */
@@ -154,6 +163,9 @@
 /* Define if the system is a powerpc/bsd */
 #undef M_powerpc_darwin
 
+/* Define if the system is a x86-64/linux */
+#undef M_x86_64_linux
+
 
 
 /* Constant definitions */
@@ -161,8 +173,13 @@
 #define PROLOG_NAME1               any
 #define PROLOG_NAME                any
 #define PROLOG_VERSION             any
+#define PROLOG_VARIANT             any
 #define PROLOG_DATE                any
 #define PROLOG_COPYRIGHT           any
+
+#define PROLOG_BINDIR		   any
+#define PROLOG_LIBDIR		   any
+#define PROLOG_INCDIR		   any
 
 #define TOP_LEVEL                  any
 #define GPLC                       any

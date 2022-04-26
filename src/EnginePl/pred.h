@@ -69,8 +69,12 @@ extern char *pred_tbl;
 
 void Init_Pred(void);
 
-PredInf *Create_Pred(int func, int arity, int pl_file, int pl_line,
-		     int prop, long *codep) FC;
+PredInf *Create_Pred_Module(int module, int marity,
+			    int func, int arity, int pl_file,
+			    int pl_line, int prop, long *codep) FC;
+
+PredInf *Create_Pred(int func, int arity, int pl_file,
+		     int pl_line, int prop, long *codep) FC;
 
 PredInf *Lookup_Pred(int func, int arity) FC;
 

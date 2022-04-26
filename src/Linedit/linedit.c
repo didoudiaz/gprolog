@@ -1358,7 +1358,7 @@ Display_Help(void)
 
   L("");
   sprintf(buff,
-	  "   linedit %-25s Copyright (C) 1999-2002 Daniel Diaz",
+	  "   linedit %-25s Copyright (C) 1999-2003 Daniel Diaz",
 	  LINEDIT_VERSION);
   L(buff);
   L("");

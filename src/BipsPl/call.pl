@@ -148,3 +148,47 @@ call(Goal, Deterministic) :-
 
 '$call_from_debugger'(Goal, CallInfo) :-
 	'$call_c_jump'('BC_Call_Terminal_Pred_3'(Goal, CallInfo, 0)).
+
+
+
+% --- Contexts ------------------------------------------------------------ %
+
+:- op(600, xfx, [:<]).		% useless if boot-strapped but useful
+:- op(600, xfy, [:>]).		% if compiled with standard GNU-Prolog
+:- op(600, xfy, [::]).		% ...
+:- op(600, fy, [:<, :^, :#, :>]). % ...
+
+context(X) :- context(X).	% current context
+ccontext(X) :- ccontext(X).	% calling context (for lazy call)
+
+% -----------------------------------------------------------------------------
+% FIXME: in the following metacalls, G should be '$call'(G, OP, OPA, true)
+
+U :> G :- U :> G.
+C :< G :- C :< G.
+U :: G :- context(C), '$cxt_locate'(C, U, X), !, X :< G.
+:< C :- context(C).
+:> C :- ccontext(C).
+:^ G :- context([_|C]), C :< G.
+:# G :- ccontext(C), C :< G.	% calling context
+
+
+'$cxt_locate'(CX, LU, CX) :- CX=[LU|_], !.
+'$cxt_locate'(CX, LU, CX) :- atom(LU), CX=[U|_], functor(U, LU, _), !.
+'$cxt_locate'([_|US], LU, CX) :- '$cxt_locate'(US, LU, CX).
+
+
+current_unit(ATOM, NARGS) :-
+	set_bip_name(current_unit, 2),
+	current_atom(ATOM),
+	for(NARGS, 0, 255),
+	'$call_c_test'('Current_Unit_2'(ATOM, NARGS)).
+
+context_valid :- :< C, context_valid(C).
+
+context_valid([]).
+context_valid([UT|UTs]) :-
+	functor(UT, U, A),
+	( '$call_c_test'('Current_Unit_2'(U, A)) -> context_valid(UTs)
+	;   throw(unknown_unit_in_context(U/A)) ).
+	    

@@ -4,7 +4,7 @@
 
 # if you change here the version also change it in PROLOG_VERSION below
 
-AC_INIT(gprolog, 1.2.16, bug-prolog@gnu.org)
+AC_INIT(gprolog, 1.2.18, bug-prolog@gnu.org)
 AC_PREREQ(2.52)
 # AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -29,18 +29,19 @@ AC_CONFIG_FILES(Makefile
 # * initial variable values *
 # ***************************
 
-PROLOG_NAME='GNU Prolog'
+PROLOG_NAME='GNU Prolog/CX'
 PROLOG_NAME1='gprolog'
-PROLOG_VERSION='1.2.16'
-PROLOG_DATE='Sep 19 2002'
-PROLOG_COPYRIGHT='Copyright (C) 1999-2002 Daniel Diaz'
+PROLOG_VARIANT='-cx'
+PROLOG_VERSION='1.2.18'
+PROLOG_DATE='Jan 02 2006'
+PROLOG_COPYRIGHT='Copyright (C) 1999-2006 Daniel Diaz'
 
 TOP_LEVEL=$PROLOG_NAME1
 GPLC=gplc
 HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
 
-USE_EBP=yes
+USE_EBP=no
 USE_LINEDIT=yes
 USE_GUI_CONSOLE=yes
 USE_SOCKETS=yes
@@ -62,6 +63,11 @@ AC_SUBST(PROLOG_NAME)
 AC_SUBST(PROLOG_VERSION)
 AC_SUBST(PROLOG_DATE)
 AC_SUBST(PROLOG_COPYRIGHT)
+AC_SUBST(PROLOG_VARIANT)
+
+AC_SUBST(PROLOG_BINDIR)
+AC_SUBST(PROLOG_LIBDIR)
+AC_SUBST(PROLOG_INCDIR)
 
 AC_SUBST(TOP_LEVEL)
 AC_SUBST(GPLC)
@@ -134,6 +140,9 @@ AC_ARG_WITH(install-dir, [  --with-install-dir=DIR  specify INSTALL_DIR],
 AC_ARG_WITH(links-dir,   [  --with-links-dir=DIR    specify LINKS_DIR],
 		[WITH_LINKS_DIR="$withval"])
 
+AC_ARG_WITH(exec-prefix, [  --with-exec-prefix=DIR  specify GP_EXE_DIR],
+		[WITH_GP_EXE_DIR="$withval"])
+
 AC_ARG_WITH(doc-dir,     [  --with-doc-dir=DIR      specify DOC_DIR],
 		[WITH_DOC_DIR="$withval"])
 
@@ -200,6 +209,22 @@ AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constr
 		   no) AC_DEFINE(NO_USE_FD_SOLVER) USE_FD_SOLVER=no;;
 		   *)  USE_FD_SOLVER=yes;;
 	       esac])
+
+AC_ARG_ENABLE(watermark, [  --enable-watermark      call foreign destructors upon choice-point removal],
+             [case "$enableval" in
+                  yes) AC_DEFINE(USE_WATERMARK) USE_WATERMARK=yes;;
+                  *)   USE_WATERMARK=no;;
+              esac])
+
+AC_ARG_ENABLE(dynamic, [  --enable-dynamic          create dynamically-loadable objects],
+             [case "$enableval" in
+                  yes) AC_DEFINE(USE_DYNAMIC) USE_DYNAMIC=yes;;
+                  *)   USE_DYNAMIC=no;;
+              esac])
+
+if test "$USE_EBP" = no; then
+	AC_DEFINE(NO_USE_EBP)
+fi
 
 
 
@@ -293,6 +318,7 @@ else
 		sparc)          AC_DEFINE(M_sparc);;
 		i*86)           AC_DEFINE(M_ix86);;
         	powerpc|ppc)    AC_DEFINE(M_powerpc);;
+		x86_64)         AC_DEFINE(M_x86_64);;
 	esac
 
 	case "$host_os" in
@@ -320,6 +346,7 @@ else
         	powerpc*linux*)  AC_DEFINE(M_powerpc_linux);;
 		powerpc*darwin*) AC_DEFINE(M_powerpc_darwin);;
 		*86*cygwin*)     AC_DEFINE(M_ix86_cygwin);;
+		x86_64*linux*)   AC_DEFINE(M_x86_64_linux);;
 		*)               AC_MSG_ERROR(unsupported architecture)
 	esac
 
@@ -438,8 +465,13 @@ fi
 AC_DEFINE_UNQUOTED(PROLOG_NAME,      "$PROLOG_NAME")
 AC_DEFINE_UNQUOTED(PROLOG_NAME1,     "$PROLOG_NAME1")
 AC_DEFINE_UNQUOTED(PROLOG_VERSION,   "$PROLOG_VERSION")
+AC_DEFINE_UNQUOTED(PROLOG_VARIANT,   "$PROLOG_VARIANT")
 AC_DEFINE_UNQUOTED(PROLOG_DATE,      "$PROLOG_DATE")
 AC_DEFINE_UNQUOTED(PROLOG_COPYRIGHT, "$PROLOG_COPYRIGHT")
+
+AC_DEFINE_UNQUOTED(PROLOG_BINDIR,    "$bindir")
+AC_DEFINE_UNQUOTED(PROLOG_LIBDIR,    "$libdir")
+AC_DEFINE_UNQUOTED(PROLOG_INCDIR,    "$includedir")
 
 AC_DEFINE_UNQUOTED(TOP_LEVEL,        "$TOP_LEVEL")
 AC_DEFINE_UNQUOTED(GPLC,             "$GPLC")
@@ -498,7 +530,7 @@ fi
 test "$prefix"      = NONE && prefix=/usr/local
 test "$exec_prefix" = NONE && exec_prefix=$prefix
 
-PKG_NAME=$PROLOG_NAME1-$PROLOG_VERSION
+PKG_NAME=$PROLOG_NAME1$PROLOG_VARIANT-$PROLOG_VERSION
 
 # *-------------*
 # * INSTALL_DIR *

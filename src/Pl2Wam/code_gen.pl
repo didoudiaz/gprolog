@@ -26,6 +26,7 @@
 
 code_generation(Head, Body, NbChunk, NbY, WamHead) :-
 	g_assign(last_pred, f),
+	g_assign(cxt_for_call, none),
 	generate_head(Head, NbChunk, NbY, WamBody, WamHead),
 	generate_body(Body, NbChunk, WamBody).
 
@@ -98,6 +99,11 @@ generate_body1('$call_c', 2, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamPred) :-
 	inline_predicate(Pred, N),
 	!,
+	g_read(cxt_for_call, CxtVarName),
+	(   CxtVarName = none ->
+	    WamPred0 = WamPred
+	;   WamPred0 = [put_value(CxtVarName, 255)|WamPred],
+	    g_assign(cxt_for_call, none)),
 	gen_inline_pred(Pred, N, LArg, WamBody, WamPred), !,
 	(   Body = [] ->
 	    (   NoPred > 1 ->
@@ -115,14 +121,31 @@ generate_body1(Pred, N, LArg, NoPred, Body, NbChunk, WamLArg) :-
 	    LReg1 = LReg
 	),
 	gen_load_arg_lst(LArg1, LReg1, WamCallExecute, WamLArg),
-	(   Body = [] ->
+	g_read(cxt_for_call, CxtVarName),
+	generate_body2(Body, CxtVarName, Pred, N, NoPred, NbChunk, WamCallExecute).
+
+
+generate_body2([], none, Pred, N, NoPred, _, WamCode) :-
+	!,
 	    (   NoPred > 1 ->
-	        WamCallExecute = [deallocate, execute(Pred / N)]
-	    ;   WamCallExecute = [execute(Pred / N)]
-	    )
-	;   WamCallExecute = [call(Pred / N)|WamBody],
-	    generate_body(Body, NbChunk, WamBody)
-	).
+	    WamCode = [deallocate, execute(Pred / N)]
+	;   WamCode = [execute(Pred / N)]).
+
+generate_body2([], CxtVar, Pred, N, NoPred, _, WamCode) :-
+	!,
+	(   NoPred > 1 ->
+	    WamCode = [put_value(CxtVar, X),
+		       deallocate,
+		       cxt_execute(Pred / N, x(X))]
+	;   WamCode = [cxt_execute(Pred / N, CxtVar)]).
+
+generate_body2(Body, CxtVar, Pred, N, _, NbChunk, WamCode) :-
+	(   CxtVar = none -> 
+	    C = call(Pred / N)
+	;   C = cxt_call(Pred / N, CxtVar)),
+	WamCode = [C|WamBody],
+	g_assign(cxt_for_call, none),
+	generate_body(Body, NbChunk, WamBody).
 
 
 
@@ -383,7 +406,7 @@ special_form(put_variable(x(X), X), put_void(X)).
 
 dummy_instruction(get_variable(x(X), X), f).
 dummy_instruction(put_value(x(X), X), f).
-
+dummy_instruction(cxt_assign_K(x(255)), f).
 
 
 
@@ -758,3 +781,45 @@ c_fct_name(g_set_bit, 2, 'Blt_G_Set_Bit', void).
 c_fct_name(g_reset_bit, 2, 'Blt_G_Reset_Bit', void).
 c_fct_name(g_test_set_bit, 2, 'Blt_G_Test_Set_Bit', bool).
 c_fct_name(g_test_reset_bit, 2, 'Blt_G_Test_Reset_Bit', bool).
+
+
+
+/* --- Contexts -----------------------------------------------------------*/
+
+gen_inline_pred('$cxt_get_K', 1, [Arg], WamNext, WamArg) :-
+	gen_unif_arg(Arg, 255, WamNext, WamArg).
+
+gen_inline_pred('$cxt_get_CK', 1, [Arg], WamNext, WamArg) :-
+	gen_unif_arg(Arg, 254, WamNext, WamArg).
+
+/* would work if x(255) saved in choice-points and not when modified */
+%gen_inline_pred('$cxt_put_K', 1, [Arg], WamNext, WamArg) :-
+%	gen_load_arg(Arg, 255, WamNext, WamArg).
+
+gen_inline_pred('$cxt_put_K', 1, [V], WamNext, WamInst) :-
+	V = var(VarName, _),
+	gen_load_arg(V, _, _, _), % to update Info field of this var
+	WamInst = [cxt_assign_K(VarName)|WamNext].
+
+gen_inline_pred('$cxt_for_call', 1, [var(VarName, _)], WamNext, WamNext) :-
+	g_link(cxt_for_call, VarName).
+
+gen_inline_pred('$cxt_unit_for_next_call', 1, WHAT, WamNext, WamInst) :-
+	WHAT = [stc(/,2,[atm(UF),int(UA)])],
+	WamInst = [cxt_unit_for_next_call(UF/UA)|WamNext].
+
+gen_inline_pred('$cxt_unit_for_next_call', 1, WHAT, WamNext, WamInst) :-
+	WHAT = [atm(UF)], UA=0,
+	WamInst = [cxt_unit_for_next_call(UF/UA)|WamNext].
+
+gen_inline_pred('$cxt_arg', 3, [int(I), V1, V2], WamNext, WamInst) :-
+	V1 = var(VarName1, _),
+	V2 = var(VarName2, Info2),
+	(   var(Info2) ->
+	    Inst = cxt_arg_load(I, VarName1, VarName2)
+	;
+	    Inst = cxt_arg_unify(I, VarName1, VarName2)
+	),
+	gen_load_arg(V1, _, _, _), % to update Info field of this var
+	gen_load_arg(V2, _, _, _), % to update Info field of this var
+	WamInst = [Inst|WamNext].

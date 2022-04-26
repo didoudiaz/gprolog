@@ -80,6 +80,7 @@ char *file_name_in;
 char *file_name_out;
 int inline_asm;
 int comment;
+int dynamic;
 
 FILE *file_out;
 
@@ -625,6 +626,7 @@ Parse_Arguments(int argc, char *argv[])
 
   file_name_in = file_name_out = NULL;
   inline_asm = 0;
+  dynamic = 0;
   comment = 0;
 
   for (i = 1; i < argc; i++)
@@ -653,6 +655,12 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--full-inline-asm"))
 	    {
 	      inline_asm = 2;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--dynamic"))
+	    {
+	      dynamic = 1;
 	      continue;
 	    }
 

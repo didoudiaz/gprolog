@@ -14,7 +14,7 @@ ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Wam2Ma/bt_string.c \
 
 ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
                ix86_any.c ix86_win32.c powerpc_any.c sparc_any.c \
-               mips_irix.c alpha_any.c
+               mips_irix.c alpha_any.c x86_64_any.c
 	$(CC) $(CFLAGS) -c ma2asm_inst.c
 
 ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \

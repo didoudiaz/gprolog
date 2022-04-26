@@ -135,6 +135,13 @@ InstInf inst[] = {
   {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER, 
 					   L2(ATOM, ATOM)}},
 
+  {"cxt_call", F_cxt_call, 2, {F_N, X_Y}},
+  {"cxt_execute", F_cxt_execute, 2, {F_N, X_Y}},
+  {"cxt_assign_K", F_cxt_assign_K, 1, {X_Y}},
+  {"cxt_unit_for_next_call", F_cxt_unit_for_next_call, 1, {F_N}},
+  {"cxt_arg_load", F_cxt_arg_load, 3, {INTEGER, X_Y, X_Y}},
+  {"cxt_arg_unify", F_cxt_arg_unify, 3, {INTEGER, X_Y, X_Y}},
+
   {NULL, NULL, 0, {0}}
 };
 
@@ -238,8 +245,20 @@ Parser(void)
       if (k != ATOM)
 	{
 	top_error:
-	  Syntax_Error("file_name, predicate, directive "
+	  Syntax_Error("unit_name file_name, predicate, directive "
 		       "or ensure_linked expected");
+	}
+
+      if (strcmp(str_val, "unit_name") == 0)
+	{
+	  Read_Token('(');
+	  Read_Token(ATOM);
+	  Read_Token('/');
+	  Read_Token(INTEGER);
+	  Read_Token(')');
+	  Read_Token('.');
+	  Cxt_Unit_Name(strdup(str_val), int_val);
+	  continue;
 	}
 
       if (strcmp(str_val, "file_name") == 0)

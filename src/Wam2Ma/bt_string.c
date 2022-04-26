@@ -38,6 +38,7 @@ typedef struct btnode
 {
   char *str;
   int no;
+  int arity;			/* FIXME: CROCK */
   PBTNode left;
   PBTNode right;
 }

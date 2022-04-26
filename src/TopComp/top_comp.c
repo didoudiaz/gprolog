@@ -66,7 +66,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define CMD_LINE_MAX_OPT           4096
+#define CMD_LINE_MAX_OPT           16384
 #define CMD_LINE_LENGTH            (MAXPATHLEN + CMD_LINE_MAX_OPT + 1)
 
 #define TEMP_FILE_PREFIX           GPLC
@@ -182,6 +182,10 @@ int no_pl_lib = 0;
 int no_fd_lib = 0;
 int strip = 0;
 
+#ifdef USE_DYNAMIC;
+int dynamic = 0;
+#endif
+
 int no_decode_hex = 0;
 
 char warn_str[1024] = "";
@@ -193,6 +197,7 @@ CmdInf cmd_pl2wam = { EXE_FILE_PL2WAM, " ", "-o " };
 CmdInf cmd_wam2ma = { EXE_FILE_WAM2MA, " ", "-o " };
 CmdInf cmd_ma2asm = { EXE_FILE_MA2ASM, " ", "-o " };
 CmdInf cmd_asm = { EXE_FILE_ASM, " ", "-o " };
+CmdInf cmd_asm2 = { EXE_FILE_LINK " -shared", " ", "-o " };
 CmdInf cmd_fd2c = { EXE_FILE_FD2C, " ", "-o " };
 CmdInf cmd_cc = { EXE_FILE_CC, " ", CC_OBJ_NAME_OPT };
 CmdInf cmd_link = { EXE_FILE_LINK, " ", CC_EXE_NAME_OPT };
@@ -459,6 +464,12 @@ Compile_Files(void)
 	      break;
 
 	    case FILE_ASM:
+#ifdef USE_DYNAMIC
+	      if (dynamic) {
+		New_Work_File (f, stage, stop_after);
+	      }
+	      else
+#endif
 	      Compile_Cmd(&cmd_asm, f);
 	      break;
 	    }
@@ -936,6 +947,18 @@ Parse_Arguments(int argc, char *argv[])
   int nb_file = 0;
 
 
+#ifdef USE_DYNAMIC
+  /* start by making executable dl-able */
+  f->name = f->work_name1 = "-rdynamic";
+  f->type = LINK_OPTION;
+  nb_file_lopt++;
+  f++;
+  f->name = f->work_name1 = "-ldl";
+  f->type = LINK_OPTION;
+  nb_file_lopt++;
+  f++;
+#endif
+
   for (i = 1; i < argc; i++)
     {
       if (*argv[i] == '-' && argv[i][1] != '\0')
@@ -1005,6 +1028,16 @@ Parse_Arguments(int argc, char *argv[])
 	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
 	    }
+
+#ifdef USE_DYNAMIC
+	  if (Check_Arg(i, "--dynamic"))
+	    {
+	      dynamic = 1;
+	      Add_Last_Option(cmd_wam2ma.opt);
+	      Add_Last_Option(cmd_ma2asm.opt);
+	      continue;
+	    }
+#endif
 
 	  if (Check_Arg(i, "--temp-dir"))
 	    {
@@ -1352,6 +1385,9 @@ Display_Help(void)
   L("  --temp-dir PATH             use PATH as directory for temporary files");
   L("  --no-del-temp-files          do not delete temporary files");
   L("  --no-decode-hexa            do not decode hexadecimal predicate names");
+#ifdef USE_DYNAMIC
+  L("  --dynamic                   dynamically-loadable units and executables");
+#endif
   L("  -v, --verbose               print executed commands");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");

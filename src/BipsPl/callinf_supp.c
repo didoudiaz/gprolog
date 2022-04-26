@@ -107,3 +107,24 @@ Call_Info_Bip_Name_1(WamWord call_info_word)
 
   Set_Bip_Name_2(Tag_ATM(func), Tag_INT(arity));
 }
+
+
+/*-------------------------------------------------------------------------*
+ * CURRENT_UNIT_2                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Current_Unit_2(WamWord unit_atom_word, WamWord unit_args_word)
+{
+  int unit_atom = Rd_Atom(unit_atom_word);
+  int unit_args = Rd_Integer(unit_args_word);
+
+  if (atom_tbl[unit_atom].modules &&
+      0 <= unit_args && unit_args <= 255 &&
+      atom_tbl[unit_atom].modules[unit_args])
+    return TRUE;
+  else
+    return FALSE;
+}
+
+

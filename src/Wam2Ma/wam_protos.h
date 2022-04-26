@@ -155,3 +155,21 @@ void F_function(ArgVal arg[]);
 void F_call_c(ArgVal arg[]);
 
 void F_foreign_call_c(ArgVal arg[]);
+
+/* --- Contexts --- */
+
+void Cxt_Unit_Name(char *unit_name, int arity);
+
+void F_cxt_call(ArgVal arg[]);
+
+void F_cxt_execute(ArgVal arg[]);
+
+void F_cxt_assign_K(ArgVal arg[]);
+
+void F_cxt_unit_for_next_call(ArgVal arg[]);
+
+void F_cxt_arg_load(ArgVal arg[]);
+
+void F_cxt_arg_unify(ArgVal arg[]);
+
+

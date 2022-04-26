@@ -212,6 +212,12 @@ Reset_Prolog(void)
   Create_Choice_Point(Call_Prolog_Fail, 0);	/* 1st choice point */
 
   Fd_Reset_Solver();
+
+  {
+    void Cxt_Init(void) FC;
+
+    Cxt_Init();
+  }
 }
 
 
@@ -409,12 +415,16 @@ Call_Next(CodePtr codep)
   jmp_buf new_jumper;
   WamWord *old_buff_save = p_buff_save;
   WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS + 1];	/* +1 if = 0 */
+#if 0
   WamWord buff_save_all_regs[NB_OF_REGS];
+#endif
 
   p_jumper = &new_jumper;
   p_buff_save = buff_save_machine_regs;
 
+#if 0
   Save_All_Regs(buff_save_all_regs);
+#endif
   Save_Machine_Regs(buff_save_machine_regs);
 
   jmp_val = setjmp(*p_jumper);
@@ -433,7 +443,9 @@ Call_Next(CodePtr codep)
 
   if (jmp_val < 0)		/* false: restore WAM registers */
     {
+#if 0
       Restore_All_Regs(buff_save_all_regs);
+#endif
       return FALSE;
     }
 

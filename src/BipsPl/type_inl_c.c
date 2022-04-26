@@ -87,79 +87,79 @@
 
 
 
-Bool
+Bool FC
 Blt_Var(WamWord x)
 {
   Type_Test(Tag_Is_Var, x);
 }
 
-Bool
+Bool FC
 Blt_Non_Var(WamWord x)
 {
   Type_Test(Tag_Is_Nonvar, x);
 }
 
-Bool
+Bool FC
 Blt_Atom(WamWord x)
 {
   Type_Test(Tag_Is_Atom, x);
 }
 
-Bool
+Bool FC
 Blt_Integer(WamWord x)
 {
   Type_Test(Tag_Is_Integer, x);
 }
 
-Bool
+Bool FC
 Blt_Float(WamWord x)
 {
   Type_Test(Tag_Is_Float, x);
 }
 
-Bool
+Bool FC
 Blt_Number(WamWord x)
 {
   Type_Test(Tag_Is_Number, x);
 }
 
-Bool
+Bool FC
 Blt_Atomic(WamWord x)
 {
   Type_Test(Tag_Is_Atomic, x);
 }
 
-Bool
+Bool FC
 Blt_Compound(WamWord x)
 {
   Type_Test(Tag_Is_Compound, x);
 }
 
-Bool
+Bool FC
 Blt_Callable(WamWord x)
 {
   Type_Test(Tag_Is_Callable, x);
 }
 
-Bool
+Bool FC
 Blt_Fd_Var(WamWord x)
 {
   Type_Test(Tag_Is_Fd_Var, x);
 }
 
-Bool
+Bool FC
 Blt_Non_Fd_Var(WamWord x)
 {
   Type_Test(Tag_Is_Non_Fd_Var, x);
 }
 
-Bool
+Bool FC
 Blt_Generic_Var(WamWord x)
 {
   Type_Test(Tag_Is_Generic_Var, x);
 }
 
-Bool
+Bool FC
 Blt_Non_Generic_Var(WamWord x)
 {
   Type_Test(Tag_Is_Non_Generic_Var, x);
@@ -172,7 +172,7 @@ Blt_Non_Generic_Var(WamWord x)
  * BLT_LIST                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_List(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -198,7 +198,7 @@ Blt_List(WamWord start_word)
  * BLT_PARTIAL_LIST                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Partial_List(WamWord start_word)
 {
   WamWord word, tag_mask;
@@ -224,7 +224,7 @@ Blt_Partial_List(WamWord start_word)
  * BLT_LIST_OR_PARTIAL_LIST                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_List_Or_Partial_List(WamWord start_word)
 {
   WamWord word, tag_mask;

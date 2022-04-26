@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : pl_params.h                                                     *
- * Descr.: parameter header file                                           *
+ * File  : obj_begin.c                                                     *
+ * Descr.: object chaining management - first object (start of the chain)  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2002 Daniel Diaz                                     *
@@ -22,22 +22,24 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id: pl_params.h,v 1.4 2006/07/17 18:19:20 spa Exp $ */
+/* $Id: obj_begin.c,v 1.1.1.1 2003/04/08 09:42:52 spa Exp $ */
 
-#define MAX_OBJECT                 10240
+#include <stdio.h>
+#include "obj_chain.h"
 
-#define START_PRED_TBL_SIZE        4096
+#ifndef _MSC_VER
 
-#define START_MODULE_PRED_TBL_SIZE 128
+extern ObjChain *obj_chain_end;
 
-#define START_OPER_TBL_SIZE        1024
+ObjChain obj_chain_begin =
+  { OBJ_CHAIN_MAGIC_1, OBJ_CHAIN_MAGIC_2, &obj_chain_end, NULL };
 
-#define ATOM_SIZE                  24
-#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
+#else
 
-#define NB_OF_X_REGS               256
-#define MAX_ARITY                  (NB_OF_X_REGS - 1)
+#pragma data_seg(".INIT$a")
 
-/* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
-   also the byte code management */
+long obj_chain_begin = (long) OBJ_CHAIN_MAGIC_1;
 
+#pragma data_seg()
+
+#endif

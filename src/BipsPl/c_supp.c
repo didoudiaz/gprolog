@@ -2077,6 +2077,19 @@ Un_Callable(int func, int arity, WamWord *arg, WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
+ * UN_TERM                                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Un_Term(WamWord term_word, WamWord start_word)
+{				/* used because Unify is FC convention */
+  return Unify(term_word, start_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * MK_INTEGER                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/

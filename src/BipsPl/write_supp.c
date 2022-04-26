@@ -26,6 +26,10 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <alloca.h>
 
 #define OBJ_INIT Write_Supp_Initializer
 
@@ -297,13 +301,29 @@ Write_A_Char(StmInf *pstm, int c)
  * FLOAT_TO_STRING                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
+
+static char fts_buffer[64];
+
+static void
+xsprintf (char *buff, const char *fmt, ...)
+{
+  va_list ap __attribute__ ((aligned (16)));
+  va_start (ap, fmt);
+  vsprintf (buff, fmt, ap);
+  va_end (ap);
+}
+
 char *
-Float_To_String(double d)
+Float_To_String(double d, char *buffer)
 {
   char *p, *q, *e;
-  static char buff[32];
+  char *buff = buffer? buffer: fts_buffer;
 
-  sprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
+#if 0
+  vsprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
+#else
+  xsprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
+#endif
 
   p = buff;			/* skip leading blanks */
   while (*p == ' ')
@@ -391,8 +411,9 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       Show_Integer(UnTag_INT(word));
       break;
 
-    case FLT:
-      Show_Float(Obtain_Float(UnTag_FLT(word)));
+    case FLT: {
+      double d = Obtain_Float(UnTag_FLT(word));
+      Show_Float(d); }
       break;
 
     case LST:
@@ -562,7 +583,7 @@ Show_Integer(long x)
 static void
 Show_Fd_Variable(WamWord *fdv_adr)
 {
-  char str[32];
+  char str[4096];
 
   sprintf(str, "_#%d(", (int) Cstr_Offset(fdv_adr));
   Out_String(str);
@@ -583,7 +604,9 @@ Show_Fd_Variable(WamWord *fdv_adr)
 static void
 Show_Float(double x)
 {
-  Out_String(Float_To_String(x));
+  char buffer[64];
+
+  Out_String(Float_To_String(x, buffer));
 
   last_writing = W_NUMBER;
 }
@@ -659,7 +682,8 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       if (Try_Portray(word))
 	return;
 
-      Show_Float(Obtain_Float(UnTag_FLT(word)));
+      { double d = Obtain_Float(UnTag_FLT(word));
+        Show_Float(d); }
       break;
 
     case LST:

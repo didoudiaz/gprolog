@@ -53,3 +53,16 @@
      				 		     
      CUT_X			| x       | -- | op |
      CUT_Y			| y       | -- | op |
+
+     CXT_CALL_X			| fun16	  | ar8| op | context | f/n of caller |
+     CXT_CALL_Y			| fun16	  | ar8| op | context | f/n of caller |
+     CXT_EXECUTE_X		| fun16	  | ar8| op | context | f/n of caller |
+     CXT_EXECUTE_Y		| fun16	  | ar8| op | context | f/n of caller |
+
+     CXT_ASSIGN_K_X		| x	  | -- | op |
+     CXT_ASSIGN_K_Y		| y	  | -- | op |
+
+     CXT_ARG_LOAD_XX		| x1	  | n  | op | | x2 |
+     CXT_ARG_LOAD_XY		| x	  | n  | op | | y  |
+     CXT_ARG_LOAD_YX		| y	  | n  | op | | x  |
+     CXT_ARG_LOAD_YY		| y1	  | n  | op | | y2 |

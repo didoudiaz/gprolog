@@ -2,11 +2,11 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : pl_params.h                                                     *
- * Descr.: parameter header file                                           *
+ * File  : context.h                                                       *
+ * Descr.: context function declarations header file                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 2003 Salvador Abreu                                       *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -22,22 +22,12 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id: pl_params.h,v 1.4 2006/07/17 18:19:20 spa Exp $ */
+/* $Id: context.h,v 1.2 2006/07/15 19:59:35 spa Exp $ */
 
-#define MAX_OBJECT                 10240
-
-#define START_PRED_TBL_SIZE        4096
-
-#define START_MODULE_PRED_TBL_SIZE 128
-
-#define START_OPER_TBL_SIZE        1024
-
-#define ATOM_SIZE                  24
-#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
-
-#define NB_OF_X_REGS               256
-#define MAX_ARITY                  (NB_OF_X_REGS - 1)
-
-/* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
-   also the byte code management */
-
+extern PredInf *Cxt_Lookup_Pred_With_K (long key, WamWord cxt_call_K) FC;
+extern PredInf *Cxt_Lookup_Pred (long key) FC;
+extern WamCont Cxt_Call_Tagged(WamWord key, WamWord call_K) FC;
+extern WamCont Cxt_Call(int func, int arity, WamWord call_K) FC;
+extern void Cxt_Assign_K(WamWord new_K) FC;
+extern Bool Cxt_Arg_Load(int arg_no, WamWord t_word, WamWord *st_word) FC;
+extern Bool Cxt_Arg_Unify(int arg_no, WamWord t_word, WamWord st_word) FC;

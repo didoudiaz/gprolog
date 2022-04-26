@@ -31,25 +31,30 @@
 
 asserta(C) :-
 	set_bip_name(asserta, 1),
-	'$assert'(C, 1, 1).
+	( context([UF|_]) -> functor(UF, U, _) ; U=[] ),
+	'$assert'(C, 1, 1, U).
 
 
 
 
 assertz(C) :-
 	set_bip_name(assertz, 1),
-	'$assert'(C, 0, 1).
+	( context([UF|_]) -> functor(UF, U, _) ; U=[] ),
+	'$assert'(C, 0, 1, U).
 
 
 
 
-'$assert'(C, Asserta, CheckPerm) :-
+'$assert'(C, AZ, CP) :- '$assert'(C, AZ, CP, []).
+
+'$assert'(C, Asserta, CheckPerm, Unit) :-
 	'$get_head_and_body'(C, H, B),
 	'$term_to_goal'(B, none, B1),
+%	'$call_c'('Assert_5'(H, B1, Asserta, CheckPerm, Unit)),
 	'$call_c'('Assert_4'(H, B1, Asserta, CheckPerm)),
 	fail.
 
-'$assert'(_, _, _).
+'$assert'(_, _, _, _).
 
 
 

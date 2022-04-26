@@ -22,9 +22,9 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
+/* $Id: unify.c,v 1.2 2006/07/15 20:00:39 spa Exp $ */
 
-static Bool Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word);
+static Bool Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word) FC;
 
 
 
@@ -33,7 +33,7 @@ static Bool Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word);
  *    - to define the Unify function (classical unification).              *
  *    - to define the Unify_Occurs_Check function (+ occurs check).        *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 {
   WamWord u_word, u_tag_mask;
@@ -170,7 +170,7 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
  * local stack cannot appear in a term (there is no binding from the heap  *
  * to the local stack in the WAM).                                         *
  *-------------------------------------------------------------------------*/
-static Bool
+static Bool FC
 Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word)
 {
   WamWord word, tag_mask;

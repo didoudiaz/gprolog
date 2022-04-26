@@ -601,7 +601,7 @@ Clean_Erased_Clauses(void)
       dyn = scan->dyn;
 
       if (dyn->first_erased_cl)	/* we must keep it - free impossible */
-	(unsigned long) (dyn->first_erased_cl) |= 1;	/* mark it */
+	*((unsigned long *) &(dyn->first_erased_cl)) |= 1;	/* mark it */
     }
 
 

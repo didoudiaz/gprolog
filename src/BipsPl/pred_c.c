@@ -116,8 +116,9 @@ Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
   A(3) = (WamWord) scan.endt;
   A(4) = (WamWord) scan.cur_t;
   A(5) = (WamWord) scan.cur_p;
+  A(6) = (WamWord) X(255);	/* start with current context! */
   Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0),
-		      6);
+		      7);
   return Get_Atom(Functor_Of(pred->f_n), name_word) &&
     Get_Integer(Arity_Of(pred->f_n), arity_word);
   /*
@@ -142,6 +143,7 @@ Current_Predicate_Alt_0(void)
   int which_preds;
   int func, arity;
   int func1, arity1;
+  WamWord cxt;
   Bool all;
 
   Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0),
@@ -153,6 +155,7 @@ Current_Predicate_Alt_0(void)
   scan.endt = (char *) AB(B, 3);
   scan.cur_t = (char *) AB(B, 4);
   scan.cur_p = (char *) AB(B, 5);
+  cxt = AB(B, 6);
 
   func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
   arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : UnTag_INT(arity_word);
@@ -163,11 +166,49 @@ Current_Predicate_Alt_0(void)
   for (;;)
     {
       pred = (PredInf *) Hash_Next(&scan);
-      if (pred == NULL)
-	{
+      if (pred == NULL) {
+	WamWord word, tag_mask;
+	int atom, arity;
+	
+	/* select the predicate table on top of the (saved) context */
+	/* and update (pop) that context */
+      DOWN_IN_CXT:
+	DEREF(cxt, word, tag_mask);
+
+	if (tag_mask == TAG_LST_MASK) { /* only acceptable modality */
+	  WamWord *lst_adr = UnTag_LST(word);
+	  DEREF(Car(lst_adr), word, tag_mask);
+	  
+	  if (tag_mask == TAG_ATM_MASK) {
+	    atom = UnTag_ATM(word);
+	    arity = 0;
+	  }
+	  else if (tag_mask == TAG_STC_MASK) {
+	    atom = Functor(UnTag_STC(word));
+	    arity = Arity(UnTag_STC(word));
+	  }
+	  else {
+	    Delete_Last_Choice_Point ();
+	    return FALSE;
+	  }
+
+	  if (lst_adr)
+	    cxt = Cdr (lst_adr); /* pop context, in all cases */
+
+	  if (atom_tbl[atom].modules &&
+	      atom_tbl[atom].modules[arity]) { /* found? */
+	    pred = (PredInf *)
+	      Hash_First (atom_tbl[atom].modules[arity], &scan);
+	  }
+	  else {		/* nope. empty unit: go to next one. */
+	    goto DOWN_IN_CXT;
+	  }
+
+	} else {
 	  Delete_Last_Choice_Point();
 	  return FALSE;
 	}
+      }
 
       func1 = Functor_Of(pred->f_n);
       arity1 = Arity_Of(pred->f_n);
@@ -183,10 +224,11 @@ Current_Predicate_Alt_0(void)
   AB(B, 0) = name_word;
   AB(B, 1) = arity_word;
   AB(B, 2) = which_preds;
-  AB(B, 3) = (WamWord) scan.endt;
 #endif
+  AB(B, 3) = (WamWord) scan.endt;
   AB(B, 4) = (WamWord) scan.cur_t;
   AB(B, 5) = (WamWord) scan.cur_p;
+  AB(B, 6) = (WamWord) cxt;
 
   return Get_Atom(Functor_Of(pred->f_n), name_word) &&
     Get_Integer(Arity_Of(pred->f_n), arity_word);

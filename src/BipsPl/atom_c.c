@@ -590,6 +590,7 @@ Number_Atom_2(WamWord number_word, WamWord atom_word)
 {
   WamWord word, tag_mask;
   char *str;
+  char buffer[64];
 
   DEREF(atom_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
@@ -605,7 +606,7 @@ Number_Atom_2(WamWord number_word, WamWord atom_word)
       return Un_String_Check(glob_buff, atom_word);
     }
 
-  str = Float_To_String(Rd_Number_Check(word));
+  str = Float_To_String(Rd_Number_Check(word), buffer);
   return Un_String_Check(str, atom_word);
 }
 
@@ -622,6 +623,7 @@ Number_Chars_2(WamWord number_word, WamWord chars_word)
   WamWord word, tag_mask;
   WamWord *lst_adr, list_word;
   char *str = glob_buff;
+  char buffer[64];
   int atom;
 
   list_word = chars_word;
@@ -658,7 +660,7 @@ from_nb:
 
   if (tag_mask != TAG_REF_MASK)
     {
-      str = Float_To_String(Rd_Number_Check(word));
+      str = Float_To_String(Rd_Number_Check(word), buffer);
       return Un_Chars(str, chars_word);
     }
 
@@ -679,6 +681,7 @@ Number_Codes_2(WamWord number_word, WamWord codes_word)
   WamWord word, tag_mask;
   WamWord *lst_adr, list_word;
   char *str = glob_buff;
+  char buffer[64];
   int c;
 
   list_word = codes_word;
@@ -715,7 +718,7 @@ from_nb:
 
   if (tag_mask != TAG_REF_MASK)
     {
-      str = Float_To_String(Rd_Number_Check(word));
+      str = Float_To_String(Rd_Number_Check(word), buffer);
       return Un_Codes(str, codes_word);
     }
 

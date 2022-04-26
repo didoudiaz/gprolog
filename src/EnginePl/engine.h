@@ -60,7 +60,7 @@
 int os_argc;
 char **os_argv;
 
-char glob_buff[10240];
+char glob_buff[1024*1024];	/* FIXME: should be SCAN_BIG_BUFFER? */
 
 long *base_fl;			/* overwritten by foreign if present */
 double *base_fd;		/* overwritten by foreign if present */

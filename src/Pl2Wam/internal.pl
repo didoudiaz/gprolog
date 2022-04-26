@@ -347,3 +347,18 @@ inline_predicate(g_test_set_bit, 2, t).
 
 inline_predicate(g_test_reset_bit, 2, t).
 
+
+/* --- Contexts -----------------------------------------------------------*/
+
+inline_predicate('$cxt_get_K', 1, _).
+
+inline_predicate('$cxt_get_CK', 1, _).
+
+inline_predicate('$cxt_put_K', 1, _).
+
+inline_predicate('$cxt_for_call', 1, _).
+
+inline_predicate('$cxt_unit_for_next_call', 1, _).
+
+inline_predicate('$cxt_arg', 3, _).
+

@@ -114,6 +114,15 @@ Init_Oper(void)
 
   ADD_OPER(600, XFY, ":");
 
+  /* context operators */
+  ADD_OPER(600, XFX, ":<");
+  ADD_OPER(600, XFY, ":>");
+  ADD_OPER(600, XFY, "::");
+  ADD_OPER(600, FY, ":<");
+  ADD_OPER(600, FY, ":>");
+  ADD_OPER(600, FY, ":^");
+  ADD_OPER(600, FY, ":#");
+
   ADD_OPER(500, YFX, "+");
   ADD_OPER(500, YFX, "-");
   ADD_OPER(500, YFX, "/\\");

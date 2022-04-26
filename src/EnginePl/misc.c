@@ -195,10 +195,24 @@ void
 Fatal_Error(char *format, ...)
 {
   va_list arg_ptr;
-  char buff[1024];
+  int strmax = 128*1024;       /* FIXME: up(?) from BIG_BUFFER */
+  char *buff = alloca (strmax);
+  int nchars;
 
   va_start(arg_ptr, format);
-  vsprintf(buff, format, arg_ptr);
+  for (;;) {
+    nchars = vsnprintf(buff, strmax, format, arg_ptr);
+    if (nchars < 0) {		/* doesn't fit & old vsnprintf */
+      strmax *= 2;		/* just returns -1: */
+      buff = alloca (strmax); /* grab more space (double it) and retry */
+    }
+    else if (nchars > strmax) {	/* doesn't fit & new vsnprintf */
+      strmax = nchars+1;	/* nchars is needed size (minus 1) */
+      buff = alloca (strmax);   /* grab all that's needed and retry */
+    }
+    else
+      break;			/* it fits: leave it at that */
+  }
   va_end(arg_ptr);
 
 #ifndef NO_USE_LINEDIT

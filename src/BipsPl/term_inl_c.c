@@ -56,7 +56,7 @@
  * BLT_TERM_EQ                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Term_Eq(WamWord x, WamWord y)
 {
   return Term_Compare(x, y) == 0;
@@ -69,7 +69,7 @@ Blt_Term_Eq(WamWord x, WamWord y)
  * BLT_TERM_NEQ                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Term_Neq(WamWord x, WamWord y)
 {
   return Term_Compare(x, y) != 0;
@@ -82,7 +82,7 @@ Blt_Term_Neq(WamWord x, WamWord y)
  * BLT_TERM_LT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Term_Lt(WamWord x, WamWord y)
 {
   return Term_Compare(x, y) < 0;
@@ -95,7 +95,7 @@ Blt_Term_Lt(WamWord x, WamWord y)
  * BLT_TERM_LTE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Term_Lte(WamWord x, WamWord y)
 {
   return Term_Compare(x, y) <= 0;
@@ -108,7 +108,7 @@ Blt_Term_Lte(WamWord x, WamWord y)
  * BLT_TERM_GT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Term_Gt(WamWord x, WamWord y)
 {
   return Term_Compare(x, y) > 0;
@@ -121,7 +121,7 @@ Blt_Term_Gt(WamWord x, WamWord y)
  * BLT_TERM_GTE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Term_Gte(WamWord x, WamWord y)
 {
   return Term_Compare(x, y) >= 0;
@@ -134,7 +134,7 @@ Blt_Term_Gte(WamWord x, WamWord y)
  * BLT_COMPARE                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
 {
   int cmp;
@@ -160,7 +160,7 @@ Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
  * BLT_ARG                                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
 {
   WamWord *arg_adr;
@@ -185,7 +185,7 @@ Blt_Arg(WamWord arg_no_word, WamWord term_word, WamWord sub_term_word)
  * BLT_FUNCTOR                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 {
   WamWord word, tag_mask;
@@ -266,7 +266,7 @@ finish:
  * BLT_UNIV                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Blt_Univ(WamWord term_word, WamWord list_word)
 {
   WamWord word, tag_mask;
@@ -390,6 +390,7 @@ list_to_term:
       arity++;
       lst_adr = UnTag_LST(word);
       DEREF(Car(lst_adr), word, tag_mask);
+      Do_Copy_Of_Word(tag_mask, word); /* since Dont_Separate_Tag */
       Global_Push(word);
 
       DEREF(Cdr(lst_adr), word, tag_mask);
@@ -427,7 +428,7 @@ finish:
  * COPY_TERM_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Copy_Term_2(WamWord u_word, WamWord v_word)
 {
   WamWord word;
@@ -453,7 +454,7 @@ Copy_Term_2(WamWord u_word, WamWord v_word)
  * SETARG_4                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
 	 WamWord undo_word)
 {
@@ -489,7 +490,7 @@ Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
  * TERM_REF_2                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+Bool FC
 Term_Ref_2(WamWord term_word, WamWord ref_word)
 {
   WamWord word, tag_mask;

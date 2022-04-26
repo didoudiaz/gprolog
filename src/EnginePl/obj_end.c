@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog engine                                                   *
- * File  : pl_params.h                                                     *
- * Descr.: parameter header file                                           *
+ * File  : obj_end.c                                                       *
+ * Descr.: object chaining management - last object (end of the chain)     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2002 Daniel Diaz                                     *
@@ -22,22 +22,23 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id: pl_params.h,v 1.4 2006/07/17 18:19:20 spa Exp $ */
+/* $Id: obj_end.c,v 1.1.1.1 2003/04/08 09:42:52 spa Exp $ */
 
-#define MAX_OBJECT                 10240
+#include "obj_chain.h"
 
-#define START_PRED_TBL_SIZE        4096
 
-#define START_MODULE_PRED_TBL_SIZE 128
+#ifndef _MSC_VER
 
-#define START_OPER_TBL_SIZE        1024
+extern ObjChain obj_chain_begin;
 
-#define ATOM_SIZE                  24
-#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
+ObjChain *obj_chain_end = &obj_chain_begin;
 
-#define NB_OF_X_REGS               256
-#define MAX_ARITY                  (NB_OF_X_REGS - 1)
+#else
 
-/* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
-   also the byte code management */
+#pragma data_seg(".INIT$z")
 
+long obj_chain_end = (long) OBJ_CHAIN_MAGIC_2;
+
+#pragma data_seg()
+
+#endif

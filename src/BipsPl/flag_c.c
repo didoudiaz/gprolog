@@ -77,7 +77,7 @@ static int atom_toward_zero;
 static int atom_on;
 static int atom_off;
 
-static int atom_error;
+/*static*/ int atom_error; // FIXME: SPA: not static in stream_supp.h
 static int atom_warning;
 static int atom_fail;
 

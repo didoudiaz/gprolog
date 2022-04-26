@@ -28,7 +28,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define SCAN_BIG_BUFFER            10240
+#define SCAN_BIG_BUFFER            (1024*1024)
 
 
 

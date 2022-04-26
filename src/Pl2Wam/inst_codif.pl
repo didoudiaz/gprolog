@@ -30,6 +30,8 @@ alias_stop_instruction(InstW) :-
 	functor(InstW, F, _),
 	(   F = call
 	;   F = execute
+        ;   F = cxt_call
+	;   F = cxt_execute
         ;   F = call_c,
 	    arg(2, InstW, LCOpt),
 	    (memberchk(jump, LCOpt) ; memberchk(use_x_args, LCOpt))
@@ -107,6 +109,40 @@ codif(call(_ / N), LCode) :-
 
 codif(execute(_ / N), LCode) :-
 	lst_r_for_call_execute(0, N, LCode).
+
+codif(cxt_call(_/N, V), LCode1) :-
+	lst_r_for_call_execute(0, N, LCode),
+	(   V = x(Tmp) ->
+	    LCode1 = [r(Tmp)|LCode]
+	;   LCode1 = LCode
+	).
+
+codif(cxt_execute(_/N, V), LCode1) :-
+	lst_r_for_call_execute(0, N, LCode),
+	(   V = x(Tmp) ->
+	    LCode1 = [r(Tmp)|LCode]
+	;   LCode1 = LCode
+	).
+
+codif(cxt_assign_K(x(Tmp)), [r(Tmp), w(255)]).
+
+codif(cxt_assign_K(y(_)), [w(255)]).
+
+codif(cxt_arg_unify(_, x(Tmp1), x(Tmp2)), [r(Tmp1), r(Tmp2)]).
+
+codif(cxt_arg_unify(_, x(Tmp1), _), [r(Tmp1)]).
+
+codif(cxt_arg_unify(_, _, x(Tmp2)), [r(Tmp2)]).
+
+codif(cxt_arg_unify(_, _, x(Tmp2)), [r(Tmp2)]).
+
+codif(cxt_arg_load(_, x(Tmp1), x(Tmp2)), [r(Tmp1), w(Tmp2)]).
+
+codif(cxt_arg_load(_, x(Tmp1), _), [r(Tmp1)]).
+
+codif(cxt_arg_load(_, _, x(Tmp2)), [w(Tmp2)]).
+
+codif(cxt_arg_load(_, _, x(Tmp2)), [w(Tmp2)]).
 
 codif(load_cut_level(Tmp), [w(Tmp)]).
 

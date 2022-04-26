@@ -46,7 +46,7 @@ WamWord *ensure_reserved;
  * This functions is in a separate file for historical reasons. In versions*
  * <= 1.2.4, this file was compiled without any C compiler optimization to *
  * ensure reserved_stack_space was not removed but the C compiler. In order*
- * to use ebp under ix86 it muet be compiled with -fmoit-frame-pointer. The*
+ * to use ebp under ix86 it must be compiled with -fomit-frame-pointer. The*
  * simpliest way was to use the same C compiler invocation but adding a    *
  * global variable to ensure the stack is not removed.                     *
  *-------------------------------------------------------------------------*/
@@ -91,6 +91,11 @@ Call_Compiled(CodePtr codep)
 #elif defined(M_sparc)
 
   register WamWord *rb asm("%l0") = reg_bank;
+  ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
+
+#elif defined(M_x86_64_linux)
+
+  register WamWord *rb asm("%r12") = reg_bank;
   ensure_reserved = (WamWord *) rb; /* to avoid gcc warning */
 
 #endif

@@ -76,7 +76,7 @@ static void (OBJ_INIT) ();
 
 #ifndef _MSC_VER
 
-extern ObjChain *obj_chain_stop;
+static ObjChain *obj_chain_stop;
 
 static ObjChain obj_chain_start =
   { OBJ_CHAIN_MAGIC_1, OBJ_CHAIN_MAGIC_2, &obj_chain_stop, OBJ_INIT };

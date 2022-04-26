@@ -309,6 +309,10 @@ M_Spawn(char *arg[])
 
   if (pid == 0)			/* child process */
     {
+      char exec_path[MAXPATHLEN];
+
+      sprintf (exec_path, "%s/%s", PROLOG_BINDIR, arg[0]);
+      execv(exec_path, arg);	/* ignore error... */
       execvp(arg[0], arg);	/* only returns on error */
       exit((errno == ENOENT || errno == ENOTDIR) ? 126 : 127);
     }
@@ -371,6 +375,8 @@ M_Spawn_Redirect(char *arg[], int detach,
     {
       if (!detach || fork() == 0)	/* pid needed ? */
 	{			/* nested fork to detach exec process to avoid zombie process */
+	  char exec_path[MAXPATHLEN];
+
 	  if (f_in && (close(pipe_in[1]) ||
 		       (pipe_in[0] != 0 &&
 			(dup2(pipe_in[0], 0) == -1 || close(pipe_in[0])))))
@@ -395,6 +401,8 @@ M_Spawn_Redirect(char *arg[], int detach,
 		goto err;
 	    }
 
+	  sprintf (exec_path, "%s/%s", PROLOG_BINDIR, arg[0]);
+	  execv(exec_path, arg);	/* ignore error... */
 	  execvp(arg[0], arg);	/* only returns on error */
 #ifdef DEBUG
 	  DBGPRINTF("ERROR EXEC errno=%d\n", errno);
